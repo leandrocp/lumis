@@ -572,7 +572,7 @@
 </span><span class="line" data-line="572">        <span style="color: #9a77cf;">abstract</span> <span style="color: #118dc3;">MoveNext</span> <span style="color: #6a6a6a;">:</span> <span style="color: #eea825;"><span style="color: #eea825;">unit</span></span> <span style="color: #56b6c2;">-&gt;</span> <span style="color: #eea825;"><span style="color: #eea825;">bool</span></span>
 </span><span class="line" data-line="573">
 </span><span class="line" data-line="574">    <span style="color: #9b9fa6;">// abstract base class with virtual methods</span>
-</span><span class="line" data-line="575">    <span style="color: #6a6a6a;">[&lt;</span><span style="color: #eea825;">AbstractClass</span><span style="color: #6a6a6a;">&gt;]</span>
+</span><span class="line" data-line="575">    <span style="color: #6a6a6a;">[&lt;</span><span style="color: #9a77cf;">AbstractClass</span><span style="color: #6a6a6a;">&gt;]</span>
 </span><span class="line" data-line="576">    <span style="color: #9a77cf;">type</span> <span style="color: #eea825;">Shape</span><span style="color: #9a77cf;">(</span><span style="color: #9a77cf;">)</span> <span style="color: #56b6c2;">=</span>
 </span><span class="line" data-line="577">        <span style="color: #9b9fa6;">// readonly properties</span>
 </span><span class="line" data-line="578">        <span style="color: #9a77cf;">abstract</span> <span style="color: #9a77cf;">member</span> <span style="color: #118dc3;">Width</span> <span style="color: #6a6a6a;">:</span> <span style="color: #eea825;"><span style="color: #eea825;">int</span></span> <span style="color: #9a77cf;">with</span> <span style="color: #9a77cf;">get</span>
@@ -611,7 +611,7 @@
 </span><span class="line" data-line="611">    <span style="color: #9a77cf;">type</span> <span style="color: #eea825;">MyButton</span><span style="color: #9a77cf;">(</span><span style="color: #9a77cf;">)</span> <span style="color: #56b6c2;">=</span>
 </span><span class="line" data-line="612">        <span style="color: #9a77cf;">let</span> <span style="color: #e05661;">clickEvent</span> <span style="color: #56b6c2;">=</span> <span style="color: #9a77cf;">new</span> <span style="color: #118dc3;">Event<span style="color: #56b6c2;">&lt;</span><span style="color: #eea825;">_</span><span style="color: #56b6c2;">&gt;</span></span><span style="color: #118dc3;">()</span>
 </span><span class="line" data-line="613">
-</span><span class="line" data-line="614">        <span style="color: #6a6a6a;">[&lt;</span><span style="color: #eea825;">CLIEvent</span><span style="color: #6a6a6a;">&gt;]</span>
+</span><span class="line" data-line="614">        <span style="color: #6a6a6a;">[&lt;</span><span style="color: #9a77cf;">CLIEvent</span><span style="color: #6a6a6a;">&gt;]</span>
 </span><span class="line" data-line="615">        <span style="color: #9a77cf;">member</span> <span style="color: #118dc3;"><span style="color: #118dc3;">this</span><span style="color: #6a6a6a;">.</span><span style="color: #118dc3;">OnClick</span></span> <span style="color: #56b6c2;">=</span> clickEvent<span style="color: #6a6a6a;">.</span>Publish
 </span><span class="line" data-line="616">
 </span><span class="line" data-line="617">        <span style="color: #9a77cf;">member</span> <span style="color: #118dc3;"><span style="color: #118dc3;">this</span><span style="color: #6a6a6a;">.</span><span style="color: #118dc3;">TestEvent</span></span><span style="color: #e05661;"><span style="color: #9a77cf;">(</span>arg<span style="color: #9a77cf;">)</span></span> <span style="color: #56b6c2;">=</span>
