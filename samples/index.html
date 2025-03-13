@@ -4,7 +4,7 @@
     <title>Autumnus Syntax Highlighter</title>
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
-      href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700|fira-code:300,400,500,600,700"
+      href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700"
       rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,12 +13,9 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ["Inter", "system-ui", "sans-serif"],
               mono: [
                 "Fira Code",
                 "ui-monospace",
-                "SFMono-Regular",
-                "Menlo",
                 "monospace",
               ],
             },
@@ -337,7 +334,6 @@
         "tokyonight_night",
       ].sort();
 
-      // Populate language select
       const languageSelect = document.getElementById("language");
       for (const [value, label] of Object.entries(languages)) {
         const option = document.createElement("option");
@@ -346,7 +342,6 @@
         languageSelect.appendChild(option);
       }
 
-      // Populate theme select
       const themeSelect = document.getElementById("theme");
       for (const theme of themes) {
         const option = document.createElement("option");
@@ -358,11 +353,9 @@
         themeSelect.appendChild(option);
       }
 
-      // Set default values
       languageSelect.value = "rust";
       themeSelect.value = "catppuccin_mocha";
 
-      // Load content function
       async function loadContent() {
         const language = languageSelect.value;
         const theme = themeSelect.value;
@@ -372,7 +365,6 @@
           const contentDiv = document.getElementById("content");
           contentDiv.innerHTML = text;
 
-          // Ensure any code blocks are responsive
           const preElements = contentDiv.querySelectorAll("pre");
           preElements.forEach((pre) => {
             pre.style.maxWidth = "100%";
@@ -385,7 +377,6 @@
         }
       }
 
-      // Add event listeners
       languageSelect.addEventListener("change", () => {
         document.getElementById("language-value").textContent =
           languageSelect.value;
@@ -396,12 +387,10 @@
         loadContent();
       });
 
-      // Set initial values
       document.getElementById("language-value").textContent =
         languageSelect.value;
       document.getElementById("theme-value").textContent = themeSelect.value;
 
-      // Initial load
       loadContent();
     </script>
   </body>

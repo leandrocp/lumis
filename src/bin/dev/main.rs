@@ -25,26 +25,6 @@ fn main() -> Result<()> {
     }
 }
 
-const HTML_TEMPLATE: &str = r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{lang} - {theme} - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-</body>
-</html>"#;
-
 fn gen_samples() -> Result<()> {
     let samples_path = PathBuf::from("./samples");
 
@@ -139,7 +119,7 @@ fn gen_samples_entries(
                     lang_or_file: Some(file_name),
                     formatter: autumnus::FormatterOption::HtmlInline {
                         pre_class: Some(
-                            "w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6".to_string(),
+                            "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6".to_string(),
                         ),
                         italic: false,
                         include_highlights: false,
@@ -151,12 +131,7 @@ fn gen_samples_entries(
             let base_name = file_name.split('.').next().unwrap_or(file_name);
             let html_path = samples_path.join(format!("{}.{}.html", base_name, theme.name));
 
-            let html = HTML_TEMPLATE
-                .replace("{lang}", base_name)
-                .replace("{theme}", &theme.name);
-            let full_html = html.replace("<body>", &format!("<body>\n{}", highlighted));
-
-            fs::write(&html_path, full_html)
+            fs::write(&html_path, highlighted)
                 .with_context(|| format!("failed to write output file: {}", html_path.display()))?;
 
             println!("{}", html_path.display());

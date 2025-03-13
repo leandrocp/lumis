@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>cpp - material_lighter - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-c++" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">//////////////////</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-c++" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">//////////////////</span>
 </span><span class="line" data-line="2"><span style="color: #aabfc9;">// Comparison to C</span>
 </span><span class="line" data-line="3"><span style="color: #aabfc9;">//////////////////</span>
 </span><span class="line" data-line="4">
@@ -669,22 +652,22 @@
 </span><span class="line" data-line="652">
 </span><span class="line" data-line="653"><span style="color: #aabfc9;">// All exceptions thrown inside the _try_ block can be caught by subsequent</span>
 </span><span class="line" data-line="654"><span style="color: #aabfc9;">// _catch_ handlers.</span>
-</span><span class="line" data-line="655"><span style="color: #39adb5;">try</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="655"><span style="color: #e53935;">try</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="656">    <span style="color: #aabfc9;">// Do not allocate exceptions on the heap using _new_.</span>
-</span><span class="line" data-line="657">    <span style="color: #39adb5;">throw</span> <span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #6182b8;">runtime_error</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;A problem occurred&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
+</span><span class="line" data-line="657">    <span style="color: #e53935;">throw</span> <span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #6182b8;">runtime_error</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;A problem occurred&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="658"><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="659">
 </span><span class="line" data-line="660"><span style="color: #aabfc9;">// Catch exceptions by const reference if they are objects</span>
-</span><span class="line" data-line="661"><span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #39adb5;">const</span> <span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #7c4dff;">exception</span><span style="color: #546e7a;"><span style="color: #39adb5;">&amp;</span> <span style="color: #546e7a;">ex</span></span><span style="color: #39adb5;">)</span>
+</span><span class="line" data-line="661"><span style="color: #e53935;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #39adb5;">const</span> <span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #7c4dff;">exception</span><span style="color: #546e7a;"><span style="color: #39adb5;">&amp;</span> <span style="color: #546e7a;">ex</span></span><span style="color: #39adb5;">)</span>
 </span><span class="line" data-line="662"><span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="663">    <span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #546e7a;">cout</span> <span style="color: #39adb5;">&lt;&lt;</span> <span style="color: #546e7a;">ex</span><span style="color: #39adb5;">.</span><span style="color: #6182b8;">what</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="664"><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="665">
 </span><span class="line" data-line="666"><span style="color: #aabfc9;">// Catches any exception not caught by previous _catch_ blocks</span>
-</span><span class="line" data-line="667"><span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #39adb5;">...</span><span style="color: #39adb5;">)</span>
+</span><span class="line" data-line="667"><span style="color: #e53935;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #39adb5;">...</span><span style="color: #39adb5;">)</span>
 </span><span class="line" data-line="668"><span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="669">    <span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #546e7a;">cout</span> <span style="color: #39adb5;">&lt;&lt;</span> <span style="color: #91b859;">&quot;Unknown exception caught&quot;</span><span style="color: #39adb5;">;</span>
-</span><span class="line" data-line="670">    <span style="color: #39adb5;">throw</span><span style="color: #39adb5;">;</span> <span style="color: #aabfc9;">// Re-throws the exception</span>
+</span><span class="line" data-line="670">    <span style="color: #e53935;">throw</span><span style="color: #39adb5;">;</span> <span style="color: #aabfc9;">// Re-throws the exception</span>
 </span><span class="line" data-line="671"><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="672">
 </span><span class="line" data-line="673"><span style="color: #aabfc9;">///////</span>
@@ -768,15 +751,15 @@
 </span><span class="line" data-line="751"><span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="752">    <span style="color: #7c4dff;">FILE</span><span style="color: #39adb5;">*</span> <span style="color: #546e7a;">fh</span> <span style="color: #39adb5;">=</span> <span style="color: #6182b8;">fopen</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">filename</span><span style="color: #39adb5;">,</span> <span style="color: #91b859;">&quot;r&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span> <span style="color: #aabfc9;">// Open the file in shared_ptrread mode</span>
 </span><span class="line" data-line="753">    <span style="color: #7c4dff;">if</span> <span style="color: #39adb5;">(</span><span style="color: #546e7a;">fh</span> <span style="color: #39adb5;">==</span> <span style="color: #f6a434;"><span style="color: #f6a434;">nullptr</span></span><span style="color: #39adb5;">)</span>
-</span><span class="line" data-line="754">        <span style="color: #39adb5;">throw</span> <span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #6182b8;">runtime_error</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;Could not open the file.&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
+</span><span class="line" data-line="754">        <span style="color: #e53935;">throw</span> <span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #6182b8;">runtime_error</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;Could not open the file.&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="755">
-</span><span class="line" data-line="756">    <span style="color: #39adb5;">try</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="756">    <span style="color: #e53935;">try</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="757">        <span style="color: #6182b8;">doSomethingWithTheFile</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">fh</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="758">        <span style="color: #6182b8;">doSomethingElseWithIt</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">fh</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="759">    <span style="color: #39adb5;">&rbrace;</span>
-</span><span class="line" data-line="760">    <span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #39adb5;">...</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="760">    <span style="color: #e53935;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #39adb5;">...</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="761">        <span style="color: #6182b8;">fclose</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">fh</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span> <span style="color: #aabfc9;">// Be sure to close the file if an error occurs.</span>
-</span><span class="line" data-line="762">        <span style="color: #39adb5;">throw</span><span style="color: #39adb5;">;</span> <span style="color: #aabfc9;">// Then re-throw the exception.</span>
+</span><span class="line" data-line="762">        <span style="color: #e53935;">throw</span><span style="color: #39adb5;">;</span> <span style="color: #aabfc9;">// Then re-throw the exception.</span>
 </span><span class="line" data-line="763">    <span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="764">
 </span><span class="line" data-line="765">    <span style="color: #6182b8;">fclose</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">fh</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span> <span style="color: #aabfc9;">// Close the file</span>
@@ -933,8 +916,8 @@
 </span><span class="line" data-line="916"><span style="color: #f6a434;">std</span><span style="color: #39adb5;">::</span><span style="color: #546e7a;">cout</span> <span style="color: #39adb5;">&lt;&lt;</span> <span style="color: #546e7a;"><span style="color: #f6a434;">ST</span></span><span style="color: #39adb5;">.</span><span style="color: #6182b8;">size</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;"></span><span style="color: #39adb5;">;</span>  <span style="color: #aabfc9;">// will print the size of set ST</span>
 </span><span class="line" data-line="917"><span style="color: #aabfc9;">// Output: 0</span>
 </span><span class="line" data-line="918">
-</span><span class="line" data-line="919"><span style="color: #aabfc9;">// <span style="color: #aabfc9;">NOTE</span><span style="color: #39adb5;">:</span> for duplicate elements we can use multiset</span>
-</span><span class="line" data-line="920"><span style="color: #aabfc9;">// <span style="color: #aabfc9;">NOTE</span><span style="color: #39adb5;">:</span> For hash sets, use unordered_set. They are more efficient but</span>
+</span><span class="line" data-line="919"><span style="color: #aabfc9;">// <span style="color: #aabfc9; background-color: #8796b0;">NOTE</span><span style="color: #39adb5;">:</span> for duplicate elements we can use multiset</span>
+</span><span class="line" data-line="920"><span style="color: #aabfc9;">// <span style="color: #aabfc9; background-color: #8796b0;">NOTE</span><span style="color: #39adb5;">:</span> For hash sets, use unordered_set. They are more efficient but</span>
 </span><span class="line" data-line="921"><span style="color: #aabfc9;">// do not preserve order. unordered_set is available since C++11</span>
 </span><span class="line" data-line="922">
 </span><span class="line" data-line="923"><span style="color: #aabfc9;">// Map</span>
@@ -963,7 +946,7 @@
 </span><span class="line" data-line="946">
 </span><span class="line" data-line="947"><span style="color: #aabfc9;">// Output: 26</span>
 </span><span class="line" data-line="948">
-</span><span class="line" data-line="949"><span style="color: #aabfc9;">// <span style="color: #aabfc9;">NOTE</span><span style="color: #39adb5;">:</span> For hash maps, use unordered_map. They are more efficient but do</span>
+</span><span class="line" data-line="949"><span style="color: #aabfc9;">// <span style="color: #aabfc9; background-color: #8796b0;">NOTE</span><span style="color: #39adb5;">:</span> For hash maps, use unordered_map. They are more efficient but do</span>
 </span><span class="line" data-line="950"><span style="color: #aabfc9;">// not preserve order. unordered_map is available since C++11.</span>
 </span><span class="line" data-line="951">
 </span><span class="line" data-line="952"><span style="color: #aabfc9;">// Containers with object keys of non-primitive values (custom classes) require</span>
@@ -1197,5 +1180,3 @@
 </span><span class="line" data-line="1180"><span style="color: #f76d47;">4</span> <span style="color: #39adb5;">bitand</span> <span style="color: #f76d47;">3</span> <span style="color: #aabfc9;">// Performs bitwise and</span>
 </span><span class="line" data-line="1181"><span style="color: #f76d47;">4</span> <span style="color: #39adb5;">xor</span> <span style="color: #f76d47;">3</span>    <span style="color: #aabfc9;">// Performs bitwise xor</span>
 </span></code></pre>
-</body>
-</html>

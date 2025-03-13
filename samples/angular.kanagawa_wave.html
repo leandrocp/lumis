@@ -1,133 +1,116 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>angular - kanagawa_wave - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #dcd7ba; background-color: #1f1f28;"><code class="language-angular" translate="no" tabindex="0"><span class="line" data-line="1"><span >// AngularJS is a JavaScript framework. It is a library written in JavaScript.</span>
-</span><span class="line" data-line="2"><span >// AngularJS is distributed as a JavaScript file, and can be added to a web page with a script tag:</span>
-</span><span class="line" data-line="3"><span >//</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #dcd7ba; background-color: #1f1f28;"><code class="language-angular" translate="no" tabindex="0"><span class="line" data-line="1">// AngularJS is a JavaScript framework. It is a library written in JavaScript.
+</span><span class="line" data-line="2">// AngularJS is distributed as a JavaScript file, and can be added to a web page with a script tag:
+</span><span class="line" data-line="3">// <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="4">
-</span><span class="line" data-line="5"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="6"><span >// AngularJS Extends HTML</span>
-</span><span class="line" data-line="7"><span ></span>
-</span><span class="line" data-line="8"><span >//AngularJS extends HTML with ng-directives.</span>
-</span><span class="line" data-line="9"><span >//The ng-app directive defines an AngularJS application.</span>
-</span><span class="line" data-line="10"><span >//The ng-model directive binds the value of HTML controls (input, select, textarea) to application data.</span>
-</span><span class="line" data-line="11"><span >//The ng-bind directive binds application data to the HTML view.</span>
+</span><span class="line" data-line="5">///////////////////////////////////
+</span><span class="line" data-line="6">// AngularJS Extends HTML
+</span><span class="line" data-line="7">
+</span><span class="line" data-line="8">//AngularJS extends HTML with ng-directives.
+</span><span class="line" data-line="9">//The ng-app directive defines an AngularJS application.
+</span><span class="line" data-line="10">//The ng-model directive binds the value of HTML controls (input, select, textarea) to application data.
+</span><span class="line" data-line="11">//The ng-bind directive binds application data to the HTML view.
 </span><span class="line" data-line="12">&lt;!DOCTYPE html<span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="13"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="14">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="14">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="15">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="16">    <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="17">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;name&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="17">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;name&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="18">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-bind</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;name&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="19">    <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="20">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="21"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="22">
-</span><span class="line" data-line="23"><span >/*</span>
-</span><span class="line" data-line="24"><span >  * Example explained:</span>
-</span><span class="line" data-line="25"><span >  * AngularJS starts automatically when the web page has loaded.</span>
-</span><span class="line" data-line="26"><span >  * The ng-app directive tells AngularJS that the</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span> <span >element is the &quot;owner&quot; of an AngularJS application.</span>
-</span><span class="line" data-line="27"><span >  * The ng-model directive binds the value of the input field to the application variable name.</span>
-</span><span class="line" data-line="28"><span >  * The ng-bind directive binds the innerHTML of the</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span> <span >element to the application variable name.</span>
-</span><span class="line" data-line="29"><span >*/</span>
-</span><span class="line" data-line="30"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">tag</span><span style="color: #9cabca;">&gt;</span> <span >Here are content to be interpreted</span> <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">tag</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="23">/*
+</span><span class="line" data-line="24">  * Example explained:
+</span><span class="line" data-line="25">  * AngularJS starts automatically when the web page has loaded.
+</span><span class="line" data-line="26">  * The ng-app directive tells AngularJS that the <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span> element is the &quot;owner&quot; of an AngularJS application.
+</span><span class="line" data-line="27">  * The ng-model directive binds the value of the input field to the application variable name.
+</span><span class="line" data-line="28">  * The ng-bind directive binds the innerHTML of the <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span> element to the application variable name.
+</span><span class="line" data-line="29">*/
+</span><span class="line" data-line="30"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">tag</span><span style="color: #9cabca;">&gt;</span> Here are content to be interpreted <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">tag</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="31">
-</span><span class="line" data-line="32"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="33"><span >// AngularJS Expressions</span>
-</span><span class="line" data-line="34"><span ></span>
-</span><span class="line" data-line="35"><span >// AngularJS expressions are written inside double braces:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">expression</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span >.</span>
-</span><span class="line" data-line="36"><span >// AngularJS expressions binds data to HTML the same way as the ng-bind directive.</span>
-</span><span class="line" data-line="37"><span >// AngularJS will &quot;output&quot; data exactly where the expression is written.</span>
-</span><span class="line" data-line="38"><span >// AngularJS expressions are much like JavaScript expressions: They can contain literals, operators, and variables.</span>
-</span><span class="line" data-line="39"><span >// Example</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">5</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">5</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span> <span >or</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
+</span><span class="line" data-line="32">///////////////////////////////////
+</span><span class="line" data-line="33">// AngularJS Expressions
+</span><span class="line" data-line="34">
+</span><span class="line" data-line="35">// AngularJS expressions are written inside double braces: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">expression</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span>.
+</span><span class="line" data-line="36">// AngularJS expressions binds data to HTML the same way as the ng-bind directive.
+</span><span class="line" data-line="37">// AngularJS will &quot;output&quot; data exactly where the expression is written.
+</span><span class="line" data-line="38">// AngularJS expressions are much like JavaScript expressions: They can contain literals, operators, and variables.
+</span><span class="line" data-line="39">// Example <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">5</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">5</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span> or <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
 </span><span class="line" data-line="40">&lt;!DOCTYPE html<span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="41"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="42">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="42">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="43">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="44">    <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="45">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >My first expression:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">5</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">5</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="45">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>My first expression: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">5</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">5</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="46">    <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="47">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="48"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="49">
-</span><span class="line" data-line="50"><span >//If you remove the ng-app directive, HTML will display the expression as it is, without solving it:</span>
+</span><span class="line" data-line="50">//If you remove the ng-app directive, HTML will display the expression as it is, without solving it:
 </span><span class="line" data-line="51">&lt;!DOCTYPE html<span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="52"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="53">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="53">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="54">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="55">    <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="56">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >My first expression:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">5</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">5</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="56">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>My first expression: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">5</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">5</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="57">    <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="58">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="59"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="60">
-</span><span class="line" data-line="61"><span >// AngularJS expressions bind AngularJS data to HTML the same way as the ng-bind directive.</span>
+</span><span class="line" data-line="61">// AngularJS expressions bind AngularJS data to HTML the same way as the ng-bind directive.
 </span><span class="line" data-line="62">&lt;!DOCTYPE html<span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="63"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="64"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="64"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="65">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="66">    <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="67">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;name&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="67">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;name&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="68">      <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">name</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="69">    <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="70">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="71"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="72">
-</span><span class="line" data-line="73"><span >// AngularJS numbers are like JavaScript numbers:</span>
+</span><span class="line" data-line="73">// AngularJS numbers are like JavaScript numbers:
 </span><span class="line" data-line="74"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span> <span style="color: #e6c384;">ng-init</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;quantity=1;cost=5&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="75">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >Total in dollar:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">quantity</span> <span style="color: #c0a36e;">*</span> <span style="color: #dcd7ba;">cost</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="75">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>Total in dollar: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">quantity</span> <span style="color: #c0a36e;">*</span> <span style="color: #dcd7ba;">cost</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="76"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="77">
-</span><span class="line" data-line="78"><span >//AngularJS strings are like JavaScript strings:</span>
+</span><span class="line" data-line="78">//AngularJS strings are like JavaScript strings:
 </span><span class="line" data-line="79"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span> <span style="color: #e6c384;">ng-init</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName=&#39;John&#39;;lastName=&#39;Doe&#39;&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="80">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >The name is</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">span</span> <span style="color: #e6c384;">ng-bind</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName + &#39; &#39; + lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">span</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="80">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>The name is <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">span</span> <span style="color: #e6c384;">ng-bind</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName + &#39; &#39; + lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">span</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="81"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="82">
-</span><span class="line" data-line="83"><span >//AngularJS objects are like JavaScript objects:</span>
+</span><span class="line" data-line="83">//AngularJS objects are like JavaScript objects:
 </span><span class="line" data-line="84"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span> <span style="color: #e6c384;">ng-init</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;person=&lbrace;firstName:&#39;John&#39;,lastName:&#39;Doe&#39;&rbrace;&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="85">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >The name is</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">person</span><span style="color: #9cabca;">.</span><span style="color: #e6c384;">lastName</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="85">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>The name is <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">person</span><span style="color: #9cabca;">.</span><span style="color: #e6c384;">lastName</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="86"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="87">
-</span><span class="line" data-line="88"><span >//AngularJS arrays are like JavaScript arrays:</span>
+</span><span class="line" data-line="88">//AngularJS arrays are like JavaScript arrays:
 </span><span class="line" data-line="89"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span> <span style="color: #e6c384;">ng-init</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;points=[1,15,19,2,40]&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="90">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >The third result is</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">points</span><span style="color: #9cabca;">[</span><span style="color: #dcd7ba;">2</span><span style="color: #9cabca;">]</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="90">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>The third result is <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">points</span><span style="color: #9cabca;">[</span><span style="color: #dcd7ba;">2</span><span style="color: #9cabca;">]</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="91"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="92">
-</span><span class="line" data-line="93"><span >// Like JavaScript expressions, AngularJS expressions can contain literals, operators, and variables.</span>
-</span><span class="line" data-line="94"><span >// Unlike JavaScript expressions, AngularJS expressions can be written inside HTML.</span>
-</span><span class="line" data-line="95"><span >// AngularJS expressions do not support conditionals, loops, and exceptions, while JavaScript expressions do.</span>
-</span><span class="line" data-line="96"><span >// AngularJS expressions support filters, while JavaScript expressions do not.</span>
-</span><span class="line" data-line="97"><span ></span>
-</span><span class="line" data-line="98"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="99"><span >// AngularJS Directives</span>
-</span><span class="line" data-line="100"><span ></span>
-</span><span class="line" data-line="101"><span ></span>
-</span><span class="line" data-line="102"><span >//AngularJS directives are extended HTML attributes with the prefix ng-.</span>
-</span><span class="line" data-line="103"><span >//The ng-app directive initializes an AngularJS application.</span>
-</span><span class="line" data-line="104"><span >//The ng-init directive initializes application data.</span>
-</span><span class="line" data-line="105"><span >//The ng-model directive binds the value of HTML controls (input, select, textarea) to application data.</span>
+</span><span class="line" data-line="93">// Like JavaScript expressions, AngularJS expressions can contain literals, operators, and variables.
+</span><span class="line" data-line="94">// Unlike JavaScript expressions, AngularJS expressions can be written inside HTML.
+</span><span class="line" data-line="95">// AngularJS expressions do not support conditionals, loops, and exceptions, while JavaScript expressions do.
+</span><span class="line" data-line="96">// AngularJS expressions support filters, while JavaScript expressions do not.
+</span><span class="line" data-line="97">
+</span><span class="line" data-line="98">///////////////////////////////////
+</span><span class="line" data-line="99">// AngularJS Directives
+</span><span class="line" data-line="100">
+</span><span class="line" data-line="101">
+</span><span class="line" data-line="102">//AngularJS directives are extended HTML attributes with the prefix ng-.
+</span><span class="line" data-line="103">//The ng-app directive initializes an AngularJS application.
+</span><span class="line" data-line="104">//The ng-init directive initializes application data.
+</span><span class="line" data-line="105">//The ng-model directive binds the value of HTML controls (input, select, textarea) to application data.
 </span><span class="line" data-line="106"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span> <span style="color: #e6c384;">ng-init</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName=&#39;John&#39;&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="107">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="108">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >You wrote:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">firstName</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="107">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="108">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>You wrote: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">firstName</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="109"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="110">
-</span><span class="line" data-line="111"><span >//Using ng-init is not very common. You will learn how to initialize data in the chapter about controllers.</span>
-</span><span class="line" data-line="112"><span ></span>
-</span><span class="line" data-line="113"><span >//The ng-repeat directive repeats an HTML element:</span>
+</span><span class="line" data-line="111">//Using ng-init is not very common. You will learn how to initialize data in the chapter about controllers.
+</span><span class="line" data-line="112">
+</span><span class="line" data-line="113">//The ng-repeat directive repeats an HTML element:
 </span><span class="line" data-line="114"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span> <span style="color: #e6c384;">ng-init</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;names=[&#39;Jani&#39;,&#39;Hege&#39;,&#39;Kai&#39;]&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="115">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">ul</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="116">    <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">li</span> <span style="color: #e6c384;">ng-repeat</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;x in names&quot;</span><span style="color: #9cabca;">&gt;</span>
@@ -136,7 +119,7 @@
 </span><span class="line" data-line="119">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">ul</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="120"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="121">
-</span><span class="line" data-line="122"><span >//The ng-repeat directive used on an array of objects:</span>
+</span><span class="line" data-line="122">//The ng-repeat directive used on an array of objects:
 </span><span class="line" data-line="123"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span> <span style="color: #e6c384;">ng-init</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;names=[</span>
 </span><span class="line" data-line="124"><span style="color: #98bb6c;">&lbrace;name:&#39;Jani&#39;,country:&#39;Norway&#39;&rbrace;,</span>
 </span><span class="line" data-line="125"><span style="color: #98bb6c;">&lbrace;name:&#39;Hege&#39;,country:&#39;Sweden&#39;&rbrace;,</span>
@@ -148,42 +131,42 @@
 </span><span class="line" data-line="131">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">ul</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="132"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="133">
-</span><span class="line" data-line="134"><span >// AngularJS is perfect for database CRUD (Create Read Update Delete) applications.</span>
-</span><span class="line" data-line="135"><span >// Just imagine if these objects were records from a database.</span>
-</span><span class="line" data-line="136"><span ></span>
-</span><span class="line" data-line="137"><span >// The ng-app directive defines the root element of an AngularJS application.</span>
-</span><span class="line" data-line="138"><span >// The ng-app directive will auto-bootstrap (automatically initialize) the application when a web page is loaded.</span>
-</span><span class="line" data-line="139"><span >// Later you will learn how ng-app can have a value (like ng-app=&quot;myModule&quot;), to connect code modules.</span>
-</span><span class="line" data-line="140"><span ></span>
-</span><span class="line" data-line="141"><span >// The ng-init directive defines initial values for an AngularJS application.</span>
-</span><span class="line" data-line="142"><span >// Normally, you will not use ng-init. You will use a controller or module instead.</span>
-</span><span class="line" data-line="143"><span >// You will learn more about controllers and modules later.</span>
-</span><span class="line" data-line="144"><span ></span>
-</span><span class="line" data-line="145"><span >//The ng-model directive binds the value of HTML controls (input, select, textarea) to application data.</span>
-</span><span class="line" data-line="146"><span >//The ng-model directive can also:</span>
-</span><span class="line" data-line="147"><span >//Provide type validation for application data (number, email, required).</span>
-</span><span class="line" data-line="148"><span >//Provide status for application data (invalid, dirty, touched, error).</span>
-</span><span class="line" data-line="149"><span >//Provide CSS classes for HTML elements.</span>
-</span><span class="line" data-line="150"><span >//Bind HTML elements to HTML forms.</span>
-</span><span class="line" data-line="151"><span ></span>
-</span><span class="line" data-line="152"><span >//The ng-repeat directive clones HTML elements once for each item in a collection (in an array).</span>
-</span><span class="line" data-line="153"><span ></span>
-</span><span class="line" data-line="154"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="155"><span >// AngularJS Controllers</span>
-</span><span class="line" data-line="156"><span ></span>
-</span><span class="line" data-line="157"><span >// AngularJS controllers control the data of AngularJS applications.</span>
-</span><span class="line" data-line="158"><span >// AngularJS controllers are regular JavaScript Objects.</span>
-</span><span class="line" data-line="159"><span ></span>
-</span><span class="line" data-line="160"><span >// AngularJS applications are controlled by controllers.</span>
-</span><span class="line" data-line="161"><span >// The ng-controller directive defines the application controller.</span>
-</span><span class="line" data-line="162"><span >// A controller is a JavaScript Object, created by a standard JavaScript object constructor.</span>
+</span><span class="line" data-line="134">// AngularJS is perfect for database CRUD (Create Read Update Delete) applications.
+</span><span class="line" data-line="135">// Just imagine if these objects were records from a database.
+</span><span class="line" data-line="136">
+</span><span class="line" data-line="137">// The ng-app directive defines the root element of an AngularJS application.
+</span><span class="line" data-line="138">// The ng-app directive will auto-bootstrap (automatically initialize) the application when a web page is loaded.
+</span><span class="line" data-line="139">// Later you will learn how ng-app can have a value (like ng-app=&quot;myModule&quot;), to connect code modules.
+</span><span class="line" data-line="140">
+</span><span class="line" data-line="141">// The ng-init directive defines initial values for an AngularJS application.
+</span><span class="line" data-line="142">// Normally, you will not use ng-init. You will use a controller or module instead.
+</span><span class="line" data-line="143">// You will learn more about controllers and modules later.
+</span><span class="line" data-line="144">
+</span><span class="line" data-line="145">//The ng-model directive binds the value of HTML controls (input, select, textarea) to application data.
+</span><span class="line" data-line="146">//The ng-model directive can also:
+</span><span class="line" data-line="147">//Provide type validation for application data (number, email, required).
+</span><span class="line" data-line="148">//Provide status for application data (invalid, dirty, touched, error).
+</span><span class="line" data-line="149">//Provide CSS classes for HTML elements.
+</span><span class="line" data-line="150">//Bind HTML elements to HTML forms.
+</span><span class="line" data-line="151">
+</span><span class="line" data-line="152">//The ng-repeat directive clones HTML elements once for each item in a collection (in an array).
+</span><span class="line" data-line="153">
+</span><span class="line" data-line="154">///////////////////////////////////
+</span><span class="line" data-line="155">// AngularJS Controllers
+</span><span class="line" data-line="156">
+</span><span class="line" data-line="157">// AngularJS controllers control the data of AngularJS applications.
+</span><span class="line" data-line="158">// AngularJS controllers are regular JavaScript Objects.
+</span><span class="line" data-line="159">
+</span><span class="line" data-line="160">// AngularJS applications are controlled by controllers.
+</span><span class="line" data-line="161">// The ng-controller directive defines the application controller.
+</span><span class="line" data-line="162">// A controller is a JavaScript Object, created by a standard JavaScript object constructor.
 </span><span class="line" data-line="163">
 </span><span class="line" data-line="164"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="165">
-</span><span class="line" data-line="166"><span >First Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="167"><span >Last Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="166">First Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="167">Last Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="168"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="169"><span >Full Name:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
+</span><span class="line" data-line="169">Full Name: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
 </span><span class="line" data-line="170">
 </span><span class="line" data-line="171"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="172">
@@ -195,24 +178,24 @@
 </span><span class="line" data-line="178"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="179"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="180">
-</span><span class="line" data-line="181"><span >//Application explained:</span>
-</span><span class="line" data-line="182"><span ></span>
-</span><span class="line" data-line="183"><span >//The AngularJS application is defined by  ng-app=&quot;myApp&quot;. The application runs inside the</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span><span >.</span>
-</span><span class="line" data-line="184"><span >//The ng-controller=&quot;myCtrl&quot; attribute is an AngularJS directive. It defines a controller.</span>
-</span><span class="line" data-line="185"><span >//The myCtrl function is a JavaScript function.</span>
-</span><span class="line" data-line="186"><span >//AngularJS will invoke the controller with a $scope object.</span>
-</span><span class="line" data-line="187"><span >//In AngularJS, $scope is the application object (the owner of application variables and functions).</span>
-</span><span class="line" data-line="188"><span >//The controller creates two properties (variables) in the scope (firstName and lastName).</span>
-</span><span class="line" data-line="189"><span >//The ng-model directives bind the input fields to the controller properties (firstName and lastName).</span>
-</span><span class="line" data-line="190"><span ></span>
-</span><span class="line" data-line="191"><span >//The example above demonstrated a controller object with two properties: lastName and firstName.</span>
-</span><span class="line" data-line="192"><span >//A controller can also have methods (variables as functions):</span>
+</span><span class="line" data-line="181">//Application explained:
+</span><span class="line" data-line="182">
+</span><span class="line" data-line="183">//The AngularJS application is defined by  ng-app=&quot;myApp&quot;. The application runs inside the <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>.
+</span><span class="line" data-line="184">//The ng-controller=&quot;myCtrl&quot; attribute is an AngularJS directive. It defines a controller.
+</span><span class="line" data-line="185">//The myCtrl function is a JavaScript function.
+</span><span class="line" data-line="186">//AngularJS will invoke the controller with a $scope object.
+</span><span class="line" data-line="187">//In AngularJS, $scope is the application object (the owner of application variables and functions).
+</span><span class="line" data-line="188">//The controller creates two properties (variables) in the scope (firstName and lastName).
+</span><span class="line" data-line="189">//The ng-model directives bind the input fields to the controller properties (firstName and lastName).
+</span><span class="line" data-line="190">
+</span><span class="line" data-line="191">//The example above demonstrated a controller object with two properties: lastName and firstName.
+</span><span class="line" data-line="192">//A controller can also have methods (variables as functions):
 </span><span class="line" data-line="193"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;personCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="194">
-</span><span class="line" data-line="195"><span >First Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="196"><span >Last Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="195">First Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="196">Last Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="197"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="198"><span >Full Name:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #7e9cd8;">fullName</span><span style="color: #9cabca;">(</span><span style="color: #9cabca;">)</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
+</span><span class="line" data-line="198">Full Name: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #7e9cd8;">fullName</span><span style="color: #9cabca;">(</span><span style="color: #9cabca;">)</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
 </span><span class="line" data-line="199">
 </span><span class="line" data-line="200"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="201">
@@ -227,22 +210,22 @@
 </span><span class="line" data-line="210"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="211"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="212">
-</span><span class="line" data-line="213"><span >//In larger applications, it is common to store controllers in external files.</span>
-</span><span class="line" data-line="214"><span >//Just copy the code between the</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span> <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span> <span >tags into an external file named personController.js:</span>
+</span><span class="line" data-line="213">//In larger applications, it is common to store controllers in external files.
+</span><span class="line" data-line="214">//Just copy the code between the <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span> <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span> tags into an external file named personController.js:
 </span><span class="line" data-line="215">
 </span><span class="line" data-line="216"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;personCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="217">
-</span><span class="line" data-line="218"><span >First Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="219"><span >Last Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="218">First Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="219">Last Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="220"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="221"><span >Full Name:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
+</span><span class="line" data-line="221">Full Name: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
 </span><span class="line" data-line="222">
 </span><span class="line" data-line="223"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="224">
-</span><span class="line" data-line="225"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;personController.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="225"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">personController.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="226">
-</span><span class="line" data-line="227"><span >// For the next example we will create a new controller file:</span>
-</span><span class="line" data-line="228"><span >angular.module(&#39;myApp&#39;, []).controller(&#39;namesCtrl&#39;, function($scope)</span> <span style="color: #9cabca;">&lbrace;</span>
+</span><span class="line" data-line="227">// For the next example we will create a new controller file:
+</span><span class="line" data-line="228">angular.module(&#39;myApp&#39;, []).controller(&#39;namesCtrl&#39;, function($scope) <span style="color: #9cabca;">&lbrace;</span>
 </span><span class="line" data-line="229">    <span style="color: #dcd7ba;">$scope</span><span style="color: #9cabca;">.</span><span style="color: #e6c384;">names</span> <span style="color: #c0a36e;">=</span> <span style="color: #9cabca;">[</span>
 </span><span class="line" data-line="230">        <span style="color: #9cabca;">&lbrace;</span><span style="color: #dcd7ba;">name</span>:<span style="color: #98bb6c;">&#39;Jani&#39;</span><span style="color: #9cabca;">,</span><span style="color: #dcd7ba;">country</span>:<span style="color: #98bb6c;">&#39;Norway&#39;</span><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">,</span>
 </span><span class="line" data-line="231">        <span style="color: #9cabca;">&lbrace;</span><span style="color: #dcd7ba;">name</span>:<span style="color: #98bb6c;">&#39;Hege&#39;</span><span style="color: #9cabca;">,</span><span style="color: #dcd7ba;">country</span>:<span style="color: #98bb6c;">&#39;Sweden&#39;</span><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">,</span>
@@ -263,48 +246,48 @@
 </span><span class="line" data-line="246">
 </span><span class="line" data-line="247"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="248">
-</span><span class="line" data-line="249"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;namesController.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="249"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">namesController.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="250">
-</span><span class="line" data-line="251"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="252"><span >// AngularJS Filters</span>
-</span><span class="line" data-line="253"><span ></span>
-</span><span class="line" data-line="254"><span >// Filters can be added to expressions and directives using a pipe character.</span>
-</span><span class="line" data-line="255"><span >// AngularJS filters can be used to transform data:</span>
-</span><span class="line" data-line="256"><span ></span>
-</span><span class="line" data-line="257"><span >- **currency**:  Format a number to a currency format.</span>
-</span><span class="line" data-line="258"><span >- **filter**:  Select a subset of items from an array.</span>
-</span><span class="line" data-line="259"><span >- **lowercase**: Format a string to lower case.</span>
-</span><span class="line" data-line="260"><span >- **orderBy**: Orders an array by an expression.</span>
-</span><span class="line" data-line="261"><span >- **uppercase**: Format a string to upper case.</span>
-</span><span class="line" data-line="262"><span ></span>
-</span><span class="line" data-line="263"><span >//A filter can be added to an expression with a pipe character (|) and a filter.</span>
-</span><span class="line" data-line="264"><span >//(For the next two examples we will use the person controller from the previous chapter)</span>
-</span><span class="line" data-line="265"><span >//The uppercase filter format strings to upper case:</span>
+</span><span class="line" data-line="251">///////////////////////////////////
+</span><span class="line" data-line="252">// AngularJS Filters
+</span><span class="line" data-line="253">
+</span><span class="line" data-line="254">// Filters can be added to expressions and directives using a pipe character.
+</span><span class="line" data-line="255">// AngularJS filters can be used to transform data:
+</span><span class="line" data-line="256">
+</span><span class="line" data-line="257">- **currency**:  Format a number to a currency format.
+</span><span class="line" data-line="258">- **filter**:  Select a subset of items from an array.
+</span><span class="line" data-line="259">- **lowercase**: Format a string to lower case.
+</span><span class="line" data-line="260">- **orderBy**: Orders an array by an expression.
+</span><span class="line" data-line="261">- **uppercase**: Format a string to upper case.
+</span><span class="line" data-line="262">
+</span><span class="line" data-line="263">//A filter can be added to an expression with a pipe character (|) and a filter.
+</span><span class="line" data-line="264">//(For the next two examples we will use the person controller from the previous chapter)
+</span><span class="line" data-line="265">//The uppercase filter format strings to upper case:
 </span><span class="line" data-line="266"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;personCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="267">
-</span><span class="line" data-line="268"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >The name is</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">lastName</span> <span style="color: #c0a36e;">|</span> <span style="color: #7e9cd8;">uppercase</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="268"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>The name is <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">lastName</span> <span style="color: #c0a36e;">|</span> <span style="color: #7e9cd8;">uppercase</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="269">
 </span><span class="line" data-line="270"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="271">
-</span><span class="line" data-line="272"><span >//The lowercase filter format strings to lower case:</span>
+</span><span class="line" data-line="272">//The lowercase filter format strings to lower case:
 </span><span class="line" data-line="273"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;personCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="274">
-</span><span class="line" data-line="275"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >The name is</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">lastName</span> <span style="color: #c0a36e;">|</span> <span style="color: #7e9cd8;">lowercase</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="275"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>The name is <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">lastName</span> <span style="color: #c0a36e;">|</span> <span style="color: #7e9cd8;">lowercase</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="276">
 </span><span class="line" data-line="277"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="278">
-</span><span class="line" data-line="279"><span >//The currency filter formats a number as currency:</span>
+</span><span class="line" data-line="279">//The currency filter formats a number as currency:
 </span><span class="line" data-line="280"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;costCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="281">
 </span><span class="line" data-line="282"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;number&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;quantity&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="283"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;number&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;price&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="284">
-</span><span class="line" data-line="285"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span >Total =</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #9cabca;">(</span><span style="color: #dcd7ba;">quantity</span> <span style="color: #c0a36e;">*</span> <span style="color: #dcd7ba;">price</span><span style="color: #9cabca;">)</span> <span style="color: #c0a36e;">|</span> <span style="color: #7e9cd8;">currency</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="285"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>Total = <span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #9cabca;">(</span><span style="color: #dcd7ba;">quantity</span> <span style="color: #c0a36e;">*</span> <span style="color: #dcd7ba;">price</span><span style="color: #9cabca;">)</span> <span style="color: #c0a36e;">|</span> <span style="color: #7e9cd8;">currency</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="286">
 </span><span class="line" data-line="287"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span> 
 </span><span class="line" data-line="288">
-</span><span class="line" data-line="289"><span >//A filter can be added to a directive with a pipe character (|) and a filter.</span>
-</span><span class="line" data-line="290"><span >//The orderBy filter orders an array by an expression:</span>
+</span><span class="line" data-line="289">//A filter can be added to a directive with a pipe character (|) and a filter.
+</span><span class="line" data-line="290">//The orderBy filter orders an array by an expression:
 </span><span class="line" data-line="291"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;namesCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="292">
 </span><span class="line" data-line="293"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">ul</span><span style="color: #9cabca;">&gt;</span>
@@ -315,9 +298,9 @@
 </span><span class="line" data-line="298">
 </span><span class="line" data-line="299"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="300">
-</span><span class="line" data-line="301"><span >//An input filter can be added to a directive with a pipe character (|) </span>
-</span><span class="line" data-line="302"><span >//and filter followed by a colon and a model name.</span>
-</span><span class="line" data-line="303"><span >//The filter selects a subset of an array:</span>
+</span><span class="line" data-line="301">//An input filter can be added to a directive with a pipe character (|) 
+</span><span class="line" data-line="302">//and filter followed by a colon and a model name.
+</span><span class="line" data-line="303">//The filter selects a subset of an array:
 </span><span class="line" data-line="304">
 </span><span class="line" data-line="305"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;namesCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="306">
@@ -331,17 +314,17 @@
 </span><span class="line" data-line="314">
 </span><span class="line" data-line="315"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="316">
-</span><span class="line" data-line="317"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="318"><span >// AngularJS AJAX - $http</span>
-</span><span class="line" data-line="319"><span ></span>
-</span><span class="line" data-line="320"><span >//$http is an AngularJS service for reading data from remote servers.</span>
-</span><span class="line" data-line="321"><span ></span>
-</span><span class="line" data-line="322"><span >// The following data can be provided by a web server:</span>
-</span><span class="line" data-line="323"><span >// http://www.w3schools.com/angular/customers.php</span>
-</span><span class="line" data-line="324"><span >// **Check the URL to see the data format**</span>
-</span><span class="line" data-line="325"><span ></span>
-</span><span class="line" data-line="326"><span >// AngularJS $http is a core service for reading data from web servers.</span>
-</span><span class="line" data-line="327"><span >// $http.get(url) is the function to use for reading server data.</span>
+</span><span class="line" data-line="317">///////////////////////////////////
+</span><span class="line" data-line="318">// AngularJS AJAX - $http
+</span><span class="line" data-line="319">
+</span><span class="line" data-line="320">//$http is an AngularJS service for reading data from remote servers.
+</span><span class="line" data-line="321">
+</span><span class="line" data-line="322">// The following data can be provided by a web server:
+</span><span class="line" data-line="323">// http://www.w3schools.com/angular/customers.php
+</span><span class="line" data-line="324">// **Check the URL to see the data format**
+</span><span class="line" data-line="325">
+</span><span class="line" data-line="326">// AngularJS $http is a core service for reading data from web servers.
+</span><span class="line" data-line="327">// $http.get(url) is the function to use for reading server data.
 </span><span class="line" data-line="328"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;customersCtrl&quot;</span><span style="color: #9cabca;">&gt;</span> 
 </span><span class="line" data-line="329">
 </span><span class="line" data-line="330"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">ul</span><span style="color: #9cabca;">&gt;</span>
@@ -360,29 +343,29 @@
 </span><span class="line" data-line="343"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="344"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="345">
-</span><span class="line" data-line="346"><span >Application explained:</span>
-</span><span class="line" data-line="347"><span ></span>
-</span><span class="line" data-line="348"><span >// The AngularJS application is defined by ng-app. The application runs inside a</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span><span >.</span>
-</span><span class="line" data-line="349"><span >// The ng-controller directive names the controller object.</span>
-</span><span class="line" data-line="350"><span >// The customersCtrl function is a standard JavaScript object constructor.</span>
-</span><span class="line" data-line="351"><span >// AngularJS will invoke customersCtrl with a $scope and $http object.</span>
-</span><span class="line" data-line="352"><span >// $scope is the application object (the owner of application variables and functions).</span>
-</span><span class="line" data-line="353"><span >// $http is an XMLHttpRequest object for requesting external data.</span>
-</span><span class="line" data-line="354"><span >// $http.get() reads JSON data from http://www.w3schools.com/angular/customers.php.</span>
-</span><span class="line" data-line="355"><span >// If success, the controller creates a property (names) in the scope, with JSON data from the server.</span>
-</span><span class="line" data-line="356"><span ></span>
-</span><span class="line" data-line="357"><span ></span>
-</span><span class="line" data-line="358"><span >// Requests for data from a different server (than the requesting page), are called cross-site HTTP requests.</span>
-</span><span class="line" data-line="359"><span >// Cross-site requests are common on the web. Many pages load CSS, images, and scripts from different servers.</span>
-</span><span class="line" data-line="360"><span >// In modern browsers, cross-site HTTP requests from scripts are restricted to same site for security reasons.</span>
-</span><span class="line" data-line="361"><span >// The following line, in our PHP examples, has been added to allow cross-site access.</span>
-</span><span class="line" data-line="362"><span >header(&quot;Access-Control-Allow-Origin: *&quot;);</span>
-</span><span class="line" data-line="363"><span ></span>
-</span><span class="line" data-line="364"><span ></span>
-</span><span class="line" data-line="365"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="366"><span >// AngularJS Tables</span>
-</span><span class="line" data-line="367"><span ></span>
-</span><span class="line" data-line="368"><span >// Displaying tables with angular is very simple:</span>
+</span><span class="line" data-line="346">Application explained:
+</span><span class="line" data-line="347">
+</span><span class="line" data-line="348">// The AngularJS application is defined by ng-app. The application runs inside a <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>.
+</span><span class="line" data-line="349">// The ng-controller directive names the controller object.
+</span><span class="line" data-line="350">// The customersCtrl function is a standard JavaScript object constructor.
+</span><span class="line" data-line="351">// AngularJS will invoke customersCtrl with a $scope and $http object.
+</span><span class="line" data-line="352">// $scope is the application object (the owner of application variables and functions).
+</span><span class="line" data-line="353">// $http is an XMLHttpRequest object for requesting external data.
+</span><span class="line" data-line="354">// $http.get() reads JSON data from http://www.w3schools.com/angular/customers.php.
+</span><span class="line" data-line="355">// If success, the controller creates a property (names) in the scope, with JSON data from the server.
+</span><span class="line" data-line="356">
+</span><span class="line" data-line="357">
+</span><span class="line" data-line="358">// Requests for data from a different server (than the requesting page), are called cross-site HTTP requests.
+</span><span class="line" data-line="359">// Cross-site requests are common on the web. Many pages load CSS, images, and scripts from different servers.
+</span><span class="line" data-line="360">// In modern browsers, cross-site HTTP requests from scripts are restricted to same site for security reasons.
+</span><span class="line" data-line="361">// The following line, in our PHP examples, has been added to allow cross-site access.
+</span><span class="line" data-line="362">header(&quot;Access-Control-Allow-Origin: *&quot;);
+</span><span class="line" data-line="363">
+</span><span class="line" data-line="364">
+</span><span class="line" data-line="365">///////////////////////////////////
+</span><span class="line" data-line="366">// AngularJS Tables
+</span><span class="line" data-line="367">
+</span><span class="line" data-line="368">// Displaying tables with angular is very simple:
 </span><span class="line" data-line="369"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;customersCtrl&quot;</span><span style="color: #9cabca;">&gt;</span> 
 </span><span class="line" data-line="370">
 </span><span class="line" data-line="371"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">table</span><span style="color: #9cabca;">&gt;</span>
@@ -402,7 +385,7 @@
 </span><span class="line" data-line="385"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="386"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="387">
-</span><span class="line" data-line="388"><span >// To sort the table, add an orderBy filter:</span> 
+</span><span class="line" data-line="388">// To sort the table, add an orderBy filter: 
 </span><span class="line" data-line="389"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">table</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="390">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">tr</span> <span style="color: #e6c384;">ng-repeat</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;x in names | orderBy : &#39;Country&#39;&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="391">    <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">td</span><span style="color: #9cabca;">&gt;</span><span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">x</span><span style="color: #9cabca;">.</span><span style="color: #e6c384;">Name</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">td</span><span style="color: #9cabca;">&gt;</span>
@@ -410,7 +393,7 @@
 </span><span class="line" data-line="393">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">tr</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="394"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">table</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="395">
-</span><span class="line" data-line="396"><span >// To display the table index, add a</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">td</span><span style="color: #9cabca;">&gt;</span> <span >with $index:</span> 
+</span><span class="line" data-line="396">// To display the table index, add a <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">td</span><span style="color: #9cabca;">&gt;</span> with $index: 
 </span><span class="line" data-line="397"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">table</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="398">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">tr</span> <span style="color: #e6c384;">ng-repeat</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;x in names&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="399">    <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">td</span><span style="color: #9cabca;">&gt;</span><span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">$index</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">1</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">td</span><span style="color: #9cabca;">&gt;</span>
@@ -419,7 +402,7 @@
 </span><span class="line" data-line="402">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">tr</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="403"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">table</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="404">
-</span><span class="line" data-line="405"><span >// Using $even and $odd</span>
+</span><span class="line" data-line="405">// Using $even and $odd
 </span><span class="line" data-line="406"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">table</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="407">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">tr</span> <span style="color: #e6c384;">ng-repeat</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;x in names&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="408">    <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">td</span> <span style="color: #e6c384;">ng-if</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;$odd&quot;</span> <span style="color: #e6c384;">style</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">background-color</span><span style="color: #9cabca;">:</span><span style="color: #9cabca;">#</span>f1f1f1&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">x</span><span style="color: #9cabca;">.</span><span style="color: #e6c384;">Name</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">td</span><span style="color: #9cabca;">&gt;</span>
@@ -429,64 +412,64 @@
 </span><span class="line" data-line="412">  <span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">tr</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="413"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">table</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="414">
-</span><span class="line" data-line="415"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="416"><span >// AngularJS HTML DOM</span>
-</span><span class="line" data-line="417"><span ></span>
-</span><span class="line" data-line="418"><span >//AngularJS has directives for binding application data to the attributes of HTML DOM elements.</span>
-</span><span class="line" data-line="419"><span ></span>
-</span><span class="line" data-line="420"><span >// The ng-disabled directive binds AngularJS application data to the disabled attribute of HTML elements.</span>
+</span><span class="line" data-line="415">///////////////////////////////////
+</span><span class="line" data-line="416">// AngularJS HTML DOM
+</span><span class="line" data-line="417">
+</span><span class="line" data-line="418">//AngularJS has directives for binding application data to the attributes of HTML DOM elements.
+</span><span class="line" data-line="419">
+</span><span class="line" data-line="420">// The ng-disabled directive binds AngularJS application data to the disabled attribute of HTML elements.
 </span><span class="line" data-line="421">
 </span><span class="line" data-line="422"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span> <span style="color: #e6c384;">ng-init</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;mySwitch=true&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="423">
 </span><span class="line" data-line="424"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="425"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">ng-disabled</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;mySwitch&quot;</span><span style="color: #9cabca;">&gt;</span><span >Click Me!</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="425"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">ng-disabled</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;mySwitch&quot;</span><span style="color: #9cabca;">&gt;</span>Click Me!<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="426"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="427">
 </span><span class="line" data-line="428"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="429"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;checkbox&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;mySwitch&quot;</span><span style="color: #9cabca;">&gt;</span><span >Button</span>
+</span><span class="line" data-line="429"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;checkbox&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;mySwitch&quot;</span><span style="color: #9cabca;">&gt;</span>Button
 </span><span class="line" data-line="430"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="431">
 </span><span class="line" data-line="432"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="433">
-</span><span class="line" data-line="434"><span >//Application explained:</span>
-</span><span class="line" data-line="435"><span ></span>
-</span><span class="line" data-line="436"><span >// The ng-disabled directive binds the application data mySwitch to the HTML button&#39;s disabled attribute.</span>
-</span><span class="line" data-line="437"><span >// The ng-model directive binds the value of the HTML checkbox element to the value of mySwitch.</span>
-</span><span class="line" data-line="438"><span >// If the value of mySwitch evaluates to true, the button will be disabled:</span> 
+</span><span class="line" data-line="434">//Application explained:
+</span><span class="line" data-line="435">
+</span><span class="line" data-line="436">// The ng-disabled directive binds the application data mySwitch to the HTML button&#39;s disabled attribute.
+</span><span class="line" data-line="437">// The ng-model directive binds the value of the HTML checkbox element to the value of mySwitch.
+</span><span class="line" data-line="438">// If the value of mySwitch evaluates to true, the button will be disabled: 
 </span><span class="line" data-line="439"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="440"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">disabled</span><span style="color: #9cabca;">&gt;</span><span >Click Me!</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="440"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">disabled</span><span style="color: #9cabca;">&gt;</span>Click Me!<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="441"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="442">
-</span><span class="line" data-line="443"><span >// If the value of mySwitch evaluates to false, the button will not be disabled:</span> 
+</span><span class="line" data-line="443">// If the value of mySwitch evaluates to false, the button will not be disabled: 
 </span><span class="line" data-line="444"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="445">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span><span >Click Me!</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="445">  <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>Click Me!<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="446"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="447">
-</span><span class="line" data-line="448"><span >// The ng-show directive shows or hides an HTML element.</span>
+</span><span class="line" data-line="448">// The ng-show directive shows or hides an HTML element.
 </span><span class="line" data-line="449">
 </span><span class="line" data-line="450"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="451">
-</span><span class="line" data-line="452"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-show</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;true&quot;</span><span style="color: #9cabca;">&gt;</span><span >I am visible.</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="452"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-show</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;true&quot;</span><span style="color: #9cabca;">&gt;</span>I am visible.<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="453">
-</span><span class="line" data-line="454"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-show</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;false&quot;</span><span style="color: #9cabca;">&gt;</span><span >I am not visible.</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="454"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-show</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;false&quot;</span><span style="color: #9cabca;">&gt;</span>I am not visible.<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="455">
 </span><span class="line" data-line="456"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="457">
-</span><span class="line" data-line="458"><span >// The ng-show directive shows (or hides) an HTML element based on the value of ng-show.</span>
-</span><span class="line" data-line="459"><span >// You can use any expression that evaluates to true or false:</span>
+</span><span class="line" data-line="458">// The ng-show directive shows (or hides) an HTML element based on the value of ng-show.
+</span><span class="line" data-line="459">// You can use any expression that evaluates to true or false:
 </span><span class="line" data-line="460"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="461"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-show</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;hour &gt; 12&quot;</span><span style="color: #9cabca;">&gt;</span><span >I am visible.</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="461"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-show</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;hour &gt; 12&quot;</span><span style="color: #9cabca;">&gt;</span>I am visible.<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="462"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="463">
-</span><span class="line" data-line="464"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="465"><span >// AngularJS Events</span>
-</span><span class="line" data-line="466"><span ></span>
-</span><span class="line" data-line="467"><span >// AngularJS has its own HTML events directives.</span>
-</span><span class="line" data-line="468"><span ></span>
-</span><span class="line" data-line="469"><span >// The ng-click directive defines an AngularJS click event.</span>
+</span><span class="line" data-line="464">///////////////////////////////////
+</span><span class="line" data-line="465">// AngularJS Events
+</span><span class="line" data-line="466">
+</span><span class="line" data-line="467">// AngularJS has its own HTML events directives.
+</span><span class="line" data-line="468">
+</span><span class="line" data-line="469">// The ng-click directive defines an AngularJS click event.
 </span><span class="line" data-line="470"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="471">
-</span><span class="line" data-line="472"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">ng-click</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;count = count + 1&quot;</span><span style="color: #9cabca;">&gt;</span><span >Click me!</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="472"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">ng-click</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;count = count + 1&quot;</span><span style="color: #9cabca;">&gt;</span>Click me!<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="473">
 </span><span class="line" data-line="474"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span><span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">count</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="475">
@@ -498,18 +481,18 @@
 </span><span class="line" data-line="481"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="482"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="483">
-</span><span class="line" data-line="484"><span >// The ng-hide directive can be used to set the visibility of a part of an application.</span>
-</span><span class="line" data-line="485"><span >// The value ng-hide=&quot;true&quot; makes an HTML element invisible.</span>
-</span><span class="line" data-line="486"><span >// The value ng-hide=&quot;false&quot; makes the element visible.</span>
+</span><span class="line" data-line="484">// The ng-hide directive can be used to set the visibility of a part of an application.
+</span><span class="line" data-line="485">// The value ng-hide=&quot;true&quot; makes an HTML element invisible.
+</span><span class="line" data-line="486">// The value ng-hide=&quot;false&quot; makes the element visible.
 </span><span class="line" data-line="487"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;personCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="488">
-</span><span class="line" data-line="489"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">ng-click</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;toggle()&quot;</span><span style="color: #9cabca;">&gt;</span><span >Toggle</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="489"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">ng-click</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;toggle()&quot;</span><span style="color: #9cabca;">&gt;</span>Toggle<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="490">
 </span><span class="line" data-line="491"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-hide</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myVar&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="492"><span >First Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="493"><span >Last Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="492">First Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="493">Last Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="494"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="495"><span >Full Name:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
+</span><span class="line" data-line="495">Full Name: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
 </span><span class="line" data-line="496"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="497">
 </span><span class="line" data-line="498"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
@@ -526,29 +509,29 @@
 </span><span class="line" data-line="509"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="510"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="511">
-</span><span class="line" data-line="512"><span >//Application explained:</span>
-</span><span class="line" data-line="513"><span ></span>
-</span><span class="line" data-line="514"><span >// The first part of the personController is the same as in the chapter about controllers.</span>
-</span><span class="line" data-line="515"><span >// The application has a default property (a variable): $scope.myVar = false;</span>
-</span><span class="line" data-line="516"><span >// The ng-hide directive sets the visibility, of a</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span> <span >element with two input fields, </span>
-</span><span class="line" data-line="517"><span >// according to the value (true or false) of myVar.</span>
-</span><span class="line" data-line="518"><span >// The function toggle() toggles myVar between true and false.</span>
-</span><span class="line" data-line="519"><span >// The value ng-hide=&quot;true&quot; makes the element invisible.</span>
-</span><span class="line" data-line="520"><span ></span>
-</span><span class="line" data-line="521"><span ></span>
-</span><span class="line" data-line="522"><span >// The ng-show directive can also be used to set the visibility of a part of an application.</span>
-</span><span class="line" data-line="523"><span >// The value ng-show=&quot;false&quot; makes an HTML element invisible.</span>
-</span><span class="line" data-line="524"><span >// The value ng-show=&quot;true&quot; makes the element visible.</span>
-</span><span class="line" data-line="525"><span >// Here is the same example as above, using ng-show instead of ng-hide:</span>
+</span><span class="line" data-line="512">//Application explained:
+</span><span class="line" data-line="513">
+</span><span class="line" data-line="514">// The first part of the personController is the same as in the chapter about controllers.
+</span><span class="line" data-line="515">// The application has a default property (a variable): $scope.myVar = false;
+</span><span class="line" data-line="516">// The ng-hide directive sets the visibility, of a <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span> element with two input fields, 
+</span><span class="line" data-line="517">// according to the value (true or false) of myVar.
+</span><span class="line" data-line="518">// The function toggle() toggles myVar between true and false.
+</span><span class="line" data-line="519">// The value ng-hide=&quot;true&quot; makes the element invisible.
+</span><span class="line" data-line="520">
+</span><span class="line" data-line="521">
+</span><span class="line" data-line="522">// The ng-show directive can also be used to set the visibility of a part of an application.
+</span><span class="line" data-line="523">// The value ng-show=&quot;false&quot; makes an HTML element invisible.
+</span><span class="line" data-line="524">// The value ng-show=&quot;true&quot; makes the element visible.
+</span><span class="line" data-line="525">// Here is the same example as above, using ng-show instead of ng-hide:
 </span><span class="line" data-line="526"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;personCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="527">
-</span><span class="line" data-line="528"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">ng-click</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;toggle()&quot;</span><span style="color: #9cabca;">&gt;</span><span >Toggle</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="528"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">button</span> <span style="color: #e6c384;">ng-click</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;toggle()&quot;</span><span style="color: #9cabca;">&gt;</span>Toggle<span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">button</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="529">
 </span><span class="line" data-line="530"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">p</span> <span style="color: #e6c384;">ng-show</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myVar&quot;</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="531"><span >First Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="532"><span >Last Name:</span> <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="531">First Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;firstName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="532">Last Name: <span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">input</span> <span style="color: #e6c384;">type</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;text&quot;</span> <span style="color: #e6c384;">ng-model</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;lastName&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="533"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">br</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="534"><span >Full Name:</span> <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
+</span><span class="line" data-line="534">Full Name: <span style="color: #7fb4ca;">&lbrace;&lbrace;</span><span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span><span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
 </span><span class="line" data-line="535"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">p</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="536">
 </span><span class="line" data-line="537"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
@@ -565,19 +548,19 @@
 </span><span class="line" data-line="548"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="549"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="550">
-</span><span class="line" data-line="551"><span >///////////////////////////////////</span>
-</span><span class="line" data-line="552"><span >// AngularJS Modules</span>
-</span><span class="line" data-line="553"><span ></span>
-</span><span class="line" data-line="554"><span >// An AngularJS module defines an application.</span>
-</span><span class="line" data-line="555"><span >// The module is a container for the different parts of an application.</span>
-</span><span class="line" data-line="556"><span >// The module is a container for the application controllers.</span>
-</span><span class="line" data-line="557"><span >// Controllers always belong to a module.</span>
-</span><span class="line" data-line="558"><span ></span>
-</span><span class="line" data-line="559"><span >// This application (&quot;myApp&quot;) has one controller (&quot;myCtrl&quot;):</span>
+</span><span class="line" data-line="551">///////////////////////////////////
+</span><span class="line" data-line="552">// AngularJS Modules
+</span><span class="line" data-line="553">
+</span><span class="line" data-line="554">// An AngularJS module defines an application.
+</span><span class="line" data-line="555">// The module is a container for the different parts of an application.
+</span><span class="line" data-line="556">// The module is a container for the application controllers.
+</span><span class="line" data-line="557">// Controllers always belong to a module.
+</span><span class="line" data-line="558">
+</span><span class="line" data-line="559">// This application (&quot;myApp&quot;) has one controller (&quot;myCtrl&quot;):
 </span><span class="line" data-line="560">
 </span><span class="line" data-line="561">&lt;!DOCTYPE html<span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="562"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="563"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="563"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="564"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="565">
 </span><span class="line" data-line="566"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
@@ -595,31 +578,31 @@
 </span><span class="line" data-line="578"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="579"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="580">
-</span><span class="line" data-line="581"><span >// It is common in AngularJS applications to put the module and the controllers in JavaScript files.</span>
-</span><span class="line" data-line="582"><span >// In this example, &quot;myApp.js&quot; contains an application module definition, while &quot;myCtrl.js&quot; contains the controller:</span>
+</span><span class="line" data-line="581">// It is common in AngularJS applications to put the module and the controllers in JavaScript files.
+</span><span class="line" data-line="582">// In this example, &quot;myApp.js&quot; contains an application module definition, while &quot;myCtrl.js&quot; contains the controller:
 </span><span class="line" data-line="583">
 </span><span class="line" data-line="584">&lt;!DOCTYPE html<span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="585"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="586"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="586"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="587"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="588">
 </span><span class="line" data-line="589"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">div</span> <span style="color: #e6c384;">ng-app</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp&quot;</span> <span style="color: #e6c384;">ng-controller</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myCtrl&quot;</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="590"><span style="color: #7fb4ca;">&lbrace;&lbrace;</span> <span style="color: #dcd7ba;">firstName</span> <span style="color: #c0a36e;">+</span> <span style="color: #98bb6c;">&quot; &quot;</span> <span style="color: #c0a36e;">+</span> <span style="color: #dcd7ba;">lastName</span> <span style="color: #7fb4ca;">&rbrace;&rbrace;</span>
 </span><span class="line" data-line="591"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">div</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="592">
-</span><span class="line" data-line="593"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myApp.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
-</span><span class="line" data-line="594"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> <span style="color: #e6c384;">src</span><span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;myCtrl.js&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="593"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">myApp.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
+</span><span class="line" data-line="594"><span style="color: #9cabca;">&lt;</span><span style="color: #7fb4ca;">script</span> src<span style="color: #c0a36e;">=</span><span style="color: #98bb6c;">&quot;<span style="color: #7fb4ca;">myCtrl.js</span>&quot;</span><span style="color: #9cabca;">&gt;</span><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">script</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="595">
 </span><span class="line" data-line="596"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">body</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="597"><span style="color: #9cabca;">&lt;/</span><span style="color: #7fb4ca;">html</span><span style="color: #9cabca;">&gt;</span>
 </span><span class="line" data-line="598">
-</span><span class="line" data-line="599"><span >//myApp.js</span>
-</span><span class="line" data-line="600"><span >var app = angular.module(&quot;myApp&quot;, []); </span>
-</span><span class="line" data-line="601"><span ></span>
-</span><span class="line" data-line="602"><span >// The [] parameter in the module definition can be used to define dependent modules.</span>
-</span><span class="line" data-line="603"><span ></span>
-</span><span class="line" data-line="604"><span >// myCtrl.js</span>
-</span><span class="line" data-line="605"><span >app.controller(&quot;myCtrl&quot;, function($scope)</span> <span style="color: #9cabca;">&lbrace;</span>
+</span><span class="line" data-line="599">//myApp.js
+</span><span class="line" data-line="600">var app = angular.module(&quot;myApp&quot;, []); 
+</span><span class="line" data-line="601">
+</span><span class="line" data-line="602">// The [] parameter in the module definition can be used to define dependent modules.
+</span><span class="line" data-line="603">
+</span><span class="line" data-line="604">// myCtrl.js
+</span><span class="line" data-line="605">app.controller(&quot;myCtrl&quot;, function($scope) <span style="color: #9cabca;">&lbrace;</span>
 </span><span class="line" data-line="606">    <span style="color: #dcd7ba;">$scope</span><span style="color: #9cabca;">.</span><span style="color: #e6c384;">firstName</span>  <span style="color: #c0a36e;">=</span> &quot;John<span style="color: #98bb6c;">&quot;;</span>
 </span><span class="line" data-line="607"><span style="color: #98bb6c;">    $scope.lastName= &quot;</span>Doe&quot;<span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="608"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
@@ -685,5 +668,3 @@
 </span><span class="line" data-line="668">    $scope<span style="color: #9cabca;">.</span>l<span style="color: #957fb8;">as</span>tName<span style="color: #c0a36e;">=</span> &quot;Doe&quot;<span style="color: #9cabca;">;</span>
 </span><span class="line" data-line="669"><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">)</span><span style="color: #9cabca;">;</span>
 </span></code></pre>
-</body>
-</html>

@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>python - cyberdream_dark - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #ffffff; background-color: #16181a;"><code class="language-python" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #7b8496;"># Single line comments start with a number symbol.</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #ffffff; background-color: #16181a;"><code class="language-python" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #7b8496;"># Single line comments start with a number symbol.</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #5eff6c;">&quot;&quot;&quot; Multiline strings can be written</span>
 </span><span class="line" data-line="4"><span style="color: #5eff6c;">    using three &quot;s, and are often used</span>
@@ -149,9 +132,9 @@
 </span><span class="line" data-line="132">
 </span><span class="line" data-line="133"><span style="color: #7b8496;"># Since Python 3.6, you can use f-strings or formatted string literals.</span>
 </span><span class="line" data-line="134"><span style="color: #ffffff;">name</span> <span style="color: #bd5eff;">=</span> <span style="color: #5eff6c;">&quot;Reiko&quot;</span>
-</span><span class="line" data-line="135"><span style="color: #5eff6c;">f&quot;She said her name is <span ><span style="color: #ffffff;">&lbrace;</span><span style="color: #ffffff;">name</span><span style="color: #ffffff;">&rbrace;</span></span>.&quot;</span>  <span style="color: #7b8496;"># =&gt; &quot;She said her name is Reiko&quot;</span>
+</span><span class="line" data-line="135"><span style="color: #5eff6c;">f&quot;She said her name is <span style="color: #ffffff;">&lbrace;</span><span style="color: #ffffff;">name</span><span style="color: #ffffff;">&rbrace;</span>.&quot;</span>  <span style="color: #7b8496;"># =&gt; &quot;She said her name is Reiko&quot;</span>
 </span><span class="line" data-line="136"><span style="color: #7b8496;"># Any valid Python expression inside these braces is returned to the string.</span>
-</span><span class="line" data-line="137"><span style="color: #5eff6c;">f&quot;<span ><span style="color: #ffffff;">&lbrace;</span><span style="color: #ffffff;">name</span><span style="color: #ffffff;">&rbrace;</span></span> is <span ><span style="color: #ffffff;">&lbrace;</span><span style="color: #5ea1ff;">len</span><span style="color: #ffffff;">(</span><span style="color: #ffffff;">name</span><span style="color: #ffffff;">)</span><span style="color: #ffffff;">&rbrace;</span></span> characters long.&quot;</span>  <span style="color: #7b8496;"># =&gt; &quot;Reiko is 5 characters long.&quot;</span>
+</span><span class="line" data-line="137"><span style="color: #5eff6c;">f&quot;<span style="color: #ffffff;">&lbrace;</span><span style="color: #ffffff;">name</span><span style="color: #ffffff;">&rbrace;</span> is <span style="color: #ffffff;">&lbrace;</span><span style="color: #5ea1ff;">len</span><span style="color: #ffffff;">(</span><span style="color: #ffffff;">name</span><span style="color: #ffffff;">)</span><span style="color: #ffffff;">&rbrace;</span> characters long.&quot;</span>  <span style="color: #7b8496;"># =&gt; &quot;Reiko is 5 characters long.&quot;</span>
 </span><span class="line" data-line="138">
 </span><span class="line" data-line="139"><span style="color: #7b8496;"># None is an object</span>
 </span><span class="line" data-line="140"><span style="color: #ff5ea0;">None</span>  <span style="color: #7b8496;"># =&gt; None</span>
@@ -1007,7 +990,7 @@
 </span><span class="line" data-line="990"><span style="color: #7b8496;"># Generators are memory-efficient because they only load the data needed to</span>
 </span><span class="line" data-line="991"><span style="color: #7b8496;"># process the next value in the iterable. This allows them to perform</span>
 </span><span class="line" data-line="992"><span style="color: #7b8496;"># operations on otherwise prohibitively large value ranges.</span>
-</span><span class="line" data-line="993"><span style="color: #7b8496;"># <span style="color: #7b8496;">NOTE</span><span style="color: #ffffff;">:</span> `range` replaces `xrange` in Python 3.</span>
+</span><span class="line" data-line="993"><span style="color: #7b8496;"># <span style="color: #5ea1ff;">NOTE</span><span style="color: #ffffff;">:</span> `range` replaces `xrange` in Python 3.</span>
 </span><span class="line" data-line="994"><span style="color: #ffbd5e;">for</span> <span style="color: #ffffff;">i</span> <span style="color: #bd5eff;">in</span> <span style="color: #5ea1ff;">double_numbers</span><span style="color: #ffffff;">(</span><span style="color: #d45edd;">range</span><span style="color: #ffffff;">(</span><span style="color: #ffbd5e;">1</span><span style="color: #ffffff;">,</span> <span style="color: #ffbd5e;">900000000</span><span style="color: #ffffff;">)</span><span style="color: #ffffff;">)</span><span style="color: #ffffff;">:</span>  <span style="color: #7b8496;"># `range` is a generator.</span>
 </span><span class="line" data-line="995">    <span style="color: #5ea1ff;">print</span><span style="color: #ffffff;">(</span><span style="color: #ffffff;">i</span><span style="color: #ffffff;">)</span>
 </span><span class="line" data-line="996">    <span style="color: #ffbd5e;">if</span> <span style="color: #ffffff;">i</span> <span style="color: #bd5eff;">&gt;=</span> <span style="color: #ffbd5e;">30</span><span style="color: #ffffff;">:</span>
@@ -1086,5 +1069,3 @@
 </span><span class="line" data-line="1069"><span style="color: #5ea1ff;">print</span><span style="color: #ffffff;">(</span><span style="color: #ffffff;">my_function</span><span style="color: #ffffff;">.</span><span style="color: #ffffff;">__name__</span><span style="color: #ffffff;">)</span>  <span style="color: #7b8496;"># =&gt; &#39;my_function&#39;</span>
 </span><span class="line" data-line="1070"><span style="color: #5ea1ff;">print</span><span style="color: #ffffff;">(</span><span style="color: #ffffff;">my_function</span><span style="color: #ffffff;">.</span><span style="color: #ffffff;">__code__</span><span style="color: #ffffff;">.</span><span style="color: #ffffff;">co_argcount</span><span style="color: #ffffff;">)</span>  <span style="color: #7b8496;"># =&gt; 2</span>
 </span></code></pre>
-</body>
-</html>

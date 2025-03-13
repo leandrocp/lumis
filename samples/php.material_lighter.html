@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>php - material_lighter - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-php" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #39adb5;">&lt;?php</span> <span style="color: #aabfc9;">// PHP code must be enclosed with &lt;?php tags</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-php" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #39adb5;">&lt;?php</span> <span style="color: #aabfc9;">// PHP code must be enclosed with &lt;?php tags</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #aabfc9;">// If your php file only contains PHP code, it is best practice</span>
 </span><span class="line" data-line="4"><span style="color: #aabfc9;">// to omit the php closing tag to prevent accidental output.</span>
@@ -38,7 +21,7 @@
 </span><span class="line" data-line="21">
 </span><span class="line" data-line="22"><span style="color: #aabfc9;">// Anything outside &lt;?php tags is echoed automatically</span>
 </span><span class="line" data-line="23"><span style="color: #39adb5;">?&gt;</span>
-</span><span class="line" data-line="24"><span >Hello World Again!</span>
+</span><span class="line" data-line="24">Hello World Again!
 </span><span class="line" data-line="25"><span style="color: #39adb5;">&lt;?php</span>
 </span><span class="line" data-line="26"><span style="color: #aabfc9;">// That is because historically PHP started as a Template engine</span>
 </span><span class="line" data-line="27">
@@ -326,9 +309,9 @@
 </span><span class="line" data-line="309"><span style="color: #39adb5;">?&gt;</span>
 </span><span class="line" data-line="310">
 </span><span class="line" data-line="311"><span style="color: #39adb5;">&lt;?php</span> <span style="color: #7c4dff;">if</span> <span style="color: #39adb5;">(</span><span style="color: #546e7a;">$x</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">:</span> <span style="color: #39adb5;">?&gt;</span>
-</span><span class="line" data-line="312"><span >This is displayed if the test is truthy.</span>
-</span><span class="line" data-line="313"><span ><span style="color: #39adb5;">&lt;?php</span> <span style="color: #7c4dff;">else</span><span style="color: #39adb5;">:</span> <span style="color: #39adb5;">?&gt;</span></span>
-</span><span class="line" data-line="314"><span >This is displayed otherwise.</span>
+</span><span class="line" data-line="312">This is displayed if the test is truthy.
+</span><span class="line" data-line="313"><span style="color: #39adb5;">&lt;?php</span> <span style="color: #7c4dff;">else</span><span style="color: #39adb5;">:</span> <span style="color: #39adb5;">?&gt;</span>
+</span><span class="line" data-line="314">This is displayed otherwise.
 </span><span class="line" data-line="315"><span style="color: #39adb5;">&lt;?php</span> <span style="color: #7c4dff;">endif</span><span style="color: #39adb5;">;</span> <span style="color: #39adb5;">?&gt;</span>
 </span><span class="line" data-line="316">
 </span><span class="line" data-line="317"><span style="color: #39adb5;">&lt;?php</span>
@@ -848,9 +831,9 @@
 </span><span class="line" data-line="831">
 </span><span class="line" data-line="832"><span style="color: #aabfc9;">// Simple error handling can be done with try catch block</span>
 </span><span class="line" data-line="833">
-</span><span class="line" data-line="834"><span style="color: #39adb5;">try</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="834"><span style="color: #e53935;">try</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="835">    <span style="color: #aabfc9;">// Do something</span>
-</span><span class="line" data-line="836"><span style="color: #39adb5;">&rbrace;</span> <span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">Exception</span> <span style="color: #546e7a;">$e</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="836"><span style="color: #39adb5;">&rbrace;</span> <span style="color: #e53935;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">Exception</span> <span style="color: #546e7a;">$e</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="837">    <span style="color: #aabfc9;">// Handle exception</span>
 </span><span class="line" data-line="838"><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="839">
@@ -859,9 +842,9 @@
 </span><span class="line" data-line="842"><span style="color: #aabfc9;">// Exception class exists in the global namespace. This can be done using a</span>
 </span><span class="line" data-line="843"><span style="color: #aabfc9;">// leading backslash to catch the Exception.</span>
 </span><span class="line" data-line="844">
-</span><span class="line" data-line="845"><span style="color: #39adb5;">try</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="845"><span style="color: #e53935;">try</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="846">    <span style="color: #aabfc9;">// Do something</span>
-</span><span class="line" data-line="847"><span style="color: #39adb5;">&rbrace;</span> <span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #39adb5;">\</span><span style="color: #7c4dff;">Exception</span> <span style="color: #546e7a;">$e</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="847"><span style="color: #39adb5;">&rbrace;</span> <span style="color: #e53935;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #39adb5;">\</span><span style="color: #7c4dff;">Exception</span> <span style="color: #546e7a;">$e</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="848">    <span style="color: #aabfc9;">// Handle exception</span>
 </span><span class="line" data-line="849"><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="850">
@@ -869,17 +852,15 @@
 </span><span class="line" data-line="852">
 </span><span class="line" data-line="853"><span style="color: #39adb5;">class</span> <span style="color: #7c4dff;">MyException</span> <span style="color: #39adb5;">extends</span> <span style="color: #7c4dff;">Exception</span> <span style="color: #39adb5;">&lbrace;</span><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="854">
-</span><span class="line" data-line="855"><span style="color: #39adb5;">try</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="855"><span style="color: #e53935;">try</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="856">
 </span><span class="line" data-line="857">    <span style="color: #546e7a;">$condition</span> <span style="color: #39adb5;">=</span> <span style="color: #f76d47;">true</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="858">
 </span><span class="line" data-line="859">    <span style="color: #7c4dff;">if</span> <span style="color: #39adb5;">(</span><span style="color: #546e7a;">$condition</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
-</span><span class="line" data-line="860">        <span style="color: #39adb5;">throw</span> <span style="color: #39adb5;">new</span> <span style="color: #6182b8;">MyException</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&#39;Something just happened&#39;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
+</span><span class="line" data-line="860">        <span style="color: #e53935;">throw</span> <span style="color: #39adb5;">new</span> <span style="color: #6182b8;">MyException</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&#39;Something just happened&#39;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="861">    <span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="862">
-</span><span class="line" data-line="863"><span style="color: #39adb5;">&rbrace;</span> <span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">MyException</span> <span style="color: #546e7a;">$e</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="863"><span style="color: #39adb5;">&rbrace;</span> <span style="color: #e53935;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">MyException</span> <span style="color: #546e7a;">$e</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="864">    <span style="color: #aabfc9;">// Handle my exception</span>
 </span><span class="line" data-line="865"><span style="color: #39adb5;">&rbrace;</span>
 </span></code></pre>
-</body>
-</html>
