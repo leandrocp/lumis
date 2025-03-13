@@ -10,7 +10,7 @@ use strum::{EnumIter, IntoEnumIterator};
 use tree_sitter_highlight::HighlightConfiguration;
 
 extern "C" {
-    // fn tree_sitter_hcl() -> *const ();
+    fn tree_sitter_hcl() -> *const ();
     fn tree_sitter_angular() -> *const ();
     fn tree_sitter_astro() -> *const ();
     fn tree_sitter_clojure() -> *const ();
@@ -69,7 +69,7 @@ pub enum Language {
     HEEx,
     HTML,
     Haskell,
-    // HCL,
+    HCL,
     IEx,
     JSON,
     Java,
@@ -143,7 +143,7 @@ impl Language {
             "go" => Some(Language::Go),
             "graphql" => Some(Language::GraphQL),
             "haskell" => Some(Language::Haskell),
-            // "hcl" => Some(Language::HCL),
+            "hcl" | "terraform" => Some(Language::HCL),
             "heex" => Some(Language::HEEx),
             "html" => Some(Language::HTML),
             "iex" => Some(Language::IEx),
@@ -359,7 +359,7 @@ impl Language {
             Language::Go => &["*.go"],
             Language::GraphQL => &[],
             Language::Haskell => &["*.hs", "*.hs-boot"],
-            // Language::HCL => &["*.hcl", "*.nomad", "*.tf", "*.tfvars", "*.workflow"],
+            Language::HCL => &["*.hcl", "*.nomad", "*.tf", "*.tfvars", "*.workflow"],
             Language::HEEx => &["*.heex", "*.neex"],
             Language::HTML => &["*.html", "*.htm", "*.xhtml"],
             Language::IEx => &["*.iex"],
@@ -531,7 +531,7 @@ impl Language {
                 "gleam" => Some(Language::Gleam),
                 "go" => Some(Language::Go),
                 "haskell" => Some(Language::Haskell),
-                // "hcl" => Some(Language::HCL),
+                "hcl" => Some(Language::HCL),
                 "html" => Some(Language::HTML),
                 "java" => Some(Language::Java),
                 "js" | "js2" => Some(Language::JavaScript),
@@ -654,7 +654,7 @@ impl Language {
             Language::Go => "Go",
             Language::GraphQL => "GraphQL",
             Language::Haskell => "Haskell",
-            // Language::HCL => "HCL",
+            Language::HCL => "HCL",
             Language::HEEx => "HEEx",
             Language::HTML => "HTML",
             Language::IEx => "IEx",
@@ -731,7 +731,7 @@ impl Language {
             Language::Go => &GO_CONFIG,
             Language::GraphQL => &GRAPHQL_CONFIG,
             Language::Haskell => &HASKELL_CONFIG,
-            // Language::HCL => &HCL_CONFIG,
+            Language::HCL => &HCL_CONFIG,
             Language::HEEx => &HEEX_CONFIG,
             Language::HTML => &HTML_CONFIG,
             Language::IEx => &IEX_CONFIG,
@@ -1172,21 +1172,20 @@ static HASKELL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     config
 });
 
-// FIXME: Undefined symbols for architecture arm64: "_tree_sitter_hcl"
-// static HCL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-//     let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_hcl) };
-//
-//     let mut config = HighlightConfiguration::new(
-//         tree_sitter::Language::new(language_fn),
-//         "hcl",
-//         HCL_HIGHLIGHTS,
-//         HCL_INJECTIONS,
-//         HCL_LOCALS,
-//     )
-//     .expect("failed to create hcl highlight configuration");
-//     config.configure(&HIGHLIGHT_NAMES);
-//     config
-// });
+static HCL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_hcl) };
+
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(language_fn),
+        "hcl",
+        HCL_HIGHLIGHTS,
+        HCL_INJECTIONS,
+        HCL_LOCALS,
+    )
+    .expect("failed to create hcl highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
 
 static HEEX_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let mut config = HighlightConfiguration::new(

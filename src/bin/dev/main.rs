@@ -139,7 +139,7 @@ fn gen_samples_entries(
                     lang_or_file: Some(file_name),
                     formatter: autumnus::FormatterOption::HtmlInline {
                         pre_class: Some(
-                            "w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6",
+                            "w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6".to_string(),
                         ),
                         italic: false,
                         include_highlights: false,
