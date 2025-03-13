@@ -10,6 +10,7 @@ use strum::{EnumIter, IntoEnumIterator};
 use tree_sitter_highlight::HighlightConfiguration;
 
 extern "C" {
+    // fn tree_sitter_hcl() -> *const ();
     fn tree_sitter_angular() -> *const ();
     fn tree_sitter_astro() -> *const ();
     fn tree_sitter_clojure() -> *const ();
@@ -22,7 +23,6 @@ extern "C" {
     fn tree_sitter_elm() -> *const ();
     fn tree_sitter_glimmer() -> *const ();
     fn tree_sitter_graphql() -> *const ();
-    // fn tree_sitter_hcl() -> *const ();
     fn tree_sitter_iex() -> *const ();
     fn tree_sitter_kotlin() -> *const ();
     fn tree_sitter_latex() -> *const ();
@@ -34,13 +34,13 @@ extern "C" {
     fn tree_sitter_scss() -> *const ();
     fn tree_sitter_surface() -> *const ();
     fn tree_sitter_vim() -> *const ();
+    // fn tree_sitter_vue() -> *const ();
 }
 
 include!(concat!(env!("OUT_DIR"), "/queries_constants.rs"));
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 pub enum Language {
-    // Vue, TODO: vuejs
     Angular,
     Astro,
     Bash,
@@ -105,6 +105,7 @@ pub enum Language {
     Tsx,
     TypeScript,
     Vim,
+    // Vue,
     XML,
     YAML,
     Zig,
@@ -179,6 +180,7 @@ impl Language {
             "typescript" => Some(Language::TypeScript),
             "tsx" => Some(Language::Tsx),
             "vim" | "viml" | "vimscript" => Some(Language::Vim),
+            // "vue" => Some(Language::Vue),
             "xml" => Some(Language::XML),
             "yaml" => Some(Language::YAML),
             "zig" => Some(Language::Zig),
@@ -462,6 +464,7 @@ impl Language {
             Language::TypeScript => &["*.ts"],
             Language::Tsx => &["*.tsx"],
             Language::Vim => &["*.vim", "*.viml"],
+            // Language::Vue => &["*.vue"],
             Language::XML => &[
                 "*.ant",
                 "*.csproj",
@@ -689,6 +692,7 @@ impl Language {
             Language::TypeScript => "TypeScript",
             Language::Tsx => "TSX",
             Language::Vim => "Vim",
+            // Language::Vue => "Vue",
             Language::XML => "XML",
             Language::YAML => "YAML",
             Language::Zig => "Zig",
@@ -764,6 +768,7 @@ impl Language {
             Language::TypeScript => &TYPESCRIPT_CONFIG,
             Language::Tsx => &TSX_CONFIG,
             Language::Vim => &VIM_CONFIG,
+            // Language::Vue => &VUE_CONFIG,
             Language::XML => &XML_CONFIG,
             Language::YAML => &YAML_CONFIG,
             Language::Zig => &ZIG_CONFIG,
@@ -1685,6 +1690,22 @@ static VIM_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     config.configure(&HIGHLIGHT_NAMES);
     config
 });
+
+// FIXME: Undefined symbols for architecture arm64: "_tree_sitter_vue"
+// static VUE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+//     let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_vue) };
+//
+//     let mut config = HighlightConfiguration::new(
+//         tree_sitter::Language::new(language_fn),
+//         "vue",
+//         VUE_HIGHLIGHTS,
+//         VUE_INJECTIONS,
+//         VUE_LOCALS,
+//     )
+//     .expect("failed to create vue highlight configuration");
+//     config.configure(&HIGHLIGHT_NAMES);
+//     config
+// });
 
 static XML_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let mut config = HighlightConfiguration::new(
