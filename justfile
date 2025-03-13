@@ -49,7 +49,7 @@ update-parsers:
         "tree-sitter-elm https://github.com/elm-tooling/tree-sitter-elm.git main"
         "tree-sitter-glimmer https://github.com/ember-tooling/tree-sitter-glimmer.git main"
         "tree-sitter-graphql https://github.com/bkegley/tree-sitter-graphql.git master"
-        # "tree-sitter-hcl https://github.com/tree-sitter-grammars/tree-sitter-hcl.git main"
+        "tree-sitter-hcl https://github.com/tree-sitter-grammars/tree-sitter-hcl.git main"
         "tree-sitter-http https://github.com/rest-nvim/tree-sitter-http.git main"
         "tree-sitter-iex https://github.com/elixir-lang/tree-sitter-iex.git main"
         "tree-sitter-kotlin https://github.com/fwcd/tree-sitter-kotlin.git main"
@@ -111,6 +111,8 @@ update-queries:
     #!/usr/bin/env bash
     set -euo pipefail
     
+    echo "⚠️  This will regenerate files in queries/"
+    echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
