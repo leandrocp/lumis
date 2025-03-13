@@ -22,7 +22,7 @@ update-parsers:
     #!/usr/bin/env bash
     set -euo pipefail
     
-    echo "⚠️  This will update all parser files in vendored_parsers/."
+    echo "⚠️  This will update all parser files in vendored_parsers/"
     echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
     echo ""
@@ -33,6 +33,8 @@ update-parsers:
 
     TEMP_DIR=$(mktemp -d)
     trap 'rm -rf "$TEMP_DIR"' EXIT
+
+    curl -s https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/master/lockfile.json > "$TEMP_DIR/lockfile.json"
 
     parsers=(
         "tree-sitter-angular https://github.com/dlvandenberg/tree-sitter-angular.git main"
@@ -47,6 +49,7 @@ update-parsers:
         "tree-sitter-elm https://github.com/elm-tooling/tree-sitter-elm.git main"
         "tree-sitter-glimmer https://github.com/ember-tooling/tree-sitter-glimmer.git main"
         "tree-sitter-graphql https://github.com/bkegley/tree-sitter-graphql.git master"
+        "tree-sitter-hcl https://github.com/tree-sitter-grammars/tree-sitter-hcl.git main"
         "tree-sitter-http https://github.com/rest-nvim/tree-sitter-http.git main"
         "tree-sitter-iex https://github.com/elixir-lang/tree-sitter-iex.git main"
         "tree-sitter-kotlin https://github.com/fwcd/tree-sitter-kotlin.git main"
@@ -64,9 +67,22 @@ update-parsers:
 
     for parser_info in "${parsers[@]}"; do
         read -r parser repo branch <<< "$parser_info"
-        echo "Updating $parser from $repo ($branch)"
         
-        git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$parser"
+        base_name=${parser#tree-sitter-}
+        revision=$(jq -r ".\"$base_name\".revision" "$TEMP_DIR/lockfile.json")
+        
+        echo "🔄 Updating $parser from $repo (revision: $revision)"
+
+        if [ "$revision" = "null" ]; then
+            echo "⚠️  No revision found for $parser in nvim-treesitter's lockfile.json, using latest from $branch"
+            git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$parser"
+        else
+            if ! git clone --depth 1 "$repo" "$TEMP_DIR/$parser" && cd "$TEMP_DIR/$parser" && git fetch origin "$revision" && git checkout "$revision" && cd - > /dev/null; then
+                echo "⚠️  Failed to clone specific revision, falling back to latest from $branch"
+                git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$parser"
+            fi
+        fi
+        
         mkdir -p "vendored_parsers/$parser"
         
         if [ "$parser" = "tree-sitter-csv" ] && [ -d "$TEMP_DIR/$parser/csv" ]; then
@@ -95,6 +111,8 @@ update-queries:
     #!/usr/bin/env bash
     set -euo pipefail
     
+    echo "⚠️  This will regenerate files in queries/"
+    echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -126,7 +144,7 @@ gen-themes:
     #!/usr/bin/env bash
     set -euo pipefail
     
-    echo "⚠️  This will regenerate files in the themes/ directory."
+    echo "⚠️  This will regenerate files in themes/"
     echo ""
     read -p "Do you want to proceed? (y/N) " -n 1 -r
     echo ""
@@ -144,7 +162,7 @@ gen-css:
     #!/usr/bin/env bash
     set -euo pipefail
     
-    echo "⚠️  This will regenerate files in the css/ directory."
+    echo "⚠️  This will regenerate files in css/"
     echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
     echo ""

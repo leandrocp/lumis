@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>python - melange_dark - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #ece1d7; background-color: #292522;"><code class="language-python" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #c1a78e;"># Single line comments start with a number symbol.</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #ece1d7; background-color: #292522;"><code class="language-python" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #c1a78e;"># Single line comments start with a number symbol.</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #a3a9ce;">&quot;&quot;&quot; Multiline strings can be written</span>
 </span><span class="line" data-line="4"><span style="color: #a3a9ce;">    using three &quot;s, and are often used</span>
@@ -149,9 +132,9 @@
 </span><span class="line" data-line="132">
 </span><span class="line" data-line="133"><span style="color: #c1a78e;"># Since Python 3.6, you can use f-strings or formatted string literals.</span>
 </span><span class="line" data-line="134"><span style="color: #ece1d7;">name</span> <span style="color: #d47766;">=</span> <span style="color: #a3a9ce;">&quot;Reiko&quot;</span>
-</span><span class="line" data-line="135"><span style="color: #a3a9ce;">f&quot;She said her name is <span ><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">name</span><span style="color: #ebc06d;">&rbrace;</span></span>.&quot;</span>  <span style="color: #c1a78e;"># =&gt; &quot;She said her name is Reiko&quot;</span>
+</span><span class="line" data-line="135"><span style="color: #a3a9ce;">f&quot;She said her name is <span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">name</span><span style="color: #ebc06d;">&rbrace;</span>.&quot;</span>  <span style="color: #c1a78e;"># =&gt; &quot;She said her name is Reiko&quot;</span>
 </span><span class="line" data-line="136"><span style="color: #c1a78e;"># Any valid Python expression inside these braces is returned to the string.</span>
-</span><span class="line" data-line="137"><span style="color: #a3a9ce;">f&quot;<span ><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">name</span><span style="color: #ebc06d;">&rbrace;</span></span> is <span ><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ebc06d;">len</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">name</span><span style="color: #8b7449;">)</span><span style="color: #ebc06d;">&rbrace;</span></span> characters long.&quot;</span>  <span style="color: #c1a78e;"># =&gt; &quot;Reiko is 5 characters long.&quot;</span>
+</span><span class="line" data-line="137"><span style="color: #a3a9ce;">f&quot;<span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">name</span><span style="color: #ebc06d;">&rbrace;</span> is <span style="color: #ebc06d;">&lbrace;</span><span style="color: #ebc06d;">len</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">name</span><span style="color: #8b7449;">)</span><span style="color: #ebc06d;">&rbrace;</span> characters long.&quot;</span>  <span style="color: #c1a78e;"># =&gt; &quot;Reiko is 5 characters long.&quot;</span>
 </span><span class="line" data-line="138">
 </span><span class="line" data-line="139"><span style="color: #c1a78e;"># None is an object</span>
 </span><span class="line" data-line="140"><span style="color: #b380b0;">None</span>  <span style="color: #c1a78e;"># =&gt; None</span>
@@ -753,29 +736,29 @@
 </span><span class="line" data-line="736">
 </span><span class="line" data-line="737">    <span style="color: #c1a78e;"># A class method is shared among all instances</span>
 </span><span class="line" data-line="738">    <span style="color: #c1a78e;"># They are called with the calling class as the first argument</span>
-</span><span class="line" data-line="739">    <span style="color: #d47766;">@</span><span style="color: #ebc06d;">classmethod</span>
+</span><span class="line" data-line="739">    <span style="color: #85b695;">@</span><span style="color: #ebc06d;">classmethod</span>
 </span><span class="line" data-line="740">    <span style="color: #85b695;">def</span> <span style="color: #ebc06d;">get_species</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">cls</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="741">        <span style="color: #e49b5d;">return</span> <span style="color: #ece1d7;">cls</span><span style="color: #bd8183;">.</span><span style="color: #ece1d7;">species</span>
 </span><span class="line" data-line="742">
 </span><span class="line" data-line="743">    <span style="color: #c1a78e;"># A static method is called without a class or instance reference</span>
-</span><span class="line" data-line="744">    <span style="color: #d47766;">@</span><span style="color: #ebc06d;">staticmethod</span>
+</span><span class="line" data-line="744">    <span style="color: #85b695;">@</span><span style="color: #ebc06d;">staticmethod</span>
 </span><span class="line" data-line="745">    <span style="color: #85b695;">def</span> <span style="color: #ebc06d;">grunt</span><span style="color: #8b7449;">(</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="746">        <span style="color: #e49b5d;">return</span> <span style="color: #a3a9ce;">&quot;*grunt*&quot;</span>
 </span><span class="line" data-line="747">
 </span><span class="line" data-line="748">    <span style="color: #c1a78e;"># A property is just like a getter.</span>
 </span><span class="line" data-line="749">    <span style="color: #c1a78e;"># It turns the method age() into a read-only attribute of the same name.</span>
 </span><span class="line" data-line="750">    <span style="color: #c1a78e;"># There&#39;s no need to write trivial getters and setters in Python, though.</span>
-</span><span class="line" data-line="751">    <span style="color: #d47766;">@</span><span style="color: #ebc06d;">property</span>
+</span><span class="line" data-line="751">    <span style="color: #85b695;">@</span><span style="color: #ebc06d;">property</span>
 </span><span class="line" data-line="752">    <span style="color: #85b695;">def</span> <span style="color: #ebc06d;">age</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">self</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="753">        <span style="color: #e49b5d;">return</span> <span style="color: #ece1d7;">self</span><span style="color: #bd8183;">.</span><span style="color: #ece1d7;">_age</span>
 </span><span class="line" data-line="754">
 </span><span class="line" data-line="755">    <span style="color: #c1a78e;"># This allows the property to be set</span>
-</span><span class="line" data-line="756">    <span style="color: #d47766;">@</span><span style="color: #ece1d7;">age</span><span style="color: #bd8183;">.</span><span style="color: #85b695;">setter</span>
+</span><span class="line" data-line="756">    <span style="color: #85b695;">@</span><span style="color: #ece1d7;">age</span><span style="color: #bd8183;">.</span><span style="color: #85b695;">setter</span>
 </span><span class="line" data-line="757">    <span style="color: #85b695;">def</span> <span style="color: #ebc06d;">age</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">self</span><span style="color: #bd8183;">,</span> <span style="color: #ece1d7;">age</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="758">        <span style="color: #ece1d7;">self</span><span style="color: #bd8183;">.</span><span style="color: #ece1d7;">_age</span> <span style="color: #d47766;">=</span> <span style="color: #ece1d7;">age</span>
 </span><span class="line" data-line="759">
 </span><span class="line" data-line="760">    <span style="color: #c1a78e;"># This allows the property to be deleted</span>
-</span><span class="line" data-line="761">    <span style="color: #d47766;">@</span><span style="color: #ece1d7;">age</span><span style="color: #bd8183;">.</span><span style="color: #85b695;">deleter</span>
+</span><span class="line" data-line="761">    <span style="color: #85b695;">@</span><span style="color: #ece1d7;">age</span><span style="color: #bd8183;">.</span><span style="color: #85b695;">deleter</span>
 </span><span class="line" data-line="762">    <span style="color: #85b695;">def</span> <span style="color: #ebc06d;">age</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">self</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="763">        <span style="color: #e49b5d;">del</span> <span style="color: #ece1d7;">self</span><span style="color: #bd8183;">.</span><span style="color: #ece1d7;">_age</span>
 </span><span class="line" data-line="764">
@@ -879,7 +862,7 @@
 </span><span class="line" data-line="862">    <span style="color: #ece1d7;">sup</span> <span style="color: #d47766;">=</span> <span style="color: #ebc06d;">Superhero</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">name</span><span style="color: #d47766;">=</span><span style="color: #a3a9ce;">&quot;Tick&quot;</span><span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="863">
 </span><span class="line" data-line="864">    <span style="color: #c1a78e;"># Instance type checks</span>
-</span><span class="line" data-line="865">    <span style="color: #e49b5d;">if</span> isinstance<span style="color: #8b7449;">(</span><span style="color: #ece1d7;">sup</span><span style="color: #bd8183;">,</span> <span style="color: #7b9695;">Human</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
+</span><span class="line" data-line="865">    <span style="color: #e49b5d;">if</span> <span style="color: #ebc06d;">isinstance</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">sup</span><span style="color: #bd8183;">,</span> <span style="color: #7b9695;">Human</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="866">        <span style="color: #ebc06d;">print</span><span style="color: #8b7449;">(</span><span style="color: #a3a9ce;">&quot;I am human&quot;</span><span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="867">    <span style="color: #e49b5d;">if</span> <span style="color: #ebc06d;">type</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">sup</span><span style="color: #8b7449;">)</span> <span style="color: #e49b5d;">is</span> <span style="color: #7b9695;">Superhero</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="868">        <span style="color: #ebc06d;">print</span><span style="color: #8b7449;">(</span><span style="color: #a3a9ce;">&quot;I am a superhero&quot;</span><span style="color: #8b7449;">)</span>
@@ -1007,7 +990,7 @@
 </span><span class="line" data-line="990"><span style="color: #c1a78e;"># Generators are memory-efficient because they only load the data needed to</span>
 </span><span class="line" data-line="991"><span style="color: #c1a78e;"># process the next value in the iterable. This allows them to perform</span>
 </span><span class="line" data-line="992"><span style="color: #c1a78e;"># operations on otherwise prohibitively large value ranges.</span>
-</span><span class="line" data-line="993"><span style="color: #c1a78e;"># <span style="color: #c1a78e;">NOTE</span><span style="color: #bd8183;">:</span> `range` replaces `xrange` in Python 3.</span>
+</span><span class="line" data-line="993"><span style="color: #c1a78e;"># <span style="color: #c1a78e; font-weight: bold;">NOTE</span><span style="color: #bd8183;">:</span> `range` replaces `xrange` in Python 3.</span>
 </span><span class="line" data-line="994"><span style="color: #e49b5d;">for</span> <span style="color: #ece1d7;">i</span> <span style="color: #e49b5d;">in</span> <span style="color: #ebc06d;">double_numbers</span><span style="color: #8b7449;">(</span><span style="color: #ebc06d;">range</span><span style="color: #8b7449;">(</span><span style="color: #cf9bc2;">1</span><span style="color: #bd8183;">,</span> <span style="color: #cf9bc2;">900000000</span><span style="color: #8b7449;">)</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>  <span style="color: #c1a78e;"># `range` is a generator.</span>
 </span><span class="line" data-line="995">    <span style="color: #ebc06d;">print</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">i</span><span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="996">    <span style="color: #e49b5d;">if</span> <span style="color: #ece1d7;">i</span> <span style="color: #d47766;">&gt;=</span> <span style="color: #cf9bc2;">30</span><span style="color: #bd8183;">:</span>
@@ -1039,7 +1022,7 @@
 </span><span class="line" data-line="1022">        <span style="color: #e49b5d;">return</span> <span style="color: #ece1d7;">result</span>
 </span><span class="line" data-line="1023">    <span style="color: #e49b5d;">return</span> <span style="color: #ece1d7;">wrapper</span>
 </span><span class="line" data-line="1024">
-</span><span class="line" data-line="1025"><span style="color: #d47766;">@</span><span style="color: #85b695;">log_function</span>               <span style="color: #c1a78e;"># equivalent:</span>
+</span><span class="line" data-line="1025"><span style="color: #85b695;">@</span><span style="color: #85b695;">log_function</span>               <span style="color: #c1a78e;"># equivalent:</span>
 </span><span class="line" data-line="1026"><span style="color: #85b695;">def</span> <span style="color: #ebc06d;">my_function</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">x</span><span style="color: #bd8183;">,</span><span style="color: #ece1d7;">y</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>       <span style="color: #c1a78e;"># def my_function(x,y):</span>
 </span><span class="line" data-line="1027">    <span style="color: #e49b5d;">return</span> <span style="color: #ece1d7;">x</span><span style="color: #d47766;">+</span><span style="color: #ece1d7;">y</span>              <span style="color: #c1a78e;">#   return x+y</span>
 </span><span class="line" data-line="1028">                            <span style="color: #c1a78e;"># my_function = log_function(my_function)</span>
@@ -1066,7 +1049,7 @@
 </span><span class="line" data-line="1049"><span style="color: #85b695;">from</span> <span style="color: #ece1d7;">functools</span> <span style="color: #85b695;">import</span> <span style="color: #ece1d7;">wraps</span>
 </span><span class="line" data-line="1050">
 </span><span class="line" data-line="1051"><span style="color: #85b695;">def</span> <span style="color: #ebc06d;">log_function</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">func</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
-</span><span class="line" data-line="1052">    <span style="color: #d47766;">@</span><span style="color: #85b695;">wraps</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">func</span><span style="color: #8b7449;">)</span>  <span style="color: #c1a78e;"># this ensures docstring, function name, arguments list, etc. are all copied</span>
+</span><span class="line" data-line="1052">    <span style="color: #85b695;">@</span><span style="color: #85b695;">wraps</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">func</span><span style="color: #8b7449;">)</span>  <span style="color: #c1a78e;"># this ensures docstring, function name, arguments list, etc. are all copied</span>
 </span><span class="line" data-line="1053">                  <span style="color: #c1a78e;"># to the wrapped function - instead of being replaced with wrapper&#39;s info</span>
 </span><span class="line" data-line="1054">    <span style="color: #85b695;">def</span> <span style="color: #ebc06d;">wrapper</span><span style="color: #8b7449;">(</span><span style="color: #d47766;">*</span><span style="color: #ece1d7;">args</span><span style="color: #bd8183;">,</span> <span style="color: #d47766;">**</span><span style="color: #ece1d7;">kwargs</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="1055">        <span style="color: #ebc06d;">print</span><span style="color: #8b7449;">(</span><span style="color: #a3a9ce;">&quot;Entering function&quot;</span><span style="color: #bd8183;">,</span> <span style="color: #ece1d7;">func</span><span style="color: #bd8183;">.</span><span style="color: #ece1d7;">__name__</span><span style="color: #8b7449;">)</span>
@@ -1075,7 +1058,7 @@
 </span><span class="line" data-line="1058">        <span style="color: #e49b5d;">return</span> <span style="color: #ece1d7;">result</span>
 </span><span class="line" data-line="1059">    <span style="color: #e49b5d;">return</span> <span style="color: #ece1d7;">wrapper</span>
 </span><span class="line" data-line="1060">
-</span><span class="line" data-line="1061"><span style="color: #d47766;">@</span><span style="color: #85b695;">log_function</span>
+</span><span class="line" data-line="1061"><span style="color: #85b695;">@</span><span style="color: #85b695;">log_function</span>
 </span><span class="line" data-line="1062"><span style="color: #85b695;">def</span> <span style="color: #ebc06d;">my_function</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">x</span><span style="color: #bd8183;">,</span><span style="color: #ece1d7;">y</span><span style="color: #8b7449;">)</span><span style="color: #bd8183;">:</span>
 </span><span class="line" data-line="1063">    <span style="color: #e49b5d;">return</span> <span style="color: #ece1d7;">x</span><span style="color: #d47766;">+</span><span style="color: #ece1d7;">y</span>
 </span><span class="line" data-line="1064">
@@ -1086,5 +1069,3 @@
 </span><span class="line" data-line="1069"><span style="color: #ebc06d;">print</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">my_function</span><span style="color: #bd8183;">.</span><span style="color: #ece1d7;">__name__</span><span style="color: #8b7449;">)</span>  <span style="color: #c1a78e;"># =&gt; &#39;my_function&#39;</span>
 </span><span class="line" data-line="1070"><span style="color: #ebc06d;">print</span><span style="color: #8b7449;">(</span><span style="color: #ece1d7;">my_function</span><span style="color: #bd8183;">.</span><span style="color: #ece1d7;">__code__</span><span style="color: #bd8183;">.</span><span style="color: #ece1d7;">co_argcount</span><span style="color: #8b7449;">)</span>  <span style="color: #c1a78e;"># =&gt; 2</span>
 </span></code></pre>
-</body>
-</html>

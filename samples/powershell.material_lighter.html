@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>powershell - material_lighter - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-powershell" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;"># Single line comments start with a number symbol.</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-powershell" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;"># Single line comments start with a number symbol.</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #aabfc9;">&lt;#</span>
 </span><span class="line" data-line="4"><span style="color: #aabfc9;">  Multi-line comments</span>
@@ -398,14 +381,14 @@
 </span><span class="line" data-line="381"><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="382">
 </span><span class="line" data-line="383"><span style="color: #aabfc9;"># Handle exceptions with a try/catch block</span>
-</span><span class="line" data-line="384"><span style="color: #39adb5;">try</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="384"><span style="color: #e53935;">try</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="385">    <span style="color: #aabfc9;"># Use &quot;throw&quot; to raise an error</span>
-</span><span class="line" data-line="386">    <span style="color: #39adb5;">throw</span> <span style="color: #91b859;">&quot;This is an error&quot;</span>
+</span><span class="line" data-line="386">    <span style="color: #e53935;">throw</span> <span style="color: #91b859;">&quot;This is an error&quot;</span>
 </span><span class="line" data-line="387"><span style="color: #39adb5;">&rbrace;</span>
-</span><span class="line" data-line="388"><span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="388"><span style="color: #e53935;">catch</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="389">    <span style="color: #6182b8;">Write-Output</span><span style="color: #39adb5;"> </span><span style="color: #39adb5;">$Error</span><span style="color: #39adb5;">.</span><span style="color: #94a7b0;">ExceptionMessage</span>
 </span><span class="line" data-line="390"><span style="color: #39adb5;">&rbrace;</span>
-</span><span class="line" data-line="391"><span style="color: #39adb5;">finally</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="391"><span style="color: #e53935;">finally</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="392">    <span style="color: #6182b8;">Write-Output</span><span style="color: #39adb5;"> </span><span style="color: #91b859;">&quot;We can clean up resources here&quot;</span>
 </span><span class="line" data-line="393"><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="394">
@@ -453,7 +436,7 @@
 </span><span class="line" data-line="436"><span style="color: #aabfc9;">.EXAMPLE</span>
 </span><span class="line" data-line="437"><span style="color: #aabfc9;">New-Website -Name FancySite -Po 5000</span>
 </span><span class="line" data-line="438"><span style="color: #aabfc9;">New-Website SiteWithDefaultPort</span>
-</span><span class="line" data-line="439"><span style="color: #aabfc9;">New-Website siteName 2000 # <span style="color: #aabfc9;">ERROR</span>! Port argument could not be validated</span>
+</span><span class="line" data-line="439"><span style="color: #aabfc9;">New-Website siteName 2000 # <span style="color: #aabfc9; background-color: #ff5370;">ERROR</span>! Port argument could not be validated</span>
 </span><span class="line" data-line="440"><span style="color: #aabfc9;">(&#39;name1&#39;,&#39;name2&#39;) | New-Website -Verbose</span>
 </span><span class="line" data-line="441"><span style="color: #aabfc9;">#&gt;</span>
 </span><span class="line" data-line="442"><span style="color: #39adb5;">function</span> <span style="color: #6182b8;">New-Website</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
@@ -794,5 +777,3 @@
 </span><span class="line" data-line="777"><span style="color: #aabfc9;"> Now scale this up 100x as many servers :)</span>
 </span><span class="line" data-line="778"><span style="color: #aabfc9;">#&gt;</span>
 </span></code></pre>
-</body>
-</html>

@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>c - catppuccin_latte - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #4c4f69; background-color: #eff1f5;"><code class="language-c" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #7c7f93;">// Single-line comments start with // - only available in C99 and later.</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #4c4f69; background-color: #eff1f5;"><code class="language-c" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #7c7f93;">// Single-line comments start with // - only available in C99 and later.</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #7c7f93;">/*</span>
 </span><span class="line" data-line="4"><span style="color: #7c7f93;">Multi-line comments look like this. They work in C89 as well.</span>
@@ -160,15 +143,15 @@
 </span><span class="line" data-line="143">  <span style="color: #df8e1d;">int</span> <span style="color: #4c4f69;">my_array</span><span style="color: #7c7f93;">[</span><span style="color: #fe640b;">5</span><span style="color: #7c7f93;">]</span> <span style="color: #04a5e5;">=</span> <span style="color: #7c7f93;">&lbrace;</span><span style="color: #fe640b;">1</span><span style="color: #7c7f93;">,</span> <span style="color: #fe640b;">2</span><span style="color: #7c7f93;">&rbrace;</span><span style="color: #7c7f93;">;</span>
 </span><span class="line" data-line="144">  <span style="color: #7c7f93;">// So my_array now has five elements, all but the first two of which are 0:</span>
 </span><span class="line" data-line="145">  <span style="color: #7c7f93;">// [1, 2, 0, 0, 0]</span>
-</span><span class="line" data-line="146">  <span style="color: #7c7f93;">// <span style="color: #7c7f93;">NOTE</span> that you get away without explicitly declaring the size</span>
+</span><span class="line" data-line="146">  <span style="color: #7c7f93;">// <span style="color: #eff1f5; background-color: #1e66f5;">NOTE</span> that you get away without explicitly declaring the size</span>
 </span><span class="line" data-line="147">  <span style="color: #7c7f93;">// of the array IF you initialize the array on the same line:</span>
 </span><span class="line" data-line="148">  <span style="color: #df8e1d;">int</span> <span style="color: #4c4f69;">my_array</span><span style="color: #7c7f93;">[</span><span style="color: #7c7f93;">]</span> <span style="color: #04a5e5;">=</span> <span style="color: #7c7f93;">&lbrace;</span><span style="color: #fe640b;">0</span><span style="color: #7c7f93;">&rbrace;</span><span style="color: #7c7f93;">;</span>
-</span><span class="line" data-line="149">  <span style="color: #7c7f93;">// <span style="color: #7c7f93;">NOTE</span> that, when not declaring the size, the size of the array is the number</span>
+</span><span class="line" data-line="149">  <span style="color: #7c7f93;">// <span style="color: #eff1f5; background-color: #1e66f5;">NOTE</span> that, when not declaring the size, the size of the array is the number</span>
 </span><span class="line" data-line="150">  <span style="color: #7c7f93;">// of elements in the initializer. With &quot;&lbrace;0&rbrace;&quot;, my_array is now of size one: [0]</span>
 </span><span class="line" data-line="151">  <span style="color: #7c7f93;">// To evaluate the size of the array at run-time, divide its byte size by the</span>
 </span><span class="line" data-line="152">  <span style="color: #7c7f93;">// byte size of its element type:</span>
 </span><span class="line" data-line="153">  <span style="color: #df8e1d;">size_t</span> <span style="color: #4c4f69;">my_array_size</span> <span style="color: #04a5e5;">=</span> <span style="color: #04a5e5;">sizeof</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">my_array</span><span style="color: #7c7f93;">)</span> <span style="color: #04a5e5;">/</span> <span style="color: #04a5e5;">sizeof</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">my_array</span><span style="color: #7c7f93;">[</span><span style="color: #fe640b;">0</span><span style="color: #7c7f93;">]</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">;</span>
-</span><span class="line" data-line="154">  <span style="color: #7c7f93;">// <span style="color: #7c7f93;">WARNING</span> You should evaluate the size *before* you begin passing the array</span>
+</span><span class="line" data-line="154">  <span style="color: #7c7f93;">// <span style="color: #eff1f5; background-color: #df8e1d;">WARNING</span> You should evaluate the size *before* you begin passing the array</span>
 </span><span class="line" data-line="155">  <span style="color: #7c7f93;">// to functions (see later discussion) because arrays get &quot;downgraded&quot; to</span>
 </span><span class="line" data-line="156">  <span style="color: #7c7f93;">// raw pointers when they are passed to functions (so the statement above</span>
 </span><span class="line" data-line="157">  <span style="color: #7c7f93;">// will produce the wrong result inside the function).</span>
@@ -581,7 +564,7 @@
 </span><span class="line" data-line="564">  <span style="color: #df8e1d;">char</span> <span style="color: #4c4f69;">tmp</span><span style="color: #7c7f93;">;</span>
 </span><span class="line" data-line="565">  <span style="color: #df8e1d;">size_t</span> <span style="color: #4c4f69;">ii</span> <span style="color: #04a5e5;">=</span> <span style="color: #fe640b;">0</span><span style="color: #7c7f93;">;</span>
 </span><span class="line" data-line="566">  <span style="color: #df8e1d;">size_t</span> <span style="color: #4c4f69;">len</span> <span style="color: #04a5e5;">=</span> <span style="color: #1e66f5;">strlen</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">str_in</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">;</span> <span style="color: #7c7f93;">// `strlen()` is part of the c standard library</span>
-</span><span class="line" data-line="567">                               <span style="color: #7c7f93;">// <span style="color: #7c7f93;">NOTE</span><span style="color: #7c7f93;">:</span> length returned by `strlen` DOESN&#39;T</span>
+</span><span class="line" data-line="567">                               <span style="color: #7c7f93;">// <span style="color: #eff1f5; background-color: #1e66f5;">NOTE</span><span style="color: #7c7f93;">:</span> length returned by `strlen` DOESN&#39;T</span>
 </span><span class="line" data-line="568">                               <span style="color: #7c7f93;">//       include the terminating NULL byte (&#39;\0&#39;)</span>
 </span><span class="line" data-line="569">  <span style="color: #7c7f93;">// in C99 and newer versions, you can directly declare loop control variables</span>
 </span><span class="line" data-line="570">  <span style="color: #7c7f93;">// in the loop&#39;s parentheses. e.g., `for (size_t ii = 0; ...`</span>
@@ -591,7 +574,7 @@
 </span><span class="line" data-line="574">    <span style="color: #4c4f69;">str_in</span><span style="color: #7c7f93;">[</span><span style="color: #4c4f69;">len</span> <span style="color: #04a5e5;">-</span> <span style="color: #4c4f69;">ii</span> <span style="color: #04a5e5;">-</span> <span style="color: #fe640b;">1</span><span style="color: #7c7f93;">]</span> <span style="color: #04a5e5;">=</span> <span style="color: #4c4f69;">tmp</span><span style="color: #7c7f93;">;</span>
 </span><span class="line" data-line="575">  <span style="color: #7c7f93;">&rbrace;</span>
 </span><span class="line" data-line="576"><span style="color: #7c7f93;">&rbrace;</span>
-</span><span class="line" data-line="577"><span style="color: #7c7f93;">//<span style="color: #7c7f93;">NOTE</span><span style="color: #7c7f93;">:</span> string.h header file needs to be included to use strlen()</span>
+</span><span class="line" data-line="577"><span style="color: #7c7f93;">//<span style="color: #eff1f5; background-color: #1e66f5;">NOTE</span><span style="color: #7c7f93;">:</span> string.h header file needs to be included to use strlen()</span>
 </span><span class="line" data-line="578">
 </span><span class="line" data-line="579"><span style="color: #7c7f93;">/*</span>
 </span><span class="line" data-line="580"><span style="color: #7c7f93;">char c[] = &quot;This is a test.&quot;;</span>
@@ -804,7 +787,7 @@
 </span><span class="line" data-line="787"><span style="color: #7c7f93;">&quot;%3.2f&quot;; // minimum 3 digits left and 2 digits right decimal float</span>
 </span><span class="line" data-line="788"><span style="color: #7c7f93;">&quot;%7.4s&quot;; // (can do with strings too)</span>
 </span><span class="line" data-line="789"><span style="color: #7c7f93;">&quot;%c&quot;;    // char</span>
-</span><span class="line" data-line="790"><span style="color: #7c7f93;">&quot;%p&quot;;    // pointer. <span style="color: #7c7f93;">NOTE</span><span style="color: #7c7f93;">:</span> need to (void *)-cast the pointer, before passing</span>
+</span><span class="line" data-line="790"><span style="color: #7c7f93;">&quot;%p&quot;;    // pointer. <span style="color: #eff1f5; background-color: #1e66f5;">NOTE</span><span style="color: #7c7f93;">:</span> need to (void *)-cast the pointer, before passing</span>
 </span><span class="line" data-line="791"><span style="color: #7c7f93;">         //                it as an argument to `printf`.</span>
 </span><span class="line" data-line="792"><span style="color: #7c7f93;">&quot;%x&quot;;    // hexadecimal</span>
 </span><span class="line" data-line="793"><span style="color: #7c7f93;">&quot;%o&quot;;    // octal</span>
@@ -891,5 +874,3 @@
 </span><span class="line" data-line="874">
 </span><span class="line" data-line="875"><span style="color: #ea76cb;">#endif</span> <span style="color: #7c7f93;">/* End of the if preprocessor directive. */</span><span style="color: #7c7f93;"></span>
 </span></code></pre>
-</body>
-</html>

@@ -1,0 +1,305 @@
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #3760bf; background-color: #e1e2e7;"><code class="language-hcl" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #848cb5;">// Top-level HCL file will interactively ask user values for the variables</span>
+</span><span class="line" data-line="2"><span style="color: #848cb5;">// which do not have a default value</span>
+</span><span class="line" data-line="3"><span style="color: #7847bd;">variable</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">ready</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="4">  <span style="color: #387068;">description</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">Ready to learn?</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="5">  <span style="color: #387068;">type</span> = <span style="color: #3760bf;">bool</span>
+</span><span class="line" data-line="6">  <span style="color: #848cb5;">// default = true</span>
+</span><span class="line" data-line="7"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="8">
+</span><span class="line" data-line="9"><span style="color: #848cb5;">// Module block consults a specified folder for *.tf files, would</span>
+</span><span class="line" data-line="10"><span style="color: #848cb5;">// effectively prefix all resources IDs with &quot;module.learn-basics.&quot;</span>
+</span><span class="line" data-line="11"><span style="color: #7847bd;">module</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">learn-basics</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="12">  <span style="color: #387068;">source</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">./learn-basics</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="13">  <span style="color: #387068;">ready_to_learn</span> = <span style="color: #f52a65;">var</span><span style="color: #006a83;">.</span><span style="color: #387068;">ready</span>
+</span><span class="line" data-line="14"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="15">
+</span><span class="line" data-line="16"><span style="color: #7847bd;">output</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">knowledge</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="17">  <span style="color: #387068;">value</span> = <span style="color: #f52a65;">module</span><span style="color: #006a83;">.</span><span style="color: #3760bf;">learn-basics</span><span style="color: #006a83;">.</span><span style="color: #387068;">knowledge</span>
+</span><span class="line" data-line="18"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="19">
+</span><span class="line" data-line="20"><span style="color: #848cb5;">// Variables are not automatically passed into modules</span>
+</span><span class="line" data-line="21"><span style="color: #848cb5;">// and can be typeless.</span>
+</span><span class="line" data-line="22"><span style="color: #7847bd;">variable</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">ready</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="23"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="24">
+</span><span class="line" data-line="25"><span style="color: #848cb5;">// It is good practice to define a type though. There are 3 primitive types -</span>
+</span><span class="line" data-line="26"><span style="color: #848cb5;">// 3 collection types and 2 structural types. Structural types define</span>
+</span><span class="line" data-line="27"><span style="color: #848cb5;">// types recursively</span>
+</span><span class="line" data-line="28"><span style="color: #7847bd;">variable</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">structural-types</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="29">  <span style="color: #387068;">type</span> = <span style="color: #2e7de9;">object</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="30">    <span style="color: #387068;">object</span>: <span style="color: #2e7de9;">object</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="31">      <span style="color: #387068;">can-be-nested</span>: <span style="color: #3760bf;">bool</span>
+</span><span class="line" data-line="32">    <span style="color: #6172b0;">&rbrace;</span><span style="color: #6172b0;">)</span><span style="color: #006a83;">,</span>
+</span><span class="line" data-line="33">    <span style="color: #387068;">tuple</span>: <span style="color: #2e7de9;">tuple</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">[</span><span style="color: #3760bf;">int</span><span style="color: #006a83;">,</span> <span style="color: #3760bf;">string</span><span style="color: #6172b0;">]</span><span style="color: #6172b0;">)</span>
+</span><span class="line" data-line="34">  <span style="color: #6172b0;">&rbrace;</span><span style="color: #6172b0;">)</span>
+</span><span class="line" data-line="35">
+</span><span class="line" data-line="36">  <span style="color: #387068;">default</span> = <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="37">    <span style="color: #387068;">object</span> = <span style="color: #6172b0;">&lbrace;</span> <span style="color: #387068;">can-be-nested</span>: <span style="color: #b15c00;">true</span> <span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="38">    <span style="color: #387068;">tuple</span> = <span style="color: #6172b0;">[</span><span style="color: #b15c00;">3</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">cm</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="39">  <span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="40"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="41">
+</span><span class="line" data-line="42"><span style="color: #848cb5;">// Collection types may specify a type, but can also be &quot;any&quot;.</span>
+</span><span class="line" data-line="43"><span style="color: #7847bd;">variable</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">list</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="44">  <span style="color: #188092;">type</span><span style="color: #006a83;"></span>: list(string)
+</span><span class="line" data-line="45">  default = [<span style="color: #587539;">&quot;</span><span style="color: #587539;">red</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">green</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">blue</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="46">&rbrace;
+</span><span class="line" data-line="47">
+</span><span class="line" data-line="48">variable <span style="color: #587539;">&quot;</span><span style="color: #587539;">map</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="49">  <span style="color: #387068;">type</span>: map(any)
+</span><span class="line" data-line="50">  default = &lbrace;
+</span><span class="line" data-line="51">    red = <span style="color: #587539;">&quot;</span><span style="color: #587539;">#FF0000</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="52">    <span style="color: #587539;">&quot;</span><span style="color: #587539;">green</span><span style="color: #587539;">&quot;</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">#00FF00</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="53">  <span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="54"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="55">
+</span><span class="line" data-line="56"><span style="color: #7847bd;">variable</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">favourites</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="57">  <span style="color: #188092;">type</span>: set
+</span><span class="line" data-line="58">  default = [<span style="color: #587539;">&quot;</span><span style="color: #587539;">red</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">blue</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="59">&rbrace;
+</span><span class="line" data-line="60">
+</span><span class="line" data-line="61">// When the type is not specified or is a mix of scalars
+</span><span class="line" data-line="62">// they will be converted to strings.
+</span><span class="line" data-line="63">
+</span><span class="line" data-line="64">// Use modern IDEs for type completion features. It does not matter
+</span><span class="line" data-line="65">// in which file and in which order you define a variable, it becomes
+</span><span class="line" data-line="66">// accessible from anywhere.
+</span><span class="line" data-line="67">
+</span><span class="line" data-line="68">// Default values for variables may not use expressions, but you can
+</span><span class="line" data-line="69">// use locals for that. You don&#39;t specify types for locals. With locals
+</span><span class="line" data-line="70">// you can create intermediate products from other variables, modules,
+</span><span class="line" data-line="71">// and functions.
+</span><span class="line" data-line="72">
+</span><span class="line" data-line="73">locals &lbrace;
+</span><span class="line" data-line="74">  ready = var.ready ? <span style="color: #587539;">&quot;</span><span style="color: #587539;">yes</span><span style="color: #587539;">&quot;</span>: <span style="color: #587539;">&quot;</span><span style="color: #587539;">no</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="75">
+</span><span class="line" data-line="76">  <span style="color: #188092;">yaml</span> = yamldecode(file(<span style="color: #587539;">&quot;</span><span style="color: #587539;">$&lbrace;path.module&rbrace;/file-in-current-folder.yaml</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">)</span>)
+</span><span class="line" data-line="77">&rbrace;
+</span><span class="line" data-line="78">
+</span><span class="line" data-line="79">// &#39;locals&#39; blocks can be defined multiple times, but all variables,
+</span><span class="line" data-line="80">// resources and local names should be unique
+</span><span class="line" data-line="81">
+</span><span class="line" data-line="82">locals &lbrace;
+</span><span class="line" data-line="83">  set = toset(var.map)
+</span><span class="line" data-line="84">&rbrace;
+</span><span class="line" data-line="85">
+</span><span class="line" data-line="86">module <span style="color: #587539;">&quot;</span><span style="color: #587539;">more-resources</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="87">  <span style="color: #387068;">source</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">../more-learning</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="88">  <span style="color: #387068;">yaml-data</span> = <span style="color: #f52a65;">local</span><span style="color: #006a83;">.</span><span style="color: #387068;">yaml</span>
+</span><span class="line" data-line="89"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="90">
+</span><span class="line" data-line="91"><span style="color: #848cb5;">// Modules can declare outputs, that can be optionally referenced</span>
+</span><span class="line" data-line="92"><span style="color: #848cb5;">// (see above), typically outputs appear at the bottom of the file or</span>
+</span><span class="line" data-line="93"><span style="color: #848cb5;">// in &quot;outputs.tf&quot;.</span>
+</span><span class="line" data-line="94"><span style="color: #188092;">output</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">knowledge</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="95">  <span style="color: #387068;">value</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">types so far, more to come</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="96"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="97">
+</span><span class="line" data-line="98"><span style="color: #188092;">variable</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">yaml-data</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="99">
+</span><span class="line" data-line="100">  <span style="color: #848cb5;">// config is sourced from a .yaml file, so technically it is a</span>
+</span><span class="line" data-line="101">  <span style="color: #848cb5;">// map(any), but we can narrow down type like this:</span>
+</span><span class="line" data-line="102">  <span style="color: #387068;">type</span> = <span style="color: #2e7de9;">map</span><span style="color: #6172b0;">(</span><span style="color: #3760bf;">string</span><span style="color: #6172b0;">)</span>
+</span><span class="line" data-line="103"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="104">
+</span><span class="line" data-line="105"><span style="color: #848cb5;">// You do not need to explicitly define providers, they all have reasonable</span>
+</span><span class="line" data-line="106"><span style="color: #848cb5;">// defaults with environment variables. Using a resource that relies on a</span>
+</span><span class="line" data-line="107"><span style="color: #848cb5;">// provider will also transparently initialize it (when you invoke terraform init)</span>
+</span><span class="line" data-line="108"><span style="color: #188092;">resource</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws_s3_bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="109">  <span style="color: #387068;">bucket</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">abc</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="110"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="111">
+</span><span class="line" data-line="112"><span style="color: #848cb5;">// You can also create provider aliases</span>
+</span><span class="line" data-line="113"><span style="color: #188092;">provider</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="114">  <span style="color: #387068;">alias</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">as-role</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="115">  <span style="color: #188092;">assume_role</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="116">    <span style="color: #387068;">role_arn</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">..</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="117">  <span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="118"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="119">
+</span><span class="line" data-line="120"><span style="color: #848cb5;">// then use them to create resources</span>
+</span><span class="line" data-line="121"><span style="color: #188092;">resource</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws_s3_bucket_object</span><span style="color: #587539;">&quot;</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">test-file</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="122">
+</span><span class="line" data-line="123">  <span style="color: #848cb5;">// all resources have attributes that can be referenced. Some of those</span>
+</span><span class="line" data-line="124">  <span style="color: #848cb5;">// will be available right away (like bucket) and others may only</span>
+</span><span class="line" data-line="125">  <span style="color: #848cb5;">// become available after the plan begins executing. The test-file resource</span>
+</span><span class="line" data-line="126">  <span style="color: #848cb5;">// will be created only after aws_s3_bucket.bucket finishes being created</span>
+</span><span class="line" data-line="127">
+</span><span class="line" data-line="128">  <span style="color: #848cb5;">// depends_on = aws_s3_bucket.bucket</span>
+</span><span class="line" data-line="129">  <span style="color: #387068;">bucket</span> = <span style="color: #f52a65;">aws_s3_bucket</span><span style="color: #006a83;">.</span><span style="color: #3760bf;">bucket</span><span style="color: #006a83;">.</span><span style="color: #387068;">bucket</span>
+</span><span class="line" data-line="130">  <span style="color: #387068;">key</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">index.html</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="131">  <span style="color: #387068;">content</span> = <span style="color: #2e7de9;">file</span><span style="color: #6172b0;">(</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">$&lbrace;</span><span style="color: #f52a65;">path</span><span style="color: #006a83;">.</span><span style="color: #387068;">module</span><span style="color: #006a83;">&rbrace;</span><span style="color: #587539;">/index.html</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">)</span>
+</span><span class="line" data-line="132">
+</span><span class="line" data-line="133">  <span style="color: #848cb5;">// you can also manually specify provider alias</span>
+</span><span class="line" data-line="134">  <span style="color: #387068;">provider</span> = <span style="color: #f52a65;">aws</span><span style="color: #006a83;">.</span><span style="color: #387068;">as-role</span>
+</span><span class="line" data-line="135"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="136">
+</span><span class="line" data-line="137"><span style="color: #848cb5;">// Each resource will receive an ID in state, like &quot;aws_s3_bucket.bucket&quot;.</span>
+</span><span class="line" data-line="138"><span style="color: #848cb5;">// When resources are created inside a module, their state ID is prepended</span>
+</span><span class="line" data-line="139"><span style="color: #848cb5;">// with module.&lt;module-name&gt;</span>
+</span><span class="line" data-line="140">
+</span><span class="line" data-line="141"><span style="color: #188092;">module</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">learn-each</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="142">  <span style="color: #387068;">source</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">../learn-each</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="143"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="144">
+</span><span class="line" data-line="145"><span style="color: #848cb5;">// Nesting modules like this may not be the best practice, and it&#39;s only</span>
+</span><span class="line" data-line="146"><span style="color: #848cb5;">// used here for illustration purposes</span>
+</span><span class="line" data-line="147">
+</span><span class="line" data-line="148"><span style="color: #188092;">locals</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="149">  <span style="color: #387068;">list</span> = <span style="color: #6172b0;">[</span><span style="color: #587539;">&quot;</span><span style="color: #587539;">red</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">green</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">blue</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="150"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="151"><span style="color: #188092;">resource</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws_s3_bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">badly-coloured-bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="152">  <span style="color: #387068;">count</span> = <span style="color: #2e7de9;">count</span><span style="color: #6172b0;">(</span><span style="color: #f52a65;">local</span><span style="color: #006a83;">.</span><span style="color: #387068;">list</span><span style="color: #6172b0;">)</span>
+</span><span class="line" data-line="153">  <span style="color: #387068;">bucket_prefix</span> = <span style="color: #587539;">&quot;</span><span style="color: #006a83;">$&lbrace;</span><span style="color: #f52a65;">local</span><span style="color: #006a83;">.</span><span style="color: #387068;">list</span><span style="color: #6172b0;">[</span><span style="color: #f52a65;">count</span><span style="color: #006a83;">.</span><span style="color: #387068;">index</span><span style="color: #6172b0;">]</span><span style="color: #006a83;">&rbrace;</span><span style="color: #587539;">-</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="154"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="155"><span style="color: #848cb5;">// will create 3 buckets, prefixed with &quot;red-&quot;, etc. and followed by</span>
+</span><span class="line" data-line="156"><span style="color: #848cb5;">// a unique identifier. Some resources will automatically generate</span>
+</span><span class="line" data-line="157"><span style="color: #848cb5;">// a random name if not specified. The actual name of the resource</span>
+</span><span class="line" data-line="158"><span style="color: #848cb5;">// (or bucket in this example) can be referenced as attributes</span>
+</span><span class="line" data-line="159">
+</span><span class="line" data-line="160"><span style="color: #188092;">output</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">red-bucket-name</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="161">  <span style="color: #387068;">value</span> = <span style="color: #f52a65;">aws_s3_bucket</span><span style="color: #006a83;">.</span><span style="color: #3760bf;">badly-coloured-bucket</span><span style="color: #6172b0;">[</span><span style="color: #b15c00;">0</span><span style="color: #6172b0;">]</span><span style="color: #006a83;">.</span><span style="color: #387068;">bucket</span>
+</span><span class="line" data-line="162"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="163">
+</span><span class="line" data-line="164"><span style="color: #848cb5;">// note that bucket resource ID will be &quot;aws_s3_bucket.badly-coloured-bucket[0]&quot;</span>
+</span><span class="line" data-line="165"><span style="color: #848cb5;">// through to 2, because they are list index elements. If you remove &quot;red&quot; from</span>
+</span><span class="line" data-line="166"><span style="color: #848cb5;">// the list, however, it will re-create all the buckets as they would now</span>
+</span><span class="line" data-line="167"><span style="color: #848cb5;">// have new IDs. A better way is to use for_each</span>
+</span><span class="line" data-line="168">
+</span><span class="line" data-line="169"><span style="color: #188092;">resource</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws_s3_bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">coloured-bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="170">  <span style="color: #848cb5;">// for_each only supports maps and sets</span>
+</span><span class="line" data-line="171">  <span style="color: #387068;">for_each</span> = <span style="color: #2e7de9;">toset</span><span style="color: #6172b0;">(</span><span style="color: #f52a65;">local</span><span style="color: #006a83;">.</span><span style="color: #387068;">list</span><span style="color: #6172b0;">)</span>
+</span><span class="line" data-line="172">  <span style="color: #387068;">bucket_prefix</span> = <span style="color: #587539;">&quot;</span><span style="color: #006a83;">$&lbrace;</span><span style="color: #f52a65;">each</span><span style="color: #006a83;">.</span><span style="color: #387068;">value</span><span style="color: #006a83;">&rbrace;</span><span style="color: #587539;">-</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="173"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="174">
+</span><span class="line" data-line="175"><span style="color: #848cb5;">// the name for this resource would be aws_s3_bucket.coloured-bucket[red]</span>
+</span><span class="line" data-line="176">
+</span><span class="line" data-line="177"><span style="color: #188092;">output</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">red-bucket-name2</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="178">  <span style="color: #387068;">value</span> = <span style="color: #f52a65;">aws_s3_bucket</span><span style="color: #006a83;">.</span><span style="color: #3760bf;">badly-coloured-bucket</span><span style="color: #6172b0;">[</span><span style="color: #587539;">&quot;</span><span style="color: #587539;">red</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span><span style="color: #006a83;">.</span><span style="color: #387068;">bucket</span>
+</span><span class="line" data-line="179"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="180">
+</span><span class="line" data-line="181"><span style="color: #188092;">output</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">all-bucket-names</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="182">
+</span><span class="line" data-line="183">  <span style="color: #848cb5;">// returns a list containing bucket names - using a &quot;splat expression&quot;</span>
+</span><span class="line" data-line="184">  <span style="color: #387068;">value</span> = <span style="color: #f52a65;">aws_s3_bucket</span><span style="color: #006a83;">.</span><span style="color: #387068;">coloured-bucket</span><span style="color: #006a83;">[*]</span><span style="color: #006a83;">.</span><span style="color: #3760bf;">bucket</span>
+</span><span class="line" data-line="185"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="186">
+</span><span class="line" data-line="187"><span style="color: #848cb5;">// there are other splat expressions:</span>
+</span><span class="line" data-line="188"><span style="color: #188092;">output</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">all-bucket-names2</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="189">  <span style="color: #387068;">value</span> = <span style="color: #6172b0;">[</span><span style="color: #9854f1;">for</span> <span style="color: #3760bf;">b</span> <span style="color: #9854f1;">in</span> <span style="color: #f52a65;">aws_s3_bucket</span><span style="color: #006a83;">.</span><span style="color: #387068;">coloured-bucket</span>: <span style="color: #f52a65;">b</span><span style="color: #006a83;">.</span><span style="color: #387068;">bucket</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="190"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="191"><span style="color: #848cb5;">// can also include a filter</span>
+</span><span class="line" data-line="192"><span style="color: #188092;">output</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">filtered-bucket-names</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="193">  <span style="color: #387068;">value</span> = <span style="color: #6172b0;">[</span><span style="color: #9854f1;">for</span> <span style="color: #3760bf;">b</span> <span style="color: #9854f1;">in</span> <span style="color: #f52a65;">aws_s3_bucket</span><span style="color: #006a83;">.</span><span style="color: #387068;">coloured-bucket</span>:
+</span><span class="line" data-line="194">    <span style="color: #f52a65;">b</span><span style="color: #006a83;">.</span><span style="color: #387068;">bucket</span> <span style="color: #9854f1;">if</span> <span style="color: #2e7de9;">length</span><span style="color: #6172b0;">(</span><span style="color: #f52a65;">b</span><span style="color: #006a83;">.</span><span style="color: #387068;">bucket</span><span style="color: #6172b0;">)</span> <span style="color: #006a83;">&lt;</span> <span style="color: #b15c00;">10</span> <span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="195"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="196">
+</span><span class="line" data-line="197"><span style="color: #848cb5;">// here are some ways to generate maps &lbrace;red: &quot;red-123123..&quot;&rbrace;</span>
+</span><span class="line" data-line="198"><span style="color: #3760bf;">output</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">bucket-map</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="199">  <span style="color: #3760bf;">value</span> = <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="200">    <span style="color: #9854f1;">for</span> <span style="color: #3760bf;">b</span> <span style="color: #9854f1;">in</span> <span style="color: #f52a65;">aws_s3_bucket</span><span style="color: #006a83;">.</span><span style="color: #387068;">coloured-bucket</span>:
+</span><span class="line" data-line="201">       <span style="color: #3760bf;">trimsuffix</span><span style="color: #6172b0;">(</span><span style="color: #f52a65;">b</span><span style="color: #006a83;">.</span><span style="color: #387068;">bucket_prefix</span><span style="color: #006a83;">,</span> &#39;-&#39;)
+</span><span class="line" data-line="202">         =&gt; b.bucket
+</span><span class="line" data-line="203">   &rbrace;
+</span><span class="line" data-line="204">&rbrace;
+</span><span class="line" data-line="205">
+</span><span class="line" data-line="206">// as of Terraform 0.13 it is now also possible to use count/each for modules
+</span><span class="line" data-line="207">
+</span><span class="line" data-line="208">variable <span style="color: #587539;">&quot;</span><span style="color: #587539;">learn-functions</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="209">  <span style="color: #387068;">type</span> = <span style="color: #3760bf;">bool</span>
+</span><span class="line" data-line="210">  <span style="color: #387068;">default</span> = <span style="color: #b15c00;">true</span>
+</span><span class="line" data-line="211"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="212">
+</span><span class="line" data-line="213"><span style="color: #3760bf;">module</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">learn-functions</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="214">  <span style="color: #387068;">count</span> = <span style="color: #f52a65;">var</span><span style="color: #006a83;">.</span><span style="color: #387068;">learn-functions</span> <span style="color: #006a83;">?</span> <span style="color: #b15c00;">1</span>: <span style="color: #b15c00;">0</span>
+</span><span class="line" data-line="215">  <span style="color: #387068;">source</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">../learn-functions</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="216"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="217">
+</span><span class="line" data-line="218"><span style="color: #3760bf;">locals</span> &lbrace;
+</span><span class="line" data-line="219">  list = [<span style="color: #587539;">&quot;</span><span style="color: #587539;">one</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">two</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">three</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="220">
+</span><span class="line" data-line="221">  upper_list = [for x in local.list : upper(x) ] // <span style="color: #587539;">&quot;</span><span style="color: #587539;">ONE</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">TWO</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">THREE</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="222">
+</span><span class="line" data-line="223">  <span style="color: #3760bf;">map</span> = &lbrace;for x in local.list : x =&gt; upper(x) &rbrace; // <span style="color: #587539;">&quot;</span><span style="color: #587539;">one</span><span style="color: #587539;">&quot;</span>:<span style="color: #587539;">&quot;</span><span style="color: #587539;">ONE</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">two</span><span style="color: #587539;">&quot;</span>:<span style="color: #587539;">&quot;</span><span style="color: #587539;">TWO</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">three</span><span style="color: #587539;">&quot;</span>:<span style="color: #587539;">&quot;</span><span style="color: #587539;">THREE</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="224">
+</span><span class="line" data-line="225">  <span style="color: #3760bf;">filtered_list</span> = [for k, v in local.map : substr(v, 0, 2) if k != <span style="color: #587539;">&quot;</span><span style="color: #587539;">two</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">]</span> // <span style="color: #587539;">&quot;</span><span style="color: #587539;">ON</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">TH</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="226">
+</span><span class="line" data-line="227">  <span style="color: #3760bf;">prefixed_list</span> = [for v in local.filtered_list : <span style="color: #587539;">&quot;</span><span style="color: #587539;">pre-</span><span style="color: #006a83;">$&lbrace;</span><span style="color: #3760bf;">v</span><span style="color: #006a83;">&rbrace;</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">]</span> // <span style="color: #587539;">&quot;</span><span style="color: #587539;">pre-ON</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">pre-TH</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="228">
+</span><span class="line" data-line="229">  <span style="color: #3760bf;">joined_list</span> = join(local.upper_list,local. filtered_list) // <span style="color: #587539;">&quot;</span><span style="color: #587539;">ONE</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">TWO</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">THREE</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">pre-ON</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">pre-TH</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="230">
+</span><span class="line" data-line="231">  <span style="color: #848cb5;">// Set is very similar to List, but element order is irrelevant</span>
+</span><span class="line" data-line="232">  <span style="color: #3760bf;">joined_set</span> = toset(local.joined_list) // <span style="color: #587539;">&quot;</span><span style="color: #587539;">ONE</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">TWO</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">THREE</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">pre-ON</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">pre-TH</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="233">
+</span><span class="line" data-line="234">  <span style="color: #3760bf;">map_again</span> = map(slice(local.joined_list, 0, 4)) // <span style="color: #587539;">&quot;</span><span style="color: #587539;">ONE</span><span style="color: #587539;">&quot;</span>:<span style="color: #587539;">&quot;</span><span style="color: #587539;">TWO</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">THREE</span><span style="color: #587539;">&quot;</span>:<span style="color: #587539;">&quot;</span><span style="color: #587539;">pre-ON</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="235"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="236">
+</span><span class="line" data-line="237">// Usually list manipulation can be useful either for a resource with for_each or
+</span><span class="line" data-line="238">// to specify a dynamic block for a resource. This creates a bucket with some tags:
+</span><span class="line" data-line="239">
+</span><span class="line" data-line="240">resource <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws_s3_bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="241">  <span style="color: #387068;">name</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">test-bucket</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="242">  <span style="color: #387068;">tags</span> = <span style="color: #f52a65;">local</span><span style="color: #006a83;">.</span><span style="color: #387068;">map_again</span>
+</span><span class="line" data-line="243"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="244">
+</span><span class="line" data-line="245"><span style="color: #848cb5;">// this is identical to:</span>
+</span><span class="line" data-line="246"><span style="color: #848cb5;">// resource &quot;aws_s3_bucket&quot; &quot;bucket&quot; &lbrace;</span>
+</span><span class="line" data-line="247"><span style="color: #848cb5;">//   name = &quot;test-bucket&quot;</span>
+</span><span class="line" data-line="248"><span style="color: #848cb5;">//   tags = &lbrace;</span>
+</span><span class="line" data-line="249"><span style="color: #848cb5;">//     ONE = &quot;TWO&quot;</span>
+</span><span class="line" data-line="250"><span style="color: #848cb5;">//     THREE = &quot;pre-ON&quot;</span>
+</span><span class="line" data-line="251"><span style="color: #848cb5;">//   &rbrace;</span>
+</span><span class="line" data-line="252"><span style="color: #848cb5;">// &rbrace;</span>
+</span><span class="line" data-line="253">
+</span><span class="line" data-line="254"><span style="color: #848cb5;">// Some resources also contain dynamic blocks. The next example uses a &quot;data&quot; block</span>
+</span><span class="line" data-line="255"><span style="color: #848cb5;">// to look up 3 buckets (red, green and blue), then creates a policy that contains</span>
+</span><span class="line" data-line="256"><span style="color: #848cb5;">// read-only access to the red and green buckets and full access to the blue bucket.</span>
+</span><span class="line" data-line="257">
+</span><span class="line" data-line="258"><span style="color: #3760bf;">locals</span> &lbrace;
+</span><span class="line" data-line="259">  buckets = &lbrace;
+</span><span class="line" data-line="260">    red = <span style="color: #587539;">&quot;</span><span style="color: #587539;">read-only</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="261">    <span style="color: #3760bf;">green</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">read-only</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="262">    <span style="color: #3760bf;">blue</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">full</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="263">  <span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="264">  // we could load buckets from a file:
+</span><span class="line" data-line="265">  // bucket = file(&#39;bucket.json&#39;)
+</span><span class="line" data-line="266">
+</span><span class="line" data-line="267">  actions = &lbrace;
+</span><span class="line" data-line="268">    <span style="color: #587539;">&quot;</span><span style="color: #587539;">read-only</span><span style="color: #587539;">&quot;</span> = [<span style="color: #587539;">&quot;</span><span style="color: #587539;">s3:GetObject</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">s3:GetObjectVersion</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span>,
+</span><span class="line" data-line="269">    <span style="color: #587539;">&quot;</span><span style="color: #587539;">full</span><span style="color: #587539;">&quot;</span> = [<span style="color: #587539;">&quot;</span><span style="color: #587539;">s3:GetObject</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">s3:GetObjectVersion</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">s3:PutObject</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">s3:PutObjectVersion</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="270">  &rbrace;
+</span><span class="line" data-line="271">  // we will look up actions, so that we don&#39;t have to repeat actions
+</span><span class="line" data-line="272">&rbrace;
+</span><span class="line" data-line="273">
+</span><span class="line" data-line="274">// use a function to convert map keys into set
+</span><span class="line" data-line="275">data <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws_s3_bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">bucket</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="276">  <span style="color: #387068;">for_each</span> = <span style="color: #2e7de9;">toset</span><span style="color: #6172b0;">(</span><span style="color: #2e7de9;">keys</span><span style="color: #6172b0;">(</span><span style="color: #f52a65;">local</span><span style="color: #006a83;">.</span><span style="color: #387068;">buckets</span><span style="color: #6172b0;">)</span><span style="color: #6172b0;">)</span>
+</span><span class="line" data-line="277">  <span style="color: #387068;">bucket</span> = <span style="color: #f52a65;">each</span><span style="color: #006a83;">.</span><span style="color: #387068;">value</span>
+</span><span class="line" data-line="278"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="279">
+</span><span class="line" data-line="280"><span style="color: #848cb5;">// create json for our policy</span>
+</span><span class="line" data-line="281"><span style="color: #3760bf;">data</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws_iam_policy_document</span><span style="color: #587539;">&quot;</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">role_policy</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="282">  <span style="color: #3760bf;">statement</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="283">    <span style="color: #387068;">effect</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">Allow</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="284">    <span style="color: #387068;">actions</span> = <span style="color: #6172b0;">[</span>
+</span><span class="line" data-line="285">      <span style="color: #587539;">&quot;</span><span style="color: #587539;">ec2:*</span><span style="color: #587539;">&quot;</span><span style="color: #006a83;">,</span>
+</span><span class="line" data-line="286">    <span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="287">    <span style="color: #387068;">resources</span> = <span style="color: #6172b0;">[</span><span style="color: #587539;">&quot;</span><span style="color: #587539;">*</span><span style="color: #587539;">&quot;</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="288">  <span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="289">
+</span><span class="line" data-line="290">  <span style="color: #3760bf;">dynamic</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">statement</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="291">    <span style="color: #387068;">for_each</span> = <span style="color: #f52a65;">local</span><span style="color: #006a83;">.</span><span style="color: #387068;">buckets</span>
+</span><span class="line" data-line="292">    <span style="color: #3760bf;">content</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="293">      <span style="color: #387068;">effect</span> = <span style="color: #587539;">&quot;</span><span style="color: #587539;">Allow</span><span style="color: #587539;">&quot;</span>
+</span><span class="line" data-line="294">      <span style="color: #387068;">actions</span> = <span style="color: #2e7de9;">lookup</span><span style="color: #6172b0;">(</span><span style="color: #f52a65;">local</span><span style="color: #006a83;">.</span><span style="color: #387068;">actions</span><span style="color: #006a83;">,</span> <span style="color: #f52a65;">statement</span><span style="color: #006a83;">.</span><span style="color: #387068;">value</span><span style="color: #006a83;">,</span> <span style="color: #b15c00;">null</span><span style="color: #6172b0;">)</span>
+</span><span class="line" data-line="295">      <span style="color: #387068;">resources</span> = <span style="color: #6172b0;">[</span><span style="color: #f52a65;">data</span><span style="color: #006a83;">.</span><span style="color: #3760bf;">aws_s3_bucket</span><span style="color: #006a83;">.</span><span style="color: #387068;">bucket</span><span style="color: #6172b0;">[</span><span style="color: #f52a65;">statement</span><span style="color: #006a83;">.</span><span style="color: #387068;">key</span><span style="color: #6172b0;">]</span><span style="color: #6172b0;">]</span>
+</span><span class="line" data-line="296">    <span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="297">  <span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="298">&rbrace;
+</span><span class="line" data-line="299">
+</span><span class="line" data-line="300">// and this actually creates the AWS policy with permissions to all buckets
+</span><span class="line" data-line="301">resource <span style="color: #587539;">&quot;</span><span style="color: #587539;">aws_iam_policy</span><span style="color: #587539;">&quot;</span> <span style="color: #587539;">&quot;</span><span style="color: #587539;">policy</span><span style="color: #587539;">&quot;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="302">  <span style="color: #387068;">policy</span> = <span style="color: #f52a65;">data</span><span style="color: #006a83;">.</span><span style="color: #3760bf;">aws_iam_policy_document</span><span style="color: #006a83;">.</span><span style="color: #3760bf;">role_policy</span><span style="color: #006a83;">.</span><span style="color: #387068;">json</span>
+</span><span class="line" data-line="303"><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="304"><span style="color: #6172b0;"></span>
+</span></code></pre>

@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>ruby - material_oceanic - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #b0bec5; background-color: #25363b;"><code class="language-ruby" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #546e7a;"># This is a comment</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #b0bec5; background-color: #25363b;"><code class="language-ruby" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #546e7a;"># This is a comment</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #546e7a;">=begin</span>
 </span><span class="line" data-line="4"><span style="color: #546e7a;">This is a multi-line comment.</span>
@@ -361,14 +344,14 @@
 </span><span class="line" data-line="344"><span style="color: #546e7a;"># Exception handling</span>
 </span><span class="line" data-line="345"><span style="color: #89ddff;">begin</span>
 </span><span class="line" data-line="346">  <span style="color: #546e7a;"># Code here that might raise an exception</span>
-</span><span class="line" data-line="347">  <span style="color: #89ddff;">raise</span> <span style="color: #c792ea;">NoMemoryError</span><span style="color: #89ddff;">,</span> <span style="color: #c3e88d;">&#39;</span><span style="color: #c3e88d;">You ran out of memory.</span><span style="color: #c3e88d;">&#39;</span>
-</span><span class="line" data-line="348"><span style="color: #89ddff;">rescue</span> <span style="color: #c792ea;">NoMemoryError</span> <span style="color: #89ddff;">=&gt;</span> <span style="color: #b0bec5;">exception_variable</span>
+</span><span class="line" data-line="347">  <span style="color: #f07178;">raise</span> <span style="color: #c792ea;">NoMemoryError</span><span style="color: #89ddff;">,</span> <span style="color: #c3e88d;">&#39;</span><span style="color: #c3e88d;">You ran out of memory.</span><span style="color: #c3e88d;">&#39;</span>
+</span><span class="line" data-line="348"><span style="color: #f07178;">rescue</span> <span style="color: #c792ea;">NoMemoryError</span> <span style="color: #89ddff;">=&gt;</span> <span style="color: #b0bec5;">exception_variable</span>
 </span><span class="line" data-line="349">  <span style="color: #82aaff;">puts</span> <span style="color: #c3e88d;">&#39;</span><span style="color: #c3e88d;">NoMemoryError was raised</span><span style="color: #c3e88d;">&#39;</span><span style="color: #89ddff;">,</span> <span style="color: #b0bec5;">exception_variable</span>
-</span><span class="line" data-line="350"><span style="color: #89ddff;">rescue</span> <span style="color: #c792ea;">RuntimeError</span> <span style="color: #89ddff;">=&gt;</span> <span style="color: #b0bec5;">other_exception_variable</span>
+</span><span class="line" data-line="350"><span style="color: #f07178;">rescue</span> <span style="color: #c792ea;">RuntimeError</span> <span style="color: #89ddff;">=&gt;</span> <span style="color: #b0bec5;">other_exception_variable</span>
 </span><span class="line" data-line="351">  <span style="color: #82aaff;">puts</span> <span style="color: #c3e88d;">&#39;</span><span style="color: #c3e88d;">RuntimeError was raised now</span><span style="color: #c3e88d;">&#39;</span>
 </span><span class="line" data-line="352"><span style="color: #c792ea;">else</span>
 </span><span class="line" data-line="353">  <span style="color: #82aaff;">puts</span> <span style="color: #c3e88d;">&#39;</span><span style="color: #c3e88d;">This runs if no exceptions were thrown at all</span><span style="color: #c3e88d;">&#39;</span>
-</span><span class="line" data-line="354"><span style="color: #89ddff;">ensure</span>
+</span><span class="line" data-line="354"><span style="color: #f07178;">ensure</span>
 </span><span class="line" data-line="355">  <span style="color: #82aaff;">puts</span> <span style="color: #c3e88d;">&#39;</span><span style="color: #c3e88d;">This code always runs no matter what</span><span style="color: #c3e88d;">&#39;</span>
 </span><span class="line" data-line="356"><span style="color: #89ddff;">end</span>
 </span><span class="line" data-line="357">
@@ -658,5 +641,3 @@
 </span><span class="line" data-line="641"><span style="color: #c792ea;">Something</span><span style="color: #89ddff;">.</span><span style="color: #b0bec5;">new</span><span style="color: #89ddff;">.</span><span style="color: #82aaff;">bar</span> <span style="color: #546e7a;">#=&gt; NoMethodError: undefined method `bar&#39;</span>
 </span><span class="line" data-line="642"><span style="color: #c792ea;">Something</span><span style="color: #89ddff;">.</span><span style="color: #b0bec5;">new</span><span style="color: #89ddff;">.</span><span style="color: #82aaff;">qux</span> <span style="color: #546e7a;">#=&gt; &quot;qux&quot;</span>
 </span></code></pre>
-</body>
-</html>

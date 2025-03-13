@@ -1,39 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>svelte - tokyonight_day - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #3760bf; background-color: #e1e2e7;"><code class="language-svelte" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #188092;">&lt;</span><span style="color: #9854f1;">script</span><span style="color: #188092;">&gt;</span><span ></span>
-</span><span class="line" data-line="2"><span >	<span style="color: #7847bd;">let</span> <span style="color: #3760bf;">count</span> <span style="color: #006a83;">=</span> <span style="color: #2e7de9;">$state</span><span style="color: #6172b0;">(</span><span style="color: #b15c00;">0</span><span style="color: #6172b0;">)</span><span style="color: #006a83;">;</span></span>
-</span><span class="line" data-line="3"><span ></span>
-</span><span class="line" data-line="4"><span >	<span style="color: #2e7de9;">$effect</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">)</span> <span style="color: #006a83;">=&gt;</span> <span style="color: #6172b0;">&lbrace;</span></span>
-</span><span class="line" data-line="5"><span >		<span style="color: #9854f1;">if</span> <span style="color: #6172b0;">(</span><span style="color: #3760bf;">count</span> <span style="color: #006a83;">&gt;=</span> <span style="color: #b15c00;">10</span><span style="color: #6172b0;">)</span> <span style="color: #6172b0;">&lbrace;</span></span>
-</span><span class="line" data-line="6"><span >			<span style="color: #2e7de9;">alert</span><span style="color: #6172b0;">(</span><span style="color: #587539;">`count is dangerously high!`</span><span style="color: #6172b0;">)</span><span style="color: #006a83;">;</span></span>
-</span><span class="line" data-line="7"><span >			<span style="color: #3760bf;">count</span> <span style="color: #006a83;">=</span> <span style="color: #b15c00;">9</span><span style="color: #006a83;">;</span></span>
-</span><span class="line" data-line="8"><span >		<span style="color: #6172b0;">&rbrace;</span></span>
-</span><span class="line" data-line="9"><span >	<span style="color: #6172b0;">&rbrace;</span><span style="color: #6172b0;">)</span><span style="color: #006a83;">;</span></span>
-</span><span class="line" data-line="10"><span ></span>
-</span><span class="line" data-line="11"><span >	<span style="color: #9854f1;">function</span> <span style="color: #2e7de9;">handleClick</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">)</span> <span style="color: #6172b0;">&lbrace;</span></span>
-</span><span class="line" data-line="12"><span >		<span style="color: #3760bf;">count</span> <span style="color: #006a83;">+=</span> <span style="color: #b15c00;">1</span><span style="color: #006a83;">;</span></span>
-</span><span class="line" data-line="13"><span >	<span style="color: #6172b0;">&rbrace;</span></span>
-</span><span class="line" data-line="14"><span ></span><span style="color: #188092;">&lt;/</span><span style="color: #9854f1;">script</span><span style="color: #188092;">&gt;</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #3760bf; background-color: #e1e2e7;"><code class="language-svelte" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #6172b0;">&lt;</span><span style="color: #9854f1;">script</span><span style="color: #6172b0;">&gt;</span>
+</span><span class="line" data-line="2">	<span style="color: #7847bd;">let</span> <span style="color: #3760bf;">count</span> <span style="color: #006a83;">=</span> <span style="color: #2e7de9;">$state</span><span style="color: #6172b0;">(</span><span style="color: #b15c00;">0</span><span style="color: #6172b0;">)</span><span style="color: #006a83;">;</span>
+</span><span class="line" data-line="3">
+</span><span class="line" data-line="4">	<span style="color: #2e7de9;">$effect</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">)</span> <span style="color: #006a83;">=&gt;</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="5">		<span style="color: #9854f1;">if</span> <span style="color: #6172b0;">(</span><span style="color: #3760bf;">count</span> <span style="color: #006a83;">&gt;=</span> <span style="color: #b15c00;">10</span><span style="color: #6172b0;">)</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="6">			<span style="color: #2e7de9;">alert</span><span style="color: #6172b0;">(</span><span style="color: #587539;">`count is dangerously high!`</span><span style="color: #6172b0;">)</span><span style="color: #006a83;">;</span>
+</span><span class="line" data-line="7">			<span style="color: #3760bf;">count</span> <span style="color: #006a83;">=</span> <span style="color: #b15c00;">9</span><span style="color: #006a83;">;</span>
+</span><span class="line" data-line="8">		<span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="9">	<span style="color: #6172b0;">&rbrace;</span><span style="color: #6172b0;">)</span><span style="color: #006a83;">;</span>
+</span><span class="line" data-line="10">
+</span><span class="line" data-line="11">	<span style="color: #9854f1;">function</span> <span style="color: #2e7de9;">handleClick</span><span style="color: #6172b0;">(</span><span style="color: #6172b0;">)</span> <span style="color: #6172b0;">&lbrace;</span>
+</span><span class="line" data-line="12">		<span style="color: #3760bf;">count</span> <span style="color: #006a83;">+=</span> <span style="color: #b15c00;">1</span><span style="color: #006a83;">;</span>
+</span><span class="line" data-line="13">	<span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="14"><span style="color: #6172b0;">&lt;/</span><span style="color: #9854f1;">script</span><span style="color: #6172b0;">&gt;</span>
 </span><span class="line" data-line="15">
-</span><span class="line" data-line="16"><span style="color: #188092;">&lt;</span><span style="color: #9854f1;">button</span> <span style="color: #387068;">onclick</span><span style="color: #006a83;">=</span><span style="color: #6172b0;">&lbrace;</span><span style="color: #3760bf;">handleClick</span><span style="color: #6172b0;">&rbrace;</span><span style="color: #188092;">&gt;</span>
-</span><span class="line" data-line="17">	<span >Clicked</span> <span style="color: #6172b0;">&lbrace;</span><span style="color: #3760bf;">count</span><span style="color: #6172b0;">&rbrace;</span>
+</span><span class="line" data-line="16"><span style="color: #6172b0;">&lt;</span><span style="color: #9854f1;">button</span> <span style="color: #007197;">onclick</span><span style="color: #006a83;">=</span><span style="color: #6172b0;">&lbrace;</span><span style="color: #3760bf;">handleClick</span><span style="color: #6172b0;">&rbrace;</span><span style="color: #6172b0;">&gt;</span>
+</span><span class="line" data-line="17">	Clicked <span style="color: #6172b0;">&lbrace;</span><span style="color: #3760bf;">count</span><span style="color: #6172b0;">&rbrace;</span>
 </span><span class="line" data-line="18">	<span style="color: #6172b0;">&lbrace;</span><span style="color: #3760bf;">count</span> <span style="color: #006a83;">===</span> <span style="color: #b15c00;">1</span> <span style="color: #9854f1;">?</span> <span style="color: #587539;">&#39;time&#39;</span> <span style="color: #9854f1;">:</span> <span style="color: #587539;">&#39;times&#39;</span><span style="color: #6172b0;">&rbrace;</span>
-</span><span class="line" data-line="19"><span style="color: #188092;">&lt;/</span><span style="color: #9854f1;">button</span><span style="color: #188092;">&gt;</span>
+</span><span class="line" data-line="19"><span style="color: #6172b0;">&lt;/</span><span style="color: #9854f1;">button</span><span style="color: #6172b0;">&gt;</span>
 </span></code></pre>
-</body>
-</html>

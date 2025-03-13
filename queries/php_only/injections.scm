@@ -22,7 +22,7 @@
       (_
         (string_content) @injection.content))))
   (#set! injection.language "regex")
-  (#match? @_preg_func_identifier "^preg_"))
+  (#lua-match? @_preg_func_identifier "^preg_"))
 
 ; bash
 ((function_call_expression

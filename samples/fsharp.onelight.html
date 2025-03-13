@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>fsharp - onelight - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #6a6a6a; background-color: #fafafa;"><code class="language-f#" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #9b9fa6;">// single line comments use a double slash</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #6a6a6a; background-color: #fafafa;"><code class="language-f#" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #9b9fa6;">// single line comments use a double slash</span>
 </span><span class="line" data-line="2"><span style="color: #9b9fa6;">(* multi line comments use (* . . . *) pair</span>
 </span><span class="line" data-line="3"><span style="color: #9b9fa6;"></span>
 </span><span class="line" data-line="4"><span style="color: #9b9fa6;">-end of multi line comment- *)</span>
@@ -589,7 +572,7 @@
 </span><span class="line" data-line="572">        <span style="color: #9a77cf;">abstract</span> <span style="color: #118dc3;">MoveNext</span> <span style="color: #6a6a6a;">:</span> <span style="color: #eea825;"><span style="color: #eea825;">unit</span></span> <span style="color: #56b6c2;">-&gt;</span> <span style="color: #eea825;"><span style="color: #eea825;">bool</span></span>
 </span><span class="line" data-line="573">
 </span><span class="line" data-line="574">    <span style="color: #9b9fa6;">// abstract base class with virtual methods</span>
-</span><span class="line" data-line="575">    <span style="color: #6a6a6a;">[&lt;</span><span style="color: #eea825;">AbstractClass</span><span style="color: #6a6a6a;">&gt;]</span>
+</span><span class="line" data-line="575">    <span style="color: #6a6a6a;">[&lt;</span><span style="color: #9a77cf;">AbstractClass</span><span style="color: #6a6a6a;">&gt;]</span>
 </span><span class="line" data-line="576">    <span style="color: #9a77cf;">type</span> <span style="color: #eea825;">Shape</span><span style="color: #9a77cf;">(</span><span style="color: #9a77cf;">)</span> <span style="color: #56b6c2;">=</span>
 </span><span class="line" data-line="577">        <span style="color: #9b9fa6;">// readonly properties</span>
 </span><span class="line" data-line="578">        <span style="color: #9a77cf;">abstract</span> <span style="color: #9a77cf;">member</span> <span style="color: #118dc3;">Width</span> <span style="color: #6a6a6a;">:</span> <span style="color: #eea825;"><span style="color: #eea825;">int</span></span> <span style="color: #9a77cf;">with</span> <span style="color: #9a77cf;">get</span>
@@ -628,7 +611,7 @@
 </span><span class="line" data-line="611">    <span style="color: #9a77cf;">type</span> <span style="color: #eea825;">MyButton</span><span style="color: #9a77cf;">(</span><span style="color: #9a77cf;">)</span> <span style="color: #56b6c2;">=</span>
 </span><span class="line" data-line="612">        <span style="color: #9a77cf;">let</span> <span style="color: #e05661;">clickEvent</span> <span style="color: #56b6c2;">=</span> <span style="color: #9a77cf;">new</span> <span style="color: #118dc3;">Event<span style="color: #56b6c2;">&lt;</span><span style="color: #eea825;">_</span><span style="color: #56b6c2;">&gt;</span></span><span style="color: #118dc3;">()</span>
 </span><span class="line" data-line="613">
-</span><span class="line" data-line="614">        <span style="color: #6a6a6a;">[&lt;</span><span style="color: #eea825;">CLIEvent</span><span style="color: #6a6a6a;">&gt;]</span>
+</span><span class="line" data-line="614">        <span style="color: #6a6a6a;">[&lt;</span><span style="color: #9a77cf;">CLIEvent</span><span style="color: #6a6a6a;">&gt;]</span>
 </span><span class="line" data-line="615">        <span style="color: #9a77cf;">member</span> <span style="color: #118dc3;"><span style="color: #118dc3;">this</span><span style="color: #6a6a6a;">.</span><span style="color: #118dc3;">OnClick</span></span> <span style="color: #56b6c2;">=</span> clickEvent<span style="color: #6a6a6a;">.</span>Publish
 </span><span class="line" data-line="616">
 </span><span class="line" data-line="617">        <span style="color: #9a77cf;">member</span> <span style="color: #118dc3;"><span style="color: #118dc3;">this</span><span style="color: #6a6a6a;">.</span><span style="color: #118dc3;">TestEvent</span></span><span style="color: #e05661;"><span style="color: #9a77cf;">(</span>arg<span style="color: #9a77cf;">)</span></span> <span style="color: #56b6c2;">=</span>
@@ -641,5 +624,3 @@
 </span><span class="line" data-line="624">
 </span><span class="line" data-line="625">    <span style="color: #e05661;"><span style="color: #118dc3;">myButton<span style="color: #6a6a6a;">.</span>TestEvent</span><span style="color: #9a77cf;">(</span><span style="color: #e05661;"><span style="color: #1da912;">&quot;Hello World!&quot;</span></span><span style="color: #9a77cf;">)</span></span>
 </span></code></pre>
-</body>
-</html>

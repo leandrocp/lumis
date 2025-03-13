@@ -89,13 +89,12 @@
   (text) @markup.link.label)
   (#eq? @_tag "a"))
 
-; FIXME: QueryError { row: 198, column: 0, offset: 0, message: "Invalid arguments to set! predicate. Unexpected second capture name @string.special.url", kind: Predicate }
-; ((attribute
-;   (attribute_name) @_attr
-;   (quoted_attribute_value
-;     (attribute_value) @string.special.url))
-;   (#any-of? @_attr "href" "src")
-;   (#set! @string.special.url url @string.special.url))
+((attribute
+  (attribute_name) @_attr
+  (quoted_attribute_value
+    (attribute_value) @string.special.url))
+  (#any-of? @_attr "href" "src")
+  (#set! @string.special.url url true))
 
 [
   "<"

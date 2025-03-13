@@ -1,4 +1,5 @@
 ; inherits html_tags
+
 (element
   (start_tag
     (tag_name) @_py_script)
@@ -24,3 +25,11 @@
   (text) @injection.content
   (#eq? @_py_config "py-config")
   (#set! injection.language "toml"))
+
+((script_element
+  (raw_text) @injection.content)
+ (#set! injection.language "javascript"))
+
+((style_element
+  (raw_text) @injection.content)
+ (#set! injection.language "css"))

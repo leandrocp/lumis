@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>php - nightfox - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #cdcecf; background-color: #192330;"><code class="language-php" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aeafb0;">&lt;?php</span> <span style="color: #738091;">// PHP code must be enclosed with &lt;?php tags</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #cdcecf; background-color: #192330;"><code class="language-php" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aeafb0;">&lt;?php</span> <span style="color: #738091;">// PHP code must be enclosed with &lt;?php tags</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #738091;">// If your php file only contains PHP code, it is best practice</span>
 </span><span class="line" data-line="4"><span style="color: #738091;">// to omit the php closing tag to prevent accidental output.</span>
@@ -38,7 +21,7 @@
 </span><span class="line" data-line="21">
 </span><span class="line" data-line="22"><span style="color: #738091;">// Anything outside &lt;?php tags is echoed automatically</span>
 </span><span class="line" data-line="23"><span style="color: #aeafb0;">?&gt;</span>
-</span><span class="line" data-line="24"><span >Hello World Again!</span>
+</span><span class="line" data-line="24">Hello World Again!
 </span><span class="line" data-line="25"><span style="color: #aeafb0;">&lt;?php</span>
 </span><span class="line" data-line="26"><span style="color: #738091;">// That is because historically PHP started as a Template engine</span>
 </span><span class="line" data-line="27">
@@ -190,7 +173,7 @@
 </span><span class="line" data-line="173"><span style="color: #738091;">// If short open tags are configured, or your PHP version is</span>
 </span><span class="line" data-line="174"><span style="color: #738091;">// 5.4.0 or greater, you can use the short echo syntax</span>
 </span><span class="line" data-line="175"><span style="color: #aeafb0;">?&gt;</span>
-</span><span class="line" data-line="176"><span style="color: #7ad5d6;">&lt;</span><span style="color: #9d79d6;">p</span><span style="color: #7ad5d6;">&gt;</span><span style="color: #aeafb0;">&lt;?=</span> <span style="color: #dfdfe0;">$paragraph</span> <span style="color: #aeafb0;">?&gt;</span><span style="color: #7ad5d6;">&lt;/</span><span style="color: #9d79d6;">p</span><span style="color: #7ad5d6;">&gt;</span>
+</span><span class="line" data-line="176"><span style="color: #aeafb0;">&lt;</span><span style="color: #9d79d6;">p</span><span style="color: #aeafb0;">&gt;</span><span style="color: #aeafb0;">&lt;?=</span> <span style="color: #dfdfe0;">$paragraph</span> <span style="color: #aeafb0;">?&gt;</span><span style="color: #aeafb0;">&lt;/</span><span style="color: #9d79d6;">p</span><span style="color: #aeafb0;">&gt;</span>
 </span><span class="line" data-line="177"><span style="color: #aeafb0;">&lt;?php</span>
 </span><span class="line" data-line="178">
 </span><span class="line" data-line="179"><span style="color: #dfdfe0;">$x</span> <span style="color: #aeafb0;">=</span> <span style="color: #f4a261;">1</span><span style="color: #aeafb0;">;</span>
@@ -326,9 +309,9 @@
 </span><span class="line" data-line="309"><span style="color: #aeafb0;">?&gt;</span>
 </span><span class="line" data-line="310">
 </span><span class="line" data-line="311"><span style="color: #aeafb0;">&lt;?php</span> <span style="color: #baa1e2;">if</span> <span style="color: #aeafb0;">(</span><span style="color: #dfdfe0;">$x</span><span style="color: #aeafb0;">)</span><span style="color: #aeafb0;">:</span> <span style="color: #aeafb0;">?&gt;</span>
-</span><span class="line" data-line="312"><span >This is displayed if the test is truthy.</span>
-</span><span class="line" data-line="313"><span ><span style="color: #aeafb0;">&lt;?php</span> <span style="color: #baa1e2;">else</span><span style="color: #aeafb0;">:</span> <span style="color: #aeafb0;">?&gt;</span></span>
-</span><span class="line" data-line="314"><span >This is displayed otherwise.</span>
+</span><span class="line" data-line="312">This is displayed if the test is truthy.
+</span><span class="line" data-line="313"><span style="color: #aeafb0;">&lt;?php</span> <span style="color: #baa1e2;">else</span><span style="color: #aeafb0;">:</span> <span style="color: #aeafb0;">?&gt;</span>
+</span><span class="line" data-line="314">This is displayed otherwise.
 </span><span class="line" data-line="315"><span style="color: #aeafb0;">&lt;?php</span> <span style="color: #baa1e2;">endif</span><span style="color: #aeafb0;">;</span> <span style="color: #aeafb0;">?&gt;</span>
 </span><span class="line" data-line="316">
 </span><span class="line" data-line="317"><span style="color: #aeafb0;">&lt;?php</span>
@@ -881,5 +864,3 @@
 </span><span class="line" data-line="864">    <span style="color: #738091;">// Handle my exception</span>
 </span><span class="line" data-line="865"><span style="color: #aeafb0;">&rbrace;</span>
 </span></code></pre>
-</body>
-</html>

@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>perl - material_oceanic - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #b0bec5; background-color: #25363b;"><code class="language-perl" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #546e7a;"># Single line comments start with a number sign.</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #b0bec5; background-color: #25363b;"><code class="language-perl" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #546e7a;"># Single line comments start with a number sign.</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #546e7a;">#### Strict and warnings</span>
 </span><span class="line" data-line="4">
@@ -133,15 +116,15 @@
 </span><span class="line" data-line="116"><span style="color: #546e7a;"># Perl has most of the usual conditional and looping constructs.</span>
 </span><span class="line" data-line="117">
 </span><span class="line" data-line="118"><span style="color: #c792ea;">if</span> <span style="color: #89ddff;">(</span><span style="color: #b0bec5;">$<span style="color: #89ddff;">var</span></span><span style="color: #89ddff;">)</span> <span style="color: #89ddff;">&lbrace;</span>
-</span><span class="line" data-line="119">  <span style="color: #89ddff;">...</span>
+</span><span class="line" data-line="119">  <span style="color: #f07178;">...</span>
 </span><span class="line" data-line="120"><span style="color: #89ddff;">&rbrace;</span> <span style="color: #c792ea;">elsif</span> <span style="color: #89ddff;">(</span><span style="color: #b0bec5;">$<span style="color: #89ddff;">var</span></span> <span style="color: #89ddff;">eq</span> <span style="color: #c3e88d;">&#39;bar&#39;</span><span style="color: #89ddff;">)</span> <span style="color: #89ddff;">&lbrace;</span>
-</span><span class="line" data-line="121">  <span style="color: #89ddff;">...</span>
+</span><span class="line" data-line="121">  <span style="color: #f07178;">...</span>
 </span><span class="line" data-line="122"><span style="color: #89ddff;">&rbrace;</span> <span style="color: #c792ea;">else</span> <span style="color: #89ddff;">&lbrace;</span>
-</span><span class="line" data-line="123">  <span style="color: #89ddff;">...</span>
+</span><span class="line" data-line="123">  <span style="color: #f07178;">...</span>
 </span><span class="line" data-line="124"><span style="color: #89ddff;">&rbrace;</span>
 </span><span class="line" data-line="125">
 </span><span class="line" data-line="126"><span style="color: #c792ea;">unless</span> <span style="color: #89ddff;">(</span>condition<span style="color: #89ddff;">)</span> <span style="color: #89ddff;">&lbrace;</span>
-</span><span class="line" data-line="127">  <span style="color: #89ddff;">...</span>
+</span><span class="line" data-line="127">  <span style="color: #f07178;">...</span>
 </span><span class="line" data-line="128"><span style="color: #89ddff;">&rbrace;</span>
 </span><span class="line" data-line="129"><span style="color: #546e7a;"># This is provided as a more readable version of &quot;if (!condition)&quot;</span>
 </span><span class="line" data-line="130">
@@ -151,7 +134,7 @@
 </span><span class="line" data-line="134">
 </span><span class="line" data-line="135"><span style="color: #546e7a;">#  while</span>
 </span><span class="line" data-line="136"><span style="color: #c792ea;">while</span> <span style="color: #89ddff;">(</span>condition<span style="color: #89ddff;">)</span> <span style="color: #89ddff;">&lbrace;</span>
-</span><span class="line" data-line="137">  <span style="color: #89ddff;">...</span>
+</span><span class="line" data-line="137">  <span style="color: #f07178;">...</span>
 </span><span class="line" data-line="138"><span style="color: #89ddff;">&rbrace;</span>
 </span><span class="line" data-line="139">
 </span><span class="line" data-line="140"><span style="color: #89ddff;">my</span> <span style="color: #b0bec5;">$<span style="color: #89ddff;">max</span></span> <span style="color: #89ddff;">=</span> <span style="color: #f78c6c;">5</span><span style="color: #89ddff;">;</span>
@@ -191,8 +174,8 @@
 </span><span class="line" data-line="174"><span style="color: #546e7a;"># elsewhere. However, in short:</span>
 </span><span class="line" data-line="175">
 </span><span class="line" data-line="176"><span style="color: #546e7a;"># Simple matching</span>
-</span><span class="line" data-line="177"><span style="color: #c792ea;">if</span> <span style="color: #89ddff;">(</span><span style="color: #ffcb6b;">/<span style="color: #ffcb6b;">foo</span>/</span><span style="color: #89ddff;">)</span>       <span style="color: #89ddff;">&lbrace;</span> <span style="color: #89ddff;">...</span> <span style="color: #89ddff;">&rbrace;</span>  <span style="color: #546e7a;"># true if $_ contains &quot;foo&quot;</span>
-</span><span class="line" data-line="178"><span style="color: #c792ea;">if</span> <span style="color: #89ddff;">(</span><span style="color: #b0bec5;">$<span style="color: #89ddff;">x</span></span> <span style="color: #89ddff;">=~</span> <span style="color: #ffcb6b;">/<span style="color: #ffcb6b;">foo</span>/</span><span style="color: #89ddff;">)</span> <span style="color: #89ddff;">&lbrace;</span> <span style="color: #89ddff;">...</span> <span style="color: #89ddff;">&rbrace;</span>  <span style="color: #546e7a;"># true if $x contains &quot;foo&quot;</span>
+</span><span class="line" data-line="177"><span style="color: #c792ea;">if</span> <span style="color: #89ddff;">(</span><span style="color: #ffcb6b;">/<span style="color: #ffcb6b;">foo</span>/</span><span style="color: #89ddff;">)</span>       <span style="color: #89ddff;">&lbrace;</span> <span style="color: #f07178;">...</span> <span style="color: #89ddff;">&rbrace;</span>  <span style="color: #546e7a;"># true if $_ contains &quot;foo&quot;</span>
+</span><span class="line" data-line="178"><span style="color: #c792ea;">if</span> <span style="color: #89ddff;">(</span><span style="color: #b0bec5;">$<span style="color: #89ddff;">x</span></span> <span style="color: #89ddff;">=~</span> <span style="color: #ffcb6b;">/<span style="color: #ffcb6b;">foo</span>/</span><span style="color: #89ddff;">)</span> <span style="color: #89ddff;">&lbrace;</span> <span style="color: #f07178;">...</span> <span style="color: #89ddff;">&rbrace;</span>  <span style="color: #546e7a;"># true if $x contains &quot;foo&quot;</span>
 </span><span class="line" data-line="179">
 </span><span class="line" data-line="180"><span style="color: #546e7a;"># Simple substitution</span>
 </span><span class="line" data-line="181">
@@ -341,5 +324,3 @@
 </span><span class="line" data-line="324"><span style="color: #546e7a;"># Object-oriented programming is covered more thoroughly in perlootut,</span>
 </span><span class="line" data-line="325"><span style="color: #546e7a;"># and its low-level implementation in Perl is covered in perlobj.</span>
 </span></code></pre>
-</body>
-</html>

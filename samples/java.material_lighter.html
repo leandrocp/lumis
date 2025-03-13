@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>java - material_lighter - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-java" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">// Single-line comments start with //</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-java" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">// Single-line comments start with //</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #aabfc9;">/*</span>
 </span><span class="line" data-line="4"><span style="color: #aabfc9;">Multi-line comments look like this.</span>
@@ -464,14 +447,14 @@
 </span><span class="line" data-line="447">
 </span><span class="line" data-line="448">        <span style="color: #aabfc9;">// In order to use a try-with-resources, include an instance of a class</span>
 </span><span class="line" data-line="449">        <span style="color: #aabfc9;">// in the try statement. The class must implement java.lang.AutoCloseable.</span>
-</span><span class="line" data-line="450">        <span style="color: #39adb5;">try</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">BufferedReader</span> <span style="color: #546e7a;">br</span> <span style="color: #39adb5;">=</span> <span style="color: #39adb5;">new</span> <span style="color: #7c4dff;">BufferedReader</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">new</span> <span style="color: #7c4dff;">FileReader</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;foo.txt&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="450">        <span style="color: #e53935;">try</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">BufferedReader</span> <span style="color: #546e7a;">br</span> <span style="color: #39adb5;">=</span> <span style="color: #39adb5;">new</span> <span style="color: #7c4dff;">BufferedReader</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">new</span> <span style="color: #7c4dff;">FileReader</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;foo.txt&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="451">            <span style="color: #aabfc9;">// You can attempt to do something that could throw an exception.</span>
 </span><span class="line" data-line="452">            <span style="color: #7c4dff;">System</span><span style="color: #39adb5;">.</span><span style="color: #94a7b0;">out</span><span style="color: #39adb5;">.</span><span style="color: #6182b8;">println</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">br</span><span style="color: #39adb5;">.</span><span style="color: #6182b8;">readLine</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="453">            <span style="color: #aabfc9;">// In Java 7, the resource will always be closed, even if it throws</span>
 </span><span class="line" data-line="454">            <span style="color: #aabfc9;">// an Exception.</span>
-</span><span class="line" data-line="455">        <span style="color: #39adb5;">&rbrace;</span> <span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">IOException</span> <span style="color: #39adb5;">|</span> <span style="color: #7c4dff;">SQLException</span> <span style="color: #546e7a;">ex</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="455">        <span style="color: #39adb5;">&rbrace;</span> <span style="color: #e53935;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">IOException</span> <span style="color: #39adb5;">|</span> <span style="color: #7c4dff;">SQLException</span> <span style="color: #546e7a;">ex</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="456">            <span style="color: #aabfc9;">// Java 7+ Multi catch block handle both exceptions</span>
-</span><span class="line" data-line="457">        <span style="color: #39adb5;">&rbrace;</span> <span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">Exception</span> <span style="color: #546e7a;">ex</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="457">        <span style="color: #39adb5;">&rbrace;</span> <span style="color: #e53935;">catch</span> <span style="color: #39adb5;">(</span><span style="color: #7c4dff;">Exception</span> <span style="color: #546e7a;">ex</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="458">            <span style="color: #aabfc9;">//The resource will be closed before the catch statement executes.</span>
 </span><span class="line" data-line="459">            <span style="color: #7c4dff;">System</span><span style="color: #39adb5;">.</span><span style="color: #94a7b0;">out</span><span style="color: #39adb5;">.</span><span style="color: #6182b8;">println</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;readLine() failed.&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="460">        <span style="color: #39adb5;">&rbrace;</span>
@@ -810,10 +793,10 @@
 </span><span class="line" data-line="793">    <span style="color: #39adb5;">public</span> <span style="color: #7c4dff;">void</span> <span style="color: #6182b8;">makeSound</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">)</span>
 </span><span class="line" data-line="794">    <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="795">        <span style="color: #7c4dff;">System</span><span style="color: #39adb5;">.</span><span style="color: #94a7b0;">out</span><span style="color: #39adb5;">.</span><span style="color: #6182b8;">println</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;Bark&quot;</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
-</span><span class="line" data-line="796">        <span style="color: #aabfc9;">// age = 30;    ==&gt; <span style="color: #aabfc9;">ERROR</span>!    age is private to Animal</span>
+</span><span class="line" data-line="796">        <span style="color: #aabfc9;">// age = 30;    ==&gt; <span style="color: #aabfc9; background-color: #ff5370;">ERROR</span>!    age is private to Animal</span>
 </span><span class="line" data-line="797">    <span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="798">
-</span><span class="line" data-line="799">    <span style="color: #aabfc9;">// <span style="color: #aabfc9;">NOTE</span><span style="color: #39adb5;">:</span> You will get an error if you used the</span>
+</span><span class="line" data-line="799">    <span style="color: #aabfc9;">// <span style="color: #aabfc9; background-color: #8796b0;">NOTE</span><span style="color: #39adb5;">:</span> You will get an error if you used the</span>
 </span><span class="line" data-line="800">    <span style="color: #aabfc9;">// @Override annotation here, since java doesn&#39;t allow</span>
 </span><span class="line" data-line="801">    <span style="color: #aabfc9;">// overriding of static methods.</span>
 </span><span class="line" data-line="802">    <span style="color: #aabfc9;">// What is happening here is called METHOD HIDING.</span>
@@ -1025,5 +1008,3 @@
 </span><span class="line" data-line="1008">    <span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="1009"><span style="color: #39adb5;">&rbrace;</span>
 </span></code></pre>
-</body>
-</html>

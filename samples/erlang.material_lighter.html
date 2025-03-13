@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>erlang - material_lighter - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-erlang" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">% Percent sign starts a one-line comment.</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-erlang" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">% Percent sign starts a one-line comment.</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #aabfc9;">%% Two percent characters shall be used to comment functions.</span>
 </span><span class="line" data-line="4">
@@ -251,17 +234,17 @@
 </span><span class="line" data-line="234"><span style="color: #aabfc9;">% explicitly in code by calling `throw(Exception)`, `exit(Exception)`, or</span>
 </span><span class="line" data-line="235"><span style="color: #aabfc9;">% `erlang:error(Exception)`.</span>
 </span><span class="line" data-line="236"><span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #f76d47;">1</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #f6a434;">a</span><span style="color: #39adb5;">;</span>
-</span><span class="line" data-line="237"><span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #f76d47;">2</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #39adb5;">throw</span><span style="color: #39adb5;">(</span><span style="color: #f6a434;">a</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
-</span><span class="line" data-line="238"><span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #f76d47;">3</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #39adb5;">exit</span><span style="color: #39adb5;">(</span><span style="color: #f6a434;">a</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
+</span><span class="line" data-line="237"><span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #f76d47;">2</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #e53935;">throw</span><span style="color: #39adb5;">(</span><span style="color: #f6a434;">a</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
+</span><span class="line" data-line="238"><span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #f76d47;">3</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #e53935;">exit</span><span style="color: #39adb5;">(</span><span style="color: #f6a434;">a</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="239"><span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #f76d47;">4</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #39adb5;">&lbrace;</span><span style="color: #f6a434;">&#39;EXIT&#39;</span><span style="color: #39adb5;">,</span> <span style="color: #f6a434;">a</span><span style="color: #39adb5;">&rbrace;</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="240"><span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #f76d47;">5</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #6182b8;"><span style="color: #f6a434;">erlang</span><span style="color: #39adb5;">:</span><span style="color: #f6a434;">error</span></span><span style="color: #39adb5;">(</span><span style="color: #f6a434;">a</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">.</span>
 </span><span class="line" data-line="241">
 </span><span class="line" data-line="242"><span style="color: #aabfc9;">% Erlang has two methods of catching an exception. One is to enclose the call to</span>
 </span><span class="line" data-line="243"><span style="color: #aabfc9;">% the function that raises the exception within a `try...catch` expression.</span>
 </span><span class="line" data-line="244"><span style="color: #6182b8;">catcher</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span>
-</span><span class="line" data-line="245">  <span style="color: #39adb5;">try</span> <span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">)</span> <span style="color: #7c4dff;">of</span>
+</span><span class="line" data-line="245">  <span style="color: #e53935;">try</span> <span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">)</span> <span style="color: #7c4dff;">of</span>
 </span><span class="line" data-line="246">    <span style="color: #546e7a;">Val</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #39adb5;">&lbrace;</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">,</span> <span style="color: #f6a434;">normal</span><span style="color: #39adb5;">,</span> <span style="color: #546e7a;">Val</span><span style="color: #39adb5;">&rbrace;</span>
-</span><span class="line" data-line="247">  <span style="color: #39adb5;">catch</span>
+</span><span class="line" data-line="247">  <span style="color: #e53935;">catch</span>
 </span><span class="line" data-line="248">    <span style="color: #f6a434;">throw</span><span style="color: #39adb5;">:</span><span style="color: #546e7a;">X</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #39adb5;">&lbrace;</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">,</span> <span style="color: #f6a434;">caught</span><span style="color: #39adb5;">,</span> <span style="color: #f6a434;">thrown</span><span style="color: #39adb5;">,</span> <span style="color: #546e7a;">X</span><span style="color: #39adb5;">&rbrace;</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="249">    <span style="color: #f6a434;">exit</span><span style="color: #39adb5;">:</span><span style="color: #546e7a;">X</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #39adb5;">&lbrace;</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">,</span> <span style="color: #f6a434;">caught</span><span style="color: #39adb5;">,</span> <span style="color: #f6a434;">exited</span><span style="color: #39adb5;">,</span> <span style="color: #546e7a;">X</span><span style="color: #39adb5;">&rbrace;</span><span style="color: #39adb5;">;</span>
 </span><span class="line" data-line="250">    <span style="color: #f6a434;">error</span><span style="color: #39adb5;">:</span><span style="color: #546e7a;">X</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #39adb5;">&lbrace;</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">,</span> <span style="color: #f6a434;">caught</span><span style="color: #39adb5;">,</span> <span style="color: #f6a434;">error</span><span style="color: #39adb5;">,</span> <span style="color: #546e7a;">X</span><span style="color: #39adb5;">&rbrace;</span>
@@ -269,7 +252,7 @@
 </span><span class="line" data-line="252">
 </span><span class="line" data-line="253"><span style="color: #aabfc9;">% The other is to enclose the call in a `catch` expression. When you catch an</span>
 </span><span class="line" data-line="254"><span style="color: #aabfc9;">% exception, it is converted into a tuple that describes the error.</span>
-</span><span class="line" data-line="255"><span style="color: #6182b8;">catcher</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #39adb5;">catch</span> <span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">.</span>
+</span><span class="line" data-line="255"><span style="color: #6182b8;">catcher</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #e53935;">catch</span> <span style="color: #6182b8;">generate_exception</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">N</span><span style="color: #39adb5;">)</span><span style="color: #39adb5;">.</span>
 </span><span class="line" data-line="256">
 </span><span class="line" data-line="257">
 </span><span class="line" data-line="258"><span style="color: #aabfc9;">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
@@ -340,5 +323,3 @@
 </span><span class="line" data-line="323"><span style="color: #aabfc9;">% in the erlang shell</span>
 </span><span class="line" data-line="324"><span style="color: #6182b8;"><span style="color: #f6a434;">fib</span><span style="color: #39adb5;">:</span><span style="color: #f6a434;">test</span></span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">)</span>
 </span></code></pre>
-</body>
-</html>

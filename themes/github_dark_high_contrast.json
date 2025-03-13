@@ -23,6 +23,21 @@
     "comment.documentation": {
       "fg": "#bdc4cc"
     },
+    "comment.error": {
+      "fg": "#0a0c10",
+      "bg": "#ff6a69"
+    },
+    "comment.note": {
+      "fg": "#409eff"
+    },
+    "comment.todo": {
+      "fg": "#0a0c10",
+      "bg": "#d9dee3"
+    },
+    "comment.warning": {
+      "fg": "#0a0c10",
+      "bg": "#e09b13"
+    },
     "constant": {
       "fg": "#91cbff"
     },
@@ -34,6 +49,10 @@
     },
     "constructor": {
       "fg": "#ffb757"
+    },
+    "diff.delta": {
+      "fg": "#e09b13",
+      "bg": "#2a2110"
     },
     "diff.minus": {
       "fg": "#ff6a69",
@@ -138,10 +157,37 @@
       "fg": "#f0f3f6",
       "italic": true
     },
+    "markup.link": {
+      "fg": "#f0f3f6",
+      "underline": true
+    },
     "markup.link.label": {
       "fg": "#f0f3f6"
     },
+    "markup.link.url": {
+      "fg": "#f0f3f6",
+      "underline": true
+    },
+    "markup.list": {
+      "fg": "#91cbff"
+    },
+    "markup.list.checked": {
+      "fg": "#26cd4d"
+    },
+    "markup.list.unchecked": {
+      "fg": "#9ea7b3"
+    },
+    "markup.math": {
+      "fg": "#f0f3f6"
+    },
+    "markup.quote": {
+      "fg": "#f0f3f6"
+    },
     "markup.raw": {
+      "fg": "#f0f3f6",
+      "italic": true
+    },
+    "markup.raw.block": {
       "fg": "#f0f3f6",
       "italic": true
     },
@@ -219,6 +265,9 @@
     },
     "tag.attribute": {
       "fg": "#91cbff"
+    },
+    "tag.builtin": {
+      "fg": "#72f088"
     },
     "type": {
       "fg": "#ffb757"

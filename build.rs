@@ -55,7 +55,17 @@ impl TreeSitterParser {
         if cfg!(target_env = "msvc") {
             build.flag("/utf-8");
         }
-        build.include(&dir).warnings(false); // ignore unused parameter warnings
+        build.include(&dir).warnings(false);
+
+        // Add unique prefix for symbols to avoid conflicts
+        if self.name == "tree-sitter-angular" || self.name == "tree-sitter-vue" {
+            build.flag(format!(
+                "-DTAG_TYPES_BY_TAG_NAME={}_{}",
+                self.name.replace("-", "_"),
+                "TAG_TYPES_BY_TAG_NAME"
+            ));
+        }
+
         for file in c_files {
             build.file(dir.join(file));
         }
@@ -185,12 +195,16 @@ fn vendored_parsers() {
             src_dir: "vendored_parsers/tree-sitter-vim/src",
             extra_files: vec!["scanner.c"],
         },
-        // FIXME: duplicate symbol '_TAG_TYPES_BY_TAG_NAME'
-        // TreeSitterParser {
-        //     name: "tree-sitter-vue",
-        //     src_dir: "vendored_parsers/tree-sitter-vue/src",
-        //     extra_files: vec!["scanner.c"],
-        // },
+        TreeSitterParser {
+            name: "tree-sitter-vue",
+            src_dir: "vendored_parsers/tree-sitter-vue/src",
+            extra_files: vec!["scanner.c"],
+        },
+        TreeSitterParser {
+            name: "tree-sitter-hcl",
+            src_dir: "vendored_parsers/tree-sitter-hcl/src",
+            extra_files: vec!["scanner.c"],
+        },
     ];
 
     for parser in &parsers {

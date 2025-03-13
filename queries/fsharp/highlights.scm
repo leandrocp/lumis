@@ -199,10 +199,8 @@
 (preproc_line
   "#line" @keyword.directive)
 
-; FIXME: QueryError { row: 213, column: 2, offset: 3146, message: "target", kind: Field }
-; (attribute
-;   target: (identifier)? @keyword
-;   (_type) @attribute)
+(attribute
+  (_type) @attribute)
 
 [
   "("

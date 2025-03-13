@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>swift - material_lighter - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-swift" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">// import a module</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-swift" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">// import a module</span>
 </span><span class="line" data-line="2"><span style="color: #39adb5;">import</span> <span style="color: #546e7a;">Foundation</span>
 </span><span class="line" data-line="3">
 </span><span class="line" data-line="4"><span style="color: #aabfc9;">// Single-line comments are prefixed with //</span>
@@ -29,7 +12,7 @@
 </span><span class="line" data-line="12"><span style="color: #aabfc9;">// MARK: Section mark</span>
 </span><span class="line" data-line="13"><span style="color: #aabfc9;">// MARK: - Section mark with a separator line</span>
 </span><span class="line" data-line="14"><span style="color: #aabfc9;">// <span style="color: #aabfc9;">TODO</span><span style="color: #39adb5;">:</span> Do something soon</span>
-</span><span class="line" data-line="15"><span style="color: #aabfc9;">// <span style="color: #aabfc9;">FIXME</span><span style="color: #39adb5;">:</span> Fix this code</span>
+</span><span class="line" data-line="15"><span style="color: #aabfc9;">// <span style="color: #aabfc9; background-color: #ff5370;">FIXME</span><span style="color: #39adb5;">:</span> Fix this code</span>
 </span><span class="line" data-line="16">
 </span><span class="line" data-line="17"><span style="color: #aabfc9;">//MARK: Hello, World</span>
 </span><span class="line" data-line="18"><span style="color: #aabfc9;">// From Swift 3 on, to print, just use the `print` method.</span>
@@ -978,7 +961,7 @@
 </span><span class="line" data-line="961"><span style="color: #aabfc9;">// functions marked with `throws` must be called using `try`</span>
 </span><span class="line" data-line="962"><span style="color: #39adb5;">func</span> <span style="color: #6182b8;">fakeFetch</span><span style="color: #39adb5;">(</span><span style="color: #546e7a;">value</span><span style="color: #39adb5;">:</span> <span style="color: #7c4dff;">Int</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">throws</span> <span style="color: #39adb5;">-&gt;</span> <span style="color: #7c4dff;">String</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="963">    <span style="color: #7c4dff;">guard</span> <span style="color: #f76d47;">7</span> <span style="color: #39adb5;">==</span> <span style="color: #546e7a;">value</span> <span style="color: #39adb5;">else</span> <span style="color: #39adb5;">&lbrace;</span>
-</span><span class="line" data-line="964">        <span style="color: #39adb5;">throw</span> <span style="color: #7c4dff;">MyError</span><span style="color: #39adb5;">.</span><span style="color: #6182b8;">reallyBadValue</span><span style="color: #39adb5;">(</span><span style="color: #94a7b0;">msg</span><span style="color: #39adb5;">:</span> <span style="color: #91b859;">&quot;</span><span style="color: #91b859;">Some really bad value</span><span style="color: #91b859;">&quot;</span><span style="color: #39adb5;">)</span>
+</span><span class="line" data-line="964">        <span style="color: #e53935;">throw</span> <span style="color: #7c4dff;">MyError</span><span style="color: #39adb5;">.</span><span style="color: #6182b8;">reallyBadValue</span><span style="color: #39adb5;">(</span><span style="color: #94a7b0;">msg</span><span style="color: #39adb5;">:</span> <span style="color: #91b859;">&quot;</span><span style="color: #91b859;">Some really bad value</span><span style="color: #91b859;">&quot;</span><span style="color: #39adb5;">)</span>
 </span><span class="line" data-line="965">    <span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="966">
 </span><span class="line" data-line="967">    <span style="color: #39adb5;">return</span> <span style="color: #91b859;">&quot;</span><span style="color: #91b859;">test</span><span style="color: #91b859;">&quot;</span>
@@ -986,22 +969,20 @@
 </span><span class="line" data-line="969">
 </span><span class="line" data-line="970"><span style="color: #39adb5;">func</span> <span style="color: #6182b8;">testTryStuff</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="971">    <span style="color: #aabfc9;">// assumes there will be no error thrown, otherwise a runtime exception is raised</span>
-</span><span class="line" data-line="972">    <span style="color: #39adb5;">let</span> <span style="color: #e53935;">_</span> <span style="color: #39adb5;">=</span> <span style="color: #39adb5;">try!</span> <span style="color: #6182b8;">fakeFetch</span><span style="color: #39adb5;">(</span><span style="color: #94a7b0;">value</span><span style="color: #39adb5;">:</span> <span style="color: #f76d47;">7</span><span style="color: #39adb5;">)</span>
+</span><span class="line" data-line="972">    <span style="color: #39adb5;">let</span> <span style="color: #e53935;">_</span> <span style="color: #39adb5;">=</span> <span style="color: #e53935;">try!</span> <span style="color: #6182b8;">fakeFetch</span><span style="color: #39adb5;">(</span><span style="color: #94a7b0;">value</span><span style="color: #39adb5;">:</span> <span style="color: #f76d47;">7</span><span style="color: #39adb5;">)</span>
 </span><span class="line" data-line="973">
 </span><span class="line" data-line="974">    <span style="color: #aabfc9;">// if an error is thrown, then it proceeds, but if the value is nil</span>
 </span><span class="line" data-line="975">    <span style="color: #aabfc9;">// it also wraps every return value in an optional, even if its already optional</span>
-</span><span class="line" data-line="976">    <span style="color: #39adb5;">let</span> <span style="color: #e53935;">_</span> <span style="color: #39adb5;">=</span> <span style="color: #39adb5;">try<span style="color: #39adb5;">?</span></span> <span style="color: #6182b8;">fakeFetch</span><span style="color: #39adb5;">(</span><span style="color: #94a7b0;">value</span><span style="color: #39adb5;">:</span> <span style="color: #f76d47;">7</span><span style="color: #39adb5;">)</span>
+</span><span class="line" data-line="976">    <span style="color: #39adb5;">let</span> <span style="color: #e53935;">_</span> <span style="color: #39adb5;">=</span> <span style="color: #e53935;">try<span style="color: #39adb5;">?</span></span> <span style="color: #6182b8;">fakeFetch</span><span style="color: #39adb5;">(</span><span style="color: #94a7b0;">value</span><span style="color: #39adb5;">:</span> <span style="color: #f76d47;">7</span><span style="color: #39adb5;">)</span>
 </span><span class="line" data-line="977">
-</span><span class="line" data-line="978">    <span style="color: #39adb5;">do</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="978">    <span style="color: #e53935;">do</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="979">        <span style="color: #aabfc9;">// normal try operation that provides error handling via `catch` block</span>
-</span><span class="line" data-line="980">        <span style="color: #39adb5;">try</span> <span style="color: #6182b8;">fakeFetch</span><span style="color: #39adb5;">(</span><span style="color: #94a7b0;">value</span><span style="color: #39adb5;">:</span> <span style="color: #f76d47;">1</span><span style="color: #39adb5;">)</span>
-</span><span class="line" data-line="981">    <span style="color: #39adb5;">&rbrace;</span> <span style="color: #39adb5;">catch</span> <span style="color: #7c4dff;">MyError</span><span style="color: #39adb5;">.</span><span style="color: #546e7a;">badValue</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">let</span> <span style="color: #546e7a;">msg</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="980">        <span style="color: #e53935;">try</span> <span style="color: #6182b8;">fakeFetch</span><span style="color: #39adb5;">(</span><span style="color: #94a7b0;">value</span><span style="color: #39adb5;">:</span> <span style="color: #f76d47;">1</span><span style="color: #39adb5;">)</span>
+</span><span class="line" data-line="981">    <span style="color: #39adb5;">&rbrace;</span> <span style="color: #e53935;">catch</span> <span style="color: #7c4dff;">MyError</span><span style="color: #39adb5;">.</span><span style="color: #546e7a;">badValue</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">let</span> <span style="color: #546e7a;">msg</span><span style="color: #39adb5;">)</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="982">        <span style="color: #6182b8;">print</span><span style="color: #39adb5;">(</span><span style="color: #91b859;">&quot;</span><span style="color: #91b859;">Error message: </span><span style="color: #39adb5;">\(</span><span style="color: #546e7a;">msg</span><span style="color: #39adb5;">)</span><span style="color: #91b859;">&quot;</span><span style="color: #39adb5;">)</span>
-</span><span class="line" data-line="983">    <span style="color: #39adb5;">&rbrace;</span> <span style="color: #39adb5;">catch</span> <span style="color: #39adb5;">&lbrace;</span>
+</span><span class="line" data-line="983">    <span style="color: #39adb5;">&rbrace;</span> <span style="color: #e53935;">catch</span> <span style="color: #39adb5;">&lbrace;</span>
 </span><span class="line" data-line="984">        <span style="color: #aabfc9;">// must be exhaustive</span>
 </span><span class="line" data-line="985">    <span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="986"><span style="color: #39adb5;">&rbrace;</span>
 </span><span class="line" data-line="987"><span style="color: #6182b8;">testTryStuff</span><span style="color: #39adb5;">(</span><span style="color: #39adb5;">)</span>
 </span></code></pre>
-</body>
-</html>

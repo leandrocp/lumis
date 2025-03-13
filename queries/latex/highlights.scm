@@ -112,12 +112,10 @@
   command: _ @function.macro @nospell
   keys: (curly_group_text_list) @markup.link @nospell)
 
-; FIXME: QueryError { row: 150, column: 0, offset: 0, message: "Invalid arguments to set! predicate. Unexpected second capture name @markup.link.url", kind: Predicate }
-; ((hyperlink
-;   command: _ @function @nospell
-;   uri: (curly_group_uri
-;     (_) @markup.link.url @nospell)) @_hyperlink
-;   (#set! @_hyperlink url @markup.link.url))
+(hyperlink
+  command: _ @function @nospell
+  uri: (curly_group_uri
+    (_) @markup.link.url @nospell))
 
 (glossary_entry_definition
   command: _ @function.macro @nospell
@@ -239,10 +237,9 @@
     (_) @markup.strong))
   (#any-of? @_name "\\textbf" "\\mathbf"))
 
-; FIXME: QueryError { row: 281, column: 0, offset: 0, message: "Invalid regex '^\\if[a-zA-Z@]+$'", kind: Predicate }
-; (generic_command
-;   (command_name) @keyword.conditional
-;   (#lua-match? @keyword.conditional "^\\if[a-zA-Z@]+$"))
+(generic_command
+  (command_name) @keyword.conditional
+  (#lua-match? @keyword.conditional "^if[a-zA-Z@]+$"))
 
 (generic_command
   (command_name) @keyword.conditional

@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>kotlin - catppuccin_latte - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #4c4f69; background-color: #eff1f5;"><code class="language-kotlin" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #7c7f93;">// Single-line comments start with //</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #4c4f69; background-color: #eff1f5;"><code class="language-kotlin" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #7c7f93;">// Single-line comments start with //</span>
 </span><span class="line" data-line="2"><span style="color: #7c7f93;">/*</span>
 </span><span class="line" data-line="3"><span style="color: #7c7f93;">Multi-line comments look like this.</span>
 </span><span class="line" data-line="4"><span style="color: #7c7f93;">*/</span>
@@ -71,7 +54,7 @@
 </span><span class="line" data-line="54"><span style="color: #7c7f93;">    Strings can contain template expressions.</span>
 </span><span class="line" data-line="55"><span style="color: #7c7f93;">    A template expression starts with a dollar sign ($).</span>
 </span><span class="line" data-line="56"><span style="color: #7c7f93;">    */</span>
-</span><span class="line" data-line="57">    <span style="color: #8839ef;">val</span> <span style="color: #4c4f69;">fooTemplateString</span> <span style="color: #04a5e5;">=</span> <span style="color: #40a02b;">&quot;<span style="color: #ea76cb;">$</span><span style="color: #4c4f69;">fooString</span> has <span style="color: #ea76cb;">$&lbrace;</span><span ><span style="color: #4c4f69;">fooString</span><span style="color: #7c7f93;">.</span><span style="color: #7287fd;">length</span></span><span style="color: #ea76cb;">&rbrace;</span> characters&quot;</span>
+</span><span class="line" data-line="57">    <span style="color: #8839ef;">val</span> <span style="color: #4c4f69;">fooTemplateString</span> <span style="color: #04a5e5;">=</span> <span style="color: #40a02b;">&quot;<span style="color: #ea76cb;">$</span><span style="color: #4c4f69;">fooString</span> has <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #4c4f69;">fooString</span><span style="color: #7c7f93;">.</span><span style="color: #7287fd;">length</span><span style="color: #ea76cb;">&rbrace;</span> characters&quot;</span>
 </span><span class="line" data-line="58">    <span style="color: #fe640b;">println</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">fooTemplateString</span><span style="color: #7c7f93;">)</span> <span style="color: #7c7f93;">// =&gt; My String Is Here! has 18 characters</span>
 </span><span class="line" data-line="59">
 </span><span class="line" data-line="60">    <span style="color: #7c7f93;">/*</span>
@@ -106,7 +89,7 @@
 </span><span class="line" data-line="89"><span style="color: #7c7f93;">    to allow a variable number of arguments to be passed to the function.</span>
 </span><span class="line" data-line="90"><span style="color: #7c7f93;">    */</span>
 </span><span class="line" data-line="91">    <span style="color: #8839ef;">fun</span> <span style="color: #1e66f5;">varargExample</span><span style="color: #7c7f93;">(</span><span style="color: #8839ef;">vararg</span> <span style="color: #e64553;">names</span><span style="color: #7c7f93;">:</span> <span style="color: #df8e1d;">Int</span><span style="color: #7c7f93;">)</span> <span style="color: #7c7f93;">&lbrace;</span>
-</span><span class="line" data-line="92">        <span style="color: #fe640b;">println</span><span style="color: #7c7f93;">(</span><span style="color: #40a02b;">&quot;Argument has <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #4c4f69;"><span >names<span style="color: #7c7f93;">.</span><span style="color: #7287fd;">size</span></span></span><span style="color: #ea76cb;">&rbrace;</span> elements&quot;</span><span style="color: #7c7f93;">)</span>
+</span><span class="line" data-line="92">        <span style="color: #fe640b;">println</span><span style="color: #7c7f93;">(</span><span style="color: #40a02b;">&quot;Argument has <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #4c4f69;">names</span><span style="color: #7c7f93;">.</span><span style="color: #7287fd;">size</span><span style="color: #ea76cb;">&rbrace;</span> elements&quot;</span><span style="color: #7c7f93;">)</span>
 </span><span class="line" data-line="93">    <span style="color: #7c7f93;">&rbrace;</span>
 </span><span class="line" data-line="94">    <span style="color: #1e66f5;">varargExample</span><span style="color: #7c7f93;">(</span><span style="color: #7c7f93;">)</span> <span style="color: #7c7f93;">// =&gt; Argument has 0 elements</span>
 </span><span class="line" data-line="95">    <span style="color: #1e66f5;">varargExample</span><span style="color: #7c7f93;">(</span><span style="color: #fe640b;">1</span><span style="color: #7c7f93;">)</span> <span style="color: #7c7f93;">// =&gt; Argument has 1 elements</span>
@@ -151,7 +134,7 @@
 </span><span class="line" data-line="134"><span style="color: #7c7f93;">    */</span>
 </span><span class="line" data-line="135">    <span style="color: #8839ef;">val</span> <span style="color: #4c4f69;">notPositive</span> <span style="color: #04a5e5;">=</span> <span style="color: #1e66f5;">not</span> <span style="color: #7c7f93;">&lbrace;</span><span style="color: #d20f39;">it</span> <span style="color: #04a5e5;">&gt;</span> <span style="color: #fe640b;">0</span><span style="color: #7c7f93;">&rbrace;</span>
 </span><span class="line" data-line="136">    <span style="color: #8839ef;">for</span> <span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span> <span style="color: #04a5e5;">in</span> <span style="color: #fe640b;">0</span><span style="color: #04a5e5;">..</span><span style="color: #fe640b;">4</span><span style="color: #7c7f93;">)</span> <span style="color: #7c7f93;">&lbrace;</span>
-</span><span class="line" data-line="137">        <span style="color: #fe640b;">println</span><span style="color: #7c7f93;">(</span><span style="color: #40a02b;">&quot;<span style="color: #ea76cb;">$&lbrace;</span><span style="color: #1e66f5;">notOdd</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">&rbrace;</span> <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #1e66f5;">notEven</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">&rbrace;</span> <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #1e66f5;">notZero</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">&rbrace;</span> <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #1e66f5;"><span >notPositive<span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span><span style="color: #7c7f93;">)</span></span></span><span style="color: #ea76cb;">&rbrace;</span>&quot;</span><span style="color: #7c7f93;">)</span>
+</span><span class="line" data-line="137">        <span style="color: #fe640b;">println</span><span style="color: #7c7f93;">(</span><span style="color: #40a02b;">&quot;<span style="color: #ea76cb;">$&lbrace;</span><span style="color: #1e66f5;">notOdd</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">&rbrace;</span> <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #1e66f5;">notEven</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">&rbrace;</span> <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #1e66f5;">notZero</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">&rbrace;</span> <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #1e66f5;">notPositive</span><span style="color: #7c7f93;">(</span><span style="color: #4c4f69;">i</span><span style="color: #7c7f93;">)</span><span style="color: #ea76cb;">&rbrace;</span>&quot;</span><span style="color: #7c7f93;">)</span>
 </span><span class="line" data-line="138">    <span style="color: #7c7f93;">&rbrace;</span>
 </span><span class="line" data-line="139">
 </span><span class="line" data-line="140">    <span style="color: #7c7f93;">// The &quot;class&quot; keyword is used to declare classes.</span>
@@ -392,7 +375,7 @@
 </span><span class="line" data-line="375">    <span style="color: #7c7f93;">&rbrace;</span>
 </span><span class="line" data-line="376">
 </span><span class="line" data-line="377">    <span style="color: #8839ef;">override</span> <span style="color: #8839ef;">fun</span> <span style="color: #1e66f5;">toString</span><span style="color: #7c7f93;">(</span><span style="color: #7c7f93;">)</span><span style="color: #7c7f93;">:</span> <span style="color: #df8e1d;">String</span> <span style="color: #7c7f93;">&lbrace;</span>
-</span><span class="line" data-line="378">        <span style="color: #8839ef;">return</span> <span style="color: #40a02b;">&quot;Hello, it&#39;s me, <span style="color: #ea76cb;">$&lbrace;</span><span ><span style="color: #df8e1d;">ObjectExample</span><span style="color: #7c7f93;">::</span><span style="color: #8839ef;">class</span><span style="color: #7c7f93;">.</span><span style="color: #7287fd;">simpleName</span></span><span style="color: #ea76cb;">&rbrace;</span>&quot;</span>
+</span><span class="line" data-line="378">        <span style="color: #8839ef;">return</span> <span style="color: #40a02b;">&quot;Hello, it&#39;s me, <span style="color: #ea76cb;">$&lbrace;</span><span style="color: #df8e1d;">ObjectExample</span><span style="color: #7c7f93;">::</span><span style="color: #8839ef;">class</span><span style="color: #7c7f93;">.</span><span style="color: #7287fd;">simpleName</span><span style="color: #ea76cb;">&rbrace;</span>&quot;</span>
 </span><span class="line" data-line="379">    <span style="color: #7c7f93;">&rbrace;</span>
 </span><span class="line" data-line="380"><span style="color: #7c7f93;">&rbrace;</span>
 </span><span class="line" data-line="381">
@@ -461,5 +444,3 @@
 </span><span class="line" data-line="444">    <span style="color: #fe640b;">println</span><span style="color: #7c7f93;">(</span><span style="color: #04a5e5;">-</span><span style="color: #4c4f69;">counter2</span><span style="color: #7c7f93;">)</span> <span style="color: #7c7f93;">// =&gt; Counter(value=-5)</span>
 </span><span class="line" data-line="445"><span style="color: #7c7f93;">&rbrace;</span>
 </span></code></pre>
-</body>
-</html>

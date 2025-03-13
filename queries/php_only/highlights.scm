@@ -173,10 +173,10 @@
 
 ; Constants
 ((name) @constant
-  (#match? @constant "^_?[A-Z][A-Z%d_]*$"))
+  (#lua-match? @constant "^_?[A-Z][A-Z%d_]*$"))
 
 ((name) @constant.builtin
-  (#match? @constant.builtin "^__[A-Z][A-Z%d_]+__$"))
+  (#lua-match? @constant.builtin "^__[A-Z][A-Z%d_]+__$"))
 
 (const_declaration
   (const_element
@@ -326,11 +326,11 @@
   name: (name) @function.method)
 
 (function_call_expression
-  function: (qualified_name
-    (name) @function.call))
-
-(function_call_expression
-  (name) @function.call)
+  function: [
+    (name) @function.call
+    (qualified_name
+      (name) @function.call)
+  ])
 
 (scoped_call_expression
   name: (name) @function.call)
@@ -453,6 +453,6 @@
 
 (float) @number.float
 
-(comment) @comment
+(comment) @comment @spell
 
 (named_label_statement) @label

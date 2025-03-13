@@ -23,10 +23,6 @@
 
 "_" @character.special ; match wildcard
 
-((attribute
-  attribute: (identifier) @variable.member)
-  (#lua-match? @variable.member "^[%l_].*$"))
-
 ((assignment
   left: (identifier) @type.definition
   (type
@@ -38,48 +34,6 @@
   right: (call
     function: (identifier) @_func))
   (#any-of? @_func "TypeVar" "NewType"))
-
-; Function calls
-(call
-  function: (identifier) @function.call)
-
-(call
-  function: (attribute
-    attribute: (identifier) @function.method.call))
-
-((call
-  function: (identifier) @constructor)
-  (#lua-match? @constructor "^%u"))
-
-((call
-  function: (attribute
-    attribute: (identifier) @constructor))
-  (#lua-match? @constructor "^%u"))
-
-; Decorators
-((decorator
-  "@" @attribute)
-  (#set! priority 101))
-
-(decorator
-  (identifier) @attribute)
-
-(decorator
-  (attribute
-    attribute: (identifier) @attribute))
-
-(decorator
-  (call
-    (identifier) @attribute))
-
-(decorator
-  (call
-    (attribute
-      attribute: (identifier) @attribute)))
-
-((decorator
-  (identifier) @attribute.builtin)
-  (#any-of? @attribute.builtin "classmethod" "property" "staticmethod"))
 
 ; Builtin functions
 ((call
@@ -111,61 +65,6 @@
     (identifier) @type))
   (#eq? @_isinstance "isinstance"))
 
-; Normal parameters
-(parameters
-  (identifier) @variable.parameter)
-
-; Lambda parameters
-(lambda_parameters
-  (identifier) @variable.parameter)
-
-(lambda_parameters
-  (tuple_pattern
-    (identifier) @variable.parameter))
-
-; Default parameters
-(keyword_argument
-  name: (identifier) @variable.parameter)
-
-; Naming parameters on call-site
-(default_parameter
-  name: (identifier) @variable.parameter)
-
-(typed_parameter
-  (identifier) @variable.parameter)
-
-(typed_default_parameter
-  name: (identifier) @variable.parameter)
-
-; Variadic parameters *args, **kwargs
-(parameters
-  (list_splat_pattern ; *args
-    (identifier) @variable.parameter))
-
-(parameters
-  (dictionary_splat_pattern ; **kwargs
-    (identifier) @variable.parameter))
-
-; Typed variadic parameters
-(parameters
-  (typed_parameter
-    (list_splat_pattern ; *args: type
-      (identifier) @variable.parameter)))
-
-(parameters
-  (typed_parameter
-    (dictionary_splat_pattern ; *kwargs: type
-      (identifier) @variable.parameter)))
-
-; Lambda parameters
-(lambda_parameters
-  (list_splat_pattern
-    (identifier) @variable.parameter))
-
-(lambda_parameters
-  (dictionary_splat_pattern
-    (identifier) @variable.parameter))
-
 ; Literals
 (none) @constant.builtin
 
@@ -173,12 +72,6 @@
   (true)
   (false)
 ] @boolean
-
-((identifier) @variable.builtin
-  (#eq? @variable.builtin "self"))
-
-((identifier) @variable.builtin
-  (#eq? @variable.builtin "cls"))
 
 (integer) @number
 
@@ -395,6 +288,92 @@
   (ellipsis)
 ] @punctuation.delimiter
 
+((identifier) @type.builtin
+  (#any-of? @type.builtin
+    ; https://docs.python.org/3/library/exceptions.html
+    "BaseException" "Exception" "ArithmeticError" "BufferError" "LookupError" "AssertionError"
+    "AttributeError" "EOFError" "FloatingPointError" "GeneratorExit" "ImportError"
+    "ModuleNotFoundError" "IndexError" "KeyError" "KeyboardInterrupt" "MemoryError" "NameError"
+    "NotImplementedError" "OSError" "OverflowError" "RecursionError" "ReferenceError" "RuntimeError"
+    "StopIteration" "StopAsyncIteration" "SyntaxError" "IndentationError" "TabError" "SystemError"
+    "SystemExit" "TypeError" "UnboundLocalError" "UnicodeError" "UnicodeEncodeError"
+    "UnicodeDecodeError" "UnicodeTranslateError" "ValueError" "ZeroDivisionError" "EnvironmentError"
+    "IOError" "WindowsError" "BlockingIOError" "ChildProcessError" "ConnectionError"
+    "BrokenPipeError" "ConnectionAbortedError" "ConnectionRefusedError" "ConnectionResetError"
+    "FileExistsError" "FileNotFoundError" "InterruptedError" "IsADirectoryError"
+    "NotADirectoryError" "PermissionError" "ProcessLookupError" "TimeoutError" "Warning"
+    "UserWarning" "DeprecationWarning" "PendingDeprecationWarning" "SyntaxWarning" "RuntimeWarning"
+    "FutureWarning" "ImportWarning" "UnicodeWarning" "BytesWarning" "ResourceWarning"
+    ; https://docs.python.org/3/library/stdtypes.html
+    "bool" "int" "float" "complex" "list" "tuple" "range" "str" "bytes" "bytearray" "memoryview"
+    "set" "frozenset" "dict" "type" "object"))
+
+; Normal parameters
+(parameters
+  (identifier) @variable.parameter)
+
+; Lambda parameters
+(lambda_parameters
+  (identifier) @variable.parameter)
+
+(lambda_parameters
+  (tuple_pattern
+    (identifier) @variable.parameter))
+
+; Default parameters
+(keyword_argument
+  name: (identifier) @variable.parameter)
+
+; Naming parameters on call-site
+(default_parameter
+  name: (identifier) @variable.parameter)
+
+(typed_parameter
+  (identifier) @variable.parameter)
+
+(typed_default_parameter
+  name: (identifier) @variable.parameter)
+
+; Variadic parameters *args, **kwargs
+(parameters
+  (list_splat_pattern ; *args
+    (identifier) @variable.parameter))
+
+(parameters
+  (dictionary_splat_pattern ; **kwargs
+    (identifier) @variable.parameter))
+
+; Typed variadic parameters
+(parameters
+  (typed_parameter
+    (list_splat_pattern ; *args: type
+      (identifier) @variable.parameter)))
+
+(parameters
+  (typed_parameter
+    (dictionary_splat_pattern ; *kwargs: type
+      (identifier) @variable.parameter)))
+
+; Lambda parameters
+(lambda_parameters
+  (list_splat_pattern
+    (identifier) @variable.parameter))
+
+(lambda_parameters
+  (dictionary_splat_pattern
+    (identifier) @variable.parameter))
+
+((identifier) @variable.builtin
+  (#eq? @variable.builtin "self"))
+
+((identifier) @variable.builtin
+  (#eq? @variable.builtin "cls"))
+
+; After @type.builtin bacause builtins (such as `type`) are valid as attribute name
+((attribute
+  attribute: (identifier) @variable.member)
+  (#lua-match? @variable.member "^[%l_].*$"))
+
 ; Class definitions
 (class_definition
   name: (identifier) @type)
@@ -429,25 +408,22 @@
       name: (identifier) @constructor)))
   (#any-of? @constructor "__new__" "__init__"))
 
-((identifier) @type.builtin
-  (#any-of? @type.builtin
-    ; https://docs.python.org/3/library/exceptions.html
-    "BaseException" "Exception" "ArithmeticError" "BufferError" "LookupError" "AssertionError"
-    "AttributeError" "EOFError" "FloatingPointError" "GeneratorExit" "ImportError"
-    "ModuleNotFoundError" "IndexError" "KeyError" "KeyboardInterrupt" "MemoryError" "NameError"
-    "NotImplementedError" "OSError" "OverflowError" "RecursionError" "ReferenceError" "RuntimeError"
-    "StopIteration" "StopAsyncIteration" "SyntaxError" "IndentationError" "TabError" "SystemError"
-    "SystemExit" "TypeError" "UnboundLocalError" "UnicodeError" "UnicodeEncodeError"
-    "UnicodeDecodeError" "UnicodeTranslateError" "ValueError" "ZeroDivisionError" "EnvironmentError"
-    "IOError" "WindowsError" "BlockingIOError" "ChildProcessError" "ConnectionError"
-    "BrokenPipeError" "ConnectionAbortedError" "ConnectionRefusedError" "ConnectionResetError"
-    "FileExistsError" "FileNotFoundError" "InterruptedError" "IsADirectoryError"
-    "NotADirectoryError" "PermissionError" "ProcessLookupError" "TimeoutError" "Warning"
-    "UserWarning" "DeprecationWarning" "PendingDeprecationWarning" "SyntaxWarning" "RuntimeWarning"
-    "FutureWarning" "ImportWarning" "UnicodeWarning" "BytesWarning" "ResourceWarning"
-    ; https://docs.python.org/3/library/stdtypes.html
-    "bool" "int" "float" "complex" "list" "tuple" "range" "str" "bytes" "bytearray" "memoryview"
-    "set" "frozenset" "dict" "type" "object"))
+; Function calls
+(call
+  function: (identifier) @function.call)
+
+(call
+  function: (attribute
+    attribute: (identifier) @function.method.call))
+
+((call
+  function: (identifier) @constructor)
+  (#lua-match? @constructor "^%u"))
+
+((call
+  function: (attribute
+    attribute: (identifier) @constructor))
+  (#lua-match? @constructor "^%u"))
 
 ; Regex from the `re` module
 (call
@@ -458,3 +434,28 @@
     (string
       (string_content) @string.regexp))
   (#eq? @_re "re"))
+
+; Decorators
+((decorator
+  "@" @attribute)
+  (#set! priority 101))
+
+(decorator
+  (identifier) @attribute)
+
+(decorator
+  (attribute
+    attribute: (identifier) @attribute))
+
+(decorator
+  (call
+    (identifier) @attribute))
+
+(decorator
+  (call
+    (attribute
+      attribute: (identifier) @attribute)))
+
+((decorator
+  (identifier) @attribute.builtin)
+  (#any-of? @attribute.builtin "classmethod" "property" "staticmethod"))

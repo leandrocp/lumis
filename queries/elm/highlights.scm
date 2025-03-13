@@ -3,9 +3,8 @@
   (block_comment)
 ] @comment @spell
 
-; FIXME: QueryError { row: 17, column: 0, offset: 0, message: "Invalid regex '^{[-]|[^|]'", kind: Predicate }
-; ((block_comment) @comment.documentation
-;   (#lua-match? @comment.documentation "^{[-]|[^|]"))
+((block_comment) @comment.documentation
+  (#lua-match? @comment.documentation "^[-]|^[^|]"))
 
 ; Keywords
 ;---------

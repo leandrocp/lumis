@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>latex - kanagawa_wave - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #dcd7ba; background-color: #1f1f28;"><code class="language-latex" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #727169;">% All comment lines start with %</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #dcd7ba; background-color: #1f1f28;"><code class="language-latex" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #727169;">% All comment lines start with %</span>
 </span><span class="line" data-line="2"><span style="color: #727169;">% There are no multi-line comments</span>
 </span><span class="line" data-line="3">
 </span><span class="line" data-line="4"><span style="color: #727169;">% LaTeX is NOT a &quot;What You See Is What You Get&quot; word processing software like</span>
@@ -83,7 +66,7 @@
 </span><span class="line" data-line="66">
 </span><span class="line" data-line="67"><span style="color: #7aa89f;">\subsubsection</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7e9cd8;">Pythagoras</span><span style="color: #9cabca;">&rbrace;</span>
 </span><span class="line" data-line="68">Much better now.
-</span><span class="line" data-line="69"><span style="color: #7e9cd8;">\label</span><span style="color: #9cabca;">&lbrace;</span>subsec:pythagoras<span style="color: #9cabca;">&rbrace;</span>
+</span><span class="line" data-line="69"><span style="color: #7e9cd8;">\label</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7fb4ca; text-decoration: underline;">subsec:pythagoras</span><span style="color: #9cabca;">&rbrace;</span>
 </span><span class="line" data-line="70">
 </span><span class="line" data-line="71"><span style="color: #727169;">% By using the asterisk we can suppress LaTeX&#39;s inbuilt numbering.</span>
 </span><span class="line" data-line="72"><span style="color: #727169;">% This works for other LaTeX commands as well.</span>
@@ -128,7 +111,7 @@
 </span><span class="line" data-line="111">Set and relation symbols, arrows, operators, and Greek letters to name a few.
 </span><span class="line" data-line="112">
 </span><span class="line" data-line="113">Sets and relations play a vital role in many mathematical research papers.
-</span><span class="line" data-line="114">Here&#39;s how you state all x that belong to X, $<span style="color: #7e9cd8;">\forall</span> x <span style="color: #7e9cd8;">\in</span> X$.
+</span><span class="line" data-line="114">Here&#39;s how you state all x that belong to X, <span style="color: #ffa066;">$<span style="color: #7e9cd8;">\forall</span> x <span style="color: #7e9cd8;">\in</span> X$</span>.
 </span><span class="line" data-line="115"><span style="color: #727169;">% Notice how I needed to add $ signs before and after the symbols. This is</span>
 </span><span class="line" data-line="116"><span style="color: #727169;">% because when writing, we are in text-mode.</span>
 </span><span class="line" data-line="117"><span style="color: #727169;">% However, the math symbols only exist in math-mode.</span>
@@ -136,51 +119,51 @@
 </span><span class="line" data-line="119"><span style="color: #727169;">% The opposite also holds true. Variable can also be rendered in math-mode.</span>
 </span><span class="line" data-line="120"><span style="color: #727169;">% We can also enter math mode with \[\]</span>
 </span><span class="line" data-line="121">
-</span><span class="line" data-line="122">\[a<span style="color: #c0a36e;">^</span>2 <span style="color: #c0a36e;">+</span> b<span style="color: #c0a36e;">^</span>2 <span style="color: #c0a36e;">=</span> c<span style="color: #c0a36e;">^</span>2 \]
+</span><span class="line" data-line="122"><span style="color: #ffa066;">\[a<span style="color: #c0a36e;">^</span>2 <span style="color: #c0a36e;">+</span> b<span style="color: #c0a36e;">^</span>2 <span style="color: #c0a36e;">=</span> c<span style="color: #c0a36e;">^</span>2 \]</span>
 </span><span class="line" data-line="123">
-</span><span class="line" data-line="124">My favorite Greek letter is $<span style="color: #7e9cd8;">\xi</span>$. I also like $<span style="color: #7e9cd8;">\beta</span>$, $<span style="color: #7e9cd8;">\gamma</span>$ and $<span style="color: #7e9cd8;">\sigma</span>$.
+</span><span class="line" data-line="124">My favorite Greek letter is <span style="color: #ffa066;">$<span style="color: #7e9cd8;">\xi</span>$</span>. I also like <span style="color: #ffa066;">$<span style="color: #7e9cd8;">\beta</span>$</span>, <span style="color: #ffa066;">$<span style="color: #7e9cd8;">\gamma</span>$</span> and <span style="color: #ffa066;">$<span style="color: #7e9cd8;">\sigma</span>$</span>.
 </span><span class="line" data-line="125">I haven&#39;t found a Greek letter yet that <span style="color: #7e9cd8;">\LaTeX</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #9cabca;">&rbrace;</span> doesn&#39;t know
 </span><span class="line" data-line="126">about!
 </span><span class="line" data-line="127">
 </span><span class="line" data-line="128">Operators are essential parts of a mathematical document:
-</span><span class="line" data-line="129">trigonometric functions ($<span style="color: #7e9cd8;">\sin</span>$, $<span style="color: #7e9cd8;">\cos</span>$, $<span style="color: #7e9cd8;">\tan</span>$),
-</span><span class="line" data-line="130">logarithms and exponentials ($<span style="color: #7e9cd8;">\log</span>$, $<span style="color: #7e9cd8;">\exp</span>$),
-</span><span class="line" data-line="131">limits ($<span style="color: #7e9cd8;">\lim</span>$), etc.~have pre<span style="color: #c0a36e;">-</span>defined LaTeX commands.
+</span><span class="line" data-line="129">trigonometric functions (<span style="color: #ffa066;">$<span style="color: #7e9cd8;">\sin</span>$</span>, <span style="color: #ffa066;">$<span style="color: #7e9cd8;">\cos</span>$</span>, <span style="color: #ffa066;">$<span style="color: #7e9cd8;">\tan</span>$</span>),
+</span><span class="line" data-line="130">logarithms and exponentials (<span style="color: #ffa066;">$<span style="color: #7e9cd8;">\log</span>$</span>, <span style="color: #ffa066;">$<span style="color: #7e9cd8;">\exp</span>$</span>),
+</span><span class="line" data-line="131">limits (<span style="color: #ffa066;">$<span style="color: #7e9cd8;">\lim</span>$</span>), etc.~have pre<span style="color: #c0a36e;">-</span>defined LaTeX commands.
 </span><span class="line" data-line="132">Let&#39;s write an equation to see how it&#39;s done:
-</span><span class="line" data-line="133">$<span style="color: #7e9cd8;">\cos</span>(2<span style="color: #7e9cd8;">\theta</span>) <span style="color: #c0a36e;">=</span> <span style="color: #7e9cd8;">\cos</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span>2<span style="color: #9cabca;">&rbrace;</span>(<span style="color: #7e9cd8;">\theta</span>) <span style="color: #c0a36e;">-</span> <span style="color: #7e9cd8;">\sin</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span>2<span style="color: #9cabca;">&rbrace;</span>(<span style="color: #7e9cd8;">\theta</span>)$
+</span><span class="line" data-line="133"><span style="color: #ffa066;">$<span style="color: #7e9cd8;">\cos</span>(2<span style="color: #7e9cd8;">\theta</span>) <span style="color: #c0a36e;">=</span> <span style="color: #7e9cd8;">\cos</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span>2<span style="color: #9cabca;">&rbrace;</span>(<span style="color: #7e9cd8;">\theta</span>) <span style="color: #c0a36e;">-</span> <span style="color: #7e9cd8;">\sin</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span>2<span style="color: #9cabca;">&rbrace;</span>(<span style="color: #7e9cd8;">\theta</span>)$</span>
 </span><span class="line" data-line="134">
 </span><span class="line" data-line="135">Fractions (Numerator<span style="color: #c0a36e;">-</span>denominators) can be written in these forms:
 </span><span class="line" data-line="136">
 </span><span class="line" data-line="137"><span style="color: #727169;">% 10 / 7</span>
-</span><span class="line" data-line="138">$$ <span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span>10<span style="color: #9cabca;">&rbrace;</span><span style="color: #c0a36e;">/</span><span style="color: #c0a36e;">_</span><span style="color: #9cabca;">&lbrace;</span>7<span style="color: #9cabca;">&rbrace;</span> $$
+</span><span class="line" data-line="138"><span style="color: #ffa066;">$$ <span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span>10<span style="color: #9cabca;">&rbrace;</span><span style="color: #c0a36e;">/</span><span style="color: #c0a36e;">_</span><span style="color: #9cabca;">&lbrace;</span>7<span style="color: #9cabca;">&rbrace;</span> $$</span>
 </span><span class="line" data-line="139">
 </span><span class="line" data-line="140"><span style="color: #727169;">% Relatively complex fractions can be written as</span>
 </span><span class="line" data-line="141"><span style="color: #727169;">% \frac&lbrace;numerator&rbrace;&lbrace;denominator&rbrace;</span>
-</span><span class="line" data-line="142">$$ <span style="color: #7e9cd8;">\frac</span><span style="color: #9cabca;">&lbrace;</span>n!<span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">&lbrace;</span>k!(n <span style="color: #c0a36e;">-</span> k)<span style="color: #c0a36e;">!</span><span style="color: #9cabca;">&rbrace;</span> $$
+</span><span class="line" data-line="142"><span style="color: #ffa066;">$$ <span style="color: #7e9cd8;">\frac</span><span style="color: #9cabca;">&lbrace;</span>n!<span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">&lbrace;</span>k!(n <span style="color: #c0a36e;">-</span> k)<span style="color: #c0a36e;">!</span><span style="color: #9cabca;">&rbrace;</span> $$</span>
 </span><span class="line" data-line="143">
 </span><span class="line" data-line="144">We can also insert equations in an ``equation environment&#39;&#39;.
 </span><span class="line" data-line="145">
 </span><span class="line" data-line="146"><span style="color: #727169;">% Display math with the equation &#39;environment&#39;</span>
-</span><span class="line" data-line="147"><span style="color: #7aa89f;">\begin</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span> <span style="color: #727169;">% enters math-mode</span>
-</span><span class="line" data-line="148">    c<span style="color: #c0a36e;">^</span>2 <span style="color: #c0a36e;">=</span> a<span style="color: #c0a36e;">^</span>2 <span style="color: #c0a36e;">+</span> b<span style="color: #c0a36e;">^</span>2.
-</span><span class="line" data-line="149">    <span style="color: #7e9cd8;">\label</span><span style="color: #9cabca;">&lbrace;</span>eq:pythagoras<span style="color: #9cabca;">&rbrace;</span> <span style="color: #727169;">% for referencing</span>
-</span><span class="line" data-line="150"><span style="color: #7aa89f;">\end</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span> <span style="color: #727169;">% all \begin statements must have an end statement</span>
+</span><span class="line" data-line="147"><span style="color: #7aa89f;"><span style="color: #ffa066;">\begin<span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span></span></span> <span style="color: #727169;">% enters math-mode</span>
+</span><span class="line" data-line="148">    <span style="color: #ffa066;">c<span style="color: #c0a36e;">^</span>2</span> <span style="color: #c0a36e;">=</span> <span style="color: #ffa066;">a<span style="color: #c0a36e;">^</span>2 <span style="color: #c0a36e;">+</span> b<span style="color: #c0a36e;">^</span>2.</span>
+</span><span class="line" data-line="149"><span style="color: #ffa066;">    <span style="color: #7e9cd8;">\label</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7fb4ca; text-decoration: underline;">eq:pythagoras</span><span style="color: #9cabca;">&rbrace;</span></span> <span style="color: #727169;">% for referencing</span>
+</span><span class="line" data-line="150"><span style="color: #7aa89f;"><span style="color: #ffa066;">\end<span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span></span></span> <span style="color: #727169;">% all \begin statements must have an end statement</span>
 </span><span class="line" data-line="151">
 </span><span class="line" data-line="152">We can then reference our new equation!
-</span><span class="line" data-line="153">Eqn.~<span style="color: #7e9cd8;">\ref</span><span style="color: #9cabca;">&lbrace;</span>eq:pythagoras<span style="color: #9cabca;">&rbrace;</span> is also known as the Pythagoras Theorem which is also
-</span><span class="line" data-line="154">the subject of Sec.~<span style="color: #7e9cd8;">\ref</span><span style="color: #9cabca;">&lbrace;</span>subsec:pythagoras<span style="color: #9cabca;">&rbrace;</span>. A lot of things can be labeled:
+</span><span class="line" data-line="153">Eqn.~<span style="color: #7e9cd8;">\ref</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7fb4ca; text-decoration: underline;">eq:pythagoras</span><span style="color: #9cabca;">&rbrace;</span> is also known as the Pythagoras Theorem which is also
+</span><span class="line" data-line="154">the subject of Sec.~<span style="color: #7e9cd8;">\ref</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7fb4ca; text-decoration: underline;">subsec:pythagoras</span><span style="color: #9cabca;">&rbrace;</span>. A lot of things can be labeled:
 </span><span class="line" data-line="155">figures, equations, sections, etc.
 </span><span class="line" data-line="156">
 </span><span class="line" data-line="157">Summations and Integrals are written with sum and int commands:
 </span><span class="line" data-line="158">
 </span><span class="line" data-line="159"><span style="color: #727169;">% Some LaTeX compilers will complain if there are blank lines</span>
 </span><span class="line" data-line="160"><span style="color: #727169;">% In an equation environment.</span>
-</span><span class="line" data-line="161"><span style="color: #7aa89f;">\begin</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span>
-</span><span class="line" data-line="162">  <span style="color: #7e9cd8;">\sum</span><span style="color: #c0a36e;">_</span><span style="color: #9cabca;">&lbrace;</span>i<span style="color: #c0a36e;">=</span>0<span style="color: #9cabca;">&rbrace;</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span>5<span style="color: #9cabca;">&rbrace;</span> f<span style="color: #c0a36e;">_</span><span style="color: #9cabca;">&lbrace;</span>i<span style="color: #9cabca;">&rbrace;</span>
-</span><span class="line" data-line="163"><span style="color: #7aa89f;">\end</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span>
-</span><span class="line" data-line="164"><span style="color: #7aa89f;">\begin</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span>
-</span><span class="line" data-line="165">  <span style="color: #7e9cd8;">\int</span><span style="color: #c0a36e;">_</span><span style="color: #9cabca;">&lbrace;</span>0<span style="color: #9cabca;">&rbrace;</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7e9cd8;">\infty</span><span style="color: #9cabca;">&rbrace;</span> <span style="color: #7e9cd8;">\mathrm</span><span style="color: #9cabca;">&lbrace;</span>e<span style="color: #9cabca;">&rbrace;</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #c0a36e;">-</span>x<span style="color: #9cabca;">&rbrace;</span> <span style="color: #7e9cd8;">\mathrm</span><span style="color: #9cabca;">&lbrace;</span>d<span style="color: #9cabca;">&rbrace;</span>x
-</span><span class="line" data-line="166"><span style="color: #7aa89f;">\end</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span>
+</span><span class="line" data-line="161"><span style="color: #7aa89f;"><span style="color: #ffa066;">\begin<span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span></span></span>
+</span><span class="line" data-line="162">  <span style="color: #7e9cd8;"><span style="color: #ffa066;">\sum</span></span><span style="color: #c0a36e;"><span style="color: #ffa066;">_<span style="color: #9cabca;">&lbrace;</span>i<span style="color: #c0a36e;">=</span>0<span style="color: #9cabca;">&rbrace;</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span>5<span style="color: #9cabca;">&rbrace;</span> f<span style="color: #c0a36e;">_</span><span style="color: #9cabca;">&lbrace;</span>i<span style="color: #9cabca;">&rbrace;</span></span></span>
+</span><span class="line" data-line="163"><span style="color: #7aa89f;"><span style="color: #ffa066;">\end<span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span></span></span>
+</span><span class="line" data-line="164"><span style="color: #ffa066;"><span style="color: #7aa89f;">\begin</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span></span>
+</span><span class="line" data-line="165">  <span style="color: #ffa066;"><span style="color: #7e9cd8;">\int</span></span><span style="color: #ffa066;"><span style="color: #c0a36e;">_</span><span style="color: #9cabca;">&lbrace;</span>0<span style="color: #9cabca;">&rbrace;</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7e9cd8;">\infty</span><span style="color: #9cabca;">&rbrace;</span> <span style="color: #7e9cd8;">\mathrm</span><span style="color: #9cabca;">&lbrace;</span>e<span style="color: #9cabca;">&rbrace;</span><span style="color: #c0a36e;">^</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #c0a36e;">-</span>x<span style="color: #9cabca;">&rbrace;</span> <span style="color: #7e9cd8;">\mathrm</span><span style="color: #9cabca;">&lbrace;</span>d<span style="color: #9cabca;">&rbrace;</span>x</span>
+</span><span class="line" data-line="166"><span style="color: #ffa066;"><span style="color: #7aa89f;">\end</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">equation</span><span style="color: #9cabca;">&rbrace;</span></span>
 </span><span class="line" data-line="167">
 </span><span class="line" data-line="168"><span style="color: #7aa89f;">\section</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7e9cd8;">Figures</span><span style="color: #9cabca;">&rbrace;</span>
 </span><span class="line" data-line="169">
@@ -194,8 +177,8 @@
 </span><span class="line" data-line="177">    <span style="color: #727169;">% Inserts a figure scaled to 0.8 the width of the page.</span>
 </span><span class="line" data-line="178">    <span style="color: #727169;">%\includegraphics[width=0.8\linewidth]&lbrace;right-triangle.png&rbrace;</span>
 </span><span class="line" data-line="179">    <span style="color: #727169;">% Commented out for compilation purposes. Please use your imagination.</span>
-</span><span class="line" data-line="180">    <span style="color: #7e9cd8;">\caption</span><span style="color: #9cabca;">&lbrace;</span>Right triangle with sides $a$, $b$, $c$<span style="color: #9cabca;">&rbrace;</span>
-</span><span class="line" data-line="181">    <span style="color: #7e9cd8;">\label</span><span style="color: #9cabca;">&lbrace;</span>fig:right<span style="color: #c0a36e;">-</span>triangle<span style="color: #9cabca;">&rbrace;</span>
+</span><span class="line" data-line="180">    <span style="color: #7e9cd8;">\caption</span><span style="color: #9cabca;">&lbrace;</span>Right triangle with sides <span style="color: #ffa066;">$a$</span>, <span style="color: #ffa066;">$b$</span>, <span style="color: #ffa066;">$c$</span><span style="color: #9cabca;">&rbrace;</span>
+</span><span class="line" data-line="181">    <span style="color: #7e9cd8;">\label</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7fb4ca; text-decoration: underline;">fig:right<span style="color: #c0a36e;">-</span>triangle</span><span style="color: #9cabca;">&rbrace;</span>
 </span><span class="line" data-line="182"><span style="color: #7aa89f;">\end</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">figure</span><span style="color: #9cabca;">&rbrace;</span>
 </span><span class="line" data-line="183">
 </span><span class="line" data-line="184"><span style="color: #7aa89f;">\subsection</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7e9cd8;">Table</span><span style="color: #9cabca;">&rbrace;</span>
@@ -256,7 +239,7 @@
 </span><span class="line" data-line="239">A number of <span style="color: #7e9cd8;">\LaTeX</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #9cabca;">&rbrace;</span> editors combine both Step 1 and Step 2 in the
 </span><span class="line" data-line="240">same piece of software. So, you get to see Step 1, but not Step 2 completely.
 </span><span class="line" data-line="241">Step 2 is still happening behind the scenes<span style="color: #7e9cd8;">\footnote</span><span style="color: #9cabca;">&lbrace;</span>In cases, where you use
-</span><span class="line" data-line="242">references (like Eqn.~<span style="color: #7e9cd8;">\ref</span><span style="color: #9cabca;">&lbrace;</span>eq:pythagoras<span style="color: #9cabca;">&rbrace;</span>), you may need to run Step 2
+</span><span class="line" data-line="242">references (like Eqn.~<span style="color: #7e9cd8;">\ref</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7fb4ca; text-decoration: underline;">eq:pythagoras</span><span style="color: #9cabca;">&rbrace;</span>), you may need to run Step 2
 </span><span class="line" data-line="243">multiple times, to generate an intermediary <span style="color: #c0a36e;">*</span>.aux file.<span style="color: #9cabca;">&rbrace;</span>.
 </span><span class="line" data-line="244"><span style="color: #727169;">% Also, this is how you add footnotes to your document!</span>
 </span><span class="line" data-line="245"><span style="color: #727169;">% with a simple \footnote&lbrace;...&rbrace; command. They are numbered ¹, ², ... by default.</span>
@@ -273,8 +256,8 @@
 </span><span class="line" data-line="256"><span style="color: #7aa89f;">\end</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">verbatim</span><span style="color: #9cabca;">&rbrace;</span>
 </span><span class="line" data-line="257">
 </span><span class="line" data-line="258">There exists two main types of links: visible URL <span style="color: #7e9cd8;">\\</span>
-</span><span class="line" data-line="259">\url<span style="color: #9cabca;">&lbrace;</span>https://learnxinyminutes.com/latex/<span style="color: #9cabca;">&rbrace;</span>, or
-</span><span class="line" data-line="260">\href<span style="color: #9cabca;">&lbrace;</span>https://learnxinyminutes.com/latex/<span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">&lbrace;</span>shadowed by text<span style="color: #9cabca;">&rbrace;</span>
+</span><span class="line" data-line="259"><span style="color: #7e9cd8;">\url</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7fb4ca;">https://learnxinyminutes.com/latex/</span><span style="color: #9cabca;">&rbrace;</span>, or
+</span><span class="line" data-line="260"><span style="color: #7e9cd8;">\href</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #7fb4ca;">https://learnxinyminutes.com/latex/</span><span style="color: #9cabca;">&rbrace;</span><span style="color: #9cabca;">&lbrace;</span>shadowed by text<span style="color: #9cabca;">&rbrace;</span>
 </span><span class="line" data-line="261"><span style="color: #727169;">% You can not add extra-spaces or special symbols into shadowing text since it</span>
 </span><span class="line" data-line="262"><span style="color: #727169;">% will cause mistakes during the compilation</span>
 </span><span class="line" data-line="263">
@@ -318,5 +301,3 @@
 </span><span class="line" data-line="301"><span style="color: #727169;">% end the document</span>
 </span><span class="line" data-line="302"><span style="color: #7aa89f;">\end</span><span style="color: #9cabca;">&lbrace;</span><span style="color: #957fb8; font-weight: bold;">document</span><span style="color: #9cabca;">&rbrace;</span>
 </span></code></pre>
-</body>
-</html>

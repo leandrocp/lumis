@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>zig - catppuccin_mocha - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #cdd6f4; background-color: #1e1e2e;"><code class="language-zig" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #9399b2;">//! Top-level documentation.</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #cdd6f4; background-color: #1e1e2e;"><code class="language-zig" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #9399b2;">//! Top-level documentation.</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #9399b2;">/// Documentation comment.</span>
 </span><span class="line" data-line="4">
@@ -347,7 +330,7 @@
 </span><span class="line" data-line="330">
 </span><span class="line" data-line="331"><span style="color: #9399b2;">// For loops can be used as expressions.</span>
 </span><span class="line" data-line="332"><span style="color: #9399b2;">// When you break from a for loop, the else branch is not evaluated.</span>
-</span><span class="line" data-line="333"><span style="color: #9399b2;">// <span style="color: #9399b2;">WARNING</span><span style="color: #9399b2;">:</span> counter-intuitive.</span>
+</span><span class="line" data-line="333"><span style="color: #9399b2;">// <span style="color: #1e1e2e; background-color: #f9e2af;">WARNING</span><span style="color: #9399b2;">:</span> counter-intuitive.</span>
 </span><span class="line" data-line="334"><span style="color: #9399b2;">//      The &quot;for&quot; loop will run, then the &quot;else&quot; block will run.</span>
 </span><span class="line" data-line="335"><span style="color: #9399b2;">//      The &quot;else&quot; keyword has to be followed by the value to give to &quot;result&quot;.</span>
 </span><span class="line" data-line="336"><span style="color: #9399b2;">//      See later for another form.</span>
@@ -505,7 +488,7 @@
 </span><span class="line" data-line="488"><span style="color: #9399b2;">&rbrace;</span><span style="color: #9399b2;">;</span>
 </span><span class="line" data-line="489">
 </span><span class="line" data-line="490"><span style="color: #9399b2;">// Switch statements need exhaustiveness.</span>
-</span><span class="line" data-line="491"><span style="color: #9399b2;">// <span style="color: #9399b2;">WARNING</span><span style="color: #9399b2;">:</span> won&#39;t compile. East and West are missing.</span>
+</span><span class="line" data-line="491"><span style="color: #9399b2;">// <span style="color: #1e1e2e; background-color: #f9e2af;">WARNING</span><span style="color: #9399b2;">:</span> won&#39;t compile. East and West are missing.</span>
 </span><span class="line" data-line="492"><span style="color: #cba6f7;">const</span> x <span style="color: #89dceb;">=</span> <span style="color: #cba6f7;">switch</span> <span style="color: #9399b2;">(</span><span style="color: #cdd6f4;">direction</span><span style="color: #9399b2;">)</span> <span style="color: #9399b2;">&lbrace;</span>
 </span><span class="line" data-line="493">    <span style="color: #9399b2;">.</span><span style="color: #fab387;">North</span> <span style="color: #9399b2;">=&gt;</span> <span style="color: #fab387;">true</span><span style="color: #9399b2;">,</span>
 </span><span class="line" data-line="494">    <span style="color: #9399b2;">.</span><span style="color: #fab387;">South</span> <span style="color: #9399b2;">=&gt;</span> <span style="color: #fab387;">true</span><span style="color: #9399b2;">,</span>
@@ -782,5 +765,3 @@
 </span><span class="line" data-line="765">    <span style="color: #89b4fa;">expect</span><span style="color: #9399b2;">(</span><span style="color: #fab387;">false</span> <span style="color: #89dceb;">==</span> <span style="color: #89b4fa;">some_function</span><span style="color: #9399b2;">(</span><span style="color: #9399b2;">)</span><span style="color: #9399b2;">)</span><span style="color: #9399b2;">;</span>
 </span><span class="line" data-line="766"><span style="color: #9399b2;">&rbrace;</span>
 </span></code></pre>
-</body>
-</html>

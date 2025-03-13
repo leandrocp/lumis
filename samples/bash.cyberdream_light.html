@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>bash - cyberdream_light - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #16181a; background-color: #ffffff;"><code class="language-bash" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #d17c00;">#!/usr/bin/env bash</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #16181a; background-color: #ffffff;"><code class="language-bash" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #d17c00;">#!/usr/bin/env bash</span>
 </span><span class="line" data-line="2"><span style="color: #7b8496;"># First line of the script is the shebang which tells the system how to execute</span>
 </span><span class="line" data-line="3"><span style="color: #7b8496;"># the script: <span style="text-decoration: underline;">https://en.wikipedia.org/wiki/Shebang_(Unix</span>)</span>
 </span><span class="line" data-line="4"><span style="color: #7b8496;"># As you already figured, comments start with #. Shebang is also a comment.</span>
@@ -44,7 +27,7 @@
 </span><span class="line" data-line="27"><span style="color: #7b8496;"># command.</span>
 </span><span class="line" data-line="28">
 </span><span class="line" data-line="29"><span style="color: #7b8496;"># Using the variable:</span>
-</span><span class="line" data-line="30"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">variable</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; Some string</span>
+</span><span class="line" data-line="30"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">variable</span>&quot;</span> <span style="color: #7b8496;"># =&gt; Some string</span>
 </span><span class="line" data-line="31"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&#39;$variable&#39;</span> <span style="color: #7b8496;"># =&gt; $variable</span>
 </span><span class="line" data-line="32"><span style="color: #7b8496;"># When you use a variable itself — assign it, export it, or else — you write</span>
 </span><span class="line" data-line="33"><span style="color: #7b8496;"># its name without $. If you want to use the variable&#39;s value, you should use $.</span>
@@ -53,7 +36,7 @@
 </span><span class="line" data-line="36"><span style="color: #7b8496;"># recommended due to how Bash handles variables with spaces in them.</span>
 </span><span class="line" data-line="37">
 </span><span class="line" data-line="38"><span style="color: #7b8496;"># Parameter expansion $&lbrace;...&rbrace;:</span>
-</span><span class="line" data-line="39"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; Some string</span>
+</span><span class="line" data-line="39"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; Some string</span>
 </span><span class="line" data-line="40"><span style="color: #7b8496;"># This is a simple usage of parameter expansion such as two examples above.</span>
 </span><span class="line" data-line="41"><span style="color: #7b8496;"># Parameter expansion gets a value from a variable.</span>
 </span><span class="line" data-line="42"><span style="color: #7b8496;"># It &quot;expands&quot; or prints the value.</span>
@@ -61,27 +44,27 @@
 </span><span class="line" data-line="44"><span style="color: #7b8496;"># Below are other modifications that add onto this expansion.</span>
 </span><span class="line" data-line="45">
 </span><span class="line" data-line="46"><span style="color: #7b8496;"># String substitution in variables:</span>
-</span><span class="line" data-line="47"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">/</span><span style="color: #f40064;">Some</span><span style="color: #16181a;">/</span>A<span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; A string</span>
+</span><span class="line" data-line="47"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">/</span><span style="color: #f40064;">Some</span><span style="color: #16181a;">/</span>A<span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; A string</span>
 </span><span class="line" data-line="48"><span style="color: #7b8496;"># This will substitute the first occurrence of &quot;Some&quot; with &quot;A&quot;.</span>
 </span><span class="line" data-line="49">
 </span><span class="line" data-line="50"><span style="color: #7b8496;"># Substring from a variable:</span>
 </span><span class="line" data-line="51"><span style="color: #16181a;">length</span><span style="color: #a018ff;">=</span><span style="color: #d17c00;">7</span>
-</span><span class="line" data-line="52"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">:</span><span style="color: #d17c00;">0</span><span style="color: #16181a;">:</span><span style="color: #16181a;">length</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; Some st</span>
+</span><span class="line" data-line="52"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">:</span><span style="color: #d17c00;">0</span><span style="color: #16181a;">:</span><span style="color: #16181a;">length</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; Some st</span>
 </span><span class="line" data-line="53"><span style="color: #7b8496;"># This will return only the first 7 characters of the value</span>
-</span><span class="line" data-line="54"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">:</span> <span style="color: #d17c00;">-5</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; tring</span>
+</span><span class="line" data-line="54"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">:</span> <span style="color: #d17c00;">-5</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; tring</span>
 </span><span class="line" data-line="55"><span style="color: #7b8496;"># This will return the last 5 characters (note the space before -5).</span>
 </span><span class="line" data-line="56"><span style="color: #7b8496;"># The space before minus is mandatory here.</span>
 </span><span class="line" data-line="57">
 </span><span class="line" data-line="58"><span style="color: #7b8496;"># String length:</span>
-</span><span class="line" data-line="59"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">#</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; 11</span>
+</span><span class="line" data-line="59"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">#</span><span style="color: #16181a;">variable</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; 11</span>
 </span><span class="line" data-line="60">
 </span><span class="line" data-line="61"><span style="color: #7b8496;"># Indirect expansion:</span>
 </span><span class="line" data-line="62"><span style="color: #16181a;">other_variable</span><span style="color: #a018ff;">=</span><span style="color: #008b0c;">&quot;variable&quot;</span>
-</span><span class="line" data-line="63"><span style="color: #0057d1;">echo</span> <span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">!</span><span style="color: #16181a;">other_variable</span><span style="color: #16181a;">&rbrace;</span></span> <span style="color: #7b8496;"># =&gt; Some string</span>
+</span><span class="line" data-line="63"><span style="color: #0057d1;">echo</span> <span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">!</span><span style="color: #16181a;">other_variable</span><span style="color: #16181a;">&rbrace;</span> <span style="color: #7b8496;"># =&gt; Some string</span>
 </span><span class="line" data-line="64"><span style="color: #7b8496;"># This will expand the value of `other_variable`.</span>
 </span><span class="line" data-line="65">
 </span><span class="line" data-line="66"><span style="color: #7b8496;"># The default value for variable:</span>
-</span><span class="line" data-line="67"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">foo</span><span style="color: #16181a;">:-</span><span style="color: #008b0c;">&quot;DefaultValueIfFooIsMissingOrEmpty&quot;</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span>
+</span><span class="line" data-line="67"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">foo</span><span style="color: #16181a;">:-</span><span style="color: #008b0c;">&quot;DefaultValueIfFooIsMissingOrEmpty&quot;</span><span style="color: #16181a;">&rbrace;</span>&quot;</span>
 </span><span class="line" data-line="68"><span style="color: #7b8496;"># =&gt; DefaultValueIfFooIsMissingOrEmpty</span>
 </span><span class="line" data-line="69"><span style="color: #7b8496;"># This works for null (foo=) and empty string (foo=&quot;&quot;); zero (foo=0) returns 0.</span>
 </span><span class="line" data-line="70"><span style="color: #7b8496;"># Note that it only returns default value and doesn&#39;t change variable value.</span>
@@ -89,27 +72,27 @@
 </span><span class="line" data-line="72"><span style="color: #7b8496;"># Declare an array with 6 elements:</span>
 </span><span class="line" data-line="73"><span style="color: #16181a;">array</span><span style="color: #a018ff;">=</span><span style="color: #16181a;">(</span>one two three four five six<span style="color: #16181a;">)</span>
 </span><span class="line" data-line="74"><span style="color: #7b8496;"># Print the first element:</span>
-</span><span class="line" data-line="75"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #d17c00;">0</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;one&quot;</span>
+</span><span class="line" data-line="75"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #d17c00;">0</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;one&quot;</span>
 </span><span class="line" data-line="76"><span style="color: #7b8496;"># Print all elements:</span>
-</span><span class="line" data-line="77"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #f40064;">@</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;one two three four five six&quot;</span>
+</span><span class="line" data-line="77"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #f40064;">@</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;one two three four five six&quot;</span>
 </span><span class="line" data-line="78"><span style="color: #7b8496;"># Print the number of elements:</span>
-</span><span class="line" data-line="79"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">#</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #f40064;">@</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;6&quot;</span>
+</span><span class="line" data-line="79"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">#</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #f40064;">@</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;6&quot;</span>
 </span><span class="line" data-line="80"><span style="color: #7b8496;"># Print the number of characters in third element</span>
-</span><span class="line" data-line="81"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">#</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #d17c00;">2</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;5&quot;</span>
+</span><span class="line" data-line="81"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">#</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #d17c00;">2</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;5&quot;</span>
 </span><span class="line" data-line="82"><span style="color: #7b8496;"># Print 2 elements starting from fourth:</span>
-</span><span class="line" data-line="83"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #f40064;">@</span><span style="color: #16181a;">]</span><span style="color: #16181a;">:</span><span style="color: #d17c00;">3</span><span style="color: #16181a;">:</span><span style="color: #d17c00;">2</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;four five&quot;</span>
+</span><span class="line" data-line="83"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #f40064;">@</span><span style="color: #16181a;">]</span><span style="color: #16181a;">:</span><span style="color: #d17c00;">3</span><span style="color: #16181a;">:</span><span style="color: #d17c00;">2</span><span style="color: #16181a;">&rbrace;</span>&quot;</span> <span style="color: #7b8496;"># =&gt; &quot;four five&quot;</span>
 </span><span class="line" data-line="84"><span style="color: #7b8496;"># Print all elements each of them on new line.</span>
-</span><span class="line" data-line="85"><span style="color: #d17c00;">for</span> <span style="color: #16181a;">item</span> <span style="color: #d17c00;">in</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #f40064;">@</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span></span>&quot;</span><span style="color: #16181a;">;</span> <span style="color: #d17c00;">do</span>
-</span><span class="line" data-line="86">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">item</span></span>&quot;</span>
+</span><span class="line" data-line="85"><span style="color: #d17c00;">for</span> <span style="color: #16181a;">item</span> <span style="color: #d17c00;">in</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$&lbrace;</span><span style="color: #16181a;">array</span><span style="color: #16181a;">[</span><span style="color: #f40064;">@</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&rbrace;</span>&quot;</span><span style="color: #16181a;">;</span> <span style="color: #d17c00;">do</span>
+</span><span class="line" data-line="86">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">item</span>&quot;</span>
 </span><span class="line" data-line="87"><span style="color: #d17c00;">done</span>
 </span><span class="line" data-line="88">
 </span><span class="line" data-line="89"><span style="color: #7b8496;"># Built-in variables:</span>
 </span><span class="line" data-line="90"><span style="color: #7b8496;"># There are some useful built-in variables, like:</span>
-</span><span class="line" data-line="91"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Last program&#39;s return value: <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">?</span></span>&quot;</span>
-</span><span class="line" data-line="92"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Script&#39;s PID: <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">$</span></span>&quot;</span>
-</span><span class="line" data-line="93"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Number of arguments passed to script: <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">#</span></span>&quot;</span>
-</span><span class="line" data-line="94"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;All arguments passed to script: <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">@</span></span>&quot;</span>
-</span><span class="line" data-line="95"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Script&#39;s arguments separated into different variables: <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">1</span></span><span ><span style="color: #16181a;"> $</span><span style="color: #16181a;">2</span></span>...&quot;</span>
+</span><span class="line" data-line="91"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Last program&#39;s return value: <span style="color: #16181a;">$</span><span style="color: #f40064;">?</span>&quot;</span>
+</span><span class="line" data-line="92"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Script&#39;s PID: <span style="color: #16181a;">$</span><span style="color: #f40064;">$</span>&quot;</span>
+</span><span class="line" data-line="93"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Number of arguments passed to script: <span style="color: #16181a;">$</span><span style="color: #f40064;">#</span>&quot;</span>
+</span><span class="line" data-line="94"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;All arguments passed to script: <span style="color: #16181a;">$</span><span style="color: #f40064;">@</span>&quot;</span>
+</span><span class="line" data-line="95"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Script&#39;s arguments separated into different variables: <span style="color: #16181a;">$</span><span style="color: #16181a;">1</span><span style="color: #16181a;"> $</span><span style="color: #16181a;">2</span>...&quot;</span>
 </span><span class="line" data-line="96">
 </span><span class="line" data-line="97"><span style="color: #7b8496;"># Brace Expansion &lbrace;...&rbrace;</span>
 </span><span class="line" data-line="98"><span style="color: #7b8496;"># used to generate arbitrary strings:</span>
@@ -119,7 +102,7 @@
 </span><span class="line" data-line="102"><span style="color: #7b8496;"># Note that you can&#39;t use variables here:</span>
 </span><span class="line" data-line="103"><span style="color: #16181a;">from</span><span style="color: #a018ff;">=</span><span style="color: #d17c00;">1</span>
 </span><span class="line" data-line="104"><span style="color: #16181a;">to</span><span style="color: #a018ff;">=</span><span style="color: #d17c00;">10</span>
-</span><span class="line" data-line="105"><span style="color: #0057d1;">echo</span> <span style="color: #16181a;">&lbrace;</span><span ><span style="color: #16181a;">$</span><span style="color: #16181a;">from</span></span><span style="color: #16181a;">..</span><span ><span style="color: #16181a;">$</span><span style="color: #16181a;">to</span></span><span style="color: #16181a;">&rbrace;</span> <span style="color: #7b8496;"># =&gt; &lbrace;$from..$to&rbrace;</span>
+</span><span class="line" data-line="105"><span style="color: #0057d1;">echo</span> <span style="color: #16181a;">&lbrace;</span><span style="color: #16181a;">$</span><span style="color: #16181a;">from</span><span style="color: #16181a;">..</span><span style="color: #16181a;">$</span><span style="color: #16181a;">to</span><span style="color: #16181a;">&rbrace;</span> <span style="color: #7b8496;"># =&gt; &lbrace;$from..$to&rbrace;</span>
 </span><span class="line" data-line="106">
 </span><span class="line" data-line="107"><span style="color: #7b8496;"># Now that we know how to echo and use variables,</span>
 </span><span class="line" data-line="108"><span style="color: #7b8496;"># let&#39;s learn some of the other basics of Bash!</span>
@@ -129,7 +112,7 @@
 </span><span class="line" data-line="112"><span style="color: #7b8496;"># We can also use the built-in variable `$PWD`.</span>
 </span><span class="line" data-line="113"><span style="color: #7b8496;"># Observe that the following are equivalent:</span>
 </span><span class="line" data-line="114"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;I&#39;m in <span style="color: #16181a;">$(</span><span style="color: #0057d1;">pwd</span><span style="color: #16181a;">)</span>&quot;</span> <span style="color: #7b8496;"># execs `pwd` and interpolates output</span>
-</span><span class="line" data-line="115"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;I&#39;m in <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">PWD</span></span>&quot;</span> <span style="color: #7b8496;"># interpolates the variable</span>
+</span><span class="line" data-line="115"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;I&#39;m in <span style="color: #16181a;">$</span><span style="color: #f40064;">PWD</span>&quot;</span> <span style="color: #7b8496;"># interpolates the variable</span>
 </span><span class="line" data-line="116">
 </span><span class="line" data-line="117"><span style="color: #7b8496;"># If you get too much output in your terminal, or from a script, the command</span>
 </span><span class="line" data-line="118"><span style="color: #7b8496;"># `clear` clears your screen:</span>
@@ -140,11 +123,11 @@
 </span><span class="line" data-line="123"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;What&#39;s your name?&quot;</span>
 </span><span class="line" data-line="124"><span style="color: #0057d1;">read</span> <span style="color: #16181a;">name</span>
 </span><span class="line" data-line="125"><span style="color: #7b8496;"># Note that we didn&#39;t need to declare a new variable.</span>
-</span><span class="line" data-line="126"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Hello, <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">name</span></span>!&quot;</span>
+</span><span class="line" data-line="126"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Hello, <span style="color: #16181a;">$</span><span style="color: #16181a;">name</span>!&quot;</span>
 </span><span class="line" data-line="127">
 </span><span class="line" data-line="128"><span style="color: #7b8496;"># We have the usual if structure.</span>
 </span><span class="line" data-line="129"><span style="color: #7b8496;"># Condition is true if the value of $name is not equal to the current user&#39;s login username:</span>
-</span><span class="line" data-line="130"><span style="color: #d17c00;">if</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">name</span></span>&quot;</span> <span style="color: #a018ff;">!=</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #f40064;">USER</span></span>&quot;</span> <span style="color: #16181a;">]]</span><span style="color: #16181a;">;</span> <span style="color: #d17c00;">then</span>
+</span><span class="line" data-line="130"><span style="color: #d17c00;">if</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">name</span>&quot;</span> <span style="color: #a018ff;">!=</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #f40064;">USER</span>&quot;</span> <span style="color: #16181a;">]]</span><span style="color: #16181a;">;</span> <span style="color: #d17c00;">then</span>
 </span><span class="line" data-line="131">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Your name isn&#39;t your username&quot;</span>
 </span><span class="line" data-line="132"><span style="color: #d17c00;">else</span>
 </span><span class="line" data-line="133">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Your name is your username&quot;</span>
@@ -152,12 +135,12 @@
 </span><span class="line" data-line="135">
 </span><span class="line" data-line="136"><span style="color: #7b8496;"># To use &amp;&amp; and || with if statements, you need multiple pairs of square brackets:</span>
 </span><span class="line" data-line="137"><span style="color: #0057d1;">read</span> <span style="color: #16181a;">age</span>
-</span><span class="line" data-line="138"><span style="color: #d17c00;">if</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">name</span></span>&quot;</span> <span style="color: #a018ff;">==</span> <span style="color: #008b0c;">&quot;Steve&quot;</span> <span style="color: #16181a;">]]</span> <span style="color: #a018ff;">&amp;&amp;</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">age</span></span>&quot;</span> <span style="color: #a018ff;">-eq</span> <span style="color: #d17c00;">15</span> <span style="color: #16181a;">]]</span><span style="color: #16181a;">;</span> <span style="color: #d17c00;">then</span>
-</span><span class="line" data-line="139">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;This will run if <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">name</span></span> is Steve AND <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">age</span></span> is 15.&quot;</span>
+</span><span class="line" data-line="138"><span style="color: #d17c00;">if</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">name</span>&quot;</span> <span style="color: #a018ff;">==</span> <span style="color: #008b0c;">&quot;Steve&quot;</span> <span style="color: #16181a;">]]</span> <span style="color: #a018ff;">&amp;&amp;</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">age</span>&quot;</span> <span style="color: #a018ff;">-eq</span> <span style="color: #d17c00;">15</span> <span style="color: #16181a;">]]</span><span style="color: #16181a;">;</span> <span style="color: #d17c00;">then</span>
+</span><span class="line" data-line="139">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;This will run if <span style="color: #16181a;">$</span><span style="color: #16181a;">name</span> is Steve AND <span style="color: #16181a;">$</span><span style="color: #16181a;">age</span> is 15.&quot;</span>
 </span><span class="line" data-line="140"><span style="color: #d17c00;">fi</span>
 </span><span class="line" data-line="141">
-</span><span class="line" data-line="142"><span style="color: #d17c00;">if</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">name</span></span>&quot;</span> <span style="color: #a018ff;">==</span> <span style="color: #008b0c;">&quot;Daniya&quot;</span> <span style="color: #16181a;">]]</span> <span style="color: #a018ff;">||</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">name</span></span>&quot;</span> <span style="color: #a018ff;">==</span> <span style="color: #008b0c;">&quot;Zach&quot;</span> <span style="color: #16181a;">]]</span><span style="color: #16181a;">;</span> <span style="color: #d17c00;">then</span>
-</span><span class="line" data-line="143">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;This will run if <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">name</span></span> is Daniya OR Zach.&quot;</span>
+</span><span class="line" data-line="142"><span style="color: #d17c00;">if</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">name</span>&quot;</span> <span style="color: #a018ff;">==</span> <span style="color: #008b0c;">&quot;Daniya&quot;</span> <span style="color: #16181a;">]]</span> <span style="color: #a018ff;">||</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">name</span>&quot;</span> <span style="color: #a018ff;">==</span> <span style="color: #008b0c;">&quot;Zach&quot;</span> <span style="color: #16181a;">]]</span><span style="color: #16181a;">;</span> <span style="color: #d17c00;">then</span>
+</span><span class="line" data-line="143">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;This will run if <span style="color: #16181a;">$</span><span style="color: #16181a;">name</span> is Daniya OR Zach.&quot;</span>
 </span><span class="line" data-line="144"><span style="color: #d17c00;">fi</span>
 </span><span class="line" data-line="145"><span style="color: #7b8496;"># There are other comparison operators for numbers listed below:</span>
 </span><span class="line" data-line="146"><span style="color: #7b8496;"># -ne - not equal</span>
@@ -168,7 +151,7 @@
 </span><span class="line" data-line="151">
 </span><span class="line" data-line="152"><span style="color: #7b8496;"># There is also the `=~` operator, which tests a string against the Regex pattern:</span>
 </span><span class="line" data-line="153"><span style="color: #16181a;">email</span><span style="color: #a018ff;">=</span><span style="color: #008b0c;">me@example.com</span>
-</span><span class="line" data-line="154"><span style="color: #d17c00;">if</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">email</span></span>&quot;</span> <span style="color: #a018ff;">=~</span> <span style="color: #16181a;"><span style="color: #f40064;">[</span><span style="color: #f40064;">a</span><span style="color: #a018ff;">-</span><span style="color: #f40064;">z</span><span style="color: #16181a;">]</span><span style="color: #a018ff;">+</span>@<span style="color: #16181a;">[</span><span style="color: #f40064;">a</span><span style="color: #a018ff;">-</span><span style="color: #f40064;">z</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&lbrace;</span><span style="color: #d17c00;">2</span><span style="color: #16181a;">,</span><span style="color: #16181a;">&rbrace;</span><span style="color: #f40064;">\.</span><span style="color: #16181a;">(</span>com<span style="color: #a018ff;">|</span>net<span style="color: #a018ff;">|</span>org<span style="color: #16181a;">)</span></span> <span style="color: #16181a;">]]</span>
+</span><span class="line" data-line="154"><span style="color: #d17c00;">if</span> <span style="color: #16181a;">[[</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">email</span>&quot;</span> <span style="color: #a018ff;">=~</span> <span style="color: #16181a;"><span style="color: #f40064;">[</span><span style="color: #f40064;">a</span><span style="color: #a018ff;">-</span><span style="color: #f40064;">z</span><span style="color: #16181a;">]</span><span style="color: #a018ff;">+</span>@<span style="color: #16181a;">[</span><span style="color: #f40064;">a</span><span style="color: #a018ff;">-</span><span style="color: #f40064;">z</span><span style="color: #16181a;">]</span><span style="color: #16181a;">&lbrace;</span><span style="color: #d17c00;">2</span><span style="color: #16181a;">,</span><span style="color: #16181a;">&rbrace;</span><span style="color: #f40064;">\.</span><span style="color: #16181a;">(</span>com<span style="color: #a018ff;">|</span>net<span style="color: #a018ff;">|</span>org<span style="color: #16181a;">)</span></span> <span style="color: #16181a;">]]</span>
 </span><span class="line" data-line="155"><span style="color: #d17c00;">then</span>
 </span><span class="line" data-line="156">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Valid email!&quot;</span>
 </span><span class="line" data-line="157"><span style="color: #d17c00;">fi</span>
@@ -227,7 +210,7 @@
 </span><span class="line" data-line="210"><span style="color: #16181a;">Contents</span><span style="color: #a018ff;">=</span><span style="color: #16181a;">$(</span><span style="color: #0057d1;">cat</span> <span style="color: #16181a;">file.txt</span><span style="color: #16181a;">)</span>
 </span><span class="line" data-line="211"><span style="color: #7b8496;"># &quot;\n&quot; prints a new line character</span>
 </span><span class="line" data-line="212"><span style="color: #7b8496;"># &quot;-e&quot; to interpret the newline escape characters as escape characters</span>
-</span><span class="line" data-line="213"><span style="color: #0057d1;">echo</span> <span style="color: #16181a;">-e</span> <span style="color: #008b0c;">&quot;START OF FILE\n<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">Contents</span></span>\nEND OF FILE&quot;</span>
+</span><span class="line" data-line="213"><span style="color: #0057d1;">echo</span> <span style="color: #16181a;">-e</span> <span style="color: #008b0c;">&quot;START OF FILE\n<span style="color: #16181a;">$</span><span style="color: #16181a;">Contents</span>\nEND OF FILE&quot;</span>
 </span><span class="line" data-line="214"><span style="color: #7b8496;"># =&gt; START OF FILE</span>
 </span><span class="line" data-line="215"><span style="color: #7b8496;"># =&gt; [contents of file.txt]</span>
 </span><span class="line" data-line="216"><span style="color: #7b8496;"># =&gt; END OF FILE</span>
@@ -260,7 +243,7 @@
 </span><span class="line" data-line="243"><span style="color: #7b8496;"># =&gt; /home/username/Documents</span>
 </span><span class="line" data-line="244">
 </span><span class="line" data-line="245"><span style="color: #7b8496;"># Use subshells to work across directories</span>
-</span><span class="line" data-line="246"><span style="color: #16181a;">(</span><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;First, I&#39;m here: <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">PWD</span></span>&quot;</span><span style="color: #16181a;">)</span> <span style="color: #a018ff;">&amp;&amp;</span> <span style="color: #16181a;">(</span><span style="color: #0057d1;">cd</span> <span style="color: #16181a;">someDir</span><span style="color: #16181a;">;</span> <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Then, I&#39;m here: <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">PWD</span></span>&quot;</span><span style="color: #16181a;">)</span>
+</span><span class="line" data-line="246"><span style="color: #16181a;">(</span><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;First, I&#39;m here: <span style="color: #16181a;">$</span><span style="color: #f40064;">PWD</span>&quot;</span><span style="color: #16181a;">)</span> <span style="color: #a018ff;">&amp;&amp;</span> <span style="color: #16181a;">(</span><span style="color: #0057d1;">cd</span> <span style="color: #16181a;">someDir</span><span style="color: #16181a;">;</span> <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Then, I&#39;m here: <span style="color: #16181a;">$</span><span style="color: #f40064;">PWD</span>&quot;</span><span style="color: #16181a;">)</span>
 </span><span class="line" data-line="247"><span style="color: #0057d1;">pwd</span> <span style="color: #7b8496;"># still in first directory</span>
 </span><span class="line" data-line="248">
 </span><span class="line" data-line="249"><span style="color: #7b8496;"># Use `mkdir` to create new directories.</span>
@@ -323,7 +306,7 @@
 </span><span class="line" data-line="306"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;#helloworld&quot;</span> <span style="color: #a018ff;">|</span> <span style="color: #0057d1;">tee</span> <span style="color: #16181a;">output.out</span> <span style="color: #a018ff;">&gt;</span><span style="color: #f40064;">/dev/null</span>
 </span><span class="line" data-line="307">
 </span><span class="line" data-line="308"><span style="color: #7b8496;"># Cleanup temporary files verbosely (add &#39;-i&#39; for interactive)</span>
-</span><span class="line" data-line="309"><span style="color: #7b8496;"># <span style="color: #7b8496;">WARNING</span><span style="color: #16181a;">:</span> `rm` commands cannot be undone</span>
+</span><span class="line" data-line="309"><span style="color: #7b8496;"># <span style="color: #997b00;">WARNING</span><span style="color: #16181a;">:</span> `rm` commands cannot be undone</span>
 </span><span class="line" data-line="310"><span style="color: #0057d1;">rm</span> <span style="color: #16181a;">-v</span> <span style="color: #16181a;">output.out</span> <span style="color: #16181a;">error.err</span> <span style="color: #16181a;">output-and-error.log</span>
 </span><span class="line" data-line="311"><span style="color: #0057d1;">rm</span> <span style="color: #16181a;">-r</span> <span style="color: #16181a;">tempDir/</span> <span style="color: #7b8496;"># recursively delete</span>
 </span><span class="line" data-line="312"><span style="color: #7b8496;"># You can install the `trash-cli` Python package to have `trash`</span>
@@ -340,7 +323,7 @@
 </span><span class="line" data-line="323"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;There are `<span style="color: #0057d1;">ls</span> <span style="color: #a018ff;">|</span> <span style="color: #0057d1;">wc</span> <span style="color: #16181a;">-l</span>` items here.&quot;</span>
 </span><span class="line" data-line="324">
 </span><span class="line" data-line="325"><span style="color: #7b8496;"># Bash uses a `case` statement that works similarly to switch in Java and C++:</span>
-</span><span class="line" data-line="326"><span style="color: #d17c00;">case</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">Variable</span></span>&quot;</span> <span style="color: #d17c00;">in</span>
+</span><span class="line" data-line="326"><span style="color: #d17c00;">case</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">Variable</span>&quot;</span> <span style="color: #d17c00;">in</span>
 </span><span class="line" data-line="327">    <span style="color: #7b8496;"># List patterns for the conditions you want to meet</span>
 </span><span class="line" data-line="328">    <span style="color: #d17c00;">0</span><span style="color: #16181a;">)</span> <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;There is a zero.&quot;</span><span style="color: #16181a;">;;</span>
 </span><span class="line" data-line="329">    <span style="color: #d17c00;">1</span><span style="color: #16181a;">)</span> <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;There is a one.&quot;</span><span style="color: #16181a;">;;</span>
@@ -351,7 +334,7 @@
 </span><span class="line" data-line="334"><span style="color: #7b8496;"># The contents of $Variable is printed three times.</span>
 </span><span class="line" data-line="335"><span style="color: #d17c00;">for</span> <span style="color: #16181a;">Variable</span> <span style="color: #d17c00;">in</span> <span style="color: #16181a;">&lbrace;</span><span style="color: #d17c00;">1</span><span style="color: #a018ff;">..</span><span style="color: #d17c00;">3</span><span style="color: #16181a;">&rbrace;</span>
 </span><span class="line" data-line="336"><span style="color: #d17c00;">do</span>
-</span><span class="line" data-line="337">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">Variable</span></span>&quot;</span>
+</span><span class="line" data-line="337">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">Variable</span>&quot;</span>
 </span><span class="line" data-line="338"><span style="color: #d17c00;">done</span>
 </span><span class="line" data-line="339"><span style="color: #7b8496;"># =&gt; 1</span>
 </span><span class="line" data-line="340"><span style="color: #7b8496;"># =&gt; 2</span>
@@ -361,7 +344,7 @@
 </span><span class="line" data-line="344"><span style="color: #7b8496;"># Or write it the &quot;traditional for loop&quot; way:</span>
 </span><span class="line" data-line="345"><span style="color: #d17c00;">for</span> <span style="color: #16181a;">((</span><span style="color: #16181a;">a</span><span style="color: #a018ff;">=</span><span style="color: #d17c00;">1</span><span style="color: #16181a;">;</span> a <span style="color: #a018ff;">&lt;=</span> <span style="color: #d17c00;">3</span><span style="color: #16181a;">;</span> a<span style="color: #a018ff;">++</span><span style="color: #16181a;">))</span>
 </span><span class="line" data-line="346"><span style="color: #d17c00;">do</span>
-</span><span class="line" data-line="347">    <span style="color: #0057d1;">echo</span> <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">a</span></span>
+</span><span class="line" data-line="347">    <span style="color: #0057d1;">echo</span> <span style="color: #16181a;">$</span><span style="color: #16181a;">a</span>
 </span><span class="line" data-line="348"><span style="color: #d17c00;">done</span>
 </span><span class="line" data-line="349"><span style="color: #7b8496;"># =&gt; 1</span>
 </span><span class="line" data-line="350"><span style="color: #7b8496;"># =&gt; 2</span>
@@ -371,21 +354,21 @@
 </span><span class="line" data-line="354"><span style="color: #7b8496;"># This will run the command `cat` on file1 and file2</span>
 </span><span class="line" data-line="355"><span style="color: #d17c00;">for</span> <span style="color: #16181a;">Variable</span> <span style="color: #d17c00;">in</span> file1 file2
 </span><span class="line" data-line="356"><span style="color: #d17c00;">do</span>
-</span><span class="line" data-line="357">    <span style="color: #0057d1;">cat</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">Variable</span></span>&quot;</span>
+</span><span class="line" data-line="357">    <span style="color: #0057d1;">cat</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">Variable</span>&quot;</span>
 </span><span class="line" data-line="358"><span style="color: #d17c00;">done</span>
 </span><span class="line" data-line="359">
 </span><span class="line" data-line="360"><span style="color: #7b8496;"># ..or the output from a command</span>
 </span><span class="line" data-line="361"><span style="color: #7b8496;"># This will `cat` the output from `ls`.</span>
 </span><span class="line" data-line="362"><span style="color: #d17c00;">for</span> <span style="color: #16181a;">Output</span> <span style="color: #d17c00;">in</span> <span style="color: #16181a;">$(</span><span style="color: #0057d1;">ls</span><span style="color: #16181a;">)</span>
 </span><span class="line" data-line="363"><span style="color: #d17c00;">do</span>
-</span><span class="line" data-line="364">    <span style="color: #0057d1;">cat</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">Output</span></span>&quot;</span>
+</span><span class="line" data-line="364">    <span style="color: #0057d1;">cat</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">Output</span>&quot;</span>
 </span><span class="line" data-line="365"><span style="color: #d17c00;">done</span>
 </span><span class="line" data-line="366">
 </span><span class="line" data-line="367"><span style="color: #7b8496;"># Bash can also accept patterns, like this to `cat`</span>
 </span><span class="line" data-line="368"><span style="color: #7b8496;"># all the Markdown files in current directory</span>
 </span><span class="line" data-line="369"><span style="color: #d17c00;">for</span> <span style="color: #16181a;">Output</span> <span style="color: #d17c00;">in</span> ./*.markdown
 </span><span class="line" data-line="370"><span style="color: #d17c00;">do</span>
-</span><span class="line" data-line="371">    <span style="color: #0057d1;">cat</span> <span style="color: #008b0c;">&quot;<span ><span style="color: #16181a;">$</span><span style="color: #16181a;">Output</span></span>&quot;</span>
+</span><span class="line" data-line="371">    <span style="color: #0057d1;">cat</span> <span style="color: #008b0c;">&quot;<span style="color: #16181a;">$</span><span style="color: #16181a;">Output</span>&quot;</span>
 </span><span class="line" data-line="372"><span style="color: #d17c00;">done</span>
 </span><span class="line" data-line="373">
 </span><span class="line" data-line="374"><span style="color: #7b8496;"># while loop:</span>
@@ -400,11 +383,11 @@
 </span><span class="line" data-line="383"><span style="color: #7b8496;"># Definition:</span>
 </span><span class="line" data-line="384"><span style="color: #d17c00;">function</span> <span style="color: #0057d1;">foo</span> <span style="color: #16181a;">(</span><span style="color: #16181a;">)</span>
 </span><span class="line" data-line="385"><span style="color: #16181a;">&lbrace;</span>
-</span><span class="line" data-line="386">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Arguments work just like script arguments: <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">@</span></span>&quot;</span>
-</span><span class="line" data-line="387">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;And: <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">1</span></span><span ><span style="color: #16181a;"> $</span><span style="color: #16181a;">2</span></span>...&quot;</span>
+</span><span class="line" data-line="386">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Arguments work just like script arguments: <span style="color: #16181a;">$</span><span style="color: #f40064;">@</span>&quot;</span>
+</span><span class="line" data-line="387">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;And: <span style="color: #16181a;">$</span><span style="color: #16181a;">1</span><span style="color: #16181a;"> $</span><span style="color: #16181a;">2</span>...&quot;</span>
 </span><span class="line" data-line="388">    <span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;This is a function&quot;</span>
 </span><span class="line" data-line="389">    <span style="color: #16181a;">returnValue</span><span style="color: #a018ff;">=</span><span style="color: #d17c00;">0</span>    <span style="color: #7b8496;"># Variable values can be returned</span>
-</span><span class="line" data-line="390">    <span style="color: #0057d1;">return</span> <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">returnValue</span></span>
+</span><span class="line" data-line="390">    <span style="color: #0057d1;">return</span> <span style="color: #16181a;">$</span><span style="color: #16181a;">returnValue</span>
 </span><span class="line" data-line="391"><span style="color: #16181a;">&rbrace;</span>
 </span><span class="line" data-line="392"><span style="color: #7b8496;"># Call the function `foo` with two arguments, arg1 and arg2:</span>
 </span><span class="line" data-line="393"><span style="color: #0057d1;">foo</span> <span style="color: #16181a;">arg1</span> <span style="color: #16181a;">arg2</span>
@@ -412,7 +395,7 @@
 </span><span class="line" data-line="395"><span style="color: #7b8496;"># =&gt; And: arg1 arg2...</span>
 </span><span class="line" data-line="396"><span style="color: #7b8496;"># =&gt; This is a function</span>
 </span><span class="line" data-line="397"><span style="color: #7b8496;"># Return values can be obtained with $?</span>
-</span><span class="line" data-line="398"><span style="color: #16181a;">resultValue</span><span style="color: #a018ff;">=</span><span ><span style="color: #16181a;">$</span><span style="color: #f40064;">?</span></span>
+</span><span class="line" data-line="398"><span style="color: #16181a;">resultValue</span><span style="color: #a018ff;">=</span><span style="color: #16181a;">$</span><span style="color: #f40064;">?</span>
 </span><span class="line" data-line="399"><span style="color: #7b8496;"># More than 9 arguments are also possible by using braces, e.g. $&lbrace;10&rbrace;, $&lbrace;11&rbrace;, ...</span>
 </span><span class="line" data-line="400">
 </span><span class="line" data-line="401"><span style="color: #7b8496;"># or simply</span>
@@ -425,7 +408,7 @@
 </span><span class="line" data-line="408"><span style="color: #0057d1;">bar</span> <span style="color: #7b8496;"># =&gt; Another way to declare functions!</span>
 </span><span class="line" data-line="409">
 </span><span class="line" data-line="410"><span style="color: #7b8496;"># Calling your function</span>
-</span><span class="line" data-line="411"><span style="color: #0057d1;">foo</span> <span style="color: #008b0c;">&quot;My name is&quot;</span> <span ><span style="color: #16181a;">$</span><span style="color: #16181a;">Name</span></span>
+</span><span class="line" data-line="411"><span style="color: #0057d1;">foo</span> <span style="color: #008b0c;">&quot;My name is&quot;</span> <span style="color: #16181a;">$</span><span style="color: #16181a;">Name</span>
 </span><span class="line" data-line="412">
 </span><span class="line" data-line="413"><span style="color: #7b8496;"># There are a lot of useful commands you should learn:</span>
 </span><span class="line" data-line="414"><span style="color: #7b8496;"># prints last 10 lines of file.txt</span>
@@ -471,13 +454,13 @@
 </span><span class="line" data-line="454"><span style="color: #7b8496;"># The `trap` command allows you to execute a command whenever your script</span>
 </span><span class="line" data-line="455"><span style="color: #7b8496;"># receives a signal. Here, `trap` will execute `rm` if it receives any of the</span>
 </span><span class="line" data-line="456"><span style="color: #7b8496;"># three listed signals.</span>
-</span><span class="line" data-line="457"><span style="color: #0057d1;">trap</span> <span style="color: #008b0c;">&quot;rm <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">TEMP_FILE</span></span>; exit&quot;</span> <span style="color: #16181a;">SIGHUP</span> <span style="color: #16181a;">SIGINT</span> <span style="color: #16181a;">SIGTERM</span>
+</span><span class="line" data-line="457"><span style="color: #0057d1;">trap</span> <span style="color: #008b0c;">&quot;rm <span style="color: #16181a;">$</span><span style="color: #f40064;">TEMP_FILE</span>; exit&quot;</span> <span style="color: #16181a;">SIGHUP</span> <span style="color: #16181a;">SIGINT</span> <span style="color: #16181a;">SIGTERM</span>
 </span><span class="line" data-line="458">
 </span><span class="line" data-line="459"><span style="color: #7b8496;"># `sudo` is used to perform commands as the superuser</span>
 </span><span class="line" data-line="460"><span style="color: #7b8496;"># usually it will ask interactively the password of superuser</span>
 </span><span class="line" data-line="461"><span style="color: #f40064;">NAME1</span><span style="color: #a018ff;">=</span><span style="color: #16181a;">$(</span><span style="color: #0057d1;">whoami</span><span style="color: #16181a;">)</span>
 </span><span class="line" data-line="462"><span style="color: #f40064;">NAME2</span><span style="color: #a018ff;">=</span><span style="color: #16181a;">$(</span><span style="color: #0057d1;">sudo</span> <span style="color: #16181a;">whoami</span><span style="color: #16181a;">)</span>
-</span><span class="line" data-line="463"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Was <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">NAME1</span></span>, then became more powerful <span ><span style="color: #16181a;">$</span><span style="color: #f40064;">NAME2</span></span>&quot;</span>
+</span><span class="line" data-line="463"><span style="color: #0057d1;">echo</span> <span style="color: #008b0c;">&quot;Was <span style="color: #16181a;">$</span><span style="color: #f40064;">NAME1</span>, then became more powerful <span style="color: #16181a;">$</span><span style="color: #f40064;">NAME2</span>&quot;</span>
 </span><span class="line" data-line="464">
 </span><span class="line" data-line="465"><span style="color: #7b8496;"># Read Bash shell built-ins documentation with the bash `help` built-in:</span>
 </span><span class="line" data-line="466"><span style="color: #0057d1;">help</span>
@@ -504,5 +487,3 @@
 </span><span class="line" data-line="487"><span style="color: #0057d1;">info</span> <span style="color: #16181a;">bash</span> <span style="color: #d17c00;">6</span>
 </span><span class="line" data-line="488"><span style="color: #0057d1;">info</span> <span style="color: #16181a;">--apropos</span> <span style="color: #16181a;">bash</span>
 </span></code></pre>
-</body>
-</html>

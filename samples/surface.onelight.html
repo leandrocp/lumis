@@ -1,25 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>surface - onelight - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #6a6a6a; background-color: #fafafa;"><code class="language-surface" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #9b9fa6;"><span style="color: #6a6a6a;">&lt;!--</span> This comment will be sent to the browser <span style="color: #6a6a6a;">--&gt;</span></span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #6a6a6a; background-color: #fafafa;"><code class="language-surface" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #9b9fa6;"><span style="color: #6a6a6a;">&lt;!--</span> This comment will be sent to the browser <span style="color: #6a6a6a;">--&gt;</span></span>
 </span><span class="line" data-line="2"><span style="color: #9b9fa6;"><span style="color: #6a6a6a;">&lbrace;!--</span> This comment won&#39;t be sent to the browser <span style="color: #6a6a6a;">--&rbrace;</span></span>
 </span><span class="line" data-line="3">
 </span><span class="line" data-line="4"><span style="color: #6a6a6a;">&lt;</span><span style="color: #e05661;">div</span> <span style="color: #e05661;">class</span><span style="color: #56b6c2;">=</span><span style="color: #6a6a6a;">&lbrace;</span><span style="color: #56b6c2;"><span style="color: #ee9025;">@<span style="color: #ee9025;">my_class</span></span></span><span style="color: #6a6a6a;">&rbrace;</span><span style="color: #6a6a6a;">&gt;</span>
-</span><span class="line" data-line="5">  <span >Name:</span> <span style="color: #6a6a6a;">&lbrace;</span><span style="color: #eea825;">String</span><span style="color: #56b6c2;">.</span><span style="color: #118dc3;">upcase</span><span style="color: #9a77cf;">(</span><span style="color: #56b6c2;"><span style="color: #ee9025;">@<span style="color: #ee9025;">name</span></span></span><span style="color: #9a77cf;">)</span><span style="color: #6a6a6a;">&rbrace;</span>
+</span><span class="line" data-line="5">  Name: <span style="color: #6a6a6a;">&lbrace;</span><span style="color: #eea825;">String</span><span style="color: #56b6c2;">.</span><span style="color: #118dc3;">upcase</span><span style="color: #9a77cf;">(</span><span style="color: #56b6c2;"><span style="color: #ee9025;">@<span style="color: #ee9025;">name</span></span></span><span style="color: #9a77cf;">)</span><span style="color: #6a6a6a;">&rbrace;</span>
 </span><span class="line" data-line="6"><span style="color: #6a6a6a;">&lt;/</span><span style="color: #e05661;">div</span><span style="color: #6a6a6a;">&gt;</span>
 </span><span class="line" data-line="7">
 </span><span class="line" data-line="8"><span style="color: #6a6a6a;">&lt;</span><span style="color: #e05661;">button</span> <span style="color: #e05661;">disabled</span><span style="color: #56b6c2;">=</span><span style="color: #6a6a6a;">&lbrace;</span><span style="color: #56b6c2;"><span style="color: #ee9025;">@<span style="color: #ee9025;">step</span></span></span> <span style="color: #56b6c2;">!=</span> <span style="color: #e05661;">:finished</span><span style="color: #6a6a6a;">&rbrace;</span><span style="color: #6a6a6a;">&gt;</span>
@@ -35,25 +18,23 @@
 </span><span class="line" data-line="18"><span style="color: #6a6a6a;">&lt;/</span><span style="color: #e05661;">section</span><span style="color: #6a6a6a;">&gt;</span>
 </span><span class="line" data-line="19">
 </span><span class="line" data-line="20"><span style="color: #9a77cf;">&lbrace;#if <span style="color: #56b6c2;"><span style="color: #ee9025;">@<span style="color: #ee9025;">value</span></span></span> <span style="color: #56b6c2;">==</span> <span style="color: #ee9025;">0</span><span style="color: #6a6a6a;">&rbrace;</span></span>
-</span><span class="line" data-line="21">  <span >Value is 0</span>
+</span><span class="line" data-line="21">  Value is 0
 </span><span class="line" data-line="22"><span style="color: #9a77cf;">&lbrace;#elseif <span style="color: #56b6c2;"><span style="color: #ee9025;">@<span style="color: #ee9025;">value</span></span></span> <span style="color: #56b6c2;">&gt;</span> <span style="color: #ee9025;">0</span><span style="color: #6a6a6a;">&rbrace;</span></span>
-</span><span class="line" data-line="23">  <span >Value is greater than 0</span>
+</span><span class="line" data-line="23">  Value is greater than 0
 </span><span class="line" data-line="24"><span style="color: #9a77cf;">&lbrace;#else<span style="color: #6a6a6a;">&rbrace;</span></span>
-</span><span class="line" data-line="25">  <span >Value is lower than 0</span>
+</span><span class="line" data-line="25">  Value is lower than 0
 </span><span class="line" data-line="26"><span style="color: #9a77cf;">&lbrace;/if<span style="color: #6a6a6a;">&rbrace;</span></span>
 </span><span class="line" data-line="27">
 </span><span class="line" data-line="28"><span style="color: #9a77cf;">&lbrace;#case <span style="color: #56b6c2;"><span style="color: #ee9025;">@<span style="color: #ee9025;">value</span></span></span><span style="color: #6a6a6a;">&rbrace;</span></span>
 </span><span class="line" data-line="29">  <span style="color: #9a77cf;">&lbrace;#match <span style="color: #9a77cf;">[</span><span style="color: #e05661;">first</span><span style="color: #56b6c2;">|</span><span style="color: #9b9fa6;">_</span><span style="color: #9a77cf;">]</span><span style="color: #6a6a6a;">&rbrace;</span></span>
-</span><span class="line" data-line="30">    <span >First</span> <span style="color: #6a6a6a;">&lbrace;</span><span style="color: #e05661;">first</span><span style="color: #6a6a6a;">&rbrace;</span>
+</span><span class="line" data-line="30">    First <span style="color: #6a6a6a;">&lbrace;</span><span style="color: #e05661;">first</span><span style="color: #6a6a6a;">&rbrace;</span>
 </span><span class="line" data-line="31">  <span style="color: #9a77cf;">&lbrace;#match <span style="color: #9a77cf;">[</span><span style="color: #9a77cf;">]</span><span style="color: #6a6a6a;">&rbrace;</span></span>
-</span><span class="line" data-line="32">    <span >Value is empty</span>
+</span><span class="line" data-line="32">    Value is empty
 </span><span class="line" data-line="33">  <span style="color: #9a77cf;">&lbrace;#match <span style="color: #9b9fa6;">_</span><span style="color: #6a6a6a;">&rbrace;</span></span>
-</span><span class="line" data-line="34">    <span >Value is something else</span>
+</span><span class="line" data-line="34">    Value is something else
 </span><span class="line" data-line="35"><span style="color: #9a77cf;">&lbrace;/case<span style="color: #6a6a6a;">&rbrace;</span></span>
 </span><span class="line" data-line="36">
 </span><span class="line" data-line="37"><span style="color: #6a6a6a;">&lt;</span><span style="color: #e05661;">div</span> :<span style="color: #9a77cf;">if</span><span style="color: #56b6c2;">=</span><span style="color: #6a6a6a;">&lbrace;</span><span style="color: #56b6c2;"><span style="color: #ee9025;">@<span style="color: #ee9025;">loading</span></span></span><span style="color: #6a6a6a;">&rbrace;</span><span style="color: #6a6a6a;">&gt;</span>
-</span><span class="line" data-line="38">  <span >Loading ...</span>
+</span><span class="line" data-line="38">  Loading ...
 </span><span class="line" data-line="39"><span style="color: #6a6a6a;">&lt;/</span><span style="color: #e05661;">div</span><span style="color: #6a6a6a;">&gt;</span>
 </span></code></pre>
-</body>
-</html>

@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>cmake - melange_dark - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #ece1d7; background-color: #292522;"><code class="language-cmake" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #c1a78e;"># In CMake, this is a comment</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #ece1d7; background-color: #292522;"><code class="language-cmake" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #c1a78e;"># In CMake, this is a comment</span>
 </span><span class="line" data-line="2">
 </span><span class="line" data-line="3"><span style="color: #c1a78e;"># To run our code, please perform the following commands:</span>
 </span><span class="line" data-line="4"><span style="color: #c1a78e;">#  - mkdir build &amp;&amp; cd build</span>
@@ -44,19 +27,19 @@
 </span><span class="line" data-line="27"><span style="color: #ebc06d;">project</span> <span style="color: #8b7449;">(</span>learncmake C<span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="28">
 </span><span class="line" data-line="29"><span style="color: #c1a78e;"># Set the project source dir (just convention)</span>
-</span><span class="line" data-line="30"><span style="color: #ebc06d;">set</span><span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">LEARN_CMAKE_SOURCE_DIR</span> <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_CURRENT_SOURCE_DIR</span><span style="color: #ebc06d;">&rbrace;</span></span> <span style="color: #8b7449;">)</span>
-</span><span class="line" data-line="31"><span style="color: #ebc06d;">set</span><span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">LEARN_CMAKE_BINARY_DIR</span> <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_CURRENT_BINARY_DIR</span><span style="color: #ebc06d;">&rbrace;</span></span> <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="30">set<span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">LEARN_CMAKE_SOURCE_DIR</span> <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_CURRENT_SOURCE_DIR</span><span style="color: #ebc06d;">&rbrace;</span> <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="31">set<span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">LEARN_CMAKE_BINARY_DIR</span> <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_CURRENT_BINARY_DIR</span><span style="color: #ebc06d;">&rbrace;</span> <span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="32">
 </span><span class="line" data-line="33"><span style="color: #c1a78e;"># It&#39;s useful to set up the current version of our code in the build system</span>
 </span><span class="line" data-line="34"><span style="color: #c1a78e;"># using a `semver` style</span>
-</span><span class="line" data-line="35"><span style="color: #ebc06d;">set</span> <span style="color: #8b7449;">(</span><span style="color: #ece1d7;">LEARN_CMAKE_VERSION_MAJOR</span> 1<span style="color: #8b7449;">)</span>
-</span><span class="line" data-line="36"><span style="color: #ebc06d;">set</span> <span style="color: #8b7449;">(</span><span style="color: #ece1d7;">LEARN_CMAKE_VERSION_MINOR</span> 0<span style="color: #8b7449;">)</span>
-</span><span class="line" data-line="37"><span style="color: #ebc06d;">set</span> <span style="color: #8b7449;">(</span><span style="color: #ece1d7;">LEARN_CMAKE_VERSION_PATCH</span> 0<span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="35">set <span style="color: #8b7449;">(</span><span style="color: #ece1d7;">LEARN_CMAKE_VERSION_MAJOR</span> <span style="color: #cf9bc2;">1</span><span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="36">set <span style="color: #8b7449;">(</span><span style="color: #ece1d7;">LEARN_CMAKE_VERSION_MINOR</span> <span style="color: #cf9bc2;">0</span><span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="37">set <span style="color: #8b7449;">(</span><span style="color: #ece1d7;">LEARN_CMAKE_VERSION_PATCH</span> <span style="color: #cf9bc2;">0</span><span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="38">
 </span><span class="line" data-line="39"><span style="color: #c1a78e;"># Send the variables (version number) to the source code header</span>
 </span><span class="line" data-line="40"><span style="color: #ebc06d;">configure_file</span> <span style="color: #8b7449;">(</span>
-</span><span class="line" data-line="41">  <span style="color: #a3a9ce;">&quot;<span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">PROJECT_SOURCE_DIR</span><span style="color: #ebc06d;">&rbrace;</span></span>/TutorialConfig.h.in&quot;</span>
-</span><span class="line" data-line="42">  <span style="color: #a3a9ce;">&quot;<span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">PROJECT_BINARY_DIR</span><span style="color: #ebc06d;">&rbrace;</span></span>/TutorialConfig.h&quot;</span>
+</span><span class="line" data-line="41">  <span style="color: #a3a9ce;">&quot;<span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">PROJECT_SOURCE_DIR</span><span style="color: #ebc06d;">&rbrace;</span>/TutorialConfig.h.in&quot;</span>
+</span><span class="line" data-line="42">  <span style="color: #a3a9ce;">&quot;<span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">PROJECT_BINARY_DIR</span><span style="color: #ebc06d;">&rbrace;</span>/TutorialConfig.h&quot;</span>
 </span><span class="line" data-line="43"><span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="44">
 </span><span class="line" data-line="45"><span style="color: #c1a78e;"># Include Directories</span>
@@ -65,7 +48,7 @@
 </span><span class="line" data-line="48">
 </span><span class="line" data-line="49"><span style="color: #c1a78e;"># Where are the additional libraries installed? Note: provide includes</span>
 </span><span class="line" data-line="50"><span style="color: #c1a78e;"># path here, subsequent checks will resolve everything else</span>
-</span><span class="line" data-line="51"><span style="color: #ebc06d;">set</span><span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">CMAKE_MODULE_PATH</span> <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_MODULE_PATH</span><span style="color: #ebc06d;">&rbrace;</span></span> <span style="color: #a3a9ce;">&quot;<span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_SOURCE_DIR</span><span style="color: #ebc06d;">&rbrace;</span></span>/CMake/modules/&quot;</span> <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="51">set<span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">CMAKE_MODULE_PATH</span> <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_MODULE_PATH</span><span style="color: #ebc06d;">&rbrace;</span> <span style="color: #a3a9ce;">&quot;<span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_SOURCE_DIR</span><span style="color: #ebc06d;">&rbrace;</span>/CMake/modules/&quot;</span> <span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="52">
 </span><span class="line" data-line="53"><span style="color: #c1a78e;"># Conditions</span>
 </span><span class="line" data-line="54"><span style="color: #e49b5d;">if</span> <span style="color: #8b7449;">(</span> CONDITION <span style="color: #8b7449;">)</span>
@@ -132,7 +115,7 @@
 </span><span class="line" data-line="115">
 </span><span class="line" data-line="116"><span style="color: #c1a78e;"># Lists</span>
 </span><span class="line" data-line="117"><span style="color: #c1a78e;"># Setup the list of source files</span>
-</span><span class="line" data-line="118"><span style="color: #ebc06d;">set</span><span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">LEARN_CMAKE_SOURCES</span> 
+</span><span class="line" data-line="118">set<span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">LEARN_CMAKE_SOURCES</span> 
 </span><span class="line" data-line="119">  src/main.c
 </span><span class="line" data-line="120">  src/imagem.c
 </span><span class="line" data-line="121">  src/pather.c
@@ -141,26 +124,24 @@
 </span><span class="line" data-line="124"><span style="color: #c1a78e;"># Calls the compiler</span>
 </span><span class="line" data-line="125"><span style="color: #c1a78e;">#</span>
 </span><span class="line" data-line="126"><span style="color: #c1a78e;"># $&lbrace;PROJECT_NAME&rbrace; refers to Learn_CMake </span>
-</span><span class="line" data-line="127"><span style="color: #ebc06d;">add_executable</span><span style="color: #8b7449;">(</span> <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">PROJECT_NAME</span><span style="color: #ebc06d;">&rbrace;</span></span> <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">LEARN_CMAKE_SOURCES</span><span style="color: #ebc06d;">&rbrace;</span></span> <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="127"><span style="color: #ebc06d;">add_executable</span><span style="color: #8b7449;">(</span> <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">PROJECT_NAME</span><span style="color: #ebc06d;">&rbrace;</span> <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">LEARN_CMAKE_SOURCES</span><span style="color: #ebc06d;">&rbrace;</span> <span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="128">
 </span><span class="line" data-line="129"><span style="color: #c1a78e;"># Link the libraries</span>
-</span><span class="line" data-line="130"><span style="color: #ebc06d;">target_link_libraries</span><span style="color: #8b7449;">(</span> <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">PROJECT_NAME</span><span style="color: #ebc06d;">&rbrace;</span></span> <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">LIBS</span><span style="color: #ebc06d;">&rbrace;</span></span> m <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="130"><span style="color: #ebc06d;">target_link_libraries</span><span style="color: #8b7449;">(</span> <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">PROJECT_NAME</span><span style="color: #ebc06d;">&rbrace;</span> <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">LIBS</span><span style="color: #ebc06d;">&rbrace;</span> m <span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="131">
 </span><span class="line" data-line="132"><span style="color: #c1a78e;"># Where are the additional libraries installed? Note: provide includes</span>
 </span><span class="line" data-line="133"><span style="color: #c1a78e;"># path here, subsequent checks will resolve everything else</span>
-</span><span class="line" data-line="134"><span style="color: #ebc06d;">set</span><span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">CMAKE_MODULE_PATH</span> <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_MODULE_PATH</span><span style="color: #ebc06d;">&rbrace;</span></span> <span style="color: #a3a9ce;">&quot;<span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_SOURCE_DIR</span><span style="color: #ebc06d;">&rbrace;</span></span>/CMake/modules/&quot;</span> <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="134">set<span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">CMAKE_MODULE_PATH</span> <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_MODULE_PATH</span><span style="color: #ebc06d;">&rbrace;</span> <span style="color: #a3a9ce;">&quot;<span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_SOURCE_DIR</span><span style="color: #ebc06d;">&rbrace;</span>/CMake/modules/&quot;</span> <span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="135">
 </span><span class="line" data-line="136"><span style="color: #c1a78e;"># Compiler Condition (gcc ; g++)</span>
-</span><span class="line" data-line="137"><span style="color: #e49b5d;">if</span> <span style="color: #8b7449;">(</span> <span style="color: #a3a9ce;">&quot;<span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_C_COMPILER_ID</span><span style="color: #ebc06d;">&rbrace;</span></span>&quot;</span> <span style="color: #e49b5d;">STREQUAL</span> <span style="color: #a3a9ce;">&quot;GNU&quot;</span> <span style="color: #8b7449;">)</span>
-</span><span class="line" data-line="138">  <span style="color: #ebc06d;">message</span><span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">STATUS</span> <span style="color: #a3a9ce;">&quot;Setting the flags for <span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_C_COMPILER_ID</span><span style="color: #ebc06d;">&rbrace;</span></span> compiler&quot;</span> <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="137"><span style="color: #e49b5d;">if</span> <span style="color: #8b7449;">(</span> <span style="color: #a3a9ce;">&quot;<span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_C_COMPILER_ID</span><span style="color: #ebc06d;">&rbrace;</span>&quot;</span> <span style="color: #e49b5d;">STREQUAL</span> <span style="color: #a3a9ce;">&quot;GNU&quot;</span> <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="138">  <span style="color: #ebc06d;">message</span><span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">STATUS</span> <span style="color: #a3a9ce;">&quot;Setting the flags for <span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">CMAKE_C_COMPILER_ID</span><span style="color: #ebc06d;">&rbrace;</span> compiler&quot;</span> <span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="139">  <span style="color: #ebc06d;">add_definitions</span><span style="color: #8b7449;">(</span> --std=c99 <span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="140"><span style="color: #e49b5d;">endif</span><span style="color: #8b7449;">(</span><span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="141">
 </span><span class="line" data-line="142"><span style="color: #c1a78e;"># Check for OS</span>
 </span><span class="line" data-line="143"><span style="color: #e49b5d;">if</span><span style="color: #8b7449;">(</span> UNIX <span style="color: #8b7449;">)</span>
-</span><span class="line" data-line="144">    <span style="color: #ebc06d;">set</span><span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">LEARN_CMAKE_DEFINITIONS</span>
-</span><span class="line" data-line="145">        <span style="color: #a3a9ce;">&quot;<span ><span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">LEARN_CMAKE_DEFINITIONS</span><span style="color: #ebc06d;">&rbrace;</span></span> -Wall -Wextra -Werror -Wno-deprecated-declarations -Wno-unused-parameter -Wno-comment&quot;</span> <span style="color: #8b7449;">)</span>
+</span><span class="line" data-line="144">    set<span style="color: #8b7449;">(</span> <span style="color: #ece1d7;">LEARN_CMAKE_DEFINITIONS</span>
+</span><span class="line" data-line="145">        <span style="color: #a3a9ce;">&quot;<span style="color: #ebc06d;">$</span><span style="color: #ebc06d;">&lbrace;</span><span style="color: #ece1d7;">LEARN_CMAKE_DEFINITIONS</span><span style="color: #ebc06d;">&rbrace;</span> -Wall -Wextra -Werror -Wno-deprecated-declarations -Wno-unused-parameter -Wno-comment&quot;</span> <span style="color: #8b7449;">)</span>
 </span><span class="line" data-line="146"><span style="color: #e49b5d;">endif</span><span style="color: #8b7449;">(</span><span style="color: #8b7449;">)</span>
 </span></code></pre>
-</body>
-</html>

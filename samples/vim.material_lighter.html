@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>vim - material_lighter - Autumnus</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      * {
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-      }
-    </style>
-</head>
-<body>
-<pre class="athl w-full overflow-auto rounded-lg p-8 text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-vim" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">&quot; ##############</span>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #546e7a; background-color: #fafafa;"><code class="language-vim" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #aabfc9;">&quot; ##############</span>
 </span><span class="line" data-line="2"><span style="color: #aabfc9;">&quot;  Introduction</span>
 </span><span class="line" data-line="3"><span style="color: #aabfc9;">&quot; ##############</span>
 </span><span class="line" data-line="4"><span style="color: #aabfc9;">&quot;</span>
@@ -404,18 +387,18 @@
 </span><span class="line" data-line="387"><span style="color: #aabfc9;">&quot; expression against the string</span>
 </span><span class="line" data-line="388">
 </span><span class="line" data-line="389"><span style="color: #aabfc9;">&quot; Throw new exception</span>
-</span><span class="line" data-line="390"><span style="color: #39adb5;">throw</span> <span style="color: #91b859;">&quot;Wrong arguments&quot;</span>
+</span><span class="line" data-line="390"><span style="color: #e53935;">throw</span> <span style="color: #91b859;">&quot;Wrong arguments&quot;</span>
 </span><span class="line" data-line="391">
 </span><span class="line" data-line="392"><span style="color: #aabfc9;">&quot; Guard against an exception (the second catch matches any exception)</span>
-</span><span class="line" data-line="393"><span style="color: #39adb5;">try</span>
+</span><span class="line" data-line="393"><span style="color: #e53935;">try</span>
 </span><span class="line" data-line="394">    <span style="color: #39adb5;">source</span> <span style="color: #94a7b0;">path/to/file</span>
-</span><span class="line" data-line="395"><span style="color: #39adb5;">catch</span> <span style="color: #94a7b0;">/Cannot open/</span>
+</span><span class="line" data-line="395"><span style="color: #e53935;">catch</span> <span style="color: #94a7b0;">/Cannot open/</span>
 </span><span class="line" data-line="396">    <span style="color: #39adb5;">echo</span> <span style="color: #91b859;">&#39;Looks like that file does not exist&#39;</span>
-</span><span class="line" data-line="397"><span style="color: #39adb5;">catch</span> <span style="color: #94a7b0;">/.*/</span>
+</span><span class="line" data-line="397"><span style="color: #e53935;">catch</span> <span style="color: #94a7b0;">/.*/</span>
 </span><span class="line" data-line="398">    <span style="color: #39adb5;">echo</span> <span style="color: #91b859;">&#39;Something went wrong, but I do not know what&#39;</span>
-</span><span class="line" data-line="399"><span style="color: #39adb5;">finally</span>
+</span><span class="line" data-line="399"><span style="color: #e53935;">finally</span>
 </span><span class="line" data-line="400">    <span style="color: #39adb5;">echo</span> <span style="color: #91b859;">&#39;I am done trying&#39;</span>
-</span><span class="line" data-line="401"><span style="color: #39adb5;">endtry</span>
+</span><span class="line" data-line="401"><span style="color: #e53935;">endtry</span>
 </span><span class="line" data-line="402">
 </span><span class="line" data-line="403">
 </span><span class="line" data-line="404"><span style="color: #aabfc9;">&quot; ##########</span>
@@ -665,5 +648,3 @@
 </span><span class="line" data-line="648"><span style="color: #aabfc9;">&quot; hard-coded default. Uses the fact that a scope is also a dictionary.</span>
 </span><span class="line" data-line="649"><span style="color: #39adb5;">let</span> <span style="color: #f6a434;">s:</span><span style="color: #546e7a;">greeting</span> <span style="color: #39adb5;">=</span> <span style="color: #6182b8;">get</span><span style="color: #39adb5;">(</span>g:<span style="color: #39adb5;">,</span> <span style="color: #91b859;">&#39;my_plugin_greeting&#39;</span><span style="color: #39adb5;">,</span> <span style="color: #91b859;">&#39;Hello&#39;</span><span style="color: #39adb5;">)</span>
 </span></code></pre>
-</body>
-</html>
