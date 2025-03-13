@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.8] - 2025-03-13
+
+### Added
+- Vue
+- HCL
+
+### Fixed
+- Scope constants based on nvim-treesitter CONTRIBUTING.md
+- Highlights
+
+### Changed
+- Use same parser version/revision as nvim-treesitter
+- Updated themes
+- Updated samples
+
 ## [0.1.7] - 2025-03-09
 
 ### Fixed
