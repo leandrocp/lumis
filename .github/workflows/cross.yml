@@ -1,0 +1,39 @@
+name: Cross Compilation Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  cross-compilation:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [
+          aarch64-apple-darwin,
+          aarch64-unknown-linux-gnu,
+          aarch64-unknown-linux-musl,
+          x86_64-apple-darwin,
+          x86_64-pc-windows-msvc,
+          x86_64-pc-windows-gnu,
+          x86_64-unknown-linux-gnu,
+          x86_64-unknown-linux-musl,
+          x86_64-unknown-freebsd
+        ]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Cross
+        run: |
+          curl -L https://github.com/cross-rs/cross/releases/latest/download/cross-x86_64-unknown-linux-musl.tar.gz | tar xzf -
+          sudo mv cross /usr/local/bin/
+
+      - name: Build for ${{ matrix.target }}
+        run: cross build --target ${{ matrix.target }}
+
+      - name: Test for ${{ matrix.target }}
+        run: cross test --target ${{ matrix.target }} 
