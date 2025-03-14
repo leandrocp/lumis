@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/autumnus)](https://crates.io/crates/autumnus)
 [![docs.rs](https://img.shields.io/docsrs/autumnus)](https://docs.rs/autumnus)
 
-Autumnus is a syntax highlighter powered by tree-sitter and Neovim themes. It provides beautiful and accurate syntax highlighting for over 50 programming languages with support for over 100 themes.
+Autumnus is a syntax highlighter powered by Tree-sitter and Neovim themes. It provides beautiful and accurate syntax highlighting for over 50 programming languages with support for over 100 themes.
 
 ## Features
 

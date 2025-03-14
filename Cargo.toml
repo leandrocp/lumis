@@ -1,11 +1,11 @@
 [package]
 name = "autumnus"
-version = "0.1.8"
+version = "0.1.9"
 homepage = "https://autumnus.dev"
 repository = "https://github.com/leandrocp/autumnus"
 authors = ["Leandro Pereira <leandro@leandro.io>"]
 edition = "2021"
-description = "Syntax highlighter powered by tree-sitter and Neovim themes."
+description = "Syntax highlighter powered by Tree-sitter and Neovim themes."
 keywords = ["syntax", "highlighting", "highlighter", "colouring", "tree-sitter"]
 categories = ["text-processing"]
 license = "MIT"

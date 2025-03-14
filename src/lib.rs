@@ -1,4 +1,4 @@
-//! Syntax highlighter powered by tree-sitter and Neovim themes.
+//! Syntax highlighter powered by Tree-sitter and Neovim themes.
 //!
 //! ## Examples
 //!

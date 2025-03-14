@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.9] - 2025-03-14
+
+### Changed
+- Updated tree-sitter-erlang to v0.13.0
+- Allow empty themes - changed option `theme` to `Option`
+- Removed /utf-8 flag for msvc
+
 ## [0.1.8] - 2025-03-13
 
 ### Added
