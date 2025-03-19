@@ -124,7 +124,7 @@ fn gen_samples_entries(
                         italic: false,
                         include_highlights: false,
                     },
-                    theme,
+                    theme: Some(theme),
                 },
             );
 
