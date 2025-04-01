@@ -2,17 +2,32 @@
 
 use super::Formatter;
 use crate::languages::Language;
-use crate::{constants::HIGHLIGHT_NAMES, FormatterOption, Options};
+use crate::{constants::HIGHLIGHT_NAMES, themes::Theme};
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub(crate) struct HtmlInline<'a> {
     lang: Language,
-    options: Options<'a>,
+    theme: Option<&'a Theme>,
+    pre_class: Option<&'a str>,
+    italic: bool,
+    include_highlights: bool,
 }
 
 impl<'a> HtmlInline<'a> {
-    pub fn new(lang: Language, options: Options<'a>) -> Self {
-        Self { lang, options }
+    pub fn new(
+        lang: Language,
+        theme: Option<&'a Theme>,
+        pre_class: Option<&'a str>,
+        italic: bool,
+        include_highlights: bool,
+    ) -> Self {
+        Self {
+            lang,
+            theme,
+            pre_class,
+            italic,
+            include_highlights,
+        }
     }
 }
 
@@ -21,13 +36,8 @@ impl Formatter for HtmlInline<'_> {
     where
         W: std::fmt::Write,
     {
-        let class = if let FormatterOption::HtmlInline {
-            pre_class: Some(pre_clas),
-            italic: _,
-            include_highlights: _,
-        } = &self.options.formatter
-        {
-            format!("athl {}", pre_clas)
+        let class = if let Some(pre_class) = self.pre_class {
+            format!("athl {}", pre_class)
         } else {
             "athl".to_string()
         };
@@ -36,7 +46,7 @@ impl Formatter for HtmlInline<'_> {
             writer,
             "<pre class=\"{}\"{}><code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             class,
-            &self.options
+            &self
                 .theme
                 .as_ref()
                 .and_then(|theme| theme.pre_style(" "))
@@ -56,24 +66,10 @@ impl Formatter for HtmlInline<'_> {
     {
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
-        let (highlight_attr, include_highlights) = if let FormatterOption::HtmlInline {
-            include_highlights,
-            ..
-        } = &self.options.formatter
-        {
-            if *include_highlights {
-                (" data-highlight=\"", true)
-            } else {
-                ("", false)
-            }
+        let (highlight_attr, include_highlights) = if self.include_highlights {
+            (" data-highlight=\"", true)
         } else {
             ("", false)
-        };
-
-        let italic = if let FormatterOption::HtmlInline { italic, .. } = &self.options.formatter {
-            *italic
-        } else {
-            false
         };
 
         renderer
@@ -86,14 +82,14 @@ impl Formatter for HtmlInline<'_> {
                     output.extend(b"\"");
                 }
 
-                if let Some(theme) = &self.options.theme {
+                if let Some(theme) = &self.theme {
                     if let Some(style) = theme.get_style(scope) {
                         if include_highlights {
                             output.extend(b" ");
                         }
 
                         output.extend(b"style=\"");
-                        output.extend(style.css(italic, " ").as_bytes());
+                        output.extend(style.css(self.italic, " ").as_bytes());
                         output.extend(b"\"");
                     }
                 }
@@ -122,7 +118,10 @@ impl Default for HtmlInline<'_> {
     fn default() -> Self {
         Self {
             lang: Language::PlainText,
-            options: Options::default(),
+            theme: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
         }
     }
 }
@@ -144,12 +143,13 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let mut formatter = HtmlInline::default();
-        formatter.options.formatter = FormatterOption::HtmlInline {
-            pre_class: Some("test-pre-class".to_string()),
-            italic: false,
-            include_highlights: false,
-        };
+        let formatter = HtmlInline::new(
+            Language::PlainText,
+            None,
+            Some("test-pre-class"),
+            false,
+            false,
+        );
         let mut buffer = String::new();
         formatter.start(&mut buffer, "");
 
@@ -160,13 +160,14 @@ mod tests {
 
     #[test]
     fn test_include_pre_class_with_theme() {
-        let mut formatter = HtmlInline::default();
-        formatter.options.formatter = FormatterOption::HtmlInline {
-            pre_class: Some("test-pre-class".to_string()),
-            italic: false,
-            include_highlights: false,
-        };
-        formatter.options.theme = themes::get("github_light").ok();
+        let theme = themes::get("github_light").unwrap();
+        let formatter = HtmlInline::new(
+            Language::PlainText,
+            Some(theme),
+            Some("test-pre-class"),
+            false,
+            false,
+        );
         let mut buffer = String::new();
         formatter.start(&mut buffer, "");
 

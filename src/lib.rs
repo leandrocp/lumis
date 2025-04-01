@@ -531,11 +531,17 @@ pub fn highlight(source: &str, options: Options) -> String {
 
     match options.formatter {
         FormatterOption::HtmlInline {
-            pre_class: _,
-            italic: _,
-            include_highlights: _,
+            pre_class,
+            italic,
+            include_highlights,
         } => {
-            let formatter = HtmlInline::new(lang, options);
+            let formatter = HtmlInline::new(
+                lang,
+                options.theme,
+                pre_class.as_deref(),
+                italic,
+                include_highlights,
+            );
             formatter.start(&mut buffer, source);
             formatter.write(&mut buffer, source, events);
             formatter.finish(&mut buffer, source);
