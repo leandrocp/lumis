@@ -5,7 +5,7 @@ use crate::languages::Language;
 use crate::{constants::HIGHLIGHT_NAMES, themes::Theme};
 use tree_sitter_highlight::{Error, HighlightEvent};
 
-pub(crate) struct HtmlInline<'a> {
+pub struct HtmlInline<'a> {
     lang: Language,
     theme: Option<&'a Theme>,
     pre_class: Option<&'a str>,

@@ -5,7 +5,7 @@ use crate::languages::Language;
 use crate::constants::CLASSES;
 use tree_sitter_highlight::{Error, HighlightEvent};
 
-pub(crate) struct HtmlLinked<'a> {
+pub struct HtmlLinked<'a> {
     lang: Language,
     pre_class: Option<&'a str>,
 }
