@@ -546,8 +546,8 @@ pub fn highlight(source: &str, options: Options) -> String {
             formatter.write(&mut buffer, source, events);
             formatter.finish(&mut buffer, source);
         }
-        FormatterOption::Terminal { italic: _ } => {
-            let formatter = Terminal::new(options);
+        FormatterOption::Terminal { italic } => {
+            let formatter = Terminal::new(options.theme, italic);
             formatter.start(&mut buffer, source);
             formatter.write(&mut buffer, source, events);
             formatter.finish(&mut buffer, source);

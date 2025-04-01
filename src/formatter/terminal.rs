@@ -1,21 +1,23 @@
 #![allow(unused_must_use)]
 
 use super::Formatter;
-use crate::{constants::HIGHLIGHT_NAMES, FormatterOption, Options};
+use crate::{constants::HIGHLIGHT_NAMES, themes::Theme};
 use std::cell::RefCell;
 use std::io::Write;
 use termcolor::{ColorSpec, WriteColor};
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub struct Terminal<'a> {
-    options: Options<'a>,
+    theme: Option<&'a Theme>,
+    italic: bool,
     buffer: RefCell<termcolor::Buffer>,
 }
 
 impl<'a> Terminal<'a> {
-    pub fn new(options: Options<'a>) -> Self {
+    pub fn new(theme: Option<&'a Theme>, italic: bool) -> Self {
         Self {
-            options,
+            theme,
+            italic,
             buffer: RefCell::new(termcolor::Buffer::ansi()),
         }
     }
@@ -30,13 +32,6 @@ impl Formatter for Terminal<'_> {
     ) where
         W: std::fmt::Write,
     {
-        // FIXME: implement italic
-        let _italic = if let FormatterOption::Terminal { italic } = &self.options.formatter {
-            *italic
-        } else {
-            false
-        };
-
         for event in events {
             let event = event.expect("todo");
 
@@ -45,7 +40,6 @@ impl Formatter for Terminal<'_> {
                     let scope = HIGHLIGHT_NAMES[idx.0];
 
                     let hex: &str = self
-                        .options
                         .theme
                         .as_ref()
                         .and_then(|theme| theme.get_style(scope))
@@ -85,10 +79,8 @@ impl Formatter for Terminal<'_> {
 impl Default for Terminal<'_> {
     fn default() -> Self {
         Self {
-            options: Options {
-                formatter: FormatterOption::Terminal { italic: false },
-                ..Options::default()
-            },
+            theme: None,
+            italic: false,
             buffer: RefCell::new(termcolor::Buffer::ansi()),
         }
     }
