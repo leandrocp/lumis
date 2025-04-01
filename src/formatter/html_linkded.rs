@@ -2,17 +2,17 @@
 
 use super::Formatter;
 use crate::languages::Language;
-use crate::{constants::CLASSES, FormatterOption, Options};
+use crate::constants::CLASSES;
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub(crate) struct HtmlLinked<'a> {
     lang: Language,
-    options: Options<'a>,
+    pre_class: Option<&'a str>,
 }
 
 impl<'a> HtmlLinked<'a> {
-    pub fn new(lang: Language, options: Options<'a>) -> Self {
-        Self { lang, options }
+    pub fn new(lang: Language, pre_class: Option<&'a str>) -> Self {
+        Self { lang, pre_class }
     }
 }
 
@@ -21,11 +21,8 @@ impl Formatter for HtmlLinked<'_> {
     where
         W: std::fmt::Write,
     {
-        let class = if let FormatterOption::HtmlLinked {
-            pre_class: Some(pre_clas),
-        } = &self.options.formatter
-        {
-            format!("athl {}", pre_clas)
+        let class = if let Some(pre_class) = self.pre_class {
+            format!("athl {}", pre_class)
         } else {
             "athl".to_string()
         };
@@ -80,10 +77,7 @@ impl Default for HtmlLinked<'_> {
     fn default() -> Self {
         Self {
             lang: Language::PlainText,
-            options: Options {
-                formatter: FormatterOption::HtmlLinked { pre_class: None },
-                ..Options::default()
-            },
+            pre_class: None,
         }
     }
 }
