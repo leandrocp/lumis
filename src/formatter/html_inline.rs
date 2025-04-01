@@ -29,22 +29,16 @@ impl<'a> HtmlInline<'a> {
             include_highlights,
         }
     }
-}
 
-impl Formatter for HtmlInline<'_> {
-    fn start<W>(&self, writer: &mut W, _: &str)
-    where
-        W: std::fmt::Write,
-    {
+    pub fn pre_tag(&self) -> String {
         let class = if let Some(pre_class) = self.pre_class {
             format!("athl {}", pre_class)
         } else {
             "athl".to_string()
         };
 
-        write!(
-            writer,
-            "<pre class=\"{}\"{}><code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
+        format!(
+            "<pre class=\"{}\"{}>",
             class,
             &self
                 .theme
@@ -52,8 +46,23 @@ impl Formatter for HtmlInline<'_> {
                 .and_then(|theme| theme.pre_style(" "))
                 .map(|pre_style| format!(" style=\"{}\"", pre_style))
                 .unwrap_or_default(),
+        )
+    }
+
+    pub fn code_tag(&self) -> String {
+        format!(
+            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             self.lang.id_name()
-        );
+        )
+    }
+}
+
+impl Formatter for HtmlInline<'_> {
+    fn start<W>(&self, writer: &mut W, _: &str)
+    where
+        W: std::fmt::Write,
+    {
+        write!(writer, "{}{}", self.pre_tag(), self.code_tag());
     }
 
     fn write<W>(

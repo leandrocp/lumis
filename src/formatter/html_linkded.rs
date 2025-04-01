@@ -14,6 +14,23 @@ impl<'a> HtmlLinked<'a> {
     pub fn new(lang: Language, pre_class: Option<&'a str>) -> Self {
         Self { lang, pre_class }
     }
+
+    pub fn pre_tag(&self) -> String {
+        let class = if let Some(pre_class) = self.pre_class {
+            format!("athl {}", pre_class)
+        } else {
+            "athl".to_string()
+        };
+
+        format!("<pre class=\"{}\">", class)
+    }
+
+    pub fn code_tag(&self) -> String {
+        format!(
+            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
+            self.lang.id_name()
+        )
+    }
 }
 
 impl Formatter for HtmlLinked<'_> {
@@ -21,18 +38,7 @@ impl Formatter for HtmlLinked<'_> {
     where
         W: std::fmt::Write,
     {
-        let class = if let Some(pre_class) = self.pre_class {
-            format!("athl {}", pre_class)
-        } else {
-            "athl".to_string()
-        };
-
-        write!(
-            writer,
-            "<pre class=\"{}\"><code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
-            class,
-            self.lang.id_name()
-        );
+        write!(writer, "{}{}", self.pre_tag(), self.code_tag());
     }
 
     fn write<W>(
