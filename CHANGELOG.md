@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Remove option `italic` from `Terminal` formatter (was not used)
+
 ## [0.1.9] - 2025-03-14
 
 ### Changed
