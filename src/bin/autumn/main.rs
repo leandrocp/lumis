@@ -254,7 +254,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 source,
                 autumnus::Options {
                     lang_or_file: Some(path),
-                    formatter: FormatterOption::Terminal { italic: false },
+                    formatter: FormatterOption::Terminal,
                     theme: Some(theme),
                 },
             );
@@ -400,7 +400,7 @@ fn highlight_source(
                 source,
                 autumnus::Options {
                     lang_or_file: language,
-                    formatter: FormatterOption::Terminal { italic: false },
+                    formatter: FormatterOption::Terminal,
                     theme,
                 },
             );

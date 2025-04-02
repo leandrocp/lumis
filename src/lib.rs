@@ -80,7 +80,7 @@
 //!     code,
 //!     Options {
 //!         lang_or_file: Some("ruby"),
-//!         formatter: FormatterOption::Terminal { italic: false },
+//!         formatter: FormatterOption::Terminal,
 //!         ..Options::default()
 //!     }
 //! );
@@ -306,10 +306,7 @@ pub enum FormatterOption {
         pre_class: Option<String>,
     },
     /// Terminal output with ANSI colors.
-    Terminal {
-        /// Whether to use italics for highlighting.
-        italic: bool,
-    },
+    Terminal,
 }
 
 impl Default for FormatterOption {
@@ -374,7 +371,7 @@ pub struct Options<'a> {
     ///     code,
     ///     Options {
     ///         lang_or_file: Some("ruby"),
-    ///         formatter: FormatterOption::Terminal { italic: false },
+    ///         formatter: FormatterOption::Terminal,
     ///         ..Options::default()
     ///     }
     /// );
@@ -507,7 +504,7 @@ impl Default for Options<'_> {
 ///     code,
 ///     Options {
 ///         lang_or_file: Some("rust"),
-///         formatter: FormatterOption::Terminal { italic: false },
+///         formatter: FormatterOption::Terminal,
 ///         ..Options::default()
 ///     }
 /// );
@@ -552,8 +549,8 @@ pub fn highlight(source: &str, options: Options) -> String {
             formatter.write(&mut buffer, source, events);
             formatter.finish(&mut buffer, source);
         }
-        FormatterOption::Terminal { italic } => {
-            let formatter = Terminal::new(options.theme, italic);
+        FormatterOption::Terminal => {
+            let formatter = Terminal::new(options.theme);
             formatter.start(&mut buffer, source);
             formatter.write(&mut buffer, source, events);
             formatter.finish(&mut buffer, source);
@@ -767,7 +764,7 @@ end
         let options = Options {
             lang_or_file: Some("ruby"),
             theme: themes::get("dracula").ok(),
-            formatter: FormatterOption::Terminal { italic: false },
+            formatter: FormatterOption::Terminal,
         };
         let code = "puts 'Hello from Ruby!'";
         let ansi = highlight(code, options);

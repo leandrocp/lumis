@@ -8,17 +8,15 @@ use termcolor::{ColorSpec, WriteColor};
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub struct Terminal<'a> {
-    theme: Option<&'a Theme>,
-    italic: bool,
     buffer: RefCell<termcolor::Buffer>,
+    theme: Option<&'a Theme>,
 }
 
 impl<'a> Terminal<'a> {
-    pub fn new(theme: Option<&'a Theme>, italic: bool) -> Self {
+    pub fn new(theme: Option<&'a Theme>) -> Self {
         Self {
-            theme,
-            italic,
             buffer: RefCell::new(termcolor::Buffer::ansi()),
+            theme,
         }
     }
 }
@@ -79,9 +77,8 @@ impl Formatter for Terminal<'_> {
 impl Default for Terminal<'_> {
     fn default() -> Self {
         Self {
-            theme: None,
-            italic: false,
             buffer: RefCell::new(termcolor::Buffer::ansi()),
+            theme: None,
         }
     }
 }

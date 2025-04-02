@@ -1,8 +1,8 @@
 #![allow(unused_must_use)]
 
 use super::Formatter;
-use crate::languages::Language;
 use crate::constants::CLASSES;
+use crate::languages::Language;
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub struct HtmlLinked<'a> {
