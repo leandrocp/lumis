@@ -57,14 +57,19 @@ impl<'a> HtmlInline<'a> {
     }
 }
 
-impl Formatter for HtmlInline<'_> {
-    fn start<W>(&self, writer: &mut W, _: &str)
-    where
-        W: std::fmt::Write,
-    {
-        write!(writer, "{}{}", self.pre_tag(), self.code_tag());
+impl Default for HtmlInline<'_> {
+    fn default() -> Self {
+        Self {
+            lang: Language::PlainText,
+            theme: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+        }
     }
+}
 
+impl Formatter for HtmlInline<'_> {
     fn write<W>(
         &self,
         writer: &mut W,
@@ -73,6 +78,8 @@ impl Formatter for HtmlInline<'_> {
     ) where
         W: std::fmt::Write,
     {
+        write!(writer, "{}{}", self.pre_tag(), self.code_tag());
+
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         let (highlight_attr, include_highlights) = if self.include_highlights {
@@ -113,39 +120,21 @@ impl Formatter for HtmlInline<'_> {
                 line.replace('{', "&lbrace;").replace('}', "&rbrace;")
             );
         }
-    }
 
-    fn finish<W>(&self, writer: &mut W, _: &str)
-    where
-        W: std::fmt::Write,
-    {
         writer.write_str("</code></pre>");
-    }
-}
-
-impl Default for HtmlInline<'_> {
-    fn default() -> Self {
-        Self {
-            lang: Language::PlainText,
-            theme: None,
-            pre_class: None,
-            italic: false,
-            include_highlights: false,
-        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::themes;
-
     use super::*;
+    use crate::themes;
 
     #[test]
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
         let mut buffer = String::new();
-        formatter.start(&mut buffer, "");
+        formatter.write(&mut buffer, "", std::iter::empty());
 
         assert!(buffer.as_str().contains("<pre class=\"athl\">"));
     }
@@ -160,7 +149,7 @@ mod tests {
             false,
         );
         let mut buffer = String::new();
-        formatter.start(&mut buffer, "");
+        formatter.write(&mut buffer, "", std::iter::empty());
 
         assert!(buffer
             .as_str()
@@ -178,7 +167,7 @@ mod tests {
             false,
         );
         let mut buffer = String::new();
-        formatter.start(&mut buffer, "");
+        formatter.write(&mut buffer, "", std::iter::empty());
 
         assert!(buffer
             .as_str()

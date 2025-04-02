@@ -21,17 +21,26 @@ impl<'a> Terminal<'a> {
     }
 }
 
+impl Default for Terminal<'_> {
+    fn default() -> Self {
+        Self {
+            buffer: RefCell::new(termcolor::Buffer::ansi()),
+            theme: None,
+        }
+    }
+}
+
 impl Formatter for Terminal<'_> {
     fn write<W>(
         &self,
-        _writer: &mut W,
+        writer: &mut W,
         source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
     ) where
         W: std::fmt::Write,
     {
         for event in events {
-            let event = event.expect("todo");
+            let event = event.expect("failed to get highlight event");
 
             match event {
                 HighlightEvent::HighlightStart(idx) => {
@@ -63,22 +72,9 @@ impl Formatter for Terminal<'_> {
                 }
             }
         }
-    }
 
-    fn finish<W>(&self, writer: &mut W, _: &str)
-    where
-        W: std::fmt::Write,
-    {
+        // Write the final buffer contents
         let output = String::from_utf8(self.buffer.borrow_mut().clone().into_inner()).unwrap();
         let _ = writer.write_str(output.as_str());
-    }
-}
-
-impl Default for Terminal<'_> {
-    fn default() -> Self {
-        Self {
-            buffer: RefCell::new(termcolor::Buffer::ansi()),
-            theme: None,
-        }
     }
 }

@@ -12,13 +12,6 @@ pub use terminal::*;
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub trait Formatter {
-    #[inline]
-    fn start<W>(&self, _writer: &mut W, _source: &str)
-    where
-        W: std::fmt::Write,
-    {
-    }
-
     fn write<W>(
         &self,
         _writer: &mut W,
@@ -26,11 +19,4 @@ pub trait Formatter {
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
     ) where
         W: std::fmt::Write;
-
-    #[inline]
-    fn finish<W>(&self, _writer: &mut W, _source: &str)
-    where
-        W: std::fmt::Write,
-    {
-    }
 }

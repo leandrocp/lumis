@@ -33,14 +33,16 @@ impl<'a> HtmlLinked<'a> {
     }
 }
 
-impl Formatter for HtmlLinked<'_> {
-    fn start<W>(&self, writer: &mut W, _: &str)
-    where
-        W: std::fmt::Write,
-    {
-        write!(writer, "{}{}", self.pre_tag(), self.code_tag());
+impl Default for HtmlLinked<'_> {
+    fn default() -> Self {
+        Self {
+            lang: Language::PlainText,
+            pre_class: None,
+        }
     }
+}
 
+impl Formatter for HtmlLinked<'_> {
     fn write<W>(
         &self,
         writer: &mut W,
@@ -49,6 +51,8 @@ impl Formatter for HtmlLinked<'_> {
     ) where
         W: std::fmt::Write,
     {
+        write!(writer, "{}{}", self.pre_tag(), self.code_tag());
+
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         renderer
@@ -69,21 +73,7 @@ impl Formatter for HtmlLinked<'_> {
                 line.replace('{', "&lbrace;").replace('}', "&rbrace;")
             );
         }
-    }
 
-    fn finish<W>(&self, writer: &mut W, _: &str)
-    where
-        W: std::fmt::Write,
-    {
         writer.write_str("</code></pre>");
-    }
-}
-
-impl Default for HtmlLinked<'_> {
-    fn default() -> Self {
-        Self {
-            lang: Language::PlainText,
-            pre_class: None,
-        }
     }
 }
