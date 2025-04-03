@@ -77,3 +77,39 @@ impl Formatter for HtmlLinked<'_> {
         writer.write_str("</code></pre>");
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_pre_tag() {
+        let formatter = HtmlLinked::default();
+        let mut buffer = String::new();
+        formatter.write(&mut buffer, "", std::iter::empty());
+
+        assert!(buffer.as_str().contains("<pre class=\"athl\">"));
+    }
+
+    #[test]
+    fn test_include_pre_class() {
+        let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"));
+        let mut buffer = String::new();
+        formatter.write(&mut buffer, "", std::iter::empty());
+
+        assert!(buffer
+            .as_str()
+            .contains("<pre class=\"athl test-pre-class\">"));
+    }
+
+    #[test]
+    fn test_code_tag_with_language() {
+        let formatter = HtmlLinked::new(Language::Rust, None);
+        let mut buffer = String::new();
+        formatter.write(&mut buffer, "", std::iter::empty());
+
+        assert!(buffer
+            .as_str()
+            .contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
+    }
+}

@@ -73,7 +73,6 @@ impl Formatter for Terminal<'_> {
             }
         }
 
-        // Write the final buffer contents
         let output = String::from_utf8(self.buffer.borrow_mut().clone().into_inner()).unwrap();
         let _ = writer.write_str(output.as_str());
     }
