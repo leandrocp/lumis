@@ -55,6 +55,59 @@ impl<'a> HtmlInline<'a> {
             self.lang.id_name()
         )
     }
+
+    pub fn inner<W>(
+        &self,
+        writer: &mut W,
+        source: &str,
+        events: impl Iterator<Item = Result<HighlightEvent, Error>>,
+    ) where
+        W: std::fmt::Write,
+    {
+        let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
+
+        let (highlight_attr, include_highlights) = if self.include_highlights {
+            (" data-highlight=\"", true)
+        } else {
+            ("", false)
+        };
+
+        let theme = self.theme;
+        let italic = self.italic;
+
+        renderer
+            .render(events, source.as_bytes(), &move |highlight, output| {
+                let scope = HIGHLIGHT_NAMES[highlight.0];
+
+                if include_highlights {
+                    output.extend(highlight_attr.as_bytes());
+                    output.extend(scope.as_bytes());
+                    output.extend(b"\"");
+                }
+
+                if let Some(theme) = theme {
+                    if let Some(style) = theme.get_style(scope) {
+                        if include_highlights {
+                            output.extend(b" ");
+                        }
+
+                        output.extend(b"style=\"");
+                        output.extend(style.css(italic, " ").as_bytes());
+                        output.extend(b"\"");
+                    }
+                }
+            })
+            .expect("failed to render highlight events");
+
+        for (i, line) in renderer.lines().enumerate() {
+            write!(
+                writer,
+                "<span class=\"line\" data-line=\"{}\">{}</span>",
+                i + 1,
+                line.replace('{', "&lbrace;").replace('}', "&rbrace;")
+            );
+        }
+    }
 }
 
 impl Default for HtmlInline<'_> {
@@ -79,48 +132,7 @@ impl Formatter for HtmlInline<'_> {
         W: std::fmt::Write,
     {
         write!(writer, "{}{}", self.pre_tag(), self.code_tag());
-
-        let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
-
-        let (highlight_attr, include_highlights) = if self.include_highlights {
-            (" data-highlight=\"", true)
-        } else {
-            ("", false)
-        };
-
-        renderer
-            .render(events, source.as_bytes(), &move |highlight, output| {
-                let scope = HIGHLIGHT_NAMES[highlight.0];
-
-                if include_highlights {
-                    output.extend(highlight_attr.as_bytes());
-                    output.extend(scope.as_bytes());
-                    output.extend(b"\"");
-                }
-
-                if let Some(theme) = &self.theme {
-                    if let Some(style) = theme.get_style(scope) {
-                        if include_highlights {
-                            output.extend(b" ");
-                        }
-
-                        output.extend(b"style=\"");
-                        output.extend(style.css(self.italic, " ").as_bytes());
-                        output.extend(b"\"");
-                    }
-                }
-            })
-            .expect("failed to render highlight events");
-
-        for (i, line) in renderer.lines().enumerate() {
-            write!(
-                writer,
-                "<span class=\"line\" data-line=\"{}\">{}</span>",
-                i + 1,
-                line.replace('{', "&lbrace;").replace('}', "&rbrace;")
-            );
-        }
-
+        self.inner(writer, source, events);
         writer.write_str("</code></pre>");
     }
 }

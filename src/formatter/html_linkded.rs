@@ -31,6 +31,36 @@ impl<'a> HtmlLinked<'a> {
             self.lang.id_name()
         )
     }
+
+    pub fn inner<W>(
+        &self,
+        writer: &mut W,
+        source: &str,
+        events: impl Iterator<Item = Result<HighlightEvent, Error>>,
+    ) where
+        W: std::fmt::Write,
+    {
+        let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
+
+        renderer
+            .render(events, source.as_bytes(), &move |highlight, output| {
+                let class = CLASSES[highlight.0];
+
+                output.extend(b"class=\"");
+                output.extend(class.as_bytes());
+                output.extend(b"\"");
+            })
+            .expect("failed to render highlight events");
+
+        for (i, line) in renderer.lines().enumerate() {
+            write!(
+                writer,
+                "<span class=\"line\" data-line=\"{}\">{}</span>",
+                i + 1,
+                line.replace('{', "&lbrace;").replace('}', "&rbrace;")
+            );
+        }
+    }
 }
 
 impl Default for HtmlLinked<'_> {
@@ -52,28 +82,7 @@ impl Formatter for HtmlLinked<'_> {
         W: std::fmt::Write,
     {
         write!(writer, "{}{}", self.pre_tag(), self.code_tag());
-
-        let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
-
-        renderer
-            .render(events, source.as_bytes(), &move |highlight, output| {
-                let class = CLASSES[highlight.0];
-
-                output.extend(b"class=\"");
-                output.extend(class.as_bytes());
-                output.extend(b"\"");
-            })
-            .expect("failed to render highlight events");
-
-        for (i, line) in renderer.lines().enumerate() {
-            write!(
-                writer,
-                "<span class=\"line\" data-line=\"{}\">{}</span>",
-                i + 1,
-                line.replace('{', "&lbrace;").replace('}', "&rbrace;")
-            );
-        }
-
+        self.inner(writer, source, events);
         writer.write_str("</code></pre>");
     }
 }
