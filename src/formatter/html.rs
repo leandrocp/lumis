@@ -6,7 +6,7 @@ pub trait HtmlFormatter: Formatter {
     fn lang(&self) -> Language;
     fn pre_class(&self) -> Option<&str>;
 
-    fn pre_tag(&self) -> String {
+    fn write_pre_tag(&self) -> String {
         let class = if let Some(pre_class) = self.pre_class() {
             format!("athl {}", pre_class)
         } else {
@@ -16,7 +16,7 @@ pub trait HtmlFormatter: Formatter {
         format!("<pre class=\"{}\">", class)
     }
 
-    fn code_tag(&self) -> String {
+    fn write_code_tag(&self) -> String {
         format!(
             "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             self.lang().id_name()

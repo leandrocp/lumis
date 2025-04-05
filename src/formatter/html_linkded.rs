@@ -74,7 +74,7 @@ impl Formatter for HtmlLinked<'_> {
     ) where
         W: std::fmt::Write,
     {
-        write!(writer, "{}{}", self.pre_tag(), self.code_tag());
+        write!(writer, "{}{}", self.write_pre_tag(), self.write_code_tag());
         self.inner(writer, source, events);
         writer.write_str("</code></pre>");
     }

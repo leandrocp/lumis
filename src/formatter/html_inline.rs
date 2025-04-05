@@ -105,7 +105,7 @@ impl HtmlFormatter for HtmlInline<'_> {
         self.pre_class
     }
 
-    fn pre_tag(&self) -> String {
+    fn write_pre_tag(&self) -> String {
         let class = if let Some(pre_class) = self.pre_class() {
             format!("athl {}", pre_class)
         } else {
@@ -134,7 +134,7 @@ impl Formatter for HtmlInline<'_> {
     ) where
         W: std::fmt::Write,
     {
-        write!(writer, "{}{}", self.pre_tag(), self.code_tag());
+        write!(writer, "{}{}", self.write_pre_tag(), self.write_code_tag());
         self.inner(writer, source, events);
         writer.write_str("</code></pre>");
     }
