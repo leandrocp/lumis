@@ -270,12 +270,8 @@ pub mod formatter;
 pub mod languages;
 pub mod themes;
 
-use crate::formatter::Formatter;
-use crate::formatter::HtmlInline;
-use crate::formatter::HtmlLinked;
 use crate::languages::Language;
-use formatter::Terminal;
-use themes::Theme;
+use crate::themes::Theme;
 use tree_sitter_highlight::Highlighter;
 
 /// The type of formatter to use for syntax highlighting.
@@ -526,30 +522,14 @@ pub fn highlight(source: &str, options: Options) -> String {
         })
         .expect("failed to generate highlight events");
 
-    match options.formatter {
-        FormatterOption::HtmlInline {
-            pre_class,
-            italic,
-            include_highlights,
-        } => {
-            let formatter = HtmlInline::new(
-                lang,
-                options.theme,
-                pre_class.as_deref(),
-                italic,
-                include_highlights,
-            );
-            formatter.write_highlights(&mut buffer, source, events);
-        }
-        FormatterOption::HtmlLinked { pre_class } => {
-            let formatter = HtmlLinked::new(lang, pre_class.as_deref());
-            formatter.write_highlights(&mut buffer, source, events);
-        }
-        FormatterOption::Terminal => {
-            let formatter = Terminal::new(options.theme);
-            formatter.write_highlights(&mut buffer, source, events);
-        }
-    };
+    formatter::write_formatted(
+        &mut buffer,
+        source,
+        events,
+        options.formatter,
+        lang,
+        options.theme,
+    );
 
     buffer
 }

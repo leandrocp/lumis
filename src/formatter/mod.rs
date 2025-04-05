@@ -12,6 +12,9 @@ pub use html_linkded::*;
 mod terminal;
 pub use terminal::*;
 
+use crate::languages::Language;
+use crate::themes::Theme;
+use crate::FormatterOption;
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub trait Formatter {
@@ -22,4 +25,40 @@ pub trait Formatter {
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
     ) where
         W: std::fmt::Write;
+}
+
+pub fn write_formatted<W>(
+    writer: &mut W,
+    source: &str,
+    events: impl Iterator<Item = Result<HighlightEvent, Error>>,
+    formatter: FormatterOption,
+    lang: Language,
+    theme: Option<&Theme>,
+) where
+    W: std::fmt::Write,
+{
+    match formatter {
+        FormatterOption::HtmlInline {
+            pre_class,
+            italic,
+            include_highlights,
+        } => {
+            let formatter = HtmlInline::new(
+                lang,
+                theme,
+                pre_class.as_deref(),
+                italic,
+                include_highlights,
+            );
+            formatter.write_highlights(writer, source, events);
+        }
+        FormatterOption::HtmlLinked { pre_class } => {
+            let formatter = HtmlLinked::new(lang, pre_class.as_deref());
+            formatter.write_highlights(writer, source, events);
+        }
+        FormatterOption::Terminal => {
+            let formatter = Terminal::new(theme);
+            formatter.write_highlights(writer, source, events);
+        }
+    }
 }
