@@ -14,6 +14,16 @@ impl<'a> HtmlLinked<'a> {
     pub fn new(lang: Language, pre_class: Option<&'a str>) -> Self {
         Self { lang, pre_class }
     }
+
+    pub fn with_lang(mut self, lang: Language) -> Self {
+        self.lang = lang;
+        self
+    }
+
+    pub fn with_pre_class(mut self, pre_class: Option<&'a str>) -> Self {
+        self.pre_class = pre_class;
+        self
+    }
 }
 
 impl Default for HtmlLinked<'_> {
@@ -103,6 +113,19 @@ mod tests {
         let formatter = HtmlLinked::new(Language::Rust, None);
         let code_tag = formatter.code_tag();
 
+        assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
+    }
+
+    #[test]
+    fn test_builder_pattern() {
+        let formatter = HtmlLinked::default()
+            .with_lang(Language::Rust)
+            .with_pre_class(Some("test-class"));
+
+        let pre_tag = formatter.pre_tag();
+        let code_tag = formatter.code_tag();
+
+        assert!(pre_tag.contains("<pre class=\"athl test-class\">"));
         assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
     }
 }

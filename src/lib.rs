@@ -278,11 +278,11 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// Defaults to `HtmlInline` with no additional `pre_class`, no italics, and no highlight scope names.
 #[derive(Debug, Clone)]
-pub enum FormatterOption {
+pub enum FormatterOption<'a> {
     /// HTML output with inline styles.
     HtmlInline {
         /// Class to add to the `<pre>` tag.
-        pre_class: Option<String>,
+        pre_class: Option<&'a str>,
         /// Whether to use italics for highlighting.
         italic: bool,
         /// Whether to include the original highlight scope name in a `data` attribute.
@@ -305,7 +305,7 @@ pub enum FormatterOption {
     Terminal,
 }
 
-impl Default for FormatterOption {
+impl<'a> Default for FormatterOption<'a> {
     fn default() -> Self {
         Self::HtmlInline {
             pre_class: None,
@@ -372,7 +372,7 @@ pub struct Options<'a> {
     ///     }
     /// );
     /// ```
-    pub formatter: FormatterOption,
+    pub formatter: FormatterOption<'a>,
 }
 
 impl Default for Options<'_> {

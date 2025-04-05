@@ -29,6 +29,31 @@ impl<'a> HtmlInline<'a> {
             include_highlights,
         }
     }
+
+    pub fn with_lang(mut self, lang: Language) -> Self {
+        self.lang = lang;
+        self
+    }
+
+    pub fn with_theme(mut self, theme: Option<&'a Theme>) -> Self {
+        self.theme = theme;
+        self
+    }
+
+    pub fn with_pre_class(mut self, pre_class: Option<&'a str>) -> Self {
+        self.pre_class = pre_class;
+        self
+    }
+
+    pub fn with_italic(mut self, italic: bool) -> Self {
+        self.italic = italic;
+        self
+    }
+
+    pub fn with_include_highlights(mut self, include_highlights: bool) -> Self {
+        self.include_highlights = include_highlights;
+        self
+    }
 }
 
 impl Default for HtmlInline<'_> {
@@ -168,5 +193,24 @@ mod tests {
         let pre_tag = formatter.pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
+    }
+
+    #[test]
+    fn test_builder_pattern() {
+        let theme = themes::get("github_light").unwrap();
+        let formatter = HtmlInline::default()
+            .with_lang(Language::Rust)
+            .with_theme(Some(theme))
+            .with_pre_class(Some("test-class"))
+            .with_italic(true)
+            .with_include_highlights(true);
+
+        let pre_tag = formatter.pre_tag();
+        let code_tag = formatter.code_tag();
+
+        assert!(pre_tag.contains(
+            "<pre class=\"athl test-class\" style=\"color: #1f2328; background-color: #ffffff;\">"
+        ));
+        assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
     }
 }
