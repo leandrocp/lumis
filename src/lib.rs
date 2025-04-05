@@ -299,13 +299,13 @@ pub enum FormatterOption<'a> {
     /// ```
     HtmlLinked {
         /// Class to add to the `<pre>` tag.
-        pre_class: Option<String>,
+        pre_class: Option<&'a str>,
     },
     /// Terminal output with ANSI colors.
     Terminal,
 }
 
-impl<'a> Default for FormatterOption<'a> {
+impl Default for FormatterOption<'_> {
     fn default() -> Self {
         Self::HtmlInline {
             pre_class: None,
@@ -455,7 +455,7 @@ impl Default for Options<'_> {
 ///     code,
 ///     Options {
 ///         lang_or_file: Some("rust"),
-///         formatter: FormatterOption::HtmlLinked { pre_class: Some("my-code-block".to_string()) },
+///         formatter: FormatterOption::HtmlLinked { pre_class: Some("my-code-block") },
 ///         ..Options::default()
 ///     }
 /// );

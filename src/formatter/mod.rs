@@ -44,7 +44,7 @@ pub fn write_formatted<W>(
             let formatter = HtmlInline::new(
                 lang,
                 theme,
-                pre_class.as_deref(),
+                pre_class,
                 italic,
                 include_highlights,
             );
@@ -54,7 +54,7 @@ pub fn write_formatted<W>(
             let _ = write!(writer, "{}", formatter.closing_tags());
         }
         FormatterOption::HtmlLinked { pre_class } => {
-            let formatter = HtmlLinked::new(lang, pre_class.as_deref());
+            let formatter = HtmlLinked::new(lang, pre_class);
             let _ = write!(writer, "{}", formatter.pre_tag());
             let _ = write!(writer, "{}", formatter.code_tag());
             let _ = write!(writer, "{}", formatter.highlights(source, events));
