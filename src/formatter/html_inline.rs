@@ -126,7 +126,7 @@ impl HtmlFormatter for HtmlInline<'_> {
 }
 
 impl Formatter for HtmlInline<'_> {
-    fn write<W>(
+    fn write_highlights<W>(
         &self,
         writer: &mut W,
         source: &str,
@@ -149,7 +149,7 @@ mod tests {
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
         let mut buffer = String::new();
-        formatter.write(&mut buffer, "", std::iter::empty());
+        formatter.write_highlights(&mut buffer, "", std::iter::empty());
 
         assert!(buffer.as_str().contains("<pre class=\"athl\">"));
     }
@@ -164,7 +164,7 @@ mod tests {
             false,
         );
         let mut buffer = String::new();
-        formatter.write(&mut buffer, "", std::iter::empty());
+        formatter.write_highlights(&mut buffer, "", std::iter::empty());
 
         assert!(buffer
             .as_str()
@@ -182,7 +182,7 @@ mod tests {
             false,
         );
         let mut buffer = String::new();
-        formatter.write(&mut buffer, "", std::iter::empty());
+        formatter.write_highlights(&mut buffer, "", std::iter::empty());
 
         assert!(buffer
             .as_str()

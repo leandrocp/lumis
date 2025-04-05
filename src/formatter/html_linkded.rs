@@ -66,7 +66,7 @@ impl HtmlFormatter for HtmlLinked<'_> {
 }
 
 impl Formatter for HtmlLinked<'_> {
-    fn write<W>(
+    fn write_highlights<W>(
         &self,
         writer: &mut W,
         source: &str,
@@ -88,7 +88,7 @@ mod tests {
     fn test_default_pre_tag() {
         let formatter = HtmlLinked::default();
         let mut buffer = String::new();
-        formatter.write(&mut buffer, "", std::iter::empty());
+        formatter.write_highlights(&mut buffer, "", std::iter::empty());
 
         assert!(buffer.as_str().contains("<pre class=\"athl\">"));
     }
@@ -97,7 +97,7 @@ mod tests {
     fn test_include_pre_class() {
         let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"));
         let mut buffer = String::new();
-        formatter.write(&mut buffer, "", std::iter::empty());
+        formatter.write_highlights(&mut buffer, "", std::iter::empty());
 
         assert!(buffer
             .as_str()
@@ -108,7 +108,7 @@ mod tests {
     fn test_code_tag_with_language() {
         let formatter = HtmlLinked::new(Language::Rust, None);
         let mut buffer = String::new();
-        formatter.write(&mut buffer, "", std::iter::empty());
+        formatter.write_highlights(&mut buffer, "", std::iter::empty());
 
         assert!(buffer
             .as_str()

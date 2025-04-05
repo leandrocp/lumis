@@ -31,7 +31,7 @@ impl Default for Terminal<'_> {
 }
 
 impl Formatter for Terminal<'_> {
-    fn write<W>(
+    fn write_highlights<W>(
         &self,
         writer: &mut W,
         source: &str,

@@ -15,7 +15,7 @@ pub use terminal::*;
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub trait Formatter {
-    fn write<W>(
+    fn write_highlights<W>(
         &self,
         _writer: &mut W,
         _source: &str,

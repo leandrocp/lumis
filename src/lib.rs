@@ -539,15 +539,15 @@ pub fn highlight(source: &str, options: Options) -> String {
                 italic,
                 include_highlights,
             );
-            formatter.write(&mut buffer, source, events);
+            formatter.write_highlights(&mut buffer, source, events);
         }
         FormatterOption::HtmlLinked { pre_class } => {
             let formatter = HtmlLinked::new(lang, pre_class.as_deref());
-            formatter.write(&mut buffer, source, events);
+            formatter.write_highlights(&mut buffer, source, events);
         }
         FormatterOption::Terminal => {
             let formatter = Terminal::new(options.theme);
-            formatter.write(&mut buffer, source, events);
+            formatter.write_highlights(&mut buffer, source, events);
         }
     };
 
