@@ -26,7 +26,7 @@ impl Default for HtmlLinked<'_> {
 }
 
 impl HtmlFormatter for HtmlLinked<'_> {
-    fn write_pre_tag(&self) -> String {
+    fn pre_tag(&self) -> String {
         let class = if let Some(pre_class) = self.pre_class {
             format!("athl {}", pre_class)
         } else {
@@ -36,20 +36,20 @@ impl HtmlFormatter for HtmlLinked<'_> {
         format!("<pre class=\"{}\">", class)
     }
 
-    fn write_code_tag(&self) -> String {
+    fn code_tag(&self) -> String {
         format!(
             "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             self.lang.id_name()
         )
     }
 
-    fn write_closing_tags(&self) -> String {
+    fn closing_tags(&self) -> String {
         "</code></pre>".to_string()
     }
 }
 
 impl Formatter for HtmlLinked<'_> {
-    fn write_highlights(
+    fn highlights(
         &self,
         source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
@@ -85,7 +85,7 @@ mod tests {
     #[test]
     fn test_default_pre_tag() {
         let formatter = HtmlLinked::default();
-        let pre_tag = formatter.write_pre_tag();
+        let pre_tag = formatter.pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
@@ -93,7 +93,7 @@ mod tests {
     #[test]
     fn test_include_pre_class() {
         let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"));
-        let pre_tag = formatter.write_pre_tag();
+        let pre_tag = formatter.pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
@@ -101,7 +101,7 @@ mod tests {
     #[test]
     fn test_code_tag_with_language() {
         let formatter = HtmlLinked::new(Language::Rust, None);
-        let code_tag = formatter.write_code_tag();
+        let code_tag = formatter.code_tag();
 
         assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
     }

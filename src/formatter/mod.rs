@@ -18,7 +18,7 @@ use crate::FormatterOption;
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub trait Formatter {
-    fn write_highlights(
+    fn highlights(
         &self,
         source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
@@ -48,21 +48,21 @@ pub fn write_formatted<W>(
                 italic,
                 include_highlights,
             );
-            let _ = write!(writer, "{}", formatter.write_pre_tag());
-            let _ = write!(writer, "{}", formatter.write_code_tag());
-            let _ = write!(writer, "{}", formatter.write_highlights(source, events));
-            let _ = write!(writer, "{}", formatter.write_closing_tags());
+            let _ = write!(writer, "{}", formatter.pre_tag());
+            let _ = write!(writer, "{}", formatter.code_tag());
+            let _ = write!(writer, "{}", formatter.highlights(source, events));
+            let _ = write!(writer, "{}", formatter.closing_tags());
         }
         FormatterOption::HtmlLinked { pre_class } => {
             let formatter = HtmlLinked::new(lang, pre_class.as_deref());
-            let _ = write!(writer, "{}", formatter.write_pre_tag());
-            let _ = write!(writer, "{}", formatter.write_code_tag());
-            let _ = write!(writer, "{}", formatter.write_highlights(source, events));
-            let _ = write!(writer, "{}", formatter.write_closing_tags());
+            let _ = write!(writer, "{}", formatter.pre_tag());
+            let _ = write!(writer, "{}", formatter.code_tag());
+            let _ = write!(writer, "{}", formatter.highlights(source, events));
+            let _ = write!(writer, "{}", formatter.closing_tags());
         }
         FormatterOption::Terminal => {
             let formatter = Terminal::new(theme);
-            let _ = write!(writer, "{}", formatter.write_highlights(source, events));
+            let _ = write!(writer, "{}", formatter.highlights(source, events));
         }
     }
 }

@@ -44,7 +44,7 @@ impl Default for HtmlInline<'_> {
 }
 
 impl HtmlFormatter for HtmlInline<'_> {
-    fn write_pre_tag(&self) -> String {
+    fn pre_tag(&self) -> String {
         let class = if let Some(pre_class) = self.pre_class {
             format!("athl {}", pre_class)
         } else {
@@ -63,20 +63,20 @@ impl HtmlFormatter for HtmlInline<'_> {
         )
     }
 
-    fn write_code_tag(&self) -> String {
+    fn code_tag(&self) -> String {
         format!(
             "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             self.lang.id_name()
         )
     }
 
-    fn write_closing_tags(&self) -> String {
+    fn closing_tags(&self) -> String {
         "</code></pre>".to_string()
     }
 }
 
 impl Formatter for HtmlInline<'_> {
-    fn write_highlights(
+    fn highlights(
         &self,
         source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
@@ -136,7 +136,7 @@ mod tests {
     #[test]
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
-        let pre_tag = formatter.write_pre_tag();
+        let pre_tag = formatter.pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
@@ -150,7 +150,7 @@ mod tests {
             false,
             false,
         );
-        let pre_tag = formatter.write_pre_tag();
+        let pre_tag = formatter.pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
@@ -165,7 +165,7 @@ mod tests {
             false,
             false,
         );
-        let pre_tag = formatter.write_pre_tag();
+        let pre_tag = formatter.pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }

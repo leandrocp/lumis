@@ -31,7 +31,7 @@ impl Default for Terminal<'_> {
 }
 
 impl Formatter for Terminal<'_> {
-    fn write_highlights(
+    fn highlights(
         &self,
         source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
