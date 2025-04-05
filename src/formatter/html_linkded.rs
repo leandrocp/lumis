@@ -1,6 +1,6 @@
 #![allow(unused_must_use)]
 
-use super::Formatter;
+use super::{Formatter, HtmlFormatter};
 use crate::constants::CLASSES;
 use crate::languages::Language;
 use tree_sitter_highlight::{Error, HighlightEvent};
@@ -13,23 +13,6 @@ pub struct HtmlLinked<'a> {
 impl<'a> HtmlLinked<'a> {
     pub fn new(lang: Language, pre_class: Option<&'a str>) -> Self {
         Self { lang, pre_class }
-    }
-
-    pub fn pre_tag(&self) -> String {
-        let class = if let Some(pre_class) = self.pre_class {
-            format!("athl {}", pre_class)
-        } else {
-            "athl".to_string()
-        };
-
-        format!("<pre class=\"{}\">", class)
-    }
-
-    pub fn code_tag(&self) -> String {
-        format!(
-            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
-            self.lang.id_name()
-        )
     }
 
     pub fn inner<W>(
@@ -69,6 +52,16 @@ impl Default for HtmlLinked<'_> {
             lang: Language::PlainText,
             pre_class: None,
         }
+    }
+}
+
+impl HtmlFormatter for HtmlLinked<'_> {
+    fn lang(&self) -> Language {
+        self.lang
+    }
+
+    fn pre_class(&self) -> Option<&str> {
+        self.pre_class
     }
 }
 

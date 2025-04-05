@@ -1,6 +1,6 @@
 #![allow(unused_must_use)]
 
-use super::Formatter;
+use super::{Formatter, HtmlFormatter};
 use crate::languages::Language;
 use crate::{constants::HIGHLIGHT_NAMES, themes::Theme};
 use tree_sitter_highlight::{Error, HighlightEvent};
@@ -28,32 +28,6 @@ impl<'a> HtmlInline<'a> {
             italic,
             include_highlights,
         }
-    }
-
-    pub fn pre_tag(&self) -> String {
-        let class = if let Some(pre_class) = self.pre_class {
-            format!("athl {}", pre_class)
-        } else {
-            "athl".to_string()
-        };
-
-        format!(
-            "<pre class=\"{}\"{}>",
-            class,
-            &self
-                .theme
-                .as_ref()
-                .and_then(|theme| theme.pre_style(" "))
-                .map(|pre_style| format!(" style=\"{}\"", pre_style))
-                .unwrap_or_default(),
-        )
-    }
-
-    pub fn code_tag(&self) -> String {
-        format!(
-            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
-            self.lang.id_name()
-        )
     }
 
     pub fn inner<W>(
@@ -119,6 +93,35 @@ impl Default for HtmlInline<'_> {
             italic: false,
             include_highlights: false,
         }
+    }
+}
+
+impl HtmlFormatter for HtmlInline<'_> {
+    fn lang(&self) -> Language {
+        self.lang
+    }
+
+    fn pre_class(&self) -> Option<&str> {
+        self.pre_class
+    }
+
+    fn pre_tag(&self) -> String {
+        let class = if let Some(pre_class) = self.pre_class() {
+            format!("athl {}", pre_class)
+        } else {
+            "athl".to_string()
+        };
+
+        format!(
+            "<pre class=\"{}\"{}>",
+            class,
+            &self
+                .theme
+                .as_ref()
+                .and_then(|theme| theme.pre_style(" "))
+                .map(|pre_style| format!(" style=\"{}\"", pre_style))
+                .unwrap_or_default(),
+        )
     }
 }
 

@@ -1,5 +1,8 @@
 // https://github.com/Colonial-Dev/inkjet/tree/da289fa8b68f11dffad176e4b8fabae8d6ac376d/src/formatter
 
+mod html;
+pub use html::*;
+
 mod html_inline;
 pub use html_inline::*;
 
