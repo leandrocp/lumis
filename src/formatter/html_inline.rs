@@ -29,8 +29,65 @@ impl<'a> HtmlInline<'a> {
             include_highlights,
         }
     }
+}
 
-    pub fn inner<W>(
+impl Default for HtmlInline<'_> {
+    fn default() -> Self {
+        Self {
+            lang: Language::PlainText,
+            theme: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+        }
+    }
+}
+
+impl HtmlFormatter for HtmlInline<'_> {
+    fn write_pre_tag<W>(&self, writer: &mut W)
+    where
+        W: std::fmt::Write,
+    {
+        let class = if let Some(pre_class) = self.pre_class {
+            format!("athl {}", pre_class)
+        } else {
+            "athl".to_string()
+        };
+
+        write!(
+            writer,
+            "<pre class=\"{}\"{}>",
+            class,
+            &self
+                .theme
+                .as_ref()
+                .and_then(|theme| theme.pre_style(" "))
+                .map(|pre_style| format!(" style=\"{}\"", pre_style))
+                .unwrap_or_default(),
+        );
+    }
+
+    fn write_code_tag<W>(&self, writer: &mut W)
+    where
+        W: std::fmt::Write,
+    {
+        write!(
+            writer,
+            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
+            self.lang.id_name()
+        );
+    }
+
+    fn write_closing_tags<W>(&self, writer: &mut W)
+    where
+        W: std::fmt::Write,
+    {
+        write!(writer, "</code></pre>");
+    }
+}
+
+impl Formatter for HtmlInline<'_> {
+    fn write_highlights<W>(
         &self,
         writer: &mut W,
         source: &str,
@@ -84,62 +141,6 @@ impl<'a> HtmlInline<'a> {
     }
 }
 
-impl Default for HtmlInline<'_> {
-    fn default() -> Self {
-        Self {
-            lang: Language::PlainText,
-            theme: None,
-            pre_class: None,
-            italic: false,
-            include_highlights: false,
-        }
-    }
-}
-
-impl HtmlFormatter for HtmlInline<'_> {
-    fn lang(&self) -> Language {
-        self.lang
-    }
-
-    fn pre_class(&self) -> Option<&str> {
-        self.pre_class
-    }
-
-    fn write_pre_tag(&self) -> String {
-        let class = if let Some(pre_class) = self.pre_class() {
-            format!("athl {}", pre_class)
-        } else {
-            "athl".to_string()
-        };
-
-        format!(
-            "<pre class=\"{}\"{}>",
-            class,
-            &self
-                .theme
-                .as_ref()
-                .and_then(|theme| theme.pre_style(" "))
-                .map(|pre_style| format!(" style=\"{}\"", pre_style))
-                .unwrap_or_default(),
-        )
-    }
-}
-
-impl Formatter for HtmlInline<'_> {
-    fn write_highlights<W>(
-        &self,
-        writer: &mut W,
-        source: &str,
-        events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) where
-        W: std::fmt::Write,
-    {
-        write!(writer, "{}{}", self.write_pre_tag(), self.write_code_tag());
-        self.inner(writer, source, events);
-        writer.write_str("</code></pre>");
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -149,7 +150,7 @@ mod tests {
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
         let mut buffer = String::new();
-        formatter.write_highlights(&mut buffer, "", std::iter::empty());
+        formatter.write_pre_tag(&mut buffer);
 
         assert!(buffer.as_str().contains("<pre class=\"athl\">"));
     }
@@ -164,7 +165,7 @@ mod tests {
             false,
         );
         let mut buffer = String::new();
-        formatter.write_highlights(&mut buffer, "", std::iter::empty());
+        formatter.write_pre_tag(&mut buffer);
 
         assert!(buffer
             .as_str()
@@ -182,7 +183,7 @@ mod tests {
             false,
         );
         let mut buffer = String::new();
-        formatter.write_highlights(&mut buffer, "", std::iter::empty());
+        formatter.write_pre_tag(&mut buffer);
 
         assert!(buffer
             .as_str()

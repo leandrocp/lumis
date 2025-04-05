@@ -526,8 +526,8 @@ pub fn highlight(source: &str, options: Options) -> String {
         &mut buffer,
         source,
         events,
-        options.formatter,
         lang,
+        options.formatter,
         options.theme,
     );
 

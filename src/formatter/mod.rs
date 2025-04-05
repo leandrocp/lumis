@@ -31,8 +31,8 @@ pub fn write_formatted<W>(
     writer: &mut W,
     source: &str,
     events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    formatter: FormatterOption,
     lang: Language,
+    formatter: FormatterOption,
     theme: Option<&Theme>,
 ) where
     W: std::fmt::Write,
@@ -50,11 +50,17 @@ pub fn write_formatted<W>(
                 italic,
                 include_highlights,
             );
+            formatter.write_pre_tag(writer);
+            formatter.write_code_tag(writer);
             formatter.write_highlights(writer, source, events);
+            formatter.write_closing_tags(writer);
         }
         FormatterOption::HtmlLinked { pre_class } => {
             let formatter = HtmlLinked::new(lang, pre_class.as_deref());
+            formatter.write_pre_tag(writer);
+            formatter.write_code_tag(writer);
             formatter.write_highlights(writer, source, events);
+            formatter.write_closing_tags(writer);
         }
         FormatterOption::Terminal => {
             let formatter = Terminal::new(theme);

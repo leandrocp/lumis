@@ -14,8 +14,52 @@ impl<'a> HtmlLinked<'a> {
     pub fn new(lang: Language, pre_class: Option<&'a str>) -> Self {
         Self { lang, pre_class }
     }
+}
 
-    pub fn inner<W>(
+impl Default for HtmlLinked<'_> {
+    fn default() -> Self {
+        Self {
+            lang: Language::PlainText,
+            pre_class: None,
+        }
+    }
+}
+
+impl HtmlFormatter for HtmlLinked<'_> {
+    fn write_pre_tag<W>(&self, writer: &mut W)
+    where
+        W: std::fmt::Write,
+    {
+        let class = if let Some(pre_class) = self.pre_class {
+            format!("athl {}", pre_class)
+        } else {
+            "athl".to_string()
+        };
+
+        write!(writer, "<pre class=\"{}\">", class);
+    }
+
+    fn write_code_tag<W>(&self, writer: &mut W)
+    where
+        W: std::fmt::Write,
+    {
+        write!(
+            writer,
+            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
+            self.lang.id_name()
+        );
+    }
+
+    fn write_closing_tags<W>(&self, writer: &mut W)
+    where
+        W: std::fmt::Write,
+    {
+        write!(writer, "</code></pre>");
+    }
+}
+
+impl Formatter for HtmlLinked<'_> {
+    fn write_highlights<W>(
         &self,
         writer: &mut W,
         source: &str,
@@ -46,40 +90,6 @@ impl<'a> HtmlLinked<'a> {
     }
 }
 
-impl Default for HtmlLinked<'_> {
-    fn default() -> Self {
-        Self {
-            lang: Language::PlainText,
-            pre_class: None,
-        }
-    }
-}
-
-impl HtmlFormatter for HtmlLinked<'_> {
-    fn lang(&self) -> Language {
-        self.lang
-    }
-
-    fn pre_class(&self) -> Option<&str> {
-        self.pre_class
-    }
-}
-
-impl Formatter for HtmlLinked<'_> {
-    fn write_highlights<W>(
-        &self,
-        writer: &mut W,
-        source: &str,
-        events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) where
-        W: std::fmt::Write,
-    {
-        write!(writer, "{}{}", self.write_pre_tag(), self.write_code_tag());
-        self.inner(writer, source, events);
-        writer.write_str("</code></pre>");
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -88,7 +98,7 @@ mod tests {
     fn test_default_pre_tag() {
         let formatter = HtmlLinked::default();
         let mut buffer = String::new();
-        formatter.write_highlights(&mut buffer, "", std::iter::empty());
+        formatter.write_pre_tag(&mut buffer);
 
         assert!(buffer.as_str().contains("<pre class=\"athl\">"));
     }
@@ -97,7 +107,7 @@ mod tests {
     fn test_include_pre_class() {
         let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"));
         let mut buffer = String::new();
-        formatter.write_highlights(&mut buffer, "", std::iter::empty());
+        formatter.write_pre_tag(&mut buffer);
 
         assert!(buffer
             .as_str()
@@ -108,7 +118,7 @@ mod tests {
     fn test_code_tag_with_language() {
         let formatter = HtmlLinked::new(Language::Rust, None);
         let mut buffer = String::new();
-        formatter.write_highlights(&mut buffer, "", std::iter::empty());
+        formatter.write_code_tag(&mut buffer);
 
         assert!(buffer
             .as_str()
