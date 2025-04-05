@@ -26,47 +26,34 @@ impl Default for HtmlLinked<'_> {
 }
 
 impl HtmlFormatter for HtmlLinked<'_> {
-    fn write_pre_tag<W>(&self, writer: &mut W)
-    where
-        W: std::fmt::Write,
-    {
+    fn write_pre_tag(&self) -> String {
         let class = if let Some(pre_class) = self.pre_class {
             format!("athl {}", pre_class)
         } else {
             "athl".to_string()
         };
 
-        write!(writer, "<pre class=\"{}\">", class);
+        format!("<pre class=\"{}\">", class)
     }
 
-    fn write_code_tag<W>(&self, writer: &mut W)
-    where
-        W: std::fmt::Write,
-    {
-        write!(
-            writer,
+    fn write_code_tag(&self) -> String {
+        format!(
             "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             self.lang.id_name()
-        );
+        )
     }
 
-    fn write_closing_tags<W>(&self, writer: &mut W)
-    where
-        W: std::fmt::Write,
-    {
-        write!(writer, "</code></pre>");
+    fn write_closing_tags(&self) -> String {
+        "</code></pre>".to_string()
     }
 }
 
 impl Formatter for HtmlLinked<'_> {
-    fn write_highlights<W>(
+    fn write_highlights(
         &self,
-        writer: &mut W,
         source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) where
-        W: std::fmt::Write,
-    {
+    ) -> String {
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         renderer
@@ -79,14 +66,15 @@ impl Formatter for HtmlLinked<'_> {
             })
             .expect("failed to render highlight events");
 
+        let mut result = String::new();
         for (i, line) in renderer.lines().enumerate() {
-            write!(
-                writer,
+            result.push_str(&format!(
                 "<span class=\"line\" data-line=\"{}\">{}</span>",
                 i + 1,
                 line.replace('{', "&lbrace;").replace('}', "&rbrace;")
-            );
+            ));
         }
+        result
     }
 }
 
@@ -97,31 +85,24 @@ mod tests {
     #[test]
     fn test_default_pre_tag() {
         let formatter = HtmlLinked::default();
-        let mut buffer = String::new();
-        formatter.write_pre_tag(&mut buffer);
+        let pre_tag = formatter.write_pre_tag();
 
-        assert!(buffer.as_str().contains("<pre class=\"athl\">"));
+        assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
 
     #[test]
     fn test_include_pre_class() {
         let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"));
-        let mut buffer = String::new();
-        formatter.write_pre_tag(&mut buffer);
+        let pre_tag = formatter.write_pre_tag();
 
-        assert!(buffer
-            .as_str()
-            .contains("<pre class=\"athl test-pre-class\">"));
+        assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
 
     #[test]
     fn test_code_tag_with_language() {
         let formatter = HtmlLinked::new(Language::Rust, None);
-        let mut buffer = String::new();
-        formatter.write_code_tag(&mut buffer);
+        let code_tag = formatter.write_code_tag();
 
-        assert!(buffer
-            .as_str()
-            .contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
+        assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
     }
 }

@@ -31,14 +31,11 @@ impl Default for Terminal<'_> {
 }
 
 impl Formatter for Terminal<'_> {
-    fn write_highlights<W>(
+    fn write_highlights(
         &self,
-        writer: &mut W,
         source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) where
-        W: std::fmt::Write,
-    {
+    ) -> String {
         for event in events {
             let event = event.expect("failed to get highlight event");
 
@@ -73,7 +70,6 @@ impl Formatter for Terminal<'_> {
             }
         }
 
-        let output = String::from_utf8(self.buffer.borrow_mut().clone().into_inner()).unwrap();
-        let _ = writer.write_str(output.as_str());
+        String::from_utf8(self.buffer.borrow_mut().clone().into_inner()).unwrap()
     }
 }

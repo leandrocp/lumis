@@ -18,13 +18,11 @@ use crate::FormatterOption;
 use tree_sitter_highlight::{Error, HighlightEvent};
 
 pub trait Formatter {
-    fn write_highlights<W>(
+    fn write_highlights(
         &self,
-        _writer: &mut W,
-        _source: &str,
+        source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) where
-        W: std::fmt::Write;
+    ) -> String;
 }
 
 pub fn write_formatted<W>(
@@ -50,21 +48,21 @@ pub fn write_formatted<W>(
                 italic,
                 include_highlights,
             );
-            formatter.write_pre_tag(writer);
-            formatter.write_code_tag(writer);
-            formatter.write_highlights(writer, source, events);
-            formatter.write_closing_tags(writer);
+            let _ = write!(writer, "{}", formatter.write_pre_tag());
+            let _ = write!(writer, "{}", formatter.write_code_tag());
+            let _ = write!(writer, "{}", formatter.write_highlights(source, events));
+            let _ = write!(writer, "{}", formatter.write_closing_tags());
         }
         FormatterOption::HtmlLinked { pre_class } => {
             let formatter = HtmlLinked::new(lang, pre_class.as_deref());
-            formatter.write_pre_tag(writer);
-            formatter.write_code_tag(writer);
-            formatter.write_highlights(writer, source, events);
-            formatter.write_closing_tags(writer);
+            let _ = write!(writer, "{}", formatter.write_pre_tag());
+            let _ = write!(writer, "{}", formatter.write_code_tag());
+            let _ = write!(writer, "{}", formatter.write_highlights(source, events));
+            let _ = write!(writer, "{}", formatter.write_closing_tags());
         }
         FormatterOption::Terminal => {
             let formatter = Terminal::new(theme);
-            formatter.write_highlights(writer, source, events);
+            let _ = write!(writer, "{}", formatter.write_highlights(source, events));
         }
     }
 }

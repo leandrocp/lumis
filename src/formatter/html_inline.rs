@@ -44,18 +44,14 @@ impl Default for HtmlInline<'_> {
 }
 
 impl HtmlFormatter for HtmlInline<'_> {
-    fn write_pre_tag<W>(&self, writer: &mut W)
-    where
-        W: std::fmt::Write,
-    {
+    fn write_pre_tag(&self) -> String {
         let class = if let Some(pre_class) = self.pre_class {
             format!("athl {}", pre_class)
         } else {
             "athl".to_string()
         };
 
-        write!(
-            writer,
+        format!(
             "<pre class=\"{}\"{}>",
             class,
             &self
@@ -64,37 +60,27 @@ impl HtmlFormatter for HtmlInline<'_> {
                 .and_then(|theme| theme.pre_style(" "))
                 .map(|pre_style| format!(" style=\"{}\"", pre_style))
                 .unwrap_or_default(),
-        );
+        )
     }
 
-    fn write_code_tag<W>(&self, writer: &mut W)
-    where
-        W: std::fmt::Write,
-    {
-        write!(
-            writer,
+    fn write_code_tag(&self) -> String {
+        format!(
             "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             self.lang.id_name()
-        );
+        )
     }
 
-    fn write_closing_tags<W>(&self, writer: &mut W)
-    where
-        W: std::fmt::Write,
-    {
-        write!(writer, "</code></pre>");
+    fn write_closing_tags(&self) -> String {
+        "</code></pre>".to_string()
     }
 }
 
 impl Formatter for HtmlInline<'_> {
-    fn write_highlights<W>(
+    fn write_highlights(
         &self,
-        writer: &mut W,
         source: &str,
         events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) where
-        W: std::fmt::Write,
-    {
+    ) -> String {
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         let (highlight_attr, include_highlights) = if self.include_highlights {
@@ -130,14 +116,15 @@ impl Formatter for HtmlInline<'_> {
             })
             .expect("failed to render highlight events");
 
+        let mut result = String::new();
         for (i, line) in renderer.lines().enumerate() {
-            write!(
-                writer,
+            result.push_str(&format!(
                 "<span class=\"line\" data-line=\"{}\">{}</span>",
                 i + 1,
                 line.replace('{', "&lbrace;").replace('}', "&rbrace;")
-            );
+            ));
         }
+        result
     }
 }
 
@@ -149,10 +136,9 @@ mod tests {
     #[test]
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
-        let mut buffer = String::new();
-        formatter.write_pre_tag(&mut buffer);
+        let pre_tag = formatter.write_pre_tag();
 
-        assert!(buffer.as_str().contains("<pre class=\"athl\">"));
+        assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
 
     #[test]
@@ -164,12 +150,9 @@ mod tests {
             false,
             false,
         );
-        let mut buffer = String::new();
-        formatter.write_pre_tag(&mut buffer);
+        let pre_tag = formatter.write_pre_tag();
 
-        assert!(buffer
-            .as_str()
-            .contains("<pre class=\"athl test-pre-class\">"));
+        assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
 
     #[test]
@@ -182,11 +165,8 @@ mod tests {
             false,
             false,
         );
-        let mut buffer = String::new();
-        formatter.write_pre_tag(&mut buffer);
+        let pre_tag = formatter.write_pre_tag();
 
-        assert!(buffer
-            .as_str()
-            .contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
+        assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }
 }
