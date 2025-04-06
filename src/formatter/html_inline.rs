@@ -112,8 +112,6 @@ impl HtmlFormatter for HtmlInline<'_> {
 
 impl Formatter for HtmlInline<'_> {
     fn highlights(&self) -> String {
-        println!("lang: {:?}", self.lang);
-
         let mut highlighter = Highlighter::new();
         let events = highlighter
             .highlight(
