@@ -3,16 +3,27 @@
 use super::{Formatter, HtmlFormatter};
 use crate::constants::CLASSES;
 use crate::languages::Language;
-use tree_sitter_highlight::{Error, HighlightEvent};
+use tree_sitter_highlight::Highlighter;
 
+#[derive(Clone, Debug)]
 pub struct HtmlLinked<'a> {
+    source: &'a str,
     lang: Language,
     pre_class: Option<&'a str>,
 }
 
 impl<'a> HtmlLinked<'a> {
-    pub fn new(lang: Language, pre_class: Option<&'a str>) -> Self {
-        Self { lang, pre_class }
+    pub fn new(source: &'a str, lang: Language, pre_class: Option<&'a str>) -> Self {
+        Self {
+            source,
+            lang,
+            pre_class,
+        }
+    }
+
+    pub fn with_source(mut self, source: &'a str) -> Self {
+        self.source = source;
+        self
     }
 
     pub fn with_lang(mut self, lang: Language) -> Self {
@@ -29,6 +40,7 @@ impl<'a> HtmlLinked<'a> {
 impl Default for HtmlLinked<'_> {
     fn default() -> Self {
         Self {
+            source: "",
             lang: Language::PlainText,
             pre_class: None,
         }
@@ -59,15 +71,21 @@ impl HtmlFormatter for HtmlLinked<'_> {
 }
 
 impl Formatter for HtmlLinked<'_> {
-    fn highlights(
-        &self,
-        source: &str,
-        events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) -> String {
+    fn highlights(&self) -> String {
+        let mut highlighter = Highlighter::new();
+        let events = highlighter
+            .highlight(
+                self.lang.config(),
+                self.source.as_bytes(),
+                None,
+                |injected| Some(Language::guess(injected, "").config()),
+            )
+            .expect("failed to generate highlight events");
+
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         renderer
-            .render(events, source.as_bytes(), &move |highlight, output| {
+            .render(events, self.source.as_bytes(), &move |highlight, output| {
                 let class = CLASSES[highlight.0];
 
                 output.extend(b"class=\"");
@@ -102,7 +120,7 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"));
+        let formatter = HtmlLinked::new("", Language::PlainText, Some("test-pre-class"));
         let pre_tag = formatter.pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
@@ -110,7 +128,7 @@ mod tests {
 
     #[test]
     fn test_code_tag_with_language() {
-        let formatter = HtmlLinked::new(Language::Rust, None);
+        let formatter = HtmlLinked::new("", Language::Rust, None);
         let code_tag = formatter.code_tag();
 
         assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));

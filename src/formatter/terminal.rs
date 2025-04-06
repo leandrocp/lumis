@@ -1,21 +1,27 @@
 #![allow(unused_must_use)]
 
 use super::Formatter;
+use crate::languages::Language;
 use crate::{constants::HIGHLIGHT_NAMES, themes::Theme};
 use std::cell::RefCell;
 use std::io::Write;
 use termcolor::{ColorSpec, WriteColor};
-use tree_sitter_highlight::{Error, HighlightEvent};
+use tree_sitter_highlight::{HighlightEvent, Highlighter};
 
+#[derive(Clone, Debug)]
 pub struct Terminal<'a> {
     buffer: RefCell<termcolor::Buffer>,
+    source: &'a str,
+    lang: Language,
     theme: Option<&'a Theme>,
 }
 
 impl<'a> Terminal<'a> {
-    pub fn new(theme: Option<&'a Theme>) -> Self {
+    pub fn new(source: &'a str, lang: Language, theme: Option<&'a Theme>) -> Self {
         Self {
             buffer: RefCell::new(termcolor::Buffer::ansi()),
+            source,
+            lang,
             theme,
         }
     }
@@ -25,17 +31,25 @@ impl Default for Terminal<'_> {
     fn default() -> Self {
         Self {
             buffer: RefCell::new(termcolor::Buffer::ansi()),
+            source: "",
+            lang: Language::PlainText,
             theme: None,
         }
     }
 }
 
 impl Formatter for Terminal<'_> {
-    fn highlights(
-        &self,
-        source: &str,
-        events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) -> String {
+    fn highlights(&self) -> String {
+        let mut highlighter = Highlighter::new();
+        let events = highlighter
+            .highlight(
+                self.lang.config(),
+                self.source.as_bytes(),
+                None,
+                |injected| Some(Language::guess(injected, "").config()),
+            )
+            .expect("failed to generate highlight events");
+
         for event in events {
             let event = event.expect("failed to get highlight event");
 
@@ -61,7 +75,10 @@ impl Formatter for Terminal<'_> {
                         .set_color(ColorSpec::new().set_fg(Some(termcolor::Color::Rgb(r, g, b))));
                 }
                 HighlightEvent::Source { start, end } => {
-                    let text = source.get(start..end).expect("failed to get source bounds");
+                    let text = self
+                        .source
+                        .get(start..end)
+                        .expect("failed to get source bounds");
                     self.buffer.borrow_mut().write_all(text.as_bytes());
                 }
                 HighlightEvent::HighlightEnd => {

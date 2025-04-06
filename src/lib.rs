@@ -514,9 +514,7 @@ impl Default for Options<'_> {
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
     let mut buffer = String::new();
-
     formatter::write_formatted(&mut buffer, source, lang, options.formatter, options.theme);
-
     buffer
 }
 
@@ -655,7 +653,6 @@ end
                 lang_or_file: Some("elixir"),
                 formatter: FormatterOption::HtmlLinked { pre_class: None },
                 theme: themes::get("catppuccin_frappe").ok(),
-                ..Options::default()
             },
         );
 

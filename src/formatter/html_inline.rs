@@ -3,9 +3,11 @@
 use super::{Formatter, HtmlFormatter};
 use crate::languages::Language;
 use crate::{constants::HIGHLIGHT_NAMES, themes::Theme};
-use tree_sitter_highlight::{Error, HighlightEvent};
+use tree_sitter_highlight::Highlighter;
 
+#[derive(Clone, Debug)]
 pub struct HtmlInline<'a> {
+    source: &'a str,
     lang: Language,
     theme: Option<&'a Theme>,
     pre_class: Option<&'a str>,
@@ -15,6 +17,7 @@ pub struct HtmlInline<'a> {
 
 impl<'a> HtmlInline<'a> {
     pub fn new(
+        source: &'a str,
         lang: Language,
         theme: Option<&'a Theme>,
         pre_class: Option<&'a str>,
@@ -22,12 +25,18 @@ impl<'a> HtmlInline<'a> {
         include_highlights: bool,
     ) -> Self {
         Self {
+            source,
             lang,
             theme,
             pre_class,
             italic,
             include_highlights,
         }
+    }
+
+    pub fn with_source(mut self, source: &'a str) -> Self {
+        self.source = source;
+        self
     }
 
     pub fn with_lang(mut self, lang: Language) -> Self {
@@ -59,6 +68,7 @@ impl<'a> HtmlInline<'a> {
 impl Default for HtmlInline<'_> {
     fn default() -> Self {
         Self {
+            source: "",
             lang: Language::PlainText,
             theme: None,
             pre_class: None,
@@ -101,11 +111,19 @@ impl HtmlFormatter for HtmlInline<'_> {
 }
 
 impl Formatter for HtmlInline<'_> {
-    fn highlights(
-        &self,
-        source: &str,
-        events: impl Iterator<Item = Result<HighlightEvent, Error>>,
-    ) -> String {
+    fn highlights(&self) -> String {
+        println!("lang: {:?}", self.lang);
+
+        let mut highlighter = Highlighter::new();
+        let events = highlighter
+            .highlight(
+                self.lang.config(),
+                self.source.as_bytes(),
+                None,
+                |injected| Some(Language::guess(injected, "").config()),
+            )
+            .expect("failed to generate highlight events");
+
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         let (highlight_attr, include_highlights) = if self.include_highlights {
@@ -118,7 +136,7 @@ impl Formatter for HtmlInline<'_> {
         let italic = self.italic;
 
         renderer
-            .render(events, source.as_bytes(), &move |highlight, output| {
+            .render(events, self.source.as_bytes(), &move |highlight, output| {
                 let scope = HIGHLIGHT_NAMES[highlight.0];
 
                 if include_highlights {
@@ -169,6 +187,7 @@ mod tests {
     #[test]
     fn test_include_pre_class() {
         let formatter = HtmlInline::new(
+            "",
             Language::PlainText,
             None,
             Some("test-pre-class"),
@@ -184,6 +203,7 @@ mod tests {
     fn test_include_pre_class_with_theme() {
         let theme = themes::get("github_light").unwrap();
         let formatter = HtmlInline::new(
+            "",
             Language::PlainText,
             Some(theme),
             Some("test-pre-class"),
