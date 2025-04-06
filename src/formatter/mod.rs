@@ -15,7 +15,7 @@ pub use terminal::*;
 use crate::languages::Language;
 use crate::themes::Theme;
 use crate::FormatterOption;
-use tree_sitter_highlight::{Error, HighlightEvent};
+use tree_sitter_highlight::{Error, HighlightEvent, Highlighter};
 
 pub trait Formatter {
     fn highlights(
@@ -28,26 +28,26 @@ pub trait Formatter {
 pub fn write_formatted<W>(
     writer: &mut W,
     source: &str,
-    events: impl Iterator<Item = Result<HighlightEvent, Error>>,
     lang: Language,
     formatter: FormatterOption,
     theme: Option<&Theme>,
 ) where
     W: std::fmt::Write,
 {
+    let mut highlighter = Highlighter::new();
+    let events = highlighter
+        .highlight(lang.config(), source.as_bytes(), None, |injected| {
+            Some(Language::guess(injected, "").config())
+        })
+        .expect("failed to generate highlight events");
+
     match formatter {
         FormatterOption::HtmlInline {
             pre_class,
             italic,
             include_highlights,
         } => {
-            let formatter = HtmlInline::new(
-                lang,
-                theme,
-                pre_class,
-                italic,
-                include_highlights,
-            );
+            let formatter = HtmlInline::new(lang, theme, pre_class, italic, include_highlights);
             let _ = write!(writer, "{}", formatter.pre_tag());
             let _ = write!(writer, "{}", formatter.code_tag());
             let _ = write!(writer, "{}", formatter.highlights(source, events));

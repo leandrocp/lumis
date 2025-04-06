@@ -272,7 +272,6 @@ pub mod themes;
 
 use crate::languages::Language;
 use crate::themes::Theme;
-use tree_sitter_highlight::Highlighter;
 
 /// The type of formatter to use for syntax highlighting.
 ///
@@ -515,21 +514,8 @@ impl Default for Options<'_> {
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
     let mut buffer = String::new();
-    let mut highlighter = Highlighter::new();
-    let events = highlighter
-        .highlight(lang.config(), source.as_bytes(), None, |injected| {
-            Some(Language::guess(injected, "").config())
-        })
-        .expect("failed to generate highlight events");
 
-    formatter::write_formatted(
-        &mut buffer,
-        source,
-        events,
-        lang,
-        options.formatter,
-        options.theme,
-    );
+    formatter::write_formatted(&mut buffer, source, lang, options.formatter, options.theme);
 
     buffer
 }
