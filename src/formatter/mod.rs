@@ -26,7 +26,8 @@ pub fn write_formatted<W>(
     lang: Language,
     formatter: FormatterOption,
     theme: Option<&Theme>,
-) where
+) -> std::fmt::Result
+where
     W: std::fmt::Write,
 {
     match formatter {
@@ -37,21 +38,23 @@ pub fn write_formatted<W>(
         } => {
             let formatter =
                 HtmlInline::new(source, lang, theme, pre_class, italic, include_highlights);
-            let _ = write!(writer, "{}", formatter.pre_tag());
-            let _ = write!(writer, "{}", formatter.code_tag());
-            let _ = write!(writer, "{}", formatter.highlights());
-            let _ = write!(writer, "{}", formatter.closing_tags());
+            write!(writer, "{}", formatter.pre_tag())?;
+            write!(writer, "{}", formatter.code_tag())?;
+            write!(writer, "{}", formatter.highlights())?;
+            write!(writer, "{}", formatter.closing_tags())?;
         }
         FormatterOption::HtmlLinked { pre_class } => {
             let formatter = HtmlLinked::new(source, lang, pre_class);
-            let _ = write!(writer, "{}", formatter.pre_tag());
-            let _ = write!(writer, "{}", formatter.code_tag());
-            let _ = write!(writer, "{}", formatter.highlights());
-            let _ = write!(writer, "{}", formatter.closing_tags());
+            write!(writer, "{}", formatter.pre_tag())?;
+            write!(writer, "{}", formatter.code_tag())?;
+            write!(writer, "{}", formatter.highlights())?;
+            write!(writer, "{}", formatter.closing_tags())?;
         }
         FormatterOption::Terminal => {
             let formatter = Terminal::new(source, lang, theme);
-            let _ = write!(writer, "{}", formatter.highlights());
+            write!(writer, "{}", formatter.highlights())?;
         }
     }
+
+    Ok(())
 }

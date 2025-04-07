@@ -514,7 +514,8 @@ impl Default for Options<'_> {
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
     let mut buffer = String::new();
-    formatter::write_formatted(&mut buffer, source, lang, options.formatter, options.theme);
+    formatter::write_formatted(&mut buffer, source, lang, options.formatter, options.theme)
+        .expect("failed to write formatted code");
     buffer
 }
 
