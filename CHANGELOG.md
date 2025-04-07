@@ -1,8 +1,11 @@
 # Changelog
 
-## Unreleased
+## [0.1.10] - 2025-04-07
 
 ### Changed
+- Exposed Formatters functions for external use
+
+### Breaking Changes
 - Remove option `italic` from `Terminal` formatter (was not used)
 
 ## [0.1.9] - 2025-03-14

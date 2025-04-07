@@ -30,7 +30,7 @@ Add Autumnus to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-autumnus = "0.1.0"
+autumnus = "0.1"
 ```
 
 ### As a CLI Tool
