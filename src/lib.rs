@@ -285,6 +285,8 @@ use crate::themes::Theme;
 pub enum FormatterOption<'a> {
     /// HTML output with inline styles.
     HtmlInline {
+        /// Theme to use for highlighting.
+        theme: Option<&'a Theme>,
         /// Class to add to the `<pre>` tag.
         pre_class: Option<&'a str>,
         /// Whether to use italics for highlighting.
@@ -292,8 +294,6 @@ pub enum FormatterOption<'a> {
         /// Whether to include the original highlight scope name in a `data` attribute.
         /// Useful for debugging.
         include_highlights: bool,
-        /// Theme to use for highlighting.
-        theme: Option<&'a Theme>,
     },
     /// HTML output with linked styles.
     ///
@@ -304,10 +304,10 @@ pub enum FormatterOption<'a> {
     /// <link rel="stylesheet" href="css/dracula.css">
     /// ```
     HtmlLinked {
-        /// Class to add to the `<pre>` tag.
-        pre_class: Option<&'a str>,
         /// Theme to use for highlighting.
         theme: Option<&'a Theme>,
+        /// Class to add to the `<pre>` tag.
+        pre_class: Option<&'a str>,
     },
     /// Terminal output with ANSI colors.
     Terminal {
@@ -319,10 +319,10 @@ pub enum FormatterOption<'a> {
 impl Default for FormatterOption<'_> {
     fn default() -> Self {
         Self::HtmlInline {
+            theme: None,
             pre_class: None,
             italic: false,
             include_highlights: false,
-            theme: None,
         }
     }
 }
