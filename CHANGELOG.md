@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.12] - 2025-04-09
+
+### Changed
+- Moved `theme` field from `Options` to `FormatterOption` enum variants
+- Updated documentation and examples to reflect the new theme location
+
+### Breaking Changes
+- Removed `theme` field from `Options` struct
+- Added `theme` field to all `FormatterOption` variants (`HtmlInline`, `HtmlLinked`, `Terminal`)
+
 ## [0.1.11] - 2025-04-08
 
 ### Changed

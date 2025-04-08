@@ -13,7 +13,6 @@ mod terminal;
 pub use terminal::*;
 
 use crate::languages::Language;
-use crate::themes::Theme;
 use crate::FormatterOption;
 
 pub trait Formatter {
@@ -25,7 +24,6 @@ pub fn write_formatted<W>(
     source: &str,
     lang: Language,
     formatter: FormatterOption,
-    theme: Option<&Theme>,
 ) -> std::fmt::Result
 where
     W: std::fmt::Write,
@@ -35,6 +33,7 @@ where
             pre_class,
             italic,
             include_highlights,
+            theme,
         } => {
             let formatter =
                 HtmlInline::new(source, lang, theme, pre_class, italic, include_highlights);
@@ -43,14 +42,14 @@ where
             write!(writer, "{}", formatter.highlights())?;
             write!(writer, "{}", formatter.closing_tags())?;
         }
-        FormatterOption::HtmlLinked { pre_class } => {
-            let formatter = HtmlLinked::new(source, lang, pre_class);
+        FormatterOption::HtmlLinked { pre_class, theme } => {
+            let formatter = HtmlLinked::new(source, lang, pre_class, theme);
             write!(writer, "{}", formatter.open_pre_tag())?;
             write!(writer, "{}", formatter.open_code_tag())?;
             write!(writer, "{}", formatter.highlights())?;
             write!(writer, "{}", formatter.closing_tags())?;
         }
-        FormatterOption::Terminal => {
+        FormatterOption::Terminal { theme } => {
             let formatter = Terminal::new(source, lang, theme);
             write!(writer, "{}", formatter.highlights())?;
         }
