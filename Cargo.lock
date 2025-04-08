@@ -69,7 +69,7 @@ checksum = "dcfed56ad506cb2c684a14971b8861fdc3baaaae314b9e5f9bb532cbe3ba7a4f"
 
 [[package]]
 name = "autumnus"
-version = "0.1.10"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "cc",

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.2.0] - 2025-04-08
 
 ### Changed
 - Exposed `open_pre_tag`, `open_code_tag`, and `closing_tags` in `HtmlFormatter` trait
