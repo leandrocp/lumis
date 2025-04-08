@@ -3,29 +3,26 @@
 use super::{Formatter, HtmlFormatter};
 use crate::constants::CLASSES;
 use crate::languages::Language;
-use crate::themes::Theme;
+use crate::FormatterOption;
 use tree_sitter_highlight::Highlighter;
 
 #[derive(Clone, Debug)]
 pub struct HtmlLinked<'a> {
     source: &'a str,
     lang: Language,
-    pre_class: Option<&'a str>,
-    theme: Option<&'a Theme>,
+    options: FormatterOption<'a>,
 }
 
 impl<'a> HtmlLinked<'a> {
     pub fn new(
         source: &'a str,
         lang: Language,
-        pre_class: Option<&'a str>,
-        theme: Option<&'a Theme>,
+        options: FormatterOption<'a>,
     ) -> Self {
         Self {
             source,
             lang,
-            pre_class,
-            theme,
+            options,
         }
     }
 
@@ -39,13 +36,8 @@ impl<'a> HtmlLinked<'a> {
         self
     }
 
-    pub fn with_pre_class(mut self, pre_class: Option<&'a str>) -> Self {
-        self.pre_class = pre_class;
-        self
-    }
-
-    pub fn with_theme(mut self, theme: Option<&'a Theme>) -> Self {
-        self.theme = theme;
+    pub fn with_options(mut self, options: FormatterOption<'a>) -> Self {
+        self.options = options;
         self
     }
 }
@@ -55,16 +47,22 @@ impl Default for HtmlLinked<'_> {
         Self {
             source: "",
             lang: Language::PlainText,
-            pre_class: None,
-            theme: None,
+            options: FormatterOption::HtmlLinked {
+                pre_class: None,
+                theme: None,
+            },
         }
     }
 }
 
 impl HtmlFormatter for HtmlLinked<'_> {
     fn open_pre_tag(&self) -> String {
-        let class = if let Some(pre_class) = self.pre_class {
-            format!("athl {}", pre_class)
+        let class = if let FormatterOption::HtmlLinked { pre_class, .. } = &self.options {
+            if let Some(pre_class) = pre_class {
+                format!("athl {}", pre_class)
+            } else {
+                "athl".to_string()
+            }
         } else {
             "athl".to_string()
         };
@@ -134,7 +132,14 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let formatter = HtmlLinked::new("", Language::PlainText, Some("test-pre-class"), None);
+        let formatter = HtmlLinked::new(
+            "",
+            Language::PlainText,
+            FormatterOption::HtmlLinked {
+                pre_class: Some("test-pre-class"),
+                theme: None,
+            },
+        );
         let pre_tag = formatter.open_pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
@@ -142,7 +147,14 @@ mod tests {
 
     #[test]
     fn test_code_tag_with_language() {
-        let formatter = HtmlLinked::new("", Language::Rust, None, None);
+        let formatter = HtmlLinked::new(
+            "",
+            Language::Rust,
+            FormatterOption::HtmlLinked {
+                pre_class: None,
+                theme: None,
+            },
+        );
         let code_tag = formatter.open_code_tag();
 
         assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
@@ -152,8 +164,10 @@ mod tests {
     fn test_builder_pattern() {
         let formatter = HtmlLinked::default()
             .with_lang(Language::Rust)
-            .with_pre_class(Some("test-class"))
-            .with_theme(None);
+            .with_options(FormatterOption::HtmlLinked {
+                pre_class: Some("test-class"),
+                theme: None,
+            });
 
         let pre_tag = formatter.open_pre_tag();
         let code_tag = formatter.open_code_tag();

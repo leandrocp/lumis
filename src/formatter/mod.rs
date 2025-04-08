@@ -35,22 +35,26 @@ where
             include_highlights,
             theme,
         } => {
-            let formatter =
-                HtmlInline::new(source, lang, theme, pre_class, italic, include_highlights);
+            let formatter = HtmlInline::new(source, lang, FormatterOption::HtmlInline {
+                pre_class,
+                italic,
+                include_highlights,
+                theme,
+            });
             write!(writer, "{}", formatter.open_pre_tag())?;
             write!(writer, "{}", formatter.open_code_tag())?;
             write!(writer, "{}", formatter.highlights())?;
             write!(writer, "{}", formatter.closing_tags())?;
         }
         FormatterOption::HtmlLinked { pre_class, theme } => {
-            let formatter = HtmlLinked::new(source, lang, pre_class, theme);
+            let formatter = HtmlLinked::new(source, lang, FormatterOption::HtmlLinked { pre_class, theme });
             write!(writer, "{}", formatter.open_pre_tag())?;
             write!(writer, "{}", formatter.open_code_tag())?;
             write!(writer, "{}", formatter.highlights())?;
             write!(writer, "{}", formatter.closing_tags())?;
         }
         FormatterOption::Terminal { theme } => {
-            let formatter = Terminal::new(source, lang, theme);
+            let formatter = Terminal::new(source, lang, FormatterOption::Terminal { theme });
             write!(writer, "{}", formatter.highlights())?;
         }
     }
