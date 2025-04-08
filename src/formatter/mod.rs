@@ -13,7 +13,6 @@ mod terminal;
 pub use terminal::*;
 
 use crate::languages::Language;
-use crate::themes::Theme;
 use crate::FormatterOption;
 
 pub trait Formatter {
@@ -25,7 +24,6 @@ pub fn write_formatted<W>(
     source: &str,
     lang: Language,
     formatter: FormatterOption,
-    theme: Option<&Theme>,
 ) -> std::fmt::Result
 where
     W: std::fmt::Write,
@@ -35,23 +33,33 @@ where
             pre_class,
             italic,
             include_highlights,
+            theme,
         } => {
-            let formatter =
-                HtmlInline::new(source, lang, theme, pre_class, italic, include_highlights);
-            write!(writer, "{}", formatter.pre_tag())?;
-            write!(writer, "{}", formatter.code_tag())?;
+            let formatter = HtmlInline::new(
+                source,
+                lang,
+                FormatterOption::HtmlInline {
+                    pre_class,
+                    italic,
+                    include_highlights,
+                    theme,
+                },
+            );
+            write!(writer, "{}", formatter.open_pre_tag())?;
+            write!(writer, "{}", formatter.open_code_tag())?;
             write!(writer, "{}", formatter.highlights())?;
             write!(writer, "{}", formatter.closing_tags())?;
         }
         FormatterOption::HtmlLinked { pre_class } => {
-            let formatter = HtmlLinked::new(source, lang, pre_class);
-            write!(writer, "{}", formatter.pre_tag())?;
-            write!(writer, "{}", formatter.code_tag())?;
+            let formatter =
+                HtmlLinked::new(source, lang, FormatterOption::HtmlLinked { pre_class });
+            write!(writer, "{}", formatter.open_pre_tag())?;
+            write!(writer, "{}", formatter.open_code_tag())?;
             write!(writer, "{}", formatter.highlights())?;
             write!(writer, "{}", formatter.closing_tags())?;
         }
-        FormatterOption::Terminal => {
-            let formatter = Terminal::new(source, lang, theme);
+        FormatterOption::Terminal { theme } => {
+            let formatter = Terminal::new(source, lang, FormatterOption::Terminal { theme });
             write!(writer, "{}", formatter.highlights())?;
         }
     }

@@ -23,15 +23,19 @@
 //! Using a specific theme:
 //!
 //! ```rust
-//! use autumnus::{highlight, Options, themes};
+//! use autumnus::{highlight, Options, themes, FormatterOption};
 //!
 //! let code = "SELECT * FROM users WHERE active = true;";
 //! let html = highlight(
 //!     code,
 //!     Options {
 //!         lang_or_file: Some("sql"),
-//!         theme: themes::get("dracula").ok(),
-//!         ..Options::default()
+//!         formatter: FormatterOption::HtmlInline {
+//!             theme: themes::get("dracula").ok(),
+//!             pre_class: None,
+//!             italic: false,
+//!             include_highlights: false,
+//!         },
 //!     }
 //! );
 //! ```
@@ -73,15 +77,16 @@
 //! Terminal output with ANSI colors:
 //!
 //! ```rust
-//! use autumnus::{highlight, Options, FormatterOption};
+//! use autumnus::{highlight, Options, themes, FormatterOption};
 //!
 //! let code = "puts 'Hello from Ruby!'";
 //! let ansi = highlight(
 //!     code,
 //!     Options {
 //!         lang_or_file: Some("ruby"),
-//!         formatter: FormatterOption::Terminal,
-//!         ..Options::default()
+//!         formatter: FormatterOption::Terminal {
+//!             theme: themes::get("github_light").ok(),
+//!         },
 //!     }
 //! );
 //! ```
@@ -280,6 +285,8 @@ use crate::themes::Theme;
 pub enum FormatterOption<'a> {
     /// HTML output with inline styles.
     HtmlInline {
+        /// Theme to use for highlighting.
+        theme: Option<&'a Theme>,
         /// Class to add to the `<pre>` tag.
         pre_class: Option<&'a str>,
         /// Whether to use italics for highlighting.
@@ -301,12 +308,16 @@ pub enum FormatterOption<'a> {
         pre_class: Option<&'a str>,
     },
     /// Terminal output with ANSI colors.
-    Terminal,
+    Terminal {
+        /// Theme to use for highlighting.
+        theme: Option<&'a Theme>,
+    },
 }
 
 impl Default for FormatterOption<'_> {
     fn default() -> Self {
         Self::HtmlInline {
+            theme: None,
             pre_class: None,
             italic: false,
             include_highlights: false,
@@ -323,36 +334,22 @@ pub struct Options<'a> {
     /// # Examples
     ///
     /// ```
-    /// use autumnus::{Options, highlight};
+    /// use autumnus::{Options, highlight, FormatterOption};
     ///
     /// let options = Options {
     ///     lang_or_file: Some("rust"),
-    ///     ..Options::default()
+    ///     formatter: FormatterOption::HtmlInline {
+    ///         pre_class: None,
+    ///         italic: false,
+    ///         include_highlights: false,
+    ///         theme: None,
+    ///     },
     /// };
     ///
     /// let code = r#"fn main() { println!("Hello"); }"#;
     /// let html = highlight(code, options);
     /// ```
     pub lang_or_file: Option<&'a str>,
-
-    /// Theme to use for highlighting.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use autumnus::{Options, themes, highlight};
-    ///
-    /// let code = r#"SELECT * FROM users WHERE active = true;"#;
-    /// let html = highlight(
-    ///     code,
-    ///     Options {
-    ///         lang_or_file: Some("sql"),
-    ///         theme: themes::get("dracula").ok(),
-    ///         ..Options::default()
-    ///     }
-    /// );
-    /// ```
-    pub theme: Option<&'a Theme>,
 
     /// The type of formatter to use for output.
     ///
@@ -366,8 +363,9 @@ pub struct Options<'a> {
     ///     code,
     ///     Options {
     ///         lang_or_file: Some("ruby"),
-    ///         formatter: FormatterOption::Terminal,
-    ///         ..Options::default()
+    ///         formatter: FormatterOption::Terminal {
+    ///             theme: None,
+    ///         },
     ///     }
     /// );
     /// ```
@@ -378,11 +376,11 @@ impl Default for Options<'_> {
     fn default() -> Self {
         Self {
             lang_or_file: None,
-            theme: None,
             formatter: FormatterOption::HtmlInline {
                 pre_class: None,
                 italic: false,
                 include_highlights: false,
+                theme: None,
             },
         }
     }
@@ -406,6 +404,7 @@ impl Default for Options<'_> {
 /// ```rust
 /// use autumnus::highlight;
 /// use autumnus::Options;
+/// use autumnus::FormatterOption;
 ///
 /// let code = r#"
 /// fn main() {
@@ -417,7 +416,12 @@ impl Default for Options<'_> {
 ///     code,
 ///     Options {
 ///         lang_or_file: Some("rust"),
-///         ..Options::default()
+///         formatter: FormatterOption::HtmlInline {
+///             pre_class: None,
+///             italic: false,
+///             include_highlights: false,
+///             theme: None,
+///         },
 ///     }
 /// );
 /// ```
@@ -454,8 +458,9 @@ impl Default for Options<'_> {
 ///     code,
 ///     Options {
 ///         lang_or_file: Some("rust"),
-///         formatter: FormatterOption::HtmlLinked { pre_class: Some("my-code-block") },
-///         ..Options::default()
+///         formatter: FormatterOption::HtmlLinked {
+///             pre_class: Some("my-code-block"),
+///         },
 ///     }
 /// );
 /// ```
@@ -499,8 +504,9 @@ impl Default for Options<'_> {
 ///     code,
 ///     Options {
 ///         lang_or_file: Some("rust"),
-///         formatter: FormatterOption::Terminal,
-///         ..Options::default()
+///         formatter: FormatterOption::Terminal {
+///             theme: None,
+///         },
 ///     }
 /// );
 /// ```
@@ -514,7 +520,7 @@ impl Default for Options<'_> {
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
     let mut buffer = String::new();
-    formatter::write_formatted(&mut buffer, source, lang, options.formatter, options.theme)
+    formatter::write_formatted(&mut buffer, source, lang, options.formatter)
         .expect("failed to write formatted code");
     buffer
 }
@@ -554,8 +560,12 @@ end
             code,
             Options {
                 lang_or_file: Some("elixir"),
-                theme: themes::get("catppuccin_frappe").ok(),
-                ..Options::default()
+                formatter: FormatterOption::HtmlInline {
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    theme: themes::get("catppuccin_frappe").ok(),
+                },
             },
         );
 
@@ -578,11 +588,11 @@ end
             code,
             Options {
                 lang_or_file: Some("elixir"),
-                theme: themes::get("catppuccin_frappe").ok(),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
                     include_highlights: true,
+                    theme: themes::get("catppuccin_frappe").ok(),
                 },
             },
         );
@@ -599,8 +609,12 @@ end
             "{:ok, char: '{'}",
             Options {
                 lang_or_file: Some("elixir"),
-                theme: themes::get("catppuccin_frappe").ok(),
-                ..Options::default()
+                formatter: FormatterOption::HtmlInline {
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    theme: themes::get("catppuccin_frappe").ok(),
+                },
             },
         );
 
@@ -636,7 +650,6 @@ end
             Options {
                 lang_or_file: Some("elixir"),
                 formatter: FormatterOption::HtmlLinked { pre_class: None },
-                theme: themes::get("catppuccin_frappe").ok(),
             },
         );
 
@@ -653,7 +666,6 @@ end
             Options {
                 lang_or_file: Some("elixir"),
                 formatter: FormatterOption::HtmlLinked { pre_class: None },
-                theme: themes::get("catppuccin_frappe").ok(),
             },
         );
 
@@ -666,7 +678,12 @@ end
             "foo = 1",
             Options {
                 lang_or_file: Some("app.ex"),
-                ..Options::default()
+                formatter: FormatterOption::HtmlInline {
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    theme: themes::get("catppuccin_frappe").ok(),
+                },
             },
         );
         assert!(result.as_str().contains("language-elixir"));
@@ -678,7 +695,12 @@ end
             "# Title",
             Options {
                 lang_or_file: Some("md"),
-                ..Options::default()
+                formatter: FormatterOption::HtmlInline {
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    theme: themes::get("catppuccin_frappe").ok(),
+                },
             },
         );
         assert!(result.as_str().contains("language-markdown"));
@@ -687,7 +709,12 @@ end
             "foo = 1",
             Options {
                 lang_or_file: Some("ex"),
-                ..Options::default()
+                formatter: FormatterOption::HtmlInline {
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    theme: themes::get("catppuccin_frappe").ok(),
+                },
             },
         );
         assert!(result.as_str().contains("language-elixir"));
@@ -699,7 +726,12 @@ end
             "#!/usr/bin/env elixir",
             Options {
                 lang_or_file: Some("test"),
-                ..Options::default()
+                formatter: FormatterOption::HtmlInline {
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    theme: themes::get("catppuccin_frappe").ok(),
+                },
             },
         );
         assert!(result.as_str().contains("language-elixir"));
@@ -711,7 +743,12 @@ end
             "source code",
             Options {
                 lang_or_file: Some("none"),
-                ..Options::default()
+                formatter: FormatterOption::HtmlInline {
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    theme: themes::get("catppuccin_frappe").ok(),
+                },
             },
         );
         assert!(result.as_str().contains("language-plaintext"));
@@ -721,8 +758,9 @@ end
     fn test_highlight_terminal() {
         let options = Options {
             lang_or_file: Some("ruby"),
-            theme: themes::get("dracula").ok(),
-            formatter: FormatterOption::Terminal,
+            formatter: FormatterOption::Terminal {
+                theme: themes::get("dracula").ok(),
+            },
         };
         let code = "puts 'Hello from Ruby!'";
         let ansi = highlight(code, options);

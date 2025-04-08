@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Exposed `open_pre_tag`, `open_code_tag`, and `closing_tags` in `HtmlFormatter` trait
+
+### Breaking Changes
+- Moved `theme` field from `Options` to `FormatterOption` enum variants
+
 ## [0.1.10] - 2025-04-07
 
 ### Changed

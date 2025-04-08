@@ -2,7 +2,7 @@
 
 use super::Formatter;
 use crate::languages::Language;
-use crate::{constants::HIGHLIGHT_NAMES, themes::Theme};
+use crate::FormatterOption;
 use std::cell::RefCell;
 use std::io::Write;
 use termcolor::{ColorSpec, WriteColor};
@@ -13,17 +13,32 @@ pub struct Terminal<'a> {
     buffer: RefCell<termcolor::Buffer>,
     source: &'a str,
     lang: Language,
-    theme: Option<&'a Theme>,
+    options: FormatterOption<'a>,
 }
 
 impl<'a> Terminal<'a> {
-    pub fn new(source: &'a str, lang: Language, theme: Option<&'a Theme>) -> Self {
+    pub fn new(source: &'a str, lang: Language, options: FormatterOption<'a>) -> Self {
         Self {
             buffer: RefCell::new(termcolor::Buffer::ansi()),
             source,
             lang,
-            theme,
+            options,
         }
+    }
+
+    pub fn with_source(mut self, source: &'a str) -> Self {
+        self.source = source;
+        self
+    }
+
+    pub fn with_lang(mut self, lang: Language) -> Self {
+        self.lang = lang;
+        self
+    }
+
+    pub fn with_options(mut self, options: FormatterOption<'a>) -> Self {
+        self.options = options;
+        self
     }
 }
 
@@ -33,7 +48,7 @@ impl Default for Terminal<'_> {
             buffer: RefCell::new(termcolor::Buffer::ansi()),
             source: "",
             lang: Language::PlainText,
-            theme: None,
+            options: FormatterOption::Terminal { theme: None },
         }
     }
 }
@@ -55,16 +70,19 @@ impl Formatter for Terminal<'_> {
 
             match event {
                 HighlightEvent::HighlightStart(idx) => {
-                    let scope = HIGHLIGHT_NAMES[idx.0];
+                    let scope = crate::constants::HIGHLIGHT_NAMES[idx.0];
 
-                    let hex: &str = self
-                        .theme
-                        .as_ref()
-                        .and_then(|theme| theme.get_style(scope))
-                        .and_then(|style| style.fg.as_deref())
-                        // not completely blank so it's still visible in light terminals
-                        .unwrap_or("#eeeeee")
-                        .trim_start_matches('#');
+                    let hex: &str = if let FormatterOption::Terminal { theme } = &self.options {
+                        theme
+                            .as_ref()
+                            .and_then(|theme| theme.get_style(scope))
+                            .and_then(|style| style.fg.as_deref())
+                            // not completely blank so it's still visible in light terminals
+                            .unwrap_or("#eeeeee")
+                    } else {
+                        "#eeeeee"
+                    }
+                    .trim_start_matches('#');
 
                     let r = u8::from_str_radix(&hex[0..2], 16).unwrap();
                     let g = u8::from_str_radix(&hex[2..4], 16).unwrap();

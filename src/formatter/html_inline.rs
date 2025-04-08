@@ -2,35 +2,22 @@
 
 use super::{Formatter, HtmlFormatter};
 use crate::languages::Language;
-use crate::{constants::HIGHLIGHT_NAMES, themes::Theme};
+use crate::FormatterOption;
 use tree_sitter_highlight::Highlighter;
 
 #[derive(Clone, Debug)]
 pub struct HtmlInline<'a> {
     source: &'a str,
     lang: Language,
-    theme: Option<&'a Theme>,
-    pre_class: Option<&'a str>,
-    italic: bool,
-    include_highlights: bool,
+    options: FormatterOption<'a>,
 }
 
 impl<'a> HtmlInline<'a> {
-    pub fn new(
-        source: &'a str,
-        lang: Language,
-        theme: Option<&'a Theme>,
-        pre_class: Option<&'a str>,
-        italic: bool,
-        include_highlights: bool,
-    ) -> Self {
+    pub fn new(source: &'a str, lang: Language, options: FormatterOption<'a>) -> Self {
         Self {
             source,
             lang,
-            theme,
-            pre_class,
-            italic,
-            include_highlights,
+            options,
         }
     }
 
@@ -44,23 +31,8 @@ impl<'a> HtmlInline<'a> {
         self
     }
 
-    pub fn with_theme(mut self, theme: Option<&'a Theme>) -> Self {
-        self.theme = theme;
-        self
-    }
-
-    pub fn with_pre_class(mut self, pre_class: Option<&'a str>) -> Self {
-        self.pre_class = pre_class;
-        self
-    }
-
-    pub fn with_italic(mut self, italic: bool) -> Self {
-        self.italic = italic;
-        self
-    }
-
-    pub fn with_include_highlights(mut self, include_highlights: bool) -> Self {
-        self.include_highlights = include_highlights;
+    pub fn with_options(mut self, options: FormatterOption<'a>) -> Self {
+        self.options = options;
         self
     }
 }
@@ -70,17 +42,26 @@ impl Default for HtmlInline<'_> {
         Self {
             source: "",
             lang: Language::PlainText,
-            theme: None,
-            pre_class: None,
-            italic: false,
-            include_highlights: false,
+            options: FormatterOption::HtmlInline {
+                pre_class: None,
+                italic: false,
+                include_highlights: false,
+                theme: None,
+            },
         }
     }
 }
 
 impl HtmlFormatter for HtmlInline<'_> {
-    fn pre_tag(&self) -> String {
-        let class = if let Some(pre_class) = self.pre_class {
+    fn open_pre_tag(&self) -> String {
+        let (pre_class, theme) = match &self.options {
+            FormatterOption::HtmlInline {
+                pre_class, theme, ..
+            } => (pre_class, theme),
+            _ => (&None, &None),
+        };
+
+        let class = if let Some(pre_class) = pre_class {
             format!("athl {}", pre_class)
         } else {
             "athl".to_string()
@@ -89,16 +70,14 @@ impl HtmlFormatter for HtmlInline<'_> {
         format!(
             "<pre class=\"{}\"{}>",
             class,
-            &self
-                .theme
-                .as_ref()
+            theme
                 .and_then(|theme| theme.pre_style(" "))
                 .map(|pre_style| format!(" style=\"{}\"", pre_style))
                 .unwrap_or_default(),
         )
     }
 
-    fn code_tag(&self) -> String {
+    fn open_code_tag(&self) -> String {
         format!(
             "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             self.lang.id_name()
@@ -124,18 +103,28 @@ impl Formatter for HtmlInline<'_> {
 
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
-        let (highlight_attr, include_highlights) = if self.include_highlights {
-            (" data-highlight=\"", true)
-        } else {
-            ("", false)
+        let (highlight_attr, include_highlights, theme, italic) = match &self.options {
+            FormatterOption::HtmlInline {
+                include_highlights,
+                theme,
+                italic,
+                ..
+            } => (
+                if *include_highlights {
+                    " data-highlight=\""
+                } else {
+                    ""
+                },
+                *include_highlights,
+                theme,
+                *italic,
+            ),
+            _ => ("", false, &None, false),
         };
-
-        let theme = self.theme;
-        let italic = self.italic;
 
         renderer
             .render(events, self.source.as_bytes(), &move |highlight, output| {
-                let scope = HIGHLIGHT_NAMES[highlight.0];
+                let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
 
                 if include_highlights {
                     output.extend(highlight_attr.as_bytes());
@@ -177,7 +166,7 @@ mod tests {
     #[test]
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
-        let pre_tag = formatter.pre_tag();
+        let pre_tag = formatter.open_pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
@@ -187,12 +176,14 @@ mod tests {
         let formatter = HtmlInline::new(
             "",
             Language::PlainText,
-            None,
-            Some("test-pre-class"),
-            false,
-            false,
+            FormatterOption::HtmlInline {
+                pre_class: Some("test-pre-class"),
+                italic: false,
+                include_highlights: false,
+                theme: None,
+            },
         );
-        let pre_tag = formatter.pre_tag();
+        let pre_tag = formatter.open_pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
@@ -203,12 +194,14 @@ mod tests {
         let formatter = HtmlInline::new(
             "",
             Language::PlainText,
-            Some(theme),
-            Some("test-pre-class"),
-            false,
-            false,
+            FormatterOption::HtmlInline {
+                pre_class: Some("test-pre-class"),
+                italic: false,
+                include_highlights: false,
+                theme: Some(theme),
+            },
         );
-        let pre_tag = formatter.pre_tag();
+        let pre_tag = formatter.open_pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }
@@ -218,13 +211,15 @@ mod tests {
         let theme = themes::get("github_light").unwrap();
         let formatter = HtmlInline::default()
             .with_lang(Language::Rust)
-            .with_theme(Some(theme))
-            .with_pre_class(Some("test-class"))
-            .with_italic(true)
-            .with_include_highlights(true);
+            .with_options(FormatterOption::HtmlInline {
+                pre_class: Some("test-class"),
+                italic: true,
+                include_highlights: true,
+                theme: Some(theme),
+            });
 
-        let pre_tag = formatter.pre_tag();
-        let code_tag = formatter.code_tag();
+        let pre_tag = formatter.open_pre_tag();
+        let code_tag = formatter.open_code_tag();
 
         assert!(pre_tag.contains(
             "<pre class=\"athl test-class\" style=\"color: #1f2328; background-color: #ffffff;\">"

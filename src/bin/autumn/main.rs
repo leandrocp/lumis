@@ -214,9 +214,8 @@ fn print_cursor(src: &str, cursor: &mut tree_sitter::TreeCursor, depth: usize) {
 /// * `formatter` - Output format (terminal, html-inline, html-linked)
 /// * `theme` - Theme name to use for highlighting
 fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) -> Result<()> {
-    let theme_name = theme.unwrap_or("catppuccin_frappe".to_string());
-    let theme = autumnus::themes::get(&theme_name)
-        .map_err(|e| anyhow::anyhow!("Failed to load theme '{}': {}", theme_name, e))?;
+    let theme = theme.unwrap_or("catppuccin_frappe".to_string());
+    let theme = autumnus::themes::get(&theme).ok();
 
     let bytes = read_or_die(Path::new(&path));
     let source = std::str::from_utf8(&bytes)
@@ -228,8 +227,12 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 source,
                 autumnus::Options {
                     lang_or_file: Some(path),
-                    formatter: FormatterOption::default(),
-                    theme: Some(theme),
+                    formatter: FormatterOption::HtmlInline {
+                        pre_class: None,
+                        italic: false,
+                        include_highlights: false,
+                        theme,
+                    },
                 },
             );
 
@@ -242,7 +245,6 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 autumnus::Options {
                     lang_or_file: Some(path),
                     formatter: FormatterOption::HtmlLinked { pre_class: None },
-                    theme: Some(theme),
                 },
             );
 
@@ -254,8 +256,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 source,
                 autumnus::Options {
                     lang_or_file: Some(path),
-                    formatter: FormatterOption::Terminal,
-                    theme: Some(theme),
+                    formatter: FormatterOption::Terminal { theme },
                 },
             );
 
@@ -374,8 +375,12 @@ fn highlight_source(
                 source,
                 autumnus::Options {
                     lang_or_file: language,
-                    formatter: FormatterOption::default(),
-                    theme,
+                    formatter: FormatterOption::HtmlInline {
+                        pre_class: None,
+                        italic: false,
+                        include_highlights: false,
+                        theme,
+                    },
                 },
             );
 
@@ -388,7 +393,6 @@ fn highlight_source(
                 autumnus::Options {
                     lang_or_file: language,
                     formatter: FormatterOption::HtmlLinked { pre_class: None },
-                    theme,
                 },
             );
 
@@ -400,8 +404,7 @@ fn highlight_source(
                 source,
                 autumnus::Options {
                     lang_or_file: language,
-                    formatter: FormatterOption::Terminal,
-                    theme,
+                    formatter: FormatterOption::Terminal { theme },
                 },
             );
 
