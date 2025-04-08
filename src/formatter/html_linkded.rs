@@ -14,11 +14,7 @@ pub struct HtmlLinked<'a> {
 }
 
 impl<'a> HtmlLinked<'a> {
-    pub fn new(
-        source: &'a str,
-        lang: Language,
-        options: FormatterOption<'a>,
-    ) -> Self {
+    pub fn new(source: &'a str, lang: Language, options: FormatterOption<'a>) -> Self {
         Self {
             source,
             lang,
@@ -47,10 +43,7 @@ impl Default for HtmlLinked<'_> {
         Self {
             source: "",
             lang: Language::PlainText,
-            options: FormatterOption::HtmlLinked {
-                pre_class: None,
-                theme: None,
-            },
+            options: FormatterOption::HtmlLinked { pre_class: None },
         }
     }
 }
@@ -137,7 +130,6 @@ mod tests {
             Language::PlainText,
             FormatterOption::HtmlLinked {
                 pre_class: Some("test-pre-class"),
-                theme: None,
             },
         );
         let pre_tag = formatter.open_pre_tag();
@@ -150,10 +142,7 @@ mod tests {
         let formatter = HtmlLinked::new(
             "",
             Language::Rust,
-            FormatterOption::HtmlLinked {
-                pre_class: None,
-                theme: None,
-            },
+            FormatterOption::HtmlLinked { pre_class: None },
         );
         let code_tag = formatter.open_code_tag();
 
@@ -166,7 +155,6 @@ mod tests {
             .with_lang(Language::Rust)
             .with_options(FormatterOption::HtmlLinked {
                 pre_class: Some("test-class"),
-                theme: None,
             });
 
         let pre_tag = formatter.open_pre_tag();

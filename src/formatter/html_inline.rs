@@ -13,11 +13,7 @@ pub struct HtmlInline<'a> {
 }
 
 impl<'a> HtmlInline<'a> {
-    pub fn new(
-        source: &'a str,
-        lang: Language,
-        options: FormatterOption<'a>,
-    ) -> Self {
+    pub fn new(source: &'a str, lang: Language, options: FormatterOption<'a>) -> Self {
         Self {
             source,
             lang,
@@ -59,7 +55,9 @@ impl Default for HtmlInline<'_> {
 impl HtmlFormatter for HtmlInline<'_> {
     fn open_pre_tag(&self) -> String {
         let (pre_class, theme) = match &self.options {
-            FormatterOption::HtmlInline { pre_class, theme, .. } => (pre_class, theme),
+            FormatterOption::HtmlInline {
+                pre_class, theme, ..
+            } => (pre_class, theme),
             _ => (&None, &None),
         };
 
@@ -112,7 +110,11 @@ impl Formatter for HtmlInline<'_> {
                 italic,
                 ..
             } => (
-                if *include_highlights { " data-highlight=\"" } else { "" },
+                if *include_highlights {
+                    " data-highlight=\""
+                } else {
+                    ""
+                },
                 *include_highlights,
                 theme,
                 *italic,

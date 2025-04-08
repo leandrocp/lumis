@@ -244,10 +244,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 source,
                 autumnus::Options {
                     lang_or_file: Some(path),
-                    formatter: FormatterOption::HtmlLinked {
-                        pre_class: None,
-                        theme,
-                    },
+                    formatter: FormatterOption::HtmlLinked { pre_class: None },
                 },
             );
 
@@ -395,10 +392,7 @@ fn highlight_source(
                 source,
                 autumnus::Options {
                     lang_or_file: language,
-                    formatter: FormatterOption::HtmlLinked {
-                        pre_class: None,
-                        theme,
-                    },
+                    formatter: FormatterOption::HtmlLinked { pre_class: None },
                 },
             );
 

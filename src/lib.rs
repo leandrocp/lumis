@@ -304,8 +304,6 @@ pub enum FormatterOption<'a> {
     /// <link rel="stylesheet" href="css/dracula.css">
     /// ```
     HtmlLinked {
-        /// Theme to use for highlighting.
-        theme: Option<&'a Theme>,
         /// Class to add to the `<pre>` tag.
         pre_class: Option<&'a str>,
     },
@@ -462,7 +460,6 @@ impl Default for Options<'_> {
 ///         lang_or_file: Some("rust"),
 ///         formatter: FormatterOption::HtmlLinked {
 ///             pre_class: Some("my-code-block"),
-///             theme: None,
 ///         },
 ///     }
 /// );
@@ -652,10 +649,7 @@ end
             code,
             Options {
                 lang_or_file: Some("elixir"),
-                formatter: FormatterOption::HtmlLinked {
-                    pre_class: None,
-                    theme: themes::get("catppuccin_frappe").ok(),
-                },
+                formatter: FormatterOption::HtmlLinked { pre_class: None },
             },
         );
 
@@ -671,10 +665,7 @@ end
             "{:ok, char: '{'}",
             Options {
                 lang_or_file: Some("elixir"),
-                formatter: FormatterOption::HtmlLinked {
-                    pre_class: None,
-                    theme: themes::get("catppuccin_frappe").ok(),
-                },
+                formatter: FormatterOption::HtmlLinked { pre_class: None },
             },
         );
 
