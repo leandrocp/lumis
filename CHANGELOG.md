@@ -1,20 +1,12 @@
 # Changelog
 
-## [0.1.12] - 2025-04-09
+## Unreleased
 
 ### Changed
-- Moved `theme` field from `Options` to `FormatterOption` enum variants
-- Updated documentation and examples to reflect the new theme location
+- Exposed `open_pre_tag`, `open_code_tag`, and `closing_tags` in `HtmlFormatter` trait
 
 ### Breaking Changes
-- Removed `theme` field from `Options` struct
-- Added `theme` field to all `FormatterOption` variants (`HtmlInline`, `HtmlLinked`, `Terminal`)
-
-## [0.1.11] - 2025-04-08
-
-### Changed
-- Renamed `pre_tag` to `open_pre_tag` in `HtmlFormatter` trait
-- Renamed `code_tag` to `open_code_tag` in `HtmlFormatter` trait
+- Moved `theme` field from `Options` to `FormatterOption` enum variants
 
 ## [0.1.10] - 2025-04-07
 
