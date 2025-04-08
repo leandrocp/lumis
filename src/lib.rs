@@ -31,10 +31,10 @@
 //!     Options {
 //!         lang_or_file: Some("sql"),
 //!         formatter: FormatterOption::HtmlInline {
+//!             theme: themes::get("dracula").ok(),
 //!             pre_class: None,
 //!             italic: false,
 //!             include_highlights: false,
-//!             theme: themes::get("dracula").ok(),
 //!         },
 //!     }
 //! );
@@ -77,7 +77,7 @@
 //! Terminal output with ANSI colors:
 //!
 //! ```rust
-//! use autumnus::{highlight, Options, FormatterOption};
+//! use autumnus::{highlight, Options, themes, FormatterOption};
 //!
 //! let code = "puts 'Hello from Ruby!'";
 //! let ansi = highlight(
@@ -85,7 +85,7 @@
 //!     Options {
 //!         lang_or_file: Some("ruby"),
 //!         formatter: FormatterOption::Terminal {
-//!             theme: None,
+//!             theme: themes::get("github_light").ok(),
 //!         },
 //!     }
 //! );

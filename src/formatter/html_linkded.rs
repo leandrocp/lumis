@@ -50,12 +50,8 @@ impl Default for HtmlLinked<'_> {
 
 impl HtmlFormatter for HtmlLinked<'_> {
     fn open_pre_tag(&self) -> String {
-        let class = if let FormatterOption::HtmlLinked { pre_class, .. } = &self.options {
-            if let Some(pre_class) = pre_class {
-                format!("athl {}", pre_class)
-            } else {
-                "athl".to_string()
-            }
+        let class = if let FormatterOption::HtmlLinked { pre_class: Some(pre_class), .. } = &self.options {
+            format!("athl {}", pre_class)
         } else {
             "athl".to_string()
         };
