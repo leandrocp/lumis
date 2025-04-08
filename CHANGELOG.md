@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.11] - 2025-04-08
+
+### Changed
+- Renamed `pre_tag` to `open_pre_tag` in `HtmlFormatter` trait
+- Renamed `code_tag` to `open_code_tag` in `HtmlFormatter` trait
+
 ## [0.1.10] - 2025-04-07
 
 ### Changed

@@ -48,7 +48,7 @@ impl Default for HtmlLinked<'_> {
 }
 
 impl HtmlFormatter for HtmlLinked<'_> {
-    fn pre_tag(&self) -> String {
+    fn open_pre_tag(&self) -> String {
         let class = if let Some(pre_class) = self.pre_class {
             format!("athl {}", pre_class)
         } else {
@@ -58,7 +58,7 @@ impl HtmlFormatter for HtmlLinked<'_> {
         format!("<pre class=\"{}\">", class)
     }
 
-    fn code_tag(&self) -> String {
+    fn open_code_tag(&self) -> String {
         format!(
             "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
             self.lang.id_name()
@@ -113,7 +113,7 @@ mod tests {
     #[test]
     fn test_default_pre_tag() {
         let formatter = HtmlLinked::default();
-        let pre_tag = formatter.pre_tag();
+        let pre_tag = formatter.open_pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn test_include_pre_class() {
         let formatter = HtmlLinked::new("", Language::PlainText, Some("test-pre-class"));
-        let pre_tag = formatter.pre_tag();
+        let pre_tag = formatter.open_pre_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
@@ -129,7 +129,7 @@ mod tests {
     #[test]
     fn test_code_tag_with_language() {
         let formatter = HtmlLinked::new("", Language::Rust, None);
-        let code_tag = formatter.code_tag();
+        let code_tag = formatter.open_code_tag();
 
         assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
     }
@@ -140,8 +140,8 @@ mod tests {
             .with_lang(Language::Rust)
             .with_pre_class(Some("test-class"));
 
-        let pre_tag = formatter.pre_tag();
-        let code_tag = formatter.code_tag();
+        let pre_tag = formatter.open_pre_tag();
+        let code_tag = formatter.open_code_tag();
 
         assert!(pre_tag.contains("<pre class=\"athl test-class\">"));
         assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));

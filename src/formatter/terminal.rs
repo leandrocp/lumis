@@ -25,6 +25,21 @@ impl<'a> Terminal<'a> {
             theme,
         }
     }
+
+    pub fn with_source(mut self, source: &'a str) -> Self {
+        self.source = source;
+        self
+    }
+
+    pub fn with_lang(mut self, lang: Language) -> Self {
+        self.lang = lang;
+        self
+    }
+
+    pub fn with_theme(mut self, theme: Option<&'a Theme>) -> Self {
+        self.theme = theme;
+        self
+    }
 }
 
 impl Default for Terminal<'_> {

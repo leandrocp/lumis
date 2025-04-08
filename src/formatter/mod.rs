@@ -38,15 +38,15 @@ where
         } => {
             let formatter =
                 HtmlInline::new(source, lang, theme, pre_class, italic, include_highlights);
-            write!(writer, "{}", formatter.pre_tag())?;
-            write!(writer, "{}", formatter.code_tag())?;
+            write!(writer, "{}", formatter.open_pre_tag())?;
+            write!(writer, "{}", formatter.open_code_tag())?;
             write!(writer, "{}", formatter.highlights())?;
             write!(writer, "{}", formatter.closing_tags())?;
         }
         FormatterOption::HtmlLinked { pre_class } => {
             let formatter = HtmlLinked::new(source, lang, pre_class);
-            write!(writer, "{}", formatter.pre_tag())?;
-            write!(writer, "{}", formatter.code_tag())?;
+            write!(writer, "{}", formatter.open_pre_tag())?;
+            write!(writer, "{}", formatter.open_code_tag())?;
             write!(writer, "{}", formatter.highlights())?;
             write!(writer, "{}", formatter.closing_tags())?;
         }
