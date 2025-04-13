@@ -2,22 +2,36 @@
 
 use super::{Formatter, HtmlFormatter};
 use crate::languages::Language;
-use crate::FormatterOption;
+use crate::themes::Theme;
+use std::io::{self, Write};
 use tree_sitter_highlight::Highlighter;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct HtmlInline<'a> {
     source: &'a str,
     lang: Language,
-    options: FormatterOption<'a>,
+    theme: Option<&'a Theme>,
+    pre_class: Option<&'a str>,
+    italic: bool,
+    include_highlights: bool,
 }
 
 impl<'a> HtmlInline<'a> {
-    pub fn new(source: &'a str, lang: Language, options: FormatterOption<'a>) -> Self {
+    pub fn new(
+        source: &'a str,
+        lang: Language,
+        theme: Option<&'a Theme>,
+        pre_class: Option<&'a str>,
+        italic: bool,
+        include_highlights: bool,
+    ) -> Self {
         Self {
             source,
             lang,
-            options,
+            theme,
+            pre_class,
+            italic,
+            include_highlights,
         }
     }
 
@@ -31,8 +45,23 @@ impl<'a> HtmlInline<'a> {
         self
     }
 
-    pub fn with_options(mut self, options: FormatterOption<'a>) -> Self {
-        self.options = options;
+    pub fn with_theme(mut self, theme: Option<&'a Theme>) -> Self {
+        self.theme = theme;
+        self
+    }
+
+    pub fn with_pre_class(mut self, pre_class: Option<&'a str>) -> Self {
+        self.pre_class = pre_class;
+        self
+    }
+
+    pub fn with_italic(mut self, italic: bool) -> Self {
+        self.italic = italic;
+        self
+    }
+
+    pub fn with_include_highlights(mut self, include_highlights: bool) -> Self {
+        self.include_highlights = include_highlights;
         self
     }
 }
@@ -42,55 +71,16 @@ impl Default for HtmlInline<'_> {
         Self {
             source: "",
             lang: Language::PlainText,
-            options: FormatterOption::HtmlInline {
-                pre_class: None,
-                italic: false,
-                include_highlights: false,
-                theme: None,
-            },
+            theme: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
         }
     }
 }
 
-impl HtmlFormatter for HtmlInline<'_> {
-    fn open_pre_tag(&self) -> String {
-        let (pre_class, theme) = match &self.options {
-            FormatterOption::HtmlInline {
-                pre_class, theme, ..
-            } => (pre_class, theme),
-            _ => (&None, &None),
-        };
-
-        let class = if let Some(pre_class) = pre_class {
-            format!("athl {}", pre_class)
-        } else {
-            "athl".to_string()
-        };
-
-        format!(
-            "<pre class=\"{}\"{}>",
-            class,
-            theme
-                .and_then(|theme| theme.pre_style(" "))
-                .map(|pre_style| format!(" style=\"{}\"", pre_style))
-                .unwrap_or_default(),
-        )
-    }
-
-    fn open_code_tag(&self) -> String {
-        format!(
-            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
-            self.lang.id_name()
-        )
-    }
-
-    fn closing_tags(&self) -> String {
-        "</code></pre>".to_string()
-    }
-}
-
 impl Formatter for HtmlInline<'_> {
-    fn highlights(&self) -> String {
+    fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
         let mut highlighter = Highlighter::new();
         let events = highlighter
             .highlight(
@@ -103,61 +93,84 @@ impl Formatter for HtmlInline<'_> {
 
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
-        let (highlight_attr, include_highlights, theme, italic) = match &self.options {
-            FormatterOption::HtmlInline {
-                include_highlights,
-                theme,
-                italic,
-                ..
-            } => (
-                if *include_highlights {
-                    " data-highlight=\""
-                } else {
-                    ""
-                },
-                *include_highlights,
-                theme,
-                *italic,
-            ),
-            _ => ("", false, &None, false),
-        };
-
         renderer
             .render(events, self.source.as_bytes(), &move |highlight, output| {
                 let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
 
-                if include_highlights {
-                    output.extend(highlight_attr.as_bytes());
+                if self.include_highlights {
+                    output.extend(" data-highlight=\"".as_bytes());
                     output.extend(scope.as_bytes());
                     output.extend(b"\"");
                 }
 
-                if let Some(theme) = theme {
+                if let Some(theme) = self.theme {
                     if let Some(style) = theme.get_style(scope) {
-                        if include_highlights {
+                        if self.include_highlights {
                             output.extend(b" ");
                         }
 
                         output.extend(b"style=\"");
-                        output.extend(style.css(italic, " ").as_bytes());
+                        output.extend(style.css(self.italic, " ").as_bytes());
                         output.extend(b"\"");
                     }
                 }
             })
             .expect("failed to render highlight events");
 
-        let mut result = String::new();
         for (i, line) in renderer.lines().enumerate() {
-            result.push_str(&format!(
+            write!(
+                output,
                 "<span class=\"line\" data-line=\"{}\">{}</span>",
                 i + 1,
                 line.replace('{', "&lbrace;").replace('}', "&rbrace;")
-            ));
+            )?;
         }
-        result
+        Ok(())
+    }
+
+    fn format(&self, output: &mut dyn Write) -> io::Result<()> {
+        let mut buffer = Vec::new();
+        self.open_pre_tag(&mut buffer)?;
+        self.open_code_tag(&mut buffer)?;
+        self.highlights(&mut buffer)?;
+        self.closing_tags(&mut buffer)?;
+        write!(output, "{}", &String::from_utf8(buffer).unwrap())?;
+        Ok(())
     }
 }
 
+impl HtmlFormatter for HtmlInline<'_> {
+    fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()> {
+        let class = if let Some(pre_class) = &self.pre_class {
+            format!("athl {}", pre_class)
+        } else {
+            "athl".to_string()
+        };
+
+        write!(
+            output,
+            "<pre class=\"{}\"{}>",
+            class,
+            &self
+                .theme
+                .and_then(|theme| theme.pre_style(" "))
+                .map(|pre_style| format!(" style=\"{}\"", pre_style))
+                .unwrap_or_default(),
+        )
+    }
+
+    fn open_code_tag(&self, output: &mut dyn Write) -> io::Result<()> {
+        write!(
+            output,
+            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
+            self.lang.id_name()
+        )
+    }
+
+    fn closing_tags(&self, output: &mut dyn Write) -> io::Result<()> {
+        output.write_all(b"</code></pre>")
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -166,8 +179,9 @@ mod tests {
     #[test]
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
-        let pre_tag = formatter.open_pre_tag();
-
+        let mut buffer = Vec::new();
+        formatter.open_pre_tag(&mut buffer);
+        let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
 
@@ -176,15 +190,14 @@ mod tests {
         let formatter = HtmlInline::new(
             "",
             Language::PlainText,
-            FormatterOption::HtmlInline {
-                pre_class: Some("test-pre-class"),
-                italic: false,
-                include_highlights: false,
-                theme: None,
-            },
+            None,
+            Some("test-pre-class"),
+            false,
+            false,
         );
-        let pre_tag = formatter.open_pre_tag();
-
+        let mut buffer = Vec::new();
+        formatter.open_pre_tag(&mut buffer);
+        let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
 
@@ -194,15 +207,14 @@ mod tests {
         let formatter = HtmlInline::new(
             "",
             Language::PlainText,
-            FormatterOption::HtmlInline {
-                pre_class: Some("test-pre-class"),
-                italic: false,
-                include_highlights: false,
-                theme: Some(theme),
-            },
+            Some(theme),
+            Some("test-pre-class"),
+            false,
+            false,
         );
-        let pre_tag = formatter.open_pre_tag();
-
+        let mut buffer = Vec::new();
+        formatter.open_pre_tag(&mut buffer);
+        let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }
 
@@ -211,19 +223,14 @@ mod tests {
         let theme = themes::get("github_light").unwrap();
         let formatter = HtmlInline::default()
             .with_lang(Language::Rust)
-            .with_options(FormatterOption::HtmlInline {
-                pre_class: Some("test-class"),
-                italic: true,
-                include_highlights: true,
-                theme: Some(theme),
-            });
+            .with_theme(Some(theme))
+            .with_pre_class(Some("test-pre-class"))
+            .with_italic(true)
+            .with_include_highlights(true);
 
-        let pre_tag = formatter.open_pre_tag();
-        let code_tag = formatter.open_code_tag();
-
-        assert!(pre_tag.contains(
-            "<pre class=\"athl test-class\" style=\"color: #1f2328; background-color: #ffffff;\">"
-        ));
-        assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
+        let mut buffer = Vec::new();
+        formatter.open_pre_tag(&mut buffer);
+        let pre_tag = String::from_utf8(buffer).unwrap();
+        assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }
 }

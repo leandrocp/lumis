@@ -1,28 +1,24 @@
 #![allow(unused_must_use)]
 
 use super::Formatter;
-use crate::languages::Language;
-use crate::FormatterOption;
-use std::cell::RefCell;
-use std::io::Write;
-use termcolor::{ColorSpec, WriteColor};
+use crate::{languages::Language, themes::Theme};
+use std::io::{self, Write};
+use termcolor::{BufferWriter, ColorChoice, ColorSpec, WriteColor};
 use tree_sitter_highlight::{HighlightEvent, Highlighter};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Terminal<'a> {
-    buffer: RefCell<termcolor::Buffer>,
     source: &'a str,
     lang: Language,
-    options: FormatterOption<'a>,
+    theme: Option<&'a Theme>,
 }
 
 impl<'a> Terminal<'a> {
-    pub fn new(source: &'a str, lang: Language, options: FormatterOption<'a>) -> Self {
+    pub fn new(source: &'a str, lang: Language, theme: Option<&'a Theme>) -> Self {
         Self {
-            buffer: RefCell::new(termcolor::Buffer::ansi()),
             source,
             lang,
-            options,
+            theme,
         }
     }
 
@@ -36,8 +32,8 @@ impl<'a> Terminal<'a> {
         self
     }
 
-    pub fn with_options(mut self, options: FormatterOption<'a>) -> Self {
-        self.options = options;
+    pub fn with_theme(mut self, theme: Option<&'a Theme>) -> Self {
+        self.theme = theme;
         self
     }
 }
@@ -45,16 +41,15 @@ impl<'a> Terminal<'a> {
 impl Default for Terminal<'_> {
     fn default() -> Self {
         Self {
-            buffer: RefCell::new(termcolor::Buffer::ansi()),
             source: "",
             lang: Language::PlainText,
-            options: FormatterOption::Terminal { theme: None },
+            theme: None,
         }
     }
 }
 
 impl Formatter for Terminal<'_> {
-    fn highlights(&self) -> String {
+    fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
         let mut highlighter = Highlighter::new();
         let events = highlighter
             .highlight(
@@ -65,6 +60,9 @@ impl Formatter for Terminal<'_> {
             )
             .expect("failed to generate highlight events");
 
+        let writer = BufferWriter::stdout(ColorChoice::Always);
+        let mut buffer = writer.buffer();
+
         for event in events {
             let event = event.expect("failed to get highlight event");
 
@@ -72,39 +70,40 @@ impl Formatter for Terminal<'_> {
                 HighlightEvent::HighlightStart(idx) => {
                     let scope = crate::constants::HIGHLIGHT_NAMES[idx.0];
 
-                    let hex: &str = if let FormatterOption::Terminal { theme } = &self.options {
-                        theme
-                            .as_ref()
-                            .and_then(|theme| theme.get_style(scope))
-                            .and_then(|style| style.fg.as_deref())
-                            // not completely blank so it's still visible in light terminals
-                            .unwrap_or("#eeeeee")
-                    } else {
-                        "#eeeeee"
-                    }
-                    .trim_start_matches('#');
+                    let hex = &self
+                        .theme
+                        .and_then(|theme| theme.get_style(scope))
+                        .and_then(|style| style.fg.as_deref())
+                        // not completely blank so it's still visible in light terminals
+                        .unwrap_or("#eeeeee")
+                        .trim_start_matches('#');
 
                     let r = u8::from_str_radix(&hex[0..2], 16).unwrap();
                     let g = u8::from_str_radix(&hex[2..4], 16).unwrap();
                     let b = u8::from_str_radix(&hex[4..6], 16).unwrap();
 
-                    self.buffer
-                        .borrow_mut()
-                        .set_color(ColorSpec::new().set_fg(Some(termcolor::Color::Rgb(r, g, b))));
+                    buffer
+                        .set_color(ColorSpec::new().set_fg(Some(termcolor::Color::Rgb(r, g, b))))?;
                 }
                 HighlightEvent::Source { start, end } => {
                     let text = self
                         .source
                         .get(start..end)
                         .expect("failed to get source bounds");
-                    self.buffer.borrow_mut().write_all(text.as_bytes());
+
+                    write!(buffer, "{}", text)?;
                 }
                 HighlightEvent::HighlightEnd => {
-                    self.buffer.borrow_mut().reset();
+                    buffer.reset()?;
                 }
             }
         }
 
-        String::from_utf8(self.buffer.borrow_mut().clone().into_inner()).unwrap()
+        output.write_all(buffer.as_slice())?;
+        Ok(())
+    }
+
+    fn format(&self, output: &mut dyn Write) -> io::Result<()> {
+        self.highlights(output)
     }
 }

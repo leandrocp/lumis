@@ -81,6 +81,7 @@ dependencies = [
  "quote",
  "rayon",
  "regex",
+ "rustler",
  "serde",
  "serde_json",
  "strum",
@@ -138,6 +139,12 @@ checksum = "525046617d8376e3db1deffb079e91cef90a89fc3ca5c185bbf8c9ecdd15cd5c"
 dependencies = [
  "shlex",
 ]
+
+[[package]]
+name = "cfg-if"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clap"
@@ -251,6 +258,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "inventory"
+version = "0.3.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab08d7cd2c5897f2c949e5383ea7c7db03fb19130ffcfbf7eda795137ae3cb83"
+dependencies = [
+ "rustversion",
+]
+
+[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -267,6 +283,16 @@ name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+
+[[package]]
+name = "libloading"
+version = "0.8.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc2f4eb4bc735547cfed7c0a4922cbd04a4655978c09b54f1f7b228750664c34"
+dependencies = [
+ "cfg-if",
+ "windows-targets",
+]
 
 [[package]]
 name = "memchr"
@@ -352,10 +378,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "regex-lite"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53a49587ad06b26609c52e423de037e7f57f20d53535d66e08c695f347df952a"
+
+[[package]]
 name = "regex-syntax"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
+
+[[package]]
+name = "rustler"
+version = "0.36.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f04a7b61bf2db5495d6c0d2eb4b3f0f366864d47f2482834656e25d1b25fe290"
+dependencies = [
+ "inventory",
+ "libloading",
+ "regex-lite",
+ "rustler_codegen",
+]
+
+[[package]]
+name = "rustler_codegen"
+version = "0.36.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf9365a04e3a3a4d3136953d97c67fd0a9c036d36197917961551c2cc1ecb385"
+dependencies = [
+ "heck",
+ "inventory",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "rustversion"

@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.1] - 2025-04-15
+
+### Added
+- Added `elixir` module and feature flag to expose Rustler related code
+
+### Changed
+- Improved API structure and organization
+
+### Breakings Changes
+- [Formatters] Changed `new` function API
+
 ## [0.2.0] - 2025-04-08
 
 ### Changed

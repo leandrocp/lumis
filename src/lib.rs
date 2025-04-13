@@ -275,6 +275,12 @@ pub mod formatter;
 pub mod languages;
 pub mod themes;
 
+#[cfg(feature = "elixir")]
+#[doc(hidden)]
+pub mod elixir;
+
+use formatter::build_formatter;
+
 use crate::languages::Language;
 use crate::themes::Theme;
 
@@ -519,10 +525,10 @@ impl Default for Options<'_> {
 /// ```
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
-    let mut buffer = String::new();
-    formatter::write_formatted(&mut buffer, source, lang, options.formatter)
-        .expect("failed to write formatted code");
-    buffer
+    let formatter = build_formatter(source, lang, options.formatter);
+    let mut buffer = Vec::new();
+    let _ = formatter.format(&mut buffer);
+    String::from_utf8(buffer).unwrap()
 }
 
 #[cfg(test)]
