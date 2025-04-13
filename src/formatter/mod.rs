@@ -1,7 +1,4 @@
-// https://github.com/Colonial-Dev/inkjet/tree/da289fa8b68f11dffad176e4b8fabae8d6ac376d/src/formatter
-
-mod html;
-pub use html::*;
+// Originally based on https://github.com/Colonial-Dev/inkjet/tree/da289fa8b68f11dffad176e4b8fabae8d6ac376d/src/formatter
 
 mod html_inline;
 pub use html_inline::*;
@@ -12,57 +9,13 @@ pub use html_linkded::*;
 mod terminal;
 pub use terminal::*;
 
-use crate::languages::Language;
-use crate::FormatterOption;
-
 pub trait Formatter {
+    fn format<W: std::fmt::Write>(&self, writer: &mut W) -> std::fmt::Result;
     fn highlights(&self) -> String;
 }
 
-pub fn write_formatted<W>(
-    writer: &mut W,
-    source: &str,
-    lang: Language,
-    formatter: FormatterOption,
-) -> std::fmt::Result
-where
-    W: std::fmt::Write,
-{
-    match formatter {
-        FormatterOption::HtmlInline {
-            pre_class,
-            italic,
-            include_highlights,
-            theme,
-        } => {
-            let formatter = HtmlInline::new(
-                source,
-                lang,
-                FormatterOption::HtmlInline {
-                    pre_class,
-                    italic,
-                    include_highlights,
-                    theme,
-                },
-            );
-            write!(writer, "{}", formatter.open_pre_tag())?;
-            write!(writer, "{}", formatter.open_code_tag())?;
-            write!(writer, "{}", formatter.highlights())?;
-            write!(writer, "{}", formatter.closing_tags())?;
-        }
-        FormatterOption::HtmlLinked { pre_class } => {
-            let formatter =
-                HtmlLinked::new(source, lang, FormatterOption::HtmlLinked { pre_class });
-            write!(writer, "{}", formatter.open_pre_tag())?;
-            write!(writer, "{}", formatter.open_code_tag())?;
-            write!(writer, "{}", formatter.highlights())?;
-            write!(writer, "{}", formatter.closing_tags())?;
-        }
-        FormatterOption::Terminal { theme } => {
-            let formatter = Terminal::new(source, lang, FormatterOption::Terminal { theme });
-            write!(writer, "{}", formatter.highlights())?;
-        }
-    }
-
-    Ok(())
+pub trait HtmlFormatter: Formatter {
+    fn open_pre_tag(&self) -> String;
+    fn open_code_tag(&self) -> String;
+    fn closing_tags(&self) -> String;
 }

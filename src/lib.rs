@@ -104,7 +104,7 @@
 //! | CSS | *.css |
 //! | CSV | *.csv |
 //! | C# | *.cs |
-//! | Clojure | *.bb, *.boot, *.clj, *.cljc, *.clje, *.cljs, *.cljx, *.edn, *.joke, *.joker |
+//! | Clojure | *.bb, *.boot, *.clj, *.cljc, *.clje, *.cljs, *.cljx, *.end, *.joke, *.joker |
 //! | Comment | |
 //! | Common Lisp | *.lisp, *.lsp, *.asd |
 //! | Diff | *.diff |
@@ -274,6 +274,8 @@ pub mod constants;
 pub mod formatter;
 pub mod languages;
 pub mod themes;
+
+use formatter::{Formatter, HtmlInline, HtmlLinked, Terminal};
 
 use crate::languages::Language;
 use crate::themes::Theme;
@@ -520,9 +522,27 @@ impl Default for Options<'_> {
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
     let mut buffer = String::new();
-    formatter::write_formatted(&mut buffer, source, lang, options.formatter)
-        .expect("failed to write formatted code");
-    buffer
+
+    match options.formatter {
+        FormatterOption::HtmlInline {
+            theme,
+            pre_class,
+            italic,
+            include_highlights,
+        } => {
+            let _ = HtmlInline::new(source, lang, theme, pre_class, italic, include_highlights)
+                .format(&mut buffer);
+            buffer
+        }
+        FormatterOption::HtmlLinked { pre_class } => {
+            let _ = HtmlLinked::new(source, lang, pre_class).format(&mut buffer);
+            buffer
+        }
+        FormatterOption::Terminal { theme } => {
+            let _ = Terminal::new(source, lang, theme).format(&mut buffer);
+            buffer
+        }
+    }
 }
 
 #[cfg(test)]
