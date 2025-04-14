@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Added `nix` language by @kivikakk
+
 ## [0.2.0] - 2025-04-08
 
 ### Changed
