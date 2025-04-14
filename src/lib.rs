@@ -275,7 +275,7 @@ pub mod formatter;
 pub mod languages;
 pub mod themes;
 
-use formatter::{Formatter, HtmlInline, HtmlLinked, Terminal};
+use formatter::{Formatter, HtmlInline, HtmlLinked, HtmlUnstyled, Terminal};
 
 use crate::languages::Language;
 use crate::themes::Theme;
@@ -306,6 +306,12 @@ pub enum FormatterOption<'a> {
     /// <link rel="stylesheet" href="css/dracula.css">
     /// ```
     HtmlLinked {
+        /// Class to add to the `<pre>` tag.
+        pre_class: Option<&'a str>,
+    },
+    ///
+    /// HTML output with no style (no class and no style attr).
+    HtmlUnstyled {
         /// Class to add to the `<pre>` tag.
         pre_class: Option<&'a str>,
     },
@@ -536,6 +542,10 @@ pub fn highlight(source: &str, options: Options) -> String {
         }
         FormatterOption::HtmlLinked { pre_class } => {
             let _ = HtmlLinked::new(source, lang, pre_class).format(&mut buffer);
+            buffer
+        }
+        FormatterOption::HtmlUnstyled { pre_class } => {
+            let _ = HtmlUnstyled::new(source, lang, pre_class).format(&mut buffer);
             buffer
         }
         FormatterOption::Terminal { theme } => {

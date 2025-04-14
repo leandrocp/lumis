@@ -6,6 +6,9 @@ pub use html_inline::*;
 mod html_linkded;
 pub use html_linkded::*;
 
+mod html_unstyled;
+pub use html_unstyled::*;
+
 mod terminal;
 pub use terminal::*;
 
