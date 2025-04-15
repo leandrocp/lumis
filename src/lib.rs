@@ -275,6 +275,9 @@ pub mod formatter;
 pub mod languages;
 pub mod themes;
 
+#[cfg(feature = "elixir")]
+pub mod elixir;
+
 use formatter::{Formatter, HtmlInline, HtmlLinked,  Terminal};
 
 use crate::languages::Language;
