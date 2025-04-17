@@ -4,6 +4,7 @@
 
 ### Added
 - Added `nix` language by @kivikakk
+- Added `write_highlight` to write highlighted code into a Write
 - Added `elixir` module and feature flag to expose Rustler related code
 
 ### Changed
