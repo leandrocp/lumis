@@ -82,6 +82,7 @@ pub enum Language {
     Make,
     Markdown,
     MarkdownInline,
+    Nix,
     OCaml,
     OCamlInterface,
     ObjC,
@@ -162,6 +163,7 @@ impl Language {
             "make" => Some(Language::Make),
             "markdown" => Some(Language::Markdown),
             "markdown_inline" => Some(Language::MarkdownInline),
+            "nix" => Some(Language::Nix),
             "php" => Some(Language::Php),
             "powershell" => Some(Language::PowerShell),
             "protobuf" => Some(Language::ProtoBuf),
@@ -424,6 +426,7 @@ impl Language {
             ],
             Language::Markdown => &["*.md", "README", "LICENSE"],
             Language::MarkdownInline => &[],
+            Language::Nix => &["*.nix"],
             Language::ObjC => &["*.m", "*.objc"],
             Language::OCaml => &["*.ml"],
             Language::OCamlInterface => &["*.mli"],
@@ -536,6 +539,7 @@ impl Language {
                 "java" => Some(Language::Java),
                 "js" | "js2" => Some(Language::JavaScript),
                 "lisp" => Some(Language::CommonLisp),
+                "nix" => Some(Language::Nix),
                 "nxml" => Some(Language::XML),
                 "objc" => Some(Language::ObjC),
                 "perl" => Some(Language::Perl),
@@ -672,6 +676,7 @@ impl Language {
             Language::Make => "Make",
             Language::Markdown => "Markdown",
             Language::MarkdownInline => "Markdown Inline",
+            Language::Nix => "Nix",
             Language::Perl => "Perl",
             Language::Php => "PHP",
             Language::PlainText => "Plain Text",
@@ -749,6 +754,7 @@ impl Language {
             Language::Make => &MAKE_CONFIG,
             Language::Markdown => &MARKDOWN_CONFIG,
             Language::MarkdownInline => &MARKDOWN_INLINE_CONFIG,
+            Language::Nix => &NIX_CONFIG,
             Language::Perl => &PERL_CONFIG,
             Language::Php => &PHP_CONFIG,
             Language::PowerShell => &POWERSHELL_CONFIG,
@@ -1416,6 +1422,19 @@ static MARKDOWN_INLINE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(
         MARKDOWN_INLINE_LOCALS,
     )
     .expect("failed to create markdown highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
+static NIX_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(tree_sitter_nix::LANGUAGE),
+        "nix",
+        NIX_HIGHLIGHTS,
+        NIX_INJECTIONS,
+        NIX_LOCALS,
+    )
+    .expect("failed to create nix configuration");
     config.configure(&HIGHLIGHT_NAMES);
     config
 });

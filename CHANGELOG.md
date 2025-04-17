@@ -1,8 +1,9 @@
 # Changelog
 
-## [0.2.1] - 2025-04-15
+## Unreleased
 
 ### Added
+- Added `nix` language by @kivikakk
 - Added `elixir` module and feature flag to expose Rustler related code
 
 ### Changed
