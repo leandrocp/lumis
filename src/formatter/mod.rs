@@ -82,6 +82,12 @@ impl<'a> FormatterBuilder<'a> {
     }
 }
 
+impl Default for FormatterBuilder<'_> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct HtmlFormatterBuilder<'a> {
     source: Option<&'a str>,
     lang: Option<Language>,
@@ -138,5 +144,11 @@ impl<'a> HtmlFormatterBuilder<'a> {
                 panic!("Terminal formatter does not implement HtmlFormatter trait")
             }
         }
+    }
+}
+
+impl Default for HtmlFormatterBuilder<'_> {
+    fn default() -> Self {
+        Self::new()
     }
 }
