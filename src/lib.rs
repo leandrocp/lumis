@@ -287,7 +287,7 @@ use std::io::{self, Write};
 /// The type of formatter to use for syntax highlighting.
 ///
 /// Defaults to `HtmlInline` with no additional `pre_class`, no italics, and no highlight scope names.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum FormatterOption<'a> {
     /// HTML output with inline styles.
     HtmlInline {
