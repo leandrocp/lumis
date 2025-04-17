@@ -25,71 +25,118 @@ pub trait HtmlFormatter: Formatter {
     fn closing_tags(&self, output: &mut dyn Write) -> io::Result<()>;
 }
 
-pub fn build_formatter<'a>(
-    source: &'a str,
-    lang: Language,
-    options: FormatterOption<'a>,
-) -> Box<dyn Formatter + 'a> {
-    match options {
-        FormatterOption::HtmlInline {
-            theme,
-            pre_class,
-            italic,
-            include_highlights,
-        } => Box::new(HtmlInline::new(
-            source,
-            lang,
-            theme,
-            pre_class,
-            italic,
-            include_highlights,
-        )),
-        FormatterOption::HtmlLinked { pre_class } => {
-            Box::new(HtmlLinked::new(source, lang, pre_class))
+pub struct FormatterBuilder<'a> {
+    source: Option<&'a str>,
+    lang: Option<Language>,
+    formatter: Option<FormatterOption<'a>>,
+}
+
+impl<'a> FormatterBuilder<'a> {
+    pub fn new() -> Self {
+        Self {
+            source: None,
+            lang: None,
+            formatter: None,
         }
-        FormatterOption::Terminal { theme } => Box::new(Terminal::new(source, lang, theme)),
+    }
+
+    pub fn with_source(mut self, source: &'a str) -> Self {
+        self.source = Some(source);
+        self
+    }
+
+    pub fn with_lang(mut self, lang: Language) -> Self {
+        self.lang = Some(lang);
+        self
+    }
+
+    pub fn with_formatter(mut self, formatter: FormatterOption<'a>) -> Self {
+        self.formatter = Some(formatter);
+        self
+    }
+
+    pub fn build(self) -> Box<dyn Formatter + 'a> {
+        let source = self.source.unwrap_or_default();
+        let lang = self.lang.unwrap_or_default();
+        let formatter = self.formatter.unwrap_or_default();
+
+        match formatter {
+            FormatterOption::HtmlInline {
+                theme,
+                pre_class,
+                italic,
+                include_highlights,
+            } => Box::new(HtmlInline::new(
+                source,
+                lang,
+                theme,
+                pre_class,
+                italic,
+                include_highlights,
+            )),
+            FormatterOption::HtmlLinked { pre_class } => {
+                Box::new(HtmlLinked::new(source, lang, pre_class))
+            }
+            FormatterOption::Terminal { theme } => Box::new(Terminal::new(source, lang, theme)),
+        }
     }
 }
 
-pub fn build_html_formatter<'a>(
-    source: &'a str,
-    lang: Language,
-    options: FormatterOption<'a>,
-) -> Box<dyn HtmlFormatter + 'a> {
-    match options {
-        FormatterOption::HtmlInline {
-            theme,
-            pre_class,
-            italic,
-            include_highlights,
-        } => Box::new(HtmlInline::new(
-            source,
-            lang,
-            theme,
-            pre_class,
-            italic,
-            include_highlights,
-        )),
-        FormatterOption::HtmlLinked { pre_class } => {
-            Box::new(HtmlLinked::new(source, lang, pre_class))
-        }
-        FormatterOption::Terminal { .. } => {
-            panic!("Terminal formatter does not implement HtmlFormatter trait")
+pub struct HtmlFormatterBuilder<'a> {
+    source: Option<&'a str>,
+    lang: Option<Language>,
+    formatter: Option<FormatterOption<'a>>,
+}
+
+impl<'a> HtmlFormatterBuilder<'a> {
+    pub fn new() -> Self {
+        Self {
+            source: None,
+            lang: None,
+            formatter: None,
         }
     }
-}
 
-pub fn open_pre_tag(html_formatter: &impl HtmlFormatter, output: &mut dyn Write) -> io::Result<()> {
-    html_formatter.open_pre_tag(output)
-}
+    pub fn with_source(mut self, source: &'a str) -> Self {
+        self.source = Some(source);
+        self
+    }
 
-pub fn open_code_tag(
-    html_formatter: &impl HtmlFormatter,
-    output: &mut dyn Write,
-) -> io::Result<()> {
-    html_formatter.open_code_tag(output)
-}
+    pub fn with_lang(mut self, lang: Language) -> Self {
+        self.lang = Some(lang);
+        self
+    }
 
-pub fn closing_tags(html_formatter: &impl HtmlFormatter, output: &mut dyn Write) -> io::Result<()> {
-    html_formatter.closing_tags(output)
+    pub fn with_formatter(mut self, formatter: FormatterOption<'a>) -> Self {
+        self.formatter = Some(formatter);
+        self
+    }
+
+    pub fn build(self) -> Box<dyn HtmlFormatter + 'a> {
+        let source = self.source.unwrap_or_default();
+        let lang = self.lang.unwrap_or_default();
+        let formatter = self.formatter.unwrap_or_default();
+
+        match formatter {
+            FormatterOption::HtmlInline {
+                theme,
+                pre_class,
+                italic,
+                include_highlights,
+            } => Box::new(HtmlInline::new(
+                source,
+                lang,
+                theme,
+                pre_class,
+                italic,
+                include_highlights,
+            )),
+            FormatterOption::HtmlLinked { pre_class } => {
+                Box::new(HtmlLinked::new(source, lang, pre_class))
+            }
+            FormatterOption::Terminal { .. } => {
+                panic!("Terminal formatter does not implement HtmlFormatter trait")
+            }
+        }
+    }
 }

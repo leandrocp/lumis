@@ -279,7 +279,7 @@ pub mod themes;
 #[doc(hidden)]
 pub mod elixir;
 
-use crate::formatter::build_formatter;
+use crate::formatter::FormatterBuilder;
 use crate::languages::Language;
 use crate::themes::Theme;
 use std::io::{self, Write};
@@ -525,7 +525,11 @@ impl Default for Options<'_> {
 /// ```
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
-    let formatter = build_formatter(source, lang, options.formatter);
+    let formatter = FormatterBuilder::new()
+        .with_source(source)
+        .with_lang(lang)
+        .with_formatter(options.formatter)
+        .build();
     let mut buffer = Vec::new();
     let _ = formatter.format(&mut buffer);
     String::from_utf8(buffer).unwrap()
@@ -533,7 +537,11 @@ pub fn highlight(source: &str, options: Options) -> String {
 
 pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -> io::Result<()> {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
-    let formatter = build_formatter(source, lang, options.formatter);
+    let formatter = FormatterBuilder::new()
+        .with_source(source)
+        .with_lang(lang)
+        .with_formatter(options.formatter)
+        .build();
     formatter.format(output)?;
     Ok(())
 }

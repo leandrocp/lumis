@@ -39,7 +39,7 @@ extern "C" {
 
 include!(concat!(env!("OUT_DIR"), "/queries_constants.rs"));
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, Default)]
 pub enum Language {
     Angular,
     Astro,
@@ -88,6 +88,7 @@ pub enum Language {
     ObjC,
     Perl,
     Php,
+    #[default]
     PlainText,
     PowerShell,
     ProtoBuf,
