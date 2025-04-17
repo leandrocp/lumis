@@ -275,13 +275,19 @@ pub mod formatter;
 pub mod languages;
 pub mod themes;
 
+#[cfg(feature = "elixir")]
+#[doc(hidden)]
+pub mod elixir;
+
+use crate::formatter::FormatterBuilder;
 use crate::languages::Language;
 use crate::themes::Theme;
+use std::io::{self, Write};
 
 /// The type of formatter to use for syntax highlighting.
 ///
 /// Defaults to `HtmlInline` with no additional `pre_class`, no italics, and no highlight scope names.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum FormatterOption<'a> {
     /// HTML output with inline styles.
     HtmlInline {
@@ -519,10 +525,25 @@ impl Default for Options<'_> {
 /// ```
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
-    let mut buffer = String::new();
-    formatter::write_formatted(&mut buffer, source, lang, options.formatter)
-        .expect("failed to write formatted code");
-    buffer
+    let formatter = FormatterBuilder::new()
+        .with_source(source)
+        .with_lang(lang)
+        .with_formatter(options.formatter)
+        .build();
+    let mut buffer = Vec::new();
+    let _ = formatter.format(&mut buffer);
+    String::from_utf8(buffer).unwrap()
+}
+
+pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -> io::Result<()> {
+    let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
+    let formatter = FormatterBuilder::new()
+        .with_source(source)
+        .with_lang(lang)
+        .with_formatter(options.formatter)
+        .build();
+    formatter.format(output)?;
+    Ok(())
 }
 
 #[cfg(test)]
@@ -531,6 +552,35 @@ mod tests {
 
     // println!("{}", result);
     // std::fs::write("result.html", result.clone()).unwrap();
+
+    #[test]
+    fn test_write_highlight() {
+        let code = r#"const = 1"#;
+
+        let expected = r#"<pre class="athl" style="color: #c6d0f5; background-color: #303446;"><code class="language-javascript" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #ca9ee6;">const</span> <span style="color: #99d1db;">=</span> <span style="color: #ef9f76;">1</span>
+</span></code></pre>"#;
+
+        let mut buffer = Vec::new();
+
+        write_highlight(
+            &mut buffer,
+            code,
+            Options {
+                lang_or_file: Some("javascript"),
+                formatter: FormatterOption::HtmlInline {
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    theme: themes::get("catppuccin_frappe").ok(),
+                },
+            },
+        )
+        .unwrap();
+
+        let result = String::from_utf8(buffer).unwrap();
+
+        assert_eq!(result, expected);
+    }
 
     #[test]
     fn test_highlight_html_inline() {

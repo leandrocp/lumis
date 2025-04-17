@@ -1,7 +1,17 @@
 # Changelog
 
 ## Unreleased
+
+### Added
 - Added `nix` language by @kivikakk
+- Added `write_highlight` to write highlighted code into a Write
+- Added `elixir` module and feature flag to expose Rustler related code
+
+### Changed
+- Improved API structure and organization
+
+### Breakings Changes
+- [Formatters] Changed `new` function API
 
 ## [0.2.0] - 2025-04-08
 

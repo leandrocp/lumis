@@ -1,6 +1,6 @@
 [package]
 name = "autumnus"
-version = "0.2.0"
+version = "0.3.0"
 homepage = "https://autumnus.dev"
 repository = "https://github.com/leandrocp/autumnus"
 authors = ["Leandro Pereira <leandro@leandro.io>"]
@@ -87,6 +87,7 @@ serde_json = "1.0"
 strum = { version = "0.27", features = ["derive"] }
 termcolor = "1.4"
 v_htmlescape = "0.15"
+rustler = { version = "0.36", optional = true }
 
 [build-dependencies]
 cc = "1"
@@ -99,6 +100,9 @@ syn = { version = "2.0", features = ["full", "parsing"] }
 
 [features]
 dev = []
+elixir = ["rustler"]
+default = ["nif_version_2_15"]
+nif_version_2_15 = ["rustler/nif_version_2_15"]
 
 [profile.release]
 lto = true
