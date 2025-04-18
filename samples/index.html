@@ -16,7 +16,7 @@
     />
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
-      href="https://fonts.bunny.net/css?family=fira-code:300,400,500,600,700"
+      href="https://fonts.bunny.net/css?family=jetbrains-mono:100,200,300,400,500,600,700,800,900"
       rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,7 +25,7 @@
         theme: {
           extend: {
             fontFamily: {
-              mono: ["Fira Code", "ui-monospace", "monospace"],
+              mono: ["JetBrains Mono", "monospace"],
             },
             keyframes: {
               fadeIn: {
@@ -235,7 +235,7 @@
           </div>
 
           <div class="mt-8">
-            <div id="content" class="animate-fadeIn"></div>
+            <div id="content" class="animate-fadeIn text-code"></div>
           </div>
         </div>
       </div>
@@ -378,6 +378,7 @@
           preElements.forEach((pre) => {
             pre.style.maxWidth = "100%";
             pre.style.overflowX = "auto";
+            pre.style.fontSize = "16px";
           });
         } catch (error) {
           console.error("Error:", error);
