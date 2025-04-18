@@ -10,7 +10,7 @@
 ### Changed
 - Improved API structure and organization
 
-### Breakings Changes
+### Breaking Changes
 - [Formatters] Changed `new` function API
 
 ## [0.2.0] - 2025-04-08
