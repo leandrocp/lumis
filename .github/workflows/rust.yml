@@ -18,8 +18,28 @@ jobs:
         with:
           components: clippy
 
+      - name: Install cargo-sort
+        uses: baptiste0928/cargo-install@v3
+        with:
+          crate: cargo-sort
+
+      - name: Install cargo-sort-derives
+        uses: baptiste0928/cargo-install@v3
+        with:
+          crate: cargo-sort-derives
+
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
+
+      - run: cargo sort
+
+      - run: cargo sort-derives
+
+      - run: cargo fmt
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: auto commit
 
       - run: cargo test
 
