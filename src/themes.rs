@@ -29,7 +29,7 @@ impl std::fmt::Display for ThemeError {
 
 impl std::error::Error for ThemeError {}
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// A theme for syntax highlighting.
 ///
 /// A theme consists of a name, appearance (light/dark), and a collection of highlight styles
@@ -74,7 +74,7 @@ pub struct Theme {
     pub highlights: BTreeMap<String, Style>,
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 /// A style for syntax highlighting.
 ///
 /// A style defines the visual appearance of a highlight scope, including colors,

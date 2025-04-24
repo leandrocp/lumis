@@ -67,7 +67,7 @@ enum Commands {
 }
 
 /// Output format options for syntax highlighting
-#[derive(Clone, ValueEnum, Default)]
+#[derive(Clone, Default, ValueEnum)]
 enum Formatter {
     /// HTML output with inline styles
     HtmlInline,

@@ -35,9 +35,17 @@ rustdoc-args = ["--generate-link-to-definition"]
 no-default-features = true
 
 [dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+glob = "0.3"
+lazy_static = "1.5"
+regex = "1.11"
+rustler = { version = "0.36", optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+strum = { version = "0.27", features = ["derive"] }
+termcolor = "1.4"
 tree-sitter = "0.25.1"
-tree-sitter-highlight = "0.25.1"
-tree-sitter-language = "0.1.5"
 tree-sitter-bash = "0.23.3"
 tree-sitter-c = "0.23.4"
 tree-sitter-c-sharp = "0.23.1"
@@ -52,10 +60,12 @@ tree-sitter-gleam = "1.0.0"
 tree-sitter-go = "0.23.4"
 tree-sitter-haskell = "0.23.1"
 tree-sitter-heex = "0.8.1"
+tree-sitter-highlight = "0.25.1"
 tree-sitter-html = "0.23.2"
 tree-sitter-java = "0.23.5"
 tree-sitter-javascript = "0.23.1"
 tree-sitter-json = "0.24.8"
+tree-sitter-language = "0.1.5"
 tree-sitter-lua = "0.2.0"
 tree-sitter-md = "0.3.2"
 tree-sitter-nix = "0.0.2"
@@ -77,17 +87,7 @@ tree-sitter-typescript = "0.23.2"
 tree-sitter-xml = "0.7.0"
 tree-sitter-yaml = "0.7.0"
 tree-sitter-zig = "1.1.2"
-anyhow = "1.0"
-clap = { version = "4.5", features = ["derive"] }
-glob = "0.3"
-lazy_static = "1.5"
-regex = "1.11"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-strum = { version = "0.27", features = ["derive"] }
-termcolor = "1.4"
 v_htmlescape = "0.15"
-rustler = { version = "0.36", optional = true }
 
 [build-dependencies]
 cc = "1"
