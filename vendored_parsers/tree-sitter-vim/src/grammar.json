@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "vim",
   "word": "keyword",
   "rules": {
@@ -323,6 +324,10 @@
             {
               "type": "SYMBOL",
               "name": "eval_statement"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "substitute_statement"
             },
             {
               "type": "SYMBOL",
@@ -1907,27 +1912,54 @@
       ]
     },
     "lua_statement": {
-      "type": "SEQ",
+      "type": "CHOICE",
       "members": [
         {
-          "type": "ALIAS",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_lua"
-          },
-          "named": false,
-          "value": "lua"
-        },
-        {
-          "type": "CHOICE",
+          "type": "SEQ",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "chunk"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_lua"
+              },
+              "named": false,
+              "value": "lua"
             },
             {
-              "type": "SYMBOL",
-              "name": "script"
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "chunk"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "script"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "chunk"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "script"
+                }
+              ]
             }
           ]
         }
@@ -7911,6 +7943,62 @@
         {
           "type": "SYMBOL",
           "name": "_expression"
+        }
+      ]
+    },
+    "substitute_statement": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "range",
+                  "content": {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_range"
+                    },
+                    "named": true,
+                    "value": "range"
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ":"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_substitute"
+          },
+          "named": false,
+          "value": "substitute"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pattern"
         }
       ]
     },
@@ -14104,9 +14192,14 @@
     },
     {
       "type": "SYMBOL",
+      "name": "_substitute"
+    },
+    {
+      "type": "SYMBOL",
       "name": "unknown_command_name"
     }
   ],
   "inline": [],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }

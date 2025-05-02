@@ -581,6 +581,11 @@
     }
   },
   {
+    "type": "dot",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "exposed_operator",
     "named": true,
     "fields": {
@@ -895,6 +900,7 @@
   {
     "type": "file",
     "named": true,
+    "root": true,
     "fields": {
       "moduleDeclaration": {
         "multiple": false,
@@ -2840,6 +2846,10 @@
     "named": false
   },
   {
+    "type": ".",
+    "named": false
+  },
+  {
     "type": "/",
     "named": false
   },
@@ -2900,6 +2910,10 @@
     "named": false
   },
   {
+    "type": "[glsl|",
+    "named": false
+  },
+  {
     "type": "]",
     "named": false
   },
@@ -2937,10 +2951,6 @@
   },
   {
     "type": "colon",
-    "named": true
-  },
-  {
-    "type": "dot",
     "named": true
   },
   {
@@ -2993,7 +3003,8 @@
   },
   {
     "type": "line_comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "lower_case_identifier",
@@ -3073,6 +3084,10 @@
   },
   {
     "type": "|>",
+    "named": false
+  },
+  {
+    "type": "|]",
     "named": false
   },
   {

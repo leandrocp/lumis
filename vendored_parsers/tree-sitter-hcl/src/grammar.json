@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "hcl",
   "rules": {
     "config_file": {
@@ -1140,13 +1141,8 @@
                 "name": "_expr_term"
               },
               {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "STRING",
-                    "value": "&&"
-                  }
-                ]
+                "type": "STRING",
+                "value": "&&"
               },
               {
                 "type": "SYMBOL",
@@ -1166,13 +1162,8 @@
                 "name": "_expr_term"
               },
               {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "STRING",
-                    "value": "||"
-                  }
-                ]
+                "type": "STRING",
+                "value": "||"
               },
               {
                 "type": "SYMBOL",
@@ -1791,5 +1782,6 @@
     }
   ],
   "inline": [],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }

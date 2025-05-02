@@ -40,6 +40,10 @@
             "named": true
           },
           {
+            "type": "template_string",
+            "named": true
+          },
+          {
             "type": "ternary_expression",
             "named": true
           },
@@ -167,6 +171,10 @@
           },
           {
             "type": "nullish_coalescing_expression",
+            "named": true
+          },
+          {
+            "type": "template_string",
             "named": true
           },
           {
@@ -799,6 +807,10 @@
             "named": true
           },
           {
+            "type": "template_string",
+            "named": true
+          },
+          {
             "type": "ternary_expression",
             "named": true
           },
@@ -1277,6 +1289,10 @@
           "named": true
         },
         {
+          "type": "template_string",
+          "named": true
+        },
+        {
           "type": "ternary_expression",
           "named": true
         },
@@ -1488,6 +1504,10 @@
           "named": true
         },
         {
+          "type": "template_string",
+          "named": true
+        },
+        {
           "type": "ternary_expression",
           "named": true
         },
@@ -1672,6 +1692,10 @@
           "named": true
         },
         {
+          "type": "template_string",
+          "named": true
+        },
+        {
           "type": "ternary_expression",
           "named": true
         },
@@ -1704,6 +1728,10 @@
         },
         {
           "type": "nullish_coalescing_expression",
+          "named": true
+        },
+        {
+          "type": "template_string",
           "named": true
         },
         {
@@ -1808,6 +1836,10 @@
         },
         {
           "type": "nullish_coalescing_expression",
+          "named": true
+        },
+        {
+          "type": "template_string",
           "named": true
         },
         {
@@ -1979,6 +2011,10 @@
             "named": true
           },
           {
+            "type": "template_string",
+            "named": true
+          },
+          {
             "type": "ternary_expression",
             "named": true
           },
@@ -2093,6 +2129,10 @@
           },
           {
             "type": "nullish_coalescing_expression",
+            "named": true
+          },
+          {
+            "type": "template_string",
             "named": true
           },
           {
@@ -2275,6 +2315,10 @@
         },
         {
           "type": "nullish_coalescing_expression",
+          "named": true
+        },
+        {
+          "type": "template_string",
           "named": true
         },
         {
@@ -2672,6 +2716,10 @@
           "named": true
         },
         {
+          "type": "template_string",
+          "named": true
+        },
+        {
           "type": "ternary_expression",
           "named": true
         },
@@ -2761,6 +2809,64 @@
     }
   },
   {
+    "type": "template_string",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "template_chars",
+          "named": true
+        },
+        {
+          "type": "template_substitution",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "template_substitution",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "binary_expression",
+          "named": true
+        },
+        {
+          "type": "conditional_expression",
+          "named": true
+        },
+        {
+          "type": "expression",
+          "named": true
+        },
+        {
+          "type": "nullish_coalescing_expression",
+          "named": true
+        },
+        {
+          "type": "template_string",
+          "named": true
+        },
+        {
+          "type": "ternary_expression",
+          "named": true
+        },
+        {
+          "type": "unary_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "ternary_expression",
     "named": true,
     "fields": {
@@ -2786,6 +2892,10 @@
           },
           {
             "type": "nullish_coalescing_expression",
+            "named": true
+          },
+          {
+            "type": "template_string",
             "named": true
           },
           {
@@ -2816,6 +2926,10 @@
           },
           {
             "type": "nullish_coalescing_expression",
+            "named": true
+          },
+          {
+            "type": "template_string",
             "named": true
           },
           {
@@ -2945,6 +3059,10 @@
           "named": true
         },
         {
+          "type": "template_string",
+          "named": true
+        },
+        {
           "type": "ternary_expression",
           "named": true
         },
@@ -2995,6 +3113,10 @@
   },
   {
     "type": "\"",
+    "named": false
+  },
+  {
+    "type": "${",
     "named": false
   },
   {
@@ -3191,6 +3313,10 @@
   },
   {
     "type": "tag_name",
+    "named": true
+  },
+  {
+    "type": "template_chars",
     "named": true
   },
   {

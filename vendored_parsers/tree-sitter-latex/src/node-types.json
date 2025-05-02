@@ -372,6 +372,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "citation",
           "named": true
         },
@@ -501,6 +505,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -763,6 +771,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "citation",
           "named": true
         },
@@ -931,6 +943,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -1026,6 +1042,42 @@
     }
   },
   {
+    "type": "changes_replaced",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\replaced",
+            "named": false
+          }
+        ]
+      },
+      "text_added": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group",
+            "named": true
+          }
+        ]
+      },
+      "text_deleted": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "chapter",
     "named": true,
     "fields": {
@@ -1114,6 +1166,10 @@
         },
         {
           "type": "caption",
+          "named": true
+        },
+        {
+          "type": "changes_replaced",
           "named": true
         },
         {
@@ -1306,6 +1362,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -1916,6 +1976,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "chapter",
           "named": true
         },
@@ -2116,6 +2180,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -2218,6 +2286,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "citation",
           "named": true
         },
@@ -2347,6 +2419,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -2445,6 +2521,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "citation",
           "named": true
         },
@@ -2574,6 +2654,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -2680,6 +2764,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "chapter",
           "named": true
         },
@@ -2877,6 +2965,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -2990,6 +3082,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "citation",
           "named": true
         },
@@ -3155,6 +3251,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -3362,6 +3462,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "chapter",
           "named": true
         },
@@ -3559,6 +3663,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -4046,6 +4154,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "chapter",
           "named": true
         },
@@ -4243,6 +4355,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -4846,6 +4962,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "chapter",
           "named": true
         },
@@ -5046,6 +5166,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -5123,6 +5247,10 @@
         },
         {
           "type": "caption",
+          "named": true
+        },
+        {
+          "type": "changes_replaced",
           "named": true
         },
         {
@@ -5291,6 +5419,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -5739,6 +5871,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "citation",
           "named": true
         },
@@ -5915,6 +6051,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -6014,6 +6154,10 @@
         },
         {
           "type": "caption",
+          "named": true
+        },
+        {
+          "type": "changes_replaced",
           "named": true
         },
         {
@@ -6210,6 +6354,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -6423,6 +6571,10 @@
           "named": true
         },
         {
+          "type": "changes_replaced",
+          "named": true
+        },
+        {
           "type": "citation",
           "named": true
         },
@@ -6611,6 +6763,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -6668,6 +6824,10 @@
         },
         {
           "type": "caption",
+          "named": true
+        },
+        {
+          "type": "changes_replaced",
           "named": true
         },
         {
@@ -6871,6 +7031,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -6962,6 +7126,10 @@
         },
         {
           "type": "caption",
+          "named": true
+        },
+        {
+          "type": "changes_replaced",
           "named": true
         },
         {
@@ -7137,6 +7305,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -7252,6 +7424,10 @@
         },
         {
           "type": "caption",
+          "named": true
+        },
+        {
+          "type": "changes_replaced",
           "named": true
         },
         {
@@ -7439,6 +7615,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -7530,6 +7710,10 @@
         },
         {
           "type": "caption",
+          "named": true
+        },
+        {
+          "type": "changes_replaced",
           "named": true
         },
         {
@@ -7713,6 +7897,10 @@
           "named": true
         },
         {
+          "type": "todo",
+          "named": true
+        },
+        {
           "type": "verbatim_environment",
           "named": true
         },
@@ -7821,6 +8009,10 @@
           },
           {
             "type": "caption",
+            "named": true
+          },
+          {
+            "type": "changes_replaced",
             "named": true
           },
           {
@@ -7949,6 +8141,10 @@
           },
           {
             "type": "title_declaration",
+            "named": true
+          },
+          {
+            "type": "todo",
             "named": true
           },
           {
@@ -8132,6 +8328,42 @@
     }
   },
   {
+    "type": "todo",
+    "named": true,
+    "fields": {
+      "arg": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group",
+            "named": true
+          }
+        ]
+      },
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "todo_command_name",
+            "named": true
+          }
+        ]
+      },
+      "options": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "brack_group",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "value",
     "named": true,
     "fields": {},
@@ -8173,6 +8405,10 @@
         },
         {
           "type": "caption",
+          "named": true
+        },
+        {
+          "type": "changes_replaced",
           "named": true
         },
         {
@@ -8305,6 +8541,10 @@
         },
         {
           "type": "title_declaration",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -9541,6 +9781,10 @@
     "named": false
   },
   {
+    "type": "\\replaced",
+    "named": false
+  },
+  {
     "type": "\\right",
     "named": false
   },
@@ -9710,6 +9954,10 @@
   },
   {
     "type": "source_code",
+    "named": true
+  },
+  {
+    "type": "todo_command_name",
     "named": true
   },
   {

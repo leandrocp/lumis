@@ -30,7 +30,7 @@
         "members": [
           {
             "type": "PATTERN",
-            "value": "#[^\\n]*"
+            "value": "#[^\\r\\n]*"
           },
           {
             "type": "SEQ",
@@ -54,7 +54,7 @@
                     },
                     {
                       "type": "PATTERN",
-                      "value": "`.{1}|`\\n"
+                      "value": "`.{1}|`\\r?\\n"
                     }
                   ]
                 }
@@ -538,14 +538,14 @@
                 "type": "IMMEDIATE_TOKEN",
                 "content": {
                   "type": "PATTERN",
-                  "value": "\\$(`.{1}|`\\n|[\\s\\\\])"
+                  "value": "\\$(`.{1}|`\\r?\\n|[\\s\\\\])"
                 }
               },
               {
                 "type": "IMMEDIATE_TOKEN",
                 "content": {
                   "type": "PATTERN",
-                  "value": "`.{1}|`\\n"
+                  "value": "`.{1}|`\\r?\\n"
                 }
               },
               {
@@ -589,7 +589,7 @@
       "members": [
         {
           "type": "PATTERN",
-          "value": "@\\\" *\\n"
+          "value": "@\\\" *\\r?\\n"
         },
         {
           "type": "REPEAT",
@@ -600,7 +600,7 @@
                 "type": "IMMEDIATE_TOKEN",
                 "content": {
                   "type": "PATTERN",
-                  "value": "[^\\$\\n`]+"
+                  "value": "[^\\$\\r\\n`]+"
                 }
               },
               {
@@ -615,14 +615,14 @@
                 "type": "IMMEDIATE_TOKEN",
                 "content": {
                   "type": "PATTERN",
-                  "value": "\\n+[^\\\"\\n]"
+                  "value": "(\\r?\\n)+[^\\\"\\r\\n]"
                 }
               },
               {
                 "type": "IMMEDIATE_TOKEN",
                 "content": {
                   "type": "PATTERN",
-                  "value": "\\n+\\\"[^@]"
+                  "value": "(\\r?\\n)+\\\"[^@]"
                 }
               },
               {
@@ -636,7 +636,7 @@
                 "type": "IMMEDIATE_TOKEN",
                 "content": {
                   "type": "PATTERN",
-                  "value": "`.{1}|`\\n"
+                  "value": "`.{1}|`\\r?\\n"
                 }
               }
             ]
@@ -646,7 +646,7 @@
           "type": "IMMEDIATE_TOKEN",
           "content": {
             "type": "PATTERN",
-            "value": "\\n+\\\"@"
+            "value": "(\\r?\\n)+\\\"@"
           }
         }
       ]
@@ -690,7 +690,7 @@
         "members": [
           {
             "type": "PATTERN",
-            "value": "@\\'\\s*\\n"
+            "value": "@\\'\\s*\\r?\\n"
           },
           {
             "type": "REPEAT",
@@ -699,22 +699,22 @@
               "members": [
                 {
                   "type": "PATTERN",
-                  "value": "[^\\n]"
+                  "value": "[^\\r\\n]"
                 },
                 {
                   "type": "PATTERN",
-                  "value": "\\n+[^\\'\\n]"
+                  "value": "(\\r?\\n)+[^\\'\\r\\n]"
                 },
                 {
                   "type": "PATTERN",
-                  "value": "\\n\\'[^@]"
+                  "value": "\\r?\\n\\'[^@]"
                 }
               ]
             }
           },
           {
             "type": "PATTERN",
-            "value": "\\n+\\'@"
+            "value": "(\\r?\\n)+\\'@"
           }
         ]
       }
@@ -2097,7 +2097,7 @@
           },
           {
             "type": "PATTERN",
-            "value": "[^\\|\\n]+"
+            "value": "[^\\|\\r\\n]+"
           }
         ]
       }
@@ -3133,8 +3133,11 @@
                               "value": ";"
                             },
                             {
-                              "type": "STRING",
-                              "value": "\n"
+                              "type": "IMMEDIATE_TOKEN",
+                              "content": {
+                                "type": "PATTERN",
+                                "value": "\\r?\\n"
+                              }
                             }
                           ]
                         },
@@ -3177,8 +3180,11 @@
                                       "value": ";"
                                     },
                                     {
-                                      "type": "STRING",
-                                      "value": "\n"
+                                      "type": "IMMEDIATE_TOKEN",
+                                      "content": {
+                                        "type": "PATTERN",
+                                        "value": "\\r?\\n"
+                                      }
                                     }
                                   ]
                                 },
@@ -4289,11 +4295,11 @@
               },
               {
                 "type": "PATTERN",
-                "value": "\\$`(.{1}|`\\n)"
+                "value": "\\$`(.{1}|`\\r?\\n)"
               },
               {
                 "type": "PATTERN",
-                "value": "`.{1}|`\\n"
+                "value": "`.{1}|`\\r?\\n"
               },
               {
                 "type": "STRING",
@@ -4327,7 +4333,7 @@
         "members": [
           {
             "type": "PATTERN",
-            "value": "[^\\{\\}\\(\\);,\\|\\&`\"'\\s\\n\\[\\]\\+\\-\\*\\/\\$@<\\!%]+"
+            "value": "[^\\{\\}\\(\\);,\\|\\&`\"'\\s\\r\\n\\[\\]\\+\\-\\*\\/\\$@<\\!%]+"
           },
           {
             "type": "REPEAT",
@@ -4338,7 +4344,7 @@
                   "type": "IMMEDIATE_TOKEN",
                   "content": {
                     "type": "PATTERN",
-                    "value": "[^\\{\\}\\(\\);,\\|\\&\"'\\s\\n]+"
+                    "value": "[^\\{\\}\\(\\);,\\|\\&\"'\\s\\r\\n]+"
                   }
                 },
                 {
@@ -4469,7 +4475,7 @@
     },
     "stop_parsing": {
       "type": "PATTERN",
-      "value": "--%[^\\n]*"
+      "value": "--%[^\\r\\n]*"
     },
     "command_argument_sep": {
       "type": "PREC_RIGHT",
@@ -6736,6 +6742,10 @@
     {
       "type": "PATTERN",
       "value": "`\\n"
+    },
+    {
+      "type": "PATTERN",
+      "value": "`\\r\\n"
     },
     {
       "type": "PATTERN",

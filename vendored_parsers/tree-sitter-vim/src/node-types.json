@@ -224,6 +224,10 @@
           "named": true
         },
         {
+          "type": "substitute_statement",
+          "named": true
+        },
+        {
           "type": "syntax_statement",
           "named": true
         },
@@ -583,6 +587,10 @@
           },
           {
             "type": "stopinsert_statement",
+            "named": true
+          },
+          {
+            "type": "substitute_statement",
             "named": true
           },
           {
@@ -1148,6 +1156,10 @@
           "named": true
         },
         {
+          "type": "substitute_statement",
+          "named": true
+        },
+        {
           "type": "syntax_statement",
           "named": true
         },
@@ -1647,6 +1659,10 @@
           "named": true
         },
         {
+          "type": "substitute_statement",
+          "named": true
+        },
+        {
           "type": "syntax_statement",
           "named": true
         },
@@ -1919,6 +1935,10 @@
         },
         {
           "type": "stopinsert_statement",
+          "named": true
+        },
+        {
+          "type": "substitute_statement",
           "named": true
         },
         {
@@ -4556,6 +4576,10 @@
           "named": true
         },
         {
+          "type": "substitute_statement",
+          "named": true
+        },
+        {
           "type": "syntax_statement",
           "named": true
         },
@@ -5988,6 +6012,10 @@
           "named": true
         },
         {
+          "type": "substitute_statement",
+          "named": true
+        },
+        {
           "type": "syntax_statement",
           "named": true
         },
@@ -7091,6 +7119,7 @@
   {
     "type": "script_file",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -7314,6 +7343,10 @@
         },
         {
           "type": "stopinsert_statement",
+          "named": true
+        },
+        {
+          "type": "substitute_statement",
           "named": true
         },
         {
@@ -7874,6 +7907,10 @@
           "named": true
         },
         {
+          "type": "substitute_statement",
+          "named": true
+        },
+        {
           "type": "syntax_statement",
           "named": true
         },
@@ -8291,6 +8328,32 @@
     "type": "stopinsert_statement",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "substitute_statement",
+    "named": true,
+    "fields": {
+      "range": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "range",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "pattern",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "syntax_argument",
@@ -9249,6 +9312,10 @@
           "named": true
         },
         {
+          "type": "substitute_statement",
+          "named": true
+        },
+        {
           "type": "syntax_statement",
           "named": true
         },
@@ -9796,6 +9863,10 @@
         },
         {
           "type": "stopinsert_statement",
+          "named": true
+        },
+        {
+          "type": "substitute_statement",
           "named": true
         },
         {
@@ -10746,10 +10817,6 @@
     "named": false
   },
   {
-    "type": "dos",
-    "named": false
-  },
-  {
     "type": "drop",
     "named": false
   },
@@ -10898,10 +10965,6 @@
     "named": true
   },
   {
-    "type": "file",
-    "named": false
-  },
-  {
     "type": "file_format",
     "named": true
   },
@@ -10911,6 +10974,10 @@
   },
   {
     "type": "fileformat",
+    "named": false
+  },
+  {
+    "type": "filetype",
     "named": false
   },
   {
@@ -11095,11 +11162,11 @@
   },
   {
     "type": "keyword",
-    "named": false
+    "named": true
   },
   {
     "type": "keyword",
-    "named": true
+    "named": false
   },
   {
     "type": "koi8",
@@ -11131,7 +11198,8 @@
   },
   {
     "type": "line_continuation_comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "linebreaks",
@@ -11179,10 +11247,6 @@
   },
   {
     "type": "lua",
-    "named": false
-  },
-  {
-    "type": "mac",
     "named": false
   },
   {
@@ -11506,6 +11570,10 @@
     "named": true
   },
   {
+    "type": "substitute",
+    "named": false
+  },
+  {
     "type": "sync",
     "named": false
   },
@@ -11635,10 +11703,6 @@
   },
   {
     "type": "unicode",
-    "named": false
-  },
-  {
-    "type": "unix",
     "named": false
   },
   {

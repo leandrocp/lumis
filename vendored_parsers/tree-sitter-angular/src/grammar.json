@@ -481,7 +481,7 @@
     },
     "text": {
       "type": "PATTERN",
-      "value": "[^<>{}&\\s]([^<>{}&]*[^<>{}&\\s])?"
+      "value": "[^<>@{}&\\s]([^<>@{}&]*[^<>@{}&\\s])?"
     },
     "statement_block": {
       "type": "PREC_RIGHT",
@@ -1617,6 +1617,10 @@
           "name": "nullish_coalescing_expression"
         },
         {
+          "type": "SYMBOL",
+          "name": "template_string"
+        },
+        {
           "type": "PREC",
           "value": 3,
           "content": {
@@ -2396,6 +2400,63 @@
         }
       ]
     },
+    "template_string": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_backtick"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "template_chars"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "template_substitution"
+              }
+            ]
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_backtick"
+        }
+      ]
+    },
+    "template_chars": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 1,
+        "content": {
+          "type": "PATTERN",
+          "value": "(?:[^$`\\\\]+|\\\\.)+"
+        }
+      }
+    },
+    "template_substitution": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "${"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_any_expression"
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
     "expression": {
       "type": "SEQ",
       "members": [
@@ -2906,11 +2967,20 @@
             {
               "type": "REPEAT",
               "content": {
-                "type": "IMMEDIATE_TOKEN",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "[^\"]"
-                }
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "IMMEDIATE_TOKEN",
+                    "content": {
+                      "type": "PATTERN",
+                      "value": "[^\"]"
+                    }
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_escape_sequence"
+                  }
+                ]
               }
             },
             {
@@ -2929,11 +2999,20 @@
             {
               "type": "REPEAT",
               "content": {
-                "type": "IMMEDIATE_TOKEN",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "[^']"
-                }
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "IMMEDIATE_TOKEN",
+                    "content": {
+                      "type": "PATTERN",
+                      "value": "[^']"
+                    }
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_escape_sequence"
+                  }
+                ]
               }
             },
             {
@@ -2943,6 +3022,47 @@
           ]
         }
       ]
+    },
+    "_escape_sequence": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "\\"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "PATTERN",
+                "value": "[^xu0-7]"
+              },
+              {
+                "type": "PATTERN",
+                "value": "[0-7]{1,3}"
+              },
+              {
+                "type": "PATTERN",
+                "value": "x[0-9a-fA-F]{2}"
+              },
+              {
+                "type": "PATTERN",
+                "value": "u[0-9a-fA-F]{4}"
+              },
+              {
+                "type": "PATTERN",
+                "value": "u\\{[0-9a-fA-F]+\\}"
+              },
+              {
+                "type": "PATTERN",
+                "value": "[\\r?][\\n\\u2028\\u2029]"
+              }
+            ]
+          }
+        ]
+      }
     },
     "number": {
       "type": "PATTERN",
@@ -3174,6 +3294,10 @@
           "value": "}"
         }
       }
+    },
+    "_backtick": {
+      "type": "STRING",
+      "value": "`"
     },
     "_single_quote": {
       "type": "STRING",

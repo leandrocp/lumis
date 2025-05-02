@@ -1,22 +1,22 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
   "grammars": [
     {
-      "name": "@pfoerster/latex",
-      "camelcase": "PfoersterLatex",
+      "name": "latex",
       "scope": "source.tex",
-      "path": ".",
       "file-types": [
         "tex",
+        "aux",
         "sty",
-        "cls",
-        "aux"
-      ]
+        "cls"
+      ],
+      "injection-regex": "^latex$"
     }
   ],
   "metadata": {
     "version": "0.4.0",
     "license": "MIT",
-    "description": "LaTeX grammar for the tree-sitter parsing library",
+    "description": "Latex grammar for tree-sitter",
     "authors": [
       {
         "name": "Patrick Förster",
@@ -24,7 +24,7 @@
       }
     ],
     "links": {
-      "repository": "git+https://github.com/latex-lsp/tree-sitter-latex.git"
+      "repository": "https://github.com/latex-lsp/tree-sitter-latex"
     }
   },
   "bindings": {
@@ -33,6 +33,7 @@
     "node": true,
     "python": true,
     "rust": true,
-    "swift": true
+    "swift": true,
+    "zig": false
   }
 }

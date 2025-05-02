@@ -665,8 +665,19 @@ module.exports = grammar({
         $.color_reference,
         $.tikz_library_import,
         $.hyperlink,
+        $.changes_replaced,
+        $.todo,
         $.generic_command,
       ),
+
+    todo: $ =>
+      seq(
+        field('command', $.todo_command_name),
+        field('options', optional($.brack_group)),
+        field('arg', $.curly_group)
+      ),
+
+    todo_command_name: $ => /\\([a-zA-Z]?[a-zA-Z]?todo)/,
 
     generic_command: $ =>
       prec.right(
@@ -1272,6 +1283,13 @@ module.exports = grammar({
           field('uri', $.curly_group_uri),
           field('label', optional($.curly_group)),
         ),
+      ),
+
+    changes_replaced: $ =>
+      seq(
+        field('command', '\\replaced'),
+        field('text_added', $.curly_group),
+        field('text_deleted', $.curly_group)
       ),
   },
 });
