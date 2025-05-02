@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1] - 2025-05-02
+
+### Improvements
+- Update dependencies
+- Update parsers
+- Update queries
+
 ## [0.3.0] - 2025-04-18
 
 ### Added

@@ -1,6 +1,6 @@
 [package]
 name = "autumnus"
-version = "0.3.0"
+version = "0.3.1"
 homepage = "https://autumnus.dev"
 repository = "https://github.com/leandrocp/autumnus"
 authors = ["Leandro Pereira <leandro@leandro.io>"]
