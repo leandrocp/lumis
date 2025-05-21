@@ -23,6 +23,22 @@ pre.athl {
 .comment-documentation {
   color: #6d7f8b;
 }
+.comment-error {
+  color: #152528;
+  background-color: #e85c51;
+}
+.comment-note {
+  color: #152528;
+  background-color: #5a93aa;
+}
+.comment-todo {
+  color: #152528;
+  background-color: #7aa4a1;
+}
+.comment-warning {
+  color: #152528;
+  background-color: #fda47f;
+}
 .constant {
   color: #ff9664;
 }
@@ -34,6 +50,9 @@ pre.athl {
 }
 .constructor {
   color: #a1cdd8;
+}
+.diff-delta {
+  color: #fda47f;
 }
 .diff-minus {
   color: #e85c51;
@@ -138,12 +157,39 @@ pre.athl {
 .markup-italic {
   font-style: italic;
 }
+.markup-link {
+  color: #ad5c7c;
+  font-weight: bold;
+}
 .markup-link-label {
   color: #73a3b7;
+}
+.markup-link-url {
+  color: #ff9664;
+  font-style: italic;
+  text-decoration: underline;
+}
+.markup-list {
+  color: #afd4de;
+}
+.markup-list-checked {
+  color: #7aa4a1;
+}
+.markup-list-unchecked {
+  color: #fda47f;
+}
+.markup-math {
+  color: #73a3b7;
+}
+.markup-quote {
+  color: #cbd9d8;
 }
 .markup-raw {
   color: #a1cdd8;
   font-style: italic;
+}
+.markup-raw-block {
+  color: #cb7985;
 }
 .markup-strikethrough {
   color: #e6eaea;
@@ -220,6 +266,9 @@ pre.athl {
 .tag-attribute {
   color: #73a3b7;
   font-style: italic;
+}
+.tag-builtin {
+  color: #73a3b7;
 }
 .tag-delimiter {
   color: #afd4de;

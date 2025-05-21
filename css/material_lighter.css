@@ -23,6 +23,21 @@ pre.athl {
 .comment-documentation {
   color: #aabfc9;
 }
+.comment-error {
+  color: #aabfc9;
+  background-color: #ff5370;
+}
+.comment-note {
+  color: #aabfc9;
+  background-color: #8796b0;
+}
+.comment-todo {
+  color: #aabfc9;
+}
+.comment-warning {
+  color: #aabfc9;
+  background-color: #f6a434;
+}
 .constant {
   color: #f6a434;
 }
@@ -33,6 +48,9 @@ pre.athl {
   color: #39adb5;
 }
 .constructor {
+  color: #6182b8;
+}
+.diff-delta {
   color: #6182b8;
 }
 .diff-minus {
@@ -84,6 +102,9 @@ pre.athl {
 }
 .keyword-directive-define {
   color: #39adb5;
+}
+.keyword-exception {
+  color: #e53935;
 }
 .keyword-function {
   color: #39adb5;
@@ -140,10 +161,31 @@ pre.athl {
 .markup-italic {
   font-style: italic;
 }
+.markup-link {
+  color: #e53935;
+}
 .markup-link-label {
   color: #e53935;
 }
+.markup-link-url {
+  color: #80cbc4;
+}
+.markup-list {
+  color: #39adb5;
+}
+.markup-list-checked {
+  color: #91b859;
+}
+.markup-math {
+  color: #6182b8;
+}
+.markup-quote {
+  color: #39adb5;
+}
 .markup-raw {
+  color: #7c4dff;
+}
+.markup-raw-block {
   color: #7c4dff;
 }
 .markup-strikethrough {
@@ -218,6 +260,9 @@ pre.athl {
 }
 .tag-attribute {
   color: #7c4dff;
+}
+.tag-builtin {
+  color: #39adb5;
 }
 .tag-delimiter {
   color: #39adb5;
