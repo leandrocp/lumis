@@ -4,6 +4,18 @@
 
 local themes = {
 	{
+		name = "neovim_dark",
+		colorscheme = "default",
+		appearance = "dark",
+		plugin = {},
+	},
+	{
+		name = "neovim_light",
+		colorscheme = "default",
+		appearance = "light",
+		plugin = {},
+	},
+	{
 		name = "ayu_dark",
 		colorscheme = "ayu-dark",
 		appearance = "dark",
