@@ -1,0 +1,643 @@
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #14161b; background-color: #e0e2ea;"><code class="language-ruby" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #4f5258;"># This is a comment</span>
+</span><span class="line" data-line="2">
+</span><span class="line" data-line="3"><span style="color: #4f5258;">=begin</span>
+</span><span class="line" data-line="4"><span style="color: #4f5258;">This is a multi-line comment.</span>
+</span><span class="line" data-line="5"><span style="color: #4f5258;">The beginning line must start with &quot;=begin&quot;</span>
+</span><span class="line" data-line="6"><span style="color: #4f5258;">and the ending line must start with &quot;=end&quot;.</span>
+</span><span class="line" data-line="7">
+</span><span class="line" data-line="8"><span style="color: #14161b;">You</span> <span style="color: #14161b;">can</span> <span style="color: #14161b; font-weight: bold;">do</span> <span style="color: #14161b;">this</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">or</span> <span style="color: #14161b;">start</span> <span style="color: #14161b;">each</span> <span style="color: #14161b;">line</span> <span style="color: #14161b; font-weight: bold;">in</span>
+</span><span class="line" data-line="9"><span style="color: #007373;">a</span> <span style="color: #14161b;">multi</span><span style="color: #14161b;">-</span><span style="color: #14161b;">line</span> <span style="color: #14161b;">comment</span> <span style="color: #14161b;">with</span> <span style="color: #14161b;">the</span> <span style="color: #4f5258;"># character.</span>
+</span><span class="line" data-line="10"><span style="color: #14161b;">=</span><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="11">
+</span><span class="line" data-line="12"><span style="color: #4f5258;"># In Ruby, (almost) everything is an object.</span>
+</span><span class="line" data-line="13"><span style="color: #4f5258;"># This includes numbers...</span>
+</span><span class="line" data-line="14"><span style="color: #14161b;">3</span><span style="color: #14161b;">.</span><span style="color: #007373;">class</span> <span style="color: #4f5258;">#=&gt; Integer</span>
+</span><span class="line" data-line="15">
+</span><span class="line" data-line="16"><span style="color: #4f5258;"># ...and strings...</span>
+</span><span class="line" data-line="17"><span style="color: #005523;">&quot;</span><span style="color: #005523;">Hello</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">.</span><span style="color: #007373;">class</span> <span style="color: #4f5258;">#=&gt; String</span>
+</span><span class="line" data-line="18">
+</span><span class="line" data-line="19"><span style="color: #4f5258;"># ...and even methods!</span>
+</span><span class="line" data-line="20"><span style="color: #005523;">&quot;</span><span style="color: #005523;">Hello</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">.</span><span style="color: #007373;">method</span><span style="color: #14161b;">(</span><span style="color: #007373;">:class</span><span style="color: #14161b;">)</span><span style="color: #14161b;">.</span><span style="color: #007373;">class</span> <span style="color: #4f5258;">#=&gt; Method</span>
+</span><span class="line" data-line="21">
+</span><span class="line" data-line="22"><span style="color: #4f5258;"># Some basic arithmetic</span>
+</span><span class="line" data-line="23"><span style="color: #14161b;">1</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">1</span> <span style="color: #4f5258;">#=&gt; 2</span>
+</span><span class="line" data-line="24"><span style="color: #14161b;">8</span> <span style="color: #14161b;">-</span> <span style="color: #14161b;">1</span> <span style="color: #4f5258;">#=&gt; 7</span>
+</span><span class="line" data-line="25"><span style="color: #14161b;">10</span> <span style="color: #14161b;">*</span> <span style="color: #14161b;">2</span> <span style="color: #4f5258;">#=&gt; 20</span>
+</span><span class="line" data-line="26"><span style="color: #14161b;">35</span> <span style="color: #14161b;">/</span> <span style="color: #14161b;">5</span> <span style="color: #4f5258;">#=&gt; 7</span>
+</span><span class="line" data-line="27"><span style="color: #14161b;">2</span> <span style="color: #14161b;">**</span> <span style="color: #14161b;">5</span> <span style="color: #4f5258;">#=&gt; 32</span>
+</span><span class="line" data-line="28"><span style="color: #14161b;">5</span> <span style="color: #14161b;">%</span> <span style="color: #14161b;">3</span> <span style="color: #4f5258;">#=&gt; 2</span>
+</span><span class="line" data-line="29">
+</span><span class="line" data-line="30"><span style="color: #4f5258;"># Bitwise operators</span>
+</span><span class="line" data-line="31"><span style="color: #14161b;">3</span> <span style="color: #14161b;">&amp;</span> <span style="color: #14161b;">5</span> <span style="color: #4f5258;">#=&gt; 1</span>
+</span><span class="line" data-line="32"><span style="color: #14161b;">3</span> <span style="color: #14161b;">|</span> <span style="color: #14161b;">5</span> <span style="color: #4f5258;">#=&gt; 7</span>
+</span><span class="line" data-line="33"><span style="color: #14161b;">3</span> <span style="color: #14161b;">^</span> <span style="color: #14161b;">5</span> <span style="color: #4f5258;">#=&gt; 6</span>
+</span><span class="line" data-line="34">
+</span><span class="line" data-line="35"><span style="color: #4f5258;"># Arithmetic is just syntactic sugar</span>
+</span><span class="line" data-line="36"><span style="color: #4f5258;"># for calling a method on an object</span>
+</span><span class="line" data-line="37"><span style="color: #14161b;">1</span><span style="color: #14161b;">.</span><span style="color: #14161b;">+</span><span style="color: #14161b;">(</span><span style="color: #14161b;">3</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; 4</span>
+</span><span class="line" data-line="38"><span style="color: #14161b;">10</span><span style="color: #14161b;">.</span><span style="color: #14161b;">*</span> <span style="color: #14161b;">5</span> <span style="color: #4f5258;">#=&gt; 50</span>
+</span><span class="line" data-line="39"><span style="color: #14161b;">100</span><span style="color: #14161b;">.</span><span style="color: #007373;">methods</span><span style="color: #14161b;">.</span><span style="color: #007373;">include?</span><span style="color: #14161b;">(</span><span style="color: #007373;">:/</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="40">
+</span><span class="line" data-line="41"><span style="color: #4f5258;"># Special values are objects</span>
+</span><span class="line" data-line="42"><span style="color: #007373;">nil</span> <span style="color: #4f5258;"># equivalent to null in other languages</span>
+</span><span class="line" data-line="43"><span style="color: #14161b;">true</span> <span style="color: #4f5258;"># truth</span>
+</span><span class="line" data-line="44"><span style="color: #14161b;">false</span> <span style="color: #4f5258;"># falsehood</span>
+</span><span class="line" data-line="45">
+</span><span class="line" data-line="46"><span style="color: #007373;">nil</span><span style="color: #14161b;">.</span><span style="color: #007373;">class</span> <span style="color: #4f5258;">#=&gt; NilClass</span>
+</span><span class="line" data-line="47"><span style="color: #14161b;">true</span><span style="color: #14161b;">.</span><span style="color: #007373;">class</span> <span style="color: #4f5258;">#=&gt; TrueClass</span>
+</span><span class="line" data-line="48"><span style="color: #14161b;">false</span><span style="color: #14161b;">.</span><span style="color: #007373;">class</span> <span style="color: #4f5258;">#=&gt; FalseClass</span>
+</span><span class="line" data-line="49">
+</span><span class="line" data-line="50"><span style="color: #4f5258;"># Equality</span>
+</span><span class="line" data-line="51"><span style="color: #14161b;">1</span> <span style="color: #14161b;">==</span> <span style="color: #14161b;">1</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="52"><span style="color: #14161b;">2</span> <span style="color: #14161b;">==</span> <span style="color: #14161b;">1</span> <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="53">
+</span><span class="line" data-line="54"><span style="color: #4f5258;"># Inequality</span>
+</span><span class="line" data-line="55"><span style="color: #14161b;">1</span> <span style="color: #14161b;">!=</span> <span style="color: #14161b;">1</span> <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="56"><span style="color: #14161b;">2</span> <span style="color: #14161b;">!=</span> <span style="color: #14161b;">1</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="57">
+</span><span class="line" data-line="58"><span style="color: #4f5258;"># Apart from false itself, nil is the only other &#39;falsey&#39; value</span>
+</span><span class="line" data-line="59">
+</span><span class="line" data-line="60"><span style="color: #14161b;">!</span><span style="color: #14161b;">!</span><span style="color: #007373;">nil</span>   <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="61"><span style="color: #14161b;">!</span><span style="color: #14161b;">!</span><span style="color: #14161b;">false</span> <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="62"><span style="color: #14161b;">!</span><span style="color: #14161b;">!</span><span style="color: #14161b;">0</span>     <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="63"><span style="color: #14161b;">!</span><span style="color: #14161b;">!</span><span style="color: #005523;">&quot;</span><span style="color: #005523;">&quot;</span>    <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="64">
+</span><span class="line" data-line="65"><span style="color: #4f5258;"># More comparisons</span>
+</span><span class="line" data-line="66"><span style="color: #14161b;">1</span> <span style="color: #14161b;">&lt;</span> <span style="color: #14161b;">10</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="67"><span style="color: #14161b;">1</span> <span style="color: #14161b;">&gt;</span> <span style="color: #14161b;">10</span> <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="68"><span style="color: #14161b;">2</span> <span style="color: #14161b;">&lt;=</span> <span style="color: #14161b;">2</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="69"><span style="color: #14161b;">2</span> <span style="color: #14161b;">&gt;=</span> <span style="color: #14161b;">2</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="70">
+</span><span class="line" data-line="71"><span style="color: #4f5258;"># Combined comparison operator (returns `1` when the first argument is greater,</span>
+</span><span class="line" data-line="72"><span style="color: #4f5258;"># `-1` when the second argument is greater, and `0` otherwise)</span>
+</span><span class="line" data-line="73"><span style="color: #14161b;">1</span> <span style="color: #14161b;">&lt;=&gt;</span> <span style="color: #14161b;">10</span> <span style="color: #4f5258;">#=&gt; -1 (1 &lt; 10)</span>
+</span><span class="line" data-line="74"><span style="color: #14161b;">10</span> <span style="color: #14161b;">&lt;=&gt;</span> <span style="color: #14161b;">1</span> <span style="color: #4f5258;">#=&gt; 1 (10 &gt; 1)</span>
+</span><span class="line" data-line="75"><span style="color: #14161b;">1</span> <span style="color: #14161b;">&lt;=&gt;</span> <span style="color: #14161b;">1</span> <span style="color: #4f5258;">#=&gt; 0 (1 == 1)</span>
+</span><span class="line" data-line="76">
+</span><span class="line" data-line="77"><span style="color: #4f5258;"># Logical operators</span>
+</span><span class="line" data-line="78"><span style="color: #14161b;">true</span> <span style="color: #14161b;">&amp;&amp;</span> <span style="color: #14161b;">false</span> <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="79"><span style="color: #14161b;">true</span> <span style="color: #14161b;">||</span> <span style="color: #14161b;">false</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="80">
+</span><span class="line" data-line="81"><span style="color: #4f5258;"># There are alternate versions of the logical operators with much lower</span>
+</span><span class="line" data-line="82"><span style="color: #4f5258;"># precedence. These are meant to be used as flow-control constructs to chain</span>
+</span><span class="line" data-line="83"><span style="color: #4f5258;"># statements together until one of them returns true or false.</span>
+</span><span class="line" data-line="84">
+</span><span class="line" data-line="85"><span style="color: #4f5258;"># `do_something_else` only called if `do_something` succeeds.</span>
+</span><span class="line" data-line="86"><span style="color: #007373;">do_something</span><span style="color: #14161b;">(</span><span style="color: #14161b;">)</span> <span style="color: #14161b; font-weight: bold;">and</span> <span style="color: #007373;">do_something_else</span><span style="color: #14161b;">(</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="87"><span style="color: #4f5258;"># `log_error` only called if `do_something` fails.</span>
+</span><span class="line" data-line="88"><span style="color: #007373;">do_something</span><span style="color: #14161b;">(</span><span style="color: #14161b;">)</span> <span style="color: #14161b; font-weight: bold;">or</span> <span style="color: #007373;">log_error</span><span style="color: #14161b;">(</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="89">
+</span><span class="line" data-line="90"><span style="color: #4f5258;"># String interpolation</span>
+</span><span class="line" data-line="91">
+</span><span class="line" data-line="92"><span style="color: #14161b;">placeholder</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">use string interpolation</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="93"><span style="color: #005523;">&quot;</span><span style="color: #005523;">I can </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">placeholder</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;"> when using double quoted strings</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="94"><span style="color: #4f5258;">#=&gt; &quot;I can use string interpolation when using double quoted strings&quot;</span>
+</span><span class="line" data-line="95">
+</span><span class="line" data-line="96"><span style="color: #4f5258;"># You can combine strings using `+`, but not with other types</span>
+</span><span class="line" data-line="97"><span style="color: #005523;">&#39;</span><span style="color: #005523;">hello </span><span style="color: #005523;">&#39;</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">world</span><span style="color: #005523;">&#39;</span>  <span style="color: #4f5258;">#=&gt; &quot;hello world&quot;</span>
+</span><span class="line" data-line="98"><span style="color: #005523;">&#39;</span><span style="color: #005523;">hello </span><span style="color: #005523;">&#39;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">3</span> <span style="color: #4f5258;">#=&gt; TypeError: can&#39;t convert Fixnum into String</span>
+</span><span class="line" data-line="99"><span style="color: #005523;">&#39;</span><span style="color: #005523;">hello </span><span style="color: #005523;">&#39;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">.</span><span style="color: #007373;">to_s</span> <span style="color: #4f5258;">#=&gt; &quot;hello 3&quot;</span>
+</span><span class="line" data-line="100"><span style="color: #005523;">&quot;</span><span style="color: #005523;">hello </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">3</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">&quot;</span> <span style="color: #4f5258;">#=&gt; &quot;hello 3&quot;</span>
+</span><span class="line" data-line="101">
+</span><span class="line" data-line="102"><span style="color: #4f5258;"># ...or combine strings and operators</span>
+</span><span class="line" data-line="103"><span style="color: #005523;">&#39;</span><span style="color: #005523;">hello </span><span style="color: #005523;">&#39;</span> <span style="color: #14161b;">*</span> <span style="color: #14161b;">3</span> <span style="color: #4f5258;">#=&gt; &quot;hello hello hello &quot;</span>
+</span><span class="line" data-line="104">
+</span><span class="line" data-line="105"><span style="color: #4f5258;"># ...or append to string</span>
+</span><span class="line" data-line="106"><span style="color: #005523;">&#39;</span><span style="color: #005523;">hello</span><span style="color: #005523;">&#39;</span> <span style="color: #14161b;">&lt;&lt;</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;"> world</span><span style="color: #005523;">&#39;</span> <span style="color: #4f5258;">#=&gt; &quot;hello world&quot;</span>
+</span><span class="line" data-line="107">
+</span><span class="line" data-line="108"><span style="color: #4f5258;"># You can print to the output with a newline at the end</span>
+</span><span class="line" data-line="109"><span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">I&#39;m printing!</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="110"><span style="color: #4f5258;">#=&gt; I&#39;m printing!</span>
+</span><span class="line" data-line="111"><span style="color: #4f5258;">#=&gt; nil</span>
+</span><span class="line" data-line="112">
+</span><span class="line" data-line="113"><span style="color: #4f5258;"># ...or print to the output without a newline</span>
+</span><span class="line" data-line="114"><span style="color: #007373;">print</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">I&#39;m printing!</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="115"><span style="color: #4f5258;">#=&gt; &quot;I&#39;m printing!&quot; =&gt; nil</span>
+</span><span class="line" data-line="116">
+</span><span class="line" data-line="117"><span style="color: #4f5258;"># Variables</span>
+</span><span class="line" data-line="118"><span style="color: #14161b;">x</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">25</span> <span style="color: #4f5258;">#=&gt; 25</span>
+</span><span class="line" data-line="119"><span style="color: #14161b;">x</span> <span style="color: #4f5258;">#=&gt; 25</span>
+</span><span class="line" data-line="120">
+</span><span class="line" data-line="121"><span style="color: #4f5258;"># Note that assignment returns the value assigned.</span>
+</span><span class="line" data-line="122"><span style="color: #4f5258;"># This means you can do multiple assignment.</span>
+</span><span class="line" data-line="123">
+</span><span class="line" data-line="124"><span style="color: #14161b;">x</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">y</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">10</span> <span style="color: #4f5258;">#=&gt; 10</span>
+</span><span class="line" data-line="125"><span style="color: #14161b;">x</span> <span style="color: #4f5258;">#=&gt; 10</span>
+</span><span class="line" data-line="126"><span style="color: #14161b;">y</span> <span style="color: #4f5258;">#=&gt; 10</span>
+</span><span class="line" data-line="127">
+</span><span class="line" data-line="128"><span style="color: #4f5258;"># By convention, use snake_case for variable names.</span>
+</span><span class="line" data-line="129"><span style="color: #14161b;">snake_case</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">true</span>
+</span><span class="line" data-line="130">
+</span><span class="line" data-line="131"><span style="color: #4f5258;"># Use descriptive variable names</span>
+</span><span class="line" data-line="132"><span style="color: #14161b;">path_to_project_root</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">/good/name/</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="133"><span style="color: #14161b;">m</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">/bad/name/</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="134">
+</span><span class="line" data-line="135"><span style="color: #4f5258;"># Symbols are immutable, reusable constants represented internally by an</span>
+</span><span class="line" data-line="136"><span style="color: #4f5258;"># integer value. They&#39;re often used instead of strings to efficiently convey</span>
+</span><span class="line" data-line="137"><span style="color: #4f5258;"># specific, meaningful values.</span>
+</span><span class="line" data-line="138">
+</span><span class="line" data-line="139"><span style="color: #007373;">:pending</span><span style="color: #14161b;">.</span><span style="color: #007373;">class</span> <span style="color: #4f5258;">#=&gt; Symbol</span>
+</span><span class="line" data-line="140">
+</span><span class="line" data-line="141"><span style="color: #14161b;">status</span> <span style="color: #14161b;">=</span> <span style="color: #007373;">:pending</span>
+</span><span class="line" data-line="142">
+</span><span class="line" data-line="143"><span style="color: #14161b;">status</span> <span style="color: #14161b;">==</span> <span style="color: #007373;">:pending</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="144">
+</span><span class="line" data-line="145"><span style="color: #14161b;">status</span> <span style="color: #14161b;">==</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">pending</span><span style="color: #005523;">&#39;</span> <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="146">
+</span><span class="line" data-line="147"><span style="color: #14161b;">status</span> <span style="color: #14161b;">==</span> <span style="color: #007373;">:approved</span> <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="148">
+</span><span class="line" data-line="149"><span style="color: #4f5258;"># Strings can be converted into symbols and vice versa.</span>
+</span><span class="line" data-line="150"><span style="color: #14161b;">status</span><span style="color: #14161b;">.</span><span style="color: #007373;">to_s</span> <span style="color: #4f5258;">#=&gt; &quot;pending&quot;</span>
+</span><span class="line" data-line="151"><span style="color: #005523;">&quot;</span><span style="color: #005523;">argon</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">.</span><span style="color: #007373;">to_sym</span> <span style="color: #4f5258;">#=&gt; :argon</span>
+</span><span class="line" data-line="152">
+</span><span class="line" data-line="153"><span style="color: #4f5258;"># Arrays</span>
+</span><span class="line" data-line="154">
+</span><span class="line" data-line="155"><span style="color: #4f5258;"># This is an array.</span>
+</span><span class="line" data-line="156"><span style="color: #14161b;">array</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">4</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">5</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; [1, 2, 3, 4, 5]</span>
+</span><span class="line" data-line="157">
+</span><span class="line" data-line="158"><span style="color: #4f5258;"># Arrays can contain different types of items.</span>
+</span><span class="line" data-line="159"><span style="color: #14161b;">[</span><span style="color: #14161b;">1</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">hello</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">false</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; [1, &quot;hello&quot;, false]</span>
+</span><span class="line" data-line="160">
+</span><span class="line" data-line="161"><span style="color: #4f5258;"># You might prefer %w instead of quotes</span>
+</span><span class="line" data-line="162"><span style="color: #14161b;">%w[</span><span style="color: #005523;">foo</span> <span style="color: #005523;">bar</span> <span style="color: #005523;">baz</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; [&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;]</span>
+</span><span class="line" data-line="163">
+</span><span class="line" data-line="164"><span style="color: #4f5258;"># Arrays can be indexed.</span>
+</span><span class="line" data-line="165"><span style="color: #4f5258;"># From the front...</span>
+</span><span class="line" data-line="166"><span style="color: #14161b;">array</span><span style="color: #14161b;">[</span><span style="color: #14161b;">0</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; 1</span>
+</span><span class="line" data-line="167"><span style="color: #14161b;">array</span><span style="color: #14161b;">.</span><span style="color: #007373;">first</span> <span style="color: #4f5258;">#=&gt; 1</span>
+</span><span class="line" data-line="168"><span style="color: #14161b;">array</span><span style="color: #14161b;">[</span><span style="color: #14161b;">12</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; nil</span>
+</span><span class="line" data-line="169">
+</span><span class="line" data-line="170"><span style="color: #4f5258;"># ...or from the back...</span>
+</span><span class="line" data-line="171"><span style="color: #14161b;">array</span><span style="color: #14161b;">[</span><span style="color: #14161b;">-</span><span style="color: #14161b;">1</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; 5</span>
+</span><span class="line" data-line="172"><span style="color: #14161b;">array</span><span style="color: #14161b;">.</span><span style="color: #007373;">last</span> <span style="color: #4f5258;">#=&gt; 5</span>
+</span><span class="line" data-line="173">
+</span><span class="line" data-line="174"><span style="color: #4f5258;"># ...or with a start index and length...</span>
+</span><span class="line" data-line="175"><span style="color: #14161b;">array</span><span style="color: #14161b;">[</span><span style="color: #14161b;">2</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; [3, 4, 5]</span>
+</span><span class="line" data-line="176">
+</span><span class="line" data-line="177"><span style="color: #4f5258;"># ...or with a range...</span>
+</span><span class="line" data-line="178"><span style="color: #14161b;">array</span><span style="color: #14161b;">[</span><span style="color: #14161b;">1</span><span style="color: #14161b;">..</span><span style="color: #14161b;">3</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; [2, 3, 4]</span>
+</span><span class="line" data-line="179">
+</span><span class="line" data-line="180"><span style="color: #4f5258;"># You can reverse an Array.</span>
+</span><span class="line" data-line="181"><span style="color: #4f5258;"># Return a new array with reversed values</span>
+</span><span class="line" data-line="182"><span style="color: #14161b;">[</span><span style="color: #14161b;">1</span><span style="color: #14161b;">,</span><span style="color: #14161b;">2</span><span style="color: #14161b;">,</span><span style="color: #14161b;">3</span><span style="color: #14161b;">]</span><span style="color: #14161b;">.</span><span style="color: #007373;">reverse</span> <span style="color: #4f5258;">#=&gt; [3,2,1]</span>
+</span><span class="line" data-line="183"><span style="color: #4f5258;"># Reverse an array in place to update variable with reversed values</span>
+</span><span class="line" data-line="184"><span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span><span style="color: #14161b;">,</span><span style="color: #14161b;">2</span><span style="color: #14161b;">,</span><span style="color: #14161b;">3</span><span style="color: #14161b;">]</span>
+</span><span class="line" data-line="185"><span style="color: #14161b;">a</span><span style="color: #14161b;">.</span><span style="color: #007373;">reverse!</span> <span style="color: #4f5258;">#=&gt; a==[3,2,1] because of the bang (&#39;!&#39;) call to reverse</span>
+</span><span class="line" data-line="186">
+</span><span class="line" data-line="187"><span style="color: #4f5258;"># Like arithmetic, [var] access is just syntactic sugar</span>
+</span><span class="line" data-line="188"><span style="color: #4f5258;"># for calling a method &#39;[]&#39; on an object.</span>
+</span><span class="line" data-line="189"><span style="color: #14161b;">array</span><span style="color: #14161b;">.</span>[] <span style="color: #14161b;">0</span> <span style="color: #4f5258;">#=&gt; 1</span>
+</span><span class="line" data-line="190"><span style="color: #14161b;">array</span><span style="color: #14161b;">.</span>[] <span style="color: #14161b;">12</span> <span style="color: #4f5258;">#=&gt; nil</span>
+</span><span class="line" data-line="191">
+</span><span class="line" data-line="192"><span style="color: #4f5258;"># You can add to an array...</span>
+</span><span class="line" data-line="193"><span style="color: #14161b;">array</span> <span style="color: #14161b;">&lt;&lt;</span> <span style="color: #14161b;">6</span> <span style="color: #4f5258;">#=&gt; [1, 2, 3, 4, 5, 6]</span>
+</span><span class="line" data-line="194"><span style="color: #4f5258;"># Or like this</span>
+</span><span class="line" data-line="195"><span style="color: #14161b;">array</span><span style="color: #14161b;">.</span><span style="color: #007373;">push</span><span style="color: #14161b;">(</span><span style="color: #14161b;">6</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; [1, 2, 3, 4, 5, 6]</span>
+</span><span class="line" data-line="196">
+</span><span class="line" data-line="197"><span style="color: #4f5258;"># ...and check if an item exists in an array</span>
+</span><span class="line" data-line="198"><span style="color: #14161b;">array</span><span style="color: #14161b;">.</span><span style="color: #007373;">include?</span><span style="color: #14161b;">(</span><span style="color: #14161b;">1</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="199">
+</span><span class="line" data-line="200"><span style="color: #4f5258;"># Hashes are Ruby&#39;s primary dictionary with key/value pairs.</span>
+</span><span class="line" data-line="201"><span style="color: #4f5258;"># Hashes are denoted with curly braces.</span>
+</span><span class="line" data-line="202"><span style="color: #14161b;">hash</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">color</span><span style="color: #005523;">&#39;</span> <span style="color: #14161b;">=&gt;</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">green</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">number</span><span style="color: #005523;">&#39;</span> <span style="color: #14161b;">=&gt;</span> <span style="color: #14161b;">5</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="203">
+</span><span class="line" data-line="204"><span style="color: #14161b;">hash</span><span style="color: #14161b;">.</span><span style="color: #007373;">keys</span> <span style="color: #4f5258;">#=&gt; [&#39;color&#39;, &#39;number&#39;]</span>
+</span><span class="line" data-line="205">
+</span><span class="line" data-line="206"><span style="color: #4f5258;"># Hashes can be quickly looked up by key.</span>
+</span><span class="line" data-line="207"><span style="color: #14161b;">hash</span><span style="color: #14161b;">[</span><span style="color: #005523;">&#39;</span><span style="color: #005523;">color</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; &quot;green&quot;</span>
+</span><span class="line" data-line="208"><span style="color: #14161b;">hash</span><span style="color: #14161b;">[</span><span style="color: #005523;">&#39;</span><span style="color: #005523;">number</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; 5</span>
+</span><span class="line" data-line="209">
+</span><span class="line" data-line="210"><span style="color: #4f5258;"># Asking a hash for a key that doesn&#39;t exist returns nil.</span>
+</span><span class="line" data-line="211"><span style="color: #14161b;">hash</span><span style="color: #14161b;">[</span><span style="color: #005523;">&#39;</span><span style="color: #005523;">nothing here</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">]</span> <span style="color: #4f5258;">#=&gt; nil</span>
+</span><span class="line" data-line="212">
+</span><span class="line" data-line="213"><span style="color: #4f5258;"># When using symbols for keys in a hash, you can use an alternate syntax.</span>
+</span><span class="line" data-line="214">
+</span><span class="line" data-line="215"><span style="color: #14161b;">hash</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #007373;">:defcon</span> <span style="color: #14161b;">=&gt;</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">,</span> <span style="color: #007373;">:action</span> <span style="color: #14161b;">=&gt;</span> <span style="color: #14161b;">true</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="216"><span style="color: #14161b;">hash</span><span style="color: #14161b;">.</span><span style="color: #007373;">keys</span> <span style="color: #4f5258;">#=&gt; [:defcon, :action]</span>
+</span><span class="line" data-line="217">
+</span><span class="line" data-line="218"><span style="color: #14161b;">hash</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #007373;">defcon</span><span style="color: #14161b;">:</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">,</span> <span style="color: #007373;">action</span><span style="color: #14161b;">:</span> <span style="color: #14161b;">true</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="219"><span style="color: #14161b;">hash</span><span style="color: #14161b;">.</span><span style="color: #007373;">keys</span> <span style="color: #4f5258;">#=&gt; [:defcon, :action]</span>
+</span><span class="line" data-line="220">
+</span><span class="line" data-line="221"><span style="color: #4f5258;"># Check existence of keys and values in hash</span>
+</span><span class="line" data-line="222"><span style="color: #14161b;">hash</span><span style="color: #14161b;">.</span><span style="color: #007373;">key?</span><span style="color: #14161b;">(</span><span style="color: #007373;">:defcon</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="223"><span style="color: #14161b;">hash</span><span style="color: #14161b;">.</span><span style="color: #007373;">value?</span><span style="color: #14161b;">(</span><span style="color: #14161b;">3</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="224">
+</span><span class="line" data-line="225"><span style="color: #4f5258;"># Tip: Both Arrays and Hashes are Enumerable!</span>
+</span><span class="line" data-line="226"><span style="color: #4f5258;"># They share a lot of useful methods such as each, map, count, and more.</span>
+</span><span class="line" data-line="227">
+</span><span class="line" data-line="228"><span style="color: #4f5258;"># Control structures</span>
+</span><span class="line" data-line="229">
+</span><span class="line" data-line="230"><span style="color: #4f5258;"># Conditionals</span>
+</span><span class="line" data-line="231"><span style="color: #14161b; font-weight: bold;">if</span> <span style="color: #14161b;">true</span>
+</span><span class="line" data-line="232">  <span style="color: #005523;">&#39;</span><span style="color: #005523;">if statement</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="233"><span style="color: #14161b; font-weight: bold;">elsif</span> <span style="color: #14161b;">false</span>
+</span><span class="line" data-line="234">  <span style="color: #005523;">&#39;</span><span style="color: #005523;">else if, optional</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="235"><span style="color: #14161b; font-weight: bold;">else</span>
+</span><span class="line" data-line="236">  <span style="color: #005523;">&#39;</span><span style="color: #005523;">else, also optional</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="237"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="238">
+</span><span class="line" data-line="239"><span style="color: #4f5258;"># If a condition controls invocation of a single statement rather than a block</span>
+</span><span class="line" data-line="240"><span style="color: #4f5258;"># of code you can use postfix-if notation</span>
+</span><span class="line" data-line="241"><span style="color: #14161b;">warnings</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #005523;">&#39;</span><span style="color: #005523;">Patronimic is missing</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">Address too short</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">]</span>
+</span><span class="line" data-line="242"><span style="color: #007373;">puts</span><span style="color: #14161b;">(</span><span style="color: #005523;">&quot;</span><span style="color: #005523;">Some warnings occurred:</span><span style="color: #007373;">\n</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">warnings</span><span style="color: #14161b;">.</span><span style="color: #007373;">join</span><span style="color: #14161b;">(</span><span style="color: #005523;">&quot;</span><span style="color: #007373;">\n</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span><span style="color: #14161b;">)</span>  <span style="color: #14161b; font-weight: bold;">if</span> <span style="color: #14161b;">!</span><span style="color: #14161b;">warnings</span><span style="color: #14161b;">.</span><span style="color: #007373;">empty?</span>
+</span><span class="line" data-line="243">
+</span><span class="line" data-line="244"><span style="color: #4f5258;"># Rephrase condition if `unless` sounds better than `if`</span>
+</span><span class="line" data-line="245"><span style="color: #007373;">puts</span><span style="color: #14161b;">(</span><span style="color: #005523;">&quot;</span><span style="color: #005523;">Some warnings occurred:</span><span style="color: #007373;">\n</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">warnings</span><span style="color: #14161b;">.</span><span style="color: #007373;">join</span><span style="color: #14161b;">(</span><span style="color: #005523;">&quot;</span><span style="color: #007373;">\n</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span><span style="color: #14161b;">)</span>  <span style="color: #14161b; font-weight: bold;">unless</span> <span style="color: #14161b;">warnings</span><span style="color: #14161b;">.</span><span style="color: #007373;">empty?</span>
+</span><span class="line" data-line="246">
+</span><span class="line" data-line="247"><span style="color: #4f5258;"># Loops</span>
+</span><span class="line" data-line="248"><span style="color: #4f5258;"># In Ruby, traditional `for` loops aren&#39;t very common. Instead, these</span>
+</span><span class="line" data-line="249"><span style="color: #4f5258;"># basic loops are implemented using enumerable, which hinges on `each`.</span>
+</span><span class="line" data-line="250"><span style="color: #14161b;">(</span><span style="color: #14161b;">1</span><span style="color: #14161b;">..</span><span style="color: #14161b;">5</span><span style="color: #14161b;">)</span><span style="color: #14161b;">.</span><span style="color: #007373;">each</span> <span style="color: #14161b; font-weight: bold;">do</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">counter</span><span style="color: #14161b;">|</span>
+</span><span class="line" data-line="251">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">iteration </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">counter</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="252"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="253">
+</span><span class="line" data-line="254"><span style="color: #4f5258;"># Which is roughly equivalent to the following, which is unusual to see in Ruby.</span>
+</span><span class="line" data-line="255"><span style="color: #14161b; font-weight: bold;">for</span> <span style="color: #14161b;">counter</span> <span style="color: #14161b; font-weight: bold;">in</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">..</span><span style="color: #14161b;">5</span>
+</span><span class="line" data-line="256">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">iteration </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">counter</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="257"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="258">
+</span><span class="line" data-line="259"><span style="color: #4f5258;"># The `do |variable| ... end` construct above is called a &#39;block&#39;. Blocks are</span>
+</span><span class="line" data-line="260"><span style="color: #4f5258;"># similar to lambdas, anonymous functions or closures in other programming</span>
+</span><span class="line" data-line="261"><span style="color: #4f5258;"># languages. They can be passed around as objects, called, or attached as</span>
+</span><span class="line" data-line="262"><span style="color: #4f5258;"># methods.</span>
+</span><span class="line" data-line="263"><span style="color: #4f5258;">#</span>
+</span><span class="line" data-line="264"><span style="color: #4f5258;"># The &#39;each&#39; method of a range runs the block once for each element of the range.</span>
+</span><span class="line" data-line="265"><span style="color: #4f5258;"># The block is passed a counter as a parameter.</span>
+</span><span class="line" data-line="266">
+</span><span class="line" data-line="267"><span style="color: #4f5258;"># You can also surround blocks in curly brackets.</span>
+</span><span class="line" data-line="268"><span style="color: #14161b;">(</span><span style="color: #14161b;">1</span><span style="color: #14161b;">..</span><span style="color: #14161b;">5</span><span style="color: #14161b;">)</span><span style="color: #14161b;">.</span><span style="color: #007373;">each</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">counter</span><span style="color: #14161b;">|</span> <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">iteration </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">counter</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="269">
+</span><span class="line" data-line="270"><span style="color: #4f5258;"># The contents of data structures can also be iterated using each.</span>
+</span><span class="line" data-line="271"><span style="color: #14161b;">array</span><span style="color: #14161b;">.</span><span style="color: #007373;">each</span> <span style="color: #14161b; font-weight: bold;">do</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">element</span><span style="color: #14161b;">|</span>
+</span><span class="line" data-line="272">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">element</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;"> is part of the array</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="273"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="274"><span style="color: #14161b;">hash</span><span style="color: #14161b;">.</span><span style="color: #007373;">each</span> <span style="color: #14161b; font-weight: bold;">do</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">key</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">value</span><span style="color: #14161b;">|</span>
+</span><span class="line" data-line="275">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">key</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;"> is </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">value</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="276"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="277">
+</span><span class="line" data-line="278"><span style="color: #4f5258;"># If you still need an index you can use &#39;each_with_index&#39; and define an index</span>
+</span><span class="line" data-line="279"><span style="color: #4f5258;"># variable.</span>
+</span><span class="line" data-line="280"><span style="color: #14161b;">array</span><span style="color: #14161b;">.</span><span style="color: #007373;">each_with_index</span> <span style="color: #14161b; font-weight: bold;">do</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">element</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">index</span><span style="color: #14161b;">|</span>
+</span><span class="line" data-line="281">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">element</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;"> is number </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">index</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;"> in the array</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="282"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="283">
+</span><span class="line" data-line="284"><span style="color: #14161b;">counter</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span>
+</span><span class="line" data-line="285"><span style="color: #14161b; font-weight: bold;">while</span> <span style="color: #14161b;">counter</span> <span style="color: #14161b;">&lt;=</span> <span style="color: #14161b;">5</span> <span style="color: #14161b; font-weight: bold;">do</span>
+</span><span class="line" data-line="286">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">iteration </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">counter</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="287">  <span style="color: #14161b;">counter</span> <span style="color: #14161b;">+=</span> <span style="color: #14161b;">1</span>
+</span><span class="line" data-line="288"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="289"><span style="color: #4f5258;">#=&gt; iteration 1</span>
+</span><span class="line" data-line="290"><span style="color: #4f5258;">#=&gt; iteration 2</span>
+</span><span class="line" data-line="291"><span style="color: #4f5258;">#=&gt; iteration 3</span>
+</span><span class="line" data-line="292"><span style="color: #4f5258;">#=&gt; iteration 4</span>
+</span><span class="line" data-line="293"><span style="color: #4f5258;">#=&gt; iteration 5</span>
+</span><span class="line" data-line="294">
+</span><span class="line" data-line="295"><span style="color: #4f5258;"># There are a bunch of other helpful looping functions in Ruby.</span>
+</span><span class="line" data-line="296"><span style="color: #4f5258;"># For example: &#39;map&#39;, &#39;reduce&#39;, &#39;inject&#39;, the list goes on.</span>
+</span><span class="line" data-line="297"><span style="color: #4f5258;"># Map, for instance, takes the array it&#39;s looping over, does something</span>
+</span><span class="line" data-line="298"><span style="color: #4f5258;"># to it as defined in your block, and returns an entirely new array.</span>
+</span><span class="line" data-line="299"><span style="color: #14161b;">array</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span><span style="color: #14161b;">,</span><span style="color: #14161b;">2</span><span style="color: #14161b;">,</span><span style="color: #14161b;">3</span><span style="color: #14161b;">,</span><span style="color: #14161b;">4</span><span style="color: #14161b;">,</span><span style="color: #14161b;">5</span><span style="color: #14161b;">]</span>
+</span><span class="line" data-line="300"><span style="color: #14161b;">doubled</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">array</span><span style="color: #14161b;">.</span><span style="color: #007373;">map</span> <span style="color: #14161b; font-weight: bold;">do</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">element</span><span style="color: #14161b;">|</span>
+</span><span class="line" data-line="301">  <span style="color: #14161b;">element</span> <span style="color: #14161b;">*</span> <span style="color: #14161b;">2</span>
+</span><span class="line" data-line="302"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="303"><span style="color: #007373;">puts</span> <span style="color: #14161b;">doubled</span>
+</span><span class="line" data-line="304"><span style="color: #4f5258;">#=&gt; [2,4,6,8,10]</span>
+</span><span class="line" data-line="305"><span style="color: #007373;">puts</span> <span style="color: #14161b;">array</span>
+</span><span class="line" data-line="306"><span style="color: #4f5258;">#=&gt; [1,2,3,4,5]</span>
+</span><span class="line" data-line="307">
+</span><span class="line" data-line="308"><span style="color: #4f5258;"># another useful syntax is .map(&amp;:method)</span>
+</span><span class="line" data-line="309"><span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #005523;">&quot;</span><span style="color: #005523;">FOO</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">BAR</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">BAZ</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">]</span>
+</span><span class="line" data-line="310"><span style="color: #14161b;">a</span><span style="color: #14161b;">.</span><span style="color: #007373;">map</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">s</span><span style="color: #14161b;">|</span> <span style="color: #14161b;">s</span><span style="color: #14161b;">.</span><span style="color: #007373;">downcase</span> <span style="color: #14161b;">&rbrace;</span> <span style="color: #4f5258;">#=&gt; [&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;]</span>
+</span><span class="line" data-line="311"><span style="color: #14161b;">a</span><span style="color: #14161b;">.</span><span style="color: #007373;">map</span><span style="color: #14161b;">(</span><span style="color: #14161b;">&amp;</span><span style="color: #007373;">:downcase</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; [&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;]</span>
+</span><span class="line" data-line="312">
+</span><span class="line" data-line="313"><span style="color: #4f5258;"># Case construct</span>
+</span><span class="line" data-line="314"><span style="color: #14161b;">grade</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">B</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="315">
+</span><span class="line" data-line="316"><span style="color: #14161b; font-weight: bold;">case</span> <span style="color: #14161b;">grade</span>
+</span><span class="line" data-line="317"><span style="color: #14161b; font-weight: bold;">when</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">A</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="318">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">Way to go kiddo</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="319"><span style="color: #14161b; font-weight: bold;">when</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">B</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="320">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">Better luck next time</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="321"><span style="color: #14161b; font-weight: bold;">when</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">C</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="322">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">You can do better</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="323"><span style="color: #14161b; font-weight: bold;">when</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">D</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="324">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">Scraping through</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="325"><span style="color: #14161b; font-weight: bold;">when</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">F</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="326">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">You failed!</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="327"><span style="color: #14161b; font-weight: bold;">else</span>
+</span><span class="line" data-line="328">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">Alternative grading system, eh?</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="329"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="330"><span style="color: #4f5258;">#=&gt; &quot;Better luck next time&quot;</span>
+</span><span class="line" data-line="331">
+</span><span class="line" data-line="332"><span style="color: #4f5258;"># Cases can also use ranges</span>
+</span><span class="line" data-line="333"><span style="color: #14161b;">grade</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">82</span>
+</span><span class="line" data-line="334"><span style="color: #14161b; font-weight: bold;">case</span> <span style="color: #14161b;">grade</span>
+</span><span class="line" data-line="335"><span style="color: #14161b; font-weight: bold;">when</span> <span style="color: #14161b;">90</span><span style="color: #14161b;">..</span><span style="color: #14161b;">100</span>
+</span><span class="line" data-line="336">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">Hooray!</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="337"><span style="color: #14161b; font-weight: bold;">when</span> <span style="color: #14161b;">80</span><span style="color: #14161b;">...</span><span style="color: #14161b;">90</span>
+</span><span class="line" data-line="338">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">OK job</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="339"><span style="color: #14161b; font-weight: bold;">else</span>
+</span><span class="line" data-line="340">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">You failed!</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="341"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="342"><span style="color: #4f5258;">#=&gt; &quot;OK job&quot;</span>
+</span><span class="line" data-line="343">
+</span><span class="line" data-line="344"><span style="color: #4f5258;"># Exception handling</span>
+</span><span class="line" data-line="345"><span style="color: #14161b; font-weight: bold;">begin</span>
+</span><span class="line" data-line="346">  <span style="color: #4f5258;"># Code here that might raise an exception</span>
+</span><span class="line" data-line="347">  <span style="color: #14161b; font-weight: bold;">raise</span> <span style="color: #14161b;">NoMemoryError</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">You ran out of memory.</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="348"><span style="color: #14161b; font-weight: bold;">rescue</span> <span style="color: #14161b;">NoMemoryError</span> <span style="color: #14161b;">=&gt;</span> <span style="color: #14161b;">exception_variable</span>
+</span><span class="line" data-line="349">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">NoMemoryError was raised</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">exception_variable</span>
+</span><span class="line" data-line="350"><span style="color: #14161b; font-weight: bold;">rescue</span> <span style="color: #14161b;">RuntimeError</span> <span style="color: #14161b;">=&gt;</span> <span style="color: #14161b;">other_exception_variable</span>
+</span><span class="line" data-line="351">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">RuntimeError was raised now</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="352"><span style="color: #14161b; font-weight: bold;">else</span>
+</span><span class="line" data-line="353">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">This runs if no exceptions were thrown at all</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="354"><span style="color: #14161b; font-weight: bold;">ensure</span>
+</span><span class="line" data-line="355">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">This code always runs no matter what</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="356"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="357">
+</span><span class="line" data-line="358"><span style="color: #4f5258;"># Methods</span>
+</span><span class="line" data-line="359">
+</span><span class="line" data-line="360"><span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">double</span><span style="color: #14161b;">(</span><span style="color: #14161b;">x</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="361">  <span style="color: #14161b;">x</span> <span style="color: #14161b;">*</span> <span style="color: #14161b;">2</span>
+</span><span class="line" data-line="362"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="363">
+</span><span class="line" data-line="364"><span style="color: #4f5258;"># Methods (and blocks) implicitly return the value of the last statement.</span>
+</span><span class="line" data-line="365"><span style="color: #007373;">double</span><span style="color: #14161b;">(</span><span style="color: #14161b;">2</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; 4</span>
+</span><span class="line" data-line="366">
+</span><span class="line" data-line="367"><span style="color: #4f5258;"># Parentheses are optional where the interpretation is unambiguous.</span>
+</span><span class="line" data-line="368"><span style="color: #007373;">double</span> <span style="color: #14161b;">3</span> <span style="color: #4f5258;">#=&gt; 6</span>
+</span><span class="line" data-line="369">
+</span><span class="line" data-line="370"><span style="color: #007373;">double</span> <span style="color: #007373;">double</span> <span style="color: #14161b;">3</span> <span style="color: #4f5258;">#=&gt; 12</span>
+</span><span class="line" data-line="371">
+</span><span class="line" data-line="372"><span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">sum</span><span style="color: #14161b;">(</span><span style="color: #14161b;">x</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="373">  <span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">y</span>
+</span><span class="line" data-line="374"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="375">
+</span><span class="line" data-line="376"><span style="color: #4f5258;"># Method arguments are separated by a comma.</span>
+</span><span class="line" data-line="377"><span style="color: #007373;">sum</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">4</span> <span style="color: #4f5258;">#=&gt; 7</span>
+</span><span class="line" data-line="378">
+</span><span class="line" data-line="379"><span style="color: #007373;">sum</span> <span style="color: #007373;">sum</span><span style="color: #14161b;">(</span><span style="color: #14161b;">3</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">4</span><span style="color: #14161b;">)</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">5</span> <span style="color: #4f5258;">#=&gt; 12</span>
+</span><span class="line" data-line="380">
+</span><span class="line" data-line="381"><span style="color: #4f5258;"># yield</span>
+</span><span class="line" data-line="382"><span style="color: #4f5258;"># All methods have an implicit, optional block parameter.</span>
+</span><span class="line" data-line="383"><span style="color: #4f5258;"># It can be called with the &#39;yield&#39; keyword.</span>
+</span><span class="line" data-line="384"><span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">surround</span>
+</span><span class="line" data-line="385">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">&lbrace;</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="386">  <span style="color: #14161b; font-weight: bold;">yield</span>
+</span><span class="line" data-line="387">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">&rbrace;</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="388"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="389">
+</span><span class="line" data-line="390"><span style="color: #007373;">surround</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #007373;">puts</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">hello world</span><span style="color: #005523;">&#39;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="391">
+</span><span class="line" data-line="392"><span style="color: #4f5258;">#=&gt; &lbrace;</span>
+</span><span class="line" data-line="393"><span style="color: #4f5258;">#=&gt; hello world</span>
+</span><span class="line" data-line="394"><span style="color: #4f5258;">#=&gt; &rbrace;</span>
+</span><span class="line" data-line="395">
+</span><span class="line" data-line="396"><span style="color: #4f5258;"># Blocks can be converted into a &#39;proc&#39; object, which wraps the block and allows</span>
+</span><span class="line" data-line="397"><span style="color: #4f5258;"># it to be passed to another method, bound to a different scope, or manipulated</span>
+</span><span class="line" data-line="398"><span style="color: #4f5258;"># otherwise. This is most common in method parameter lists, where you frequently</span>
+</span><span class="line" data-line="399"><span style="color: #4f5258;"># see a trailing &#39;&amp;block&#39; parameter that will accept the block, if one is given,</span>
+</span><span class="line" data-line="400"><span style="color: #4f5258;"># and convert it to a &#39;Proc&#39;. The naming here is convention; it would work just</span>
+</span><span class="line" data-line="401"><span style="color: #4f5258;"># as well with &#39;&amp;pineapple&#39;.</span>
+</span><span class="line" data-line="402"><span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">guests</span><span style="color: #14161b;">(</span><span style="color: #14161b;">&amp;</span><span style="color: #14161b;">block</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="403">  <span style="color: #14161b;">block</span><span style="color: #14161b;">.</span><span style="color: #007373;">class</span> <span style="color: #4f5258;">#=&gt; Proc</span>
+</span><span class="line" data-line="404">  <span style="color: #14161b;">block</span><span style="color: #14161b;">.</span><span style="color: #007373;">call</span><span style="color: #14161b;">(</span><span style="color: #14161b;">4</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="405"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="406">
+</span><span class="line" data-line="407"><span style="color: #4f5258;"># The &#39;call&#39; method on the Proc is similar to calling &#39;yield&#39; when a block is</span>
+</span><span class="line" data-line="408"><span style="color: #4f5258;"># present. The arguments passed to &#39;call&#39; will be forwarded to the block as</span>
+</span><span class="line" data-line="409"><span style="color: #4f5258;"># arguments.</span>
+</span><span class="line" data-line="410">
+</span><span class="line" data-line="411"><span style="color: #007373;">guests</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">n</span><span style="color: #14161b;">|</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">You have </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">n</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;"> guests.</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="412"><span style="color: #4f5258;"># =&gt; &quot;You have 4 guests.&quot;</span>
+</span><span class="line" data-line="413">
+</span><span class="line" data-line="414"><span style="color: #4f5258;"># You can pass a list of arguments, which will be converted into an array.</span>
+</span><span class="line" data-line="415"><span style="color: #4f5258;"># That&#39;s what splat operator (&quot;*&quot;) is for.</span>
+</span><span class="line" data-line="416"><span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">guests</span><span style="color: #14161b;">(</span><span style="color: #14161b;">*</span><span style="color: #14161b;">array</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="417">  <span style="color: #14161b;">array</span><span style="color: #14161b;">.</span><span style="color: #007373;">each</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">|</span><span style="color: #14161b;">guest</span><span style="color: #14161b;">|</span> <span style="color: #007373;">puts</span> <span style="color: #14161b;">guest</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="418"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="419">
+</span><span class="line" data-line="420"><span style="color: #4f5258;"># There is also the shorthand block syntax. It&#39;s most useful when you need</span>
+</span><span class="line" data-line="421"><span style="color: #4f5258;"># to call a simple method on all array items.</span>
+</span><span class="line" data-line="422"><span style="color: #14161b;">upcased</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #005523;">&#39;</span><span style="color: #005523;">Watch</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">these</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">words</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">get</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">upcased</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">]</span><span style="color: #14161b;">.</span><span style="color: #007373;">map</span><span style="color: #14161b;">(</span><span style="color: #14161b;">&amp;</span><span style="color: #007373;">:upcase</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="423"><span style="color: #007373;">puts</span> <span style="color: #14161b;">upcased</span>
+</span><span class="line" data-line="424"><span style="color: #4f5258;">#=&gt; [&quot;WATCH&quot;, &quot;THESE&quot;, &quot;WORDS&quot;, &quot;GET&quot;, &quot;UPCASED&quot;]</span>
+</span><span class="line" data-line="425">
+</span><span class="line" data-line="426"><span style="color: #14161b;">sum</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">4</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">5</span><span style="color: #14161b;">]</span><span style="color: #14161b;">.</span><span style="color: #007373;">reduce</span><span style="color: #14161b;">(</span><span style="color: #14161b;">&amp;</span><span style="color: #007373;">:+</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="427"><span style="color: #007373;">puts</span> <span style="color: #14161b;">sum</span>
+</span><span class="line" data-line="428"><span style="color: #4f5258;">#=&gt; 15</span>
+</span><span class="line" data-line="429">
+</span><span class="line" data-line="430"><span style="color: #4f5258;"># Destructuring</span>
+</span><span class="line" data-line="431">
+</span><span class="line" data-line="432"><span style="color: #4f5258;"># Ruby will automatically destructure arrays on assignment to multiple variables.</span>
+</span><span class="line" data-line="433"><span style="color: #14161b;">a</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">b</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">c</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">]</span>
+</span><span class="line" data-line="434"><span style="color: #14161b;">a</span> <span style="color: #4f5258;">#=&gt; 1</span>
+</span><span class="line" data-line="435"><span style="color: #14161b;">b</span> <span style="color: #4f5258;">#=&gt; 2</span>
+</span><span class="line" data-line="436"><span style="color: #14161b;">c</span> <span style="color: #4f5258;">#=&gt; 3</span>
+</span><span class="line" data-line="437">
+</span><span class="line" data-line="438"><span style="color: #4f5258;"># In some cases, you will want to use the splat operator: `*` to prompt destructuring</span>
+</span><span class="line" data-line="439"><span style="color: #4f5258;"># of an array into a list.</span>
+</span><span class="line" data-line="440"><span style="color: #14161b;">ranked_competitors</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #005523;">&quot;</span><span style="color: #005523;">John</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">Sally</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">Dingus</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">Moe</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">,</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">Marcy</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">]</span>
+</span><span class="line" data-line="441">
+</span><span class="line" data-line="442"><span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">best</span><span style="color: #14161b;">(</span><span style="color: #14161b;">first</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">second</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">third</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="443">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">Winners are </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">first</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">, </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">second</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">, and </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">third</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">.</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="444"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="445">
+</span><span class="line" data-line="446"><span style="color: #007373;">best</span> <span style="color: #14161b;">*</span><span style="color: #14161b;">ranked_competitors</span><span style="color: #14161b;">.</span><span style="color: #007373;">first</span><span style="color: #14161b;">(</span><span style="color: #14161b;">3</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; Winners are John, Sally, and Dingus.</span>
+</span><span class="line" data-line="447">
+</span><span class="line" data-line="448"><span style="color: #4f5258;"># The splat operator can also be used in parameters.</span>
+</span><span class="line" data-line="449"><span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">best</span><span style="color: #14161b;">(</span><span style="color: #14161b;">first</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">second</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">third</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">*</span><span style="color: #14161b;">others</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="450">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">Winners are </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">first</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">, </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">second</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">, and </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">third</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">.</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="451">  <span style="color: #007373;">puts</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">There were </span><span style="color: #007373;">#&lbrace;</span><span style="color: #14161b;">others</span><span style="color: #14161b;">.</span><span style="color: #007373;">count</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;"> other participants.</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="452"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="453">
+</span><span class="line" data-line="454"><span style="color: #007373;">best</span> <span style="color: #14161b;">*</span><span style="color: #14161b;">ranked_competitors</span>
+</span><span class="line" data-line="455"><span style="color: #4f5258;">#=&gt; Winners are John, Sally, and Dingus.</span>
+</span><span class="line" data-line="456"><span style="color: #4f5258;">#=&gt; There were 2 other participants.</span>
+</span><span class="line" data-line="457">
+</span><span class="line" data-line="458"><span style="color: #4f5258;"># By convention, all methods that return booleans end with a question mark.</span>
+</span><span class="line" data-line="459"><span style="color: #14161b;">5</span><span style="color: #14161b;">.</span><span style="color: #007373;">even?</span> <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="460"><span style="color: #14161b;">5</span><span style="color: #14161b;">.</span><span style="color: #007373;">odd?</span> <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="461">
+</span><span class="line" data-line="462"><span style="color: #4f5258;"># By convention, if a method name ends with an exclamation mark, it does</span>
+</span><span class="line" data-line="463"><span style="color: #4f5258;"># something destructive like mutate the receiver. Many methods have a ! version</span>
+</span><span class="line" data-line="464"><span style="color: #4f5258;"># to make a change, and a non-! version to just return a new changed version.</span>
+</span><span class="line" data-line="465"><span style="color: #14161b;">company_name</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">Dunder Mifflin</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="466"><span style="color: #14161b;">company_name</span><span style="color: #14161b;">.</span><span style="color: #007373;">upcase</span> <span style="color: #4f5258;">#=&gt; &quot;DUNDER MIFFLIN&quot;</span>
+</span><span class="line" data-line="467"><span style="color: #14161b;">company_name</span> <span style="color: #4f5258;">#=&gt; &quot;Dunder Mifflin&quot;</span>
+</span><span class="line" data-line="468"><span style="color: #4f5258;"># We&#39;re mutating company_name this time.</span>
+</span><span class="line" data-line="469"><span style="color: #14161b;">company_name</span><span style="color: #14161b;">.</span><span style="color: #007373;">upcase!</span> <span style="color: #4f5258;">#=&gt; &quot;DUNDER MIFFLIN&quot;</span>
+</span><span class="line" data-line="470"><span style="color: #14161b;">company_name</span> <span style="color: #4f5258;">#=&gt; &quot;DUNDER MIFFLIN&quot;</span>
+</span><span class="line" data-line="471">
+</span><span class="line" data-line="472"><span style="color: #4f5258;"># Classes</span>
+</span><span class="line" data-line="473">
+</span><span class="line" data-line="474"><span style="color: #4f5258;"># You can define a class with the &#39;class&#39; keyword.</span>
+</span><span class="line" data-line="475"><span style="color: #14161b; font-weight: bold;">class</span> <span style="color: #14161b;">Human</span>
+</span><span class="line" data-line="476">
+</span><span class="line" data-line="477">  <span style="color: #4f5258;"># A class variable. It is shared by all instances of this class.</span>
+</span><span class="line" data-line="478">  <span style="color: #14161b;">@@species</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&#39;</span><span style="color: #005523;">H. sapiens</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="479">
+</span><span class="line" data-line="480">  <span style="color: #4f5258;"># Basic initializer</span>
+</span><span class="line" data-line="481">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">initialize</span><span style="color: #14161b;">(</span><span style="color: #14161b;">name</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">age</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">0</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="482">    <span style="color: #4f5258;"># Assign the argument to the &#39;name&#39; instance variable for the instance.</span>
+</span><span class="line" data-line="483">    <span style="color: #14161b;">@name</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">name</span>
+</span><span class="line" data-line="484">    <span style="color: #4f5258;"># If no age given, we will fall back to the default in the arguments list.</span>
+</span><span class="line" data-line="485">    <span style="color: #14161b;">@age</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">age</span>
+</span><span class="line" data-line="486">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="487">
+</span><span class="line" data-line="488">  <span style="color: #4f5258;"># Basic setter method</span>
+</span><span class="line" data-line="489">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">name</span><span style="color: #14161b;">=</span><span style="color: #14161b;">(</span><span style="color: #14161b;">name</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="490">    <span style="color: #14161b;">@name</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">name</span>
+</span><span class="line" data-line="491">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="492">
+</span><span class="line" data-line="493">  <span style="color: #4f5258;"># Basic getter method</span>
+</span><span class="line" data-line="494">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">name</span>
+</span><span class="line" data-line="495">    <span style="color: #14161b;">@name</span>
+</span><span class="line" data-line="496">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="497">
+</span><span class="line" data-line="498">  <span style="color: #4f5258;"># The above functionality can be encapsulated using the attr_accessor method</span>
+</span><span class="line" data-line="499">  <span style="color: #4f5258;"># as follows.</span>
+</span><span class="line" data-line="500">  <span style="color: #007373;">attr_accessor</span> <span style="color: #007373;">:name</span>
+</span><span class="line" data-line="501">
+</span><span class="line" data-line="502">  <span style="color: #4f5258;"># Getter/setter methods can also be created individually like this.</span>
+</span><span class="line" data-line="503">  <span style="color: #007373;">attr_reader</span> <span style="color: #007373;">:name</span>
+</span><span class="line" data-line="504">  <span style="color: #007373;">attr_writer</span> <span style="color: #007373;">:name</span>
+</span><span class="line" data-line="505">
+</span><span class="line" data-line="506">  <span style="color: #4f5258;"># A class method uses self to distinguish from instance methods.</span>
+</span><span class="line" data-line="507">  <span style="color: #4f5258;"># It can only be called on the class, not an instance.</span>
+</span><span class="line" data-line="508">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">self</span><span style="color: #14161b;">.</span><span style="color: #007373;">say</span><span style="color: #14161b;">(</span><span style="color: #14161b;">msg</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="509">    <span style="color: #007373;">puts</span> <span style="color: #14161b;">msg</span>
+</span><span class="line" data-line="510">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="511">
+</span><span class="line" data-line="512">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">species</span>
+</span><span class="line" data-line="513">    <span style="color: #14161b;">@@species</span>
+</span><span class="line" data-line="514">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="515"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="516">
+</span><span class="line" data-line="517"><span style="color: #4f5258;"># Instantiating of a class</span>
+</span><span class="line" data-line="518"><span style="color: #14161b;">jim</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">Human</span><span style="color: #14161b;">.</span><span style="color: #14161b;">new</span><span style="color: #14161b;">(</span><span style="color: #005523;">&#39;</span><span style="color: #005523;">Jim Halpert</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="519"><span style="color: #14161b;">dwight</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">Human</span><span style="color: #14161b;">.</span><span style="color: #14161b;">new</span><span style="color: #14161b;">(</span><span style="color: #005523;">&#39;</span><span style="color: #005523;">Dwight K. Schrute</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="520">
+</span><span class="line" data-line="521"><span style="color: #4f5258;"># You can call the methods of the generated object.</span>
+</span><span class="line" data-line="522"><span style="color: #14161b;">jim</span><span style="color: #14161b;">.</span><span style="color: #007373;">species</span> <span style="color: #4f5258;">#=&gt; &quot;H. sapiens&quot;</span>
+</span><span class="line" data-line="523"><span style="color: #14161b;">jim</span><span style="color: #14161b;">.</span><span style="color: #007373;">name</span> <span style="color: #4f5258;">#=&gt; &quot;Jim Halpert&quot;</span>
+</span><span class="line" data-line="524"><span style="color: #14161b;">jim</span><span style="color: #14161b;">.</span><span style="color: #007373;">name</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">Jim Halpert II</span><span style="color: #005523;">&quot;</span> <span style="color: #4f5258;">#=&gt; &quot;Jim Halpert II&quot;</span>
+</span><span class="line" data-line="525"><span style="color: #14161b;">jim</span><span style="color: #14161b;">.</span><span style="color: #007373;">name</span> <span style="color: #4f5258;">#=&gt; &quot;Jim Halpert II&quot;</span>
+</span><span class="line" data-line="526"><span style="color: #14161b;">dwight</span><span style="color: #14161b;">.</span><span style="color: #007373;">species</span> <span style="color: #4f5258;">#=&gt; &quot;H. sapiens&quot;</span>
+</span><span class="line" data-line="527"><span style="color: #14161b;">dwight</span><span style="color: #14161b;">.</span><span style="color: #007373;">name</span> <span style="color: #4f5258;">#=&gt; &quot;Dwight K. Schrute&quot;</span>
+</span><span class="line" data-line="528">
+</span><span class="line" data-line="529"><span style="color: #4f5258;"># Calling of a class method</span>
+</span><span class="line" data-line="530"><span style="color: #14161b;">Human</span><span style="color: #14161b;">.</span><span style="color: #14161b;">say</span><span style="color: #14161b;">(</span><span style="color: #005523;">&#39;</span><span style="color: #005523;">Hi</span><span style="color: #005523;">&#39;</span><span style="color: #14161b;">)</span> <span style="color: #4f5258;">#=&gt; &quot;Hi&quot;</span>
+</span><span class="line" data-line="531">
+</span><span class="line" data-line="532"><span style="color: #4f5258;"># Variable&#39;s scopes are defined by the way we name them.</span>
+</span><span class="line" data-line="533"><span style="color: #4f5258;"># Variables that start with $ have global scope.</span>
+</span><span class="line" data-line="534"><span style="color: #14161b;">$var</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">I&#39;m a global var</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="535"><span style="color: #007373;">defined?</span> <span style="color: #14161b;">$var</span> <span style="color: #4f5258;">#=&gt; &quot;global-variable&quot;</span>
+</span><span class="line" data-line="536">
+</span><span class="line" data-line="537"><span style="color: #4f5258;"># Variables that start with @ have instance scope.</span>
+</span><span class="line" data-line="538"><span style="color: #14161b;">@var</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">I&#39;m an instance var</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="539"><span style="color: #007373;">defined?</span> <span style="color: #14161b;">@var</span> <span style="color: #4f5258;">#=&gt; &quot;instance-variable&quot;</span>
+</span><span class="line" data-line="540">
+</span><span class="line" data-line="541"><span style="color: #4f5258;"># Variables that start with @@ have class scope.</span>
+</span><span class="line" data-line="542"><span style="color: #14161b;">@@var</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">I&#39;m a class var</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="543"><span style="color: #007373;">defined?</span> <span style="color: #14161b;">@@var</span> <span style="color: #4f5258;">#=&gt; &quot;class variable&quot;</span>
+</span><span class="line" data-line="544">
+</span><span class="line" data-line="545"><span style="color: #4f5258;"># Variables that start with a capital letter are constants.</span>
+</span><span class="line" data-line="546"><span style="color: #14161b;">Var</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">I&#39;m a constant</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="547"><span style="color: #007373;">defined?</span> <span style="color: #14161b;">Var</span> <span style="color: #4f5258;">#=&gt; &quot;constant&quot;</span>
+</span><span class="line" data-line="548">
+</span><span class="line" data-line="549"><span style="color: #4f5258;"># Class is also an object in ruby. So a class can have instance variables.</span>
+</span><span class="line" data-line="550"><span style="color: #4f5258;"># A class variable is shared among the class and all of its descendants.</span>
+</span><span class="line" data-line="551">
+</span><span class="line" data-line="552"><span style="color: #4f5258;"># Base class</span>
+</span><span class="line" data-line="553"><span style="color: #14161b; font-weight: bold;">class</span> <span style="color: #14161b;">Human</span>
+</span><span class="line" data-line="554">  <span style="color: #14161b;">@@foo</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">0</span>
+</span><span class="line" data-line="555">
+</span><span class="line" data-line="556">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">self</span><span style="color: #14161b;">.</span><span style="color: #007373;">foo</span>
+</span><span class="line" data-line="557">    <span style="color: #14161b;">@@foo</span>
+</span><span class="line" data-line="558">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="559">
+</span><span class="line" data-line="560">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">self</span><span style="color: #14161b;">.</span><span style="color: #007373;">foo</span><span style="color: #14161b;">=</span><span style="color: #14161b;">(</span><span style="color: #14161b;">value</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="561">    <span style="color: #14161b;">@@foo</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">value</span>
+</span><span class="line" data-line="562">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="563"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="564">
+</span><span class="line" data-line="565"><span style="color: #4f5258;"># Derived class</span>
+</span><span class="line" data-line="566"><span style="color: #14161b; font-weight: bold;">class</span> <span style="color: #14161b;">Worker</span> <span style="color: #14161b;">&lt;</span> <span style="color: #14161b;">Human</span>
+</span><span class="line" data-line="567"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="568">
+</span><span class="line" data-line="569"><span style="color: #14161b;">Human</span><span style="color: #14161b;">.</span><span style="color: #14161b;">foo</span> <span style="color: #4f5258;">#=&gt; 0</span>
+</span><span class="line" data-line="570"><span style="color: #14161b;">Worker</span><span style="color: #14161b;">.</span><span style="color: #14161b;">foo</span> <span style="color: #4f5258;">#=&gt; 0</span>
+</span><span class="line" data-line="571">
+</span><span class="line" data-line="572"><span style="color: #14161b;">Human</span><span style="color: #14161b;">.</span><span style="color: #14161b;">foo</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span>
+</span><span class="line" data-line="573"><span style="color: #14161b;">Worker</span><span style="color: #14161b;">.</span><span style="color: #14161b;">foo</span> <span style="color: #4f5258;">#=&gt; 2</span>
+</span><span class="line" data-line="574">
+</span><span class="line" data-line="575"><span style="color: #4f5258;"># A class instance variable is not shared by the class&#39;s descendants.</span>
+</span><span class="line" data-line="576"><span style="color: #14161b; font-weight: bold;">class</span> <span style="color: #14161b;">Human</span>
+</span><span class="line" data-line="577">  <span style="color: #14161b;">@bar</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">0</span>
+</span><span class="line" data-line="578">
+</span><span class="line" data-line="579">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">self</span><span style="color: #14161b;">.</span><span style="color: #007373;">bar</span>
+</span><span class="line" data-line="580">    <span style="color: #14161b;">@bar</span>
+</span><span class="line" data-line="581">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="582">
+</span><span class="line" data-line="583">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">self</span><span style="color: #14161b;">.</span><span style="color: #007373;">bar</span><span style="color: #14161b;">=</span><span style="color: #14161b;">(</span><span style="color: #14161b;">value</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="584">    <span style="color: #14161b;">@bar</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">value</span>
+</span><span class="line" data-line="585">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="586"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="587">
+</span><span class="line" data-line="588"><span style="color: #14161b; font-weight: bold;">class</span> <span style="color: #14161b;">Doctor</span> <span style="color: #14161b;">&lt;</span> <span style="color: #14161b;">Human</span>
+</span><span class="line" data-line="589"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="590">
+</span><span class="line" data-line="591"><span style="color: #14161b;">Human</span><span style="color: #14161b;">.</span><span style="color: #14161b;">bar</span> <span style="color: #4f5258;">#=&gt; 0</span>
+</span><span class="line" data-line="592"><span style="color: #14161b;">Doctor</span><span style="color: #14161b;">.</span><span style="color: #14161b;">bar</span> <span style="color: #4f5258;">#=&gt; nil</span>
+</span><span class="line" data-line="593">
+</span><span class="line" data-line="594"><span style="color: #14161b; font-weight: bold;">module</span> <span style="color: #14161b;">ModuleExample</span>
+</span><span class="line" data-line="595">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">foo</span>
+</span><span class="line" data-line="596">    <span style="color: #005523;">&#39;</span><span style="color: #005523;">foo</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="597">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="598"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="599">
+</span><span class="line" data-line="600"><span style="color: #4f5258;"># Including modules binds their methods to the class instances.</span>
+</span><span class="line" data-line="601"><span style="color: #4f5258;"># Extending modules binds their methods to the class itself.</span>
+</span><span class="line" data-line="602"><span style="color: #14161b; font-weight: bold;">class</span> <span style="color: #14161b;">Person</span>
+</span><span class="line" data-line="603">  <span style="color: #007373;">include</span> <span style="color: #14161b;">ModuleExample</span>
+</span><span class="line" data-line="604"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="605">
+</span><span class="line" data-line="606"><span style="color: #14161b; font-weight: bold;">class</span> <span style="color: #14161b;">Book</span>
+</span><span class="line" data-line="607">  <span style="color: #007373;">extend</span> <span style="color: #14161b;">ModuleExample</span>
+</span><span class="line" data-line="608"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="609">
+</span><span class="line" data-line="610"><span style="color: #14161b;">Person</span><span style="color: #14161b;">.</span><span style="color: #14161b;">foo</span>     <span style="color: #4f5258;">#=&gt; NoMethodError: undefined method `foo&#39; for Person:Class</span>
+</span><span class="line" data-line="611"><span style="color: #14161b;">Person</span><span style="color: #14161b;">.</span><span style="color: #14161b;">new</span><span style="color: #14161b;">.</span><span style="color: #007373;">foo</span> <span style="color: #4f5258;">#=&gt; &quot;foo&quot;</span>
+</span><span class="line" data-line="612"><span style="color: #14161b;">Book</span><span style="color: #14161b;">.</span><span style="color: #14161b;">foo</span>       <span style="color: #4f5258;">#=&gt; &quot;foo&quot;</span>
+</span><span class="line" data-line="613"><span style="color: #14161b;">Book</span><span style="color: #14161b;">.</span><span style="color: #14161b;">new</span><span style="color: #14161b;">.</span><span style="color: #007373;">foo</span>   <span style="color: #4f5258;">#=&gt; NoMethodError: undefined method `foo&#39;</span>
+</span><span class="line" data-line="614">
+</span><span class="line" data-line="615"><span style="color: #4f5258;"># Callbacks are executed when including and extending a module</span>
+</span><span class="line" data-line="616"><span style="color: #14161b; font-weight: bold;">module</span> <span style="color: #14161b;">ConcernExample</span>
+</span><span class="line" data-line="617">  <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">self</span><span style="color: #14161b;">.</span><span style="color: #007373;">included</span><span style="color: #14161b;">(</span><span style="color: #14161b;">base</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="618">    <span style="color: #14161b;">base</span><span style="color: #14161b;">.</span><span style="color: #007373;">extend</span><span style="color: #14161b;">(</span><span style="color: #14161b;">ClassMethods</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="619">    <span style="color: #14161b;">base</span><span style="color: #14161b;">.</span><span style="color: #007373;">send</span><span style="color: #14161b;">(</span><span style="color: #007373;">:include</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">InstanceMethods</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="620">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="621">
+</span><span class="line" data-line="622">  <span style="color: #14161b; font-weight: bold;">module</span> <span style="color: #14161b;">ClassMethods</span>
+</span><span class="line" data-line="623">    <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">bar</span>
+</span><span class="line" data-line="624">      <span style="color: #005523;">&#39;</span><span style="color: #005523;">bar</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="625">    <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="626">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="627">
+</span><span class="line" data-line="628">  <span style="color: #14161b; font-weight: bold;">module</span> <span style="color: #14161b;">InstanceMethods</span>
+</span><span class="line" data-line="629">    <span style="color: #14161b; font-weight: bold;">def</span> <span style="color: #007373;">qux</span>
+</span><span class="line" data-line="630">      <span style="color: #005523;">&#39;</span><span style="color: #005523;">qux</span><span style="color: #005523;">&#39;</span>
+</span><span class="line" data-line="631">    <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="632">  <span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="633"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="634">
+</span><span class="line" data-line="635"><span style="color: #14161b; font-weight: bold;">class</span> <span style="color: #14161b;">Something</span>
+</span><span class="line" data-line="636">  <span style="color: #007373;">include</span> <span style="color: #14161b;">ConcernExample</span>
+</span><span class="line" data-line="637"><span style="color: #14161b; font-weight: bold;">end</span>
+</span><span class="line" data-line="638">
+</span><span class="line" data-line="639"><span style="color: #14161b;">Something</span><span style="color: #14161b;">.</span><span style="color: #14161b;">bar</span>     <span style="color: #4f5258;">#=&gt; &quot;bar&quot;</span>
+</span><span class="line" data-line="640"><span style="color: #14161b;">Something</span><span style="color: #14161b;">.</span><span style="color: #14161b;">qux</span>     <span style="color: #4f5258;">#=&gt; NoMethodError: undefined method `qux&#39;</span>
+</span><span class="line" data-line="641"><span style="color: #14161b;">Something</span><span style="color: #14161b;">.</span><span style="color: #14161b;">new</span><span style="color: #14161b;">.</span><span style="color: #007373;">bar</span> <span style="color: #4f5258;">#=&gt; NoMethodError: undefined method `bar&#39;</span>
+</span><span class="line" data-line="642"><span style="color: #14161b;">Something</span><span style="color: #14161b;">.</span><span style="color: #14161b;">new</span><span style="color: #14161b;">.</span><span style="color: #007373;">qux</span> <span style="color: #4f5258;">#=&gt; &quot;qux&quot;</span>
+</span></code></pre>

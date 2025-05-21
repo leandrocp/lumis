@@ -52,6 +52,8 @@ fn gen_samples() -> Result<()> {
         "melange_dark",
         "melange_light",
         "monokai_pro_dark",
+        "neovim_dark",
+        "neovim_light",
         "nightfox",
         "nord",
         "onedark",

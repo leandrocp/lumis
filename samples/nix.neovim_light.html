@@ -1,0 +1,351 @@
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #14161b; background-color: #e0e2ea;"><code class="language-nix" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #14161b; font-weight: bold;">with</span> <span style="color: #14161b;"><span style="color: #007373;">builtins</span></span><span style="color: #14161b;">;</span> <span style="color: #14161b;">[</span>
+</span><span class="line" data-line="2">
+</span><span class="line" data-line="3">  <span style="color: #4f5258;">#  Comments</span>
+</span><span class="line" data-line="4">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="5">
+</span><span class="line" data-line="6">  <span style="color: #4f5258;"># Inline comments look like this.</span>
+</span><span class="line" data-line="7">
+</span><span class="line" data-line="8">  <span style="color: #4f5258;">/* Multi-line comments</span>
+</span><span class="line" data-line="9"><span style="color: #4f5258;">     look like this. */</span>
+</span><span class="line" data-line="10">
+</span><span class="line" data-line="11">
+</span><span class="line" data-line="12">  <span style="color: #4f5258;">#  Booleans</span>
+</span><span class="line" data-line="13">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="14">
+</span><span class="line" data-line="15">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b;">true</span></span> <span style="color: #14161b;">&amp;&amp;</span> <span style="color: #14161b;"><span style="color: #14161b;">false</span></span><span style="color: #14161b;">)</span>               <span style="color: #4f5258;"># And</span>
+</span><span class="line" data-line="16">  <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="17">
+</span><span class="line" data-line="18">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b;">true</span></span> <span style="color: #14161b;">||</span> <span style="color: #14161b;"><span style="color: #14161b;">false</span></span><span style="color: #14161b;">)</span>               <span style="color: #4f5258;"># Or</span>
+</span><span class="line" data-line="19">  <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="20">
+</span><span class="line" data-line="21">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">if</span> <span style="color: #14161b;">3</span> <span style="color: #14161b;">&lt;</span> <span style="color: #14161b;">4</span> <span style="color: #14161b; font-weight: bold;">then</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b; font-weight: bold;">else</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>  <span style="color: #4f5258;"># Conditional</span>
+</span><span class="line" data-line="22">  <span style="color: #4f5258;">#=&gt; &quot;a&quot;</span>
+</span><span class="line" data-line="23">
+</span><span class="line" data-line="24">
+</span><span class="line" data-line="25">  <span style="color: #4f5258;">#  Integers and Floats</span>
+</span><span class="line" data-line="26">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="27">
+</span><span class="line" data-line="28">  <span style="color: #4f5258;"># There are two numeric types: integers and floats</span>
+</span><span class="line" data-line="29">
+</span><span class="line" data-line="30">  <span style="color: #14161b;">1</span> <span style="color: #14161b;">0</span> <span style="color: #14161b;">42</span> <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b;">-<span style="color: #14161b;">3</span></span></span><span style="color: #14161b;">)</span>       <span style="color: #4f5258;"># Some integers</span>
+</span><span class="line" data-line="31">
+</span><span class="line" data-line="32">  <span style="color: #14161b;">123.43</span> <span style="color: #14161b;">.27e13</span>     <span style="color: #4f5258;"># A couple of floats</span>
+</span><span class="line" data-line="33">
+</span><span class="line" data-line="34">  <span style="color: #4f5258;"># Operations will preserve numeric type</span>
+</span><span class="line" data-line="35">
+</span><span class="line" data-line="36">  <span style="color: #14161b;">(</span><span style="color: #14161b;">4</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">6</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">12</span> <span style="color: #14161b;">-</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">)</span>  <span style="color: #4f5258;"># Addition</span>
+</span><span class="line" data-line="37">  <span style="color: #4f5258;">#=&gt; 20</span>
+</span><span class="line" data-line="38">  <span style="color: #14161b;">(</span><span style="color: #14161b;">4</span> <span style="color: #14161b;">-</span> <span style="color: #14161b;">2.5</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="39">  <span style="color: #4f5258;">#=&gt; 1.5</span>
+</span><span class="line" data-line="40">
+</span><span class="line" data-line="41">  <span style="color: #14161b;">(</span><span style="color: #14161b;">7</span> <span style="color: #14161b;">/</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">)</span>           <span style="color: #4f5258;"># Division</span>
+</span><span class="line" data-line="42">  <span style="color: #4f5258;">#=&gt; 3</span>
+</span><span class="line" data-line="43">  <span style="color: #14161b;">(</span><span style="color: #14161b;">7</span> <span style="color: #14161b;">/</span> <span style="color: #14161b;">2.0</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="44">  <span style="color: #4f5258;">#=&gt; 3.5</span>
+</span><span class="line" data-line="45">
+</span><span class="line" data-line="46">
+</span><span class="line" data-line="47">  <span style="color: #4f5258;">#  Strings</span>
+</span><span class="line" data-line="48">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="49">
+</span><span class="line" data-line="50">  <span style="color: #005523;">&quot;</span><span style="color: #005523;">Strings literals are in double quotes.</span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="51">
+</span><span class="line" data-line="52">  <span style="color: #005523;">&quot;</span><span style="color: #005523;"></span>
+</span><span class="line" data-line="53"><span style="color: #005523;">    String literals can span</span>
+</span><span class="line" data-line="54"><span style="color: #005523;">    multiple lines.</span>
+</span><span class="line" data-line="55"><span style="color: #005523;">  </span><span style="color: #005523;">&quot;</span>
+</span><span class="line" data-line="56">
+</span><span class="line" data-line="57">  <span style="color: #005523;">&#39;&#39;</span><span style="color: #005523;"></span>
+</span><span class="line" data-line="58"><span style="color: #005523;">    This is called an &quot;indented string&quot; literal.</span>
+</span><span class="line" data-line="59"><span style="color: #005523;">    It intelligently strips leading whitespace.</span>
+</span><span class="line" data-line="60"><span style="color: #005523;">  </span><span style="color: #005523;">&#39;&#39;</span>
+</span><span class="line" data-line="61">
+</span><span class="line" data-line="62">  <span style="color: #005523;">&#39;&#39;</span><span style="color: #005523;"></span>
+</span><span class="line" data-line="63"><span style="color: #005523;">    a</span>
+</span><span class="line" data-line="64"><span style="color: #005523;">      b</span>
+</span><span class="line" data-line="65"><span style="color: #005523;">  </span><span style="color: #005523;">&#39;&#39;</span>
+</span><span class="line" data-line="66">  <span style="color: #4f5258;">#=&gt; &quot;a\n  b&quot;</span>
+</span><span class="line" data-line="67">
+</span><span class="line" data-line="68">  <span style="color: #14161b;">(</span><span style="color: #005523;">&quot;</span><span style="color: #005523;">ab</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">cd</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>   <span style="color: #4f5258;"># String concatenation</span>
+</span><span class="line" data-line="69">  <span style="color: #4f5258;">#=&gt; &quot;abcd&quot;</span>
+</span><span class="line" data-line="70">
+</span><span class="line" data-line="71">  <span style="color: #4f5258;"># String interpolation (formerly known as &quot;antiquotation&quot;) lets you embed values into strings.</span>
+</span><span class="line" data-line="72">  <span style="color: #14161b;">(</span><span style="color: #005523;">&quot;</span><span style="color: #005523;">Your home directory is </span><span style="color: #007373;">$&lbrace;</span><span style="color: #14161b;"><span style="color: #007373;">getEnv</span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">HOME</span><span style="color: #005523;">&quot;</span><span style="color: #007373;">&rbrace;</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="73">  <span style="color: #4f5258;">#=&gt; &quot;Your home directory is /home/alice&quot;</span>
+</span><span class="line" data-line="74">
+</span><span class="line" data-line="75">
+</span><span class="line" data-line="76">  <span style="color: #4f5258;">#  Paths</span>
+</span><span class="line" data-line="77">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="78">
+</span><span class="line" data-line="79">  <span style="color: #4f5258;"># Nix has a primitive data type for paths.</span>
+</span><span class="line" data-line="80">  <span style="color: #007373;">/tmp/tutorials/learn.nix</span>
+</span><span class="line" data-line="81">
+</span><span class="line" data-line="82">  <span style="color: #4f5258;"># A relative path is resolved to an absolute path at parse</span>
+</span><span class="line" data-line="83">  <span style="color: #4f5258;"># time, relative to the file in which it occurs.</span>
+</span><span class="line" data-line="84">  <span style="color: #007373;">tutorials/learn.nix</span>
+</span><span class="line" data-line="85">  <span style="color: #4f5258;">#=&gt; /the-base-path/tutorials/learn.nix</span>
+</span><span class="line" data-line="86">
+</span><span class="line" data-line="87">  <span style="color: #4f5258;"># A path must contain at least one slash, so a relative</span>
+</span><span class="line" data-line="88">  <span style="color: #4f5258;"># path for a file in the same directory needs a ./ prefix,</span>
+</span><span class="line" data-line="89">  <span style="color: #007373;">./learn.nix</span>
+</span><span class="line" data-line="90">  <span style="color: #4f5258;">#=&gt; /the-base-path/learn.nix</span>
+</span><span class="line" data-line="91">
+</span><span class="line" data-line="92">  <span style="color: #4f5258;"># The / operator must be surrounded by whitespace if</span>
+</span><span class="line" data-line="93">  <span style="color: #4f5258;"># you want it to signify division.</span>
+</span><span class="line" data-line="94">
+</span><span class="line" data-line="95">  <span style="color: #007373;">7/2</span>        <span style="color: #4f5258;"># This is a path literal</span>
+</span><span class="line" data-line="96">  <span style="color: #14161b;">(</span><span style="color: #14161b;">7</span> <span style="color: #14161b;">/</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">)</span>    <span style="color: #4f5258;"># This is integer division</span>
+</span><span class="line" data-line="97">
+</span><span class="line" data-line="98">
+</span><span class="line" data-line="99">  <span style="color: #4f5258;">#  Imports</span>
+</span><span class="line" data-line="100">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="101">
+</span><span class="line" data-line="102">  <span style="color: #4f5258;"># A nix file contains a single top-level expression with no free</span>
+</span><span class="line" data-line="103">  <span style="color: #4f5258;"># variables. An import expression evaluates to the value of the</span>
+</span><span class="line" data-line="104">  <span style="color: #4f5258;"># file that it imports.</span>
+</span><span class="line" data-line="105">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b; font-weight: bold;">import</span></span> <span style="color: #007373;">/tmp/foo.nix</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="106">
+</span><span class="line" data-line="107">  <span style="color: #4f5258;"># Imports can also be specified by strings.</span>
+</span><span class="line" data-line="108">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b; font-weight: bold;">import</span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">/tmp/foo.nix</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="109">
+</span><span class="line" data-line="110">  <span style="color: #4f5258;"># Import paths must be absolute. Path literals</span>
+</span><span class="line" data-line="111">  <span style="color: #4f5258;"># are automatically resolved, so this is fine.</span>
+</span><span class="line" data-line="112">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b; font-weight: bold;">import</span></span> <span style="color: #007373;">./foo.nix</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="113">
+</span><span class="line" data-line="114">  <span style="color: #4f5258;"># But this does not happen with strings.</span>
+</span><span class="line" data-line="115">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b; font-weight: bold;">import</span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">./foo.nix</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="116">  <span style="color: #4f5258;">#=&gt; error: string ‘foo.nix’ doesn&#39;t represent an absolute path</span>
+</span><span class="line" data-line="117">
+</span><span class="line" data-line="118">
+</span><span class="line" data-line="119">  <span style="color: #4f5258;">#  Let</span>
+</span><span class="line" data-line="120">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="121">
+</span><span class="line" data-line="122">  <span style="color: #4f5258;"># `let` blocks allow us to bind values to variables.</span>
+</span><span class="line" data-line="123">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">let</span> x <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b; font-weight: bold;">in</span>
+</span><span class="line" data-line="124">    <span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">x</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="125">  <span style="color: #4f5258;">#=&gt; &quot;aaa&quot;</span>
+</span><span class="line" data-line="126">
+</span><span class="line" data-line="127">  <span style="color: #4f5258;"># Bindings can refer to each other, and their order does not matter.</span>
+</span><span class="line" data-line="128">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">let</span> y <span style="color: #14161b;">=</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="129">       x <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b; font-weight: bold;">in</span>
+</span><span class="line" data-line="130">    <span style="color: #14161b;">y</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">c</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="131">  <span style="color: #4f5258;">#=&gt; &quot;abc&quot;</span>
+</span><span class="line" data-line="132">
+</span><span class="line" data-line="133">  <span style="color: #4f5258;"># Inner bindings shadow outer bindings.</span>
+</span><span class="line" data-line="134">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">let</span> a <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b; font-weight: bold;">in</span>
+</span><span class="line" data-line="135">    <span style="color: #14161b; font-weight: bold;">let</span> a <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b; font-weight: bold;">in</span>
+</span><span class="line" data-line="136">      <span style="color: #14161b;">a</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="137">  <span style="color: #4f5258;">#=&gt; 2</span>
+</span><span class="line" data-line="138">
+</span><span class="line" data-line="139">
+</span><span class="line" data-line="140">  <span style="color: #4f5258;">#  Functions</span>
+</span><span class="line" data-line="141">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="142">
+</span><span class="line" data-line="143">  <span style="color: #14161b;">(</span><span style="color: #14161b;">n</span><span style="color: #007373;">:</span> <span style="color: #14161b;">n</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">)</span>      <span style="color: #4f5258;"># Function that adds 1</span>
+</span><span class="line" data-line="144">
+</span><span class="line" data-line="145">  <span style="color: #14161b;">(</span><span style="color: #14161b;">(</span><span style="color: #14161b;">n</span><span style="color: #007373;">:</span> <span style="color: #14161b;">n</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">)</span> <span style="color: #14161b;">5</span><span style="color: #14161b;">)</span>  <span style="color: #4f5258;"># That same function, applied to 5</span>
+</span><span class="line" data-line="146">  <span style="color: #4f5258;">#=&gt; 6</span>
+</span><span class="line" data-line="147">
+</span><span class="line" data-line="148">  <span style="color: #4f5258;"># There is no syntax for named functions, but they</span>
+</span><span class="line" data-line="149">  <span style="color: #4f5258;"># can be bound by `let` blocks like any other value.</span>
+</span><span class="line" data-line="150">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">let</span> succ <span style="color: #14161b;">=</span> <span style="color: #14161b;">(</span><span style="color: #14161b;">n</span><span style="color: #007373;">:</span> <span style="color: #14161b;">n</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">)</span><span style="color: #14161b;">;</span> <span style="color: #14161b; font-weight: bold;">in</span> <span style="color: #14161b;"><span style="color: #007373;">succ</span></span> <span style="color: #14161b;">5</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="151">  <span style="color: #4f5258;">#=&gt; 6</span>
+</span><span class="line" data-line="152">
+</span><span class="line" data-line="153">  <span style="color: #4f5258;"># A function has exactly one argument.</span>
+</span><span class="line" data-line="154">  <span style="color: #4f5258;"># Multiple arguments can be achieved with currying.</span>
+</span><span class="line" data-line="155">  <span style="color: #14161b;">(</span><span style="color: #14161b;">(</span><span style="color: #14161b;">x</span><span style="color: #007373;">:</span> <span style="color: #14161b;">y</span><span style="color: #007373;">:</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">-</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">)</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="156">  <span style="color: #4f5258;">#=&gt; &quot;a-b&quot;</span>
+</span><span class="line" data-line="157">
+</span><span class="line" data-line="158">  <span style="color: #4f5258;"># We can also have named function arguments,</span>
+</span><span class="line" data-line="159">  <span style="color: #4f5258;"># which we&#39;ll get to later after we introduce sets.</span>
+</span><span class="line" data-line="160">
+</span><span class="line" data-line="161">
+</span><span class="line" data-line="162">  <span style="color: #4f5258;">#  Lists</span>
+</span><span class="line" data-line="163">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="164">
+</span><span class="line" data-line="165">  <span style="color: #4f5258;"># Lists are denoted by square brackets.</span>
+</span><span class="line" data-line="166">
+</span><span class="line" data-line="167">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">length</span></span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span> <span style="color: #14161b;">3</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">x</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="168">  <span style="color: #4f5258;">#=&gt; 4</span>
+</span><span class="line" data-line="169">
+</span><span class="line" data-line="170">  <span style="color: #14161b;">(</span><span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">]</span> <span style="color: #14161b;">++</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">4</span> <span style="color: #14161b;">5</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="171">  <span style="color: #4f5258;">#=&gt; [1 2 3 4 5]</span>
+</span><span class="line" data-line="172">
+</span><span class="line" data-line="173">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">concatLists</span></span> <span style="color: #14161b;">[</span><span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">]</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">3</span> <span style="color: #14161b;">4</span><span style="color: #14161b;">]</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">5</span><span style="color: #14161b;">]</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="174">  <span style="color: #4f5258;">#=&gt; [1 2 3 4 5]</span>
+</span><span class="line" data-line="175">
+</span><span class="line" data-line="176">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">head</span></span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="177">  <span style="color: #4f5258;">#=&gt; 1</span>
+</span><span class="line" data-line="178">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">tail</span></span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="179">  <span style="color: #4f5258;">#=&gt; [2 3]</span>
+</span><span class="line" data-line="180">
+</span><span class="line" data-line="181">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">elemAt</span></span> <span style="color: #14161b;">[</span><span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">c</span><span style="color: #005523;">&quot;</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">d</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">]</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="182">  <span style="color: #4f5258;">#=&gt; &quot;c&quot;</span>
+</span><span class="line" data-line="183">
+</span><span class="line" data-line="184">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">elem</span></span> <span style="color: #14161b;">2</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="185">  <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="186">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">elem</span></span> <span style="color: #14161b;">5</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="187">  <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="188">
+</span><span class="line" data-line="189">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">filter</span></span> <span style="color: #14161b;">(</span><span style="color: #14161b;">n</span><span style="color: #007373;">:</span> <span style="color: #14161b;">n</span> <span style="color: #14161b;">&lt;</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">)</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span> <span style="color: #14161b;">3</span> <span style="color: #14161b;">4</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="190">  <span style="color: #4f5258;">#=&gt; [ 1 2 ]</span>
+</span><span class="line" data-line="191">
+</span><span class="line" data-line="192">
+</span><span class="line" data-line="193">  <span style="color: #4f5258;">#  Sets</span>
+</span><span class="line" data-line="194">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="195">
+</span><span class="line" data-line="196">  <span style="color: #4f5258;"># A &quot;set&quot; is an unordered mapping with string keys.</span>
+</span><span class="line" data-line="197">  <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">foo</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">[</span><span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">]</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">bar</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">x</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="198">
+</span><span class="line" data-line="199">  <span style="color: #4f5258;"># The . operator pulls a value out of a set.</span>
+</span><span class="line" data-line="200">  <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">.</span><span style="color: #14161b;">a</span>
+</span><span class="line" data-line="201">  <span style="color: #4f5258;">#=&gt; 1</span>
+</span><span class="line" data-line="202">
+</span><span class="line" data-line="203">  <span style="color: #4f5258;"># The ? operator tests whether a key is present in a set.</span>
+</span><span class="line" data-line="204">  <span style="color: #14161b;">(</span><span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span> <span style="color: #14161b;">?</span> a<span style="color: #14161b;">)</span>
+</span><span class="line" data-line="205">  <span style="color: #4f5258;">#=&gt; true</span>
+</span><span class="line" data-line="206">  <span style="color: #14161b;">(</span><span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span> <span style="color: #14161b;">?</span> c<span style="color: #14161b;">)</span>
+</span><span class="line" data-line="207">  <span style="color: #4f5258;">#=&gt; false</span>
+</span><span class="line" data-line="208">
+</span><span class="line" data-line="209">  <span style="color: #4f5258;"># The // operator merges two sets.</span>
+</span><span class="line" data-line="210">  <span style="color: #14161b;">(</span><span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span> <span style="color: #14161b;">//</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="211">  <span style="color: #4f5258;">#=&gt; &lbrace; a = 1; b = 2; &rbrace;</span>
+</span><span class="line" data-line="212">
+</span><span class="line" data-line="213">  <span style="color: #4f5258;"># Values on the right override values on the left.</span>
+</span><span class="line" data-line="214">  <span style="color: #14161b;">(</span><span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span> <span style="color: #14161b;">//</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">c</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">4</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="215">  <span style="color: #4f5258;">#=&gt; &lbrace; a = 3; b = 2; c = 4; &rbrace;</span>
+</span><span class="line" data-line="216">
+</span><span class="line" data-line="217">  <span style="color: #4f5258;"># The rec keyword denotes a &quot;recursive set&quot;,</span>
+</span><span class="line" data-line="218">  <span style="color: #4f5258;"># in which attributes can refer to each other.</span>
+</span><span class="line" data-line="219">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">let</span> a <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b; font-weight: bold;">in</span>     <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">a</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">.</span><span style="color: #14161b;">b</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="220">  <span style="color: #4f5258;">#=&gt; 1</span>
+</span><span class="line" data-line="221">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">let</span> a <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b; font-weight: bold;">in</span> <span style="color: #14161b; font-weight: bold;">rec</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">a</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">.</span><span style="color: #14161b;">b</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="222">  <span style="color: #4f5258;">#=&gt; 2</span>
+</span><span class="line" data-line="223">
+</span><span class="line" data-line="224">  <span style="color: #4f5258;"># Nested sets can be defined in a piecewise fashion.</span>
+</span><span class="line" data-line="225">  <span style="color: #14161b;">&lbrace;</span>
+</span><span class="line" data-line="226">    <span style="color: #14161b;">a</span><span style="color: #14161b;">.</span><span style="color: #14161b;">b</span>   <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="227">    <span style="color: #14161b;">a</span><span style="color: #14161b;">.</span><span style="color: #14161b;">c</span><span style="color: #14161b;">.</span><span style="color: #14161b;">d</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="228">    <span style="color: #14161b;">a</span><span style="color: #14161b;">.</span><span style="color: #14161b;">c</span><span style="color: #14161b;">.</span><span style="color: #14161b;">e</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">3</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="229">  <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">.</span>a<span style="color: #14161b;">.</span><span style="color: #14161b;">c</span>
+</span><span class="line" data-line="230">  <span style="color: #4f5258;">#=&gt; &lbrace; d = 2; e = 3; &rbrace;</span>
+</span><span class="line" data-line="231">
+</span><span class="line" data-line="232">  <span style="color: #4f5258;"># Sets are immutable, so you can&#39;t redefine an attribute:</span>
+</span><span class="line" data-line="233">  <span style="color: #14161b;">&lbrace;</span>
+</span><span class="line" data-line="234">    <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="235">    <span style="color: #14161b;">a</span><span style="color: #14161b;">.</span><span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="236">  <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="237">  <span style="color: #4f5258;">#=&gt; attribute &#39;a.b&#39; at (string):3:5 already defined at (string):2:11</span>
+</span><span class="line" data-line="238">
+</span><span class="line" data-line="239">  <span style="color: #4f5258;"># However, an attribute&#39;s set members can also be defined piecewise</span>
+</span><span class="line" data-line="240">  <span style="color: #4f5258;"># way even if the attribute itself has been directly assigned.</span>
+</span><span class="line" data-line="241">  <span style="color: #14161b;">&lbrace;</span>
+</span><span class="line" data-line="242">    <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="243">    <span style="color: #14161b;">a</span><span style="color: #14161b;">.</span><span style="color: #14161b;">c</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="244">  <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="245">  <span style="color: #4f5258;">#=&gt; &lbrace; a = &lbrace; b = 1; c = 2; &rbrace;; &rbrace;</span>
+</span><span class="line" data-line="246">
+</span><span class="line" data-line="247">
+</span><span class="line" data-line="248">  <span style="color: #4f5258;">#  With</span>
+</span><span class="line" data-line="249">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="250">
+</span><span class="line" data-line="251">  <span style="color: #4f5258;"># The body of a `with` block is evaluated with</span>
+</span><span class="line" data-line="252">  <span style="color: #4f5258;"># a set&#39;s mappings bound to variables.</span>
+</span><span class="line" data-line="253">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">with</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="254">    <span style="color: #14161b;">a</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">b</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="255">  <span style="color: #4f5258;"># =&gt; 3</span>
+</span><span class="line" data-line="256">
+</span><span class="line" data-line="257">  <span style="color: #4f5258;"># Inner bindings shadow outer bindings.</span>
+</span><span class="line" data-line="258">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">with</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">1</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">b</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="259">    <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">with</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">a</span> <span style="color: #14161b;">=</span> <span style="color: #14161b;">5</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">;</span>
+</span><span class="line" data-line="260">      <span style="color: #14161b;">a</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">b</span><span style="color: #14161b;">)</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="261">  <span style="color: #4f5258;">#=&gt; 7</span>
+</span><span class="line" data-line="262">
+</span><span class="line" data-line="263">  <span style="color: #4f5258;"># This first line of tutorial starts with &quot;with builtins;&quot;</span>
+</span><span class="line" data-line="264">  <span style="color: #4f5258;"># because builtins is a set that contains all of the built-in</span>
+</span><span class="line" data-line="265">  <span style="color: #4f5258;"># functions (length, head, tail, filter, etc.). This saves</span>
+</span><span class="line" data-line="266">  <span style="color: #4f5258;"># us from having to write, for example, &quot;builtins.length&quot;</span>
+</span><span class="line" data-line="267">  <span style="color: #4f5258;"># instead of just &quot;length&quot;.</span>
+</span><span class="line" data-line="268">
+</span><span class="line" data-line="269">
+</span><span class="line" data-line="270">  <span style="color: #4f5258;">#  Set patterns</span>
+</span><span class="line" data-line="271">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="272">
+</span><span class="line" data-line="273">  <span style="color: #4f5258;"># Sets are useful when we need to pass multiple values</span>
+</span><span class="line" data-line="274">  <span style="color: #4f5258;"># to a function.</span>
+</span><span class="line" data-line="275">  <span style="color: #14161b;">(</span><span style="color: #14161b;">args</span><span style="color: #007373;">:</span> <span style="color: #14161b;">args</span><span style="color: #14161b;">.</span><span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">-</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">args</span><span style="color: #14161b;">.</span><span style="color: #14161b;">y</span><span style="color: #14161b;">)</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">y</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="276">  <span style="color: #4f5258;">#=&gt; &quot;a-b&quot;</span>
+</span><span class="line" data-line="277">
+</span><span class="line" data-line="278">  <span style="color: #4f5258;"># This can be written more clearly using set patterns.</span>
+</span><span class="line" data-line="279">  <span style="color: #14161b;">(</span><span style="color: #14161b;">&lbrace;</span><span style="color: #14161b;">x</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">:</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">-</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">)</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">y</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="280">  <span style="color: #4f5258;">#=&gt; &quot;a-b&quot;</span>
+</span><span class="line" data-line="281">
+</span><span class="line" data-line="282">  <span style="color: #4f5258;"># By default, the pattern fails on sets containing extra keys.</span>
+</span><span class="line" data-line="283">  <span style="color: #14161b;">(</span><span style="color: #14161b;">&lbrace;</span><span style="color: #14161b;">x</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">:</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">-</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">)</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">y</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">z</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">c</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="284">  <span style="color: #4f5258;">#=&gt; error: anonymous function called with unexpected argument ‘z’</span>
+</span><span class="line" data-line="285">
+</span><span class="line" data-line="286">  <span style="color: #4f5258;"># Adding &quot;, ...&quot; allows ignoring extra keys.</span>
+</span><span class="line" data-line="287">  <span style="color: #14161b;">(</span><span style="color: #14161b;">&lbrace;</span><span style="color: #14161b;">x</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">,</span> <span style="color: #007373;">...</span><span style="color: #14161b;">&rbrace;</span><span style="color: #14161b;">:</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">-</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">)</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">y</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">z</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">c</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="288">  <span style="color: #4f5258;">#=&gt; &quot;a-b&quot;</span>
+</span><span class="line" data-line="289">
+</span><span class="line" data-line="290">  <span style="color: #4f5258;"># The entire set can be bound to a variable using `@`</span>
+</span><span class="line" data-line="291">  <span style="color: #14161b;">(</span><span style="color: #14161b;">args</span><span style="color: #14161b;">@</span><span style="color: #14161b;">&lbrace;</span><span style="color: #14161b;">x</span><span style="color: #14161b;">,</span> <span style="color: #14161b;">y</span><span style="color: #14161b;">&rbrace;</span><span style="color: #007373;">:</span> <span style="color: #14161b;">args</span><span style="color: #14161b;">.</span><span style="color: #14161b;">x</span> <span style="color: #14161b;">+</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">-</span><span style="color: #005523;">&quot;</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">args</span><span style="color: #14161b;">.</span><span style="color: #14161b;">y</span><span style="color: #14161b;">)</span> <span style="color: #14161b;">&lbrace;</span> <span style="color: #14161b;">x</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">a</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">y</span> <span style="color: #14161b;">=</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">b</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">&rbrace;</span>
+</span><span class="line" data-line="292">  <span style="color: #4f5258;">#=&gt; &quot;a-b&quot;</span>
+</span><span class="line" data-line="293">
+</span><span class="line" data-line="294">  <span style="color: #4f5258;">#  Errors</span>
+</span><span class="line" data-line="295">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="296">
+</span><span class="line" data-line="297">  <span style="color: #4f5258;"># `throw` causes evaluation to abort with an error message.</span>
+</span><span class="line" data-line="298">  <span style="color: #14161b;">(</span><span style="color: #14161b;">2</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b; font-weight: bold;">throw</span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">foo</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="299">  <span style="color: #4f5258;">#=&gt; error: foo</span>
+</span><span class="line" data-line="300">
+</span><span class="line" data-line="301">  <span style="color: #4f5258;"># `tryEval` catches thrown errors.</span>
+</span><span class="line" data-line="302">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">tryEval</span></span> <span style="color: #14161b;">42</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="303">  <span style="color: #4f5258;">#=&gt; &lbrace; success = true; value = 42; &rbrace;</span>
+</span><span class="line" data-line="304">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">tryEval</span></span> <span style="color: #14161b;">(</span><span style="color: #14161b;">2</span> <span style="color: #14161b;">+</span> <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b; font-weight: bold;">throw</span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">foo</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span><span style="color: #14161b;">)</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="305">  <span style="color: #4f5258;">#=&gt; &lbrace; success = false; value = false; &rbrace;</span>
+</span><span class="line" data-line="306">
+</span><span class="line" data-line="307">  <span style="color: #4f5258;"># `abort` is like throw, but it&#39;s fatal; it cannot be caught.</span>
+</span><span class="line" data-line="308">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">tryEval</span></span> <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #14161b; font-weight: bold;">abort</span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">foo</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="309">  <span style="color: #4f5258;">#=&gt; error: evaluation aborted with the following error message: ‘foo’</span>
+</span><span class="line" data-line="310">
+</span><span class="line" data-line="311">  <span style="color: #4f5258;"># `assert` evaluates to the given value if true;</span>
+</span><span class="line" data-line="312">  <span style="color: #4f5258;"># otherwise it throws a catchable exception.</span>
+</span><span class="line" data-line="313">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">assert</span> <span style="color: #14161b;">1</span> <span style="color: #14161b;">&lt;</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">42</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="314">  <span style="color: #4f5258;">#=&gt; 42</span>
+</span><span class="line" data-line="315">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">assert</span> <span style="color: #14161b;">1</span> <span style="color: #14161b;">&gt;</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">42</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="316">  <span style="color: #4f5258;">#=&gt; error: assertion failed at (string):1:1</span>
+</span><span class="line" data-line="317">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">tryEval</span></span> <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">assert</span> <span style="color: #14161b;">1</span> <span style="color: #14161b;">&gt;</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">;</span> <span style="color: #14161b;">42</span><span style="color: #14161b;">)</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="318">  <span style="color: #4f5258;">#=&gt; &lbrace; success = false; value = false; &rbrace;</span>
+</span><span class="line" data-line="319">
+</span><span class="line" data-line="320">
+</span><span class="line" data-line="321">  <span style="color: #4f5258;">#  Impurity</span>
+</span><span class="line" data-line="322">  <span style="color: #4f5258;">#=========================================</span>
+</span><span class="line" data-line="323">
+</span><span class="line" data-line="324">  <span style="color: #4f5258;"># Because repeatability of builds is critical to the Nix package</span>
+</span><span class="line" data-line="325">  <span style="color: #4f5258;"># manager, functional purity is emphasized in the Nix language</span>
+</span><span class="line" data-line="326">  <span style="color: #4f5258;"># used to describe Nix packages. But there are a few impurities.</span>
+</span><span class="line" data-line="327">
+</span><span class="line" data-line="328">  <span style="color: #4f5258;"># You can refer to environment variables.</span>
+</span><span class="line" data-line="329">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">getEnv</span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">HOME</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="330">  <span style="color: #4f5258;">#=&gt; &quot;/home/alice&quot;</span>
+</span><span class="line" data-line="331">
+</span><span class="line" data-line="332">  <span style="color: #4f5258;"># The trace function is used for debugging. It prints the first</span>
+</span><span class="line" data-line="333">  <span style="color: #4f5258;"># argument to stderr and evaluates to the second argument.</span>
+</span><span class="line" data-line="334">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">trace</span></span> <span style="color: #14161b;">1</span> <span style="color: #14161b;">2</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="335">  <span style="color: #4f5258;">#=&gt; trace: 1</span>
+</span><span class="line" data-line="336">  <span style="color: #4f5258;">#=&gt; 2</span>
+</span><span class="line" data-line="337">
+</span><span class="line" data-line="338">  <span style="color: #4f5258;"># You can write files into the Nix store. Although impure, this is</span>
+</span><span class="line" data-line="339">  <span style="color: #4f5258;"># fairly safe because the file name is derived from the hash of</span>
+</span><span class="line" data-line="340">  <span style="color: #4f5258;"># its contents. You can read files from anywhere. In this example,</span>
+</span><span class="line" data-line="341">  <span style="color: #4f5258;"># we write a file into the store, and then read it back out.</span>
+</span><span class="line" data-line="342">  <span style="color: #14161b;">(</span><span style="color: #14161b; font-weight: bold;">let</span> filename <span style="color: #14161b;">=</span> <span style="color: #007373;"><span style="color: #14161b;"><span style="color: #007373;">toFile</span></span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">foo.txt</span><span style="color: #005523;">&quot;</span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">hello!</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">;</span> <span style="color: #14161b; font-weight: bold;">in</span>
+</span><span class="line" data-line="343">    <span style="color: #14161b;">[</span><span style="color: #14161b;">filename</span> <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">readFile</span></span> <span style="color: #14161b;">filename</span><span style="color: #14161b;">)</span><span style="color: #14161b;">]</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="344">  <span style="color: #4f5258;">#=&gt; [ &quot;/nix/store/ayh05aay2anx135prqp0cy34h891247x-foo.txt&quot; &quot;hello!&quot; ]</span>
+</span><span class="line" data-line="345">
+</span><span class="line" data-line="346">  <span style="color: #4f5258;"># We can also download files into the Nix store.</span>
+</span><span class="line" data-line="347">  <span style="color: #14161b;">(</span><span style="color: #14161b;"><span style="color: #007373;">fetchurl</span></span> <span style="color: #005523;">&quot;</span><span style="color: #005523;">https://example.com/package-1.2.3.tgz</span><span style="color: #005523;">&quot;</span><span style="color: #14161b;">)</span>
+</span><span class="line" data-line="348">  <span style="color: #4f5258;">#=&gt; &quot;/nix/store/2drvlh8r57f19s9il42zg89rdr33m2rm-package-1.2.3.tgz&quot;</span>
+</span><span class="line" data-line="349">
+</span><span class="line" data-line="350"><span style="color: #14161b;">]</span>
+</span></code></pre>

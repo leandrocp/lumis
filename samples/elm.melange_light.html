@@ -18,14 +18,14 @@
 </span><span class="line" data-line="18">5 ^ 2 <span style="color: #7d6658;">-- 25</span>
 </span><span class="line" data-line="19">
 </span><span class="line" data-line="20"><span style="color: #7d6658;">-- Booleans</span>
-</span><span class="line" data-line="21">not True <span style="color: #7d6658;">-- False</span>
+</span><span class="line" data-line="21">not <span style="color: #904180;">True</span> <span style="color: #7d6658;">-- False</span>
 </span><span class="line" data-line="22"><span style="color: #54433a;">not</span> <span style="color: #904180;">False</span> <span style="color: #7d6658;">-- True</span>
 </span><span class="line" data-line="23"><span style="color: #904180;">1</span> <span style="color: #bf0021;">=</span><span style="color: #bf0021;">=</span> <span style="color: #904180;">1</span> <span style="color: #7d6658;">-- True</span>
 </span><span class="line" data-line="24"><span style="color: #904180;">1</span> /= 1 <span style="color: #7d6658;">-- False</span>
 </span><span class="line" data-line="25">1 &lt; 10 <span style="color: #7d6658;">-- True</span>
 </span><span class="line" data-line="26">
 </span><span class="line" data-line="27"><span style="color: #7d6658;">-- Strings and characters</span>
-</span><span class="line" data-line="28"><span style="color: #465aa4;">&quot;</span>This is a string because it uses double quotes<span style="color: #c77b8b;">.</span><span style="color: #465aa4;">&quot;</span>
+</span><span class="line" data-line="28"><span style="color: #465aa4;">&quot;</span>This is a string because it uses double quotes.<span style="color: #465aa4;">&quot;</span>
 </span><span class="line" data-line="29"><span style="color: #7892bd;">&#39;</span><span style="color: #7892bd;">a</span><span style="color: #7892bd;">&#39;</span> <span style="color: #7d6658;">-- characters in single quotes</span>
 </span><span class="line" data-line="30">
 </span><span class="line" data-line="31"><span style="color: #7d6658;">-- Strings can be appended.</span>
@@ -37,19 +37,19 @@
 </span><span class="line" data-line="37"><span style="color: #cca478;">[</span><span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">the</span><span style="color: #465aa4;">&quot;</span><span style="color: #c77b8b;">,</span> <span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">quick</span><span style="color: #465aa4;">&quot;</span><span style="color: #c77b8b;">,</span> <span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">brown</span><span style="color: #465aa4;">&quot;</span><span style="color: #c77b8b;">,</span> <span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">fox</span><span style="color: #465aa4;">&quot;</span><span style="color: #cca478;">]</span>
 </span><span class="line" data-line="38"><span style="color: #cca478;">[</span><span style="color: #904180;">1</span><span style="color: #c77b8b;">,</span> <span style="color: #904180;">2</span><span style="color: #c77b8b;">,</span> <span style="color: #904180;">3</span><span style="color: #c77b8b;">,</span> <span style="color: #904180;">4</span><span style="color: #c77b8b;">,</span> <span style="color: #904180;">5</span><span style="color: #cca478;">]</span>
 </span><span class="line" data-line="39"><span style="color: #7d6658;">-- The second example can also be written with two dots.</span>
-</span><span class="line" data-line="40"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">5</span>
+</span><span class="line" data-line="40"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">1</span> <span style="color: #904180;">5</span>
 </span><span class="line" data-line="41">
 </span><span class="line" data-line="42"><span style="color: #7d6658;">-- Append lists just like strings.</span>
-</span><span class="line" data-line="43"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">5</span> ++ L<span style="color: #54433a;">ist</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">6</span> <span style="color: #904180;">10</span> <span style="color: #bf0021;">=</span><span style="color: #bf0021;">=</span> <span style="color: #54433a;">List</span><span style="color: #c77b8b;">.</span><span style="color: #a06d00;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">10</span> <span style="color: #7d6658;">-- True</span>
+</span><span class="line" data-line="43"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">1</span> <span style="color: #904180;">5</span> ++ <span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">6</span> <span style="color: #904180;">10</span> <span style="color: #bf0021;">=</span><span style="color: #bf0021;">=</span> <span style="color: #54433a;">List</span><span style="color: #c77b8b;">.</span><span style="color: #a06d00;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">10</span> <span style="color: #7d6658;">-- True</span>
 </span><span class="line" data-line="44">
 </span><span class="line" data-line="45"><span style="color: #7d6658;">-- To add one item, use &quot;cons&quot;.</span>
-</span><span class="line" data-line="46"><span style="color: #904180;">0</span> <span style="color: #bf0021;">::</span> <span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">5</span> <span style="color: #7d6658;">-- [0, 1, 2, 3, 4, 5]</span>
+</span><span class="line" data-line="46"><span style="color: #904180;">0</span> <span style="color: #bf0021;">::</span> <span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">1</span> <span style="color: #904180;">5</span> <span style="color: #7d6658;">-- [0, 1, 2, 3, 4, 5]</span>
 </span><span class="line" data-line="47">
 </span><span class="line" data-line="48"><span style="color: #7d6658;">-- The head and tail of a list are returned as a Maybe. Instead of checking</span>
 </span><span class="line" data-line="49"><span style="color: #7d6658;">-- every value to see if it&#39;s null, you deal with missing values explicitly.</span>
-</span><span class="line" data-line="50"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">head</span> <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">5</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- Just 1</span>
-</span><span class="line" data-line="51"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">tail</span> <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">5</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- Just [2, 3, 4, 5]</span>
-</span><span class="line" data-line="52"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">head</span> <span style="color: #cca478;">[</span><span style="color: #cca478;">]</span> <span style="color: #7d6658;">-- Nothing</span>
+</span><span class="line" data-line="50"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>head <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">1</span> <span style="color: #904180;">5</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- Just 1</span>
+</span><span class="line" data-line="51"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>tail <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">1</span> <span style="color: #904180;">5</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- Just [2, 3, 4, 5]</span>
+</span><span class="line" data-line="52"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>head <span style="color: #cca478;">[</span><span style="color: #cca478;">]</span> <span style="color: #7d6658;">-- Nothing</span>
 </span><span class="line" data-line="53"><span style="color: #7d6658;">-- List.functionName means the function lives in the List module.</span>
 </span><span class="line" data-line="54">
 </span><span class="line" data-line="55"><span style="color: #7d6658;">-- Every element in a tuple can be a different type, but a tuple has a</span>
@@ -58,8 +58,8 @@
 </span><span class="line" data-line="58">
 </span><span class="line" data-line="59"><span style="color: #7d6658;">-- Access the elements of a pair with the first and second functions.</span>
 </span><span class="line" data-line="60"><span style="color: #7d6658;">-- (This is a shortcut; we&#39;ll come to the &quot;real way&quot; in a bit.)</span>
-</span><span class="line" data-line="61"><span style="color: #a06d00;">Tuple</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">first</span> <span style="color: #cca478;">(</span><span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">elm</span><span style="color: #465aa4;">&quot;</span><span style="color: #c77b8b;">,</span> <span style="color: #904180;">42</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- &quot;elm&quot;</span>
-</span><span class="line" data-line="62"><span style="color: #a06d00;">Tuple</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">second</span> <span style="color: #cca478;">(</span><span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">elm</span><span style="color: #465aa4;">&quot;</span><span style="color: #c77b8b;">,</span> <span style="color: #904180;">42</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- 42</span>
+</span><span class="line" data-line="61"><span style="color: #a06d00;">Tuple</span><span style="color: #c77b8b;">.</span>first <span style="color: #cca478;">(</span><span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">elm</span><span style="color: #465aa4;">&quot;</span><span style="color: #c77b8b;">,</span> <span style="color: #904180;">42</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- &quot;elm&quot;</span>
+</span><span class="line" data-line="62"><span style="color: #a06d00;">Tuple</span><span style="color: #c77b8b;">.</span>second <span style="color: #cca478;">(</span><span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">elm</span><span style="color: #465aa4;">&quot;</span><span style="color: #c77b8b;">,</span> <span style="color: #904180;">42</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- 42</span>
 </span><span class="line" data-line="63">
 </span><span class="line" data-line="64"><span style="color: #7d6658;">-- The empty tuple, or &quot;unit&quot;, is sometimes used as a placeholder.</span>
 </span><span class="line" data-line="65"><span style="color: #7d6658;">-- It is the only value of its type, also called &quot;Unit&quot;.</span>
@@ -70,7 +70,7 @@
 </span><span class="line" data-line="70"><span style="color: #cca478;">&lbrace;</span> <span style="color: #54433a;">x</span><span style="color: #cca478;"></span> <span style="color: #bf0021;">=</span> 3<span style="color: #c77b8b;">,</span> <span style="color: #a06d00;">y</span> <span style="color: #bf0021;">=</span> <span style="color: #904180;">7</span> <span style="color: #cca478;">&rbrace;</span>
 </span><span class="line" data-line="71">
 </span><span class="line" data-line="72"><span style="color: #7d6658;">-- Access a field with a dot and the field name.</span>
-</span><span class="line" data-line="73"><span style="color: #cca478;">&lbrace;</span> <span style="color: #54433a;">x</span><span style="color: #cca478;"></span> <span style="color: #bf0021;">=</span> 3<span style="color: #c77b8b;">,</span> <span style="color: #a06d00;">y</span> <span style="color: #bf0021;">=</span> <span style="color: #904180;">7</span> <span style="color: #cca478;">&rbrace;</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">x</span> <span style="color: #7d6658;">-- 3</span>
+</span><span class="line" data-line="73"><span style="color: #cca478;">&lbrace;</span> <span style="color: #54433a;">x</span><span style="color: #cca478;"></span> <span style="color: #bf0021;">=</span> 3<span style="color: #c77b8b;">,</span> <span style="color: #a06d00;">y</span> <span style="color: #bf0021;">=</span> <span style="color: #904180;">7</span> <span style="color: #cca478;">&rbrace;</span>.<span style="color: #54433a;">x</span> <span style="color: #7d6658;">-- 3</span>
 </span><span class="line" data-line="74">
 </span><span class="line" data-line="75"><span style="color: #7d6658;">-- Or with an accessor function, which is a dot and the field name on its own.</span>
 </span><span class="line" data-line="76"><span style="color: #c77b8b;">.</span><span style="color: #a06d00;">y</span> <span style="color: #cca478;">&lbrace;</span> <span style="color: #54433a;">x</span><span style="color: #cca478;"></span> <span style="color: #bf0021;">=</span> 3<span style="color: #c77b8b;">,</span> <span style="color: #a06d00;">y</span> <span style="color: #bf0021;">=</span> <span style="color: #904180;">7</span> <span style="color: #cca478;">&rbrace;</span> <span style="color: #7d6658;">-- 7</span>
@@ -81,7 +81,7 @@
 </span><span class="line" data-line="81">
 </span><span class="line" data-line="82"><span style="color: #7d6658;">-- Update multiple fields at once, using the current values.</span>
 </span><span class="line" data-line="83"><span style="color: #cca478;">&lbrace;</span> <span style="color: #54433a;">particle</span> <span style="color: #c77b8b;">|</span>
-</span><span class="line" data-line="84">  position <span style="color: #bf0021;">=</span> particle<span style="color: #c77b8b;">.</span>position + particle<span style="color: #c77b8b;">.</span>velocity<span style="color: #c77b8b;">,</span>
+</span><span class="line" data-line="84">  position <span style="color: #bf0021;">=</span> particle.position + particle.velocity<span style="color: #c77b8b;">,</span>
 </span><span class="line" data-line="85">  <span style="color: #54433a;">velocity</span><span style="color: #cca478;"></span> <span style="color: #bf0021;">=</span> <span style="color: #54433a;">particle</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">velocity</span> <span style="color: #bf0021;">+</span> <span style="color: #54433a;">particle</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">acceleration</span> <span style="color: #cca478;">&rbrace;</span>
 </span><span class="line" data-line="86">
 </span><span class="line" data-line="87"><span style="color: #7d6658;">&lbrace;-- Control Flow --&rbrace;</span>
@@ -110,7 +110,7 @@
 </span><span class="line" data-line="110"><span style="color: #7d6658;">-- The compiler will alert you to missing or extra cases.</span>
 </span><span class="line" data-line="111">
 </span><span class="line" data-line="112"><span style="color: #7d6658;">-- Pattern match on a Maybe.</span>
-</span><span class="line" data-line="113"><span style="color: #54433a;">case</span> List<span style="color: #c77b8b;">.</span><span style="color: #54433a;">head</span> <span style="color: #54433a;">aList</span> <span style="color: #54433a;">of</span>
+</span><span class="line" data-line="113"><span style="color: #54433a;">case</span> List.<span style="color: #54433a;">head</span> <span style="color: #54433a;">aList</span> <span style="color: #54433a;">of</span>
 </span><span class="line" data-line="114">  Just <span style="color: #54433a;">x</span> <span style="color: #bf0021;">-&gt;</span> <span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">The head is </span><span style="color: #465aa4;">&quot;</span> ++ <span style="color: #54433a;">toString</span> <span style="color: #54433a;">x</span>
 </span><span class="line" data-line="115">  Nothing <span style="color: #bf0021;">-&gt;</span> <span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">The list was empty.</span><span style="color: #465aa4;">&quot;</span>
 </span><span class="line" data-line="116">
@@ -136,10 +136,10 @@
 </span><span class="line" data-line="136">  <span style="color: #904180;">42</span>
 </span><span class="line" data-line="137">
 </span><span class="line" data-line="138"><span style="color: #7d6658;">-- Pass functions as arguments to other functions.</span>
-</span><span class="line" data-line="139"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">map</span> <span style="color: #54433a;">double</span> <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">4</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- [2, 4, 6, 8]</span>
+</span><span class="line" data-line="139"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>map <span style="color: #54433a;">double</span> <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">1</span> <span style="color: #904180;">4</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- [2, 4, 6, 8]</span>
 </span><span class="line" data-line="140">
 </span><span class="line" data-line="141"><span style="color: #7d6658;">-- Or write an anonymous function.</span>
-</span><span class="line" data-line="142"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">map</span> <span style="color: #cca478;">(</span>\<span style="color: #54433a;">a</span> <span style="color: #bf0021;">-&gt;</span> <span style="color: #54433a;">a</span> * 2<span style="color: #cca478;">)</span> <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">1</span> <span style="color: #904180;">4</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- [2, 4, 6, 8]</span>
+</span><span class="line" data-line="142"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>map <span style="color: #cca478;">(</span>\<span style="color: #54433a;">a</span> <span style="color: #bf0021;">-&gt;</span> <span style="color: #54433a;">a</span> * 2<span style="color: #cca478;">)</span> <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">1</span> <span style="color: #904180;">4</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- [2, 4, 6, 8]</span>
 </span><span class="line" data-line="143">
 </span><span class="line" data-line="144"><span style="color: #7d6658;">-- You can pattern match in function definitions when there&#39;s only one case.</span>
 </span><span class="line" data-line="145"><span style="color: #7d6658;">-- This function takes one tuple rather than two arguments.</span>
@@ -166,7 +166,7 @@
 </span><span class="line" data-line="166">  <span style="color: #bc5c00;">else</span>
 </span><span class="line" data-line="167">    <span style="color: #a06d00;">fib</span> <span style="color: #cca478;">(</span><span style="color: #54433a;">n</span> <span style="color: #bf0021;">-</span> <span style="color: #904180;">1</span><span style="color: #cca478;">)</span> <span style="color: #bf0021;">+</span> <span style="color: #a06d00;">fib</span> <span style="color: #cca478;">(</span><span style="color: #54433a;">n</span> <span style="color: #bf0021;">-</span> <span style="color: #904180;">2</span><span style="color: #cca478;">)</span>
 </span><span class="line" data-line="168">
-</span><span class="line" data-line="169"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">map</span> <span style="color: #54433a;">fib</span> <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span><span style="color: #54433a;">range</span> <span style="color: #904180;">0</span> <span style="color: #904180;">8</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- [1, 1, 2, 3, 5, 8, 13, 21, 34]</span>
+</span><span class="line" data-line="169"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>map <span style="color: #54433a;">fib</span> <span style="color: #cca478;">(</span><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>range <span style="color: #904180;">0</span> <span style="color: #904180;">8</span><span style="color: #cca478;">)</span> <span style="color: #7d6658;">-- [1, 1, 2, 3, 5, 8, 13, 21, 34]</span>
 </span><span class="line" data-line="170">
 </span><span class="line" data-line="171"><span style="color: #7d6658;">-- Another recursive function (use List.length in real code).</span>
 </span><span class="line" data-line="172"><span style="color: #54433a;">listLength</span> <span style="color: #54433a;">aList</span> <span style="color: #bf0021;">=</span>
@@ -175,7 +175,7 @@
 </span><span class="line" data-line="175">    <span style="color: #54433a;">x</span><span style="color: #bf0021;">::</span><span style="color: #54433a;">xs</span> <span style="color: #bf0021;">-&gt;</span> <span style="color: #904180;">1</span> <span style="color: #bf0021;">+</span> <span style="color: #a06d00;">listLength</span> <span style="color: #54433a;">xs</span>
 </span><span class="line" data-line="176">
 </span><span class="line" data-line="177"><span style="color: #7d6658;">-- Function calls happen before any infix operator. Parens indicate precedence.</span>
-</span><span class="line" data-line="178"><span style="color: #54433a;">cos</span> <span style="color: #cca478;">(</span><span style="color: #54433a;">degrees</span> 30<span style="color: #cca478;">)</span> ^ <span style="color: #904180;">2</span> + <span style="color: #54433a;">sin</span> <span style="color: #cca478;">(</span><span style="color: #54433a;">degrees</span> 30<span style="color: #cca478;">)</span> ^ <span style="color: #904180;">2</span> <span style="color: #7d6658;">-- 1</span>
+</span><span class="line" data-line="178"><span style="color: #a06d00;">cos</span> <span style="color: #cca478;">(</span><span style="color: #54433a;">degrees</span> 30<span style="color: #cca478;">)</span> ^ <span style="color: #904180;">2</span> + <span style="color: #54433a;">sin</span> <span style="color: #cca478;">(</span><span style="color: #54433a;">degrees</span> 30<span style="color: #cca478;">)</span> ^ <span style="color: #904180;">2</span> <span style="color: #7d6658;">-- 1</span>
 </span><span class="line" data-line="179"><span style="color: #7d6658;">-- First degrees is applied to 30, then the result is passed to the trig</span>
 </span><span class="line" data-line="180"><span style="color: #7d6658;">-- functions, which is then squared, and the addition happens last.</span>
 </span><span class="line" data-line="181">
@@ -184,25 +184,25 @@
 </span><span class="line" data-line="184"><span style="color: #7d6658;">-- The compiler will infer the type of every value in your program.</span>
 </span><span class="line" data-line="185"><span style="color: #7d6658;">-- Types are always uppercase. Read x : T as &quot;x has type T&quot;.</span>
 </span><span class="line" data-line="186"><span style="color: #7d6658;">-- Some common types, which you might see in Elm&#39;s REPL.</span>
-</span><span class="line" data-line="187"><span style="color: #904180;">5</span> <span style="color: #bf0021;">:</span> <span style="color: #739797;">Int</span>
-</span><span class="line" data-line="188"><span style="color: #904180;">6.7</span> <span style="color: #bf0021;">:</span> F<span style="color: #54433a;">loat</span>
-</span><span class="line" data-line="189"><span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">hello</span><span style="color: #465aa4;">&quot;</span> <span style="color: #bf0021;">:</span> <span style="color: #739797;">String</span>
-</span><span class="line" data-line="190"><span style="color: #904180;">True</span> <span style="color: #bf0021;">:</span> B<span style="color: #54433a;">ool</span>
+</span><span class="line" data-line="187"><span style="color: #904180;">5</span> <span style="color: #bf0021;">:</span> Int
+</span><span class="line" data-line="188"><span style="color: #904180;">6.7</span> <span style="color: #bf0021;">:</span> Float
+</span><span class="line" data-line="189"><span style="color: #465aa4;">&quot;</span><span style="color: #465aa4;">hello</span><span style="color: #465aa4;">&quot;</span> <span style="color: #bf0021;">:</span> String
+</span><span class="line" data-line="190">True <span style="color: #bf0021;">:</span> Bool
 </span><span class="line" data-line="191">
 </span><span class="line" data-line="192"><span style="color: #7d6658;">-- Functions have types too. Read -&gt; as &quot;goes to&quot;. Think of the rightmost type</span>
 </span><span class="line" data-line="193"><span style="color: #7d6658;">-- as the type of the return value, and the others as arguments.</span>
-</span><span class="line" data-line="194"><span style="color: #54433a;">not</span> <span style="color: #bf0021;">:</span> B<span style="color: #54433a;">ool</span> <span style="color: #bf0021;">-&gt;</span> B<span style="color: #a06d00;">ool</span>
-</span><span class="line" data-line="195">round <span style="color: #bf0021;">:</span> <span style="color: #739797;">Float</span> <span style="color: #bf0021;">-&gt;</span> <span style="color: #739797;">Int</span>
+</span><span class="line" data-line="194"><span style="color: #54433a;">not</span> <span style="color: #bf0021;">:</span> Bool <span style="color: #bf0021;">-&gt;</span> Bool
+</span><span class="line" data-line="195"><span style="color: #54433a;">round</span> <span style="color: #bf0021;">:</span> Float <span style="color: #bf0021;">-&gt;</span> Int
 </span><span class="line" data-line="196">
 </span><span class="line" data-line="197"><span style="color: #7d6658;">-- When you define a value, it&#39;s good practice to write its type above it.</span>
 </span><span class="line" data-line="198"><span style="color: #7d6658;">-- The annotation is a form of documentation, which is verified by the compiler.</span>
-</span><span class="line" data-line="199"><span style="color: #a06d00;">double</span> <span style="color: #bf0021;">:</span> <span style="color: #739797;">Int</span> <span style="color: #bf0021;">-&gt;</span> <span style="color: #739797;">Int</span>
-</span><span class="line" data-line="200"><span style="color: #a06d00;">double</span> <span style="color: #54433a;">x</span> <span style="color: #bf0021;">=</span> <span style="color: #54433a;">x</span> <span style="color: #bf0021;">*</span> <span style="color: #904180;">2</span>
+</span><span class="line" data-line="199"><span style="color: #54433a;">double</span> <span style="color: #bf0021;">:</span> Int <span style="color: #bf0021;">-&gt;</span> Int
+</span><span class="line" data-line="200"><span style="color: #54433a;">double</span> <span style="color: #54433a;">x</span> <span style="color: #bf0021;">=</span> <span style="color: #54433a;">x</span> <span style="color: #bf0021;">*</span> <span style="color: #904180;">2</span>
 </span><span class="line" data-line="201">
 </span><span class="line" data-line="202"><span style="color: #7d6658;">-- Function arguments are passed in parentheses.</span>
 </span><span class="line" data-line="203"><span style="color: #7d6658;">-- Lowercase types are type variables: they can be any type, as long as each</span>
 </span><span class="line" data-line="204"><span style="color: #7d6658;">-- call is consistent.</span>
-</span><span class="line" data-line="205"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>map <span style="color: #bf0021;">:</span> <span style="color: #cca478;">(</span><span style="color: #54433a;">a</span> <span style="color: #bf0021;">-&gt;</span> b<span style="color: #cca478;">)</span> <span style="color: #bf0021;">-&gt;</span> L<span style="color: #54433a;">ist</span> <span style="color: #54433a;">a</span> <span style="color: #bf0021;">-&gt;</span> L<span style="color: #54433a;">ist</span> <span style="color: #54433a;">b</span>
+</span><span class="line" data-line="205"><span style="color: #a06d00;">List</span><span style="color: #c77b8b;">.</span>map <span style="color: #bf0021;">:</span> <span style="color: #cca478;">(</span><span style="color: #54433a;">a</span> <span style="color: #bf0021;">-&gt;</span> b<span style="color: #cca478;">)</span> <span style="color: #bf0021;">-&gt;</span> <span style="color: #a06d00;">List</span> <span style="color: #54433a;">a</span> <span style="color: #bf0021;">-&gt;</span> <span style="color: #a06d00;">List</span> <span style="color: #54433a;">b</span>
 </span><span class="line" data-line="206"><span style="color: #7d6658;">-- &quot;List dot map has type a-goes-to-b, goes to list of a, goes to list of b.&quot;</span>
 </span><span class="line" data-line="207">
 </span><span class="line" data-line="208"><span style="color: #7d6658;">-- There are three special lowercase types: number, comparable, and appendable.</span>
@@ -214,7 +214,7 @@
 </span><span class="line" data-line="214">
 </span><span class="line" data-line="215"><span style="color: #7d6658;">-- When you write a record or tuple, its type already exists.</span>
 </span><span class="line" data-line="216"><span style="color: #7d6658;">-- (Notice that record types use colon and record values use equals.)</span>
-</span><span class="line" data-line="217"><span style="color: #54433a;">origin</span> <span style="color: #bf0021;">:</span> <span style="color: #cca478;">&lbrace;</span> x <span style="color: #bf0021;">:</span> <span style="color: #739797;">Float</span><span style="color: #c77b8b;">,</span> <span style="color: #739797;">y</span> <span style="color: #bf0021;">:</span> <span style="color: #739797;">Float</span><span style="color: #c77b8b;">,</span> <span style="color: #739797;">z</span> <span style="color: #bf0021;">:</span> <span style="color: #739797;">Float</span> <span style="color: #cca478;">&rbrace;</span>
+</span><span class="line" data-line="217"><span style="color: #54433a;">origin</span> <span style="color: #bf0021;">:</span> <span style="color: #cca478;">&lbrace;</span> <span style="color: #54433a;">x</span> <span style="color: #bf0021;">:</span> Float<span style="color: #c77b8b;">,</span> <span style="color: #54433a;">y</span> <span style="color: #bf0021;">:</span> Float<span style="color: #c77b8b;">,</span> <span style="color: #54433a;">z</span> <span style="color: #bf0021;">:</span> Float <span style="color: #cca478;">&rbrace;</span>
 </span><span class="line" data-line="218"><span style="color: #54433a;">origin</span> <span style="color: #bf0021;">=</span>
 </span><span class="line" data-line="219">  <span style="color: #cca478;">&lbrace;</span> <span style="color: #54433a;">x</span> <span style="color: #bf0021;">=</span> <span style="color: #904180;">0</span><span style="color: #c77b8b;">,</span> <span style="color: #54433a;">y</span> <span style="color: #bf0021;">=</span> <span style="color: #904180;">0</span><span style="color: #c77b8b;">,</span> <span style="color: #54433a;">z</span> <span style="color: #bf0021;">=</span> <span style="color: #904180;">0</span> <span style="color: #cca478;">&rbrace;</span>
 </span><span class="line" data-line="220">
@@ -307,24 +307,24 @@
 </span><span class="line" data-line="307"><span style="color: #7d6658;">&lbrace;-- Command Line Tools --&rbrace;</span>
 </span><span class="line" data-line="308">
 </span><span class="line" data-line="309"><span style="color: #7d6658;">-- Compile a file.</span>
-</span><span class="line" data-line="310">$ elm make MyFile<span style="color: #c77b8b;">.</span>elm
+</span><span class="line" data-line="310">$ elm make MyFile.elm
 </span><span class="line" data-line="311">
 </span><span class="line" data-line="312"><span style="color: #7d6658;">-- The first time you do this, Elm will install the core libraries and create</span>
 </span><span class="line" data-line="313"><span style="color: #7d6658;">-- elm-package.json, where information about your project is kept.</span>
 </span><span class="line" data-line="314">
 </span><span class="line" data-line="315"><span style="color: #7d6658;">-- The reactor is a server that compiles and runs your files.</span>
 </span><span class="line" data-line="316"><span style="color: #7d6658;">-- Click the wrench next to file names to enter the time-travelling debugger!</span>
-</span><span class="line" data-line="317">$ <span style="color: #54433a;">elm</span> <span style="color: #54433a;">reactor</span>
+</span><span class="line" data-line="317">$ elm reactor
 </span><span class="line" data-line="318">
 </span><span class="line" data-line="319"><span style="color: #7d6658;">-- Experiment with simple expressions in a Read-Eval-Print Loop.</span>
-</span><span class="line" data-line="320">$ <span style="color: #54433a;">elm</span> <span style="color: #54433a;">repl</span>
+</span><span class="line" data-line="320">$ elm repl
 </span><span class="line" data-line="321">
 </span><span class="line" data-line="322"><span style="color: #7d6658;">-- Packages are identified by GitHub username and repo name.</span>
 </span><span class="line" data-line="323"><span style="color: #7d6658;">-- Install a new package, and record it in elm-package.json.</span>
-</span><span class="line" data-line="324">$ <span style="color: #54433a;">elm</span> <span style="color: #54433a;">package</span> <span style="color: #54433a;">install</span> <span style="color: #54433a;">elm</span>-<span style="color: #54433a;">lang</span>/<span style="color: #54433a;">html</span>
+</span><span class="line" data-line="324">$ elm <span style="color: #54433a;">package</span> <span style="color: #54433a;">install</span> <span style="color: #54433a;">elm</span>-<span style="color: #54433a;">lang</span>/<span style="color: #54433a;">html</span>
 </span><span class="line" data-line="325">
 </span><span class="line" data-line="326"><span style="color: #7d6658;">-- See what changed between versions of a package.</span>
-</span><span class="line" data-line="327">$ <span style="color: #54433a;">elm</span> <span style="color: #54433a;">package</span> <span style="color: #54433a;">diff</span> <span style="color: #54433a;">elm</span>-<span style="color: #54433a;">lang</span>/<span style="color: #54433a;">html</span> <span style="color: #904180;">1.1</span><span style="color: #c77b8b;">.</span><span style="color: #904180;">0</span> <span style="color: #904180;">2.0</span><span style="color: #c77b8b;">.</span><span style="color: #904180;">0</span>
+</span><span class="line" data-line="327">$ <span style="color: #54433a;">elm</span> <span style="color: #54433a;">package</span> <span style="color: #54433a;">diff</span> <span style="color: #54433a;">elm</span>-<span style="color: #54433a;">lang</span>/<span style="color: #54433a;">html</span> <span style="color: #904180;">1.1</span>.<span style="color: #904180;">0</span> <span style="color: #904180;">2.0</span>.<span style="color: #904180;">0</span>
 </span><span class="line" data-line="328"><span style="color: #7d6658;">-- Elm&#39;s package manager enforces semantic versioning, so minor version bumps</span>
 </span><span class="line" data-line="329"><span style="color: #7d6658;">-- will never break your build!</span>
 </span></code></pre>
