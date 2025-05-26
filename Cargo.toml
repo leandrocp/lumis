@@ -10,29 +10,46 @@ keywords = ["syntax", "highlighting", "highlighter", "colouring", "tree-sitter"]
 categories = ["text-processing"]
 license = "MIT"
 include = [
-  "/build.rs",
-  "/src/",
-  "/vendored_parsers/tree-sitter-*/src/tree_sitter/*.h",
-  "/vendored_parsers/tree-sitter-*/src/*.h",
-  "/vendored_parsers/tree-sitter-*/src/*.c",
-  "/vendored_parsers/tree-sitter-*/src/*.cc",
-  "/vendored_parsers/tree-sitter-csv/csv/src/tree_sitter/*.h",
-  "/vendored_parsers/tree-sitter-csv/csv/src/*.c",
-  "/vendored_parsers/tree-sitter-comment/src/tree_sitter_comment/*.h",
-  "/vendored_parsers/tree-sitter-comment/src/tree_sitter_comment/*.c",
-  "/queries/README.md",
-  "/queries/**/highlights.scm",
-  "/queries/**/injections.scm",
-  "/queries/**/locals.scm",
-  "/css/*.css",
-  "/themes/*.json",
-  "/LICENSE",
-  "/README.md",
+    "/build.rs",
+    "/src/",
+    "/vendored_parsers/tree-sitter-*/src/tree_sitter/*.h",
+    "/vendored_parsers/tree-sitter-*/src/*.h",
+    "/vendored_parsers/tree-sitter-*/src/*.c",
+    "/vendored_parsers/tree-sitter-*/src/*.cc",
+    "/vendored_parsers/tree-sitter-csv/csv/src/tree_sitter/*.h",
+    "/vendored_parsers/tree-sitter-csv/csv/src/*.c",
+    "/vendored_parsers/tree-sitter-comment/src/tree_sitter_comment/*.h",
+    "/vendored_parsers/tree-sitter-comment/src/tree_sitter_comment/*.c",
+    "/queries/README.md",
+    "/queries/**/highlights.scm",
+    "/queries/**/injections.scm",
+    "/queries/**/locals.scm",
+    "/css/*.css",
+    "/themes/*.json",
+    "/LICENSE",
+    "/README.md",
 ]
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--generate-link-to-definition"]
 no-default-features = true
+
+[[bin]]
+name = "autumn"
+path = "src/bin/autumn/main.rs"
+doc = true
+
+[[bin]]
+name = "dev"
+path = "src/bin/dev/main.rs"
+required-features = ["dev"]
+doc = false
+
+[features]
+dev = []
+elixir = ["rustler"]
+default = ["nif_version_2_15"]
+nif_version_2_15 = ["rustler/nif_version_2_15"]
 
 [dependencies]
 anyhow = "1.0"
@@ -98,23 +115,6 @@ quote = "1"
 rayon = "1"
 syn = { version = "2.0", features = ["full", "parsing"] }
 
-[features]
-dev = []
-elixir = ["rustler"]
-default = ["nif_version_2_15"]
-nif_version_2_15 = ["rustler/nif_version_2_15"]
-
 [profile.release]
 lto = true
 strip = true
-
-[[bin]]
-name = "autumn"
-path = "src/bin/autumn/main.rs"
-doc = true
-
-[[bin]]
-name = "dev"
-path = "src/bin/dev/main.rs"
-required-features = ["dev"]
-doc = false
