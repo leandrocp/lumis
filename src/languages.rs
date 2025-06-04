@@ -26,7 +26,6 @@ extern "C" {
     fn tree_sitter_llvm() -> *const ();
     fn tree_sitter_make() -> *const ();
     fn tree_sitter_perl() -> *const ();
-    fn tree_sitter_powershell() -> *const ();
     fn tree_sitter_scss() -> *const ();
     fn tree_sitter_surface() -> *const ();
     fn tree_sitter_vim() -> *const ();
@@ -1457,10 +1456,8 @@ static PHP_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 });
 
 static POWERSHELL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_powershell) };
-
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(tree_sitter_powershell::LANGUAGE),
         "poweshell",
         POWERSHELL_HIGHLIGHTS,
         POWERSHELL_INJECTIONS,
