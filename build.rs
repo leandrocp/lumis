@@ -225,9 +225,23 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
 
     let original_content = fs::read_to_string(path).expect("failed to ready query file");
     let converted_patterns = convert_lua_matches(&original_content);
+
+    // fix incompatible patterns
     let content = converted_patterns
         .replace("@spell", "")
-        .replace("@nospell", "");
+        .replace("@nospell", "")
+        .replace(
+            "#set! @string.special.url url @string.special.url",
+            "#set! @string.special.url url \"string.special.url\"",
+        )
+        .replace(
+            "#set! @_label url @_url",
+            "#set! @_label url \"markup.link.url\"",
+        )
+        .replace(
+            "#set! @_url url @_url",
+            "#set! @_url highlight \"markup.link.url\"",
+        );
 
     if let Some(first_line) = content.lines().next() {
         if first_line.starts_with("; inherits: ") {
