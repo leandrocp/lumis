@@ -204,6 +204,7 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
     let content = original_content
         .replace("@spell", "")
         .replace("@nospell", "")
+        .replace("; inherits html_tags", "; inherits: html_tags")
         .replace(
             "#set! @string.special.url url @string.special.url",
             "#set! @string.special.url url \"string.special.url\"",
