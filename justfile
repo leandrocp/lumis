@@ -62,7 +62,7 @@ update-parsers:
         "tree-sitter-scss https://github.com/serenadeai/tree-sitter-scss.git master"
         "tree-sitter-surface https://github.com/connorlay/tree-sitter-surface.git main"
         "tree-sitter-vim https://github.com/tree-sitter-grammars/tree-sitter-vim.git master"
-        "tree-sitter-vue https://github.com/tree-sitter-grammars/tree-sitter-vue.git fork"
+        "tree-sitter-vue https://github.com/tree-sitter-grammars/tree-sitter-vue.git main"
     )
 
     for parser_info in "${parsers[@]}"; do
