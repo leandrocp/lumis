@@ -489,15 +489,17 @@ return 1, 2, 3 or die("never reached");
     (return_expression))
   (expression_statement
     (return_expression
-      (number)
-      (number)
-      (number)))
+      (list_expression
+        (number)
+        (number)
+        (number))))
   (expression_statement
     (lowprec_logical_expression
       (return_expression
-        (number)
-        (number)
-        (number))
+        (list_expression
+          (number)
+          (number)
+          (number)))
       (function_call_expression
         (function)
         (interpolated_string_literal

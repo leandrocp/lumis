@@ -174,7 +174,8 @@ return unless =>;
       (number)))
   (expression_statement
     (return_expression
-      (autoquoted_bareword))))
+      (list_expression
+        (autoquoted_bareword)))))
 
 ================================================================================
 autoquoting lowprec (list-expr)
@@ -217,20 +218,23 @@ die 1, or => die;
   (expression_statement
     (ambiguous_function_call_expression
       (function)
-      (autoquoted_bareword)
-      (bareword)))
+      (list_expression
+        (autoquoted_bareword)
+        (bareword))))
   (expression_statement
     (lowprec_logical_expression
       (ambiguous_function_call_expression
         (function)
-        (number))
+        (list_expression
+          (number)))
       (bareword)))
   (expression_statement
     (ambiguous_function_call_expression
       (function)
-      (number)
-      (autoquoted_bareword)
-      (bareword))))
+      (list_expression
+        (number)
+        (autoquoted_bareword)
+        (bareword)))))
 
 ================================================================================
 autoquoting else blocks

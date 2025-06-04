@@ -122,9 +122,10 @@ shift // 1;
   (expression_statement
     (ambiguous_function_call_expression
       (function)
-      (match_regexp)
-      (number)
-      (number)))
+      (list_expression
+        (match_regexp)
+        (number)
+        (number))))
   (expression_statement
     (binary_expression
       (func1op_call_expression)

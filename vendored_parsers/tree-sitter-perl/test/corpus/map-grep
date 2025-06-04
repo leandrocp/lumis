@@ -167,9 +167,10 @@ map +(lc($_) => 1 ), (1, 2), 3;
               (scalar
                 (varname)))
             (number))))
-      list: (number)
-      list: (number)
-      list: (number)))
+      list: (list_expression
+        (number)
+        (number)
+        (number))))
   (expression_statement
     (map_grep_expression
       callback: (unary_expression
@@ -178,9 +179,10 @@ map +(lc($_) => 1 ), (1, 2), 3;
             (scalar
               (varname)))
           (number)))
-      list: (number)
-      list: (number)
-      list: (number)))
+      list: (list_expression
+        (number)
+        (number)
+        (number))))
   (expression_statement
     (map_grep_expression
       callback: (block
@@ -203,9 +205,10 @@ map +(lc($_) => 1 ), (1, 2), 3;
               (varname)))
           (number)))
       list: (list_expression
-        (number)
-        (number))
-      list: (number))))
+        (list_expression
+          (number)
+          (number))
+        (number)))))
 
 ================================================================================
 sort - with and without a BLOCK
@@ -217,9 +220,10 @@ sort { $a <=> $b } 1, 2, 3;
 (source_file
   (expression_statement
     (sort_expression
-      (number)
-      (number)
-      (number)))
+      (list_expression
+        (number)
+        (number)
+        (number))))
   (expression_statement
     (sort_expression
       (block
@@ -229,9 +233,10 @@ sort { $a <=> $b } 1, 2, 3;
               (varname))
             (scalar
               (varname)))))
-      (number)
-      (number)
-      (number))))
+      (list_expression
+        (number)
+        (number)
+        (number)))))
 
 ================================================================================
 sort SUBNAME
@@ -248,9 +253,10 @@ sort $not_subref, 1;
   (expression_statement
     (sort_expression
       callback: (function)
-      list: (number)
-      list: (number)
-      list: (number)))
+      list: (list_expression
+        (number)
+        (number)
+        (number))))
   (expression_statement
     (sort_expression
       callback: (function)
@@ -269,10 +275,11 @@ sort $not_subref, 1;
             (number))))))
   (expression_statement
     (sort_expression
-      list: (bareword)
-      list: (number)
-      list: (number)
-      list: (number)))
+      list: (list_expression
+        (bareword)
+        (number)
+        (number)
+        (number))))
   (expression_statement
     (sort_expression
       callback: (scalar
@@ -280,6 +287,7 @@ sort $not_subref, 1;
       list: (number)))
   (expression_statement
     (sort_expression
-      list: (scalar
-        (varname))
-      list: (number))))
+      list: (list_expression
+        (scalar
+          (varname))
+        (number)))))

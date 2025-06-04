@@ -1,5 +1,7 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "angular",
+  "inherits": "html",
   "rules": {
     "document": {
       "type": "REPEAT",
@@ -734,7 +736,7 @@
           "name": "value",
           "content": {
             "type": "SYMBOL",
-            "name": "_primitive"
+            "name": "_any_expression"
           }
         },
         {
@@ -1845,8 +1847,17 @@
                   "value": "="
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "_double_quote"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "_double_quote"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "_single_quote"
+                    }
+                  ]
                 },
                 {
                   "type": "CHOICE",
@@ -1862,8 +1873,17 @@
                   ]
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "_double_quote"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "_double_quote"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "_single_quote"
+                    }
+                  ]
                 }
               ]
             },
@@ -3328,6 +3348,10 @@
         },
         {
           "type": "STRING",
+          "value": "**"
+        },
+        {
+          "type": "STRING",
           "value": "%"
         },
         {
@@ -3365,6 +3389,10 @@
         {
           "type": "STRING",
           "value": ">"
+        },
+        {
+          "type": "STRING",
+          "value": "in"
         },
         {
           "type": "STRING",
@@ -3436,5 +3464,6 @@
     }
   ],
   "inline": [],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }

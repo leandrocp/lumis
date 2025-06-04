@@ -3,7 +3,7 @@
 
 #include <tree_sitter/parser.h>
 
-bool parse_tagname(TSLexer* lexer, const bool* valid_symbols);
-bool parse(TSLexer* lexer, const bool* valid_symbols);
+static bool parse_tagname(TSLexer* lexer, const bool* valid_symbols);
+static bool parse(TSLexer* lexer, const bool* valid_symbols);
 
 #endif /* ifndef TREE_SITTER_COMMENT_PARSER_H */

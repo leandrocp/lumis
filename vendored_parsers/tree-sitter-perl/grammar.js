@@ -162,9 +162,10 @@ module.exports = grammar({
   ],
   conflicts: $ => [
     [$.preinc_expression, $.postinc_expression],
+    // we need this b/c otherwise a nested term will eat its children's nodes (print print 1, 2, 3)
+    [$._listexpr, $._term_rightward],
     // all of the following go GLR b/c they need extra tokens to allow postfixy autoquotes
     [$.return_expression],
-    [$._listexpr, $.list_expression, $._term_rightward],
     [$.function, $.bareword],
     [$.function, $.function_call_expression],
     [$._variables, $.indirect_object],
@@ -399,16 +400,14 @@ module.exports = grammar({
     ),
 
     _listexpr: $ => choice(
-      $.list_expression,
+      alias($._term_rightward, $.list_expression),
       $._term
     ),
     /* ensure that an entire list expression's contents appear in one big flat
     * list, while permitting multiple internal commas and an optional trailing one */
     _term_rightward: $ => prec.right(seq(
-      $._term, repeat(seq($._PERLY_COMMA, optional($._term))),
+      $._term, repeat1(seq($._PERLY_COMMA, optional($._term))),
     )),
-    // NOTE - we gave this negative precedence b/c it's kinda just a fallback
-    list_expression: $ => prec(-1, choice($._term, $._term_rightward)),
 
     subscripted: $ => choice(
       $.glob_slot_expression,
@@ -629,7 +628,7 @@ module.exports = grammar({
     // we use the precedence here to ensure that we turn map { q'thingy" => $_ } into a hashref
     // it just needs to be arbitrarily higher than the _literal rule.
     _tricky_list: $ => prec(1, seq(
-      choice($.string_literal, $.interpolated_string_literal, $.command_string, $.autoquoted_bareword, $.number), $._PERLY_COMMA, $._term_rightward
+      choice($.string_literal, $.interpolated_string_literal, $.command_string, $.autoquoted_bareword, $.number), $._PERLY_COMMA, $._listexpr
     )),
     anonymous_hash_expression: $ => choice(
       seq($._PERLY_BRACE_OPEN, $._expr, '}'),
@@ -731,10 +730,10 @@ module.exports = grammar({
 
     _map_grep: $ => choice('map', 'grep'),
     map_grep_expression: $ => prec.left(TERMPREC.LSTOP, choice(
-      seq($._map_grep, field('callback', $.block), field('list', $._term_rightward)),
-      seq($._map_grep, field('callback', $._term), $._PERLY_COMMA, field('list', $._term_rightward)),
-      seq($._map_grep, '(', $._NONASSOC, field('callback', $._term), $._PERLY_COMMA, field('list', $._term_rightward), ')'),
-      seq($._map_grep, '(', $._NONASSOC, field('callback', $.block), field('list', $._term_rightward), ')'),
+      seq($._map_grep, field('callback', $.block), field('list', $._listexpr)),
+      seq($._map_grep, field('callback', $._term), $._PERLY_COMMA, field('list', $._listexpr)),
+      seq($._map_grep, '(', $._NONASSOC, field('callback', $._term), $._PERLY_COMMA, field('list', $._listexpr), ')'),
+      seq($._map_grep, '(', $._NONASSOC, field('callback', $.block), field('list', $._listexpr), ')'),
     )),
 
     // - we support sort SUBNAME as follows - if there's a bareword and no comma, it's
@@ -744,8 +743,8 @@ module.exports = grammar({
     // hashref
     _sort_routine: $ => choice(prec(1, alias($._bareword, $.function)), $.block, prec(1, $.scalar)),
     sort_expression: $ => prec.left(TERMPREC.LSTOP, choice(
-      seq('sort', optional(field('callback', $._sort_routine)), field('list', $._term_rightward)),
-      seq('sort', '(', $._NONASSOC, optional(field('callback', $._sort_routine)), field('list', $._term_rightward), ')'),
+      seq('sort', optional(field('callback', $._sort_routine)), field('list', $._listexpr)),
+      seq('sort', '(', $._NONASSOC, optional(field('callback', $._sort_routine)), field('list', $._listexpr), ')'),
     )),
 
 
@@ -754,7 +753,7 @@ module.exports = grammar({
       prec.left(TERMPREC.LOOPEX, seq(field('loopex', $._LOOPEX), optional($._label_arg))),
     goto_expression: $ =>
       prec.left(TERMPREC.LOOPEX, seq('goto', $._label_arg)),
-    return_expression: $ => prec(TERMPREC.LSTOP, seq('return', optional($._term_rightward))),
+    return_expression: $ => prec(TERMPREC.LSTOP, seq('return', optional($._listexpr))),
 
     /* Perl just considers `undef` like any other UNIOP but it's quite likely
      * that tree consumers and highlighters would want to handle it specially
@@ -794,12 +793,12 @@ module.exports = grammar({
       // we need the right precedence here so we can read ahead for the hash/sub disambiguation
       prec.right(TERMPREC.LSTOP,
         choice(
-          seq(field('function', $.function), field('arguments', $._term_rightward)),
-          seq(field('function', $.function), $.indirect_object, field('arguments', $._term_rightward)),
+          seq(field('function', $.function), field('arguments', $._listexpr)),
+          seq(field('function', $.function), $.indirect_object, field('arguments', $._listexpr)),
           // we handle this_takes_a_block { thing; other_thing }; here. we don't wanna accept an indirob of scalar tho
           seq(field('function', $.function), alias($.block, $.indirect_object)),
           // we handle cases like takes_a_hash { 1 => 2 }; by having this special case
-          seq(field('function', $.function), field('arguments', alias($._tricky_indirob_hashref, $.anonymous_hash_expression)), optseq($._PERLY_COMMA, field('arguments', $._term_rightward)))
+          seq(field('function', $.function), field('arguments', alias($._tricky_indirob_hashref, $.anonymous_hash_expression)), optseq($._PERLY_COMMA, field('arguments', $._listexpr)))
         )
       ),
     // we only parse a function if it won't be an indirob

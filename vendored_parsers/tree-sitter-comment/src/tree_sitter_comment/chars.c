@@ -1,20 +1,20 @@
 #include "chars.h"
 
-bool is_upper(int32_t c)
+static bool is_upper(int32_t c)
 {
   const int32_t upper = 65;
   const int32_t lower = 90;
   return c >= upper && c <= lower;
 }
 
-bool is_digit(int32_t c)
+static bool is_digit(int32_t c)
 {
   const int32_t upper = 48;
   const int32_t lower = 57;
   return c >= upper && c <= lower;
 }
 
-bool is_newline(int32_t c)
+static bool is_newline(int32_t c)
 {
   const int32_t newline_chars[] = {
     CHAR_EOF,
@@ -30,7 +30,7 @@ bool is_newline(int32_t c)
   return false;
 }
 
-bool is_space(int32_t c)
+static bool is_space(int32_t c)
 {
   const int32_t space_chars[] = {
     CHAR_SPACE,
@@ -50,7 +50,7 @@ bool is_space(int32_t c)
 }
 
 /// Check if the character is allowed inside the name.
-bool is_internal_char(int32_t c)
+static bool is_internal_char(int32_t c)
 {
   const int32_t valid_chars[] = {
     '-',
