@@ -60,9 +60,6 @@ pre.athl {
 .diff-plus {
   background-color: #2a4e57;
 }
-.error {
-  color: #fc514e;
-}
 .function {
   color: #82aaff;
 }
@@ -199,9 +196,6 @@ pre.athl {
 }
 .module-builtin {
   color: #a1cd5e;
-}
-.namespace {
-  color: #7fdbca;
 }
 .normal {
   color: #c3ccdc;
