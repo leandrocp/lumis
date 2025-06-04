@@ -18,7 +18,6 @@ extern "C" {
     fn tree_sitter_csv() -> *const ();
     fn tree_sitter_dockerfile() -> *const ();
     fn tree_sitter_eex() -> *const ();
-    fn tree_sitter_elm() -> *const ();
     fn tree_sitter_glimmer() -> *const ();
     fn tree_sitter_graphql() -> *const ();
     fn tree_sitter_iex() -> *const ();
@@ -1064,10 +1063,8 @@ static ELIXIR_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 });
 
 static ELM_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_elm) };
-
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(tree_sitter_elm::LANGUAGE),
         "elm",
         ELM_HIGHLIGHTS,
         ELM_INJECTIONS,
