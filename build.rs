@@ -199,10 +199,32 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
     let mut query_content: Vec<String> = Vec::new();
 
     let original_content = fs::read_to_string(path).expect("failed to ready query file");
-    let converted_patterns = convert_lua_matches(&original_content);
-    let content = converted_patterns
+
+    // fix incompatible patterns
+    let content = original_content
         .replace("@spell", "")
-        .replace("@nospell", "");
+        .replace("@nospell", "")
+        .replace(
+            "#set! @string.special.url url @string.special.url",
+            "#set! @string.special.url url \"string.special.url\"",
+        )
+        .replace(
+            "#set! @_label url @_url",
+            "#set! @_label url \"markup.link.url\"",
+        )
+        .replace(
+            "#set! @_url url @_url",
+            "#set! @_url highlight \"markup.link.url\"",
+        )
+        .replace(
+            "#set! @_hyperlink url @markup.link.url",
+            "#set! @_hyperlink highlight \"markup.link.url\"",
+        )
+        .replace("\\\\c", "(?i)")
+        .replace("^{[-]|[^|]", "^\\{[-]|^\\{[^|]")
+        .replace(r#""^\\if"#, r#""^if"#);
+
+    let content = convert_lua_matches(&content);
 
     if let Some(first_line) = content.lines().next() {
         if first_line.starts_with("; inherits: ") {

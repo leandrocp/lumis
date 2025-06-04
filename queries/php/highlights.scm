@@ -1,1 +1,0 @@
-; inherits: php_only

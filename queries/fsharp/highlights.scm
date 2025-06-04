@@ -199,8 +199,7 @@
 (preproc_line
   "#line" @keyword.directive)
 
-(attribute
-  (_type) @attribute)
+(attribute) @attribute
 
 [
   "("

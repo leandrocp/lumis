@@ -1444,11 +1444,11 @@ static PERL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 static PHP_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(tree_sitter_php::LANGUAGE_PHP),
+        tree_sitter::Language::new(tree_sitter_php::LANGUAGE_PHP_ONLY),
         "php",
-        PHP_HIGHLIGHTS,
-        PHP_INJECTIONS,
-        PHP_LOCALS,
+        PHP_ONLY_HIGHLIGHTS,
+        PHP_ONLY_INJECTIONS,
+        PHP_ONLY_LOCALS,
     )
     .expect("failed to create php highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);

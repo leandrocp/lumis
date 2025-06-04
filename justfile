@@ -34,7 +34,9 @@ update-parsers:
     TEMP_DIR=$(mktemp -d)
     trap 'rm -rf "$TEMP_DIR"' EXIT
 
-    curl -s https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/master/lockfile.json > "$TEMP_DIR/lockfile.json"
+    NVIM_TREESITTER_LATEST=$(curl -s https://api.github.com/repos/nvim-treesitter/nvim-treesitter/tags | jq -r '.[0].name')
+    echo "Using nvim-treesitter version: $NVIM_TREESITTER_LATEST"
+    curl -s https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/tags/$NVIM_TREESITTER_LATEST/lockfile.json > "$TEMP_DIR/lockfile.json"
 
     parsers=(
         "tree-sitter-angular https://github.com/dlvandenberg/tree-sitter-angular.git main"
@@ -58,7 +60,7 @@ update-parsers:
         "tree-sitter-scss https://github.com/serenadeai/tree-sitter-scss.git master"
         "tree-sitter-surface https://github.com/connorlay/tree-sitter-surface.git main"
         "tree-sitter-vim https://github.com/tree-sitter-grammars/tree-sitter-vim.git master"
-        "tree-sitter-vue https://github.com/tree-sitter-grammars/tree-sitter-vue.git fork"
+        "tree-sitter-vue https://github.com/tree-sitter-grammars/tree-sitter-vue.git main"
     )
 
     for parser_info in "${parsers[@]}"; do
@@ -118,7 +120,9 @@ update-queries:
     fi
     
     TEMP_DIR=$(mktemp -d)
-    git clone --depth 1 https://github.com/nvim-treesitter/nvim-treesitter.git "$TEMP_DIR/nvim-treesitter"
+    NVIM_TREESITTER_LATEST=$(curl -s https://api.github.com/repos/nvim-treesitter/nvim-treesitter/tags | jq -r '.[0].name')
+    echo "Using nvim-treesitter version: $NVIM_TREESITTER_LATEST"
+    git clone --depth 1 --branch "$NVIM_TREESITTER_LATEST" https://github.com/nvim-treesitter/nvim-treesitter.git "$TEMP_DIR/nvim-treesitter"
     
     LANGUAGES=$(find queries -maxdepth 1 -type d | grep -v "^queries$" | sed 's|queries/||')
     

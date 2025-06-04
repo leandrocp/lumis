@@ -41,10 +41,12 @@
 ] @markup.link.label
 
 ((inline_link
-  (link_destination) @_url) @_label)
+  (link_destination) @_url) @_label
+  (#set! @_label url @_url))
 
 ((image
-  (link_destination) @_url) @_label)
+  (link_destination) @_url) @_label
+  (#set! @_label url @_url))
 
 ; Conceal image links
 (image
@@ -90,7 +92,8 @@
 ] @markup.link.url @nospell
 
 ((uri_autolink) @_url
-  (#offset! @_url 0 1 0 -1))
+  (#offset! @_url 0 1 0 -1)
+  (#set! @_url url @_url))
 
 (entity_reference) @nospell
 
