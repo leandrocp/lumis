@@ -10,7 +10,6 @@ use strum::{EnumIter, IntoEnumIterator};
 use tree_sitter_highlight::HighlightConfiguration;
 
 extern "C" {
-    fn tree_sitter_hcl() -> *const ();
     fn tree_sitter_angular() -> *const ();
     fn tree_sitter_astro() -> *const ();
     fn tree_sitter_clojure() -> *const ();
@@ -1171,10 +1170,8 @@ static HASKELL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 });
 
 static HCL_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_hcl) };
-
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(tree_sitter_hcl::LANGUAGE),
         "hcl",
         HCL_HIGHLIGHTS,
         HCL_INJECTIONS,

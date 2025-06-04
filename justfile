@@ -46,7 +46,6 @@ update-parsers:
         "tree-sitter-eex https://github.com/connorlay/tree-sitter-eex.git main"
         "tree-sitter-glimmer https://github.com/ember-tooling/tree-sitter-glimmer.git main"
         "tree-sitter-graphql https://github.com/bkegley/tree-sitter-graphql.git master"
-        "tree-sitter-hcl https://github.com/tree-sitter-grammars/tree-sitter-hcl.git main"
         "tree-sitter-http https://github.com/rest-nvim/tree-sitter-http.git main"
         "tree-sitter-iex https://github.com/elixir-lang/tree-sitter-iex.git main"
         "tree-sitter-kotlin https://github.com/fwcd/tree-sitter-kotlin.git main"

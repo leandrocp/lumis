@@ -187,11 +187,6 @@ fn vendored_parsers() {
             src_dir: "vendored_parsers/tree-sitter-vue/src",
             extra_files: vec!["scanner.c"],
         },
-        TreeSitterParser {
-            name: "tree-sitter-hcl",
-            src_dir: "vendored_parsers/tree-sitter-hcl/src",
-            extra_files: vec!["scanner.c"],
-        },
     ];
 
     for parser in &parsers {
