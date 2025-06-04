@@ -40,7 +40,6 @@ update-parsers:
         "tree-sitter-angular https://github.com/dlvandenberg/tree-sitter-angular.git main"
         "tree-sitter-astro https://github.com/virchau13/tree-sitter-astro.git master"
         "tree-sitter-clojure https://github.com/sogaiu/tree-sitter-clojure.git master"
-        "tree-sitter-cmake https://github.com/uyha/tree-sitter-cmake.git master"
         "tree-sitter-comment https://github.com/stsewd/tree-sitter-comment.git master"
         "tree-sitter-commonlisp https://github.com/tree-sitter-grammars/tree-sitter-commonlisp.git master"
         "tree-sitter-csv https://github.com/tree-sitter-grammars/tree-sitter-csv.git master"

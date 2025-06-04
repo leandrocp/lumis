@@ -14,7 +14,6 @@ extern "C" {
     fn tree_sitter_angular() -> *const ();
     fn tree_sitter_astro() -> *const ();
     fn tree_sitter_clojure() -> *const ();
-    fn tree_sitter_cmake() -> *const ();
     fn tree_sitter_comment() -> *const ();
     fn tree_sitter_commonlisp() -> *const ();
     fn tree_sitter_csv() -> *const ();
@@ -919,10 +918,8 @@ static COMMONLISP_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 });
 
 static CMAKE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_cmake) };
-
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(tree_sitter_cmake::LANGUAGE),
         "cmake",
         CMAKE_HIGHLIGHTS,
         CMAKE_INJECTIONS,
