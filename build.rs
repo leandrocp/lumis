@@ -98,11 +98,6 @@ fn vendored_parsers() {
             extra_files: vec![],
         },
         TreeSitterParser {
-            name: "tree-sitter-comment",
-            src_dir: "vendored_parsers/tree-sitter-comment/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
             name: "tree-sitter-commonlisp",
             src_dir: "vendored_parsers/tree-sitter-commonlisp/src",
             extra_files: vec![],

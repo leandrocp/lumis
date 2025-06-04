@@ -14,7 +14,6 @@ extern "C" {
     fn tree_sitter_angular() -> *const ();
     fn tree_sitter_astro() -> *const ();
     fn tree_sitter_clojure() -> *const ();
-    fn tree_sitter_comment() -> *const ();
     fn tree_sitter_commonlisp() -> *const ();
     fn tree_sitter_csv() -> *const ();
     fn tree_sitter_dockerfile() -> *const ();
@@ -888,10 +887,8 @@ static CLOJURE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 });
 
 static COMMENT_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
-    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_comment) };
-
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(language_fn),
+        tree_sitter::Language::new(tree_sitter_comment::LANGUAGE),
         "comment",
         COMMENT_HIGHLIGHTS,
         COMMENT_INJECTIONS,
