@@ -9495,7 +9495,18 @@
   {
     "type": "unknown_builtin_statement",
     "named": true,
-    "fields": {},
+    "fields": {
+      "range": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "range",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -9621,7 +9632,18 @@
   {
     "type": "user_command",
     "named": true,
-    "fields": {},
+    "fields": {
+      "range": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "range",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,

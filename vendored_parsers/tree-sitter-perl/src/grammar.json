@@ -1934,8 +1934,13 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "list_expression"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_term_rightward"
+          },
+          "named": true,
+          "value": "list_expression"
         },
         {
           "type": "SYMBOL",
@@ -1954,7 +1959,7 @@
             "name": "_term"
           },
           {
-            "type": "REPEAT",
+            "type": "REPEAT1",
             "content": {
               "type": "SEQ",
               "members": [
@@ -1976,23 +1981,6 @@
                 }
               ]
             }
-          }
-        ]
-      }
-    },
-    "list_expression": {
-      "type": "PREC",
-      "value": -1,
-      "content": {
-        "type": "CHOICE",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "_term"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "_term_rightward"
           }
         ]
       }
@@ -4206,7 +4194,7 @@
           },
           {
             "type": "SYMBOL",
-            "name": "_term_rightward"
+            "name": "_listexpr"
           }
         ]
       }
@@ -5101,7 +5089,7 @@
                 "name": "list",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_term_rightward"
+                  "name": "_listexpr"
                 }
               }
             ]
@@ -5130,7 +5118,7 @@
                 "name": "list",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_term_rightward"
+                  "name": "_listexpr"
                 }
               }
             ]
@@ -5167,7 +5155,7 @@
                 "name": "list",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_term_rightward"
+                  "name": "_listexpr"
                 }
               },
               {
@@ -5204,7 +5192,7 @@
                 "name": "list",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_term_rightward"
+                  "name": "_listexpr"
                 }
               },
               {
@@ -5280,7 +5268,7 @@
                 "name": "list",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_term_rightward"
+                  "name": "_listexpr"
                 }
               }
             ]
@@ -5321,7 +5309,7 @@
                 "name": "list",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_term_rightward"
+                  "name": "_listexpr"
                 }
               },
               {
@@ -5412,7 +5400,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_term_rightward"
+                "name": "_listexpr"
               },
               {
                 "type": "BLANK"
@@ -5656,7 +5644,7 @@
                 "name": "arguments",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_term_rightward"
+                  "name": "_listexpr"
                 }
               }
             ]
@@ -5681,7 +5669,7 @@
                 "name": "arguments",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_term_rightward"
+                  "name": "_listexpr"
                 }
               }
             ]
@@ -5747,7 +5735,7 @@
                         "name": "arguments",
                         "content": {
                           "type": "SYMBOL",
-                          "name": "_term_rightward"
+                          "name": "_listexpr"
                         }
                       }
                     ]
@@ -9180,12 +9168,11 @@
       "postinc_expression"
     ],
     [
-      "return_expression"
+      "_listexpr",
+      "_term_rightward"
     ],
     [
-      "_listexpr",
-      "list_expression",
-      "_term_rightward"
+      "return_expression"
     ],
     [
       "function",

@@ -271,6 +271,10 @@
             "named": false
           },
           {
+            "type": "**",
+            "named": false
+          },
+          {
             "type": "+",
             "named": false
           },
@@ -304,6 +308,10 @@
           },
           {
             "type": ">=",
+            "named": false
+          },
+          {
+            "type": "in",
             "named": false
           },
           {
@@ -454,39 +462,31 @@
         "required": true,
         "types": [
           {
-            "type": "array",
+            "type": "binary_expression",
             "named": true
           },
           {
-            "type": "bracket_expression",
+            "type": "conditional_expression",
             "named": true
           },
           {
-            "type": "call_expression",
+            "type": "expression",
             "named": true
           },
           {
-            "type": "group",
+            "type": "nullish_coalescing_expression",
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "template_string",
             "named": true
           },
           {
-            "type": "member_expression",
+            "type": "ternary_expression",
             "named": true
           },
           {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "object",
-            "named": true
-          },
-          {
-            "type": "string",
+            "type": "unary_expression",
             "named": true
           }
         ]
@@ -844,6 +844,7 @@
   {
     "type": "document",
     "named": true,
+    "root": true,
     "fields": {
       "alternative": {
         "multiple": true,
@@ -3148,6 +3149,10 @@
     "named": false
   },
   {
+    "type": "**",
+    "named": false
+  },
+  {
     "type": "+",
     "named": false
   },
@@ -3240,6 +3245,10 @@
     "named": false
   },
   {
+    "type": "`",
+    "named": false
+  },
+  {
     "type": "attribute_name",
     "named": true
   },
@@ -3253,7 +3262,8 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "conditional_operator",
@@ -3282,6 +3292,10 @@
   {
     "type": "identifier",
     "named": true
+  },
+  {
+    "type": "in",
+    "named": false
   },
   {
     "type": "number",

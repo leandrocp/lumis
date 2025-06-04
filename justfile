@@ -95,6 +95,7 @@ update-parsers:
             (cd "vendored_parsers/$parser" && npm install --no-save tree-sitter-cli && npx tree-sitter generate)
             rm -f "vendored_parsers/$parser/Cargo.toml"
             rm -rf "vendored_parsers/$parser/node_modules"
+            rm -rf "vendored_parsers/$parser/bindings"
             echo "✓ Updated $parser"
         elif [ -d "$TEMP_DIR/$parser/src" ]; then
             rm -rf "vendored_parsers/$parser/src"

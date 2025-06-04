@@ -199,18 +199,20 @@ print 'things', sum 1, 2, 3;
   (expression_statement
     (ambiguous_function_call_expression
       (function)
-      (string_literal
-        (string_content))
-      (string_literal
-        (string_content))))
+      (list_expression
+        (string_literal
+          (string_content))
+        (string_literal
+          (string_content)))))
   (expression_statement
     (ambiguous_function_call_expression
       (function)
-      (string_literal
-        (string_content))
-      (ambiguous_function_call_expression
-        (function)
-        (number)
+      (list_expression
+        (string_literal
+          (string_content))
+        (ambiguous_function_call_expression
+          (function)
+          (number))
         (number)
         (number)))))
 
@@ -271,10 +273,11 @@ print $sner / 2;
   (expression_statement
     (ambiguous_function_call_expression
       (function)
-      (scalar
-        (varname))
-      (scalar
-        (varname))))
+      (list_expression
+        (scalar
+          (varname))
+        (scalar
+          (varname)))))
   (expression_statement
     (lowprec_logical_expression
       (ambiguous_function_call_expression
@@ -305,9 +308,10 @@ for_sure_a_hash { hi => 'there' }, 9001;
       (anonymous_hash_expression
         (list_expression
           (number)
-          (number)
-          (number)
-          (number)))))
+          (list_expression
+            (number)
+            (number)
+            (number))))))
   (expression_statement
     (ambiguous_function_call_expression
       (function)
@@ -323,12 +327,13 @@ for_sure_a_hash { hi => 'there' }, 9001;
   (expression_statement
     (ambiguous_function_call_expression
       (function)
-      (anonymous_hash_expression
-        (list_expression
-          (autoquoted_bareword)
-          (string_literal
-            (string_content))))
-      (number))))
+      (list_expression
+        (anonymous_hash_expression
+          (list_expression
+            (autoquoted_bareword)
+            (string_literal
+              (string_content))))
+        (number)))))
 
 ================================================================================
 non-ambiguous indirob handling (for builtins)

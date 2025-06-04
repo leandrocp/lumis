@@ -1,4 +1,4 @@
 #! /bin/bash
 
 mkdir release
-cp -r LICENSE src tree-sitter.json binding.gyp package.json go.mod CMakeLists.txt Cargo.toml Package.swift pyproject.toml setup.py queries bindings tree-sitter-perl.pc release
+cp -r LICENSE README.md src tree-sitter.json binding.gyp package.json go.mod CMakeLists.txt Cargo.toml Package.swift pyproject.toml setup.py queries bindings tree-sitter-perl.pc release

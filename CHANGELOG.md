@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Updated parsers: angular, cmake, comment, hcl, liquid, llvm, perl, vim
+
+
 ## [0.3.2] - 2025-05-21
 
 ### Improvements
