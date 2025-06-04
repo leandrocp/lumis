@@ -18,25 +18,23 @@
       "fg": "#a02f6f"
     },
     "comment": {
-      "fg": "#b7b5ac",
-      "italic": true
+      "fg": "#b7b5ac"
     },
     "comment.documentation": {
-      "fg": "#b7b5ac",
-      "italic": true
+      "fg": "#b7b5ac"
     },
     "comment.error": {
-      "fg": "#590008"
+      "fg": "#af3029"
     },
     "comment.note": {
-      "fg": "#007373"
+      "fg": "#24837b"
     },
     "comment.todo": {
       "fg": "#a02f6f",
       "bold": true
     },
     "comment.warning": {
-      "fg": "#6b5300"
+      "fg": "#ad8301"
     },
     "constant": {
       "fg": "#ad8301"
@@ -51,13 +49,13 @@
       "fg": "#6f6e69"
     },
     "diff.delta": {
-      "fg": "#007373"
+      "fg": "#205ea6"
     },
     "diff.minus": {
-      "fg": "#590008"
+      "fg": "#af3029"
     },
     "diff.plus": {
-      "fg": "#005523"
+      "fg": "#66800b"
     },
     "function": {
       "fg": "#bc5215"

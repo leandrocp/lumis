@@ -18,25 +18,23 @@
       "fg": "#ce5d97"
     },
     "comment": {
-      "fg": "#575653",
-      "italic": true
+      "fg": "#575653"
     },
     "comment.documentation": {
-      "fg": "#575653",
-      "italic": true
+      "fg": "#575653"
     },
     "comment.error": {
-      "fg": "#ffc0b9"
+      "fg": "#d14d41"
     },
     "comment.note": {
-      "fg": "#8cf8f7"
+      "fg": "#3aa99f"
     },
     "comment.todo": {
       "fg": "#ce5d97",
       "bold": true
     },
     "comment.warning": {
-      "fg": "#fce094"
+      "fg": "#d0a215"
     },
     "constant": {
       "fg": "#d0a215"
@@ -51,13 +49,13 @@
       "fg": "#878580"
     },
     "diff.delta": {
-      "fg": "#8cf8f7"
+      "fg": "#4385be"
     },
     "diff.minus": {
-      "fg": "#ffc0b9"
+      "fg": "#d14d41"
     },
     "diff.plus": {
-      "fg": "#b3f6c0"
+      "fg": "#879a39"
     },
     "function": {
       "fg": "#da702c"

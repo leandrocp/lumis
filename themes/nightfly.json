@@ -60,9 +60,6 @@
     "diff.plus": {
       "bg": "#2a4e57"
     },
-    "error": {
-      "fg": "#fc514e"
-    },
     "function": {
       "fg": "#82aaff"
     },
@@ -199,9 +196,6 @@
     },
     "module.builtin": {
       "fg": "#a1cd5e"
-    },
-    "namespace": {
-      "fg": "#7fdbca"
     },
     "normal": {
       "fg": "#c3ccdc",
