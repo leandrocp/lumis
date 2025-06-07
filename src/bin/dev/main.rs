@@ -32,6 +32,7 @@ fn gen_samples() -> Result<()> {
         "aura_dark",
         "ayu_dark",
         "ayu_light",
+        "catppuccin_frappe",
         "catppuccin_latte",
         "catppuccin_mocha",
         "cyberdream_dark",

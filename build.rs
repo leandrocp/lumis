@@ -227,9 +227,9 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
 
     let content = convert_lua_matches(&content);
 
-    if let Some(first_line) = content.lines().next() {
-        if first_line.starts_with("; inherits: ") {
-            let inherits_str = first_line.trim_start_matches("; inherits: ").trim();
+    for line in content.lines() {
+        if line.starts_with("; inherits: ") {
+            let inherits_str = line.trim_start_matches("; inherits: ").trim();
 
             let parent_languages: Vec<String> = inherits_str
                 .split(',')
@@ -247,6 +247,20 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
 
     query_content.push(format!("\n; query: {}", language));
     query_content.push(content.clone());
+
+    let overwrite_path = PathBuf::from(format!("overwrites/{}/{}.scm", language, query));
+    if overwrite_path.exists() {
+        println!(
+            "cargo:warning=appending {} into {}",
+            overwrite_path.display(),
+            path.display()
+        );
+        let overwrite_content =
+            fs::read_to_string(&overwrite_path).expect("failed to read overwrite file");
+        query_content.push(format!("\n; overwrite: {}", overwrite_path.display()));
+        query_content.push(overwrite_content);
+    }
+
     query_content.join("\n")
 }
 
@@ -269,6 +283,7 @@ fn queries() {
 
         let language = path.file_name().unwrap().to_str().unwrap();
         println!("cargo:rerun-if-changed=queries/{}", language);
+        println!("cargo:rerun-if-changed=overwrites/{}", language);
 
         let lang_upper = language.to_uppercase();
         let queries = ["highlights", "injections", "locals"];
