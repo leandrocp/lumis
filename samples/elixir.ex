@@ -433,3 +433,30 @@ Agent.get(my_agent, fn colors -> colors end) #=> ["red", "green"]
 
 # Update the agent's state the same way
 Agent.update(my_agent, fn colors -> ["blue" | colors] end)
+
+## ---------------------------
+## -- Docs
+## ---------------------------
+defmodule Kernel do
+  @moduledoc """
+  `Kernel` is Elixir's default environment.
+  """
+
+  @doc ~S"""
+  Defines a public function with the given name and body.
+
+  ## Examples
+
+      defmodule Foo do
+        def bar, do: :baz
+      end
+
+      Foo.bar()
+      #=> :baz
+
+  """
+  defmacro def(call, expr \\ nil) do
+    assert_no_match_or_guard_scope(__CALLER__.context, "def/2")
+    define(:def, call, expr, __CALLER__)
+  end
+end
