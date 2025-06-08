@@ -21,7 +21,7 @@ extract-scopes:
 update-parsers:
     #!/usr/bin/env bash
     set -euo pipefail
-    
+
     echo "⚠️  This will update all parser files in vendored_parsers/"
     echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
@@ -65,10 +65,10 @@ update-parsers:
 
     for parser_info in "${parsers[@]}"; do
         read -r parser repo branch <<< "$parser_info"
-        
+
         base_name=${parser#tree-sitter-}
         revision=$(jq -r ".\"$base_name\".revision" "$TEMP_DIR/lockfile.json")
-        
+
         echo "🔄 Updating $parser from $repo (revision: $revision)"
 
         if [ "$revision" = "null" ]; then
@@ -80,9 +80,9 @@ update-parsers:
                 git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$parser"
             fi
         fi
-        
+
         mkdir -p "vendored_parsers/$parser"
-        
+
         if [ "$parser" = "tree-sitter-csv" ] && [ -d "$TEMP_DIR/$parser/csv" ]; then
             rm -rf "vendored_parsers/$parser/csv"
             cp -r "$TEMP_DIR/$parser/csv" "vendored_parsers/$parser/"
@@ -102,14 +102,14 @@ update-parsers:
         else
             echo "⚠️  No src directory found for $parser"
         fi
-        
+
         rm -rf "$TEMP_DIR/$parser"
     done
 
 update-queries:
     #!/usr/bin/env bash
     set -euo pipefail
-    
+
     echo "⚠️  This will regenerate files in queries/"
     echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
@@ -118,18 +118,18 @@ update-queries:
         echo "Operation cancelled."
         exit 0
     fi
-    
+
     TEMP_DIR=$(mktemp -d)
     NVIM_TREESITTER_LATEST=$(curl -s https://api.github.com/repos/nvim-treesitter/nvim-treesitter/tags | jq -r '.[0].name')
     echo "Using nvim-treesitter version: $NVIM_TREESITTER_LATEST"
     git clone --depth 1 --branch "$NVIM_TREESITTER_LATEST" https://github.com/nvim-treesitter/nvim-treesitter.git "$TEMP_DIR/nvim-treesitter"
-    
+
     LANGUAGES=$(find queries -maxdepth 1 -type d | grep -v "^queries$" | sed 's|queries/||')
-    
+
     for LANG in $LANGUAGES; do
         SRC_DIR="$TEMP_DIR/nvim-treesitter/queries/$LANG"
         DEST_DIR="queries/$LANG"
-        
+
         if [ -d "$SRC_DIR" ]; then
             echo "Replacing queries for $LANG"
             mkdir -p "$DEST_DIR"
@@ -138,13 +138,13 @@ update-queries:
             echo "No queries found for $LANG in nvim-treesitter"
         fi
     done
-    
+
     rm -rf "$TEMP_DIR"
 
-gen-themes:
+update-theme THEME_NAME:
     #!/usr/bin/env bash
     set -euo pipefail
-    
+
     echo "⚠️  This will regenerate files in themes/"
     echo ""
     read -p "Do you want to proceed? (y/N) " -n 1 -r
@@ -153,16 +153,42 @@ gen-themes:
         echo "Operation cancelled."
         exit 0
     fi
-    
+
+    cd themes
+    rm -rf nvim
+    nvim --clean --headless -V3 -u init.lua -l extract_theme.lua {{THEME_NAME}}
+
+update-themes:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "⚠️  This will regenerate files in themes/"
+    echo ""
+    read -p "Do you want to proceed? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Operation cancelled."
+        exit 0
+    fi
+
     find themes -type f -name "*.json" -delete
     cd themes
     rm -rf nvim
-    nvim --clean --headless -u init.lua -l extract_themes.lua
+
+    THEME_NAMES=$(grep -E '^\s*name = ' themes.lua | sed 's/.*name = "\([^"]*\)".*/\1/')
+    CURRENT=1
+
+    while IFS= read -r THEME_NAME; do
+        if [ -n "$THEME_NAME" ]; then
+            nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "$THEME_NAME"
+        fi
+    done <<< "$THEME_NAMES"
+
 
 gen-css:
     #!/usr/bin/env bash
     set -euo pipefail
-    
+
     echo "⚠️  This will regenerate files in css/"
     echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
@@ -171,14 +197,14 @@ gen-css:
         echo "Operation cancelled."
         exit 0
     fi
-    
+
     find css -type f -name "*.css" -delete
     cargo run --release --features=dev --bin dev gen-css
 
 gen-samples:
     #!/usr/bin/env bash
     set -euo pipefail
-    
+
     echo "⚠️  This will regenerate files in the samples/ directory."
     echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
@@ -187,7 +213,7 @@ gen-samples:
         echo "Operation cancelled."
         exit 0
     fi
-    
+
     find samples -type f -name "*.html" ! -name "index.html" ! -name "html.html" -delete
     cargo run --release --features=dev --bin dev gen-samples
 
