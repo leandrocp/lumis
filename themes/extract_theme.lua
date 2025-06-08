@@ -108,7 +108,7 @@ local function extract_colorscheme_colors(theme_def)
 	local colorscheme_name = theme_def.colorscheme
 	local appearance = theme_def.appearance
 
-	print(string.format("%s (colorscheme: %s, appearance: %s)", theme_name, colorscheme_name, appearance))
+	print(string.format("%s (colorscheme: %s, appearance: %s)\n", theme_name, colorscheme_name, appearance))
 
 	local preserved_modules = {
 		"_G",
