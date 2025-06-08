@@ -1,295 +1,298 @@
 pre.athl {
-  color: #ece1d7;
-  background-color: #292522;
+  color: #a7aab0;
+  background-color: #232326;
 }
 .attribute {
-  color: #85b695;
+  color: #51a8b3;
 }
 .attribute-builtin {
-  color: #ebc06d;
+  color: #de5d68;
 }
 .boolean {
-  color: #cf9bc2;
+  color: #c49060;
 }
 .character {
-  color: #7f91b2;
+  color: #c49060;
 }
 .character-special {
-  color: #ebc06d;
+  color: #de5d68;
 }
 .comment {
-  color: #c1a78e;
+  color: #5a5b5e;
   font-style: italic;
 }
 .comment-documentation {
-  color: #c1a78e;
+  color: #5a5b5e;
+  font-style: italic;
 }
 .comment-error {
-  color: #c1a78e;
-  font-weight: bold;
+  color: #de5d68;
 }
 .comment-note {
-  color: #c1a78e;
-  font-weight: bold;
+  color: #51a8b3;
 }
 .comment-todo {
-  color: #c1a78e;
-  font-weight: bold;
+  color: #de5d68;
+  font-style: italic;
 }
 .comment-warning {
-  color: #c1a78e;
-  font-weight: bold;
+  color: #dbb671;
 }
 .constant {
-  color: #ece1d7;
+  color: #c49060;
 }
 .constant-builtin {
-  color: #b380b0;
+  color: #c49060;
 }
 .constant-macro {
-  color: #b380b0;
+  color: #c49060;
 }
 .constructor {
-  color: #ebc06d;
+  color: #dbb671;
+  font-weight: bold;
 }
 .diff-delta {
-  background-color: #422741;
+  color: #57a5e5;
 }
 .diff-minus {
-  color: #c1a78e;
-  background-color: #7d2a2f;
+  color: #de5d68;
 }
 .diff-plus {
-  background-color: #233524;
+  color: #8fb573;
+}
+.error {
+  color: #a7aab0;
 }
 .function {
-  color: #ebc06d;
+  color: #57a5e5;
 }
 .function-builtin {
-  color: #ebc06d;
+  color: #51a8b3;
 }
 .function-call {
-  color: #ebc06d;
+  color: #57a5e5;
 }
 .function-macro {
-  color: #ebc06d;
+  color: #51a8b3;
 }
 .function-method {
-  color: #ebc06d;
+  color: #57a5e5;
 }
 .function-method-call {
-  color: #ebc06d;
+  color: #57a5e5;
 }
 .keyword {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-conditional {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-conditional-ternary {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-coroutine {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-debug {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-directive {
-  color: #85b695;
+  color: #bb70d2;
 }
 .keyword-directive-define {
-  color: #85b695;
+  color: #bb70d2;
 }
 .keyword-exception {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-function {
-  color: #85b695;
+  color: #bb70d2;
 }
 .keyword-import {
-  color: #85b695;
+  color: #bb70d2;
 }
 .keyword-modifier {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-operator {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-repeat {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-return {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .keyword-type {
-  color: #e49b5d;
+  color: #bb70d2;
 }
 .label {
-  color: #89b3b6;
+  color: #de5d68;
 }
 .markup-heading {
-  color: #e49b5d;
+  color: #c49060;
   font-weight: bold;
 }
 .markup-heading-1 {
-  color: #e49b5d;
+  color: #c49060;
   font-weight: bold;
 }
 .markup-heading-2 {
-  color: #ebc06d;
+  color: #c49060;
   font-weight: bold;
 }
 .markup-heading-3 {
-  color: #85b695;
+  color: #c49060;
   font-weight: bold;
 }
 .markup-heading-4 {
-  color: #e49b5d;
+  color: #c49060;
   font-weight: bold;
 }
 .markup-heading-5 {
-  color: #ebc06d;
+  color: #c49060;
   font-weight: bold;
 }
 .markup-heading-6 {
-  color: #85b695;
+  color: #c49060;
   font-weight: bold;
 }
 .markup-italic {
   font-style: italic;
 }
 .markup-link {
-  text-decoration: underline;
+  color: #57a5e5;
 }
 .markup-link-label {
-  text-decoration: underline;
+  color: #57a5e5;
 }
 .markup-link-url {
-  color: #7f91b2;
+  color: #51a8b3;
+  text-decoration: underline;
 }
 .markup-list {
-  color: #8b7449;
+  color: #de5d68;
 }
 .markup-list-checked {
-  color: #8b7449;
+  color: #de5d68;
 }
 .markup-list-unchecked {
-  color: #8b7449;
+  color: #de5d68;
 }
 .markup-math {
-  color: #89b3b6;
+  color: #a7aab0;
 }
 .markup-quote {
-  color: #c1a78e;
-  font-style: italic;
+  color: #de5d68;
 }
 .markup-raw {
-  color: #89b3b6;
+  color: #8fb573;
 }
 .markup-raw-block {
-  color: #c1a78e;
+  color: #8fb573;
 }
 .markup-strikethrough {
   text-decoration: line-through;
 }
 .markup-strong {
+  color: #a7aab0;
   font-weight: bold;
 }
 .markup-underline {
+  color: #a7aab0;
   text-decoration: underline;
 }
 .module {
-  color: #ece1d7;
+  color: #dbb671;
 }
 .module-builtin {
-  color: #ece1d7;
+  color: #de5d68;
+}
+.namespace {
+  color: #dbb671;
 }
 .normal {
-  color: #ece1d7;
-  background-color: #292522;
+  color: #a7aab0;
+  background-color: #232326;
 }
 .number {
-  color: #cf9bc2;
+  color: #c49060;
 }
 .number-float {
-  color: #cf9bc2;
+  color: #c49060;
 }
 .operator {
-  color: #d47766;
+  color: #a7aab0;
 }
 .property {
-  color: #ece1d7;
+  color: #51a8b3;
 }
 .punctuation-bracket {
-  color: #8b7449;
+  color: #818387;
 }
 .punctuation-delimiter {
-  color: #bd8183;
+  color: #818387;
 }
 .punctuation-special {
-  color: #ebc06d;
+  color: #de5d68;
 }
 .string {
-  color: #a3a9ce;
-  font-style: italic;
+  color: #8fb573;
 }
 .string-documentation {
-  color: #a3a9ce;
+  color: #8fb573;
 }
 .string-escape {
-  color: #7f91b2;
+  color: #de5d68;
 }
 .string-regexp {
-  color: #a3a9ce;
+  color: #c49060;
 }
 .string-special {
-  color: #89b3b6;
+  color: #de5d68;
 }
 .string-special-path {
-  color: #78997a;
+  color: #de5d68;
 }
 .string-special-symbol {
-  color: #ece1d7;
-  font-style: italic;
+  color: #51a8b3;
 }
 .string-special-url {
-  color: #7f91b2;
+  text-decoration: underline;
 }
 .tag {
-  color: #ebc06d;
+  color: #bb70d2;
 }
 .tag-attribute {
-  color: #89b3b6;
+  color: #dbb671;
 }
 .tag-builtin {
-  color: #ebc06d;
+  color: #de5d68;
 }
 .tag-delimiter {
-  color: #8b7449;
+  color: #bb70d2;
 }
 .type {
-  color: #7b9695;
+  color: #dbb671;
 }
 .type-builtin {
-  color: #7b9695;
+  color: #c49060;
 }
 .type-definition {
-  color: #7b9695;
+  color: #dbb671;
 }
 .variable {
-  color: #ece1d7;
+  color: #a7aab0;
 }
 .variable-builtin {
-  color: #ece1d7;
-  font-style: italic;
+  color: #de5d68;
 }
 .variable-member {
-  color: #ece1d7;
+  color: #51a8b3;
 }
 .variable-parameter {
-  color: #ece1d7;
+  color: #de5d68;
 }
 .variable-parameter-builtin {
-  color: #ebc06d;
+  color: #de5d68;
 }
