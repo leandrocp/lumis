@@ -175,7 +175,6 @@ gen-themes:
     cd themes
 
     THEME_NAMES=$(lua -e "local themes = require('themes'); for _, theme in ipairs(themes) do print(theme.name) end")
-    CURRENT=1
 
     while IFS= read -r THEME_NAME; do
         if [ -n "$THEME_NAME" ]; then
