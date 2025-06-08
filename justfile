@@ -141,7 +141,7 @@ update-queries:
 
     rm -rf "$TEMP_DIR"
 
-update-theme THEME_NAME:
+gen-theme THEME_NAME:
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -158,7 +158,7 @@ update-theme THEME_NAME:
     rm -rf nvim
     nvim --clean --headless -V3 -u init.lua -l extract_theme.lua {{THEME_NAME}}
 
-update-themes:
+gen-themes:
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -175,7 +175,7 @@ update-themes:
     cd themes
     rm -rf nvim
 
-    THEME_NAMES=$(grep -E '^\s*name = ' themes.lua | sed 's/.*name = "\([^"]*\)".*/\1/')
+    THEME_NAMES=$(lua -e "local themes = require('themes'); for _, theme in ipairs(themes) do print(theme.name) end")
     CURRENT=1
 
     while IFS= read -r THEME_NAME; do
@@ -183,7 +183,6 @@ update-themes:
             nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "$THEME_NAME"
         fi
     done <<< "$THEME_NAMES"
-
 
 gen-css:
     #!/usr/bin/env bash
