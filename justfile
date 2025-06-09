@@ -18,17 +18,19 @@ extract-scopes:
     set -euo pipefail
     (cd queries && bash extract_scopes.sh)
 
-update-parsers:
+update-parsers force="false":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo "⚠️  This will update all parser files in vendored_parsers/"
-    echo ""
-    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Operation cancelled."
-        exit 0
+    if [[ "{{force}}" != "true" ]]; then
+        echo "⚠️  This will update all parser files in vendored_parsers/"
+        echo ""
+        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Operation cancelled."
+            exit 0
+        fi
     fi
 
     TEMP_DIR=$(mktemp -d)
