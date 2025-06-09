@@ -2,11 +2,11 @@ name: Update Themes
 
 on:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: "0 0 * * 0"
   workflow_dispatch:
   push:
     paths:
-      - '.github/workflows/update_themes.yml'
+      - ".github/workflows/update_themes.yml"
 
 jobs:
   update-themes:
@@ -19,6 +19,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: taiki-e/install-action@just
+
+      - name: Install Neovim
+        run: |
+          sudo add-apt-repository ppa:neovim-ppa/unstable -y
+          sudo apt-get update
+          sudo apt-get install -y neovim
 
       - run: just gen-themes true
 
