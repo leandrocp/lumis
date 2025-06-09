@@ -187,33 +187,37 @@ gen-themes force="false":
         fi
     done <<< "$THEME_NAMES"
 
-gen-css:
+gen-css force="false":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo "⚠️  This will regenerate files in css/"
-    echo ""
-    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Operation cancelled."
-        exit 0
+    if [[ "{{force}}" != "true" ]]; then
+        echo "⚠️  This will regenerate files in css/"
+        echo ""
+        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Operation cancelled."
+            exit 0
+        fi
     fi
 
     find css -type f -name "*.css" -delete
     cargo run --release --features=dev --bin dev gen-css
 
-gen-samples:
+gen-samples force="false":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo "⚠️  This will regenerate files in the samples/ directory."
-    echo ""
-    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Operation cancelled."
-        exit 0
+    if [[ "{{force}}" != "true" ]]; then
+        echo "⚠️  This will regenerate files in the samples/ directory."
+        echo ""
+        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Operation cancelled."
+            exit 0
+        fi
     fi
 
     find samples -type f -name "*.html" ! -name "index.html" ! -name "html.html" -delete
