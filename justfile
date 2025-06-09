@@ -106,17 +106,19 @@ update-parsers:
         rm -rf "$TEMP_DIR/$parser"
     done
 
-update-queries:
+update-queries force="false":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo "⚠️  This will regenerate files in queries/"
-    echo ""
-    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Operation cancelled."
-        exit 0
+    if [[ "{{force}}" != "true" ]]; then
+        echo "⚠️  This will regenerate files in queries/"
+        echo ""
+        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Operation cancelled."
+            exit 0
+        fi
     fi
 
     TEMP_DIR=$(mktemp -d)
