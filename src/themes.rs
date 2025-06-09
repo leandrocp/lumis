@@ -53,6 +53,7 @@ impl std::error::Error for ThemeError {}
 /// let theme = Theme::new(
 ///     "my_theme".to_string(),
 ///     "dark".to_string(),
+///     "3e976b4".to_string(),
 ///     highlights
 /// );
 /// ```
@@ -422,7 +423,10 @@ mod tests {
         let json = r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"normal": {"fg": "red", "bg": "green"}, "keyword": {"fg": "blue", "italic": true}, "tag.attribute": {"bg": "gray", "bold": true}}}"#;
         let theme = from_json(json).unwrap();
 
-        let expected = r#"/* test */
+        let expected = r#"/* test
+ * revision: 3e976b4
+ */
+
 pre.athl {
   color: red;
   background-color: green;

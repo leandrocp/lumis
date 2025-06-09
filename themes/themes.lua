@@ -10,18 +10,22 @@
 -- it's used exclusively to name the theme.
 
 return {
-	-- {
-	-- 	name = "neovim_dark",
-	-- 	colorscheme = "default",
-	-- 	appearance = "dark",
-	-- 	plugin = {},
-	-- },
-	-- {
-	-- 	name = "neovim_light",
-	-- 	colorscheme = "default",
-	-- 	appearance = "light",
-	-- 	plugin = {},
-	-- },
+	{
+    "folke/lazy.nvim",
+		name = "neovim_dark",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme default]])
+		end,
+	},
+	{
+    "folke/lazy.nvim",
+		name = "neovim_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme default]])
+		end,
+	},
 	{
 		"Shatur/neovim-ayu",
 		name = "ayu_dark",
