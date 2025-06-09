@@ -158,17 +158,19 @@ gen-theme THEME_NAME:
     rm -rf nvim
     nvim --clean --headless -V3 -u init.lua -l extract_theme.lua {{THEME_NAME}}
 
-gen-themes:
+gen-themes force="false":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo "⚠️  This will regenerate files in themes/"
-    echo ""
-    read -p "Do you want to proceed? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Operation cancelled."
-        exit 0
+    if [[ "{{force}}" != "true" ]]; then
+        echo "⚠️  This will regenerate files in themes/"
+        echo ""
+        read -p "Do you want to proceed? (y/N) " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Operation cancelled."
+            exit 0
+        fi
     fi
 
     find themes -type f -name "*.json" -delete
