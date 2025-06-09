@@ -472,7 +472,7 @@
 </span><span class="line" data-line="472"><span data-highlight="comment" style="color: #939f91;"># Classes</span>
 </span><span class="line" data-line="473">
 </span><span class="line" data-line="474"><span data-highlight="comment" style="color: #939f91;"># You can define a class with the &#39;class&#39; keyword.</span>
-</span><span class="line" data-line="475"><span data-highlight="keyword.type" style="color: #f85552;">class</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
+</span><span class="line" data-line="475"><span data-highlight="keyword.type" style="color: #f57d26;">class</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
 </span><span class="line" data-line="476">
 </span><span class="line" data-line="477">  <span data-highlight="comment.documentation" style="color: #939f91;"># A class variable. It is shared by all instances of this class.</span>
 </span><span class="line" data-line="478">  <span data-highlight="variable.member" style="color: #3a94c5;">@@species</span> <span data-highlight="operator" style="color: #f57d26;">=</span> <span data-highlight="string" style="color: #35a77c;">&#39;</span><span data-highlight="string" style="color: #35a77c;">H. sapiens</span><span data-highlight="string" style="color: #35a77c;">&#39;</span>
@@ -550,7 +550,7 @@
 </span><span class="line" data-line="550"><span data-highlight="comment" style="color: #939f91;"># A class variable is shared among the class and all of its descendants.</span>
 </span><span class="line" data-line="551">
 </span><span class="line" data-line="552"><span data-highlight="comment" style="color: #939f91;"># Base class</span>
-</span><span class="line" data-line="553"><span data-highlight="keyword.type" style="color: #f85552;">class</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
+</span><span class="line" data-line="553"><span data-highlight="keyword.type" style="color: #f57d26;">class</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
 </span><span class="line" data-line="554">  <span data-highlight="variable.member" style="color: #3a94c5;">@@foo</span> <span data-highlight="operator" style="color: #f57d26;">=</span> <span data-highlight="number" style="color: #df69ba;">0</span>
 </span><span class="line" data-line="555">
 </span><span class="line" data-line="556">  <span data-highlight="keyword.function" style="color: #f85552;">def</span> <span data-highlight="variable.builtin" style="color: #df69ba;">self</span><span data-highlight="punctuation.delimiter" style="color: #939f91;">.</span><span data-highlight="function" style="color: #8da101;">foo</span>
@@ -563,7 +563,7 @@
 </span><span class="line" data-line="563"><span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="564">
 </span><span class="line" data-line="565"><span data-highlight="comment" style="color: #939f91;"># Derived class</span>
-</span><span class="line" data-line="566"><span data-highlight="keyword.type" style="color: #f85552;">class</span> <span data-highlight="type" style="color: #dfa000;">Worker</span> <span data-highlight="operator" style="color: #f57d26;">&lt;</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
+</span><span class="line" data-line="566"><span data-highlight="keyword.type" style="color: #f57d26;">class</span> <span data-highlight="type" style="color: #dfa000;">Worker</span> <span data-highlight="operator" style="color: #f57d26;">&lt;</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
 </span><span class="line" data-line="567"><span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="568">
 </span><span class="line" data-line="569"><span data-highlight="type" style="color: #dfa000;">Human</span><span data-highlight="punctuation.delimiter" style="color: #939f91;">.</span><span data-highlight="variable" style="color: #5c6a72;">foo</span> <span data-highlight="comment" style="color: #939f91;">#=&gt; 0</span>
@@ -573,7 +573,7 @@
 </span><span class="line" data-line="573"><span data-highlight="type" style="color: #dfa000;">Worker</span><span data-highlight="punctuation.delimiter" style="color: #939f91;">.</span><span data-highlight="variable" style="color: #5c6a72;">foo</span> <span data-highlight="comment" style="color: #939f91;">#=&gt; 2</span>
 </span><span class="line" data-line="574">
 </span><span class="line" data-line="575"><span data-highlight="comment" style="color: #939f91;"># A class instance variable is not shared by the class&#39;s descendants.</span>
-</span><span class="line" data-line="576"><span data-highlight="keyword.type" style="color: #f85552;">class</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
+</span><span class="line" data-line="576"><span data-highlight="keyword.type" style="color: #f57d26;">class</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
 </span><span class="line" data-line="577">  <span data-highlight="variable.member" style="color: #3a94c5;">@bar</span> <span data-highlight="operator" style="color: #f57d26;">=</span> <span data-highlight="number" style="color: #df69ba;">0</span>
 </span><span class="line" data-line="578">
 </span><span class="line" data-line="579">  <span data-highlight="keyword.function" style="color: #f85552;">def</span> <span data-highlight="variable.builtin" style="color: #df69ba;">self</span><span data-highlight="punctuation.delimiter" style="color: #939f91;">.</span><span data-highlight="function" style="color: #8da101;">bar</span>
@@ -585,7 +585,7 @@
 </span><span class="line" data-line="585">  <span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="586"><span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="587">
-</span><span class="line" data-line="588"><span data-highlight="keyword.type" style="color: #f85552;">class</span> <span data-highlight="type" style="color: #dfa000;">Doctor</span> <span data-highlight="operator" style="color: #f57d26;">&lt;</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
+</span><span class="line" data-line="588"><span data-highlight="keyword.type" style="color: #f57d26;">class</span> <span data-highlight="type" style="color: #dfa000;">Doctor</span> <span data-highlight="operator" style="color: #f57d26;">&lt;</span> <span data-highlight="type" style="color: #dfa000;">Human</span>
 </span><span class="line" data-line="589"><span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="590">
 </span><span class="line" data-line="591"><span data-highlight="type" style="color: #dfa000;">Human</span><span data-highlight="punctuation.delimiter" style="color: #939f91;">.</span><span data-highlight="variable" style="color: #5c6a72;">bar</span> <span data-highlight="comment" style="color: #939f91;">#=&gt; 0</span>
@@ -599,11 +599,11 @@
 </span><span class="line" data-line="599">
 </span><span class="line" data-line="600"><span data-highlight="comment" style="color: #939f91;"># Including modules binds their methods to the class instances.</span>
 </span><span class="line" data-line="601"><span data-highlight="comment" style="color: #939f91;"># Extending modules binds their methods to the class itself.</span>
-</span><span class="line" data-line="602"><span data-highlight="keyword.type" style="color: #f85552;">class</span> <span data-highlight="type" style="color: #dfa000;">Person</span>
+</span><span class="line" data-line="602"><span data-highlight="keyword.type" style="color: #f57d26;">class</span> <span data-highlight="type" style="color: #dfa000;">Person</span>
 </span><span class="line" data-line="603">  <span data-highlight="function.builtin" style="color: #8da101;">include</span> <span data-highlight="type" style="color: #dfa000;">ModuleExample</span>
 </span><span class="line" data-line="604"><span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="605">
-</span><span class="line" data-line="606"><span data-highlight="keyword.type" style="color: #f85552;">class</span> <span data-highlight="type" style="color: #dfa000;">Book</span>
+</span><span class="line" data-line="606"><span data-highlight="keyword.type" style="color: #f57d26;">class</span> <span data-highlight="type" style="color: #dfa000;">Book</span>
 </span><span class="line" data-line="607">  <span data-highlight="function.builtin" style="color: #8da101;">extend</span> <span data-highlight="type" style="color: #dfa000;">ModuleExample</span>
 </span><span class="line" data-line="608"><span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="609">
@@ -632,7 +632,7 @@
 </span><span class="line" data-line="632">  <span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="633"><span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="634">
-</span><span class="line" data-line="635"><span data-highlight="keyword.type" style="color: #f85552;">class</span> <span data-highlight="type" style="color: #dfa000;">Something</span>
+</span><span class="line" data-line="635"><span data-highlight="keyword.type" style="color: #f57d26;">class</span> <span data-highlight="type" style="color: #dfa000;">Something</span>
 </span><span class="line" data-line="636">  <span data-highlight="function.builtin" style="color: #8da101;">include</span> <span data-highlight="type" style="color: #dfa000;">ConcernExample</span>
 </span><span class="line" data-line="637"><span data-highlight="keyword" style="color: #f85552;">end</span>
 </span><span class="line" data-line="638">

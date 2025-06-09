@@ -391,7 +391,7 @@
 </span><span class="line" data-line="391">
 </span><span class="line" data-line="392"><span data-highlight="comment" style="color: #c1a78e;">&quot; Guard against an exception (the second catch matches any exception)</span>
 </span><span class="line" data-line="393"><span data-highlight="keyword.exception" style="color: #e49b5d;">try</span>
-</span><span class="line" data-line="394">    <span data-highlight="keyword" style="color: #e49b5d;">source</span> <span data-highlight="string.special.path" style="color: #7f91b2;">path/to/file</span>
+</span><span class="line" data-line="394">    <span data-highlight="keyword" style="color: #e49b5d;">source</span> <span data-highlight="string.special.path" style="color: #78997a;">path/to/file</span>
 </span><span class="line" data-line="395"><span data-highlight="keyword.exception" style="color: #e49b5d;">catch</span> <span data-highlight="string.special" style="color: #89b3b6;">/Cannot open/</span>
 </span><span class="line" data-line="396">    <span data-highlight="keyword" style="color: #e49b5d;">echo</span> <span data-highlight="string" style="color: #a3a9ce;">&#39;Looks like that file does not exist&#39;</span>
 </span><span class="line" data-line="397"><span data-highlight="keyword.exception" style="color: #e49b5d;">catch</span> <span data-highlight="string.special" style="color: #89b3b6;">/.*/</span>
@@ -440,7 +440,7 @@
 </span><span class="line" data-line="440">
 </span><span class="line" data-line="441"><span data-highlight="comment" style="color: #c1a78e;">&quot; Aborting functions, abort once error occurs (|:func-abort|)</span>
 </span><span class="line" data-line="442"><span data-highlight="keyword.function" style="color: #85b695;">function</span><span data-highlight="punctuation.special" style="color: #ebc06d;">!</span> <span data-highlight="function" style="color: #ebc06d;">SourceMyFile</span><span data-highlight="punctuation.bracket" style="color: #8b7449;">(</span><span data-highlight="punctuation.bracket" style="color: #8b7449;">)</span> <span data-highlight="keyword" style="color: #e49b5d;">abort</span>
-</span><span class="line" data-line="443">    <span data-highlight="keyword" style="color: #e49b5d;">source</span> <span data-highlight="string.special.path" style="color: #7f91b2;">my-file.vim</span>        | <span data-highlight="comment" style="color: #c1a78e;">&quot; Try sourcing non-existing file</span>
+</span><span class="line" data-line="443">    <span data-highlight="keyword" style="color: #e49b5d;">source</span> <span data-highlight="string.special.path" style="color: #78997a;">my-file.vim</span>        | <span data-highlight="comment" style="color: #c1a78e;">&quot; Try sourcing non-existing file</span>
 </span><span class="line" data-line="444">    <span data-highlight="keyword" style="color: #e49b5d;">echo</span> <span data-highlight="string" style="color: #a3a9ce;">&#39;This will never be printed&#39;</span>
 </span><span class="line" data-line="445"><span data-highlight="keyword.function" style="color: #85b695;">endfunction</span>
 </span><span class="line" data-line="446">
@@ -504,7 +504,7 @@
 </span><span class="line" data-line="504"><span data-highlight="comment" style="color: #c1a78e;">&quot; ######################</span>
 </span><span class="line" data-line="505">
 </span><span class="line" data-line="506"><span data-highlight="comment" style="color: #c1a78e;">&quot; Source first match among runtime paths</span>
-</span><span class="line" data-line="507"><span data-highlight="keyword" style="color: #e49b5d;">runtime</span> <span data-highlight="string.special.path" style="color: #7f91b2;">plugin/my-plugin.vim</span>
+</span><span class="line" data-line="507"><span data-highlight="keyword" style="color: #e49b5d;">runtime</span> <span data-highlight="string.special.path" style="color: #78997a;">plugin/my-plugin.vim</span>
 </span><span class="line" data-line="508">
 </span><span class="line" data-line="509">
 </span><span class="line" data-line="510"><span data-highlight="comment" style="color: #c1a78e;">&quot; Defining new ex-commands (|40.2|, |:command|)</span>
@@ -526,7 +526,7 @@
 </span><span class="line" data-line="526"><span data-highlight="comment" style="color: #c1a78e;">&quot; ######################</span>
 </span><span class="line" data-line="527">
 </span><span class="line" data-line="528"><span data-highlight="comment" style="color: #c1a78e;">&quot; The arguments are &quot;events&quot;, &quot;patterns&quot;, rest is &quot;commands&quot;</span>
-</span><span class="line" data-line="529"><span data-highlight="keyword" style="color: #e49b5d;">autocmd</span> <span data-highlight="constant" style="color: #ece1d7;">BufWritePost</span> <span data-highlight="punctuation.delimiter" style="color: #bd8183;"><span data-highlight="string.special" style="color: #89b3b6;">$</span>MYVIMRC</span> <span data-highlight="keyword" style="color: #e49b5d;">source</span> <span data-highlight="string.special.path" style="color: #7f91b2;">$MYVIMRC</span>
+</span><span class="line" data-line="529"><span data-highlight="keyword" style="color: #e49b5d;">autocmd</span> <span data-highlight="constant" style="color: #ece1d7;">BufWritePost</span> <span data-highlight="punctuation.delimiter" style="color: #bd8183;"><span data-highlight="string.special" style="color: #89b3b6;">$</span>MYVIMRC</span> <span data-highlight="keyword" style="color: #e49b5d;">source</span> <span data-highlight="string.special.path" style="color: #78997a;">$MYVIMRC</span>
 </span><span class="line" data-line="530">
 </span><span class="line" data-line="531"><span data-highlight="comment" style="color: #c1a78e;">&quot; Events and patterns are separated by commas with no space between. See</span>
 </span><span class="line" data-line="532"><span data-highlight="comment" style="color: #c1a78e;">&quot; |autocmd-events| for standard events, |User| for custom events. Everything</span>
@@ -541,7 +541,7 @@
 </span><span class="line" data-line="541">
 </span><span class="line" data-line="542"><span data-highlight="keyword" style="color: #e49b5d;">augroup</span> <span data-highlight="module" style="color: #ece1d7;">auto</span>-source   | &quot; The name <span data-highlight="label" style="color: #89b3b6;">of the group is arbitrary</span>
 </span><span class="line" data-line="543">    <span data-highlight="keyword" style="color: #e49b5d;">autocmd</span><span data-highlight="punctuation.special" style="color: #ebc06d;">!</span>          | <span data-highlight="comment" style="color: #c1a78e;">&quot; Deletes all auto-commands in the current group</span>
-</span><span class="line" data-line="544">    <span data-highlight="keyword" style="color: #e49b5d;">autocmd</span> <span data-highlight="constant" style="color: #ece1d7;">BufWritePost</span> <span data-highlight="punctuation.delimiter" style="color: #bd8183;"><span data-highlight="string.special" style="color: #89b3b6;">$</span>MYVIMRC</span> <span data-highlight="keyword" style="color: #e49b5d;">source</span> <span data-highlight="string.special.path" style="color: #7f91b2;">$MYVIMRC</span>
+</span><span class="line" data-line="544">    <span data-highlight="keyword" style="color: #e49b5d;">autocmd</span> <span data-highlight="constant" style="color: #ece1d7;">BufWritePost</span> <span data-highlight="punctuation.delimiter" style="color: #bd8183;"><span data-highlight="string.special" style="color: #89b3b6;">$</span>MYVIMRC</span> <span data-highlight="keyword" style="color: #e49b5d;">source</span> <span data-highlight="string.special.path" style="color: #78997a;">$MYVIMRC</span>
 </span><span class="line" data-line="545"><span data-highlight="keyword" style="color: #e49b5d;">augroup</span> <span data-highlight="module" style="color: #ece1d7;">END</span>           | &quot; Switch back to <span data-highlight="label" style="color: #89b3b6;">default auto-group</span>
 </span><span class="line" data-line="546">
 </span><span class="line" data-line="547"><span data-highlight="comment" style="color: #c1a78e;">&quot; It is also possible to assign a group directly. This is useful if the</span>

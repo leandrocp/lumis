@@ -15,15 +15,15 @@
 </span><span class="line" data-line="15">
 </span><span class="line" data-line="16"><span data-highlight="comment" style="color: #c1a78e;"># A rule - this rule will only run if file0.txt doesn&#39;t exist.</span>
 </span><span class="line" data-line="17"><span data-highlight="function" style="color: #ebc06d;">file0.txt</span><span data-highlight="operator" style="color: #d47766;">:</span>
-</span><span class="line" data-line="18">	<span data-highlight="function.builtin" style="color: #ebc06d;">echo</span> <span data-highlight="string" style="color: #a3a9ce;">&quot;foo&quot;</span> <span data-highlight="operator" style="color: #d47766;">&gt;</span> <span data-highlight="string.special.path" style="color: #7f91b2;">file0.txt</span>
+</span><span class="line" data-line="18">	<span data-highlight="function.builtin" style="color: #ebc06d;">echo</span> <span data-highlight="string" style="color: #a3a9ce;">&quot;foo&quot;</span> <span data-highlight="operator" style="color: #d47766;">&gt;</span> <span data-highlight="string.special.path" style="color: #78997a;">file0.txt</span>
 </span><span class="line" data-line="19">	<span data-highlight="comment" style="color: #c1a78e;"># Even comments in these &#39;recipe&#39; sections get passed to the shell.</span>
 </span><span class="line" data-line="20">	<span data-highlight="comment" style="color: #c1a78e;"># Try `make file0.txt` or simply `make` - first rule is the default.</span>
 </span><span class="line" data-line="21">
 </span><span class="line" data-line="22"><span data-highlight="comment" style="color: #c1a78e;"># This rule will only run if file0.txt is newer than file1.txt.</span>
 </span><span class="line" data-line="23"><span data-highlight="function" style="color: #ebc06d;">file1.txt</span><span data-highlight="operator" style="color: #d47766;">:</span> file0.txt
-</span><span class="line" data-line="24">	<span data-highlight="function.call" style="color: #ebc06d;">cat</span> <span data-highlight="variable.parameter" style="color: #ece1d7;">file0.txt</span> <span data-highlight="operator" style="color: #d47766;">&gt;</span> <span data-highlight="string.special.path" style="color: #7f91b2;">file1.txt</span>
+</span><span class="line" data-line="24">	<span data-highlight="function.call" style="color: #ebc06d;">cat</span> <span data-highlight="variable.parameter" style="color: #ece1d7;">file0.txt</span> <span data-highlight="operator" style="color: #d47766;">&gt;</span> <span data-highlight="string.special.path" style="color: #78997a;">file1.txt</span>
 </span><span class="line" data-line="25">	<span data-highlight="comment" style="color: #c1a78e;"># use the same quoting rules as in the shell.</span>
-</span><span class="line" data-line="26">	<span data-highlight="character.special" style="color: #ebc06d;">@</span><span data-highlight="function.call" style="color: #ebc06d;">cat</span> <span data-highlight="variable.parameter" style="color: #ece1d7;">file0.txt</span> <span data-highlight="operator" style="color: #d47766;">&gt;&gt;</span> <span data-highlight="string.special.path" style="color: #7f91b2;">file1.txt</span>
+</span><span class="line" data-line="26">	<span data-highlight="character.special" style="color: #ebc06d;">@</span><span data-highlight="function.call" style="color: #ebc06d;">cat</span> <span data-highlight="variable.parameter" style="color: #ece1d7;">file0.txt</span> <span data-highlight="operator" style="color: #d47766;">&gt;&gt;</span> <span data-highlight="string.special.path" style="color: #78997a;">file1.txt</span>
 </span><span class="line" data-line="27">	<span data-highlight="comment" style="color: #c1a78e;"># @ stops the command from being echoed to stdout.</span>
 </span><span class="line" data-line="28">	-<span data-highlight="function.call" style="color: #ebc06d;">@echo</span> <span data-highlight="string" style="color: #a3a9ce;">&#39;hello&#39;</span>
 </span><span class="line" data-line="29">	<span data-highlight="comment" style="color: #c1a78e;"># - means that make will keep going in the case of an error.</span>
@@ -199,7 +199,7 @@
 </span><span class="line" data-line="199"><span data-highlight="comment" style="color: #c1a78e;">#-----------------------------------------------------------------------</span>
 </span><span class="line" data-line="200">
 </span><span class="line" data-line="201"><span data-highlight="comment" style="color: #c1a78e;"># Include other makefiles, useful for platform specific code</span>
-</span><span class="line" data-line="202"><span data-highlight="keyword.import" style="color: #85b695;">include</span> <span data-highlight="string.special.path" style="color: #7f91b2;">foo.mk</span>
+</span><span class="line" data-line="202"><span data-highlight="keyword.import" style="color: #85b695;">include</span> <span data-highlight="string.special.path" style="color: #78997a;">foo.mk</span>
 </span><span class="line" data-line="203">
 </span><span class="line" data-line="204"><span data-highlight="string.special.symbol" style="color: #ece1d7;">sport</span> <span data-highlight="operator" style="color: #d47766;">=</span> tennis
 </span><span class="line" data-line="205"><span data-highlight="comment" style="color: #c1a78e;"># Conditional compilation</span>

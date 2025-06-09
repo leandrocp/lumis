@@ -199,22 +199,22 @@
 </span><span class="line" data-line="199"><span data-highlight="comment" style="color: #7b8496;">#-----------------------------------------------------------------------</span>
 </span><span class="line" data-line="200">
 </span><span class="line" data-line="201"><span data-highlight="comment" style="color: #7b8496;"># Include other makefiles, useful for platform specific code</span>
-</span><span class="line" data-line="202"><span data-highlight="keyword.import" style="color: #d17c00;">include</span> <span data-highlight="string.special.path" style="color: #f40064;">foo.mk</span>
+</span><span class="line" data-line="202"><span data-highlight="keyword.import" style="color: #008c99;">include</span> <span data-highlight="string.special.path" style="color: #f40064;">foo.mk</span>
 </span><span class="line" data-line="203">
 </span><span class="line" data-line="204"><span data-highlight="string.special.symbol" style="color: #f40064;">sport</span> <span data-highlight="operator" style="color: #a018ff;">=</span> tennis
 </span><span class="line" data-line="205"><span data-highlight="comment" style="color: #7b8496;"># Conditional compilation</span>
 </span><span class="line" data-line="206"><span data-highlight="function" style="color: #0057d1;">report</span><span data-highlight="operator" style="color: #a018ff;">:</span>
-</span><span class="line" data-line="207"><span data-highlight="keyword.conditional" style="color: #d17c00;">ifeq</span> (<span data-highlight="operator" style="color: #a018ff;">$(<span data-highlight="string" style="color: #008b0c;">sport</span>)</span>,tennis)
+</span><span class="line" data-line="207"><span data-highlight="keyword.conditional" style="color: #d100bf;">ifeq</span> (<span data-highlight="operator" style="color: #a018ff;">$(<span data-highlight="string" style="color: #008b0c;">sport</span>)</span>,tennis)
 </span><span class="line" data-line="208">	<span data-highlight="character.special" style="color: #f40064;">@</span><span data-highlight="function.builtin" style="color: #0057d1;">echo</span> <span data-highlight="string" style="color: #008b0c;">&#39;game, set, match&#39;</span>
-</span><span class="line" data-line="209"><span data-highlight="keyword.conditional" style="color: #d17c00;">else</span>
+</span><span class="line" data-line="209"><span data-highlight="keyword.conditional" style="color: #d100bf;">else</span>
 </span><span class="line" data-line="210">	<span data-highlight="character.special" style="color: #f40064;">@</span><span data-highlight="function.builtin" style="color: #0057d1;">echo</span> <span data-highlight="string" style="color: #008b0c;">&quot;They think it&#39;s all over; it is now&quot;</span>
-</span><span class="line" data-line="211"><span data-highlight="keyword.conditional" style="color: #d17c00;">endif</span>
+</span><span class="line" data-line="211"><span data-highlight="keyword.conditional" style="color: #d100bf;">endif</span>
 </span><span class="line" data-line="212">
 </span><span class="line" data-line="213"><span data-highlight="comment" style="color: #7b8496;"># There are also ifneq, ifdef, ifndef</span>
 </span><span class="line" data-line="214">
 </span><span class="line" data-line="215"><span data-highlight="string.special.symbol" style="color: #f40064;">foo</span> <span data-highlight="operator" style="color: #a018ff;">=</span> true
 </span><span class="line" data-line="216">
-</span><span class="line" data-line="217"><span data-highlight="keyword.conditional" style="color: #d17c00;">ifdef</span> <span data-highlight="operator" style="color: #a018ff;">$(<span data-highlight="string" style="color: #008b0c;">foo</span>)</span>
+</span><span class="line" data-line="217"><span data-highlight="keyword.conditional" style="color: #d100bf;">ifdef</span> <span data-highlight="operator" style="color: #a018ff;">$(<span data-highlight="string" style="color: #008b0c;">foo</span>)</span>
 </span><span class="line" data-line="218"><span data-highlight="string.special.symbol" style="color: #f40064;">bar</span> <span data-highlight="operator" style="color: #a018ff;">=</span> &#39;hello&#39;
-</span><span class="line" data-line="219"><span data-highlight="keyword.conditional" style="color: #d17c00;">endif</span>
+</span><span class="line" data-line="219"><span data-highlight="keyword.conditional" style="color: #d100bf;">endif</span>
 </span></code></pre>
