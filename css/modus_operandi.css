@@ -1,3 +1,7 @@
+/* modus_operandi
+ * revision: 61b8c10ec636f42baf6c845edb14b9ae2723711f
+ */
+
 pre.athl {
   color: #000000;
   background-color: #ffffff;
@@ -96,7 +100,7 @@ pre.athl {
   font-style: italic;
 }
 .keyword-debug {
-  color: #005f5f;
+  color: #5f8787;
 }
 .keyword-directive {
   color: #a0132f;

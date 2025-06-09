@@ -1,3 +1,7 @@
+/* github_light_high_contrast
+ * revision: c106c9472154d6b2c74b74565616b877ae8ed31d
+ */
+
 pre.athl {
   color: #010409;
   background-color: #ffffff;
@@ -69,7 +73,7 @@ pre.athl {
   color: #512598;
 }
 .function-macro {
-  color: #512598;
+  color: #a0111f;
 }
 .function-method {
   color: #512598;
@@ -90,7 +94,7 @@ pre.athl {
   color: #a0111f;
 }
 .keyword-debug {
-  color: #a0111f;
+  color: #010409;
 }
 .keyword-directive {
   color: #a0111f;
@@ -120,7 +124,7 @@ pre.athl {
   color: #a0111f;
 }
 .keyword-type {
-  color: #a0111f;
+  color: #702c00;
 }
 .label {
   color: #024c1a;
@@ -165,7 +169,6 @@ pre.athl {
   color: #010409;
 }
 .markup-link-url {
-  color: #010409;
   text-decoration: underline;
 }
 .markup-list {

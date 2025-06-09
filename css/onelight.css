@@ -1,3 +1,7 @@
+/* onelight
+ * revision: 5ffd45b3602bc1ed75f0b2be6c5c1f6ba5c6b796
+ */
+
 pre.athl {
   color: #6a6a6a;
   background-color: #fafafa;
@@ -52,13 +56,13 @@ pre.athl {
   color: #eea825;
 }
 .diff-delta {
-  color: #007373;
+  color: #ffaf5f;
 }
 .diff-minus {
-  color: #590008;
+  color: #d75f5f;
 }
 .diff-plus {
-  color: #005523;
+  color: #5fd75f;
 }
 .function {
   color: #118dc3;
@@ -91,13 +95,13 @@ pre.athl {
   color: #9a77cf;
 }
 .keyword-debug {
-  color: #9a77cf;
+  color: #5f8787;
 }
 .keyword-directive {
-  color: #9a77cf;
+  color: #eea825;
 }
 .keyword-directive-define {
-  color: #9a77cf;
+  color: #eea825;
 }
 .keyword-exception {
   color: #9a77cf;
@@ -158,7 +162,7 @@ pre.athl {
   font-style: italic;
 }
 .markup-link {
-  text-decoration: underline;
+  color: #e05661;
 }
 .markup-link-label {
   color: #118dc3;

@@ -1,3 +1,7 @@
+/* cyberdream_light
+ * revision: f660ebfd8840e226d2a5368e08108a7aa84fef36
+ */
+
 pre.athl {
   color: #16181a;
   background-color: #ffffff;
@@ -49,7 +53,7 @@ pre.athl {
   color: #f40064;
 }
 .diff-delta {
-  color: #007373;
+  color: #ffaf5f;
 }
 .diff-minus {
   color: #d11500;
@@ -79,10 +83,10 @@ pre.athl {
   color: #d17c00;
 }
 .keyword-conditional {
-  color: #d17c00;
+  color: #d100bf;
 }
 .keyword-conditional-ternary {
-  color: #d17c00;
+  color: #d100bf;
 }
 .keyword-coroutine {
   color: #d17c00;
@@ -91,19 +95,19 @@ pre.athl {
   color: #d17c00;
 }
 .keyword-directive {
-  color: #d17c00;
+  color: #008c99;
 }
 .keyword-directive-define {
-  color: #d17c00;
+  color: #008c99;
 }
 .keyword-exception {
-  color: #d17c00;
+  color: #d100bf;
 }
 .keyword-function {
   color: #d17c00;
 }
 .keyword-import {
-  color: #d17c00;
+  color: #008c99;
 }
 .keyword-modifier {
   color: #d17c00;
@@ -112,7 +116,7 @@ pre.athl {
   color: #a018ff;
 }
 .keyword-repeat {
-  color: #d17c00;
+  color: #d100bf;
 }
 .keyword-return {
   color: #d17c00;
@@ -156,7 +160,7 @@ pre.athl {
   font-style: italic;
 }
 .markup-link {
-  text-decoration: underline;
+  color: #16181a;
 }
 .markup-link-label {
   color: #d17c00;
@@ -183,10 +187,10 @@ pre.athl {
   color: #7b8496;
 }
 .markup-raw {
-  color: #f40064;
+  color: #7b8496;
 }
 .markup-raw-block {
-  color: #f40064;
+  color: #7b8496;
 }
 .markup-strikethrough {
   text-decoration: line-through;

@@ -1,3 +1,7 @@
+/* tokyonight_day
+ * revision: 057ef5d260c1931f1dffd0f052c685dcd14100a3
+ */
+
 pre.athl {
   color: #3760bf;
   background-color: #e1e2e7;
@@ -123,8 +127,7 @@ pre.athl {
   font-style: italic;
 }
 .keyword-type {
-  color: #7847bd;
-  font-style: italic;
+  color: #188092;
 }
 .label {
   color: #2e7de9;

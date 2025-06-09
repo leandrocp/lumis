@@ -1,3 +1,7 @@
+/* gruvbox_light_soft
+ * revision: 00e38a379bab3389e187b3953566d67d494dfddd
+ */
+
 pre.athl {
   color: #3c3836;
   background-color: #f2e5bc;
@@ -99,7 +103,7 @@ pre.athl {
   color: #9d0006;
 }
 .keyword-debug {
-  color: #af3a03;
+  color: #5f8787;
 }
 .keyword-directive {
   color: #427b58;
@@ -129,7 +133,7 @@ pre.athl {
   color: #9d0006;
 }
 .keyword-type {
-  color: #9d0006;
+  color: #427b58;
 }
 .label {
   color: #9d0006;

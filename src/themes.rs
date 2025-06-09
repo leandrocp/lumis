@@ -196,7 +196,12 @@ pub fn from_json(json: &str) -> Result<Theme, Box<dyn std::error::Error>> {
 }
 
 impl Theme {
-    pub fn new(name: String, appearance: String, revision: String, highlights: BTreeMap<String, Style>) -> Self {
+    pub fn new(
+        name: String,
+        appearance: String,
+        revision: String,
+        highlights: BTreeMap<String, Style>,
+    ) -> Self {
         Theme {
             name,
             appearance,
@@ -208,7 +213,10 @@ impl Theme {
     pub fn css(&self, enable_italic: bool) -> String {
         let mut rules = Vec::new();
 
-        rules.push("pre.athl".to_string());
+        rules.push(format!(
+            "/* {}\n * revision: {}\n */\n\npre.athl",
+            self.name, self.revision
+        ));
 
         if let Some(pre_style) = &self.pre_style("\n  ") {
             rules.push(format!(" {{\n  {}\n}}\n", pre_style));
@@ -363,8 +371,7 @@ mod tests {
 
     #[test]
     fn test_from_json() {
-        let json =
-            r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"keyword": {"fg": "blue"}}}"#;
+        let json = r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"keyword": {"fg": "blue"}}}"#;
         let theme = from_json(json).unwrap();
 
         assert_eq!(theme.name, "test");
@@ -415,7 +422,8 @@ mod tests {
         let json = r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"normal": {"fg": "red", "bg": "green"}, "keyword": {"fg": "blue", "italic": true}, "tag.attribute": {"bg": "gray", "bold": true}}}"#;
         let theme = from_json(json).unwrap();
 
-        let expected = r#"pre.athl {
+        let expected = r#"/* test */
+pre.athl {
   color: red;
   background-color: green;
 }

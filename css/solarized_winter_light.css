@@ -1,3 +1,7 @@
+/* solarized_winter_light
+ * revision: c0dfe1cbfabd93b546baf5f1408f5df7e02e2050
+ */
+
 pre.athl {
   color: #657b83;
   background-color: #fdf6e3;
@@ -121,8 +125,7 @@ pre.athl {
   color: #859900;
 }
 .keyword-type {
-  color: #586e75;
-  font-weight: bold;
+  color: #b58900;
 }
 .label {
   color: #859900;

@@ -1,3 +1,7 @@
+/* material_darker
+ * revision: 0004ec60f91d581d47563a39f7dac62cb758f7ea
+ */
+
 pre.athl {
   color: #b0bec5;
   background-color: #212121;
@@ -102,9 +106,6 @@ pre.athl {
 }
 .keyword-directive-define {
   color: #89ddff;
-}
-.keyword-exception {
-  color: #f07178;
 }
 .keyword-function {
   color: #89ddff;

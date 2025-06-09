@@ -1,3 +1,7 @@
+/* dayfox
+ * revision: ba47d4b4c5ec308718641ba7402c143836f35aa9
+ */
+
 pre.athl {
   color: #3d2b5a;
   background-color: #f6f2ee;
@@ -91,13 +95,13 @@ pre.athl {
   color: #6e33ce;
 }
 .keyword-debug {
-  color: #6e33ce;
+  color: #223d90;
 }
 .keyword-directive {
-  color: #6e33ce;
+  color: #8b369a;
 }
 .keyword-directive-define {
-  color: #6e33ce;
+  color: #8b369a;
 }
 .keyword-exception {
   color: #6e33ce;
@@ -121,7 +125,7 @@ pre.athl {
   color: #a5222f;
 }
 .keyword-type {
-  color: #6e33ce;
+  color: #ac5402;
 }
 .label {
   color: #5e2baf;

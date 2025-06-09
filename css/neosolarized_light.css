@@ -1,3 +1,7 @@
+/* neosolarized_light
+ * revision: 742deb0b2b1e110b09494206611509e3992aac35
+ */
+
 pre.athl {
   color: #839496;
 }
@@ -92,13 +96,13 @@ pre.athl {
   color: #719e07;
 }
 .keyword-debug {
-  color: #719e07;
+  color: #cb4b16;
 }
 .keyword-directive {
-  color: #719e07;
+  color: #dc322f;
 }
 .keyword-directive-define {
-  color: #719e07;
+  color: #dc322f;
 }
 .keyword-exception {
   color: #719e07;
@@ -107,7 +111,7 @@ pre.athl {
   color: #719e07;
 }
 .keyword-import {
-  color: #719e07;
+  color: #dc322f;
 }
 .keyword-modifier {
   color: #719e07;
@@ -122,7 +126,7 @@ pre.athl {
   color: #719e07;
 }
 .keyword-type {
-  color: #719e07;
+  color: #b58900;
 }
 .label {
   color: #719e07;
@@ -159,10 +163,10 @@ pre.athl {
   font-style: italic;
 }
 .markup-link {
-  color: #6c71c4;
+  color: #268bd2;
 }
 .markup-link-label {
-  color: #6c71c4;
+  color: #268bd2;
 }
 .markup-link-url {
   color: #6c71c4;
@@ -183,10 +187,12 @@ pre.athl {
   color: #cb4b16;
 }
 .markup-raw {
-  color: #cb4b16;
+  color: #586e75;
+  font-style: italic;
 }
 .markup-raw-block {
-  color: #cb4b16;
+  color: #586e75;
+  font-style: italic;
 }
 .markup-strikethrough {
   text-decoration: line-through;
@@ -198,7 +204,7 @@ pre.athl {
   text-decoration: underline;
 }
 .module {
-  color: #b58900;
+  color: #268bd2;
 }
 .module-builtin {
   color: #cb4b16;
@@ -282,10 +288,10 @@ pre.athl {
   color: #cb4b16;
 }
 .variable-member {
-  color: #839496;
+  color: #268bd2;
 }
 .variable-parameter {
-  color: #839496;
+  color: #268bd2;
 }
 .variable-parameter-builtin {
   color: #cb4b16;

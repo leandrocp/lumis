@@ -1,3 +1,7 @@
+/* flexoki_light
+ * revision: 8899dab435d8c82329397ca224e63b129a21e1e6
+ */
+
 pre.athl {
   color: #100f0f;
   background-color: #fffcf0;
@@ -43,7 +47,7 @@ pre.athl {
   color: #6f6e69;
 }
 .constant-macro {
-  color: #ad8301;
+  color: #a02f6f;
 }
 .constructor {
   color: #6f6e69;
@@ -67,7 +71,7 @@ pre.athl {
   color: #bc5215;
 }
 .function-macro {
-  color: #bc5215;
+  color: #a02f6f;
 }
 .function-method {
   color: #bc5215;
@@ -88,13 +92,13 @@ pre.athl {
   color: #66800b;
 }
 .keyword-debug {
-  color: #66800b;
+  color: #a02f6f;
 }
 .keyword-directive {
-  color: #66800b;
+  color: #a02f6f;
 }
 .keyword-directive-define {
-  color: #66800b;
+  color: #a02f6f;
 }
 .keyword-exception {
   color: #66800b;
@@ -103,7 +107,7 @@ pre.athl {
   color: #66800b;
 }
 .keyword-import {
-  color: #66800b;
+  color: #af3029;
 }
 .keyword-modifier {
   color: #66800b;
@@ -118,7 +122,7 @@ pre.athl {
   color: #66800b;
 }
 .keyword-type {
-  color: #66800b;
+  color: #bc5215;
 }
 .label {
   color: #66800b;
@@ -155,10 +159,10 @@ pre.athl {
   font-style: italic;
 }
 .markup-link {
-  text-decoration: underline;
+  color: #205ea6;
 }
 .markup-link-label {
-  text-decoration: underline;
+  color: #205ea6;
 }
 .markup-link-url {
   text-decoration: underline;
@@ -179,10 +183,10 @@ pre.athl {
   color: #6f6e69;
 }
 .markup-raw {
-  color: #6f6e69;
+  color: #b7b5ac;
 }
 .markup-raw-block {
-  color: #6f6e69;
+  color: #b7b5ac;
 }
 .markup-strikethrough {
   text-decoration: line-through;
@@ -194,7 +198,7 @@ pre.athl {
   text-decoration: underline;
 }
 .module {
-  color: #bc5215;
+  color: #205ea6;
 }
 .module-builtin {
   color: #6f6e69;
@@ -267,19 +271,19 @@ pre.athl {
   color: #6f6e69;
 }
 .type-definition {
-  color: #66800b;
+  color: #bc5215;
 }
 .variable {
-  color: #14161b;
+  color: #205ea6;
 }
 .variable-builtin {
   color: #6f6e69;
 }
 .variable-member {
-  color: #14161b;
+  color: #205ea6;
 }
 .variable-parameter {
-  color: #14161b;
+  color: #205ea6;
 }
 .variable-parameter-builtin {
   color: #6f6e69;
