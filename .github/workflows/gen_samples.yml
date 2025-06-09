@@ -1,0 +1,39 @@
+name: Generate Samples
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/gen_samples.yml"
+
+jobs:
+  gen-samples:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: taiki-e/install-action@just
+
+      - run: just gen-samples true
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: generate samples"
+          title: "chore: generate samples"
+          body: |
+            Automated PR to generate samples.
+
+            This PR was created automatically by the gen-samples workflow.
+          branch: gen-samples
+          delete-branch: true
+          base: main
