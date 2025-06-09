@@ -1,6 +1,7 @@
 {
   "name": "nord",
   "appearance": "dark",
+  "revision": "80c1e5321505aeb22b7a9f23eb82f1e193c12470",
   "highlights": {
     "attribute": {
       "fg": "#b48ead"

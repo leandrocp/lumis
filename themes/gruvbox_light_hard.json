@@ -1,6 +1,7 @@
 {
   "name": "gruvbox_light_hard",
   "appearance": "light",
+  "revision": "00e38a379bab3389e187b3953566d67d494dfddd",
   "highlights": {
     "attribute": {
       "fg": "#427b58"
@@ -99,7 +100,7 @@
       "fg": "#9d0006"
     },
     "keyword.debug": {
-      "fg": "#af3a03"
+      "fg": "#5f8787"
     },
     "keyword.directive": {
       "fg": "#427b58"
@@ -129,7 +130,7 @@
       "fg": "#9d0006"
     },
     "keyword.type": {
-      "fg": "#9d0006"
+      "fg": "#427b58"
     },
     "label": {
       "fg": "#9d0006"

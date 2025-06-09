@@ -1,6 +1,7 @@
 {
   "name": "rosepine_dawn",
   "appearance": "light",
+  "revision": "6b9840790cc7acdfadde07f308d34b62dd9cc675",
   "highlights": {
     "attribute": {
       "fg": "#907aa9"
@@ -126,7 +127,7 @@
       "fg": "#286983"
     },
     "keyword.type": {
-      "fg": "#286983"
+      "fg": "#56949f"
     },
     "label": {
       "fg": "#56949f"
@@ -163,12 +164,10 @@
       "italic": true
     },
     "markup.link": {
-      "fg": "#907aa9",
-      "underline": true
+      "fg": "#464261"
     },
     "markup.link.label": {
-      "fg": "#907aa9",
-      "underline": true
+      "fg": "#464261"
     },
     "markup.link.url": {
       "fg": "#907aa9"
@@ -190,10 +189,12 @@
       "fg": "#464261"
     },
     "markup.raw": {
-      "fg": "#56949f"
+      "fg": "#797593",
+      "italic": true
     },
     "markup.raw.block": {
-      "fg": "#56949f"
+      "fg": "#797593",
+      "italic": true
     },
     "markup.strikethrough": {
       "strikethrough": true

@@ -1,6 +1,7 @@
 {
   "name": "solarized_spring_light",
   "appearance": "light",
+  "revision": "c0dfe1cbfabd93b546baf5f1408f5df7e02e2050",
   "highlights": {
     "attribute": {
       "fg": "#859900"
@@ -117,7 +118,7 @@
       "fg": "#d33682"
     },
     "keyword.type": {
-      "fg": "#859900"
+      "fg": "#b58900"
     },
     "label": {
       "fg": "#d33682"

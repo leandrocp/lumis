@@ -98,6 +98,7 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
 pub struct ExTheme {
     pub name: String,
     pub appearance: String,
+    pub revision: String,
     pub highlights: HashMap<String, ExStyle>,
 }
 
@@ -106,6 +107,7 @@ impl From<ExTheme> for themes::Theme {
         themes::Theme {
             name: theme.name,
             appearance: theme.appearance,
+            revision: theme.revision,
             highlights: theme
                 .highlights
                 .into_iter()
@@ -132,6 +134,7 @@ impl<'a> From<&'a themes::Theme> for ExTheme {
         ExTheme {
             name: theme.name.to_owned(),
             appearance: theme.appearance.to_owned(),
+            revision: theme.revision.to_owned(),
             highlights: theme
                 .highlights
                 .iter()

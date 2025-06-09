@@ -1,6 +1,7 @@
 {
   "name": "github_light_default",
   "appearance": "light",
+  "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
   "highlights": {
     "attribute": {
       "fg": "#0550ae"
@@ -69,7 +70,7 @@
       "fg": "#6639ba"
     },
     "function.macro": {
-      "fg": "#6639ba"
+      "fg": "#cf222e"
     },
     "function.method": {
       "fg": "#6639ba"
@@ -90,7 +91,7 @@
       "fg": "#cf222e"
     },
     "keyword.debug": {
-      "fg": "#cf222e"
+      "fg": "#1f2328"
     },
     "keyword.directive": {
       "fg": "#cf222e"
@@ -120,7 +121,7 @@
       "fg": "#cf222e"
     },
     "keyword.type": {
-      "fg": "#cf222e"
+      "fg": "#953800"
     },
     "label": {
       "fg": "#116329"
@@ -165,7 +166,6 @@
       "fg": "#1f2328"
     },
     "markup.link.url": {
-      "fg": "#1f2328",
       "underline": true
     },
     "markup.list": {

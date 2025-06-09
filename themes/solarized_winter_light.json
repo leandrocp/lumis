@@ -1,6 +1,7 @@
 {
   "name": "solarized_winter_light",
   "appearance": "light",
+  "revision": "c0dfe1cbfabd93b546baf5f1408f5df7e02e2050",
   "highlights": {
     "attribute": {
       "fg": "#586e75",
@@ -121,8 +122,7 @@
       "fg": "#859900"
     },
     "keyword.type": {
-      "fg": "#586e75",
-      "bold": true
+      "fg": "#b58900"
     },
     "label": {
       "fg": "#859900"

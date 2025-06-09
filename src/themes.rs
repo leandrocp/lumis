@@ -32,7 +32,7 @@ impl std::error::Error for ThemeError {}
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// A theme for syntax highlighting.
 ///
-/// A theme consists of a name, appearance (light/dark), and a collection of highlight styles
+/// A theme consists of a name, appearance (light/dark), revision (commit) and a collection of highlight styles
 /// mapped to their scope names.
 ///
 /// # Examples
@@ -70,6 +70,8 @@ pub struct Theme {
     pub name: String,
     /// The appearance of the theme ("light" or "dark").
     pub appearance: String,
+    /// The commit of the theme plugin
+    pub revision: String,
     /// A map of highlight scope names to their styles.
     pub highlights: BTreeMap<String, Style>,
 }
@@ -171,7 +173,7 @@ pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Theme, ThemeError> {
 /// ```
 /// use autumnus::themes;
 ///
-/// let json = r#"{"name": "My Theme", "appearance": "dark", "highlights": {"keyword": {"fg": "blue"}}}"#;
+/// let json = r#"{"name": "My Theme", "appearance": "dark", "revision": "3e976b4", "highlights": {"keyword": {"fg": "blue"}}}"#;
 /// let theme = themes::from_json(json).unwrap();
 ///
 /// assert_eq!(theme.name, "My Theme");
@@ -186,15 +188,19 @@ pub fn from_json(json: &str) -> Result<Theme, Box<dyn std::error::Error>> {
     if theme.appearance.is_empty() {
         return Err("Theme appearance cannot be empty".into());
     }
+    if theme.revision.is_empty() {
+        return Err("Theme revision cannot be empty".into());
+    }
 
     Ok(theme)
 }
 
 impl Theme {
-    pub fn new(name: String, appearance: String, highlights: BTreeMap<String, Style>) -> Self {
+    pub fn new(name: String, appearance: String, revision: String, highlights: BTreeMap<String, Style>) -> Self {
         Theme {
             name,
             appearance,
+            revision,
             highlights,
         }
     }
@@ -358,7 +364,7 @@ mod tests {
     #[test]
     fn test_from_json() {
         let json =
-            r#"{"name": "test", "appearance": "dark", "highlights": {"keyword": {"fg": "blue"}}}"#;
+            r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"keyword": {"fg": "blue"}}}"#;
         let theme = from_json(json).unwrap();
 
         assert_eq!(theme.name, "test");
@@ -406,7 +412,7 @@ mod tests {
 
     #[test]
     fn test_theme_css() {
-        let json = r#"{"name": "test", "appearance": "dark", "highlights": {"normal": {"fg": "red", "bg": "green"}, "keyword": {"fg": "blue", "italic": true}, "tag.attribute": {"bg": "gray", "bold": true}}}"#;
+        let json = r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"normal": {"fg": "red", "bg": "green"}, "keyword": {"fg": "blue", "italic": true}, "tag.attribute": {"bg": "gray", "bold": true}}}"#;
         let theme = from_json(json).unwrap();
 
         let expected = r#"pre.athl {

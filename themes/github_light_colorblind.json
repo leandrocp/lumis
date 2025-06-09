@@ -1,6 +1,7 @@
 {
   "name": "github_light_colorblind",
   "appearance": "light",
+  "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
   "highlights": {
     "attribute": {
       "fg": "#0550ae"
@@ -69,7 +70,7 @@
       "fg": "#6639ba"
     },
     "function.macro": {
-      "fg": "#6639ba"
+      "fg": "#b35900"
     },
     "function.method": {
       "fg": "#6639ba"
@@ -90,7 +91,7 @@
       "fg": "#b35900"
     },
     "keyword.debug": {
-      "fg": "#b35900"
+      "fg": "#1b1f24"
     },
     "keyword.directive": {
       "fg": "#b35900"
@@ -120,7 +121,7 @@
       "fg": "#b35900"
     },
     "keyword.type": {
-      "fg": "#b35900"
+      "fg": "#8a4600"
     },
     "label": {
       "fg": "#0550ae"
@@ -165,7 +166,6 @@
       "fg": "#1b1f24"
     },
     "markup.link.url": {
-      "fg": "#1b1f24",
       "underline": true
     },
     "markup.list": {

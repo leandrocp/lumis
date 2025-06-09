@@ -1,6 +1,7 @@
 {
   "name": "modus_vivendi",
   "appearance": "dark",
+  "revision": "61b8c10ec636f42baf6c845edb14b9ae2723711f",
   "highlights": {
     "attribute": {
       "fg": "#ff7f9f"

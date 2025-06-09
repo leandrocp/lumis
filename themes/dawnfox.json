@@ -1,6 +1,7 @@
 {
   "name": "dawnfox",
   "appearance": "light",
+  "revision": "ba47d4b4c5ec308718641ba7402c143836f35aa9",
   "highlights": {
     "attribute": {
       "fg": "#ca6e69"
@@ -91,13 +92,13 @@
       "fg": "#907aa9"
     },
     "keyword.debug": {
-      "fg": "#907aa9"
+      "fg": "#295e73"
     },
     "keyword.directive": {
-      "fg": "#907aa9"
+      "fg": "#c9709e"
     },
     "keyword.directive.define": {
-      "fg": "#907aa9"
+      "fg": "#c9709e"
     },
     "keyword.exception": {
       "fg": "#907aa9"
@@ -121,7 +122,7 @@
       "fg": "#b4637a"
     },
     "keyword.type": {
-      "fg": "#907aa9"
+      "fg": "#ea9d34"
     },
     "label": {
       "fg": "#816b9a"

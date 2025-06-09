@@ -1,6 +1,7 @@
 {
   "name": "solarized_summer_dark",
   "appearance": "dark",
+  "revision": "c0dfe1cbfabd93b546baf5f1408f5df7e02e2050",
   "highlights": {
     "attribute": {
       "fg": "#859900"

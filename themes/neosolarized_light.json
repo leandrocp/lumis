@@ -1,6 +1,7 @@
 {
   "name": "neosolarized_light",
   "appearance": "light",
+  "revision": "742deb0b2b1e110b09494206611509e3992aac35",
   "highlights": {
     "attribute": {
       "fg": "#268bd2"
@@ -93,13 +94,13 @@
       "fg": "#719e07"
     },
     "keyword.debug": {
-      "fg": "#719e07"
+      "fg": "#cb4b16"
     },
     "keyword.directive": {
-      "fg": "#719e07"
+      "fg": "#dc322f"
     },
     "keyword.directive.define": {
-      "fg": "#719e07"
+      "fg": "#dc322f"
     },
     "keyword.exception": {
       "fg": "#719e07"
@@ -108,7 +109,7 @@
       "fg": "#719e07"
     },
     "keyword.import": {
-      "fg": "#719e07"
+      "fg": "#dc322f"
     },
     "keyword.modifier": {
       "fg": "#719e07"
@@ -123,7 +124,7 @@
       "fg": "#719e07"
     },
     "keyword.type": {
-      "fg": "#719e07"
+      "fg": "#b58900"
     },
     "label": {
       "fg": "#719e07"
@@ -160,10 +161,10 @@
       "italic": true
     },
     "markup.link": {
-      "fg": "#6c71c4"
+      "fg": "#268bd2"
     },
     "markup.link.label": {
-      "fg": "#6c71c4"
+      "fg": "#268bd2"
     },
     "markup.link.url": {
       "fg": "#6c71c4"
@@ -184,10 +185,12 @@
       "fg": "#cb4b16"
     },
     "markup.raw": {
-      "fg": "#cb4b16"
+      "fg": "#586e75",
+      "italic": true
     },
     "markup.raw.block": {
-      "fg": "#cb4b16"
+      "fg": "#586e75",
+      "italic": true
     },
     "markup.strikethrough": {
       "strikethrough": true
@@ -199,7 +202,7 @@
       "underline": true
     },
     "module": {
-      "fg": "#b58900"
+      "fg": "#268bd2"
     },
     "module.builtin": {
       "fg": "#cb4b16"
@@ -283,10 +286,10 @@
       "fg": "#cb4b16"
     },
     "variable.member": {
-      "fg": "#839496"
+      "fg": "#268bd2"
     },
     "variable.parameter": {
-      "fg": "#839496"
+      "fg": "#268bd2"
     },
     "variable.parameter.builtin": {
       "fg": "#cb4b16"

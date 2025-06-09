@@ -1,6 +1,7 @@
 {
   "name": "vscode_dark",
   "appearance": "dark",
+  "revision": "57cec1509bfb57dfc3c4d5ba5e8db9a5b5e42be2",
   "highlights": {
     "attribute": {
       "fg": "#dcdcaa"

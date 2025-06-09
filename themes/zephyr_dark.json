@@ -1,6 +1,7 @@
 {
   "name": "zephyr_dark",
   "appearance": "dark",
+  "revision": "7fd86b7164442d3b5ec2c81b2694d040e716b5cf",
   "highlights": {
     "attribute": {
       "fg": "#36d0e0"

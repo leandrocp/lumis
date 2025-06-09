@@ -1,6 +1,7 @@
 {
   "name": "cyberdream_light",
   "appearance": "light",
+  "revision": "f660ebfd8840e226d2a5368e08108a7aa84fef36",
   "highlights": {
     "attribute": {
       "fg": "#008c99"
@@ -49,7 +50,7 @@
       "fg": "#f40064"
     },
     "diff.delta": {
-      "fg": "#007373"
+      "fg": "#ffaf5f"
     },
     "diff.minus": {
       "fg": "#d11500"
@@ -79,10 +80,10 @@
       "fg": "#d17c00"
     },
     "keyword.conditional": {
-      "fg": "#d17c00"
+      "fg": "#d100bf"
     },
     "keyword.conditional.ternary": {
-      "fg": "#d17c00"
+      "fg": "#d100bf"
     },
     "keyword.coroutine": {
       "fg": "#d17c00"
@@ -91,19 +92,19 @@
       "fg": "#d17c00"
     },
     "keyword.directive": {
-      "fg": "#d17c00"
+      "fg": "#008c99"
     },
     "keyword.directive.define": {
-      "fg": "#d17c00"
+      "fg": "#008c99"
     },
     "keyword.exception": {
-      "fg": "#d17c00"
+      "fg": "#d100bf"
     },
     "keyword.function": {
       "fg": "#d17c00"
     },
     "keyword.import": {
-      "fg": "#d17c00"
+      "fg": "#008c99"
     },
     "keyword.modifier": {
       "fg": "#d17c00"
@@ -112,7 +113,7 @@
       "fg": "#a018ff"
     },
     "keyword.repeat": {
-      "fg": "#d17c00"
+      "fg": "#d100bf"
     },
     "keyword.return": {
       "fg": "#d17c00"
@@ -156,7 +157,7 @@
       "italic": true
     },
     "markup.link": {
-      "underline": true
+      "fg": "#16181a"
     },
     "markup.link.label": {
       "fg": "#d17c00"
@@ -183,10 +184,10 @@
       "fg": "#7b8496"
     },
     "markup.raw": {
-      "fg": "#f40064"
+      "fg": "#7b8496"
     },
     "markup.raw.block": {
-      "fg": "#f40064"
+      "fg": "#7b8496"
     },
     "markup.strikethrough": {
       "strikethrough": true

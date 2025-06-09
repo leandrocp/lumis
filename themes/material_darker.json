@@ -1,6 +1,7 @@
 {
   "name": "material_darker",
   "appearance": "dark",
+  "revision": "0004ec60f91d581d47563a39f7dac62cb758f7ea",
   "highlights": {
     "attribute": {
       "fg": "#82aaff"
@@ -102,9 +103,6 @@
     },
     "keyword.directive.define": {
       "fg": "#89ddff"
-    },
-    "keyword.exception": {
-      "fg": "#f07178"
     },
     "keyword.function": {
       "fg": "#89ddff"

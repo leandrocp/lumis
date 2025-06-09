@@ -1,6 +1,7 @@
 {
   "name": "darkplus",
   "appearance": "dark",
+  "revision": "6101ffce60682208e9e076710299d189ce11c40d",
   "highlights": {
     "attribute": {
       "fg": "#c586c0"

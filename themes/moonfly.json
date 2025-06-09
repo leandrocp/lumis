@@ -1,6 +1,7 @@
 {
   "name": "moonfly",
   "appearance": "dark",
+  "revision": "ff822100c5d268e0db79e8e725cbd3ade3470de3",
   "highlights": {
     "attribute": {
       "fg": "#74b2ff"

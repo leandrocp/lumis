@@ -1,6 +1,7 @@
 {
   "name": "neosolarized_dark",
   "appearance": "dark",
+  "revision": "742deb0b2b1e110b09494206611509e3992aac35",
   "highlights": {
     "attribute": {
       "fg": "#268bd2"

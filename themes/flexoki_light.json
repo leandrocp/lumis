@@ -1,6 +1,7 @@
 {
   "name": "flexoki_light",
   "appearance": "light",
+  "revision": "8899dab435d8c82329397ca224e63b129a21e1e6",
   "highlights": {
     "attribute": {
       "fg": "#a02f6f"
@@ -43,7 +44,7 @@
       "fg": "#6f6e69"
     },
     "constant.macro": {
-      "fg": "#ad8301"
+      "fg": "#a02f6f"
     },
     "constructor": {
       "fg": "#6f6e69"
@@ -67,7 +68,7 @@
       "fg": "#bc5215"
     },
     "function.macro": {
-      "fg": "#bc5215"
+      "fg": "#a02f6f"
     },
     "function.method": {
       "fg": "#bc5215"
@@ -88,13 +89,13 @@
       "fg": "#66800b"
     },
     "keyword.debug": {
-      "fg": "#66800b"
+      "fg": "#a02f6f"
     },
     "keyword.directive": {
-      "fg": "#66800b"
+      "fg": "#a02f6f"
     },
     "keyword.directive.define": {
-      "fg": "#66800b"
+      "fg": "#a02f6f"
     },
     "keyword.exception": {
       "fg": "#66800b"
@@ -103,7 +104,7 @@
       "fg": "#66800b"
     },
     "keyword.import": {
-      "fg": "#66800b"
+      "fg": "#af3029"
     },
     "keyword.modifier": {
       "fg": "#66800b"
@@ -118,7 +119,7 @@
       "fg": "#66800b"
     },
     "keyword.type": {
-      "fg": "#66800b"
+      "fg": "#bc5215"
     },
     "label": {
       "fg": "#66800b"
@@ -155,10 +156,10 @@
       "italic": true
     },
     "markup.link": {
-      "underline": true
+      "fg": "#205ea6"
     },
     "markup.link.label": {
-      "underline": true
+      "fg": "#205ea6"
     },
     "markup.link.url": {
       "underline": true
@@ -179,10 +180,10 @@
       "fg": "#6f6e69"
     },
     "markup.raw": {
-      "fg": "#6f6e69"
+      "fg": "#b7b5ac"
     },
     "markup.raw.block": {
-      "fg": "#6f6e69"
+      "fg": "#b7b5ac"
     },
     "markup.strikethrough": {
       "strikethrough": true
@@ -194,7 +195,7 @@
       "underline": true
     },
     "module": {
-      "fg": "#bc5215"
+      "fg": "#205ea6"
     },
     "module.builtin": {
       "fg": "#6f6e69"
@@ -267,19 +268,19 @@
       "fg": "#6f6e69"
     },
     "type.definition": {
-      "fg": "#66800b"
+      "fg": "#bc5215"
     },
     "variable": {
-      "fg": "#14161b"
+      "fg": "#205ea6"
     },
     "variable.builtin": {
       "fg": "#6f6e69"
     },
     "variable.member": {
-      "fg": "#14161b"
+      "fg": "#205ea6"
     },
     "variable.parameter": {
-      "fg": "#14161b"
+      "fg": "#205ea6"
     },
     "variable.parameter.builtin": {
       "fg": "#6f6e69"

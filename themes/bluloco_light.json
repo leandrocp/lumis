@@ -1,6 +1,7 @@
 {
   "name": "bluloco_light",
   "appearance": "light",
+  "revision": "29322e83d4e5a1577c20532fee7173a9e7c9bd2b",
   "highlights": {
     "attribute": {
       "fg": "#047486"

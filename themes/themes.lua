@@ -1,1069 +1,962 @@
+-- Themes definition
+--
+-- Each definition must follow https://lazy.folke.io/spec
+-- and `name` is required and used as the theme identifier,
+-- for example the plugin `Shatur/neovim-ayu` has a couple
+-- different variants so each one is named accordingly as
+-- `name: "ayu_dark"` and so on.
+--
+-- Note that `name` don't have to match the plugin name,
+-- it's used exclusively to name the theme.
+
 return {
+	-- {
+	-- 	name = "neovim_dark",
+	-- 	colorscheme = "default",
+	-- 	appearance = "dark",
+	-- 	plugin = {},
+	-- },
+	-- {
+	-- 	name = "neovim_light",
+	-- 	colorscheme = "default",
+	-- 	appearance = "light",
+	-- 	plugin = {},
+	-- },
 	{
-		name = "neovim_dark",
-		colorscheme = "default",
-		appearance = "dark",
-		plugin = {},
-	},
-	{
-		name = "neovim_light",
-		colorscheme = "default",
-		appearance = "light",
-		plugin = {},
-	},
-	{
+		"Shatur/neovim-ayu",
 		name = "ayu_dark",
-		colorscheme = "ayu-dark",
-		appearance = "dark",
-		plugin = {
-			"Shatur/neovim-ayu",
-		},
-	},
-	{
-		name = "ayu_light",
-		colorscheme = "ayu-light",
-		appearance = "light",
-		plugin = {
-			"Shatur/neovim-ayu",
-		},
-	},
-	{
-		name = "ayu_mirage",
-		colorscheme = "ayu-mirage",
-		appearance = "dark",
-		plugin = {
-			"Shatur/neovim-ayu",
-		},
-	},
-	{
-		name = "nordic",
-		colorscheme = "nordic",
-		appearance = "dark",
-		plugin = {
-			"AlexvZyl/nordic.nvim",
-		},
-		before = function()
-			require("nordic").load()
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme ayu-dark]])
 		end,
 	},
 	{
+		"Shatur/neovim-ayu",
+		name = "ayu_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme ayu-light]])
+		end,
+	},
+	{
+		"Shatur/neovim-ayu",
+		name = "ayu_mirage",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme ayu-mirage]])
+		end,
+	},
+	{
+		"AlexvZyl/nordic.nvim",
+		name = "nordic",
+		config = function()
+			vim.o.background = "dark"
+			require("nordic").load()
+			vim.cmd([[colorscheme nordic]])
+		end,
+	},
+	{
+		"savq/melange-nvim",
 		name = "melange_dark",
-		colorscheme = "melange",
-		appearance = "dark",
-		plugin = {
-			"savq/melange-nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme melange]])
+		end,
 	},
 	{
+		"savq/melange-nvim",
 		name = "melange_light",
-		colorscheme = "melange",
-		appearance = "light",
-		plugin = {
-			"savq/melange-nvim",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme melange]])
+		end,
 	},
 	{
+		"bluz71/vim-nightfly-colors",
 		name = "nightfly",
-		colorscheme = "nightfly",
-		appearance = "dark",
-		plugin = {
-			"bluz71/vim-nightfly-colors",
-			name = "nightfly",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme nightfly]])
+		end,
 	},
 	{
+		"folke/tokyonight.nvim",
 		name = "tokyonight_night",
-		colorscheme = "tokyonight-night",
-		appearance = "dark",
-		plugin = {
-			"folke/tokyonight.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme tokyonight-night]])
+		end,
 	},
 	{
+		"folke/tokyonight.nvim",
 		name = "tokyonight_moon",
-		colorscheme = "tokyonight-moon",
-		appearance = "dark",
-		plugin = {
-			"folke/tokyonight.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme tokyonight-moon]])
+		end,
 	},
 	{
+		"folke/tokyonight.nvim",
 		name = "tokyonight_storm",
-		colorscheme = "tokyonight-storm",
-		appearance = "dark",
-		plugin = {
-			"folke/tokyonight.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme tokyonight-storm]])
+		end,
 	},
 	{
+		"folke/tokyonight.nvim",
 		name = "tokyonight_day",
-		colorscheme = "tokyonight-day",
-		appearance = "light",
-		plugin = {
-			"folke/tokyonight.nvim",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme tokyonight-day]])
+		end,
 	},
 	{
+		"catppuccin/nvim",
 		name = "catppuccin_frappe",
-		colorscheme = "catppuccin-frappe",
-		appearance = "dark",
-		plugin = {
-			"catppuccin/nvim",
-			name = "catppuccin",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme catppuccin-frappe]])
+		end,
 	},
 	{
+		"catppuccin/nvim",
 		name = "catppuccin_macchiato",
-		colorscheme = "catppuccin-macchiato",
-		appearance = "dark",
-		plugin = {
-			"catppuccin/nvim",
-			name = "catppuccin",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme catppuccin-macchiato]])
+		end,
 	},
 	{
+		"catppuccin/nvim",
 		name = "catppuccin_mocha",
-		colorscheme = "catppuccin-mocha",
-		appearance = "dark",
-		plugin = {
-			"catppuccin/nvim",
-			name = "catppuccin",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme catppuccin-mocha]])
+		end,
 	},
 	{
+		"catppuccin/nvim",
 		name = "catppuccin_latte",
-		colorscheme = "catppuccin-latte",
-		appearance = "light",
-		plugin = {
-			"catppuccin/nvim",
-			name = "catppuccin",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme catppuccin-latte]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_dark",
-		colorscheme = "github_dark",
-		appearance = "dark",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme github_dark]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_dark_default",
 		colorscheme = "github_dark_default",
-		appearance = "dark",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme github_dark_default]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_dark_dimmed",
-		colorscheme = "github_dark_dimmed",
-		appearance = "dark",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme github_dark_dimmed]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_dark_high_contrast",
-		colorscheme = "github_dark_high_contrast",
-		appearance = "dark",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme github_dark_high_contrast]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_dark_colorblind",
-		colorscheme = "github_dark_colorblind",
-		appearance = "dark",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme github_dark_colorblind]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_dark_tritanopia",
-		colorscheme = "github_dark_tritanopia",
-		appearance = "dark",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme github_dark_tritanopia]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_light",
-		colorscheme = "github_light",
-		appearance = "light",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme github_light]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_light_default",
-		colorscheme = "github_light_default",
-		appearance = "light",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme github_light_default]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_light_high_contrast",
-		colorscheme = "github_light_high_contrast",
-		appearance = "light",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme github_light_high_contrast]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_light_colorblind",
-		colorscheme = "github_light_colorblind",
-		appearance = "light",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme github_light_colorblind]])
+		end,
 	},
 	{
+		"projekt0n/github-nvim-theme",
 		name = "github_light_tritanopia",
-		colorscheme = "github_light_tritanopia",
-		appearance = "light",
-		plugin = {
-			"projekt0n/github-nvim-theme",
-			name = "github-theme",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme github_light_tritanopia]])
+		end,
 	},
 	{
+		"rebelot/kanagawa.nvim",
 		name = "kanagawa_wave",
-		colorscheme = "kanagawa-wave",
-		appearance = "dark",
-		plugin = {
-			"rebelot/kanagawa.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme kanagawa-wave]])
+		end,
 	},
 	{
+		"rebelot/kanagawa.nvim",
 		name = "kanagawa_dragon",
-		colorscheme = "kanagawa-dragon",
-		appearance = "dark",
-		plugin = {
-			"rebelot/kanagawa.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme kanagawa-dragon]])
+		end,
 	},
 	{
+		"rebelot/kanagawa.nvim",
 		name = "kanagawa_lotus",
-		colorscheme = "kanagawa-lotus",
-		appearance = "light",
-		plugin = {
-			"rebelot/kanagawa.nvim",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme kanagawa-lotus]])
+		end,
 	},
 	{
+		"ellisonleao/gruvbox.nvim",
 		name = "gruvbox_dark",
-		colorscheme = "gruvbox",
-		appearance = "dark",
-		plugin = {
-			"ellisonleao/gruvbox.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("gruvbox").setup({ contrast = "" })
+			vim.cmd([[colorscheme gruvbox]])
 		end,
 	},
 	{
+		"ellisonleao/gruvbox.nvim",
 		name = "gruvbox_dark_hard",
-		colorscheme = "gruvbox",
-		appearance = "dark",
-		plugin = {
-			"ellisonleao/gruvbox.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("gruvbox").setup({ contrast = "hard" })
+			vim.cmd([[colorscheme gruvbox]])
 		end,
 	},
 	{
+		"ellisonleao/gruvbox.nvim",
 		name = "gruvbox_dark_soft",
-		colorscheme = "gruvbox",
-		appearance = "dark",
-		plugin = {
-			"ellisonleao/gruvbox.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("gruvbox").setup({ contrast = "soft" })
+			vim.cmd([[colorscheme gruvbox]])
 		end,
 	},
 	{
+		"ellisonleao/gruvbox.nvim",
 		name = "gruvbox_light",
-		colorscheme = "gruvbox",
-		appearance = "light",
-		plugin = {
-			"ellisonleao/gruvbox.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("gruvbox").setup({ contrast = "" })
+			vim.cmd([[colorscheme gruvbox]])
 		end,
 	},
 	{
+		"ellisonleao/gruvbox.nvim",
 		name = "gruvbox_light_hard",
-		colorscheme = "gruvbox",
-		appearance = "light",
-		plugin = {
-			"ellisonleao/gruvbox.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("gruvbox").setup({ contrast = "hard" })
+			vim.cmd([[colorscheme gruvbox]])
 		end,
 	},
 	{
+		"ellisonleao/gruvbox.nvim",
 		name = "gruvbox_light_soft",
-		colorscheme = "gruvbox",
-		appearance = "light",
-		plugin = {
-			"ellisonleao/gruvbox.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("gruvbox").setup({ contrast = "soft" })
+			vim.cmd([[colorscheme gruvbox]])
 		end,
 	},
 	{
+		"Mofiqul/dracula.nvim",
 		name = "dracula",
-		colorscheme = "dracula",
-		appearance = "dark",
-		plugin = {
-			"Mofiqul/dracula.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme dracula]])
+		end,
 	},
 	{
+		"Mofiqul/dracula.nvim",
 		name = "dracula_soft",
-		colorscheme = "dracula-soft",
-		appearance = "dark",
-		plugin = {
-			"Mofiqul/dracula.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme dracula-soft]])
+		end,
 	},
 	{
+		"Mofiqul/vscode.nvim",
 		name = "vscode_dark",
-		colorscheme = "vscode",
-		appearance = "dark",
-		plugin = {
-			"Mofiqul/vscode.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme vscode]])
+		end,
 	},
 	{
+		"Mofiqul/vscode.nvim",
 		name = "vscode_light",
-		colorscheme = "vscode",
-		appearance = "light",
-		plugin = {
-			"Mofiqul/vscode.nvim",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme vscode]])
+		end,
 	},
 	{
+		"maxmx03/solarized.nvim",
 		name = "solarized_winter_dark",
-		colorscheme = "solarized",
-		appearance = "dark",
-		plugin = {
-			"maxmx03/solarized.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("solarized").setup({
 				variant = "winter",
 				appearance = "dark",
 			})
+			vim.cmd([[colorscheme solarized]])
 		end,
 	},
 	{
+		"maxmx03/solarized.nvim",
 		name = "solarized_winter_light",
-		colorscheme = "solarized",
-		appearance = "light",
-		plugin = {
-			"maxmx03/solarized.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("solarized").setup({
 				variant = "winter",
 				appearance = "light",
 			})
+			vim.cmd([[colorscheme solarized]])
 		end,
 	},
 	{
+		"maxmx03/solarized.nvim",
 		name = "solarized_spring_dark",
-		colorscheme = "solarized",
-		appearance = "dark",
-		plugin = {
-			"maxmx03/solarized.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("solarized").setup({
 				variant = "spring",
 				appearance = "dark",
 			})
+			vim.cmd([[colorscheme solarized]])
 		end,
 	},
 	{
+		"maxmx03/solarized.nvim",
 		name = "solarized_spring_light",
-		colorscheme = "solarized",
-		appearance = "light",
-		plugin = {
-			"maxmx03/solarized.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("solarized").setup({
 				variant = "spring",
 				appearance = "light",
 			})
+			vim.cmd([[colorscheme solarized]])
 		end,
 	},
 	{
+		"maxmx03/solarized.nvim",
 		name = "solarized_summer_dark",
-		colorscheme = "solarized",
-		appearance = "dark",
-		plugin = {
-			"maxmx03/solarized.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("solarized").setup({
 				variant = "summer",
 				appearance = "dark",
 			})
+			vim.cmd([[colorscheme solarized]])
 		end,
 	},
 	{
+		"maxmx03/solarized.nvim",
 		name = "solarized_summer_light",
-		colorscheme = "solarized",
-		appearance = "light",
-		plugin = {
-			"maxmx03/solarized.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("solarized").setup({
 				variant = "summer",
 				appearance = "light",
 			})
+			vim.cmd([[colorscheme solarized]])
 		end,
 	},
 	{
+		"maxmx03/solarized.nvim",
 		name = "solarized_autumn_dark",
-		colorscheme = "solarized",
-		appearance = "dark",
-		plugin = {
-			"maxmx03/solarized.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("solarized").setup({
 				variant = "autumn",
 				appearance = "dark",
 			})
+			vim.cmd([[colorscheme solarized]])
 		end,
 	},
 	{
+		"maxmx03/solarized.nvim",
 		name = "solarized_autumn_light",
-		colorscheme = "solarized",
-		appearance = "light",
-		plugin = {
-			"maxmx03/solarized.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("solarized").setup({
 				variant = "autumn",
 				appearance = "light",
 			})
+			vim.cmd([[colorscheme solarized]])
 		end,
 	},
 	{
+		"marko-cerovac/material.nvim",
 		name = "material_darker",
-		colorscheme = "material-darker",
-		appearance = "dark",
-		plugin = {
-			"marko-cerovac/material.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			vim.g.material_style = "darker"
 			require("material").setup({ async_loading = false })
+			vim.cmd([[colorscheme material-darker]])
 		end,
 	},
 	{
+		"marko-cerovac/material.nvim",
 		name = "material_lighter",
-		colorscheme = "material-lighter",
-		appearance = "light",
-		plugin = {
-			"marko-cerovac/material.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			vim.g.material_style = "lighter"
 			require("material").setup({ async_loading = false })
+			vim.cmd([[colorscheme material-lighter]])
 		end,
 	},
 	{
+		"marko-cerovac/material.nvim",
 		name = "material_oceanic",
-		colorscheme = "material-oceanic",
-		appearance = "dark",
-		plugin = {
-			"marko-cerovac/material.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			vim.g.material_style = "oceanic"
 			require("material").setup({ async_loading = false })
+			vim.cmd([[colorscheme material-oceanic]])
 		end,
 	},
 	{
+		"marko-cerovac/material.nvim",
 		name = "material_palenight",
-		colorscheme = "material-palenight",
-		appearance = "dark",
-		plugin = {
-			"marko-cerovac/material.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			vim.g.material_style = "palenight"
 			require("material").setup({ async_loading = false })
+			vim.cmd([[colorscheme material-palenight]])
 		end,
 	},
 	{
+		"marko-cerovac/material.nvim",
 		name = "material_deep_ocean",
-		colorscheme = "material-deep-ocean",
-		appearance = "dark",
-		plugin = {
-			"marko-cerovac/material.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			vim.g.material_style = "deep ocean"
 			require("material").setup({ async_loading = false })
+			vim.cmd([[colorscheme material-deep-ocean]])
 		end,
 	},
 	{
+		"shaunsingh/nord.nvim",
 		name = "nord",
-		colorscheme = "nord",
-		appearance = "dark",
-		plugin = {
-			"shaunsingh/nord.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme nord]])
+		end,
 	},
 	{
+		"navarasu/onedark.nvim",
 		name = "onedark_darker",
-		colorscheme = "onedark",
-		appearance = "dark",
-		plugin = {
-			"navarasu/onedark.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("onedark").setup({ style = "darker" })
+			require("onedark").load()
 		end,
 	},
 	{
+		"navarasu/onedark.nvim",
 		name = "onedark_cool",
-		colorscheme = "onedark",
-		appearance = "dark",
-		plugin = {
-			"navarasu/onedark.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("onedark").setup({ style = "cool" })
+			require("onedark").load()
 		end,
 	},
 	{
+		"navarasu/onedark.nvim",
 		name = "onedark_deep",
-		colorscheme = "onedark",
-		appearance = "dark",
-		plugin = {
-			"navarasu/onedark.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("onedark").setup({ style = "deep" })
+			require("onedark").load()
 		end,
 	},
 	{
+		"navarasu/onedark.nvim",
 		name = "onedark_warm",
-		colorscheme = "onedark",
-		appearance = "dark",
-		plugin = {
-			"navarasu/onedark.nvim",
-		},
-		before = function()
-			require("onedark").setup({ style = "warm" })
+		config = function()
+			vim.o.background = "dark"
+			require("onedark").setup({ style = "warn" })
+			require("onedark").load()
 		end,
 	},
 	{
+		"navarasu/onedark.nvim",
 		name = "onedark_warmer",
-		colorscheme = "onedark",
-		appearance = "dark",
-		plugin = {
-			"navarasu/onedark.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("onedark").setup({ style = "warmer" })
+			require("onedark").load()
 		end,
 	},
 	{
+		"navarasu/onedark.nvim",
 		name = "onedark_light",
-		colorscheme = "onedark",
-		appearance = "light",
-		plugin = {
-			"navarasu/onedark.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("onedark").setup({ style = "light" })
+			require("onedark").load()
 		end,
 	},
 	{
+		"olimorris/onedarkpro.nvim",
 		name = "onedark",
-		colorscheme = "onedark",
-		appearance = "dark",
-		plugin = {
-			"olimorris/onedarkpro.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme onedark]])
+		end,
 	},
 	{
+		"olimorris/onedarkpro.nvim",
 		name = "onelight",
-		colorscheme = "onelight",
-		appearance = "light",
-		plugin = {
-			"olimorris/onedarkpro.nvim",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme onelight]])
+		end,
 	},
 	{
+		"olimorris/onedarkpro.nvim",
 		name = "onedarkpro_vivid",
-		colorscheme = "onedark_vivid",
-		appearance = "dark",
-		plugin = {
-			"olimorris/onedarkpro.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme onedark_vivid]])
+		end,
 	},
 	{
+		"olimorris/onedarkpro.nvim",
 		name = "onedarkpro_dark",
-		colorscheme = "onedark_dark",
-		appearance = "dark",
-		plugin = {
-			"olimorris/onedarkpro.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme onedark_dark]])
+		end,
 	},
 	{
+		"EdenEast/nightfox.nvim",
 		name = "nightfox",
-		colorscheme = "nightfox",
-		appearance = "dark",
-		plugin = {
-			"EdenEast/nightfox.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme nightfox]])
+		end,
 	},
 	{
+		"EdenEast/nightfox.nvim",
 		name = "dayfox",
-		colorscheme = "dayfox",
-		appearance = "light",
-		plugin = {
-			"EdenEast/nightfox.nvim",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme dayfox]])
+		end,
 	},
 	{
+		"EdenEast/nightfox.nvim",
 		name = "duskfox",
-		colorscheme = "duskfox",
-		appearance = "dark",
-		plugin = {
-			"EdenEast/nightfox.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme duskfox]])
+		end,
 	},
 	{
+		"EdenEast/nightfox.nvim",
 		name = "dawnfox",
-		colorscheme = "dawnfox",
-		appearance = "light",
-		plugin = {
-			"EdenEast/nightfox.nvim",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme dawnfox]])
+		end,
 	},
 	{
+		"EdenEast/nightfox.nvim",
 		name = "carbonfox",
-		colorscheme = "carbonfox",
-		appearance = "dark",
-		plugin = {
-			"EdenEast/nightfox.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme carbonfox]])
+		end,
 	},
 	{
+		"EdenEast/nightfox.nvim",
 		name = "terafox",
-		colorscheme = "terafox",
-		appearance = "dark",
-		plugin = {
-			"EdenEast/nightfox.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme terafox]])
+		end,
 	},
 	{
+		"rose-pine/neovim",
 		name = "rosepine_dark",
-		colorscheme = "rose-pine",
-		appearance = "dark",
-		plugin = {
-			"rose-pine/neovim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme rose-pine]])
+		end,
 	},
 	{
+		"rose-pine/neovim",
 		name = "rosepine_moon",
-		colorscheme = "rose-pine-moon",
-		appearance = "dark",
-		plugin = {
-			"rose-pine/neovim",
-			name = "rose-pine",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme rose-pine-moon]])
+		end,
 	},
 	{
+		"rose-pine/neovim",
 		name = "rosepine_dawn",
-		colorscheme = "rose-pine-dawn",
-		appearance = "light",
-		plugin = {
-			"rose-pine/neovim",
-			name = "rose-pine",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme rose-pine-dawn]])
+		end,
 	},
 	{
+		"neanias/everforest-nvim",
 		name = "everforest_dark",
-		colorscheme = "everforest",
-		appearance = "dark",
-		plugin = {
-			"neanias/everforest-nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("everforest").setup({ background = "medium" })
+			vim.cmd([[colorscheme everforest]])
 		end,
 	},
 	{
+		"neanias/everforest-nvim",
 		name = "everforest_light",
-		colorscheme = "everforest",
-		appearance = "light",
-		plugin = {
-			"neanias/everforest-nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("everforest").setup({ background = "medium" })
+			vim.cmd([[colorscheme everforest]])
 		end,
 	},
 	{
+		"sainnhe/edge",
 		name = "edge_dark",
-		colorscheme = "edge",
-		appearance = "dark",
-		plugin = {
-			"sainnhe/edge",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			vim.g.edge_style = "default"
+			vim.cmd([[colorscheme edge]])
 		end,
 	},
 	{
+		"sainnhe/edge",
 		name = "edge_light",
-		colorscheme = "edge",
-		appearance = "light",
-		plugin = {
-			"sainnhe/edge",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			vim.g.edge_style = "default"
+			vim.cmd([[colorscheme edge]])
 		end,
 	},
 	{
+		"sainnhe/edge",
 		name = "edge_aura",
-		colorscheme = "edge",
-		appearance = "dark",
-		plugin = {
-			"sainnhe/edge",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			vim.g.edge_style = "aura"
+			vim.cmd([[colorscheme edge]])
 		end,
 	},
 	{
+		"sainnhe/edge",
 		name = "edge_neon",
-		colorscheme = "edge",
-		appearance = "dark",
-		plugin = {
-			"sainnhe/edge",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			vim.g.edge_style = "neon"
+			vim.cmd([[colorscheme edge]])
 		end,
 	},
 	{
+		"miikanissi/modus-themes.nvim",
 		name = "modus_operandi",
-		colorscheme = "modus_operandi",
-		appearance = "light",
-		plugin = {
-			"miikanissi/modus-themes.nvim",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme modus_operandi]])
+		end,
 	},
 	{
+		"miikanissi/modus-themes.nvim",
 		name = "modus_vivendi",
-		colorscheme = "modus_vivendi",
-		appearance = "dark",
-		plugin = {
-			"miikanissi/modus-themes.nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme modus_vivendi]])
+		end,
 	},
 	{
+		"glepnir/zephyr-nvim",
 		name = "zephyr_dark",
-		colorscheme = "zephyr",
-		appearance = "dark",
-		plugin = {
-			"glepnir/zephyr-nvim",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme zephyr]])
+		end,
 	},
 	{
+		"svrana/neosolarized.nvim",
 		name = "neosolarized_dark",
-		colorscheme = "neosolarized",
-		appearance = "dark",
-		plugin = {
-			"svrana/neosolarized.nvim",
-			dependencies = { "tjdevries/colorbuddy.nvim" },
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme neosolarized]])
+		end,
+		dependencies = { "tjdevries/colorbuddy.nvim" },
 	},
 	{
+		"svrana/neosolarized.nvim",
 		name = "neosolarized_light",
-		colorscheme = "neosolarized",
-		appearance = "light",
-		plugin = {
-			"svrana/neosolarized.nvim",
-			dependencies = { "tjdevries/colorbuddy.nvim" },
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme neosolarized]])
+		end,
+		dependencies = { "tjdevries/colorbuddy.nvim" },
 	},
 	{
+		"loctvl842/monokai-pro.nvim",
 		name = "monokai_pro_dark",
-		colorscheme = "monokai-pro",
-		appearance = "dark",
-		plugin = {
-			"loctvl842/monokai-pro.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("monokai-pro").setup({ filter = "pro" })
+			vim.cmd([[colorscheme monokai-pro]])
 		end,
 	},
 	{
+		"loctvl842/monokai-pro.nvim",
 		name = "monokai_pro_machine",
-		colorscheme = "monokai-pro",
-		appearance = "dark",
-		plugin = {
-			"loctvl842/monokai-pro.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("monokai-pro").setup({ filter = "machine" })
+			vim.cmd([[colorscheme monokai-pro]])
 		end,
 	},
 	{
+		"loctvl842/monokai-pro.nvim",
 		name = "monokai_pro_ristretto",
-		colorscheme = "monokai-pro",
-		appearance = "dark",
-		plugin = {
-			"loctvl842/monokai-pro.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("monokai-pro").setup({ filter = "ristretto" })
+			vim.cmd([[colorscheme monokai-pro]])
 		end,
 	},
 	{
+		"loctvl842/monokai-pro.nvim",
 		name = "monokai_pro_spectrum",
-		colorscheme = "monokai-pro",
-		appearance = "dark",
-		plugin = {
-			"loctvl842/monokai-pro.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("monokai-pro").setup({ filter = "spectrum" })
+			vim.cmd([[colorscheme monokai-pro]])
 		end,
 	},
 	{
+		"ribru17/bamboo.nvim",
 		name = "bamboo_light",
-		colorscheme = "bamboo",
-		appearance = "light",
-		plugin = {
-			"ribru17/bamboo.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("bamboo").setup({ style = "light" })
+			vim.cmd([[colorscheme bamboo]])
 		end,
 	},
 	{
+		"ribru17/bamboo.nvim",
 		name = "bamboo_vulgaris",
-		colorscheme = "bamboo",
-		appearance = "dark",
-		plugin = {
-			"ribru17/bamboo.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("bamboo").setup({ style = "vulgaris" })
+			vim.cmd([[colorscheme bamboo]])
 		end,
 	},
 	{
+		"ribru17/bamboo.nvim",
 		name = "bamboo_multiplex",
-		colorscheme = "bamboo",
-		appearance = "dark",
-		plugin = {
-			"ribru17/bamboo.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("bamboo").setup({ style = "multiplex" })
+			vim.cmd([[colorscheme bamboo]])
 		end,
 	},
 	{
+		"daltonmenezes/aura-theme",
 		name = "aura_dark",
-		colorscheme = "aura-dark",
-		appearance = "dark",
-		plugin = {
-			"daltonmenezes/aura-theme",
-			name = "aura",
-			config = function(plugin)
-				vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
-			end,
-		},
+		config = function(plugin)
+			vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme aura-dark]])
+		end,
 	},
 	{
+		"daltonmenezes/aura-theme",
 		name = "aura_dark_soft_text",
-		colorscheme = "aura-dark-soft-text",
-		appearance = "dark",
-		plugin = {
-			"daltonmenezes/aura-theme",
-			name = "aura",
-			config = function(plugin)
-				vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
-			end,
-		},
+		config = function(plugin)
+			vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme aura-dark-soft-text]])
+		end,
 	},
 	{
+		"daltonmenezes/aura-theme",
 		name = "aura_soft_dark",
-		colorscheme = "aura-soft-dark",
-		appearance = "dark",
-		plugin = {
-			"daltonmenezes/aura-theme",
-			name = "aura",
-			config = function(plugin)
-				vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
-			end,
-		},
+		config = function(plugin)
+			vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme aura-soft-dark]])
+		end,
 	},
 	{
+		"daltonmenezes/aura-theme",
 		name = "aura_soft_dark_soft_text",
-		colorscheme = "aura-soft-dark-soft-text",
-		appearance = "dark",
-		plugin = {
-			"daltonmenezes/aura-theme",
-			name = "aura",
-			config = function(plugin)
-				vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
-			end,
-		},
+		config = function(plugin)
+			vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme aura-soft-dark-soft-text]])
+		end,
 	},
 	{
+		"bluz71/vim-moonfly-colors",
 		name = "moonfly",
-		colorscheme = "moonfly",
-		appearance = "dark",
-		plugin = {
-			"bluz71/vim-moonfly-colors",
-			name = "moonfly",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme moonfly]])
+		end,
 	},
 	{
+		"scottmckendry/cyberdream.nvim",
 		name = "cyberdream_dark",
-		colorscheme = "cyberdream",
-		appearance = "dark",
-		plugin = {
-			"scottmckendry/cyberdream.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("cyberdream").setup({ variant = "dark" })
+			vim.cmd([[colorscheme cyberdream]])
 		end,
 	},
 	{
+		"scottmckendry/cyberdream.nvim",
 		name = "cyberdream_light",
-		colorscheme = "cyberdream-light",
-		appearance = "light",
-		plugin = {
-			"scottmckendry/cyberdream.nvim",
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("cyberdream").setup({ variant = "light" })
+			vim.cmd([[colorscheme cyberdream-light]])
 		end,
 	},
 	{
+		"uloco/bluloco.nvim",
 		name = "bluloco_dark",
-		colorscheme = "bluloco-dark",
-		appearance = "dark",
-		plugin = {
-			"uloco/bluloco.nvim",
-			dependencies = { "rktjmp/lush.nvim" },
-		},
-		before = function()
+		config = function()
+			vim.o.background = "dark"
 			require("bluloco").setup({ style = "dark" })
+			vim.cmd([[colorscheme bluloco-dark]])
 		end,
+		dependencies = { "rktjmp/lush.nvim" },
 	},
 	{
+		"uloco/bluloco.nvim",
 		name = "bluloco_light",
-		colorscheme = "bluloco-light",
-		appearance = "light",
-		plugin = {
-			"uloco/bluloco.nvim",
-			dependencies = { "rktjmp/lush.nvim" },
-		},
-		before = function()
+		config = function()
+			vim.o.background = "light"
 			require("bluloco").setup({ style = "light" })
+			vim.cmd([[colorscheme bluloco-light]])
+		end,
+		dependencies = { "rktjmp/lush.nvim" },
+	},
+	{
+		"martinsione/darkplus.nvim",
+		name = "darkplus",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme darkplus]])
 		end,
 	},
 	{
-		name = "darkplus",
-		colorscheme = "darkplus",
-		appearance = "dark",
-		plugin = {
-			"martinsione/darkplus.nvim",
-		},
-	},
-	{
+		"kepano/flexoki-neovim",
 		name = "flexoki_dark",
-		colorscheme = "flexoki-dark",
-		appearance = "dark",
-		plugin = {
-			"kepano/flexoki-neovim",
-			name = "flexoki",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme flexoki-dark]])
+		end,
 	},
 	{
+		"nomis51/nvim-xcode-theme",
 		name = "xcode_dark",
-		colorscheme = "xcodedark",
-		appearance = "dark",
-		plugin = {
-			"nomis51/nvim-xcode-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme xcodedark]])
+		end,
 	},
 	{
+		"nomis51/nvim-xcode-theme",
 		name = "xcode_dark_hc",
-		colorscheme = "xcodedarkhc",
-		appearance = "dark",
-		plugin = {
-			"nomis51/nvim-xcode-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme xcodedarkhc]])
+		end,
 	},
 	{
+		"nomis51/nvim-xcode-theme",
 		name = "xcode_light",
-		colorscheme = "xcodelight",
-		appearance = "light",
-		plugin = {
-			"nomis51/nvim-xcode-theme",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme xcodelight]])
+		end,
 	},
 	{
+		"nomis51/nvim-xcode-theme",
 		name = "xcode_light_hc",
-		colorscheme = "xcodelighthc",
-		appearance = "light",
-		plugin = {
-			"nomis51/nvim-xcode-theme",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme xcodelighthc]])
+		end,
 	},
 	{
+		"nomis51/nvim-xcode-theme",
 		name = "xcode_wwdc",
-		colorscheme = "xcodewwdc",
-		appearance = "dark",
-		plugin = {
-			"nomis51/nvim-xcode-theme",
-		},
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme xcodewwdc]])
+		end,
 	},
 	{
+		"kepano/flexoki-neovim",
 		name = "flexoki_light",
-		colorscheme = "flexoki-light",
-		appearance = "light",
-		plugin = {
-			"kepano/flexoki-neovim",
-			name = "flexoki",
-		},
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme flexoki-light]])
+		end,
 	},
 }

@@ -103,56 +103,30 @@ local highlight_groups = {
 	"@variable.parameter.builtin",
 }
 
-local function extract_colorscheme_colors(theme_def)
-	local theme_name = theme_def.name
-	local colorscheme_name = theme_def.colorscheme
-	local appearance = theme_def.appearance
+local function extract_colorscheme_colors(theme)
+	local Lock = require("lazy.manage.lock")
+	local plugin = Lock.get(theme)
 
-	print(string.format("%s (colorscheme: %s, appearance: %s)\n", theme_name, colorscheme_name, appearance))
-
-	local preserved_modules = {
-		"_G",
-		"bit",
-		"coroutine",
-		"debug",
-		"io",
-		"lazy",
-		"math",
-		"os",
-		"package",
-		"string",
-		"table",
-		"vim",
-		"jit",
-	}
-	local preserve_list = {}
-	for _, mod in ipairs(preserved_modules) do
-		preserve_list[mod] = true
+	if not plugin then
+		print("❌ failed to find plugin in lock file, make sure plugin spec has a `name` field\n")
+		os.exit(1)
 	end
 
-	for k in pairs(package.loaded) do
-		if not preserve_list[k] then
-			package.loaded[k] = nil
-		end
-	end
+	local colorscheme_name = vim.g.colors_name
+	local appearance = vim.o.background
+	local revision = plugin["commit"]
 
-	if theme_def.before then
-		theme_def.before()
-	end
+	print(
+		string.format(
+			"🎨 %s (colorscheme: %s | appearance: %s | revision: %s)\n",
+			theme.name,
+			colorscheme_name,
+			appearance,
+			revision
+		)
+	)
 
-	vim.api.nvim_command("hi clear")
-	vim.g.colors_name = nil
-	if vim.fn.exists("syntax_on") then
-		vim.api.nvim_command("syntax reset")
-	end
 	vim.opt.termguicolors = true
-	vim.o.background = appearance
-
-	local success, err = pcall(vim.cmd, "colorscheme " .. colorscheme_name)
-	if not success then
-		print(string.format("Error loading colorscheme for %s: %s", theme_name, err))
-		return false
-	end
 
 	local highlights = {}
 
@@ -189,10 +163,11 @@ local function extract_colorscheme_colors(theme_def)
 		end
 	end
 
-	local output_file = theme_name .. ".json"
+	local output_file = theme.name .. ".json"
 	local theme_data = {
-		name = theme_name,
+		name = theme.name,
 		appearance = appearance,
+    revision = revision,
 		highlights = highlights,
 	}
 
@@ -206,6 +181,7 @@ local function extract_colorscheme_colors(theme_def)
       {
         name,
         appearance,
+        revision,
         highlights: (.highlights | to_entries | sort_by(.key) | map({
           key: .key,
           value: {
@@ -223,39 +199,39 @@ local function extract_colorscheme_colors(theme_def)
 		local jq_result = vim.fn.system(jq_cmd)
 
 		if vim.v.shell_error ~= 0 then
-			print("Warning: jq processing failed: " .. jq_result)
+			print("❌ jq processing failed: " .. jq_result .. "\n")
 		end
 
 		return true
 	else
-		print(string.format("Error: Could not write to file %s", output_file))
+		print(string.format("❌ failed to write to file %s\n", output_file))
 		return false
 	end
 end
 
 local theme_name = arg and arg[1]
 if not theme_name then
-	print("extract_theme.lua requires a theme name as an argument.")
+	print("❌ extract_theme.lua requires a theme name as an argument\n")
 	os.exit(1)
 end
 
 local themes = require("themes")
-local theme_def = nil
+local theme = nil
 
-for _, theme in ipairs(themes) do
-	if theme.name == theme_name then
-		theme_def = theme
+for _, theme_def in ipairs(themes) do
+	if theme_def.name == theme_name then
+		theme = theme_def
 		break
 	end
 end
 
-if not theme_def then
-	print(string.format("Theme '%s' not found in themes.lua", theme_name))
+if not theme then
+	print(string.format("❌ theme '%s' not found in themes.lua\n", theme_name))
 	os.exit(1)
 end
 
 local plugins = {}
-local plugin = vim.deepcopy(theme_def.plugin)
+local plugin = vim.deepcopy(theme)
 plugin.lazy = false
 plugin.priority = 1000
 table.insert(plugins, plugin)
@@ -266,6 +242,6 @@ require("lazy").setup(plugin, {
 	},
 })
 
-extract_colorscheme_colors(theme_def)
+extract_colorscheme_colors(theme)
 
 vim.cmd("quit!")

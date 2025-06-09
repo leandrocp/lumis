@@ -1,6 +1,7 @@
 {
   "name": "material_oceanic",
   "appearance": "dark",
+  "revision": "0004ec60f91d581d47563a39f7dac62cb758f7ea",
   "highlights": {
     "attribute": {
       "fg": "#82aaff"

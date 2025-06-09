@@ -1,6 +1,7 @@
 {
   "name": "github_dark_default",
   "appearance": "dark",
+  "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
   "highlights": {
     "attribute": {
       "fg": "#79c0ff"

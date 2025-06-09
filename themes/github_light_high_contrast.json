@@ -1,6 +1,7 @@
 {
   "name": "github_light_high_contrast",
   "appearance": "light",
+  "revision": "c106c9472154d6b2c74b74565616b877ae8ed31d",
   "highlights": {
     "attribute": {
       "fg": "#023b95"
@@ -69,7 +70,7 @@
       "fg": "#512598"
     },
     "function.macro": {
-      "fg": "#512598"
+      "fg": "#a0111f"
     },
     "function.method": {
       "fg": "#512598"
@@ -90,7 +91,7 @@
       "fg": "#a0111f"
     },
     "keyword.debug": {
-      "fg": "#a0111f"
+      "fg": "#010409"
     },
     "keyword.directive": {
       "fg": "#a0111f"
@@ -120,7 +121,7 @@
       "fg": "#a0111f"
     },
     "keyword.type": {
-      "fg": "#a0111f"
+      "fg": "#702c00"
     },
     "label": {
       "fg": "#024c1a"
@@ -165,7 +166,6 @@
       "fg": "#010409"
     },
     "markup.link.url": {
-      "fg": "#010409",
       "underline": true
     },
     "markup.list": {

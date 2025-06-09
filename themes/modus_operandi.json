@@ -1,6 +1,7 @@
 {
   "name": "modus_operandi",
   "appearance": "light",
+  "revision": "61b8c10ec636f42baf6c845edb14b9ae2723711f",
   "highlights": {
     "attribute": {
       "fg": "#a0132f"
@@ -96,7 +97,7 @@
       "italic": true
     },
     "keyword.debug": {
-      "fg": "#005f5f"
+      "fg": "#5f8787"
     },
     "keyword.directive": {
       "fg": "#a0132f"

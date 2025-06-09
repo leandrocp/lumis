@@ -1,6 +1,7 @@
 {
   "name": "tokyonight_day",
   "appearance": "light",
+  "revision": "057ef5d260c1931f1dffd0f052c685dcd14100a3",
   "highlights": {
     "attribute": {
       "fg": "#007197"
@@ -123,8 +124,7 @@
       "italic": true
     },
     "keyword.type": {
-      "fg": "#7847bd",
-      "italic": true
+      "fg": "#188092"
     },
     "label": {
       "fg": "#2e7de9"
