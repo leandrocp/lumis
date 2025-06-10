@@ -37,6 +37,24 @@ impl std::error::Error for ThemeError {}
 ///
 /// # Examples
 ///
+/// Loading a theme by name:
+///
+/// ```
+/// use autumnus::themes;
+///
+/// let theme = themes::get("github_light").expect("Theme not found");
+/// assert_eq!(theme.appearance, "light");
+/// ```
+///
+/// Loading a theme from a JSON file:
+///
+/// ```
+/// use autumnus::themes;
+/// use std::path::Path;
+///
+/// let theme = themes::from_file(Path::new("themes/dracula.json")).unwrap();
+/// ```
+///
 /// Creating a theme programmatically:
 ///
 /// ```
@@ -56,15 +74,6 @@ impl std::error::Error for ThemeError {}
 ///     "3e976b4".to_string(),
 ///     highlights
 /// );
-/// ```
-///
-/// Loading a theme from a JSON file:
-///
-/// ```
-/// use autumnus::themes;
-/// use std::path::Path;
-///
-/// let theme = themes::from_file(Path::new("themes/dracula.json")).unwrap();
 /// ```
 pub struct Theme {
     /// The name of the theme.
