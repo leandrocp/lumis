@@ -62,6 +62,9 @@ pre.athl {
   color: #a77b00;
   font-weight: bold;
 }
+.cursorline {
+  background-color: #eaead0;
+}
 .diff-delta {
   background-color: #d2dceb;
 }

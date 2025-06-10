@@ -1,4 +1,4 @@
-pub const HIGHLIGHT_NAMES: [&str; 100] = [
+pub const HIGHLIGHT_NAMES: [&str; 101] = [
     "attribute",
     "attribute.builtin",
     "boolean",
@@ -16,6 +16,7 @@ pub const HIGHLIGHT_NAMES: [&str; 100] = [
     "constant.builtin",
     "constant.macro",
     "constructor",
+    "cursorline",
     "diff.minus",
     "diff.plus",
     "diff.delta",
@@ -101,7 +102,7 @@ pub const HIGHLIGHT_NAMES: [&str; 100] = [
     "variable.parameter.builtin",
 ];
 
-pub const CLASSES: [&str; 100] = [
+pub const CLASSES: [&str; 101] = [
     "attribute",
     "attribute-builtin",
     "boolean",
@@ -119,6 +120,7 @@ pub const CLASSES: [&str; 100] = [
     "constant-builtin",
     "constant-macro",
     "constructor",
+    "cursorline",
     "diff-minus",
     "diff-plus",
     "diff-delta",

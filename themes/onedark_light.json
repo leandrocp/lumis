@@ -52,6 +52,9 @@
       "fg": "#986801",
       "bold": true
     },
+    "cursorline": {
+      "bg": "#f0f0f0"
+    },
     "diff.delta": {
       "fg": "#4078f2"
     },

@@ -54,6 +54,9 @@ pre.athl {
 .constructor {
   color: #f69d50;
 }
+.cursorline {
+  background-color: #30363d;
+}
 .diff-delta {
   color: #c69026;
   background-color: #333027;

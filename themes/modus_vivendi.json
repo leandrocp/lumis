@@ -52,6 +52,9 @@
     "constructor": {
       "fg": "#dfaf7a"
     },
+    "cursorline": {
+      "bg": "#2f3849"
+    },
     "diff.delta": {
       "fg": "#efef80",
       "bg": "#363300"
