@@ -35,6 +35,7 @@
 //!             pre_class: None,
 //!             italic: false,
 //!             include_highlights: false,
+//!             highlight_lines: None,
 //!         },
 //!     }
 //! );
@@ -289,7 +290,7 @@ use std::io::{self, Write};
 /// The type of formatter to use for syntax highlighting.
 ///
 /// Defaults to `HtmlInline` with no additional `pre_class`, no italics, and no highlight scope names.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum FormatterOption<'a> {
     /// HTML output with inline styles.
     HtmlInline {
@@ -302,6 +303,7 @@ pub enum FormatterOption<'a> {
         /// Whether to include the original highlight scope name in a `data` attribute.
         /// Useful for debugging.
         include_highlights: bool,
+        highlight_lines: Option<formatter::html_inline::HighlightLines>,
     },
     /// HTML output with linked styles.
     ///
@@ -314,6 +316,7 @@ pub enum FormatterOption<'a> {
     HtmlLinked {
         /// Class to add to the `<pre>` tag.
         pre_class: Option<&'a str>,
+        highlight_lines: Option<formatter::html_linkded::HighlightLines>,
     },
     /// Terminal output with ANSI colors.
     Terminal {
@@ -329,6 +332,7 @@ impl Default for FormatterOption<'_> {
             pre_class: None,
             italic: false,
             include_highlights: false,
+            highlight_lines: None,
         }
     }
 }
@@ -351,6 +355,7 @@ pub struct Options<'a> {
     ///         italic: false,
     ///         include_highlights: false,
     ///         theme: None,
+    ///         highlight_lines: None,
     ///     },
     /// };
     ///
@@ -389,6 +394,7 @@ impl Default for Options<'_> {
                 italic: false,
                 include_highlights: false,
                 theme: None,
+                highlight_lines: None,
             },
         }
     }
@@ -429,6 +435,7 @@ impl Default for Options<'_> {
 ///             italic: false,
 ///             include_highlights: false,
 ///             theme: None,
+///             highlight_lines: None,
 ///         },
 ///     }
 /// );
@@ -468,6 +475,7 @@ impl Default for Options<'_> {
 ///         lang_or_file: Some("rust"),
 ///         formatter: FormatterOption::HtmlLinked {
 ///             pre_class: Some("my-code-block"),
+///             highlight_lines: None,
 ///         },
 ///     }
 /// );
@@ -574,6 +582,7 @@ mod tests {
                     italic: false,
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         )
@@ -617,6 +626,7 @@ end
                     italic: false,
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         );
@@ -645,6 +655,7 @@ end
                     italic: false,
                     include_highlights: true,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         );
@@ -666,6 +677,7 @@ end
                     italic: false,
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         );
@@ -701,7 +713,10 @@ end
             code,
             Options {
                 lang_or_file: Some("elixir"),
-                formatter: FormatterOption::HtmlLinked { pre_class: None },
+                formatter: FormatterOption::HtmlLinked {
+                    pre_class: None,
+                    highlight_lines: None,
+                },
             },
         );
 
@@ -717,7 +732,10 @@ end
             "{:ok, char: '{'}",
             Options {
                 lang_or_file: Some("elixir"),
-                formatter: FormatterOption::HtmlLinked { pre_class: None },
+                formatter: FormatterOption::HtmlLinked {
+                    pre_class: None,
+                    highlight_lines: None,
+                },
             },
         );
 
@@ -735,6 +753,7 @@ end
                     italic: false,
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         );
@@ -752,6 +771,7 @@ end
                     italic: false,
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         );
@@ -766,6 +786,7 @@ end
                     italic: false,
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         );
@@ -783,6 +804,7 @@ end
                     italic: false,
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         );
@@ -800,6 +822,7 @@ end
                     italic: false,
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
+                    highlight_lines: None,
                 },
             },
         );

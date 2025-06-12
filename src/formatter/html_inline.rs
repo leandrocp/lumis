@@ -3,8 +3,41 @@
 use super::{Formatter, HtmlFormatter};
 use crate::languages::Language;
 use crate::themes::Theme;
-use std::io::{self, Write};
+use std::{
+    io::{self, Write},
+    ops::RangeInclusive,
+};
 use tree_sitter_highlight::Highlighter;
+
+#[derive(Clone, Debug)]
+pub struct HighlightLines {
+    /// List of line ranges to highlight.
+    ///
+    /// # Example
+    ///
+    /// Highlight lines 1 and 5 to 7:
+    ///
+    /// ```rust
+    /// // lines: vec![1..=1, 5..=7],
+    /// ```
+    pub lines: Vec<RangeInclusive<usize>>,
+    pub style: HighlightLinesStyle,
+}
+
+#[derive(Clone, Debug)]
+pub enum HighlightLinesStyle {
+    Theme,
+    Style(String),
+}
+
+impl Default for HighlightLines {
+    fn default() -> Self {
+        Self {
+            lines: Vec::new(),
+            style: HighlightLinesStyle::Theme,
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct HtmlInline<'a> {
@@ -14,6 +47,7 @@ pub struct HtmlInline<'a> {
     pre_class: Option<&'a str>,
     italic: bool,
     include_highlights: bool,
+    highlight_lines: Option<HighlightLines>,
 }
 
 impl<'a> HtmlInline<'a> {
@@ -24,6 +58,7 @@ impl<'a> HtmlInline<'a> {
         pre_class: Option<&'a str>,
         italic: bool,
         include_highlights: bool,
+        highlight_lines: Option<HighlightLines>,
     ) -> Self {
         Self {
             source,
@@ -32,7 +67,12 @@ impl<'a> HtmlInline<'a> {
             pre_class,
             italic,
             include_highlights,
+            highlight_lines,
         }
+    }
+
+    pub fn builder() -> Self {
+        Self::default()
     }
 
     pub fn with_source(mut self, source: &'a str) -> Self {
@@ -64,6 +104,15 @@ impl<'a> HtmlInline<'a> {
         self.include_highlights = include_highlights;
         self
     }
+
+    pub fn highlight_lines(
+        mut self,
+        lines: Vec<RangeInclusive<usize>>,
+        style: HighlightLinesStyle,
+    ) -> Self {
+        self.highlight_lines = Some(HighlightLines { lines, style });
+        self
+    }
 }
 
 impl Default for HtmlInline<'_> {
@@ -75,6 +124,7 @@ impl Default for HtmlInline<'_> {
             pre_class: None,
             italic: false,
             include_highlights: false,
+            highlight_lines: None,
         }
     }
 }
@@ -118,10 +168,41 @@ impl Formatter for HtmlInline<'_> {
             .expect("failed to render highlight events");
 
         for (i, line) in renderer.lines().enumerate() {
+            let line_number = i + 1;
+            let highlighted_style = if let Some(ref highlight_lines) = self.highlight_lines {
+                if highlight_lines
+                    .lines
+                    .iter()
+                    .any(|range| range.contains(&line_number))
+                {
+                    match &highlight_lines.style {
+                        HighlightLinesStyle::Theme => {
+                            if let Some(theme) = self.theme {
+                                if let Some(cursorline_style) = theme.get_style("cursorline") {
+                                    format!(" style=\"{}\"", cursorline_style.css(self.italic, " "))
+                                } else {
+                                    String::new()
+                                }
+                            } else {
+                                String::new()
+                            }
+                        }
+                        HighlightLinesStyle::Style(style_string) => {
+                            format!(" style=\"{}\"", style_string)
+                        }
+                    }
+                } else {
+                    String::new()
+                }
+            } else {
+                String::new()
+            };
+
             write!(
                 output,
-                "<span class=\"line\" data-line=\"{}\">{}</span>",
-                i + 1,
+                "<span class=\"line\"{} data-line=\"{}\">{}</span>",
+                highlighted_style,
+                line_number,
                 line.replace('{', "&lbrace;").replace('}', "&rbrace;")
             )?;
         }
@@ -194,6 +275,7 @@ mod tests {
             Some("test-pre-class"),
             false,
             false,
+            None,
         );
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
@@ -211,6 +293,7 @@ mod tests {
             Some("test-pre-class"),
             false,
             false,
+            None,
         );
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
@@ -232,5 +315,70 @@ mod tests {
         formatter.open_pre_tag(&mut buffer);
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
+    }
+
+    #[test]
+    fn test_highlight_lines_with_theme() {
+        let theme = themes::get("github_light").unwrap();
+        let highlight_lines = HighlightLines {
+            lines: vec![1..=1, 3..=4],
+            style: HighlightLinesStyle::Theme,
+        };
+        let code = "line 1\nline 2\nline 3\nline 4\nline 5";
+        let formatter = HtmlInline::new(
+            code,
+            Language::PlainText,
+            Some(theme),
+            None,
+            false,
+            false,
+            Some(highlight_lines),
+        );
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        println!("{}", result);
+
+        assert!(result
+            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="1">"#));
+        assert!(result.contains(r#"<span class="line" data-line="2">"#));
+        assert!(result
+            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="3">"#));
+        assert!(result
+            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="4">"#));
+        assert!(result.contains(r#"<span class="line" data-line="5">"#));
+    }
+
+    #[test]
+    fn test_highlight_lines_with_custom_style() {
+        let highlight_lines = HighlightLines {
+            lines: vec![1..=1, 3..=4],
+            style: HighlightLinesStyle::Style("background-color: yellow".to_string()),
+        };
+        let code = "line 1\nline 2\nline 3\nline 4\nline 5";
+        let formatter = HtmlInline::new(
+            code,
+            Language::PlainText,
+            None,
+            None,
+            false,
+            false,
+            Some(highlight_lines),
+        );
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        assert!(result
+            .contains(r#"<span class="line" style="background-color: yellow" data-line="1">"#));
+        assert!(result.contains(r#"<span class="line" data-line="2">"#));
+        assert!(result
+            .contains(r#"<span class="line" style="background-color: yellow" data-line="3">"#));
+        assert!(result
+            .contains(r#"<span class="line" style="background-color: yellow" data-line="4">"#));
+        assert!(result.contains(r#"<span class="line" data-line="5">"#));
     }
 }

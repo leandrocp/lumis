@@ -232,6 +232,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                         italic: false,
                         include_highlights: false,
                         theme,
+                        highlight_lines: None,
                     },
                 },
             );
@@ -244,7 +245,10 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 source,
                 autumnus::Options {
                     lang_or_file: Some(path),
-                    formatter: FormatterOption::HtmlLinked { pre_class: None },
+                    formatter: FormatterOption::HtmlLinked {
+                        pre_class: None,
+                        highlight_lines: None,
+                    },
                 },
             );
 
@@ -380,6 +384,7 @@ fn highlight_source(
                         italic: false,
                         include_highlights: false,
                         theme,
+                        highlight_lines: None,
                     },
                 },
             );
@@ -392,7 +397,10 @@ fn highlight_source(
                 source,
                 autumnus::Options {
                     lang_or_file: language,
-                    formatter: FormatterOption::HtmlLinked { pre_class: None },
+                    formatter: FormatterOption::HtmlLinked {
+                        pre_class: None,
+                        highlight_lines: None,
+                    },
                 },
             );
 

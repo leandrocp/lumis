@@ -1,12 +1,14 @@
 // Originally based on https://github.com/Colonial-Dev/inkjet/tree/da289fa8b68f11dffad176e4b8fabae8d6ac376d/src/formatter
 
-mod html_inline;
 use std::io::{self, Write};
 
-pub use html_inline::*;
+pub mod html_inline;
+pub use html_inline::HighlightLines as HtmlInlineHighlightLines;
+pub use html_inline::{HighlightLinesStyle, HtmlInline};
 
-mod html_linkded;
-pub use html_linkded::*;
+pub mod html_linkded;
+pub use html_linkded::HighlightLines as HtmlLinkedHighlightLines;
+pub use html_linkded::HtmlLinked;
 
 mod terminal;
 pub use terminal::*;
@@ -66,6 +68,7 @@ impl<'a> FormatterBuilder<'a> {
                 pre_class,
                 italic,
                 include_highlights,
+                highlight_lines,
             } => Box::new(HtmlInline::new(
                 source,
                 lang,
@@ -73,10 +76,12 @@ impl<'a> FormatterBuilder<'a> {
                 pre_class,
                 italic,
                 include_highlights,
+                highlight_lines,
             )),
-            FormatterOption::HtmlLinked { pre_class } => {
-                Box::new(HtmlLinked::new(source, lang, pre_class))
-            }
+            FormatterOption::HtmlLinked {
+                pre_class,
+                highlight_lines,
+            } => Box::new(HtmlLinked::new(source, lang, pre_class, highlight_lines)),
             FormatterOption::Terminal { theme } => Box::new(Terminal::new(source, lang, theme)),
         }
     }
@@ -129,6 +134,7 @@ impl<'a> HtmlFormatterBuilder<'a> {
                 pre_class,
                 italic,
                 include_highlights,
+                highlight_lines,
             } => Box::new(HtmlInline::new(
                 source,
                 lang,
@@ -136,10 +142,12 @@ impl<'a> HtmlFormatterBuilder<'a> {
                 pre_class,
                 italic,
                 include_highlights,
+                highlight_lines,
             )),
-            FormatterOption::HtmlLinked { pre_class } => {
-                Box::new(HtmlLinked::new(source, lang, pre_class))
-            }
+            FormatterOption::HtmlLinked {
+                pre_class,
+                highlight_lines,
+            } => Box::new(HtmlLinked::new(source, lang, pre_class, highlight_lines)),
             FormatterOption::Terminal { .. } => {
                 panic!("Terminal formatter does not implement HtmlFormatter trait")
             }
