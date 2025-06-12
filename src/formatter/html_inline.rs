@@ -9,24 +9,65 @@ use std::{
 };
 use tree_sitter_highlight::Highlighter;
 
+/// Configuration for highlighting specific lines in HTML inline output.
+///
+/// This struct allows you to specify which lines should be highlighted and how
+/// they should be styled using either theme-based styling or custom CSS.
+///
+/// # Examples
+///
+/// Using theme-based highlighting (requires a theme with 'cursorline' style):
+/// ```rust
+/// use autumnus::formatter::html_inline::{HighlightLines, HighlightLinesStyle};
+///
+/// let highlight_lines = HighlightLines {
+///     lines: vec![1..=1, 5..=7],  // Highlight lines 1, 5, 6, and 7
+///     style: HighlightLinesStyle::Theme,
+/// };
+/// ```
+///
+/// Using custom CSS styling:
+/// ```rust
+/// use autumnus::formatter::html_inline::{HighlightLines, HighlightLinesStyle};
+///
+/// let highlight_lines = HighlightLines {
+///     lines: vec![2..=3],  // Highlight lines 2 and 3
+///     style: HighlightLinesStyle::Style("background-color: yellow; border-left: 3px solid red".to_string()),
+/// };
+/// ```
 #[derive(Clone, Debug)]
 pub struct HighlightLines {
     /// List of line ranges to highlight.
     ///
-    /// # Example
-    ///
-    /// Highlight lines 1 and 5 to 7:
-    ///
-    /// ```rust
-    /// // lines: vec![1..=1, 5..=7],
-    /// ```
+    /// Each range is inclusive on both ends. Line numbers are 1-based.
+    /// Multiple ranges can overlap and will be merged during rendering.
     pub lines: Vec<RangeInclusive<usize>>,
+    /// The styling method to use for highlighted lines.
     pub style: HighlightLinesStyle,
 }
 
+/// Defines how highlighted lines should be styled in HTML inline output.
 #[derive(Clone, Debug)]
 pub enum HighlightLinesStyle {
+    /// Use the theme's 'cursorline' style if available.
+    ///
+    /// This looks for a 'cursorline' style definition in the current theme.
+    /// If no theme is provided or the theme doesn't define 'cursorline',
+    /// no styling will be applied.
     Theme,
+    /// Use a custom CSS style string.
+    ///
+    /// The provided string will be used directly as the `style` attribute
+    /// for highlighted line elements. Should contain valid CSS properties.
+    ///
+    /// # Example
+    /// ```rust
+    /// use autumnus::formatter::html_inline::HighlightLinesStyle;
+    ///
+    /// let style = HighlightLinesStyle::Style(
+    ///     "background-color: rgba(255, 255, 0, 0.3); border-left: 2px solid orange".to_string()
+    /// );
+    /// ```
     Style(String),
 }
 

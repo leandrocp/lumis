@@ -4,7 +4,7 @@ use std::io::{self, Write};
 
 pub mod html_inline;
 pub use html_inline::HighlightLines as HtmlInlineHighlightLines;
-pub use html_inline::{HighlightLinesStyle, HtmlInline};
+pub use html_inline::HtmlInline;
 
 pub mod html_linkded;
 pub use html_linkded::HighlightLines as HtmlLinkedHighlightLines;

@@ -9,19 +9,52 @@ use std::{
 };
 use tree_sitter_highlight::Highlighter;
 
+/// Configuration for highlighting specific lines in HTML linked output.
+///
+/// This struct allows you to specify which lines should be highlighted using
+/// CSS classes. The highlighting is applied by adding the specified class
+/// to the line elements, allowing for flexible styling via external CSS.
+///
+/// # Examples
+///
+/// Basic usage with default "cursorline" class:
+/// ```rust
+/// use autumnus::formatter::html_linkded::HighlightLines;
+///
+/// let highlight_lines = HighlightLines {
+///     lines: vec![1..=1, 5..=7],  // Highlight lines 1, 5, 6, and 7
+///     class: "cursorline".to_string(),
+/// };
+/// ```
+///
+/// Using a custom CSS class:
+/// ```rust
+/// use autumnus::formatter::html_linkded::HighlightLines;
+///
+/// let highlight_lines = HighlightLines {
+///     lines: vec![2..=3],  // Highlight lines 2 and 3
+///     class: "highlighted-line".to_string(),
+/// };
+/// ```
+///
+/// The resulting HTML will include the class in line elements:
+/// ```html
+/// <span class="line highlighted-line" data-line="2">...</span>
+/// <span class="line highlighted-line" data-line="3">...</span>
+/// ```
 #[derive(Clone, Debug)]
 pub struct HighlightLines {
     /// List of line ranges to highlight.
     ///
-    /// # Example
+    /// Each range is inclusive on both ends. Line numbers are 1-based.
+    /// Multiple ranges can overlap and will be merged during rendering.
+    pub lines: Vec<RangeInclusive<usize>>,
+    /// The CSS class name to add to highlighted line elements.
     ///
-    /// Highlight lines 1 and 5 to 7:
-    ///
-    /// ```rust
-    /// // lines: vec![1..=1, 5..=7],
-    /// ```
-    lines: Vec<RangeInclusive<usize>>,
-    class: String,
+    /// This class will be added to the existing "line" class for highlighted lines,
+    /// resulting in elements like `<span class="line your-class-name" data-line="N">`.
+    /// You can then style this class in your CSS to achieve the desired highlighting effect.
+    pub class: String,
 }
 
 impl Default for HighlightLines {
