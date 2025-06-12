@@ -1,3 +1,11 @@
+//! HTML formatter with linked CSS classes.
+//!
+//! This module provides the [`HtmlLinked`] formatter that generates HTML output with
+//! CSS classes for syntax highlighting. Requires external CSS files for styling.
+//! Supports line highlighting and custom CSS classes.
+//!
+//! See the [formatter](crate::formatter) module for more information and examples.
+
 #![allow(unused_must_use)]
 
 use super::{Formatter, HtmlFormatter};
@@ -87,30 +95,6 @@ impl<'a> HtmlLinked<'a> {
             pre_class,
             highlight_lines,
         }
-    }
-
-    pub fn builder() -> Self {
-        Self::default()
-    }
-
-    pub fn with_source(mut self, source: &'a str) -> Self {
-        self.source = source;
-        self
-    }
-
-    pub fn with_lang(mut self, lang: Language) -> Self {
-        self.lang = lang;
-        self
-    }
-
-    pub fn with_pre_class(mut self, pre_class: Option<&'a str>) -> Self {
-        self.pre_class = pre_class;
-        self
-    }
-
-    pub fn highlight_lines(mut self, lines: Vec<RangeInclusive<usize>>, class: String) -> Self {
-        self.highlight_lines = Some(HighlightLines { lines, class });
-        self
     }
 }
 
@@ -213,6 +197,8 @@ impl HtmlFormatter for HtmlLinked<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::formatter::HtmlFormatterBuilder;
+    use crate::FormatterOption;
 
     #[test]
     fn test_include_pre_class() {
@@ -234,9 +220,14 @@ mod tests {
 
     #[test]
     fn test_builder_pattern() {
-        let formatter = HtmlLinked::default()
+        let formatter = HtmlFormatterBuilder::new()
+            .with_source("")
             .with_lang(Language::Rust)
-            .with_pre_class(Some("test-pre-class"));
+            .with_formatter(FormatterOption::HtmlLinked {
+                pre_class: Some("test-pre-class"),
+                highlight_lines: None,
+            })
+            .build();
 
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);

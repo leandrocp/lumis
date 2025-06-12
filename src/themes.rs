@@ -1,3 +1,67 @@
+//! Theme system for syntax highlighting.
+//!
+//! This module provides access to Neovim-based color themes for syntax highlighting.
+//! Themes define colors and styling for different syntax elements like keywords,
+//! strings, comments, etc. The themes are extracted from popular Neovim colorschemes
+//! and converted to a format suitable for syntax highlighting.
+//!
+//! # Available Themes
+//!
+//! The theme system includes 100+ themes covering light and dark variants from
+//! popular colorschemes like Dracula, Catppuccin, GitHub, Gruvbox, and many more.
+//! See the main library documentation for the complete list.
+//!
+//! # Basic Usage
+//!
+//! ```rust
+//! use autumnus::themes;
+//!
+//! // Get a theme by name
+//! let theme = themes::get("dracula").expect("Theme not found");
+//! println!("Theme: {} ({})", theme.name, theme.appearance);
+//!
+//! // List all available themes
+//! let all_themes = themes::available_themes();
+//! println!("Found {} themes", all_themes.len());
+//! ```
+//!
+//! # Integration with Formatters
+//!
+//! Themes are primarily used with [`crate::FormatterOption::HtmlInline`] and
+//! [`crate::FormatterOption::Terminal`] to provide syntax highlighting colors:
+//!
+//! ```rust
+//! use autumnus::{highlight, Options, FormatterOption, themes};
+//!
+//! let code = "fn main() { println!(\"Hello\"); }";
+//! let theme = themes::get("catppuccin_mocha").unwrap();
+//!
+//! let options = Options {
+//!     lang_or_file: Some("rust"),
+//!     formatter: FormatterOption::HtmlInline {
+//!         theme: Some(theme),
+//!         pre_class: None,
+//!         italic: false,
+//!         include_highlights: false,
+//!         highlight_lines: None,
+//!     },
+//! };
+//!
+//! let highlighted = highlight(code, options);
+//! ```
+//!
+//! # Theme Structure
+//!
+//! Each theme contains:
+//! - **Metadata**: Name, appearance (light/dark), revision info
+//! - **Color definitions**: Foreground/background colors, font styles
+//! - **Scope mappings**: Which colors apply to which syntax elements
+//!
+//! # External Theme Files
+//!
+//! You can also load themes from JSON files using [`from_file`] or [`from_json`]
+//! for custom colorschemes or theme development.
+
 #![allow(unused_must_use)]
 
 use serde::{Deserialize, Serialize};
@@ -152,16 +216,68 @@ pub struct Style {
 
 include!(concat!(env!("OUT_DIR"), "/theme_data.rs"));
 
-/// Creates a `Theme` from a JSON file.
+/// Load a theme from a JSON file.
+///
+/// This function reads a theme definition from a JSON file and parses it into a [`Theme`] struct.
+/// The JSON file should contain theme metadata (name, appearance, revision) and highlight style
+/// definitions for various syntax scopes.
+///
+/// # Arguments
+///
+/// * `path` - Path to the JSON theme file
+///
+/// # Returns
+///
+/// * `Ok(Theme)` - Successfully loaded and parsed theme
+/// * `Err(ThemeError)` - File not found, read error, or invalid JSON format
+///
+/// # JSON Format
+///
+/// Theme files should follow this structure:
+///
+/// ```json
+/// {
+///   "name": "my_custom_theme",
+///   "appearance": "dark",
+///   "revision": "v1.0.0",
+///   "highlights": {
+///     "keyword": { "fg": "#ff79c6", "bold": true },
+///     "string": { "fg": "#f1fa8c" },
+///     "comment": { "fg": "#6272a4", "italic": true }
+///   }
+/// }
+/// ```
 ///
 /// # Examples
 ///
-/// ```
+/// ## Loading a theme file
+///
+/// ```rust,no_run
 /// use autumnus::themes;
 /// use std::path::Path;
 ///
-/// let path = Path::new("catppuccin_frappe.json");
-/// let theme = themes::from_file(path);
+/// // Load theme from file
+/// let theme = themes::from_file("themes/my_theme.json")
+///     .expect("Failed to load theme");
+///
+/// println!("Loaded theme: {} ({})", theme.name, theme.appearance);
+/// ```
+///
+/// ## Error handling
+///
+/// ```rust,no_run
+/// use autumnus::themes::{self, ThemeError};
+///
+/// match themes::from_file("nonexistent.json") {
+///     Ok(theme) => println!("Theme loaded: {}", theme.name),
+///     Err(ThemeError::FileNotFound(path)) => {
+///         eprintln!("Theme file not found: {}", path);
+///     },
+///     Err(ThemeError::InvalidJson(msg)) => {
+///         eprintln!("Invalid theme JSON: {}", msg);
+///     },
+///     Err(err) => eprintln!("Other error: {}", err),
+/// }
 /// ```
 pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Theme, ThemeError> {
     let path = path.as_ref();
@@ -176,17 +292,85 @@ pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Theme, ThemeError> {
     from_json(&json).map_err(|e| ThemeError::InvalidJson(e.to_string()))
 }
 
-/// Creates a `Theme` from a JSON string.
+/// Parse a theme from a JSON string.
+///
+/// This function parses a JSON string containing theme definition data and creates
+/// a [`Theme`] struct. The JSON must contain required fields (name, appearance, revision)
+/// and highlight style definitions.
+///
+/// # Arguments
+///
+/// * `json` - JSON string containing theme definition
+///
+/// # Returns
+///
+/// * `Ok(Theme)` - Successfully parsed theme
+/// * `Err(Box<dyn Error>)` - JSON parse error or validation failure
+///
+/// # Validation
+///
+/// The function validates that required fields are present and non-empty:
+/// - `name` - Theme identifier
+/// - `appearance` - Either "light" or "dark"
+/// - `revision` - Version or commit hash
+/// - `highlights` - Map of syntax scopes to styles
 ///
 /// # Examples
 ///
-/// ```
+/// ## Basic theme parsing
+///
+/// ```rust
 /// use autumnus::themes;
 ///
-/// let json = r#"{"name": "My Theme", "appearance": "dark", "revision": "3e976b4", "highlights": {"keyword": {"fg": "blue"}}}"#;
-/// let theme = themes::from_json(json).unwrap();
+/// let json = r##"{
+///     "name": "my_theme",
+///     "appearance": "dark",
+///     "revision": "v1.0.0",
+///     "highlights": {
+///         "keyword": { "fg": "#ff79c6", "bold": true },
+///         "string": { "fg": "#f1fa8c" },
+///         "comment": { "fg": "#6272a4", "italic": true }
+///     }
+/// }"##;
 ///
-/// assert_eq!(theme.name, "My Theme");
+/// let theme = themes::from_json(json).expect("Failed to parse theme");
+/// assert_eq!(theme.name, "my_theme");
+/// assert_eq!(theme.appearance, "dark");
+/// ```
+///
+/// ## Error handling
+///
+/// ```rust
+/// use autumnus::themes;
+///
+/// // Invalid JSON
+/// let invalid_json = r#"{ invalid json }"#;
+/// assert!(themes::from_json(invalid_json).is_err());
+///
+/// // Missing required fields
+/// let incomplete_json = r#"{ "name": "test" }"#;
+/// assert!(themes::from_json(incomplete_json).is_err());
+/// ```
+///
+/// ## Runtime theme creation
+///
+/// ```rust
+/// use autumnus::themes;
+/// use serde_json::json;
+///
+/// // Create theme JSON programmatically
+/// let theme_data = json!({
+///     "name": "runtime_theme",
+///     "appearance": "light",
+///     "revision": "generated",
+///     "highlights": {
+///         "keyword": { "fg": "#0000ff", "bold": true },
+///         "string": { "fg": "#008000" }
+///     }
+/// });
+///
+/// let theme = themes::from_json(&theme_data.to_string())
+///     .expect("Failed to create theme");
 /// ```
 pub fn from_json(json: &str) -> Result<Theme, Box<dyn std::error::Error>> {
     let theme: Theme = serde_json::from_str(json)?;
@@ -330,7 +514,86 @@ impl Style {
     }
 }
 
-/// Returns a list of all available themes.
+/// Get a list of all built-in themes.
+///
+/// This function returns a vector containing references to all themes bundled
+/// with the library. These themes are compiled into the binary and are always
+/// available without external files.
+///
+/// # Returns
+///
+/// A vector of theme references sorted alphabetically by name.
+///
+/// # Examples
+///
+/// ## List all themes
+///
+/// ```rust
+/// use autumnus::themes;
+///
+/// let all_themes = themes::available_themes();
+/// println!("Available themes: {}", all_themes.len());
+///
+/// for theme in &all_themes {
+///     println!("- {} ({})", theme.name, theme.appearance);
+/// }
+/// ```
+///
+/// ## Filter themes by appearance
+///
+/// ```rust
+/// use autumnus::themes;
+///
+/// let all_themes = themes::available_themes();
+///
+/// let dark_themes: Vec<_> = all_themes
+///     .iter()
+///     .filter(|theme| theme.appearance == "dark")
+///     .collect();
+///
+/// let light_themes: Vec<_> = all_themes
+///     .iter()
+///     .filter(|theme| theme.appearance == "light")
+///     .collect();
+///
+/// println!("Dark themes: {}, Light themes: {}",
+///          dark_themes.len(), light_themes.len());
+/// ```
+///
+/// ## Find themes by name pattern
+///
+/// ```rust
+/// use autumnus::themes;
+///
+/// let all_themes = themes::available_themes();
+///
+/// // Find all Catppuccin variants
+/// let catppuccin_themes: Vec<_> = all_themes
+///     .iter()
+///     .filter(|theme| theme.name.starts_with("catppuccin"))
+///     .collect();
+///
+/// // Find GitHub themes
+/// let github_themes: Vec<_> = all_themes
+///     .iter()
+///     .filter(|theme| theme.name.contains("github"))
+///     .collect();
+/// ```
+///
+/// ## Build a theme selector
+///
+/// ```rust
+/// use autumnus::themes;
+///
+/// let themes = themes::available_themes();
+/// let mut theme_names: Vec<&str> = themes.iter().map(|t| t.name.as_str()).collect();
+/// theme_names.sort();
+///
+/// println!("Theme selector options:");
+/// for (i, name) in theme_names.iter().enumerate() {
+///     println!("{}. {}", i + 1, name);
+/// }
+/// ```
 pub fn available_themes() -> Vec<&'static Theme> {
     ALL_THEMES.iter().copied().collect()
 }

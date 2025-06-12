@@ -1,3 +1,11 @@
+//! HTML formatter with inline CSS styles.
+//!
+//! This module provides the [`HtmlInline`] formatter that generates HTML output with
+//! inline CSS styles for syntax highlighting. It supports themes, line highlighting,
+//! and various customization options.
+//!
+//! See the [formatter](crate::formatter) module for more information and examples.
+
 #![allow(unused_must_use)]
 
 use super::{Formatter, HtmlFormatter};
@@ -110,49 +118,6 @@ impl<'a> HtmlInline<'a> {
             include_highlights,
             highlight_lines,
         }
-    }
-
-    pub fn builder() -> Self {
-        Self::default()
-    }
-
-    pub fn with_source(mut self, source: &'a str) -> Self {
-        self.source = source;
-        self
-    }
-
-    pub fn with_lang(mut self, lang: Language) -> Self {
-        self.lang = lang;
-        self
-    }
-
-    pub fn with_theme(mut self, theme: Option<&'a Theme>) -> Self {
-        self.theme = theme;
-        self
-    }
-
-    pub fn with_pre_class(mut self, pre_class: Option<&'a str>) -> Self {
-        self.pre_class = pre_class;
-        self
-    }
-
-    pub fn with_italic(mut self, italic: bool) -> Self {
-        self.italic = italic;
-        self
-    }
-
-    pub fn with_include_highlights(mut self, include_highlights: bool) -> Self {
-        self.include_highlights = include_highlights;
-        self
-    }
-
-    pub fn highlight_lines(
-        mut self,
-        lines: Vec<RangeInclusive<usize>>,
-        style: HighlightLinesStyle,
-    ) -> Self {
-        self.highlight_lines = Some(HighlightLines { lines, style });
-        self
     }
 }
 
@@ -296,7 +261,9 @@ impl HtmlFormatter for HtmlInline<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::formatter::HtmlFormatterBuilder;
     use crate::themes;
+    use crate::FormatterOption;
 
     #[test]
     fn test_do_not_append_pre_style_if_missing_theme_style() {
@@ -345,12 +312,17 @@ mod tests {
     #[test]
     fn test_builder_pattern() {
         let theme = themes::get("github_light").unwrap();
-        let formatter = HtmlInline::default()
+        let formatter = HtmlFormatterBuilder::new()
+            .with_source("")
             .with_lang(Language::Rust)
-            .with_theme(Some(theme))
-            .with_pre_class(Some("test-pre-class"))
-            .with_italic(true)
-            .with_include_highlights(true);
+            .with_formatter(FormatterOption::HtmlInline {
+                theme: Some(theme),
+                pre_class: Some("test-pre-class"),
+                italic: true,
+                include_highlights: true,
+                highlight_lines: None,
+            })
+            .build();
 
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);

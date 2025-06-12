@@ -1,3 +1,93 @@
+//! Language detection and Tree-sitter configuration.
+//!
+//! This module provides the [`Language`] enum that represents all supported programming
+//! languages and their Tree-sitter configurations. It includes automatic language
+//! detection based on file extensions, file names, content analysis, and shebangs.
+//!
+//! # Language Detection
+//!
+//! The language detection works in the following priority order:
+//! 1. **Exact name match** - `"rust"`, `"elixir"`, `"javascript"`, etc.
+//! 2. **File path/name patterns** - `"app.ex"`, `"Dockerfile"`, `"Makefile"`, etc.
+//! 3. **File extension** - `".rs"`, `".js"`, `".py"`, etc.
+//! 4. **Emacs mode header** - `// -*- mode: rust -*-`
+//! 5. **Shebang** - `#!/usr/bin/env python`
+//! 6. **Content heuristics** - HTML doctype, XML declaration, etc.
+//! 7. **Fallback** - [`Language::PlainText`]
+//!
+//! # Examples
+//!
+//! ## Basic language guessing
+//!
+//! ```rust
+//! use autumnus::languages::Language;
+//!
+//! // By language name
+//! let lang = Language::guess("rust", "");
+//! assert_eq!(lang, Language::Rust);
+//!
+//! // By file extension
+//! let lang = Language::guess("rs", "");
+//! assert_eq!(lang, Language::Rust);
+//!
+//! // By file path
+//! let lang = Language::guess("src/main.rs", "");
+//! assert_eq!(lang, Language::Rust);
+//! ```
+//!
+//! ## Content-based detection
+//!
+//! ```rust
+//! use autumnus::languages::Language;
+//!
+//! // Shebang detection
+//! let code = "#!/usr/bin/env python3\nprint('Hello')";
+//! let lang = Language::guess("", code);
+//! assert_eq!(lang, Language::Python);
+//!
+//! // HTML doctype detection
+//! let html = "<!DOCTYPE html>\n<html></html>";
+//! let lang = Language::guess("", html);
+//! assert_eq!(lang, Language::HTML);
+//! ```
+//!
+//! ## Getting language information
+//!
+//! ```rust
+//! use autumnus::languages::{Language, available_languages};
+//!
+//! // Get friendly name
+//! assert_eq!(Language::Rust.name(), "Rust");
+//! assert_eq!(Language::CSharp.name(), "C#");
+//!
+//! // Get all supported languages
+//! let languages = available_languages();
+//! assert!(languages.contains_key("rust"));
+//! assert!(languages.contains_key("elixir"));
+//!
+//! let (name, extensions) = &languages["rust"];
+//! assert_eq!(name, "Rust");
+//! assert!(extensions.contains(&"*.rs".to_string()));
+//! ```
+//!
+//! ## Tree-sitter integration
+//!
+//! ```rust
+//! use autumnus::languages::Language;
+//! use tree_sitter_highlight::Highlighter;
+//!
+//! let lang = Language::Rust;
+//! let config = lang.config();
+//!
+//! let mut highlighter = Highlighter::new();
+//! let events = highlighter.highlight(
+//!     config,
+//!     b"fn main() {}",
+//!     None,
+//!     |_| None
+//! ).unwrap();
+//! ```
+
 // Guess Language copied from https://github.com/Wilfred/difftastic/blob/f34a9014760efbaed01b972caba8b73754da16c9/src/parse/guess_language.rs
 
 use crate::constants::HIGHLIGHT_NAMES;
@@ -779,12 +869,87 @@ impl Language {
     }
 }
 
-/// Returns a BTreeMap containing all supported languages with their details.
+/// Returns a HashMap containing all supported languages with their details.
 ///
 /// The key is the language's id_name (lowercase, no spaces).
 /// The value is a tuple containing:
 /// - The friendly name (e.g. "Elixir", "Common Lisp")
 /// - A Vec of file extensions/patterns
+///
+/// # Examples
+///
+/// ## Basic usage - listing all languages
+///
+/// ```rust
+/// use autumnus::languages::available_languages;
+///
+/// let languages = available_languages();
+/// println!("Supported languages: {}", languages.len());
+///
+/// // Check if specific languages are supported
+/// assert!(languages.contains_key("rust"));
+/// assert!(languages.contains_key("elixir"));
+/// assert!(languages.contains_key("javascript"));
+/// ```
+///
+/// ## Getting language information
+///
+/// ```rust
+/// use autumnus::languages::available_languages;
+///
+/// let languages = available_languages();
+///
+/// // Get details for Rust
+/// let (name, extensions) = &languages["rust"];
+/// assert_eq!(name, "Rust");
+/// assert!(extensions.contains(&"*.rs".to_string()));
+///
+/// // Get details for Elixir
+/// let (name, extensions) = &languages["elixir"];
+/// assert_eq!(name, "Elixir");
+/// assert!(extensions.contains(&"*.ex".to_string()));
+/// assert!(extensions.contains(&"*.exs".to_string()));
+///
+/// // Languages with special characters in names
+/// let (name, _) = &languages["c#"];
+/// assert_eq!(name, "C#");
+///
+/// let (name, _) = &languages["c++"];
+/// assert_eq!(name, "C++");
+/// ```
+///
+/// ## Building a language selector UI
+///
+/// ```rust
+/// use autumnus::languages::available_languages;
+///
+/// let languages = available_languages();
+/// let mut sorted_languages: Vec<_> = languages.iter().collect();
+/// sorted_languages.sort_by(|a, b| a.1.0.cmp(&b.1.0)); // Sort by friendly name
+///
+/// for (id, (name, extensions)) in sorted_languages {
+///     println!("{} ({}): {}", name, id, extensions.join(", "));
+/// }
+/// ```
+///
+/// ## Finding languages by file extension
+///
+/// ```rust
+/// use autumnus::languages::available_languages;
+///
+/// let languages = available_languages();
+/// let target_extension = "*.py";
+///
+/// let python_languages: Vec<_> = languages
+///     .iter()
+///     .filter(|(_, (_, extensions))| extensions.contains(&target_extension.to_string()))
+///     .collect();
+///
+/// assert!(!python_languages.is_empty());
+/// let (id, (name, _)) = python_languages[0];
+/// assert_eq!(id, "python");
+/// assert_eq!(name, "Python");
+/// ```
 pub fn available_languages() -> HashMap<String, (String, Vec<String>)> {
     let mut languages = HashMap::new();
 

@@ -1,3 +1,11 @@
+//! Terminal formatter with ANSI color codes.
+//!
+//! This module provides the [`Terminal`] formatter that generates terminal output with
+//! ANSI color codes for syntax highlighting. Supports themes and automatic color
+//! mapping from theme definitions to terminal colors.
+//!
+//! See the [formatter](crate::formatter) module for more information and examples.
+
 #![allow(unused_must_use)]
 
 use super::Formatter;
@@ -20,21 +28,6 @@ impl<'a> Terminal<'a> {
             lang,
             theme,
         }
-    }
-
-    pub fn with_source(mut self, source: &'a str) -> Self {
-        self.source = source;
-        self
-    }
-
-    pub fn with_lang(mut self, lang: Language) -> Self {
-        self.lang = lang;
-        self
-    }
-
-    pub fn with_theme(mut self, theme: Option<&'a Theme>) -> Self {
-        self.theme = theme;
-        self
     }
 }
 

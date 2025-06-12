@@ -294,40 +294,215 @@ use crate::languages::Language;
 use crate::themes::Theme;
 use std::io::{self, Write};
 
-/// The type of formatter to use for syntax highlighting.
+/// Output formatter configuration for syntax highlighting.
 ///
-/// Defaults to `HtmlInline` with no additional `pre_class`, no italics, and no highlight scope names.
+/// This enum specifies how syntax highlighted code should be formatted for output.
+/// Each variant provides different output formats suitable for different use cases:
+/// web pages, documentation, terminal display, etc.
+///
+/// # Default Behavior
+///
+/// The default is [`FormatterOption::HtmlInline`] with no theme, no additional CSS classes,
+/// no italics, and no debug information.
+///
+/// # Examples
+///
+/// ## HTML with inline styles (default)
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption, themes};
+///
+/// let code = "fn hello() { println!(\"world\"); }";
+///
+/// let options = Options {
+///     lang_or_file: Some("rust"),
+///     formatter: FormatterOption::HtmlInline {
+///         theme: themes::get("dracula").ok(),
+///         pre_class: Some("code-block"),
+///         italic: true,
+///         include_highlights: false,
+///         highlight_lines: None,
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// // Produces: <pre class="athl code-block" style="...">...</pre>
+/// ```
+///
+/// ## HTML with CSS classes (requires external CSS)
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption};
+///
+/// let code = "const greeting = 'Hello, World!';";
+///
+/// let options = Options {
+///     lang_or_file: Some("javascript"),
+///     formatter: FormatterOption::HtmlLinked {
+///         pre_class: Some("syntax-highlight"),
+///         highlight_lines: None,
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// // Produces: <pre class="athl syntax-highlight"><code class="language-javascript">...</code></pre>
+/// // Remember to include CSS: <link rel="stylesheet" href="css/your-theme.css">
+/// ```
+///
+/// ## Terminal output with ANSI colors
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption, themes};
+///
+/// let code = "print('Hello from Python!')";
+///
+/// let options = Options {
+///     lang_or_file: Some("python"),
+///     formatter: FormatterOption::Terminal {
+///         theme: themes::get("github_light").ok(),
+///     },
+/// };
+///
+/// let ansi_output = highlight(code, options);
+/// // Produces: ANSI escape codes for terminal colors
+/// ```
+///
+/// ## Line highlighting in HTML
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption, themes};
+/// use autumnus::formatter::html_inline::{HighlightLines, HighlightLinesStyle};
+///
+/// let code = "line 1\nline 2\nline 3\nline 4";
+///
+/// let highlight_lines = HighlightLines {
+///     lines: vec![2..=3],  // Highlight lines 2 and 3
+///     style: HighlightLinesStyle::Style("background-color: yellow".to_string()),
+/// };
+///
+/// let options = Options {
+///     lang_or_file: Some("text"),
+///     formatter: FormatterOption::HtmlInline {
+///         theme: themes::get("catppuccin_mocha").ok(),
+///         pre_class: None,
+///         italic: false,
+///         include_highlights: false,
+///         highlight_lines: Some(highlight_lines),
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// ```
+///
+/// ## Debug mode with highlight scope names
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption};
+///
+/// let code = "const x = 42;";
+///
+/// let options = Options {
+///     lang_or_file: Some("javascript"),
+///     formatter: FormatterOption::HtmlInline {
+///         theme: None,
+///         pre_class: None,
+///         italic: false,
+///         include_highlights: true,  // Adds data-highlight attributes
+///         highlight_lines: None,
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// // Produces: <span data-highlight="keyword">const</span>
+/// ```
 #[derive(Clone, Debug)]
 pub enum FormatterOption<'a> {
-    /// HTML output with inline styles.
+    /// HTML output with inline CSS styles.
+    ///
+    /// This formatter generates HTML where syntax highlighting colors are applied
+    /// directly as `style` attributes on each element. This is convenient for
+    /// simple use cases where you don't want to manage external CSS files.
+    ///
+    /// **Pros**: Self-contained, no external dependencies, works immediately
+    /// **Cons**: Larger output size, harder to customize styling globally
     HtmlInline {
-        /// Theme to use for highlighting.
+        /// Theme to use for syntax highlighting colors.
+        ///
+        /// If `None`, elements will have no color styling applied.
+        /// Use [`themes::get`] to retrieve a theme by name.
         theme: Option<&'a Theme>,
-        /// Class to add to the `<pre>` tag.
+
+        /// Additional CSS class to add to the `<pre>` tag.
+        ///
+        /// The `<pre>` tag always gets the class `"athl"`. If this field is
+        /// `Some("my-class")`, the final class will be `"athl my-class"`.
         pre_class: Option<&'a str>,
-        /// Whether to use italics for highlighting.
+
+        /// Whether to apply italic styling to appropriate syntax elements.
+        ///
+        /// When `true`, elements that should be italic (like comments in many themes)
+        /// will have `font-style: italic` added to their inline styles.
         italic: bool,
-        /// Whether to include the original highlight scope name in a `data` attribute.
-        /// Useful for debugging.
+
+        /// Whether to include highlight scope names as data attributes.
+        ///
+        /// When `true`, each syntax element gets a `data-highlight` attribute
+        /// containing the Tree-sitter highlight scope name (e.g., "keyword", "string").
+        /// Useful for debugging or custom JavaScript processing.
         include_highlights: bool,
+
+        /// Configuration for highlighting specific lines.
+        ///
+        /// Allows you to visually emphasize certain lines with background colors
+        /// or other styling. See [`formatter::html_inline::HighlightLines`] for details.
         highlight_lines: Option<formatter::html_inline::HighlightLines>,
     },
-    /// HTML output with linked styles.
+
+    /// HTML output with CSS classes instead of inline styles.
     ///
-    /// When using this formatter, CSS files for all themes are available in the `css/` directory.
-    /// You need to include the corresponding CSS file for your chosen theme:
+    /// This formatter generates HTML with semantic CSS classes that you can style
+    /// with external CSS files. Pre-generated CSS files for all themes are
+    /// available in the `css/` directory of this crate.
+    ///
+    /// **Pros**: Smaller output, easier global styling, better caching
+    /// **Cons**: Requires external CSS files, additional setup
+    ///
+    /// ## Required CSS
+    ///
+    /// You must include a CSS file corresponding to your desired theme:
     ///
     /// ```html
     /// <link rel="stylesheet" href="css/dracula.css">
+    /// <link rel="stylesheet" href="css/github_light.css">
+    /// <link rel="stylesheet" href="css/catppuccin_mocha.css">
+    /// <!-- etc. -->
     /// ```
     HtmlLinked {
-        /// Class to add to the `<pre>` tag.
+        /// Additional CSS class to add to the `<pre>` tag.
+        ///
+        /// The `<pre>` tag always gets the class `"athl"`. If this field is
+        /// `Some("my-class")`, the final class will be `"athl my-class"`.
         pre_class: Option<&'a str>,
+
+        /// Configuration for highlighting specific lines with CSS classes.
+        ///
+        /// Allows you to add CSS classes to specific lines for custom styling.
+        /// See [`formatter::html_linkded::HighlightLines`] for details.
         highlight_lines: Option<formatter::html_linkded::HighlightLines>,
     },
-    /// Terminal output with ANSI colors.
+
+    /// Terminal output with ANSI color escape codes.
+    ///
+    /// This formatter generates output suitable for display in terminals,
+    /// using ANSI escape sequences to apply colors. The colors are derived
+    /// from the theme's color definitions.
+    ///
+    /// **Use cases**: Command-line tools, terminal-based editors, console output
     Terminal {
-        /// Theme to use for highlighting.
+        /// Theme to use for color mapping to ANSI codes.
+        ///
+        /// Theme colors are converted to the closest ANSI RGB equivalents.
+        /// If `None`, a default color scheme is used to ensure visibility.
         theme: Option<&'a Theme>,
     },
 }
@@ -344,51 +519,141 @@ impl Default for FormatterOption<'_> {
     }
 }
 
-/// Options for the highlighter.
+/// Configuration options for syntax highlighting.
+///
+/// This struct provides all the configuration needed to highlight source code,
+/// including language detection and output formatting options. It's used with
+/// the [`highlight`] and [`write_highlight`] functions.
+///
+/// # Language Detection
+///
+/// The `lang_or_file` field supports multiple input formats:
+/// - **Language names**: `"rust"`, `"python"`, `"javascript"`
+/// - **File paths**: `"src/main.rs"`, `"app.py"`, `"script.js"`
+/// - **File extensions**: `"rs"`, `"py"`, `"js"`
+/// - **None**: Automatic detection from source content
+///
+/// # Default Behavior
+///
+/// When using [`Options::default()`], you get:
+/// - Automatic language detection (`lang_or_file: None`)
+/// - HTML inline formatter with no theme (`FormatterOption::HtmlInline`)
+///
+/// # Examples
+///
+/// ## Basic usage with defaults
+///
+/// ```rust
+/// use autumnus::{highlight, Options};
+///
+/// let code = r#"
+/// #!/usr/bin/env python3
+/// print("Hello, World!")
+/// "#;
+///
+/// // Language auto-detected from shebang, HTML inline output
+/// let html = highlight(code, Options::default());
+/// ```
+///
+/// ## Explicit language specification
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption};
+///
+/// let code = "fn main() { println!(\"Hello\"); }";
+///
+/// let options = Options {
+///     lang_or_file: Some("rust"),  // Explicit language
+///     formatter: FormatterOption::HtmlInline {
+///         theme: None,
+///         pre_class: Some("code-block"),
+///         italic: false,
+///         include_highlights: false,
+///         highlight_lines: None,
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// ```
+///
+/// ## File path-based detection
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption, themes};
+///
+/// let code = "defmodule MyApp do\n  def hello, do: :world\nend";
+///
+/// let options = Options {
+///     lang_or_file: Some("lib/my_app.ex"),  // Language detected from .ex extension
+///     formatter: FormatterOption::HtmlInline {
+///         theme: themes::get("dracula").ok(),
+///         pre_class: None,
+///         italic: true,
+///         include_highlights: false,
+///         highlight_lines: None,
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// ```
+///
+/// ## Terminal output
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption, themes};
+///
+/// let code = "SELECT * FROM users WHERE active = true;";
+///
+/// let options = Options {
+///     lang_or_file: Some("sql"),
+///     formatter: FormatterOption::Terminal {
+///         theme: themes::get("github_light").ok(),
+///     },
+/// };
+///
+/// let ansi = highlight(code, options);
+/// ```
+///
+/// ## HTML with linked CSS
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption};
+///
+/// let code = "<div class=\"container\">Hello</div>";
+///
+/// let options = Options {
+///     lang_or_file: Some("html"),
+///     formatter: FormatterOption::HtmlLinked {
+///         pre_class: Some("syntax-highlight"),
+///         highlight_lines: None,
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// // Remember to include the corresponding CSS file for your theme
+/// ```
 #[derive(Debug)]
 pub struct Options<'a> {
-    /// Optional language or file path to use for highlighting.
-    /// If not provided, the language will be guessed based on the source content.
+    /// Optional language or file path for highlighting.
     ///
-    /// # Examples
+    /// This field controls language detection and can accept:
+    /// - **Language names**: `"rust"`, `"python"`, `"javascript"`, etc.
+    /// - **File paths**: `"src/main.rs"`, `"app.py"`, `"Dockerfile"`
+    /// - **File extensions**: `"rs"`, `"py"`, `"js"`
+    /// - **None**: Automatic detection from source content (shebang, doctype, etc.)
     ///
-    /// ```
-    /// use autumnus::{Options, highlight, FormatterOption};
-    ///
-    /// let options = Options {
-    ///     lang_or_file: Some("rust"),
-    ///     formatter: FormatterOption::HtmlInline {
-    ///         pre_class: None,
-    ///         italic: false,
-    ///         include_highlights: false,
-    ///         theme: None,
-    ///         highlight_lines: None,
-    ///     },
-    /// };
-    ///
-    /// let code = r#"fn main() { println!("Hello"); }"#;
-    /// let html = highlight(code, options);
-    /// ```
+    /// When `None`, the highlighter will analyze the source content to guess
+    /// the language using shebangs, file content patterns, and other heuristics.
     pub lang_or_file: Option<&'a str>,
 
-    /// The type of formatter to use for output.
+    /// The output formatter to use.
     ///
-    /// # Examples
+    /// Determines the output format and styling:
+    /// - [`FormatterOption::HtmlInline`] - HTML with inline CSS styles
+    /// - [`FormatterOption::HtmlLinked`] - HTML with CSS classes (requires external CSS)
+    /// - [`FormatterOption::Terminal`] - ANSI color codes for terminal output
     ///
-    /// ```
-    /// use autumnus::{Options, FormatterOption, highlight};
-    ///
-    /// let code = "puts 'Hello from Ruby!'";
-    /// let ansi = highlight(
-    ///     code,
-    ///     Options {
-    ///         lang_or_file: Some("ruby"),
-    ///         formatter: FormatterOption::Terminal {
-    ///             theme: None,
-    ///         },
-    ///     }
-    /// );
-    /// ```
+    /// See [`FormatterOption`] documentation for detailed configuration options.
     pub formatter: FormatterOption<'a>,
 }
 
@@ -552,6 +817,136 @@ pub fn highlight(source: &str, options: Options) -> String {
     String::from_utf8(buffer).unwrap()
 }
 
+/// Write syntax highlighted output directly to a writer.
+///
+/// This function performs the same syntax highlighting as [`highlight`] but writes
+/// the output directly to any type that implements [`Write`] instead of returning
+/// a string. This is more memory efficient for large outputs and allows streaming
+/// to files, network connections, or other destinations.
+///
+/// # Arguments
+///
+/// * `output` - The writer to send highlighted output to
+/// * `source` - The source code to highlight
+/// * `options` - Configuration options for highlighting and formatting
+///
+/// # Returns
+///
+/// * `Ok(())` - Successfully wrote highlighted output
+/// * `Err(io::Error)` - Write operation failed
+///
+/// # Examples
+///
+/// ## Writing to a file
+///
+/// ```rust,no_run
+/// use autumnus::{write_highlight, Options, FormatterOption, themes};
+/// use std::fs::File;
+/// use std::io::BufWriter;
+///
+/// let code = r#"
+/// fn fibonacci(n: u32) -> u32 {
+///     match n {
+///         0 => 0,
+///         1 => 1,
+///         _ => fibonacci(n - 1) + fibonacci(n - 2),
+///     }
+/// }
+/// "#;
+///
+/// let mut file = BufWriter::new(File::create("highlighted.html")?);
+///
+/// write_highlight(&mut file, code, Options {
+///     lang_or_file: Some("rust"),
+///     formatter: FormatterOption::HtmlInline {
+///         theme: themes::get("dracula").ok(),
+///         pre_class: Some("code-block"),
+///         italic: true,
+///         include_highlights: false,
+///         highlight_lines: None,
+///     },
+/// })?;
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+///
+/// ## Writing to stdout
+///
+/// ```rust
+/// use autumnus::{write_highlight, Options, FormatterOption, themes};
+/// use std::io;
+///
+/// let code = "print('Hello, World!')";
+///
+/// write_highlight(&mut io::stdout(), code, Options {
+///     lang_or_file: Some("python"),
+///     formatter: FormatterOption::Terminal {
+///         theme: themes::get("github_light").ok(),
+///     },
+/// }).expect("Failed to write to stdout");
+/// ```
+///
+/// ## Writing to a vector (in-memory buffer)
+///
+/// ```rust
+/// use autumnus::{write_highlight, Options, FormatterOption};
+///
+/// let code = "const x = 42;";
+/// let mut buffer = Vec::new();
+///
+/// write_highlight(&mut buffer, code, Options {
+///     lang_or_file: Some("javascript"),
+///     formatter: FormatterOption::HtmlInline {
+///         theme: None,
+///         pre_class: None,
+///         italic: false,
+///         include_highlights: false,
+///         highlight_lines: None,
+///     },
+/// }).expect("Failed to write to buffer");
+///
+/// let result = String::from_utf8(buffer).expect("Invalid UTF-8");
+/// println!("Highlighted: {}", result);
+/// ```
+///
+/// ## Streaming large files
+///
+/// ```rust,no_run
+/// use autumnus::{write_highlight, Options, FormatterOption};
+/// use std::fs::File;
+/// use std::io::{BufReader, BufWriter, Read};
+///
+/// // Read source code from large file
+/// let mut source = String::new();
+/// BufReader::new(File::open("large_source.rs")?)
+///     .read_to_string(&mut source)?;
+///
+/// // Stream highlighted output to another file
+/// let mut output_file = BufWriter::new(File::create("highlighted_output.html")?);
+///
+/// write_highlight(&mut output_file, &source, Options {
+///     lang_or_file: Some("rust"),
+///     formatter: FormatterOption::HtmlLinked {
+///         pre_class: Some("large-code"),
+///         highlight_lines: None,
+///     },
+/// })?;
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+///
+/// ## Error handling
+///
+/// ```rust
+/// use autumnus::{write_highlight, Options, FormatterOption};
+/// use std::io;
+///
+/// let code = "invalid source";
+/// let mut buffer = Vec::new();
+///
+/// match write_highlight(&mut buffer, code, Options::default()) {
+///     Ok(()) => println!("Successfully highlighted {} bytes", buffer.len()),
+///     Err(e) => eprintln!("Failed to highlight: {}", e),
+/// }
+/// ```
 pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -> io::Result<()> {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
     let formatter = FormatterBuilder::new()
