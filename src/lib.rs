@@ -121,6 +121,7 @@
 //! | Glimmer | *.hbs, *.handlebars, *.html.handlebars, *.glimmer |
 //! | Go | *.go |
 //! | GraphQL | |
+//! | HCL | *.hcl, *.nomad, *.tf, *.tfvars, *.workflow |
 //! | HEEx | *.heex, *.neex |
 //! | HTML | *.html, *.htm, *.xhtml |
 //! | Haskell | *.hs, *.hs-boot |
@@ -159,6 +160,7 @@
 //! | TSX | *.tsx |
 //! | TypeScript | *.ts |
 //! | Vim | *.vim, *.viml |
+//! | Vue | *.vue |
 //! | XML | *.ant, *.csproj, *.mjml, *.plist, *.resx, *.svg, *.ui, *.vbproj, *.xaml, *.xml, *.xsd, *.xsl, *.xslt, *.zcml, *.rng, App.config, nuget.config, packages.config, .classpath, .cproject, .project |
 //! | YAML | *.yaml, *.yml |
 //! | Zig | *.zig |
@@ -243,7 +245,12 @@
 //! | nord |
 //! | nordic |
 //! | onedark |
+//! | onedark_cool |
 //! | onedark_darker |
+//! | onedark_deep |
+//! | onedark_light |
+//! | onedark_warm |
+//! | onedark_warmer |
 //! | onedarkpro_dark |
 //! | onedarkpro_vivid |
 //! | onelight |
