@@ -316,7 +316,7 @@ pub enum FormatterOption<'a> {
     HtmlLinked {
         /// Class to add to the `<pre>` tag.
         pre_class: Option<&'a str>,
-        highlight_lines: Option<formatter::html_linkded::HighlightLines>,
+        highlight_lines: Option<formatter::html_linked::HighlightLines>,
     },
     /// Terminal output with ANSI colors.
     Terminal {

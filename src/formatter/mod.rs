@@ -6,9 +6,9 @@ pub mod html_inline;
 pub use html_inline::HighlightLines as HtmlInlineHighlightLines;
 pub use html_inline::HtmlInline;
 
-pub mod html_linkded;
-pub use html_linkded::HighlightLines as HtmlLinkedHighlightLines;
-pub use html_linkded::HtmlLinked;
+pub mod html_linked;
+pub use html_linked::HighlightLines as HtmlLinkedHighlightLines;
+pub use html_linked::HtmlLinked;
 
 mod terminal;
 pub use terminal::*;
