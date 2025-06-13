@@ -44,6 +44,7 @@
 //!         italic: false,
 //!         include_highlights: false,
 //!         highlight_lines: None,
+//!         header: None,
 //!     },
 //! };
 //!

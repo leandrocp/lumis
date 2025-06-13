@@ -233,6 +233,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                         include_highlights: false,
                         theme,
                         highlight_lines: None,
+                        header: None,
                     },
                 },
             );
@@ -248,6 +249,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                     formatter: FormatterOption::HtmlLinked {
                         pre_class: None,
                         highlight_lines: None,
+                        header: None,
                     },
                 },
             );
@@ -385,6 +387,7 @@ fn highlight_source(
                         include_highlights: false,
                         theme,
                         highlight_lines: None,
+                        header: None,
                     },
                 },
             );
@@ -400,6 +403,7 @@ fn highlight_source(
                     formatter: FormatterOption::HtmlLinked {
                         pre_class: None,
                         highlight_lines: None,
+                        header: None,
                     },
                 },
             );

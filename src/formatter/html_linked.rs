@@ -8,7 +8,7 @@
 
 #![allow(unused_must_use)]
 
-use super::{Formatter, HtmlFormatter};
+use super::{Formatter, HtmlElement, HtmlFormatter};
 use crate::constants::CLASSES;
 use crate::languages::Language;
 use std::{
@@ -80,6 +80,7 @@ pub struct HtmlLinked<'a> {
     lang: Language,
     pre_class: Option<&'a str>,
     highlight_lines: Option<HighlightLines>,
+    header: Option<HtmlElement>,
 }
 
 impl<'a> HtmlLinked<'a> {
@@ -88,12 +89,14 @@ impl<'a> HtmlLinked<'a> {
         lang: Language,
         pre_class: Option<&'a str>,
         highlight_lines: Option<HighlightLines>,
+        header: Option<HtmlElement>,
     ) -> Self {
         Self {
             source,
             lang,
             pre_class,
             highlight_lines,
+            header,
         }
     }
 }
@@ -105,6 +108,7 @@ impl Default for HtmlLinked<'_> {
             lang: Language::PlainText,
             pre_class: None,
             highlight_lines: None,
+            header: None,
         }
     }
 }
@@ -162,10 +166,20 @@ impl Formatter for HtmlLinked<'_> {
 
     fn format(&self, output: &mut dyn Write) -> io::Result<()> {
         let mut buffer = Vec::new();
+
+        if let Some(ref header) = self.header {
+            write!(buffer, "{}", header.open_tag)?;
+        }
+
         self.open_pre_tag(&mut buffer)?;
         self.open_code_tag(&mut buffer)?;
         self.highlights(&mut buffer)?;
         self.closing_tags(&mut buffer)?;
+
+        if let Some(ref header) = self.header {
+            write!(buffer, "{}", header.close_tag)?;
+        }
+
         write!(output, "{}", &String::from_utf8(buffer).unwrap())?;
         Ok(())
     }
@@ -201,7 +215,8 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let formatter = HtmlLinked::new("", Language::PlainText, Some("test-pre-class"), None);
+        let formatter =
+            HtmlLinked::new("", Language::PlainText, Some("test-pre-class"), None, None);
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
         let pre_tag = String::from_utf8(buffer).unwrap();
@@ -210,7 +225,7 @@ mod tests {
 
     #[test]
     fn test_code_tag_with_language() {
-        let formatter = HtmlLinked::new("", Language::Rust, None, None);
+        let formatter = HtmlLinked::new("", Language::Rust, None, None, None);
         let mut buffer = Vec::new();
         formatter.open_code_tag(&mut buffer);
         let code_tag = String::from_utf8(buffer).unwrap();
@@ -243,7 +258,8 @@ mod tests {
             lines: vec![1..=1, 3..=4],
             class: "highlighted".to_string(),
         };
-        let formatter = HtmlLinked::new(code, Language::PlainText, None, Some(highlight_lines));
+        let formatter =
+            HtmlLinked::new(code, Language::PlainText, None, Some(highlight_lines), None);
 
         let mut buffer = Vec::new();
         formatter.format(&mut buffer).unwrap();
@@ -254,5 +270,53 @@ mod tests {
         assert!(result.contains("class=\"line highlighted\" data-line=\"3\""));
         assert!(result.contains("class=\"line highlighted\" data-line=\"4\""));
         assert!(result.contains("class=\"line\" data-line=\"5\""));
+    }
+
+    #[test]
+    fn test_header_wrapping() {
+        let header = HtmlElement {
+            open_tag: "<div class=\"code-wrapper\">".to_string(),
+            close_tag: "</div>".to_string(),
+        };
+        let code = "line 1\nline 2";
+        let formatter = HtmlLinked::new(code, Language::PlainText, None, None, Some(header));
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        assert!(result.starts_with("<div class=\"code-wrapper\">"));
+        assert!(result.ends_with("</div>"));
+        assert!(result.contains("<pre class=\"athl\">")); // Ensure the pre tag is inside
+    }
+
+    #[test]
+    fn test_header_with_highlight_lines() {
+        let header = HtmlElement {
+            open_tag: "<section class=\"code-section\">".to_string(),
+            close_tag: "</section>".to_string(),
+        };
+        let highlight_lines = HighlightLines {
+            lines: vec![1..=1],
+            class: "highlighted".to_string(),
+        };
+        let code = "line 1\nline 2";
+        let formatter = HtmlLinked::new(
+            code,
+            Language::PlainText,
+            Some("custom-pre"),
+            Some(highlight_lines),
+            Some(header),
+        );
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        assert!(result.starts_with("<section class=\"code-section\">"));
+        assert!(result.ends_with("</section>"));
+        assert!(result.contains("<pre class=\"athl custom-pre\">"));
+        assert!(result.contains("class=\"line highlighted\" data-line=\"1\""));
+        assert!(result.contains("class=\"line\" data-line=\"2\""));
     }
 }

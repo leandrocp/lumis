@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- Add `header` option to HTML formatters for wrapping code blocks with custom HTML elements
+- Add shared `HtmlElement` struct for configuring HTML wrapper elements
+
 ### Improvements
 - Updated parsers: angular, c, cmake, comment, hcl, liquid, llvm, ocaml, perl, vim, vue, yaml
 - Updated queries: cmake, elm, fsharp, html, latex, php, vue

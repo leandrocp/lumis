@@ -8,7 +8,7 @@
 
 #![allow(unused_must_use)]
 
-use super::{Formatter, HtmlFormatter};
+use super::{Formatter, HtmlElement, HtmlFormatter};
 use crate::languages::Language;
 use crate::themes::Theme;
 use std::{
@@ -97,9 +97,11 @@ pub struct HtmlInline<'a> {
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
+    header: Option<HtmlElement>,
 }
 
 impl<'a> HtmlInline<'a> {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         source: &'a str,
         lang: Language,
@@ -108,6 +110,7 @@ impl<'a> HtmlInline<'a> {
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
+        header: Option<HtmlElement>,
     ) -> Self {
         Self {
             source,
@@ -117,6 +120,7 @@ impl<'a> HtmlInline<'a> {
             italic,
             include_highlights,
             highlight_lines,
+            header,
         }
     }
 }
@@ -131,6 +135,7 @@ impl Default for HtmlInline<'_> {
             italic: false,
             include_highlights: false,
             highlight_lines: None,
+            header: None,
         }
     }
 }
@@ -217,10 +222,20 @@ impl Formatter for HtmlInline<'_> {
 
     fn format(&self, output: &mut dyn Write) -> io::Result<()> {
         let mut buffer = Vec::new();
+
+        if let Some(ref header) = self.header {
+            write!(buffer, "{}", header.open_tag)?;
+        }
+
         self.open_pre_tag(&mut buffer)?;
         self.open_code_tag(&mut buffer)?;
         self.highlights(&mut buffer)?;
         self.closing_tags(&mut buffer)?;
+
+        if let Some(ref header) = self.header {
+            write!(buffer, "{}", header.close_tag)?;
+        }
+
         write!(output, "{}", &String::from_utf8(buffer).unwrap())?;
         Ok(())
     }
@@ -283,6 +298,7 @@ mod tests {
             false,
             false,
             None,
+            None,
         );
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
@@ -300,6 +316,7 @@ mod tests {
             Some("test-pre-class"),
             false,
             false,
+            None,
             None,
         );
         let mut buffer = Vec::new();
@@ -342,6 +359,7 @@ mod tests {
             false,
             false,
             Some(highlight_lines),
+            None,
         );
 
         let mut buffer = Vec::new();
@@ -375,6 +393,7 @@ mod tests {
             false,
             false,
             Some(highlight_lines),
+            None,
         );
 
         let mut buffer = Vec::new();
@@ -389,5 +408,60 @@ mod tests {
         assert!(result
             .contains(r#"<span class="line" style="background-color: yellow" data-line="4">"#));
         assert!(result.contains(r#"<span class="line" data-line="5">"#));
+    }
+
+    #[test]
+    fn test_header_wrapping() {
+        let header = HtmlElement {
+            open_tag: "<div class=\"code-wrapper\">".to_string(),
+            close_tag: "</div>".to_string(),
+        };
+        let code = "line 1\nline 2";
+        let formatter = HtmlInline::new(
+            code,
+            Language::PlainText,
+            None,
+            None,
+            false,
+            false,
+            None,
+            Some(header),
+        );
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        assert!(result.starts_with("<div class=\"code-wrapper\">"));
+        assert!(result.ends_with("</div>"));
+        assert!(result.contains("<pre class=\"athl\">")); // Ensure the pre tag is inside
+    }
+
+    #[test]
+    fn test_header_with_complex_structure() {
+        let header = HtmlElement {
+            open_tag: "<section class=\"highlight\" data-lang=\"rust\">".to_string(),
+            close_tag: "</section>".to_string(),
+        };
+        let code = "fn main() { }";
+        let formatter = HtmlInline::new(
+            code,
+            Language::Rust,
+            None,
+            Some("custom-class"),
+            false,
+            false,
+            None,
+            Some(header),
+        );
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        assert!(result.starts_with("<section class=\"highlight\" data-lang=\"rust\">"));
+        assert!(result.ends_with("</section>"));
+        assert!(result.contains("<pre class=\"athl custom-class\">"));
+        assert!(result.contains("<code class=\"language-rust\""));
     }
 }
