@@ -1,8 +1,36 @@
 //! Syntax highlighter powered by Tree-sitter and Neovim themes.
 //!
-//! ## Examples
+//! ## Quick Start
 //!
-//! See [`formatter`] for examples.
+//! Use the builder pattern for type-safe, ergonomic formatter creation:
+//!
+//! ```rust
+//! use autumnus::{HtmlInlineBuilder, languages::Language, themes};
+//!
+//! let code = "fn main() { println!(\"Hello, world!\"); }";
+//! let theme = themes::get("dracula").unwrap();
+//!
+//! let formatter = HtmlInlineBuilder::new()
+//!     .source(code)
+//!     .lang(Language::Rust)
+//!     .theme(theme)
+//!     .pre_class("code-block")
+//!     .build();
+//!
+//! let mut output = Vec::new();
+//! formatter.format(&mut output).unwrap();
+//! let html = String::from_utf8(output).unwrap();
+//! ```
+//!
+//! ## Available Builders
+//!
+//! - [`HtmlInlineBuilder`] - HTML output with inline CSS styles
+//! - [`HtmlLinkedBuilder`] - HTML output with CSS classes (requires external CSS)
+//! - [`TerminalBuilder`] - ANSI color codes for terminal output
+//!
+//! ## More Examples
+//!
+//! See the [`formatter`] module for detailed examples and usage patterns.
 //!
 //! ## Languages available
 //!
@@ -201,10 +229,13 @@ pub mod themes;
 #[doc(hidden)]
 pub mod elixir;
 
-use crate::formatter::FormatterBuilder;
+use crate::formatter::Formatter;
 use crate::languages::Language;
 use crate::themes::Theme;
 use std::io::{self, Write};
+
+// Re-export builders for easier access
+pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder};
 
 /// Output formatter configuration for syntax highlighting.
 ///
@@ -589,6 +620,8 @@ impl Default for Options<'_> {
 /// This function takes the source code and options as input,
 /// and returns a string with the source code highlighted according to the specified formatter.
 ///
+/// For a more ergonomic API, consider using the builder pattern - see [`formatter`] for examples.
+///
 /// # Arguments
 ///
 /// * `source` - A string slice that represents the source code to be highlighted.
@@ -717,13 +750,66 @@ impl Default for Options<'_> {
 ///     [38;2;140;170;238mprintln![0m([38;2;166;209;137m"Hello, world!"[0m);
 /// }
 /// ```
+///
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
-    let formatter = FormatterBuilder::new()
-        .source(source)
-        .lang(lang)
-        .formatter(options.formatter)
-        .build();
+
+    let formatter: Box<dyn Formatter> = match options.formatter {
+        FormatterOption::HtmlInline {
+            theme,
+            pre_class,
+            italic,
+            include_highlights,
+            highlight_lines,
+        } => {
+            let mut builder = crate::formatter::HtmlInlineBuilder::new()
+                .source(source)
+                .lang(lang)
+                .italic(italic)
+                .include_highlights(include_highlights);
+
+            if let Some(theme) = theme {
+                builder = builder.theme(theme);
+            }
+            if let Some(pre_class) = pre_class {
+                builder = builder.pre_class(pre_class);
+            }
+            if let Some(highlight_lines) = highlight_lines {
+                builder = builder.highlight_lines(highlight_lines);
+            }
+
+            builder.build()
+        }
+        FormatterOption::HtmlLinked {
+            pre_class,
+            highlight_lines,
+        } => {
+            let mut builder = crate::formatter::HtmlLinkedBuilder::new()
+                .source(source)
+                .lang(lang);
+
+            if let Some(pre_class) = pre_class {
+                builder = builder.pre_class(pre_class);
+            }
+            if let Some(highlight_lines) = highlight_lines {
+                builder = builder.highlight_lines(highlight_lines);
+            }
+
+            builder.build()
+        }
+        FormatterOption::Terminal { theme } => {
+            let mut builder = crate::formatter::TerminalBuilder::new()
+                .source(source)
+                .lang(lang);
+
+            if let Some(theme) = theme {
+                builder = builder.theme(theme);
+            }
+
+            builder.build()
+        }
+    };
+
     let mut buffer = Vec::new();
     let _ = formatter.format(&mut buffer);
     String::from_utf8(buffer).unwrap()
@@ -735,6 +821,8 @@ pub fn highlight(source: &str, options: Options) -> String {
 /// the output directly to any type that implements [`Write`] instead of returning
 /// a string. This is more memory efficient for large outputs and allows streaming
 /// to files, network connections, or other destinations.
+///
+/// For a more ergonomic API, consider using the builder pattern - see [`formatter`] for examples.
 ///
 /// # Arguments
 ///
@@ -859,13 +947,66 @@ pub fn highlight(source: &str, options: Options) -> String {
 ///     Err(e) => eprintln!("Failed to highlight: {}", e),
 /// }
 /// ```
+///
 pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -> io::Result<()> {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
-    let formatter = FormatterBuilder::new()
-        .source(source)
-        .lang(lang)
-        .formatter(options.formatter)
-        .build();
+
+    let formatter: Box<dyn Formatter> = match options.formatter {
+        FormatterOption::HtmlInline {
+            theme,
+            pre_class,
+            italic,
+            include_highlights,
+            highlight_lines,
+        } => {
+            let mut builder = crate::formatter::HtmlInlineBuilder::new()
+                .source(source)
+                .lang(lang)
+                .italic(italic)
+                .include_highlights(include_highlights);
+
+            if let Some(theme) = theme {
+                builder = builder.theme(theme);
+            }
+            if let Some(pre_class) = pre_class {
+                builder = builder.pre_class(pre_class);
+            }
+            if let Some(highlight_lines) = highlight_lines {
+                builder = builder.highlight_lines(highlight_lines);
+            }
+
+            builder.build()
+        }
+        FormatterOption::HtmlLinked {
+            pre_class,
+            highlight_lines,
+        } => {
+            let mut builder = crate::formatter::HtmlLinkedBuilder::new()
+                .source(source)
+                .lang(lang);
+
+            if let Some(pre_class) = pre_class {
+                builder = builder.pre_class(pre_class);
+            }
+            if let Some(highlight_lines) = highlight_lines {
+                builder = builder.highlight_lines(highlight_lines);
+            }
+
+            builder.build()
+        }
+        FormatterOption::Terminal { theme } => {
+            let mut builder = crate::formatter::TerminalBuilder::new()
+                .source(source)
+                .lang(lang);
+
+            if let Some(theme) = theme {
+                builder = builder.theme(theme);
+            }
+
+            builder.build()
+        }
+    };
+
     formatter.format(output)?;
     Ok(())
 }

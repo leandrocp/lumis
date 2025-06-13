@@ -261,9 +261,8 @@ impl HtmlFormatter for HtmlInline<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::formatter::HtmlFormatterBuilder;
+    use crate::formatter::HtmlInlineBuilder;
     use crate::themes;
-    use crate::FormatterOption;
 
     #[test]
     fn test_do_not_append_pre_style_if_missing_theme_style() {
@@ -312,16 +311,13 @@ mod tests {
     #[test]
     fn test_builder_pattern() {
         let theme = themes::get("github_light").unwrap();
-        let formatter = HtmlFormatterBuilder::new()
+        let formatter = HtmlInlineBuilder::new()
             .source("")
             .lang(Language::Rust)
-            .formatter(FormatterOption::HtmlInline {
-                theme: Some(theme),
-                pre_class: Some("test-pre-class"),
-                italic: true,
-                include_highlights: true,
-                highlight_lines: None,
-            })
+            .theme(theme)
+            .pre_class("test-pre-class")
+            .italic(true)
+            .include_highlights(true)
             .build();
 
         let mut buffer = Vec::new();
