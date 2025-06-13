@@ -44,6 +44,6 @@ jobs:
         with:
           push_options: --force
 
-      - run: cargo test
+      - run: cargo test --all-features
 
-      - run: cargo clippy -- -D warnings 
+      - run: cargo clippy --all-features -- -D warnings
