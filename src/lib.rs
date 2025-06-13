@@ -2,95 +2,7 @@
 //!
 //! ## Examples
 //!
-//! Basic usage with default options (HTML inline styles):
-//!
-//! ```rust
-//! use autumnus::{highlight, Options};
-//!
-//! let code = r#"
-//!     function greet(name) {
-//!         console.log(`Hello ${name}!`);
-//!     }
-//! "#;
-//!
-//! let html = highlight(code, Options {
-//!         lang_or_file: Some("javascript"),
-//!         ..Options::default()
-//!     }
-//! );
-//! ```
-//!
-//! Using a specific theme:
-//!
-//! ```rust
-//! use autumnus::{highlight, Options, themes, FormatterOption};
-//!
-//! let code = "SELECT * FROM users WHERE active = true;";
-//! let html = highlight(
-//!     code,
-//!     Options {
-//!         lang_or_file: Some("sql"),
-//!         formatter: FormatterOption::HtmlInline {
-//!             theme: themes::get("dracula").ok(),
-//!             pre_class: None,
-//!             italic: false,
-//!             include_highlights: false,
-//!             highlight_lines: None,
-//!         },
-//!     }
-//! );
-//! ```
-//!
-//! Highlighting with file path detection:
-//!
-//! ```rust
-//! use autumnus::{highlight, Options};
-//!
-//! let code = r#"
-//!     defmodule MyApp do
-//!       def hello, do: :world
-//!     end
-//! "#;
-//! // Language will be automatically detected as Elixir from the .ex extension
-//! let html = highlight(
-//!     code,
-//!     Options {
-//!         lang_or_file: Some("app.ex"),
-//!         ..Options::default()
-//!     }
-//! );
-//! ```
-//!
-//! Guess language by source content:
-//!
-//! ```rust
-//! use autumnus::{highlight, Options};
-//!
-//! let code = r#"
-//!     #!/usr/bin/env bash
-//!
-//!     echo "Hello, world!"
-//! "#;
-//! // Language will be automatically detected as Bash from the shebang line
-//! let html = highlight(code, Options::default());
-//! ```
-//!
-//! Terminal output with ANSI colors:
-//!
-//! ```rust
-//! use autumnus::{highlight, Options, themes, FormatterOption};
-//!
-//! let code = "puts 'Hello from Ruby!'";
-//! let ansi = highlight(
-//!     code,
-//!     Options {
-//!         lang_or_file: Some("ruby"),
-//!         formatter: FormatterOption::Terminal {
-//!             theme: themes::get("github_light").ok(),
-//!         },
-//!     }
-//! );
-//! ```
+//! See [`formatter`] for examples.
 //!
 //! ## Languages available
 //!
@@ -487,8 +399,8 @@ pub enum FormatterOption<'a> {
         /// Configuration for highlighting specific lines with CSS classes.
         ///
         /// Allows you to add CSS classes to specific lines for custom styling.
-        /// See [`formatter::html_linkded::HighlightLines`] for details.
-        highlight_lines: Option<formatter::html_linkded::HighlightLines>,
+        /// See [`formatter::html_linked::HighlightLines`] for details.
+        highlight_lines: Option<formatter::html_linked::HighlightLines>,
     },
 
     /// Terminal output with ANSI color escape codes.
@@ -808,9 +720,9 @@ impl Default for Options<'_> {
 pub fn highlight(source: &str, options: Options) -> String {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
     let formatter = FormatterBuilder::new()
-        .with_source(source)
-        .with_lang(lang)
-        .with_formatter(options.formatter)
+        .source(source)
+        .lang(lang)
+        .formatter(options.formatter)
         .build();
     let mut buffer = Vec::new();
     let _ = formatter.format(&mut buffer);
@@ -950,9 +862,9 @@ pub fn highlight(source: &str, options: Options) -> String {
 pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -> io::Result<()> {
     let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
     let formatter = FormatterBuilder::new()
-        .with_source(source)
-        .with_lang(lang)
-        .with_formatter(options.formatter)
+        .source(source)
+        .lang(lang)
+        .formatter(options.formatter)
         .build();
     formatter.format(output)?;
     Ok(())

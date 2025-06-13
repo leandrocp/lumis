@@ -1,9 +1,9 @@
 //! Formatter implementations for generating syntax highlighted output.
 //!
 //! This module provides three different formatters for rendering syntax highlighted code:
-//! - [`HtmlInline`] - HTML output with inline CSS styles
-//! - [`HtmlLinked`] - HTML output with CSS classes (requires external CSS)
-//! - [`Terminal`] - ANSI color codes for terminal output
+//! - [`html_inline`] - HTML output with inline CSS styles
+//! - [`html_linked`] - HTML output with CSS classes (requires external CSS)
+//! - [`terminal`] - ANSI color codes for terminal output
 //!
 //! # Builder Pattern
 //!
@@ -24,9 +24,9 @@
 //!
 //! // HTML with inline styles
 //! let formatter = FormatterBuilder::new()
-//!     .with_source(code)
-//!     .with_lang(Language::Rust)
-//!     .with_formatter(FormatterOption::HtmlInline {
+//!     .source(code)
+//!     .lang(Language::Rust)
+//!     .formatter(FormatterOption::HtmlInline {
 //!         theme: Some(theme),
 //!         pre_class: Some("code-block"),
 //!         italic: false,
@@ -50,9 +50,9 @@
 //! let theme = themes::get("github_light").unwrap();
 //!
 //! let formatter = FormatterBuilder::new()
-//!     .with_source(code)
-//!     .with_lang(Language::Ruby)
-//!     .with_formatter(FormatterOption::Terminal {
+//!     .source(code)
+//!     .lang(Language::Ruby)
+//!     .formatter(FormatterOption::Terminal {
 //!         theme: Some(theme),
 //!     })
 //!     .build();
@@ -60,31 +60,6 @@
 //! let mut output = Vec::new();
 //! formatter.format(&mut output).unwrap();
 //! let ansi_output = String::from_utf8(output).unwrap();
-//! ```
-//!
-//! ## Using HtmlFormatterBuilder for HTML-specific features
-//!
-//! ```rust
-//! use autumnus::formatter::{HtmlFormatterBuilder, HtmlFormatter};
-//! use autumnus::{FormatterOption, languages::Language};
-//!
-//! let code = "<div>Hello World</div>";
-//!
-//! let formatter = HtmlFormatterBuilder::new()
-//!     .with_source(code)
-//!     .with_lang(Language::HTML)
-//!     .with_formatter(FormatterOption::HtmlLinked {
-//!         pre_class: Some("my-code"),
-//!         highlight_lines: None,
-//!     })
-//!     .build();
-//!
-//! let mut output = Vec::new();
-//! formatter.open_pre_tag(&mut output).unwrap();
-//! formatter.open_code_tag(&mut output).unwrap();
-//! formatter.highlights(&mut output).unwrap();
-//! formatter.closing_tags(&mut output).unwrap();
-//! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
 //! ## Line highlighting with HTML formatters
@@ -102,9 +77,9 @@
 //! };
 //!
 //! let formatter = FormatterBuilder::new()
-//!     .with_source(code)
-//!     .with_lang(Language::PlainText)
-//!     .with_formatter(FormatterOption::HtmlInline {
+//!     .source(code)
+//!     .lang(Language::PlainText)
+//!     .formatter(FormatterOption::HtmlInline {
 //!         theme: Some(theme),
 //!         pre_class: None,
 //!         italic: false,
@@ -121,8 +96,8 @@ use std::io::{self, Write};
 pub mod html_inline;
 pub use html_inline::HtmlInline;
 
-pub mod html_linkded;
-pub use html_linkded::HtmlLinked;
+pub mod html_linked;
+pub use html_linked::HtmlLinked;
 
 pub mod terminal;
 pub use terminal::Terminal;
@@ -156,17 +131,35 @@ impl<'a> FormatterBuilder<'a> {
         }
     }
 
+    #[deprecated(note = "Use `source()` instead")]
     pub fn with_source(mut self, source: &'a str) -> Self {
         self.source = Some(source);
         self
     }
 
+    pub fn source(mut self, source: &'a str) -> Self {
+        self.source = Some(source);
+        self
+    }
+
+    #[deprecated(note = "Use `lang()` instead")]
     pub fn with_lang(mut self, lang: Language) -> Self {
         self.lang = Some(lang);
         self
     }
 
+    pub fn lang(mut self, lang: Language) -> Self {
+        self.lang = Some(lang);
+        self
+    }
+
+    #[deprecated(note = "Use `formatter()` instead")]
     pub fn with_formatter(mut self, formatter: FormatterOption<'a>) -> Self {
+        self.formatter = Some(formatter);
+        self
+    }
+
+    pub fn formatter(mut self, formatter: FormatterOption<'a>) -> Self {
         self.formatter = Some(formatter);
         self
     }
@@ -222,17 +215,35 @@ impl<'a> HtmlFormatterBuilder<'a> {
         }
     }
 
+    #[deprecated(note = "Use `source()` instead")]
     pub fn with_source(mut self, source: &'a str) -> Self {
         self.source = Some(source);
         self
     }
 
+    pub fn source(mut self, source: &'a str) -> Self {
+        self.source = Some(source);
+        self
+    }
+
+    #[deprecated(note = "Use `lang()` instead")]
     pub fn with_lang(mut self, lang: Language) -> Self {
         self.lang = Some(lang);
         self
     }
 
+    pub fn lang(mut self, lang: Language) -> Self {
+        self.lang = Some(lang);
+        self
+    }
+
+    #[deprecated(note = "Use `formatter()` instead")]
     pub fn with_formatter(mut self, formatter: FormatterOption<'a>) -> Self {
+        self.formatter = Some(formatter);
+        self
+    }
+
+    pub fn formatter(mut self, formatter: FormatterOption<'a>) -> Self {
         self.formatter = Some(formatter);
         self
     }

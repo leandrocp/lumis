@@ -313,9 +313,9 @@ mod tests {
     fn test_builder_pattern() {
         let theme = themes::get("github_light").unwrap();
         let formatter = HtmlFormatterBuilder::new()
-            .with_source("")
-            .with_lang(Language::Rust)
-            .with_formatter(FormatterOption::HtmlInline {
+            .source("")
+            .lang(Language::Rust)
+            .formatter(FormatterOption::HtmlInline {
                 theme: Some(theme),
                 pre_class: Some("test-pre-class"),
                 italic: true,

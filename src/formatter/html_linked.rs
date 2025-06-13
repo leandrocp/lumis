@@ -27,7 +27,7 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// Basic usage with default "cursorline" class:
 /// ```rust
-/// use autumnus::formatter::html_linkded::HighlightLines;
+/// use autumnus::formatter::html_linked::HighlightLines;
 ///
 /// let highlight_lines = HighlightLines {
 ///     lines: vec![1..=1, 5..=7],  // Highlight lines 1, 5, 6, and 7
@@ -37,7 +37,7 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// Using a custom CSS class:
 /// ```rust
-/// use autumnus::formatter::html_linkded::HighlightLines;
+/// use autumnus::formatter::html_linked::HighlightLines;
 ///
 /// let highlight_lines = HighlightLines {
 ///     lines: vec![2..=3],  // Highlight lines 2 and 3
@@ -221,9 +221,9 @@ mod tests {
     #[test]
     fn test_builder_pattern() {
         let formatter = HtmlFormatterBuilder::new()
-            .with_source("")
-            .with_lang(Language::Rust)
-            .with_formatter(FormatterOption::HtmlLinked {
+            .source("")
+            .lang(Language::Rust)
+            .formatter(FormatterOption::HtmlLinked {
                 pre_class: Some("test-pre-class"),
                 highlight_lines: None,
             })
