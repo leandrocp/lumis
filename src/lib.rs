@@ -265,6 +265,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///         italic: true,
 ///         include_highlights: false,
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// };
 ///
@@ -284,6 +285,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///     formatter: FormatterOption::HtmlLinked {
 ///         pre_class: Some("syntax-highlight"),
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// };
 ///
@@ -331,6 +333,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///         italic: false,
 ///         include_highlights: false,
 ///         highlight_lines: Some(highlight_lines),
+///         header: None,
 ///     },
 /// };
 ///
@@ -352,11 +355,39 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///         italic: false,
 ///         include_highlights: true,  // Adds data-highlight attributes
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// };
 ///
 /// let html = highlight(code, options);
 /// // Produces: <span data-highlight="keyword">const</span>
+/// ```
+///
+/// ## HTML with custom wrapper elements
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption};
+/// use autumnus::formatter::HtmlElement;
+///
+/// let code = "const greeting = 'Hello';";
+///
+/// let options = Options {
+///     lang_or_file: Some("javascript"),
+///     formatter: FormatterOption::HtmlInline {
+///         theme: None,
+///         pre_class: None,
+///         italic: false,
+///         include_highlights: false,
+///         highlight_lines: None,
+///         header: Some(HtmlElement {
+///             open_tag: "<div class=\"code-wrapper\" data-lang=\"js\">".to_string(),
+///             close_tag: "</div>".to_string(),
+///         }),
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// // Produces: <div class="code-wrapper" data-lang="js"><pre class="athl">...</pre></div>
 /// ```
 #[derive(Clone, Debug)]
 pub enum FormatterOption<'a> {
@@ -399,6 +430,13 @@ pub enum FormatterOption<'a> {
         /// Allows you to visually emphasize certain lines with background colors
         /// or other styling. See [`formatter::html_inline::HighlightLines`] for details.
         highlight_lines: Option<formatter::html_inline::HighlightLines>,
+
+        /// Optional header element to wrap the entire code block.
+        ///
+        /// When provided, the code block will be wrapped with the specified opening
+        /// and closing tags. Useful for adding custom containers, sections, or other
+        /// structural elements. See [`formatter::HtmlElement`] for details.
+        header: Option<formatter::HtmlElement>,
     },
 
     /// HTML output with CSS classes instead of inline styles.
@@ -432,6 +470,13 @@ pub enum FormatterOption<'a> {
         /// Allows you to add CSS classes to specific lines for custom styling.
         /// See [`formatter::html_linked::HighlightLines`] for details.
         highlight_lines: Option<formatter::html_linked::HighlightLines>,
+
+        /// Optional header element to wrap the entire code block.
+        ///
+        /// When provided, the code block will be wrapped with the specified opening
+        /// and closing tags. Useful for adding custom containers, sections, or other
+        /// structural elements. See [`formatter::HtmlElement`] for details.
+        header: Option<formatter::HtmlElement>,
     },
 
     /// Terminal output with ANSI color escape codes.
@@ -458,6 +503,7 @@ impl Default for FormatterOption<'_> {
             italic: false,
             include_highlights: false,
             highlight_lines: None,
+            header: None,
         }
     }
 }
@@ -513,6 +559,7 @@ impl Default for FormatterOption<'_> {
 ///         italic: false,
 ///         include_highlights: false,
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// };
 ///
@@ -534,6 +581,7 @@ impl Default for FormatterOption<'_> {
 ///         italic: true,
 ///         include_highlights: false,
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// };
 ///
@@ -569,6 +617,7 @@ impl Default for FormatterOption<'_> {
 ///     formatter: FormatterOption::HtmlLinked {
 ///         pre_class: Some("syntax-highlight"),
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// };
 ///
@@ -610,6 +659,7 @@ impl Default for Options<'_> {
                 include_highlights: false,
                 theme: None,
                 highlight_lines: None,
+                header: None,
             },
         }
     }
@@ -653,6 +703,7 @@ impl Default for Options<'_> {
 ///             include_highlights: false,
 ///             theme: None,
 ///             highlight_lines: None,
+///             header: None,
 ///         },
 ///     }
 /// );
@@ -693,6 +744,7 @@ impl Default for Options<'_> {
 ///         formatter: FormatterOption::HtmlLinked {
 ///             pre_class: Some("my-code-block"),
 ///             highlight_lines: None,
+///             header: None,
 ///         },
 ///     }
 /// );
@@ -761,6 +813,7 @@ pub fn highlight(source: &str, options: Options) -> String {
             italic,
             include_highlights,
             highlight_lines,
+            header,
         } => {
             let mut builder = crate::formatter::HtmlInlineBuilder::new()
                 .source(source)
@@ -777,12 +830,16 @@ pub fn highlight(source: &str, options: Options) -> String {
             if let Some(highlight_lines) = highlight_lines {
                 builder = builder.highlight_lines(highlight_lines);
             }
+            if let Some(header) = header {
+                builder = builder.header(header);
+            }
 
             builder.build()
         }
         FormatterOption::HtmlLinked {
             pre_class,
             highlight_lines,
+            header,
         } => {
             let mut builder = crate::formatter::HtmlLinkedBuilder::new()
                 .source(source)
@@ -793,6 +850,9 @@ pub fn highlight(source: &str, options: Options) -> String {
             }
             if let Some(highlight_lines) = highlight_lines {
                 builder = builder.highlight_lines(highlight_lines);
+            }
+            if let Some(header) = header {
+                builder = builder.header(header);
             }
 
             builder.build()
@@ -864,6 +924,7 @@ pub fn highlight(source: &str, options: Options) -> String {
 ///         italic: true,
 ///         include_highlights: false,
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// })?;
 /// # Ok::<(), Box<dyn std::error::Error>>(())
@@ -901,6 +962,7 @@ pub fn highlight(source: &str, options: Options) -> String {
 ///         italic: false,
 ///         include_highlights: false,
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// }).expect("Failed to write to buffer");
 ///
@@ -928,6 +990,7 @@ pub fn highlight(source: &str, options: Options) -> String {
 ///     formatter: FormatterOption::HtmlLinked {
 ///         pre_class: Some("large-code"),
 ///         highlight_lines: None,
+///         header: None,
 ///     },
 /// })?;
 /// # Ok::<(), Box<dyn std::error::Error>>(())
@@ -958,6 +1021,7 @@ pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -
             italic,
             include_highlights,
             highlight_lines,
+            header,
         } => {
             let mut builder = crate::formatter::HtmlInlineBuilder::new()
                 .source(source)
@@ -974,12 +1038,16 @@ pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -
             if let Some(highlight_lines) = highlight_lines {
                 builder = builder.highlight_lines(highlight_lines);
             }
+            if let Some(header) = header {
+                builder = builder.header(header);
+            }
 
             builder.build()
         }
         FormatterOption::HtmlLinked {
             pre_class,
             highlight_lines,
+            header,
         } => {
             let mut builder = crate::formatter::HtmlLinkedBuilder::new()
                 .source(source)
@@ -990,6 +1058,9 @@ pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -
             }
             if let Some(highlight_lines) = highlight_lines {
                 builder = builder.highlight_lines(highlight_lines);
+            }
+            if let Some(header) = header {
+                builder = builder.header(header);
             }
 
             builder.build()
@@ -1038,6 +1109,7 @@ mod tests {
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         )
@@ -1082,6 +1154,7 @@ end
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1111,6 +1184,7 @@ end
                     include_highlights: true,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1133,6 +1207,7 @@ end
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1171,6 +1246,7 @@ end
                 formatter: FormatterOption::HtmlLinked {
                     pre_class: None,
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1190,6 +1266,7 @@ end
                 formatter: FormatterOption::HtmlLinked {
                     pre_class: None,
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1209,6 +1286,7 @@ end
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1227,6 +1305,7 @@ end
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1242,6 +1321,7 @@ end
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1260,6 +1340,7 @@ end
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1278,6 +1359,7 @@ end
                     include_highlights: false,
                     theme: themes::get("catppuccin_frappe").ok(),
                     highlight_lines: None,
+                    header: None,
                 },
             },
         );
@@ -1296,5 +1378,53 @@ end
         let ansi = highlight(code, options);
 
         assert!(ansi.as_str().contains("[38;2;241;250;140mHello from Ruby!"));
+    }
+
+    #[test]
+    fn test_formatter_option_with_header() {
+        let code = "fn main() { println!(\"Hello\"); }";
+
+        // Test HtmlInline with header
+        let inline_result = highlight(
+            code,
+            Options {
+                lang_or_file: Some("rust"),
+                formatter: FormatterOption::HtmlInline {
+                    theme: None,
+                    pre_class: None,
+                    italic: false,
+                    include_highlights: false,
+                    highlight_lines: None,
+                    header: Some(formatter::HtmlElement {
+                        open_tag: "<div class=\"code-container\">".to_string(),
+                        close_tag: "</div>".to_string(),
+                    }),
+                },
+            },
+        );
+
+        assert!(inline_result.starts_with("<div class=\"code-container\">"));
+        assert!(inline_result.ends_with("</div>"));
+        assert!(inline_result.contains("<pre class=\"athl\">"));
+
+        // Test HtmlLinked with header
+        let linked_result = highlight(
+            code,
+            Options {
+                lang_or_file: Some("rust"),
+                formatter: FormatterOption::HtmlLinked {
+                    pre_class: None,
+                    highlight_lines: None,
+                    header: Some(formatter::HtmlElement {
+                        open_tag: "<section class=\"code-section\">".to_string(),
+                        close_tag: "</section>".to_string(),
+                    }),
+                },
+            },
+        );
+
+        assert!(linked_result.starts_with("<section class=\"code-section\">"));
+        assert!(linked_result.ends_with("</section>"));
+        assert!(linked_result.contains("<pre class=\"athl\">"));
     }
 }

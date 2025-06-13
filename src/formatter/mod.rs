@@ -119,6 +119,47 @@ pub use terminal::Terminal;
 
 use crate::languages::Language;
 
+/// Configuration for wrapping the formatted output with custom HTML elements.
+///
+/// This struct allows you to specify opening and closing HTML tags that will wrap
+/// the entire code block. This is useful for adding custom containers, sections,
+/// or other structural elements around the formatted code.
+///
+/// # Examples
+///
+/// Wrapping with a div element:
+/// ```rust
+/// use autumnus::formatter::HtmlElement;
+///
+/// let header = HtmlElement {
+///     open_tag: "<div class=\"code-wrapper\">".to_string(),
+///     close_tag: "</div>".to_string(),
+/// };
+/// ```
+///
+/// Wrapping with a section element with attributes:
+/// ```rust
+/// use autumnus::formatter::HtmlElement;
+///
+/// let header = HtmlElement {
+///     open_tag: "<section class=\"highlight\" data-lang=\"rust\">".to_string(),
+///     close_tag: "</section>".to_string(),
+/// };
+/// ```
+#[derive(Clone, Debug)]
+pub struct HtmlElement {
+    /// The opening HTML tag that will be placed before the formatted code.
+    ///
+    /// This should be a complete HTML opening tag, including any attributes.
+    /// Example: `"<div class=\"wrapper\" id=\"code-block\">"`
+    pub open_tag: String,
+    /// The closing HTML tag that will be placed after the formatted code.
+    ///
+    /// This should be the corresponding closing tag for the opening tag.
+    /// Example: `"</div>"`
+    pub close_tag: String,
+}
+
 pub trait Formatter: Send + Sync {
     fn format(&self, output: &mut dyn Write) -> io::Result<()>;
     fn highlights(&self, output: &mut dyn Write) -> io::Result<()>;
@@ -138,6 +179,7 @@ pub struct HtmlInlineBuilder<'a> {
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<html_inline::HighlightLines>,
+    header: Option<HtmlElement>,
 }
 
 impl<'a> Default for HtmlInlineBuilder<'a> {
@@ -156,6 +198,7 @@ impl<'a> HtmlInlineBuilder<'a> {
             italic: false,
             include_highlights: false,
             highlight_lines: None,
+            header: None,
         }
     }
 
@@ -194,6 +237,11 @@ impl<'a> HtmlInlineBuilder<'a> {
         self
     }
 
+    pub fn header(mut self, header: HtmlElement) -> Self {
+        self.header = Some(header);
+        self
+    }
+
     pub fn build(self) -> Box<dyn HtmlFormatter + 'a> {
         let source = self.source.unwrap_or_default();
         let lang = self.lang.unwrap_or_default();
@@ -205,6 +253,7 @@ impl<'a> HtmlInlineBuilder<'a> {
             self.italic,
             self.include_highlights,
             self.highlight_lines,
+            self.header,
         ))
     }
 }
@@ -214,6 +263,7 @@ pub struct HtmlLinkedBuilder<'a> {
     lang: Option<Language>,
     pre_class: Option<&'a str>,
     highlight_lines: Option<html_linked::HighlightLines>,
+    header: Option<HtmlElement>,
 }
 
 impl<'a> Default for HtmlLinkedBuilder<'a> {
@@ -229,6 +279,7 @@ impl<'a> HtmlLinkedBuilder<'a> {
             lang: None,
             pre_class: None,
             highlight_lines: None,
+            header: None,
         }
     }
 
@@ -252,6 +303,11 @@ impl<'a> HtmlLinkedBuilder<'a> {
         self
     }
 
+    pub fn header(mut self, header: HtmlElement) -> Self {
+        self.header = Some(header);
+        self
+    }
+
     pub fn build(self) -> Box<dyn HtmlFormatter + 'a> {
         let source = self.source.unwrap_or_default();
         let lang = self.lang.unwrap_or_default();
@@ -260,6 +316,7 @@ impl<'a> HtmlLinkedBuilder<'a> {
             lang,
             self.pre_class,
             self.highlight_lines,
+            self.header,
         ))
     }
 }
