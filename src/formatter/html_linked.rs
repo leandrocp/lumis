@@ -197,8 +197,7 @@ impl HtmlFormatter for HtmlLinked<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::formatter::HtmlFormatterBuilder;
-    use crate::FormatterOption;
+    use crate::formatter::HtmlLinkedBuilder;
 
     #[test]
     fn test_include_pre_class() {
@@ -220,13 +219,10 @@ mod tests {
 
     #[test]
     fn test_builder_pattern() {
-        let formatter = HtmlFormatterBuilder::new()
+        let formatter = HtmlLinkedBuilder::new()
             .source("")
             .lang(Language::Rust)
-            .formatter(FormatterOption::HtmlLinked {
-                pre_class: Some("test-pre-class"),
-                highlight_lines: None,
-            })
+            .pre_class("test-pre-class")
             .build();
 
         let mut buffer = Vec::new();
