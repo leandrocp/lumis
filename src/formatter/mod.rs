@@ -140,6 +140,12 @@ pub struct HtmlInlineBuilder<'a> {
     highlight_lines: Option<html_inline::HighlightLines>,
 }
 
+impl<'a> Default for HtmlInlineBuilder<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> HtmlInlineBuilder<'a> {
     pub fn new() -> Self {
         Self {
@@ -210,6 +216,12 @@ pub struct HtmlLinkedBuilder<'a> {
     highlight_lines: Option<html_linked::HighlightLines>,
 }
 
+impl<'a> Default for HtmlLinkedBuilder<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> HtmlLinkedBuilder<'a> {
     pub fn new() -> Self {
         Self {
@@ -256,6 +268,12 @@ pub struct TerminalBuilder<'a> {
     source: Option<&'a str>,
     lang: Option<Language>,
     theme: Option<&'a crate::themes::Theme>,
+}
+
+impl<'a> Default for TerminalBuilder<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<'a> TerminalBuilder<'a> {
