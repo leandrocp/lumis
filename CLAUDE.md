@@ -9,9 +9,10 @@
 ## Commands
 - `just` is used for common development tasks; use it when a request involves running such commands
 - `cargo run --bin autumn` is the CLI tool for Autumnus
+- Use `--help` to learn more about `autumn` bin commands, for eg: `cargo run --bin autumn highlight --help`
 
 ## Non-standard Directories
-- `vendored_parsers/`: Tree-sitter parser C/C++ source code for additional languages
+- `vendored_parsers/`: Tree-sitter parser and grammar for additional languages not included in `Cargo.toml`
 - `queries/`: Tree-sitter query files for syntax highlighting with inheritance and overwriting support
 - `themes/`: Neovim theme definitions as JSON files
 - `css/`: Generated CSS files for HTML linked formatter

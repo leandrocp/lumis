@@ -199,7 +199,17 @@
 (preproc_line
   "#line" @keyword.directive)
 
-(attribute) @attribute
+(attribute
+  (_type) @attribute)
+
+; Attribute targets
+(attribute
+  [
+    "return"
+    "field"
+  ] @keyword
+  ":"
+  (_type) @attribute)
 
 [
   "("
