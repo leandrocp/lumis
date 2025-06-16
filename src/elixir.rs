@@ -1,7 +1,7 @@
 //! Utility module to integrate with Elixir through Rustler.
 
-use crate::{themes, FormatterOption};
 use crate::formatter::{html_inline, html_linked, HtmlElement};
+use crate::{themes, FormatterOption};
 use rustler::{NifStruct, NifTaggedEnum};
 use std::collections::HashMap;
 
@@ -73,29 +73,25 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                     }),
                 });
 
-                let highlight_lines = highlight_lines.map(|hl| {
-                    html_inline::HighlightLines {
-                        lines: hl
-                            .lines
-                            .into_iter()
-                            .map(|line_spec| line_spec.to_range_inclusive())
-                            .collect(),
-                        style: match hl.style {
-                            ExHtmlInlineHighlightLinesStyle::Theme => {
-                                html_inline::HighlightLinesStyle::Theme
-                            }
-                            ExHtmlInlineHighlightLinesStyle::Style { style } => {
-                                html_inline::HighlightLinesStyle::Style(style)
-                            }
-                        },
-                    }
+                let highlight_lines = highlight_lines.map(|hl| html_inline::HighlightLines {
+                    lines: hl
+                        .lines
+                        .into_iter()
+                        .map(|line_spec| line_spec.to_range_inclusive())
+                        .collect(),
+                    style: match hl.style {
+                        ExHtmlInlineHighlightLinesStyle::Theme => {
+                            html_inline::HighlightLinesStyle::Theme
+                        }
+                        ExHtmlInlineHighlightLinesStyle::Style { style } => {
+                            html_inline::HighlightLinesStyle::Style(style)
+                        }
+                    },
                 });
 
-                let header = header.map(|h| {
-                    HtmlElement {
-                        open_tag: h.open_tag,
-                        close_tag: h.close_tag,
-                    }
+                let header = header.map(|h| HtmlElement {
+                    open_tag: h.open_tag,
+                    close_tag: h.close_tag,
                 });
 
                 FormatterOption::HtmlInline {
@@ -112,22 +108,18 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                 highlight_lines,
                 header,
             } => {
-                let highlight_lines = highlight_lines.map(|hl| {
-                    html_linked::HighlightLines {
-                        lines: hl
-                            .lines
-                            .into_iter()
-                            .map(|line_spec| line_spec.to_range_inclusive())
-                            .collect(),
-                        class: hl.class,
-                    }
+                let highlight_lines = highlight_lines.map(|hl| html_linked::HighlightLines {
+                    lines: hl
+                        .lines
+                        .into_iter()
+                        .map(|line_spec| line_spec.to_range_inclusive())
+                        .collect(),
+                    class: hl.class,
                 });
 
-                let header = header.map(|h| {
-                    HtmlElement {
-                        open_tag: h.open_tag,
-                        close_tag: h.close_tag,
-                    }
+                let header = header.map(|h| HtmlElement {
+                    open_tag: h.open_tag,
+                    close_tag: h.close_tag,
                 });
 
                 FormatterOption::HtmlLinked {
@@ -217,14 +209,14 @@ pub struct ExStyle {
     pub strikethrough: bool,
 }
 
-#[derive(Debug, Default, Clone, NifStruct)]
+#[derive(Clone, Debug, Default, NifStruct)]
 #[module = "Autumn.HtmlElement"]
 pub struct ExHtmlElement {
     pub open_tag: String,
     pub close_tag: String,
 }
 
-#[derive(Debug, Clone, NifTaggedEnum)]
+#[derive(Clone, Debug, NifTaggedEnum)]
 pub enum ExLineSpec {
     Single(usize),
     Range { start: usize, end: usize },
@@ -249,7 +241,7 @@ impl ExLineSpec {
     }
 }
 
-#[derive(Debug, Clone, NifTaggedEnum)]
+#[derive(Clone, Debug, NifTaggedEnum)]
 pub enum ExHtmlInlineHighlightLinesStyle {
     Theme,
     Style { style: String },
@@ -261,14 +253,14 @@ impl Default for ExHtmlInlineHighlightLinesStyle {
     }
 }
 
-#[derive(Debug, Default, Clone, NifStruct)]
+#[derive(Clone, Debug, Default, NifStruct)]
 #[module = "Autumn.HtmlInlineHighlightLines"]
 pub struct ExHtmlInlineHighlightLines {
     pub lines: Vec<ExLineSpec>,
     pub style: ExHtmlInlineHighlightLinesStyle,
 }
 
-#[derive(Debug, Default, Clone, NifStruct)]
+#[derive(Clone, Debug, Default, NifStruct)]
 #[module = "Autumn.HtmlLinkedHighlightLines"]
 pub struct ExHtmlLinkedHighlightLines {
     pub lines: Vec<ExLineSpec>,
@@ -309,9 +301,7 @@ impl From<ExHtmlElement> for HtmlElement {
 impl From<html_inline::HighlightLinesStyle> for ExHtmlInlineHighlightLinesStyle {
     fn from(style: html_inline::HighlightLinesStyle) -> Self {
         match style {
-            html_inline::HighlightLinesStyle::Theme => {
-                ExHtmlInlineHighlightLinesStyle::Theme
-            }
+            html_inline::HighlightLinesStyle::Theme => ExHtmlInlineHighlightLinesStyle::Theme,
             html_inline::HighlightLinesStyle::Style(s) => {
                 ExHtmlInlineHighlightLinesStyle::Style { style: s }
             }
@@ -708,9 +698,9 @@ mod tests {
         // Test both single lines and ranges
         let highlight_lines = ExHtmlInlineHighlightLines {
             lines: vec![
-                ExLineSpec::Single(1),              // Single line
+                ExLineSpec::Single(1),                  // Single line
                 ExLineSpec::Range { start: 3, end: 5 }, // Range
-                ExLineSpec::Single(7),              // Another single line
+                ExLineSpec::Single(7),                  // Another single line
             ],
             style: ExHtmlInlineHighlightLinesStyle::Theme,
         };
@@ -726,18 +716,20 @@ mod tests {
 
         let rust_formatter: FormatterOption = formatter_option.into();
         match rust_formatter {
-            FormatterOption::HtmlInline { highlight_lines, .. } => {
+            FormatterOption::HtmlInline {
+                highlight_lines, ..
+            } => {
                 let hl = highlight_lines.unwrap();
                 assert_eq!(hl.lines.len(), 3);
-                
+
                 // First line should be 1..=1 (single line)
                 assert_eq!(*hl.lines[0].start(), 1);
                 assert_eq!(*hl.lines[0].end(), 1);
-                
+
                 // Second line should be 3..=5 (range)
                 assert_eq!(*hl.lines[1].start(), 3);
                 assert_eq!(*hl.lines[1].end(), 5);
-                
+
                 // Third line should be 7..=7 (single line)
                 assert_eq!(*hl.lines[2].start(), 7);
                 assert_eq!(*hl.lines[2].end(), 7);
