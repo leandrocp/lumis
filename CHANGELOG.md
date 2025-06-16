@@ -5,6 +5,7 @@
 ### Added
 - Add `header` option to HTML formatters for wrapping code blocks with custom HTML elements
 - Add shared `HtmlElement` struct for configuring HTML wrapper elements
+- Add `highlight_lines` and `header` fields to Elixir bindings for HTML formatters
 
 ### Improvements
 - Updated parsers: angular, c, cmake, comment, hcl, liquid, llvm, ocaml, perl, vim, vue, yaml
