@@ -74,14 +74,13 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
 
                 let highlight_lines = highlight_lines.map(|hl| {
                     use crate::formatter::html_inline;
-                    use std::ops::RangeInclusive;
 
                     html_inline::HighlightLines {
                         lines: hl
                             .lines
                             .into_iter()
-                            .map(|(start, end)| start..=end)
-                            .collect::<Vec<RangeInclusive<usize>>>(),
+                            .map(|line_spec| line_spec.to_range_inclusive())
+                            .collect(),
                         style: match hl.style {
                             ExHtmlInlineHighlightLinesStyle::Theme => {
                                 html_inline::HighlightLinesStyle::Theme
@@ -117,14 +116,13 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
             } => {
                 let highlight_lines = highlight_lines.map(|hl| {
                     use crate::formatter::html_linked;
-                    use std::ops::RangeInclusive;
 
                     html_linked::HighlightLines {
                         lines: hl
                             .lines
                             .into_iter()
-                            .map(|(start, end)| start..=end)
-                            .collect::<Vec<RangeInclusive<usize>>>(),
+                            .map(|line_spec| line_spec.to_range_inclusive())
+                            .collect(),
                         class: hl.class,
                     }
                 });
@@ -232,6 +230,31 @@ pub struct ExHtmlElement {
 }
 
 #[derive(Debug, Clone, NifTaggedEnum)]
+pub enum ExLineSpec {
+    Single(usize),
+    Range { start: usize, end: usize },
+}
+
+impl ExLineSpec {
+    fn to_range_inclusive(&self) -> std::ops::RangeInclusive<usize> {
+        match self {
+            ExLineSpec::Single(line) => *line..=*line,
+            ExLineSpec::Range { start, end } => *start..=*end,
+        }
+    }
+
+    fn from_range_inclusive(range: std::ops::RangeInclusive<usize>) -> Self {
+        let start = *range.start();
+        let end = *range.end();
+        if start == end {
+            ExLineSpec::Single(start)
+        } else {
+            ExLineSpec::Range { start, end }
+        }
+    }
+}
+
+#[derive(Debug, Clone, NifTaggedEnum)]
 pub enum ExHtmlInlineHighlightLinesStyle {
     Theme,
     Style { style: String },
@@ -246,14 +269,14 @@ impl Default for ExHtmlInlineHighlightLinesStyle {
 #[derive(Debug, Default, Clone, NifStruct)]
 #[module = "Autumn.HtmlInlineHighlightLines"]
 pub struct ExHtmlInlineHighlightLines {
-    pub lines: Vec<(usize, usize)>, // Using tuples for ranges since Elixir doesn't have RangeInclusive
+    pub lines: Vec<ExLineSpec>,
     pub style: ExHtmlInlineHighlightLinesStyle,
 }
 
 #[derive(Debug, Default, Clone, NifStruct)]
 #[module = "Autumn.HtmlLinkedHighlightLines"]
 pub struct ExHtmlLinkedHighlightLines {
-    pub lines: Vec<(usize, usize)>, // Using tuples for ranges since Elixir doesn't have RangeInclusive
+    pub lines: Vec<ExLineSpec>,
     pub class: String,
 }
 
@@ -307,7 +330,7 @@ impl From<crate::formatter::html_inline::HighlightLines> for ExHtmlInlineHighlig
             lines: highlight_lines
                 .lines
                 .into_iter()
-                .map(|range| (*range.start(), *range.end()))
+                .map(ExLineSpec::from_range_inclusive)
                 .collect(),
             style: highlight_lines.style.into(),
         }
@@ -320,7 +343,7 @@ impl From<crate::formatter::html_linked::HighlightLines> for ExHtmlLinkedHighlig
             lines: highlight_lines
                 .lines
                 .into_iter()
-                .map(|range| (*range.start(), *range.end()))
+                .map(ExLineSpec::from_range_inclusive)
                 .collect(),
             class: highlight_lines.class,
         }
@@ -402,7 +425,10 @@ mod tests {
     #[test]
     fn test_ex_html_inline_highlight_lines_conversion() {
         let ex_highlight_lines = ExHtmlInlineHighlightLines {
-            lines: vec![(1, 1), (3, 5)],
+            lines: vec![
+                ExLineSpec::Single(1),
+                ExLineSpec::Range { start: 3, end: 5 },
+            ],
             style: ExHtmlInlineHighlightLinesStyle::Style {
                 style: "background-color: yellow".to_string(),
             },
@@ -444,7 +470,7 @@ mod tests {
     #[test]
     fn test_ex_html_linked_highlight_lines_conversion() {
         let ex_highlight_lines = ExHtmlLinkedHighlightLines {
-            lines: vec![(2, 4)],
+            lines: vec![ExLineSpec::Range { start: 2, end: 4 }],
             class: "highlighted".to_string(),
         };
 
@@ -533,7 +559,10 @@ mod tests {
         let code = "line 1\nline 2\nline 3\nline 4";
 
         let highlight_lines = ExHtmlInlineHighlightLines {
-            lines: vec![(1, 1), (3, 4)],
+            lines: vec![
+                ExLineSpec::Single(1),
+                ExLineSpec::Range { start: 3, end: 4 },
+            ],
             style: ExHtmlInlineHighlightLinesStyle::Style {
                 style: "background-color: yellow".to_string(),
             },
@@ -596,7 +625,7 @@ mod tests {
         let code = "defmodule Test do\n  def hello, do: :world\nend";
 
         let highlight_lines = ExHtmlLinkedHighlightLines {
-            lines: vec![(2, 2)],
+            lines: vec![ExLineSpec::Single(2)],
             class: "highlighted-line".to_string(),
         };
 
@@ -649,7 +678,7 @@ mod tests {
     #[test]
     fn test_ex_html_inline_highlight_lines_style_theme() {
         let highlight_lines = ExHtmlInlineHighlightLines {
-            lines: vec![(1, 3)],
+            lines: vec![ExLineSpec::Range { start: 1, end: 3 }],
             style: ExHtmlInlineHighlightLinesStyle::Theme,
         };
 
@@ -674,6 +703,49 @@ mod tests {
                     }
                     _ => panic!("Should be Theme variant"),
                 }
+            }
+            _ => panic!("Should be HtmlInline variant"),
+        }
+    }
+
+    #[test]
+    fn test_ex_line_spec_single_and_range() {
+        // Test both single lines and ranges
+        let highlight_lines = ExHtmlInlineHighlightLines {
+            lines: vec![
+                ExLineSpec::Single(1),              // Single line
+                ExLineSpec::Range { start: 3, end: 5 }, // Range
+                ExLineSpec::Single(7),              // Another single line
+            ],
+            style: ExHtmlInlineHighlightLinesStyle::Theme,
+        };
+
+        let formatter_option = ExFormatterOption::HtmlInline {
+            theme: Some(ThemeOrString::String("github_light")),
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: Some(highlight_lines),
+            header: None,
+        };
+
+        let rust_formatter: FormatterOption = formatter_option.into();
+        match rust_formatter {
+            FormatterOption::HtmlInline { highlight_lines, .. } => {
+                let hl = highlight_lines.unwrap();
+                assert_eq!(hl.lines.len(), 3);
+                
+                // First line should be 1..=1 (single line)
+                assert_eq!(*hl.lines[0].start(), 1);
+                assert_eq!(*hl.lines[0].end(), 1);
+                
+                // Second line should be 3..=5 (range)
+                assert_eq!(*hl.lines[1].start(), 3);
+                assert_eq!(*hl.lines[1].end(), 5);
+                
+                // Third line should be 7..=7 (single line)
+                assert_eq!(*hl.lines[2].start(), 7);
+                assert_eq!(*hl.lines[2].end(), 7);
             }
             _ => panic!("Should be HtmlInline variant"),
         }
