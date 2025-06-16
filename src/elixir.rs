@@ -1,6 +1,7 @@
 //! Utility module to integrate with Elixir through Rustler.
 
 use crate::{themes, FormatterOption};
+use crate::formatter::{html_inline, html_linked, HtmlElement};
 use rustler::{NifStruct, NifTaggedEnum};
 use std::collections::HashMap;
 
@@ -73,8 +74,6 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                 });
 
                 let highlight_lines = highlight_lines.map(|hl| {
-                    use crate::formatter::html_inline;
-
                     html_inline::HighlightLines {
                         lines: hl
                             .lines
@@ -93,7 +92,6 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                 });
 
                 let header = header.map(|h| {
-                    use crate::formatter::HtmlElement;
                     HtmlElement {
                         open_tag: h.open_tag,
                         close_tag: h.close_tag,
@@ -115,8 +113,6 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                 header,
             } => {
                 let highlight_lines = highlight_lines.map(|hl| {
-                    use crate::formatter::html_linked;
-
                     html_linked::HighlightLines {
                         lines: hl
                             .lines
@@ -128,7 +124,6 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                 });
 
                 let header = header.map(|h| {
-                    use crate::formatter::HtmlElement;
                     HtmlElement {
                         open_tag: h.open_tag,
                         close_tag: h.close_tag,
@@ -293,8 +288,8 @@ impl<'a> From<&'a themes::Style> for ExStyle {
     }
 }
 
-impl From<crate::formatter::HtmlElement> for ExHtmlElement {
-    fn from(element: crate::formatter::HtmlElement) -> Self {
+impl From<HtmlElement> for ExHtmlElement {
+    fn from(element: HtmlElement) -> Self {
         ExHtmlElement {
             open_tag: element.open_tag,
             close_tag: element.close_tag,
@@ -302,30 +297,30 @@ impl From<crate::formatter::HtmlElement> for ExHtmlElement {
     }
 }
 
-impl From<ExHtmlElement> for crate::formatter::HtmlElement {
+impl From<ExHtmlElement> for HtmlElement {
     fn from(element: ExHtmlElement) -> Self {
-        crate::formatter::HtmlElement {
+        HtmlElement {
             open_tag: element.open_tag,
             close_tag: element.close_tag,
         }
     }
 }
 
-impl From<crate::formatter::html_inline::HighlightLinesStyle> for ExHtmlInlineHighlightLinesStyle {
-    fn from(style: crate::formatter::html_inline::HighlightLinesStyle) -> Self {
+impl From<html_inline::HighlightLinesStyle> for ExHtmlInlineHighlightLinesStyle {
+    fn from(style: html_inline::HighlightLinesStyle) -> Self {
         match style {
-            crate::formatter::html_inline::HighlightLinesStyle::Theme => {
+            html_inline::HighlightLinesStyle::Theme => {
                 ExHtmlInlineHighlightLinesStyle::Theme
             }
-            crate::formatter::html_inline::HighlightLinesStyle::Style(s) => {
+            html_inline::HighlightLinesStyle::Style(s) => {
                 ExHtmlInlineHighlightLinesStyle::Style { style: s }
             }
         }
     }
 }
 
-impl From<crate::formatter::html_inline::HighlightLines> for ExHtmlInlineHighlightLines {
-    fn from(highlight_lines: crate::formatter::html_inline::HighlightLines) -> Self {
+impl From<html_inline::HighlightLines> for ExHtmlInlineHighlightLines {
+    fn from(highlight_lines: html_inline::HighlightLines) -> Self {
         ExHtmlInlineHighlightLines {
             lines: highlight_lines
                 .lines
@@ -337,8 +332,8 @@ impl From<crate::formatter::html_inline::HighlightLines> for ExHtmlInlineHighlig
     }
 }
 
-impl From<crate::formatter::html_linked::HighlightLines> for ExHtmlLinkedHighlightLines {
-    fn from(highlight_lines: crate::formatter::html_linked::HighlightLines) -> Self {
+impl From<html_linked::HighlightLines> for ExHtmlLinkedHighlightLines {
+    fn from(highlight_lines: html_linked::HighlightLines) -> Self {
         ExHtmlLinkedHighlightLines {
             lines: highlight_lines
                 .lines
@@ -413,7 +408,7 @@ mod tests {
             close_tag: "</div>".to_string(),
         };
 
-        let rust_element: crate::formatter::HtmlElement = ex_element.clone().into();
+        let rust_element: HtmlElement = ex_element.clone().into();
         assert_eq!(rust_element.open_tag, "<div class=\"wrapper\">");
         assert_eq!(rust_element.close_tag, "</div>");
 
@@ -457,7 +452,7 @@ mod tests {
                 assert_eq!(*hl.lines[1].end(), 5);
 
                 match hl.style {
-                    crate::formatter::html_inline::HighlightLinesStyle::Style(style) => {
+                    html_inline::HighlightLinesStyle::Style(style) => {
                         assert_eq!(style, "background-color: yellow");
                     }
                     _ => panic!("Should be Style variant"),
@@ -698,7 +693,7 @@ mod tests {
             } => {
                 let hl = highlight_lines.unwrap();
                 match hl.style {
-                    crate::formatter::html_inline::HighlightLinesStyle::Theme => {
+                    html_inline::HighlightLinesStyle::Theme => {
                         // Expected behavior
                     }
                     _ => panic!("Should be Theme variant"),
