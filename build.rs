@@ -324,34 +324,7 @@ fn queries() {
         println!("cargo:rerun-if-changed=queries/{}", language);
         println!("cargo:rerun-if-changed=overwrites/{}", language);
 
-        // Map language directory names to feature names
-        let feature_name = match language {
-            "c_sharp" => "lang-csharp",
-            "embedded_template" => {
-                // embedded_template is used by both EJS and ERB
-                // Generate it if either feature is enabled
-                if cfg!(feature = "lang-ejs") || cfg!(feature = "lang-erb") {
-                    "lang-ejs" // Use one of them for the cfg check
-                } else {
-                    continue;
-                }
-            }
-            "markdown" => {
-                // markdown queries are used by both Markdown and MarkdownInline
-                "lang-markdown"
-            }
-            "ocaml" => {
-                // ocaml queries are used by both OCaml and OCamlInterface
-                "lang-ocaml"
-            }
-            "sequel" => "lang-sql",
-            "svelte_ng" => "lang-svelte",
-            "toml_ng" => "lang-toml",
-            _ => {
-                // Convert directory name to feature name (e.g., "rust" -> "lang-rust")
-                &format!("lang-{}", language.replace("_", ""))
-            }
-        };
+        // Check if we should generate constants for this language based on feature flags
 
         // Only generate constants if the language feature is enabled
         let should_generate = match language {
@@ -359,9 +332,9 @@ fn queries() {
             "embedded_template" => cfg!(feature = "lang-ejs") || cfg!(feature = "lang-erb"),
             "markdown" => cfg!(feature = "lang-markdown"),
             "ocaml" => cfg!(feature = "lang-ocaml"),
-            "sequel" => cfg!(feature = "lang-sql"),
-            "svelte_ng" => cfg!(feature = "lang-svelte"),
-            "toml_ng" => cfg!(feature = "lang-toml"),
+            "sql" => cfg!(feature = "lang-sql"),
+            "svelte" => cfg!(feature = "lang-svelte"),
+            "toml" => cfg!(feature = "lang-toml"),
             "angular" => cfg!(feature = "lang-angular"),
             "astro" => cfg!(feature = "lang-astro"),
             "bash" => cfg!(feature = "lang-bash"),
