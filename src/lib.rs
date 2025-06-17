@@ -22,6 +22,28 @@
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
+//! ## Language Feature Flags
+//!
+//! By default, Autumnus includes support for all languages, which can result in longer
+//! compilation times. You can reduce compilation time and binary size by enabling only
+//! the languages you need:
+//!
+//! ```toml
+//! [dependencies]
+//! autumnus = { version = "0.3", default-features = false, features = ["lang-rust", "lang-javascript"] }
+//! ```
+//!
+//! Available language features include: `lang-angular`, `lang-astro`, `lang-bash`, `lang-c`,
+//! `lang-cpp`, `lang-css`, `lang-elixir`, `lang-go`, `lang-html`, `lang-java`, `lang-javascript`,
+//! `lang-json`, `lang-markdown`, `lang-python`, `lang-rust`, `lang-typescript`, and many more.
+//!
+//! Use `all-languages` to enable all language support:
+//!
+//! ```toml
+//! [dependencies]
+//! autumnus = { version = "0.3", features = ["all-languages"] }
+//! ```
+//!
 //! ## Available Builders
 //!
 //! - [`HtmlInlineBuilder`] - HTML output with inline CSS styles
