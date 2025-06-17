@@ -93,7 +93,6 @@
 use crate::constants::HIGHLIGHT_NAMES;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::{path::Path, sync::LazyLock};
 use strum::{EnumIter, IntoEnumIterator};
@@ -170,7 +169,6 @@ pub enum Language {
     Comment,
     #[cfg(feature = "lang-commonlisp")]
     CommonLisp,
-    #[cfg(feature = "lang-diff")]
     Diff,
     #[cfg(feature = "lang-dockerfile")]
     Dockerfile,
@@ -316,7 +314,6 @@ impl Language {
             "csv" => Some(Language::CSV),
             #[cfg(feature = "lang-css")]
             "css" => Some(Language::CSS),
-            #[cfg(feature = "lang-diff")]
             "diff" => Some(Language::Diff),
             #[cfg(feature = "lang-dockerfile")]
             "dockerfile" | "docker" => Some(Language::Dockerfile),
@@ -584,7 +581,6 @@ impl Language {
             ],
             #[cfg(feature = "lang-css")]
             Language::CSS => &["*.css"],
-            #[cfg(feature = "lang-diff")]
             Language::Diff => &["*.diff"],
             #[cfg(feature = "lang-dockerfile")]
             Language::Dockerfile => &[
@@ -926,7 +922,7 @@ impl Language {
             if let Some(cap) = RE.captures(first_line) {
                 let interpreter_path = Path::new(&cap[1]);
                 if let Some(name) = interpreter_path.file_name() {
-                    match name.to_string_lossy().borrow() {
+                    match name.to_string_lossy().as_ref() {
                         #[cfg(feature = "lang-typescript")]
                         "deno" | "ts-node" => return Some(Language::TypeScript),
                         #[cfg(feature = "lang-ocaml")]
@@ -1017,7 +1013,6 @@ impl Language {
             Language::CPlusPlus => "C++",
             #[cfg(feature = "lang-css")]
             Language::CSS => "CSS",
-            #[cfg(feature = "lang-diff")]
             Language::Diff => "Diff",
             #[cfg(feature = "lang-dockerfile")]
             Language::Dockerfile => "Dockerfile",
@@ -1163,7 +1158,6 @@ impl Language {
             Language::CPlusPlus => &CPP_CONFIG,
             #[cfg(feature = "lang-css")]
             Language::CSS => &CSS_CONFIG,
-            #[cfg(feature = "lang-diff")]
             Language::Diff => &DIFF_CONFIG,
             #[cfg(feature = "lang-dockerfile")]
             Language::Dockerfile => &DOCKERFILE_CONFIG,
@@ -1566,7 +1560,6 @@ static CSS_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     config
 });
 
-#[cfg(feature = "lang-diff")]
 static DIFF_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let mut config = HighlightConfiguration::new(
         tree_sitter::Language::new(tree_sitter_diff::LANGUAGE),
@@ -2589,7 +2582,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "lang-diff")]
     fn test_diff_config_loads() {
         let lang = Language::Diff;
         let config = lang.config();

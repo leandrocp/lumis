@@ -74,7 +74,7 @@ lang-cpp = ["dep:tree-sitter-cpp"]
 lang-csharp = ["dep:tree-sitter-c-sharp"]
 lang-css = ["dep:tree-sitter-css"]
 lang-csv = []
-lang-diff = ["dep:tree-sitter-diff"]
+lang-diff = []
 lang-dockerfile = []
 lang-eex = []
 lang-ejs = ["dep:tree-sitter-embedded-template"]
@@ -148,7 +148,7 @@ tree-sitter-cmake = { version = "0.7.1", optional = true }
 tree-sitter-comment = { version = "0.3.0", optional = true }
 tree-sitter-cpp = { version = "0.23.4", optional = true }
 tree-sitter-css = { version = "0.23.2", optional = true }
-tree-sitter-diff = { version = "0.1.0", optional = true }
+tree-sitter-diff = "0.1.0"
 tree-sitter-elixir = { version = "0.3.4", optional = true }
 tree-sitter-elm = { version = "5.8.0", optional = true }
 tree-sitter-embedded-template = { version = "0.23.2", optional = true }

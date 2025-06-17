@@ -80,7 +80,7 @@ impl TreeSitterParser {
 
 // https://github.com/Wilfred/difftastic/blob/8953c55cf854ceac2ccb6ece004d6a94a5bfa122/build.rs
 // TODO: remove vendored parsers in favor of crates as soon as they implement LanguageFn
-#[allow(clippy::vec_init_then_push)]
+#[allow(clippy::vec_init_then_push, unused_mut)]
 fn vendored_parsers() {
     let mut parsers: Vec<TreeSitterParser> = vec![];
 
@@ -349,7 +349,7 @@ fn queries() {
             "cpp" => cfg!(feature = "lang-cpp"),
             "css" => cfg!(feature = "lang-css"),
             "csv" => cfg!(feature = "lang-csv"),
-            "diff" => cfg!(feature = "lang-diff"),
+            "diff" => true, // Always enabled for plaintext fallback
             "dockerfile" => cfg!(feature = "lang-dockerfile"),
             "eex" => cfg!(feature = "lang-eex"),
             "elixir" => cfg!(feature = "lang-elixir"),
