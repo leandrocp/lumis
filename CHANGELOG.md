@@ -5,11 +5,17 @@
 ### Added
 - Add `header` option to HTML formatters for wrapping code blocks with custom HTML elements
 - Add shared `HtmlElement` struct for configuring HTML wrapper elements
+- Add individual language feature flags (`lang-*`) for selective compilation to reduce build times
+- Add `all-languages` convenience feature flag to enable all language support
 
 ### Improvements
 - Updated parsers: angular, c, cmake, comment, hcl, liquid, llvm, ocaml, perl, vim, vue, yaml
 - Updated queries: cmake, elm, fsharp, html, latex, php, vue
 - Updated themes: flexoki, modus operandi, moonfly, nightfly
+
+### Performance
+- Language parsers are now optional dependencies, allowing users to include only needed languages
+- Significant reduction in compilation time when using selective language features
 
 ## [0.3.2] - 2025-05-21
 

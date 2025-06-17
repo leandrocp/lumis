@@ -30,7 +30,91 @@ Add Autumnus to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-autumnus = "0.1"
+autumnus = "0.3"
+```
+
+#### Selective Language Support
+
+By default, Autumnus includes support for all languages, which can result in longer compilation times. You can reduce compilation time and binary size by enabling only the languages you need:
+
+```toml
+[dependencies]
+autumnus = { version = "0.3", default-features = false, features = ["lang-rust", "lang-javascript", "lang-python"] }
+```
+
+Available language features:
+- `lang-angular` - Angular templates
+- `lang-astro` - Astro framework
+- `lang-bash` - Bash/Shell scripts
+- `lang-c` - C programming language
+- `lang-clojure` - Clojure
+- `lang-cmake` - CMake build files
+- `lang-comment` - Comment highlighting
+- `lang-commonlisp` - Common Lisp
+- `lang-cpp` - C++
+- `lang-csharp` - C#
+- `lang-css` - CSS stylesheets
+- `lang-csv` - CSV files
+- `lang-diff` - Diff/patch files
+- `lang-dockerfile` - Docker files
+- `lang-eex` - Elixir EEx templates
+- `lang-ejs` - EJS templates
+- `lang-elixir` - Elixir
+- `lang-elm` - Elm
+- `lang-erb` - ERB templates
+- `lang-erlang` - Erlang
+- `lang-fsharp` - F#
+- `lang-gleam` - Gleam
+- `lang-glimmer` - Glimmer/Handlebars
+- `lang-go` - Go
+- `lang-graphql` - GraphQL
+- `lang-haskell` - Haskell
+- `lang-hcl` - HCL/Terraform
+- `lang-heex` - Phoenix HEEx templates
+- `lang-html` - HTML
+- `lang-iex` - Elixir IEx
+- `lang-java` - Java
+- `lang-javascript` - JavaScript
+- `lang-json` - JSON
+- `lang-kotlin` - Kotlin
+- `lang-latex` - LaTeX
+- `lang-liquid` - Liquid templates
+- `lang-llvm` - LLVM IR
+- `lang-lua` - Lua
+- `lang-make` - Makefiles
+- `lang-markdown` - Markdown
+- `lang-nix` - Nix
+- `lang-objc` - Objective-C
+- `lang-ocaml` - OCaml
+- `lang-perl` - Perl
+- `lang-php` - PHP
+- `lang-powershell` - PowerShell
+- `lang-protobuf` - Protocol Buffers
+- `lang-python` - Python
+- `lang-r` - R
+- `lang-regex` - Regular expressions
+- `lang-ruby` - Ruby
+- `lang-rust` - Rust
+- `lang-scala` - Scala
+- `lang-scss` - SCSS
+- `lang-sql` - SQL
+- `lang-surface` - Phoenix Surface
+- `lang-svelte` - Svelte
+- `lang-swift` - Swift
+- `lang-toml` - TOML
+- `lang-tsx` - TypeScript JSX
+- `lang-typescript` - TypeScript
+- `lang-vim` - Vim script
+- `lang-vue` - Vue.js
+- `lang-xml` - XML
+- `lang-yaml` - YAML
+- `lang-zig` - Zig
+
+Or use the convenience feature to enable all languages:
+
+```toml
+[dependencies]
+autumnus = { version = "0.3", features = ["all-languages"] }
 ```
 
 ### As a CLI Tool
@@ -40,6 +124,23 @@ Install the `autumn` command-line tool:
 ```sh
 cargo install autumnus
 ```
+
+#### Faster CLI Installation with Selective Languages
+
+For faster compilation, you can install the CLI with only the languages you need:
+
+```sh
+# Install with only specific languages
+cargo install autumnus --no-default-features --features "lang-rust,lang-python,lang-javascript"
+
+# Install with web development languages
+cargo install autumnus --no-default-features --features "lang-html,lang-css,lang-javascript,lang-typescript,lang-json"
+
+# Install with all languages (same as default)
+cargo install autumnus --features "all-languages"
+```
+
+This can significantly reduce compilation time, especially on slower machines or CI environments.
 
 Note: While the package name is `autumnus`, the installed binary is named `autumn`. This means you use `cargo install autumnus` to install it, but run it as `autumn` in your terminal.
 

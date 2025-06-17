@@ -81,108 +81,147 @@ impl TreeSitterParser {
 // https://github.com/Wilfred/difftastic/blob/8953c55cf854ceac2ccb6ece004d6a94a5bfa122/build.rs
 // TODO: remove vendored parsers in favor of crates as soon as they implement LanguageFn
 fn vendored_parsers() {
-    let parsers = vec![
-        TreeSitterParser {
-            name: "tree-sitter-angular",
-            src_dir: "vendored_parsers/tree-sitter-angular/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-astro",
-            src_dir: "vendored_parsers/tree-sitter-astro/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-clojure",
-            src_dir: "vendored_parsers/tree-sitter-clojure/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-commonlisp",
-            src_dir: "vendored_parsers/tree-sitter-commonlisp/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-csv",
-            src_dir: "vendored_parsers/tree-sitter-csv/csv/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-dockerfile",
-            src_dir: "vendored_parsers/tree-sitter-dockerfile/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-eex",
-            src_dir: "vendored_parsers/tree-sitter-eex/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-glimmer",
-            src_dir: "vendored_parsers/tree-sitter-glimmer/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-graphql",
-            src_dir: "vendored_parsers/tree-sitter-graphql/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-iex",
-            src_dir: "vendored_parsers/tree-sitter-iex/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-kotlin",
-            src_dir: "vendored_parsers/tree-sitter-kotlin/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-latex",
-            src_dir: "vendored_parsers/tree-sitter-latex/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-liquid",
-            src_dir: "vendored_parsers/tree-sitter-liquid/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-llvm",
-            src_dir: "vendored_parsers/tree-sitter-llvm/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-make",
-            src_dir: "vendored_parsers/tree-sitter-make/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-perl",
-            src_dir: "vendored_parsers/tree-sitter-perl/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-scss",
-            src_dir: "vendored_parsers/tree-sitter-scss/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-surface",
-            src_dir: "vendored_parsers/tree-sitter-surface/src",
-            extra_files: vec![],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-vim",
-            src_dir: "vendored_parsers/tree-sitter-vim/src",
-            extra_files: vec!["scanner.c"],
-        },
-        TreeSitterParser {
-            name: "tree-sitter-vue",
-            src_dir: "vendored_parsers/tree-sitter-vue/src",
-            extra_files: vec!["scanner.c"],
-        },
-    ];
+    let mut parsers: Vec<TreeSitterParser> = vec![];
+
+    #[cfg(feature = "lang-angular")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-angular",
+        src_dir: "vendored_parsers/tree-sitter-angular/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-astro")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-astro",
+        src_dir: "vendored_parsers/tree-sitter-astro/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-clojure")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-clojure",
+        src_dir: "vendored_parsers/tree-sitter-clojure/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-commonlisp")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-commonlisp",
+        src_dir: "vendored_parsers/tree-sitter-commonlisp/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-csv")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-csv",
+        src_dir: "vendored_parsers/tree-sitter-csv/csv/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-dockerfile")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-dockerfile",
+        src_dir: "vendored_parsers/tree-sitter-dockerfile/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-eex")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-eex",
+        src_dir: "vendored_parsers/tree-sitter-eex/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-glimmer")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-glimmer",
+        src_dir: "vendored_parsers/tree-sitter-glimmer/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-graphql")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-graphql",
+        src_dir: "vendored_parsers/tree-sitter-graphql/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-iex")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-iex",
+        src_dir: "vendored_parsers/tree-sitter-iex/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-kotlin")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-kotlin",
+        src_dir: "vendored_parsers/tree-sitter-kotlin/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-latex")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-latex",
+        src_dir: "vendored_parsers/tree-sitter-latex/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-liquid")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-liquid",
+        src_dir: "vendored_parsers/tree-sitter-liquid/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-llvm")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-llvm",
+        src_dir: "vendored_parsers/tree-sitter-llvm/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-make")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-make",
+        src_dir: "vendored_parsers/tree-sitter-make/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-perl")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-perl",
+        src_dir: "vendored_parsers/tree-sitter-perl/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-scss")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-scss",
+        src_dir: "vendored_parsers/tree-sitter-scss/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-surface")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-surface",
+        src_dir: "vendored_parsers/tree-sitter-surface/src",
+        extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-vim")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-vim",
+        src_dir: "vendored_parsers/tree-sitter-vim/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-vue")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-vue",
+        src_dir: "vendored_parsers/tree-sitter-vue/src",
+        extra_files: vec!["scanner.c"],
+    });
 
     for parser in &parsers {
         println!("cargo:rerun-if-changed={}", parser.src_dir);
@@ -284,6 +323,110 @@ fn queries() {
         let language = path.file_name().unwrap().to_str().unwrap();
         println!("cargo:rerun-if-changed=queries/{}", language);
         println!("cargo:rerun-if-changed=overwrites/{}", language);
+
+        // Map language directory names to feature names
+        let feature_name = match language {
+            "c_sharp" => "lang-csharp",
+            "embedded_template" => {
+                // embedded_template is used by both EJS and ERB
+                // Generate it if either feature is enabled
+                if cfg!(feature = "lang-ejs") || cfg!(feature = "lang-erb") {
+                    "lang-ejs" // Use one of them for the cfg check
+                } else {
+                    continue;
+                }
+            }
+            "markdown" => {
+                // markdown queries are used by both Markdown and MarkdownInline
+                "lang-markdown"
+            }
+            "ocaml" => {
+                // ocaml queries are used by both OCaml and OCamlInterface
+                "lang-ocaml"
+            }
+            "sequel" => "lang-sql",
+            "svelte_ng" => "lang-svelte",
+            "toml_ng" => "lang-toml",
+            _ => {
+                // Convert directory name to feature name (e.g., "rust" -> "lang-rust")
+                &format!("lang-{}", language.replace("_", ""))
+            }
+        };
+
+        // Only generate constants if the language feature is enabled
+        let should_generate = match language {
+            "c_sharp" => cfg!(feature = "lang-csharp"),
+            "embedded_template" => cfg!(feature = "lang-ejs") || cfg!(feature = "lang-erb"),
+            "markdown" => cfg!(feature = "lang-markdown"),
+            "ocaml" => cfg!(feature = "lang-ocaml"),
+            "sequel" => cfg!(feature = "lang-sql"),
+            "svelte_ng" => cfg!(feature = "lang-svelte"),
+            "toml_ng" => cfg!(feature = "lang-toml"),
+            "angular" => cfg!(feature = "lang-angular"),
+            "astro" => cfg!(feature = "lang-astro"),
+            "bash" => cfg!(feature = "lang-bash"),
+            "c" => cfg!(feature = "lang-c"),
+            "clojure" => cfg!(feature = "lang-clojure"),
+            "cmake" => cfg!(feature = "lang-cmake"),
+            "comment" => cfg!(feature = "lang-comment"),
+            "commonlisp" => cfg!(feature = "lang-commonlisp"),
+            "cpp" => cfg!(feature = "lang-cpp"),
+            "css" => cfg!(feature = "lang-css"),
+            "csv" => cfg!(feature = "lang-csv"),
+            "diff" => cfg!(feature = "lang-diff"),
+            "dockerfile" => cfg!(feature = "lang-dockerfile"),
+            "eex" => cfg!(feature = "lang-eex"),
+            "elixir" => cfg!(feature = "lang-elixir"),
+            "elm" => cfg!(feature = "lang-elm"),
+            "erlang" => cfg!(feature = "lang-erlang"),
+            "fsharp" => cfg!(feature = "lang-fsharp"),
+            "gleam" => cfg!(feature = "lang-gleam"),
+            "glimmer" => cfg!(feature = "lang-glimmer"),
+            "go" => cfg!(feature = "lang-go"),
+            "graphql" => cfg!(feature = "lang-graphql"),
+            "haskell" => cfg!(feature = "lang-haskell"),
+            "hcl" => cfg!(feature = "lang-hcl"),
+            "heex" => cfg!(feature = "lang-heex"),
+            "html" => cfg!(feature = "lang-html"),
+            "iex" => cfg!(feature = "lang-iex"),
+            "java" => cfg!(feature = "lang-java"),
+            "javascript" => cfg!(feature = "lang-javascript"),
+            "json" => cfg!(feature = "lang-json"),
+            "kotlin" => cfg!(feature = "lang-kotlin"),
+            "latex" => cfg!(feature = "lang-latex"),
+            "liquid" => cfg!(feature = "lang-liquid"),
+            "llvm" => cfg!(feature = "lang-llvm"),
+            "lua" => cfg!(feature = "lang-lua"),
+            "make" => cfg!(feature = "lang-make"),
+            "nix" => cfg!(feature = "lang-nix"),
+            "objc" => cfg!(feature = "lang-objc"),
+            "perl" => cfg!(feature = "lang-perl"),
+            "php" => cfg!(feature = "lang-php"),
+            "php_only" => cfg!(feature = "lang-php"),
+            "powershell" => cfg!(feature = "lang-powershell"),
+            "proto" => cfg!(feature = "lang-protobuf"),
+            "python" => cfg!(feature = "lang-python"),
+            "r" => cfg!(feature = "lang-r"),
+            "regex" => cfg!(feature = "lang-regex"),
+            "ruby" => cfg!(feature = "lang-ruby"),
+            "rust" => cfg!(feature = "lang-rust"),
+            "scala" => cfg!(feature = "lang-scala"),
+            "scss" => cfg!(feature = "lang-scss"),
+            "surface" => cfg!(feature = "lang-surface"),
+            "swift" => cfg!(feature = "lang-swift"),
+            "tsx" => cfg!(feature = "lang-tsx"),
+            "typescript" => cfg!(feature = "lang-typescript"),
+            "vim" => cfg!(feature = "lang-vim"),
+            "vue" => cfg!(feature = "lang-vue"),
+            "xml" => cfg!(feature = "lang-xml"),
+            "yaml" => cfg!(feature = "lang-yaml"),
+            "zig" => cfg!(feature = "lang-zig"),
+            _ => false, // Unknown language, skip
+        };
+
+        if !should_generate {
+            continue;
+        }
 
         let lang_upper = language.to_uppercase();
         let queries = ["highlights", "injections", "locals"];
