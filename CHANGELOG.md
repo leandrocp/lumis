@@ -14,10 +14,6 @@
 - Updated queries: cmake, elm, fsharp, html, latex, php, vue
 - Updated themes: flexoki, modus operandi, moonfly, nightfly
 
-### Performance
-- Language parsers are now optional dependencies, allowing users to include only needed languages
-- Significant reduction in compilation time when using selective language features
-
 ## [0.3.2] - 2025-05-21
 
 ### Improvements
