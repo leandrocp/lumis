@@ -80,6 +80,7 @@ impl TreeSitterParser {
 
 // https://github.com/Wilfred/difftastic/blob/8953c55cf854ceac2ccb6ece004d6a94a5bfa122/build.rs
 // TODO: remove vendored parsers in favor of crates as soon as they implement LanguageFn
+#[allow(clippy::vec_init_then_push)]
 fn vendored_parsers() {
     let mut parsers: Vec<TreeSitterParser> = vec![];
 
@@ -331,7 +332,9 @@ fn queries() {
             "c_sharp" => cfg!(feature = "lang-csharp"),
             "embedded_template" => cfg!(feature = "lang-ejs") || cfg!(feature = "lang-erb"),
             "markdown" => cfg!(feature = "lang-markdown"),
+            "markdown_inline" => cfg!(feature = "lang-markdown"),
             "ocaml" => cfg!(feature = "lang-ocaml"),
+            "ocaml_interface" => cfg!(feature = "lang-ocaml"),
             "sql" => cfg!(feature = "lang-sql"),
             "svelte" => cfg!(feature = "lang-svelte"),
             "toml" => cfg!(feature = "lang-toml"),

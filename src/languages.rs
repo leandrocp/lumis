@@ -1981,9 +1981,9 @@ static OCAML_INTERFACE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(
     let mut config = HighlightConfiguration::new(
         tree_sitter::Language::new(tree_sitter_ocaml::LANGUAGE_OCAML_INTERFACE),
         "ocaml_interface",
-        OCAML_HIGHLIGHTS,
-        OCAML_INJECTIONS,
-        OCAML_LOCALS,
+        OCAML_INTERFACE_HIGHLIGHTS,
+        OCAML_INTERFACE_INJECTIONS,
+        OCAML_INTERFACE_LOCALS,
     )
     .expect("failed to create ocam_interface highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);
@@ -2025,9 +2025,9 @@ static MARKDOWN_INLINE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(
     let mut config = HighlightConfiguration::new(
         tree_sitter::Language::new(tree_sitter_md::INLINE_LANGUAGE),
         "markdown_inline",
-        MARKDOWN_HIGHLIGHTS,
-        MARKDOWN_INJECTIONS,
-        MARKDOWN_LOCALS,
+        MARKDOWN_INLINE_HIGHLIGHTS,
+        MARKDOWN_INLINE_INJECTIONS,
+        MARKDOWN_INLINE_LOCALS,
     )
     .expect("failed to create markdown highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);
