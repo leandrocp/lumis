@@ -7,6 +7,7 @@
 - Add shared `HtmlElement` struct for configuring HTML wrapper elements
 - Add individual language feature flags (`lang-*`) for selective compilation to reduce build times
 - Add `all-languages` convenience feature flag to enable all language support
+- Add `highlight_lines` and `header` fields to Elixir bindings for HTML formatters
 
 ### Improvements
 - Updated parsers: angular, c, cmake, comment, hcl, liquid, llvm, ocaml, perl, vim, vue, yaml

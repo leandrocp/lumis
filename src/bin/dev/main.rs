@@ -125,6 +125,8 @@ fn gen_samples_entries(
                         pre_class: Some( "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6"),
                         italic: false,
                         include_highlights: true,
+                        highlight_lines: None,
+                        header: None,
                     },
                 },
             );
