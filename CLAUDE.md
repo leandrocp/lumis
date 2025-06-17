@@ -30,14 +30,16 @@
 - Themes are lazily loaded as static constants
 
 ## Adding New Languages
-1. Add Tree-sitter parser dependency to `Cargo.toml` or vendor in `vendored_parsers/`
-2. Add queries in `queries/<language>/` directory (highlights.scm, injections.scm, locals.scm)
-3. Update language detection in `src/languages.rs`
+- Search parser in https://crates.io
+- Add Tree-sitter parser dependency to `Cargo.toml` or vendor in `vendored_parsers/`
+- Add queries in `queries/<language>/` directory (highlights.scm, injections.scm, locals.scm)
+- Update language detection in `src/languages.rs`
+- Gate language features with `#[cfg(feature = "lang-{name}")]` in the codebase
 
 ## Adding New Themes
-1. Add theme definition in `themes/<theme-name>.json`
-2. Run `just gen-css` to generate CSS file
-3. Theme becomes automatically available through the theme system
+- Add theme definition in `themes/<theme-name>.json`
+- Run `just gen-css` to generate CSS file
+- Theme becomes automatically available through the theme system
 
 ## Important Notes
 - Features: `elixir` (for Rustler NIF), `dev` (for development tools)
