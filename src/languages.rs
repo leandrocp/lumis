@@ -149,6 +149,8 @@ include!(concat!(env!("OUT_DIR"), "/queries_constants.rs"));
 pub enum Language {
     #[cfg(feature = "lang-angular")]
     Angular,
+    #[cfg(feature = "lang-asm")]
+    Assembly,
     #[cfg(feature = "lang-astro")]
     Astro,
     #[cfg(feature = "lang-bash")]
@@ -296,6 +298,8 @@ impl Language {
         let exact = match lang_or_file.as_str() {
             #[cfg(feature = "lang-angular")]
             "angular" => Some(Language::Angular),
+            #[cfg(feature = "lang-asm")]
+            "asm" | "assembly" => Some(Language::Assembly),
             #[cfg(feature = "lang-astro")]
             "astro" => Some(Language::Astro),
             #[cfg(feature = "lang-bash")]
@@ -511,6 +515,8 @@ impl Language {
         let glob_strs: &'static [&'static str] = match language {
             #[cfg(feature = "lang-angular")]
             Language::Angular => &["*.angular", "component.html"],
+            #[cfg(feature = "lang-asm")]
+            Language::Assembly => &["*.s", "*.asm", "*.assembly"],
             #[cfg(feature = "lang-astro")]
             Language::Astro => &["*.astro"],
             #[cfg(feature = "lang-bash")]
@@ -999,6 +1005,8 @@ impl Language {
         match self {
             #[cfg(feature = "lang-angular")]
             Language::Angular => "Angular",
+            #[cfg(feature = "lang-asm")]
+            Language::Assembly => "Assembly",
             #[cfg(feature = "lang-astro")]
             Language::Astro => "Astro",
             #[cfg(feature = "lang-bash")]
@@ -1146,6 +1154,8 @@ impl Language {
         match self {
             #[cfg(feature = "lang-angular")]
             Language::Angular => &ANGULAR_CONFIG,
+            #[cfg(feature = "lang-asm")]
+            Language::Assembly => &ASM_CONFIG,
             #[cfg(feature = "lang-astro")]
             Language::Astro => &ASTRO_CONFIG,
             #[cfg(feature = "lang-bash")]
@@ -1406,6 +1416,20 @@ static ANGULAR_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
         ANGULAR_LOCALS,
     )
     .expect("failed to create angular highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
+#[cfg(feature = "lang-asm")]
+static ASM_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(tree_sitter_asm::LANGUAGE),
+        "asm",
+        ASM_HIGHLIGHTS,
+        ASM_INJECTIONS,
+        ASM_LOCALS,
+    )
+    .expect("failed to create asm highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);
     config
 });
