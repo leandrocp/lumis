@@ -109,6 +109,8 @@ extern "C" {
     fn tree_sitter_commonlisp() -> *const ();
     #[cfg(feature = "lang-csv")]
     fn tree_sitter_csv() -> *const ();
+    #[cfg(feature = "lang-dart")]
+    fn tree_sitter_dart() -> *const ();
     #[cfg(feature = "lang-dockerfile")]
     fn tree_sitter_dockerfile() -> *const ();
     #[cfg(feature = "lang-eex")]
@@ -169,6 +171,8 @@ pub enum Language {
     Comment,
     #[cfg(feature = "lang-commonlisp")]
     CommonLisp,
+    #[cfg(feature = "lang-dart")]
+    Dart,
     Diff,
     #[cfg(feature = "lang-dockerfile")]
     Dockerfile,
@@ -314,6 +318,8 @@ impl Language {
             "csv" => Some(Language::CSV),
             #[cfg(feature = "lang-css")]
             "css" => Some(Language::CSS),
+            #[cfg(feature = "lang-dart")]
+            "dart" => Some(Language::Dart),
             "diff" => Some(Language::Diff),
             #[cfg(feature = "lang-dockerfile")]
             "dockerfile" | "docker" => Some(Language::Dockerfile),
@@ -581,6 +587,8 @@ impl Language {
             ],
             #[cfg(feature = "lang-css")]
             Language::CSS => &["*.css"],
+            #[cfg(feature = "lang-dart")]
+            Language::Dart => &["*.dart"],
             Language::Diff => &["*.diff"],
             #[cfg(feature = "lang-dockerfile")]
             Language::Dockerfile => &[
@@ -1013,6 +1021,8 @@ impl Language {
             Language::CPlusPlus => "C++",
             #[cfg(feature = "lang-css")]
             Language::CSS => "CSS",
+            #[cfg(feature = "lang-dart")]
+            Language::Dart => "Dart",
             Language::Diff => "Diff",
             #[cfg(feature = "lang-dockerfile")]
             Language::Dockerfile => "Dockerfile",
@@ -1158,6 +1168,8 @@ impl Language {
             Language::CPlusPlus => &CPP_CONFIG,
             #[cfg(feature = "lang-css")]
             Language::CSS => &CSS_CONFIG,
+            #[cfg(feature = "lang-dart")]
+            Language::Dart => &DART_CONFIG,
             Language::Diff => &DIFF_CONFIG,
             #[cfg(feature = "lang-dockerfile")]
             Language::Dockerfile => &DOCKERFILE_CONFIG,
@@ -1528,6 +1540,22 @@ static CSV_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
         CSV_LOCALS,
     )
     .expect("failed to create csv highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
+#[cfg(feature = "lang-dart")]
+static DART_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_dart) };
+
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(language_fn),
+        "dart",
+        DART_HIGHLIGHTS,
+        DART_INJECTIONS,
+        DART_LOCALS,
+    )
+    .expect("failed to create dart highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);
     config
 });

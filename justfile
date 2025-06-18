@@ -18,12 +18,16 @@ extract-scopes:
     set -euo pipefail
     (cd queries && bash extract_scopes.sh)
 
-update-parsers force="false":
+update-parsers parser_name="" force="false":
     #!/usr/bin/env bash
     set -euo pipefail
 
     if [[ "{{force}}" != "true" ]]; then
-        echo "⚠️  This will update all parser files in vendored_parsers/"
+        if [[ -z "{{parser_name}}" ]]; then
+            echo "⚠️  This will update all parser files in vendored_parsers/"
+        else
+            echo "⚠️  This will update {{parser_name}} in vendored_parsers/"
+        fi
         echo ""
         read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
         echo ""
@@ -46,6 +50,7 @@ update-parsers force="false":
         "tree-sitter-clojure https://github.com/sogaiu/tree-sitter-clojure.git master"
         "tree-sitter-commonlisp https://github.com/tree-sitter-grammars/tree-sitter-commonlisp.git master"
         "tree-sitter-csv https://github.com/tree-sitter-grammars/tree-sitter-csv.git master"
+        "tree-sitter-dart https://github.com/UserNobody14/tree-sitter-dart.git master"
         "tree-sitter-dockerfile https://github.com/camdencheek/tree-sitter-dockerfile.git main"
         "tree-sitter-eex https://github.com/connorlay/tree-sitter-eex.git main"
         "tree-sitter-glimmer https://github.com/ember-tooling/tree-sitter-glimmer.git main"
@@ -67,6 +72,11 @@ update-parsers force="false":
 
     for parser_info in "${parsers[@]}"; do
         read -r parser repo branch <<< "$parser_info"
+
+        # Skip if parser_name is specified and doesn't match current parser
+        if [[ -n "{{parser_name}}" ]] && [[ "$parser" != "{{parser_name}}" ]]; then
+            continue
+        fi
 
         base_name=${parser#tree-sitter-}
         revision=$(jq -r ".\"$base_name\".revision" "$TEMP_DIR/lockfile.json")
