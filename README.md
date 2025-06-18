@@ -300,7 +300,7 @@ Dumps the Tree-sitter AST (Abstract Syntax Tree) for a given file. This is usefu
 
 ## Supported Languages
 
-Check the [documentation](https://docs.rs/autumnus) for a complete list of supported languages and file extensions.
+Check the [documentation](https://docs.rs/autumnus/latest/autumnus/#languages-available) for a complete list of supported languages and file extensions.
 
 ## Available Themes
 
@@ -317,7 +317,7 @@ Autumnus includes over 100 themes, such as:
 - Tokyo Night variants
 - And many more!
 
-Visit the [documentation](https://docs.rs/autumnus) for a complete list of available themes.
+Check the [documentation](https://docs.rs/autumnus/latest/autumnus/#themes-available) for a complete list of supported themes.
 
 ## Contributing
 
