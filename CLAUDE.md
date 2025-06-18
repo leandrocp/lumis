@@ -3,7 +3,7 @@
 - Run `cargo test -- --nocapture {test_name}` after changes to ensure all tests pass; Fix any failing tests
 - Run `cargo test` (the whole test suite) only when a lot of files change
 - Run `cargo doc` after doc changes; Fix any warnings or errors in the documentation
-- Run `cargo clippy -- -D warnings` eventually to check for linting issues and fix any warnings
+- Run `cargo clippy -- -D warnings` eventually to check for linting issues and fix any warnings and errors
 - Include changes in `CHANGELOG.md` following the Common Changelog format (https://common-changelog.org)
 
 ## Commands
@@ -29,12 +29,34 @@
 - CSS generation creates stylesheets for HTML linked formatter
 - Themes are lazily loaded as static constants
 
-## Adding New Languages
-- Search parser in https://crates.io
-- Add Tree-sitter parser dependency to `Cargo.toml` or vendor in `vendored_parsers/`
-- Add queries in `queries/<language>/` directory (highlights.scm, injections.scm, locals.scm)
-- Update language detection in `src/languages.rs`
-- Gate language features with `#[cfg(feature = "lang-{name}")]` in the codebase
+## Adding New Languages from crates.io
+1. Search parser in https://crates.io
+2. Add Tree-sitter parser dependency to `Cargo.toml`
+3. Gate language features with `#[cfg(feature = "lang-{name}")]` in the codebase
+4. Follow "Updating language.rs to add a new language"
+5. Follow "Adding New Queries"
+
+## Adding New vendorized Languages
+1. To vendor you must include the repo into `update-parses` in `justfile` and run `just update-parser <repo-name>`, eg: `just update-parsers tree-sitter-dart`
+2. Add language in function `vendored_parsers` in `build.rs`
+3. Run `cargo build`
+4. Add language in `extern "C"` block in `src/languages.rs`
+5. Follow "Updating language.rs to add a new language"
+5. Follow "Adding New Queries"
+
+## Updating language.rs to add a new language
+- Fetch https://github.com/Wilfred/difftastic/blob/master/src/parse/guess_language.rs to learn the language detection logic
+- Update `src/languages.rs` to include the new language:
+  - Add the new language in `pub enum Language`
+  - Add the new language in `pub fn guess`
+  - Add the new language in `pub fn language_globs`
+  - Add the new language in `pub fn name`
+  - Add the new language in `pub fn config`
+  - Add the static language config as `<LANGUAGE>_CONFIG`
+
+## Adding New Queries
+- Copy query files from https://github.com/nvim-treesitter/nvim-treesitter/tree/master/queries into `queries/<language>/` directory (copy only highlights.scm, injections.scm, and locals.scm)
+- Add language in function `queries` in `build.rs`
 
 ## Adding New Themes
 - Add theme definition in `themes/<theme-name>.json`

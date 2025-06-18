@@ -119,6 +119,13 @@ fn vendored_parsers() {
         extra_files: vec![],
     });
 
+    #[cfg(feature = "lang-dart")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-dart",
+        src_dir: "vendored_parsers/tree-sitter-dart/src",
+        extra_files: vec!["scanner.c"],
+    });
+
     #[cfg(feature = "lang-dockerfile")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-dockerfile",
@@ -349,6 +356,7 @@ fn queries() {
             "cpp" => cfg!(feature = "lang-cpp"),
             "css" => cfg!(feature = "lang-css"),
             "csv" => cfg!(feature = "lang-csv"),
+            "dart" => cfg!(feature = "lang-dart"),
             "diff" => true, // Always enabled for plaintext fallback
             "dockerfile" => cfg!(feature = "lang-dockerfile"),
             "eex" => cfg!(feature = "lang-eex"),

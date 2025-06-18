@@ -64,6 +64,7 @@ all-languages = [
     "lang-csharp",
     "lang-css",
     "lang-csv",
+    "lang-dart",
     "lang-diff",
     "lang-dockerfile",
     "lang-eex",
@@ -132,6 +133,7 @@ lang-cpp = ["dep:tree-sitter-cpp"]
 lang-csharp = ["dep:tree-sitter-c-sharp"]
 lang-css = ["dep:tree-sitter-css"]
 lang-csv = []
+lang-dart = []
 lang-diff = []
 lang-dockerfile = []
 lang-eex = []
