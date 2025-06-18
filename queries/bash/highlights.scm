@@ -247,6 +247,17 @@
     "READLINE_ARGUMENT" "READLINE_LINE" "READLINE_MARK" "READLINE_POINT" "REPLY" "SECONDS" "SHELL"
     "SHELLOPTS" "SHLVL" "SRANDOM" "TIMEFORMAT" "TMOUT" "TMPDIR" "UID"))
 
+((command
+  name: (command_name
+    (word) @_printf)
+  .
+  argument: (word) @_v
+  .
+  argument: (word) @variable)
+  (#eq? @_printf "printf")
+  (#eq? @_v "-v")
+  (#lua-match? @variable "^[a-zA-Z_][a-zA-Z0-9_]*$"))
+
 (case_item
   value: (word) @variable.parameter)
 
@@ -258,4 +269,4 @@
 ((program
   .
   (comment) @keyword.directive @nospell)
-  (#lua-match? @keyword.directive "^#!/"))
+  (#lua-match? @keyword.directive "^#![ \t]*/"))
