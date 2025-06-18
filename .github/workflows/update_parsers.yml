@@ -20,7 +20,8 @@ jobs:
 
       - uses: taiki-e/install-action@just
 
-      - run: just update-parsers true
+      - name: update-parsers
+        run: echo "y" | just update-parsers
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

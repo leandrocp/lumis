@@ -7,7 +7,7 @@
 //!
 //! # Available Themes
 //!
-//! The theme system includes 100+ themes covering light and dark variants from
+//! The theme system includes 120+ themes covering light and dark variants from
 //! popular colorschemes like Dracula, Catppuccin, GitHub, Gruvbox, and many more.
 //! See the main library documentation for the complete list.
 //!
@@ -631,7 +631,7 @@ mod tests {
             assert!(!theme.name.is_empty());
         }
 
-        assert_eq!(ALL_THEMES.len(), 109);
+        assert_eq!(ALL_THEMES.len(), 120);
     }
 
     #[test]

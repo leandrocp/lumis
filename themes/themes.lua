@@ -628,6 +628,14 @@ return {
 	},
 	{
 		"EdenEast/nightfox.nvim",
+		name = "nordfox",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme nordfox]])
+		end,
+	},
+	{
+		"EdenEast/nightfox.nvim",
 		name = "terafox",
 		config = function()
 			vim.o.background = "dark"
@@ -961,6 +969,78 @@ return {
 		config = function()
 			vim.o.background = "light"
 			vim.cmd([[colorscheme flexoki-light]])
+		end,
+	},
+	{
+		"phha/zenburn.nvim",
+		name = "zenburn",
+		config = function()
+			vim.o.background = "dark"
+			require("zenburn").setup()
+		end,
+	},
+	{
+		"shaunsingh/moonlight.nvim",
+		name = "moonlight",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme moonlight]])
+		end,
+	},
+	{
+		"UtkarshVerma/molokai.nvim",
+		name = "molokai",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme molokai]])
+		end,
+	},
+	{
+		"NLKNguyen/papercolor-theme",
+		name = "papercolor_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme PaperColor]])
+		end,
+	},
+	{
+		"NLKNguyen/papercolor-theme",
+		name = "papercolor_dark",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme PaperColor]])
+		end,
+	},
+	{
+		"cocopon/iceberg.vim",
+		name = "iceberg",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme iceberg]])
+		end,
+	},
+	{
+		"akinsho/horizon.nvim",
+		name = "horizon_dark",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme horizon]])
+		end,
+	},
+	{
+		"akinsho/horizon.nvim",
+		name = "horizon_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme horizon]])
+		end,
+	},
+	{
+		"srcery-colors/srcery-vim",
+		name = "srcery",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme srcery]])
 		end,
 	},
 }
