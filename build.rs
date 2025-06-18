@@ -346,6 +346,7 @@ fn queries() {
             "svelte" => cfg!(feature = "lang-svelte"),
             "toml" => cfg!(feature = "lang-toml"),
             "angular" => cfg!(feature = "lang-angular"),
+            "asm" => cfg!(feature = "lang-asm"),
             "astro" => cfg!(feature = "lang-astro"),
             "bash" => cfg!(feature = "lang-bash"),
             "c" => cfg!(feature = "lang-c"),

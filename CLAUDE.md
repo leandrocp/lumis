@@ -54,6 +54,9 @@
   - Add the new language in `pub fn config`
   - Add the static language config as `<LANGUAGE>_CONFIG`
 
+## Update Language documentation
+- Add the new language in section `//! ## Languages available` in `src/lib.rs`
+
 ## Adding New Queries
 - Copy query files from https://github.com/nvim-treesitter/nvim-treesitter/tree/master/queries into `queries/<language>/` directory (copy only highlights.scm, injections.scm, and locals.scm)
 - Add language in function `queries` in `build.rs`
@@ -62,6 +65,7 @@
 - Add theme definition in `themes/<theme-name>.json`
 - Run `just gen-css` to generate CSS file
 - Theme becomes automatically available through the theme system
+- Add the new theme in section `//! ## Themes available` in `src/lib.rs`
 
 ## Important Notes
 - Features: `elixir` (for Rustler NIF), `dev` (for development tools)
