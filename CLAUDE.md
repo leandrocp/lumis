@@ -1,9 +1,9 @@
 # General Guidelines
 - Do not add code comments or explanations in the codebase unless explicitly requested
 - Run `cargo test -- --nocapture {test_name}` after changes to ensure all tests pass; Fix any failing tests
-- Run `cargo test` (the whole test suite) only when a lot of files change
+- Run `cargo test --all-features` (the whole test suite) only when a lot of files change
 - Run `cargo doc` after doc changes; Fix any warnings or errors in the documentation
-- Run `cargo clippy -- -D warnings` eventually to check for linting issues and fix any warnings and errors
+- Run `cargo clippy --all-features -- -D warnings` eventually to check for linting issues and fix any warnings and errors
 - Include changes in `CHANGELOG.md` following the Common Changelog format (https://common-changelog.org)
 
 ## Commands
