@@ -44,6 +44,7 @@ autumnus = { version = "0.3", default-features = false, features = ["lang-rust",
 
 Available language features:
 - `lang-angular` - Angular templates
+- `lang-asm` - Assembly
 - `lang-astro` - Astro framework
 - `lang-bash` - Bash/Shell scripts
 - `lang-c` - C programming language
@@ -55,6 +56,7 @@ Available language features:
 - `lang-csharp` - C#
 - `lang-css` - CSS stylesheets
 - `lang-csv` - CSV files
+- `lang-dart` - Dart
 - `lang-diff` - Diff/patch files
 - `lang-dockerfile` - Docker files
 - `lang-eex` - Elixir EEx templates
@@ -297,77 +299,6 @@ autumn dump-tree-sitter <path>
 Dumps the Tree-sitter AST (Abstract Syntax Tree) for a given file. This is useful for debugging or understanding how Tree-sitter parses your code.
 
 ## Supported Languages
-
-Autumnus supports a wide range of programming languages:
-
-- Angular
-- Assembly
-- Astro
-- Bash
-- C
-- C++
-- C#
-- CMake
-- CSS
-- CSV
-- Clojure
-- Comment
-- Common Lisp
-- Dart
-- Diff
-- Dockerfile
-- EEx (Elixir templates)
-- EJS
-- ERB
-- Elixir
-- Elm
-- Erlang
-- F#
-- Gleam
-- Glimmer/Handlebars
-- Go
-- GraphQL
-- HEEx (Phoenix templates)
-- HTML
-- Haskell
-- HCL/Terraform
-- IEx (Elixir interactive)
-- JSON
-- Java
-- JavaScript
-- Kotlin
-- LaTeX
-- Liquid
-- LLVM
-- Lua
-- Make
-- Markdown
-- Nix
-- OCaml
-- Objective-C
-- Perl
-- PHP
-- PowerShell
-- Protocol Buffers
-- Python
-- R
-- Regex
-- Ruby
-- Rust
-- SCSS
-- SQL
-- Scala
-- Surface (Phoenix)
-- Svelte
-- Swift
-- TOML
-- TSX
-- TypeScript
-- Vim
-- Vue
-- XML
-- YAML
-- Zig
 
 Check the [documentation](https://docs.rs/autumnus) for a complete list of supported languages and file extensions.
 

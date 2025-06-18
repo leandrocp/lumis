@@ -59,6 +59,7 @@
 //! | Language | File Extensions |
 //! |----------|-----------------|
 //! | Angular | *.angular, component.html |
+//! | Assembly | *.s, *.asm, *.assembly |
 //! | Astro | *.astro |
 //! | Bash | *.bash, *.bats, *.cgi, *.command, *.env, *.fcgi, *.ksh, *.sh, *.sh.in, *.tmux, *.tool, *.zsh, .bash_aliases, .bash_history, .bash_logout, .bash_profile, .bashrc, .cshrc, .env, .env.example, .flaskenv, .kshrc, .login, .profile, .zlogin, .zlogout, .zprofile, .zshenv, .zshrc, 9fs, PKGBUILD, bash_aliases, bash_logout, bash_profile, bashrc, cshrc, ebuild, eclass, gradlew, kshrc, login, man, profile, zlogin, zlogout, zprofile, zshenv, zshrc |
 //! | C | *.c |
@@ -70,6 +71,7 @@
 //! | Clojure | *.bb, *.boot, *.clj, *.cljc, *.clje, *.cljs, *.cljx, *.edn, *.joke, *.joker |
 //! | Comment | |
 //! | Common Lisp | *.lisp, *.lsp, *.asd |
+//! | Dart | *.dart |
 //! | Diff | *.diff |
 //! | Dockerfile | Dockerfile, dockerfile, docker, Containerfile, container, *.dockerfile, *.docker, *.container |
 //! | EEx | *.eex |
@@ -83,10 +85,10 @@
 //! | Glimmer | *.hbs, *.handlebars, *.html.handlebars, *.glimmer |
 //! | Go | *.go |
 //! | GraphQL | |
-//! | HCL | *.hcl, *.nomad, *.tf, *.tfvars, *.workflow |
 //! | HEEx | *.heex, *.neex |
 //! | HTML | *.html, *.htm, *.xhtml |
 //! | Haskell | *.hs, *.hs-boot |
+//! | HCL | *.hcl, *.nomad, *.tf, *.tfvars, *.workflow |
 //! | IEx | *.iex |
 //! | JSON | *.json, *.avsc, *.geojson, *.gltf, *.har, *.ice, *.JSON-tmLanguage, *.jsonl, *.mcmeta, *.tfstate, *.tfstate.backup, *.topojson, *.webapp, *.webmanifest, .arcconfig, .auto-changelog, .c8rc, .htmlhintrc, .imgbotconfig, .nycrc, .tern-config, .tern-project, .watchmanconfig, Pipfile.lock, composer.lock, mcmod.info, flake.lock |
 //! | Java | *.java |
@@ -99,6 +101,7 @@
 //! | Make | *.mak, *.d, *.make, *.makefile, *.mk, *.mkfile, *.dsp, BSDmakefile, GNUmakefile, Kbuild, Makefile, MAKEFILE, Makefile.am, Makefile.boot, Makefile.frag, Makefile*.in, Makefile.inc, Makefile.wat, makefile, makefile.sco, mkfile |
 //! | Markdown | *.md, README, LICENSE |
 //! | Markdown Inline | |
+//! | Nix | *.nix |
 //! | OCaml | *.ml |
 //! | OCaml Interface | *.mli |
 //! | Objective-C | *.m, *.objc |
