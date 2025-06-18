@@ -58,7 +58,7 @@
 - Add the new language in section `//! ## Languages available` in `src/lib.rs`
 
 ## Adding New Queries
-- Copy query files from https://github.com/nvim-treesitter/nvim-treesitter/tree/master/queries into `queries/<language>/` directory (copy only highlights.scm, injections.scm, and locals.scm)
+- Copy query files from https://github.com/nvim-treesitter/nvim-treesitter/tree/main/runtime/queries into `queries/<language>/` directory (copy only highlights.scm, injections.scm, and locals.scm)
 - Add language in function `queries` in `build.rs`
 
 ## Adding New Themes

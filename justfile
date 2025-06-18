@@ -40,9 +40,7 @@ update-parsers parser_name="" force="false":
     TEMP_DIR=$(mktemp -d)
     trap 'rm -rf "$TEMP_DIR"' EXIT
 
-    NVIM_TREESITTER_LATEST=$(curl -s https://api.github.com/repos/nvim-treesitter/nvim-treesitter/tags | jq -r '.[0].name')
-    echo "Using nvim-treesitter version: $NVIM_TREESITTER_LATEST"
-    curl -s https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/tags/$NVIM_TREESITTER_LATEST/lockfile.json > "$TEMP_DIR/lockfile.json"
+    curl -s https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/main/lua/nvim-treesitter/parsers.lua > "$TEMP_DIR/parsers.lua"
 
     parsers=(
         "tree-sitter-angular https://github.com/dlvandenberg/tree-sitter-angular.git main"
@@ -79,7 +77,15 @@ update-parsers parser_name="" force="false":
         fi
 
         base_name=${parser#tree-sitter-}
-        revision=$(jq -r ".\"$base_name\".revision" "$TEMP_DIR/lockfile.json")
+        revision=$(lua -e "
+            local parsers = dofile('$TEMP_DIR/parsers.lua')
+            local lang_info = parsers['$base_name']
+            if lang_info then
+                print(lang_info.install_info.revision)
+            else
+                print('null')
+            end
+        ")
 
         echo "🔄 Updating $parser from $repo (revision: $revision)"
 
@@ -134,14 +140,12 @@ update-queries force="false":
     fi
 
     TEMP_DIR=$(mktemp -d)
-    NVIM_TREESITTER_LATEST=$(curl -s https://api.github.com/repos/nvim-treesitter/nvim-treesitter/tags | jq -r '.[0].name')
-    echo "Using nvim-treesitter version: $NVIM_TREESITTER_LATEST"
-    git clone --depth 1 --branch "$NVIM_TREESITTER_LATEST" https://github.com/nvim-treesitter/nvim-treesitter.git "$TEMP_DIR/nvim-treesitter"
+    git clone --depth 1 --branch "main" https://github.com/nvim-treesitter/nvim-treesitter.git "$TEMP_DIR/nvim-treesitter"
 
     LANGUAGES=$(find queries -maxdepth 1 -type d | grep -v "^queries$" | sed 's|queries/||')
 
     for LANG in $LANGUAGES; do
-        SRC_DIR="$TEMP_DIR/nvim-treesitter/queries/$LANG"
+        SRC_DIR="$TEMP_DIR/nvim-treesitter/runtime/queries/$LANG"
         DEST_DIR="queries/$LANG"
 
         if [ -d "$SRC_DIR" ]; then
