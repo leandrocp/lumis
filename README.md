@@ -298,42 +298,76 @@ Dumps the Tree-sitter AST (Abstract Syntax Tree) for a given file. This is usefu
 
 ## Supported Languages
 
-Autumnus supports a wide range of programming languages, including but not limited to:
+Autumnus supports a wide range of programming languages:
 
 - Angular
+- Assembly
 - Astro
 - Bash
-- C/C++
+- C
+- C++
 - C#
+- CMake
+- CSS
+- CSV
 - Clojure
-- CSS/SCSS
+- Comment
+- Common Lisp
+- Dart
+- Diff
 - Dockerfile
-- Elixir/EEx/HEEx
+- EEx (Elixir templates)
+- EJS
+- ERB
+- Elixir
 - Elm
 - Erlang
 - F#
+- Gleam
+- Glimmer/Handlebars
 - Go
 - GraphQL
-- Haskell
+- HEEx (Phoenix templates)
 - HTML
-- Java
-- JavaScript/TypeScript
+- Haskell
+- HCL/Terraform
+- IEx (Elixir interactive)
 - JSON
+- Java
+- JavaScript
 - Kotlin
 - LaTeX
+- Liquid
+- LLVM
 - Lua
+- Make
 - Markdown
+- Nix
 - OCaml
+- Objective-C
+- Perl
 - PHP
+- PowerShell
+- Protocol Buffers
 - Python
+- R
+- Regex
 - Ruby
 - Rust
+- SCSS
 - SQL
+- Scala
+- Surface (Phoenix)
+- Svelte
 - Swift
 - TOML
+- TSX
+- TypeScript
+- Vim
+- Vue
 - XML
 - YAML
-- And many more!
+- Zig
 
 Check the [documentation](https://docs.rs/autumnus) for a complete list of supported languages and file extensions.
 
