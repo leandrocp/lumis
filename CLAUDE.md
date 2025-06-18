@@ -62,10 +62,12 @@
 - Add language in function `queries` in `build.rs`
 
 ## Adding New Themes
-- Add theme definition in `themes/<theme-name>.json`
-- Run `just gen-css` to generate CSS file
-- Theme becomes automatically available through the theme system
-- Add the new theme in section `//! ## Themes available` in `src/lib.rs`
+1. Search for the Neovim plugin that provides the theme, for eg: `dracula` is provided by https://github.com/Mofiqul/dracula.nvim
+2. Fetch the theme repo README to understand how to install and configure it. Note: look for the Lazy package manager installation instructions
+3. Add each variation as a separate theme into `themes/themes.lua`, for eg: the colorscheme `dracula-soft` is added as theme `dracula_soft`
+4. Run `just gen-theme <theme-name>` to generate the theme JSON file
+5. Run `just gen-css` to generate CSS file
+6. Add the new theme in section `//! ## Themes available` in `src/lib.rs`
 
 ## Important Notes
 - Features: `elixir` (for Rustler NIF), `dev` (for development tools)

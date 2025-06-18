@@ -29,7 +29,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y lua5.4 neovim
 
-      - run: just gen-css true
+      - name: gen-css
+        run: echo "y" | just gen-css
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

@@ -23,7 +23,8 @@ jobs:
 
       - uses: taiki-e/install-action@just
 
-      - run: just gen-samples true
+      - name: gen-samples
+        run: echo "y" | just gen-samples
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

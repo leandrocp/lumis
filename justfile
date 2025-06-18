@@ -18,23 +18,21 @@ extract-scopes:
     set -euo pipefail
     (cd queries && bash extract_scopes.sh)
 
-update-parsers parser_name="" force="false":
+update-parsers parser_name="":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [[ "{{force}}" != "true" ]]; then
-        if [[ -z "{{parser_name}}" ]]; then
-            echo "⚠️  This will update all parser files in vendored_parsers/"
-        else
-            echo "⚠️  This will update {{parser_name}} in vendored_parsers/"
-        fi
-        echo ""
-        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-        echo ""
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Operation cancelled."
-            exit 0
-        fi
+    if [[ -z "{{parser_name}}" ]]; then
+        echo "⚠️  This will update all parser files in vendored_parsers/"
+    else
+        echo "⚠️  This will update {{parser_name}} in vendored_parsers/"
+    fi
+    echo ""
+    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Operation cancelled."
+        exit 0
     fi
 
     TEMP_DIR=$(mktemp -d)
@@ -124,19 +122,17 @@ update-parsers parser_name="" force="false":
         rm -rf "$TEMP_DIR/$parser"
     done
 
-update-queries force="false":
+update-queries:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [[ "{{force}}" != "true" ]]; then
-        echo "⚠️  This will regenerate files in queries/"
-        echo ""
-        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-        echo ""
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Operation cancelled."
-            exit 0
-        fi
+    echo "⚠️  This will regenerate files in queries/"
+    echo ""
+    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Operation cancelled."
+        exit 0
     fi
 
     TEMP_DIR=$(mktemp -d)
@@ -176,19 +172,17 @@ gen-theme THEME_NAME:
     rm -rf nvim
     nvim --clean --headless -V3 -u init.lua -l extract_theme.lua {{THEME_NAME}}
 
-gen-themes force="false":
+gen-themes:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [[ "{{force}}" != "true" ]]; then
-        echo "⚠️  This will regenerate files in themes/"
-        echo ""
-        read -p "Do you want to proceed? (y/N) " -n 1 -r
-        echo ""
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Operation cancelled."
-            exit 0
-        fi
+    echo "⚠️  This will regenerate files in themes/"
+    echo ""
+    read -p "Do you want to proceed? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Operation cancelled."
+        exit 0
     fi
 
     find themes -type f -name "*.json" -delete
@@ -203,37 +197,33 @@ gen-themes force="false":
         fi
     done <<< "$THEME_NAMES"
 
-gen-css force="false":
+gen-css:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [[ "{{force}}" != "true" ]]; then
-        echo "⚠️  This will regenerate files in css/"
-        echo ""
-        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-        echo ""
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Operation cancelled."
-            exit 0
-        fi
+    echo "⚠️  This will regenerate files in css/"
+    echo ""
+    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Operation cancelled."
+        exit 0
     fi
 
     find css -type f -name "*.css" -delete
     cargo run --release --features=dev --bin dev gen-css
 
-gen-samples force="false":
+gen-samples:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [[ "{{force}}" != "true" ]]; then
-        echo "⚠️  This will regenerate files in the samples/ directory."
-        echo ""
-        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-        echo ""
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Operation cancelled."
-            exit 0
-        fi
+    echo "⚠️  This will regenerate files in the samples/ directory."
+    echo ""
+    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Operation cancelled."
+        exit 0
     fi
 
     find samples -type f -name "*.html" ! -name "index.html" ! -name "html.html" -delete
