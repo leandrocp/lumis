@@ -123,7 +123,7 @@
 ((argument_patterns
   (long_identifier
     (identifier) @character.special))
-  (#lua-match? @character.special "^\_.*"))
+  (#lua-match? @character.special "^_.*"))
 
 (member_defn
   (method_or_prop_defn
@@ -200,15 +200,7 @@
   "#line" @keyword.directive)
 
 (attribute
-  (_type) @attribute)
-
-; Attribute targets
-(attribute
-  [
-    "return"
-    "field"
-  ] @keyword
-  ":"
+  target: (identifier)? @keyword
   (_type) @attribute)
 
 [
