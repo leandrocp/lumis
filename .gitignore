@@ -3,3 +3,4 @@
 /queries/**/folds.scm
 /queries/**/indents.scm
 /.claude/
+mise.toml
