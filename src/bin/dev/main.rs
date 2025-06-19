@@ -122,7 +122,9 @@ fn gen_samples_entries(
                     lang_or_file: Some(file_name),
                     formatter: autumnus::FormatterOption::HtmlInline {
                         theme: Some(theme),
-                        pre_class: Some( "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6"),
+                        pre_class: Some(
+                            "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6",
+                        ),
                         italic: false,
                         include_highlights: true,
                         highlight_lines: None,

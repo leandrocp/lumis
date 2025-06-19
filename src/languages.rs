@@ -943,7 +943,7 @@ impl Language {
                         "ocaml" | "ocamlrun" | "ocamlscript" => return Some(Language::OCaml),
                         #[cfg(feature = "lang-commonlisp")]
                         "lisp" | "sbc" | "ccl" | "clisp" | "ecl" => {
-                            return Some(Language::CommonLisp)
+                            return Some(Language::CommonLisp);
                         }
                         #[cfg(feature = "lang-haskell")]
                         "runghc" | "runhaskell" | "runhugs" => return Some(Language::Haskell),
@@ -960,7 +960,7 @@ impl Language {
                         "perl" => return Some(Language::Perl),
                         #[cfg(feature = "lang-ruby")]
                         "ruby" | "macruby" | "rake" | "jruby" | "rbx" => {
-                            return Some(Language::Ruby)
+                            return Some(Language::Ruby);
                         }
                         #[cfg(feature = "lang-swift")]
                         "swift" => return Some(Language::Swift),

@@ -1,7 +1,7 @@
 //! Utility module to integrate with Elixir through Rustler.
 
-use crate::formatter::{html_inline, html_linked, HtmlElement};
-use crate::{themes, FormatterOption};
+use crate::formatter::{HtmlElement, html_inline, html_linked};
+use crate::{FormatterOption, themes};
 use rustler::{NifStruct, NifTaggedEnum};
 use std::collections::HashMap;
 
@@ -338,7 +338,7 @@ impl From<html_linked::HighlightLines> for ExHtmlLinkedHighlightLines {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{highlight, themes, Options};
+    use crate::{Options, highlight, themes};
     use std::collections::HashMap;
 
     #[test]

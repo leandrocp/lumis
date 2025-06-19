@@ -229,7 +229,9 @@ mod tests {
         let mut buffer = Vec::new();
         formatter.open_code_tag(&mut buffer);
         let code_tag = String::from_utf8(buffer).unwrap();
-        assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
+        assert!(
+            code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">")
+        );
     }
 
     #[test]
@@ -248,7 +250,9 @@ mod tests {
         let mut buffer = Vec::new();
         formatter.open_code_tag(&mut buffer);
         let code_tag = String::from_utf8(buffer).unwrap();
-        assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
+        assert!(
+            code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">")
+        );
     }
 
     #[test]

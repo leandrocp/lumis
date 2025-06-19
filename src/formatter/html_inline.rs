@@ -368,13 +368,22 @@ mod tests {
 
         println!("{}", result);
 
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="1">"#));
+        assert!(
+            result.contains(
+                r#"<span class="line" style="background-color: #e7eaf0;" data-line="1">"#
+            )
+        );
         assert!(result.contains(r#"<span class="line" data-line="2">"#));
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="3">"#));
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="4">"#));
+        assert!(
+            result.contains(
+                r#"<span class="line" style="background-color: #e7eaf0;" data-line="3">"#
+            )
+        );
+        assert!(
+            result.contains(
+                r#"<span class="line" style="background-color: #e7eaf0;" data-line="4">"#
+            )
+        );
         assert!(result.contains(r#"<span class="line" data-line="5">"#));
     }
 
@@ -400,13 +409,19 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: yellow" data-line="1">"#));
+        assert!(
+            result
+                .contains(r#"<span class="line" style="background-color: yellow" data-line="1">"#)
+        );
         assert!(result.contains(r#"<span class="line" data-line="2">"#));
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: yellow" data-line="3">"#));
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: yellow" data-line="4">"#));
+        assert!(
+            result
+                .contains(r#"<span class="line" style="background-color: yellow" data-line="3">"#)
+        );
+        assert!(
+            result
+                .contains(r#"<span class="line" style="background-color: yellow" data-line="4">"#)
+        );
         assert!(result.contains(r#"<span class="line" data-line="5">"#));
     }
 
