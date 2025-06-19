@@ -1,6 +1,6 @@
 use anyhow::Result;
-use autumnus::FormatterOption;
 use autumnus::languages::Language;
+use autumnus::FormatterOption;
 use clap::{Parser, Subcommand, ValueEnum};
 use std::fmt::Display;
 use std::fs;
