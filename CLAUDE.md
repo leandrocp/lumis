@@ -69,6 +69,15 @@
 5. Run `just gen-css` to generate CSS file
 6. Add the new theme in section `//! ## Themes available` in `src/lib.rs`
 
+## Adding New Samples
+1. Fetch example from https://github.com/adambard/learnxinyminutes-docs located at https://raw.githubusercontent.com/adambard/learnxinyminutes-docs/refs/heads/master/<language>.md
+2. Extract example from code block and save it in `samples/<language>.<ext>`, for eg Elixir sample starts with ```elixir in https://raw.githubusercontent.com/adambard/learnxinyminutes-docs/refs/heads/master/elixir.md and is saved as `samples/elixir.exs`.
+  Notes:
+    - Concat multiple code blocks into a single file if necessary.
+    - If the repo Learn X in Y Minutes does not have a sample for the language, create a comprehensive sample file demoing the language features.
+3. Add the language in the list of languages in `samples/index.html` in `const languages = [...]`
+4. Run `echo y | just gen-samples` to generate the HTML samples
+
 ## Important Notes
 - Features: `elixir` (for Rustler NIF), `dev` (for development tools)
 - Overwrites in `overwrites/` directory can modify or extend query files
