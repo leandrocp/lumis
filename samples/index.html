@@ -209,7 +209,7 @@
                 </label>
                 <select
                   id="language"
-                  class="flex h-10 w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm text-gray-800 hover:bg-gray-50 ring-offset-white focus:outline-none focus:ring-2 focus:ring-gray-950/10 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  class="block h-10 w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm text-gray-800 hover:bg-gray-50 ring-offset-white focus:outline-none focus:ring-2 focus:ring-gray-950/10 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%228%22%20viewBox%3D%220%200%2014%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1%201L7%207L13%201%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_0.75rem_center] bg-no-repeat"
                 ></select>
                 <p class="text-xs text-gray-500 flex items-center gap-1.5">
                   <code
@@ -222,7 +222,7 @@
                 <label class="text-sm font-medium text-gray-700"> Theme </label>
                 <select
                   id="theme"
-                  class="flex h-10 w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm text-gray-800 hover:bg-gray-50 ring-offset-white focus:outline-none focus:ring-2 focus:ring-gray-950/10 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  class="block h-10 w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm text-gray-800 hover:bg-gray-50 ring-offset-white focus:outline-none focus:ring-2 focus:ring-gray-950/10 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%228%22%20viewBox%3D%220%200%2014%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1%201L7%207L13%201%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_0.75rem_center] bg-no-repeat"
                 ></select>
                 <p class="text-xs text-gray-500 flex items-center gap-1.5">
                   <code
@@ -313,10 +313,12 @@
         "ayu_light",
         "catppuccin_frappe",
         "catppuccin_latte",
+        "catppuccin_macchiato",
         "catppuccin_mocha",
         "cyberdream_dark",
         "cyberdream_light",
         "dracula",
+        "dracula_soft",
         "edge_dark",
         "edge_light",
         "everforest_dark",
@@ -324,26 +326,46 @@
         "github_dark",
         "github_light",
         "gruvbox_dark",
+        "gruvbox_dark_hard",
+        "gruvbox_dark_soft",
         "gruvbox_light",
+        "gruvbox_light_hard",
+        "gruvbox_light_soft",
+        "horizon",
+        "iceberg",
         "kanagawa_lotus",
         "kanagawa_wave",
         "material_lighter",
         "material_oceanic",
         "melange_dark",
         "melange_light",
+        "molokai",
         "monokai_pro_dark",
+        "monokai_pro_machine",
+        "monokai_pro_ristretto",
+        "monokai_pro_spectrum",
+        "moonfly",
         "neovim_dark",
         "neovim_light",
         "nightfox",
+        "nightfly",
         "nord",
+        "nordic",
         "onedark",
+        "onedark_cool",
+        "onedark_darker",
         "onelight",
         "rosepine_dark",
         "rosepine_dawn",
         "solarized_autumn_dark",
         "solarized_autumn_light",
         "tokyonight_day",
+        "tokyonight_moon",
         "tokyonight_night",
+        "tokyonight_storm",
+        "vscode_dark",
+        "vscode_light",
+        "zenburn",
       ].sort();
 
       const languageSelect = document.getElementById("language");
