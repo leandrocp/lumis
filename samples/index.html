@@ -231,6 +231,14 @@
                   ></code>
                 </p>
               </div>
+              <div class="sm:p-8">
+                <button
+                  id="random-button"
+                  class="px-4 py-2 h-10 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium text-sm hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-2 transition-all transform hover:scale-105 mt-7 sm:mt-0"
+                >
+                  Random
+                </button>
+              </div>
             </div>
           </div>
 
@@ -427,6 +435,17 @@
       document.getElementById("theme-value").textContent = themeSelect.value;
 
       loadContent();
+
+      document.getElementById("random-button").addEventListener("click", () => {
+        const languageKeys = Object.keys(languages);
+        const randomLanguage = languageKeys[Math.floor(Math.random() * languageKeys.length)];
+        const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+        languageSelect.value = randomLanguage;
+        themeSelect.value = randomTheme;
+        document.getElementById("language-value").textContent = randomLanguage;
+        document.getElementById("theme-value").textContent = randomTheme;
+        loadContent();
+      });
     </script>
   </body>
 </html>
