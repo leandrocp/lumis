@@ -196,12 +196,12 @@ impl Formatter for HtmlLinked<'_> {
 impl HtmlFormatter for HtmlLinked<'_> {
     fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()> {
         let class = if let Some(pre_class) = self.pre_class {
-            format!("athl {}", pre_class)
+            format!("athl {pre_class}")
         } else {
             "athl".to_string()
         };
 
-        write!(output, "<pre class=\"{}\">", class)
+        write!(output, "<pre class=\"{class}\">")
     }
 
     fn open_code_tag(&self, output: &mut dyn Write) -> io::Result<()> {

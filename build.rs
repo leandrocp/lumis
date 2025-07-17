@@ -284,18 +284,17 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
                 .collect();
 
             for parent_language in parent_languages {
-                let parent_path =
-                    PathBuf::from(format!("queries/{}/{}.scm", parent_language, query));
+                let parent_path = PathBuf::from(format!("queries/{parent_language}/{query}.scm"));
                 let parent_content = read_query_file(&parent_path, &parent_language, query);
                 query_content.push(parent_content.clone());
             }
         }
     }
 
-    query_content.push(format!("\n; query: {}", language));
+    query_content.push(format!("\n; query: {language}"));
     query_content.push(content.clone());
 
-    let overwrite_path = PathBuf::from(format!("overwrites/{}/{}.scm", language, query));
+    let overwrite_path = PathBuf::from(format!("overwrites/{language}/{query}.scm"));
     if overwrite_path.exists() {
         println!(
             "cargo:warning=appending {} into {}",
@@ -329,8 +328,8 @@ fn queries() {
         }
 
         let language = path.file_name().unwrap().to_str().unwrap();
-        println!("cargo:rerun-if-changed=queries/{}", language);
-        println!("cargo:rerun-if-changed=overwrites/{}", language);
+        println!("cargo:rerun-if-changed=queries/{language}");
+        println!("cargo:rerun-if-changed=overwrites/{language}");
 
         // Check if we should generate constants for this language based on feature flags
 
@@ -417,7 +416,7 @@ fn queries() {
         let queries = ["highlights", "injections", "locals"];
 
         for query in queries {
-            let file_path = path.join(format!("{}.scm", query));
+            let file_path = path.join(format!("{query}.scm"));
             let const_name = format_ident!("{}_{}", lang_upper, query.to_uppercase());
             let processed_content = read_query_file(&file_path, language, query);
 

@@ -207,7 +207,7 @@ impl Formatter for HtmlInline<'_> {
                             }
                         }
                         HighlightLinesStyle::Style(style_string) => {
-                            format!(" style=\"{}\"", style_string)
+                            format!(" style=\"{style_string}\"")
                         }
                     }
                 } else {
@@ -252,7 +252,7 @@ impl Formatter for HtmlInline<'_> {
 impl HtmlFormatter for HtmlInline<'_> {
     fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()> {
         let class = if let Some(pre_class) = &self.pre_class {
-            format!("athl {}", pre_class)
+            format!("athl {pre_class}")
         } else {
             "athl".to_string()
         };
@@ -264,7 +264,7 @@ impl HtmlFormatter for HtmlInline<'_> {
             &self
                 .theme
                 .and_then(|theme| theme.pre_style(" "))
-                .map(|pre_style| format!(" style=\"{}\"", pre_style))
+                .map(|pre_style| format!(" style=\"{pre_style}\""))
                 .unwrap_or_default(),
         )
     }
@@ -376,7 +376,7 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        println!("{}", result);
+        println!("{result}");
 
         assert!(result
             .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="1">"#));

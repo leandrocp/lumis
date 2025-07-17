@@ -92,7 +92,7 @@ impl Formatter for Terminal<'_> {
                         .get(start..end)
                         .expect("failed to get source bounds");
 
-                    write!(buffer, "{}", text)?;
+                    write!(buffer, "{text}")?;
                 }
                 HighlightEvent::HighlightEnd => {
                     buffer.reset()?;

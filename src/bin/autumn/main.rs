@@ -118,7 +118,7 @@ fn list_themes() -> Result<()> {
 fn list_languages() -> Result<()> {
     for language in Language::iter() {
         let name = Language::id_name(&language);
-        println!("{}", name);
+        println!("{name}");
 
         for glob in Language::language_globs(language) {
             print!("  {}", glob.as_str());
@@ -238,7 +238,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 },
             );
 
-            println!("{}", highlighted);
+            println!("{highlighted}");
         }
 
         Formatter::HtmlLinked => {
@@ -254,7 +254,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 },
             );
 
-            println!("{}", highlighted);
+            println!("{highlighted}");
         }
 
         Formatter::Terminal => {
@@ -266,7 +266,7 @@ fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) ->
                 },
             );
 
-            println!("{}", highlighted);
+            println!("{highlighted}");
         }
     }
 
@@ -297,10 +297,10 @@ fn read_or_die(path: &Path) -> Vec<u8> {
 fn eprint_read_error(file_arg: &FileArgument, e: &std::io::Error) {
     match e.kind() {
         std::io::ErrorKind::NotFound => {
-            eprintln!("No such file: {}", file_arg);
+            eprintln!("No such file: {file_arg}");
         }
         std::io::ErrorKind::PermissionDenied => {
-            eprintln!("Permission denied when reading file: {}", file_arg);
+            eprintln!("Permission denied when reading file: {file_arg}");
         }
         _ => match file_arg {
             FileArgument::NamedPath(path) if path.is_dir() => {
@@ -392,7 +392,7 @@ fn highlight_source(
                 },
             );
 
-            println!("{}", highlighted);
+            println!("{highlighted}");
         }
 
         Formatter::HtmlLinked => {
@@ -408,7 +408,7 @@ fn highlight_source(
                 },
             );
 
-            println!("{}", highlighted);
+            println!("{highlighted}");
         }
 
         Formatter::Terminal => {
@@ -420,7 +420,7 @@ fn highlight_source(
                 },
             );
 
-            println!("{}", highlighted);
+            println!("{highlighted}");
         }
     }
 

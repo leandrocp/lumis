@@ -136,7 +136,7 @@ fn gen_samples_entries(
                 .unwrap();
 
             let contents = fs::read_to_string(&path)
-                .with_context(|| format!("failed to read sample file: {}", file_name))?;
+                .with_context(|| format!("failed to read sample file: {file_name}"))?;
 
             let highlighted = autumnus::highlight(
                 &contents,

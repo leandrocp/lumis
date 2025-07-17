@@ -498,7 +498,7 @@ impl Language {
     }
 
     fn from_extension(token: &str) -> Option<Self> {
-        let token_pattern = format!("*.{}", token);
+        let token_pattern = format!("*.{token}");
 
         for language in Language::iter() {
             for glob in Language::language_globs(language) {

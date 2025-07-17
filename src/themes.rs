@@ -84,10 +84,10 @@ pub enum ThemeError {
 impl std::fmt::Display for ThemeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ThemeError::NotFound(name) => write!(f, "Theme '{}' not found", name),
-            ThemeError::InvalidJson(msg) => write!(f, "Invalid theme JSON: {}", msg),
-            ThemeError::FileNotFound(path) => write!(f, "Theme file not found: {}", path),
-            ThemeError::FileReadError(msg) => write!(f, "Failed to read theme file: {}", msg),
+            ThemeError::NotFound(name) => write!(f, "Theme '{name}' not found"),
+            ThemeError::InvalidJson(msg) => write!(f, "Invalid theme JSON: {msg}"),
+            ThemeError::FileNotFound(path) => write!(f, "Theme file not found: {path}"),
+            ThemeError::FileReadError(msg) => write!(f, "Failed to read theme file: {msg}"),
         }
     }
 }
@@ -414,7 +414,7 @@ impl Theme {
         ));
 
         if let Some(pre_style) = &self.pre_style("\n  ") {
-            rules.push(format!(" {{\n  {}\n}}\n", pre_style));
+            rules.push(format!(" {{\n  {pre_style}\n}}\n"));
         } else {
             rules.push(" {}\n".to_string());
         }
@@ -469,11 +469,11 @@ impl Theme {
         let mut rules = Vec::new();
 
         if let Some(fg) = &self.fg() {
-            rules.push(format!("color: {};", fg));
+            rules.push(format!("color: {fg};"));
         }
 
         if let Some(bg) = &self.bg() {
-            rules.push(format!("background-color: {};", bg));
+            rules.push(format!("background-color: {bg};"));
         }
 
         if rules.is_empty() {
@@ -489,11 +489,11 @@ impl Style {
         let mut rules = Vec::new();
 
         if let Some(fg) = &self.fg {
-            rules.push(format!("color: {};", fg))
+            rules.push(format!("color: {fg};"))
         };
 
         if let Some(bg) = &self.bg {
-            rules.push(format!("background-color: {};", bg))
+            rules.push(format!("background-color: {bg};"))
         };
 
         if self.bold {
