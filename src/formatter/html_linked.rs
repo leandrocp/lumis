@@ -11,6 +11,7 @@
 use super::{Formatter, HtmlElement, HtmlFormatter};
 use crate::constants::CLASSES;
 use crate::languages::Language;
+use derive_builder::Builder;
 use std::{
     io::{self, Write},
     ops::RangeInclusive,
@@ -74,13 +75,20 @@ impl Default for HighlightLines {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Builder)]
+#[builder(default)]
 pub struct HtmlLinked<'a> {
     source: &'a str,
     lang: Language,
     pre_class: Option<&'a str>,
     highlight_lines: Option<HighlightLines>,
     header: Option<HtmlElement>,
+}
+
+impl<'a> HtmlLinkedBuilder<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl<'a> HtmlLinked<'a> {
@@ -234,11 +242,12 @@ mod tests {
 
     #[test]
     fn test_builder_pattern() {
-        let formatter = HtmlLinkedBuilder::new()
+        let formatter = HtmlLinkedBuilder::default()
             .source("")
             .lang(Language::Rust)
-            .pre_class("test-pre-class")
-            .build();
+            .pre_class(Some("test-pre-class"))
+            .build()
+            .unwrap();
 
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
