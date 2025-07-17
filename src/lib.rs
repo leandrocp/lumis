@@ -5,7 +5,8 @@
 //! Use the builder pattern for type-safe, ergonomic formatter creation:
 //!
 //! ```rust
-//! use autumnus::{HtmlInlineBuilder, languages::Language, themes};
+//! use autumnus::{HtmlInlineBuilder, languages::Language, themes, formatter::Formatter};
+//! use std::io::Write;
 //!
 //! let code = "fn main() { println!(\"Hello, world!\"); }";
 //! let theme = themes::get("dracula").unwrap();
@@ -13,9 +14,10 @@
 //! let formatter = HtmlInlineBuilder::new()
 //!     .source(code)
 //!     .lang(Language::Rust)
-//!     .theme(theme)
-//!     .pre_class("code-block")
-//!     .build();
+//!     .theme(Some(theme))
+//!     .pre_class(Some("code-block"))
+//!     .build()
+//!     .unwrap();
 //!
 //! let mut output = Vec::new();
 //! formatter.format(&mut output).unwrap();
@@ -849,60 +851,41 @@ pub fn highlight(source: &str, options: Options) -> String {
             include_highlights,
             highlight_lines,
             header,
-        } => {
-            let mut builder = crate::formatter::HtmlInlineBuilder::new()
+        } => Box::new(
+            crate::formatter::HtmlInlineBuilder::new()
                 .source(source)
                 .lang(lang)
                 .italic(italic)
-                .include_highlights(include_highlights);
-
-            if let Some(theme) = theme {
-                builder = builder.theme(theme);
-            }
-            if let Some(pre_class) = pre_class {
-                builder = builder.pre_class(pre_class);
-            }
-            if let Some(highlight_lines) = highlight_lines {
-                builder = builder.highlight_lines(highlight_lines);
-            }
-            if let Some(header) = header {
-                builder = builder.header(header);
-            }
-
-            builder.build()
-        }
+                .include_highlights(include_highlights)
+                .theme(theme)
+                .pre_class(pre_class)
+                .highlight_lines(highlight_lines)
+                .header(header)
+                .build()
+                .unwrap(),
+        ),
         FormatterOption::HtmlLinked {
             pre_class,
             highlight_lines,
             header,
-        } => {
-            let mut builder = crate::formatter::HtmlLinkedBuilder::new()
+        } => Box::new(
+            crate::formatter::HtmlLinkedBuilder::new()
                 .source(source)
-                .lang(lang);
-
-            if let Some(pre_class) = pre_class {
-                builder = builder.pre_class(pre_class);
-            }
-            if let Some(highlight_lines) = highlight_lines {
-                builder = builder.highlight_lines(highlight_lines);
-            }
-            if let Some(header) = header {
-                builder = builder.header(header);
-            }
-
-            builder.build()
-        }
-        FormatterOption::Terminal { theme } => {
-            let mut builder = crate::formatter::TerminalBuilder::new()
+                .lang(lang)
+                .pre_class(pre_class)
+                .highlight_lines(highlight_lines)
+                .header(header)
+                .build()
+                .unwrap(),
+        ),
+        FormatterOption::Terminal { theme } => Box::new(
+            crate::formatter::TerminalBuilder::new()
                 .source(source)
-                .lang(lang);
-
-            if let Some(theme) = theme {
-                builder = builder.theme(theme);
-            }
-
-            builder.build()
-        }
+                .lang(lang)
+                .theme(theme)
+                .build()
+                .unwrap(),
+        ),
     };
 
     let mut buffer = Vec::new();
@@ -1057,60 +1040,41 @@ pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -
             include_highlights,
             highlight_lines,
             header,
-        } => {
-            let mut builder = crate::formatter::HtmlInlineBuilder::new()
+        } => Box::new(
+            crate::formatter::HtmlInlineBuilder::new()
                 .source(source)
                 .lang(lang)
                 .italic(italic)
-                .include_highlights(include_highlights);
-
-            if let Some(theme) = theme {
-                builder = builder.theme(theme);
-            }
-            if let Some(pre_class) = pre_class {
-                builder = builder.pre_class(pre_class);
-            }
-            if let Some(highlight_lines) = highlight_lines {
-                builder = builder.highlight_lines(highlight_lines);
-            }
-            if let Some(header) = header {
-                builder = builder.header(header);
-            }
-
-            builder.build()
-        }
+                .include_highlights(include_highlights)
+                .theme(theme)
+                .pre_class(pre_class)
+                .highlight_lines(highlight_lines)
+                .header(header)
+                .build()
+                .unwrap(),
+        ),
         FormatterOption::HtmlLinked {
             pre_class,
             highlight_lines,
             header,
-        } => {
-            let mut builder = crate::formatter::HtmlLinkedBuilder::new()
+        } => Box::new(
+            crate::formatter::HtmlLinkedBuilder::new()
                 .source(source)
-                .lang(lang);
-
-            if let Some(pre_class) = pre_class {
-                builder = builder.pre_class(pre_class);
-            }
-            if let Some(highlight_lines) = highlight_lines {
-                builder = builder.highlight_lines(highlight_lines);
-            }
-            if let Some(header) = header {
-                builder = builder.header(header);
-            }
-
-            builder.build()
-        }
-        FormatterOption::Terminal { theme } => {
-            let mut builder = crate::formatter::TerminalBuilder::new()
+                .lang(lang)
+                .pre_class(pre_class)
+                .highlight_lines(highlight_lines)
+                .header(header)
+                .build()
+                .unwrap(),
+        ),
+        FormatterOption::Terminal { theme } => Box::new(
+            crate::formatter::TerminalBuilder::new()
                 .source(source)
-                .lang(lang);
-
-            if let Some(theme) = theme {
-                builder = builder.theme(theme);
-            }
-
-            builder.build()
-        }
+                .lang(lang)
+                .theme(theme)
+                .build()
+                .unwrap(),
+        ),
     };
 
     formatter.format(output)?;

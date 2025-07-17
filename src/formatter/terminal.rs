@@ -10,15 +10,23 @@
 
 use super::Formatter;
 use crate::{languages::Language, themes::Theme};
+use derive_builder::Builder;
 use std::io::{self, Write};
 use termcolor::{BufferWriter, ColorChoice, ColorSpec, WriteColor};
 use tree_sitter_highlight::{HighlightEvent, Highlighter};
 
-#[derive(Debug)]
+#[derive(Builder, Debug)]
+#[builder(default)]
 pub struct Terminal<'a> {
     source: &'a str,
     lang: Language,
     theme: Option<&'a Theme>,
+}
+
+impl<'a> TerminalBuilder<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl<'a> Terminal<'a> {

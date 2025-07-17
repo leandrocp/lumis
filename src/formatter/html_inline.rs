@@ -11,6 +11,7 @@
 use super::{Formatter, HtmlElement, HtmlFormatter};
 use crate::languages::Language;
 use crate::themes::Theme;
+use derive_builder::Builder;
 use std::{
     io::{self, Write},
     ops::RangeInclusive,
@@ -88,7 +89,8 @@ impl Default for HighlightLines {
     }
 }
 
-#[derive(Debug)]
+#[derive(Builder, Debug)]
+#[builder(default)]
 pub struct HtmlInline<'a> {
     source: &'a str,
     lang: Language,
@@ -98,6 +100,12 @@ pub struct HtmlInline<'a> {
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
     header: Option<HtmlElement>,
+}
+
+impl<'a> HtmlInlineBuilder<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl<'a> HtmlInline<'a> {
@@ -273,6 +281,7 @@ impl HtmlFormatter for HtmlInline<'_> {
         output.write_all(b"</code></pre>")
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -331,11 +340,12 @@ mod tests {
         let formatter = HtmlInlineBuilder::new()
             .source("")
             .lang(Language::Rust)
-            .theme(theme)
-            .pre_class("test-pre-class")
+            .theme(Some(theme))
+            .pre_class(Some("test-pre-class"))
             .italic(true)
             .include_highlights(true)
-            .build();
+            .build()
+            .unwrap();
 
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);

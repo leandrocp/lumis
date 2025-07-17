@@ -22,7 +22,7 @@
 //! ## Using HtmlInlineBuilder
 //!
 //! ```rust
-//! use autumnus::{HtmlInlineBuilder, languages::Language, themes};
+//! use autumnus::{HtmlInlineBuilder, languages::Language, themes, formatter::Formatter};
 //! use std::io::Write;
 //!
 //! let code = "fn main() { println!(\"Hello\"); }";
@@ -32,11 +32,12 @@
 //! let formatter = HtmlInlineBuilder::new()
 //!     .source(code)
 //!     .lang(Language::Rust)
-//!     .theme(theme)
-//!     .pre_class("code-block")
+//!     .theme(Some(theme))
+//!     .pre_class(Some("code-block"))
 //!     .italic(false)
 //!     .include_highlights(false)
-//!     .build();
+//!     .build()
+//!     .unwrap();
 //!
 //! let mut output = Vec::new();
 //! formatter.format(&mut output).unwrap();
@@ -47,15 +48,17 @@
 //! ## Using HtmlLinkedBuilder
 //!
 //! ```rust
-//! use autumnus::{HtmlLinkedBuilder, languages::Language};
+//! use autumnus::{HtmlLinkedBuilder, languages::Language, formatter::Formatter};
+//! use std::io::Write;
 //!
 //! let code = "<div>Hello World</div>";
 //!
 //! let formatter = HtmlLinkedBuilder::new()
 //!     .source(code)
 //!     .lang(Language::HTML)
-//!     .pre_class("my-code")
-//!     .build();
+//!     .pre_class(Some("my-code"))
+//!     .build()
+//!     .unwrap();
 //!
 //! let mut output = Vec::new();
 //! formatter.format(&mut output).unwrap();
@@ -65,7 +68,8 @@
 //! ## Using TerminalBuilder
 //!
 //! ```rust
-//! use autumnus::{TerminalBuilder, languages::Language, themes};
+//! use autumnus::{TerminalBuilder, languages::Language, themes, formatter::Formatter};
+//! use std::io::Write;
 //!
 //! let code = "puts 'Hello from Ruby!'";
 //! let theme = themes::get("github_light").unwrap();
@@ -73,8 +77,9 @@
 //! let formatter = TerminalBuilder::new()
 //!     .source(code)
 //!     .lang(Language::Ruby)
-//!     .theme(theme)
-//!     .build();
+//!     .theme(Some(theme))
+//!     .build()
+//!     .unwrap();
 //!
 //! let mut output = Vec::new();
 //! formatter.format(&mut output).unwrap();
@@ -84,8 +89,9 @@
 //! ## Line highlighting with HTML formatters
 //!
 //! ```rust
-//! use autumnus::{HtmlInlineBuilder, languages::Language, themes};
+//! use autumnus::{HtmlInlineBuilder, languages::Language, themes, formatter::Formatter};
 //! use autumnus::formatter::html_inline::{HighlightLines, HighlightLinesStyle};
+//! use std::io::Write;
 //!
 //! let code = "line 1\nline 2\nline 3\nline 4";
 //! let theme = themes::get("catppuccin_mocha").unwrap();
@@ -98,10 +104,11 @@
 //! let formatter = HtmlInlineBuilder::new()
 //!     .source(code)
 //!     .lang(Language::PlainText)
-//!     .theme(theme)
+//!     .theme(Some(theme))
 //!     .include_highlights(false)
-//!     .highlight_lines(highlight_lines)
-//!     .build();
+//!     .highlight_lines(Some(highlight_lines))
+//!     .build()
+//!     .unwrap();
 //! ```
 
 // Originally based on https://github.com/Colonial-Dev/inkjet/tree/da289fa8b68f11dffad176e4b8fabae8d6ac376d/src/formatter
@@ -109,15 +116,13 @@
 use std::io::{self, Write};
 
 pub mod html_inline;
-pub use html_inline::HtmlInline;
+pub use html_inline::{HtmlInline, HtmlInlineBuilder};
 
 pub mod html_linked;
-pub use html_linked::HtmlLinked;
+pub use html_linked::{HtmlLinked, HtmlLinkedBuilder};
 
 pub mod terminal;
-pub use terminal::Terminal;
-
-use crate::languages::Language;
+pub use terminal::{Terminal, TerminalBuilder};
 
 /// Configuration for wrapping the formatted output with custom HTML elements.
 ///
@@ -169,197 +174,4 @@ pub trait HtmlFormatter: Formatter {
     fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()>;
     fn open_code_tag(&self, output: &mut dyn Write) -> io::Result<()>;
     fn closing_tags(&self, output: &mut dyn Write) -> io::Result<()>;
-}
-
-pub struct HtmlInlineBuilder<'a> {
-    source: Option<&'a str>,
-    lang: Option<Language>,
-    theme: Option<&'a crate::themes::Theme>,
-    pre_class: Option<&'a str>,
-    italic: bool,
-    include_highlights: bool,
-    highlight_lines: Option<html_inline::HighlightLines>,
-    header: Option<HtmlElement>,
-}
-
-impl<'a> Default for HtmlInlineBuilder<'a> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<'a> HtmlInlineBuilder<'a> {
-    pub fn new() -> Self {
-        Self {
-            source: None,
-            lang: None,
-            theme: None,
-            pre_class: None,
-            italic: false,
-            include_highlights: false,
-            highlight_lines: None,
-            header: None,
-        }
-    }
-
-    pub fn source(mut self, source: &'a str) -> Self {
-        self.source = Some(source);
-        self
-    }
-
-    pub fn lang(mut self, lang: Language) -> Self {
-        self.lang = Some(lang);
-        self
-    }
-
-    pub fn theme(mut self, theme: &'a crate::themes::Theme) -> Self {
-        self.theme = Some(theme);
-        self
-    }
-
-    pub fn pre_class(mut self, pre_class: &'a str) -> Self {
-        self.pre_class = Some(pre_class);
-        self
-    }
-
-    pub fn italic(mut self, italic: bool) -> Self {
-        self.italic = italic;
-        self
-    }
-
-    pub fn include_highlights(mut self, include_highlights: bool) -> Self {
-        self.include_highlights = include_highlights;
-        self
-    }
-
-    pub fn highlight_lines(mut self, highlight_lines: html_inline::HighlightLines) -> Self {
-        self.highlight_lines = Some(highlight_lines);
-        self
-    }
-
-    pub fn header(mut self, header: HtmlElement) -> Self {
-        self.header = Some(header);
-        self
-    }
-
-    pub fn build(self) -> Box<dyn HtmlFormatter + 'a> {
-        let source = self.source.unwrap_or_default();
-        let lang = self.lang.unwrap_or_default();
-        Box::new(HtmlInline::new(
-            source,
-            lang,
-            self.theme,
-            self.pre_class,
-            self.italic,
-            self.include_highlights,
-            self.highlight_lines,
-            self.header,
-        ))
-    }
-}
-
-pub struct HtmlLinkedBuilder<'a> {
-    source: Option<&'a str>,
-    lang: Option<Language>,
-    pre_class: Option<&'a str>,
-    highlight_lines: Option<html_linked::HighlightLines>,
-    header: Option<HtmlElement>,
-}
-
-impl<'a> Default for HtmlLinkedBuilder<'a> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<'a> HtmlLinkedBuilder<'a> {
-    pub fn new() -> Self {
-        Self {
-            source: None,
-            lang: None,
-            pre_class: None,
-            highlight_lines: None,
-            header: None,
-        }
-    }
-
-    pub fn source(mut self, source: &'a str) -> Self {
-        self.source = Some(source);
-        self
-    }
-
-    pub fn lang(mut self, lang: Language) -> Self {
-        self.lang = Some(lang);
-        self
-    }
-
-    pub fn pre_class(mut self, pre_class: &'a str) -> Self {
-        self.pre_class = Some(pre_class);
-        self
-    }
-
-    pub fn highlight_lines(mut self, highlight_lines: html_linked::HighlightLines) -> Self {
-        self.highlight_lines = Some(highlight_lines);
-        self
-    }
-
-    pub fn header(mut self, header: HtmlElement) -> Self {
-        self.header = Some(header);
-        self
-    }
-
-    pub fn build(self) -> Box<dyn HtmlFormatter + 'a> {
-        let source = self.source.unwrap_or_default();
-        let lang = self.lang.unwrap_or_default();
-        Box::new(HtmlLinked::new(
-            source,
-            lang,
-            self.pre_class,
-            self.highlight_lines,
-            self.header,
-        ))
-    }
-}
-
-pub struct TerminalBuilder<'a> {
-    source: Option<&'a str>,
-    lang: Option<Language>,
-    theme: Option<&'a crate::themes::Theme>,
-}
-
-impl<'a> Default for TerminalBuilder<'a> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<'a> TerminalBuilder<'a> {
-    pub fn new() -> Self {
-        Self {
-            source: None,
-            lang: None,
-            theme: None,
-        }
-    }
-
-    pub fn source(mut self, source: &'a str) -> Self {
-        self.source = Some(source);
-        self
-    }
-
-    pub fn lang(mut self, lang: Language) -> Self {
-        self.lang = Some(lang);
-        self
-    }
-
-    pub fn theme(mut self, theme: &'a crate::themes::Theme) -> Self {
-        self.theme = Some(theme);
-        self
-    }
-
-    pub fn build(self) -> Box<dyn Formatter + 'a> {
-        let source = self.source.unwrap_or_default();
-        let lang = self.lang.unwrap_or_default();
-        Box::new(Terminal::new(source, lang, self.theme))
-    }
 }
