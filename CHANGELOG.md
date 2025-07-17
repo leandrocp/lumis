@@ -3,8 +3,7 @@
 ## Unreleased
 
 ### Changed
-- Change to mutable builders for formatters
-- **Breaking** Change builder initialization from `::new()` to `::default()` for all formatters (HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder)
+- **Breaking** Change to formatter builder to use the mutable pattern
 - **Breaking** Builders `theme` and `pre_class` arguments changed to `Option`
 - **Breaking** Builder `build()` method now returns a `Result` requiring `.unwrap()` or proper error handling
 
