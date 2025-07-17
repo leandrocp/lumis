@@ -70,7 +70,7 @@
 //! | CSS | *.css |
 //! | CSV | *.csv |
 //! | C# | *.cs |
-//! | Clojure | *.bb, *.boot, *.clj, *.cljc, *.clje, *.cljs, *.cljx, *.end, *.joke, *.joker |
+//! | Clojure | *.bb, *.boot, *.clj, *.cljc, *.clje, *.cljs, *.cljx, *.edn, *.joke, *.joker |
 //! | Comment | |
 //! | Common Lisp | *.lisp, *.lsp, *.asd |
 //! | Dart | *.dart |
