@@ -15,7 +15,7 @@ use std::io::{self, Write};
 use termcolor::{BufferWriter, ColorChoice, ColorSpec, WriteColor};
 use tree_sitter_highlight::{HighlightEvent, Highlighter};
 
-#[derive(Debug, Builder)]
+#[derive(Builder, Debug)]
 #[builder(default)]
 pub struct Terminal<'a> {
     source: &'a str,

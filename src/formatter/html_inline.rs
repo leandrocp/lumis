@@ -89,7 +89,7 @@ impl Default for HighlightLines {
     }
 }
 
-#[derive(Debug, Builder)]
+#[derive(Builder, Debug)]
 #[builder(default)]
 pub struct HtmlInline<'a> {
     source: &'a str,

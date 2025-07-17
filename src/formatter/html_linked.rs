@@ -75,7 +75,7 @@ impl Default for HighlightLines {
     }
 }
 
-#[derive(Debug, Builder)]
+#[derive(Builder, Debug)]
 #[builder(default)]
 pub struct HtmlLinked<'a> {
     source: &'a str,
