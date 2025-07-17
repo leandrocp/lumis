@@ -242,7 +242,7 @@ mod tests {
 
     #[test]
     fn test_builder_pattern() {
-        let formatter = HtmlLinkedBuilder::default()
+        let formatter = HtmlLinkedBuilder::new()
             .source("")
             .lang(Language::Rust)
             .pre_class(Some("test-pre-class"))

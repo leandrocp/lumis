@@ -337,7 +337,7 @@ mod tests {
     #[test]
     fn test_builder_pattern() {
         let theme = themes::get("github_light").unwrap();
-        let formatter = HtmlInlineBuilder::default()
+        let formatter = HtmlInlineBuilder::new()
             .source("")
             .lang(Language::Rust)
             .theme(Some(theme))

@@ -11,7 +11,7 @@
 //! let code = "fn main() { println!(\"Hello, world!\"); }";
 //! let theme = themes::get("dracula").unwrap();
 //!
-//! let formatter = HtmlInlineBuilder::default()
+//! let formatter = HtmlInlineBuilder::new()
 //!     .source(code)
 //!     .lang(Language::Rust)
 //!     .theme(Some(theme))
@@ -852,7 +852,7 @@ pub fn highlight(source: &str, options: Options) -> String {
             highlight_lines,
             header,
         } => Box::new(
-            crate::formatter::HtmlInlineBuilder::default()
+            crate::formatter::HtmlInlineBuilder::new()
                 .source(source)
                 .lang(lang)
                 .italic(italic)
@@ -869,7 +869,7 @@ pub fn highlight(source: &str, options: Options) -> String {
             highlight_lines,
             header,
         } => Box::new(
-            crate::formatter::HtmlLinkedBuilder::default()
+            crate::formatter::HtmlLinkedBuilder::new()
                 .source(source)
                 .lang(lang)
                 .pre_class(pre_class)
@@ -879,7 +879,7 @@ pub fn highlight(source: &str, options: Options) -> String {
                 .unwrap(),
         ),
         FormatterOption::Terminal { theme } => Box::new(
-            crate::formatter::TerminalBuilder::default()
+            crate::formatter::TerminalBuilder::new()
                 .source(source)
                 .lang(lang)
                 .theme(theme)
@@ -1041,7 +1041,7 @@ pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -
             highlight_lines,
             header,
         } => Box::new(
-            crate::formatter::HtmlInlineBuilder::default()
+            crate::formatter::HtmlInlineBuilder::new()
                 .source(source)
                 .lang(lang)
                 .italic(italic)
@@ -1058,7 +1058,7 @@ pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -
             highlight_lines,
             header,
         } => Box::new(
-            crate::formatter::HtmlLinkedBuilder::default()
+            crate::formatter::HtmlLinkedBuilder::new()
                 .source(source)
                 .lang(lang)
                 .pre_class(pre_class)
@@ -1068,7 +1068,7 @@ pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -
                 .unwrap(),
         ),
         FormatterOption::Terminal { theme } => Box::new(
-            crate::formatter::TerminalBuilder::default()
+            crate::formatter::TerminalBuilder::new()
                 .source(source)
                 .lang(lang)
                 .theme(theme)

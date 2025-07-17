@@ -29,7 +29,7 @@
 //! let theme = themes::get("dracula").unwrap();
 //!
 //! // HTML with inline styles
-//! let formatter = HtmlInlineBuilder::default()
+//! let formatter = HtmlInlineBuilder::new()
 //!     .source(code)
 //!     .lang(Language::Rust)
 //!     .theme(Some(theme))
@@ -53,7 +53,7 @@
 //!
 //! let code = "<div>Hello World</div>";
 //!
-//! let formatter = HtmlLinkedBuilder::default()
+//! let formatter = HtmlLinkedBuilder::new()
 //!     .source(code)
 //!     .lang(Language::HTML)
 //!     .pre_class(Some("my-code"))
@@ -74,7 +74,7 @@
 //! let code = "puts 'Hello from Ruby!'";
 //! let theme = themes::get("github_light").unwrap();
 //!
-//! let formatter = TerminalBuilder::default()
+//! let formatter = TerminalBuilder::new()
 //!     .source(code)
 //!     .lang(Language::Ruby)
 //!     .theme(Some(theme))
@@ -101,7 +101,7 @@
 //!     style: HighlightLinesStyle::Theme,  // Use theme's cursorline style
 //! };
 //!
-//! let formatter = HtmlInlineBuilder::default()
+//! let formatter = HtmlInlineBuilder::new()
 //!     .source(code)
 //!     .lang(Language::PlainText)
 //!     .theme(Some(theme))
