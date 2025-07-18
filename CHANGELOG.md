@@ -6,6 +6,7 @@
 - **Breaking** Change to formatter builder to use the mutable pattern
 - **Breaking** Builders `theme` and `pre_class` arguments changed to `Option`
 - **Breaking** Builder `build()` method now returns a `Result` requiring `.unwrap()` or proper error handling
+- **Breaking** Line highlighting now uses "visual" theme style instead of "cursorline" for consistency
 
 ## [0.4.0] - 2025-06-19
 
