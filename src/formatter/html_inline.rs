@@ -289,6 +289,26 @@ mod tests {
     use crate::themes;
 
     #[test]
+    fn test_no_attrs() {
+        let formatter = HtmlInline::new(
+            "@lang :rust",
+            Language::Elixir,
+            None,
+            None,
+            false,
+            false,
+            None,
+            None,
+        );
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer);
+        let result = String::from_utf8(buffer).unwrap();
+        let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><span class="line" data-line="1"><span ><span >@<span ><span >lang <span >:rust</span></span></span></span></span>
+</span></code></pre>"#;
+        assert_eq!(result, expected)
+    }
+
+    #[test]
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
         let mut buffer = Vec::new();

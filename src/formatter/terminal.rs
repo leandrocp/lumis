@@ -108,3 +108,18 @@ impl Formatter for Terminal<'_> {
         self.highlights(output)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_no_attrs() {
+        let formatter = Terminal::new("@lang :rust", Language::Elixir, None);
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer);
+        let result = String::from_utf8(buffer).unwrap();
+        let expected = "\u{1b}[0m\u{1b}[38;2;238;238;238m\u{1b}[0m\u{1b}[38;2;238;238;238m@\u{1b}[0m\u{1b}[38;2;238;238;238m\u{1b}[0m\u{1b}[38;2;238;238;238mlang \u{1b}[0m\u{1b}[38;2;238;238;238m:rust\u{1b}[0m\u{1b}[0m\u{1b}[0m\u{1b}[0m\u{1b}[0m";
+        assert_eq!(result, expected)
+    }
+}

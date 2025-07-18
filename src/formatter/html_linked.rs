@@ -222,6 +222,17 @@ mod tests {
     use crate::formatter::HtmlLinkedBuilder;
 
     #[test]
+    fn test_no_attrs() {
+        let formatter = HtmlLinked::new("@lang :rust", Language::Elixir, None, None, None);
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer);
+        let result = String::from_utf8(buffer).unwrap();
+        let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><span class="line" data-line="1"><span class="operator"><span class="constant">@<span class="function-call"><span class="constant">lang <span class="string-special-symbol">:rust</span></span></span></span></span>
+</span></code></pre>"#;
+        assert_eq!(result, expected)
+    }
+
+    #[test]
     fn test_include_pre_class() {
         let formatter =
             HtmlLinked::new("", Language::PlainText, Some("test-pre-class"), None, None);
