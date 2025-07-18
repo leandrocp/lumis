@@ -1,7 +1,7 @@
 {
   "name": "neosolarized_light",
   "appearance": "light",
-  "revision": "742deb0b2b1e110b09494206611509e3992aac35",
+  "revision": "0c01fd2ac2ab33918073f57c63bcb2ae5a31d8de",
   "highlights": {
     "attribute": {
       "fg": "#268bd2"
@@ -296,6 +296,10 @@
     },
     "variable.parameter.builtin": {
       "fg": "#cb4b16"
+    },
+    "visual": {
+      "fg": "#586e75",
+      "bg": "#002b36"
     }
   }
 }

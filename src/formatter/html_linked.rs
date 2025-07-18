@@ -26,13 +26,13 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// # Examples
 ///
-/// Basic usage with default "cursorline" class:
+/// Basic usage with default "visual" class:
 /// ```rust
 /// use autumnus::formatter::html_linked::HighlightLines;
 ///
 /// let highlight_lines = HighlightLines {
 ///     lines: vec![1..=1, 5..=7],  // Highlight lines 1, 5, 6, and 7
-///     class: "cursorline".to_string(),
+///     class: "visual".to_string(),
 /// };
 /// ```
 ///
@@ -70,7 +70,7 @@ impl Default for HighlightLines {
     fn default() -> Self {
         Self {
             lines: Vec::new(),
-            class: "cursorline".to_string(),
+            class: "visual".to_string(),
         }
     }
 }

@@ -1,7 +1,7 @@
 {
   "name": "rosepine_moon",
   "appearance": "dark",
-  "revision": "6b9840790cc7acdfadde07f308d34b62dd9cc675",
+  "revision": "f93360149e9ed4df8677fbb07c7231ea0fd03b97",
   "highlights": {
     "attribute": {
       "fg": "#c4a7e7"
@@ -310,6 +310,9 @@
       "fg": "#c4a7e7",
       "bold": true,
       "italic": true
+    },
+    "visual": {
+      "bg": "#3b3551"
     }
   }
 }

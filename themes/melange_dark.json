@@ -1,7 +1,7 @@
 {
   "name": "melange_dark",
   "appearance": "dark",
-  "revision": "c8266cfea088f4e92eac6026d61759ecc0ce6fab",
+  "revision": "ce42f6b629beeaa00591ba73a77d3eeac4cf28ce",
   "highlights": {
     "attribute": {
       "fg": "#85b695"
@@ -296,6 +296,9 @@
     },
     "variable.parameter.builtin": {
       "fg": "#ebc06d"
+    },
+    "visual": {
+      "bg": "#403a36"
     }
   }
 }

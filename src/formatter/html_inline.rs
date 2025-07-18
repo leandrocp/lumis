@@ -25,7 +25,7 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// # Examples
 ///
-/// Using theme-based highlighting (requires a theme with 'cursorline' style):
+/// Using theme-based highlighting (requires a theme with 'visual' style):
 /// ```rust
 /// use autumnus::formatter::html_inline::{HighlightLines, HighlightLinesStyle};
 ///
@@ -58,10 +58,10 @@ pub struct HighlightLines {
 /// Defines how highlighted lines should be styled in HTML inline output.
 #[derive(Clone, Debug)]
 pub enum HighlightLinesStyle {
-    /// Use the theme's 'cursorline' style if available.
+    /// Use the theme's 'visual' style if available.
     ///
-    /// This looks for a 'cursorline' style definition in the current theme.
-    /// If no theme is provided or the theme doesn't define 'cursorline',
+    /// This looks for a 'visual' style definition in the current theme.
+    /// If no theme is provided or the theme doesn't define 'visual',
     /// no styling will be applied.
     Theme,
     /// Use a custom CSS style string.
@@ -197,8 +197,8 @@ impl Formatter for HtmlInline<'_> {
                     match &highlight_lines.style {
                         HighlightLinesStyle::Theme => {
                             if let Some(theme) = self.theme {
-                                if let Some(cursorline_style) = theme.get_style("cursorline") {
-                                    format!(" style=\"{}\"", cursorline_style.css(self.italic, " "))
+                                if let Some(visual_style) = theme.get_style("visual") {
+                                    format!(" style=\"{}\"", visual_style.css(self.italic, " "))
                                 } else {
                                     String::new()
                                 }
@@ -399,12 +399,12 @@ mod tests {
         println!("{result}");
 
         assert!(result
-            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="1">"#));
+            .contains(r#"<span class="line" style="background-color: #dae9f9;" data-line="1">"#));
         assert!(result.contains(r#"<span class="line" data-line="2">"#));
         assert!(result
-            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="3">"#));
+            .contains(r#"<span class="line" style="background-color: #dae9f9;" data-line="3">"#));
         assert!(result
-            .contains(r#"<span class="line" style="background-color: #e7eaf0;" data-line="4">"#));
+            .contains(r#"<span class="line" style="background-color: #dae9f9;" data-line="4">"#));
         assert!(result.contains(r#"<span class="line" data-line="5">"#));
     }
 

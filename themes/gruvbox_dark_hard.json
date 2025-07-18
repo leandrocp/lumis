@@ -1,7 +1,7 @@
 {
   "name": "gruvbox_dark_hard",
   "appearance": "dark",
-  "revision": "00e38a379bab3389e187b3953566d67d494dfddd",
+  "revision": "58a2cda2e953a99e2f87c12b7fb4602da4e0709c",
   "highlights": {
     "attribute": {
       "fg": "#8ec07c"
@@ -310,6 +310,9 @@
     },
     "variable.parameter.builtin": {
       "fg": "#fe8019"
+    },
+    "visual": {
+      "bg": "#665c54"
     }
   }
 }

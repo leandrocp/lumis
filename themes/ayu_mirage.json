@@ -1,7 +1,7 @@
 {
   "name": "ayu_mirage",
   "appearance": "dark",
-  "revision": "f5da37a8ddd62fc3a7b28900c4d1b807a3582584",
+  "revision": "30e53f8a0f3708e92c84d4df676898cd16b8b64f",
   "highlights": {
     "attribute": {
       "fg": "#ffcc66"
@@ -281,6 +281,9 @@
     },
     "variable.parameter.builtin": {
       "fg": "#ffcc66"
+    },
+    "visual": {
+      "bg": "#23344b"
     }
   }
 }

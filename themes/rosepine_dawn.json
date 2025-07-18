@@ -1,7 +1,7 @@
 {
   "name": "rosepine_dawn",
   "appearance": "light",
-  "revision": "6b9840790cc7acdfadde07f308d34b62dd9cc675",
+  "revision": "f93360149e9ed4df8677fbb07c7231ea0fd03b97",
   "highlights": {
     "attribute": {
       "fg": "#907aa9"
@@ -310,6 +310,9 @@
       "fg": "#907aa9",
       "bold": true,
       "italic": true
+    },
+    "visual": {
+      "bg": "#eae2e3"
     }
   }
 }

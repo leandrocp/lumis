@@ -300,6 +300,9 @@
     },
     "variable.parameter.builtin": {
       "fg": "#8cafd2"
+    },
+    "visual": {
+      "bg": "#3e4a5b"
     }
   }
 }

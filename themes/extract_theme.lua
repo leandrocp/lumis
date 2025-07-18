@@ -2,6 +2,7 @@ local highlight_groups = {
 	"Normal",
 	"Comment",
   "CursorLine",
+  "Visual",
 	"@attribute",
 	"@attribute.builtin",
 	"@boolean",

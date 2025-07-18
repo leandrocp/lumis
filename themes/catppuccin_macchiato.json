@@ -311,6 +311,10 @@
     },
     "variable.parameter.builtin": {
       "fg": "#f5bde6"
+    },
+    "visual": {
+      "bg": "#494d64",
+      "bold": true
     }
   }
 }

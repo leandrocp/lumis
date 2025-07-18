@@ -631,7 +631,7 @@ mod tests {
             assert!(!theme.name.is_empty());
         }
 
-        assert_eq!(ALL_THEMES.len(), 120);
+        assert_eq!(ALL_THEMES.len(), 119);
     }
 
     #[test]
