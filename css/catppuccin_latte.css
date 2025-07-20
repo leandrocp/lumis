@@ -315,3 +315,7 @@ pre.athl {
 .variable-parameter-builtin {
   color: #ea76cb;
 }
+.visual {
+  background-color: #bcc0cc;
+  font-weight: bold;
+}

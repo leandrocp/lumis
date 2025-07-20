@@ -1,5 +1,5 @@
 /* ayu_dark
- * revision: f5da37a8ddd62fc3a7b28900c4d1b807a3582584
+ * revision: 30e53f8a0f3708e92c84d4df676898cd16b8b64f
  */
 
 pre.athl {
@@ -284,4 +284,7 @@ pre.athl {
 }
 .variable-parameter-builtin {
   color: #e6b450;
+}
+.visual {
+  background-color: #122132;
 }

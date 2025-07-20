@@ -1,5 +1,5 @@
 /* edge_dark
- * revision: 8eeab1bc9d93eec3511cb4d3c87d2d599c7ce3d4
+ * revision: b279ccb1205a51eab8a513b6a3d123b25ac83394
  */
 
 pre.athl {
@@ -306,4 +306,7 @@ pre.athl {
 }
 .variable-parameter-builtin {
   color: #deb974;
+}
+.visual {
+  background-color: #3b3e48;
 }
