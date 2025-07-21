@@ -4,6 +4,15 @@
 //! inline CSS styles for syntax highlighting. It supports themes, line highlighting,
 //! and various customization options.
 //!
+//! # Example Output
+//!
+//! For the Rust code `fn main() { println!("Hello"); }` with the dracula theme,
+//! the formatter generates self-contained HTML like:
+//!
+//! ```html
+//! <pre class="athl" style="color: #f8f8f2; background-color: #282a36;"><code class="language-rust" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #8be9fd;">fn</span> <span style="color: #50fa7b;">main</span><span style="color: #f8f8f2;">(</span><span style="color: #f8f8f2;">)</span> <span style="color: #f8f8f2;">&lbrace;</span> <span style="color: #bd93f9;">println</span><span style="color: #50fa7b;">!</span><span style="color: #f8f8f2;">(</span><span style="color: #f1fa8c;">&quot;Hello&quot;</span><span style="color: #f8f8f2;">)</span><span style="color: #f8f8f2;">;</span> <span style="color: #f8f8f2;">&rbrace;</span></span></code></pre>
+//! ```
+//!
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 #![allow(unused_must_use)]
@@ -31,7 +40,8 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// let highlight_lines = HighlightLines {
 ///     lines: vec![1..=1, 5..=7],  // Highlight lines 1, 5, 6, and 7
-///     style: HighlightLinesStyle::Theme,
+///     style: Some(HighlightLinesStyle::Theme),
+///     class: None,
 /// };
 /// ```
 ///
@@ -41,7 +51,19 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// let highlight_lines = HighlightLines {
 ///     lines: vec![2..=3],  // Highlight lines 2 and 3
-///     style: HighlightLinesStyle::Style("background-color: yellow; border-left: 3px solid red".to_string()),
+///     style: Some(HighlightLinesStyle::Style("background-color: yellow; border-left: 3px solid red".to_string())),
+///     class: None,
+/// };
+/// ```
+///
+/// Using only CSS class without styling:
+/// ```rust
+/// use autumnus::formatter::html_inline::HighlightLines;
+///
+/// let highlight_lines = HighlightLines {
+///     lines: vec![2..=3],  // Highlight lines 2 and 3
+///     style: None,
+///     class: Some("highlighted-line".to_string()),
 /// };
 /// ```
 #[derive(Clone, Debug)]
@@ -52,7 +74,9 @@ pub struct HighlightLines {
     /// Multiple ranges can overlap and will be merged during rendering.
     pub lines: Vec<RangeInclusive<usize>>,
     /// The styling method to use for highlighted lines.
-    pub style: HighlightLinesStyle,
+    pub style: Option<HighlightLinesStyle>,
+    /// Optional CSS class to add to highlighted lines.
+    pub class: Option<String>,
 }
 
 /// Defines how highlighted lines should be styled in HTML inline output.
@@ -84,7 +108,8 @@ impl Default for HighlightLines {
     fn default() -> Self {
         Self {
             lines: Vec::new(),
-            style: HighlightLinesStyle::Theme,
+            style: Some(HighlightLinesStyle::Theme),
+            class: None,
         }
     }
 }
@@ -188,38 +213,49 @@ impl Formatter for HtmlInline<'_> {
 
         for (i, line) in renderer.lines().enumerate() {
             let line_number = i + 1;
-            let highlighted_style = if let Some(ref highlight_lines) = self.highlight_lines {
+            let (highlighted_class, highlighted_style) = if let Some(ref highlight_lines) =
+                self.highlight_lines
+            {
                 if highlight_lines
                     .lines
                     .iter()
                     .any(|range| range.contains(&line_number))
                 {
-                    match &highlight_lines.style {
-                        HighlightLinesStyle::Theme => {
+                    let class = highlight_lines
+                        .class
+                        .as_ref()
+                        .map(|c| format!(" {c}"))
+                        .unwrap_or_default();
+
+                    let style = match &highlight_lines.style {
+                        Some(HighlightLinesStyle::Theme) => {
                             if let Some(theme) = self.theme {
                                 if let Some(visual_style) = theme.get_style("visual") {
-                                    format!(" style=\"{}\"", visual_style.css(self.italic, " "))
+                                    format!(" style=\"{} transition: background-color .5s; width: 100%; display: inline-block\"", visual_style.css(self.italic, " "))
                                 } else {
-                                    String::new()
+                                    " style=\"transition: background-color .5s; width: 100%; display: inline-block\"".to_string()
                                 }
                             } else {
-                                String::new()
+                                " style=\"transition: background-color .5s; width: 100%; display: inline-block\"".to_string()
                             }
                         }
-                        HighlightLinesStyle::Style(style_string) => {
+                        Some(HighlightLinesStyle::Style(style_string)) => {
                             format!(" style=\"{style_string}\"")
                         }
-                    }
+                        None => String::new(),
+                    };
+                    (class, style)
                 } else {
-                    String::new()
+                    (String::new(), String::new())
                 }
             } else {
-                String::new()
+                (String::new(), String::new())
             };
 
             write!(
                 output,
-                "<span class=\"line\"{} data-line=\"{}\">{}</span>",
+                "<span class=\"line{}\"{} data-line=\"{}\">{}</span>",
+                highlighted_class,
                 highlighted_style,
                 line_number,
                 line.replace('{', "&lbrace;").replace('}', "&rbrace;")
@@ -287,6 +323,9 @@ mod tests {
     use super::*;
     use crate::formatter::HtmlInlineBuilder;
     use crate::themes;
+
+    #[cfg(test)]
+    use pretty_assertions::assert_str_eq;
 
     #[test]
     fn test_no_attrs() {
@@ -378,7 +417,8 @@ mod tests {
         let theme = themes::get("github_light").unwrap();
         let highlight_lines = HighlightLines {
             lines: vec![1..=1, 3..=4],
-            style: HighlightLinesStyle::Theme,
+            style: Some(HighlightLinesStyle::Theme),
+            class: None,
         };
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
         let formatter = HtmlInline::new(
@@ -396,23 +436,23 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        println!("{result}");
-
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: #dae9f9;" data-line="1">"#));
-        assert!(result.contains(r#"<span class="line" data-line="2">"#));
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: #dae9f9;" data-line="3">"#));
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: #dae9f9;" data-line="4">"#));
-        assert!(result.contains(r#"<span class="line" data-line="5">"#));
+        let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><span class="line" style="background-color: #dae9f9; transition: background-color .5s; width: 100%; display: inline-block" data-line="1">line 1
+</span><span class="line" data-line="2">line 2
+</span><span class="line" style="background-color: #dae9f9; transition: background-color .5s; width: 100%; display: inline-block" data-line="3">line 3
+</span><span class="line" style="background-color: #dae9f9; transition: background-color .5s; width: 100%; display: inline-block" data-line="4">line 4
+</span><span class="line" data-line="5">line 5
+</span></code></pre>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
     fn test_highlight_lines_with_custom_style() {
         let highlight_lines = HighlightLines {
             lines: vec![1..=1, 3..=4],
-            style: HighlightLinesStyle::Style("background-color: yellow".to_string()),
+            style: Some(HighlightLinesStyle::Style(
+                "background-color: yellow".to_string(),
+            )),
+            class: None,
         };
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
         let formatter = HtmlInline::new(
@@ -430,14 +470,77 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: yellow" data-line="1">"#));
-        assert!(result.contains(r#"<span class="line" data-line="2">"#));
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: yellow" data-line="3">"#));
-        assert!(result
-            .contains(r#"<span class="line" style="background-color: yellow" data-line="4">"#));
-        assert!(result.contains(r#"<span class="line" data-line="5">"#));
+        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line" style="background-color: yellow" data-line="1">line 1
+</span><span class="line" data-line="2">line 2
+</span><span class="line" style="background-color: yellow" data-line="3">line 3
+</span><span class="line" style="background-color: yellow" data-line="4">line 4
+</span><span class="line" data-line="5">line 5
+</span></code></pre>"#;
+        assert_str_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_highlight_lines_with_custom_class() {
+        let highlight_lines = HighlightLines {
+            lines: vec![1..=1, 3..=3],
+            style: Some(HighlightLinesStyle::Style(
+                "background-color: yellow".to_string(),
+            )),
+            class: Some("custom-highlight".to_string()),
+        };
+        let code = "line 1\nline 2\nline 3\nline 4";
+        let formatter = HtmlInline::new(
+            code,
+            Language::PlainText,
+            None,
+            None,
+            false,
+            false,
+            Some(highlight_lines),
+            None,
+        );
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line custom-highlight" style="background-color: yellow" data-line="1">line 1
+</span><span class="line" data-line="2">line 2
+</span><span class="line custom-highlight" style="background-color: yellow" data-line="3">line 3
+</span><span class="line" data-line="4">line 4
+</span></code></pre>"#;
+        assert_str_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_highlight_lines_with_no_style() {
+        let highlight_lines = HighlightLines {
+            lines: vec![1..=1, 3..=3],
+            style: None,
+            class: Some("custom-highlight".to_string()),
+        };
+        let code = "fn main() {\n    println!(\"Hello, world!\");\n    let x = 42;\n}";
+        let formatter = HtmlInline::new(
+            code,
+            Language::Rust,
+            None,
+            None,
+            false,
+            false,
+            Some(highlight_lines),
+            None,
+        );
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        let expected = r#"<pre class="athl"><code class="language-rust" translate="no" tabindex="0"><span class="line custom-highlight" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span>
+</span><span class="line" data-line="2">    <span >println</span><span >!</span><span >(</span><span >&quot;Hello, world!&quot;</span><span >)</span><span >;</span>
+</span><span class="line custom-highlight" data-line="3">    <span >let</span> <span >x</span> <span >=</span> <span >42</span><span >;</span>
+</span><span class="line" data-line="4"><span >&rbrace;</span>
+</span></code></pre>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -462,9 +565,10 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        assert!(result.starts_with("<div class=\"code-wrapper\">"));
-        assert!(result.ends_with("</div>"));
-        assert!(result.contains("<pre class=\"athl\">")); // Ensure the pre tag is inside
+        let expected = r#"<div class="code-wrapper"><pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line" data-line="1">line 1
+</span><span class="line" data-line="2">line 2
+</span></code></pre></div>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -489,9 +593,8 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        assert!(result.starts_with("<section class=\"highlight\" data-lang=\"rust\">"));
-        assert!(result.ends_with("</section>"));
-        assert!(result.contains("<pre class=\"athl custom-class\">"));
-        assert!(result.contains("<code class=\"language-rust\""));
+        let expected = r#"<section class="highlight" data-lang="rust"><pre class="athl custom-class"><code class="language-rust" translate="no" tabindex="0"><span class="line" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span> <span >&rbrace;</span>
+</span></code></pre></section>"#;
+        assert_str_eq!(result, expected);
     }
 }
