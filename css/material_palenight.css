@@ -110,9 +110,6 @@ pre.athl {
 .keyword-directive-define {
   color: #89ddff;
 }
-.keyword-exception {
-  color: #f07178;
-}
 .keyword-function {
   color: #89ddff;
 }
@@ -294,4 +291,7 @@ pre.athl {
 }
 .variable-parameter-builtin {
   color: #89ddff;
+}
+.visual {
+  background-color: #444267;
 }
