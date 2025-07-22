@@ -79,7 +79,7 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                         .into_iter()
                         .map(|line_spec| line_spec.to_range_inclusive())
                         .collect(),
-                    style: Some(match hl.style {
+                    style: hl.style.map(|s| match s {
                         ExHtmlInlineHighlightLinesStyle::Theme => {
                             html_inline::HighlightLinesStyle::Theme
                         }
@@ -258,7 +258,7 @@ impl Default for ExHtmlInlineHighlightLinesStyle {
 #[module = "Autumn.HtmlInlineHighlightLines"]
 pub struct ExHtmlInlineHighlightLines {
     pub lines: Vec<ExLineSpec>,
-    pub style: ExHtmlInlineHighlightLinesStyle,
+    pub style: Option<ExHtmlInlineHighlightLinesStyle>,
     pub class: Option<String>,
 }
 
@@ -319,10 +319,7 @@ impl From<html_inline::HighlightLines> for ExHtmlInlineHighlightLines {
                 .into_iter()
                 .map(ExLineSpec::from_range_inclusive)
                 .collect(),
-            style: highlight_lines
-                .style
-                .unwrap_or(html_inline::HighlightLinesStyle::Theme)
-                .into(),
+            style: highlight_lines.style.map(|s| s.into()),
             class: highlight_lines.class,
         }
     }
@@ -423,9 +420,9 @@ mod tests {
                 ExLineSpec::Single(1),
                 ExLineSpec::Range { start: 3, end: 5 },
             ],
-            style: ExHtmlInlineHighlightLinesStyle::Style {
+            style: Some(ExHtmlInlineHighlightLinesStyle::Style {
                 style: "background-color: yellow".to_string(),
-            },
+            }),
             class: None,
         };
 
@@ -557,9 +554,9 @@ mod tests {
                 ExLineSpec::Single(1),
                 ExLineSpec::Range { start: 3, end: 4 },
             ],
-            style: ExHtmlInlineHighlightLinesStyle::Style {
+            style: Some(ExHtmlInlineHighlightLinesStyle::Style {
                 style: "background-color: yellow".to_string(),
-            },
+            }),
             class: Some("custom-class".to_string()),
         };
 
@@ -674,7 +671,7 @@ mod tests {
     fn test_ex_html_inline_highlight_lines_style_theme() {
         let highlight_lines = ExHtmlInlineHighlightLines {
             lines: vec![ExLineSpec::Range { start: 1, end: 3 }],
-            style: ExHtmlInlineHighlightLinesStyle::Theme,
+            style: Some(ExHtmlInlineHighlightLinesStyle::Theme),
             class: None,
         };
 
@@ -713,7 +710,7 @@ mod tests {
                 ExLineSpec::Range { start: 3, end: 5 }, // Range
                 ExLineSpec::Single(7),                  // Another single line
             ],
-            style: ExHtmlInlineHighlightLinesStyle::Theme,
+            style: Some(ExHtmlInlineHighlightLinesStyle::Theme),
             class: None,
         };
 

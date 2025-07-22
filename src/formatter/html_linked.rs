@@ -51,7 +51,7 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// let highlight_lines = HighlightLines {
 ///     lines: vec![2..=3],  // Highlight lines 2 and 3
-///     class: "highlighted-line".to_string(),
+///     class: "transition-colors duration-500 w-full inline-block bg-yellow-500".to_string(),
 /// };
 /// ```
 ///
