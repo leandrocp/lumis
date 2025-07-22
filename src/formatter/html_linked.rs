@@ -4,6 +4,15 @@
 //! CSS classes for syntax highlighting. Requires external CSS files for styling.
 //! Supports line highlighting and custom CSS classes.
 //!
+//! # Example Output
+//!
+//! For the Rust code `fn main() { println!("Hello"); }`, the formatter generates
+//! HTML with CSS classes like:
+//!
+//! ```html
+//! <pre class="athl"><code class="language-rust" translate="no" tabindex="0"><span class="line" data-line="1"><span class="keyword-function">fn</span> <span class="function">main</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span> <span class="punctuation-bracket">&lbrace;</span> <span class="keyword-exception">println</span><span class="function-macro">!</span><span class="punctuation-bracket">(</span><span class="string">&quot;Hello&quot;</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">;</span> <span class="punctuation-bracket">&rbrace;</span></span></code></pre>
+//! ```
+//!
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 #![allow(unused_must_use)]
@@ -63,6 +72,18 @@ pub struct HighlightLines {
     /// This class will be added to the existing "line" class for highlighted lines,
     /// resulting in elements like `<span class="line your-class-name" data-line="N">`.
     /// You can then style this class in your CSS to achieve the desired highlighting effect.
+    ///
+    /// Note that themes include `visual` and `cursorline` classes for convenience,
+    /// which are used in Neovim to highlight selected lines (visual) and the current line (cursorline),
+    /// so you can just opt for one of those if you want to use the default styles:
+    /// ```rust
+    /// use autumnus::formatter::html_linked::HighlightLines;
+    ///
+    /// let highlight_lines = HighlightLines {
+    ///     lines: vec![1..=2],
+    ///     class: "visual".to_string(),
+    /// };
+    /// ```
     pub class: String,
 }
 
@@ -221,6 +242,9 @@ mod tests {
     use super::*;
     use crate::formatter::HtmlLinkedBuilder;
 
+    #[cfg(test)]
+    use pretty_assertions::assert_str_eq;
+
     #[test]
     fn test_no_attrs() {
         let formatter = HtmlLinked::new("@lang :rust", Language::Elixir, None, None, None);
@@ -238,8 +262,9 @@ mod tests {
             HtmlLinked::new("", Language::PlainText, Some("test-pre-class"), None, None);
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
-        let pre_tag = String::from_utf8(buffer).unwrap();
-        assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
+        let result = String::from_utf8(buffer).unwrap();
+        let expected = r#"<pre class="athl test-pre-class">"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -247,8 +272,9 @@ mod tests {
         let formatter = HtmlLinked::new("", Language::Rust, None, None, None);
         let mut buffer = Vec::new();
         formatter.open_code_tag(&mut buffer);
-        let code_tag = String::from_utf8(buffer).unwrap();
-        assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
+        let result = String::from_utf8(buffer).unwrap();
+        let expected = r#"<code class="language-rust" translate="no" tabindex="0">"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -262,17 +288,19 @@ mod tests {
 
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
-        let pre_tag = String::from_utf8(buffer).unwrap();
-        assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
+        let pre_result = String::from_utf8(buffer).unwrap();
+        let pre_expected = r#"<pre class="athl test-pre-class">"#;
+        assert_str_eq!(pre_result, pre_expected);
 
         let mut buffer = Vec::new();
         formatter.open_code_tag(&mut buffer);
-        let code_tag = String::from_utf8(buffer).unwrap();
-        assert!(code_tag.contains("<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"));
+        let code_result = String::from_utf8(buffer).unwrap();
+        let code_expected = r#"<code class="language-rust" translate="no" tabindex="0">"#;
+        assert_str_eq!(code_result, code_expected);
     }
 
     #[test]
-    fn test_highlight_lines_functionality() {
+    fn test_highlight_lines() {
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
         let highlight_lines = HighlightLines {
             lines: vec![1..=1, 3..=4],
@@ -285,11 +313,13 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        assert!(result.contains("class=\"line highlighted\" data-line=\"1\""));
-        assert!(result.contains("class=\"line\" data-line=\"2\""));
-        assert!(result.contains("class=\"line highlighted\" data-line=\"3\""));
-        assert!(result.contains("class=\"line highlighted\" data-line=\"4\""));
-        assert!(result.contains("class=\"line\" data-line=\"5\""));
+        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line highlighted" data-line="1">line 1
+</span><span class="line" data-line="2">line 2
+</span><span class="line highlighted" data-line="3">line 3
+</span><span class="line highlighted" data-line="4">line 4
+</span><span class="line" data-line="5">line 5
+</span></code></pre>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -305,9 +335,10 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        assert!(result.starts_with("<div class=\"code-wrapper\">"));
-        assert!(result.ends_with("</div>"));
-        assert!(result.contains("<pre class=\"athl\">")); // Ensure the pre tag is inside
+        let expected = r#"<div class="code-wrapper"><pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line" data-line="1">line 1
+</span><span class="line" data-line="2">line 2
+</span></code></pre></div>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -333,10 +364,9 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        assert!(result.starts_with("<section class=\"code-section\">"));
-        assert!(result.ends_with("</section>"));
-        assert!(result.contains("<pre class=\"athl custom-pre\">"));
-        assert!(result.contains("class=\"line highlighted\" data-line=\"1\""));
-        assert!(result.contains("class=\"line\" data-line=\"2\""));
+        let expected = r#"<section class="code-section"><pre class="athl custom-pre"><code class="language-plaintext" translate="no" tabindex="0"><span class="line highlighted" data-line="1">line 1
+</span><span class="line" data-line="2">line 2
+</span></code></pre></section>"#;
+        assert_str_eq!(result, expected);
     }
 }

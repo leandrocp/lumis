@@ -359,7 +359,8 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///
 /// let highlight_lines = HighlightLines {
 ///     lines: vec![2..=3],  // Highlight lines 2 and 3
-///     style: HighlightLinesStyle::Style("background-color: yellow".to_string()),
+///     style: Some(HighlightLinesStyle::Style("background-color: yellow".to_string())),
+///     class: None,
 /// };
 ///
 /// let options = Options {

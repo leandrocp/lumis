@@ -4,6 +4,15 @@
 //! ANSI color codes for syntax highlighting. Supports themes and automatic color
 //! mapping from theme definitions to terminal colors.
 //!
+//! # Example Output
+//!
+//! For the Rust code `fn main() { println!("Hello"); }` with a theme applied,
+//! the formatter generates ANSI-colored terminal output like:
+//!
+//! ```text
+//! [0m[38;2;139;233;253mfn[0m [0m[38;2;80;250;123mmain[0m[0m[38;2;248;248;242m([0m[0m[38;2;248;248;242m)[0m [0m[38;2;248;248;242m{[0m [0m[38;2;189;147;249mprintln[0m[0m[38;2;80;250;123m![0m[0m[38;2;248;248;242m([0m[0m[38;2;241;250;140m"Hello"[0m[0m[38;2;248;248;242m)[0m[0m[38;2;248;248;242m;[0m [0m[38;2;248;248;242m}[0m
+//! ```
+//!
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 #![allow(unused_must_use)]
@@ -113,6 +122,9 @@ impl Formatter for Terminal<'_> {
 mod tests {
     use super::*;
 
+    #[cfg(test)]
+    use pretty_assertions::assert_str_eq;
+
     #[test]
     fn test_no_attrs() {
         let formatter = Terminal::new("@lang :rust", Language::Elixir, None);
@@ -120,6 +132,6 @@ mod tests {
         formatter.format(&mut buffer);
         let result = String::from_utf8(buffer).unwrap();
         let expected = "\u{1b}[0m\u{1b}[38;2;238;238;238m\u{1b}[0m\u{1b}[38;2;238;238;238m@\u{1b}[0m\u{1b}[38;2;238;238;238m\u{1b}[0m\u{1b}[38;2;238;238;238mlang \u{1b}[0m\u{1b}[38;2;238;238;238m:rust\u{1b}[0m\u{1b}[0m\u{1b}[0m\u{1b}[0m\u{1b}[0m";
-        assert_eq!(result, expected)
+        assert_str_eq!(result, expected)
     }
 }

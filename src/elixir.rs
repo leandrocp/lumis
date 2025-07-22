@@ -79,14 +79,15 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                         .into_iter()
                         .map(|line_spec| line_spec.to_range_inclusive())
                         .collect(),
-                    style: match hl.style {
+                    style: Some(match hl.style {
                         ExHtmlInlineHighlightLinesStyle::Theme => {
                             html_inline::HighlightLinesStyle::Theme
                         }
                         ExHtmlInlineHighlightLinesStyle::Style { style } => {
                             html_inline::HighlightLinesStyle::Style(style)
                         }
-                    },
+                    }),
+                    class: hl.class,
                 });
 
                 let header = header.map(|h| HtmlElement {
@@ -258,6 +259,7 @@ impl Default for ExHtmlInlineHighlightLinesStyle {
 pub struct ExHtmlInlineHighlightLines {
     pub lines: Vec<ExLineSpec>,
     pub style: ExHtmlInlineHighlightLinesStyle,
+    pub class: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
@@ -317,7 +319,11 @@ impl From<html_inline::HighlightLines> for ExHtmlInlineHighlightLines {
                 .into_iter()
                 .map(ExLineSpec::from_range_inclusive)
                 .collect(),
-            style: highlight_lines.style.into(),
+            style: highlight_lines
+                .style
+                .unwrap_or(html_inline::HighlightLinesStyle::Theme)
+                .into(),
+            class: highlight_lines.class,
         }
     }
 }
@@ -340,6 +346,9 @@ mod tests {
     use super::*;
     use crate::{highlight, themes, Options};
     use std::collections::HashMap;
+
+    #[cfg(test)]
+    use pretty_assertions::assert_str_eq;
 
     #[test]
     fn test_ex_formatter_option_default() {
@@ -417,6 +426,7 @@ mod tests {
             style: ExHtmlInlineHighlightLinesStyle::Style {
                 style: "background-color: yellow".to_string(),
             },
+            class: None,
         };
 
         // Convert to Rust type through the From implementation in the formatter conversion
@@ -442,7 +452,7 @@ mod tests {
                 assert_eq!(*hl.lines[1].end(), 5);
 
                 match hl.style {
-                    html_inline::HighlightLinesStyle::Style(style) => {
+                    Some(html_inline::HighlightLinesStyle::Style(style)) => {
                         assert_eq!(style, "background-color: yellow");
                     }
                     _ => panic!("Should be Style variant"),
@@ -533,10 +543,9 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        assert!(result.contains("<pre class=\"athl code-block\""));
-        assert!(result.contains("language-rust"));
-        assert!(result.contains("fn"));
-        assert!(result.contains("println"));
+        let expected = r#"<pre class="athl code-block" style="color: #f8f8f2; background-color: #282a36;"><code class="language-rust" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #8be9fd;">fn</span> <span style="color: #50fa7b;">main</span><span style="color: #f8f8f2;">(</span><span style="color: #f8f8f2;">)</span> <span style="color: #f8f8f2;">&lbrace;</span> <span style="color: #bd93f9;">println</span><span style="color: #50fa7b;">!</span><span style="color: #f8f8f2;">(</span><span style="color: #f1fa8c;">&quot;Hello&quot;</span><span style="color: #f8f8f2;">)</span><span style="color: #f8f8f2;">;</span> <span style="color: #f8f8f2;">&rbrace;</span>
+</span></code></pre>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -551,6 +560,7 @@ mod tests {
             style: ExHtmlInlineHighlightLinesStyle::Style {
                 style: "background-color: yellow".to_string(),
             },
+            class: Some("custom-class".to_string()),
         };
 
         let ex_formatter = ExFormatterOption::HtmlInline {
@@ -569,10 +579,12 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        assert!(result.contains("background-color: yellow"));
-        assert!(result.contains("data-line=\"1\""));
-        assert!(result.contains("data-line=\"3\""));
-        assert!(result.contains("data-line=\"4\""));
+        let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><span class="line custom-class" style="background-color: yellow" data-line="1">line 1
+</span><span class="line" data-line="2">line 2
+</span><span class="line custom-class" style="background-color: yellow" data-line="3">line 3
+</span><span class="line custom-class" style="background-color: yellow" data-line="4">line 4
+</span></code></pre>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -600,9 +612,9 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        assert!(result.starts_with("<section class=\"code-wrapper\">"));
-        assert!(result.ends_with("</section>"));
-        assert!(result.contains("<pre class=\"athl\">"));
+        let expected = r#"<section class="code-wrapper"><pre class="athl"><code class="language-javascript" translate="no" tabindex="0"><span class="line" data-line="1"><span >const</span> <span >x</span> <span >=</span> <span >42</span><span >;</span>
+</span></code></pre></section>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -632,11 +644,11 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        assert!(result.starts_with("<div class=\"elixir-code\">"));
-        assert!(result.ends_with("</div>"));
-        assert!(result.contains("<pre class=\"athl syntax-highlight\">"));
-        assert!(result.contains("class=\"line highlighted-line\""));
-        assert!(result.contains("language-elixir"));
+        let expected = r#"<div class="elixir-code"><pre class="athl syntax-highlight"><code class="language-elixir" translate="no" tabindex="0"><span class="line" data-line="1"><span class="keyword">defmodule</span> <span class="module">Test</span> <span class="keyword">do</span>
+</span><span class="line highlighted-line" data-line="2">  <span class="keyword">def</span> <span class="variable">hello</span><span class="punctuation-delimiter">,</span> <span class="string-special-symbol">do: </span><span class="string-special-symbol">:world</span>
+</span><span class="line" data-line="3"><span class="keyword">end</span>
+</span></code></pre></div>"#;
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -654,10 +666,8 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        // Should contain ANSI escape codes for colors
-        assert!(result.contains("\u{1b}["));
-        assert!(result.contains("puts"));
-        assert!(result.contains("Hello Ruby"));
+        let expected = "\x1b[0m\x1b[38;2;210;168;255mputs\x1b[0m \x1b[0m\x1b[38;2;165;214;255m'\x1b[0m\x1b[0m\x1b[38;2;165;214;255mHello Ruby\x1b[0m\x1b[0m\x1b[38;2;165;214;255m'\x1b[0m";
+        assert_str_eq!(result, expected);
     }
 
     #[test]
@@ -665,6 +675,7 @@ mod tests {
         let highlight_lines = ExHtmlInlineHighlightLines {
             lines: vec![ExLineSpec::Range { start: 1, end: 3 }],
             style: ExHtmlInlineHighlightLinesStyle::Theme,
+            class: None,
         };
 
         let ex_formatter = ExFormatterOption::HtmlInline {
@@ -683,7 +694,7 @@ mod tests {
             } => {
                 let hl = highlight_lines.unwrap();
                 match hl.style {
-                    html_inline::HighlightLinesStyle::Theme => {
+                    Some(html_inline::HighlightLinesStyle::Theme) => {
                         // Expected behavior
                     }
                     _ => panic!("Should be Theme variant"),
@@ -703,6 +714,7 @@ mod tests {
                 ExLineSpec::Single(7),                  // Another single line
             ],
             style: ExHtmlInlineHighlightLinesStyle::Theme,
+            class: None,
         };
 
         let formatter_option = ExFormatterOption::HtmlInline {

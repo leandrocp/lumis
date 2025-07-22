@@ -263,6 +263,9 @@ quote = "1"
 rayon = "1"
 syn = { version = "2.0", features = ["full", "parsing"] }
 
+[dev-dependencies]
+pretty_assertions = "1.4"
+
 [profile.release]
 lto = true
 strip = true
