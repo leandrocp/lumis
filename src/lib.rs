@@ -262,7 +262,7 @@ pub mod formatter;
 pub mod languages;
 pub mod themes;
 
-#[cfg(feature = "elixir")]
+#[cfg(feature = "elixir-nif")]
 #[doc(hidden)]
 pub mod elixir;
 

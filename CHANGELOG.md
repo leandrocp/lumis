@@ -9,6 +9,7 @@
 ### Changed
 - Update CSS files to include new styles for highlighted lines
 - **Breaking** Change `HighlightLines.style` field from `HighlightLinesStyle` to `Option<HighlightLinesStyle>` allowing users to define either style or class for highlighted lines
+- **Breaking** Rename feature flag `elixir` to `elixir-nif` for clarity
 
 ## [0.5.0] - 2025-08-07
 

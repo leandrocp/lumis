@@ -79,6 +79,6 @@
 4. Run `echo y | just gen-samples` to generate the HTML samples
 
 ## Important Notes
-- Features: `elixir` (for Rustler NIF), `dev` (for development tools)
+- Features: `elixir-nif` (for Rustler NIF), `dev` (for development tools)
 - Overwrites in `overwrites/` directory can modify or extend query files
 - CSS files are generated and should not be manually edited
