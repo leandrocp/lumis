@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_mocha",
   "appearance": "dark",
-  "revision": "fa42eb5e26819ef58884257d5ae95dd0552b9a66",
+  "revision": "82f3dcedc9acc242d2d4f98abca02e2f10a75248",
   "highlights": {
     "attribute": {
       "fg": "#fab387"
@@ -54,9 +54,6 @@
     "constructor": {
       "fg": "#74c7ec"
     },
-    "cursorline": {
-      "bg": "#2a2b3c"
-    },
     "diff.delta": {
       "fg": "#89b4fa"
     },
@@ -86,6 +83,13 @@
     },
     "function.method.call": {
       "fg": "#89b4fa"
+    },
+    "highlighted": {
+      "bg": "#45475a",
+      "bold": true,
+      "display": "inline-block",
+      "width": "100%",
+      "transition": "background-color .5s"
     },
     "keyword": {
       "fg": "#cba6f7"
@@ -311,10 +315,6 @@
     },
     "variable.parameter.builtin": {
       "fg": "#f5c2e7"
-    },
-    "visual": {
-      "bg": "#45475a",
-      "bold": true
     }
   }
 }

@@ -98,7 +98,7 @@
 //!
 //! let highlight_lines = HighlightLines {
 //!     lines: vec![1..=1, 3..=4],  // Highlight lines 1, 3, and 4
-//!     style: Some(HighlightLinesStyle::Theme),  // Use theme's cursorline style
+//!     style: Some(HighlightLinesStyle::Theme),  // Use theme's highlighted style
 //!     class: None,
 //! };
 //!

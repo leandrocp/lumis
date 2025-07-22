@@ -80,6 +80,12 @@ pre.athl {
 .function-method-call {
   color: #04d1f9;
 }
+.highlighted {
+  background-color: #403c64;
+  transition: background-color .5s;
+  width: 100%;
+  display: inline-block;
+}
 .keyword {
   color: #b4a4f4;
 }
@@ -291,7 +297,4 @@ pre.athl {
 }
 .variable-parameter-builtin {
   color: #ff757f;
-}
-.visual {
-  background-color: #403c64;
 }

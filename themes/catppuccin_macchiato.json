@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_macchiato",
   "appearance": "dark",
-  "revision": "fa42eb5e26819ef58884257d5ae95dd0552b9a66",
+  "revision": "82f3dcedc9acc242d2d4f98abca02e2f10a75248",
   "highlights": {
     "attribute": {
       "fg": "#f5a97f"
@@ -54,9 +54,6 @@
     "constructor": {
       "fg": "#7dc4e4"
     },
-    "cursorline": {
-      "bg": "#303347"
-    },
     "diff.delta": {
       "fg": "#8aadf4"
     },
@@ -86,6 +83,13 @@
     },
     "function.method.call": {
       "fg": "#8aadf4"
+    },
+    "highlighted": {
+      "bg": "#494d64",
+      "bold": true,
+      "display": "inline-block",
+      "width": "100%",
+      "transition": "background-color .5s"
     },
     "keyword": {
       "fg": "#c6a0f6"
@@ -311,10 +315,6 @@
     },
     "variable.parameter.builtin": {
       "fg": "#f5bde6"
-    },
-    "visual": {
-      "bg": "#494d64",
-      "bold": true
     }
   }
 }

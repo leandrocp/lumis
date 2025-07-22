@@ -1,7 +1,7 @@
 {
   "name": "rosepine_dark",
   "appearance": "dark",
-  "revision": "f93360149e9ed4df8677fbb07c7231ea0fd03b97",
+  "revision": "72befaffeac38db7bdd49e0549eaa2c4806dd878",
   "highlights": {
     "attribute": {
       "fg": "#c4a7e7"
@@ -54,9 +54,6 @@
     "constructor": {
       "fg": "#9ccfd8"
     },
-    "cursorline": {
-      "bg": "#26233a"
-    },
     "diff.delta": {
       "bg": "#433842"
     },
@@ -86,6 +83,12 @@
     },
     "function.method.call": {
       "fg": "#c4a7e7"
+    },
+    "highlighted": {
+      "bg": "#332d41",
+      "display": "inline-block",
+      "width": "100%",
+      "transition": "background-color .5s"
     },
     "keyword": {
       "fg": "#31748f"
@@ -310,9 +313,6 @@
       "fg": "#c4a7e7",
       "bold": true,
       "italic": true
-    },
-    "visual": {
-      "bg": "#332d41"
     }
   }
 }
