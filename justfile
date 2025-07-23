@@ -64,6 +64,7 @@ update-parsers parser_name="":
         "tree-sitter-surface https://github.com/connorlay/tree-sitter-surface.git main"
         "tree-sitter-vim https://github.com/tree-sitter-grammars/tree-sitter-vim.git master"
         "tree-sitter-vue https://github.com/tree-sitter-grammars/tree-sitter-vue.git main"
+        "tree-sitter-caddy https://github.com/opa-oz/tree-sitter-caddy.git main"
     )
 
     for parser_info in "${parsers[@]}"; do

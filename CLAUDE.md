@@ -35,6 +35,7 @@
 3. Gate language features with `#[cfg(feature = "lang-{name}")]` in the codebase
 4. Follow "Updating language.rs to add a new language"
 5. Follow "Adding New Queries"
+6. Include language in the list of languages in `lib.rs` under `//! ## Languages available`
 
 ## Adding New vendorized Languages
 1. To vendor you must include the repo into `update-parses` in `justfile` and run `just update-parser <repo-name>`, eg: `just update-parsers tree-sitter-dart`
@@ -42,7 +43,8 @@
 3. Run `cargo build`
 4. Add language in `extern "C"` block in `src/languages.rs`
 5. Follow "Updating language.rs to add a new language"
-5. Follow "Adding New Queries"
+6. Follow "Adding New Queries"
+7. Include language in the list of languages in `lib.rs` under `//! ## Languages available`
 
 ## Updating language.rs to add a new language
 - Fetch https://github.com/Wilfred/difftastic/blob/master/src/parse/guess_language.rs to learn the language detection logic
@@ -53,6 +55,8 @@
   - Add the new language in `pub fn name`
   - Add the new language in `pub fn config`
   - Add the static language config as `<LANGUAGE>_CONFIG`
+  - Add the new language into feature `all-languages` in `Cargo.toml`
+  - Write a test `test_{lang_name}_config_loads`
 
 ## Update Language documentation
 - Add the new language in section `//! ## Languages available` in `src/lib.rs`

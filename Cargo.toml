@@ -58,6 +58,7 @@ all-languages = [
     "lang-astro",
     "lang-bash",
     "lang-c",
+    "lang-caddy",
     "lang-clojure",
     "lang-cmake",
     "lang-comment",
@@ -128,6 +129,7 @@ lang-asm = ["dep:tree-sitter-asm"]
 lang-astro = []
 lang-bash = ["dep:tree-sitter-bash"]
 lang-c = ["dep:tree-sitter-c"]
+lang-caddy = []
 lang-clojure = []
 lang-cmake = ["dep:tree-sitter-cmake"]
 lang-comment = ["dep:tree-sitter-comment"]

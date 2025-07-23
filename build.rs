@@ -98,6 +98,13 @@ fn vendored_parsers() {
         extra_files: vec!["scanner.c"],
     });
 
+    #[cfg(feature = "lang-caddy")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-caddy",
+        src_dir: "vendored_parsers/tree-sitter-caddy/src",
+        extra_files: vec!["scanner.c"],
+    });
+
     #[cfg(feature = "lang-clojure")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-clojure",
@@ -349,6 +356,7 @@ fn queries() {
             "astro" => cfg!(feature = "lang-astro"),
             "bash" => cfg!(feature = "lang-bash"),
             "c" => cfg!(feature = "lang-c"),
+            "caddy" => cfg!(feature = "lang-caddy"),
             "clojure" => cfg!(feature = "lang-clojure"),
             "cmake" => cfg!(feature = "lang-cmake"),
             "comment" => cfg!(feature = "lang-comment"),
