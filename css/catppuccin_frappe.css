@@ -1,5 +1,5 @@
 /* catppuccin_frappe
- * revision: fa42eb5e26819ef58884257d5ae95dd0552b9a66
+ * revision: 82f3dcedc9acc242d2d4f98abca02e2f10a75248
  */
 
 pre.athl {
@@ -57,9 +57,6 @@ pre.athl {
 .constructor {
   color: #85c1dc;
 }
-.cursorline {
-  background-color: #3b3f52;
-}
 .diff-delta {
   color: #8caaee;
 }
@@ -89,6 +86,13 @@ pre.athl {
 }
 .function-method-call {
   color: #8caaee;
+}
+.highlighted {
+  background-color: #51576d;
+  font-weight: bold;
+  transition: background-color .5s;
+  width: 100%;
+  display: inline-block;
 }
 .keyword {
   color: #ca9ee6;
@@ -314,8 +318,4 @@ pre.athl {
 }
 .variable-parameter-builtin {
   color: #f4b8e4;
-}
-.visual {
-  background-color: #51576d;
-  font-weight: bold;
 }

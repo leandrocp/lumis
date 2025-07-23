@@ -176,6 +176,9 @@ impl From<ExTheme> for themes::Theme {
                             bold: v.bold,
                             italic: v.italic,
                             strikethrough: v.strikethrough,
+                            display: v.display,
+                            width: v.width,
+                            transition: v.transition,
                         },
                     )
                 })
@@ -208,6 +211,9 @@ pub struct ExStyle {
     pub bold: bool,
     pub italic: bool,
     pub strikethrough: bool,
+    pub display: Option<String>,
+    pub width: Option<String>,
+    pub transition: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
@@ -278,6 +284,9 @@ impl<'a> From<&'a themes::Style> for ExStyle {
             bold: style.bold,
             italic: style.italic,
             strikethrough: style.strikethrough,
+            display: style.display.clone(),
+            width: style.width.clone(),
+            transition: style.transition.clone(),
         }
     }
 }
@@ -499,6 +508,9 @@ mod tests {
                 italic: false,
                 underline: false,
                 strikethrough: false,
+                display: None,
+                width: None,
+                transition: None,
             },
         );
 
@@ -521,7 +533,7 @@ mod tests {
     }
 
     #[test]
-    fn test_full_integration_html_inline_with_theme_string() {
+    fn test_html_inline_with_theme_string() {
         let code = "fn main() { println!(\"Hello\"); }";
 
         let ex_formatter = ExFormatterOption::HtmlInline {
@@ -546,7 +558,7 @@ mod tests {
     }
 
     #[test]
-    fn test_full_integration_html_inline_with_highlight_lines() {
+    fn test_html_inline_with_highlight_lines() {
         let code = "line 1\nline 2\nline 3\nline 4";
 
         let highlight_lines = ExHtmlInlineHighlightLines {
@@ -585,7 +597,7 @@ mod tests {
     }
 
     #[test]
-    fn test_full_integration_html_inline_with_header() {
+    fn test_html_inline_with_header() {
         let code = "const x = 42;";
 
         let header = ExHtmlElement {
@@ -615,12 +627,12 @@ mod tests {
     }
 
     #[test]
-    fn test_full_integration_html_linked_with_all_features() {
+    fn test_html_linked_with_all_features() {
         let code = "defmodule Test do\n  def hello, do: :world\nend";
 
         let highlight_lines = ExHtmlLinkedHighlightLines {
             lines: vec![ExLineSpec::Single(2)],
-            class: "highlighted-line".to_string(),
+            class: "custom-hl".to_string(),
         };
 
         let header = ExHtmlElement {
@@ -642,7 +654,7 @@ mod tests {
 
         let result = highlight(code, options);
         let expected = r#"<div class="elixir-code"><pre class="athl syntax-highlight"><code class="language-elixir" translate="no" tabindex="0"><span class="line" data-line="1"><span class="keyword">defmodule</span> <span class="module">Test</span> <span class="keyword">do</span>
-</span><span class="line highlighted-line" data-line="2">  <span class="keyword">def</span> <span class="variable">hello</span><span class="punctuation-delimiter">,</span> <span class="string-special-symbol">do: </span><span class="string-special-symbol">:world</span>
+</span><span class="line custom-hl" data-line="2">  <span class="keyword">def</span> <span class="variable">hello</span><span class="punctuation-delimiter">,</span> <span class="string-special-symbol">do: </span><span class="string-special-symbol">:world</span>
 </span><span class="line" data-line="3"><span class="keyword">end</span>
 </span></code></pre></div>"#;
         assert_str_eq!(result, expected);

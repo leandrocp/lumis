@@ -35,14 +35,18 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// # Examples
 ///
-/// Basic usage with default "visual" class:
+/// With default "highlighted" class:
 /// ```rust
 /// use autumnus::formatter::html_linked::HighlightLines;
 ///
 /// let highlight_lines = HighlightLines {
-///     lines: vec![1..=1, 5..=7],  // Highlight lines 1, 5, 6, and 7
-///     class: "visual".to_string(),
+///     lines: vec![1..=1, 5..=7],
+///     ..Default::default()
 /// };
+/// ```
+/// The resulting HTML will look like:
+/// ```html
+/// <span class="line highlighted" data-line="2">...</span>
 /// ```
 ///
 /// Using a custom CSS class:
@@ -55,10 +59,9 @@ use tree_sitter_highlight::Highlighter;
 /// };
 /// ```
 ///
-/// The resulting HTML will include the class in line elements:
+/// The resulting HTML will include the classes in line elements:
 /// ```html
-/// <span class="line highlighted-line" data-line="2">...</span>
-/// <span class="line highlighted-line" data-line="3">...</span>
+/// <span class="line transition-colors duration-500 w-full inline-block bg-yellow-500" data-line="2">...</span>
 /// ```
 #[derive(Clone, Debug)]
 pub struct HighlightLines {
@@ -69,19 +72,20 @@ pub struct HighlightLines {
     pub lines: Vec<RangeInclusive<usize>>,
     /// The CSS class name to add to highlighted line elements.
     ///
-    /// This class will be added to the existing "line" class for highlighted lines,
-    /// resulting in elements like `<span class="line your-class-name" data-line="N">`.
-    /// You can then style this class in your CSS to achieve the desired highlighting effect.
+    /// Highlighted lines will have both "highlighted" and this custom class added to the existing "line" class,
+    /// resulting in elements like `<span class="line highlighted your-class-name" data-line="N">`.
+    /// You can then style these classes in your CSS to achieve the desired highlighting effect.
     ///
-    /// Note that themes include `visual` and `cursorline` classes for convenience,
-    /// which are used in Neovim to highlight selected lines (visual) and the current line (cursorline),
-    /// so you can just opt for one of those if you want to use the default styles:
+    /// Note that themes include a `highlighted` class for convenience,
+    /// which contains the colors from the theme's "Visual" highlight from Neovim.
+    ///
+    /// Defaults to `"highlighted"`.
     /// ```rust
     /// use autumnus::formatter::html_linked::HighlightLines;
     ///
     /// let highlight_lines = HighlightLines {
     ///     lines: vec![1..=2],
-    ///     class: "visual".to_string(),
+    ///     class: "highlighted".to_string(),
     /// };
     /// ```
     pub class: String,
@@ -91,7 +95,7 @@ impl Default for HighlightLines {
     fn default() -> Self {
         Self {
             lines: Vec::new(),
-            class: "visual".to_string(),
+            class: "highlighted".to_string(),
         }
     }
 }
@@ -300,11 +304,33 @@ mod tests {
     }
 
     #[test]
+    fn test_default_highlight_lines() {
+        let code = "line 1\nline 2\nline 3";
+        let highlight_lines = HighlightLines {
+            lines: vec![2..=2],
+            ..Default::default()
+        };
+
+        let formatter =
+            HtmlLinked::new(code, Language::PlainText, None, Some(highlight_lines), None);
+
+        let mut buffer = Vec::new();
+        formatter.format(&mut buffer).unwrap();
+        let result = String::from_utf8(buffer).unwrap();
+
+        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line" data-line="1">line 1
+</span><span class="line highlighted" data-line="2">line 2
+</span><span class="line" data-line="3">line 3
+</span></code></pre>"#;
+        assert_str_eq!(result, expected);
+    }
+
+    #[test]
     fn test_highlight_lines() {
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
         let highlight_lines = HighlightLines {
             lines: vec![1..=1, 3..=4],
-            class: "highlighted".to_string(),
+            class: "custom-hl".to_string(),
         };
         let formatter =
             HtmlLinked::new(code, Language::PlainText, None, Some(highlight_lines), None);
@@ -313,10 +339,10 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line highlighted" data-line="1">line 1
+        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line custom-hl" data-line="1">line 1
 </span><span class="line" data-line="2">line 2
-</span><span class="line highlighted" data-line="3">line 3
-</span><span class="line highlighted" data-line="4">line 4
+</span><span class="line custom-hl" data-line="3">line 3
+</span><span class="line custom-hl" data-line="4">line 4
 </span><span class="line" data-line="5">line 5
 </span></code></pre>"#;
         assert_str_eq!(result, expected);

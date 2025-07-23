@@ -50,9 +50,6 @@
     "constructor": {
       "fg": "#ffcc66"
     },
-    "cursorline": {
-      "bg": "#171b24"
-    },
     "diff.delta": {
       "fg": "#80bfff"
     },
@@ -79,6 +76,12 @@
     },
     "function.method.call": {
       "fg": "#ffd173"
+    },
+    "highlighted": {
+      "bg": "#23344b",
+      "display": "inline-block",
+      "width": "100%",
+      "transition": "background-color .5s"
     },
     "keyword": {
       "fg": "#ffad66"
@@ -281,9 +284,6 @@
     },
     "variable.parameter.builtin": {
       "fg": "#ffcc66"
-    },
-    "visual": {
-      "bg": "#23344b"
     }
   }
 }

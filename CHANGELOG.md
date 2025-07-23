@@ -4,12 +4,20 @@
 
 ### Added
 - Add `class` field to `HighlightLines` in HTML inline formatter for custom CSS classes on highlighted lines
-- Append CSS style rules `transition: background-color .5s`, `width: 100%`, `display: inline-block` to each `<span>` line on `HtmlInline` formatter when `HighlightStyle:Theme`
+- Add `highlighted` style to all themes with CSS properties to properly style highlighted lines
+- Add `display`, `width`, and `transition` fields to theme styles for extended styling capabilities
 
 ### Changed
-- Update CSS files to include new styles for highlighted lines
+- Map Neovim's `Visual` highlight group to `highlighted` style in theme extraction
+- Update all theme JSON files to include `highlighted` style derived from Visual highlight with CSS properties
+- Update all CSS files to include `.highlighted` class for HTML linked formatter
+- Update elixir-nif `ExStyle` struct to include `display`, `width`, and `transition` fields
 - **Breaking** Change `HighlightLines.style` field from `HighlightLinesStyle` to `Option<HighlightLinesStyle>` allowing users to define either style or class for highlighted lines
 - **Breaking** Rename feature flag `elixir` to `elixir-nif` for clarity
+- **Breaking** Remove `visual` and `cursorline` theme style in favor of `highlighted` for clarity
+
+### Fixed
+- Fix missing style fields in elixir-nif module for proper theme style conversion
 
 ## [0.5.0] - 2025-08-07
 

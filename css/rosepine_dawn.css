@@ -1,5 +1,5 @@
 /* rosepine_dawn
- * revision: f93360149e9ed4df8677fbb07c7231ea0fd03b97
+ * revision: 72befaffeac38db7bdd49e0549eaa2c4806dd878
  */
 
 pre.athl {
@@ -57,9 +57,6 @@ pre.athl {
 .constructor {
   color: #56949f;
 }
-.cursorline {
-  background-color: #f2e9e1;
-}
 .diff-delta {
   background-color: #f3ddd7;
 }
@@ -89,6 +86,12 @@ pre.athl {
 }
 .function-method-call {
   color: #907aa9;
+}
+.highlighted {
+  background-color: #eae2e3;
+  transition: background-color .5s;
+  width: 100%;
+  display: inline-block;
 }
 .keyword {
   color: #286983;
@@ -313,7 +316,4 @@ pre.athl {
   color: #907aa9;
   font-weight: bold;
   font-style: italic;
-}
-.visual {
-  background-color: #eae2e3;
 }

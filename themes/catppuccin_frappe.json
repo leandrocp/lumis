@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_frappe",
   "appearance": "dark",
-  "revision": "fa42eb5e26819ef58884257d5ae95dd0552b9a66",
+  "revision": "82f3dcedc9acc242d2d4f98abca02e2f10a75248",
   "highlights": {
     "attribute": {
       "fg": "#ef9f76"
@@ -54,9 +54,6 @@
     "constructor": {
       "fg": "#85c1dc"
     },
-    "cursorline": {
-      "bg": "#3b3f52"
-    },
     "diff.delta": {
       "fg": "#8caaee"
     },
@@ -86,6 +83,13 @@
     },
     "function.method.call": {
       "fg": "#8caaee"
+    },
+    "highlighted": {
+      "bg": "#51576d",
+      "bold": true,
+      "display": "inline-block",
+      "width": "100%",
+      "transition": "background-color .5s"
     },
     "keyword": {
       "fg": "#ca9ee6"
@@ -311,10 +315,6 @@
     },
     "variable.parameter.builtin": {
       "fg": "#f4b8e4"
-    },
-    "visual": {
-      "bg": "#51576d",
-      "bold": true
     }
   }
 }

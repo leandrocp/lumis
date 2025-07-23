@@ -54,9 +54,6 @@ pre.athl {
 .constructor {
   color: #6182b8;
 }
-.cursorline {
-  background-color: #e7e7e8;
-}
 .diff-delta {
   color: #6182b8;
 }
@@ -88,6 +85,12 @@ pre.athl {
 .function-method-call {
   color: #6182b8;
 }
+.highlighted {
+  background-color: #80cbc4;
+  transition: background-color .5s;
+  width: 100%;
+  display: inline-block;
+}
 .keyword {
   color: #39adb5;
 }
@@ -109,9 +112,6 @@ pre.athl {
 }
 .keyword-directive-define {
   color: #39adb5;
-}
-.keyword-exception {
-  color: #e53935;
 }
 .keyword-function {
   color: #39adb5;
@@ -294,7 +294,4 @@ pre.athl {
 }
 .variable-parameter-builtin {
   color: #39adb5;
-}
-.visual {
-  background-color: #80cbc4;
 }

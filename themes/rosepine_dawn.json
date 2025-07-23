@@ -1,7 +1,7 @@
 {
   "name": "rosepine_dawn",
   "appearance": "light",
-  "revision": "f93360149e9ed4df8677fbb07c7231ea0fd03b97",
+  "revision": "72befaffeac38db7bdd49e0549eaa2c4806dd878",
   "highlights": {
     "attribute": {
       "fg": "#907aa9"
@@ -54,9 +54,6 @@
     "constructor": {
       "fg": "#56949f"
     },
-    "cursorline": {
-      "bg": "#f2e9e1"
-    },
     "diff.delta": {
       "bg": "#f3ddd7"
     },
@@ -86,6 +83,12 @@
     },
     "function.method.call": {
       "fg": "#907aa9"
+    },
+    "highlighted": {
+      "bg": "#eae2e3",
+      "display": "inline-block",
+      "width": "100%",
+      "transition": "background-color .5s"
     },
     "keyword": {
       "fg": "#286983"
@@ -310,9 +313,6 @@
       "fg": "#907aa9",
       "bold": true,
       "italic": true
-    },
-    "visual": {
-      "bg": "#eae2e3"
     }
   }
 }

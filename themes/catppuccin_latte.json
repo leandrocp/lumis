@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_latte",
   "appearance": "light",
-  "revision": "fa42eb5e26819ef58884257d5ae95dd0552b9a66",
+  "revision": "82f3dcedc9acc242d2d4f98abca02e2f10a75248",
   "highlights": {
     "attribute": {
       "fg": "#fe640b"
@@ -54,9 +54,6 @@
     "constructor": {
       "fg": "#209fb5"
     },
-    "cursorline": {
-      "bg": "#e9ebf1"
-    },
     "diff.delta": {
       "fg": "#1e66f5"
     },
@@ -86,6 +83,13 @@
     },
     "function.method.call": {
       "fg": "#1e66f5"
+    },
+    "highlighted": {
+      "bg": "#bcc0cc",
+      "bold": true,
+      "display": "inline-block",
+      "width": "100%",
+      "transition": "background-color .5s"
     },
     "keyword": {
       "fg": "#8839ef"
@@ -311,10 +315,6 @@
     },
     "variable.parameter.builtin": {
       "fg": "#ea76cb"
-    },
-    "visual": {
-      "bg": "#bcc0cc",
-      "bold": true
     }
   }
 }

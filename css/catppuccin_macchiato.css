@@ -1,5 +1,5 @@
 /* catppuccin_macchiato
- * revision: fa42eb5e26819ef58884257d5ae95dd0552b9a66
+ * revision: 82f3dcedc9acc242d2d4f98abca02e2f10a75248
  */
 
 pre.athl {
@@ -57,9 +57,6 @@ pre.athl {
 .constructor {
   color: #7dc4e4;
 }
-.cursorline {
-  background-color: #303347;
-}
 .diff-delta {
   color: #8aadf4;
 }
@@ -89,6 +86,13 @@ pre.athl {
 }
 .function-method-call {
   color: #8aadf4;
+}
+.highlighted {
+  background-color: #494d64;
+  font-weight: bold;
+  transition: background-color .5s;
+  width: 100%;
+  display: inline-block;
 }
 .keyword {
   color: #c6a0f6;
@@ -314,8 +318,4 @@ pre.athl {
 }
 .variable-parameter-builtin {
   color: #f5bde6;
-}
-.visual {
-  background-color: #494d64;
-  font-weight: bold;
 }

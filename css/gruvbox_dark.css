@@ -59,9 +59,6 @@ pre.athl {
 .constructor {
   color: #fe8019;
 }
-.cursorline {
-  background-color: #3c3836;
-}
 .diff-delta {
   background-color: #49503b;
 }
@@ -92,6 +89,12 @@ pre.athl {
 .function-method-call {
   color: #b8bb26;
   font-weight: bold;
+}
+.highlighted {
+  background-color: #665c54;
+  transition: background-color .5s;
+  width: 100%;
+  display: inline-block;
 }
 .keyword {
   color: #fb4934;
@@ -313,7 +316,4 @@ pre.athl {
 }
 .variable-parameter-builtin {
   color: #fe8019;
-}
-.visual {
-  background-color: #665c54;
 }
