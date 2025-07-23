@@ -117,6 +117,8 @@ unsafe extern "C" {
     fn tree_sitter_dockerfile() -> *const ();
     #[cfg(feature = "lang-eex")]
     fn tree_sitter_eex() -> *const ();
+    #[cfg(feature = "lang-fish")]
+    fn tree_sitter_fish() -> *const ();
     #[cfg(feature = "lang-glimmer")]
     fn tree_sitter_glimmer() -> *const ();
     #[cfg(feature = "lang-graphql")]
@@ -194,6 +196,8 @@ pub enum Language {
     Elm,
     #[cfg(feature = "lang-erlang")]
     Erlang,
+    #[cfg(feature = "lang-fish")]
+    Fish,
     #[cfg(feature = "lang-fsharp")]
     FSharp,
     #[cfg(feature = "lang-gleam")]
@@ -345,6 +349,8 @@ impl Language {
             "elm" => Some(Language::Elm),
             #[cfg(feature = "lang-erlang")]
             "erlang" => Some(Language::Erlang),
+            #[cfg(feature = "lang-fish")]
+            "fish" => Some(Language::Fish),
             #[cfg(feature = "lang-fsharp")]
             "f#" | "fsharp" => Some(Language::FSharp),
             #[cfg(feature = "lang-gleam")]
@@ -638,6 +644,8 @@ impl Language {
                 "Emakefile",
                 "rebar.config",
             ],
+            #[cfg(feature = "lang-fish")]
+            Language::Fish => &["*.fish"],
             #[cfg(feature = "lang-fsharp")]
             Language::FSharp => &["*.fs", "*.fsx", "*.fsi"],
             #[cfg(feature = "lang-gleam")]
@@ -1056,6 +1064,8 @@ impl Language {
             Language::Elm => "Elm",
             #[cfg(feature = "lang-erlang")]
             Language::Erlang => "Erlang",
+            #[cfg(feature = "lang-fish")]
+            Language::Fish => "Fish",
             #[cfg(feature = "lang-fsharp")]
             Language::FSharp => "F#",
             #[cfg(feature = "lang-gleam")]
@@ -1207,6 +1217,8 @@ impl Language {
             Language::Elm => &ELM_CONFIG,
             #[cfg(feature = "lang-erlang")]
             Language::Erlang => &ERLANG_CONFIG,
+            #[cfg(feature = "lang-fish")]
+            Language::Fish => &FISH_CONFIG,
             #[cfg(feature = "lang-fsharp")]
             Language::FSharp => &FSHARP_CONFIG,
             #[cfg(feature = "lang-gleam")]
@@ -1681,6 +1693,22 @@ static EEX_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
         EEX_LOCALS,
     )
     .expect("failed to create eex highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
+#[cfg(feature = "lang-fish")]
+static FISH_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_fish) };
+
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(language_fn),
+        "fish",
+        FISH_HIGHLIGHTS,
+        FISH_INJECTIONS,
+        FISH_LOCALS,
+    )
+    .expect("failed to create fish highlight configuration");
     config.configure(&HIGHLIGHT_NAMES);
     config
 });
@@ -2570,7 +2598,6 @@ mod tests {
             .unwrap();
     }
 
-
     #[test]
     #[cfg(feature = "lang-cmake")]
     fn test_cmake_config_loads() {
@@ -2771,6 +2798,19 @@ mod tests {
         let lang = Language::Erlang;
         let config = lang.config();
         assert_eq!(lang.name(), "Erlang");
+
+        let mut highlighter = Highlighter::new();
+        let _ = highlighter
+            .highlight(config, "".as_bytes(), None, |_| None)
+            .unwrap();
+    }
+
+    #[test]
+    #[cfg(feature = "lang-fish")]
+    fn test_fish_config_loads() {
+        let lang = Language::Fish;
+        let config = lang.config();
+        assert_eq!(lang.name(), "Fish");
 
         let mut highlighter = Highlighter::new();
         let _ = highlighter

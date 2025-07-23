@@ -147,6 +147,13 @@ fn vendored_parsers() {
         extra_files: vec![],
     });
 
+    #[cfg(feature = "lang-fish")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-fish",
+        src_dir: "vendored_parsers/tree-sitter-fish/src",
+        extra_files: vec!["scanner.c"],
+    });
+
     #[cfg(feature = "lang-glimmer")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-glimmer",
@@ -371,6 +378,7 @@ fn queries() {
             "elixir" => cfg!(feature = "lang-elixir"),
             "elm" => cfg!(feature = "lang-elm"),
             "erlang" => cfg!(feature = "lang-erlang"),
+            "fish" => cfg!(feature = "lang-fish"),
             "fsharp" => cfg!(feature = "lang-fsharp"),
             "gleam" => cfg!(feature = "lang-gleam"),
             "glimmer" => cfg!(feature = "lang-glimmer"),

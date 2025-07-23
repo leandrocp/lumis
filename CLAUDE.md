@@ -51,7 +51,7 @@
 - Update `src/languages.rs` to include the new language:
   - Add the new language in `pub enum Language`
   - Add the new language in `pub fn guess`
-  - Add the new language in `pub fn language_globs`
+  - Add the new language in `pub fn language_globs` and fetch file extension from difftastic repo or from the vendored parser repo file package.json or tree-sitter.json
   - Add the new language in `pub fn name`
   - Add the new language in `pub fn config`
   - Add the static language config as `<LANGUAGE>_CONFIG`

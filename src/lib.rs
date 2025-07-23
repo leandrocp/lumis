@@ -83,6 +83,7 @@
 //! | Elixir | *.ex, *.exs |
 //! | Elm | *.elm |
 //! | Erlang | *.erl, *.app, *.app.src, *.es, *.escript, *.hrl, *.xrl, *.yrl, Emakefile, rebar.config |
+//! | Fish | *.fish |
 //! | F# | *.fs, *.fsx, *.fsi |
 //! | Gleam | *.gleam |
 //! | Glimmer | *.hbs, *.handlebars, *.html.handlebars, *.glimmer |

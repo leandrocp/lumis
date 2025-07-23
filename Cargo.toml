@@ -76,6 +76,7 @@ all-languages = [
     "lang-elm",
     "lang-erb",
     "lang-erlang",
+    "lang-fish",
     "lang-fsharp",
     "lang-gleam",
     "lang-glimmer",
@@ -147,6 +148,7 @@ lang-elixir = ["dep:tree-sitter-elixir"]
 lang-elm = ["dep:tree-sitter-elm"]
 lang-erb = ["dep:tree-sitter-embedded-template"]
 lang-erlang = ["dep:tree-sitter-erlang"]
+lang-fish = []
 lang-fsharp = ["dep:tree-sitter-fsharp"]
 lang-gleam = ["dep:tree-sitter-gleam"]
 lang-glimmer = []
