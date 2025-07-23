@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.6.0] - 2027-07-23
 
 ### Added
 - Add `class` field to `HighlightLines` in HTML inline formatter for custom CSS classes on highlighted lines
@@ -21,7 +21,7 @@
 ### Fixed
 - Fix missing style fields in elixir-nif module for proper theme style conversion
 
-## [0.5.0] - 2025-08-07
+## [0.5.0] - 2025-07-07
 
 ### Changed
 - **Breaking** Change formatter builders to use the mutable pattern
