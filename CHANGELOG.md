@@ -7,6 +7,7 @@
 - Add `highlighted` style to all themes with CSS properties to properly style highlighted lines
 - Add `display`, `width`, and `transition` fields to theme styles for extended styling capabilities
 - Add language `caddy`
+- Add language `fish`
 
 ### Changed
 - Map Neovim's `Visual` highlight group to `highlighted` style in theme extraction
