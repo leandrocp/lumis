@@ -58,6 +58,7 @@ all-languages = [
     "lang-astro",
     "lang-bash",
     "lang-c",
+    "lang-caddy",
     "lang-clojure",
     "lang-cmake",
     "lang-comment",
@@ -75,6 +76,7 @@ all-languages = [
     "lang-elm",
     "lang-erb",
     "lang-erlang",
+    "lang-fish",
     "lang-fsharp",
     "lang-gleam",
     "lang-glimmer",
@@ -128,6 +130,7 @@ lang-asm = ["dep:tree-sitter-asm"]
 lang-astro = []
 lang-bash = ["dep:tree-sitter-bash"]
 lang-c = ["dep:tree-sitter-c"]
+lang-caddy = []
 lang-clojure = []
 lang-cmake = ["dep:tree-sitter-cmake"]
 lang-comment = ["dep:tree-sitter-comment"]
@@ -145,6 +148,7 @@ lang-elixir = ["dep:tree-sitter-elixir"]
 lang-elm = ["dep:tree-sitter-elm"]
 lang-erb = ["dep:tree-sitter-embedded-template"]
 lang-erlang = ["dep:tree-sitter-erlang"]
+lang-fish = []
 lang-fsharp = ["dep:tree-sitter-fsharp"]
 lang-gleam = ["dep:tree-sitter-gleam"]
 lang-glimmer = []

@@ -98,6 +98,13 @@ fn vendored_parsers() {
         extra_files: vec!["scanner.c"],
     });
 
+    #[cfg(feature = "lang-caddy")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-caddy",
+        src_dir: "vendored_parsers/tree-sitter-caddy/src",
+        extra_files: vec!["scanner.c"],
+    });
+
     #[cfg(feature = "lang-clojure")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-clojure",
@@ -138,6 +145,13 @@ fn vendored_parsers() {
         name: "tree-sitter-eex",
         src_dir: "vendored_parsers/tree-sitter-eex/src",
         extra_files: vec![],
+    });
+
+    #[cfg(feature = "lang-fish")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-fish",
+        src_dir: "vendored_parsers/tree-sitter-fish/src",
+        extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-glimmer")]
@@ -349,6 +363,7 @@ fn queries() {
             "astro" => cfg!(feature = "lang-astro"),
             "bash" => cfg!(feature = "lang-bash"),
             "c" => cfg!(feature = "lang-c"),
+            "caddy" => cfg!(feature = "lang-caddy"),
             "clojure" => cfg!(feature = "lang-clojure"),
             "cmake" => cfg!(feature = "lang-cmake"),
             "comment" => cfg!(feature = "lang-comment"),
@@ -363,6 +378,7 @@ fn queries() {
             "elixir" => cfg!(feature = "lang-elixir"),
             "elm" => cfg!(feature = "lang-elm"),
             "erlang" => cfg!(feature = "lang-erlang"),
+            "fish" => cfg!(feature = "lang-fish"),
             "fsharp" => cfg!(feature = "lang-fsharp"),
             "gleam" => cfg!(feature = "lang-gleam"),
             "glimmer" => cfg!(feature = "lang-glimmer"),
