@@ -93,10 +93,7 @@
       "italic": true
     },
     "highlighted": {
-      "bg": "#434c5e",
-      "display": "inline-block",
-      "width": "100%",
-      "transition": "background-color .5s"
+      "bg": "#3b4252"
     },
     "keyword": {
       "fg": "#81a1c1",

@@ -87,10 +87,7 @@
       "fg": "#8ba4b0"
     },
     "highlighted": {
-      "bg": "#223249",
-      "display": "inline-block",
-      "width": "100%",
-      "transition": "background-color .5s"
+      "bg": "#393836"
     },
     "keyword": {
       "fg": "#8992a7",

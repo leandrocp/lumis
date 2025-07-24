@@ -1,9 +1,10 @@
 use anyhow::Result;
+use autumnus::formatter::Formatter as FormatterTrait;
 use autumnus::languages::Language;
-use autumnus::FormatterOption;
 use clap::{Parser, Subcommand, ValueEnum};
 use std::fmt::Display;
 use std::fs;
+use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
 use strum::IntoEnumIterator;
 
@@ -45,6 +46,10 @@ enum Commands {
         /// Theme name (e.g., "dracula", "github_dark")
         #[arg(short = 't', long)]
         theme: Option<String>,
+
+        /// Highlight lines
+        #[arg(short = 'l', long)]
+        highlight_lines: Option<String>,
     },
 
     /// Highlight a string of source code
@@ -63,6 +68,10 @@ enum Commands {
         /// Theme name (e.g., "dracula", "github_dark")
         #[arg(short = 't', long)]
         theme: Option<String>,
+
+        /// Highlight lines
+        #[arg(long)]
+        highlight_lines: Option<String>,
     },
 }
 
@@ -92,13 +101,21 @@ fn main() -> Result<()> {
             path,
             formatter,
             theme,
-        } => highlight(&path, formatter, theme),
+            highlight_lines,
+        } => highlight(&path, formatter, theme, highlight_lines),
         Commands::HighlightSource {
             source,
             language,
             formatter,
             theme,
-        } => highlight_source(&source, language.as_deref(), formatter, theme),
+            highlight_lines,
+        } => highlight_source(
+            &source,
+            language.as_deref(),
+            formatter,
+            theme,
+            highlight_lines,
+        ),
     }
 }
 
@@ -213,58 +230,101 @@ fn print_cursor(src: &str, cursor: &mut tree_sitter::TreeCursor, depth: usize) {
 /// * `path` - Path to the file to highlight
 /// * `formatter` - Output format (terminal, html-inline, html-linked)
 /// * `theme` - Theme name to use for highlighting
-fn highlight(path: &str, formatter: Option<Formatter>, theme: Option<String>) -> Result<()> {
+/// * `highlight_lines` - Optional string specifying lines to highlight (e.g., "1,3-5,8")
+fn highlight(
+    path: &str,
+    formatter: Option<Formatter>,
+    theme: Option<String>,
+    highlight_lines: Option<String>,
+) -> Result<()> {
     let theme = theme.unwrap_or("catppuccin_frappe".to_string());
     let theme = autumnus::themes::get(&theme).ok();
+
+    let parsed_highlight_lines = if let Some(lines_str) = highlight_lines {
+        Some(parse_highlight_lines(&lines_str)?)
+    } else {
+        None
+    };
 
     let bytes = read_or_die(Path::new(&path));
     let source = std::str::from_utf8(&bytes)
         .map_err(|e| anyhow::anyhow!("Failed to decode file '{}' as UTF-8: {}", path, e))?;
 
+    let language = autumnus::languages::Language::guess(path, source);
+
     match formatter.unwrap_or_default() {
         Formatter::HtmlInline => {
-            let highlighted = autumnus::highlight(
-                source,
-                autumnus::Options {
-                    lang_or_file: Some(path),
-                    formatter: FormatterOption::HtmlInline {
-                        pre_class: None,
-                        italic: false,
-                        include_highlights: false,
-                        theme,
-                        highlight_lines: None,
-                        header: None,
-                    },
-                },
-            );
+            let formatter = if let Some(lines) = parsed_highlight_lines {
+                let html_highlight_lines = autumnus::formatter::html_inline::HighlightLines {
+                    lines,
+                    style: Some(autumnus::formatter::html_inline::HighlightLinesStyle::Theme),
+                    class: None,
+                };
+                autumnus::HtmlInlineBuilder::new()
+                    .source(source)
+                    .lang(language)
+                    .theme(theme)
+                    .italic(false)
+                    .include_highlights(false)
+                    .highlight_lines(Some(html_highlight_lines))
+                    .build()
+                    .unwrap()
+            } else {
+                autumnus::HtmlInlineBuilder::new()
+                    .source(source)
+                    .lang(language)
+                    .theme(theme)
+                    .italic(false)
+                    .include_highlights(false)
+                    .build()
+                    .unwrap()
+            };
+
+            let mut output = Vec::new();
+            formatter.format(&mut output).unwrap();
+            let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
         }
 
         Formatter::HtmlLinked => {
-            let highlighted = autumnus::highlight(
-                source,
-                autumnus::Options {
-                    lang_or_file: Some(path),
-                    formatter: FormatterOption::HtmlLinked {
-                        pre_class: None,
-                        highlight_lines: None,
-                        header: None,
-                    },
-                },
-            );
+            let formatter = if let Some(lines) = parsed_highlight_lines {
+                let html_highlight_lines = autumnus::formatter::html_linked::HighlightLines {
+                    lines,
+                    class: "highlighted".to_string(),
+                };
+                autumnus::HtmlLinkedBuilder::new()
+                    .source(source)
+                    .lang(language)
+                    .highlight_lines(Some(html_highlight_lines))
+                    .build()
+                    .unwrap()
+            } else {
+                autumnus::HtmlLinkedBuilder::new()
+                    .source(source)
+                    .lang(language)
+                    .build()
+                    .unwrap()
+            };
+
+            let mut output = Vec::new();
+            formatter.format(&mut output).unwrap();
+            let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
         }
 
         Formatter::Terminal => {
-            let highlighted = autumnus::highlight(
-                source,
-                autumnus::Options {
-                    lang_or_file: Some(path),
-                    formatter: FormatterOption::Terminal { theme },
-                },
-            );
+            let formatter = autumnus::TerminalBuilder::new()
+                .source(source)
+                .lang(language)
+                .theme(theme)
+                .build()
+                .unwrap();
+
+            let mut output = Vec::new();
+            formatter.format(&mut output).unwrap();
+            let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
         }
@@ -334,6 +394,63 @@ impl Display for FileArgument {
     }
 }
 
+/// Parses a highlight_lines string into a vector of RangeInclusive<usize>
+///
+/// Supports formats like:
+/// - "1" (single line)
+/// - "1,3,5" (multiple single lines)
+/// - "1-3" (range from 1 to 3)
+/// - "1,3-5,8" (mix of single lines and ranges)
+///
+/// # Arguments
+/// * `input` - The string to parse
+fn parse_highlight_lines(input: &str) -> Result<Vec<RangeInclusive<usize>>> {
+    let mut ranges = Vec::new();
+
+    for part in input.split(',') {
+        let part = part.trim();
+        if part.is_empty() {
+            continue;
+        }
+
+        if let Some((start, end)) = part.split_once('-') {
+            let start: usize = start
+                .trim()
+                .parse()
+                .map_err(|_| anyhow::anyhow!("Invalid line number: '{}'", start.trim()))?;
+            let end: usize = end
+                .trim()
+                .parse()
+                .map_err(|_| anyhow::anyhow!("Invalid line number: '{}'", end.trim()))?;
+
+            if start == 0 || end == 0 {
+                return Err(anyhow::anyhow!("Line numbers must be greater than 0"));
+            }
+            if start > end {
+                return Err(anyhow::anyhow!(
+                    "Start line ({}) must be less than or equal to end line ({})",
+                    start,
+                    end
+                ));
+            }
+
+            ranges.push(start..=end);
+        } else {
+            let line: usize = part
+                .parse()
+                .map_err(|_| anyhow::anyhow!("Invalid line number: '{}'", part))?;
+
+            if line == 0 {
+                return Err(anyhow::anyhow!("Line numbers must be greater than 0"));
+            }
+
+            ranges.push(line..=line);
+        }
+    }
+
+    Ok(ranges)
+}
+
 /// Converts an absolute path to a path relative to the current directory
 ///
 /// # Arguments
@@ -366,59 +483,102 @@ fn try_canonicalize(path: &Path) -> PathBuf {
 /// * `language` - Programming language for the source code
 /// * `formatter` - Output format (terminal, html-inline, html-linked)
 /// * `theme` - Theme name to use for highlighting
+/// * `highlight_lines` - Optional string specifying lines to highlight (e.g., "1,3-5,8")
 fn highlight_source(
     source: &str,
     language: Option<&str>,
     formatter: Option<Formatter>,
     theme: Option<String>,
+    highlight_lines: Option<String>,
 ) -> Result<()> {
     let theme = theme.unwrap_or("catppuccin_frappe".to_string());
     let theme = autumnus::themes::get(&theme).ok();
 
+    let parsed_highlight_lines = if let Some(lines_str) = highlight_lines {
+        Some(parse_highlight_lines(&lines_str)?)
+    } else {
+        None
+    };
+
+    let lang = if let Some(language) = language {
+        autumnus::languages::Language::guess(language, source)
+    } else {
+        autumnus::languages::Language::guess("", source)
+    };
+
     match formatter.unwrap_or_default() {
         Formatter::HtmlInline => {
-            let highlighted = autumnus::highlight(
-                source,
-                autumnus::Options {
-                    lang_or_file: language,
-                    formatter: FormatterOption::HtmlInline {
-                        pre_class: None,
-                        italic: false,
-                        include_highlights: false,
-                        theme,
-                        highlight_lines: None,
-                        header: None,
-                    },
-                },
-            );
+            let formatter = if let Some(lines) = parsed_highlight_lines {
+                let html_highlight_lines = autumnus::formatter::html_inline::HighlightLines {
+                    lines,
+                    style: Some(autumnus::formatter::html_inline::HighlightLinesStyle::Theme),
+                    class: None,
+                };
+                autumnus::HtmlInlineBuilder::new()
+                    .source(source)
+                    .lang(lang)
+                    .theme(theme)
+                    .italic(false)
+                    .include_highlights(false)
+                    .highlight_lines(Some(html_highlight_lines))
+                    .build()
+                    .unwrap()
+            } else {
+                autumnus::HtmlInlineBuilder::new()
+                    .source(source)
+                    .lang(lang)
+                    .theme(theme)
+                    .italic(false)
+                    .include_highlights(false)
+                    .build()
+                    .unwrap()
+            };
+
+            let mut output = Vec::new();
+            formatter.format(&mut output).unwrap();
+            let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
         }
 
         Formatter::HtmlLinked => {
-            let highlighted = autumnus::highlight(
-                source,
-                autumnus::Options {
-                    lang_or_file: language,
-                    formatter: FormatterOption::HtmlLinked {
-                        pre_class: None,
-                        highlight_lines: None,
-                        header: None,
-                    },
-                },
-            );
+            let formatter = if let Some(lines) = parsed_highlight_lines {
+                let html_highlight_lines = autumnus::formatter::html_linked::HighlightLines {
+                    lines,
+                    class: "highlighted".to_string(),
+                };
+                autumnus::HtmlLinkedBuilder::new()
+                    .source(source)
+                    .lang(lang)
+                    .highlight_lines(Some(html_highlight_lines))
+                    .build()
+                    .unwrap()
+            } else {
+                autumnus::HtmlLinkedBuilder::new()
+                    .source(source)
+                    .lang(lang)
+                    .build()
+                    .unwrap()
+            };
+
+            let mut output = Vec::new();
+            formatter.format(&mut output).unwrap();
+            let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
         }
 
         Formatter::Terminal => {
-            let highlighted = autumnus::highlight(
-                source,
-                autumnus::Options {
-                    lang_or_file: language,
-                    formatter: FormatterOption::Terminal { theme },
-                },
-            );
+            let formatter = autumnus::TerminalBuilder::new()
+                .source(source)
+                .lang(lang)
+                .theme(theme)
+                .build()
+                .unwrap();
+
+            let mut output = Vec::new();
+            formatter.format(&mut output).unwrap();
+            let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
         }

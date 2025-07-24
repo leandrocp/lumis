@@ -1,5 +1,5 @@
 /* catppuccin_mocha
- * revision: 82f3dcedc9acc242d2d4f98abca02e2f10a75248
+ * revision: 0cf15babf716ed56593da425a236245f709dcbfb
  */
 
 pre.athl {
@@ -88,11 +88,7 @@ pre.athl {
   color: #89b4fa;
 }
 .highlighted {
-  background-color: #45475a;
-  font-weight: bold;
-  transition: background-color .5s;
-  width: 100%;
-  display: inline-block;
+  background-color: #2a2b3c;
 }
 .keyword {
   color: #cba6f7;

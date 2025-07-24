@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_frappe",
   "appearance": "dark",
-  "revision": "82f3dcedc9acc242d2d4f98abca02e2f10a75248",
+  "revision": "0cf15babf716ed56593da425a236245f709dcbfb",
   "highlights": {
     "attribute": {
       "fg": "#ef9f76"
@@ -85,11 +85,7 @@
       "fg": "#8caaee"
     },
     "highlighted": {
-      "bg": "#51576d",
-      "bold": true,
-      "display": "inline-block",
-      "width": "100%",
-      "transition": "background-color .5s"
+      "bg": "#3b3f52"
     },
     "keyword": {
       "fg": "#ca9ee6"

@@ -1,24 +1,24 @@
-<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #bfbdb6; background-color: #0b0e14;"><code class="language-dockerfile" translate="no" tabindex="0"><span class="line" data-line="1"><span data-highlight="keyword" style="color: #ff8f40;">FROM</span> &lt;base-image&gt;
-</span><span class="line" data-line="2"><span data-highlight="comment" style="color: #636a72;"># define base image</span>
-</span><span class="line" data-line="3">
-</span><span class="line" data-line="4"><span data-highlight="keyword" style="color: #ff8f40;">ENV</span> <span data-highlight="property" style="color: #39bae6;">USERNAME</span>=&#39;admin&#39;\
-</span><span class="line" data-line="5">    <span data-highlight="property" style="color: #39bae6;">PWD</span>=&#39;****&#39;
-</span><span class="line" data-line="6"><span data-highlight="comment" style="color: #636a72;"># optionally define environmental variables</span>
-</span><span class="line" data-line="7">
-</span><span class="line" data-line="8"><span data-highlight="keyword" style="color: #ff8f40;">RUN</span> <span data-highlight="function.call" style="color: #ffb454;">apt-get</span> <span data-highlight="variable.parameter" style="color: #bfbdb6;">update</span>
-</span><span class="line" data-line="9"><span data-highlight="comment" style="color: #636a72;"># run linux commands inside container env, does not affect host env</span>
-</span><span class="line" data-line="10"><span data-highlight="comment" style="color: #636a72;"># This executes during the time of image creation</span>
-</span><span class="line" data-line="11">
-</span><span class="line" data-line="12"><span data-highlight="keyword" style="color: #ff8f40;">COPY</span> &lt;src&gt; &lt;target&gt;
-</span><span class="line" data-line="13"><span data-highlight="comment" style="color: #636a72;"># executes on the host, copies files from src (usually on the host) to target</span>
-</span><span class="line" data-line="14"><span data-highlight="comment" style="color: #636a72;"># on the container</span>
-</span><span class="line" data-line="15">
-</span><span class="line" data-line="16"><span data-highlight="keyword" style="color: #ff8f40;">ENTRYPOINT</span> [&quot;some-script.sh&quot;]
-</span><span class="line" data-line="17"><span data-highlight="comment" style="color: #636a72;"># executes an entire script as an entrypoint</span>
-</span><span class="line" data-line="18">
-</span><span class="line" data-line="19"><span data-highlight="keyword" style="color: #ff8f40;">CMD</span> [&lt;args&gt;,...]
-</span><span class="line" data-line="20"><span data-highlight="comment" style="color: #636a72;"># always part of dockerfile, introduces entry point linux command e.g.</span>
-</span><span class="line" data-line="21"><span data-highlight="comment" style="color: #636a72;"># `CMD node server.js`</span>
-</span><span class="line" data-line="22"><span data-highlight="comment" style="color: #636a72;"># This executes after image creation only when the container from the image</span>
-</span><span class="line" data-line="23"><span data-highlight="comment" style="color: #636a72;"># is running.</span>
-</span></code></pre>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #bfbdb6; background-color: #0b0e14;"><code class="language-dockerfile" translate="no" tabindex="0"><div class="line" data-line="1"><span data-highlight="keyword" style="color: #ff8f40;">FROM</span> &lt;base-image&gt;
+</div><div class="line" data-line="2"><span data-highlight="comment" style="color: #636a72;"># define base image</span>
+</div><div class="line" data-line="3">
+</div><div class="line" data-line="4"><span data-highlight="keyword" style="color: #ff8f40;">ENV</span> <span data-highlight="property" style="color: #39bae6;">USERNAME</span>=&#39;admin&#39;\
+</div><div class="line" data-line="5">    <span data-highlight="property" style="color: #39bae6;">PWD</span>=&#39;****&#39;
+</div><div class="line" data-line="6"><span data-highlight="comment" style="color: #636a72;"># optionally define environmental variables</span>
+</div><div class="line" data-line="7">
+</div><div class="line" data-line="8"><span data-highlight="keyword" style="color: #ff8f40;">RUN</span> <span data-highlight="function.call" style="color: #ffb454;">apt-get</span> <span data-highlight="variable.parameter" style="color: #bfbdb6;">update</span>
+</div><div class="line" data-line="9"><span data-highlight="comment" style="color: #636a72;"># run linux commands inside container env, does not affect host env</span>
+</div><div class="line" data-line="10"><span data-highlight="comment" style="color: #636a72;"># This executes during the time of image creation</span>
+</div><div class="line" data-line="11">
+</div><div class="line" data-line="12"><span data-highlight="keyword" style="color: #ff8f40;">COPY</span> &lt;src&gt; &lt;target&gt;
+</div><div class="line" data-line="13"><span data-highlight="comment" style="color: #636a72;"># executes on the host, copies files from src (usually on the host) to target</span>
+</div><div class="line" data-line="14"><span data-highlight="comment" style="color: #636a72;"># on the container</span>
+</div><div class="line" data-line="15">
+</div><div class="line" data-line="16"><span data-highlight="keyword" style="color: #ff8f40;">ENTRYPOINT</span> [&quot;some-script.sh&quot;]
+</div><div class="line" data-line="17"><span data-highlight="comment" style="color: #636a72;"># executes an entire script as an entrypoint</span>
+</div><div class="line" data-line="18">
+</div><div class="line" data-line="19"><span data-highlight="keyword" style="color: #ff8f40;">CMD</span> [&lt;args&gt;,...]
+</div><div class="line" data-line="20"><span data-highlight="comment" style="color: #636a72;"># always part of dockerfile, introduces entry point linux command e.g.</span>
+</div><div class="line" data-line="21"><span data-highlight="comment" style="color: #636a72;"># `CMD node server.js`</span>
+</div><div class="line" data-line="22"><span data-highlight="comment" style="color: #636a72;"># This executes after image creation only when the container from the image</span>
+</div><div class="line" data-line="23"><span data-highlight="comment" style="color: #636a72;"># is running.</span>
+</div></code></pre>

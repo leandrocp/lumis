@@ -1,7 +1,7 @@
 local highlight_groups = {
 	"Normal",
 	"Comment",
-  "Visual",
+  "CursorLine",
 	"@attribute",
 	"@attribute.builtin",
 	"@boolean",
@@ -161,15 +161,8 @@ local function extract_colorscheme_colors(theme)
 
 		if next(style) ~= nil then
 			local key = string.lower(string.gsub(group, "@", ""))
-			-- Map Visual highlight to "highlighted" for consistency
-			if key == "visual" then
+			if key == "cursorline" then
 				key = "highlighted"
-				-- Add CSS properties for highlighted lines
-				style.css_properties = {
-					["display"] = "inline-block",
-					["width"] = "100%",
-					["transition"] = "background-color .5s"
-				}
 			end
 			highlights[key] = style
 		end
@@ -197,30 +190,15 @@ local function extract_colorscheme_colors(theme)
         highlights: (.highlights | to_entries | sort_by(.key) | map({
           key: .key,
           value: (
-            if .key == "highlighted" then
-              {
-                fg: .value.fg,
-                bg: .value.bg,
-                bold: .value.bold,
-                italic: .value.italic,
-                undercurl: .value.undercurl,
-                underline: .value.underline,
-                strikethrough: .value.strikethrough,
-                display: "inline-block",
-                width: "100%",
-                transition: "background-color .5s"
-              }
-            else
-              {
-                fg: .value.fg,
-                bg: .value.bg,
-                bold: .value.bold,
-                italic: .value.italic,
-                undercurl: .value.undercurl,
-                underline: .value.underline,
-                strikethrough: .value.strikethrough
-              }
-            end
+            {
+              fg: .value.fg,
+              bg: .value.bg,
+              bold: .value.bold,
+              italic: .value.italic,
+              undercurl: .value.undercurl,
+              underline: .value.underline,
+              strikethrough: .value.strikethrough
+            }
           ) | with_entries(select(.value != null))
         }) | from_entries)
       }' ]] .. output_file .. " > " .. output_file .. ".tmp && mv " .. output_file .. ".tmp " .. output_file

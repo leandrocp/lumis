@@ -83,10 +83,7 @@
       "fg": "#82aaff"
     },
     "highlighted": {
-      "bg": "#1f2233",
-      "display": "inline-block",
-      "width": "100%",
-      "transition": "background-color .5s"
+      "bg": "#1a1c25"
     },
     "keyword": {
       "fg": "#89ddff"
@@ -109,6 +106,9 @@
     },
     "keyword.directive.define": {
       "fg": "#89ddff"
+    },
+    "keyword.exception": {
+      "fg": "#f07178"
     },
     "keyword.function": {
       "fg": "#89ddff"

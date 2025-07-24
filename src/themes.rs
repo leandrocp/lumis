@@ -213,15 +213,6 @@ pub struct Style {
     /// Whether to strikethrough the text.
     #[serde(default)]
     pub strikethrough: bool,
-    /// CSS display property.
-    #[serde(default)]
-    pub display: Option<String>,
-    /// CSS width property.
-    #[serde(default)]
-    pub width: Option<String>,
-    /// CSS transition property.
-    #[serde(default)]
-    pub transition: Option<String>,
 }
 
 include!(concat!(env!("OUT_DIR"), "/theme_data.rs"));
@@ -519,18 +510,6 @@ impl Style {
             (false, true) => rules.push("text-decoration: line-through;".to_string()),
             (false, false) => (),
         };
-
-        if let Some(transition) = &self.transition {
-            rules.push(format!("transition: {transition};"));
-        }
-
-        if let Some(width) = &self.width {
-            rules.push(format!("width: {width};"));
-        }
-
-        if let Some(display) = &self.display {
-            rules.push(format!("display: {display};"));
-        }
 
         rules.join(separator)
     }

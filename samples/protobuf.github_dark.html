@@ -1,221 +1,221 @@
-<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #e6edf3; background-color: #30363d;"><code class="language-protocolbuffer" translate="no" tabindex="0"><span class="line" data-line="1"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="2"><span data-highlight="comment" style="color: #8b949e;">* Language Syntax</span>
-</span><span class="line" data-line="3"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="4">
-</span><span class="line" data-line="5"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="6"><span data-highlight="comment" style="color: #8b949e;">* Specifying Syntax Of Protocol Buffer Version</span>
-</span><span class="line" data-line="7"><span data-highlight="comment" style="color: #8b949e;">* Specifying Which Protocol Buffer Version To Use</span>
-</span><span class="line" data-line="8"><span data-highlight="comment" style="color: #8b949e;">* It can be usually proto3 or proto2</span>
-</span><span class="line" data-line="9"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="10"><span data-highlight="keyword" style="color: #ff7b72;">syntax</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="string.special" style="color: #e6edf3;">&quot;proto3&quot;</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="11">
-</span><span class="line" data-line="12"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="13"><span data-highlight="comment" style="color: #8b949e;">* Declaring Message In Protocol Buffer:</span>
-</span><span class="line" data-line="14"><span data-highlight="comment" style="color: #8b949e;">* As you can see, each field in the message definition has a unique number.</span>
-</span><span class="line" data-line="15"><span data-highlight="comment" style="color: #8b949e;">* These field numbers are used to identify your fields in the message binary format,</span>
-</span><span class="line" data-line="16"><span data-highlight="comment" style="color: #8b949e;">* and should not be changed once your message type is in use.</span>
-</span><span class="line" data-line="17"><span data-highlight="comment" style="color: #8b949e;">* Note that field numbers in the range 1 through 15 take one byte to encode, including the field number and the field&#39;s type (you can find out more about this in Protocol Buffer Encoding).</span>
-</span><span class="line" data-line="18"><span data-highlight="comment" style="color: #8b949e;">* Field numbers in the range 16 through 2047 take two bytes. So you should reserve the numbers 1 through 15 for very frequently occurring message elements.</span>
-</span><span class="line" data-line="19"><span data-highlight="comment" style="color: #8b949e;">* Remember to leave some room for frequently occurring elements that might be added in the future.</span>
-</span><span class="line" data-line="20"><span data-highlight="comment" style="color: #8b949e;">* The smallest field number you can specify is 1, and the largest is 2^29 - 1, or 536,870,911.</span>
-</span><span class="line" data-line="21"><span data-highlight="comment" style="color: #8b949e;">* You also cannot use the numbers 19000 through 19999 (FieldDescriptor::kFirstReservedNumber through FieldDescriptor::kLastReservedNumber),</span>
-</span><span class="line" data-line="22"><span data-highlight="comment" style="color: #8b949e;">* as they are reserved for the Protocol Buffers implementation - the protocol buffer compiler will complain if you use one of these reserved numbers in your .proto.</span>
-</span><span class="line" data-line="23"><span data-highlight="comment" style="color: #8b949e;">* Similarly, you cannot use any previously reserved field numbers.</span>
-</span><span class="line" data-line="24"><span data-highlight="comment" style="color: #8b949e;">*</span>
-</span><span class="line" data-line="25"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="26">
-</span><span class="line" data-line="27"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="28"><span data-highlight="comment" style="color: #8b949e;">Syntax For Declaring Message:</span>
-</span><span class="line" data-line="29"><span data-highlight="comment" style="color: #8b949e;">    message $&lbrace;MessageName&rbrace; &lbrace;</span>
-</span><span class="line" data-line="30"><span data-highlight="comment" style="color: #8b949e;">        $&lbrace;Scalar Value Type&rbrace; $&lbrace;FieldName1&rbrace; = $&lbrace;Tag Number1&rbrace;;</span>
-</span><span class="line" data-line="31"><span data-highlight="comment" style="color: #8b949e;">                .</span>
-</span><span class="line" data-line="32"><span data-highlight="comment" style="color: #8b949e;">                .</span>
-</span><span class="line" data-line="33"><span data-highlight="comment" style="color: #8b949e;">                .</span>
-</span><span class="line" data-line="34"><span data-highlight="comment" style="color: #8b949e;">        $&lbrace;Scalar Value Type&rbrace; $&lbrace;FieldNameN&rbrace; = $&lbrace;Tag NumberN&rbrace;;</span>
-</span><span class="line" data-line="35"><span data-highlight="comment" style="color: #8b949e;">    &rbrace;</span>
-</span><span class="line" data-line="36"><span data-highlight="comment" style="color: #8b949e;"></span>
-</span><span class="line" data-line="37"><span data-highlight="comment" style="color: #8b949e;">Default Values Will be applied any case if the message doesn&#39;t contain a existing field defined</span>
-</span><span class="line" data-line="38"><span data-highlight="comment" style="color: #8b949e;">in the message definition</span>
-</span><span class="line" data-line="39"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="40">
-</span><span class="line" data-line="41"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">MessageTypes</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="42">    <span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="43"><span data-highlight="comment" style="color: #8b949e;">    * Scalar Value Types</span>
-</span><span class="line" data-line="44"><span data-highlight="comment" style="color: #8b949e;">    */</span>
-</span><span class="line" data-line="45">    <span data-highlight="type" style="color: #ffa657;">string</span> stringType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// A string must always contain UTF-8 encoded or 7-bit ASCII text. Default value = &quot;&quot;</span>
-</span><span class="line" data-line="46">
-</span><span class="line" data-line="47">    <span data-highlight="comment" style="color: #8b949e;">// Number Types, Default Value = 0</span>
-</span><span class="line" data-line="48">    <span data-highlight="type" style="color: #ffa657;">int32</span> int32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding. Inefficient For Negative Numbers, Instead Use sint32.</span>
-</span><span class="line" data-line="49">    <span data-highlight="type" style="color: #ffa657;">int64</span> int64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">3</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding. Inefficient For Negative Numbers, Instead Use sint64.</span>
-</span><span class="line" data-line="50">    <span data-highlight="type" style="color: #ffa657;">uint32</span> uInt32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">4</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding</span>
-</span><span class="line" data-line="51">    <span data-highlight="type" style="color: #ffa657;">uint64</span> uInt64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">5</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding</span>
-</span><span class="line" data-line="52">    <span data-highlight="type" style="color: #ffa657;">sint32</span> sInt32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">6</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding. They are efficient in encoding for negative numbers.</span>
-</span><span class="line" data-line="53">                           <span data-highlight="comment" style="color: #8b949e;">// Use this instead of int32 for negative numbers</span>
-</span><span class="line" data-line="54">    <span data-highlight="type" style="color: #ffa657;">sint64</span> sInt64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">7</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding. They are efficient in encoding for negative numbers.</span>
-</span><span class="line" data-line="55">    <span data-highlight="comment" style="color: #8b949e;">// Use this instead of int64 for negative numbers.</span>
-</span><span class="line" data-line="56">
-</span><span class="line" data-line="57">    <span data-highlight="type" style="color: #ffa657;">fixed32</span> fixed32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">8</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Always four bytes. More efficient than uint32 if values are often greater than 2^28.</span>
-</span><span class="line" data-line="58">    <span data-highlight="type" style="color: #ffa657;">fixed64</span> fixed64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">9</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Always eight bytes. More efficient than uint64 if values are often greater than 2^56</span>
-</span><span class="line" data-line="59">
-</span><span class="line" data-line="60">    <span data-highlight="type" style="color: #ffa657;">sfixed32</span> sfixed32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">10</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Always four bytes.</span>
-</span><span class="line" data-line="61">    <span data-highlight="type" style="color: #ffa657;">sfixed64</span> sfixed64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">11</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Always Eight bytes.</span>
-</span><span class="line" data-line="62">
-</span><span class="line" data-line="63">    <span data-highlight="type" style="color: #ffa657;">bool</span> boolType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">12</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Boolean Type. Default Value = false</span>
-</span><span class="line" data-line="64">
-</span><span class="line" data-line="65">    <span data-highlight="type" style="color: #ffa657;">bytes</span> bytesType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">13</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// May contain any arbitrary sequence of bytes. Default Value = Empty Bytes</span>
-</span><span class="line" data-line="66">
-</span><span class="line" data-line="67">    <span data-highlight="type" style="color: #ffa657;">double</span> doubleType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">14</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="68">    <span data-highlight="type" style="color: #ffa657;">float</span> floatType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">15</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="69">
-</span><span class="line" data-line="70">    <span data-highlight="keyword.type" style="color: #ff7b72;">enum</span> <span data-highlight="type" style="color: #ffa657;">Week</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="71">        <span data-highlight="constant" style="color: #79c0ff;">UNDEFINED</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">0</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Tag 0 is always used as default in case of enum</span>
-</span><span class="line" data-line="72">        <span data-highlight="constant" style="color: #79c0ff;">SUNDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="73">        <span data-highlight="constant" style="color: #79c0ff;">MONDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="74">        <span data-highlight="constant" style="color: #79c0ff;">TUESDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">3</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="75">        <span data-highlight="constant" style="color: #79c0ff;">WEDNESDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">4</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="76">        <span data-highlight="constant" style="color: #79c0ff;">THURSDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">5</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="77">        <span data-highlight="constant" style="color: #79c0ff;">FRIDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">6</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="78">        <span data-highlight="constant" style="color: #79c0ff;">SATURDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">7</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="79">    <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="80">    <span data-highlight="type" style="color: #ffa657;"><span data-highlight="type" style="color: #ffa657;">Week</span></span> wkDayType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">16</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="81">
-</span><span class="line" data-line="82">    <span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="83"><span data-highlight="comment" style="color: #8b949e;">    * Defining Collection Of Scalar Value Type</span>
-</span><span class="line" data-line="84"><span data-highlight="comment" style="color: #8b949e;">    * Syntax: repeated $&lbrace;ScalarType&rbrace; $&lbrace;name&rbrace; = TagValue</span>
-</span><span class="line" data-line="85"><span data-highlight="comment" style="color: #8b949e;">    */</span>
-</span><span class="line" data-line="86">    <span data-highlight="keyword.modifier" style="color: #ff7b72;">repeated</span> <span data-highlight="type" style="color: #ffa657;">string</span> listOfString <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">17</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// List[String]</span>
-</span><span class="line" data-line="87"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="88">
-</span><span class="line" data-line="89"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="90"><span data-highlight="comment" style="color: #8b949e;">* Defining Defined Message Types In Other Message Definition</span>
-</span><span class="line" data-line="91"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="92"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">Person</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="93">    <span data-highlight="type" style="color: #ffa657;">string</span> fname <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="94">    <span data-highlight="type" style="color: #ffa657;">string</span> sname <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="95"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="96">
-</span><span class="line" data-line="97"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">City</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="98">    <span data-highlight="type" style="color: #ffa657;"><span data-highlight="type" style="color: #ffa657;">Person</span></span> p <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="99"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="100">
-</span><span class="line" data-line="101"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="102"><span data-highlight="comment" style="color: #8b949e;">* Nested Message Definitions</span>
-</span><span class="line" data-line="103"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="104">
-</span><span class="line" data-line="105"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">NestedMessages</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="106">    <span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">FirstLevelNestedMessage</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="107">        <span data-highlight="type" style="color: #ffa657;">string</span> firstString <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="108">        <span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">SecondLevelNestedMessage</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="109">            <span data-highlight="type" style="color: #ffa657;">string</span> secondString <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="110">        <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="111">    <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="112">    <span data-highlight="type" style="color: #ffa657;"><span data-highlight="type" style="color: #ffa657;">FirstLevelNestedMessage</span></span> msg <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="113">    <span data-highlight="type" style="color: #ffa657;"><span data-highlight="type" style="color: #ffa657;">FirstLevelNestedMessage.SecondLevelNestedMessage</span></span> msg2 <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="114"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="115">
-</span><span class="line" data-line="116"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="117"><span data-highlight="comment" style="color: #8b949e;">* Importing Message From A File</span>
-</span><span class="line" data-line="118"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="119">
-</span><span class="line" data-line="120"><span data-highlight="comment" style="color: #8b949e;">// one.proto</span>
-</span><span class="line" data-line="121"><span data-highlight="comment" style="color: #8b949e;">// message One &lbrace;</span>
-</span><span class="line" data-line="122"><span data-highlight="comment" style="color: #8b949e;">//     string oneMsg = 1;</span>
-</span><span class="line" data-line="123"><span data-highlight="comment" style="color: #8b949e;">// &rbrace;</span>
-</span><span class="line" data-line="124">
-</span><span class="line" data-line="125"><span data-highlight="comment" style="color: #8b949e;">// two.proto</span>
-</span><span class="line" data-line="126"><span data-highlight="comment" style="color: #8b949e;">//  import &quot;myproject/one.proto&quot;</span>
-</span><span class="line" data-line="127"><span data-highlight="comment" style="color: #8b949e;">//  message Two &lbrace;</span>
-</span><span class="line" data-line="128"><span data-highlight="comment" style="color: #8b949e;">//       string twoMsg = 2;</span>
-</span><span class="line" data-line="129"><span data-highlight="comment" style="color: #8b949e;">//  &rbrace;</span>
-</span><span class="line" data-line="130">
-</span><span class="line" data-line="131">
-</span><span class="line" data-line="132"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="133"><span data-highlight="comment" style="color: #8b949e;">* Advanced Topics</span>
-</span><span class="line" data-line="134"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="135">
-</span><span class="line" data-line="136"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="137"><span data-highlight="comment" style="color: #8b949e;">* Handling Message Type Changes:</span>
-</span><span class="line" data-line="138"><span data-highlight="comment" style="color: #8b949e;">* Never Change/Use The TagNumber Of A Message Field Which Was Removed</span>
-</span><span class="line" data-line="139"><span data-highlight="comment" style="color: #8b949e;">* We should use reserved in case of message definition update.</span>
-</span><span class="line" data-line="140"><span data-highlight="comment" style="color: #8b949e;">* (<span data-highlight="string.special.url" style="color: #79c0ff; text-decoration: underline;">https://developers.google.com/protocol-buffers/docs/proto3#updating</span>)</span>
-</span><span class="line" data-line="141"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="142">
-</span><span class="line" data-line="143"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="144"><span data-highlight="comment" style="color: #8b949e;">* Reserved Fields</span>
-</span><span class="line" data-line="145"><span data-highlight="comment" style="color: #8b949e;">* It&#39;s used in case if we need to add/remove new fields into message.</span>
-</span><span class="line" data-line="146"><span data-highlight="comment" style="color: #8b949e;">* Using Reserved Backward and Forward Compatibility Of Messages can be achieved</span>
-</span><span class="line" data-line="147"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="148">
-</span><span class="line" data-line="149">
-</span><span class="line" data-line="150"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">ReservedMessage</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="151">    <span data-highlight="keyword" style="color: #ff7b72;">reserved</span> <span data-highlight="number" style="color: #79c0ff;">0</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> <span data-highlight="number" style="color: #79c0ff;">3</span> <span data-highlight="keyword" style="color: #ff7b72;">to</span> <span data-highlight="number" style="color: #79c0ff;">10</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Set Of Tag Numbers Which Can&#39;t be reused.</span>
-</span><span class="line" data-line="152">    <span data-highlight="keyword" style="color: #ff7b72;">reserved</span> &quot;firstMsg&quot;<span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> &quot;secondMsg&quot;<span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> &quot;thirdMsg&quot;<span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Set Of Labels Which Can&#39;t Be reused.</span>
-</span><span class="line" data-line="153"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="154">
-</span><span class="line" data-line="155"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="156"><span data-highlight="comment" style="color: #8b949e;">* Any</span>
-</span><span class="line" data-line="157"><span data-highlight="comment" style="color: #8b949e;">* The Any message type lets you use messages as embedded types without having their .proto definition.</span>
-</span><span class="line" data-line="158"><span data-highlight="comment" style="color: #8b949e;">* An Any contains an arbitrary serialized message as bytes,</span>
-</span><span class="line" data-line="159"><span data-highlight="comment" style="color: #8b949e;">* along with a URL that acts as a globally unique identifier for and resolves to that message&#39;s type.</span>
-</span><span class="line" data-line="160"><span data-highlight="comment" style="color: #8b949e;">* For Any to work we need to import it as shown below.</span>
-</span><span class="line" data-line="161"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="162"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="163"><span data-highlight="comment" style="color: #8b949e;">    import &quot;google/protobuf/any.proto&quot;;</span>
-</span><span class="line" data-line="164"><span data-highlight="comment" style="color: #8b949e;">    message AnySampleMessage &lbrace;</span>
-</span><span class="line" data-line="165"><span data-highlight="comment" style="color: #8b949e;">        repeated google.protobuf.Any.details = 1;</span>
-</span><span class="line" data-line="166"><span data-highlight="comment" style="color: #8b949e;">    &rbrace;</span>
-</span><span class="line" data-line="167"><span data-highlight="comment" style="color: #8b949e;"></span>
-</span><span class="line" data-line="168"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="169">
-</span><span class="line" data-line="170">
-</span><span class="line" data-line="171"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="172"><span data-highlight="comment" style="color: #8b949e;">*  OneOf</span>
-</span><span class="line" data-line="173"><span data-highlight="comment" style="color: #8b949e;">* There are cases, wherein only one field at-most might be present as part of the message.</span>
-</span><span class="line" data-line="174"><span data-highlight="comment" style="color: #8b949e;">* Note: OneOf messages can&#39;t be repeated.</span>
-</span><span class="line" data-line="175"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="176">
-</span><span class="line" data-line="177"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">OneOfMessage</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="178">    <span data-highlight="keyword" style="color: #ff7b72;">oneof</span> msg <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="179">        <span data-highlight="type" style="color: #ffa657;">string</span> fname <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="180">        <span data-highlight="type" style="color: #ffa657;">string</span> sname <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="181">    <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="182"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="183">
-</span><span class="line" data-line="184"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="185"><span data-highlight="comment" style="color: #8b949e;">* Maps</span>
-</span><span class="line" data-line="186"><span data-highlight="comment" style="color: #8b949e;">* Map fields cannot be repeated.</span>
-</span><span class="line" data-line="187"><span data-highlight="comment" style="color: #8b949e;">* Ordering Of A Map Is Not Guaranteed.</span>
-</span><span class="line" data-line="188"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="189">
-</span><span class="line" data-line="190"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">MessageWithMaps</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="191">    map<span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lt;</span><span data-highlight="type" style="color: #ffa657;">string</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> <span data-highlight="type" style="color: #ffa657;">string</span><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&gt;</span> mapOfMessages <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="192"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="193">
-</span><span class="line" data-line="194">
-</span><span class="line" data-line="195"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="196"><span data-highlight="comment" style="color: #8b949e;">* Packages</span>
-</span><span class="line" data-line="197"><span data-highlight="comment" style="color: #8b949e;">* Used for preventing name clashes between protocol message types</span>
-</span><span class="line" data-line="198"><span data-highlight="comment" style="color: #8b949e;">* Syntax:</span>
-</span><span class="line" data-line="199"><span data-highlight="comment" style="color: #8b949e;">    package $&lbrace;packageName&rbrace;;</span>
-</span><span class="line" data-line="200"><span data-highlight="comment" style="color: #8b949e;"></span>
-</span><span class="line" data-line="201"><span data-highlight="comment" style="color: #8b949e;">    To Access the package;</span>
-</span><span class="line" data-line="202"><span data-highlight="comment" style="color: #8b949e;">    $&lbrace;packageName&rbrace;.$&lbrace;messageName&rbrace; = $&lbrace;tagNumber&rbrace;;</span>
-</span><span class="line" data-line="203"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="204">
-</span><span class="line" data-line="205"><span data-highlight="comment" style="color: #8b949e;">/*</span>
-</span><span class="line" data-line="206"><span data-highlight="comment" style="color: #8b949e;">* Services</span>
-</span><span class="line" data-line="207"><span data-highlight="comment" style="color: #8b949e;">* Message Types Defined For Using In RPC system.</span>
-</span><span class="line" data-line="208"><span data-highlight="comment" style="color: #8b949e;">*  When protoc compiler generates for various languages it generates stub methods for the services.</span>
-</span><span class="line" data-line="209"><span data-highlight="comment" style="color: #8b949e;">*/</span>
-</span><span class="line" data-line="210">
-</span><span class="line" data-line="211"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">SearchRequest</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="212">    <span data-highlight="type" style="color: #ffa657;">string</span> queryString <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="213"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="214">
-</span><span class="line" data-line="215"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">SearchResponse</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="216">    <span data-highlight="type" style="color: #ffa657;">string</span> queryResponse <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="217"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span><span class="line" data-line="218"><span data-highlight="keyword.type" style="color: #ff7b72;">service</span> <span data-highlight="type" style="color: #ffa657;">SearchService</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
-</span><span class="line" data-line="219">    <span data-highlight="keyword.function" style="color: #ff7b72;">rpc</span> <span data-highlight="type" style="color: #ffa657;">Search</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">(</span><span data-highlight="type" style="color: #ffa657;">SearchRequest</span><span data-highlight="punctuation.bracket" style="color: #e6edf3;">)</span> <span data-highlight="keyword.return" style="color: #ff7b72;">returns</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">(</span><span data-highlight="type" style="color: #ffa657;">SearchResponse</span><span data-highlight="punctuation.bracket" style="color: #e6edf3;">)</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
-</span><span class="line" data-line="220"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
-</span></code></pre>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #e6edf3; background-color: #30363d;"><code class="language-protocolbuffer" translate="no" tabindex="0"><div class="line" data-line="1"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="2"><span data-highlight="comment" style="color: #8b949e;">* Language Syntax</span>
+</div><div class="line" data-line="3"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="4">
+</div><div class="line" data-line="5"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="6"><span data-highlight="comment" style="color: #8b949e;">* Specifying Syntax Of Protocol Buffer Version</span>
+</div><div class="line" data-line="7"><span data-highlight="comment" style="color: #8b949e;">* Specifying Which Protocol Buffer Version To Use</span>
+</div><div class="line" data-line="8"><span data-highlight="comment" style="color: #8b949e;">* It can be usually proto3 or proto2</span>
+</div><div class="line" data-line="9"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="10"><span data-highlight="keyword" style="color: #ff7b72;">syntax</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="string.special" style="color: #e6edf3;">&quot;proto3&quot;</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="11">
+</div><div class="line" data-line="12"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="13"><span data-highlight="comment" style="color: #8b949e;">* Declaring Message In Protocol Buffer:</span>
+</div><div class="line" data-line="14"><span data-highlight="comment" style="color: #8b949e;">* As you can see, each field in the message definition has a unique number.</span>
+</div><div class="line" data-line="15"><span data-highlight="comment" style="color: #8b949e;">* These field numbers are used to identify your fields in the message binary format,</span>
+</div><div class="line" data-line="16"><span data-highlight="comment" style="color: #8b949e;">* and should not be changed once your message type is in use.</span>
+</div><div class="line" data-line="17"><span data-highlight="comment" style="color: #8b949e;">* Note that field numbers in the range 1 through 15 take one byte to encode, including the field number and the field&#39;s type (you can find out more about this in Protocol Buffer Encoding).</span>
+</div><div class="line" data-line="18"><span data-highlight="comment" style="color: #8b949e;">* Field numbers in the range 16 through 2047 take two bytes. So you should reserve the numbers 1 through 15 for very frequently occurring message elements.</span>
+</div><div class="line" data-line="19"><span data-highlight="comment" style="color: #8b949e;">* Remember to leave some room for frequently occurring elements that might be added in the future.</span>
+</div><div class="line" data-line="20"><span data-highlight="comment" style="color: #8b949e;">* The smallest field number you can specify is 1, and the largest is 2^29 - 1, or 536,870,911.</span>
+</div><div class="line" data-line="21"><span data-highlight="comment" style="color: #8b949e;">* You also cannot use the numbers 19000 through 19999 (FieldDescriptor::kFirstReservedNumber through FieldDescriptor::kLastReservedNumber),</span>
+</div><div class="line" data-line="22"><span data-highlight="comment" style="color: #8b949e;">* as they are reserved for the Protocol Buffers implementation - the protocol buffer compiler will complain if you use one of these reserved numbers in your .proto.</span>
+</div><div class="line" data-line="23"><span data-highlight="comment" style="color: #8b949e;">* Similarly, you cannot use any previously reserved field numbers.</span>
+</div><div class="line" data-line="24"><span data-highlight="comment" style="color: #8b949e;">*</span>
+</div><div class="line" data-line="25"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="26">
+</div><div class="line" data-line="27"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="28"><span data-highlight="comment" style="color: #8b949e;">Syntax For Declaring Message:</span>
+</div><div class="line" data-line="29"><span data-highlight="comment" style="color: #8b949e;">    message $&lbrace;MessageName&rbrace; &lbrace;</span>
+</div><div class="line" data-line="30"><span data-highlight="comment" style="color: #8b949e;">        $&lbrace;Scalar Value Type&rbrace; $&lbrace;FieldName1&rbrace; = $&lbrace;Tag Number1&rbrace;;</span>
+</div><div class="line" data-line="31"><span data-highlight="comment" style="color: #8b949e;">                .</span>
+</div><div class="line" data-line="32"><span data-highlight="comment" style="color: #8b949e;">                .</span>
+</div><div class="line" data-line="33"><span data-highlight="comment" style="color: #8b949e;">                .</span>
+</div><div class="line" data-line="34"><span data-highlight="comment" style="color: #8b949e;">        $&lbrace;Scalar Value Type&rbrace; $&lbrace;FieldNameN&rbrace; = $&lbrace;Tag NumberN&rbrace;;</span>
+</div><div class="line" data-line="35"><span data-highlight="comment" style="color: #8b949e;">    &rbrace;</span>
+</div><div class="line" data-line="36"><span data-highlight="comment" style="color: #8b949e;"></span>
+</div><div class="line" data-line="37"><span data-highlight="comment" style="color: #8b949e;">Default Values Will be applied any case if the message doesn&#39;t contain a existing field defined</span>
+</div><div class="line" data-line="38"><span data-highlight="comment" style="color: #8b949e;">in the message definition</span>
+</div><div class="line" data-line="39"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="40">
+</div><div class="line" data-line="41"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">MessageTypes</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="42">    <span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="43"><span data-highlight="comment" style="color: #8b949e;">    * Scalar Value Types</span>
+</div><div class="line" data-line="44"><span data-highlight="comment" style="color: #8b949e;">    */</span>
+</div><div class="line" data-line="45">    <span data-highlight="type" style="color: #ffa657;">string</span> stringType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// A string must always contain UTF-8 encoded or 7-bit ASCII text. Default value = &quot;&quot;</span>
+</div><div class="line" data-line="46">
+</div><div class="line" data-line="47">    <span data-highlight="comment" style="color: #8b949e;">// Number Types, Default Value = 0</span>
+</div><div class="line" data-line="48">    <span data-highlight="type" style="color: #ffa657;">int32</span> int32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding. Inefficient For Negative Numbers, Instead Use sint32.</span>
+</div><div class="line" data-line="49">    <span data-highlight="type" style="color: #ffa657;">int64</span> int64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">3</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding. Inefficient For Negative Numbers, Instead Use sint64.</span>
+</div><div class="line" data-line="50">    <span data-highlight="type" style="color: #ffa657;">uint32</span> uInt32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">4</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding</span>
+</div><div class="line" data-line="51">    <span data-highlight="type" style="color: #ffa657;">uint64</span> uInt64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">5</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding</span>
+</div><div class="line" data-line="52">    <span data-highlight="type" style="color: #ffa657;">sint32</span> sInt32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">6</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding. They are efficient in encoding for negative numbers.</span>
+</div><div class="line" data-line="53">                           <span data-highlight="comment" style="color: #8b949e;">// Use this instead of int32 for negative numbers</span>
+</div><div class="line" data-line="54">    <span data-highlight="type" style="color: #ffa657;">sint64</span> sInt64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">7</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Uses Variable Length Encoding. They are efficient in encoding for negative numbers.</span>
+</div><div class="line" data-line="55">    <span data-highlight="comment" style="color: #8b949e;">// Use this instead of int64 for negative numbers.</span>
+</div><div class="line" data-line="56">
+</div><div class="line" data-line="57">    <span data-highlight="type" style="color: #ffa657;">fixed32</span> fixed32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">8</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Always four bytes. More efficient than uint32 if values are often greater than 2^28.</span>
+</div><div class="line" data-line="58">    <span data-highlight="type" style="color: #ffa657;">fixed64</span> fixed64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">9</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Always eight bytes. More efficient than uint64 if values are often greater than 2^56</span>
+</div><div class="line" data-line="59">
+</div><div class="line" data-line="60">    <span data-highlight="type" style="color: #ffa657;">sfixed32</span> sfixed32Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">10</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Always four bytes.</span>
+</div><div class="line" data-line="61">    <span data-highlight="type" style="color: #ffa657;">sfixed64</span> sfixed64Type <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">11</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Always Eight bytes.</span>
+</div><div class="line" data-line="62">
+</div><div class="line" data-line="63">    <span data-highlight="type" style="color: #ffa657;">bool</span> boolType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">12</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Boolean Type. Default Value = false</span>
+</div><div class="line" data-line="64">
+</div><div class="line" data-line="65">    <span data-highlight="type" style="color: #ffa657;">bytes</span> bytesType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">13</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// May contain any arbitrary sequence of bytes. Default Value = Empty Bytes</span>
+</div><div class="line" data-line="66">
+</div><div class="line" data-line="67">    <span data-highlight="type" style="color: #ffa657;">double</span> doubleType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">14</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="68">    <span data-highlight="type" style="color: #ffa657;">float</span> floatType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">15</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="69">
+</div><div class="line" data-line="70">    <span data-highlight="keyword.type" style="color: #ff7b72;">enum</span> <span data-highlight="type" style="color: #ffa657;">Week</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="71">        <span data-highlight="constant" style="color: #79c0ff;">UNDEFINED</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">0</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Tag 0 is always used as default in case of enum</span>
+</div><div class="line" data-line="72">        <span data-highlight="constant" style="color: #79c0ff;">SUNDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="73">        <span data-highlight="constant" style="color: #79c0ff;">MONDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="74">        <span data-highlight="constant" style="color: #79c0ff;">TUESDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">3</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="75">        <span data-highlight="constant" style="color: #79c0ff;">WEDNESDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">4</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="76">        <span data-highlight="constant" style="color: #79c0ff;">THURSDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">5</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="77">        <span data-highlight="constant" style="color: #79c0ff;">FRIDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">6</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="78">        <span data-highlight="constant" style="color: #79c0ff;">SATURDAY</span> <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">7</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="79">    <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="80">    <span data-highlight="type" style="color: #ffa657;"><span data-highlight="type" style="color: #ffa657;">Week</span></span> wkDayType <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">16</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="81">
+</div><div class="line" data-line="82">    <span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="83"><span data-highlight="comment" style="color: #8b949e;">    * Defining Collection Of Scalar Value Type</span>
+</div><div class="line" data-line="84"><span data-highlight="comment" style="color: #8b949e;">    * Syntax: repeated $&lbrace;ScalarType&rbrace; $&lbrace;name&rbrace; = TagValue</span>
+</div><div class="line" data-line="85"><span data-highlight="comment" style="color: #8b949e;">    */</span>
+</div><div class="line" data-line="86">    <span data-highlight="keyword.modifier" style="color: #ff7b72;">repeated</span> <span data-highlight="type" style="color: #ffa657;">string</span> listOfString <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">17</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// List[String]</span>
+</div><div class="line" data-line="87"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="88">
+</div><div class="line" data-line="89"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="90"><span data-highlight="comment" style="color: #8b949e;">* Defining Defined Message Types In Other Message Definition</span>
+</div><div class="line" data-line="91"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="92"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">Person</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="93">    <span data-highlight="type" style="color: #ffa657;">string</span> fname <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="94">    <span data-highlight="type" style="color: #ffa657;">string</span> sname <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="95"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="96">
+</div><div class="line" data-line="97"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">City</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="98">    <span data-highlight="type" style="color: #ffa657;"><span data-highlight="type" style="color: #ffa657;">Person</span></span> p <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="99"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="100">
+</div><div class="line" data-line="101"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="102"><span data-highlight="comment" style="color: #8b949e;">* Nested Message Definitions</span>
+</div><div class="line" data-line="103"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="104">
+</div><div class="line" data-line="105"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">NestedMessages</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="106">    <span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">FirstLevelNestedMessage</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="107">        <span data-highlight="type" style="color: #ffa657;">string</span> firstString <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="108">        <span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">SecondLevelNestedMessage</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="109">            <span data-highlight="type" style="color: #ffa657;">string</span> secondString <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="110">        <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="111">    <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="112">    <span data-highlight="type" style="color: #ffa657;"><span data-highlight="type" style="color: #ffa657;">FirstLevelNestedMessage</span></span> msg <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="113">    <span data-highlight="type" style="color: #ffa657;"><span data-highlight="type" style="color: #ffa657;">FirstLevelNestedMessage.SecondLevelNestedMessage</span></span> msg2 <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="114"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="115">
+</div><div class="line" data-line="116"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="117"><span data-highlight="comment" style="color: #8b949e;">* Importing Message From A File</span>
+</div><div class="line" data-line="118"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="119">
+</div><div class="line" data-line="120"><span data-highlight="comment" style="color: #8b949e;">// one.proto</span>
+</div><div class="line" data-line="121"><span data-highlight="comment" style="color: #8b949e;">// message One &lbrace;</span>
+</div><div class="line" data-line="122"><span data-highlight="comment" style="color: #8b949e;">//     string oneMsg = 1;</span>
+</div><div class="line" data-line="123"><span data-highlight="comment" style="color: #8b949e;">// &rbrace;</span>
+</div><div class="line" data-line="124">
+</div><div class="line" data-line="125"><span data-highlight="comment" style="color: #8b949e;">// two.proto</span>
+</div><div class="line" data-line="126"><span data-highlight="comment" style="color: #8b949e;">//  import &quot;myproject/one.proto&quot;</span>
+</div><div class="line" data-line="127"><span data-highlight="comment" style="color: #8b949e;">//  message Two &lbrace;</span>
+</div><div class="line" data-line="128"><span data-highlight="comment" style="color: #8b949e;">//       string twoMsg = 2;</span>
+</div><div class="line" data-line="129"><span data-highlight="comment" style="color: #8b949e;">//  &rbrace;</span>
+</div><div class="line" data-line="130">
+</div><div class="line" data-line="131">
+</div><div class="line" data-line="132"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="133"><span data-highlight="comment" style="color: #8b949e;">* Advanced Topics</span>
+</div><div class="line" data-line="134"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="135">
+</div><div class="line" data-line="136"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="137"><span data-highlight="comment" style="color: #8b949e;">* Handling Message Type Changes:</span>
+</div><div class="line" data-line="138"><span data-highlight="comment" style="color: #8b949e;">* Never Change/Use The TagNumber Of A Message Field Which Was Removed</span>
+</div><div class="line" data-line="139"><span data-highlight="comment" style="color: #8b949e;">* We should use reserved in case of message definition update.</span>
+</div><div class="line" data-line="140"><span data-highlight="comment" style="color: #8b949e;">* (<span data-highlight="string.special.url" style="color: #79c0ff; text-decoration: underline;">https://developers.google.com/protocol-buffers/docs/proto3#updating</span>)</span>
+</div><div class="line" data-line="141"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="142">
+</div><div class="line" data-line="143"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="144"><span data-highlight="comment" style="color: #8b949e;">* Reserved Fields</span>
+</div><div class="line" data-line="145"><span data-highlight="comment" style="color: #8b949e;">* It&#39;s used in case if we need to add/remove new fields into message.</span>
+</div><div class="line" data-line="146"><span data-highlight="comment" style="color: #8b949e;">* Using Reserved Backward and Forward Compatibility Of Messages can be achieved</span>
+</div><div class="line" data-line="147"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="148">
+</div><div class="line" data-line="149">
+</div><div class="line" data-line="150"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">ReservedMessage</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="151">    <span data-highlight="keyword" style="color: #ff7b72;">reserved</span> <span data-highlight="number" style="color: #79c0ff;">0</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> <span data-highlight="number" style="color: #79c0ff;">3</span> <span data-highlight="keyword" style="color: #ff7b72;">to</span> <span data-highlight="number" style="color: #79c0ff;">10</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Set Of Tag Numbers Which Can&#39;t be reused.</span>
+</div><div class="line" data-line="152">    <span data-highlight="keyword" style="color: #ff7b72;">reserved</span> &quot;firstMsg&quot;<span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> &quot;secondMsg&quot;<span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> &quot;thirdMsg&quot;<span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span> <span data-highlight="comment" style="color: #8b949e;">// Set Of Labels Which Can&#39;t Be reused.</span>
+</div><div class="line" data-line="153"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="154">
+</div><div class="line" data-line="155"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="156"><span data-highlight="comment" style="color: #8b949e;">* Any</span>
+</div><div class="line" data-line="157"><span data-highlight="comment" style="color: #8b949e;">* The Any message type lets you use messages as embedded types without having their .proto definition.</span>
+</div><div class="line" data-line="158"><span data-highlight="comment" style="color: #8b949e;">* An Any contains an arbitrary serialized message as bytes,</span>
+</div><div class="line" data-line="159"><span data-highlight="comment" style="color: #8b949e;">* along with a URL that acts as a globally unique identifier for and resolves to that message&#39;s type.</span>
+</div><div class="line" data-line="160"><span data-highlight="comment" style="color: #8b949e;">* For Any to work we need to import it as shown below.</span>
+</div><div class="line" data-line="161"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="162"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="163"><span data-highlight="comment" style="color: #8b949e;">    import &quot;google/protobuf/any.proto&quot;;</span>
+</div><div class="line" data-line="164"><span data-highlight="comment" style="color: #8b949e;">    message AnySampleMessage &lbrace;</span>
+</div><div class="line" data-line="165"><span data-highlight="comment" style="color: #8b949e;">        repeated google.protobuf.Any.details = 1;</span>
+</div><div class="line" data-line="166"><span data-highlight="comment" style="color: #8b949e;">    &rbrace;</span>
+</div><div class="line" data-line="167"><span data-highlight="comment" style="color: #8b949e;"></span>
+</div><div class="line" data-line="168"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="169">
+</div><div class="line" data-line="170">
+</div><div class="line" data-line="171"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="172"><span data-highlight="comment" style="color: #8b949e;">*  OneOf</span>
+</div><div class="line" data-line="173"><span data-highlight="comment" style="color: #8b949e;">* There are cases, wherein only one field at-most might be present as part of the message.</span>
+</div><div class="line" data-line="174"><span data-highlight="comment" style="color: #8b949e;">* Note: OneOf messages can&#39;t be repeated.</span>
+</div><div class="line" data-line="175"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="176">
+</div><div class="line" data-line="177"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">OneOfMessage</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="178">    <span data-highlight="keyword" style="color: #ff7b72;">oneof</span> msg <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="179">        <span data-highlight="type" style="color: #ffa657;">string</span> fname <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="180">        <span data-highlight="type" style="color: #ffa657;">string</span> sname <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">2</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="181">    <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="182"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="183">
+</div><div class="line" data-line="184"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="185"><span data-highlight="comment" style="color: #8b949e;">* Maps</span>
+</div><div class="line" data-line="186"><span data-highlight="comment" style="color: #8b949e;">* Map fields cannot be repeated.</span>
+</div><div class="line" data-line="187"><span data-highlight="comment" style="color: #8b949e;">* Ordering Of A Map Is Not Guaranteed.</span>
+</div><div class="line" data-line="188"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="189">
+</div><div class="line" data-line="190"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">MessageWithMaps</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="191">    map<span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lt;</span><span data-highlight="type" style="color: #ffa657;">string</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">,</span> <span data-highlight="type" style="color: #ffa657;">string</span><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&gt;</span> mapOfMessages <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="192"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="193">
+</div><div class="line" data-line="194">
+</div><div class="line" data-line="195"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="196"><span data-highlight="comment" style="color: #8b949e;">* Packages</span>
+</div><div class="line" data-line="197"><span data-highlight="comment" style="color: #8b949e;">* Used for preventing name clashes between protocol message types</span>
+</div><div class="line" data-line="198"><span data-highlight="comment" style="color: #8b949e;">* Syntax:</span>
+</div><div class="line" data-line="199"><span data-highlight="comment" style="color: #8b949e;">    package $&lbrace;packageName&rbrace;;</span>
+</div><div class="line" data-line="200"><span data-highlight="comment" style="color: #8b949e;"></span>
+</div><div class="line" data-line="201"><span data-highlight="comment" style="color: #8b949e;">    To Access the package;</span>
+</div><div class="line" data-line="202"><span data-highlight="comment" style="color: #8b949e;">    $&lbrace;packageName&rbrace;.$&lbrace;messageName&rbrace; = $&lbrace;tagNumber&rbrace;;</span>
+</div><div class="line" data-line="203"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="204">
+</div><div class="line" data-line="205"><span data-highlight="comment" style="color: #8b949e;">/*</span>
+</div><div class="line" data-line="206"><span data-highlight="comment" style="color: #8b949e;">* Services</span>
+</div><div class="line" data-line="207"><span data-highlight="comment" style="color: #8b949e;">* Message Types Defined For Using In RPC system.</span>
+</div><div class="line" data-line="208"><span data-highlight="comment" style="color: #8b949e;">*  When protoc compiler generates for various languages it generates stub methods for the services.</span>
+</div><div class="line" data-line="209"><span data-highlight="comment" style="color: #8b949e;">*/</span>
+</div><div class="line" data-line="210">
+</div><div class="line" data-line="211"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">SearchRequest</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="212">    <span data-highlight="type" style="color: #ffa657;">string</span> queryString <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="213"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="214">
+</div><div class="line" data-line="215"><span data-highlight="keyword.type" style="color: #ff7b72;">message</span> <span data-highlight="type" style="color: #ffa657;">SearchResponse</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="216">    <span data-highlight="type" style="color: #ffa657;">string</span> queryResponse <span data-highlight="operator" style="color: #79c0ff;">=</span> <span data-highlight="number" style="color: #79c0ff;">1</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="217"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div><div class="line" data-line="218"><span data-highlight="keyword.type" style="color: #ff7b72;">service</span> <span data-highlight="type" style="color: #ffa657;">SearchService</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">&lbrace;</span>
+</div><div class="line" data-line="219">    <span data-highlight="keyword.function" style="color: #ff7b72;">rpc</span> <span data-highlight="type" style="color: #ffa657;">Search</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">(</span><span data-highlight="type" style="color: #ffa657;">SearchRequest</span><span data-highlight="punctuation.bracket" style="color: #e6edf3;">)</span> <span data-highlight="keyword.return" style="color: #ff7b72;">returns</span> <span data-highlight="punctuation.bracket" style="color: #e6edf3;">(</span><span data-highlight="type" style="color: #ffa657;">SearchResponse</span><span data-highlight="punctuation.bracket" style="color: #e6edf3;">)</span><span data-highlight="punctuation.delimiter" style="color: #e6edf3;">;</span>
+</div><div class="line" data-line="220"><span data-highlight="punctuation.bracket" style="color: #e6edf3;">&rbrace;</span>
+</div></code></pre>

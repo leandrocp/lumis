@@ -10,7 +10,7 @@
 //! the formatter generates self-contained HTML like:
 //!
 //! ```html
-//! <pre class="athl" style="color: #f8f8f2; background-color: #282a36;"><code class="language-rust" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #8be9fd;">fn</span> <span style="color: #50fa7b;">main</span><span style="color: #f8f8f2;">(</span><span style="color: #f8f8f2;">)</span> <span style="color: #f8f8f2;">&lbrace;</span> <span style="color: #bd93f9;">println</span><span style="color: #50fa7b;">!</span><span style="color: #f8f8f2;">(</span><span style="color: #f1fa8c;">&quot;Hello&quot;</span><span style="color: #f8f8f2;">)</span><span style="color: #f8f8f2;">;</span> <span style="color: #f8f8f2;">&rbrace;</span></span></code></pre>
+//! <pre class="athl" style="color: #f8f8f2; background-color: #282a36;"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #8be9fd;">fn</span> <span style="color: #50fa7b;">main</span><span style="color: #f8f8f2;">(</span><span style="color: #f8f8f2;">)</span> <span style="color: #f8f8f2;">&lbrace;</span> <span style="color: #bd93f9;">println</span><span style="color: #50fa7b;">!</span><span style="color: #f8f8f2;">(</span><span style="color: #f1fa8c;">&quot;Hello&quot;</span><span style="color: #f8f8f2;">)</span><span style="color: #f8f8f2;">;</span> <span style="color: #f8f8f2;">&rbrace;</span></div></code></pre>
 //! ```
 //!
 //! See the [formatter](crate::formatter) module for more information and examples.
@@ -47,7 +47,7 @@ use tree_sitter_highlight::Highlighter;
 ///
 // The resulting HTML will include the theme style for highlighted lines:
 /// ```html
-/// <span class="line" style="background-color: #dae9f9; transition: background-color .5s; width: 100%; display: inline-block;" data-line="1">fn main() {</span>
+/// <div class="line" style="background-color: #dae9f9;" data-line="1">fn main() {</div>
 /// ```
 ///
 /// Using both style and class:
@@ -63,7 +63,7 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// The resulting HTML will look like:
 /// ```html
-/// <span class="line w-full inline-block bg-yellow-500" style="background-color: #dae9f9; transition: background-color .5s; width: 100%; display: inline-block;" data-line="3">    let x = 42;</span>
+/// <div class="line w-full inline-block bg-yellow-500" style="background-color: #dae9f9;" data-line="3">    let x = 42;</div>
 /// ```
 ///
 /// Or disable either one of them:
@@ -246,10 +246,10 @@ impl Formatter for HtmlInline<'_> {
                                         highlighted_style.css(self.italic, " ")
                                     )
                                 } else {
-                                    " style=\"transition: background-color .5s; width: 100%; display: inline-block\"".to_string()
+                                    String::new()
                                 }
                             } else {
-                                " style=\"transition: background-color .5s; width: 100%; display: inline-block\"".to_string()
+                                String::new()
                             }
                         }
                         Some(HighlightLinesStyle::Style(style_string)) => {
@@ -267,7 +267,7 @@ impl Formatter for HtmlInline<'_> {
 
             write!(
                 output,
-                "<span class=\"line{}\"{} data-line=\"{}\">{}</span>",
+                "<div class=\"line{}\"{} data-line=\"{}\">{}</div>",
                 highlighted_class,
                 highlighted_style,
                 line_number,
@@ -355,8 +355,8 @@ mod tests {
         let mut buffer = Vec::new();
         formatter.format(&mut buffer);
         let result = String::from_utf8(buffer).unwrap();
-        let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><span class="line" data-line="1"><span ><span >@<span ><span >lang <span >:rust</span></span></span></span></span>
-</span></code></pre>"#;
+        let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span ><span >@<span ><span >lang <span >:rust</span></span></span></span></span>
+</div></code></pre>"#;
         assert_eq!(result, expected)
     }
 
@@ -449,12 +449,12 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><span class="line" style="background-color: #dae9f9; transition: background-color .5s; width: 100%; display: inline-block;" data-line="1">line 1
-</span><span class="line" data-line="2">line 2
-</span><span class="line" style="background-color: #dae9f9; transition: background-color .5s; width: 100%; display: inline-block;" data-line="3">line 3
-</span><span class="line" style="background-color: #dae9f9; transition: background-color .5s; width: 100%; display: inline-block;" data-line="4">line 4
-</span><span class="line" data-line="5">line 5
-</span></code></pre>"#;
+        let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" style="background-color: #e7eaf0;" data-line="1">line 1
+</div><div class="line" data-line="2">line 2
+</div><div class="line" style="background-color: #e7eaf0;" data-line="3">line 3
+</div><div class="line" style="background-color: #e7eaf0;" data-line="4">line 4
+</div><div class="line" data-line="5">line 5
+</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -483,12 +483,12 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line" style="background-color: yellow" data-line="1">line 1
-</span><span class="line" data-line="2">line 2
-</span><span class="line" style="background-color: yellow" data-line="3">line 3
-</span><span class="line" style="background-color: yellow" data-line="4">line 4
-</span><span class="line" data-line="5">line 5
-</span></code></pre>"#;
+        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" style="background-color: yellow" data-line="1">line 1
+</div><div class="line" data-line="2">line 2
+</div><div class="line" style="background-color: yellow" data-line="3">line 3
+</div><div class="line" style="background-color: yellow" data-line="4">line 4
+</div><div class="line" data-line="5">line 5
+</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -517,11 +517,11 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line custom-highlight" style="background-color: yellow" data-line="1">line 1
-</span><span class="line" data-line="2">line 2
-</span><span class="line custom-highlight" style="background-color: yellow" data-line="3">line 3
-</span><span class="line" data-line="4">line 4
-</span></code></pre>"#;
+        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-highlight" style="background-color: yellow" data-line="1">line 1
+</div><div class="line" data-line="2">line 2
+</div><div class="line custom-highlight" style="background-color: yellow" data-line="3">line 3
+</div><div class="line" data-line="4">line 4
+</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -548,11 +548,11 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<pre class="athl"><code class="language-rust" translate="no" tabindex="0"><span class="line custom-highlight" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span>
-</span><span class="line" data-line="2">    <span >println</span><span >!</span><span >(</span><span >&quot;Hello, world!&quot;</span><span >)</span><span >;</span>
-</span><span class="line custom-highlight" data-line="3">    <span >let</span> <span >x</span> <span >=</span> <span >42</span><span >;</span>
-</span><span class="line" data-line="4"><span >&rbrace;</span>
-</span></code></pre>"#;
+        let expected = r#"<pre class="athl"><code class="language-rust" translate="no" tabindex="0"><div class="line custom-highlight" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span>
+</div><div class="line" data-line="2">    <span >println</span><span >!</span><span >(</span><span >&quot;Hello, world!&quot;</span><span >)</span><span >;</span>
+</div><div class="line custom-highlight" data-line="3">    <span >let</span> <span >x</span> <span >=</span> <span >42</span><span >;</span>
+</div><div class="line" data-line="4"><span >&rbrace;</span>
+</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -578,9 +578,9 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<div class="code-wrapper"><pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><span class="line" data-line="1">line 1
-</span><span class="line" data-line="2">line 2
-</span></code></pre></div>"#;
+        let expected = r#"<div class="code-wrapper"><pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
+</div><div class="line" data-line="2">line 2
+</div></code></pre></div>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -606,8 +606,8 @@ mod tests {
         formatter.format(&mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<section class="highlight" data-lang="rust"><pre class="athl custom-class"><code class="language-rust" translate="no" tabindex="0"><span class="line" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span> <span >&rbrace;</span>
-</span></code></pre></section>"#;
+        let expected = r#"<section class="highlight" data-lang="rust"><pre class="athl custom-class"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span> <span >&rbrace;</span>
+</div></code></pre></section>"#;
         assert_str_eq!(result, expected);
     }
 }

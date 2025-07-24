@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_latte",
   "appearance": "light",
-  "revision": "82f3dcedc9acc242d2d4f98abca02e2f10a75248",
+  "revision": "0cf15babf716ed56593da425a236245f709dcbfb",
   "highlights": {
     "attribute": {
       "fg": "#fe640b"
@@ -85,11 +85,7 @@
       "fg": "#1e66f5"
     },
     "highlighted": {
-      "bg": "#bcc0cc",
-      "bold": true,
-      "display": "inline-block",
-      "width": "100%",
-      "transition": "background-color .5s"
+      "bg": "#e9ebf1"
     },
     "keyword": {
       "fg": "#8839ef"

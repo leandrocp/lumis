@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Add `--highlight-lines` option to autumn CLI for highlighting specific line ranges
+
+### Changed
+- **Breaking** Change HTML line containers from `<span>` elements to `<div>` elements in both HTML inline and linked formatters
+- **Breaking** Remove transition, display, and width fields from theme's `Style` struct
+- **Breaking** Revert to use `CursorLine` highlight group to highlight lines in HTML formatters
+
 ## [0.6.0] - 2027-07-23
 
 ### Added

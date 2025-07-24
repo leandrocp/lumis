@@ -93,10 +93,7 @@ pre.athl {
   color: #57a5e5;
 }
 .highlighted {
-  background-color: #3a3d37;
-  transition: background-color .5s;
-  width: 100%;
-  display: inline-block;
+  background-color: #2f312c;
 }
 .keyword {
   color: #aaaaff;

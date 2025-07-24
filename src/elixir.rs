@@ -176,9 +176,6 @@ impl From<ExTheme> for themes::Theme {
                             bold: v.bold,
                             italic: v.italic,
                             strikethrough: v.strikethrough,
-                            display: v.display,
-                            width: v.width,
-                            transition: v.transition,
                         },
                     )
                 })
@@ -211,9 +208,6 @@ pub struct ExStyle {
     pub bold: bool,
     pub italic: bool,
     pub strikethrough: bool,
-    pub display: Option<String>,
-    pub width: Option<String>,
-    pub transition: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
@@ -284,9 +278,6 @@ impl<'a> From<&'a themes::Style> for ExStyle {
             bold: style.bold,
             italic: style.italic,
             strikethrough: style.strikethrough,
-            display: style.display.clone(),
-            width: style.width.clone(),
-            transition: style.transition.clone(),
         }
     }
 }
@@ -508,9 +499,6 @@ mod tests {
                 italic: false,
                 underline: false,
                 strikethrough: false,
-                display: None,
-                width: None,
-                transition: None,
             },
         );
 
@@ -552,8 +540,8 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        let expected = r#"<pre class="athl code-block" style="color: #f8f8f2; background-color: #282a36;"><code class="language-rust" translate="no" tabindex="0"><span class="line" data-line="1"><span style="color: #8be9fd;">fn</span> <span style="color: #50fa7b;">main</span><span style="color: #f8f8f2;">(</span><span style="color: #f8f8f2;">)</span> <span style="color: #f8f8f2;">&lbrace;</span> <span style="color: #bd93f9;">println</span><span style="color: #50fa7b;">!</span><span style="color: #f8f8f2;">(</span><span style="color: #f1fa8c;">&quot;Hello&quot;</span><span style="color: #f8f8f2;">)</span><span style="color: #f8f8f2;">;</span> <span style="color: #f8f8f2;">&rbrace;</span>
-</span></code></pre>"#;
+        let expected = r#"<pre class="athl code-block" style="color: #f8f8f2; background-color: #282a36;"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #8be9fd;">fn</span> <span style="color: #50fa7b;">main</span><span style="color: #f8f8f2;">(</span><span style="color: #f8f8f2;">)</span> <span style="color: #f8f8f2;">&lbrace;</span> <span style="color: #bd93f9;">println</span><span style="color: #50fa7b;">!</span><span style="color: #f8f8f2;">(</span><span style="color: #f1fa8c;">&quot;Hello&quot;</span><span style="color: #f8f8f2;">)</span><span style="color: #f8f8f2;">;</span> <span style="color: #f8f8f2;">&rbrace;</span>
+</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -588,11 +576,11 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><span class="line custom-class" style="background-color: yellow" data-line="1">line 1
-</span><span class="line" data-line="2">line 2
-</span><span class="line custom-class" style="background-color: yellow" data-line="3">line 3
-</span><span class="line custom-class" style="background-color: yellow" data-line="4">line 4
-</span></code></pre>"#;
+        let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-class" style="background-color: yellow" data-line="1">line 1
+</div><div class="line" data-line="2">line 2
+</div><div class="line custom-class" style="background-color: yellow" data-line="3">line 3
+</div><div class="line custom-class" style="background-color: yellow" data-line="4">line 4
+</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -621,8 +609,8 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        let expected = r#"<section class="code-wrapper"><pre class="athl"><code class="language-javascript" translate="no" tabindex="0"><span class="line" data-line="1"><span >const</span> <span >x</span> <span >=</span> <span >42</span><span >;</span>
-</span></code></pre></section>"#;
+        let expected = r#"<section class="code-wrapper"><pre class="athl"><code class="language-javascript" translate="no" tabindex="0"><div class="line" data-line="1"><span >const</span> <span >x</span> <span >=</span> <span >42</span><span >;</span>
+</div></code></pre></section>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -653,10 +641,10 @@ mod tests {
         };
 
         let result = highlight(code, options);
-        let expected = r#"<div class="elixir-code"><pre class="athl syntax-highlight"><code class="language-elixir" translate="no" tabindex="0"><span class="line" data-line="1"><span class="keyword">defmodule</span> <span class="module">Test</span> <span class="keyword">do</span>
-</span><span class="line custom-hl" data-line="2">  <span class="keyword">def</span> <span class="variable">hello</span><span class="punctuation-delimiter">,</span> <span class="string-special-symbol">do: </span><span class="string-special-symbol">:world</span>
-</span><span class="line" data-line="3"><span class="keyword">end</span>
-</span></code></pre></div>"#;
+        let expected = r#"<div class="elixir-code"><pre class="athl syntax-highlight"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="keyword">defmodule</span> <span class="module">Test</span> <span class="keyword">do</span>
+</div><div class="line custom-hl" data-line="2">  <span class="keyword">def</span> <span class="variable">hello</span><span class="punctuation-delimiter">,</span> <span class="string-special-symbol">do: </span><span class="string-special-symbol">:world</span>
+</div><div class="line" data-line="3"><span class="keyword">end</span>
+</div></code></pre></div>"#;
         assert_str_eq!(result, expected);
     }
 

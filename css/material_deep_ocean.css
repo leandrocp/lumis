@@ -86,10 +86,7 @@ pre.athl {
   color: #82aaff;
 }
 .highlighted {
-  background-color: #1f2233;
-  transition: background-color .5s;
-  width: 100%;
-  display: inline-block;
+  background-color: #1a1c25;
 }
 .keyword {
   color: #89ddff;
@@ -112,6 +109,9 @@ pre.athl {
 }
 .keyword-directive-define {
   color: #89ddff;
+}
+.keyword-exception {
+  color: #f07178;
 }
 .keyword-function {
   color: #89ddff;

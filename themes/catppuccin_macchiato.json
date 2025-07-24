@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_macchiato",
   "appearance": "dark",
-  "revision": "82f3dcedc9acc242d2d4f98abca02e2f10a75248",
+  "revision": "0cf15babf716ed56593da425a236245f709dcbfb",
   "highlights": {
     "attribute": {
       "fg": "#f5a97f"
@@ -85,11 +85,7 @@
       "fg": "#8aadf4"
     },
     "highlighted": {
-      "bg": "#494d64",
-      "bold": true,
-      "display": "inline-block",
-      "width": "100%",
-      "transition": "background-color .5s"
+      "bg": "#303347"
     },
     "keyword": {
       "fg": "#c6a0f6"

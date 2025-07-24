@@ -1,5 +1,5 @@
 /* catppuccin_macchiato
- * revision: 82f3dcedc9acc242d2d4f98abca02e2f10a75248
+ * revision: 0cf15babf716ed56593da425a236245f709dcbfb
  */
 
 pre.athl {
@@ -88,11 +88,7 @@ pre.athl {
   color: #8aadf4;
 }
 .highlighted {
-  background-color: #494d64;
-  font-weight: bold;
-  transition: background-color .5s;
-  width: 100%;
-  display: inline-block;
+  background-color: #303347;
 }
 .keyword {
   color: #c6a0f6;

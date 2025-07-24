@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_mocha",
   "appearance": "dark",
-  "revision": "82f3dcedc9acc242d2d4f98abca02e2f10a75248",
+  "revision": "0cf15babf716ed56593da425a236245f709dcbfb",
   "highlights": {
     "attribute": {
       "fg": "#fab387"
@@ -85,11 +85,7 @@
       "fg": "#89b4fa"
     },
     "highlighted": {
-      "bg": "#45475a",
-      "bold": true,
-      "display": "inline-block",
-      "width": "100%",
-      "transition": "background-color .5s"
+      "bg": "#2a2b3c"
     },
     "keyword": {
       "fg": "#cba6f7"

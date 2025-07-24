@@ -1,334 +1,334 @@
-<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #bbbbbb; background-color: #1c1e26;"><code class="language-markdown" translate="no" tabindex="0"><span class="line" data-line="1"><span data-highlight="comment" style="color: #4c4d53;">&lt;!--This means we can use HTML elements in Markdown, such as the comment</span>
-</span><span class="line" data-line="2"><span data-highlight="comment" style="color: #4c4d53;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>element, and they won&#39;t be affected by a markdown parser. However, if you</span>
-</span><span class="line" data-line="3"><span data-highlight="comment" style="color: #4c4d53;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>create an HTML element in your markdown file, you cannot use markdown syntax</span>
-</span><span class="line" data-line="4"><span data-highlight="comment" style="color: #4c4d53;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>within that element&#39;s contents.--&gt;</span>
-</span><span class="line" data-line="5"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span></span>
-</span><span class="line" data-line="6"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="7"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>## Headings</span>
-</span><span class="line" data-line="8"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="9"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>You can create HTML elements `&lt;h1&gt;` through `&lt;h6&gt;` easily by prepending the</span>
-</span><span class="line" data-line="10"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>text you want to be in that element by a number of hashes (#).</span>
-</span><span class="line" data-line="11"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="12"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```md</span>
-</span><span class="line" data-line="13"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span># This is an &lt;h1&gt;</span>
-</span><span class="line" data-line="14"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>## This is an &lt;h2&gt;</span>
-</span><span class="line" data-line="15"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>### This is an &lt;h3&gt;</span>
-</span><span class="line" data-line="16"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>#### This is an &lt;h4&gt;</span>
-</span><span class="line" data-line="17"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>##### This is an &lt;h5&gt;</span>
-</span><span class="line" data-line="18"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>###### This is an &lt;h6&gt;</span>
-</span><span class="line" data-line="19"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span><span data-highlight="markup.raw.block" style="color: #f09483;">```</span></span>
-</span><span class="line" data-line="20"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="21">Markdown also provides us with two alternative ways of indicating h1 and h2.
-</span><span class="line" data-line="22">
-</span><span class="line" data-line="23"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="24"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>This is an h1</span>
-</span><span class="line" data-line="25"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>=============</span>
-</span><span class="line" data-line="26"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="27"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>This is an h2</span>
-</span><span class="line" data-line="28"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>-------------</span>
-</span><span class="line" data-line="29"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="30"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="31"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Simple text styles</span>
-</span><span class="line" data-line="32"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="33">Text can be easily styled as italic or bold using markdown.
-</span><span class="line" data-line="34">
-</span><span class="line" data-line="35"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="36"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>*This text is in italics.*</span>
-</span><span class="line" data-line="37"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>_And so is this text._</span>
-</span><span class="line" data-line="38"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="39"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>**This text is in bold.**</span>
-</span><span class="line" data-line="40"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>__And so is this text.__</span>
-</span><span class="line" data-line="41"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="42"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>***This text is in both.***</span>
-</span><span class="line" data-line="43"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>**_As is this!_**</span>
-</span><span class="line" data-line="44"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>*__And this!__*</span>
-</span><span class="line" data-line="45"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="46"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="47">In GitHub Flavored Markdown, which is used to render markdown files on
-</span><span class="line" data-line="48">GitHub, we also have strikethrough:
-</span><span class="line" data-line="49">
-</span><span class="line" data-line="50"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="51"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>~~This text is rendered with strikethrough.~~</span>
-</span><span class="line" data-line="52"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="53"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="54"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Paragraphs</span>
-</span><span class="line" data-line="55"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="56">Paragraphs are a one or multiple adjacent lines of text separated by one or
-</span><span class="line" data-line="57">multiple blank lines.
-</span><span class="line" data-line="58">
-</span><span class="line" data-line="59"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="60"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>This is a paragraph. I&#39;m typing in a paragraph isn&#39;t this fun?</span>
-</span><span class="line" data-line="61"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="62"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Now I&#39;m in paragraph 2.</span>
-</span><span class="line" data-line="63"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>I&#39;m still in paragraph 2 too!</span>
-</span><span class="line" data-line="64"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="65"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="66"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>I&#39;m in paragraph three!</span>
-</span><span class="line" data-line="67"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="68"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="69">Should you ever want to insert an HTML `&lt;br /&gt;` tag, you can end a paragraph
-</span><span class="line" data-line="70">with two or more spaces and then begin a new paragraph.
-</span><span class="line" data-line="71">
-</span><span class="line" data-line="72"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="73"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>I end with two spaces (highlight me to see them).</span>
-</span><span class="line" data-line="74"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="75"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>There&#39;s a &lt;br /&gt; above me!</span>
-</span><span class="line" data-line="76"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="77"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="78">Block quotes are easy and done with the &gt; character.
-</span><span class="line" data-line="79">
-</span><span class="line" data-line="80"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="81"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; This is a block quote. You can either</span>
-</span><span class="line" data-line="82"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; manually wrap your lines and put a `&gt;` before every line or you can let your lines get really long and wrap on their own.</span>
-</span><span class="line" data-line="83"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; It doesn&#39;t make a difference so long as they start with a `&gt;`.</span>
-</span><span class="line" data-line="84"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="85"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; You can also use more than one level</span>
-</span><span class="line" data-line="86"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt;&gt; of indentation?</span>
-</span><span class="line" data-line="87"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; How neat is that?</span>
-</span><span class="line" data-line="88"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="89"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="90"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="91"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Lists</span>
-</span><span class="line" data-line="92"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="93">Unordered lists can be made using asterisks, pluses, or hyphens.
-</span><span class="line" data-line="94">
-</span><span class="line" data-line="95"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="96"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>* Item</span>
-</span><span class="line" data-line="97"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>* Item</span>
-</span><span class="line" data-line="98"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>* Another item</span>
-</span><span class="line" data-line="99"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="100"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>or</span>
-</span><span class="line" data-line="101"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="102"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>+ Item</span>
-</span><span class="line" data-line="103"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>+ Item</span>
-</span><span class="line" data-line="104"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>+ One more item</span>
-</span><span class="line" data-line="105"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="106"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>or</span>
-</span><span class="line" data-line="107"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="108"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- Item</span>
-</span><span class="line" data-line="109"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- Item</span>
-</span><span class="line" data-line="110"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- One last item</span>
-</span><span class="line" data-line="111"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="112"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="113">Ordered lists are done with a number followed by a period.
-</span><span class="line" data-line="114">
-</span><span class="line" data-line="115"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="116"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item one</span>
-</span><span class="line" data-line="117"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>2. Item two</span>
-</span><span class="line" data-line="118"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>3. Item three</span>
-</span><span class="line" data-line="119"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="120"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="121">You don&#39;t even have to label the items correctly and Markdown will still
-</span><span class="line" data-line="122">render the numbers in order, but this may not be a good idea.
-</span><span class="line" data-line="123">
-</span><span class="line" data-line="124"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="125"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item one</span>
-</span><span class="line" data-line="126"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item two</span>
-</span><span class="line" data-line="127"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item three</span>
-</span><span class="line" data-line="128"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="129"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="130">(This renders the same as the example above.)
-</span><span class="line" data-line="131">
-</span><span class="line" data-line="132">You can also use sublists.
-</span><span class="line" data-line="133">
-</span><span class="line" data-line="134"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="135"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item one</span>
-</span><span class="line" data-line="136"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>2. Item two</span>
-</span><span class="line" data-line="137"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>3. Item three</span>
-</span><span class="line" data-line="138"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    * Sub-item</span>
-</span><span class="line" data-line="139"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    * Sub-item</span>
-</span><span class="line" data-line="140"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>4. Item four</span>
-</span><span class="line" data-line="141"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="142"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="143">There are even task lists. This creates HTML checkboxes.
-</span><span class="line" data-line="144">
-</span><span class="line" data-line="145"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="146"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Boxes below without the &#39;x&#39; are unchecked HTML checkboxes.</span>
-</span><span class="line" data-line="147"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- <span data-highlight="markup.link" style="text-decoration: underline;">[</span><span data-highlight="markup.link.label" style="text-decoration: underline;"> </span><span data-highlight="markup.link" style="text-decoration: underline;">]</span> First task to complete.</span>
-</span><span class="line" data-line="148"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- <span data-highlight="markup.link" style="text-decoration: underline;">[</span><span data-highlight="markup.link.label" style="text-decoration: underline;"> </span><span data-highlight="markup.link" style="text-decoration: underline;">]</span> Second task that needs done</span>
-</span><span class="line" data-line="149"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>This checkbox below will be a checked HTML checkbox.</span>
-</span><span class="line" data-line="150"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- <span data-highlight="markup.link" style="text-decoration: underline;">[</span><span data-highlight="markup.link.label" style="text-decoration: underline;">x</span><span data-highlight="markup.link" style="text-decoration: underline;">]</span> This task has been completed</span>
-</span><span class="line" data-line="151"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="152"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="153"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Code blocks</span>
-</span><span class="line" data-line="154"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="155">You can indicate a code block (which uses the `&lt;code&gt;` element) by indenting
-</span><span class="line" data-line="156">a line with four spaces or a tab.
-</span><span class="line" data-line="157">
-</span><span class="line" data-line="158"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="159"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    This is code</span></span>
-</span><span class="line" data-line="160"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    </span>So is this</span></span>
-</span><span class="line" data-line="161"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"></span><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="162"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="163">You can also re-tab (or add an additional four spaces) for indentation
-</span><span class="line" data-line="164">inside your code.
-</span><span class="line" data-line="165">
-</span><span class="line" data-line="166"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="167"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    my_array.each do |item|</span></span>
-</span><span class="line" data-line="168"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    </span>  puts item</span></span>
-</span><span class="line" data-line="169"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    </span>end</span></span>
-</span><span class="line" data-line="170"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"></span><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="171"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="172">Inline code can be created using the backtick character `` ` ``.
-</span><span class="line" data-line="173">
-</span><span class="line" data-line="174"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="175"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>John didn&#39;t even know what the `go_to()` function did!</span>
-</span><span class="line" data-line="176"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="177"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="178">In GitHub Flavored Markdown, you can use a special syntax for code.
-</span><span class="line" data-line="179">
-</span><span class="line" data-line="180"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">````</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="181"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```ruby</span>
-</span><span class="line" data-line="182"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>def foobar</span>
-</span><span class="line" data-line="183"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>  puts &quot;Hello world!&quot;</span>
-</span><span class="line" data-line="184"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>end</span>
-</span><span class="line" data-line="185"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span>
-</span><span class="line" data-line="186"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>````</span></span>
-</span><span class="line" data-line="187"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="188">The above text doesn&#39;t require indenting, plus GitHub will use syntax
-</span><span class="line" data-line="189">highlighting of the language you specify after the opening &lt;code&gt;```&lt;/code&gt;.
-</span><span class="line" data-line="190">
-</span><span class="line" data-line="191"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Horizontal rule</span>
-</span><span class="line" data-line="192"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="193">Horizontal rules (`&lt;hr/&gt;`) are easily added with three or more asterisks or
-</span><span class="line" data-line="194">hyphens, with or without spaces.
-</span><span class="line" data-line="195">
-</span><span class="line" data-line="196"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="197"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>***</span>
-</span><span class="line" data-line="198"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>---</span>
-</span><span class="line" data-line="199"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- - -</span>
-</span><span class="line" data-line="200"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>****************</span>
-</span><span class="line" data-line="201"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="202"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="203"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Links</span>
-</span><span class="line" data-line="204"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="205">One of the best things about markdown is how easy it is to make links. Put
-</span><span class="line" data-line="206">the text to display in hard brackets [] followed by the url in parentheses ()
-</span><span class="line" data-line="207">
-</span><span class="line" data-line="208"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="209"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Click me!](http://test.com/)</span>
-</span><span class="line" data-line="210"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="211"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="212">You can also add a link title using quotes inside the parentheses.
-</span><span class="line" data-line="213">
-</span><span class="line" data-line="214"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="215"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Click me!](http://test.com/ &quot;Link to Test.com&quot;)</span>
-</span><span class="line" data-line="216"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="217"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="218">Relative paths work too.
-</span><span class="line" data-line="219">
-</span><span class="line" data-line="220"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="221"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Go to music](/music/).</span>
-</span><span class="line" data-line="222"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="223"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="224">Markdown also supports reference style links.
-</span><span class="line" data-line="225">
-</span><span class="line" data-line="226"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="227"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Click this link][link1] for more info about it!</span>
-</span><span class="line" data-line="228"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Also check out this link][foobar] if you want to.</span>
-</span><span class="line" data-line="229"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="230"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[link1]: http://test.com/ &quot;Cool!&quot;</span>
-</span><span class="line" data-line="231"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[foobar]: http://foobar.biz/ &quot;Alright!&quot;</span>
-</span><span class="line" data-line="232"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="233"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="234">The title can also be in single quotes or in parentheses, or omitted
-</span><span class="line" data-line="235">entirely. The references can be anywhere in your document and the reference IDs
-</span><span class="line" data-line="236">can be anything so long as they are unique.
-</span><span class="line" data-line="237">
-</span><span class="line" data-line="238">There is also &quot;implicit naming&quot; which lets you use the link text as the id.
-</span><span class="line" data-line="239">
-</span><span class="line" data-line="240"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="241"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[This][] is a link.</span>
-</span><span class="line" data-line="242"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="243"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[This]: http://thisisalink.com/</span>
-</span><span class="line" data-line="244"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="245"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="246">But it&#39;s not that commonly used.
-</span><span class="line" data-line="247">
-</span><span class="line" data-line="248"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Table of contents</span>
-</span><span class="line" data-line="249"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="250">Some Markdown flavors even make use of the combination of lists, links and
-</span><span class="line" data-line="251">headings in order to create tables of contents. In this case, heading titles in
-</span><span class="line" data-line="252">lowercase are prepended with hash (`#`) and are used as link ids. Should the
-</span><span class="line" data-line="253">heading have multiple words, they will be connected with a hyphen (`-`), that
-</span><span class="line" data-line="254">also replaces some special characters. (Some other special characters are
-</span><span class="line" data-line="255">omitted though.)
-</span><span class="line" data-line="256">
-</span><span class="line" data-line="257"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="258"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- [Heading](#heading)</span>
-</span><span class="line" data-line="259"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- [Another heading](#another-heading)</span>
-</span><span class="line" data-line="260"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- [Chapter](#chapter)</span>
-</span><span class="line" data-line="261"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>  - [Subchapter &lt;h3 /&gt;](#subchapter-h3-)</span>
-</span><span class="line" data-line="262"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="263"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="264">Nonetheless, this is a feature that might not be working in all Markdown
-</span><span class="line" data-line="265">implementations the same way.
-</span><span class="line" data-line="266">
-</span><span class="line" data-line="267"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Images</span>
-</span><span class="line" data-line="268"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="269">Images are done the same way as links but with an exclamation point in front!
-</span><span class="line" data-line="270">
-</span><span class="line" data-line="271"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="272"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>![This is the alt-attribute for my image](http://imgur.com/myimage.jpg &quot;An optional title&quot;)</span>
-</span><span class="line" data-line="273"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="274"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="275">And reference style works as expected.
-</span><span class="line" data-line="276">
-</span><span class="line" data-line="277"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="278"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>![This is the alt-attribute.][myimage]</span>
-</span><span class="line" data-line="279"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
-</span><span class="line" data-line="280"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[myimage]: relative/urls/cool/image.jpg &quot;if you need a title, it&#39;s here&quot;</span>
-</span><span class="line" data-line="281"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="282"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="283"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Miscellany</span>
-</span><span class="line" data-line="284"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="285"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Auto-links</span>
-</span><span class="line" data-line="286"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="287"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="288"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&lt;http://testwebsite.com/&gt; is equivalent to</span>
-</span><span class="line" data-line="289"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[http://testwebsite.com/](http://testwebsite.com/)</span>
-</span><span class="line" data-line="290"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="291"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="292"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Auto-links for emails</span>
-</span><span class="line" data-line="293"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="294"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="295"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&lt;foo@bar.com&gt;</span>
-</span><span class="line" data-line="296"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="297"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="298"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Escaping characters</span>
-</span><span class="line" data-line="299"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="300"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="301"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>I want to type *this text surrounded by asterisks* but I don&#39;t want it to be</span>
-</span><span class="line" data-line="302"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>in italics, so I do this: \*this text surrounded by asterisks\*.</span>
-</span><span class="line" data-line="303"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="304"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="305"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Keyboard keys</span>
-</span><span class="line" data-line="306"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="307">In GitHub Flavored Markdown, you can use a `&lt;kbd&gt;` tag to represent keyboard
-</span><span class="line" data-line="308">keys.
-</span><span class="line" data-line="309">
-</span><span class="line" data-line="310"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="311"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Your computer crashed? Try sending a</span>
-</span><span class="line" data-line="312"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&lt;kbd&gt;Ctrl&lt;/kbd&gt;+&lt;kbd&gt;Alt&lt;/kbd&gt;+&lt;kbd&gt;Del&lt;/kbd&gt;</span>
-</span><span class="line" data-line="313"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="314"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="315"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Tables</span>
-</span><span class="line" data-line="316"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
-</span><span class="line" data-line="317">Tables are only available in GitHub Flavored Markdown and are slightly
-</span><span class="line" data-line="318">cumbersome, but if you really want it:
-</span><span class="line" data-line="319">
-</span><span class="line" data-line="320"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="321"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>| Col1         | Col2     | Col3          |</span>
-</span><span class="line" data-line="322"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>| :----------- | :------: | ------------: |</span>
-</span><span class="line" data-line="323"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>| Left-aligned | Centered | Right-aligned |</span>
-</span><span class="line" data-line="324"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>| blah         | blah     | blah          |</span>
-</span><span class="line" data-line="325"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
-</span><span class="line" data-line="326"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span><span class="line" data-line="327">or, for the same results
-</span><span class="line" data-line="328">
-</span><span class="line" data-line="329"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
-</span><span class="line" data-line="330"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Col 1 | Col2 | Col3</span>
-</span><span class="line" data-line="331"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>:-- | :-: | --:</span>
-</span><span class="line" data-line="332"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Ugh this is so ugly | make it | stop</span>
-</span><span class="line" data-line="333"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
-</span></code></pre>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #bbbbbb; background-color: #1c1e26;"><code class="language-markdown" translate="no" tabindex="0"><div class="line" data-line="1"><span data-highlight="comment" style="color: #4c4d53;">&lt;!--This means we can use HTML elements in Markdown, such as the comment</span>
+</div><div class="line" data-line="2"><span data-highlight="comment" style="color: #4c4d53;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>element, and they won&#39;t be affected by a markdown parser. However, if you</span>
+</div><div class="line" data-line="3"><span data-highlight="comment" style="color: #4c4d53;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>create an HTML element in your markdown file, you cannot use markdown syntax</span>
+</div><div class="line" data-line="4"><span data-highlight="comment" style="color: #4c4d53;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>within that element&#39;s contents.--&gt;</span>
+</div><div class="line" data-line="5"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span></span>
+</div><div class="line" data-line="6"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="7"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>## Headings</span>
+</div><div class="line" data-line="8"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="9"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>You can create HTML elements `&lt;h1&gt;` through `&lt;h6&gt;` easily by prepending the</span>
+</div><div class="line" data-line="10"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>text you want to be in that element by a number of hashes (#).</span>
+</div><div class="line" data-line="11"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="12"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```md</span>
+</div><div class="line" data-line="13"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span># This is an &lt;h1&gt;</span>
+</div><div class="line" data-line="14"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>## This is an &lt;h2&gt;</span>
+</div><div class="line" data-line="15"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>### This is an &lt;h3&gt;</span>
+</div><div class="line" data-line="16"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>#### This is an &lt;h4&gt;</span>
+</div><div class="line" data-line="17"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>##### This is an &lt;h5&gt;</span>
+</div><div class="line" data-line="18"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>###### This is an &lt;h6&gt;</span>
+</div><div class="line" data-line="19"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span><span data-highlight="markup.raw.block" style="color: #f09483;">```</span></span>
+</div><div class="line" data-line="20"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="21">Markdown also provides us with two alternative ways of indicating h1 and h2.
+</div><div class="line" data-line="22">
+</div><div class="line" data-line="23"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="24"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>This is an h1</span>
+</div><div class="line" data-line="25"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>=============</span>
+</div><div class="line" data-line="26"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="27"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>This is an h2</span>
+</div><div class="line" data-line="28"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>-------------</span>
+</div><div class="line" data-line="29"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="30"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="31"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Simple text styles</span>
+</div><div class="line" data-line="32"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="33">Text can be easily styled as italic or bold using markdown.
+</div><div class="line" data-line="34">
+</div><div class="line" data-line="35"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="36"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>*This text is in italics.*</span>
+</div><div class="line" data-line="37"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>_And so is this text._</span>
+</div><div class="line" data-line="38"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="39"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>**This text is in bold.**</span>
+</div><div class="line" data-line="40"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>__And so is this text.__</span>
+</div><div class="line" data-line="41"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="42"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>***This text is in both.***</span>
+</div><div class="line" data-line="43"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>**_As is this!_**</span>
+</div><div class="line" data-line="44"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>*__And this!__*</span>
+</div><div class="line" data-line="45"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="46"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="47">In GitHub Flavored Markdown, which is used to render markdown files on
+</div><div class="line" data-line="48">GitHub, we also have strikethrough:
+</div><div class="line" data-line="49">
+</div><div class="line" data-line="50"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="51"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>~~This text is rendered with strikethrough.~~</span>
+</div><div class="line" data-line="52"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="53"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="54"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Paragraphs</span>
+</div><div class="line" data-line="55"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="56">Paragraphs are a one or multiple adjacent lines of text separated by one or
+</div><div class="line" data-line="57">multiple blank lines.
+</div><div class="line" data-line="58">
+</div><div class="line" data-line="59"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="60"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>This is a paragraph. I&#39;m typing in a paragraph isn&#39;t this fun?</span>
+</div><div class="line" data-line="61"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="62"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Now I&#39;m in paragraph 2.</span>
+</div><div class="line" data-line="63"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>I&#39;m still in paragraph 2 too!</span>
+</div><div class="line" data-line="64"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="65"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="66"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>I&#39;m in paragraph three!</span>
+</div><div class="line" data-line="67"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="68"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="69">Should you ever want to insert an HTML `&lt;br /&gt;` tag, you can end a paragraph
+</div><div class="line" data-line="70">with two or more spaces and then begin a new paragraph.
+</div><div class="line" data-line="71">
+</div><div class="line" data-line="72"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="73"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>I end with two spaces (highlight me to see them).</span>
+</div><div class="line" data-line="74"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="75"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>There&#39;s a &lt;br /&gt; above me!</span>
+</div><div class="line" data-line="76"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="77"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="78">Block quotes are easy and done with the &gt; character.
+</div><div class="line" data-line="79">
+</div><div class="line" data-line="80"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="81"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; This is a block quote. You can either</span>
+</div><div class="line" data-line="82"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; manually wrap your lines and put a `&gt;` before every line or you can let your lines get really long and wrap on their own.</span>
+</div><div class="line" data-line="83"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; It doesn&#39;t make a difference so long as they start with a `&gt;`.</span>
+</div><div class="line" data-line="84"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="85"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; You can also use more than one level</span>
+</div><div class="line" data-line="86"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt;&gt; of indentation?</span>
+</div><div class="line" data-line="87"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&gt; How neat is that?</span>
+</div><div class="line" data-line="88"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="89"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="90"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="91"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Lists</span>
+</div><div class="line" data-line="92"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="93">Unordered lists can be made using asterisks, pluses, or hyphens.
+</div><div class="line" data-line="94">
+</div><div class="line" data-line="95"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="96"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>* Item</span>
+</div><div class="line" data-line="97"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>* Item</span>
+</div><div class="line" data-line="98"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>* Another item</span>
+</div><div class="line" data-line="99"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="100"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>or</span>
+</div><div class="line" data-line="101"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="102"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>+ Item</span>
+</div><div class="line" data-line="103"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>+ Item</span>
+</div><div class="line" data-line="104"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>+ One more item</span>
+</div><div class="line" data-line="105"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="106"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>or</span>
+</div><div class="line" data-line="107"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="108"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- Item</span>
+</div><div class="line" data-line="109"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- Item</span>
+</div><div class="line" data-line="110"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- One last item</span>
+</div><div class="line" data-line="111"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="112"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="113">Ordered lists are done with a number followed by a period.
+</div><div class="line" data-line="114">
+</div><div class="line" data-line="115"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="116"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item one</span>
+</div><div class="line" data-line="117"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>2. Item two</span>
+</div><div class="line" data-line="118"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>3. Item three</span>
+</div><div class="line" data-line="119"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="120"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="121">You don&#39;t even have to label the items correctly and Markdown will still
+</div><div class="line" data-line="122">render the numbers in order, but this may not be a good idea.
+</div><div class="line" data-line="123">
+</div><div class="line" data-line="124"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="125"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item one</span>
+</div><div class="line" data-line="126"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item two</span>
+</div><div class="line" data-line="127"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item three</span>
+</div><div class="line" data-line="128"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="129"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="130">(This renders the same as the example above.)
+</div><div class="line" data-line="131">
+</div><div class="line" data-line="132">You can also use sublists.
+</div><div class="line" data-line="133">
+</div><div class="line" data-line="134"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="135"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>1. Item one</span>
+</div><div class="line" data-line="136"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>2. Item two</span>
+</div><div class="line" data-line="137"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>3. Item three</span>
+</div><div class="line" data-line="138"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    * Sub-item</span>
+</div><div class="line" data-line="139"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    * Sub-item</span>
+</div><div class="line" data-line="140"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>4. Item four</span>
+</div><div class="line" data-line="141"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="142"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="143">There are even task lists. This creates HTML checkboxes.
+</div><div class="line" data-line="144">
+</div><div class="line" data-line="145"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="146"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Boxes below without the &#39;x&#39; are unchecked HTML checkboxes.</span>
+</div><div class="line" data-line="147"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- <span data-highlight="markup.link" style="text-decoration: underline;">[</span><span data-highlight="markup.link.label" style="text-decoration: underline;"> </span><span data-highlight="markup.link" style="text-decoration: underline;">]</span> First task to complete.</span>
+</div><div class="line" data-line="148"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- <span data-highlight="markup.link" style="text-decoration: underline;">[</span><span data-highlight="markup.link.label" style="text-decoration: underline;"> </span><span data-highlight="markup.link" style="text-decoration: underline;">]</span> Second task that needs done</span>
+</div><div class="line" data-line="149"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>This checkbox below will be a checked HTML checkbox.</span>
+</div><div class="line" data-line="150"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- <span data-highlight="markup.link" style="text-decoration: underline;">[</span><span data-highlight="markup.link.label" style="text-decoration: underline;">x</span><span data-highlight="markup.link" style="text-decoration: underline;">]</span> This task has been completed</span>
+</div><div class="line" data-line="151"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="152"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="153"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Code blocks</span>
+</div><div class="line" data-line="154"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="155">You can indicate a code block (which uses the `&lt;code&gt;` element) by indenting
+</div><div class="line" data-line="156">a line with four spaces or a tab.
+</div><div class="line" data-line="157">
+</div><div class="line" data-line="158"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="159"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    This is code</span></span>
+</div><div class="line" data-line="160"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    </span>So is this</span></span>
+</div><div class="line" data-line="161"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"></span><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="162"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="163">You can also re-tab (or add an additional four spaces) for indentation
+</div><div class="line" data-line="164">inside your code.
+</div><div class="line" data-line="165">
+</div><div class="line" data-line="166"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="167"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    my_array.each do |item|</span></span>
+</div><div class="line" data-line="168"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    </span>  puts item</span></span>
+</div><div class="line" data-line="169"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>    </span>end</span></span>
+</div><div class="line" data-line="170"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"></span><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="171"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="172">Inline code can be created using the backtick character `` ` ``.
+</div><div class="line" data-line="173">
+</div><div class="line" data-line="174"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="175"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>John didn&#39;t even know what the `go_to()` function did!</span>
+</div><div class="line" data-line="176"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="177"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="178">In GitHub Flavored Markdown, you can use a special syntax for code.
+</div><div class="line" data-line="179">
+</div><div class="line" data-line="180"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">````</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="181"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```ruby</span>
+</div><div class="line" data-line="182"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>def foobar</span>
+</div><div class="line" data-line="183"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>  puts &quot;Hello world!&quot;</span>
+</div><div class="line" data-line="184"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>end</span>
+</div><div class="line" data-line="185"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span>
+</div><div class="line" data-line="186"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>````</span></span>
+</div><div class="line" data-line="187"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="188">The above text doesn&#39;t require indenting, plus GitHub will use syntax
+</div><div class="line" data-line="189">highlighting of the language you specify after the opening &lt;code&gt;```&lt;/code&gt;.
+</div><div class="line" data-line="190">
+</div><div class="line" data-line="191"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Horizontal rule</span>
+</div><div class="line" data-line="192"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="193">Horizontal rules (`&lt;hr/&gt;`) are easily added with three or more asterisks or
+</div><div class="line" data-line="194">hyphens, with or without spaces.
+</div><div class="line" data-line="195">
+</div><div class="line" data-line="196"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="197"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>***</span>
+</div><div class="line" data-line="198"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>---</span>
+</div><div class="line" data-line="199"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- - -</span>
+</div><div class="line" data-line="200"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>****************</span>
+</div><div class="line" data-line="201"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="202"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="203"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Links</span>
+</div><div class="line" data-line="204"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="205">One of the best things about markdown is how easy it is to make links. Put
+</div><div class="line" data-line="206">the text to display in hard brackets [] followed by the url in parentheses ()
+</div><div class="line" data-line="207">
+</div><div class="line" data-line="208"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="209"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Click me!](http://test.com/)</span>
+</div><div class="line" data-line="210"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="211"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="212">You can also add a link title using quotes inside the parentheses.
+</div><div class="line" data-line="213">
+</div><div class="line" data-line="214"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="215"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Click me!](http://test.com/ &quot;Link to Test.com&quot;)</span>
+</div><div class="line" data-line="216"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="217"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="218">Relative paths work too.
+</div><div class="line" data-line="219">
+</div><div class="line" data-line="220"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="221"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Go to music](/music/).</span>
+</div><div class="line" data-line="222"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="223"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="224">Markdown also supports reference style links.
+</div><div class="line" data-line="225">
+</div><div class="line" data-line="226"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="227"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Click this link][link1] for more info about it!</span>
+</div><div class="line" data-line="228"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[Also check out this link][foobar] if you want to.</span>
+</div><div class="line" data-line="229"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="230"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[link1]: http://test.com/ &quot;Cool!&quot;</span>
+</div><div class="line" data-line="231"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[foobar]: http://foobar.biz/ &quot;Alright!&quot;</span>
+</div><div class="line" data-line="232"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="233"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="234">The title can also be in single quotes or in parentheses, or omitted
+</div><div class="line" data-line="235">entirely. The references can be anywhere in your document and the reference IDs
+</div><div class="line" data-line="236">can be anything so long as they are unique.
+</div><div class="line" data-line="237">
+</div><div class="line" data-line="238">There is also &quot;implicit naming&quot; which lets you use the link text as the id.
+</div><div class="line" data-line="239">
+</div><div class="line" data-line="240"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="241"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[This][] is a link.</span>
+</div><div class="line" data-line="242"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="243"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[This]: http://thisisalink.com/</span>
+</div><div class="line" data-line="244"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="245"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="246">But it&#39;s not that commonly used.
+</div><div class="line" data-line="247">
+</div><div class="line" data-line="248"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Table of contents</span>
+</div><div class="line" data-line="249"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="250">Some Markdown flavors even make use of the combination of lists, links and
+</div><div class="line" data-line="251">headings in order to create tables of contents. In this case, heading titles in
+</div><div class="line" data-line="252">lowercase are prepended with hash (`#`) and are used as link ids. Should the
+</div><div class="line" data-line="253">heading have multiple words, they will be connected with a hyphen (`-`), that
+</div><div class="line" data-line="254">also replaces some special characters. (Some other special characters are
+</div><div class="line" data-line="255">omitted though.)
+</div><div class="line" data-line="256">
+</div><div class="line" data-line="257"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="258"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- [Heading](#heading)</span>
+</div><div class="line" data-line="259"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- [Another heading](#another-heading)</span>
+</div><div class="line" data-line="260"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>- [Chapter](#chapter)</span>
+</div><div class="line" data-line="261"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>  - [Subchapter &lt;h3 /&gt;](#subchapter-h3-)</span>
+</div><div class="line" data-line="262"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="263"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="264">Nonetheless, this is a feature that might not be working in all Markdown
+</div><div class="line" data-line="265">implementations the same way.
+</div><div class="line" data-line="266">
+</div><div class="line" data-line="267"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Images</span>
+</div><div class="line" data-line="268"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="269">Images are done the same way as links but with an exclamation point in front!
+</div><div class="line" data-line="270">
+</div><div class="line" data-line="271"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="272"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>![This is the alt-attribute for my image](http://imgur.com/myimage.jpg &quot;An optional title&quot;)</span>
+</div><div class="line" data-line="273"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="274"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="275">And reference style works as expected.
+</div><div class="line" data-line="276">
+</div><div class="line" data-line="277"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="278"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>![This is the alt-attribute.][myimage]</span>
+</div><div class="line" data-line="279"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span></span>
+</div><div class="line" data-line="280"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[myimage]: relative/urls/cool/image.jpg &quot;if you need a title, it&#39;s here&quot;</span>
+</div><div class="line" data-line="281"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="282"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="283"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;">## Miscellany</span>
+</div><div class="line" data-line="284"><span data-highlight="markup.heading.2" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="285"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Auto-links</span>
+</div><div class="line" data-line="286"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="287"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="288"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&lt;http://testwebsite.com/&gt; is equivalent to</span>
+</div><div class="line" data-line="289"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>[http://testwebsite.com/](http://testwebsite.com/)</span>
+</div><div class="line" data-line="290"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="291"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="292"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Auto-links for emails</span>
+</div><div class="line" data-line="293"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="294"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="295"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&lt;foo@bar.com&gt;</span>
+</div><div class="line" data-line="296"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="297"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="298"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Escaping characters</span>
+</div><div class="line" data-line="299"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="300"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="301"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>I want to type *this text surrounded by asterisks* but I don&#39;t want it to be</span>
+</div><div class="line" data-line="302"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>in italics, so I do this: \*this text surrounded by asterisks\*.</span>
+</div><div class="line" data-line="303"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="304"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="305"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Keyboard keys</span>
+</div><div class="line" data-line="306"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="307">In GitHub Flavored Markdown, you can use a `&lt;kbd&gt;` tag to represent keyboard
+</div><div class="line" data-line="308">keys.
+</div><div class="line" data-line="309">
+</div><div class="line" data-line="310"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="311"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Your computer crashed? Try sending a</span>
+</div><div class="line" data-line="312"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>&lt;kbd&gt;Ctrl&lt;/kbd&gt;+&lt;kbd&gt;Alt&lt;/kbd&gt;+&lt;kbd&gt;Del&lt;/kbd&gt;</span>
+</div><div class="line" data-line="313"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="314"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="315"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;">### Tables</span>
+</div><div class="line" data-line="316"><span data-highlight="markup.heading.3" style="color: #fac29a; font-weight: bold;"></span>
+</div><div class="line" data-line="317">Tables are only available in GitHub Flavored Markdown and are slightly
+</div><div class="line" data-line="318">cumbersome, but if you really want it:
+</div><div class="line" data-line="319">
+</div><div class="line" data-line="320"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="321"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>| Col1         | Col2     | Col3          |</span>
+</div><div class="line" data-line="322"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>| :----------- | :------: | ------------: |</span>
+</div><div class="line" data-line="323"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>| Left-aligned | Centered | Right-aligned |</span>
+</div><div class="line" data-line="324"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>| blah         | blah     | blah          |</span>
+</div><div class="line" data-line="325"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>```</span></span>
+</div><div class="line" data-line="326"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div><div class="line" data-line="327">or, for the same results
+</div><div class="line" data-line="328">
+</div><div class="line" data-line="329"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="markup.raw.block" style="color: #f09483;">```</span><span data-highlight="label" style="color: #e95678;"><span data-highlight="label" style="color: #e95678;">md</span></span></span>
+</div><div class="line" data-line="330"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Col 1 | Col2 | Col3</span>
+</div><div class="line" data-line="331"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>:-- | :-: | --:</span>
+</div><div class="line" data-line="332"><span data-highlight="markup.raw.block" style="color: #f09483;"><span data-highlight="punctuation.special" style="color: #6c6d71;"></span>Ugh this is so ugly | make it | stop</span>
+</div><div class="line" data-line="333"><span data-highlight="markup.raw.block" style="color: #f09483;"></span>
+</div></code></pre>

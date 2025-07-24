@@ -80,6 +80,9 @@ pre.athl {
 .function-method-call {
   color: #fbb829;
 }
+.highlighted {
+  background-color: #303030;
+}
 .keyword {
   color: #ef2f27;
 }

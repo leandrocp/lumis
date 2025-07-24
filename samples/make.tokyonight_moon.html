@@ -1,220 +1,220 @@
-<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #c8d3f5; background-color: #222436;"><code class="language-make" translate="no" tabindex="0"><span class="line" data-line="1"><span data-highlight="comment" style="color: #636da6;"># Comments can be written like this.</span>
-</span><span class="line" data-line="2">
-</span><span class="line" data-line="3"><span data-highlight="comment" style="color: #636da6;"># File should be named Makefile and then can be run as `make &lt;target&gt;`.</span>
-</span><span class="line" data-line="4"><span data-highlight="comment" style="color: #636da6;"># Otherwise we use `make -f &quot;filename&quot; &lt;target&gt;`.</span>
-</span><span class="line" data-line="5">
-</span><span class="line" data-line="6"><span data-highlight="comment" style="color: #636da6;"># Warning - only use TABS to indent in Makefiles, never spaces!</span>
-</span><span class="line" data-line="7">
-</span><span class="line" data-line="8"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="9"><span data-highlight="comment" style="color: #636da6;"># Basics</span>
-</span><span class="line" data-line="10"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="11">
-</span><span class="line" data-line="12"><span data-highlight="comment" style="color: #636da6;"># Rules are of the format</span>
-</span><span class="line" data-line="13"><span data-highlight="comment" style="color: #636da6;"># target: &lt;prerequisite&gt;</span>
-</span><span class="line" data-line="14"><span data-highlight="comment" style="color: #636da6;"># where prerequisites are optional.</span>
-</span><span class="line" data-line="15">
-</span><span class="line" data-line="16"><span data-highlight="comment" style="color: #636da6;"># A rule - this rule will only run if file0.txt doesn&#39;t exist.</span>
-</span><span class="line" data-line="17"><span data-highlight="function" style="color: #82aaff;">file0.txt</span><span data-highlight="operator" style="color: #89ddff;">:</span>
-</span><span class="line" data-line="18">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="string" style="color: #c3e88d;">&quot;foo&quot;</span> <span data-highlight="operator" style="color: #89ddff;">&gt;</span> <span data-highlight="string.special.path" style="color: #65bcff;">file0.txt</span>
-</span><span class="line" data-line="19">	<span data-highlight="comment" style="color: #636da6;"># Even comments in these &#39;recipe&#39; sections get passed to the shell.</span>
-</span><span class="line" data-line="20">	<span data-highlight="comment" style="color: #636da6;"># Try `make file0.txt` or simply `make` - first rule is the default.</span>
-</span><span class="line" data-line="21">
-</span><span class="line" data-line="22"><span data-highlight="comment" style="color: #636da6;"># This rule will only run if file0.txt is newer than file1.txt.</span>
-</span><span class="line" data-line="23"><span data-highlight="function" style="color: #82aaff;">file1.txt</span><span data-highlight="operator" style="color: #89ddff;">:</span> file0.txt
-</span><span class="line" data-line="24">	<span data-highlight="function.call" style="color: #82aaff;">cat</span> <span data-highlight="variable.parameter" style="color: #ffc777;">file0.txt</span> <span data-highlight="operator" style="color: #89ddff;">&gt;</span> <span data-highlight="string.special.path" style="color: #65bcff;">file1.txt</span>
-</span><span class="line" data-line="25">	<span data-highlight="comment" style="color: #636da6;"># use the same quoting rules as in the shell.</span>
-</span><span class="line" data-line="26">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.call" style="color: #82aaff;">cat</span> <span data-highlight="variable.parameter" style="color: #ffc777;">file0.txt</span> <span data-highlight="operator" style="color: #89ddff;">&gt;&gt;</span> <span data-highlight="string.special.path" style="color: #65bcff;">file1.txt</span>
-</span><span class="line" data-line="27">	<span data-highlight="comment" style="color: #636da6;"># @ stops the command from being echoed to stdout.</span>
-</span><span class="line" data-line="28">	-<span data-highlight="function.call" style="color: #82aaff;">@echo</span> <span data-highlight="string" style="color: #c3e88d;">&#39;hello&#39;</span>
-</span><span class="line" data-line="29">	<span data-highlight="comment" style="color: #636da6;"># - means that make will keep going in the case of an error.</span>
-</span><span class="line" data-line="30">	<span data-highlight="comment" style="color: #636da6;"># Try `make file1.txt` on the commandline.</span>
-</span><span class="line" data-line="31">
-</span><span class="line" data-line="32"><span data-highlight="comment" style="color: #636da6;"># A rule can have multiple targets and multiple prerequisites</span>
-</span><span class="line" data-line="33"><span data-highlight="function" style="color: #82aaff;">file2.txt</span> <span data-highlight="function" style="color: #82aaff;">file3.txt</span><span data-highlight="operator" style="color: #89ddff;">:</span> file0.txt file1.txt
-</span><span class="line" data-line="34">	<span data-highlight="function.call" style="color: #82aaff;">touch</span> <span data-highlight="variable.parameter" style="color: #ffc777;">file2.txt</span>
-</span><span class="line" data-line="35">	<span data-highlight="function.call" style="color: #82aaff;">touch</span> <span data-highlight="variable.parameter" style="color: #ffc777;">file3.txt</span>
-</span><span class="line" data-line="36">
-</span><span class="line" data-line="37"><span data-highlight="comment" style="color: #636da6;"># Make will complain about multiple recipes for the same rule. Empty</span>
-</span><span class="line" data-line="38"><span data-highlight="comment" style="color: #636da6;"># recipes don&#39;t count though and can be used to add new dependencies.</span>
-</span><span class="line" data-line="39">
-</span><span class="line" data-line="40"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="41"><span data-highlight="comment" style="color: #636da6;"># Phony Targets</span>
-</span><span class="line" data-line="42"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="43">
-</span><span class="line" data-line="44"><span data-highlight="comment" style="color: #636da6;"># A phony target. Any target that isn&#39;t a file.</span>
-</span><span class="line" data-line="45"><span data-highlight="comment" style="color: #636da6;"># It will never be up to date so make will always try to run it.</span>
-</span><span class="line" data-line="46"><span data-highlight="function" style="color: #82aaff;">all</span><span data-highlight="operator" style="color: #89ddff;">:</span> maker process
-</span><span class="line" data-line="47">
-</span><span class="line" data-line="48"><span data-highlight="comment" style="color: #636da6;"># We can declare things out of order.</span>
-</span><span class="line" data-line="49"><span data-highlight="function" style="color: #82aaff;">maker</span><span data-highlight="operator" style="color: #89ddff;">:</span>
-</span><span class="line" data-line="50">	<span data-highlight="function.call" style="color: #82aaff;">touch</span> <span data-highlight="variable.parameter" style="color: #ffc777;">ex0.txt</span> <span data-highlight="variable.parameter" style="color: #ffc777;">ex1.txt</span>
-</span><span class="line" data-line="51">
-</span><span class="line" data-line="52"><span data-highlight="comment" style="color: #636da6;"># Can avoid phony rules breaking when a real file has the same name by</span>
-</span><span class="line" data-line="53"><span data-highlight="function" style="color: #82aaff;"><span data-highlight="function.builtin" style="color: #65bcff;">.PHONY</span></span><span data-highlight="operator" style="color: #89ddff;">:</span> all maker <span data-highlight="function" style="color: #82aaff;">process</span>
-</span><span class="line" data-line="54"><span data-highlight="comment" style="color: #636da6;"># This is a special target. There are several others.</span>
-</span><span class="line" data-line="55">
-</span><span class="line" data-line="56"><span data-highlight="comment" style="color: #636da6;"># A rule with a dependency on a phony target will always run</span>
-</span><span class="line" data-line="57"><span data-highlight="function" style="color: #82aaff;">ex0.txt</span> <span data-highlight="function" style="color: #82aaff;">ex1.txt</span><span data-highlight="operator" style="color: #89ddff;">:</span> maker
-</span><span class="line" data-line="58">
-</span><span class="line" data-line="59"><span data-highlight="comment" style="color: #636da6;"># Common phony targets are: all make clean install ...</span>
-</span><span class="line" data-line="60">
-</span><span class="line" data-line="61"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="62"><span data-highlight="comment" style="color: #636da6;"># Automatic Variables &amp; Wildcards</span>
-</span><span class="line" data-line="63"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="64">
-</span><span class="line" data-line="65"><span data-highlight="function" style="color: #82aaff;">process</span><span data-highlight="operator" style="color: #89ddff;">:</span> file*.txt	<span data-highlight="comment" style="color: #636da6;">#using a wildcard to match filenames</span>
-</span><span class="line" data-line="66">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span>	<span data-highlight="comment" style="color: #636da6;"># <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span> is a variable containing the list of prerequisites</span>
-</span><span class="line" data-line="67">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">@</span>	<span data-highlight="comment" style="color: #636da6;"># prints the target name</span>
-</span><span class="line" data-line="68">	<span data-highlight="comment" style="color: #636da6;">#(for multiple target rules, <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">@</span> is whichever caused the rule to run)</span>
-</span><span class="line" data-line="69">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">&lt;</span>	<span data-highlight="comment" style="color: #636da6;"># the first prerequisite listed</span>
-</span><span class="line" data-line="70">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">?</span>	<span data-highlight="comment" style="color: #636da6;"># only the dependencies that are out of date</span>
-</span><span class="line" data-line="71">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">+</span>	<span data-highlight="comment" style="color: #636da6;"># all dependencies including duplicates (unlike normal)</span>
-</span><span class="line" data-line="72">	<span data-highlight="comment" style="color: #636da6;">#@echo <span data-highlight="operator" style="color: #89ddff;">$<span data-highlight="string" style="color: #c3e88d;">|</span></span>	# all of the &#39;order only&#39; prerequisites</span>
-</span><span class="line" data-line="73">
-</span><span class="line" data-line="74"><span data-highlight="comment" style="color: #636da6;"># Even if we split up the rule dependency definitions, $^ will find them</span>
-</span><span class="line" data-line="75"><span data-highlight="function" style="color: #82aaff;">process</span><span data-highlight="operator" style="color: #89ddff;">:</span> ex1.txt file0.txt
-</span><span class="line" data-line="76"><span data-highlight="comment" style="color: #636da6;"># ex1.txt will be found but file0.txt will be deduplicated.</span>
-</span><span class="line" data-line="77">
-</span><span class="line" data-line="78"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="79"><span data-highlight="comment" style="color: #636da6;"># Patterns</span>
-</span><span class="line" data-line="80"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="81">
-</span><span class="line" data-line="82"><span data-highlight="comment" style="color: #636da6;"># Can teach make how to convert certain files into other files.</span>
-</span><span class="line" data-line="83">
-</span><span class="line" data-line="84"><span data-highlight="function" style="color: #82aaff;">%.png</span><span data-highlight="operator" style="color: #89ddff;">:</span> %.svg
-</span><span class="line" data-line="85">	<span data-highlight="function.call" style="color: #82aaff;">inkscape</span> <span data-highlight="variable.parameter" style="color: #ffc777;">--export-png</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span>
-</span><span class="line" data-line="86">
-</span><span class="line" data-line="87"><span data-highlight="comment" style="color: #636da6;"># Pattern rules will only do anything if make decides to create the</span>
-</span><span class="line" data-line="88"><span data-highlight="comment" style="color: #636da6;"># target.</span>
-</span><span class="line" data-line="89">
-</span><span class="line" data-line="90"><span data-highlight="comment" style="color: #636da6;"># Directory paths are normally ignored when matching pattern rules. But</span>
-</span><span class="line" data-line="91"><span data-highlight="comment" style="color: #636da6;"># make will try to use the most appropriate rule available.</span>
-</span><span class="line" data-line="92"><span data-highlight="function" style="color: #82aaff;">small/%.png</span><span data-highlight="operator" style="color: #89ddff;">:</span> %.svg
-</span><span class="line" data-line="93">	<span data-highlight="function.call" style="color: #82aaff;">inkscape</span> <span data-highlight="variable.parameter" style="color: #ffc777;">--export-png</span> <span data-highlight="variable.parameter" style="color: #ffc777;">--export-dpi</span> <span data-highlight="number" style="color: #ff966c;">30</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span>
-</span><span class="line" data-line="94">
-</span><span class="line" data-line="95"><span data-highlight="comment" style="color: #636da6;"># make will use the last version for a pattern rule that it finds.</span>
-</span><span class="line" data-line="96"><span data-highlight="function" style="color: #82aaff;">%.png</span><span data-highlight="operator" style="color: #89ddff;">:</span> %.svg
-</span><span class="line" data-line="97">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="variable.parameter" style="color: #ffc777;">this</span> <span data-highlight="variable.parameter" style="color: #ffc777;">rule</span> <span data-highlight="variable.parameter" style="color: #ffc777;">is</span> <span data-highlight="variable.parameter" style="color: #ffc777;">chosen</span>
-</span><span class="line" data-line="98">
-</span><span class="line" data-line="99"><span data-highlight="comment" style="color: #636da6;"># However make will use the first pattern rule that can make the target</span>
-</span><span class="line" data-line="100"><span data-highlight="function" style="color: #82aaff;">%.png</span><span data-highlight="operator" style="color: #89ddff;">:</span> %.ps
-</span><span class="line" data-line="101">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="variable.parameter" style="color: #ffc777;">this</span> <span data-highlight="variable.parameter" style="color: #ffc777;">rule</span> <span data-highlight="variable.parameter" style="color: #ffc777;">is</span> <span data-highlight="variable.parameter" style="color: #ffc777;">not</span> <span data-highlight="variable.parameter" style="color: #ffc777;">chosen</span> <span data-highlight="variable.parameter" style="color: #ffc777;">if</span> <span data-highlight="variable.parameter" style="color: #ffc777;">*.svg</span> <span data-highlight="variable.parameter" style="color: #ffc777;">and</span> <span data-highlight="variable.parameter" style="color: #ffc777;">*.ps</span> <span data-highlight="variable.parameter" style="color: #ffc777;">are</span> <span data-highlight="variable.parameter" style="color: #ffc777;">both</span> <span data-highlight="variable.parameter" style="color: #ffc777;">present</span>
-</span><span class="line" data-line="102">
-</span><span class="line" data-line="103"><span data-highlight="comment" style="color: #636da6;"># make already has some pattern rules built-in. For instance, it knows</span>
-</span><span class="line" data-line="104"><span data-highlight="comment" style="color: #636da6;"># how to turn *.c files into *.o files.</span>
-</span><span class="line" data-line="105">
-</span><span class="line" data-line="106"><span data-highlight="comment" style="color: #636da6;"># Older makefiles might use suffix rules instead of pattern rules</span>
-</span><span class="line" data-line="107"><span data-highlight="function" style="color: #82aaff;">.png.ps</span><span data-highlight="operator" style="color: #89ddff;">:</span>
-</span><span class="line" data-line="108">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="variable.parameter" style="color: #ffc777;">this</span> <span data-highlight="variable.parameter" style="color: #ffc777;">rule</span> <span data-highlight="variable.parameter" style="color: #ffc777;">is</span> <span data-highlight="variable.parameter" style="color: #ffc777;">similar</span> <span data-highlight="variable.parameter" style="color: #ffc777;">to</span> <span data-highlight="variable.parameter" style="color: #ffc777;">a</span> <span data-highlight="variable.parameter" style="color: #ffc777;">pattern</span> <span data-highlight="variable.parameter" style="color: #ffc777;">rule.</span>
-</span><span class="line" data-line="109">
-</span><span class="line" data-line="110"><span data-highlight="comment" style="color: #636da6;"># Tell make about the suffix rule</span>
-</span><span class="line" data-line="111"><span data-highlight="function.builtin" style="color: #65bcff;">.SUFFIXES</span><span data-highlight="operator" style="color: #89ddff;">:</span> .png
-</span><span class="line" data-line="112">
-</span><span class="line" data-line="113"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="114"><span data-highlight="comment" style="color: #636da6;"># Variables</span>
-</span><span class="line" data-line="115"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="116"><span data-highlight="comment" style="color: #636da6;"># aka. macros</span>
-</span><span class="line" data-line="117">
-</span><span class="line" data-line="118"><span data-highlight="comment" style="color: #636da6;"># Variables are basically all string types</span>
-</span><span class="line" data-line="119">
-</span><span class="line" data-line="120"><span data-highlight="string.special.symbol" style="color: #65bcff;">name</span> <span data-highlight="operator" style="color: #89ddff;">=</span> Ted
-</span><span class="line" data-line="121"><span data-highlight="string.special.symbol" style="color: #65bcff;">name2</span><span data-highlight="operator" style="color: #89ddff;">=</span>&quot;Sarah&quot;
-</span><span class="line" data-line="122">
-</span><span class="line" data-line="123"><span data-highlight="function" style="color: #82aaff;">echo</span><span data-highlight="operator" style="color: #89ddff;">:</span>
-</span><span class="line" data-line="124">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">name</span>)</span>
-</span><span class="line" data-line="125">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">name2</span>&rbrace;</span>
-</span><span class="line" data-line="126">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$<span data-highlight="string" style="color: #c3e88d;">n</span></span><span data-highlight="variable.parameter" style="color: #ffc777;">ame</span>    <span data-highlight="comment" style="color: #636da6;"># This won&#39;t work, treated as <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">n</span>)</span>ame.</span>
-</span><span class="line" data-line="127">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">name3</span>)</span> <span data-highlight="comment" style="color: #636da6;"># Unknown variables are treated as empty strings.</span>
-</span><span class="line" data-line="128">
-</span><span class="line" data-line="129"><span data-highlight="comment" style="color: #636da6;"># There are 4 places to set variables.</span>
-</span><span class="line" data-line="130"><span data-highlight="comment" style="color: #636da6;"># In order of priority from highest to lowest:</span>
-</span><span class="line" data-line="131"><span data-highlight="comment" style="color: #636da6;"># 1: commandline arguments</span>
-</span><span class="line" data-line="132"><span data-highlight="comment" style="color: #636da6;"># 2: Makefile</span>
-</span><span class="line" data-line="133"><span data-highlight="comment" style="color: #636da6;"># 3: shell environment variables - make imports these automatically.</span>
-</span><span class="line" data-line="134"><span data-highlight="comment" style="color: #636da6;"># 4: make has some predefined variables</span>
-</span><span class="line" data-line="135">
-</span><span class="line" data-line="136"><span data-highlight="string.special.symbol" style="color: #65bcff;">name4</span> <span data-highlight="operator" style="color: #89ddff;">?=</span> Jean
-</span><span class="line" data-line="137"><span data-highlight="comment" style="color: #636da6;"># Only set the variable if environment variable is not already defined.</span>
-</span><span class="line" data-line="138">
-</span><span class="line" data-line="139"><span data-highlight="keyword" style="color: #fca7ea;">override</span> <span data-highlight="string.special.symbol" style="color: #65bcff;">name5</span> <span data-highlight="operator" style="color: #89ddff;">=</span> David
-</span><span class="line" data-line="140"><span data-highlight="comment" style="color: #636da6;"># Stops commandline arguments from changing this variable.</span>
-</span><span class="line" data-line="141">
-</span><span class="line" data-line="142"><span data-highlight="string.special.symbol" style="color: #65bcff;">name4</span> <span data-highlight="operator" style="color: #89ddff;">+=</span>grey
-</span><span class="line" data-line="143"><span data-highlight="comment" style="color: #636da6;"># Append values to variable (includes a space).</span>
-</span><span class="line" data-line="144">
-</span><span class="line" data-line="145"><span data-highlight="comment" style="color: #636da6;"># Pattern-specific variable values (GNU extension).</span>
-</span><span class="line" data-line="146">echo: <span data-highlight="string.special.symbol" style="color: #65bcff;">name2</span> <span data-highlight="operator" style="color: #89ddff;">=</span> Sara # True within the matching rule
-</span><span class="line" data-line="147">	<span data-highlight="comment" style="color: #636da6;"># and also within its remade recursive dependencies</span>
-</span><span class="line" data-line="148">	<span data-highlight="comment" style="color: #636da6;"># (except it can break when your graph gets too complicated!)</span>
-</span><span class="line" data-line="149">
-</span><span class="line" data-line="150"><span data-highlight="comment" style="color: #636da6;"># Some variables defined automatically by make.</span>
-</span><span class="line" data-line="151"><span data-highlight="function" style="color: #82aaff;">echo_inbuilt</span><span data-highlight="operator" style="color: #89ddff;">:</span>
-</span><span class="line" data-line="152">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">CC</span>)</span>
-</span><span class="line" data-line="153">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">CXX</span>&rbrace;</span>
-</span><span class="line" data-line="154">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">FC</span>)</span>
-</span><span class="line" data-line="155">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">CFLAGS</span>&rbrace;</span>
-</span><span class="line" data-line="156">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">CPPFLAGS</span>)</span>
-</span><span class="line" data-line="157">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">CXXFLAGS</span>&rbrace;</span>
-</span><span class="line" data-line="158">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">LDFLAGS</span>)</span>
-</span><span class="line" data-line="159">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">LDLIBS</span>&rbrace;</span>
-</span><span class="line" data-line="160">
-</span><span class="line" data-line="161"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="162"><span data-highlight="comment" style="color: #636da6;"># Variables 2</span>
-</span><span class="line" data-line="163"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="164">
-</span><span class="line" data-line="165"><span data-highlight="comment" style="color: #636da6;"># The first type of variables are evaluated each time they are used.</span>
-</span><span class="line" data-line="166"><span data-highlight="comment" style="color: #636da6;"># This can be expensive, so a second type of variable exists which is</span>
-</span><span class="line" data-line="167"><span data-highlight="comment" style="color: #636da6;"># only evaluated once. (This is a GNU make extension)</span>
-</span><span class="line" data-line="168">
-</span><span class="line" data-line="169"><span data-highlight="string.special.symbol" style="color: #65bcff;">var</span> <span data-highlight="operator" style="color: #89ddff;">:=</span> hello
-</span><span class="line" data-line="170"><span data-highlight="string.special.symbol" style="color: #65bcff;">var2</span> <span data-highlight="operator" style="color: #89ddff;">::=</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">var</span>)</span> hello
-</span><span class="line" data-line="171"><span data-highlight="comment" style="color: #636da6;">#:= and ::= are equivalent.</span>
-</span><span class="line" data-line="172">
-</span><span class="line" data-line="173"><span data-highlight="comment" style="color: #636da6;"># These variables are evaluated procedurally (in the order that they</span>
-</span><span class="line" data-line="174"><span data-highlight="comment" style="color: #636da6;"># appear), thus breaking with the rest of the language !</span>
-</span><span class="line" data-line="175">
-</span><span class="line" data-line="176"><span data-highlight="comment" style="color: #636da6;"># This doesn&#39;t work</span>
-</span><span class="line" data-line="177"><span data-highlight="string.special.symbol" style="color: #65bcff;">var3</span> <span data-highlight="operator" style="color: #89ddff;">::=</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">var4</span>)</span> and good luck
-</span><span class="line" data-line="178"><span data-highlight="string.special.symbol" style="color: #65bcff;">var4</span> <span data-highlight="operator" style="color: #89ddff;">::=</span> good night
-</span><span class="line" data-line="179">
-</span><span class="line" data-line="180"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="181"><span data-highlight="comment" style="color: #636da6;"># Functions</span>
-</span><span class="line" data-line="182"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="183">
-</span><span class="line" data-line="184"><span data-highlight="comment" style="color: #636da6;"># make has lots of functions available.</span>
-</span><span class="line" data-line="185">
-</span><span class="line" data-line="186"><span data-highlight="string.special.symbol" style="color: #65bcff;">sourcefiles</span> <span data-highlight="operator" style="color: #89ddff;">=</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">wildcard</span> *.c */*.c<span data-highlight="operator" style="color: #89ddff;">)</span>
-</span><span class="line" data-line="187"><span data-highlight="string.special.symbol" style="color: #65bcff;">objectfiles</span> <span data-highlight="operator" style="color: #89ddff;">=</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">patsubst</span> %.c,%.o,<span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">sourcefiles</span>)</span><span data-highlight="operator" style="color: #89ddff;">)</span>
-</span><span class="line" data-line="188">
-</span><span class="line" data-line="189"><span data-highlight="comment" style="color: #636da6;"># Format is $(func arg0,arg1,arg2...)</span>
-</span><span class="line" data-line="190">
-</span><span class="line" data-line="191"><span data-highlight="comment" style="color: #636da6;"># Some examples</span>
-</span><span class="line" data-line="192"><span data-highlight="function" style="color: #82aaff;">ls</span><span data-highlight="operator" style="color: #89ddff;">:</span>	* src/*
-</span><span class="line" data-line="193">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">filter</span> %.txt, <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span><span data-highlight="operator" style="color: #89ddff;">)</span>
-</span><span class="line" data-line="194">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">notdir</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span><span data-highlight="operator" style="color: #89ddff;">)</span>
-</span><span class="line" data-line="195">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">join</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">dir</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span><span data-highlight="operator" style="color: #89ddff;">)</span>,<span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">notdir</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span><span data-highlight="operator" style="color: #89ddff;">)</span><span data-highlight="operator" style="color: #89ddff;">)</span>
-</span><span class="line" data-line="196">
-</span><span class="line" data-line="197"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="198"><span data-highlight="comment" style="color: #636da6;"># Directives</span>
-</span><span class="line" data-line="199"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
-</span><span class="line" data-line="200">
-</span><span class="line" data-line="201"><span data-highlight="comment" style="color: #636da6;"># Include other makefiles, useful for platform specific code</span>
-</span><span class="line" data-line="202"><span data-highlight="keyword.import" style="color: #86e1fc;">include</span> <span data-highlight="string.special.path" style="color: #65bcff;">foo.mk</span>
-</span><span class="line" data-line="203">
-</span><span class="line" data-line="204"><span data-highlight="string.special.symbol" style="color: #65bcff;">sport</span> <span data-highlight="operator" style="color: #89ddff;">=</span> tennis
-</span><span class="line" data-line="205"><span data-highlight="comment" style="color: #636da6;"># Conditional compilation</span>
-</span><span class="line" data-line="206"><span data-highlight="function" style="color: #82aaff;">report</span><span data-highlight="operator" style="color: #89ddff;">:</span>
-</span><span class="line" data-line="207"><span data-highlight="keyword.conditional" style="color: #c099ff;">ifeq</span> (<span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">sport</span>)</span>,tennis)
-</span><span class="line" data-line="208">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="string" style="color: #c3e88d;">&#39;game, set, match&#39;</span>
-</span><span class="line" data-line="209"><span data-highlight="keyword.conditional" style="color: #c099ff;">else</span>
-</span><span class="line" data-line="210">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="string" style="color: #c3e88d;">&quot;They think it&#39;s all over; it is now&quot;</span>
-</span><span class="line" data-line="211"><span data-highlight="keyword.conditional" style="color: #c099ff;">endif</span>
-</span><span class="line" data-line="212">
-</span><span class="line" data-line="213"><span data-highlight="comment" style="color: #636da6;"># There are also ifneq, ifdef, ifndef</span>
-</span><span class="line" data-line="214">
-</span><span class="line" data-line="215"><span data-highlight="string.special.symbol" style="color: #65bcff;">foo</span> <span data-highlight="operator" style="color: #89ddff;">=</span> true
-</span><span class="line" data-line="216">
-</span><span class="line" data-line="217"><span data-highlight="keyword.conditional" style="color: #c099ff;">ifdef</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">foo</span>)</span>
-</span><span class="line" data-line="218"><span data-highlight="string.special.symbol" style="color: #65bcff;">bar</span> <span data-highlight="operator" style="color: #89ddff;">=</span> &#39;hello&#39;
-</span><span class="line" data-line="219"><span data-highlight="keyword.conditional" style="color: #c099ff;">endif</span>
-</span></code></pre>
+<pre class="athl w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6" style="color: #c8d3f5; background-color: #222436;"><code class="language-make" translate="no" tabindex="0"><div class="line" data-line="1"><span data-highlight="comment" style="color: #636da6;"># Comments can be written like this.</span>
+</div><div class="line" data-line="2">
+</div><div class="line" data-line="3"><span data-highlight="comment" style="color: #636da6;"># File should be named Makefile and then can be run as `make &lt;target&gt;`.</span>
+</div><div class="line" data-line="4"><span data-highlight="comment" style="color: #636da6;"># Otherwise we use `make -f &quot;filename&quot; &lt;target&gt;`.</span>
+</div><div class="line" data-line="5">
+</div><div class="line" data-line="6"><span data-highlight="comment" style="color: #636da6;"># Warning - only use TABS to indent in Makefiles, never spaces!</span>
+</div><div class="line" data-line="7">
+</div><div class="line" data-line="8"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="9"><span data-highlight="comment" style="color: #636da6;"># Basics</span>
+</div><div class="line" data-line="10"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="11">
+</div><div class="line" data-line="12"><span data-highlight="comment" style="color: #636da6;"># Rules are of the format</span>
+</div><div class="line" data-line="13"><span data-highlight="comment" style="color: #636da6;"># target: &lt;prerequisite&gt;</span>
+</div><div class="line" data-line="14"><span data-highlight="comment" style="color: #636da6;"># where prerequisites are optional.</span>
+</div><div class="line" data-line="15">
+</div><div class="line" data-line="16"><span data-highlight="comment" style="color: #636da6;"># A rule - this rule will only run if file0.txt doesn&#39;t exist.</span>
+</div><div class="line" data-line="17"><span data-highlight="function" style="color: #82aaff;">file0.txt</span><span data-highlight="operator" style="color: #89ddff;">:</span>
+</div><div class="line" data-line="18">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="string" style="color: #c3e88d;">&quot;foo&quot;</span> <span data-highlight="operator" style="color: #89ddff;">&gt;</span> <span data-highlight="string.special.path" style="color: #65bcff;">file0.txt</span>
+</div><div class="line" data-line="19">	<span data-highlight="comment" style="color: #636da6;"># Even comments in these &#39;recipe&#39; sections get passed to the shell.</span>
+</div><div class="line" data-line="20">	<span data-highlight="comment" style="color: #636da6;"># Try `make file0.txt` or simply `make` - first rule is the default.</span>
+</div><div class="line" data-line="21">
+</div><div class="line" data-line="22"><span data-highlight="comment" style="color: #636da6;"># This rule will only run if file0.txt is newer than file1.txt.</span>
+</div><div class="line" data-line="23"><span data-highlight="function" style="color: #82aaff;">file1.txt</span><span data-highlight="operator" style="color: #89ddff;">:</span> file0.txt
+</div><div class="line" data-line="24">	<span data-highlight="function.call" style="color: #82aaff;">cat</span> <span data-highlight="variable.parameter" style="color: #ffc777;">file0.txt</span> <span data-highlight="operator" style="color: #89ddff;">&gt;</span> <span data-highlight="string.special.path" style="color: #65bcff;">file1.txt</span>
+</div><div class="line" data-line="25">	<span data-highlight="comment" style="color: #636da6;"># use the same quoting rules as in the shell.</span>
+</div><div class="line" data-line="26">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.call" style="color: #82aaff;">cat</span> <span data-highlight="variable.parameter" style="color: #ffc777;">file0.txt</span> <span data-highlight="operator" style="color: #89ddff;">&gt;&gt;</span> <span data-highlight="string.special.path" style="color: #65bcff;">file1.txt</span>
+</div><div class="line" data-line="27">	<span data-highlight="comment" style="color: #636da6;"># @ stops the command from being echoed to stdout.</span>
+</div><div class="line" data-line="28">	-<span data-highlight="function.call" style="color: #82aaff;">@echo</span> <span data-highlight="string" style="color: #c3e88d;">&#39;hello&#39;</span>
+</div><div class="line" data-line="29">	<span data-highlight="comment" style="color: #636da6;"># - means that make will keep going in the case of an error.</span>
+</div><div class="line" data-line="30">	<span data-highlight="comment" style="color: #636da6;"># Try `make file1.txt` on the commandline.</span>
+</div><div class="line" data-line="31">
+</div><div class="line" data-line="32"><span data-highlight="comment" style="color: #636da6;"># A rule can have multiple targets and multiple prerequisites</span>
+</div><div class="line" data-line="33"><span data-highlight="function" style="color: #82aaff;">file2.txt</span> <span data-highlight="function" style="color: #82aaff;">file3.txt</span><span data-highlight="operator" style="color: #89ddff;">:</span> file0.txt file1.txt
+</div><div class="line" data-line="34">	<span data-highlight="function.call" style="color: #82aaff;">touch</span> <span data-highlight="variable.parameter" style="color: #ffc777;">file2.txt</span>
+</div><div class="line" data-line="35">	<span data-highlight="function.call" style="color: #82aaff;">touch</span> <span data-highlight="variable.parameter" style="color: #ffc777;">file3.txt</span>
+</div><div class="line" data-line="36">
+</div><div class="line" data-line="37"><span data-highlight="comment" style="color: #636da6;"># Make will complain about multiple recipes for the same rule. Empty</span>
+</div><div class="line" data-line="38"><span data-highlight="comment" style="color: #636da6;"># recipes don&#39;t count though and can be used to add new dependencies.</span>
+</div><div class="line" data-line="39">
+</div><div class="line" data-line="40"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="41"><span data-highlight="comment" style="color: #636da6;"># Phony Targets</span>
+</div><div class="line" data-line="42"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="43">
+</div><div class="line" data-line="44"><span data-highlight="comment" style="color: #636da6;"># A phony target. Any target that isn&#39;t a file.</span>
+</div><div class="line" data-line="45"><span data-highlight="comment" style="color: #636da6;"># It will never be up to date so make will always try to run it.</span>
+</div><div class="line" data-line="46"><span data-highlight="function" style="color: #82aaff;">all</span><span data-highlight="operator" style="color: #89ddff;">:</span> maker process
+</div><div class="line" data-line="47">
+</div><div class="line" data-line="48"><span data-highlight="comment" style="color: #636da6;"># We can declare things out of order.</span>
+</div><div class="line" data-line="49"><span data-highlight="function" style="color: #82aaff;">maker</span><span data-highlight="operator" style="color: #89ddff;">:</span>
+</div><div class="line" data-line="50">	<span data-highlight="function.call" style="color: #82aaff;">touch</span> <span data-highlight="variable.parameter" style="color: #ffc777;">ex0.txt</span> <span data-highlight="variable.parameter" style="color: #ffc777;">ex1.txt</span>
+</div><div class="line" data-line="51">
+</div><div class="line" data-line="52"><span data-highlight="comment" style="color: #636da6;"># Can avoid phony rules breaking when a real file has the same name by</span>
+</div><div class="line" data-line="53"><span data-highlight="function" style="color: #82aaff;"><span data-highlight="function.builtin" style="color: #65bcff;">.PHONY</span></span><span data-highlight="operator" style="color: #89ddff;">:</span> all maker <span data-highlight="function" style="color: #82aaff;">process</span>
+</div><div class="line" data-line="54"><span data-highlight="comment" style="color: #636da6;"># This is a special target. There are several others.</span>
+</div><div class="line" data-line="55">
+</div><div class="line" data-line="56"><span data-highlight="comment" style="color: #636da6;"># A rule with a dependency on a phony target will always run</span>
+</div><div class="line" data-line="57"><span data-highlight="function" style="color: #82aaff;">ex0.txt</span> <span data-highlight="function" style="color: #82aaff;">ex1.txt</span><span data-highlight="operator" style="color: #89ddff;">:</span> maker
+</div><div class="line" data-line="58">
+</div><div class="line" data-line="59"><span data-highlight="comment" style="color: #636da6;"># Common phony targets are: all make clean install ...</span>
+</div><div class="line" data-line="60">
+</div><div class="line" data-line="61"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="62"><span data-highlight="comment" style="color: #636da6;"># Automatic Variables &amp; Wildcards</span>
+</div><div class="line" data-line="63"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="64">
+</div><div class="line" data-line="65"><span data-highlight="function" style="color: #82aaff;">process</span><span data-highlight="operator" style="color: #89ddff;">:</span> file*.txt	<span data-highlight="comment" style="color: #636da6;">#using a wildcard to match filenames</span>
+</div><div class="line" data-line="66">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span>	<span data-highlight="comment" style="color: #636da6;"># <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span> is a variable containing the list of prerequisites</span>
+</div><div class="line" data-line="67">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">@</span>	<span data-highlight="comment" style="color: #636da6;"># prints the target name</span>
+</div><div class="line" data-line="68">	<span data-highlight="comment" style="color: #636da6;">#(for multiple target rules, <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">@</span> is whichever caused the rule to run)</span>
+</div><div class="line" data-line="69">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">&lt;</span>	<span data-highlight="comment" style="color: #636da6;"># the first prerequisite listed</span>
+</div><div class="line" data-line="70">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">?</span>	<span data-highlight="comment" style="color: #636da6;"># only the dependencies that are out of date</span>
+</div><div class="line" data-line="71">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">+</span>	<span data-highlight="comment" style="color: #636da6;"># all dependencies including duplicates (unlike normal)</span>
+</div><div class="line" data-line="72">	<span data-highlight="comment" style="color: #636da6;">#@echo <span data-highlight="operator" style="color: #89ddff;">$<span data-highlight="string" style="color: #c3e88d;">|</span></span>	# all of the &#39;order only&#39; prerequisites</span>
+</div><div class="line" data-line="73">
+</div><div class="line" data-line="74"><span data-highlight="comment" style="color: #636da6;"># Even if we split up the rule dependency definitions, $^ will find them</span>
+</div><div class="line" data-line="75"><span data-highlight="function" style="color: #82aaff;">process</span><span data-highlight="operator" style="color: #89ddff;">:</span> ex1.txt file0.txt
+</div><div class="line" data-line="76"><span data-highlight="comment" style="color: #636da6;"># ex1.txt will be found but file0.txt will be deduplicated.</span>
+</div><div class="line" data-line="77">
+</div><div class="line" data-line="78"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="79"><span data-highlight="comment" style="color: #636da6;"># Patterns</span>
+</div><div class="line" data-line="80"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="81">
+</div><div class="line" data-line="82"><span data-highlight="comment" style="color: #636da6;"># Can teach make how to convert certain files into other files.</span>
+</div><div class="line" data-line="83">
+</div><div class="line" data-line="84"><span data-highlight="function" style="color: #82aaff;">%.png</span><span data-highlight="operator" style="color: #89ddff;">:</span> %.svg
+</div><div class="line" data-line="85">	<span data-highlight="function.call" style="color: #82aaff;">inkscape</span> <span data-highlight="variable.parameter" style="color: #ffc777;">--export-png</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span>
+</div><div class="line" data-line="86">
+</div><div class="line" data-line="87"><span data-highlight="comment" style="color: #636da6;"># Pattern rules will only do anything if make decides to create the</span>
+</div><div class="line" data-line="88"><span data-highlight="comment" style="color: #636da6;"># target.</span>
+</div><div class="line" data-line="89">
+</div><div class="line" data-line="90"><span data-highlight="comment" style="color: #636da6;"># Directory paths are normally ignored when matching pattern rules. But</span>
+</div><div class="line" data-line="91"><span data-highlight="comment" style="color: #636da6;"># make will try to use the most appropriate rule available.</span>
+</div><div class="line" data-line="92"><span data-highlight="function" style="color: #82aaff;">small/%.png</span><span data-highlight="operator" style="color: #89ddff;">:</span> %.svg
+</div><div class="line" data-line="93">	<span data-highlight="function.call" style="color: #82aaff;">inkscape</span> <span data-highlight="variable.parameter" style="color: #ffc777;">--export-png</span> <span data-highlight="variable.parameter" style="color: #ffc777;">--export-dpi</span> <span data-highlight="number" style="color: #ff966c;">30</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span>
+</div><div class="line" data-line="94">
+</div><div class="line" data-line="95"><span data-highlight="comment" style="color: #636da6;"># make will use the last version for a pattern rule that it finds.</span>
+</div><div class="line" data-line="96"><span data-highlight="function" style="color: #82aaff;">%.png</span><span data-highlight="operator" style="color: #89ddff;">:</span> %.svg
+</div><div class="line" data-line="97">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="variable.parameter" style="color: #ffc777;">this</span> <span data-highlight="variable.parameter" style="color: #ffc777;">rule</span> <span data-highlight="variable.parameter" style="color: #ffc777;">is</span> <span data-highlight="variable.parameter" style="color: #ffc777;">chosen</span>
+</div><div class="line" data-line="98">
+</div><div class="line" data-line="99"><span data-highlight="comment" style="color: #636da6;"># However make will use the first pattern rule that can make the target</span>
+</div><div class="line" data-line="100"><span data-highlight="function" style="color: #82aaff;">%.png</span><span data-highlight="operator" style="color: #89ddff;">:</span> %.ps
+</div><div class="line" data-line="101">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="variable.parameter" style="color: #ffc777;">this</span> <span data-highlight="variable.parameter" style="color: #ffc777;">rule</span> <span data-highlight="variable.parameter" style="color: #ffc777;">is</span> <span data-highlight="variable.parameter" style="color: #ffc777;">not</span> <span data-highlight="variable.parameter" style="color: #ffc777;">chosen</span> <span data-highlight="variable.parameter" style="color: #ffc777;">if</span> <span data-highlight="variable.parameter" style="color: #ffc777;">*.svg</span> <span data-highlight="variable.parameter" style="color: #ffc777;">and</span> <span data-highlight="variable.parameter" style="color: #ffc777;">*.ps</span> <span data-highlight="variable.parameter" style="color: #ffc777;">are</span> <span data-highlight="variable.parameter" style="color: #ffc777;">both</span> <span data-highlight="variable.parameter" style="color: #ffc777;">present</span>
+</div><div class="line" data-line="102">
+</div><div class="line" data-line="103"><span data-highlight="comment" style="color: #636da6;"># make already has some pattern rules built-in. For instance, it knows</span>
+</div><div class="line" data-line="104"><span data-highlight="comment" style="color: #636da6;"># how to turn *.c files into *.o files.</span>
+</div><div class="line" data-line="105">
+</div><div class="line" data-line="106"><span data-highlight="comment" style="color: #636da6;"># Older makefiles might use suffix rules instead of pattern rules</span>
+</div><div class="line" data-line="107"><span data-highlight="function" style="color: #82aaff;">.png.ps</span><span data-highlight="operator" style="color: #89ddff;">:</span>
+</div><div class="line" data-line="108">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="variable.parameter" style="color: #ffc777;">this</span> <span data-highlight="variable.parameter" style="color: #ffc777;">rule</span> <span data-highlight="variable.parameter" style="color: #ffc777;">is</span> <span data-highlight="variable.parameter" style="color: #ffc777;">similar</span> <span data-highlight="variable.parameter" style="color: #ffc777;">to</span> <span data-highlight="variable.parameter" style="color: #ffc777;">a</span> <span data-highlight="variable.parameter" style="color: #ffc777;">pattern</span> <span data-highlight="variable.parameter" style="color: #ffc777;">rule.</span>
+</div><div class="line" data-line="109">
+</div><div class="line" data-line="110"><span data-highlight="comment" style="color: #636da6;"># Tell make about the suffix rule</span>
+</div><div class="line" data-line="111"><span data-highlight="function.builtin" style="color: #65bcff;">.SUFFIXES</span><span data-highlight="operator" style="color: #89ddff;">:</span> .png
+</div><div class="line" data-line="112">
+</div><div class="line" data-line="113"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="114"><span data-highlight="comment" style="color: #636da6;"># Variables</span>
+</div><div class="line" data-line="115"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="116"><span data-highlight="comment" style="color: #636da6;"># aka. macros</span>
+</div><div class="line" data-line="117">
+</div><div class="line" data-line="118"><span data-highlight="comment" style="color: #636da6;"># Variables are basically all string types</span>
+</div><div class="line" data-line="119">
+</div><div class="line" data-line="120"><span data-highlight="string.special.symbol" style="color: #65bcff;">name</span> <span data-highlight="operator" style="color: #89ddff;">=</span> Ted
+</div><div class="line" data-line="121"><span data-highlight="string.special.symbol" style="color: #65bcff;">name2</span><span data-highlight="operator" style="color: #89ddff;">=</span>&quot;Sarah&quot;
+</div><div class="line" data-line="122">
+</div><div class="line" data-line="123"><span data-highlight="function" style="color: #82aaff;">echo</span><span data-highlight="operator" style="color: #89ddff;">:</span>
+</div><div class="line" data-line="124">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">name</span>)</span>
+</div><div class="line" data-line="125">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">name2</span>&rbrace;</span>
+</div><div class="line" data-line="126">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$<span data-highlight="string" style="color: #c3e88d;">n</span></span><span data-highlight="variable.parameter" style="color: #ffc777;">ame</span>    <span data-highlight="comment" style="color: #636da6;"># This won&#39;t work, treated as <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">n</span>)</span>ame.</span>
+</div><div class="line" data-line="127">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">name3</span>)</span> <span data-highlight="comment" style="color: #636da6;"># Unknown variables are treated as empty strings.</span>
+</div><div class="line" data-line="128">
+</div><div class="line" data-line="129"><span data-highlight="comment" style="color: #636da6;"># There are 4 places to set variables.</span>
+</div><div class="line" data-line="130"><span data-highlight="comment" style="color: #636da6;"># In order of priority from highest to lowest:</span>
+</div><div class="line" data-line="131"><span data-highlight="comment" style="color: #636da6;"># 1: commandline arguments</span>
+</div><div class="line" data-line="132"><span data-highlight="comment" style="color: #636da6;"># 2: Makefile</span>
+</div><div class="line" data-line="133"><span data-highlight="comment" style="color: #636da6;"># 3: shell environment variables - make imports these automatically.</span>
+</div><div class="line" data-line="134"><span data-highlight="comment" style="color: #636da6;"># 4: make has some predefined variables</span>
+</div><div class="line" data-line="135">
+</div><div class="line" data-line="136"><span data-highlight="string.special.symbol" style="color: #65bcff;">name4</span> <span data-highlight="operator" style="color: #89ddff;">?=</span> Jean
+</div><div class="line" data-line="137"><span data-highlight="comment" style="color: #636da6;"># Only set the variable if environment variable is not already defined.</span>
+</div><div class="line" data-line="138">
+</div><div class="line" data-line="139"><span data-highlight="keyword" style="color: #fca7ea;">override</span> <span data-highlight="string.special.symbol" style="color: #65bcff;">name5</span> <span data-highlight="operator" style="color: #89ddff;">=</span> David
+</div><div class="line" data-line="140"><span data-highlight="comment" style="color: #636da6;"># Stops commandline arguments from changing this variable.</span>
+</div><div class="line" data-line="141">
+</div><div class="line" data-line="142"><span data-highlight="string.special.symbol" style="color: #65bcff;">name4</span> <span data-highlight="operator" style="color: #89ddff;">+=</span>grey
+</div><div class="line" data-line="143"><span data-highlight="comment" style="color: #636da6;"># Append values to variable (includes a space).</span>
+</div><div class="line" data-line="144">
+</div><div class="line" data-line="145"><span data-highlight="comment" style="color: #636da6;"># Pattern-specific variable values (GNU extension).</span>
+</div><div class="line" data-line="146">echo: <span data-highlight="string.special.symbol" style="color: #65bcff;">name2</span> <span data-highlight="operator" style="color: #89ddff;">=</span> Sara # True within the matching rule
+</div><div class="line" data-line="147">	<span data-highlight="comment" style="color: #636da6;"># and also within its remade recursive dependencies</span>
+</div><div class="line" data-line="148">	<span data-highlight="comment" style="color: #636da6;"># (except it can break when your graph gets too complicated!)</span>
+</div><div class="line" data-line="149">
+</div><div class="line" data-line="150"><span data-highlight="comment" style="color: #636da6;"># Some variables defined automatically by make.</span>
+</div><div class="line" data-line="151"><span data-highlight="function" style="color: #82aaff;">echo_inbuilt</span><span data-highlight="operator" style="color: #89ddff;">:</span>
+</div><div class="line" data-line="152">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">CC</span>)</span>
+</div><div class="line" data-line="153">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">CXX</span>&rbrace;</span>
+</div><div class="line" data-line="154">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">FC</span>)</span>
+</div><div class="line" data-line="155">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">CFLAGS</span>&rbrace;</span>
+</div><div class="line" data-line="156">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">CPPFLAGS</span>)</span>
+</div><div class="line" data-line="157">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">CXXFLAGS</span>&rbrace;</span>
+</div><div class="line" data-line="158">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">LDFLAGS</span>)</span>
+</div><div class="line" data-line="159">	<span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$&lbrace;<span data-highlight="string" style="color: #c3e88d;">LDLIBS</span>&rbrace;</span>
+</div><div class="line" data-line="160">
+</div><div class="line" data-line="161"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="162"><span data-highlight="comment" style="color: #636da6;"># Variables 2</span>
+</div><div class="line" data-line="163"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="164">
+</div><div class="line" data-line="165"><span data-highlight="comment" style="color: #636da6;"># The first type of variables are evaluated each time they are used.</span>
+</div><div class="line" data-line="166"><span data-highlight="comment" style="color: #636da6;"># This can be expensive, so a second type of variable exists which is</span>
+</div><div class="line" data-line="167"><span data-highlight="comment" style="color: #636da6;"># only evaluated once. (This is a GNU make extension)</span>
+</div><div class="line" data-line="168">
+</div><div class="line" data-line="169"><span data-highlight="string.special.symbol" style="color: #65bcff;">var</span> <span data-highlight="operator" style="color: #89ddff;">:=</span> hello
+</div><div class="line" data-line="170"><span data-highlight="string.special.symbol" style="color: #65bcff;">var2</span> <span data-highlight="operator" style="color: #89ddff;">::=</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">var</span>)</span> hello
+</div><div class="line" data-line="171"><span data-highlight="comment" style="color: #636da6;">#:= and ::= are equivalent.</span>
+</div><div class="line" data-line="172">
+</div><div class="line" data-line="173"><span data-highlight="comment" style="color: #636da6;"># These variables are evaluated procedurally (in the order that they</span>
+</div><div class="line" data-line="174"><span data-highlight="comment" style="color: #636da6;"># appear), thus breaking with the rest of the language !</span>
+</div><div class="line" data-line="175">
+</div><div class="line" data-line="176"><span data-highlight="comment" style="color: #636da6;"># This doesn&#39;t work</span>
+</div><div class="line" data-line="177"><span data-highlight="string.special.symbol" style="color: #65bcff;">var3</span> <span data-highlight="operator" style="color: #89ddff;">::=</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">var4</span>)</span> and good luck
+</div><div class="line" data-line="178"><span data-highlight="string.special.symbol" style="color: #65bcff;">var4</span> <span data-highlight="operator" style="color: #89ddff;">::=</span> good night
+</div><div class="line" data-line="179">
+</div><div class="line" data-line="180"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="181"><span data-highlight="comment" style="color: #636da6;"># Functions</span>
+</div><div class="line" data-line="182"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="183">
+</div><div class="line" data-line="184"><span data-highlight="comment" style="color: #636da6;"># make has lots of functions available.</span>
+</div><div class="line" data-line="185">
+</div><div class="line" data-line="186"><span data-highlight="string.special.symbol" style="color: #65bcff;">sourcefiles</span> <span data-highlight="operator" style="color: #89ddff;">=</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">wildcard</span> *.c */*.c<span data-highlight="operator" style="color: #89ddff;">)</span>
+</div><div class="line" data-line="187"><span data-highlight="string.special.symbol" style="color: #65bcff;">objectfiles</span> <span data-highlight="operator" style="color: #89ddff;">=</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">patsubst</span> %.c,%.o,<span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">sourcefiles</span>)</span><span data-highlight="operator" style="color: #89ddff;">)</span>
+</div><div class="line" data-line="188">
+</div><div class="line" data-line="189"><span data-highlight="comment" style="color: #636da6;"># Format is $(func arg0,arg1,arg2...)</span>
+</div><div class="line" data-line="190">
+</div><div class="line" data-line="191"><span data-highlight="comment" style="color: #636da6;"># Some examples</span>
+</div><div class="line" data-line="192"><span data-highlight="function" style="color: #82aaff;">ls</span><span data-highlight="operator" style="color: #89ddff;">:</span>	* src/*
+</div><div class="line" data-line="193">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">filter</span> %.txt, <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span><span data-highlight="operator" style="color: #89ddff;">)</span>
+</div><div class="line" data-line="194">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">notdir</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span><span data-highlight="operator" style="color: #89ddff;">)</span>
+</div><div class="line" data-line="195">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">join</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">dir</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span><span data-highlight="operator" style="color: #89ddff;">)</span>,<span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="operator" style="color: #89ddff;">(</span><span data-highlight="function.builtin" style="color: #65bcff;">notdir</span> <span data-highlight="operator" style="color: #89ddff;">$</span><span data-highlight="character.special" style="color: #65bcff;">^</span><span data-highlight="operator" style="color: #89ddff;">)</span><span data-highlight="operator" style="color: #89ddff;">)</span>
+</div><div class="line" data-line="196">
+</div><div class="line" data-line="197"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="198"><span data-highlight="comment" style="color: #636da6;"># Directives</span>
+</div><div class="line" data-line="199"><span data-highlight="comment" style="color: #636da6;">#-----------------------------------------------------------------------</span>
+</div><div class="line" data-line="200">
+</div><div class="line" data-line="201"><span data-highlight="comment" style="color: #636da6;"># Include other makefiles, useful for platform specific code</span>
+</div><div class="line" data-line="202"><span data-highlight="keyword.import" style="color: #86e1fc;">include</span> <span data-highlight="string.special.path" style="color: #65bcff;">foo.mk</span>
+</div><div class="line" data-line="203">
+</div><div class="line" data-line="204"><span data-highlight="string.special.symbol" style="color: #65bcff;">sport</span> <span data-highlight="operator" style="color: #89ddff;">=</span> tennis
+</div><div class="line" data-line="205"><span data-highlight="comment" style="color: #636da6;"># Conditional compilation</span>
+</div><div class="line" data-line="206"><span data-highlight="function" style="color: #82aaff;">report</span><span data-highlight="operator" style="color: #89ddff;">:</span>
+</div><div class="line" data-line="207"><span data-highlight="keyword.conditional" style="color: #c099ff;">ifeq</span> (<span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">sport</span>)</span>,tennis)
+</div><div class="line" data-line="208">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="string" style="color: #c3e88d;">&#39;game, set, match&#39;</span>
+</div><div class="line" data-line="209"><span data-highlight="keyword.conditional" style="color: #c099ff;">else</span>
+</div><div class="line" data-line="210">	<span data-highlight="character.special" style="color: #65bcff;">@</span><span data-highlight="function.builtin" style="color: #65bcff;">echo</span> <span data-highlight="string" style="color: #c3e88d;">&quot;They think it&#39;s all over; it is now&quot;</span>
+</div><div class="line" data-line="211"><span data-highlight="keyword.conditional" style="color: #c099ff;">endif</span>
+</div><div class="line" data-line="212">
+</div><div class="line" data-line="213"><span data-highlight="comment" style="color: #636da6;"># There are also ifneq, ifdef, ifndef</span>
+</div><div class="line" data-line="214">
+</div><div class="line" data-line="215"><span data-highlight="string.special.symbol" style="color: #65bcff;">foo</span> <span data-highlight="operator" style="color: #89ddff;">=</span> true
+</div><div class="line" data-line="216">
+</div><div class="line" data-line="217"><span data-highlight="keyword.conditional" style="color: #c099ff;">ifdef</span> <span data-highlight="operator" style="color: #89ddff;">$(<span data-highlight="string" style="color: #c3e88d;">foo</span>)</span>
+</div><div class="line" data-line="218"><span data-highlight="string.special.symbol" style="color: #65bcff;">bar</span> <span data-highlight="operator" style="color: #89ddff;">=</span> &#39;hello&#39;
+</div><div class="line" data-line="219"><span data-highlight="keyword.conditional" style="color: #c099ff;">endif</span>
+</div></code></pre>

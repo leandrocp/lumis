@@ -77,12 +77,6 @@
     "function.method.call": {
       "fg": "#04d1f9"
     },
-    "highlighted": {
-      "bg": "#403c64",
-      "display": "inline-block",
-      "width": "100%",
-      "transition": "background-color .5s"
-    },
     "keyword": {
       "fg": "#b4a4f4"
     },
