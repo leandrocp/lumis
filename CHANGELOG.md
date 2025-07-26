@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.7.0] - 2027-07-26
 
 ### Added
 - Add `--highlight-lines` option to autumn CLI for highlighting specific line ranges
