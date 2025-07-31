@@ -21,7 +21,7 @@
           },
           {
             "type": "SYMBOL",
-            "name": "define"
+            "name": "fn_define"
           },
           {
             "type": "SYMBOL",
@@ -433,7 +433,7 @@
         }
       ]
     },
-    "define": {
+    "fn_define": {
       "type": "SEQ",
       "members": [
         {

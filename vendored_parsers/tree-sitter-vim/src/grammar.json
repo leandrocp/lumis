@@ -2088,6 +2088,23 @@
             {
               "type": "ALIAS",
               "content": {
+                "type": "STRING",
+                "value": "trim"
+              },
+              "named": true,
+              "value": "parameter"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
                 "type": "SYMBOL",
                 "name": "_script_heredoc_marker"
               },
@@ -3021,6 +3038,10 @@
             {
               "type": "SYMBOL",
               "name": "index_expression"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "slice_expression"
             },
             {
               "type": "SYMBOL",

@@ -1,6 +1,3 @@
-; relative_name commented out because tree-sitter-php v0.23.12 was not released yet
-; https://github.com/tree-sitter/tree-sitter-php/commit/b22484c92180e6e30c14477f00e1c7f9d2e39304
-
 ; Keywords
 [
   "and"
@@ -197,8 +194,8 @@
     (name) @type
     (qualified_name
       (name) @type)
-    ; (relative_name
-    ;   (name) @type)
+    (name
+      (name) @type)
   ])
 
 (named_type
@@ -213,8 +210,8 @@
     (name) @type
     (qualified_name
       (name) @type)
-    ; (relative_name
-    ;   (name) @type)
+    (name
+      (name) @type)
   ])
 
 (enum_declaration
@@ -276,8 +273,8 @@
     (name) @type
     (qualified_name
       (name) @type)
-    ; (relative_name
-    ;   (name) @type)
+    (name
+      (name) @type)
   ])
 
 (scoped_call_expression
@@ -285,8 +282,8 @@
     (name) @type
     (qualified_name
       (name) @type)
-    ; (relative_name
-    ;   (name) @type)
+    (name
+      (name) @type)
   ])
 
 (class_constant_access_expression
@@ -295,8 +292,8 @@
     (name) @type
     (qualified_name
       (name) @type)
-    ; (relative_name
-    ;   (name) @type)
+    (name
+      (name) @type)
   ]
   (name) @constant)
 
@@ -305,8 +302,8 @@
     (name) @type
     (qualified_name
       (name) @type)
-    ; (relative_name
-    ;   (name) @type)
+    (name
+      (name) @type)
   ])
 
 (scoped_property_access_expression
@@ -324,8 +321,8 @@
     (name) @type
     (qualified_name
       (name) @type)
-    ; (relative_name
-    ;   (name) @type)
+    (name
+      (name) @type)
   ])
 
 ; Functions, methods, constructors
@@ -347,8 +344,8 @@
     (name) @function.call
     (qualified_name
       (name) @function.call)
-    ; (relative_name
-    ;   (name) @function.call)
+    (name
+      (name) @function.call)
   ])
 
 (scoped_call_expression
@@ -384,8 +381,8 @@
     (name) @constructor
     (qualified_name
       (name) @constructor)
-    ; (relative_name
-    ;   (name) @constructor)
+    (name
+      (name) @constructor)
   ])
 
 ; Parameters
@@ -431,8 +428,8 @@
 (namespace_name
   (name) @module)
 
-; (relative_name
-;   "namespace" @module.builtin)
+(name
+  "namespace" @module.builtin)
 
 ; Attributes
 (attribute_list) @attribute

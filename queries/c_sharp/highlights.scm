@@ -439,6 +439,7 @@
   "."
   ","
   ":"
+  "::"
 ] @punctuation.delimiter
 
 (conditional_expression
@@ -457,6 +458,12 @@
 ] @punctuation.bracket
 
 (interpolation_brace) @punctuation.special
+
+(type_parameter_list
+  [
+    "<"
+    ">"
+  ] @punctuation.bracket)
 
 (type_argument_list
   [

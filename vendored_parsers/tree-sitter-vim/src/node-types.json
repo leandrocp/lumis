@@ -7112,6 +7112,10 @@
         {
           "type": "marker_definition",
           "named": true
+        },
+        {
+          "type": "parameter",
+          "named": true
         }
       ]
     }

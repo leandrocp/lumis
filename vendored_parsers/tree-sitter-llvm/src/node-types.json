@@ -769,7 +769,27 @@
     }
   },
   {
-    "type": "define",
+    "type": "dll_storage_class",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "dso_local",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "fast_math",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "fcmp_cond",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "fn_define",
     "named": true,
     "fields": {
       "body": {
@@ -797,26 +817,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "dll_storage_class",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "dso_local",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "fast_math",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "fcmp_cond",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "function_body",
@@ -2625,7 +2625,7 @@
           "named": true
         },
         {
-          "type": "define",
+          "type": "fn_define",
           "named": true
         },
         {

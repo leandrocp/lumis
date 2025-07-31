@@ -202,15 +202,6 @@
 (attribute
   (_type) @attribute)
 
-; Attribute targets
-(attribute
-  [
-    "return"
-    "field"
-  ] @keyword
-  ":"
-  (_type) @attribute)
-
 [
   "("
   ")"

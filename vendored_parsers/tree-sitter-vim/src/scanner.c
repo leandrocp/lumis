@@ -129,18 +129,18 @@ static bool check_prefix(TSLexer *lexer, char *prefix, unsigned int prefix_len,
   return true;
 }
 
-static bool try_lex_heredoc_marker(Scanner *scanner, TSLexer *lexer, const bool is_let_heredoc)
+static bool try_lex_heredoc_marker(Scanner *scanner, TSLexer *lexer)
 {
   char marker[UINT8_MAX] = { '\0' };
   uint16_t marker_len = 0;
 
-  if (iswlower(lexer->lookahead) && is_let_heredoc) {
+  if (iswlower(lexer->lookahead)) {
     return false;
   }
 
   // We should be at the start of the script marker
   // Note that :let-heredocs do not allow for spaces in the endmarker
-  while ((!is_let_heredoc || !IS_SPACE_TABS(lexer->lookahead)) && lexer->lookahead && lexer->lookahead != '\n' && marker_len < HEREDOC_MARKER_LEN) {
+  while ((!IS_SPACE_TABS(lexer->lookahead)) && lexer->lookahead && lexer->lookahead != '\n' && marker_len < HEREDOC_MARKER_LEN) {
     marker[marker_len] = lexer->lookahead;
     marker_len++;
     advance(lexer, false);
@@ -423,11 +423,11 @@ bool tree_sitter_vim_external_scanner_scan(void *payload, TSLexer *lexer,
 
   if (valid_symbols[SCRIPT_HEREDOC_MARKER]) {
     lexer->result_symbol = SCRIPT_HEREDOC_MARKER;
-    return try_lex_heredoc_marker(s, lexer, false);
+    return try_lex_heredoc_marker(s, lexer);
   }
   if (valid_symbols[LET_HEREDOC_MARKER]) {
     lexer->result_symbol = LET_HEREDOC_MARKER;
-    return try_lex_heredoc_marker(s, lexer, true);
+    return try_lex_heredoc_marker(s, lexer);
   }
   if (valid_symbols[HEREDOC_END]) {
     uint8_t marker_len = s->marker_len != 0 ? s->marker_len : 1;
