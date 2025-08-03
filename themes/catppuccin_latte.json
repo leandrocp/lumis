@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_latte",
   "appearance": "light",
-  "revision": "0cf15babf716ed56593da425a236245f709dcbfb",
+  "revision": "f67971cd3e30dd94061da8d61ee34742d43c632a",
   "highlights": {
     "attribute": {
       "fg": "#fe640b"
@@ -52,7 +52,7 @@
       "fg": "#8839ef"
     },
     "constructor": {
-      "fg": "#209fb5"
+      "fg": "#df8e1d"
     },
     "diff.delta": {
       "fg": "#1e66f5"
@@ -122,7 +122,7 @@
       "fg": "#8839ef"
     },
     "keyword.operator": {
-      "fg": "#04a5e5"
+      "fg": "#8839ef"
     },
     "keyword.repeat": {
       "fg": "#8839ef"
@@ -137,51 +137,43 @@
       "fg": "#209fb5"
     },
     "markup.heading": {
-      "fg": "#1e66f5",
-      "bold": true
+      "fg": "#1e66f5"
     },
     "markup.heading.1": {
-      "fg": "#1e66f5",
-      "bold": true
+      "fg": "#1e66f5"
     },
     "markup.heading.2": {
-      "fg": "#1e66f5",
-      "bold": true
+      "fg": "#1e66f5"
     },
     "markup.heading.3": {
-      "fg": "#1e66f5",
-      "bold": true
+      "fg": "#1e66f5"
     },
     "markup.heading.4": {
-      "fg": "#1e66f5",
-      "bold": true
+      "fg": "#1e66f5"
     },
     "markup.heading.5": {
-      "fg": "#1e66f5",
-      "bold": true
+      "fg": "#1e66f5"
     },
     "markup.heading.6": {
-      "fg": "#1e66f5",
-      "bold": true
+      "fg": "#1e66f5"
     },
     "markup.italic": {
-      "fg": "#e64553",
+      "fg": "#d20f39",
       "italic": true
     },
     "markup.link": {
-      "fg": "#7287fd",
-      "bold": true
+      "fg": "#7287fd"
     },
     "markup.link.label": {
-      "fg": "#209fb5"
+      "fg": "#7287fd"
     },
     "markup.link.url": {
-      "fg": "#dc8a78",
+      "fg": "#1e66f5",
       "italic": true,
       "underline": true
     },
     "markup.list": {
-      "fg": "#ea76cb"
+      "fg": "#179299"
     },
     "markup.list.checked": {
       "fg": "#40a02b"
@@ -193,35 +185,34 @@
       "fg": "#1e66f5"
     },
     "markup.quote": {
-      "fg": "#e64553",
-      "bold": true
+      "fg": "#ea76cb"
     },
     "markup.raw": {
-      "fg": "#179299"
+      "fg": "#40a02b"
     },
     "markup.raw.block": {
-      "fg": "#179299"
+      "fg": "#40a02b"
     },
     "markup.strikethrough": {
       "fg": "#4c4f69",
       "strikethrough": true
     },
     "markup.strong": {
-      "fg": "#e64553",
+      "fg": "#d20f39",
       "bold": true
     },
     "markup.underline": {
       "underline": true
     },
     "module": {
-      "fg": "#7287fd",
+      "fg": "#df8e1d",
       "italic": true
     },
     "module.builtin": {
       "fg": "#ea76cb"
     },
     "namespace": {
-      "fg": "#7287fd",
+      "fg": "#df8e1d",
       "italic": true
     },
     "normal": {
@@ -238,7 +229,7 @@
       "fg": "#04a5e5"
     },
     "property": {
-      "fg": "#7287fd"
+      "fg": "#1e66f5"
     },
     "punctuation.bracket": {
       "fg": "#7c7f93"
@@ -271,28 +262,28 @@
       "fg": "#dd7878"
     },
     "string.special.url": {
-      "fg": "#dc8a78",
+      "fg": "#1e66f5",
       "italic": true,
       "underline": true
     },
     "tag": {
-      "fg": "#8839ef"
+      "fg": "#1e66f5"
     },
     "tag.attribute": {
-      "fg": "#179299",
+      "fg": "#df8e1d",
       "italic": true
     },
     "tag.builtin": {
-      "fg": "#ea76cb"
+      "fg": "#1e66f5"
     },
     "tag.delimiter": {
-      "fg": "#04a5e5"
+      "fg": "#179299"
     },
     "type": {
       "fg": "#df8e1d"
     },
     "type.builtin": {
-      "fg": "#df8e1d"
+      "fg": "#8839ef"
     },
     "type.definition": {
       "fg": "#df8e1d"
@@ -304,7 +295,7 @@
       "fg": "#d20f39"
     },
     "variable.member": {
-      "fg": "#7287fd"
+      "fg": "#4c4f69"
     },
     "variable.parameter": {
       "fg": "#e64553"
