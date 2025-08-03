@@ -1,7 +1,7 @@
 {
   "name": "onedark",
   "appearance": "dark",
-  "revision": "5ffd45b3602bc1ed75f0b2be6c5c1f6ba5c6b796",
+  "revision": "3891f6f8db49774aa861d08ddc7c18ad8f1340e9",
   "highlights": {
     "attribute": {
       "fg": "#c678dd"

@@ -1,7 +1,7 @@
 {
   "name": "aura_dark",
   "appearance": "dark",
-  "revision": "6e4f659e74577cae7cb152a96f84c23bc9213f1b",
+  "revision": "6356de2fa2551b9dbc3a7d7b6c5328658353084e",
   "highlights": {
     "attribute": {
       "fg": "#a277ff"

@@ -1,7 +1,7 @@
 {
   "name": "onedark_light",
   "appearance": "light",
-  "revision": "11de4da47f3e69cb70c3ae9816bd8af166cbe121",
+  "revision": "de495fabe171d48aed5525f002d14414efcecbb2",
   "highlights": {
     "attribute": {
       "fg": "#0184bc"
