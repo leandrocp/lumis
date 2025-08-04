@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Update parsers: angular, latex, llvm, vim
+- Update queries: c, csharp, ecma, fsharp, javascript, php, powershell, swift, tsx
+
 ## [0.7.0] - 2027-07-26
 
 ### Added
