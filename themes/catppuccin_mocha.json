@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_mocha",
   "appearance": "dark",
-  "revision": "0cf15babf716ed56593da425a236245f709dcbfb",
+  "revision": "76a8d0515024cc55d8bd26fc13f1af88faef3ebf",
   "highlights": {
     "attribute": {
       "fg": "#fab387"
@@ -52,7 +52,7 @@
       "fg": "#cba6f7"
     },
     "constructor": {
-      "fg": "#74c7ec"
+      "fg": "#f9e2af"
     },
     "diff.delta": {
       "fg": "#89b4fa"
@@ -76,7 +76,7 @@
       "fg": "#89b4fa"
     },
     "function.macro": {
-      "fg": "#94e2d5"
+      "fg": "#f5c2e7"
     },
     "function.method": {
       "fg": "#89b4fa"
@@ -122,7 +122,7 @@
       "fg": "#cba6f7"
     },
     "keyword.operator": {
-      "fg": "#89dceb"
+      "fg": "#cba6f7"
     },
     "keyword.repeat": {
       "fg": "#cba6f7"
@@ -137,51 +137,43 @@
       "fg": "#74c7ec"
     },
     "markup.heading": {
-      "fg": "#89b4fa",
-      "bold": true
+      "fg": "#89b4fa"
     },
     "markup.heading.1": {
-      "fg": "#89b4fa",
-      "bold": true
+      "fg": "#89b4fa"
     },
     "markup.heading.2": {
-      "fg": "#89b4fa",
-      "bold": true
+      "fg": "#89b4fa"
     },
     "markup.heading.3": {
-      "fg": "#89b4fa",
-      "bold": true
+      "fg": "#89b4fa"
     },
     "markup.heading.4": {
-      "fg": "#89b4fa",
-      "bold": true
+      "fg": "#89b4fa"
     },
     "markup.heading.5": {
-      "fg": "#89b4fa",
-      "bold": true
+      "fg": "#89b4fa"
     },
     "markup.heading.6": {
-      "fg": "#89b4fa",
-      "bold": true
+      "fg": "#89b4fa"
     },
     "markup.italic": {
-      "fg": "#eba0ac",
+      "fg": "#f38ba8",
       "italic": true
     },
     "markup.link": {
-      "fg": "#b4befe",
-      "bold": true
+      "fg": "#b4befe"
     },
     "markup.link.label": {
-      "fg": "#74c7ec"
+      "fg": "#b4befe"
     },
     "markup.link.url": {
-      "fg": "#f5e0dc",
+      "fg": "#89b4fa",
       "italic": true,
       "underline": true
     },
     "markup.list": {
-      "fg": "#f5c2e7"
+      "fg": "#94e2d5"
     },
     "markup.list.checked": {
       "fg": "#a6e3a1"
@@ -193,35 +185,34 @@
       "fg": "#89b4fa"
     },
     "markup.quote": {
-      "fg": "#eba0ac",
-      "bold": true
+      "fg": "#f5c2e7"
     },
     "markup.raw": {
-      "fg": "#94e2d5"
+      "fg": "#a6e3a1"
     },
     "markup.raw.block": {
-      "fg": "#94e2d5"
+      "fg": "#a6e3a1"
     },
     "markup.strikethrough": {
       "fg": "#cdd6f4",
       "strikethrough": true
     },
     "markup.strong": {
-      "fg": "#eba0ac",
+      "fg": "#f38ba8",
       "bold": true
     },
     "markup.underline": {
       "underline": true
     },
     "module": {
-      "fg": "#b4befe",
+      "fg": "#f9e2af",
       "italic": true
     },
     "module.builtin": {
       "fg": "#f5c2e7"
     },
     "namespace": {
-      "fg": "#b4befe",
+      "fg": "#f9e2af",
       "italic": true
     },
     "normal": {
@@ -238,7 +229,7 @@
       "fg": "#89dceb"
     },
     "property": {
-      "fg": "#b4befe"
+      "fg": "#cdd6f4"
     },
     "punctuation.bracket": {
       "fg": "#9399b2"
@@ -259,7 +250,7 @@
       "fg": "#f5c2e7"
     },
     "string.regexp": {
-      "fg": "#fab387"
+      "fg": "#f5c2e7"
     },
     "string.special": {
       "fg": "#f5c2e7"
@@ -271,28 +262,28 @@
       "fg": "#f2cdcd"
     },
     "string.special.url": {
-      "fg": "#f5e0dc",
+      "fg": "#89b4fa",
       "italic": true,
       "underline": true
     },
     "tag": {
-      "fg": "#cba6f7"
+      "fg": "#89b4fa"
     },
     "tag.attribute": {
-      "fg": "#94e2d5",
+      "fg": "#f9e2af",
       "italic": true
     },
     "tag.builtin": {
-      "fg": "#f5c2e7"
+      "fg": "#89b4fa"
     },
     "tag.delimiter": {
-      "fg": "#89dceb"
+      "fg": "#94e2d5"
     },
     "type": {
       "fg": "#f9e2af"
     },
     "type.builtin": {
-      "fg": "#f9e2af"
+      "fg": "#cba6f7"
     },
     "type.definition": {
       "fg": "#f9e2af"
@@ -304,7 +295,7 @@
       "fg": "#f38ba8"
     },
     "variable.member": {
-      "fg": "#b4befe"
+      "fg": "#cdd6f4"
     },
     "variable.parameter": {
       "fg": "#eba0ac"

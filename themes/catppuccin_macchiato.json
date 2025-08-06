@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_macchiato",
   "appearance": "dark",
-  "revision": "0cf15babf716ed56593da425a236245f709dcbfb",
+  "revision": "76a8d0515024cc55d8bd26fc13f1af88faef3ebf",
   "highlights": {
     "attribute": {
       "fg": "#f5a97f"
@@ -52,7 +52,7 @@
       "fg": "#c6a0f6"
     },
     "constructor": {
-      "fg": "#7dc4e4"
+      "fg": "#eed49f"
     },
     "diff.delta": {
       "fg": "#8aadf4"
@@ -76,7 +76,7 @@
       "fg": "#8aadf4"
     },
     "function.macro": {
-      "fg": "#8bd5ca"
+      "fg": "#f5bde6"
     },
     "function.method": {
       "fg": "#8aadf4"
@@ -122,7 +122,7 @@
       "fg": "#c6a0f6"
     },
     "keyword.operator": {
-      "fg": "#91d7e3"
+      "fg": "#c6a0f6"
     },
     "keyword.repeat": {
       "fg": "#c6a0f6"
@@ -137,51 +137,43 @@
       "fg": "#7dc4e4"
     },
     "markup.heading": {
-      "fg": "#8aadf4",
-      "bold": true
+      "fg": "#8aadf4"
     },
     "markup.heading.1": {
-      "fg": "#8aadf4",
-      "bold": true
+      "fg": "#8aadf4"
     },
     "markup.heading.2": {
-      "fg": "#8aadf4",
-      "bold": true
+      "fg": "#8aadf4"
     },
     "markup.heading.3": {
-      "fg": "#8aadf4",
-      "bold": true
+      "fg": "#8aadf4"
     },
     "markup.heading.4": {
-      "fg": "#8aadf4",
-      "bold": true
+      "fg": "#8aadf4"
     },
     "markup.heading.5": {
-      "fg": "#8aadf4",
-      "bold": true
+      "fg": "#8aadf4"
     },
     "markup.heading.6": {
-      "fg": "#8aadf4",
-      "bold": true
+      "fg": "#8aadf4"
     },
     "markup.italic": {
-      "fg": "#ee99a0",
+      "fg": "#ed8796",
       "italic": true
     },
     "markup.link": {
-      "fg": "#b7bdf8",
-      "bold": true
+      "fg": "#b7bdf8"
     },
     "markup.link.label": {
-      "fg": "#7dc4e4"
+      "fg": "#b7bdf8"
     },
     "markup.link.url": {
-      "fg": "#f4dbd6",
+      "fg": "#8aadf4",
       "italic": true,
       "underline": true
     },
     "markup.list": {
-      "fg": "#f5bde6"
+      "fg": "#8bd5ca"
     },
     "markup.list.checked": {
       "fg": "#a6da95"
@@ -193,35 +185,34 @@
       "fg": "#8aadf4"
     },
     "markup.quote": {
-      "fg": "#ee99a0",
-      "bold": true
+      "fg": "#f5bde6"
     },
     "markup.raw": {
-      "fg": "#8bd5ca"
+      "fg": "#a6da95"
     },
     "markup.raw.block": {
-      "fg": "#8bd5ca"
+      "fg": "#a6da95"
     },
     "markup.strikethrough": {
       "fg": "#cad3f5",
       "strikethrough": true
     },
     "markup.strong": {
-      "fg": "#ee99a0",
+      "fg": "#ed8796",
       "bold": true
     },
     "markup.underline": {
       "underline": true
     },
     "module": {
-      "fg": "#b7bdf8",
+      "fg": "#eed49f",
       "italic": true
     },
     "module.builtin": {
       "fg": "#f5bde6"
     },
     "namespace": {
-      "fg": "#b7bdf8",
+      "fg": "#eed49f",
       "italic": true
     },
     "normal": {
@@ -238,7 +229,7 @@
       "fg": "#91d7e3"
     },
     "property": {
-      "fg": "#b7bdf8"
+      "fg": "#cad3f5"
     },
     "punctuation.bracket": {
       "fg": "#939ab7"
@@ -259,7 +250,7 @@
       "fg": "#f5bde6"
     },
     "string.regexp": {
-      "fg": "#f5a97f"
+      "fg": "#f5bde6"
     },
     "string.special": {
       "fg": "#f5bde6"
@@ -271,28 +262,28 @@
       "fg": "#f0c6c6"
     },
     "string.special.url": {
-      "fg": "#f4dbd6",
+      "fg": "#8aadf4",
       "italic": true,
       "underline": true
     },
     "tag": {
-      "fg": "#c6a0f6"
+      "fg": "#8aadf4"
     },
     "tag.attribute": {
-      "fg": "#8bd5ca",
+      "fg": "#eed49f",
       "italic": true
     },
     "tag.builtin": {
-      "fg": "#f5bde6"
+      "fg": "#8aadf4"
     },
     "tag.delimiter": {
-      "fg": "#91d7e3"
+      "fg": "#8bd5ca"
     },
     "type": {
       "fg": "#eed49f"
     },
     "type.builtin": {
-      "fg": "#eed49f"
+      "fg": "#c6a0f6"
     },
     "type.definition": {
       "fg": "#eed49f"
@@ -304,7 +295,7 @@
       "fg": "#ed8796"
     },
     "variable.member": {
-      "fg": "#b7bdf8"
+      "fg": "#cad3f5"
     },
     "variable.parameter": {
       "fg": "#ee99a0"
