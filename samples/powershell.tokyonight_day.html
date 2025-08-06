@@ -148,7 +148,7 @@
 </div><div class="line" data-line="148">
 </div><div class="line" data-line="149"><span data-highlight="comment" style="color: #848cb5;"># Negate pound sign to prevent comment</span>
 </div><div class="line" data-line="150"><span data-highlight="comment" style="color: #848cb5;"># Note that the function of &#39;#&#39; is removed, but &#39;#&#39; is still present</span>
-</div><div class="line" data-line="151">`#Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Process</span><span data-highlight="comment" style="color: #848cb5;"> # =&gt; Fail: not a recognized cmdlet</span><span data-highlight="comment" style="color: #848cb5;"></span>
+</div><div class="line" data-line="151">`#Get<span data-highlight="operator" style="color: #006a83;">-</span>Process<span data-highlight="comment" style="color: #848cb5;"> # =&gt; Fail: not a recognized cmdlet</span><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="152"><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="153"><span data-highlight="comment" style="color: #848cb5;"># $null is not an object</span>
 </div><div class="line" data-line="154"><span data-highlight="variable.builtin" style="color: #f52a65;">$null</span>  <span data-highlight="comment" style="color: #848cb5;"># =&gt; None</span>
@@ -490,7 +490,7 @@
 </div><div class="line" data-line="490"><span data-highlight="comment" style="color: #848cb5;">####################################################</span>
 </div><div class="line" data-line="491">
 </div><div class="line" data-line="492"><span data-highlight="comment" style="color: #848cb5;"># We use the &quot;class&quot; statement to create a class</span>
-</div><div class="line" data-line="493"><span data-highlight="keyword.type" style="color: #188092;">class</span> <span data-highlight="type" style="color: #188092;">Instrument</span> <span data-highlight="punctuation.bracket" style="color: #6172b0;">&lbrace;</span>
+</div><div class="line" data-line="493">class <span data-highlight="type" style="color: #188092;">Instrument</span> <span data-highlight="punctuation.bracket" style="color: #6172b0;">&lbrace;</span>
 </div><div class="line" data-line="494">    <span data-highlight="punctuation.bracket" style="color: #6172b0;">[</span><span data-highlight="type.builtin" style="color: #4094a3;">string</span><span data-highlight="punctuation.bracket" style="color: #6172b0;">]</span><span data-highlight="variable.member" style="color: #387068;">$Type</span>
 </div><div class="line" data-line="495">    <span data-highlight="punctuation.bracket" style="color: #6172b0;">[</span><span data-highlight="type.builtin" style="color: #4094a3;">string</span><span data-highlight="punctuation.bracket" style="color: #6172b0;">]</span><span data-highlight="variable.member" style="color: #387068;">$Family</span>
 </div><div class="line" data-line="496"><span data-highlight="punctuation.bracket" style="color: #6172b0;">&rbrace;</span>
@@ -515,7 +515,7 @@
 </div><div class="line" data-line="515"><span data-highlight="comment" style="color: #848cb5;"># Inheritance allows new child classes to be defined that inherit </span>
 </div><div class="line" data-line="516"><span data-highlight="comment" style="color: #848cb5;"># methods and variables from their parent class.</span>
 </div><div class="line" data-line="517">
-</div><div class="line" data-line="518"><span data-highlight="keyword.type" style="color: #188092;">class</span> <span data-highlight="type" style="color: #188092;">Guitar</span> : <span data-highlight="type" style="color: #188092;">Instrument</span>
+</div><div class="line" data-line="518">class <span data-highlight="type" style="color: #188092;">Guitar</span> : <span data-highlight="type" style="color: #188092;">Instrument</span>
 </div><div class="line" data-line="519"><span data-highlight="punctuation.bracket" style="color: #6172b0;">&lbrace;</span>
 </div><div class="line" data-line="520">    <span data-highlight="punctuation.bracket" style="color: #6172b0;">[</span><span data-highlight="type.builtin" style="color: #4094a3;">string</span><span data-highlight="punctuation.bracket" style="color: #6172b0;">]</span><span data-highlight="variable.member" style="color: #387068;">$Brand</span>
 </div><div class="line" data-line="521">    <span data-highlight="punctuation.bracket" style="color: #6172b0;">[</span><span data-highlight="type.builtin" style="color: #4094a3;">string</span><span data-highlight="punctuation.bracket" style="color: #6172b0;">]</span><span data-highlight="variable.member" style="color: #387068;">$SubType</span>
@@ -624,7 +624,7 @@
 </div><div class="line" data-line="624">    <span data-highlight="keyword.return" style="color: #7847bd;">return</span> <span data-highlight="variable" style="color: #3760bf;">$finalArray</span>
 </div><div class="line" data-line="625"><span data-highlight="punctuation.bracket" style="color: #6172b0;">&rbrace;</span>
 </div><div class="line" data-line="626">
-</div><div class="line" data-line="627"><span data-highlight="keyword.repeat" style="color: #9854f1;">For</span>mat<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Range</span> 2 6 <span data-highlight="variable" style="color: #3760bf;">$targetArray</span> 
+</div><div class="line" data-line="627"><span data-highlight="function.call" style="color: #2e7de9;">Format-Range</span><span data-highlight="punctuation.delimiter" style="color: #006a83;"> </span><span data-highlight="number" style="color: #b15c00;">2</span><span data-highlight="punctuation.delimiter" style="color: #006a83;"> </span><span data-highlight="number" style="color: #b15c00;">6</span><span data-highlight="punctuation.delimiter" style="color: #006a83;"> </span><span data-highlight="variable" style="color: #3760bf;">$targetArray</span> 
 </div><div class="line" data-line="628"><span data-highlight="comment" style="color: #848cb5;"># =&gt; &#39;a&#39;,&#39;b&#39;,&#39;g&#39;,&#39;f&#39;,&#39;e&#39;,&#39;d&#39;,&#39;c&#39;,&#39;h&#39;,&#39;i&#39;,&#39;j&#39;,&#39;k&#39;,&#39;l&#39;,&#39;m&#39;</span>
 </div><div class="line" data-line="629">
 </div><div class="line" data-line="630"><span data-highlight="comment" style="color: #848cb5;"># The previous method works, but uses extra memory by allocating new arrays.</span>
@@ -644,7 +644,7 @@
 </div><div class="line" data-line="644">  <span data-highlight="keyword.return" style="color: #7847bd;">return</span> <span data-highlight="variable" style="color: #3760bf;">$targetArray</span>
 </div><div class="line" data-line="645"><span data-highlight="punctuation.bracket" style="color: #6172b0;">&rbrace;</span>
 </div><div class="line" data-line="646">
-</div><div class="line" data-line="647"><span data-highlight="keyword.repeat" style="color: #9854f1;">For</span>mat<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Range</span> 2 6<span data-highlight="comment" style="color: #848cb5;"> # =&gt; &#39;a&#39;,&#39;b&#39;,&#39;g&#39;,&#39;f&#39;,&#39;e&#39;,&#39;d&#39;,&#39;c&#39;,&#39;h&#39;,&#39;i&#39;,&#39;j&#39;,&#39;k&#39;,&#39;l&#39;,&#39;m&#39;</span>
+</div><div class="line" data-line="647"><span data-highlight="function.call" style="color: #2e7de9;">Format-Range</span><span data-highlight="punctuation.delimiter" style="color: #006a83;"> </span><span data-highlight="number" style="color: #b15c00;">2</span><span data-highlight="punctuation.delimiter" style="color: #006a83;"> </span><span data-highlight="number" style="color: #b15c00;">6</span><span data-highlight="punctuation.delimiter" style="color: #006a83;"> </span><span data-highlight="comment" style="color: #848cb5;"># =&gt; &#39;a&#39;,&#39;b&#39;,&#39;g&#39;,&#39;f&#39;,&#39;e&#39;,&#39;d&#39;,&#39;c&#39;,&#39;h&#39;,&#39;i&#39;,&#39;j&#39;,&#39;k&#39;,&#39;l&#39;,&#39;m&#39;</span>
 </div><div class="line" data-line="648">```
 </div><div class="line" data-line="649">
 </div><div class="line" data-line="650">Powershell as a Tool:
@@ -653,24 +653,24 @@
 </div><div class="line" data-line="653">
 </div><div class="line" data-line="654">```powershell<span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="655"><span data-highlight="comment" style="color: #848cb5;"># Find commands</span>
-</div><div class="line" data-line="656">Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Command</span> about_<span data-highlight="operator" style="color: #006a83;">*</span><span data-highlight="comment" style="color: #848cb5;"> # alias: gcm</span>
-</div><div class="line" data-line="657">Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Command</span><span data-highlight="variable.parameter.builtin" style="color: #7b6a58;"> -Verb</span> Add
-</div><div class="line" data-line="658">Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Alias</span> ps
-</div><div class="line" data-line="659">Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Alias</span><span data-highlight="variable.parameter.builtin" style="color: #7b6a58;"> -Definition</span> Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Process</span>
+</div><div class="line" data-line="656">Get<span data-highlight="operator" style="color: #006a83;">-</span>Command about_<span data-highlight="operator" style="color: #006a83;">*</span><span data-highlight="comment" style="color: #848cb5;"> # alias: gcm</span>
+</div><div class="line" data-line="657">Get<span data-highlight="operator" style="color: #006a83;">-</span>Command <span data-highlight="operator" style="color: #006a83;">-</span>Verb Add
+</div><div class="line" data-line="658">Get<span data-highlight="operator" style="color: #006a83;">-</span>Alias ps
+</div><div class="line" data-line="659">Get<span data-highlight="operator" style="color: #006a83;">-</span>Alias <span data-highlight="operator" style="color: #006a83;">-</span>Definition Get<span data-highlight="operator" style="color: #006a83;">-</span>Process
 </div><div class="line" data-line="660">
-</div><div class="line" data-line="661">Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Help</span> ps<span data-highlight="operator" style="color: #006a83;"> |</span> less<span data-highlight="comment" style="color: #848cb5;"> # alias: help</span>
-</div><div class="line" data-line="662">ps<span data-highlight="operator" style="color: #006a83;"> |</span> Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Member</span><span data-highlight="comment" style="color: #848cb5;"> # alias: gm</span>
+</div><div class="line" data-line="661">Get<span data-highlight="operator" style="color: #006a83;">-</span>Help ps<span data-highlight="operator" style="color: #006a83;"> |</span> less<span data-highlight="comment" style="color: #848cb5;"> # alias: help</span>
+</div><div class="line" data-line="662">ps<span data-highlight="operator" style="color: #006a83;"> |</span> Get<span data-highlight="operator" style="color: #006a83;">-</span>Member<span data-highlight="comment" style="color: #848cb5;"> # alias: gm</span>
 </div><div class="line" data-line="663">
-</div><div class="line" data-line="664">Show<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Command</span> Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-WinEvent</span><span data-highlight="comment" style="color: #848cb5;"> # Display GUI to fill in the parameters</span>
+</div><div class="line" data-line="664">Show<span data-highlight="operator" style="color: #006a83;">-</span>Command Get<span data-highlight="operator" style="color: #006a83;">-</span>WinEvent<span data-highlight="comment" style="color: #848cb5;"> # Display GUI to fill in the parameters</span>
 </div><div class="line" data-line="665">
-</div><div class="line" data-line="666">Update<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-Help</span><span data-highlight="comment" style="color: #848cb5;"> # Run as admin</span>
+</div><div class="line" data-line="666">Update<span data-highlight="operator" style="color: #006a83;">-</span>Help<span data-highlight="comment" style="color: #848cb5;"> # Run as admin</span>
 </div><div class="line" data-line="667">```
 </div><div class="line" data-line="668">
-</div><div class="line" data-line="669"><span data-highlight="keyword.conditional" style="color: #9854f1;">If</span> you are uncertain about your environment:
+</div><div class="line" data-line="669">If you are uncertain about your environment:
 </div><div class="line" data-line="670">
 </div><div class="line" data-line="671">```powershell
-</div><div class="line" data-line="672">Get<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-ExecutionPolicy</span><span data-highlight="variable.parameter.builtin" style="color: #7b6a58;"> -List</span>
-</div><div class="line" data-line="673">Set<span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">-ExecutionPolicy</span> AllSigned<span data-highlight="comment" style="color: #848cb5;"></span>
+</div><div class="line" data-line="672">Get<span data-highlight="operator" style="color: #006a83;">-</span>ExecutionPolicy <span data-highlight="operator" style="color: #006a83;">-</span>List
+</div><div class="line" data-line="673">Set<span data-highlight="operator" style="color: #006a83;">-</span>ExecutionPolicy AllSigned<span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="674"><span data-highlight="comment" style="color: #848cb5;"># Execution policies include:</span><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="675"><span data-highlight="comment" style="color: #848cb5;"># - Restricted: Scripts won&#39;t run.</span><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="676"><span data-highlight="comment" style="color: #848cb5;"># - RemoteSigned: Downloaded scripts run only if signed by a trusted publisher. </span><span data-highlight="comment" style="color: #848cb5;"></span>
@@ -686,14 +686,14 @@
 </div><div class="line" data-line="686"><span data-highlight="comment" style="color: #848cb5;"># Calling external commands, executables, </span><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="687"><span data-highlight="comment" style="color: #848cb5;"># and functions with the call operator.</span><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="688"><span data-highlight="comment" style="color: #848cb5;"># Exe paths with arguments passed or containing spaces can create issues.</span>
-</div><div class="line" data-line="689">C:<span data-highlight="operator" style="color: #006a83;">\</span>Program Files<span data-highlight="operator" style="color: #006a83;">\</span><span data-highlight="keyword.repeat" style="color: #9854f1;">do</span>tnet<span data-highlight="operator" style="color: #006a83;">\</span><span data-highlight="keyword.repeat" style="color: #9854f1;">do</span>tnet<span data-highlight="punctuation.delimiter" style="color: #006a83;">.</span>exe<span data-highlight="comment" style="color: #848cb5;"></span>
+</div><div class="line" data-line="689">C:<span data-highlight="operator" style="color: #006a83;">\</span>Program Files<span data-highlight="operator" style="color: #006a83;">\</span>dotnet<span data-highlight="operator" style="color: #006a83;">\</span>dotnet<span data-highlight="punctuation.delimiter" style="color: #006a83;">.</span>exe<span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="690"><span data-highlight="comment" style="color: #848cb5;"># The term &#39;C:\Program&#39; is not recognized as a name of a cmdlet,</span><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="691"><span data-highlight="comment" style="color: #848cb5;"># function, script file, or executable program.</span><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="692"><span data-highlight="comment" style="color: #848cb5;"># Check the spelling of the name, or if a path was included, </span><span data-highlight="comment" style="color: #848cb5;"></span>
 </div><div class="line" data-line="693"><span data-highlight="comment" style="color: #848cb5;"># verify that the path is correct and try again</span>
 </div><div class="line" data-line="694">
-</div><div class="line" data-line="695">&quot;C:<span data-highlight="operator" style="color: #006a83;">\</span>Program Files<span data-highlight="operator" style="color: #006a83;">\</span><span data-highlight="keyword.repeat" style="color: #9854f1;">do</span>tnet<span data-highlight="operator" style="color: #006a83;">\</span><span data-highlight="keyword.repeat" style="color: #9854f1;">do</span>tnet<span data-highlight="punctuation.delimiter" style="color: #006a83;">.</span>exe&quot;
-</div><div class="line" data-line="696">C:<span data-highlight="operator" style="color: #006a83;">\</span>Program Files<span data-highlight="operator" style="color: #006a83;">\</span><span data-highlight="keyword.repeat" style="color: #9854f1;">do</span>tnet<span data-highlight="operator" style="color: #006a83;">\</span><span data-highlight="keyword.repeat" style="color: #9854f1;">do</span>tnet<span data-highlight="punctuation.delimiter" style="color: #006a83;">.</span>exe<span data-highlight="comment" style="color: #848cb5;">    # returns string rather than execute</span>
+</div><div class="line" data-line="695">&quot;C:<span data-highlight="operator" style="color: #006a83;">\</span>Program Files<span data-highlight="operator" style="color: #006a83;">\</span>dotnet<span data-highlight="operator" style="color: #006a83;">\</span>dotnet<span data-highlight="punctuation.delimiter" style="color: #006a83;">.</span>exe&quot;
+</div><div class="line" data-line="696">C:<span data-highlight="operator" style="color: #006a83;">\</span>Program Files<span data-highlight="operator" style="color: #006a83;">\</span>dotnet<span data-highlight="operator" style="color: #006a83;">\</span>dotnet<span data-highlight="punctuation.delimiter" style="color: #006a83;">.</span>exe<span data-highlight="comment" style="color: #848cb5;">    # returns string rather than execute</span>
 </div><div class="line" data-line="697">
 </div><div class="line" data-line="698"><span data-highlight="operator" style="color: #006a83;">&amp;</span><span data-highlight="string" style="color: #587539;">&quot;C:\Program Files\dotnet\dotnet.exe --help&quot;</span><span data-highlight="punctuation.delimiter" style="color: #006a83;">   </span><span data-highlight="comment" style="color: #848cb5;"># fail</span>
 </div><div class="line" data-line="699"><span data-highlight="operator" style="color: #006a83;">&amp;</span><span data-highlight="string" style="color: #587539;">&quot;C:\Program Files\dotnet\dotnet.exe&quot;</span><span data-highlight="punctuation.delimiter" style="color: #006a83;"> </span><span data-highlight="variable.parameter.builtin" style="color: #7b6a58;">--help</span><span data-highlight="punctuation.delimiter" style="color: #006a83;">   </span><span data-highlight="comment" style="color: #848cb5;"># success</span>
