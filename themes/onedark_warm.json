@@ -1,7 +1,7 @@
 {
   "name": "onedark_warm",
   "appearance": "dark",
-  "revision": "11de4da47f3e69cb70c3ae9816bd8af166cbe121",
+  "revision": "de495fabe171d48aed5525f002d14414efcecbb2",
   "highlights": {
     "attribute": {
       "fg": "#e0e2ea"
@@ -27,6 +27,9 @@
     "comment.error": {
       "fg": "#ffc0b9"
     },
+    "comment.hint": {
+      "fg": "#9b9ea4"
+    },
     "comment.note": {
       "fg": "#8cf8f7"
     },
@@ -43,10 +46,19 @@
     "constant.builtin": {
       "fg": "#8cf8f7"
     },
+    "constant.java": {
+      "fg": "#e0e2ea"
+    },
     "constant.macro": {
       "fg": "#e0e2ea"
     },
     "constructor": {
+      "fg": "#8cf8f7"
+    },
+    "constructor.lua": {
+      "fg": "#8cf8f7"
+    },
+    "constructor.python": {
       "fg": "#8cf8f7"
     },
     "diff.delta": {
@@ -64,6 +76,9 @@
     "function.builtin": {
       "fg": "#8cf8f7"
     },
+    "function.builtin.bash": {
+      "fg": "#8cf8f7"
+    },
     "function.call": {
       "fg": "#8cf8f7"
     },
@@ -74,6 +89,12 @@
       "fg": "#8cf8f7"
     },
     "function.method.call": {
+      "fg": "#8cf8f7"
+    },
+    "function.method.call.php": {
+      "fg": "#8cf8f7"
+    },
+    "function.method.php": {
       "fg": "#8cf8f7"
     },
     "highlighted": {
@@ -103,6 +124,10 @@
       "fg": "#e0e2ea",
       "bold": true
     },
+    "keyword.directive.css": {
+      "fg": "#e0e2ea",
+      "bold": true
+    },
     "keyword.directive.define": {
       "fg": "#e0e2ea",
       "bold": true
@@ -111,11 +136,23 @@
       "fg": "#e0e2ea",
       "bold": true
     },
+    "keyword.export": {
+      "fg": "#e0e2ea",
+      "bold": true
+    },
     "keyword.function": {
       "fg": "#e0e2ea",
       "bold": true
     },
     "keyword.import": {
+      "fg": "#e0e2ea",
+      "bold": true
+    },
+    "keyword.import.c": {
+      "fg": "#e0e2ea",
+      "bold": true
+    },
+    "keyword.import.cpp": {
       "fg": "#e0e2ea",
       "bold": true
     },
@@ -142,6 +179,19 @@
     "label": {
       "fg": "#e0e2ea",
       "bold": true
+    },
+    "label.yaml": {
+      "fg": "#e0e2ea",
+      "bold": true
+    },
+    "markup": {
+      "fg": "#8cf8f7"
+    },
+    "markup.environment": {
+      "fg": "#8cf8f7"
+    },
+    "markup.environment.name": {
+      "fg": "#8cf8f7"
     },
     "markup.heading": {
       "fg": "#e0e2ea",
@@ -178,6 +228,9 @@
       "underline": true
     },
     "markup.link.label": {
+      "underline": true
+    },
+    "markup.link.label.html": {
       "underline": true
     },
     "markup.link.url": {
@@ -226,6 +279,9 @@
     "number": {
       "fg": "#e0e2ea"
     },
+    "number.css": {
+      "fg": "#e0e2ea"
+    },
     "number.float": {
       "fg": "#e0e2ea"
     },
@@ -235,10 +291,34 @@
     "property": {
       "fg": "#a6dbff"
     },
+    "property.class.css": {
+      "fg": "#a6dbff"
+    },
+    "property.css": {
+      "fg": "#a6dbff"
+    },
+    "property.id.css": {
+      "fg": "#a6dbff"
+    },
+    "property.json": {
+      "fg": "#a6dbff"
+    },
+    "property.scss": {
+      "fg": "#a6dbff"
+    },
+    "property.toml": {
+      "fg": "#a6dbff"
+    },
+    "property.yaml": {
+      "fg": "#a6dbff"
+    },
     "punctuation.bracket": {
       "fg": "#e0e2ea"
     },
     "punctuation.delimiter": {
+      "fg": "#e0e2ea"
+    },
+    "punctuation.delimiter.regex": {
       "fg": "#e0e2ea"
     },
     "punctuation.special": {
@@ -253,6 +333,9 @@
     "string.escape": {
       "fg": "#8cf8f7"
     },
+    "string.plain.css": {
+      "fg": "#b3f6c0"
+    },
     "string.regexp": {
       "fg": "#8cf8f7"
     },
@@ -265,7 +348,13 @@
     "string.special.symbol": {
       "fg": "#8cf8f7"
     },
+    "string.special.symbol.ruby": {
+      "fg": "#8cf8f7"
+    },
     "string.special.url": {
+      "underline": true
+    },
+    "string.special.url.html": {
       "underline": true
     },
     "tag": {
@@ -286,7 +375,13 @@
     "type.builtin": {
       "fg": "#8cf8f7"
     },
+    "type.css": {
+      "fg": "#e0e2ea"
+    },
     "type.definition": {
+      "fg": "#e0e2ea"
+    },
+    "type.tag.css": {
       "fg": "#e0e2ea"
     },
     "variable": {
@@ -299,6 +394,9 @@
       "fg": "#e0e2ea"
     },
     "variable.parameter": {
+      "fg": "#e0e2ea"
+    },
+    "variable.parameter.bash": {
       "fg": "#e0e2ea"
     },
     "variable.parameter.builtin": {

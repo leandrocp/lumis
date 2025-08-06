@@ -31,6 +31,10 @@
       "bg": "#9d0006",
       "bold": true
     },
+    "comment.hint": {
+      "fg": "#928374",
+      "italic": true
+    },
     "comment.note": {
       "fg": "#af3a03"
     },
@@ -50,10 +54,19 @@
     "constant.builtin": {
       "fg": "#af3a03"
     },
+    "constant.java": {
+      "fg": "#8f3f71"
+    },
     "constant.macro": {
       "fg": "#427b58"
     },
     "constructor": {
+      "fg": "#af3a03"
+    },
+    "constructor.lua": {
+      "fg": "#af3a03"
+    },
+    "constructor.python": {
       "fg": "#af3a03"
     },
     "diff.delta": {
@@ -72,6 +85,9 @@
     "function.builtin": {
       "fg": "#af3a03"
     },
+    "function.builtin.bash": {
+      "fg": "#af3a03"
+    },
     "function.call": {
       "fg": "#79740e",
       "bold": true
@@ -84,6 +100,14 @@
       "bold": true
     },
     "function.method.call": {
+      "fg": "#79740e",
+      "bold": true
+    },
+    "function.method.call.php": {
+      "fg": "#79740e",
+      "bold": true
+    },
+    "function.method.php": {
       "fg": "#79740e",
       "bold": true
     },
@@ -108,16 +132,28 @@
     "keyword.directive": {
       "fg": "#427b58"
     },
+    "keyword.directive.css": {
+      "fg": "#427b58"
+    },
     "keyword.directive.define": {
       "fg": "#427b58"
     },
     "keyword.exception": {
       "fg": "#9d0006"
     },
+    "keyword.export": {
+      "fg": "#9d0006"
+    },
     "keyword.function": {
       "fg": "#9d0006"
     },
     "keyword.import": {
+      "fg": "#427b58"
+    },
+    "keyword.import.c": {
+      "fg": "#427b58"
+    },
+    "keyword.import.cpp": {
       "fg": "#427b58"
     },
     "keyword.modifier": {
@@ -137,6 +173,18 @@
     },
     "label": {
       "fg": "#9d0006"
+    },
+    "label.yaml": {
+      "fg": "#9d0006"
+    },
+    "markup": {
+      "fg": "#3c3836"
+    },
+    "markup.environment": {
+      "fg": "#427b58"
+    },
+    "markup.environment.name": {
+      "fg": "#b57614"
     },
     "markup.heading": {
       "fg": "#79740e",
@@ -174,6 +222,9 @@
       "underline": true
     },
     "markup.link.label": {
+      "fg": "#af3a03"
+    },
+    "markup.link.label.html": {
       "fg": "#af3a03"
     },
     "markup.link.url": {
@@ -228,6 +279,9 @@
     "number": {
       "fg": "#8f3f71"
     },
+    "number.css": {
+      "fg": "#8f3f71"
+    },
     "number.float": {
       "fg": "#8f3f71"
     },
@@ -237,10 +291,34 @@
     "property": {
       "fg": "#076678"
     },
+    "property.class.css": {
+      "fg": "#076678"
+    },
+    "property.css": {
+      "fg": "#076678"
+    },
+    "property.id.css": {
+      "fg": "#076678"
+    },
+    "property.json": {
+      "fg": "#076678"
+    },
+    "property.scss": {
+      "fg": "#076678"
+    },
+    "property.toml": {
+      "fg": "#076678"
+    },
+    "property.yaml": {
+      "fg": "#076678"
+    },
     "punctuation.bracket": {
       "fg": "#af3a03"
     },
     "punctuation.delimiter": {
+      "fg": "#af3a03"
+    },
+    "punctuation.delimiter.regex": {
       "fg": "#af3a03"
     },
     "punctuation.special": {
@@ -257,6 +335,10 @@
     "string.escape": {
       "fg": "#af3a03"
     },
+    "string.plain.css": {
+      "fg": "#79740e",
+      "italic": true
+    },
     "string.regexp": {
       "fg": "#79740e",
       "italic": true
@@ -271,7 +353,14 @@
     "string.special.symbol": {
       "fg": "#076678"
     },
+    "string.special.symbol.ruby": {
+      "fg": "#076678"
+    },
     "string.special.url": {
+      "fg": "#076678",
+      "underline": true
+    },
+    "string.special.url.html": {
       "fg": "#076678",
       "underline": true
     },
@@ -293,7 +382,13 @@
     "type.builtin": {
       "fg": "#b57614"
     },
+    "type.css": {
+      "fg": "#b57614"
+    },
     "type.definition": {
+      "fg": "#b57614"
+    },
+    "type.tag.css": {
       "fg": "#b57614"
     },
     "variable": {
@@ -306,6 +401,9 @@
       "fg": "#076678"
     },
     "variable.parameter": {
+      "fg": "#076678"
+    },
+    "variable.parameter.bash": {
       "fg": "#076678"
     },
     "variable.parameter.builtin": {

@@ -1,7 +1,7 @@
 {
   "name": "monokai_pro_machine",
   "appearance": "dark",
-  "revision": "31bad737610ec211de086d373c73025f39de93cb",
+  "revision": "1ac671f6da720cba967d28d25c2f16b8b4e18808",
   "highlights": {
     "attribute": {
       "fg": "#a2e57b"
@@ -29,6 +29,10 @@
     "comment.error": {
       "fg": "#ff6d7e"
     },
+    "comment.hint": {
+      "fg": "#6b7678",
+      "italic": true
+    },
     "comment.note": {
       "fg": "#7cd5f1"
     },
@@ -46,10 +50,19 @@
     "constant.builtin": {
       "fg": "#baa0f8"
     },
+    "constant.java": {
+      "fg": "#baa0f8"
+    },
     "constant.macro": {
       "fg": "#baa0f8"
     },
     "constructor": {
+      "fg": "#a2e57b"
+    },
+    "constructor.lua": {
+      "fg": "#a2e57b"
+    },
+    "constructor.python": {
       "fg": "#a2e57b"
     },
     "diff.delta": {
@@ -67,6 +80,9 @@
     "function.builtin": {
       "fg": "#a2e57b"
     },
+    "function.builtin.bash": {
+      "fg": "#a2e57b"
+    },
     "function.call": {
       "fg": "#a2e57b"
     },
@@ -77,6 +93,12 @@
       "fg": "#a2e57b"
     },
     "function.method.call": {
+      "fg": "#a2e57b"
+    },
+    "function.method.call.php": {
+      "fg": "#a2e57b"
+    },
+    "function.method.php": {
       "fg": "#a2e57b"
     },
     "highlighted": {
@@ -101,17 +123,30 @@
     "keyword.directive": {
       "fg": "#ff6d7e"
     },
+    "keyword.directive.css": {
+      "fg": "#ff6d7e"
+    },
     "keyword.directive.define": {
       "fg": "#ff6d7e"
     },
     "keyword.exception": {
       "fg": "#ff6d7e"
     },
+    "keyword.export": {
+      "fg": "#ff6d7e",
+      "italic": true
+    },
     "keyword.function": {
       "fg": "#7cd5f1",
       "italic": true
     },
     "keyword.import": {
+      "fg": "#ff6d7e"
+    },
+    "keyword.import.c": {
+      "fg": "#ff6d7e"
+    },
+    "keyword.import.cpp": {
       "fg": "#ff6d7e"
     },
     "keyword.modifier": {
@@ -133,6 +168,18 @@
     },
     "label": {
       "fg": "#7cd5f1"
+    },
+    "label.yaml": {
+      "fg": "#7cd5f1"
+    },
+    "markup": {
+      "fg": "#f2fffc"
+    },
+    "markup.environment": {
+      "fg": "#f2fffc"
+    },
+    "markup.environment.name": {
+      "fg": "#f2fffc"
     },
     "markup.heading": {
       "fg": "#a2e57b",
@@ -171,6 +218,10 @@
       "underline": true
     },
     "markup.link.label": {
+      "fg": "#ffb270",
+      "underline": true
+    },
+    "markup.link.label.html": {
       "fg": "#ffb270",
       "underline": true
     },
@@ -224,6 +275,9 @@
     "number": {
       "fg": "#baa0f8"
     },
+    "number.css": {
+      "fg": "#baa0f8"
+    },
     "number.float": {
       "fg": "#baa0f8"
     },
@@ -233,10 +287,34 @@
     "property": {
       "fg": "#f2fffc"
     },
+    "property.class.css": {
+      "fg": "#f2fffc"
+    },
+    "property.css": {
+      "fg": "#f2fffc"
+    },
+    "property.id.css": {
+      "fg": "#f2fffc"
+    },
+    "property.json": {
+      "fg": "#f2fffc"
+    },
+    "property.scss": {
+      "fg": "#a2e57b"
+    },
+    "property.toml": {
+      "fg": "#f2fffc"
+    },
+    "property.yaml": {
+      "fg": "#ff6d7e"
+    },
     "punctuation.bracket": {
       "fg": "#ff6d7e"
     },
     "punctuation.delimiter": {
+      "fg": "#8b9798"
+    },
+    "punctuation.delimiter.regex": {
       "fg": "#8b9798"
     },
     "punctuation.special": {
@@ -251,6 +329,9 @@
     "string.escape": {
       "fg": "#baa0f8"
     },
+    "string.plain.css": {
+      "fg": "#ffed72"
+    },
     "string.regexp": {
       "fg": "#ffed72"
     },
@@ -263,7 +344,13 @@
     "string.special.symbol": {
       "fg": "#ffb270"
     },
+    "string.special.symbol.ruby": {
+      "fg": "#ffb270"
+    },
     "string.special.url": {
+      "underline": true
+    },
+    "string.special.url.html": {
       "underline": true
     },
     "tag": {
@@ -286,8 +373,14 @@
       "fg": "#7cd5f1",
       "italic": true
     },
+    "type.css": {
+      "fg": "#7cd5f1"
+    },
     "type.definition": {
       "fg": "#a2e57b"
+    },
+    "type.tag.css": {
+      "fg": "#7cd5f1"
     },
     "variable": {
       "fg": "#f2fffc"
@@ -300,6 +393,10 @@
       "fg": "#f2fffc"
     },
     "variable.parameter": {
+      "fg": "#ffb270",
+      "italic": true
+    },
+    "variable.parameter.bash": {
       "fg": "#ffb270",
       "italic": true
     },

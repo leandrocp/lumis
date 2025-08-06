@@ -1,7 +1,7 @@
 {
   "name": "onedark_light",
   "appearance": "light",
-  "revision": "11de4da47f3e69cb70c3ae9816bd8af166cbe121",
+  "revision": "de495fabe171d48aed5525f002d14414efcecbb2",
   "highlights": {
     "attribute": {
       "fg": "#0184bc"
@@ -29,6 +29,10 @@
     "comment.error": {
       "fg": "#e45649"
     },
+    "comment.hint": {
+      "fg": "#a0a1a7",
+      "italic": true
+    },
     "comment.note": {
       "fg": "#0184bc"
     },
@@ -45,10 +49,21 @@
     "constant.builtin": {
       "fg": "#c18401"
     },
+    "constant.java": {
+      "fg": "#c18401"
+    },
     "constant.macro": {
       "fg": "#c18401"
     },
     "constructor": {
+      "fg": "#986801",
+      "bold": true
+    },
+    "constructor.lua": {
+      "fg": "#986801",
+      "bold": true
+    },
+    "constructor.python": {
       "fg": "#986801",
       "bold": true
     },
@@ -70,6 +85,9 @@
     "function.builtin": {
       "fg": "#0184bc"
     },
+    "function.builtin.bash": {
+      "fg": "#0184bc"
+    },
     "function.call": {
       "fg": "#4078f2"
     },
@@ -80,6 +98,12 @@
       "fg": "#4078f2"
     },
     "function.method.call": {
+      "fg": "#4078f2"
+    },
+    "function.method.call.php": {
+      "fg": "#4078f2"
+    },
+    "function.method.php": {
       "fg": "#4078f2"
     },
     "highlighted": {
@@ -103,16 +127,28 @@
     "keyword.directive": {
       "fg": "#a626a4"
     },
+    "keyword.directive.css": {
+      "fg": "#a626a4"
+    },
     "keyword.directive.define": {
       "fg": "#a626a4"
     },
     "keyword.exception": {
       "fg": "#a626a4"
     },
+    "keyword.export": {
+      "fg": "#a626a4"
+    },
     "keyword.function": {
       "fg": "#a626a4"
     },
     "keyword.import": {
+      "fg": "#a626a4"
+    },
+    "keyword.import.c": {
+      "fg": "#a626a4"
+    },
+    "keyword.import.cpp": {
       "fg": "#a626a4"
     },
     "keyword.modifier": {
@@ -132,6 +168,18 @@
     },
     "label": {
       "fg": "#e45649"
+    },
+    "label.yaml": {
+      "fg": "#e45649"
+    },
+    "markup": {
+      "fg": "#e45649"
+    },
+    "markup.environment": {
+      "fg": "#383a42"
+    },
+    "markup.environment.name": {
+      "fg": "#383a42"
     },
     "markup.heading": {
       "fg": "#c18401",
@@ -168,6 +216,9 @@
       "fg": "#4078f2"
     },
     "markup.link.label": {
+      "fg": "#4078f2"
+    },
+    "markup.link.label.html": {
       "fg": "#4078f2"
     },
     "markup.link.url": {
@@ -222,6 +273,9 @@
     "number": {
       "fg": "#c18401"
     },
+    "number.css": {
+      "fg": "#c18401"
+    },
     "number.float": {
       "fg": "#c18401"
     },
@@ -231,10 +285,34 @@
     "property": {
       "fg": "#0184bc"
     },
+    "property.class.css": {
+      "fg": "#0184bc"
+    },
+    "property.css": {
+      "fg": "#0184bc"
+    },
+    "property.id.css": {
+      "fg": "#0184bc"
+    },
+    "property.json": {
+      "fg": "#0184bc"
+    },
+    "property.scss": {
+      "fg": "#0184bc"
+    },
+    "property.toml": {
+      "fg": "#0184bc"
+    },
+    "property.yaml": {
+      "fg": "#0184bc"
+    },
     "punctuation.bracket": {
       "fg": "#818387"
     },
     "punctuation.delimiter": {
+      "fg": "#818387"
+    },
+    "punctuation.delimiter.regex": {
       "fg": "#818387"
     },
     "punctuation.special": {
@@ -249,6 +327,9 @@
     "string.escape": {
       "fg": "#e45649"
     },
+    "string.plain.css": {
+      "fg": "#50a14f"
+    },
     "string.regexp": {
       "fg": "#c18401"
     },
@@ -261,7 +342,13 @@
     "string.special.symbol": {
       "fg": "#0184bc"
     },
+    "string.special.symbol.ruby": {
+      "fg": "#0184bc"
+    },
     "string.special.url": {
+      "underline": true
+    },
+    "string.special.url.html": {
       "underline": true
     },
     "tag": {
@@ -282,7 +369,13 @@
     "type.builtin": {
       "fg": "#c18401"
     },
+    "type.css": {
+      "fg": "#986801"
+    },
     "type.definition": {
+      "fg": "#986801"
+    },
+    "type.tag.css": {
       "fg": "#986801"
     },
     "variable": {
@@ -295,6 +388,9 @@
       "fg": "#0184bc"
     },
     "variable.parameter": {
+      "fg": "#e45649"
+    },
+    "variable.parameter.bash": {
       "fg": "#e45649"
     },
     "variable.parameter.builtin": {

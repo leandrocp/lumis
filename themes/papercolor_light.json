@@ -12,6 +12,9 @@
     "comment.documentation": {
       "fg": "#4f5258"
     },
+    "comment.hint": {
+      "fg": "#4f5258"
+    },
     "comment.todo": {
       "fg": "#14161b",
       "bold": true
@@ -22,10 +25,19 @@
     "constant.builtin": {
       "fg": "#007373"
     },
+    "constant.java": {
+      "fg": "#14161b"
+    },
     "constant.macro": {
       "fg": "#14161b"
     },
     "constructor": {
+      "fg": "#007373"
+    },
+    "constructor.lua": {
+      "fg": "#007373"
+    },
+    "constructor.python": {
       "fg": "#007373"
     },
     "diff.delta": {
@@ -43,6 +55,9 @@
     "function.builtin": {
       "fg": "#007373"
     },
+    "function.builtin.bash": {
+      "fg": "#007373"
+    },
     "function.call": {
       "fg": "#007373"
     },
@@ -55,8 +70,23 @@
     "function.method.call": {
       "fg": "#007373"
     },
+    "function.method.call.php": {
+      "fg": "#007373"
+    },
+    "function.method.php": {
+      "fg": "#007373"
+    },
     "highlighted": {
       "bg": "#c4c6cd"
+    },
+    "markup": {
+      "fg": "#007373"
+    },
+    "markup.environment": {
+      "fg": "#007373"
+    },
+    "markup.environment.name": {
+      "fg": "#007373"
     },
     "markup.heading": {
       "fg": "#14161b",
@@ -93,6 +123,9 @@
       "underline": true
     },
     "markup.link.label": {
+      "underline": true
+    },
+    "markup.link.label.html": {
       "underline": true
     },
     "markup.link.url": {
@@ -141,10 +174,34 @@
     "property": {
       "fg": "#004c73"
     },
+    "property.class.css": {
+      "fg": "#004c73"
+    },
+    "property.css": {
+      "fg": "#004c73"
+    },
+    "property.id.css": {
+      "fg": "#004c73"
+    },
+    "property.json": {
+      "fg": "#004c73"
+    },
+    "property.scss": {
+      "fg": "#004c73"
+    },
+    "property.toml": {
+      "fg": "#004c73"
+    },
+    "property.yaml": {
+      "fg": "#004c73"
+    },
     "punctuation.bracket": {
       "fg": "#14161b"
     },
     "punctuation.delimiter": {
+      "fg": "#14161b"
+    },
+    "punctuation.delimiter.regex": {
       "fg": "#14161b"
     },
     "punctuation.special": {
@@ -156,7 +213,13 @@
     "string.documentation": {
       "fg": "#005523"
     },
+    "string.plain.css": {
+      "fg": "#005523"
+    },
     "string.special.url": {
+      "underline": true
+    },
+    "string.special.url.html": {
       "underline": true
     },
     "tag.builtin": {
@@ -168,7 +231,13 @@
     "type.builtin": {
       "fg": "#007373"
     },
+    "type.css": {
+      "fg": "#14161b"
+    },
     "type.definition": {
+      "fg": "#14161b"
+    },
+    "type.tag.css": {
       "fg": "#14161b"
     },
     "variable": {
@@ -181,6 +250,9 @@
       "fg": "#14161b"
     },
     "variable.parameter": {
+      "fg": "#14161b"
+    },
+    "variable.parameter.bash": {
       "fg": "#14161b"
     },
     "variable.parameter.builtin": {
