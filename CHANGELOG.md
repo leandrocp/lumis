@@ -2,9 +2,13 @@
 
 ## Unreleased
 
+### Added
+- Add `--color` option to `autumn dump-tree-sitter` command for colored AST output
+
 ### Changed
 - Update parsers: angular, latex, llvm, vim
 - Update queries: c, csharp, ecma, fsharp, javascript, php, powershell, swift, tsx
+- Improve `autumn dump-tree-sitter` output to display field names and match Neovim's `:InspectTree` format while preserving raw text tokens
 
 ## [0.7.0] - 2027-07-26
 
