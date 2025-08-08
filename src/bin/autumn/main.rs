@@ -32,6 +32,10 @@ enum Commands {
     DumpTreeSitter {
         /// Path to the file to analyze
         path: String,
+
+        /// Enable colored output
+        #[arg(long)]
+        color: bool,
     },
 
     /// Highlight a file with syntax highlighting
@@ -96,7 +100,7 @@ fn main() -> Result<()> {
     match cli.command {
         Commands::ListLanguages => list_languages(),
         Commands::ListThemes => list_themes(),
-        Commands::DumpTreeSitter { path } => dump_tree_sitter(&path),
+        Commands::DumpTreeSitter { path, color } => dump_tree_sitter(&path, color),
         Commands::Highlight {
             path,
             formatter,
@@ -154,13 +158,14 @@ fn list_languages() -> Result<()> {
 ///
 /// # Arguments
 /// * `path` - Path to the file to analyze
-fn dump_tree_sitter(path: &str) -> Result<()> {
+/// * `color` - Whether to enable colored output
+fn dump_tree_sitter(path: &str, color: bool) -> Result<()> {
     let bytes = read_or_die(Path::new(&path));
     let source = String::from_utf8_lossy(&bytes).to_string();
     let language = autumnus::languages::Language::guess(path, &source);
     let config = language.config();
     let tree = to_tree(&source, &config.language);
-    print_tree(&source, &tree);
+    print_tree(&source, &tree, color);
     Ok(())
 }
 
@@ -184,9 +189,11 @@ fn to_tree(src: &str, language: &tree_sitter::Language) -> tree_sitter::Tree {
 /// # Arguments
 /// * `src` - Original source code
 /// * `tree` - Tree-sitter tree to print
-fn print_tree(src: &str, tree: &tree_sitter::Tree) {
+/// * `color` - Whether to enable colored output
+fn print_tree(src: &str, tree: &tree_sitter::Tree, color: bool) {
     let mut cursor = tree.walk();
-    print_cursor(src, &mut cursor, 0);
+    print_cursor(src, &mut cursor, 0, color);
+    println!();
 }
 
 /// Prints a node in the Tree-sitter AST and recursively visits its children
@@ -195,31 +202,96 @@ fn print_tree(src: &str, tree: &tree_sitter::Tree) {
 /// * `src` - Original source code
 /// * `cursor` - Current position in the tree
 /// * `depth` - Current depth in the tree (for indentation)
-fn print_cursor(src: &str, cursor: &mut tree_sitter::TreeCursor, depth: usize) {
-    loop {
-        let node = cursor.node();
+/// * `color` - Whether to enable colored output
+fn print_cursor(src: &str, cursor: &mut tree_sitter::TreeCursor, depth: usize, color: bool) {
+    let node = cursor.node();
+    let field_name = cursor.field_name();
 
-        let formatted_node = format!(
-            "{} {} - {}",
-            node.kind().replace('\n', "\\n"),
-            node.start_position(),
-            node.end_position()
-        );
+    let start = node.start_position();
+    let end = node.end_position();
 
-        if node.child_count() == 0 {
-            let node_src = &src[node.start_byte()..node.end_byte()];
-            println!("{}{} {:?}", "  ".repeat(depth), formatted_node, node_src);
+    let indent = "  ".repeat(depth);
+
+    let is_anonymous = !node.is_named();
+
+    if !is_anonymous {
+        if let Some(field) = field_name {
+            if color {
+                print!("{indent}\x1b[36m{field}\x1b[0m: ");
+            } else {
+                print!("{indent}{field}: ");
+            }
         } else {
-            println!("{}{}", "  ".repeat(depth), formatted_node,);
+            print!("{indent}");
         }
 
-        if cursor.goto_first_child() {
-            print_cursor(src, cursor, depth + 1);
-            cursor.goto_parent();
+        let node_kind = node.kind().replace('\n', "\\n");
+        if color {
+            print!("\x1b[35m(\x1b[0m\x1b[34m{node_kind}\x1b[0m");
+        } else {
+            print!("({node_kind}");
         }
 
-        if !cursor.goto_next_sibling() {
-            break;
+        let node_kind = node.kind();
+        if node_kind != "source" && node_kind != "source_file" {
+            let node_text = &src[node.start_byte()..node.end_byte()];
+            let truncated = if node_text.len() > 60 {
+                format!("{} (truncated)", &node_text[..60])
+            } else {
+                node_text.to_string()
+            };
+
+            if color {
+                print!(" \x1b[32m{truncated:?}\x1b[0m");
+            } else {
+                print!(" {truncated:?}");
+            }
+        }
+
+        if color {
+            print!(
+                " \x1b[90m; [{}, {}] - [{}, {}]\x1b[0m",
+                start.row, start.column, end.row, end.column
+            );
+        } else {
+            print!(
+                " ; [{}, {}] - [{}, {}]",
+                start.row, start.column, end.row, end.column
+            );
+        }
+    }
+
+    let has_children = cursor.goto_first_child();
+
+    if has_children {
+        loop {
+            let child_node = cursor.node();
+            let child_is_anonymous = !child_node.is_named();
+
+            if !child_is_anonymous {
+                if !is_anonymous {
+                    println!();
+                }
+                print_cursor(
+                    src,
+                    cursor,
+                    if is_anonymous { depth } else { depth + 1 },
+                    color,
+                );
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+        cursor.goto_parent();
+    }
+
+    if !is_anonymous {
+        if color {
+            print!("\x1b[35m)\x1b[0m");
+        } else {
+            print!(")");
         }
     }
 }
