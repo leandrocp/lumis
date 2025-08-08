@@ -2449,6 +2449,38 @@
     }
   },
   {
+    "type": "curly_group_label",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "label",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "curly_group_label_list",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "label",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "curly_group_path",
     "named": true,
     "fields": {
@@ -4417,7 +4449,7 @@
         "required": true,
         "types": [
           {
-            "type": "curly_group_text",
+            "type": "curly_group_label",
             "named": true
           }
         ]
@@ -4579,7 +4611,7 @@
         "required": true,
         "types": [
           {
-            "type": "curly_group_text_list",
+            "type": "curly_group_label_list",
             "named": true
           }
         ]
@@ -9934,6 +9966,10 @@
   },
   {
     "type": "delimiter",
+    "named": true
+  },
+  {
+    "type": "label",
     "named": true
   },
   {

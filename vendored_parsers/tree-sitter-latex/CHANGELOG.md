@@ -5,17 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] - 2025-06-17
 
 ### Added
 
 - Add support for hyperlinks: `\url`, `\href` ([#130](https://github.com/latex-lsp/tree-sitter-latex/issues/130))
+- Add `tree-sitter.json` file to be ABI 15 compatible ([#196](https://github.com/latex-lsp/tree-sitter-latex/pull/196))
+- Parse `\todo`-like and `\replaced` commands ([#195](https://github.com/latex-lsp/tree-sitter-latex/pull/195))
+- Add missing definition-like commands (e. g. `\glet`) ([#167](https://github.com/latex-lsp/tree-sitter-latex/pull/167))
+- Add reference-like commands from `cleveref` and `hyperref` ([#162](https://github.com/latex-lsp/tree-sitter-latex/pull/162))
+- Add support for the `\...Copy` macros ([#124](https://github.com/latex-lsp/tree-sitter-latex/issues/124))
+- Improving parsing of color references ([#151](https://github.com/latex-lsp/tree-sitter-latex/pull/151))
 
 ### Fixed
 
 - Add missing citation commands: `\citeA`, `\citeR`, `\citeS`, `\citeyearR` ([#94](https://github.com/latex-lsp/tree-sitter-latex/issues/94))
 - Let `\declaretheorem` accept multiple environment names ([texlab/#1075](https://github.com/latex-lsp/texlab/issues/1075))
 - Fix parsing wrong superscripts like `10^10` ([#107](https://github.com/latex-lsp/tree-sitter-latex/issues/107))
+- Support argument placeholders for nested command definition ([#160](https://github.com/latex-lsp/tree-sitter-latex/issues/160))
+- Add missing math environments ([#150](https://github.com/latex-lsp/tree-sitter-latex/pull/150))
 
 ## [0.4.0] - 2024-04-01
 

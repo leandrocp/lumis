@@ -135,6 +135,10 @@ unsafe extern "C" {
     fn tree_sitter_llvm() -> *const ();
     #[cfg(feature = "lang-make")]
     fn tree_sitter_make() -> *const ();
+    #[cfg(feature = "lang-markdown")]
+    fn tree_sitter_markdown() -> *const ();
+    #[cfg(feature = "lang-markdown-inline")]
+    fn tree_sitter_markdown_inline() -> *const ();
     #[cfg(feature = "lang-perl")]
     fn tree_sitter_perl() -> *const ();
     #[cfg(feature = "lang-scss")]
@@ -238,7 +242,7 @@ pub enum Language {
     Make,
     #[cfg(feature = "lang-markdown")]
     Markdown,
-    #[cfg(feature = "lang-markdown")]
+    #[cfg(feature = "lang-markdown-inline")]
     MarkdownInline,
     #[cfg(feature = "lang-nix")]
     Nix,
@@ -399,7 +403,7 @@ impl Language {
             "make" => Some(Language::Make),
             #[cfg(feature = "lang-markdown")]
             "markdown" => Some(Language::Markdown),
-            #[cfg(feature = "lang-markdown")]
+            #[cfg(feature = "lang-markdown-inline")]
             "markdown_inline" => Some(Language::MarkdownInline),
             #[cfg(feature = "lang-nix")]
             "nix" => Some(Language::Nix),
@@ -735,8 +739,8 @@ impl Language {
                 "mkfile",
             ],
             #[cfg(feature = "lang-markdown")]
-            Language::Markdown => &["*.md", "README", "LICENSE"],
-            #[cfg(feature = "lang-markdown")]
+            Language::Markdown => &["*.md", ".MD", "README", "LICENSE"],
+            #[cfg(feature = "lang-markdown-inline")]
             Language::MarkdownInline => &[],
             #[cfg(feature = "lang-nix")]
             Language::Nix => &["*.nix"],
@@ -1112,7 +1116,7 @@ impl Language {
             Language::Make => "Make",
             #[cfg(feature = "lang-markdown")]
             Language::Markdown => "Markdown",
-            #[cfg(feature = "lang-markdown")]
+            #[cfg(feature = "lang-markdown-inline")]
             Language::MarkdownInline => "Markdown Inline",
             #[cfg(feature = "lang-nix")]
             Language::Nix => "Nix",
@@ -1265,7 +1269,7 @@ impl Language {
             Language::Make => &MAKE_CONFIG,
             #[cfg(feature = "lang-markdown")]
             Language::Markdown => &MARKDOWN_CONFIG,
-            #[cfg(feature = "lang-markdown")]
+            #[cfg(feature = "lang-markdown-inline")]
             Language::MarkdownInline => &MARKDOWN_INLINE_CONFIG,
             #[cfg(feature = "lang-nix")]
             Language::Nix => &NIX_CONFIG,
@@ -2109,8 +2113,9 @@ static MAKE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 
 #[cfg(feature = "lang-markdown")]
 static MARKDOWN_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_markdown) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(tree_sitter_md::LANGUAGE),
+        tree_sitter::Language::new(language_fn),
         "markdown",
         MARKDOWN_HIGHLIGHTS,
         MARKDOWN_INJECTIONS,
@@ -2121,10 +2126,12 @@ static MARKDOWN_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     config
 });
 
-#[cfg(feature = "lang-markdown")]
+#[cfg(feature = "lang-markdown-inline")]
 static MARKDOWN_INLINE_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn =
+        unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_markdown_inline) };
     let mut config = HighlightConfiguration::new(
-        tree_sitter::Language::new(tree_sitter_md::INLINE_LANGUAGE),
+        tree_sitter::Language::new(language_fn),
         "markdown_inline",
         MARKDOWN_INLINE_HIGHLIGHTS,
         MARKDOWN_INLINE_INJECTIONS,
@@ -3079,7 +3086,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "lang-markdown")]
+    #[cfg(feature = "lang-markdown-inline")]
     fn test_markdown_inline_config_loads() {
         let lang = Language::MarkdownInline;
         let config = lang.config();
