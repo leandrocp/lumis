@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.7.1] - 2025-08-09
 
 ### Added
 - Add `--color` option to `autumn dump-tree-sitter` command for colored AST output
