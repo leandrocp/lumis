@@ -8,7 +8,7 @@
 ### Changed
 - Sync vendored parsers with nvim-treesitter repo
 - Add language markdown-inline
-- Update parsers: angular, latex, llvm, vim, markdown
+- Update parsers: angular, latex, llvm, markdown, perl, vim
 - Update queries: c, csharp, ecma, fsharp, javascript, php, powershell, swift, tsx
 - Improve `autumn dump-tree-sitter` output to display field names and match Neovim's `:InspectTree` format while preserving raw text tokens
 
