@@ -85,6 +85,7 @@ Available language features:
 - `lang-lua` - Lua
 - `lang-make` - Makefiles
 - `lang-markdown` - Markdown
+- `lang-markdown-inline` - Inline Markdown
 - `lang-nix` - Nix
 - `lang-objc` - Objective-C
 - `lang-ocaml` - OCaml
