@@ -12,7 +12,7 @@
 - Update queries: c, csharp, ecma, fsharp, javascript, php, powershell, swift, tsx
 - Improve `autumn dump-tree-sitter` output to display field names and match Neovim's `:InspectTree` format while preserving raw text tokens
 
-## [0.7.0] - 2027-07-26
+## [0.7.0] - 2025-07-26
 
 ### Added
 - Add `--highlight-lines` option to autumn CLI for highlighting specific line ranges
@@ -22,7 +22,7 @@
 - **Breaking** Remove transition, display, and width fields from theme's `Style` struct
 - **Breaking** Revert to use `CursorLine` highlight group to highlight lines in HTML formatters
 
-## [0.6.0] - 2027-07-23
+## [0.6.0] - 2025-07-23
 
 ### Added
 - Add `class` field to `HighlightLines` in HTML inline formatter for custom CSS classes on highlighted lines
