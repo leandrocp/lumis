@@ -194,7 +194,7 @@
     (name) @type
     (qualified_name
       (name) @type)
-    (name
+    (relative_name
       (name) @type)
   ])
 
@@ -210,7 +210,7 @@
     (name) @type
     (qualified_name
       (name) @type)
-    (name
+    (relative_name
       (name) @type)
   ])
 
@@ -273,7 +273,7 @@
     (name) @type
     (qualified_name
       (name) @type)
-    (name
+    (relative_name
       (name) @type)
   ])
 
@@ -282,7 +282,7 @@
     (name) @type
     (qualified_name
       (name) @type)
-    (name
+    (relative_name
       (name) @type)
   ])
 
@@ -292,7 +292,7 @@
     (name) @type
     (qualified_name
       (name) @type)
-    (name
+    (relative_name
       (name) @type)
   ]
   (name) @constant)
@@ -302,7 +302,7 @@
     (name) @type
     (qualified_name
       (name) @type)
-    (name
+    (relative_name
       (name) @type)
   ])
 
@@ -321,7 +321,7 @@
     (name) @type
     (qualified_name
       (name) @type)
-    (name
+    (relative_name
       (name) @type)
   ])
 
@@ -344,7 +344,7 @@
     (name) @function.call
     (qualified_name
       (name) @function.call)
-    (name
+    (relative_name
       (name) @function.call)
   ])
 
@@ -381,7 +381,7 @@
     (name) @constructor
     (qualified_name
       (name) @constructor)
-    (name
+    (relative_name
       (name) @constructor)
   ])
 
@@ -428,7 +428,7 @@
 (namespace_name
   (name) @module)
 
-(name
+(relative_name
   "namespace" @module.builtin)
 
 ; Attributes
