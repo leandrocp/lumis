@@ -41,71 +41,81 @@ update-parsers parser_name="":
     curl -s https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/main/lua/nvim-treesitter/parsers.lua > "$TEMP_DIR/parsers.lua"
 
     parsers=(
-        "tree-sitter-angular https://github.com/dlvandenberg/tree-sitter-angular.git main"
-        "tree-sitter-astro https://github.com/virchau13/tree-sitter-astro.git master"
-        "tree-sitter-caddy https://github.com/opa-oz/tree-sitter-caddy.git main"
-        "tree-sitter-clojure https://github.com/sogaiu/tree-sitter-clojure.git master"
-        "tree-sitter-commonlisp https://github.com/tree-sitter-grammars/tree-sitter-commonlisp.git master"
-        "tree-sitter-csv https://github.com/tree-sitter-grammars/tree-sitter-csv.git master"
-        "tree-sitter-dart https://github.com/UserNobody14/tree-sitter-dart.git master"
-        "tree-sitter-dockerfile https://github.com/camdencheek/tree-sitter-dockerfile.git main"
-        "tree-sitter-eex https://github.com/connorlay/tree-sitter-eex.git main"
-        "tree-sitter-fish https://github.com/ram02z/tree-sitter-fish.git master"
-        "tree-sitter-glimmer https://github.com/ember-tooling/tree-sitter-glimmer.git main"
-        "tree-sitter-graphql https://github.com/bkegley/tree-sitter-graphql.git master"
-        "tree-sitter-http https://github.com/rest-nvim/tree-sitter-http.git main"
-        "tree-sitter-iex https://github.com/elixir-lang/tree-sitter-iex.git main"
-        "tree-sitter-kotlin https://github.com/fwcd/tree-sitter-kotlin.git main"
-        "tree-sitter-latex https://github.com/latex-lsp/tree-sitter-latex.git master"
-        "tree-sitter-liquid https://github.com/hankthetank27/tree-sitter-liquid.git main"
-        "tree-sitter-llvm https://github.com/benwilliamgraham/tree-sitter-llvm.git main"
-        "tree-sitter-make https://github.com/alemuller/tree-sitter-make.git main"
-        "tree-sitter-perl https://github.com/tree-sitter-perl/tree-sitter-perl.git master"
-        "tree-sitter-powershell https://github.com/airbus-cert/tree-sitter-powershell.git main"
-        "tree-sitter-scss https://github.com/serenadeai/tree-sitter-scss.git master"
-        "tree-sitter-surface https://github.com/connorlay/tree-sitter-surface.git main"
-        "tree-sitter-vim https://github.com/tree-sitter-grammars/tree-sitter-vim.git master"
-        "tree-sitter-vue https://github.com/tree-sitter-grammars/tree-sitter-vue.git main"
+        "angular"
+        "astro"
+        "caddy"
+        "clojure"
+        "commonlisp"
+        "csv"
+        "dart"
+        "dockerfile"
+        "eex"
+        "fish"
+        "glimmer"
+        "graphql"
+        "kotlin"
+        "latex"
+        "liquid"
+        "llvm"
+        "make"
+        "markdown"
+        "markdown_inline"
+        "perl"
+        "powershell"
+        "scss"
+        "surface"
+        "vim"
+        "vue"
     )
 
-    for parser_info in "${parsers[@]}"; do
-        read -r parser repo branch <<< "$parser_info"
+    extra_parsers=(
+        "tree-sitter-http https://github.com/rest-nvim/tree-sitter-http.git main"
+        "tree-sitter-iex https://github.com/elixir-lang/tree-sitter-iex.git main"
+    )
 
-        # Skip if parser_name is specified and doesn't match current parser
-        if [[ -n "{{parser_name}}" ]] && [[ "$parser" != "{{parser_name}}" ]]; then
+    for base_name in "${parsers[@]}"; do
+        parser="tree-sitter-$base_name"
+
+        if [[ -n "{{parser_name}}" ]] && [[ "$parser" != "{{parser_name}}" ]] && [[ "$base_name" != "{{parser_name}}" ]]; then
             continue
         fi
 
-        base_name=${parser#tree-sitter-}
-        revision=$(lua -e "
+        parser_info=$(lua -e "
             local parsers = dofile('$TEMP_DIR/parsers.lua')
             local lang_info = parsers['$base_name']
-            if lang_info then
-                print(lang_info.install_info.revision)
+            if lang_info and lang_info.install_info then
+                local url = lang_info.install_info.url or ''
+                local revision = lang_info.install_info.revision or ''
+                local location = lang_info.install_info.location or ''
+                print(url .. ' ' .. revision .. ' ' .. location)
             else
-                print('null')
+                print('null null null')
             end
         ")
 
+        read -r repo revision location <<< "$parser_info"
+
+        if [ "$repo" = "null" ]; then
+            echo "⚠️  No parser info found for $base_name in parsers.lua, skipping"
+            continue
+        fi
+
         echo "🔄 Updating $parser from $repo (revision: $revision)"
 
-        if [ "$revision" = "null" ]; then
-            echo "⚠️  No revision found for $parser in nvim-treesitter's lockfile.json, using latest from $branch"
-            git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$parser"
+        if [ "$revision" = "null" ] || [ -z "$revision" ]; then
+            echo "⚠️  No revision found for $parser, using latest from default branch"
+            git clone --depth 1 "$repo" "$TEMP_DIR/$parser"
         else
-            if ! git clone --depth 1 "$repo" "$TEMP_DIR/$parser" && cd "$TEMP_DIR/$parser" && git fetch origin "$revision" && git checkout "$revision" && cd - > /dev/null; then
-                echo "⚠️  Failed to clone specific revision, falling back to latest from $branch"
-                git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$parser"
+            if ! git clone "$repo" "$TEMP_DIR/$parser" && cd "$TEMP_DIR/$parser" && git fetch --depth 1 origin "$revision" && git checkout "$revision" && cd - > /dev/null; then
+                echo "⚠️  Failed to clone specific revision, falling back to latest"
+                rm -rf "$TEMP_DIR/$parser"
+                git clone --depth 1 "$repo" "$TEMP_DIR/$parser"
             fi
         fi
 
         mkdir -p "vendored_parsers/$parser"
 
-        if [ "$parser" = "tree-sitter-csv" ] && [ -d "$TEMP_DIR/$parser/csv" ]; then
-            rm -rf "vendored_parsers/$parser/csv"
-            cp -r "$TEMP_DIR/$parser/csv" "vendored_parsers/$parser/"
-            echo "✓ Updated $parser"
-        elif [ "$parser" = "tree-sitter-latex" ] || [ "$parser" = "tree-sitter-perl" ]; then
+        if [ "$parser" = "tree-sitter-latex" ] || [ "$parser" = "tree-sitter-perl" ]; then
             rm -rf "vendored_parsers/$parser"/*
             cp -r "$TEMP_DIR/$parser"/* "vendored_parsers/$parser/"
             (cd "vendored_parsers/$parser" && npm install --no-save tree-sitter-cli && npx tree-sitter generate)
@@ -113,6 +123,14 @@ update-parsers parser_name="":
             rm -rf "vendored_parsers/$parser/node_modules"
             rm -rf "vendored_parsers/$parser/bindings"
             echo "✓ Updated $parser"
+        elif [ "$location" != "null" ] && [ -n "$location" ]; then
+            if [ -d "$TEMP_DIR/$parser/$location/src" ]; then
+                rm -rf "vendored_parsers/$parser/src"
+                cp -r "$TEMP_DIR/$parser/$location/src" "vendored_parsers/$parser/"
+                echo "✓ Updated $parser (with location: $location)"
+            else
+                echo "⚠️  No src directory found for $parser in location $location"
+            fi
         elif [ -d "$TEMP_DIR/$parser/src" ]; then
             rm -rf "vendored_parsers/$parser/src"
             cp -r "$TEMP_DIR/$parser/src" "vendored_parsers/$parser/"
@@ -124,11 +142,40 @@ update-parsers parser_name="":
         rm -rf "$TEMP_DIR/$parser"
     done
 
-update-queries:
+    for parser_line in "${extra_parsers[@]}"; do
+        read -r parser repo branch <<< "$parser_line"
+        base_name="${parser#tree-sitter-}"
+
+        if [[ -n "{{parser_name}}" ]] && [[ "$parser" != "{{parser_name}}" ]] && [[ "$base_name" != "{{parser_name}}" ]]; then
+            continue
+        fi
+
+        echo "🔄 Updating extra parser $parser from $repo (branch: $branch)"
+
+        git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$parser"
+
+        mkdir -p "vendored_parsers/$parser"
+
+        if [ -d "$TEMP_DIR/$parser/src" ]; then
+            rm -rf "vendored_parsers/$parser/src"
+            cp -r "$TEMP_DIR/$parser/src" "vendored_parsers/$parser/"
+            echo "✓ Updated $parser"
+        else
+            echo "⚠️  No src directory found for $parser"
+        fi
+
+        rm -rf "$TEMP_DIR/$parser"
+    done
+
+update-queries query_name="":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo "⚠️  This will regenerate files in queries/"
+    if [[ -z "{{query_name}}" ]]; then
+        echo "⚠️  This will regenerate files in queries/"
+    else
+        echo "⚠️  This will regenerate queries for {{query_name}}"
+    fi
     echo ""
     read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
     echo ""
@@ -140,18 +187,45 @@ update-queries:
     TEMP_DIR=$(mktemp -d)
     git clone --depth 1 --branch "main" https://github.com/nvim-treesitter/nvim-treesitter.git "$TEMP_DIR/nvim-treesitter"
 
-    LANGUAGES=$(find queries -maxdepth 1 -type d | grep -v "^queries$" | sed 's|queries/||')
+    declare -A special_repos
+    special_repos["iex"]="https://github.com/elixir-lang/tree-sitter-iex.git main"
+
+    if [[ -n "{{query_name}}" ]]; then
+        LANGUAGES="{{query_name}}"
+    else
+        LANGUAGES=$(find queries -maxdepth 1 -type d | grep -v "^queries$" | sed 's|queries/||')
+    fi
 
     for LANG in $LANGUAGES; do
-        SRC_DIR="$TEMP_DIR/nvim-treesitter/runtime/queries/$LANG"
         DEST_DIR="queries/$LANG"
 
-        if [ -d "$SRC_DIR" ]; then
-            echo "Replacing queries for $LANG"
-            mkdir -p "$DEST_DIR"
-            cp -r "$SRC_DIR"/* "$DEST_DIR/" 2>/dev/null || true
+        if [[ -n "${special_repos[$LANG]:-}" ]]; then
+            IFS=' ' read -r repo branch <<< "${special_repos[$LANG]}"
+            echo "🔄 Updating $LANG queries from $repo (branch: $branch)"
+            
+            git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$LANG-special"
+            SRC_DIR="$TEMP_DIR/$LANG-special/queries"
+            
+            if [ -d "$SRC_DIR" ]; then
+                mkdir -p "$DEST_DIR"
+                cp -r "$SRC_DIR"/* "$DEST_DIR/" 2>/dev/null || true
+                echo "✓ Updated $LANG queries"
+            else
+                echo "⚠️  No queries found for $LANG in special repo"
+            fi
+            
+            rm -rf "$TEMP_DIR/$LANG-special"
         else
-            echo "No queries found for $LANG in nvim-treesitter"
+            SRC_DIR="$TEMP_DIR/nvim-treesitter/runtime/queries/$LANG"
+            
+            if [ -d "$SRC_DIR" ]; then
+                echo "🔄 Updating $LANG queries from nvim-treesitter"
+                mkdir -p "$DEST_DIR"
+                cp -r "$SRC_DIR"/* "$DEST_DIR/" 2>/dev/null || true
+                echo "✓ Updated $LANG queries"
+            else
+                echo "⚠️  No queries found for $LANG in nvim-treesitter"
+            fi
         fi
     done
 

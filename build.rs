@@ -210,6 +210,20 @@ fn vendored_parsers() {
         extra_files: vec![],
     });
 
+    #[cfg(feature = "lang-markdown")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-markdown",
+        src_dir: "vendored_parsers/tree-sitter-markdown/src",
+        extra_files: vec!["scanner.c"],
+    });
+
+    #[cfg(feature = "lang-markdown-inline")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-markdown_inline",
+        src_dir: "vendored_parsers/tree-sitter-markdown_inline/src",
+        extra_files: vec!["scanner.c"],
+    });
+
     #[cfg(feature = "lang-perl")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-perl",
@@ -352,7 +366,7 @@ fn queries() {
             "c_sharp" => cfg!(feature = "lang-csharp"),
             "embedded_template" => cfg!(feature = "lang-ejs") || cfg!(feature = "lang-erb"),
             "markdown" => cfg!(feature = "lang-markdown"),
-            "markdown_inline" => cfg!(feature = "lang-markdown"),
+            "markdown_inline" => cfg!(feature = "lang-markdown-inline"),
             "ocaml" => cfg!(feature = "lang-ocaml"),
             "ocaml_interface" => cfg!(feature = "lang-ocaml"),
             "sql" => cfg!(feature = "lang-sql"),

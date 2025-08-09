@@ -97,6 +97,7 @@ all-languages = [
     "lang-lua",
     "lang-make",
     "lang-markdown",
+    "lang-markdown-inline",
     "lang-nix",
     "lang-objc",
     "lang-ocaml",
@@ -168,7 +169,8 @@ lang-liquid = []
 lang-llvm = []
 lang-lua = ["dep:tree-sitter-lua"]
 lang-make = []
-lang-markdown = ["dep:tree-sitter-md"]
+lang-markdown = []
+lang-markdown-inline = []
 lang-nix = ["dep:tree-sitter-nix"]
 lang-objc = ["dep:tree-sitter-objc"]
 lang-ocaml = ["dep:tree-sitter-ocaml"]
@@ -235,7 +237,6 @@ tree-sitter-javascript = { version = "0.23.1", optional = true }
 tree-sitter-json = { version = "0.24.8", optional = true }
 tree-sitter-language = "0.1.5"
 tree-sitter-lua = { version = "0.2.0", optional = true }
-tree-sitter-md = { version = "0.3.2", optional = true }
 tree-sitter-nix = { version = "0.3.0", optional = true }
 tree-sitter-objc = { version = "3.0.2", optional = true }
 tree-sitter-ocaml = { version = "0.24.2", optional = true }
