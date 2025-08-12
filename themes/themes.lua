@@ -1043,4 +1043,12 @@ return {
 			vim.cmd([[colorscheme srcery]])
 		end,
 	},
+	{
+		"tahayvr/matteblack.nvim",
+		name = "matte_black",
+		config = function()
+			vim.o.background = "dark"
+			require("matteblack").colorscheme()
+		end,
+	},
 }

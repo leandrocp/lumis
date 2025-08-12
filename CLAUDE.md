@@ -72,6 +72,7 @@
 4. Run `just gen-theme <theme-name>` to generate the theme JSON file
 5. Run `just gen-css` to generate CSS file
 6. Add the new theme in section `//! ## Themes available` in `src/lib.rs`
+7. Update `CHANGELOG.md` with the new theme details
 
 ## Adding New Samples
 1. Fetch example from https://github.com/adambard/learnxinyminutes-docs located at https://raw.githubusercontent.com/adambard/learnxinyminutes-docs/refs/heads/master/<language>.md
