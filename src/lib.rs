@@ -199,6 +199,7 @@
 //! | material_lighter |
 //! | material_oceanic |
 //! | material_palenight |
+//! | matte_black |
 //! | melange_dark |
 //! | melange_light |
 //! | molokai |
