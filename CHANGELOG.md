@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.7.2] - 2025-08-20
 
 ### Added
 - Add `matte_black` theme from [matteblack.nvim](https://github.com/tahayvr/matteblack.nvim)
