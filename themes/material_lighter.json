@@ -1,7 +1,7 @@
 {
   "name": "material_lighter",
   "appearance": "light",
-  "revision": "0004ec60f91d581d47563a39f7dac62cb758f7ea",
+  "revision": "2929c6fae4886bd7c33371937601409705049a18",
   "highlights": {
     "attribute": {
       "fg": "#6182b8"
@@ -131,6 +131,9 @@
     },
     "keyword.directive.define": {
       "fg": "#39adb5"
+    },
+    "keyword.exception": {
+      "fg": "#e53935"
     },
     "keyword.export": {
       "fg": "#39adb5"

@@ -1,7 +1,7 @@
 {
   "name": "bamboo_light",
   "appearance": "light",
-  "revision": "ab8393d1a314d96314605369b4b1e6bc7737f2b5",
+  "revision": "56c924d0cbd3a37f9d0ea1235a189a3cccde1f44",
   "highlights": {
     "attribute": {
       "fg": "#188a9e"
