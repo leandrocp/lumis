@@ -460,3 +460,154 @@ defmodule Kernel do
     define(:def, call, expr, __CALLER__)
   end
 end
+
+## ---------------------------
+## -- Sigil Examples
+## ---------------------------
+
+# Phoenix HTML template sigils
+~H"""
+<div class="container">
+  <h1>Hello <%= @name %>!</h1>
+  <p>Welcome to our app</p>
+</div>
+"""
+
+~LVN"""
+<form>
+  <input type="text" name="username" />
+  <button type="submit">Submit</button>
+</form>
+"""
+
+~HOLO"""
+<div>
+  <span>HOLO template</span>
+</div>
+"""
+
+# Regex sigils
+regex_pattern = ~r/[a-zA-Z0-9]+/
+case_insensitive = ~R/hello world/i
+
+# JSON sigil
+json_data = ~j"""
+{
+  "name": "John",
+  "age": 30,
+  "city": "New York"
+}
+"""
+
+# SQL sigil
+query = ~SQL"""
+SELECT users.name, posts.title
+FROM users
+JOIN posts ON users.id = posts.user_id
+WHERE users.active = true
+ORDER BY posts.created_at DESC
+"""
+
+# Surface sigil
+~F"""
+<div>
+  <Button click="handle_click">
+    Click me
+  </Button>
+</div>
+"""
+
+# Markdown sigil
+content = ~MD"""
+# My Document
+
+This is **bold** and this is *italic*.
+
+- Item 1
+- Item 2
+- Item 3
+
+## Code Block
+
+```elixir
+defmodule Example do
+  def hello, do: "world"
+end
+```
+"""
+
+# Zig sigils
+zig_code = ~z"""
+const std = @import("std");
+
+pub fn main() void {
+    std.debug.print("Hello, World!\n", .{});
+}
+"""
+
+zig_uppercase = ~Z"""
+const allocator = std.heap.page_allocator;
+const array = try allocator.alloc(i32, 10);
+defer allocator.free(array);
+"""
+
+# Python sigil
+python_script = ~PY"""
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(10))
+"""
+
+# JavaScript sigil
+js_code = ~JS"""
+function greet(name) {
+    return `Hello, ${name}!`;
+}
+
+const message = greet('World');
+console.log(message);
+"""
+
+# Svelte sigil
+svelte_component = ~V"""
+<script>
+  let count = 0;
+  
+  function increment() {
+    count += 1;
+  }
+</script>
+
+<button on:click={increment}>
+  Count: {count}
+</button>
+"""
+
+# Vue sigil
+vue_template = ~VUE"""
+<template>
+  <div>
+    <h1>{{ title }}</h1>
+    <button @click="increment">{{ count }}</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      title: 'Vue Component',
+      count: 0
+    }
+  },
+  methods: {
+    increment() {
+      this.count++
+    }
+  }
+}
+</script>
+"""
