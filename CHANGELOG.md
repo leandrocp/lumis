@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.7.3] - 2025-08-20
 
 ### Added
 - Add common Elixir sigils injections
