@@ -240,7 +240,7 @@ tree-sitter-lua = { version = "0.2.0", optional = true }
 tree-sitter-nix = { version = "0.3.0", optional = true }
 tree-sitter-objc = { version = "3.0.2", optional = true }
 tree-sitter-ocaml = { version = "0.24.2", optional = true }
-tree-sitter-php = { version = "0.23.11", optional = true }
+tree-sitter-php = { version = "0.24.2", optional = true }
 tree-sitter-powershell = { version = "0.25.2", optional = true }
 tree-sitter-proto = { version = "0.2.0", optional = true }
 tree-sitter-python = { version = "0.23.6", optional = true }
