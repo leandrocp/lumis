@@ -1,7 +1,7 @@
 {
   "name": "gruvbox_light_hard",
   "appearance": "light",
-  "revision": "58a2cda2e953a99e2f87c12b7fb4602da4e0709c",
+  "revision": "12c2624287dc827edb5d72b2bc4c9619e692a554",
   "highlights": {
     "attribute": {
       "fg": "#427b58"
