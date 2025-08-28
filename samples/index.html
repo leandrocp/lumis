@@ -401,11 +401,26 @@
         themeSelect.appendChild(option);
       }
 
+      // Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlLanguage = urlParams.get('lang');
+      const urlTheme = urlParams.get('theme');
+
+      // Set initial values from URL or random
       const languageKeys = Object.keys(languages);
-      const randomLanguage = languageKeys[Math.floor(Math.random() * languageKeys.length)];
-      const randomTheme = themes[Math.floor(Math.random() * themes.length)];
-      languageSelect.value = randomLanguage;
-      themeSelect.value = randomTheme;
+      const initialLanguage = urlLanguage && languages[urlLanguage] ? urlLanguage : languageKeys[Math.floor(Math.random() * languageKeys.length)];
+      const initialTheme = urlTheme && themes.includes(urlTheme) ? urlTheme : themes[Math.floor(Math.random() * themes.length)];
+      languageSelect.value = initialLanguage;
+      themeSelect.value = initialTheme;
+
+      function updateURL() {
+        const language = languageSelect.value;
+        const theme = themeSelect.value;
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('lang', language);
+        newUrl.searchParams.set('theme', theme);
+        window.history.replaceState({}, '', newUrl);
+      }
 
       async function loadContent() {
         const language = languageSelect.value;
@@ -432,15 +447,17 @@
       languageSelect.addEventListener("change", () => {
         document.getElementById("language-value").textContent =
           languageSelect.value;
+        updateURL();
         loadContent();
       });
       themeSelect.addEventListener("change", () => {
         document.getElementById("theme-value").textContent = themeSelect.value;
+        updateURL();
         loadContent();
       });
 
-      document.getElementById("language-value").textContent = randomLanguage;
-      document.getElementById("theme-value").textContent = randomTheme;
+      document.getElementById("language-value").textContent = initialLanguage;
+      document.getElementById("theme-value").textContent = initialTheme;
 
       loadContent();
 
@@ -452,6 +469,7 @@
         themeSelect.value = randomTheme;
         document.getElementById("language-value").textContent = randomLanguage;
         document.getElementById("theme-value").textContent = randomTheme;
+        updateURL();
         loadContent();
       });
     </script>
