@@ -1,7 +1,7 @@
 {
   "name": "flexoki_dark",
   "appearance": "dark",
-  "revision": "8899dab435d8c82329397ca224e63b129a21e1e6",
+  "revision": "c3e2251e813d29d885a7cbbe9808a7af234d845d",
   "highlights": {
     "attribute": {
       "fg": "#ce5d97"
@@ -10,7 +10,7 @@
       "fg": "#878580"
     },
     "boolean": {
-      "fg": "#d0a215"
+      "fg": "#ce5d97"
     },
     "character": {
       "fg": "#3aa99f"
@@ -50,7 +50,7 @@
       "fg": "#d0a215"
     },
     "constant.macro": {
-      "fg": "#d0a215"
+      "fg": "#ce5d97"
     },
     "constructor": {
       "fg": "#878580"
@@ -62,7 +62,7 @@
       "fg": "#878580"
     },
     "diff.delta": {
-      "fg": "#4385be"
+      "fg": "#da702c"
     },
     "diff.minus": {
       "fg": "#d14d41"
@@ -83,7 +83,7 @@
       "fg": "#da702c"
     },
     "function.macro": {
-      "fg": "#da702c"
+      "fg": "#ce5d97"
     },
     "function.method": {
       "fg": "#da702c"
@@ -98,7 +98,7 @@
       "fg": "#da702c"
     },
     "highlighted": {
-      "bg": "#1c1b1a"
+      "bg": "#201f1e"
     },
     "keyword": {
       "fg": "#879a39"
@@ -251,6 +251,9 @@
     "module.builtin": {
       "fg": "#878580"
     },
+    "namespace": {
+      "fg": "#4385be"
+    },
     "normal": {
       "fg": "#cecdc3",
       "bg": "#100f0f"
@@ -358,25 +361,25 @@
       "fg": "#879a39"
     },
     "type.definition": {
-      "fg": "#879a39"
+      "fg": "#da702c"
     },
     "type.tag.css": {
       "fg": "#879a39"
     },
     "variable": {
-      "fg": "#e0e2ea"
+      "fg": "#4385be"
     },
     "variable.builtin": {
       "fg": "#878580"
     },
     "variable.member": {
-      "fg": "#e0e2ea"
+      "fg": "#4385be"
     },
     "variable.parameter": {
-      "fg": "#e0e2ea"
+      "fg": "#4385be"
     },
     "variable.parameter.bash": {
-      "fg": "#e0e2ea"
+      "fg": "#4385be"
     },
     "variable.parameter.builtin": {
       "fg": "#878580"

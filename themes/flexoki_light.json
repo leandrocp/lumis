@@ -1,7 +1,7 @@
 {
   "name": "flexoki_light",
   "appearance": "light",
-  "revision": "8899dab435d8c82329397ca224e63b129a21e1e6",
+  "revision": "c3e2251e813d29d885a7cbbe9808a7af234d845d",
   "highlights": {
     "attribute": {
       "fg": "#a02f6f"
@@ -10,7 +10,7 @@
       "fg": "#6f6e69"
     },
     "boolean": {
-      "fg": "#ad8301"
+      "fg": "#a02f6f"
     },
     "character": {
       "fg": "#24837b"
@@ -62,7 +62,7 @@
       "fg": "#6f6e69"
     },
     "diff.delta": {
-      "fg": "#205ea6"
+      "fg": "#bc5215"
     },
     "diff.minus": {
       "fg": "#af3029"
@@ -98,7 +98,7 @@
       "fg": "#bc5215"
     },
     "highlighted": {
-      "bg": "#f2f0e5"
+      "bg": "#efece1"
     },
     "keyword": {
       "fg": "#66800b"
@@ -250,6 +250,9 @@
     },
     "module.builtin": {
       "fg": "#6f6e69"
+    },
+    "namespace": {
+      "fg": "#205ea6"
     },
     "normal": {
       "fg": "#100f0f",
