@@ -34,6 +34,8 @@ jobs:
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
         with:
           commit-message: "chore: generate css"
           title: "chore: generate css"
