@@ -132,9 +132,6 @@
     "keyword.directive.define": {
       "fg": "#39adb5"
     },
-    "keyword.exception": {
-      "fg": "#e53935"
-    },
     "keyword.export": {
       "fg": "#39adb5"
     },
