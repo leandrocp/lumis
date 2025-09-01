@@ -1,5 +1,5 @@
 /* flexoki_light
- * revision: 8899dab435d8c82329397ca224e63b129a21e1e6
+ * revision: c3e2251e813d29d885a7cbbe9808a7af234d845d
  */
 
 pre.athl {
@@ -13,7 +13,7 @@ pre.athl {
   color: #6f6e69;
 }
 .boolean {
-  color: #ad8301;
+  color: #a02f6f;
 }
 .character {
   color: #24837b;
@@ -65,7 +65,7 @@ pre.athl {
   color: #6f6e69;
 }
 .diff-delta {
-  color: #205ea6;
+  color: #bc5215;
 }
 .diff-minus {
   color: #af3029;
@@ -101,7 +101,7 @@ pre.athl {
   color: #bc5215;
 }
 .highlighted {
-  background-color: #f2f0e5;
+  background-color: #efece1;
 }
 .keyword {
   color: #66800b;
@@ -253,6 +253,9 @@ pre.athl {
 }
 .module-builtin {
   color: #6f6e69;
+}
+.namespace {
+  color: #205ea6;
 }
 .normal {
   color: #100f0f;
