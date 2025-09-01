@@ -1,4 +1,4 @@
-name: Update Queries
+name: Update Languages
 
 on:
   schedule:
@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ".github/workflows/update_queries.yml"
+      - ".github/workflows/update_langs.yml"
 
 jobs:
-  update-queries:
+  update-parsers:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -20,18 +20,22 @@ jobs:
 
       - uses: taiki-e/install-action@just
 
+      - name: update-parsers
+        run: echo "y" | just update-parsers
+
       - name: update-queries
         run: echo "y" | just update-queries
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: "chore: update queries"
-          title: "chore: update queries"
+          token: ${{ secrets.CI_TOKEN }}
+          commit-message: "chore: update langs"
+          title: "chore: update langs"
           body: |
-            Automated PR to update queries.
+            Automated PR to update parsers and queries.
 
-            This PR was created automatically by the update-queries workflow.
-          branch: update-queries
+            This PR was created automatically by the update-langs workflow.
+          branch: update-langs
           delete-branch: true
           base: main
