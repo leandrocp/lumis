@@ -33,6 +33,8 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CI_TOKEN }}
+          add-paths: |
+            themes
           commit-message: "chore: generate themes"
           title: "chore: generate themes"
           body: |

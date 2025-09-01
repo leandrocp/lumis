@@ -35,6 +35,8 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CI_TOKEN }}
+          add-paths: |
+            samples
           commit-message: "chore: generate samples"
           title: "chore: generate samples"
           body: |

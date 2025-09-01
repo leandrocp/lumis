@@ -32,6 +32,9 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CI_TOKEN }}
+          add-paths: |
+            vendored_parsers
+            queries
           commit-message: "chore: update langs"
           title: "chore: update langs"
           body: |

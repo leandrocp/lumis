@@ -41,6 +41,8 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CI_TOKEN }}
+          add-paths: |
+            css
           commit-message: "chore: generate css"
           title: "chore: generate css"
           body: |
