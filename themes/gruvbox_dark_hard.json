@@ -1,7 +1,7 @@
 {
   "name": "gruvbox_dark_hard",
   "appearance": "dark",
-  "revision": "12c2624287dc827edb5d72b2bc4c9619e692a554",
+  "revision": "a56f758f9d3eed0b8afbab6ea3ee523887755aed",
   "highlights": {
     "attribute": {
       "fg": "#8ec07c"
