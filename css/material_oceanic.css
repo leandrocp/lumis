@@ -1,5 +1,5 @@
 /* material_oceanic
- * revision: 0004ec60f91d581d47563a39f7dac62cb758f7ea
+ * revision: 2929c6fae4886bd7c33371937601409705049a18
  */
 
 pre.athl {
@@ -134,9 +134,6 @@ pre.athl {
 }
 .keyword-directive-define {
   color: #89ddff;
-}
-.keyword-exception {
-  color: #f07178;
 }
 .keyword-export {
   color: #89ddff;
