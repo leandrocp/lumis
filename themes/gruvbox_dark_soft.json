@@ -1,7 +1,7 @@
 {
   "name": "gruvbox_dark_soft",
   "appearance": "dark",
-  "revision": "a56f758f9d3eed0b8afbab6ea3ee523887755aed",
+  "revision": "5e0a460d8e0f7f669c158dedd5f9ae2bcac31437",
   "highlights": {
     "attribute": {
       "fg": "#8ec07c"
