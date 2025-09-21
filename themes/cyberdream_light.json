@@ -1,7 +1,7 @@
 {
   "name": "cyberdream_light",
   "appearance": "light",
-  "revision": "89fd0b94040923597e2530ffcb2e887bd7c75d76",
+  "revision": "caf4f5e57f8d5e0bb75fe98f4f67965b1fb3326c",
   "highlights": {
     "attribute": {
       "fg": "#008c99"

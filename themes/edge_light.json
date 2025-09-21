@@ -1,7 +1,7 @@
 {
   "name": "edge_light",
   "appearance": "light",
-  "revision": "2a2de5438b067a692cae1074ae77b904e8c08e16",
+  "revision": "341a2a3ff22a297386f6331c947f26f4a41550d9",
   "highlights": {
     "attribute": {
       "fg": "#be7e05"

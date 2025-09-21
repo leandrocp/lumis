@@ -1,10 +1,10 @@
 {
   "name": "material_oceanic",
   "appearance": "dark",
-  "revision": "2929c6fae4886bd7c33371937601409705049a18",
+  "revision": "249289d9e75fa9ca054e6c6b98f56820e9719300",
   "highlights": {
     "attribute": {
-      "fg": "#82aaff"
+      "bg": "#384d62"
     },
     "attribute.builtin": {
       "fg": "#89ddff"
@@ -65,13 +65,13 @@
       "fg": "#82aaff"
     },
     "diff.delta": {
-      "fg": "#82aaff"
+      "bg": "#384d62"
     },
     "diff.minus": {
-      "fg": "#f07178"
+      "bg": "#4e4247"
     },
     "diff.plus": {
-      "fg": "#c3e88d"
+      "bg": "#455a4b"
     },
     "error": {
       "fg": "#ff5370",
@@ -131,6 +131,9 @@
     },
     "keyword.directive.define": {
       "fg": "#89ddff"
+    },
+    "keyword.exception": {
+      "fg": "#f07178"
     },
     "keyword.export": {
       "fg": "#89ddff"

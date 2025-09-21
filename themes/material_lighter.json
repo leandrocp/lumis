@@ -1,10 +1,10 @@
 {
   "name": "material_lighter",
   "appearance": "light",
-  "revision": "2929c6fae4886bd7c33371937601409705049a18",
+  "revision": "249289d9e75fa9ca054e6c6b98f56820e9719300",
   "highlights": {
     "attribute": {
-      "fg": "#6182b8"
+      "bg": "#dbe2ed"
     },
     "attribute.builtin": {
       "fg": "#39adb5"
@@ -65,13 +65,13 @@
       "fg": "#6182b8"
     },
     "diff.delta": {
-      "fg": "#6182b8"
+      "bg": "#dbe2ed"
     },
     "diff.minus": {
-      "fg": "#e53935"
+      "bg": "#f6d3d3"
     },
     "diff.plus": {
-      "fg": "#91b859"
+      "bg": "#e5edda"
     },
     "error": {
       "fg": "#ff5370",

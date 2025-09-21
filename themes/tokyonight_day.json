@@ -1,7 +1,7 @@
 {
   "name": "tokyonight_day",
   "appearance": "light",
-  "revision": "057ef5d260c1931f1dffd0f052c685dcd14100a3",
+  "revision": "14fd5ff7f84027064724ec3157fe903199e77ded",
   "highlights": {
     "attribute": {
       "fg": "#007197"
@@ -246,7 +246,7 @@
       "underline": true
     },
     "module": {
-      "fg": "#2e7de9"
+      "fg": "#007197"
     },
     "module.builtin": {
       "fg": "#f52a65"

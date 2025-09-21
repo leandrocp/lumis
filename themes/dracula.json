@@ -1,7 +1,7 @@
 {
   "name": "dracula",
   "appearance": "dark",
-  "revision": "df528c869b09fbdc7578e6ccc7ff6faf44a2046d",
+  "revision": "041d923368d540a1e438989ce8f915628081a56a",
   "highlights": {
     "attribute": {
       "fg": "#8be9fd"

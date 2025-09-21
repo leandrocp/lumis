@@ -1,10 +1,10 @@
 {
   "name": "material_deep_ocean",
   "appearance": "dark",
-  "revision": "2929c6fae4886bd7c33371937601409705049a18",
+  "revision": "249289d9e75fa9ca054e6c6b98f56820e9719300",
   "highlights": {
     "attribute": {
-      "fg": "#82aaff"
+      "bg": "#263048"
     },
     "attribute.builtin": {
       "fg": "#89ddff"
@@ -65,13 +65,13 @@
       "fg": "#82aaff"
     },
     "diff.delta": {
-      "fg": "#82aaff"
+      "bg": "#263048"
     },
     "diff.minus": {
-      "fg": "#f07178"
+      "bg": "#3c242d"
     },
     "diff.plus": {
-      "fg": "#c3e88d"
+      "bg": "#333c31"
     },
     "error": {
       "fg": "#ff5370",
