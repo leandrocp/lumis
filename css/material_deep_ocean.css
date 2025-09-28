@@ -1,5 +1,5 @@
 /* material_deep_ocean
- * revision: 2929c6fae4886bd7c33371937601409705049a18
+ * revision: 249289d9e75fa9ca054e6c6b98f56820e9719300
  */
 
 pre.athl {
@@ -7,7 +7,7 @@ pre.athl {
   background-color: #0f111a;
 }
 .attribute {
-  color: #82aaff;
+  background-color: #263048;
 }
 .attribute-builtin {
   color: #89ddff;
@@ -68,13 +68,13 @@ pre.athl {
   color: #82aaff;
 }
 .diff-delta {
-  color: #82aaff;
+  background-color: #263048;
 }
 .diff-minus {
-  color: #f07178;
+  background-color: #3c242d;
 }
 .diff-plus {
-  color: #c3e88d;
+  background-color: #333c31;
 }
 .error {
   color: #ff5370;

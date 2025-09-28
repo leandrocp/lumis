@@ -1,5 +1,5 @@
 /* tokyonight_day
- * revision: 057ef5d260c1931f1dffd0f052c685dcd14100a3
+ * revision: 14fd5ff7f84027064724ec3157fe903199e77ded
  */
 
 pre.athl {
@@ -249,7 +249,7 @@ pre.athl {
   text-decoration: underline;
 }
 .module {
-  color: #2e7de9;
+  color: #007197;
 }
 .module-builtin {
   color: #f52a65;
