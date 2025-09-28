@@ -1,7 +1,7 @@
 {
   "name": "tokyonight_moon",
   "appearance": "dark",
-  "revision": "14fd5ff7f84027064724ec3157fe903199e77ded",
+  "revision": "4d159616aee17796c2c94d2f5f87d2ee1a3f67c7",
   "highlights": {
     "attribute": {
       "fg": "#86e1fc"
@@ -66,10 +66,10 @@
       "bg": "#252a3f"
     },
     "diff.minus": {
-      "bg": "#3a273a"
+      "bg": "#4b2a3d"
     },
     "diff.plus": {
-      "bg": "#273849"
+      "bg": "#2a4556"
     },
     "function": {
       "fg": "#82aaff"

@@ -1,7 +1,7 @@
 {
   "name": "tokyonight_night",
   "appearance": "dark",
-  "revision": "14fd5ff7f84027064724ec3157fe903199e77ded",
+  "revision": "4d159616aee17796c2c94d2f5f87d2ee1a3f67c7",
   "highlights": {
     "attribute": {
       "fg": "#7dcfff"
@@ -66,10 +66,10 @@
       "bg": "#1f2231"
     },
     "diff.minus": {
-      "bg": "#37222c"
+      "bg": "#4a272f"
     },
     "diff.plus": {
-      "bg": "#20303b"
+      "bg": "#243e4a"
     },
     "function": {
       "fg": "#7aa2f7"

@@ -1,7 +1,7 @@
 {
   "name": "edge_neon",
   "appearance": "dark",
-  "revision": "341a2a3ff22a297386f6331c947f26f4a41550d9",
+  "revision": "dfb013e84e8b8302d99ed75e664ccb2a05925ad3",
   "highlights": {
     "attribute": {
       "fg": "#deb974"
