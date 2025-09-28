@@ -396,6 +396,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -799,6 +831,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -1006,6 +1070,22 @@
     }
   },
   {
+    "type": "brack_group_word",
+    "named": true,
+    "fields": {
+      "word": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "word",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "caption",
     "named": true,
     "fields": {
@@ -1194,6 +1274,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -1928,6 +2040,320 @@
     }
   },
   {
+    "type": "counter_addition",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\addtocounter",
+            "named": false
+          }
+        ]
+      },
+      "counter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "counter_value",
+            "named": true
+          },
+          {
+            "type": "curly_group_value",
+            "named": true
+          },
+          {
+            "type": "{",
+            "named": false
+          },
+          {
+            "type": "}",
+            "named": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "counter_declaration",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\newcounter",
+            "named": false
+          }
+        ]
+      },
+      "counter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      },
+      "supercounter": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "brack_group_word",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "counter_definition",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\setcounter",
+            "named": false
+          }
+        ]
+      },
+      "counter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "counter_value",
+            "named": true
+          },
+          {
+            "type": "curly_group_value",
+            "named": true
+          },
+          {
+            "type": "{",
+            "named": false
+          },
+          {
+            "type": "}",
+            "named": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "counter_increment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\refstepcounter",
+            "named": false
+          },
+          {
+            "type": "\\stepcounter",
+            "named": false
+          }
+        ]
+      },
+      "counter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "counter_typesetting",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\Alph",
+            "named": false
+          },
+          {
+            "type": "\\Roman",
+            "named": false
+          },
+          {
+            "type": "\\alph",
+            "named": false
+          },
+          {
+            "type": "\\arabic",
+            "named": false
+          },
+          {
+            "type": "\\fnsymbol",
+            "named": false
+          },
+          {
+            "type": "\\roman",
+            "named": false
+          }
+        ]
+      },
+      "counter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "counter_value",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\value",
+            "named": false
+          }
+        ]
+      },
+      "counter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "counter_within_declaration",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\counterwithin",
+            "named": false
+          },
+          {
+            "type": "\\counterwithin*",
+            "named": false
+          }
+        ]
+      },
+      "counter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      },
+      "supercounter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "counter_without_declaration",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "\\counterwithout",
+            "named": false
+          },
+          {
+            "type": "\\counterwithout*",
+            "named": false
+          }
+        ]
+      },
+      "counter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      },
+      "supercounter": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "curly_group_word",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "curly_group",
     "named": true,
     "fields": {},
@@ -2005,6 +2431,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -2310,6 +2768,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -2577,6 +3067,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -2748,6 +3270,38 @@
     }
   },
   {
+    "type": "curly_group_value",
+    "named": true,
+    "fields": {
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "value_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "curly_group_word",
+    "named": true,
+    "fields": {
+      "word": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "word",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "displayed_equation",
     "named": true,
     "fields": {},
@@ -2825,6 +3379,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -3139,6 +3725,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -3523,6 +4141,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -4218,6 +4868,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -4475,7 +5157,7 @@
         "required": true,
         "types": [
           {
-            "type": "curly_group_text",
+            "type": "curly_group_label",
             "named": true
           }
         ]
@@ -4657,7 +5339,7 @@
         "required": true,
         "types": [
           {
-            "type": "curly_group_text",
+            "type": "curly_group_label",
             "named": true
           }
         ]
@@ -4667,7 +5349,7 @@
         "required": true,
         "types": [
           {
-            "type": "curly_group_text",
+            "type": "curly_group_label",
             "named": true
           }
         ]
@@ -5026,6 +5708,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -5307,6 +6021,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -5931,6 +6677,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -6218,6 +6996,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -6631,6 +7441,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -6888,6 +7730,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -7189,6 +8063,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -7487,6 +8393,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -7770,6 +8708,38 @@
         },
         {
           "type": "comment_environment",
+          "named": true
+        },
+        {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
           "named": true
         },
         {
@@ -8065,6 +9035,38 @@
           },
           {
             "type": "color_set_definition",
+            "named": true
+          },
+          {
+            "type": "counter_addition",
+            "named": true
+          },
+          {
+            "type": "counter_declaration",
+            "named": true
+          },
+          {
+            "type": "counter_definition",
+            "named": true
+          },
+          {
+            "type": "counter_increment",
+            "named": true
+          },
+          {
+            "type": "counter_typesetting",
+            "named": true
+          },
+          {
+            "type": "counter_value",
+            "named": true
+          },
+          {
+            "type": "counter_within_declaration",
+            "named": true
+          },
+          {
+            "type": "counter_without_declaration",
             "named": true
           },
           {
@@ -8464,6 +9466,38 @@
           "named": true
         },
         {
+          "type": "counter_addition",
+          "named": true
+        },
+        {
+          "type": "counter_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_definition",
+          "named": true
+        },
+        {
+          "type": "counter_increment",
+          "named": true
+        },
+        {
+          "type": "counter_typesetting",
+          "named": true
+        },
+        {
+          "type": "counter_value",
+          "named": true
+        },
+        {
+          "type": "counter_within_declaration",
+          "named": true
+        },
+        {
+          "type": "counter_without_declaration",
+          "named": true
+        },
+        {
           "type": "curly_group",
           "named": true
         },
@@ -8801,6 +9835,10 @@
     "named": false
   },
   {
+    "type": "\\Alph",
+    "named": false
+  },
+  {
     "type": "\\Autocite",
     "named": false
   },
@@ -9117,6 +10155,10 @@
     "named": false
   },
   {
+    "type": "\\Roman",
+    "named": false
+  },
+  {
     "type": "\\Smartcite",
     "named": false
   },
@@ -9234,6 +10276,18 @@
   },
   {
     "type": "\\addsec*",
+    "named": false
+  },
+  {
+    "type": "\\addtocounter",
+    "named": false
+  },
+  {
+    "type": "\\alph",
+    "named": false
+  },
+  {
+    "type": "\\arabic",
     "named": false
   },
   {
@@ -9409,6 +10463,22 @@
     "named": false
   },
   {
+    "type": "\\counterwithin",
+    "named": false
+  },
+  {
+    "type": "\\counterwithin*",
+    "named": false
+  },
+  {
+    "type": "\\counterwithout",
+    "named": false
+  },
+  {
+    "type": "\\counterwithout*",
+    "named": false
+  },
+  {
     "type": "\\cpageref",
     "named": false
   },
@@ -9474,6 +10544,10 @@
   },
   {
     "type": "\\fnotecite",
+    "named": false
+  },
+  {
+    "type": "\\fnsymbol",
     "named": false
   },
   {
@@ -9717,6 +10791,10 @@
     "named": false
   },
   {
+    "type": "\\newcounter",
+    "named": false
+  },
+  {
     "type": "\\newenvironment",
     "named": false
   },
@@ -9801,6 +10879,10 @@
     "named": false
   },
   {
+    "type": "\\refstepcounter",
+    "named": false
+  },
+  {
     "type": "\\renewcommand",
     "named": false
   },
@@ -9821,6 +10903,10 @@
     "named": false
   },
   {
+    "type": "\\roman",
+    "named": false
+  },
+  {
     "type": "\\section",
     "named": false
   },
@@ -9829,11 +10915,19 @@
     "named": false
   },
   {
+    "type": "\\setcounter",
+    "named": false
+  },
+  {
     "type": "\\shortintertext",
     "named": false
   },
   {
     "type": "\\smartcite",
+    "named": false
+  },
+  {
+    "type": "\\stepcounter",
     "named": false
   },
   {
@@ -9925,6 +11019,10 @@
     "named": false
   },
   {
+    "type": "\\value",
+    "named": false
+  },
+  {
     "type": "\\verbatiminput",
     "named": false
   },
@@ -9998,6 +11096,10 @@
   },
   {
     "type": "uri",
+    "named": true
+  },
+  {
+    "type": "value_literal",
     "named": true
   },
   {

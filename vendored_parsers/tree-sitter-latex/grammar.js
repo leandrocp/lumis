@@ -318,6 +318,10 @@ module.exports = grammar({
 
     curly_group_text: $ => seq('{', field('text', $.text), '}'),
 
+    curly_group_word: $ => seq('{', field('word', $.word), '}'),
+
+    curly_group_value: $ => seq('{', field('value', $.value_literal), '}'),
+
     curly_group_spec: $ =>
       seq('{', repeat(choice($._text_content, '=')), '}'),
 
@@ -363,6 +367,8 @@ module.exports = grammar({
 
     brack_group_text: $ => seq('[', field('text', $.text), ']'),
 
+    brack_group_word: $ => seq('[', field('word', $.word), ']'),
+
     brack_group_argc: $ => seq('[', field('value', $.argc), ']'),
 
     brack_group_key_value: $ =>
@@ -392,6 +398,8 @@ module.exports = grammar({
     word: $ => /[^\s\\%\{\},\$\[\]\(\)=\#&_\^\-\+\/\*]+/,
 
     placeholder: $ => /#+\d/,
+
+    value_literal: $ => /(\d+\.)?\d+/,
 
     delimiter: $ => /&/,
 
@@ -653,6 +661,14 @@ module.exports = grammar({
         $.import_include,
         $.caption,
         $.citation,
+        $.counter_declaration,
+        $.counter_within_declaration,
+        $.counter_without_declaration,
+        $.counter_value,
+        $.counter_definition,
+        $.counter_addition,
+        $.counter_increment,
+        $.counter_typesetting,
         $.label_definition,
         $.label_reference,
         $.label_reference_range,
@@ -695,6 +711,78 @@ module.exports = grammar({
       ),
 
     command_name: $ => /\\([^\r\n]|[@a-zA-Z]+\*?)?/,
+
+    counter_declaration: $ =>
+      prec.right(
+        seq(
+          field('command', '\\newcounter'),
+          field('counter', $.curly_group_word),
+          optional(field('supercounter', $.brack_group_word))
+        )
+      ),
+
+    counter_within_declaration: $ =>
+      seq(
+        field('command', choice('\\counterwithin', '\\counterwithin*')),
+        field('counter', $.curly_group_word),
+        field('supercounter', $.curly_group_word),
+      ),
+
+    counter_without_declaration: $ =>
+      seq(
+        field('command', choice('\\counterwithout', '\\counterwithout*')),
+        field('counter', $.curly_group_word),
+        field('supercounter', $.curly_group_word),
+      ),
+
+    counter_value: $ =>
+      seq(
+        field('command', '\\value'),
+        field('counter', $.curly_group_word)
+      ),
+
+    counter_definition: $ =>
+      seq(
+        field('command', '\\setcounter'),
+        field('counter', $.curly_group_word),
+        // We can have a value or a call to \value{x} inside curly braces:
+        field('value', choice(
+          $.curly_group_value,
+          seq('{', field('value', $.counter_value), '}')
+        )),
+      ),
+
+    counter_addition: $ =>
+      seq(
+        field('command', '\\addtocounter'),
+        field('counter', $.curly_group_word),
+        // Same as $.counter_definition['value']:
+        field('value', choice(
+          $.curly_group_value,
+          seq('{', field('value', $.counter_value), '}')
+        )),
+      ),
+
+    counter_increment: $ =>
+      seq(
+        field('command', choice('\\stepcounter', '\\refstepcounter')),
+        field('counter', $.curly_group_word),
+      ),
+
+    // NOTE: It is not the rule of the grammar tree to check if the counter
+    //       is in [0,9] for \fnsymbol: it's up to the LSP (or the user) :)
+    counter_typesetting: $ =>
+      seq(
+        field('command', choice(
+          '\\arabic',
+          '\\alph',
+          '\\Alph',
+          '\\roman',
+          '\\Roman',
+          '\\fnsymbol'
+        )),
+        field('counter', $.curly_group_word),
+      ),
 
     title_declaration: $ =>
       seq(
@@ -931,14 +1019,14 @@ module.exports = grammar({
             '\\Cpagerefrange',
           ),
         ),
-        field('from', $.curly_group_text),
-        field('to', $.curly_group_text),
+        field('from', $.curly_group_label),
+        field('to', $.curly_group_label),
       ),
 
     label_number: $ =>
       seq(
         field('command', '\\newlabel'),
-        field('name', $.curly_group_text),
+        field('name', $.curly_group_label),
         field('number', $.curly_group),
       ),
 

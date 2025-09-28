@@ -1,0 +1,182 @@
+================================================================================
+Declaring a counter.
+================================================================================
+
+\newcounter{foo}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_declaration
+    (curly_group_word
+	  (word))))
+
+================================================================================
+Declaring a counter with a supercounter.
+================================================================================
+
+\newcounter{foo}[chapter]
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_declaration
+    (curly_group_word
+	  (word))
+	(brack_group_word
+	  (word))))
+
+================================================================================
+Re-parenting a counter within a supercounter.
+================================================================================
+
+\counterwithin{foo}{bar}
+\counterwithin*{foo}{bar}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_within_declaration
+    (curly_group_word
+	  (word))
+	(curly_group_word
+	  (word)))
+  (counter_within_declaration
+    (curly_group_word
+	  (word))
+	(curly_group_word
+	  (word))))
+
+================================================================================
+Breaking the link between a counter and its supercounter.
+================================================================================
+
+\counterwithout{foo}{bar}
+\counterwithout*{foo}{bar}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_without_declaration
+    (curly_group_word
+	  (word))
+	(curly_group_word
+	  (word)))
+  (counter_without_declaration
+    (curly_group_word
+	  (word))
+	(curly_group_word
+	  (word))))
+
+================================================================================
+Getting a counter's value.
+================================================================================
+
+\newcounter{foo}
+\value{foo}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_declaration
+    (curly_group_word
+	  (word)))
+  (counter_value
+    (curly_group_word
+	  (word))))
+
+================================================================================
+Setting a counter's value.
+================================================================================
+
+\newcounter{foo}
+\setcounter{foo}{0}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_declaration
+    (curly_group_word
+	  (word)))
+  (counter_definition
+    (curly_group_word
+	  (word))
+	(curly_group_value
+	  (value_literal))))
+
+================================================================================
+Setting a counter's value from another counter.
+================================================================================
+
+\newcounter{foo}
+\newcounter{bar}
+\setcounter{foo}{\value{bar}}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_declaration
+    (curly_group_word
+	  (word)))
+  (counter_declaration
+    (curly_group_word
+	  (word)))
+  (counter_definition
+    (curly_group_word
+	  (word))
+	(counter_value
+	  (curly_group_word
+        (word)))))
+
+================================================================================
+Stepping over a counter.
+================================================================================
+
+\newcounter{foo}
+\stepcounter{foo}
+\refstepcounter{foo}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_declaration
+    (curly_group_word
+	  (word)))
+  (counter_increment
+    (curly_group_word
+	  (word)))
+  (counter_increment
+    (curly_group_word
+	  (word))))
+
+================================================================================
+Typesetting a counter.
+================================================================================
+
+\newcounter{foo}
+\setcounter{foo}{5}
+
+Values: \alph{foo}, \roman{foo}, \arabic{foo}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (counter_declaration
+    (curly_group_word
+	  (word)))
+  (counter_definition
+    (curly_group_word
+	  (word))
+	(curly_group_value
+	  (value_literal)))
+  (text
+    (word)
+	(counter_typesetting
+	 (curly_group_word
+	   (word))))
+	(counter_typesetting
+	 (curly_group_word
+	   (word)))
+	(counter_typesetting
+	 (curly_group_word
+	   (word))))
