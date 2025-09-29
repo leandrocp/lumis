@@ -1112,6 +1112,48 @@
         }
       ]
     },
+    "curly_group_word": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "FIELD",
+          "name": "word",
+          "content": {
+            "type": "SYMBOL",
+            "name": "word"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "curly_group_value": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SYMBOL",
+            "name": "value_literal"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
     "curly_group_spec": {
       "type": "SEQ",
       "members": [
@@ -1620,6 +1662,27 @@
         }
       ]
     },
+    "brack_group_word": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "FIELD",
+          "name": "word",
+          "content": {
+            "type": "SYMBOL",
+            "name": "word"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
     "brack_group_argc": {
       "type": "SEQ",
       "members": [
@@ -1750,6 +1813,10 @@
     "placeholder": {
       "type": "PATTERN",
       "value": "#+\\d"
+    },
+    "value_literal": {
+      "type": "PATTERN",
+      "value": "(\\d+\\.)?\\d+"
     },
     "delimiter": {
       "type": "PATTERN",
@@ -4260,6 +4327,38 @@
         },
         {
           "type": "SYMBOL",
+          "name": "counter_declaration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "counter_within_declaration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "counter_without_declaration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "counter_value"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "counter_definition"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "counter_addition"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "counter_increment"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "counter_typesetting"
+        },
+        {
+          "type": "SYMBOL",
           "name": "label_definition"
         },
         {
@@ -4420,6 +4519,330 @@
     "command_name": {
       "type": "PATTERN",
       "value": "\\\\([^\\r\\n]|[@a-zA-Z]+\\*?)?"
+    },
+    "counter_declaration": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "command",
+            "content": {
+              "type": "STRING",
+              "value": "\\newcounter"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "counter",
+            "content": {
+              "type": "SYMBOL",
+              "name": "curly_group_word"
+            }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "supercounter",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "brack_group_word"
+                }
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "counter_within_declaration": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\counterwithin"
+              },
+              {
+                "type": "STRING",
+                "value": "\\counterwithin*"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "counter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "supercounter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        }
+      ]
+    },
+    "counter_without_declaration": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\counterwithout"
+              },
+              {
+                "type": "STRING",
+                "value": "\\counterwithout*"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "counter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "supercounter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        }
+      ]
+    },
+    "counter_value": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "STRING",
+            "value": "\\value"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "counter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        }
+      ]
+    },
+    "counter_definition": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "STRING",
+            "value": "\\setcounter"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "counter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "curly_group_value"
+              },
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "{"
+                  },
+                  {
+                    "type": "FIELD",
+                    "name": "value",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "counter_value"
+                    }
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "counter_addition": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "STRING",
+            "value": "\\addtocounter"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "counter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "curly_group_value"
+              },
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "{"
+                  },
+                  {
+                    "type": "FIELD",
+                    "name": "value",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "counter_value"
+                    }
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "counter_increment": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\stepcounter"
+              },
+              {
+                "type": "STRING",
+                "value": "\\refstepcounter"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "counter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        }
+      ]
+    },
+    "counter_typesetting": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\arabic"
+              },
+              {
+                "type": "STRING",
+                "value": "\\alph"
+              },
+              {
+                "type": "STRING",
+                "value": "\\Alph"
+              },
+              {
+                "type": "STRING",
+                "value": "\\roman"
+              },
+              {
+                "type": "STRING",
+                "value": "\\Roman"
+              },
+              {
+                "type": "STRING",
+                "value": "\\fnsymbol"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "counter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "curly_group_word"
+          }
+        }
+      ]
     },
     "title_declaration": {
       "type": "SEQ",
@@ -5410,7 +5833,7 @@
           "name": "from",
           "content": {
             "type": "SYMBOL",
-            "name": "curly_group_text"
+            "name": "curly_group_label"
           }
         },
         {
@@ -5418,7 +5841,7 @@
           "name": "to",
           "content": {
             "type": "SYMBOL",
-            "name": "curly_group_text"
+            "name": "curly_group_label"
           }
         }
       ]
@@ -5439,7 +5862,7 @@
           "name": "name",
           "content": {
             "type": "SYMBOL",
-            "name": "curly_group_text"
+            "name": "curly_group_label"
           }
         },
         {

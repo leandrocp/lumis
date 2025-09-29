@@ -223,7 +223,6 @@
 [
   "try"
   "except"
-  "except*"
   "raise"
   "finally"
 ] @keyword.exception
@@ -247,6 +246,8 @@
 (interpolation
   "{" @punctuation.special
   "}" @punctuation.special)
+
+(line_continuation) @punctuation.special
 
 (type_conversion) @function.macro
 

@@ -385,3 +385,41 @@ Reference(s), with path separators and colons.
   	(curly_group_label_list
 	  (label))))
 
+================================================================================
+Label creation in auxiliary files
+================================================================================
+
+\newlabel{chapter/foo}{{1}{1}{Foo}{chapter.1}{}}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (label_number
+  	(curly_group_label
+	  (label))
+	(curly_group
+		(curly_group
+		  (text (word)))
+		(curly_group
+		  (text (word)))
+		(curly_group
+		  (text (word)))
+		(curly_group
+		  (text (word)))
+		(curly_group))))
+
+================================================================================
+Reference ranges
+================================================================================
+
+\crefrange{foo/bar}{foo:baz}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (label_reference_range
+  	(curly_group_label
+	  (label))
+  	(curly_group_label
+	  (label))))
+
