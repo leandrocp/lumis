@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.7.4] - 2025-09-30
 
 ### Changed
 - Relax tree-sitter requirement to v0.25
