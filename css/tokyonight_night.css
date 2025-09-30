@@ -1,5 +1,5 @@
 /* tokyonight_night
- * revision: 057ef5d260c1931f1dffd0f052c685dcd14100a3
+ * revision: 4d159616aee17796c2c94d2f5f87d2ee1a3f67c7
  */
 
 pre.athl {
@@ -69,10 +69,10 @@ pre.athl {
   background-color: #1f2231;
 }
 .diff-minus {
-  background-color: #37222c;
+  background-color: #4a272f;
 }
 .diff-plus {
-  background-color: #20303b;
+  background-color: #243e4a;
 }
 .function {
   color: #7aa2f7;
@@ -250,7 +250,7 @@ pre.athl {
   text-decoration: underline;
 }
 .module {
-  color: #7aa2f7;
+  color: #7dcfff;
 }
 .module-builtin {
   color: #f7768e;
