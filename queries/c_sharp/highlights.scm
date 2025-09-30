@@ -90,6 +90,9 @@
 (parameter
   name: (identifier) @variable.parameter)
 
+(parameter
+  (modifier) @keyword.modifier)
+
 (parameter_list
   name: (identifier) @variable.parameter)
 
@@ -188,6 +191,9 @@
   name: (identifier) @type)
 
 (enum_declaration
+  name: (identifier) @type)
+
+(delegate_declaration
   name: (identifier) @type)
 
 (enum_member_declaration
