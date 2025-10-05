@@ -466,11 +466,31 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "binary_expression",
             "named": true
           },
           {
-            "type": "static_member_expression",
+            "type": "conditional_expression",
+            "named": true
+          },
+          {
+            "type": "expression",
+            "named": true
+          },
+          {
+            "type": "nullish_coalescing_expression",
+            "named": true
+          },
+          {
+            "type": "template_string",
+            "named": true
+          },
+          {
+            "type": "ternary_expression",
+            "named": true
+          },
+          {
+            "type": "unary_expression",
             "named": true
           }
         ]
@@ -2592,21 +2612,6 @@
         },
         {
           "type": "text",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "static_member_expression",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "identifier",
           "named": true
         }
       ]
