@@ -1,15 +1,15 @@
 # Changelog
 
-## [Unreleased]
+## [0.7.5] - 2025-10-10
 
 ### Added
 - Add Typst language (@mylanconnolly)
 
 ### Changed
-- Update rustler from 0.36.2 to 0.37.0
-- Update tree-sitter-erlang from 0.14.0 to 0.15.0
-- Update tree-sitter-sequel from 0.3.10 to 0.3.11
-- Update tree-sitter-yaml from 0.7.1 to 0.7.2
+- Update rustler to 0.37.0
+- Update tree-sitter-erlang to 0.15.0
+- Update tree-sitter-sequel to 0.3.11
+- Update tree-sitter-yaml to 0.7.2
 
 ## [0.7.4] - 2025-09-30
 
