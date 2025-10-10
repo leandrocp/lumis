@@ -245,6 +245,13 @@ fn vendored_parsers() {
         extra_files: vec![],
     });
 
+    #[cfg(feature = "lang-typst")]
+    parsers.push(TreeSitterParser {
+        name: "tree-sitter-typst",
+        src_dir: "vendored_parsers/tree-sitter-typst/src",
+        extra_files: vec!["scanner.c"],
+    });
+
     #[cfg(feature = "lang-vim")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-vim",
@@ -430,6 +437,7 @@ fn queries() {
             "swift" => cfg!(feature = "lang-swift"),
             "tsx" => cfg!(feature = "lang-tsx"),
             "typescript" => cfg!(feature = "lang-typescript"),
+            "typst" => cfg!(feature = "lang-typst"),
             "vim" => cfg!(feature = "lang-vim"),
             "vue" => cfg!(feature = "lang-vue"),
             "xml" => cfg!(feature = "lang-xml"),

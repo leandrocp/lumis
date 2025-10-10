@@ -64,6 +64,7 @@ update-parsers parser_name="":
         "powershell"
         "scss"
         "surface"
+        "typst"
         "vim"
         "vue"
     )
@@ -202,10 +203,10 @@ update-queries query_name="":
         if [[ -n "${special_repos[$LANG]:-}" ]]; then
             IFS=' ' read -r repo branch <<< "${special_repos[$LANG]}"
             echo "🔄 Updating $LANG queries from $repo (branch: $branch)"
-            
+
             git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$LANG-special"
             SRC_DIR="$TEMP_DIR/$LANG-special/queries"
-            
+
             if [ -d "$SRC_DIR" ]; then
                 mkdir -p "$DEST_DIR"
                 cp -r "$SRC_DIR"/* "$DEST_DIR/" 2>/dev/null || true
@@ -213,11 +214,11 @@ update-queries query_name="":
             else
                 echo "⚠️  No queries found for $LANG in special repo"
             fi
-            
+
             rm -rf "$TEMP_DIR/$LANG-special"
         else
             SRC_DIR="$TEMP_DIR/nvim-treesitter/runtime/queries/$LANG"
-            
+
             if [ -d "$SRC_DIR" ]; then
                 echo "🔄 Updating $LANG queries from nvim-treesitter"
                 mkdir -p "$DEST_DIR"

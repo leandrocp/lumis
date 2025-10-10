@@ -119,6 +119,7 @@ all-languages = [
     "lang-toml",
     "lang-tsx",
     "lang-typescript",
+    "lang-typst",
     "lang-vim",
     "lang-vue",
     "lang-xml",
@@ -192,6 +193,7 @@ lang-swift = ["dep:tree-sitter-swift"]
 lang-toml = ["dep:tree-sitter-toml-ng"]
 lang-tsx = ["dep:tree-sitter-typescript"]
 lang-typescript = ["dep:tree-sitter-typescript"]
+lang-typst = []
 lang-vim = []
 lang-vue = []
 lang-xml = ["dep:tree-sitter-xml"]

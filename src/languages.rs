@@ -145,6 +145,8 @@ unsafe extern "C" {
     fn tree_sitter_scss() -> *const ();
     #[cfg(feature = "lang-surface")]
     fn tree_sitter_surface() -> *const ();
+    #[cfg(feature = "lang-typst")]
+    fn tree_sitter_typst() -> *const ();
     #[cfg(feature = "lang-vim")]
     fn tree_sitter_vim() -> *const ();
     #[cfg(feature = "lang-vue")]
@@ -290,6 +292,8 @@ pub enum Language {
     Tsx,
     #[cfg(feature = "lang-typescript")]
     TypeScript,
+    #[cfg(feature = "lang-typst")]
+    Typst,
     #[cfg(feature = "lang-vim")]
     Vim,
     #[cfg(feature = "lang-vue")]
@@ -441,6 +445,8 @@ impl Language {
             "typescript" => Some(Language::TypeScript),
             #[cfg(feature = "lang-tsx")]
             "tsx" => Some(Language::Tsx),
+            #[cfg(feature = "lang-typst")]
+            "typst" => Some(Language::Typst),
             #[cfg(feature = "lang-vim")]
             "vim" | "viml" | "vimscript" => Some(Language::Vim),
             #[cfg(feature = "lang-vue")]
@@ -804,6 +810,8 @@ impl Language {
             Language::TypeScript => &["*.ts"],
             #[cfg(feature = "lang-tsx")]
             Language::Tsx => &["*.tsx"],
+            #[cfg(feature = "lang-typst")]
+            Language::Typst => &["*.typ", "*.typst"],
             #[cfg(feature = "lang-vim")]
             Language::Vim => &["*.vim", "*.viml"],
             #[cfg(feature = "lang-vue")]
@@ -1157,6 +1165,8 @@ impl Language {
             Language::TypeScript => "TypeScript",
             #[cfg(feature = "lang-tsx")]
             Language::Tsx => "TSX",
+            #[cfg(feature = "lang-typst")]
+            Language::Typst => "Typst",
             #[cfg(feature = "lang-vim")]
             Language::Vim => "Vim",
             #[cfg(feature = "lang-vue")]
@@ -1309,6 +1319,8 @@ impl Language {
             Language::TypeScript => &TYPESCRIPT_CONFIG,
             #[cfg(feature = "lang-tsx")]
             Language::Tsx => &TSX_CONFIG,
+            #[cfg(feature = "lang-typst")]
+            Language::Typst => &TYPST_CONFIG,
             #[cfg(feature = "lang-vim")]
             Language::Vim => &VIM_CONFIG,
             #[cfg(feature = "lang-vue")]
@@ -2427,6 +2439,22 @@ static TSX_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     config
 });
 
+#[cfg(feature = "lang-typst")]
+static TYPST_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
+    let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_typst) };
+
+    let mut config = HighlightConfiguration::new(
+        tree_sitter::Language::new(language_fn),
+        "typst",
+        TYPST_HIGHLIGHTS,
+        TYPST_INJECTIONS,
+        TYPST_LOCALS,
+    )
+    .expect("failed to create typst highlight configuration");
+    config.configure(&HIGHLIGHT_NAMES);
+    config
+});
+
 #[cfg(feature = "lang-vim")]
 static VIM_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
     let language_fn = unsafe { tree_sitter_language::LanguageFn::from_raw(tree_sitter_vim) };
@@ -3389,6 +3417,19 @@ mod tests {
         let lang = Language::TypeScript;
         let config = lang.config();
         assert_eq!(lang.name(), "TypeScript");
+
+        let mut highlighter = Highlighter::new();
+        let _ = highlighter
+            .highlight(config, "".as_bytes(), None, |_| None)
+            .unwrap();
+    }
+
+    #[test]
+    #[cfg(feature = "lang-typst")]
+    fn test_typst_config_loads() {
+        let lang = Language::Typst;
+        let config = lang.config();
+        assert_eq!(lang.name(), "Typst");
 
         let mut highlighter = Highlighter::new();
         let _ = highlighter
