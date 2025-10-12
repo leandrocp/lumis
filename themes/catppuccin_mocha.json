@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_mocha",
   "appearance": "dark",
-  "revision": "5af9374957a65be8770696da295dc9016b96f241",
+  "revision": "af58927c55c9f3272c940ff02b3cee94a1249f26",
   "highlights": {
     "attribute": {
       "fg": "#fab387"
@@ -282,7 +282,7 @@
       "fg": "#89dceb"
     },
     "property": {
-      "fg": "#cdd6f4"
+      "fg": "#b4befe"
     },
     "property.class.css": {
       "fg": "#f9e2af"
@@ -294,16 +294,16 @@
       "fg": "#f9e2af"
     },
     "property.json": {
-      "fg": "#89b4fa"
+      "fg": "#b4befe"
     },
     "property.scss": {
       "fg": "#89b4fa"
     },
     "property.toml": {
-      "fg": "#89b4fa"
+      "fg": "#b4befe"
     },
     "property.yaml": {
-      "fg": "#89b4fa"
+      "fg": "#b4befe"
     },
     "punctuation.bracket": {
       "fg": "#9399b2"
@@ -387,7 +387,7 @@
       "fg": "#f38ba8"
     },
     "variable.member": {
-      "fg": "#cdd6f4"
+      "fg": "#b4befe"
     },
     "variable.parameter": {
       "fg": "#eba0ac"

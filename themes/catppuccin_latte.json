@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_latte",
   "appearance": "light",
-  "revision": "5af9374957a65be8770696da295dc9016b96f241",
+  "revision": "af58927c55c9f3272c940ff02b3cee94a1249f26",
   "highlights": {
     "attribute": {
       "fg": "#fe640b"
@@ -282,7 +282,7 @@
       "fg": "#04a5e5"
     },
     "property": {
-      "fg": "#4c4f69"
+      "fg": "#7287fd"
     },
     "property.class.css": {
       "fg": "#df8e1d"
@@ -294,16 +294,16 @@
       "fg": "#df8e1d"
     },
     "property.json": {
-      "fg": "#1e66f5"
+      "fg": "#7287fd"
     },
     "property.scss": {
       "fg": "#1e66f5"
     },
     "property.toml": {
-      "fg": "#1e66f5"
+      "fg": "#7287fd"
     },
     "property.yaml": {
-      "fg": "#1e66f5"
+      "fg": "#7287fd"
     },
     "punctuation.bracket": {
       "fg": "#7c7f93"
@@ -387,7 +387,7 @@
       "fg": "#d20f39"
     },
     "variable.member": {
-      "fg": "#4c4f69"
+      "fg": "#7287fd"
     },
     "variable.parameter": {
       "fg": "#e64553"
