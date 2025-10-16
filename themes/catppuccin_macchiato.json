@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_macchiato",
   "appearance": "dark",
-  "revision": "5af9374957a65be8770696da295dc9016b96f241",
+  "revision": "af58927c55c9f3272c940ff02b3cee94a1249f26",
   "highlights": {
     "attribute": {
       "fg": "#f5a97f"
@@ -282,7 +282,7 @@
       "fg": "#91d7e3"
     },
     "property": {
-      "fg": "#cad3f5"
+      "fg": "#b7bdf8"
     },
     "property.class.css": {
       "fg": "#eed49f"
@@ -294,16 +294,16 @@
       "fg": "#eed49f"
     },
     "property.json": {
-      "fg": "#8aadf4"
+      "fg": "#b7bdf8"
     },
     "property.scss": {
       "fg": "#8aadf4"
     },
     "property.toml": {
-      "fg": "#8aadf4"
+      "fg": "#b7bdf8"
     },
     "property.yaml": {
-      "fg": "#8aadf4"
+      "fg": "#b7bdf8"
     },
     "punctuation.bracket": {
       "fg": "#939ab7"
@@ -387,7 +387,7 @@
       "fg": "#ed8796"
     },
     "variable.member": {
-      "fg": "#cad3f5"
+      "fg": "#b7bdf8"
     },
     "variable.parameter": {
       "fg": "#ee99a0"
