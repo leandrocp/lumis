@@ -1,70 +1,13 @@
-name: CI
+name: Rust CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
   pull_request:
-    branches: ["main"]
-
-permissions:
-  contents: write
-
-env:
-  CARGO_TERM_COLOR: always
+  workflow_dispatch:
 
 jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-
-      - name: Install cargo-sort
-        uses: baptiste0928/cargo-install@v3
-        with:
-          crate: cargo-sort
-
-      - name: Install cargo-sort-derives
-        uses: baptiste0928/cargo-install@v3
-        with:
-          crate: cargo-sort-derives
-
-      - uses: Swatinem/rust-cache@v2
-
-      - run: cargo sort
-
-      - run: cargo sort-derives
-
-      - run: cargo fmt
-
-      - uses: stefanzweifel/git-auto-commit-action@v7
-        with:
-          push_options: --force
-
-      - run: cargo clippy --all-targets --all-features -- -D warnings
-
   test:
-    name: "test: ${{ matrix.os }} | ${{ matrix.rust }}"
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [stable, nightly]
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.rust }}
-
-      - uses: Swatinem/rust-cache@v2
-
-      - run: cargo test --all-features
+    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
+  lint:
+    uses: leandrocp/github-actions/.github/workflows/rust-lint.yml@main
