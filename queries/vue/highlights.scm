@@ -5,7 +5,15 @@
   "]"
 ] @punctuation.bracket
 
-(interpolation) @punctuation.special
+[
+  ":"
+  "."
+] @character.special
+
+[
+  (interpolation)
+  "@"
+] @punctuation.special
 
 (interpolation
   (raw_text) @none)
