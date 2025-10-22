@@ -1,5 +1,5 @@
 /* catppuccin_mocha
- * revision: 5af9374957a65be8770696da295dc9016b96f241
+ * revision: af58927c55c9f3272c940ff02b3cee94a1249f26
  */
 
 pre.athl {
@@ -285,7 +285,7 @@ pre.athl {
   color: #89dceb;
 }
 .property {
-  color: #cdd6f4;
+  color: #b4befe;
 }
 .property-class-css {
   color: #f9e2af;
@@ -297,16 +297,16 @@ pre.athl {
   color: #f9e2af;
 }
 .property-json {
-  color: #89b4fa;
+  color: #b4befe;
 }
 .property-scss {
   color: #89b4fa;
 }
 .property-toml {
-  color: #89b4fa;
+  color: #b4befe;
 }
 .property-yaml {
-  color: #89b4fa;
+  color: #b4befe;
 }
 .punctuation-bracket {
   color: #9399b2;
@@ -390,7 +390,7 @@ pre.athl {
   color: #f38ba8;
 }
 .variable-member {
-  color: #cdd6f4;
+  color: #b4befe;
 }
 .variable-parameter {
   color: #eba0ac;

@@ -1,5 +1,5 @@
 /* material_darker
- * revision: 249289d9e75fa9ca054e6c6b98f56820e9719300
+ * revision: 8a34cb0d05e12a05b64edaf6ca1c3c7bde545628
  */
 
 pre.athl {
@@ -134,6 +134,9 @@ pre.athl {
 }
 .keyword-directive-define {
   color: #89ddff;
+}
+.keyword-exception {
+  color: #f07178;
 }
 .keyword-export {
   color: #89ddff;
