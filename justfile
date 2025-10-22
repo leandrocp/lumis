@@ -190,6 +190,7 @@ update-queries query_name="":
 
     declare -A special_repos
     special_repos["iex"]="https://github.com/elixir-lang/tree-sitter-iex.git main"
+    special_repos["nix"]="https://github.com/nix-community/tree-sitter-nix.git master"
 
     if [[ -n "{{query_name}}" ]]; then
         LANGUAGES="{{query_name}}"

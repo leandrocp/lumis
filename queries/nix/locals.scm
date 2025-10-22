@@ -1,4 +1,4 @@
-;; when using @local.reference, tree-sitter seems to
+;; when using @local.reference, tree-sitter seems to 
 ;; apply the scope from the identifier it has looked up,
 ;; which makes sense for most languages.
 ;; however, we want to highlight things as function based on their call-site,
@@ -22,12 +22,12 @@
 ;
 ;(rec_attrset_expression
 ;  bind: (binding
-;    attrpath: (attrpath . (attr_identifier) @local.definition))
+;    attrpath: (attrpath . (attr_identifier) @local.definition)) 
 ;) @local.scope
 ;
 ;(let_expression
 ;  bind: (binding
-;    attrpath: (attrpath . (attr_identifier) @local.definition))
+;    attrpath: (attrpath . (attr_identifier) @local.definition)) 
 ;) @local.scope
 ;
-;(identifier) @local.reference
+;(identifier) @local.reference 
