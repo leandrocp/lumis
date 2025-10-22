@@ -242,16 +242,13 @@ impl ExLineSpec {
     }
 }
 
-#[derive(Clone, Debug, NifTaggedEnum)]
+#[derive(Clone, Debug, Default, NifTaggedEnum)]
 pub enum ExHtmlInlineHighlightLinesStyle {
+    #[default]
     Theme,
-    Style { style: String },
-}
-
-impl Default for ExHtmlInlineHighlightLinesStyle {
-    fn default() -> Self {
-        Self::Theme
-    }
+    Style {
+        style: String,
+    },
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
