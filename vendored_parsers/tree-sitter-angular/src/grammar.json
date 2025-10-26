@@ -3267,17 +3267,8 @@
             "type": "FIELD",
             "name": "property",
             "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "identifier"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "static_member_expression"
-                }
-              ]
+              "type": "SYMBOL",
+              "name": "_any_expression"
             }
           },
           {
@@ -3286,23 +3277,6 @@
           }
         ]
       }
-    },
-    "static_member_expression": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_single_quote"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "identifier"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_single_quote"
-        }
-      ]
     },
     "_closing_bracket": {
       "type": "TOKEN",
