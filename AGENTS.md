@@ -76,7 +76,7 @@
 1. Search for the Neovim plugin that provides the theme, for eg: `dracula` is provided by https://github.com/Mofiqul/dracula.nvim
 2. Fetch the theme repo README to understand how to install and configure it. Note: look for the Lazy package manager installation instructions
 3. Add each variation as a separate theme into `themes/themes.lua`, for eg: the colorscheme `dracula-soft` is added as theme `dracula_soft`
-4. Run `just gen-theme <theme-name>` to generate the theme JSON file
+4. Run `just gen-themes <theme-name>` to generate the theme JSON file
 5. Run `just gen-css` to generate CSS file
 6. Add the new theme in section `//! ## Themes available` in `src/lib.rs`
 7. Update `CHANGELOG.md` with the new theme details (follow `## Changelog` guidelines)

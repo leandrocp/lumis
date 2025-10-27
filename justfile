@@ -13,27 +13,9 @@ list-themes:
     set -euo pipefail
     cargo run --bin autumn list-themes
 
-extract-scopes:
+list-vendored-parsers:
     #!/usr/bin/env bash
     set -euo pipefail
-    (cd queries && bash extract_scopes.sh)
-
-update-parsers parser_name="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    if [[ -z "{{parser_name}}" ]]; then
-        echo "⚠️  This will update all parser files in vendored_parsers/"
-    else
-        echo "⚠️  This will update {{parser_name}} in vendored_parsers/"
-    fi
-    echo ""
-    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Operation cancelled."
-        exit 0
-    fi
 
     TEMP_DIR=$(mktemp -d)
     trap 'rm -rf "$TEMP_DIR"' EXIT
@@ -70,11 +52,65 @@ update-parsers parser_name="":
     )
 
     extra_parsers=(
+        "http"
+        "iex"
+    )
+
+    for base_name in "${parsers[@]}"; do
+        parser_info=$(lua -e "
+            local parsers = dofile('$TEMP_DIR/parsers.lua')
+            local lang_info = parsers['$base_name']
+            if lang_info and lang_info.install_info then
+                print('$base_name')
+            end
+        ")
+        if [ -n "$parser_info" ]; then
+            echo "$base_name"
+        fi
+    done
+
+    for parser in "${extra_parsers[@]}"; do
+        echo "$parser"
+    done
+
+extract-scopes:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    (cd queries && bash extract_scopes.sh)
+
+update-vendored-parsers parser_name="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [[ -z "{{parser_name}}" ]]; then
+        echo "⚠️  This will update all parser files in vendored_parsers/"
+    else
+        echo "⚠️  This will update {{parser_name}} in vendored_parsers/"
+    fi
+    echo ""
+    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Operation cancelled."
+        exit 0
+    fi
+
+    TEMP_DIR=$(mktemp -d)
+    trap 'rm -rf "$TEMP_DIR"' EXIT
+
+    curl -s https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/main/lua/nvim-treesitter/parsers.lua > "$TEMP_DIR/parsers.lua"
+
+    mapfile -t all_parsers < <(just list-vendored-parsers)
+
+    extra_parsers=(
         "tree-sitter-http https://github.com/rest-nvim/tree-sitter-http.git main"
         "tree-sitter-iex https://github.com/elixir-lang/tree-sitter-iex.git main"
     )
 
-    for base_name in "${parsers[@]}"; do
+    for base_name in "${all_parsers[@]}"; do
+        if [[ "$base_name" == "http" ]] || [[ "$base_name" == "iex" ]]; then
+            continue
+        fi
         parser="tree-sitter-$base_name"
 
         if [[ -n "{{parser_name}}" ]] && [[ "$parser" != "{{parser_name}}" ]] && [[ "$base_name" != "{{parser_name}}" ]]; then
@@ -233,11 +269,15 @@ update-queries query_name="":
 
     rm -rf "$TEMP_DIR"
 
-gen-theme THEME_NAME:
+gen-themes theme_name="":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo "⚠️  This will regenerate files in themes/"
+    if [[ -z "{{theme_name}}" ]]; then
+        echo "⚠️  This will regenerate all theme files in themes/"
+    else
+        echo "⚠️  This will regenerate {{theme_name}} in themes/"
+    fi
     echo ""
     read -p "Do you want to proceed? (y/N) " -n 1 -r
     echo ""
@@ -246,34 +286,25 @@ gen-theme THEME_NAME:
         exit 0
     fi
 
-    cd themes
-    rm -rf nvim
-    nvim --clean --headless -V3 -u init.lua -l extract_theme.lua {{THEME_NAME}}
-
-gen-themes:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    echo "⚠️  This will regenerate files in themes/"
-    echo ""
-    read -p "Do you want to proceed? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Operation cancelled."
-        exit 0
+    if [[ -z "{{theme_name}}" ]]; then
+        find themes -type f -name "*.json" -delete
     fi
 
-    find themes -type f -name "*.json" -delete
     cd themes
 
-    THEME_NAMES=$(lua -e "local themes = require('themes'); for _, theme in ipairs(themes) do print(theme.name) end")
+    if [[ -n "{{theme_name}}" ]]; then
+        rm -rf nvim
+        nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "{{theme_name}}"
+    else
+        THEME_NAMES=$(lua -e "local themes = require('themes'); for _, theme in ipairs(themes) do print(theme.name) end")
 
-    while IFS= read -r THEME_NAME; do
-        if [ -n "$THEME_NAME" ]; then
-            rm -rf nvim
-            nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "$THEME_NAME"
-        fi
-    done <<< "$THEME_NAMES"
+        while IFS= read -r THEME_NAME; do
+            if [ -n "$THEME_NAME" ]; then
+                rm -rf nvim
+                nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "$THEME_NAME"
+            fi
+        done <<< "$THEME_NAMES"
+    fi
 
 gen-css:
     #!/usr/bin/env bash
