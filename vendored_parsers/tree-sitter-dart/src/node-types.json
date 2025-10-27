@@ -1,23 +1,5 @@
 [
   {
-    "type": "_declaration",
-    "named": true,
-    "subtypes": [
-      {
-        "type": "class_definition",
-        "named": true
-      },
-      {
-        "type": "enum_declaration",
-        "named": true
-      },
-      {
-        "type": "import_specification",
-        "named": true
-      }
-    ]
-  },
-  {
     "type": "_literal",
     "named": true,
     "subtypes": [
@@ -2204,6 +2186,7 @@
   {
     "type": "comment",
     "named": true,
+    "extra": true,
     "fields": {}
   },
   {
@@ -3185,6 +3168,7 @@
   {
     "type": "documentation_comment",
     "named": true,
+    "extra": true,
     "fields": {}
   },
   {
@@ -3456,100 +3440,6 @@
     "fields": {}
   },
   {
-    "type": "explicit_constructor_invocation",
-    "named": true,
-    "fields": {
-      "arguments": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "arguments",
-            "named": true
-          }
-        ]
-      },
-      "constructor": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "super",
-            "named": true
-          },
-          {
-            "type": "this",
-            "named": true
-          }
-        ]
-      },
-      "object": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "_literal",
-            "named": true
-          },
-          {
-            "type": "const_object_expression",
-            "named": true
-          },
-          {
-            "type": "constructor_tearoff",
-            "named": true
-          },
-          {
-            "type": "function_expression",
-            "named": true
-          },
-          {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "new_expression",
-            "named": true
-          },
-          {
-            "type": "parenthesized_expression",
-            "named": true
-          },
-          {
-            "type": "scoped_identifier",
-            "named": true
-          },
-          {
-            "type": "super",
-            "named": true
-          },
-          {
-            "type": "switch_expression",
-            "named": true
-          },
-          {
-            "type": "this",
-            "named": true
-          },
-          {
-            "type": "unconditional_assignable_selector",
-            "named": true
-          }
-        ]
-      },
-      "type_arguments": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "type_arguments",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
     "type": "expression_statement",
     "named": true,
     "fields": {},
@@ -3798,6 +3688,76 @@
       "types": [
         {
           "type": "annotation",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "extension_type_declaration",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "class_body",
+            "named": true
+          }
+        ]
+      },
+      "interfaces": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "interfaces",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "representation": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "representation_declaration",
+            "named": true
+          }
+        ]
+      },
+      "type_parameters": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "type_parameters",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
+        {
+          "type": "const_builtin",
           "named": true
         }
       ]
@@ -10367,6 +10327,7 @@
   {
     "type": "program",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -10390,6 +10351,10 @@
         },
         {
           "type": "extension_declaration",
+          "named": true
+        },
+        {
+          "type": "extension_type_declaration",
           "named": true
         },
         {
@@ -11253,6 +11218,74 @@
     "type": "relational_operator",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "representation_declaration",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": ".",
+            "named": false
+          },
+          {
+            "type": "Function",
+            "named": false
+          },
+          {
+            "type": "function_type",
+            "named": true
+          },
+          {
+            "type": "nullable_type",
+            "named": true
+          },
+          {
+            "type": "record_type",
+            "named": true
+          },
+          {
+            "type": "type_arguments",
+            "named": true
+          },
+          {
+            "type": "type_identifier",
+            "named": true
+          },
+          {
+            "type": "void_type",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "rest_pattern",
@@ -14721,10 +14754,6 @@
     "named": false
   },
   {
-    "type": "bool",
-    "named": false
-  },
-  {
     "type": "break_builtin",
     "named": true
   },
@@ -14770,10 +14799,6 @@
   },
   {
     "type": "do",
-    "named": false
-  },
-  {
-    "type": "dynamic",
     "named": false
   },
   {
@@ -14986,6 +15011,10 @@
   },
   {
     "type": "try",
+    "named": false
+  },
+  {
+    "type": "type",
     "named": false
   },
   {
