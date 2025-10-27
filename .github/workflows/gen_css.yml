@@ -1,6 +1,8 @@
 name: Generate CSS
 
 on:
+  schedule:
+    - cron: "0 22 * * 2"
   workflow_run:
     workflows: [Generate Themes]
     types:

@@ -1,6 +1,8 @@
 name: Generate Samples
 
 on:
+  schedule:
+    - cron: "0 22 * * 5"
   workflow_run:
     workflows: [Update Languages, Generate CSS]
     types:
