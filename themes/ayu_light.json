@@ -1,7 +1,7 @@
 {
   "name": "ayu_light",
   "appearance": "light",
-  "revision": "cc78e880cce5dfc1187d144ed7251c746feff259",
+  "revision": "38caa8b5b969010b1dcae8ab1a569d7669a643d5",
   "highlights": {
     "attribute": {
       "fg": "#ffaa33"

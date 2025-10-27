@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_latte",
   "appearance": "light",
-  "revision": "af58927c55c9f3272c940ff02b3cee94a1249f26",
+  "revision": "8c4125e3c746976ba025dc5d908fa22c6aa09486",
   "highlights": {
     "attribute": {
       "fg": "#fe640b"
