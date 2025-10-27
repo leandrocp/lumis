@@ -1,7 +1,7 @@
 {
   "name": "tokyonight_storm",
   "appearance": "dark",
-  "revision": "d14614cbfc63b6037bfccd48bb982d2ad2003352",
+  "revision": "4fe1b0c44f5d6ee769cdfbdffc7ccb703f53feda",
   "highlights": {
     "attribute": {
       "fg": "#7dcfff"

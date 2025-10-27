@@ -1,7 +1,7 @@
 {
   "name": "neovim_dark",
   "appearance": "dark",
-  "revision": "1ea3c4085785f460fb0e46d2fe1ee895f5f9e7c1",
+  "revision": "ed4dc336a73c18da6fea6e1cf7ad6e1b76d281eb",
   "highlights": {
     "attribute": {
       "fg": "#e0e2ea"
