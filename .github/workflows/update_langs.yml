@@ -9,11 +9,34 @@ on:
       - ".github/workflows/update_langs.yml"
 
 jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      languages: ${{ steps.set-matrix.outputs.languages }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: leafo/gh-actions-lua@v12
+
+      - uses: taiki-e/install-action@just
+
+      - name: Generate language matrix
+        id: set-matrix
+        run: |
+          LANGS=$(just list-vendored-parsers | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "Generated matrix for languages: $LANGS"
+          echo "languages=$LANGS" >> $GITHUB_OUTPUT
+
   update-parsers:
+    needs: generate-matrix
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJson(needs.generate-matrix.outputs.languages) }}
 
     steps:
       - uses: actions/checkout@v5
@@ -22,11 +45,11 @@ jobs:
 
       - uses: taiki-e/install-action@just
 
-      - name: update-parsers
-        run: echo "y" | just update-parsers
+      - name: update-parsers for ${{ matrix.language }}
+        run: echo "y" | just update-vendored-parsers ${{ matrix.language }}
 
-      - name: update-queries
-        run: echo "y" | just update-queries
+      - name: update-queries for ${{ matrix.language }}
+        run: echo "y" | just update-queries ${{ matrix.language }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -35,12 +58,12 @@ jobs:
           add-paths: |
             vendored_parsers
             queries
-          commit-message: "chore: update langs"
-          title: "chore: update langs"
+          commit-message: "chore: update ${{ matrix.language }}"
+          title: "chore: update ${{ matrix.language }}"
           body: |
-            Automated PR to update parsers and queries.
+            Automated PR to update parser and queries for **${{ matrix.language }}**.
 
             This PR was created automatically by the update-langs workflow.
-          branch: update-langs
+          branch: update-langs-${{ matrix.language }}
           delete-branch: true
           base: main
