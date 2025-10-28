@@ -1871,14 +1871,14 @@
       "type": "TOKEN",
       "content": {
         "type": "PATTERN",
-        "value": "[^\\(\\)\\$\\\"\\'\\-\\{\\}@\\|\\[`\\s][^\\s\\(\\)\\}\\|;,]*"
+        "value": "[^\\(\\)\\$\\\"\\'\\-\\{\\}@\\|\\[`\\&\\s][^\\&\\s\\(\\)\\}\\|;,]*"
       }
     },
     "_command_token": {
       "type": "TOKEN",
       "content": {
         "type": "PATTERN",
-        "value": "[^\\(\\)\\{\\}\\s;]+"
+        "value": "[^\\(\\)\\{\\}\\s;\\&]+"
       }
     },
     "command_parameter": {
@@ -3784,6 +3784,36 @@
           "members": [
             {
               "type": "SYMBOL",
+              "name": "pipeline_chain"
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "pipeline_chain_tail"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "pipeline_chain"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pipeline_chain": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
               "name": "_expression"
             },
             {
@@ -3844,6 +3874,19 @@
               ]
             }
           ]
+        }
+      ]
+    },
+    "pipeline_chain_tail": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "&&"
+        },
+        {
+          "type": "STRING",
+          "value": "||"
         }
       ]
     },
@@ -4068,7 +4111,35 @@
             },
             {
               "type": "PATTERN",
+              "value": "[fF][iI][lL][tT][eE][rR][--]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[wW][oO][rR][kK][fF][lL][oO][wW][--]"
+            },
+            {
+              "type": "PATTERN",
               "value": "[cC][lL][aA][sS][sS][--]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[eE][nN][uU][mM][--]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[sS][wW][iI][tT][cC][hH][--]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[fF][oO][rR][--]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[wW][hH][iI][lL][eE][--]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[pP][aA][rR][aA][lL][lL][eE][lL][--]"
             }
           ]
         },

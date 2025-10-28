@@ -2216,6 +2216,25 @@
           "named": true
         },
         {
+          "type": "pipeline_chain",
+          "named": true
+        },
+        {
+          "type": "pipeline_chain_tail",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pipeline_chain",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
           "type": "command",
           "named": true
         },
@@ -2233,6 +2252,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "pipeline_chain_tail",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "post_decrement_expression",
@@ -3408,6 +3432,10 @@
     "named": false
   },
   {
+    "type": "&&",
+    "named": false
+  },
+  {
     "type": "''",
     "named": false
   },
@@ -4073,6 +4101,10 @@
   },
   {
     "type": "|",
+    "named": false
+  },
+  {
+    "type": "||",
     "named": false
   },
   {
