@@ -1,7 +1,7 @@
 {
   "name": "tokyonight_night",
   "appearance": "dark",
-  "revision": "d14614cbfc63b6037bfccd48bb982d2ad2003352",
+  "revision": "2642dbb83333e0575d1c3436e1d837926871c5fb",
   "highlights": {
     "attribute": {
       "fg": "#7dcfff"
