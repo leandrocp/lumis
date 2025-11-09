@@ -1,13 +1,13 @@
 {
   "name": "onedark_deep",
   "appearance": "dark",
-  "revision": "de495fabe171d48aed5525f002d14414efcecbb2",
+  "revision": "918e89e6993b2901eea47b9f4eb666d53c2542a6",
   "highlights": {
     "attribute": {
       "fg": "#34bfd0"
     },
     "attribute.builtin": {
-      "fg": "#f65866"
+      "fg": "#41a7fc"
     },
     "boolean": {
       "fg": "#dd9046"
@@ -23,25 +23,28 @@
       "italic": true
     },
     "comment.documentation": {
-      "fg": "#455574",
+      "fg": "#6c7d9c",
       "italic": true
     },
     "comment.error": {
-      "fg": "#f65866"
+      "fg": "#f65866",
+      "italic": true
     },
     "comment.hint": {
       "fg": "#455574",
       "italic": true
     },
     "comment.note": {
-      "fg": "#34bfd0"
+      "fg": "#41a7fc",
+      "italic": true
     },
     "comment.todo": {
-      "fg": "#f65866",
+      "fg": "#c75ae8",
       "italic": true
     },
     "comment.warning": {
-      "fg": "#efbd5d"
+      "fg": "#efbd5d",
+      "italic": true
     },
     "constant": {
       "fg": "#dd9046"
@@ -75,9 +78,6 @@
     },
     "diff.plus": {
       "fg": "#8bcd5b"
-    },
-    "error": {
-      "fg": "#93a4c3"
     },
     "function": {
       "fg": "#41a7fc"
@@ -122,7 +122,7 @@
       "fg": "#c75ae8"
     },
     "keyword.debug": {
-      "fg": "#c75ae8"
+      "fg": "#f65866"
     },
     "keyword.directive": {
       "fg": "#c75ae8"
@@ -176,21 +176,21 @@
       "fg": "#f65866"
     },
     "markup.environment": {
-      "fg": "#93a4c3"
+      "fg": "#f65866"
     },
     "markup.environment.name": {
-      "fg": "#93a4c3"
+      "fg": "#f65866"
     },
     "markup.heading": {
       "fg": "#dd9046",
       "bold": true
     },
     "markup.heading.1": {
-      "fg": "#dd9046",
+      "fg": "#f65866",
       "bold": true
     },
     "markup.heading.2": {
-      "fg": "#dd9046",
+      "fg": "#c75ae8",
       "bold": true
     },
     "markup.heading.3": {
@@ -198,11 +198,11 @@
       "bold": true
     },
     "markup.heading.4": {
-      "fg": "#dd9046",
+      "fg": "#f65866",
       "bold": true
     },
     "markup.heading.5": {
-      "fg": "#dd9046",
+      "fg": "#c75ae8",
       "bold": true
     },
     "markup.heading.6": {
@@ -210,16 +210,17 @@
       "bold": true
     },
     "markup.italic": {
+      "fg": "#93a4c3",
       "italic": true
     },
     "markup.link": {
       "fg": "#41a7fc"
     },
     "markup.link.label": {
-      "fg": "#41a7fc"
+      "fg": "#34bfd0"
     },
     "markup.link.label.html": {
-      "fg": "#41a7fc"
+      "fg": "#34bfd0"
     },
     "markup.link.url": {
       "fg": "#34bfd0",
@@ -229,16 +230,19 @@
       "fg": "#f65866"
     },
     "markup.list.checked": {
-      "fg": "#f65866"
+      "fg": "#8bcd5b",
+      "italic": true
     },
     "markup.list.unchecked": {
-      "fg": "#f65866"
+      "fg": "#f65866",
+      "italic": true
     },
     "markup.math": {
       "fg": "#93a4c3"
     },
     "markup.quote": {
-      "fg": "#f65866"
+      "fg": "#455574",
+      "italic": true
     },
     "markup.raw": {
       "fg": "#8bcd5b"
@@ -247,6 +251,7 @@
       "fg": "#8bcd5b"
     },
     "markup.strikethrough": {
+      "fg": "#93a4c3",
       "strikethrough": true
     },
     "markup.strong": {
@@ -261,10 +266,7 @@
       "fg": "#efbd5d"
     },
     "module.builtin": {
-      "fg": "#f65866"
-    },
-    "namespace": {
-      "fg": "#efbd5d"
+      "fg": "#dd9046"
     },
     "normal": {
       "fg": "#93a4c3",
@@ -334,10 +336,10 @@
       "fg": "#dd9046"
     },
     "string.special": {
-      "fg": "#f65866"
+      "fg": "#1b6a73"
     },
     "string.special.path": {
-      "fg": "#f65866"
+      "fg": "#8bcd5b"
     },
     "string.special.symbol": {
       "fg": "#34bfd0"
@@ -346,22 +348,24 @@
       "fg": "#34bfd0"
     },
     "string.special.url": {
+      "fg": "#34bfd0",
       "underline": true
     },
     "string.special.url.html": {
+      "fg": "#34bfd0",
       "underline": true
     },
     "tag": {
-      "fg": "#c75ae8"
+      "fg": "#8bcd5b"
     },
     "tag.attribute": {
-      "fg": "#efbd5d"
+      "fg": "#8bcd5b"
     },
     "tag.builtin": {
       "fg": "#f65866"
     },
     "tag.delimiter": {
-      "fg": "#c75ae8"
+      "fg": "#8bcd5b"
     },
     "type": {
       "fg": "#efbd5d"
@@ -394,7 +398,7 @@
       "fg": "#f65866"
     },
     "variable.parameter.builtin": {
-      "fg": "#f65866"
+      "fg": "#dd9046"
     }
   }
 }

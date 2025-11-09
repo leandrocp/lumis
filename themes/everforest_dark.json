@@ -1,7 +1,7 @@
 {
   "name": "everforest_dark",
   "appearance": "dark",
-  "revision": "d2936185a6d266def29fd7b523d296384580ef08",
+  "revision": "557bce922401e247a596583679bc181d4d688554",
   "highlights": {
     "attribute": {
       "fg": "#d699b6"
