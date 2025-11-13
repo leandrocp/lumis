@@ -1,7 +1,7 @@
 {
   "name": "edge_dark",
   "appearance": "dark",
-  "revision": "dfb013e84e8b8302d99ed75e664ccb2a05925ad3",
+  "revision": "4145071bb0ea909511fa9a444eec80367b11296f",
   "highlights": {
     "attribute": {
       "fg": "#deb974"
