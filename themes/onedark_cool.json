@@ -1,7 +1,7 @@
 {
   "name": "onedark_cool",
   "appearance": "dark",
-  "revision": "918e89e6993b2901eea47b9f4eb666d53c2542a6",
+  "revision": "6c10964f91321c6a0f09bcc41dd64e7a6602bc4f",
   "highlights": {
     "attribute": {
       "fg": "#4dbdcb"
@@ -23,7 +23,7 @@
       "italic": true
     },
     "comment.documentation": {
-      "fg": "#7d899f",
+      "fg": "#546178",
       "italic": true
     },
     "comment.error": {

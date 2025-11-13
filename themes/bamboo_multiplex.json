@@ -1,7 +1,7 @@
 {
   "name": "bamboo_multiplex",
   "appearance": "dark",
-  "revision": "6ec224a4fcf0970fce262fc5bb51048721d464f6",
+  "revision": "e74ac25613cd537f7d2d924a54ed479c88537a43",
   "highlights": {
     "attribute": {
       "fg": "#68baae"

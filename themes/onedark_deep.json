@@ -1,7 +1,7 @@
 {
   "name": "onedark_deep",
   "appearance": "dark",
-  "revision": "918e89e6993b2901eea47b9f4eb666d53c2542a6",
+  "revision": "6c10964f91321c6a0f09bcc41dd64e7a6602bc4f",
   "highlights": {
     "attribute": {
       "fg": "#34bfd0"
@@ -23,7 +23,7 @@
       "italic": true
     },
     "comment.documentation": {
-      "fg": "#6c7d9c",
+      "fg": "#455574",
       "italic": true
     },
     "comment.error": {

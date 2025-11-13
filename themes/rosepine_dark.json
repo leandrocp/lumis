@@ -1,7 +1,7 @@
 {
   "name": "rosepine_dark",
   "appearance": "dark",
-  "revision": "eb3ff49a4f2b4e8b06d27de529e44fa52a60ab8a",
+  "revision": "cf2a288696b03d0934da713d66c6d71557b5c997",
   "highlights": {
     "attribute": {
       "fg": "#c4a7e7"
