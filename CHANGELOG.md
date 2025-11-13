@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Update languages: angular, powershell, latex
+- Update themes: onedark_cool, onedark_darker, onedark_deep, onedark_light, onedark_warmer
+
 ## [0.7.7] - 2025-10-27
 
 ### Changed
