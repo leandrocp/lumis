@@ -23,15 +23,15 @@
 //! use autumnus::languages::Language;
 //!
 //! // By language name
-//! let lang = Language::guess("rust", "");
+//! let lang = Language::guess(Some("rust"), "");
 //! assert_eq!(lang, Language::Rust);
 //!
 //! // By file extension
-//! let lang = Language::guess("rs", "");
+//! let lang = Language::guess(Some("rs"), "");
 //! assert_eq!(lang, Language::Rust);
 //!
 //! // By file path
-//! let lang = Language::guess("src/main.rs", "");
+//! let lang = Language::guess(Some("src/main.rs"), "");
 //! assert_eq!(lang, Language::Rust);
 //! ```
 //!
@@ -42,12 +42,12 @@
 //!
 //! // Shebang detection
 //! let code = "#!/usr/bin/env python3\nprint('Hello')";
-//! let lang = Language::guess("", code);
+//! let lang = Language::guess(None, code);
 //! assert_eq!(lang, Language::Python);
 //!
 //! // HTML doctype detection
 //! let html = "<!DOCTYPE html>\n<html></html>";
-//! let lang = Language::guess("", html);
+//! let lang = Language::guess(None, html);
 //! assert_eq!(lang, Language::HTML);
 //! ```
 //!
@@ -306,12 +306,68 @@ pub enum Language {
     Zig,
 }
 
-impl Language {
-    /// Guess the language based on the provided language name, file path, or source content.
-    pub fn guess(lang_or_file: &str, src: &str) -> Self {
-        let lang_or_file = lang_or_file.to_ascii_lowercase();
+/// Error type returned when parsing a language from a string fails.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LanguageParseError(String);
 
-        let exact = match lang_or_file.as_str() {
+impl std::fmt::Display for LanguageParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Unknown language or file type: {}", self.0)
+    }
+}
+
+impl std::error::Error for LanguageParseError {}
+
+impl std::str::FromStr for Language {
+    type Err = LanguageParseError;
+
+    /// Parse a language from a string.
+    ///
+    /// The input can be:
+    /// - A language name (e.g., "rust", "python", "javascript")
+    /// - A file extension (e.g., "rs", "py", "js")
+    /// - A file path (e.g., "src/main.rs", "script.py")
+    ///
+    /// Returns an error if the language cannot be determined from the input.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use autumnus::languages::Language;
+    /// use std::str::FromStr;
+    ///
+    /// // From language name
+    /// let lang = Language::from_str("rust").unwrap();
+    /// assert_eq!(lang, Language::Rust);
+    ///
+    /// // Using .parse()
+    /// let lang: Language = "python".parse().unwrap();
+    /// assert_eq!(lang, Language::Python);
+    ///
+    /// // From extension
+    /// let lang: Language = "js".parse().unwrap();
+    /// assert_eq!(lang, Language::JavaScript);
+    ///
+    /// // From file path
+    /// let lang: Language = "src/main.rs".parse().unwrap();
+    /// assert_eq!(lang, Language::Rust);
+    ///
+    /// // Empty string defaults to PlainText
+    /// let lang: Language = "".parse().unwrap();
+    /// assert_eq!(lang, Language::PlainText);
+    ///
+    /// // Unknown language returns error
+    /// assert!(Language::from_str("unknown").is_err());
+    /// assert!("unknown".parse::<Language>().is_err());
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            return Ok(Language::PlainText);
+        }
+
+        let s_lower = s.to_ascii_lowercase();
+
+        let exact = match s_lower.as_str() {
             #[cfg(feature = "lang-angular")]
             "angular" => Some(Language::Angular),
             #[cfg(feature = "lang-asm")]
@@ -460,45 +516,98 @@ impl Language {
             _ => None,
         };
 
-        match exact {
-            Some(lang) => lang,
-            None => {
-                let path = Path::new(&lang_or_file);
-
-                if let Some(lang) = Self::from_glob(path) {
-                    return lang;
-                }
-
-                if let Some(lang) = Self::from_extension(&lang_or_file) {
-                    return lang;
-                }
-
-                if let Some(lang) = Self::from_emacs_mode_header(src) {
-                    return lang;
-                }
-
-                if let Some(lang) = Self::from_shebang(src) {
-                    return lang;
-                }
-
-                #[cfg(feature = "lang-html")]
-                if Self::looks_like_html(src) {
-                    return Language::HTML;
-                }
-
-                #[cfg(feature = "lang-xml")]
-                if Self::looks_like_xml(src) {
-                    return Language::XML;
-                }
-
-                #[cfg(feature = "lang-objc")]
-                if Self::looks_like_objc(path, src) {
-                    return Language::ObjC;
-                }
-
-                Language::PlainText
-            }
+        if let Some(lang) = exact {
+            return Ok(lang);
         }
+
+        let path = Path::new(&s_lower);
+
+        if let Some(lang) = Self::from_glob(path) {
+            return Ok(lang);
+        }
+
+        if let Some(lang) = Self::from_extension(&s_lower) {
+            return Ok(lang);
+        }
+
+        Err(LanguageParseError(s.to_string()))
+    }
+}
+
+impl Language {
+    /// Guess the language based on an optional language hint and source content.
+    ///
+    /// # Arguments
+    ///
+    /// * `language` - Optional language hint. Can be:
+    ///   - `None`: Try to auto-detect language from source content
+    ///   - `Some(s)`: Language name, file extension, or file path
+    /// * `src` - The source code content to analyze
+    ///
+    /// # Detection Strategy
+    ///
+    /// When `language` is `Some(...)`:
+    /// 1. Try to parse as language name/extension/path via `FromStr`
+    /// 2. If parsing succeeds, return that language
+    /// 3. If parsing fails, fall through to content-based detection
+    ///
+    /// When `language` is `None` or parsing fails:
+    /// 1. Check for Emacs mode header (`// -*- mode: rust -*-`)
+    /// 2. Check for shebang (`#!/usr/bin/env python`)
+    /// 3. Apply content heuristics (HTML doctype, XML declaration, etc.)
+    /// 4. Default to `PlainText` if nothing matches
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use autumnus::languages::Language;
+    ///
+    /// // Explicit language
+    /// let lang = Language::guess(Some("rust"), "");
+    /// assert_eq!(lang, Language::Rust);
+    ///
+    /// // Auto-detect from shebang
+    /// let lang = Language::guess(None, "#!/usr/bin/env python3\nprint('hi')");
+    /// assert_eq!(lang, Language::Python);
+    ///
+    /// // File path hint
+    /// let lang = Language::guess(Some("src/main.rs"), "");
+    /// assert_eq!(lang, Language::Rust);
+    /// ```
+    pub fn guess(language: Option<&str>, src: &str) -> Self {
+        // If a language hint is provided, try to parse it
+        if let Some(input) = language {
+            if let Ok(lang) = input.parse() {
+                return lang;
+            }
+            // If parsing fails, continue to content-based detection
+        }
+
+        // Auto-detection from content
+        if let Some(lang) = Self::from_emacs_mode_header(src) {
+            return lang;
+        }
+
+        if let Some(lang) = Self::from_shebang(src) {
+            return lang;
+        }
+
+        #[cfg(feature = "lang-html")]
+        if Self::looks_like_html(src) {
+            return Language::HTML;
+        }
+
+        #[cfg(feature = "lang-xml")]
+        if Self::looks_like_xml(src) {
+            return Language::XML;
+        }
+
+        #[cfg(feature = "lang-objc")]
+        if Self::looks_like_objc(Path::new(""), src) {
+            return Language::ObjC;
+        }
+
+        Language::PlainText
     }
 
     fn from_glob(path: &Path) -> Option<Self> {
@@ -2536,34 +2645,34 @@ mod tests {
 
     #[test]
     fn test_match_exact_name() {
-        let lang = Language::guess("elixir", "");
+        let lang = Language::guess(Some("elixir"), "");
         assert_eq!(lang.name(), "Elixir");
 
-        let lang = Language::guess("Elixir", "");
+        let lang = Language::guess(Some("Elixir"), "");
         assert_eq!(lang.name(), "Elixir");
     }
 
     #[test]
     fn test_match_filename() {
-        let lang = Language::guess("app.ex", "");
+        let lang = Language::guess(Some("app.ex"), "");
         assert_eq!(lang.name(), "Elixir");
     }
 
     #[test]
     fn test_match_extension() {
-        let lang = Language::guess(".ex", "");
+        let lang = Language::guess(Some(".ex"), "");
         assert_eq!(lang.name(), "Elixir");
     }
 
     #[test]
     fn test_match_path_with_extension() {
-        let lang = Language::guess("lib/app.ex", "");
+        let lang = Language::guess(Some("lib/app.ex"), "");
         assert_eq!(lang.name(), "Elixir");
     }
 
     #[test]
     fn test_no_match_fallbacks_to_plain_text() {
-        let lang = Language::guess("none", "");
+        let lang = Language::guess(Some("none"), "");
         assert_eq!(lang.name(), "Plain Text");
     }
 

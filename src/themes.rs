@@ -37,7 +37,7 @@
 //! let theme = themes::get("catppuccin_mocha").unwrap();
 //!
 //! let options = Options {
-//!     lang_or_file: Some("rust"),
+//!     language: Some("rust"),
 //!     formatter: FormatterOption::HtmlInline {
 //!         theme: Some(theme),
 //!         pre_class: None,

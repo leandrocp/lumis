@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- **BREAKING**: Renamed `Options.lang_or_file` field to `Options.language` for clearer semantics
+- **BREAKING**: Changed `Language::guess()` signature from `guess(&str, &str)` to `guess(Option<&str>, &str)`
+  - `None` now explicitly means auto-detect from content
+  - Empty string (`""`) defaults to `Language::PlainText`
+  - Eliminates lossy `.unwrap_or("")` conversion
+
+### Added
+- Implemented `FromStr` trait for `Language` enabling `.parse()` method
+- Added `LanguageParseError` type for parse failures
+- Language parsing now supports language names, file extensions, and file paths via `FromStr`
+
 ## [0.7.8] - 2025-11-13
 
 ### Changed

@@ -154,7 +154,7 @@ impl Formatter for HtmlLinked<'_> {
                 self.lang.config(),
                 self.source.as_bytes(),
                 None,
-                |injected| Some(Language::guess(injected, "").config()),
+                |injected| Some(Language::guess(Some(injected), "").config()),
             )
             .expect("failed to generate highlight events");
 

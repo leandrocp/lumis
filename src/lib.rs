@@ -299,7 +299,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let code = "fn hello() { println!(\"world\"); }";
 ///
 /// let options = Options {
-///     lang_or_file: Some("rust"),
+///     language: Some("rust"),
 ///     formatter: FormatterOption::HtmlInline {
 ///         theme: themes::get("dracula").ok(),
 ///         pre_class: Some("code-block"),
@@ -322,7 +322,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let code = "const greeting = 'Hello, World!';";
 ///
 /// let options = Options {
-///     lang_or_file: Some("javascript"),
+///     language: Some("javascript"),
 ///     formatter: FormatterOption::HtmlLinked {
 ///         pre_class: Some("syntax-highlight"),
 ///         highlight_lines: None,
@@ -343,7 +343,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let code = "print('Hello from Python!')";
 ///
 /// let options = Options {
-///     lang_or_file: Some("python"),
+///     language: Some("python"),
 ///     formatter: FormatterOption::Terminal {
 ///         theme: themes::get("github_light").ok(),
 ///     },
@@ -368,7 +368,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// };
 ///
 /// let options = Options {
-///     lang_or_file: Some("text"),
+///     language: Some("text"),
 ///     formatter: FormatterOption::HtmlInline {
 ///         theme: themes::get("catppuccin_mocha").ok(),
 ///         pre_class: None,
@@ -390,7 +390,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let code = "const x = 42;";
 ///
 /// let options = Options {
-///     lang_or_file: Some("javascript"),
+///     language: Some("javascript"),
 ///     formatter: FormatterOption::HtmlInline {
 ///         theme: None,
 ///         pre_class: None,
@@ -414,7 +414,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let code = "const greeting = 'Hello';";
 ///
 /// let options = Options {
-///     lang_or_file: Some("javascript"),
+///     language: Some("javascript"),
 ///     formatter: FormatterOption::HtmlInline {
 ///         theme: None,
 ///         pre_class: None,
@@ -558,16 +558,16 @@ impl Default for FormatterOption<'_> {
 ///
 /// # Language Detection
 ///
-/// The `lang_or_file` field supports multiple input formats:
+/// The `language` field supports multiple input formats:
 /// - **Language names**: `"rust"`, `"python"`, `"javascript"`
 /// - **File paths**: `"src/main.rs"`, `"app.py"`, `"script.js"`
 /// - **File extensions**: `"rs"`, `"py"`, `"js"`
-/// - **None**: Automatic detection from source content
+/// - **None**: Try to auto-detect from source content
 ///
 /// # Default Behavior
 ///
 /// When using [`Options::default()`], you get:
-/// - Automatic language detection (`lang_or_file: None`)
+/// - Automatic language detection attempt (`language: None`)
 /// - HTML inline formatter with no theme (`FormatterOption::HtmlInline`)
 ///
 /// # Examples
@@ -594,7 +594,7 @@ impl Default for FormatterOption<'_> {
 /// let code = "fn main() { println!(\"Hello\"); }";
 ///
 /// let options = Options {
-///     lang_or_file: Some("rust"),  // Explicit language
+///     language: Some("rust"),  // Explicit language
 ///     formatter: FormatterOption::HtmlInline {
 ///         theme: None,
 ///         pre_class: Some("code-block"),
@@ -616,11 +616,36 @@ impl Default for FormatterOption<'_> {
 /// let code = "defmodule MyApp do\n  def hello, do: :world\nend";
 ///
 /// let options = Options {
-///     lang_or_file: Some("lib/my_app.ex"),  // Language detected from .ex extension
+///     language: Some("lib/my_app.ex"),  // Language detected from .ex extension
 ///     formatter: FormatterOption::HtmlInline {
 ///         theme: themes::get("dracula").ok(),
 ///         pre_class: None,
 ///         italic: true,
+///         include_highlights: false,
+///         highlight_lines: None,
+///         header: None,
+///     },
+/// };
+///
+/// let html = highlight(code, options);
+/// ```
+///
+/// ## Parsing languages from strings
+///
+/// ```rust
+/// use autumnus::{highlight, Options, FormatterOption, languages::Language};
+///
+/// let code = "const greeting = 'Hello, World!';";
+///
+/// // Parse language from string
+/// let lang: Language = "javascript".parse().unwrap();
+///
+/// let options = Options {
+///     language: Some("javascript"),  // Also accepts: "js", "app.js"
+///     formatter: FormatterOption::HtmlInline {
+///         theme: None,
+///         pre_class: None,
+///         italic: false,
 ///         include_highlights: false,
 ///         highlight_lines: None,
 ///         header: None,
@@ -638,7 +663,7 @@ impl Default for FormatterOption<'_> {
 /// let code = "SELECT * FROM users WHERE active = true;";
 ///
 /// let options = Options {
-///     lang_or_file: Some("sql"),
+///     language: Some("sql"),
 ///     formatter: FormatterOption::Terminal {
 ///         theme: themes::get("github_light").ok(),
 ///     },
@@ -655,7 +680,7 @@ impl Default for FormatterOption<'_> {
 /// let code = "<div class=\"container\">Hello</div>";
 ///
 /// let options = Options {
-///     lang_or_file: Some("html"),
+///     language: Some("html"),
 ///     formatter: FormatterOption::HtmlLinked {
 ///         pre_class: Some("syntax-highlight"),
 ///         highlight_lines: None,
@@ -668,17 +693,17 @@ impl Default for FormatterOption<'_> {
 /// ```
 #[derive(Debug)]
 pub struct Options<'a> {
-    /// Optional language or file path for highlighting.
+    /// Optional language hint for syntax highlighting.
     ///
     /// This field controls language detection and can accept:
     /// - **Language names**: `"rust"`, `"python"`, `"javascript"`, etc.
     /// - **File paths**: `"src/main.rs"`, `"app.py"`, `"Dockerfile"`
     /// - **File extensions**: `"rs"`, `"py"`, `"js"`
-    /// - **None**: Automatic detection from source content (shebang, doctype, etc.)
+    /// - **None**: Try to auto-detect from source content (shebang, doctype, etc.)
     ///
-    /// When `None`, the highlighter will analyze the source content to guess
+    /// When `None`, the highlighter will analyze the source content to detect
     /// the language using shebangs, file content patterns, and other heuristics.
-    pub lang_or_file: Option<&'a str>,
+    pub language: Option<&'a str>,
 
     /// The output formatter to use.
     ///
@@ -694,7 +719,7 @@ pub struct Options<'a> {
 impl Default for Options<'_> {
     fn default() -> Self {
         Self {
-            lang_or_file: None,
+            language: None,
             formatter: FormatterOption::HtmlInline {
                 pre_class: None,
                 italic: false,
@@ -738,7 +763,7 @@ impl Default for Options<'_> {
 /// let html = highlight(
 ///     code,
 ///     Options {
-///         lang_or_file: Some("rust"),
+///         language: Some("rust"),
 ///         formatter: FormatterOption::HtmlInline {
 ///             pre_class: None,
 ///             italic: false,
@@ -782,7 +807,7 @@ impl Default for Options<'_> {
 /// let html = highlight(
 ///     code,
 ///     Options {
-///         lang_or_file: Some("rust"),
+///         language: Some("rust"),
 ///         formatter: FormatterOption::HtmlLinked {
 ///             pre_class: Some("my-code-block"),
 ///             highlight_lines: None,
@@ -830,7 +855,7 @@ impl Default for Options<'_> {
 /// let ansi = highlight(
 ///     code,
 ///     Options {
-///         lang_or_file: Some("rust"),
+///         language: Some("rust"),
 ///         formatter: FormatterOption::Terminal {
 ///             theme: None,
 ///         },
@@ -846,7 +871,7 @@ impl Default for Options<'_> {
 /// ```
 ///
 pub fn highlight(source: &str, options: Options) -> String {
-    let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
+    let lang = Language::guess(options.language, source);
 
     let formatter: Box<dyn Formatter> = match options.formatter {
         FormatterOption::HtmlInline {
@@ -940,7 +965,7 @@ pub fn highlight(source: &str, options: Options) -> String {
 /// let mut file = BufWriter::new(File::create("highlighted.html")?);
 ///
 /// write_highlight(&mut file, code, Options {
-///     lang_or_file: Some("rust"),
+///     language: Some("rust"),
 ///     formatter: FormatterOption::HtmlInline {
 ///         theme: themes::get("dracula").ok(),
 ///         pre_class: Some("code-block"),
@@ -962,7 +987,7 @@ pub fn highlight(source: &str, options: Options) -> String {
 /// let code = "print('Hello, World!')";
 ///
 /// write_highlight(&mut io::stdout(), code, Options {
-///     lang_or_file: Some("python"),
+///     language: Some("python"),
 ///     formatter: FormatterOption::Terminal {
 ///         theme: themes::get("github_light").ok(),
 ///     },
@@ -978,7 +1003,7 @@ pub fn highlight(source: &str, options: Options) -> String {
 /// let mut buffer = Vec::new();
 ///
 /// write_highlight(&mut buffer, code, Options {
-///     lang_or_file: Some("javascript"),
+///     language: Some("javascript"),
 ///     formatter: FormatterOption::HtmlInline {
 ///         theme: None,
 ///         pre_class: None,
@@ -1009,7 +1034,7 @@ pub fn highlight(source: &str, options: Options) -> String {
 /// let mut output_file = BufWriter::new(File::create("highlighted_output.html")?);
 ///
 /// write_highlight(&mut output_file, &source, Options {
-///     lang_or_file: Some("rust"),
+///     language: Some("rust"),
 ///     formatter: FormatterOption::HtmlLinked {
 ///         pre_class: Some("large-code"),
 ///         highlight_lines: None,
@@ -1035,7 +1060,7 @@ pub fn highlight(source: &str, options: Options) -> String {
 /// ```
 ///
 pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -> io::Result<()> {
-    let lang = Language::guess(options.lang_or_file.unwrap_or(""), source);
+    let lang = Language::guess(options.language, source);
 
     let formatter: Box<dyn Formatter> = match options.formatter {
         FormatterOption::HtmlInline {
@@ -1106,7 +1131,7 @@ mod tests {
             &mut buffer,
             code,
             Options {
-                lang_or_file: Some("javascript"),
+                language: Some("javascript"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1151,7 +1176,7 @@ end
         let result = highlight(
             code,
             Options {
-                lang_or_file: Some("elixir"),
+                language: Some("elixir"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1181,7 +1206,7 @@ end
         let result = highlight(
             code,
             Options {
-                lang_or_file: Some("elixir"),
+                language: Some("elixir"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1204,7 +1229,7 @@ end
         let result = highlight(
             "{:ok, char: '{'}",
             Options {
-                lang_or_file: Some("elixir"),
+                language: Some("elixir"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1246,7 +1271,7 @@ end
         let result = highlight(
             code,
             Options {
-                lang_or_file: Some("elixir"),
+                language: Some("elixir"),
                 formatter: FormatterOption::HtmlLinked {
                     pre_class: None,
                     highlight_lines: None,
@@ -1266,7 +1291,7 @@ end
         let result = highlight(
             "{:ok, char: '{'}",
             Options {
-                lang_or_file: Some("elixir"),
+                language: Some("elixir"),
                 formatter: FormatterOption::HtmlLinked {
                     pre_class: None,
                     highlight_lines: None,
@@ -1283,7 +1308,7 @@ end
         let result = highlight(
             "foo = 1",
             Options {
-                lang_or_file: Some("app.ex"),
+                language: Some("app.ex"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1302,7 +1327,7 @@ end
         let result = highlight(
             "# Title",
             Options {
-                lang_or_file: Some("md"),
+                language: Some("md"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1318,7 +1343,7 @@ end
         let result = highlight(
             "foo = 1",
             Options {
-                lang_or_file: Some("ex"),
+                language: Some("ex"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1337,7 +1362,7 @@ end
         let result = highlight(
             "#!/usr/bin/env elixir",
             Options {
-                lang_or_file: Some("test"),
+                language: Some("test"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1356,7 +1381,7 @@ end
         let result = highlight(
             "source code",
             Options {
-                lang_or_file: Some("none"),
+                language: Some("none"),
                 formatter: FormatterOption::HtmlInline {
                     pre_class: None,
                     italic: false,
@@ -1373,7 +1398,7 @@ end
     #[test]
     fn test_highlight_terminal() {
         let options = Options {
-            lang_or_file: Some("ruby"),
+            language: Some("ruby"),
             formatter: FormatterOption::Terminal {
                 theme: themes::get("dracula").ok(),
             },
@@ -1392,7 +1417,7 @@ end
         let inline_result = highlight(
             code,
             Options {
-                lang_or_file: Some("rust"),
+                language: Some("rust"),
                 formatter: FormatterOption::HtmlInline {
                     theme: None,
                     pre_class: None,
@@ -1415,7 +1440,7 @@ end
         let linked_result = highlight(
             code,
             Options {
-                lang_or_file: Some("rust"),
+                language: Some("rust"),
                 formatter: FormatterOption::HtmlLinked {
                     pre_class: None,
                     highlight_lines: None,

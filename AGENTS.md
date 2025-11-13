@@ -57,7 +57,7 @@
 - Fetch https://github.com/Wilfred/difftastic/blob/master/src/parse/guess_language.rs to learn the language detection logic
 - Update `src/languages.rs` to include the new language:
   - Add the new language in `pub enum Language`
-  - Add the new language in `pub fn guess`
+  - Add the new language in `impl FromStr for Language` (for parsing language names/extensions)
   - Add the new language in `pub fn language_globs` and fetch file extension from difftastic repo or from the vendored parser repo file package.json or tree-sitter.json
   - Add the new language in `pub fn name`
   - Add the new language in `pub fn config`

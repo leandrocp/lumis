@@ -142,7 +142,7 @@ fn gen_samples_entries(
             let highlighted = autumnus::highlight(
                 &contents,
                 autumnus::Options {
-                    lang_or_file: Some(file_name),
+                    language: Some(file_name),
                     formatter: autumnus::FormatterOption::HtmlInline {
                         theme: Some(theme),
                         pre_class: Some(

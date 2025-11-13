@@ -532,7 +532,7 @@ mod tests {
 
         let rust_formatter: FormatterOption = ex_formatter.into();
         let options = Options {
-            lang_or_file: Some("rust"),
+            language: Some("rust"),
             formatter: rust_formatter,
         };
 
@@ -568,7 +568,7 @@ mod tests {
 
         let rust_formatter: FormatterOption = ex_formatter.into();
         let options = Options {
-            lang_or_file: Some("text"),
+            language: Some("text"),
             formatter: rust_formatter,
         };
 
@@ -601,7 +601,7 @@ mod tests {
 
         let rust_formatter: FormatterOption = ex_formatter.into();
         let options = Options {
-            lang_or_file: Some("javascript"),
+            language: Some("javascript"),
             formatter: rust_formatter,
         };
 
@@ -633,7 +633,7 @@ mod tests {
 
         let rust_formatter: FormatterOption = ex_formatter.into();
         let options = Options {
-            lang_or_file: Some("elixir"),
+            language: Some("elixir"),
             formatter: rust_formatter,
         };
 
@@ -655,7 +655,7 @@ mod tests {
 
         let rust_formatter: FormatterOption = ex_formatter.into();
         let options = Options {
-            lang_or_file: Some("ruby"),
+            language: Some("ruby"),
             formatter: rust_formatter,
         };
 
