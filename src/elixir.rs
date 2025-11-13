@@ -1,7 +1,7 @@
 //! Utility module to integrate with Elixir through Rustler.
 
-use crate::formatter::{html_inline, html_linked, HtmlElement};
-use crate::{themes, FormatterOption};
+use crate::formatter::{html_inline, html_linked, Formatter, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder};
+use crate::{languages::Language, themes};
 use rustler::{NifStruct, NifTaggedEnum};
 use std::collections::HashMap;
 
@@ -48,6 +48,29 @@ impl Default for ThemeOrString<'_> {
     fn default() -> Self {
         Self::String("onedark")
     }
+}
+
+/// Internal formatter option enum for Elixir NIF support.
+///
+/// This enum mirrors the structure of `ExFormatterOption` and is used to convert
+/// Elixir tagged unions into Rust formatter instances. It's not part of the public API.
+enum FormatterOption<'a> {
+    HtmlInline {
+        theme: Option<&'a themes::Theme>,
+        pre_class: Option<&'a str>,
+        italic: bool,
+        include_highlights: bool,
+        highlight_lines: Option<html_inline::HighlightLines>,
+        header: Option<HtmlElement>,
+    },
+    HtmlLinked {
+        pre_class: Option<&'a str>,
+        highlight_lines: Option<html_linked::HighlightLines>,
+        header: Option<HtmlElement>,
+    },
+    Terminal {
+        theme: Option<&'a themes::Theme>,
+    },
 }
 
 impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
@@ -144,6 +167,52 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
 
                 FormatterOption::Terminal { theme }
             }
+        }
+    }
+}
+
+impl<'a> From<FormatterOption<'a>> for Box<dyn Formatter + 'a> {
+    fn from(formatter: FormatterOption<'a>) -> Self {
+        match formatter {
+            FormatterOption::HtmlInline {
+                theme,
+                pre_class,
+                italic,
+                include_highlights,
+                highlight_lines,
+                header,
+            } => {
+                // We need a source and lang to build the formatter.
+                // For the Elixir NIF, these will be provided separately in the highlight function.
+                // This conversion is a temporary placeholder - the actual formatter creation
+                // happens in the NIF functions that have access to source and lang.
+                Box::new(crate::formatter::HtmlInline::new(
+                    "",
+                    Language::PlainText,
+                    theme,
+                    pre_class,
+                    italic,
+                    include_highlights,
+                    highlight_lines,
+                    header,
+                ))
+            }
+            FormatterOption::HtmlLinked {
+                pre_class,
+                highlight_lines,
+                header,
+            } => Box::new(crate::formatter::HtmlLinked::new(
+                "",
+                Language::PlainText,
+                pre_class,
+                highlight_lines,
+                header,
+            )),
+            FormatterOption::Terminal { theme } => Box::new(crate::formatter::Terminal::new(
+                "",
+                Language::PlainText,
+                theme,
+            )),
         }
     }
 }

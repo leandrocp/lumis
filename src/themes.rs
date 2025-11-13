@@ -27,25 +27,24 @@
 //!
 //! # Integration with Formatters
 //!
-//! Themes are primarily used with [`crate::FormatterOption::HtmlInline`] and
-//! [`crate::FormatterOption::Terminal`] to provide syntax highlighting colors:
+//! Themes are used with formatters to provide syntax highlighting colors:
 //!
 //! ```rust
-//! use autumnus::{highlight, Options, FormatterOption, themes};
+//! use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, themes};
 //!
 //! let code = "fn main() { println!(\"Hello\"); }";
 //! let theme = themes::get("catppuccin_mocha").unwrap();
 //!
+//! let formatter = HtmlInlineBuilder::new()
+//!     .source(code)
+//!     .lang(Language::Rust)
+//!     .theme(Some(theme))
+//!     .build()
+//!     .unwrap();
+//!
 //! let options = Options {
 //!     lang_or_file: Some("rust"),
-//!     formatter: FormatterOption::HtmlInline {
-//!         theme: Some(theme),
-//!         pre_class: None,
-//!         italic: false,
-//!         include_highlights: false,
-//!         highlight_lines: None,
-//!         header: None,
-//!     },
+//!     formatter: Box::new(formatter),
 //! };
 //!
 //! let highlighted = highlight(code, options);

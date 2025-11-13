@@ -125,6 +125,8 @@ pub use html_linked::{HtmlLinked, HtmlLinkedBuilder};
 pub mod terminal;
 pub use terminal::{Terminal, TerminalBuilder};
 
+pub mod events;
+
 /// Configuration for wrapping the formatted output with custom HTML elements.
 ///
 /// This struct allows you to specify opening and closing HTML tags that will wrap
@@ -166,8 +168,197 @@ pub struct HtmlElement {
     pub close_tag: String,
 }
 
+/// Core trait for syntax highlighting formatters.
+///
+/// Implement this trait to create custom formatters that generate syntax-highlighted
+/// output in any format you need. The trait is object-safe and requires `Send + Sync`
+/// for use in concurrent contexts.
+///
+/// # Required Methods
+///
+/// - [`format`](Formatter::format) - Generate formatted output
+/// - [`highlights`](Formatter::highlights) - Generate output with syntax highlighting
+///
+/// For most formatters, both methods can have the same implementation.
+///
+/// # Creating Custom Formatters
+///
+/// ## Approach 1: High-Level Token API (Recommended)
+///
+/// Use [`events::iter_tokens`] for an ergonomic iterator over syntax tokens:
+///
+/// ```rust
+/// use autumnus::formatter::{Formatter, events};
+/// use autumnus::languages::Language;
+/// use autumnus::themes::Theme;
+/// use std::io::{self, Write};
+///
+/// pub struct MarkdownFormatter<'a> {
+///     source: &'a str,
+///     lang: Language,
+///     theme: Option<&'a Theme>,
+/// }
+///
+/// impl Formatter for MarkdownFormatter<'_> {
+///     fn format(&self, output: &mut dyn Write) -> io::Result<()> {
+///         for token in events::iter_tokens(self.source, self.lang, self.theme) {
+///             match token.scope.as_ref() {
+///                 "comment" => write!(output, "*{}*", token.text)?,
+///                 "keyword" => write!(output, "**{}**", token.text)?,
+///                 "string" => write!(output, "`{}`", token.text)?,
+///                 _ => write!(output, "{}", token.text)?,
+///             }
+///         }
+///         Ok(())
+///     }
+///
+///     fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
+///         self.format(output)
+///     }
+/// }
+/// ```
+///
+/// ## Approach 2: Low-Level Event API (Maximum Control)
+///
+/// Use [`events::highlight_events`] for direct access to tree-sitter events:
+///
+/// ```rust
+/// use autumnus::formatter::{Formatter, events};
+/// use autumnus::languages::Language;
+/// use std::io::{self, Write};
+/// use tree_sitter_highlight::HighlightEvent;
+///
+/// pub struct JsonFormatter<'a> {
+///     source: &'a str,
+///     lang: Language,
+/// }
+///
+/// impl Formatter for JsonFormatter<'_> {
+///     fn format(&self, output: &mut dyn Write) -> io::Result<()> {
+///         write!(output, "[\"tokens\":[")?;
+///         let mut first = true;
+///         let mut current_scope = "text";
+///
+///         for event in events::highlight_events(self.source, self.lang) {
+///             match event {
+///                 HighlightEvent::HighlightStart(highlight) => {
+///                     current_scope = events::scope_name(highlight.0);
+///                 }
+///                 HighlightEvent::Source { start, end } => {
+///                     if !first { write!(output, ",")?; }
+///                     first = false;
+///                     write!(output, "{{\"text\":\"{}\",\"scope\":\"{}\"}}",
+///                         &self.source[start..end], current_scope)?;
+///                 }
+///                 HighlightEvent::HighlightEnd => {}
+///             }
+///         }
+///         write!(output, "]")?;
+///         Ok(())
+///     }
+///
+///     fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
+///         self.format(output)
+///     }
+/// }
+/// ```
+///
+/// # Using Custom Formatters
+///
+/// Once you've implemented the `Formatter` trait, pass it to `Options`:
+///
+/// ```rust
+/// use autumnus::{highlight, Options};
+/// # use autumnus::formatter::{Formatter, events};
+/// # use autumnus::languages::Language;
+/// # use std::io::{self, Write};
+/// # pub struct MarkdownFormatter<'a> { source: &'a str, lang: Language }
+/// # impl Formatter for MarkdownFormatter<'_> {
+/// #     fn format(&self, output: &mut dyn Write) -> io::Result<()> { Ok(()) }
+/// #     fn highlights(&self, output: &mut dyn Write) -> io::Result<()> { Ok(()) }
+/// # }
+///
+/// let source = "fn main() {}";
+/// let my_formatter = MarkdownFormatter {
+///     source,
+///     lang: Language::Rust,
+/// };
+///
+/// let result = highlight(source, Options {
+///     lang_or_file: Some("rust"),
+///     formatter: Box::new(my_formatter),
+/// });
+/// ```
+///
+/// # Thread Safety
+///
+/// Formatters must implement `Send + Sync` because they may be used across
+/// thread boundaries in concurrent applications. Ensure your formatter's fields
+/// are also `Send + Sync`, or use appropriate synchronization primitives.
+///
+/// # See Also
+///
+/// - [`events`] module - Event processing APIs for building custom formatters
+/// - Built-in formatters: [`HtmlInline`], [`HtmlLinked`], [`Terminal`]
 pub trait Formatter: Send + Sync {
+    /// Generates formatted output to the provided writer.
+    ///
+    /// This method should write the syntax-highlighted source code to `output`
+    /// in your custom format. The output can be text, HTML, JSON, or any other
+    /// format you need.
+    ///
+    /// # Arguments
+    ///
+    /// * `output` - A writable destination for the formatted output
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(())` - Successfully wrote formatted output
+    /// * `Err(io::Error)` - Write operation failed
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use autumnus::formatter::Formatter;
+    /// use std::io::Write;
+    /// # use autumnus::formatter::events;
+    /// # use autumnus::languages::Language;
+    /// # struct MyFormatter { source: &'static str, lang: Language }
+    /// # impl Formatter for MyFormatter {
+    /// #     fn format(&self, output: &mut dyn Write) -> std::io::Result<()> {
+    /// #         for token in events::iter_tokens(self.source, self.lang, None) {
+    /// #             write!(output, "{}", token.text)?;
+    /// #         }
+    /// #         Ok(())
+    /// #     }
+    /// #     fn highlights(&self, output: &mut dyn Write) -> std::io::Result<()> { Ok(()) }
+    /// # }
+    ///
+    /// let formatter = MyFormatter {
+    ///     source: "fn main() {}",
+    ///     lang: Language::Rust,
+    /// };
+    ///
+    /// let mut buffer = Vec::new();
+    /// formatter.format(&mut buffer).unwrap();
+    /// let result = String::from_utf8(buffer).unwrap();
+    /// ```
     fn format(&self, output: &mut dyn Write) -> io::Result<()>;
+
+    /// Generates output with syntax highlighting information.
+    ///
+    /// For most custom formatters, this method should have the same implementation
+    /// as [`format`](Formatter::format). The distinction exists for formatters that
+    /// might have different behavior for highlights vs. plain formatting.
+    ///
+    /// # Arguments
+    ///
+    /// * `output` - A writable destination for the highlighted output
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(())` - Successfully wrote highlighted output
+    /// * `Err(io::Error)` - Write operation failed
     fn highlights(&self, output: &mut dyn Write) -> io::Result<()>;
 }
 

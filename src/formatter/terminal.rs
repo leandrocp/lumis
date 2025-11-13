@@ -17,12 +17,12 @@
 
 #![allow(unused_must_use)]
 
-use super::Formatter;
+use super::{events, Formatter};
 use crate::{languages::Language, themes::Theme};
 use derive_builder::Builder;
 use std::io::{self, Write};
 use termcolor::{BufferWriter, ColorChoice, ColorSpec, WriteColor};
-use tree_sitter_highlight::{HighlightEvent, Highlighter};
+use tree_sitter_highlight::HighlightEvent;
 
 #[derive(Builder, Debug)]
 #[builder(default)]
@@ -60,29 +60,17 @@ impl Default for Terminal<'_> {
 
 impl Formatter for Terminal<'_> {
     fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
-        let mut highlighter = Highlighter::new();
-        let events = highlighter
-            .highlight(
-                self.lang.config(),
-                self.source.as_bytes(),
-                None,
-                |injected| Some(Language::guess(injected, "").config()),
-            )
-            .expect("failed to generate highlight events");
-
         let writer = BufferWriter::stdout(ColorChoice::Always);
         let mut buffer = writer.buffer();
 
-        for event in events {
-            let event = event.expect("failed to get highlight event");
-
+        for event in events::highlight_events(self.source, self.lang) {
             match event {
                 HighlightEvent::HighlightStart(idx) => {
-                    let scope = crate::constants::HIGHLIGHT_NAMES[idx.0];
+                    let scope = events::scope_name(idx.0);
 
                     let hex = &self
                         .theme
-                        .and_then(|theme| theme.get_style(scope))
+                        .and_then(|theme| events::theme_style_for_scope(Some(theme), scope))
                         .and_then(|style| style.fg.as_deref())
                         // not completely blank so it's still visible in light terminals
                         .unwrap_or("#eeeeee")

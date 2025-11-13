@@ -18,8 +18,10 @@ Autumnus is a syntax highlighter powered by Tree-sitter and Neovim themes. It pr
   - HTML with inline styles
   - HTML with linked stylesheets
   - Terminal output with ANSI colors
+  - **Custom formatters** - Create your own output format (JSON, XML, Markdown, etc.)
 - 🔍 Automatic language detection from file extensions
 - 🚀 Zero configuration needed to get started
+- 🔧 Extensible formatter API for custom output formats
 - 🖥️ Command-line interface included
 
 ## Installation
@@ -156,82 +158,124 @@ Note: While the package name is `autumnus`, the installed binary is named `autum
 ```rust
 use autumnus::{highlight, Options};
 
-let code = r#"
-    function greet(name) {
-        console.log(`Hello ${name}!`);
-    }
-"#;
-
-let html = highlight("javascript", code, Options::default());
+let code = "function greet(name) { console.log(`Hello ${name}!`); }";
+let html = highlight(code, Options::default());
 ```
 
-#### Using a Specific Theme
+#### Using the Builder API
 
 ```rust
-use autumnus::{highlight, Options, themes};
+use autumnus::{HtmlInlineBuilder, languages::Language, themes};
 
 let code = "SELECT * FROM users WHERE active = true;";
-let html = highlight(
-    "sql",
-    code,
-    Options {
-        theme: themes::get("dracula").expect("Theme not found"),
-        ..Options::default()
-    }
-);
-```
+let theme = themes::get("dracula").unwrap();
 
-#### Language Detection from File Path
+let formatter = HtmlInlineBuilder::new()
+    .source(code)
+    .lang(Language::SQL)
+    .theme(Some(theme))
+    .build()
+    .unwrap();
 
-```rust
-use autumnus::{highlight, Options};
-
-let code = r#"
-    defmodule MyApp do
-      def hello, do: :world
-    end
-"#;
-// Language will be automatically detected as Elixir from the .ex extension
-let html = highlight("app.ex", code, Options::default());
+let mut output = Vec::new();
+formatter.format(&mut output).unwrap();
+let html = String::from_utf8(output).unwrap();
 ```
 
 #### Terminal Output with ANSI Colors
 
 ```rust
-use autumnus::{highlight, Options, FormatterOption};
+use autumnus::{highlight, Options, TerminalBuilder, languages::Language, themes};
 
 let code = "puts 'Hello from Ruby!'";
-let ansi = highlight(
-    "ruby",
-    code,
-    Options {
-        formatter: FormatterOption::Terminal,
-        ..Options::default()
-    }
-);
+let theme = themes::get("dracula").unwrap();
+
+let formatter = TerminalBuilder::new()
+    .source(code)
+    .lang(Language::Ruby)
+    .theme(Some(theme))
+    .build()
+    .unwrap();
+
+let options = Options {
+    lang_or_file: Some("ruby"),
+    formatter: Box::new(formatter),
+};
+
+let ansi = highlight(code, options);
 ```
 
 #### HTML with Linked Stylesheets
 
 ```rust
-use autumnus::{highlight, Options, FormatterOption};
+use autumnus::{highlight, Options, HtmlLinkedBuilder, languages::Language};
 
 let code = "console.log('Hello!')";
-let html = highlight(
-    "javascript",
-    code,
-    Options {
-        formatter: FormatterOption::HtmlLinked,
-        ..Options::default()
-    }
-);
+
+let formatter = HtmlLinkedBuilder::new()
+    .source(code)
+    .lang(Language::JavaScript)
+    .pre_class(Some("code"))
+    .build()
+    .unwrap();
+
+let options = Options {
+    lang_or_file: Some("javascript"),
+    formatter: Box::new(formatter),
+};
+
+let html = highlight(code, options);
 ```
 
-When using `FormatterOption::HtmlLinked`, include the corresponding CSS file for your chosen theme:
+When using `HtmlLinkedBuilder`, include the corresponding CSS file for your chosen theme:
 
 ```html
 <link rel="stylesheet" href="css/dracula.css" />
 ```
+
+#### Custom Formatters
+
+Autumnus provides a flexible API for creating custom formatters, allowing you to generate output in any format you need (JSON, XML, Markdown, custom HTML, etc.).
+
+**High-Level Token API (Recommended)**:
+
+```rust
+use autumnus::{highlight, Options, formatter::{Formatter, events}, languages::Language};
+use std::io::{self, Write};
+
+struct MarkdownFormatter<'a> {
+    source: &'a str,
+    lang: Language,
+}
+
+impl Formatter for MarkdownFormatter<'_> {
+    fn format(&self, output: &mut dyn Write) -> io::Result<()> {
+        for token in events::iter_tokens(self.source, self.lang, None) {
+            match token.scope.as_ref() {
+                scope if scope.contains("keyword") => write!(output, "**{}**", token.text)?,
+                scope if scope.contains("comment") => write!(output, "*{}*", token.text)?,
+                _ => write!(output, "{}", token.text)?,
+            }
+        }
+        Ok(())
+    }
+
+    fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
+        self.format(output)
+    }
+}
+
+let code = "fn main() {}";
+let formatter = MarkdownFormatter { source: code, lang: Language::Rust };
+let result = highlight(code, Options {
+    lang_or_file: Some("rust"),
+    formatter: Box::new(formatter),
+});
+```
+
+**Examples**:
+- [`custom_formatter_simple.rs`](examples/custom_formatter_simple.rs) - High-level token API (recommended)
+- [`custom_formatter_low_level.rs`](examples/custom_formatter_low_level.rs) - Low-level event API (advanced)
 
 ### Command-Line Usage
 
