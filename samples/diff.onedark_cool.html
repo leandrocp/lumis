@@ -2,10 +2,10 @@
 </div><div class="line" data-line="2"><span data-highlight="comment" style="color: #546178;"># This file demonstrates different types of diffs commonly seen in version control</span>
 </div><div class="line" data-line="3">
 </div><div class="line" data-line="4"><span data-highlight="comment" style="color: #546178;"># 1. Simple unified diff (git diff format)</span>
-</div><div class="line" data-line="5"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/src/main.js b/src/main.js</span>
+</div><div class="line" data-line="5"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/src/main.js b/src/main.js</span>
 </div><div class="line" data-line="6">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 100644
-</div><div class="line" data-line="7"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/src/main.js</span></span>
-</div><div class="line" data-line="8"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/src/main.js</span></span>
+</div><div class="line" data-line="7"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/src/main.js</span></span>
+</div><div class="line" data-line="8"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/src/main.js</span></span>
 </div><div class="line" data-line="9"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -1,10 +1,12 @@</span>
 </div><div class="line" data-line="10"> function greet(name) &lbrace;
 </div><div class="line" data-line="11"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">-</span>    console.log(&quot;Hello, &quot; + name);</span>
@@ -26,7 +26,7 @@
 </div><div class="line" data-line="26">
 </div><div class="line" data-line="27"><span data-highlight="comment" style="color: #546178;"># 2. Context diff format</span>
 </div><div class="line" data-line="28">*** old_file.txt	2023-01-01 10:00:00.000000000 +0000
-</div><div class="line" data-line="29"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">new_file.txt	2023-01-01 11:00:00.000000000 +0000</span></span>
+</div><div class="line" data-line="29"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">new_file.txt	2023-01-01 11:00:00.000000000 +0000</span></span>
 </div><div class="line" data-line="30">***************
 </div><div class="line" data-line="31">*** 1,5 ****
 </div><div class="line" data-line="32">  Line 1
@@ -34,7 +34,7 @@
 </div><div class="line" data-line="34">  Line 3
 </div><div class="line" data-line="35">  Line 4
 </div><div class="line" data-line="36">  Line 5
-</div><div class="line" data-line="37"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">1,7 ----</span></span>
+</div><div class="line" data-line="37"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">1,7 ----</span></span>
 </div><div class="line" data-line="38">  Line 1
 </div><div class="line" data-line="39">! Line 2 new content
 </div><div class="line" data-line="40">  Line 3
@@ -44,8 +44,8 @@
 </div><div class="line" data-line="44">  Line 5
 </div><div class="line" data-line="45">
 </div><div class="line" data-line="46"><span data-highlight="comment" style="color: #546178;"># 3. Standard diff format (diff -u)</span>
-</div><div class="line" data-line="47"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">config/database.yml.orig	2023-12-01 09:30:00.000000000 +0000</span></span>
-</div><div class="line" data-line="48"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">config/database.yml	2023-12-01 09:35:00.000000000 +0000</span></span>
+</div><div class="line" data-line="47"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">config/database.yml.orig	2023-12-01 09:30:00.000000000 +0000</span></span>
+</div><div class="line" data-line="48"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">config/database.yml	2023-12-01 09:35:00.000000000 +0000</span></span>
 </div><div class="line" data-line="49"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -12,8 +12,10 @@</span>
 </div><div class="line" data-line="50"> development:
 </div><div class="line" data-line="51">   adapter: postgresql
@@ -60,12 +60,12 @@
 </div><div class="line" data-line="60"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>  port: 5432</span>
 </div><div class="line" data-line="61">
 </div><div class="line" data-line="62"><span data-highlight="comment" style="color: #546178;"># 4. Git diff with file mode changes</span>
-</div><div class="line" data-line="63"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/scripts/deploy.sh b/scripts/deploy.sh</span>
+</div><div class="line" data-line="63"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/scripts/deploy.sh b/scripts/deploy.sh</span>
 </div><div class="line" data-line="64"><span data-highlight="label" style="color: #ef5f6b;">old mode <span data-highlight="number" style="color: #d99a5e;">100644</span></span>
 </div><div class="line" data-line="65"><span data-highlight="label" style="color: #ef5f6b;">new mode <span data-highlight="number" style="color: #d99a5e;">100755</span></span>
 </div><div class="line" data-line="66"><span data-highlight="keyword" style="color: #ca72e4;">index</span> <span data-highlight="constant" style="color: #d99a5e;">e69de29</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span><span data-highlight="constant" style="color: #d99a5e;">1234567</span>
-</div><div class="line" data-line="67"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/scripts/deploy.sh</span></span>
-</div><div class="line" data-line="68"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/scripts/deploy.sh</span></span>
+</div><div class="line" data-line="67"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/scripts/deploy.sh</span></span>
+</div><div class="line" data-line="68"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/scripts/deploy.sh</span></span>
 </div><div class="line" data-line="69"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -0,0 +1,15 @@</span>
 </div><div class="line" data-line="70"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>#!/bin/bash</span>
 </div><div class="line" data-line="71"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span></span>
@@ -84,16 +84,16 @@
 </div><div class="line" data-line="84"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>echo &quot;Deployment completed successfully!&quot;</span>
 </div><div class="line" data-line="85">
 </div><div class="line" data-line="86"><span data-highlight="comment" style="color: #546178;"># 5. Binary file diff</span>
-</div><div class="line" data-line="87"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/assets/logo.png b/assets/logo.png</span>
+</div><div class="line" data-line="87"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/assets/logo.png b/assets/logo.png</span>
 </div><div class="line" data-line="88">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 100644
-</div><div class="line" data-line="89"><span data-highlight="label" style="color: #ef5f6b;">Binary files <span data-highlight="string.special.path" style="color: #ef5f6b;">a/assets/logo.png</span> and <span data-highlight="string.special.path" style="color: #ef5f6b;">b/assets/logo.png</span> differ</span>
+</div><div class="line" data-line="89"><span data-highlight="label" style="color: #ef5f6b;">Binary files <span data-highlight="string.special.path" style="color: #97ca72;">a/assets/logo.png</span> and <span data-highlight="string.special.path" style="color: #97ca72;">b/assets/logo.png</span> differ</span>
 </div><div class="line" data-line="90">
 </div><div class="line" data-line="91"><span data-highlight="comment" style="color: #546178;"># 6. New file creation</span>
-</div><div class="line" data-line="92"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/README.md b/README.md</span>
+</div><div class="line" data-line="92"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/README.md b/README.md</span>
 </div><div class="line" data-line="93"><span data-highlight="label" style="color: #ef5f6b;">new file mode <span data-highlight="number" style="color: #d99a5e;">100644</span></span>
 </div><div class="line" data-line="94"><span data-highlight="keyword" style="color: #ca72e4;">index</span> <span data-highlight="constant" style="color: #d99a5e;">0000000</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span><span data-highlight="constant" style="color: #d99a5e;">1234567</span>
-</div><div class="line" data-line="95"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">/dev/null</span></span>
-</div><div class="line" data-line="96"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/README.md</span></span>
+</div><div class="line" data-line="95"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">/dev/null</span></span>
+</div><div class="line" data-line="96"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/README.md</span></span>
 </div><div class="line" data-line="97"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -0,0 +1,25 @@</span>
 </div><div class="line" data-line="98"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span># Project Name</span>
 </div><div class="line" data-line="99"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span></span>
@@ -123,11 +123,11 @@
 </div><div class="line" data-line="123"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>MIT License</span>
 </div><div class="line" data-line="124">
 </div><div class="line" data-line="125"><span data-highlight="comment" style="color: #546178;"># 7. File deletion</span>
-</div><div class="line" data-line="126"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/old_script.py b/old_script.py</span>
+</div><div class="line" data-line="126"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/old_script.py b/old_script.py</span>
 </div><div class="line" data-line="127"><span data-highlight="label" style="color: #ef5f6b;">deleted file mode <span data-highlight="number" style="color: #d99a5e;">100644</span></span>
 </div><div class="line" data-line="128">index abcdefg<span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>0000000
-</div><div class="line" data-line="129"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/old_script.py</span></span>
-</div><div class="line" data-line="130"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">/dev/null</span></span>
+</div><div class="line" data-line="129"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/old_script.py</span></span>
+</div><div class="line" data-line="130"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">/dev/null</span></span>
 </div><div class="line" data-line="131"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -1,20 +0,0 @@</span>
 </div><div class="line" data-line="132"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">-</span>#!/usr/bin/env python3</span>
 </div><div class="line" data-line="133"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">-</span></span>
@@ -151,13 +151,13 @@
 </div><div class="line" data-line="151"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">-</span>    main()</span>
 </div><div class="line" data-line="152">
 </div><div class="line" data-line="153"><span data-highlight="comment" style="color: #546178;"># 8. File rename/move</span>
-</div><div class="line" data-line="154"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/old_name.txt b/new_name.txt</span>
+</div><div class="line" data-line="154"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/old_name.txt b/new_name.txt</span>
 </div><div class="line" data-line="155"><span data-highlight="label" style="color: #ef5f6b;">similarity index <span data-highlight="number" style="color: #d99a5e;">85</span><span data-highlight="number" style="color: #d99a5e;">%</span></span>
-</div><div class="line" data-line="156"><span data-highlight="label" style="color: #ef5f6b;">rename from <span data-highlight="string.special.path" style="color: #ef5f6b;">old_name.txt</span></span>
-</div><div class="line" data-line="157"><span data-highlight="label" style="color: #ef5f6b;">rename to <span data-highlight="string.special.path" style="color: #ef5f6b;">new_name.txt</span></span>
+</div><div class="line" data-line="156"><span data-highlight="label" style="color: #ef5f6b;">rename from <span data-highlight="string.special.path" style="color: #97ca72;">old_name.txt</span></span>
+</div><div class="line" data-line="157"><span data-highlight="label" style="color: #ef5f6b;">rename to <span data-highlight="string.special.path" style="color: #97ca72;">new_name.txt</span></span>
 </div><div class="line" data-line="158">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 100644
-</div><div class="line" data-line="159"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/old_name.txt</span></span>
-</div><div class="line" data-line="160"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/new_name.txt</span></span>
+</div><div class="line" data-line="159"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/old_name.txt</span></span>
+</div><div class="line" data-line="160"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/new_name.txt</span></span>
 </div><div class="line" data-line="161"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -1,5 +1,7 @@</span>
 </div><div class="line" data-line="162"> This is the content of the file.
 </div><div class="line" data-line="163"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">-</span>Some old text here.</span>
@@ -168,10 +168,10 @@
 </div><div class="line" data-line="168"> Final line.
 </div><div class="line" data-line="169">
 </div><div class="line" data-line="170"><span data-highlight="comment" style="color: #546178;"># 9. Large diff with multiple hunks</span>
-</div><div class="line" data-line="171"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/src/utils.py b/src/utils.py</span>
+</div><div class="line" data-line="171"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/src/utils.py b/src/utils.py</span>
 </div><div class="line" data-line="172">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 100644
-</div><div class="line" data-line="173"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/src/utils.py</span></span>
-</div><div class="line" data-line="174"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/src/utils.py</span></span>
+</div><div class="line" data-line="173"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/src/utils.py</span></span>
+</div><div class="line" data-line="174"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/src/utils.py</span></span>
 </div><div class="line" data-line="175"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -15,7 +15,7 @@ import json</span>
 </div><div class="line" data-line="176"> import logging
 </div><div class="line" data-line="177"> 
@@ -216,10 +216,10 @@
 </div><div class="line" data-line="216">         pass
 </div><div class="line" data-line="217">
 </div><div class="line" data-line="218"><span data-highlight="comment" style="color: #546178;"># 10. Whitespace changes</span>
-</div><div class="line" data-line="219"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/style.css b/style.css</span>
+</div><div class="line" data-line="219"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/style.css b/style.css</span>
 </div><div class="line" data-line="220">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 100644
-</div><div class="line" data-line="221"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/style.css</span></span>
-</div><div class="line" data-line="222"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/style.css</span></span>
+</div><div class="line" data-line="221"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/style.css</span></span>
+</div><div class="line" data-line="222"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/style.css</span></span>
 </div><div class="line" data-line="223"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -1,10 +1,10 @@</span>
 </div><div class="line" data-line="224"> .container &lbrace;
 </div><div class="line" data-line="225"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">-</span>    margin: 0 auto;</span>
@@ -238,10 +238,10 @@
 </div><div class="line" data-line="238"> &rbrace;
 </div><div class="line" data-line="239">
 </div><div class="line" data-line="240"><span data-highlight="comment" style="color: #546178;"># 11. Mixed content diff (code + documentation)</span>
-</div><div class="line" data-line="241"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/docs/api.md b/docs/api.md</span>
+</div><div class="line" data-line="241"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/docs/api.md b/docs/api.md</span>
 </div><div class="line" data-line="242">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 100644
-</div><div class="line" data-line="243"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/docs/api.md</span></span>
-</div><div class="line" data-line="244"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/docs/api.md</span></span>
+</div><div class="line" data-line="243"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/docs/api.md</span></span>
+</div><div class="line" data-line="244"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/docs/api.md</span></span>
 </div><div class="line" data-line="245"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -12,7 +12,7 @@ Base URL: `https://api.example.com/v1`</span>
 </div><div class="line" data-line="246"> 
 </div><div class="line" data-line="247"> ## Authentication
@@ -268,10 +268,10 @@
 </div><div class="line" data-line="268"> ## Response Format
 </div><div class="line" data-line="269">
 </div><div class="line" data-line="270"><span data-highlight="comment" style="color: #546178;"># 12. Conflict markers (merge conflict)</span>
-</div><div class="line" data-line="271"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/src/config.js b/src/config.js</span>
+</div><div class="line" data-line="271"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/src/config.js b/src/config.js</span>
 </div><div class="line" data-line="272">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 100644
-</div><div class="line" data-line="273"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/src/config.js</span></span>
-</div><div class="line" data-line="274"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/src/config.js</span></span>
+</div><div class="line" data-line="273"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/src/config.js</span></span>
+</div><div class="line" data-line="274"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/src/config.js</span></span>
 </div><div class="line" data-line="275"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -5,11 +5,19 @@ const config = &lbrace;</span>
 </div><div class="line" data-line="276">   development: &lbrace;
 </div><div class="line" data-line="277">     database: &lbrace;
@@ -295,10 +295,10 @@
 </div><div class="line" data-line="295"> &rbrace;;
 </div><div class="line" data-line="296">
 </div><div class="line" data-line="297"><span data-highlight="comment" style="color: #546178;"># 13. Submodule changes</span>
-</div><div class="line" data-line="298"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/.gitmodules b/.gitmodules</span>
+</div><div class="line" data-line="298"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/.gitmodules b/.gitmodules</span>
 </div><div class="line" data-line="299">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 100644
-</div><div class="line" data-line="300"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/.gitmodules</span></span>
-</div><div class="line" data-line="301"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/.gitmodules</span></span>
+</div><div class="line" data-line="300"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/.gitmodules</span></span>
+</div><div class="line" data-line="301"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/.gitmodules</span></span>
 </div><div class="line" data-line="302"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -1,3 +1,6 @@</span>
 </div><div class="line" data-line="303"> [submodule &quot;vendor/library&quot;]
 </div><div class="line" data-line="304"> 	path = vendor/library
@@ -306,10 +306,10 @@
 </div><div class="line" data-line="306"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>[submodule &quot;vendor/utils&quot;]</span>
 </div><div class="line" data-line="307"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>	path = vendor/utils</span>
 </div><div class="line" data-line="308"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>	url = https://github.com/example/utils.git</span>
-</div><div class="line" data-line="309"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/vendor/library b/vendor/library</span>
+</div><div class="line" data-line="309"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/vendor/library b/vendor/library</span>
 </div><div class="line" data-line="310">index <span data-highlight="constant" style="color: #d99a5e;">1234567</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span>abcdefg 160000
-</div><div class="line" data-line="311"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/vendor/library</span></span>
-</div><div class="line" data-line="312"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/vendor/library</span></span>
+</div><div class="line" data-line="311"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/vendor/library</span></span>
+</div><div class="line" data-line="312"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/vendor/library</span></span>
 </div><div class="line" data-line="313"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -1 +1 @@</span>
 </div><div class="line" data-line="314"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">-</span>Subproject commit 1234567890abcdef1234567890abcdef12345678</span>
 </div><div class="line" data-line="315"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>Subproject commit abcdefg1234567890abcdef1234567890abcdefg</span>
@@ -345,11 +345,11 @@
 </div><div class="line" data-line="345"> 3 files changed, 58 insertions(+), 2 deletions(-)
 </div><div class="line" data-line="346"> create mode 100644 src/auth.js
 </div><div class="line" data-line="347">
-</div><div class="line" data-line="348"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">a/src/auth.js b/src/auth.js</span>
+</div><div class="line" data-line="348"><span data-highlight="function" style="color: #5ab0f6;">diff</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">--git</span> <span data-highlight="string.special.path" style="color: #97ca72;">a/src/auth.js b/src/auth.js</span>
 </div><div class="line" data-line="349"><span data-highlight="label" style="color: #ef5f6b;">new file mode <span data-highlight="number" style="color: #d99a5e;">100644</span></span>
 </div><div class="line" data-line="350"><span data-highlight="keyword" style="color: #ca72e4;">index</span> <span data-highlight="constant" style="color: #d99a5e;">0000000</span><span data-highlight="punctuation.special" style="color: #ef5f6b;">..</span><span data-highlight="constant" style="color: #d99a5e;">1234567</span>
-</div><div class="line" data-line="351"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">/dev/null</span></span>
-</div><div class="line" data-line="352"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #ef5f6b;">b/src/auth.js</span></span>
+</div><div class="line" data-line="351"><span data-highlight="diff.minus" style="color: #ef5f6b;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">---</span> <span data-highlight="string.special.path" style="color: #97ca72;">/dev/null</span></span>
+</div><div class="line" data-line="352"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+++</span> <span data-highlight="string.special.path" style="color: #97ca72;">b/src/auth.js</span></span>
 </div><div class="line" data-line="353"><span data-highlight="attribute" style="color: #4dbdcb;">@@ -0,0 +1,45 @@</span>
 </div><div class="line" data-line="354"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>const bcrypt = require(&#39;bcrypt&#39;);</span>
 </div><div class="line" data-line="355"><span data-highlight="diff.plus" style="color: #97ca72;"><span data-highlight="punctuation.special" style="color: #ef5f6b;">+</span>const jwt = require(&#39;jsonwebtoken&#39;);</span>
