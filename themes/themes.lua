@@ -1,17 +1,14 @@
 -- Themes definition
 --
--- Each definition must follow https://lazy.folke.io/spec
--- and `name` is required and used as the theme identifier,
--- for example the plugin `Shatur/neovim-ayu` has a couple
--- different variants so each one is named accordingly as
--- `name: "ayu_dark"` and so on.
---
--- Note that `name` don't have to match the plugin name,
--- it's used exclusively to name the theme.
+-- Each definition contains:
+-- - url: GitHub repository URL (required)
+-- - name: Theme identifier used for file naming (required)
+-- - config: Function to set up and activate the theme (required)
+-- - dependencies: Optional array of dependency URLs
 
 return {
 	{
-    "folke/lazy.nvim",
+		url = "https://github.com/folke/lazy.nvim",
 		name = "neovim_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -19,7 +16,7 @@ return {
 		end,
 	},
 	{
-    "folke/lazy.nvim",
+		url = "https://github.com/folke/lazy.nvim",
 		name = "neovim_light",
 		config = function()
 			vim.o.background = "light"
@@ -27,7 +24,7 @@ return {
 		end,
 	},
 	{
-		"Shatur/neovim-ayu",
+		url = "https://github.com/Shatur/neovim-ayu",
 		name = "ayu_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -35,7 +32,7 @@ return {
 		end,
 	},
 	{
-		"Shatur/neovim-ayu",
+		url = "https://github.com/Shatur/neovim-ayu",
 		name = "ayu_light",
 		config = function()
 			vim.o.background = "light"
@@ -43,7 +40,7 @@ return {
 		end,
 	},
 	{
-		"Shatur/neovim-ayu",
+		url = "https://github.com/Shatur/neovim-ayu",
 		name = "ayu_mirage",
 		config = function()
 			vim.o.background = "dark"
@@ -51,7 +48,7 @@ return {
 		end,
 	},
 	{
-		"AlexvZyl/nordic.nvim",
+		url = "https://github.com/AlexvZyl/nordic.nvim",
 		name = "nordic",
 		config = function()
 			vim.o.background = "dark"
@@ -60,7 +57,7 @@ return {
 		end,
 	},
 	{
-		"savq/melange-nvim",
+		url = "https://github.com/savq/melange-nvim",
 		name = "melange_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -68,7 +65,7 @@ return {
 		end,
 	},
 	{
-		"savq/melange-nvim",
+		url = "https://github.com/savq/melange-nvim",
 		name = "melange_light",
 		config = function()
 			vim.o.background = "light"
@@ -76,7 +73,7 @@ return {
 		end,
 	},
 	{
-		"bluz71/vim-nightfly-colors",
+		url = "https://github.com/bluz71/vim-nightfly-colors",
 		name = "nightfly",
 		config = function()
 			vim.o.background = "dark"
@@ -84,7 +81,7 @@ return {
 		end,
 	},
 	{
-		"folke/tokyonight.nvim",
+		url = "https://github.com/folke/tokyonight.nvim",
 		name = "tokyonight_night",
 		config = function()
 			vim.o.background = "dark"
@@ -92,7 +89,7 @@ return {
 		end,
 	},
 	{
-		"folke/tokyonight.nvim",
+		url = "https://github.com/folke/tokyonight.nvim",
 		name = "tokyonight_moon",
 		config = function()
 			vim.o.background = "dark"
@@ -100,7 +97,7 @@ return {
 		end,
 	},
 	{
-		"folke/tokyonight.nvim",
+		url = "https://github.com/folke/tokyonight.nvim",
 		name = "tokyonight_storm",
 		config = function()
 			vim.o.background = "dark"
@@ -108,7 +105,7 @@ return {
 		end,
 	},
 	{
-		"folke/tokyonight.nvim",
+		url = "https://github.com/folke/tokyonight.nvim",
 		name = "tokyonight_day",
 		config = function()
 			vim.o.background = "light"
@@ -116,7 +113,7 @@ return {
 		end,
 	},
 	{
-		"catppuccin/nvim",
+		url = "https://github.com/catppuccin/nvim",
 		name = "catppuccin_frappe",
 		config = function()
 			vim.o.background = "dark"
@@ -124,7 +121,7 @@ return {
 		end,
 	},
 	{
-		"catppuccin/nvim",
+		url = "https://github.com/catppuccin/nvim",
 		name = "catppuccin_macchiato",
 		config = function()
 			vim.o.background = "dark"
@@ -132,7 +129,7 @@ return {
 		end,
 	},
 	{
-		"catppuccin/nvim",
+		url = "https://github.com/catppuccin/nvim",
 		name = "catppuccin_mocha",
 		config = function()
 			vim.o.background = "dark"
@@ -140,7 +137,7 @@ return {
 		end,
 	},
 	{
-		"catppuccin/nvim",
+		url = "https://github.com/catppuccin/nvim",
 		name = "catppuccin_latte",
 		config = function()
 			vim.o.background = "light"
@@ -148,7 +145,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -156,16 +153,15 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_dark_default",
-		colorscheme = "github_dark_default",
 		config = function()
 			vim.o.background = "dark"
 			vim.cmd([[colorscheme github_dark_default]])
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_dark_dimmed",
 		config = function()
 			vim.o.background = "dark"
@@ -173,7 +169,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_dark_high_contrast",
 		config = function()
 			vim.o.background = "dark"
@@ -181,7 +177,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_dark_colorblind",
 		config = function()
 			vim.o.background = "dark"
@@ -189,7 +185,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_dark_tritanopia",
 		config = function()
 			vim.o.background = "dark"
@@ -197,7 +193,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_light",
 		config = function()
 			vim.o.background = "light"
@@ -205,7 +201,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_light_default",
 		config = function()
 			vim.o.background = "light"
@@ -213,7 +209,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_light_high_contrast",
 		config = function()
 			vim.o.background = "light"
@@ -221,7 +217,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_light_colorblind",
 		config = function()
 			vim.o.background = "light"
@@ -229,7 +225,7 @@ return {
 		end,
 	},
 	{
-		"projekt0n/github-nvim-theme",
+		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_light_tritanopia",
 		config = function()
 			vim.o.background = "light"
@@ -237,7 +233,7 @@ return {
 		end,
 	},
 	{
-		"rebelot/kanagawa.nvim",
+		url = "https://github.com/rebelot/kanagawa.nvim",
 		name = "kanagawa_wave",
 		config = function()
 			vim.o.background = "dark"
@@ -245,7 +241,7 @@ return {
 		end,
 	},
 	{
-		"rebelot/kanagawa.nvim",
+		url = "https://github.com/rebelot/kanagawa.nvim",
 		name = "kanagawa_dragon",
 		config = function()
 			vim.o.background = "dark"
@@ -253,7 +249,7 @@ return {
 		end,
 	},
 	{
-		"rebelot/kanagawa.nvim",
+		url = "https://github.com/rebelot/kanagawa.nvim",
 		name = "kanagawa_lotus",
 		config = function()
 			vim.o.background = "light"
@@ -261,7 +257,7 @@ return {
 		end,
 	},
 	{
-		"ellisonleao/gruvbox.nvim",
+		url = "https://github.com/ellisonleao/gruvbox.nvim",
 		name = "gruvbox_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -270,7 +266,7 @@ return {
 		end,
 	},
 	{
-		"ellisonleao/gruvbox.nvim",
+		url = "https://github.com/ellisonleao/gruvbox.nvim",
 		name = "gruvbox_dark_hard",
 		config = function()
 			vim.o.background = "dark"
@@ -279,7 +275,7 @@ return {
 		end,
 	},
 	{
-		"ellisonleao/gruvbox.nvim",
+		url = "https://github.com/ellisonleao/gruvbox.nvim",
 		name = "gruvbox_dark_soft",
 		config = function()
 			vim.o.background = "dark"
@@ -288,7 +284,7 @@ return {
 		end,
 	},
 	{
-		"ellisonleao/gruvbox.nvim",
+		url = "https://github.com/ellisonleao/gruvbox.nvim",
 		name = "gruvbox_light",
 		config = function()
 			vim.o.background = "light"
@@ -297,7 +293,7 @@ return {
 		end,
 	},
 	{
-		"ellisonleao/gruvbox.nvim",
+		url = "https://github.com/ellisonleao/gruvbox.nvim",
 		name = "gruvbox_light_hard",
 		config = function()
 			vim.o.background = "light"
@@ -306,7 +302,7 @@ return {
 		end,
 	},
 	{
-		"ellisonleao/gruvbox.nvim",
+		url = "https://github.com/ellisonleao/gruvbox.nvim",
 		name = "gruvbox_light_soft",
 		config = function()
 			vim.o.background = "light"
@@ -315,7 +311,7 @@ return {
 		end,
 	},
 	{
-		"Mofiqul/dracula.nvim",
+		url = "https://github.com/Mofiqul/dracula.nvim",
 		name = "dracula",
 		config = function()
 			vim.o.background = "dark"
@@ -323,7 +319,7 @@ return {
 		end,
 	},
 	{
-		"Mofiqul/dracula.nvim",
+		url = "https://github.com/Mofiqul/dracula.nvim",
 		name = "dracula_soft",
 		config = function()
 			vim.o.background = "dark"
@@ -331,7 +327,7 @@ return {
 		end,
 	},
 	{
-		"Mofiqul/vscode.nvim",
+		url = "https://github.com/Mofiqul/vscode.nvim",
 		name = "vscode_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -339,7 +335,7 @@ return {
 		end,
 	},
 	{
-		"Mofiqul/vscode.nvim",
+		url = "https://github.com/Mofiqul/vscode.nvim",
 		name = "vscode_light",
 		config = function()
 			vim.o.background = "light"
@@ -347,7 +343,7 @@ return {
 		end,
 	},
 	{
-		"maxmx03/solarized.nvim",
+		url = "https://github.com/maxmx03/solarized.nvim",
 		name = "solarized_winter_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -359,7 +355,7 @@ return {
 		end,
 	},
 	{
-		"maxmx03/solarized.nvim",
+		url = "https://github.com/maxmx03/solarized.nvim",
 		name = "solarized_winter_light",
 		config = function()
 			vim.o.background = "light"
@@ -371,7 +367,7 @@ return {
 		end,
 	},
 	{
-		"maxmx03/solarized.nvim",
+		url = "https://github.com/maxmx03/solarized.nvim",
 		name = "solarized_spring_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -383,7 +379,7 @@ return {
 		end,
 	},
 	{
-		"maxmx03/solarized.nvim",
+		url = "https://github.com/maxmx03/solarized.nvim",
 		name = "solarized_spring_light",
 		config = function()
 			vim.o.background = "light"
@@ -395,7 +391,7 @@ return {
 		end,
 	},
 	{
-		"maxmx03/solarized.nvim",
+		url = "https://github.com/maxmx03/solarized.nvim",
 		name = "solarized_summer_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -407,7 +403,7 @@ return {
 		end,
 	},
 	{
-		"maxmx03/solarized.nvim",
+		url = "https://github.com/maxmx03/solarized.nvim",
 		name = "solarized_summer_light",
 		config = function()
 			vim.o.background = "light"
@@ -419,7 +415,7 @@ return {
 		end,
 	},
 	{
-		"maxmx03/solarized.nvim",
+		url = "https://github.com/maxmx03/solarized.nvim",
 		name = "solarized_autumn_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -431,7 +427,7 @@ return {
 		end,
 	},
 	{
-		"maxmx03/solarized.nvim",
+		url = "https://github.com/maxmx03/solarized.nvim",
 		name = "solarized_autumn_light",
 		config = function()
 			vim.o.background = "light"
@@ -443,7 +439,7 @@ return {
 		end,
 	},
 	{
-		"marko-cerovac/material.nvim",
+		url = "https://github.com/marko-cerovac/material.nvim",
 		name = "material_darker",
 		config = function()
 			vim.o.background = "dark"
@@ -453,7 +449,7 @@ return {
 		end,
 	},
 	{
-		"marko-cerovac/material.nvim",
+		url = "https://github.com/marko-cerovac/material.nvim",
 		name = "material_lighter",
 		config = function()
 			vim.o.background = "light"
@@ -463,7 +459,7 @@ return {
 		end,
 	},
 	{
-		"marko-cerovac/material.nvim",
+		url = "https://github.com/marko-cerovac/material.nvim",
 		name = "material_oceanic",
 		config = function()
 			vim.o.background = "dark"
@@ -473,7 +469,7 @@ return {
 		end,
 	},
 	{
-		"marko-cerovac/material.nvim",
+		url = "https://github.com/marko-cerovac/material.nvim",
 		name = "material_palenight",
 		config = function()
 			vim.o.background = "dark"
@@ -483,7 +479,7 @@ return {
 		end,
 	},
 	{
-		"marko-cerovac/material.nvim",
+		url = "https://github.com/marko-cerovac/material.nvim",
 		name = "material_deep_ocean",
 		config = function()
 			vim.o.background = "dark"
@@ -493,7 +489,7 @@ return {
 		end,
 	},
 	{
-		"shaunsingh/nord.nvim",
+		url = "https://github.com/shaunsingh/nord.nvim",
 		name = "nord",
 		config = function()
 			vim.o.background = "dark"
@@ -501,7 +497,7 @@ return {
 		end,
 	},
 	{
-		"navarasu/onedark.nvim",
+		url = "https://github.com/navarasu/onedark.nvim",
 		name = "onedark_darker",
 		config = function()
 			vim.o.background = "dark"
@@ -510,7 +506,7 @@ return {
 		end,
 	},
 	{
-		"navarasu/onedark.nvim",
+		url = "https://github.com/navarasu/onedark.nvim",
 		name = "onedark_cool",
 		config = function()
 			vim.o.background = "dark"
@@ -519,7 +515,7 @@ return {
 		end,
 	},
 	{
-		"navarasu/onedark.nvim",
+		url = "https://github.com/navarasu/onedark.nvim",
 		name = "onedark_deep",
 		config = function()
 			vim.o.background = "dark"
@@ -528,7 +524,7 @@ return {
 		end,
 	},
 	{
-		"navarasu/onedark.nvim",
+		url = "https://github.com/navarasu/onedark.nvim",
 		name = "onedark_warm",
 		config = function()
 			vim.o.background = "dark"
@@ -537,7 +533,7 @@ return {
 		end,
 	},
 	{
-		"navarasu/onedark.nvim",
+		url = "https://github.com/navarasu/onedark.nvim",
 		name = "onedark_warmer",
 		config = function()
 			vim.o.background = "dark"
@@ -546,7 +542,7 @@ return {
 		end,
 	},
 	{
-		"navarasu/onedark.nvim",
+		url = "https://github.com/navarasu/onedark.nvim",
 		name = "onedark_light",
 		config = function()
 			vim.o.background = "light"
@@ -555,7 +551,7 @@ return {
 		end,
 	},
 	{
-		"olimorris/onedarkpro.nvim",
+		url = "https://github.com/olimorris/onedarkpro.nvim",
 		name = "onedark",
 		config = function()
 			vim.o.background = "dark"
@@ -563,7 +559,7 @@ return {
 		end,
 	},
 	{
-		"olimorris/onedarkpro.nvim",
+		url = "https://github.com/olimorris/onedarkpro.nvim",
 		name = "onelight",
 		config = function()
 			vim.o.background = "light"
@@ -571,7 +567,7 @@ return {
 		end,
 	},
 	{
-		"olimorris/onedarkpro.nvim",
+		url = "https://github.com/olimorris/onedarkpro.nvim",
 		name = "onedarkpro_vivid",
 		config = function()
 			vim.o.background = "dark"
@@ -579,7 +575,7 @@ return {
 		end,
 	},
 	{
-		"olimorris/onedarkpro.nvim",
+		url = "https://github.com/olimorris/onedarkpro.nvim",
 		name = "onedarkpro_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -587,7 +583,7 @@ return {
 		end,
 	},
 	{
-		"EdenEast/nightfox.nvim",
+		url = "https://github.com/EdenEast/nightfox.nvim",
 		name = "nightfox",
 		config = function()
 			vim.o.background = "dark"
@@ -595,7 +591,7 @@ return {
 		end,
 	},
 	{
-		"EdenEast/nightfox.nvim",
+		url = "https://github.com/EdenEast/nightfox.nvim",
 		name = "dayfox",
 		config = function()
 			vim.o.background = "light"
@@ -603,7 +599,7 @@ return {
 		end,
 	},
 	{
-		"EdenEast/nightfox.nvim",
+		url = "https://github.com/EdenEast/nightfox.nvim",
 		name = "duskfox",
 		config = function()
 			vim.o.background = "dark"
@@ -611,7 +607,7 @@ return {
 		end,
 	},
 	{
-		"EdenEast/nightfox.nvim",
+		url = "https://github.com/EdenEast/nightfox.nvim",
 		name = "dawnfox",
 		config = function()
 			vim.o.background = "light"
@@ -619,7 +615,7 @@ return {
 		end,
 	},
 	{
-		"EdenEast/nightfox.nvim",
+		url = "https://github.com/EdenEast/nightfox.nvim",
 		name = "carbonfox",
 		config = function()
 			vim.o.background = "dark"
@@ -627,7 +623,7 @@ return {
 		end,
 	},
 	{
-		"EdenEast/nightfox.nvim",
+		url = "https://github.com/EdenEast/nightfox.nvim",
 		name = "nordfox",
 		config = function()
 			vim.o.background = "dark"
@@ -635,7 +631,7 @@ return {
 		end,
 	},
 	{
-		"EdenEast/nightfox.nvim",
+		url = "https://github.com/EdenEast/nightfox.nvim",
 		name = "terafox",
 		config = function()
 			vim.o.background = "dark"
@@ -643,7 +639,7 @@ return {
 		end,
 	},
 	{
-		"rose-pine/neovim",
+		url = "https://github.com/rose-pine/neovim",
 		name = "rosepine_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -651,7 +647,7 @@ return {
 		end,
 	},
 	{
-		"rose-pine/neovim",
+		url = "https://github.com/rose-pine/neovim",
 		name = "rosepine_moon",
 		config = function()
 			vim.o.background = "dark"
@@ -659,7 +655,7 @@ return {
 		end,
 	},
 	{
-		"rose-pine/neovim",
+		url = "https://github.com/rose-pine/neovim",
 		name = "rosepine_dawn",
 		config = function()
 			vim.o.background = "light"
@@ -667,7 +663,7 @@ return {
 		end,
 	},
 	{
-		"neanias/everforest-nvim",
+		url = "https://github.com/neanias/everforest-nvim",
 		name = "everforest_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -676,7 +672,7 @@ return {
 		end,
 	},
 	{
-		"neanias/everforest-nvim",
+		url = "https://github.com/neanias/everforest-nvim",
 		name = "everforest_light",
 		config = function()
 			vim.o.background = "light"
@@ -685,7 +681,7 @@ return {
 		end,
 	},
 	{
-		"sainnhe/edge",
+		url = "https://github.com/sainnhe/edge",
 		name = "edge_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -694,7 +690,7 @@ return {
 		end,
 	},
 	{
-		"sainnhe/edge",
+		url = "https://github.com/sainnhe/edge",
 		name = "edge_light",
 		config = function()
 			vim.o.background = "light"
@@ -703,7 +699,7 @@ return {
 		end,
 	},
 	{
-		"sainnhe/edge",
+		url = "https://github.com/sainnhe/edge",
 		name = "edge_aura",
 		config = function()
 			vim.o.background = "dark"
@@ -712,7 +708,7 @@ return {
 		end,
 	},
 	{
-		"sainnhe/edge",
+		url = "https://github.com/sainnhe/edge",
 		name = "edge_neon",
 		config = function()
 			vim.o.background = "dark"
@@ -721,7 +717,7 @@ return {
 		end,
 	},
 	{
-		"miikanissi/modus-themes.nvim",
+		url = "https://github.com/miikanissi/modus-themes.nvim",
 		name = "modus_operandi",
 		config = function()
 			vim.o.background = "light"
@@ -729,7 +725,7 @@ return {
 		end,
 	},
 	{
-		"miikanissi/modus-themes.nvim",
+		url = "https://github.com/miikanissi/modus-themes.nvim",
 		name = "modus_vivendi",
 		config = function()
 			vim.o.background = "dark"
@@ -737,7 +733,7 @@ return {
 		end,
 	},
 	{
-		"glepnir/zephyr-nvim",
+		url = "https://github.com/glepnir/zephyr-nvim",
 		name = "zephyr_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -745,25 +741,25 @@ return {
 		end,
 	},
 	{
-		"svrana/neosolarized.nvim",
+		url = "https://github.com/svrana/neosolarized.nvim",
 		name = "neosolarized_dark",
 		config = function()
 			vim.o.background = "dark"
 			vim.cmd([[colorscheme neosolarized]])
 		end,
-		dependencies = { "tjdevries/colorbuddy.nvim" },
+		dependencies = { "https://github.com/tjdevries/colorbuddy.nvim" },
 	},
 	{
-		"svrana/neosolarized.nvim",
+		url = "https://github.com/svrana/neosolarized.nvim",
 		name = "neosolarized_light",
 		config = function()
 			vim.o.background = "light"
 			vim.cmd([[colorscheme neosolarized]])
 		end,
-		dependencies = { "tjdevries/colorbuddy.nvim" },
+		dependencies = { "https://github.com/tjdevries/colorbuddy.nvim" },
 	},
 	{
-		"loctvl842/monokai-pro.nvim",
+		url = "https://github.com/loctvl842/monokai-pro.nvim",
 		name = "monokai_pro_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -772,7 +768,7 @@ return {
 		end,
 	},
 	{
-		"loctvl842/monokai-pro.nvim",
+		url = "https://github.com/loctvl842/monokai-pro.nvim",
 		name = "monokai_pro_machine",
 		config = function()
 			vim.o.background = "dark"
@@ -781,7 +777,7 @@ return {
 		end,
 	},
 	{
-		"loctvl842/monokai-pro.nvim",
+		url = "https://github.com/loctvl842/monokai-pro.nvim",
 		name = "monokai_pro_ristretto",
 		config = function()
 			vim.o.background = "dark"
@@ -790,7 +786,7 @@ return {
 		end,
 	},
 	{
-		"loctvl842/monokai-pro.nvim",
+		url = "https://github.com/loctvl842/monokai-pro.nvim",
 		name = "monokai_pro_spectrum",
 		config = function()
 			vim.o.background = "dark"
@@ -799,7 +795,7 @@ return {
 		end,
 	},
 	{
-		"ribru17/bamboo.nvim",
+		url = "https://github.com/ribru17/bamboo.nvim",
 		name = "bamboo_light",
 		config = function()
 			vim.o.background = "light"
@@ -808,7 +804,7 @@ return {
 		end,
 	},
 	{
-		"ribru17/bamboo.nvim",
+		url = "https://github.com/ribru17/bamboo.nvim",
 		name = "bamboo_vulgaris",
 		config = function()
 			vim.o.background = "dark"
@@ -817,7 +813,7 @@ return {
 		end,
 	},
 	{
-		"ribru17/bamboo.nvim",
+		url = "https://github.com/ribru17/bamboo.nvim",
 		name = "bamboo_multiplex",
 		config = function()
 			vim.o.background = "dark"
@@ -826,43 +822,43 @@ return {
 		end,
 	},
 	{
-		"daltonmenezes/aura-theme",
+		url = "https://github.com/daltonmenezes/aura-theme",
 		name = "aura_dark",
-		config = function(plugin)
-			vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
+		config = function()
+			vim.opt.rtp:append(vim.fn.stdpath("data") .. "/site/pack/core/opt/aura-theme/packages/neovim")
 			vim.o.background = "dark"
 			vim.cmd([[colorscheme aura-dark]])
 		end,
 	},
 	{
-		"daltonmenezes/aura-theme",
+		url = "https://github.com/daltonmenezes/aura-theme",
 		name = "aura_dark_soft_text",
-		config = function(plugin)
-			vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
+		config = function()
+			vim.opt.rtp:append(vim.fn.stdpath("data") .. "/site/pack/core/opt/aura-theme/packages/neovim")
 			vim.o.background = "dark"
 			vim.cmd([[colorscheme aura-dark-soft-text]])
 		end,
 	},
 	{
-		"daltonmenezes/aura-theme",
+		url = "https://github.com/daltonmenezes/aura-theme",
 		name = "aura_soft_dark",
-		config = function(plugin)
-			vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
+		config = function()
+			vim.opt.rtp:append(vim.fn.stdpath("data") .. "/site/pack/core/opt/aura-theme/packages/neovim")
 			vim.o.background = "dark"
 			vim.cmd([[colorscheme aura-soft-dark]])
 		end,
 	},
 	{
-		"daltonmenezes/aura-theme",
+		url = "https://github.com/daltonmenezes/aura-theme",
 		name = "aura_soft_dark_soft_text",
-		config = function(plugin)
-			vim.opt.rtp:append(plugin.dir .. "/packages/neovim")
+		config = function()
+			vim.opt.rtp:append(vim.fn.stdpath("data") .. "/site/pack/core/opt/aura-theme/packages/neovim")
 			vim.o.background = "dark"
 			vim.cmd([[colorscheme aura-soft-dark-soft-text]])
 		end,
 	},
 	{
-		"bluz71/vim-moonfly-colors",
+		url = "https://github.com/bluz71/vim-moonfly-colors",
 		name = "moonfly",
 		config = function()
 			vim.o.background = "dark"
@@ -870,7 +866,7 @@ return {
 		end,
 	},
 	{
-		"scottmckendry/cyberdream.nvim",
+		url = "https://github.com/scottmckendry/cyberdream.nvim",
 		name = "cyberdream_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -879,7 +875,7 @@ return {
 		end,
 	},
 	{
-		"scottmckendry/cyberdream.nvim",
+		url = "https://github.com/scottmckendry/cyberdream.nvim",
 		name = "cyberdream_light",
 		config = function()
 			vim.o.background = "light"
@@ -888,27 +884,27 @@ return {
 		end,
 	},
 	{
-		"uloco/bluloco.nvim",
+		url = "https://github.com/uloco/bluloco.nvim",
 		name = "bluloco_dark",
 		config = function()
 			vim.o.background = "dark"
 			require("bluloco").setup({ style = "dark" })
 			vim.cmd([[colorscheme bluloco-dark]])
 		end,
-		dependencies = { "rktjmp/lush.nvim" },
+		dependencies = { "https://github.com/rktjmp/lush.nvim" },
 	},
 	{
-		"uloco/bluloco.nvim",
+		url = "https://github.com/uloco/bluloco.nvim",
 		name = "bluloco_light",
 		config = function()
 			vim.o.background = "light"
 			require("bluloco").setup({ style = "light" })
 			vim.cmd([[colorscheme bluloco-light]])
 		end,
-		dependencies = { "rktjmp/lush.nvim" },
+		dependencies = { "https://github.com/rktjmp/lush.nvim" },
 	},
 	{
-		"martinsione/darkplus.nvim",
+		url = "https://github.com/martinsione/darkplus.nvim",
 		name = "darkplus",
 		config = function()
 			vim.o.background = "dark"
@@ -916,7 +912,7 @@ return {
 		end,
 	},
 	{
-		"kepano/flexoki-neovim",
+		url = "https://github.com/kepano/flexoki-neovim",
 		name = "flexoki_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -924,7 +920,7 @@ return {
 		end,
 	},
 	{
-		"nomis51/nvim-xcode-theme",
+		url = "https://github.com/nomis51/nvim-xcode-theme",
 		name = "xcode_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -932,7 +928,7 @@ return {
 		end,
 	},
 	{
-		"nomis51/nvim-xcode-theme",
+		url = "https://github.com/nomis51/nvim-xcode-theme",
 		name = "xcode_dark_hc",
 		config = function()
 			vim.o.background = "dark"
@@ -940,7 +936,7 @@ return {
 		end,
 	},
 	{
-		"nomis51/nvim-xcode-theme",
+		url = "https://github.com/nomis51/nvim-xcode-theme",
 		name = "xcode_light",
 		config = function()
 			vim.o.background = "light"
@@ -948,7 +944,7 @@ return {
 		end,
 	},
 	{
-		"nomis51/nvim-xcode-theme",
+		url = "https://github.com/nomis51/nvim-xcode-theme",
 		name = "xcode_light_hc",
 		config = function()
 			vim.o.background = "light"
@@ -956,7 +952,7 @@ return {
 		end,
 	},
 	{
-		"nomis51/nvim-xcode-theme",
+		url = "https://github.com/nomis51/nvim-xcode-theme",
 		name = "xcode_wwdc",
 		config = function()
 			vim.o.background = "dark"
@@ -964,7 +960,7 @@ return {
 		end,
 	},
 	{
-		"kepano/flexoki-neovim",
+		url = "https://github.com/kepano/flexoki-neovim",
 		name = "flexoki_light",
 		config = function()
 			vim.o.background = "light"
@@ -972,7 +968,7 @@ return {
 		end,
 	},
 	{
-		"phha/zenburn.nvim",
+		url = "https://github.com/phha/zenburn.nvim",
 		name = "zenburn",
 		config = function()
 			vim.o.background = "dark"
@@ -980,7 +976,7 @@ return {
 		end,
 	},
 	{
-		"shaunsingh/moonlight.nvim",
+		url = "https://github.com/shaunsingh/moonlight.nvim",
 		name = "moonlight",
 		config = function()
 			vim.o.background = "dark"
@@ -988,7 +984,7 @@ return {
 		end,
 	},
 	{
-		"UtkarshVerma/molokai.nvim",
+		url = "https://github.com/UtkarshVerma/molokai.nvim",
 		name = "molokai",
 		config = function()
 			vim.o.background = "dark"
@@ -996,7 +992,7 @@ return {
 		end,
 	},
 	{
-		"NLKNguyen/papercolor-theme",
+		url = "https://github.com/NLKNguyen/papercolor-theme",
 		name = "papercolor_light",
 		config = function()
 			vim.o.background = "light"
@@ -1004,7 +1000,7 @@ return {
 		end,
 	},
 	{
-		"NLKNguyen/papercolor-theme",
+		url = "https://github.com/NLKNguyen/papercolor-theme",
 		name = "papercolor_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -1012,7 +1008,7 @@ return {
 		end,
 	},
 	{
-		"cocopon/iceberg.vim",
+		url = "https://github.com/cocopon/iceberg.vim",
 		name = "iceberg",
 		config = function()
 			vim.o.background = "dark"
@@ -1020,7 +1016,7 @@ return {
 		end,
 	},
 	{
-		"akinsho/horizon.nvim",
+		url = "https://github.com/akinsho/horizon.nvim",
 		name = "horizon_dark",
 		config = function()
 			vim.o.background = "dark"
@@ -1028,7 +1024,7 @@ return {
 		end,
 	},
 	{
-		"akinsho/horizon.nvim",
+		url = "https://github.com/akinsho/horizon.nvim",
 		name = "horizon_light",
 		config = function()
 			vim.o.background = "light"
@@ -1036,7 +1032,7 @@ return {
 		end,
 	},
 	{
-		"srcery-colors/srcery-vim",
+		url = "https://github.com/srcery-colors/srcery-vim",
 		name = "srcery",
 		config = function()
 			vim.o.background = "dark"
@@ -1044,7 +1040,7 @@ return {
 		end,
 	},
 	{
-		"tahayvr/matteblack.nvim",
+		url = "https://github.com/tahayvr/matteblack.nvim",
 		name = "matte_black",
 		config = function()
 			vim.o.background = "dark"

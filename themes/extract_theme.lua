@@ -138,18 +138,28 @@ local treesitter_groups = {
 	"variable.parameter.builtin",
 }
 
-local function extract_colorscheme_colors(theme)
-	local Lock = require("lazy.manage.lock")
-	local plugin = Lock.get(theme)
+local function get_plugin_revision(repo_url)
+	local plugin_name = repo_url:match("/([^/]+)$")
+	local plugin_path = vim.fn.stdpath("data") .. "/site/pack/core/opt/" .. plugin_name
 
-	if not plugin then
-		print("❌ failed to find plugin in lock file, make sure plugin spec has a `name` field\n")
-		os.exit(1)
+	if vim.fn.isdirectory(plugin_path) == 0 then
+		return "unknown"
 	end
 
+	local git_cmd = "cd " .. plugin_path .. " && git rev-parse HEAD 2>/dev/null"
+	local revision = vim.fn.system(git_cmd)
+
+	if vim.v.shell_error ~= 0 or revision == "" then
+		return "unknown"
+	end
+
+	return vim.trim(revision)
+end
+
+local function extract_colorscheme_colors(theme)
 	local colorscheme_name = vim.g.colors_name
 	local appearance = vim.o.background
-	local revision = plugin["commit"]
+	local revision = get_plugin_revision(theme.url)
 
 	print(
 		string.format(
@@ -225,6 +235,7 @@ local function extract_colorscheme_colors(theme)
 	if file then
 		file:write(json_str)
 		file:close()
+		print("✓ Wrote raw JSON to " .. output_file .. "\n")
 
 		local jq_cmd = [[jq '
       {
@@ -247,10 +258,13 @@ local function extract_colorscheme_colors(theme)
         }) | from_entries)
       }' ]] .. output_file .. " > " .. output_file .. ".tmp && mv " .. output_file .. ".tmp " .. output_file
 
+		print("Running jq...\n")
 		local jq_result = vim.fn.system(jq_cmd)
 
 		if vim.v.shell_error ~= 0 then
-			print("❌ jq processing failed: " .. jq_result .. "\n")
+			print("❌ jq processing failed (exit code " .. vim.v.shell_error .. "): " .. jq_result .. "\n")
+		else
+			print("✓ Formatted JSON with jq\n")
 		end
 
 		return true
@@ -281,17 +295,45 @@ if not theme then
 	os.exit(1)
 end
 
-local plugins = {}
-local plugin = vim.deepcopy(theme)
-plugin.lazy = false
-plugin.priority = 1000
-table.insert(plugins, plugin)
+local plugins_to_install = {}
 
-require("lazy").setup(plugin, {
-	checker = {
-		enabled = true,
-	},
-})
+if theme.dependencies then
+	for _, dep_url in ipairs(theme.dependencies) do
+		table.insert(plugins_to_install, dep_url)
+	end
+end
+
+table.insert(plugins_to_install, theme.url)
+
+print("📦 Installing plugins...\n")
+vim.pack.add(plugins_to_install, { load = true, confirm = false })
+
+local pack_dir = vim.fn.stdpath("data") .. "/site/pack/core/opt"
+local plugin_name = theme.url:match("/([^/]+)$")
+
+local success = vim.wait(60000, function()
+	local plugin_path = pack_dir .. "/" .. plugin_name
+	return vim.fn.isdirectory(plugin_path) == 1
+end, 100)
+
+if not success then
+	print("❌ Failed to install plugin\n")
+	os.exit(1)
+end
+
+for _, plugin in ipairs(plugins_to_install) do
+	local pname = plugin:match("/([^/]+)$")
+	if pname then
+		local plugin_path = pack_dir .. "/" .. pname
+		vim.opt.runtimepath:prepend(plugin_path)
+	end
+end
+
+if theme.config then
+	theme.config()
+else
+	print("⚠️  No config function found for theme\n")
+end
 
 extract_colorscheme_colors(theme)
 
