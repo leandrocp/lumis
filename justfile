@@ -295,14 +295,12 @@ gen-themes theme_name="":
     cd themes
 
     if [[ -n "{{theme_name}}" ]]; then
-        rm -rf nvim
         nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "{{theme_name}}"
     else
         THEME_NAMES=$(lua -e "local themes = require('themes'); for _, theme in ipairs(themes) do print(theme.name) end")
 
         while IFS= read -r THEME_NAME; do
             if [ -n "$THEME_NAME" ]; then
-                rm -rf nvim
                 nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "$THEME_NAME"
             fi
         done <<< "$THEME_NAMES"

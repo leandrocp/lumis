@@ -1,3 +1,5 @@
+mod gen_theme;
+
 use anyhow::Result;
 use autumnus::formatter::Formatter as FormatterTrait;
 use autumnus::languages::Language;
@@ -77,6 +79,29 @@ enum Commands {
         #[arg(long)]
         highlight_lines: Option<String>,
     },
+
+    /// Generate a theme JSON from a Git repository containing a Neovim theme
+    GenTheme {
+        /// Git repository URL (e.g., https://github.com/catppuccin/nvim)
+        #[arg(short = 'u', long)]
+        url: String,
+
+        /// Colorscheme name to activate (e.g., catppuccin-mocha)
+        #[arg(short = 'c', long)]
+        colorscheme: String,
+
+        /// Custom Lua setup code (optional)
+        #[arg(short = 's', long)]
+        setup: Option<String>,
+
+        /// Output file path (prints to stdout if not specified)
+        #[arg(short = 'o', long)]
+        output: Option<String>,
+
+        /// Theme appearance: light or dark (defaults to dark)
+        #[arg(short = 'a', long)]
+        appearance: Option<String>,
+    },
 }
 
 /// Output format options for syntax highlighting
@@ -119,6 +144,19 @@ fn main() -> Result<()> {
             formatter,
             theme,
             highlight_lines,
+        ),
+        Commands::GenTheme {
+            url,
+            colorscheme,
+            setup,
+            output,
+            appearance,
+        } => gen_theme::generate_theme(
+            &url,
+            &colorscheme,
+            setup.as_deref(),
+            output.as_deref(),
+            appearance.as_deref(),
         ),
     }
 }
