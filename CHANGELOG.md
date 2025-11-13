@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.7.8] - 2025-11-13
 
 ### Changed
 - Update languages: angular, powershell, latex
