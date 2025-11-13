@@ -299,6 +299,54 @@ autumn dump-tree-sitter <path>
 
 Dumps the Tree-sitter AST (Abstract Syntax Tree) for a given file. This is useful for debugging or understanding how Tree-sitter parses your code.
 
+#### Generate Theme
+
+```sh
+autumn gen-theme --url <git-url> --colorscheme <name> [options]
+```
+
+Generates a theme JSON file from any Git repository containing a Neovim theme.
+
+**Note**: Requires `nvim` to be installed and available in `$PATH`.
+
+Required options:
+- `--url <git-url>`: Git repository URL (e.g., https://github.com/catppuccin/nvim)
+- `--colorscheme <name>`: Colorscheme name to activate (e.g., catppuccin-mocha)
+
+Optional:
+- `--setup <lua-code>`: Custom Lua setup code to run before activating the colorscheme
+- `-o, --output <path>`: Output file path (prints to stdout if not specified)
+- `--appearance <light|dark>`: Theme appearance (defaults to dark)
+
+Examples:
+
+```sh
+# Basic usage - output to stdout
+autumn gen-theme --url https://github.com/catppuccin/nvim --colorscheme catppuccin-mocha
+
+# Save to file
+autumn gen-theme \
+  --url https://github.com/folke/tokyonight.nvim \
+  --colorscheme tokyonight \
+  -o tokyonight.json
+
+# With custom setup code
+autumn gen-theme \
+  --url https://github.com/ellisonleao/gruvbox.nvim \
+  --colorscheme gruvbox \
+  --setup "require('gruvbox').setup({ contrast = 'hard' })" \
+  -o gruvbox-hard.json
+
+# Specify light appearance
+autumn gen-theme \
+  --url https://github.com/projekt0n/github-nvim-theme \
+  --colorscheme github_light \
+  --appearance light \
+  -o github-light.json
+```
+
+See [themes/README.md](themes/README.md) for more details on theme generation.
+
 ## Supported Languages
 
 Check the [documentation](https://docs.rs/autumnus/latest/autumnus/#languages-available) for a complete list of supported languages and file extensions.
