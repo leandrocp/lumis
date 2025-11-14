@@ -280,7 +280,6 @@ use std::io::{self, Write};
 
 // Re-export builders for easier access
 pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder};
-
 /// Configuration options for syntax highlighting.
 ///
 /// This struct provides all the configuration needed to highlight source code,
