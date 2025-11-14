@@ -141,7 +141,6 @@ fn gen_samples_entries(
 
             let lang = autumnus::languages::Language::guess(Some(file_name), &contents);
             let formatter = autumnus::HtmlInlineBuilder::new()
-                .source(&contents)
                 .lang(lang)
                 .theme(Some(theme.clone()))
                 .pre_class(Some(
@@ -153,6 +152,7 @@ fn gen_samples_entries(
                 .expect("Failed to build formatter");
 
             let highlighted = autumnus::highlight(autumnus::Options {
+                source: &contents,
                 language: Some(file_name),
                 formatter: Box::new(formatter),
             });

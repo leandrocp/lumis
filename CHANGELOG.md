@@ -34,7 +34,6 @@ use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, theme
 let code = "fn main() {}";
 let lang = Language::guess(Some("rust"), code);
 let formatter = HtmlInlineBuilder::new()
-    .source(code)
     .lang(lang)
     .theme(themes::get("dracula").ok())
     .pre_class(Some("code-block"))
@@ -42,17 +41,23 @@ let formatter = HtmlInlineBuilder::new()
     .unwrap();
 
 let options = Options {
+    source: code,
     language: Some("rust"),
     formatter: Box::new(formatter),
 };
 let html = highlight(options);
 ```
 
+**Key Changes:**
+1. Formatters are now configuration-only - no `.source()` method on builders
+2. Source code is passed via `Options.source` field instead
+3. This allows formatters to be reusable across multiple source strings
+
 #### Function Signature Changes
 
-- `highlight(source, options)` → `highlight(options)`
-- `write_highlight(output, source, options)` → `write_highlight(output, options)`
-- `Options::default()` → `Options::new(source, language)`
+- `highlight(source, options)` → `highlight(options)` where `options.source` contains the code
+- `write_highlight(output, source, options)` → `write_highlight(output, options)` where `options.source` contains the code
+- `Formatter::format(&self, output)` → `Formatter::format(&self, source, output)` for custom formatters
 
 #### Theme and Language Changes (from previous releases)
 
@@ -61,11 +66,13 @@ let html = highlight(options);
 
 ### Changed
 - **BREAKING**: Removed `FormatterOption` enum - use builder pattern instead (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`)
-- **BREAKING**: Changed `highlight()` signature from `(source: &str, options: Options)` to `(options: Options)`
-- **BREAKING**: Changed `write_highlight()` signature from `(output: &mut dyn Write, source: &str, options: Options)` to `(output: &mut dyn Write, options: Options)`
-- **BREAKING**: Removed `Options::default()` - use `Options::new(source, language)` instead
+- **BREAKING**: Changed `highlight()` signature from `(source: &str, options: Options)` to `(options: Options)` - source now passed via `Options.source` field
+- **BREAKING**: Changed `write_highlight()` signature from `(output: &mut dyn Write, source: &str, options: Options)` to `(output: &mut dyn Write, options: Options)` - source now passed via `Options.source` field
+- **BREAKING**: Added required `source: &str` field to `Options` struct
 - **BREAKING**: `Options.formatter` changed from `FormatterOption` to `Box<dyn Formatter>`
 - **BREAKING**: Renamed `Options.lang_or_file` field to `Options.language` for clearer semantics
+- **BREAKING**: Removed `.source()` method from formatter builders - formatters are now configuration-only objects
+- **BREAKING**: Changed `Formatter::format()` signature to take `source: &str` parameter - custom formatters must update trait implementation
 - **BREAKING**: Changed `Language::guess()` signature from `guess(&str, &str)` to `guess(Option<&str>, &str)`
   - `None` now explicitly means auto-detect from content
   - Empty string (`""`) defaults to `Language::PlainText`

@@ -112,7 +112,6 @@ fn main() {
 
     // Use the custom theme with the builder pattern
     let formatter = HtmlInlineBuilder::new()
-        .source(code)
         .lang(lang)
         .theme(Some(custom_theme))
         .pre_class(Some("my-code-block"))
@@ -121,6 +120,7 @@ fn main() {
         .expect("Failed to build formatter");
 
     let options = Options {
+        source: code,
         language: Some("rust"),
         formatter: Box::new(formatter),
     };

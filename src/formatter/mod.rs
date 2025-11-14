@@ -30,7 +30,6 @@
 //!
 //! // HTML with inline styles
 //! let formatter = HtmlInlineBuilder::new()
-//!     .source(code)
 //!     .lang(Language::Rust)
 //!     .theme(Some(theme))
 //!     .pre_class(Some("code-block"))
@@ -40,7 +39,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(&mut output).unwrap();
+//! formatter.format(code, &mut output).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -54,14 +53,13 @@
 //! let code = "<div>Hello World</div>";
 //!
 //! let formatter = HtmlLinkedBuilder::new()
-//!     .source(code)
 //!     .lang(Language::HTML)
 //!     .pre_class(Some("my-code"))
 //!     .build()
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(&mut output).unwrap();
+//! formatter.format(code, &mut output).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -75,14 +73,13 @@
 //! let theme = themes::get("github_light").unwrap();
 //!
 //! let formatter = TerminalBuilder::new()
-//!     .source(code)
 //!     .lang(Language::Ruby)
 //!     .theme(Some(theme))
 //!     .build()
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(&mut output).unwrap();
+//! formatter.format(code, &mut output).unwrap();
 //! let ansi_output = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -103,7 +100,6 @@
 //! };
 //!
 //! let formatter = HtmlInlineBuilder::new()
-//!     .source(code)
 //!     .lang(Language::PlainText)
 //!     .theme(Some(theme))
 //!     .include_highlights(false)
@@ -167,8 +163,8 @@ pub struct HtmlElement {
 }
 
 pub trait Formatter: Send + Sync {
-    fn format(&self, output: &mut dyn Write) -> io::Result<()>;
-    fn highlights(&self, output: &mut dyn Write) -> io::Result<()>;
+    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()>;
+    fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()>;
 }
 
 pub trait HtmlFormatter: Formatter {

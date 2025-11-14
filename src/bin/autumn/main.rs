@@ -371,7 +371,6 @@ fn highlight(
                     class: None,
                 };
                 autumnus::HtmlInlineBuilder::new()
-                    .source(source)
                     .lang(language)
                     .theme(theme)
                     .italic(false)
@@ -381,7 +380,6 @@ fn highlight(
                     .unwrap()
             } else {
                 autumnus::HtmlInlineBuilder::new()
-                    .source(source)
                     .lang(language)
                     .theme(theme)
                     .italic(false)
@@ -391,7 +389,7 @@ fn highlight(
             };
 
             let mut output = Vec::new();
-            formatter.format(&mut output).unwrap();
+            formatter.format(source, &mut output).unwrap();
             let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
@@ -404,21 +402,19 @@ fn highlight(
                     class: "highlighted".to_string(),
                 };
                 autumnus::HtmlLinkedBuilder::new()
-                    .source(source)
                     .lang(language)
                     .highlight_lines(Some(html_highlight_lines))
                     .build()
                     .unwrap()
             } else {
                 autumnus::HtmlLinkedBuilder::new()
-                    .source(source)
                     .lang(language)
                     .build()
                     .unwrap()
             };
 
             let mut output = Vec::new();
-            formatter.format(&mut output).unwrap();
+            formatter.format(source, &mut output).unwrap();
             let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
@@ -426,14 +422,13 @@ fn highlight(
 
         Formatter::Terminal => {
             let formatter = autumnus::TerminalBuilder::new()
-                .source(source)
                 .lang(language)
                 .theme(theme)
                 .build()
                 .unwrap();
 
             let mut output = Vec::new();
-            formatter.format(&mut output).unwrap();
+            formatter.format(source, &mut output).unwrap();
             let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
@@ -621,7 +616,6 @@ fn highlight_source(
                     class: None,
                 };
                 autumnus::HtmlInlineBuilder::new()
-                    .source(source)
                     .lang(lang)
                     .theme(theme)
                     .italic(false)
@@ -631,7 +625,6 @@ fn highlight_source(
                     .unwrap()
             } else {
                 autumnus::HtmlInlineBuilder::new()
-                    .source(source)
                     .lang(lang)
                     .theme(theme)
                     .italic(false)
@@ -641,7 +634,7 @@ fn highlight_source(
             };
 
             let mut output = Vec::new();
-            formatter.format(&mut output).unwrap();
+            formatter.format(source, &mut output).unwrap();
             let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
@@ -654,21 +647,19 @@ fn highlight_source(
                     class: "highlighted".to_string(),
                 };
                 autumnus::HtmlLinkedBuilder::new()
-                    .source(source)
                     .lang(lang)
                     .highlight_lines(Some(html_highlight_lines))
                     .build()
                     .unwrap()
             } else {
                 autumnus::HtmlLinkedBuilder::new()
-                    .source(source)
                     .lang(lang)
                     .build()
                     .unwrap()
             };
 
             let mut output = Vec::new();
-            formatter.format(&mut output).unwrap();
+            formatter.format(source, &mut output).unwrap();
             let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");
@@ -676,14 +667,13 @@ fn highlight_source(
 
         Formatter::Terminal => {
             let formatter = autumnus::TerminalBuilder::new()
-                .source(source)
                 .lang(lang)
                 .theme(theme)
                 .build()
                 .unwrap();
 
             let mut output = Vec::new();
-            formatter.format(&mut output).unwrap();
+            formatter.format(source, &mut output).unwrap();
             let highlighted = String::from_utf8(output).unwrap();
 
             println!("{highlighted}");

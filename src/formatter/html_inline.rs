@@ -127,7 +127,6 @@ impl Default for HighlightLines {
 #[derive(Builder, Debug)]
 #[builder(default)]
 pub struct HtmlInline<'a> {
-    source: &'a str,
     lang: Language,
     theme: Option<Theme>,
     pre_class: Option<&'a str>,
@@ -146,7 +145,6 @@ impl<'a> HtmlInlineBuilder<'a> {
 impl<'a> HtmlInline<'a> {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        source: &'a str,
         lang: Language,
         theme: Option<Theme>,
         pre_class: Option<&'a str>,
@@ -156,7 +154,6 @@ impl<'a> HtmlInline<'a> {
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
-            source,
             lang,
             theme,
             pre_class,
@@ -171,7 +168,6 @@ impl<'a> HtmlInline<'a> {
 impl Default for HtmlInline<'_> {
     fn default() -> Self {
         Self {
-            source: "",
             lang: Language::PlainText,
             theme: None,
             pre_class: None,
@@ -184,12 +180,12 @@ impl Default for HtmlInline<'_> {
 }
 
 impl Formatter for HtmlInline<'_> {
-    fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
+    fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut highlighter = Highlighter::new();
         let events = highlighter
             .highlight(
                 self.lang.config(),
-                self.source.as_bytes(),
+                source.as_bytes(),
                 None,
                 |injected| Some(Language::guess(Some(injected), "").config()),
             )
@@ -198,7 +194,7 @@ impl Formatter for HtmlInline<'_> {
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         renderer
-            .render(events, self.source.as_bytes(), &move |highlight, output| {
+            .render(events, source.as_bytes(), &move |highlight, output| {
                 let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
 
                 if self.include_highlights {
@@ -277,7 +273,7 @@ impl Formatter for HtmlInline<'_> {
         Ok(())
     }
 
-    fn format(&self, output: &mut dyn Write) -> io::Result<()> {
+    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut buffer = Vec::new();
 
         if let Some(ref header) = self.header {
@@ -286,7 +282,7 @@ impl Formatter for HtmlInline<'_> {
 
         self.open_pre_tag(&mut buffer)?;
         self.open_code_tag(&mut buffer)?;
-        self.highlights(&mut buffer)?;
+        self.highlights(source, &mut buffer)?;
         self.closing_tags(&mut buffer)?;
 
         if let Some(ref header) = self.header {
@@ -343,8 +339,8 @@ mod tests {
 
     #[test]
     fn test_no_attrs() {
+        let code = "@lang :rust";
         let formatter = HtmlInline::new(
-            "@lang :rust",
             Language::Elixir,
             None,
             None,
@@ -354,7 +350,7 @@ mod tests {
             None,
         );
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer);
+        formatter.format(code, &mut buffer);
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span ><span >@<span ><span >lang <span >:rust</span></span></span></span></span>
 </div></code></pre>"#;
@@ -372,9 +368,7 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let formatter = HtmlInline::new(
-            "",
-            Language::PlainText,
+        let formatter = HtmlInline::new(Language::PlainText,
             None,
             Some("test-pre-class"),
             false,
@@ -391,9 +385,7 @@ mod tests {
     #[test]
     fn test_include_pre_class_with_theme() {
         let theme = themes::get("github_light").unwrap();
-        let formatter = HtmlInline::new(
-            "",
-            Language::PlainText,
+        let formatter = HtmlInline::new(Language::PlainText,
             Some(theme),
             Some("test-pre-class"),
             false,
@@ -411,7 +403,6 @@ mod tests {
     fn test_builder_pattern() {
         let theme = themes::get("github_light").unwrap();
         let formatter = HtmlInlineBuilder::new()
-            .source("")
             .lang(Language::Rust)
             .theme(Some(theme))
             .pre_class(Some("test-pre-class"))
@@ -435,9 +426,7 @@ mod tests {
             class: None,
         };
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
-        let formatter = HtmlInline::new(
-            code,
-            Language::PlainText,
+        let formatter = HtmlInline::new(Language::PlainText,
             Some(theme),
             None,
             false,
@@ -447,7 +436,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" style="background-color: #e7eaf0;" data-line="1">line 1
@@ -469,9 +458,7 @@ mod tests {
             class: None,
         };
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
-        let formatter = HtmlInline::new(
-            code,
-            Language::PlainText,
+        let formatter = HtmlInline::new(Language::PlainText,
             None,
             None,
             false,
@@ -481,7 +468,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" style="background-color: yellow" data-line="1">line 1
@@ -503,9 +490,7 @@ mod tests {
             class: Some("custom-highlight".to_string()),
         };
         let code = "line 1\nline 2\nline 3\nline 4";
-        let formatter = HtmlInline::new(
-            code,
-            Language::PlainText,
+        let formatter = HtmlInline::new(Language::PlainText,
             None,
             None,
             false,
@@ -515,7 +500,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-highlight" style="background-color: yellow" data-line="1">line 1
@@ -534,9 +519,7 @@ mod tests {
             class: Some("custom-highlight".to_string()),
         };
         let code = "fn main() {\n    println!(\"Hello, world!\");\n    let x = 42;\n}";
-        let formatter = HtmlInline::new(
-            code,
-            Language::Rust,
+        let formatter = HtmlInline::new(Language::Rust,
             None,
             None,
             false,
@@ -546,7 +529,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl"><code class="language-rust" translate="no" tabindex="0"><div class="line custom-highlight" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span>
@@ -564,9 +547,7 @@ mod tests {
             close_tag: "</div>".to_string(),
         };
         let code = "line 1\nline 2";
-        let formatter = HtmlInline::new(
-            code,
-            Language::PlainText,
+        let formatter = HtmlInline::new(Language::PlainText,
             None,
             None,
             false,
@@ -576,7 +557,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<div class="code-wrapper"><pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
@@ -592,9 +573,7 @@ mod tests {
             close_tag: "</section>".to_string(),
         };
         let code = "fn main() { }";
-        let formatter = HtmlInline::new(
-            code,
-            Language::Rust,
+        let formatter = HtmlInline::new(Language::Rust,
             None,
             Some("custom-class"),
             false,
@@ -604,7 +583,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<section class="highlight" data-lang="rust"><pre class="athl custom-class"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span> <span >&rbrace;</span>

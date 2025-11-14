@@ -26,45 +26,42 @@ use tree_sitter_highlight::{HighlightEvent, Highlighter};
 
 #[derive(Builder, Debug)]
 #[builder(default)]
-pub struct Terminal<'a> {
-    source: &'a str,
+pub struct Terminal {
     lang: Language,
     theme: Option<Theme>,
 }
 
-impl<'a> TerminalBuilder<'a> {
+impl TerminalBuilder {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<'a> Terminal<'a> {
-    pub fn new(source: &'a str, lang: Language, theme: Option<Theme>) -> Self {
+impl Terminal {
+    pub fn new(lang: Language, theme: Option<Theme>) -> Self {
         Self {
-            source,
             lang,
             theme,
         }
     }
 }
 
-impl Default for Terminal<'_> {
+impl Default for Terminal {
     fn default() -> Self {
         Self {
-            source: "",
             lang: Language::PlainText,
             theme: None,
         }
     }
 }
 
-impl Formatter for Terminal<'_> {
-    fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
+impl Formatter for Terminal {
+    fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut highlighter = Highlighter::new();
         let events = highlighter
             .highlight(
                 self.lang.config(),
-                self.source.as_bytes(),
+                source.as_bytes(),
                 None,
                 |injected| Some(Language::guess(Some(injected), "").config()),
             )
@@ -97,8 +94,7 @@ impl Formatter for Terminal<'_> {
                         .set_color(ColorSpec::new().set_fg(Some(termcolor::Color::Rgb(r, g, b))))?;
                 }
                 HighlightEvent::Source { start, end } => {
-                    let text = self
-                        .source
+                    let text = source
                         .get(start..end)
                         .expect("failed to get source bounds");
 
@@ -114,8 +110,8 @@ impl Formatter for Terminal<'_> {
         Ok(())
     }
 
-    fn format(&self, output: &mut dyn Write) -> io::Result<()> {
-        self.highlights(output)
+    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
+        self.highlights(source, output)
     }
 }
 
@@ -128,9 +124,10 @@ mod tests {
 
     #[test]
     fn test_no_attrs() {
-        let formatter = Terminal::new("@lang :rust", Language::Elixir, None);
+        let code = "@lang :rust";
+        let formatter = Terminal::new(Language::Elixir, None);
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer);
+        formatter.format(code, &mut buffer);
         let result = String::from_utf8(buffer).unwrap();
         let expected = "\u{1b}[0m\u{1b}[38;2;238;238;238m\u{1b}[0m\u{1b}[38;2;238;238;238m@\u{1b}[0m\u{1b}[38;2;238;238;238m\u{1b}[0m\u{1b}[38;2;238;238;238mlang \u{1b}[0m\u{1b}[38;2;238;238;238m:rust\u{1b}[0m\u{1b}[0m\u{1b}[0m\u{1b}[0m\u{1b}[0m";
         assert_str_eq!(result, expected)

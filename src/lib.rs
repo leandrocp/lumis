@@ -15,7 +15,6 @@
 //! // Or: let theme = themes::get("dracula").unwrap();
 //!
 //! let formatter = HtmlInlineBuilder::new()
-//!     .source(code)
 //!     .lang(Language::Rust)
 //!     .theme(Some(theme))
 //!     .pre_class(Some("code-block"))
@@ -23,7 +22,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(&mut output).unwrap();
+//! formatter.format(code, &mut output).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -321,13 +320,13 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let lang = Language::guess(Some("rust"), code);
 ///
 /// let formatter = HtmlInlineBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .pre_class(Some("code-block"))
 ///     .build()
 ///     .unwrap();
 ///
 /// let options = Options {
+///     source: code,
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// };
@@ -345,7 +344,6 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let theme = themes::get("dracula").unwrap();
 ///
 /// let formatter = HtmlInlineBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .theme(Some(theme))
 ///     .italic(true)
@@ -353,6 +351,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///     .unwrap();
 ///
 /// let options = Options {
+///     source: code,
 ///     language: Some("lib/my_app.ex"),
 ///     formatter: Box::new(formatter),
 /// };
@@ -371,12 +370,12 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let lang: Language = "javascript".parse().unwrap();
 ///
 /// let formatter = HtmlInlineBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .build()
 ///     .unwrap();
 ///
 /// let options = Options {
+///     source: code,
 ///     language: Some("javascript"),  // Also accepts: "js", "app.js"
 ///     formatter: Box::new(formatter),
 /// };
@@ -394,13 +393,13 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let theme = themes::get("github_light").unwrap();
 ///
 /// let formatter = TerminalBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .theme(Some(theme))
 ///     .build()
 ///     .unwrap();
 ///
 /// let options = Options {
+///     source: code,
 ///     language: Some("sql"),
 ///     formatter: Box::new(formatter),
 /// };
@@ -417,13 +416,13 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let lang = Language::guess(Some("html"), code);
 ///
 /// let formatter = HtmlLinkedBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .pre_class(Some("syntax-highlight"))
 ///     .build()
 ///     .unwrap();
 ///
 /// let options = Options {
+///     source: code,
 ///     language: Some("html"),
 ///     formatter: Box::new(formatter),
 /// };
@@ -432,6 +431,9 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// // Remember to include the corresponding CSS file for your theme
 /// ```
 pub struct Options<'a> {
+    /// The source code to highlight.
+    pub source: &'a str,
+
     /// Optional language hint for syntax highlighting.
     ///
     /// This field controls language detection and can accept:
@@ -459,10 +461,10 @@ pub struct Options<'a> {
     /// let theme = themes::get("dracula").unwrap();
     ///
     /// let options = Options {
+    ///     source: code,
     ///     language: Some("rust"),
     ///     formatter: Box::new(
     ///         HtmlInlineBuilder::default()
-    ///             .source(code)
     ///             .lang(Language::Rust)
     ///             .theme(Some(theme))
     ///             .build()
@@ -494,9 +496,10 @@ impl<'a> Options<'a> {
     pub fn new(source: &'a str, language: Option<&'a str>) -> Self {
         let lang = Language::guess(language, source);
         Self {
+            source,
             language,
             formatter: Box::new(formatter::HtmlInline::new(
-                source, lang, None, None, false, false, None, None,
+                lang, None, None, false, false, None, None,
             )),
         }
     }
@@ -530,12 +533,12 @@ impl<'a> Options<'a> {
 ///
 /// let lang = Language::guess(Some("rust"), code);
 /// let formatter = HtmlInlineBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .build()
 ///     .unwrap();
 ///
 /// let html = highlight(Options {
+///     source: code,
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// });
@@ -569,13 +572,13 @@ impl<'a> Options<'a> {
 ///
 /// let lang = Language::guess(Some("rust"), code);
 /// let formatter = HtmlLinkedBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .pre_class(Some("my-code-block"))
 ///     .build()
 ///     .unwrap();
 ///
 /// let html = highlight(Options {
+///     source: code,
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// });
@@ -616,12 +619,12 @@ impl<'a> Options<'a> {
 ///
 /// let lang = Language::guess(Some("rust"), code);
 /// let formatter = TerminalBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .build()
 ///     .unwrap();
 ///
 /// let ansi = highlight(Options {
+///     source: code,
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// });
@@ -636,7 +639,7 @@ impl<'a> Options<'a> {
 ///
 pub fn highlight(options: Options) -> String {
     let mut buffer = Vec::new();
-    let _ = options.formatter.format(&mut buffer);
+    let _ = options.formatter.format(options.source, &mut buffer);
     String::from_utf8(buffer).unwrap()
 }
 
@@ -682,7 +685,6 @@ pub fn highlight(options: Options) -> String {
 /// let lang = Language::guess(Some("rust"), code);
 /// let theme = themes::get("dracula").unwrap();
 /// let formatter = HtmlInlineBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .theme(Some(theme))
 ///     .pre_class(Some("code-block"))
@@ -693,6 +695,7 @@ pub fn highlight(options: Options) -> String {
 /// let mut file = BufWriter::new(File::create("highlighted.html")?);
 ///
 /// write_highlight(&mut file, Options {
+///     source: code,
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// })?;
@@ -710,13 +713,13 @@ pub fn highlight(options: Options) -> String {
 /// let theme = themes::get("github_light").unwrap();
 ///
 /// let formatter = TerminalBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .theme(Some(theme))
 ///     .build()
 ///     .unwrap();
 ///
 /// write_highlight(&mut io::stdout(), Options {
+///     source: code,
 ///     language: Some("python"),
 ///     formatter: Box::new(formatter),
 /// }).expect("Failed to write to stdout");
@@ -731,7 +734,6 @@ pub fn highlight(options: Options) -> String {
 /// let lang = Language::guess(Some("javascript"), code);
 ///
 /// let formatter = HtmlInlineBuilder::new()
-///     .source(code)
 ///     .lang(lang)
 ///     .build()
 ///     .unwrap();
@@ -739,6 +741,7 @@ pub fn highlight(options: Options) -> String {
 /// let mut buffer = Vec::new();
 ///
 /// write_highlight(&mut buffer, Options {
+///     source: code,
 ///     language: Some("javascript"),
 ///     formatter: Box::new(formatter),
 /// }).expect("Failed to write to buffer");
@@ -761,7 +764,6 @@ pub fn highlight(options: Options) -> String {
 ///
 /// let lang = Language::guess(Some("rust"), &source);
 /// let formatter = HtmlLinkedBuilder::new()
-///     .source(&source)
 ///     .lang(lang)
 ///     .pre_class(Some("large-code"))
 ///     .build()
@@ -771,6 +773,7 @@ pub fn highlight(options: Options) -> String {
 /// let mut output_file = BufWriter::new(File::create("highlighted_output.html")?);
 ///
 /// write_highlight(&mut output_file, Options {
+///     source: &source,
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// })?;
@@ -793,7 +796,7 @@ pub fn highlight(options: Options) -> String {
 /// ```
 ///
 pub fn write_highlight(output: &mut dyn Write, options: Options) -> io::Result<()> {
-    options.formatter.format(output)?;
+    options.formatter.format(options.source, output)?;
     Ok(())
 }
 
@@ -814,7 +817,6 @@ mod tests {
         let mut buffer = Vec::new();
 
         let formatter = HtmlInlineBuilder::default()
-            .source(code)
             .lang(Language::JavaScript)
             .theme(themes::get("catppuccin_frappe").ok())
             .build()
@@ -823,6 +825,7 @@ mod tests {
         write_highlight(
             &mut buffer,
             Options {
+                source: code,
                 language: Some("javascript"),
                 formatter: Box::new(formatter),
             },
@@ -859,13 +862,13 @@ end
 </div></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
-            .source(code)
             .lang(Language::Elixir)
             .theme(themes::get("catppuccin_frappe").ok())
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code,
             language: Some("elixir"),
             formatter: Box::new(formatter),
         });
@@ -886,7 +889,6 @@ end
 </div></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
-            .source(code)
             .lang(Language::Elixir)
             .include_highlights(true)
             .theme(themes::get("catppuccin_frappe").ok())
@@ -894,6 +896,7 @@ end
             .unwrap();
 
         let result = highlight(Options {
+            source: code,
             language: Some("elixir"),
             formatter: Box::new(formatter),
         });
@@ -908,13 +911,13 @@ end
 </div></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
-            .source(code)
             .lang(Language::Elixir)
             .theme(themes::get("catppuccin_frappe").ok())
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code,
             language: Some("elixir"),
             formatter: Box::new(formatter),
         });
@@ -947,12 +950,12 @@ end
 </div></code></pre>"#;
 
         let formatter = HtmlLinkedBuilder::default()
-            .source(code)
             .lang(Language::Elixir)
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code,
             language: Some("elixir"),
             formatter: Box::new(formatter),
         });
@@ -967,12 +970,12 @@ end
 </div></code></pre>"#;
 
         let formatter = HtmlLinkedBuilder::default()
-            .source(code)
             .lang(Language::Elixir)
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code,
             language: Some("elixir"),
             formatter: Box::new(formatter),
         });
@@ -984,13 +987,13 @@ end
     fn test_guess_language_by_file_name() {
         let code = "foo = 1";
         let formatter = HtmlInlineBuilder::default()
-            .source(code)
             .lang(Language::Elixir)
             .theme(themes::get("catppuccin_frappe").ok())
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code,
             language: Some("app.ex"),
             formatter: Box::new(formatter),
         });
@@ -1001,13 +1004,13 @@ end
     fn test_guess_language_by_file_extension() {
         let code1 = "# Title";
         let formatter1 = HtmlInlineBuilder::default()
-            .source(code1)
             .lang(Language::Markdown)
             .theme(themes::get("catppuccin_frappe").ok())
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code1,
             language: Some("md"),
             formatter: Box::new(formatter1),
         });
@@ -1015,13 +1018,13 @@ end
 
         let code2 = "foo = 1";
         let formatter2 = HtmlInlineBuilder::default()
-            .source(code2)
             .lang(Language::Elixir)
             .theme(themes::get("catppuccin_frappe").ok())
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code2,
             language: Some("ex"),
             formatter: Box::new(formatter2),
         });
@@ -1032,13 +1035,13 @@ end
     fn test_guess_language_by_shebang() {
         let code = "#!/usr/bin/env elixir";
         let formatter = HtmlInlineBuilder::default()
-            .source(code)
             .lang(Language::Elixir)
             .theme(themes::get("catppuccin_frappe").ok())
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code,
             language: Some("test"),
             formatter: Box::new(formatter),
         });
@@ -1049,13 +1052,13 @@ end
     fn test_fallback_to_plain_text() {
         let code = "source code";
         let formatter = HtmlInlineBuilder::default()
-            .source(code)
             .lang(Language::PlainText)
             .theme(themes::get("catppuccin_frappe").ok())
             .build()
             .unwrap();
 
         let result = highlight(Options {
+            source: code,
             language: Some("none"),
             formatter: Box::new(formatter),
         });
@@ -1066,13 +1069,13 @@ end
     fn test_highlight_terminal() {
         let code = "puts 'Hello from Ruby!'";
         let formatter = TerminalBuilder::default()
-            .source(code)
             .lang(Language::Ruby)
             .theme(themes::get("dracula").ok())
             .build()
             .unwrap();
 
         let ansi = highlight(Options {
+            source: code,
             language: Some("ruby"),
             formatter: Box::new(formatter),
         });
@@ -1086,7 +1089,6 @@ end
 
         // Test HtmlInline with header
         let inline_formatter = HtmlInlineBuilder::default()
-            .source(code)
             .lang(Language::Rust)
             .header(Some(formatter::HtmlElement {
                 open_tag: "<div class=\"code-container\">".to_string(),
@@ -1096,6 +1098,7 @@ end
             .unwrap();
 
         let inline_result = highlight(Options {
+            source: code,
             language: Some("rust"),
             formatter: Box::new(inline_formatter),
         });
@@ -1106,7 +1109,6 @@ end
 
         // Test HtmlLinked with header
         let linked_formatter = HtmlLinkedBuilder::default()
-            .source(code)
             .lang(Language::Rust)
             .header(Some(formatter::HtmlElement {
                 open_tag: "<section class=\"code-section\">".to_string(),
@@ -1116,6 +1118,7 @@ end
             .unwrap();
 
         let linked_result = highlight(Options {
+            source: code,
             language: Some("rust"),
             formatter: Box::new(linked_formatter),
         });

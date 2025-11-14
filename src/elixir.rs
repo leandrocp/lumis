@@ -55,10 +55,7 @@ impl Default for ThemeOrString<'_> {
 
 impl<'a> ExFormatterOption<'a> {
     /// Convert ExFormatterOption to a boxed Formatter trait object.
-    ///
-    /// This method requires the source code to be passed in since it's needed
-    /// by the formatter builders.
-    pub fn into_formatter(self, source: &'a str, language: Language) -> Box<dyn Formatter + 'a> {
+    pub fn into_formatter(self, language: Language) -> Box<dyn Formatter + 'a> {
         match self {
             ExFormatterOption::HtmlInline {
                 theme,
@@ -98,7 +95,6 @@ impl<'a> ExFormatterOption<'a> {
                 });
 
                 let formatter = HtmlInlineBuilder::new()
-                    .source(source)
                     .lang(language)
                     .theme(theme)
                     .pre_class(pre_class)
@@ -131,7 +127,6 @@ impl<'a> ExFormatterOption<'a> {
                 });
 
                 let formatter = HtmlLinkedBuilder::new()
-                    .source(source)
                     .lang(language)
                     .pre_class(pre_class)
                     .highlight_lines(highlight_lines)
@@ -150,7 +145,6 @@ impl<'a> ExFormatterOption<'a> {
                 });
 
                 let formatter = TerminalBuilder::new()
-                    .source(source)
                     .lang(language)
                     .theme(theme)
                     .build()
@@ -449,7 +443,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("text"), code);
-        let _formatter = formatter_option.into_formatter(code, lang);
+        let _formatter = formatter_option.into_formatter(lang);
 
         // The formatter is created successfully - the highlight lines configuration
         // will be tested in the integration test below
@@ -470,7 +464,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("text"), code);
-        let _formatter = formatter_option.into_formatter(code, lang);
+        let _formatter = formatter_option.into_formatter(lang);
 
         // The formatter is created successfully - the highlight lines configuration
         // will be tested in the integration test below
@@ -523,8 +517,9 @@ mod tests {
         };
 
         let lang = Language::guess(Some("rust"), code);
-        let formatter = ex_formatter.into_formatter(code, lang);
+        let formatter = ex_formatter.into_formatter(lang);
         let options = Options {
+            source: code,
             language: Some("rust"),
             formatter,
         };
@@ -560,8 +555,9 @@ mod tests {
         };
 
         let lang = Language::guess(Some("text"), code);
-        let formatter = ex_formatter.into_formatter(code, lang);
+        let formatter = ex_formatter.into_formatter(lang);
         let options = Options {
+            source: code,
             language: Some("text"),
             formatter,
         };
@@ -594,8 +590,9 @@ mod tests {
         };
 
         let lang = Language::guess(Some("javascript"), code);
-        let formatter = ex_formatter.into_formatter(code, lang);
+        let formatter = ex_formatter.into_formatter(lang);
         let options = Options {
+            source: code,
             language: Some("javascript"),
             formatter,
         };
@@ -627,8 +624,9 @@ mod tests {
         };
 
         let lang = Language::guess(Some("elixir"), code);
-        let formatter = ex_formatter.into_formatter(code, lang);
+        let formatter = ex_formatter.into_formatter(lang);
         let options = Options {
+            source: code,
             language: Some("elixir"),
             formatter,
         };
@@ -650,8 +648,9 @@ mod tests {
         };
 
         let lang = Language::guess(Some("ruby"), code);
-        let formatter = ex_formatter.into_formatter(code, lang);
+        let formatter = ex_formatter.into_formatter(lang);
         let options = Options {
+            source: code,
             language: Some("ruby"),
             formatter,
         };
@@ -680,7 +679,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("text"), code);
-        let _formatter = ex_formatter.into_formatter(code, lang);
+        let _formatter = ex_formatter.into_formatter(lang);
 
         // The formatter is created successfully - the highlight lines with Theme style
         // will be tested in the integration tests
@@ -710,7 +709,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("text"), code);
-        let _formatter = formatter_option.into_formatter(code, lang);
+        let _formatter = formatter_option.into_formatter(lang);
 
         // The formatter is created successfully with all highlight line specifications
     }
@@ -729,7 +728,7 @@ mod tests {
 
         // This should not panic but fall back to default theme
         let lang = Language::guess(Some("text"), code);
-        let _formatter = ex_formatter.into_formatter(code, lang);
+        let _formatter = ex_formatter.into_formatter(lang);
 
         // The formatter is created successfully even with invalid theme name
         // It falls back to default theme

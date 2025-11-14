@@ -24,13 +24,13 @@ end"#;
 
     // Build terminal formatter
     let formatter = TerminalBuilder::new()
-        .source(code)
         .lang(lang)
         .theme(Some(theme))
         .build()
         .expect("Failed to build formatter");
 
     let options = Options {
+        source: code,
         language: Some("ruby"),
         formatter: Box::new(formatter),
     };

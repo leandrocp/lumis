@@ -46,13 +46,13 @@
 //! let lang = Language::guess(Some("rust"), code);
 //!
 //! let formatter = HtmlInlineBuilder::new()
-//!     .source(code)
 //!     .lang(lang)
 //!     .theme(Some(theme))
 //!     .build()
 //!     .unwrap();
 //!
 //! let options = Options {
+//!     source: code,
 //!     language: Some("rust"),
 //!     formatter: Box::new(formatter),
 //! };

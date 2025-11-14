@@ -64,13 +64,13 @@ export default {
 
     // Build HTML formatter with linked CSS
     let formatter = HtmlLinkedBuilder::new()
-        .source(code)
         .lang(lang)
         .pre_class(Some("code-block"))
         .build()
         .expect("Failed to build formatter");
 
     let options = Options {
+        source: code,
         language: Some("vue"),
         formatter: Box::new(formatter),
     };

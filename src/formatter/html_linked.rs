@@ -103,7 +103,6 @@ impl Default for HighlightLines {
 #[derive(Builder, Debug)]
 #[builder(default)]
 pub struct HtmlLinked<'a> {
-    source: &'a str,
     lang: Language,
     pre_class: Option<&'a str>,
     highlight_lines: Option<HighlightLines>,
@@ -118,14 +117,12 @@ impl<'a> HtmlLinkedBuilder<'a> {
 
 impl<'a> HtmlLinked<'a> {
     pub fn new(
-        source: &'a str,
         lang: Language,
         pre_class: Option<&'a str>,
         highlight_lines: Option<HighlightLines>,
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
-            source,
             lang,
             pre_class,
             highlight_lines,
@@ -137,7 +134,6 @@ impl<'a> HtmlLinked<'a> {
 impl Default for HtmlLinked<'_> {
     fn default() -> Self {
         Self {
-            source: "",
             lang: Language::PlainText,
             pre_class: None,
             highlight_lines: None,
@@ -147,12 +143,12 @@ impl Default for HtmlLinked<'_> {
 }
 
 impl Formatter for HtmlLinked<'_> {
-    fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
+    fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut highlighter = Highlighter::new();
         let events = highlighter
             .highlight(
                 self.lang.config(),
-                self.source.as_bytes(),
+                source.as_bytes(),
                 None,
                 |injected| Some(Language::guess(Some(injected), "").config()),
             )
@@ -161,7 +157,7 @@ impl Formatter for HtmlLinked<'_> {
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         renderer
-            .render(events, self.source.as_bytes(), &move |highlight, output| {
+            .render(events, source.as_bytes(), &move |highlight, output| {
                 let class = CLASSES[highlight.0];
 
                 output.extend(b"class=\"");
@@ -197,7 +193,7 @@ impl Formatter for HtmlLinked<'_> {
         Ok(())
     }
 
-    fn format(&self, output: &mut dyn Write) -> io::Result<()> {
+    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut buffer = Vec::new();
 
         if let Some(ref header) = self.header {
@@ -206,7 +202,7 @@ impl Formatter for HtmlLinked<'_> {
 
         self.open_pre_tag(&mut buffer)?;
         self.open_code_tag(&mut buffer)?;
-        self.highlights(&mut buffer)?;
+        self.highlights(source, &mut buffer)?;
         self.closing_tags(&mut buffer)?;
 
         if let Some(ref header) = self.header {
@@ -251,9 +247,10 @@ mod tests {
 
     #[test]
     fn test_no_attrs() {
-        let formatter = HtmlLinked::new("@lang :rust", Language::Elixir, None, None, None);
+        let code = "@lang :rust";
+        let formatter = HtmlLinked::new(Language::Elixir, None, None, None);
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer);
+        formatter.format(code, &mut buffer);
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="operator"><span class="constant">@<span class="function-call"><span class="constant">lang <span class="string-special-symbol">:rust</span></span></span></span></span>
 </div></code></pre>"#;
@@ -263,7 +260,7 @@ mod tests {
     #[test]
     fn test_include_pre_class() {
         let formatter =
-            HtmlLinked::new("", Language::PlainText, Some("test-pre-class"), None, None);
+            HtmlLinked::new(Language::PlainText, Some("test-pre-class"), None, None);
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
         let result = String::from_utf8(buffer).unwrap();
@@ -273,7 +270,7 @@ mod tests {
 
     #[test]
     fn test_code_tag_with_language() {
-        let formatter = HtmlLinked::new("", Language::Rust, None, None, None);
+        let formatter = HtmlLinked::new(Language::Rust, None, None, None);
         let mut buffer = Vec::new();
         formatter.open_code_tag(&mut buffer);
         let result = String::from_utf8(buffer).unwrap();
@@ -284,7 +281,6 @@ mod tests {
     #[test]
     fn test_builder_pattern() {
         let formatter = HtmlLinkedBuilder::new()
-            .source("")
             .lang(Language::Rust)
             .pre_class(Some("test-pre-class"))
             .build()
@@ -312,10 +308,10 @@ mod tests {
         };
 
         let formatter =
-            HtmlLinked::new(code, Language::PlainText, None, Some(highlight_lines), None);
+            HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
@@ -333,10 +329,10 @@ mod tests {
             class: "custom-hl".to_string(),
         };
         let formatter =
-            HtmlLinked::new(code, Language::PlainText, None, Some(highlight_lines), None);
+            HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-hl" data-line="1">line 1
@@ -355,10 +351,10 @@ mod tests {
             close_tag: "</div>".to_string(),
         };
         let code = "line 1\nline 2";
-        let formatter = HtmlLinked::new(code, Language::PlainText, None, None, Some(header));
+        let formatter = HtmlLinked::new(Language::PlainText, None, None, Some(header));
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<div class="code-wrapper"><pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
@@ -379,7 +375,6 @@ mod tests {
         };
         let code = "line 1\nline 2";
         let formatter = HtmlLinked::new(
-            code,
             Language::PlainText,
             Some("custom-pre"),
             Some(highlight_lines),
@@ -387,7 +382,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<section class="code-section"><pre class="athl custom-pre"><code class="language-plaintext" translate="no" tabindex="0"><div class="line highlighted" data-line="1">line 1

@@ -45,29 +45,27 @@ use autumnus::{
 use std::io::{self, Write};
 
 /// A custom formatter that outputs JSON with token information
-struct JsonFormatter<'a> {
-    source: &'a str,
+struct JsonFormatter {
     language: Language,
     theme: Option<autumnus::themes::Theme>,
 }
 
-impl<'a> JsonFormatter<'a> {
-    fn new(source: &'a str, language: Language, theme: Option<autumnus::themes::Theme>) -> Self {
+impl JsonFormatter {
+    fn new(language: Language, theme: Option<autumnus::themes::Theme>) -> Self {
         Self {
-            source,
             language,
             theme,
         }
     }
 }
 
-impl<'a> Formatter for JsonFormatter<'a> {
-    fn format(&self, output: &mut dyn Write) -> io::Result<()> {
+impl Formatter for JsonFormatter {
+    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         writeln!(output, "{{")?;
         writeln!(output, r#"  "language": "{:?}","#, self.language)?;
         writeln!(output, r#"  "tokens": ["#)?;
 
-        let iter = highlight_iter(self.source, self.language, self.theme.clone())
+        let iter = highlight_iter(source, self.language, self.theme.clone())
             .map_err(io::Error::other)?;
 
         let tokens: Vec<_> = iter.collect();
@@ -106,7 +104,7 @@ impl<'a> Formatter for JsonFormatter<'a> {
         Ok(())
     }
 
-    fn highlights(&self, _output: &mut dyn Write) -> io::Result<()> {
+    fn highlights(&self, _source: &str, _output: &mut dyn Write) -> io::Result<()> {
         // Not used for this formatter
         Ok(())
     }
@@ -120,9 +118,10 @@ console.log(greeting);"#;
     let lang = Language::guess(Some("javascript"), code);
 
     // Create our custom formatter
-    let formatter = JsonFormatter::new(code, lang, theme);
+    let formatter = JsonFormatter::new(lang, theme);
 
     let options = Options {
+        source: code,
         language: Some("javascript"),
         formatter: Box::new(formatter),
     };
