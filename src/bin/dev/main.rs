@@ -139,22 +139,23 @@ fn gen_samples_entries(
             let contents = fs::read_to_string(&path)
                 .with_context(|| format!("failed to read sample file: {file_name}"))?;
 
-            let highlighted = autumnus::highlight(
-                &contents,
-                autumnus::Options {
-                    language: Some(file_name),
-                    formatter: autumnus::FormatterOption::HtmlInline {
-                        theme: Some(theme.clone()),
-                        pre_class: Some(
-                            "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6",
-                        ),
-                        italic: false,
-                        include_highlights: true,
-                        highlight_lines: None,
-                        header: None,
-                    },
-                },
-            );
+            let lang = autumnus::languages::Language::guess(Some(file_name), &contents);
+            let formatter = autumnus::HtmlInlineBuilder::new()
+                .source(&contents)
+                .lang(lang)
+                .theme(Some(theme.clone()))
+                .pre_class(Some(
+                    "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6",
+                ))
+                .italic(false)
+                .include_highlights(true)
+                .build()
+                .expect("Failed to build formatter");
+
+            let highlighted = autumnus::highlight(autumnus::Options {
+                language: Some(file_name),
+                formatter: Box::new(formatter),
+            });
 
             let base_name = file_name.split('.').next().unwrap_or(file_name);
             let html_path = samples_path.join(format!("{}.{}.html", base_name, theme.name));

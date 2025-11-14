@@ -2,28 +2,90 @@
 
 ## Unreleased
 
-**Important:** This release introduces several breaking changes. Please refer to the migration guide below for details on updating your code:
+**Important:** This release introduces several breaking changes. Please refer to the migration guide below for details on updating your code.
+
+### Migration Guide
+
+#### Formatter API Changes
+
+**Before:**
+```rust
+use autumnus::{highlight, Options, FormatterOption, themes};
+
+let code = "fn main() {}";
+let options = Options {
+    language: Some("rust"),
+    formatter: FormatterOption::HtmlInline {
+        theme: themes::get("dracula").ok(),
+        pre_class: Some("code-block"),
+        italic: false,
+        include_highlights: false,
+        highlight_lines: None,
+        header: None,
+    },
+};
+let html = highlight(code, options);
+```
+
+**After:**
+```rust
+use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, themes};
+
+let code = "fn main() {}";
+let lang = Language::guess(Some("rust"), code);
+let formatter = HtmlInlineBuilder::new()
+    .source(code)
+    .lang(lang)
+    .theme(themes::get("dracula").ok())
+    .pre_class(Some("code-block"))
+    .build()
+    .unwrap();
+
+let options = Options {
+    language: Some("rust"),
+    formatter: Box::new(formatter),
+};
+let html = highlight(options);
+```
+
+#### Function Signature Changes
+
+- `highlight(source, options)` → `highlight(options)`
+- `write_highlight(output, source, options)` → `write_highlight(output, options)`
+- `Options::default()` → `Options::new(source, language)`
+
+#### Theme and Language Changes (from previous releases)
 
 - Remove `&` when storing themes: `let theme = themes::get("dracula")?;` (no longer returns a reference)
-- Update formatter configurations to use owned Theme instead of references
+- Update `Language::guess()` calls to use `Option<&str>` for first parameter
 
 ### Changed
+- **BREAKING**: Removed `FormatterOption` enum - use builder pattern instead (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`)
+- **BREAKING**: Changed `highlight()` signature from `(source: &str, options: Options)` to `(options: Options)`
+- **BREAKING**: Changed `write_highlight()` signature from `(output: &mut dyn Write, source: &str, options: Options)` to `(output: &mut dyn Write, options: Options)`
+- **BREAKING**: Removed `Options::default()` - use `Options::new(source, language)` instead
+- **BREAKING**: `Options.formatter` changed from `FormatterOption` to `Box<dyn Formatter>`
 - **BREAKING**: Renamed `Options.lang_or_file` field to `Options.language` for clearer semantics
 - **BREAKING**: Changed `Language::guess()` signature from `guess(&str, &str)` to `guess(Option<&str>, &str)`
   - `None` now explicitly means auto-detect from content
   - Empty string (`""`) defaults to `Language::PlainText`
   - Eliminates lossy `.unwrap_or("")` conversion
 - **BREAKING**: `themes::get()` now returns owned `Theme` instead of `&'static Theme`
-- **BREAKING**: `FormatterOption::HtmlInline::theme` changed from `Option<&'a Theme>` to `Option<Theme>`
-- **BREAKING**: `FormatterOption::Terminal::theme` changed from `Option<&'a Theme>` to `Option<Theme>`
-- **BREAKING**: Removed `'a` lifetime parameter from `FormatterOption` enum where only used for theme
+- **BREAKING**: Removed `'a` lifetime parameter from formatters where only used for theme
 
 ### Added
+- New `highlight` module with ergonomic API for building custom formatters:
+  - `Highlighter` - Stateful highlighter for repeated operations
+  - `HighlightIterator` - Lazy iterator for streaming access with position information
+  - `highlight_iter()` - Convenient function to create iterators
+- Builder pattern for formatters: `HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`
+- Custom formatters can now be implemented via the `Formatter` trait
 - Implemented `FromStr` trait for `Language` enabling `.parse()` method
 - Added `LanguageParseError` type for parse failures
 - Language parsing now supports language names, file extensions, and file paths via `FromStr`
 - Implemented `FromStr` trait for `Theme` enabling `.parse()` method
 - Added `ThemeParseError` type for parse failures
+- Added 7 comprehensive examples: `basic_highlighting`, `custom_theme`, `terminal_colors`, `custom_formatter`, `iterator_api`, `line_by_line`, `html_with_classes`
 
 ## [0.7.8] - 2025-11-13
 
