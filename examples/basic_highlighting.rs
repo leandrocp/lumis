@@ -19,7 +19,7 @@
 //! </code></pre>
 //! ```
 
-use autumnus::{highlight, Options};
+use autumnus::{highlight, OptionsBuilder};
 
 fn main() {
     // Python code with shebang for auto-detection
@@ -32,9 +32,10 @@ def fibonacci(n):
 print(fibonacci(10))
 "#;
 
-    // Simple API: Options::new(source, language_hint)
-    // language_hint can be None for auto-detection
-    let html = highlight(Options::new(code, None));
+    // Simple API using builder with defaults
+    let options = OptionsBuilder::new().source(code).build().unwrap();
+
+    let html = highlight(options);
 
     println!("{}", html);
 }

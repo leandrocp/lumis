@@ -274,7 +274,7 @@ pub mod themes;
 pub mod elixir;
 
 use crate::formatter::Formatter;
-use crate::languages::Language;
+use derive_builder::Builder;
 use std::io::{self, Write};
 
 // Re-export builders for easier access
@@ -293,22 +293,30 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// - **File extensions**: `"rs"`, `"py"`, `"js"`
 /// - **None**: Try to auto-detect from source content
 ///
-/// # Default Behavior
-///
 /// # Examples
 ///
-/// ## Basic usage with defaults
+/// ## Using the builder pattern
 ///
 /// ```rust
-/// use autumnus::{highlight, Options};
+/// use autumnus::{highlight, OptionsBuilder, HtmlInlineBuilder, languages::Language};
 ///
-/// let code = r#"
-/// #!/usr/bin/env python3
-/// print("Hello, World!")
-/// "#;
+/// let code = "fn main() { println!(\"Hello\"); }";
+/// let lang = Language::guess(Some("rust"), code);
 ///
-/// // Language auto-detected from shebang, HTML inline output
-/// let html = highlight(Options::new(code, None));
+/// let formatter = HtmlInlineBuilder::new()
+///     .lang(lang)
+///     .pre_class(Some("code-block"))
+///     .build()
+///     .unwrap();
+///
+/// let options = OptionsBuilder::new()
+///     .source(code)
+///     .language("rust")
+///     .formatter(Box::new(formatter))
+///     .build()
+///     .unwrap();
+///
+/// let html = highlight(options);
 /// ```
 ///
 /// ## Explicit language specification
@@ -430,8 +438,11 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 /// let html = highlight(options);
 /// // Remember to include the corresponding CSS file for your theme
 /// ```
+#[derive(Builder)]
+#[builder(default, pattern = "owned")]
 pub struct Options<'a> {
     /// The source code to highlight.
+    #[builder(default = "\"\"")]
     pub source: &'a str,
 
     /// Optional language hint for syntax highlighting.
@@ -444,6 +455,7 @@ pub struct Options<'a> {
     ///
     /// When `None`, the highlighter will analyze the source content to detect
     /// the language using shebangs, file content patterns, and other heuristics.
+    #[builder(default, setter(strip_option))]
     pub language: Option<&'a str>,
 
     /// The output formatter to use.
@@ -472,36 +484,80 @@ pub struct Options<'a> {
     ///     )
     /// };
     /// ```
+    #[builder(default = "Box::new(formatter::HtmlInline::default())")]
     pub formatter: Box<dyn Formatter + 'a>,
 }
 
+impl Default for Options<'_> {
+    fn default() -> Self {
+        Self {
+            source: "",
+            language: None,
+            formatter: Box::new(formatter::HtmlInline::default()),
+        }
+    }
+}
+
 impl<'a> Options<'a> {
-    /// Create a new Options with default HTML inline formatter.
+    /// Create a new Options with the specified parameters.
     ///
-    /// This is a convenience method for creating options with a basic HTML inline formatter.
+    /// This is a convenience constructor that takes all required fields.
     ///
     /// # Arguments
     ///
     /// * `source` - The source code to highlight
     /// * `language` - Optional language hint
+    /// * `formatter` - The formatter to use for highlighting
     ///
     /// # Examples
     ///
     /// ```rust
-    /// use autumnus::Options;
+    /// use autumnus::{Options, HtmlInlineBuilder, languages::Language};
     ///
     /// let code = "fn main() {}";
-    /// let options = Options::new(code, Some("rust"));
+    /// let formatter = HtmlInlineBuilder::default()
+    ///     .lang(Language::Rust)
+    ///     .build()
+    ///     .unwrap();
+    ///
+    /// let options = Options::new(code, Some("rust"), Box::new(formatter));
     /// ```
-    pub fn new(source: &'a str, language: Option<&'a str>) -> Self {
-        let lang = Language::guess(language, source);
+    pub fn new(
+        source: &'a str,
+        language: Option<&'a str>,
+        formatter: Box<dyn Formatter + 'a>,
+    ) -> Self {
         Self {
             source,
             language,
-            formatter: Box::new(formatter::HtmlInline::new(
-                lang, None, None, false, false, None, None,
-            )),
+            formatter,
         }
+    }
+}
+
+impl<'a> OptionsBuilder<'a> {
+    /// Create a new OptionsBuilder with default values.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use autumnus::{OptionsBuilder, HtmlInlineBuilder, languages::Language};
+    ///
+    /// let code = "fn main() {}";
+    /// let formatter = HtmlInlineBuilder::default()
+    ///     .lang(Language::Rust)
+    ///     .build()
+    ///     .unwrap();
+    ///
+    /// let options = OptionsBuilder::new()
+    ///     .source(code)
+    ///     .language("rust")
+    ///     .formatter(Box::new(formatter))
+    ///     .build()
+    ///     .unwrap();
+    /// ```
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -783,13 +839,18 @@ pub fn highlight(options: Options) -> String {
 /// ## Error handling
 ///
 /// ```rust
-/// use autumnus::{write_highlight, Options};
+/// use autumnus::{write_highlight, OptionsBuilder};
 /// use std::io;
 ///
 /// let code = "invalid source";
 /// let mut buffer = Vec::new();
 ///
-/// match write_highlight(&mut buffer, Options::new(code, None)) {
+/// let options = OptionsBuilder::new()
+///     .source(code)
+///     .build()
+///     .unwrap();
+///
+/// match write_highlight(&mut buffer, options) {
 ///     Ok(()) => println!("Successfully highlighted {} bytes", buffer.len()),
 ///     Err(e) => eprintln!("Failed to highlight: {}", e),
 /// }
@@ -803,6 +864,7 @@ pub fn write_highlight(output: &mut dyn Write, options: Options) -> io::Result<(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::languages::Language;
 
     // println!("{}", result);
     // std::fs::write("result.html", result.clone()).unwrap();

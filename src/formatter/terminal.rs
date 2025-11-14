@@ -39,10 +39,7 @@ impl TerminalBuilder {
 
 impl Terminal {
     pub fn new(lang: Language, theme: Option<Theme>) -> Self {
-        Self {
-            lang,
-            theme,
-        }
+        Self { lang, theme }
     }
 }
 
@@ -59,12 +56,9 @@ impl Formatter for Terminal {
     fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut highlighter = Highlighter::new();
         let events = highlighter
-            .highlight(
-                self.lang.config(),
-                source.as_bytes(),
-                None,
-                |injected| Some(Language::guess(Some(injected), "").config()),
-            )
+            .highlight(self.lang.config(), source.as_bytes(), None, |injected| {
+                Some(Language::guess(Some(injected), "").config())
+            })
             .expect("failed to generate highlight events");
 
         let writer = BufferWriter::stdout(ColorChoice::Always);
@@ -94,9 +88,7 @@ impl Formatter for Terminal {
                         .set_color(ColorSpec::new().set_fg(Some(termcolor::Color::Rgb(r, g, b))))?;
                 }
                 HighlightEvent::Source { start, end } => {
-                    let text = source
-                        .get(start..end)
-                        .expect("failed to get source bounds");
+                    let text = source.get(start..end).expect("failed to get source bounds");
 
                     write!(buffer, "{text}")?;
                 }

@@ -52,10 +52,7 @@ struct JsonFormatter {
 
 impl JsonFormatter {
     fn new(language: Language, theme: Option<autumnus::themes::Theme>) -> Self {
-        Self {
-            language,
-            theme,
-        }
+        Self { language, theme }
     }
 }
 
@@ -65,8 +62,8 @@ impl Formatter for JsonFormatter {
         writeln!(output, r#"  "language": "{:?}","#, self.language)?;
         writeln!(output, r#"  "tokens": ["#)?;
 
-        let iter = highlight_iter(source, self.language, self.theme.clone())
-            .map_err(io::Error::other)?;
+        let iter =
+            highlight_iter(source, self.language, self.theme.clone()).map_err(io::Error::other)?;
 
         let tokens: Vec<_> = iter.collect();
         for (i, (style, text, range)) in tokens.iter().enumerate() {

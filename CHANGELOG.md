@@ -27,7 +27,7 @@ let options = Options {
 let html = highlight(code, options);
 ```
 
-**After:**
+**After (direct initialization):**
 ```rust
 use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, themes};
 
@@ -48,10 +48,34 @@ let options = Options {
 let html = highlight(options);
 ```
 
+**After (builder pattern):**
+```rust
+use autumnus::{highlight, OptionsBuilder, HtmlInlineBuilder, languages::Language, themes};
+
+let code = "fn main() {}";
+let lang = Language::guess(Some("rust"), code);
+let formatter = HtmlInlineBuilder::new()
+    .lang(lang)
+    .theme(themes::get("dracula").ok())
+    .pre_class(Some("code-block"))
+    .build()
+    .unwrap();
+
+let options = OptionsBuilder::new()
+    .source(code)
+    .language("rust")
+    .formatter(Box::new(formatter))
+    .build()
+    .unwrap();
+
+let html = highlight(options);
+```
+
 **Key Changes:**
 1. Formatters are now configuration-only - no `.source()` method on builders
 2. Source code is passed via `Options.source` field instead
-3. This allows formatters to be reusable across multiple source strings
+3. `Options` can be created using direct initialization, `Options::new()`, or `OptionsBuilder`
+4. This allows formatters to be reusable across multiple source strings
 
 #### Function Signature Changes
 
@@ -73,6 +97,7 @@ let html = highlight(options);
 - **BREAKING**: Renamed `Options.lang_or_file` field to `Options.language` for clearer semantics
 - **BREAKING**: Removed `.source()` method from formatter builders - formatters are now configuration-only objects
 - **BREAKING**: Changed `Formatter::format()` signature to take `source: &str` parameter - custom formatters must update trait implementation
+- **BREAKING**: Changed `Options::new()` signature from `new(source, language)` to `new(source, language, formatter)` - all three parameters now required
 - **BREAKING**: Changed `Language::guess()` signature from `guess(&str, &str)` to `guess(Option<&str>, &str)`
   - `None` now explicitly means auto-detect from content
   - Empty string (`""`) defaults to `Language::PlainText`
@@ -81,6 +106,8 @@ let html = highlight(options);
 - **BREAKING**: Removed `'a` lifetime parameter from formatters where only used for theme
 
 ### Added
+- `OptionsBuilder` for fluent API to build `Options` with builder pattern
+- `Default` implementation for `Options` (empty source, no language hint, HTML inline formatter)
 - New `highlight` module with ergonomic API for building custom formatters:
   - `Highlighter` - Stateful highlighter for repeated operations
   - `HighlightIterator` - Lazy iterator for streaming access with position information

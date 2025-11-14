@@ -183,12 +183,9 @@ impl Formatter for HtmlInline<'_> {
     fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut highlighter = Highlighter::new();
         let events = highlighter
-            .highlight(
-                self.lang.config(),
-                source.as_bytes(),
-                None,
-                |injected| Some(Language::guess(Some(injected), "").config()),
-            )
+            .highlight(self.lang.config(), source.as_bytes(), None, |injected| {
+                Some(Language::guess(Some(injected), "").config())
+            })
             .expect("failed to generate highlight events");
 
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
@@ -340,15 +337,7 @@ mod tests {
     #[test]
     fn test_no_attrs() {
         let code = "@lang :rust";
-        let formatter = HtmlInline::new(
-            Language::Elixir,
-            None,
-            None,
-            false,
-            false,
-            None,
-            None,
-        );
+        let formatter = HtmlInline::new(Language::Elixir, None, None, false, false, None, None);
         let mut buffer = Vec::new();
         formatter.format(code, &mut buffer);
         let result = String::from_utf8(buffer).unwrap();
@@ -368,7 +357,8 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let formatter = HtmlInline::new(Language::PlainText,
+        let formatter = HtmlInline::new(
+            Language::PlainText,
             None,
             Some("test-pre-class"),
             false,
@@ -385,7 +375,8 @@ mod tests {
     #[test]
     fn test_include_pre_class_with_theme() {
         let theme = themes::get("github_light").unwrap();
-        let formatter = HtmlInline::new(Language::PlainText,
+        let formatter = HtmlInline::new(
+            Language::PlainText,
             Some(theme),
             Some("test-pre-class"),
             false,
@@ -426,7 +417,8 @@ mod tests {
             class: None,
         };
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
-        let formatter = HtmlInline::new(Language::PlainText,
+        let formatter = HtmlInline::new(
+            Language::PlainText,
             Some(theme),
             None,
             false,
@@ -458,7 +450,8 @@ mod tests {
             class: None,
         };
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
-        let formatter = HtmlInline::new(Language::PlainText,
+        let formatter = HtmlInline::new(
+            Language::PlainText,
             None,
             None,
             false,
@@ -490,7 +483,8 @@ mod tests {
             class: Some("custom-highlight".to_string()),
         };
         let code = "line 1\nline 2\nline 3\nline 4";
-        let formatter = HtmlInline::new(Language::PlainText,
+        let formatter = HtmlInline::new(
+            Language::PlainText,
             None,
             None,
             false,
@@ -519,7 +513,8 @@ mod tests {
             class: Some("custom-highlight".to_string()),
         };
         let code = "fn main() {\n    println!(\"Hello, world!\");\n    let x = 42;\n}";
-        let formatter = HtmlInline::new(Language::Rust,
+        let formatter = HtmlInline::new(
+            Language::Rust,
             None,
             None,
             false,
@@ -547,7 +542,8 @@ mod tests {
             close_tag: "</div>".to_string(),
         };
         let code = "line 1\nline 2";
-        let formatter = HtmlInline::new(Language::PlainText,
+        let formatter = HtmlInline::new(
+            Language::PlainText,
             None,
             None,
             false,
@@ -573,7 +569,8 @@ mod tests {
             close_tag: "</section>".to_string(),
         };
         let code = "fn main() { }";
-        let formatter = HtmlInline::new(Language::Rust,
+        let formatter = HtmlInline::new(
+            Language::Rust,
             None,
             Some("custom-class"),
             false,

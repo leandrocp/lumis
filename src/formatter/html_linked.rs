@@ -146,12 +146,9 @@ impl Formatter for HtmlLinked<'_> {
     fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut highlighter = Highlighter::new();
         let events = highlighter
-            .highlight(
-                self.lang.config(),
-                source.as_bytes(),
-                None,
-                |injected| Some(Language::guess(Some(injected), "").config()),
-            )
+            .highlight(self.lang.config(), source.as_bytes(), None, |injected| {
+                Some(Language::guess(Some(injected), "").config())
+            })
             .expect("failed to generate highlight events");
 
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
@@ -259,8 +256,7 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let formatter =
-            HtmlLinked::new(Language::PlainText, Some("test-pre-class"), None, None);
+        let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"), None, None);
         let mut buffer = Vec::new();
         formatter.open_pre_tag(&mut buffer);
         let result = String::from_utf8(buffer).unwrap();
@@ -307,8 +303,7 @@ mod tests {
             ..Default::default()
         };
 
-        let formatter =
-            HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
+        let formatter = HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
 
         let mut buffer = Vec::new();
         formatter.format(code, &mut buffer).unwrap();
@@ -328,8 +323,7 @@ mod tests {
             lines: vec![1..=1, 3..=4],
             class: "custom-hl".to_string(),
         };
-        let formatter =
-            HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
+        let formatter = HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
 
         let mut buffer = Vec::new();
         formatter.format(code, &mut buffer).unwrap();
