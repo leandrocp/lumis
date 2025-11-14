@@ -671,7 +671,7 @@ fn themes() {
     let theme_name_matches = theme_names.iter().map(|name| {
         let constant_name = format_ident!("{}", name.to_uppercase());
         let name_str = name.to_lowercase();
-        quote! { #name_str => Ok(&#constant_name), }
+        quote! { #name_str => Ok(#constant_name.clone()), }
     });
 
     let output = quote! {
@@ -686,6 +686,8 @@ fn themes() {
 
         /// Retrieves a theme by its name.
         ///
+        /// Returns an owned `Theme` that can be used for syntax highlighting.
+        ///
         /// # Examples
         ///
         /// ```
@@ -697,7 +699,7 @@ fn themes() {
         /// let theme = themes::get("non_existent_theme");
         /// assert!(theme.is_err());
         /// ```
-        pub fn get(name: &str) -> Result<&'static Theme, ThemeError> {
+        pub fn get(name: &str) -> Result<Theme, ThemeError> {
             match name {
                 #(#theme_name_matches)*
                 _ => Err(ThemeError::NotFound(name.to_string())),

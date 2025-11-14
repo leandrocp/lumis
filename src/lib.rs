@@ -5,11 +5,14 @@
 //! Use the builder pattern for type-safe, ergonomic formatter creation:
 //!
 //! ```rust
-//! use autumnus::{HtmlInlineBuilder, languages::Language, themes, formatter::Formatter};
+//! use autumnus::{HtmlInlineBuilder, languages::Language, themes::Theme, formatter::Formatter};
 //! use std::io::Write;
 //!
 //! let code = "fn main() { println!(\"Hello, world!\"); }";
-//! let theme = themes::get("dracula").unwrap();
+//!
+//! // Parse theme from string
+//! let theme: Theme = "dracula".parse().unwrap();
+//! // Or: let theme = themes::get("dracula").unwrap();
 //!
 //! let formatter = HtmlInlineBuilder::new()
 //!     .source(code)
@@ -446,7 +449,7 @@ pub enum FormatterOption<'a> {
         ///
         /// If `None`, elements will have no color styling applied.
         /// Use [`themes::get`] to retrieve a theme by name.
-        theme: Option<&'a Theme>,
+        theme: Option<Theme>,
 
         /// Additional CSS class to add to the `<pre>` tag.
         ///
@@ -533,7 +536,7 @@ pub enum FormatterOption<'a> {
         ///
         /// Theme colors are converted to the closest ANSI RGB equivalents.
         /// If `None`, a default color scheme is used to ensure visibility.
-        theme: Option<&'a Theme>,
+        theme: Option<Theme>,
     },
 }
 

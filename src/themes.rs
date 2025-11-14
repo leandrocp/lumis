@@ -14,11 +14,19 @@
 //! # Basic Usage
 //!
 //! ```rust
-//! use autumnus::themes;
+//! use autumnus::themes::{self, Theme};
+//! use std::str::FromStr;
 //!
 //! // Get a theme by name
 //! let theme = themes::get("dracula").expect("Theme not found");
 //! println!("Theme: {} ({})", theme.name, theme.appearance);
+//!
+//! // Parse a theme from a string (idiomatic Rust)
+//! let theme: Theme = "catppuccin_mocha".parse().expect("Theme not found");
+//! println!("Theme: {}", theme.name);
+//!
+//! // Or use FromStr explicitly
+//! let theme = Theme::from_str("github_light").expect("Theme not found");
 //!
 //! // List all available themes
 //! let all_themes = themes::available_themes();
@@ -66,7 +74,7 @@
 #![allow(unused_must_use)]
 
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, fs, path::Path};
+use std::{collections::BTreeMap, fs, path::Path, str::FromStr};
 
 /// Error type for theme operations
 #[derive(Debug)]
@@ -94,6 +102,18 @@ impl std::fmt::Display for ThemeError {
 
 impl std::error::Error for ThemeError {}
 
+/// Error type returned when parsing a theme from a string fails.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ThemeParseError(String);
+
+impl std::fmt::Display for ThemeParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Unknown theme: {}", self.0)
+    }
+}
+
+impl std::error::Error for ThemeParseError {}
+
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// A theme for syntax highlighting.
 ///
@@ -105,10 +125,15 @@ impl std::error::Error for ThemeError {}
 /// Loading a theme by name:
 ///
 /// ```
-/// use autumnus::themes;
+/// use autumnus::themes::{self, Theme};
 ///
+/// // Using get function
 /// let theme = themes::get("github_light").expect("Theme not found");
 /// assert_eq!(theme.appearance, "light");
+///
+/// // Using FromStr trait (idiomatic Rust)
+/// let theme: Theme = "dracula".parse().expect("Theme not found");
+/// assert_eq!(theme.name, "dracula");
 /// ```
 ///
 /// Loading a theme from a JSON file:
@@ -149,6 +174,14 @@ pub struct Theme {
     pub revision: String,
     /// A map of highlight scope names to their styles.
     pub highlights: BTreeMap<String, Style>,
+}
+
+impl FromStr for Theme {
+    type Err = ThemeParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        get(s).map_err(|_| ThemeParseError(s.to_string()))
+    }
 }
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]

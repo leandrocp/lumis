@@ -29,7 +29,7 @@ use tree_sitter_highlight::{HighlightEvent, Highlighter};
 pub struct Terminal<'a> {
     source: &'a str,
     lang: Language,
-    theme: Option<&'a Theme>,
+    theme: Option<Theme>,
 }
 
 impl<'a> TerminalBuilder<'a> {
@@ -39,7 +39,7 @@ impl<'a> TerminalBuilder<'a> {
 }
 
 impl<'a> Terminal<'a> {
-    pub fn new(source: &'a str, lang: Language, theme: Option<&'a Theme>) -> Self {
+    pub fn new(source: &'a str, lang: Language, theme: Option<Theme>) -> Self {
         Self {
             source,
             lang,
@@ -82,6 +82,7 @@ impl Formatter for Terminal<'_> {
 
                     let hex = &self
                         .theme
+                        .as_ref()
                         .and_then(|theme| theme.get_style(scope))
                         .and_then(|style| style.fg.as_deref())
                         // not completely blank so it's still visible in light terminals

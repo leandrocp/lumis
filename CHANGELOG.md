@@ -2,17 +2,28 @@
 
 ## Unreleased
 
+**Important:** This release introduces several breaking changes. Please refer to the migration guide below for details on updating your code:
+
+- Remove `&` when storing themes: `let theme = themes::get("dracula")?;` (no longer returns a reference)
+- Update formatter configurations to use owned Theme instead of references
+
 ### Changed
 - **BREAKING**: Renamed `Options.lang_or_file` field to `Options.language` for clearer semantics
 - **BREAKING**: Changed `Language::guess()` signature from `guess(&str, &str)` to `guess(Option<&str>, &str)`
   - `None` now explicitly means auto-detect from content
   - Empty string (`""`) defaults to `Language::PlainText`
   - Eliminates lossy `.unwrap_or("")` conversion
+- **BREAKING**: `themes::get()` now returns owned `Theme` instead of `&'static Theme`
+- **BREAKING**: `FormatterOption::HtmlInline::theme` changed from `Option<&'a Theme>` to `Option<Theme>`
+- **BREAKING**: `FormatterOption::Terminal::theme` changed from `Option<&'a Theme>` to `Option<Theme>`
+- **BREAKING**: Removed `'a` lifetime parameter from `FormatterOption` enum where only used for theme
 
 ### Added
 - Implemented `FromStr` trait for `Language` enabling `.parse()` method
 - Added `LanguageParseError` type for parse failures
 - Language parsing now supports language names, file extensions, and file paths via `FromStr`
+- Implemented `FromStr` trait for `Theme` enabling `.parse()` method
+- Added `ThemeParseError` type for parse failures
 
 ## [0.7.8] - 2025-11-13
 

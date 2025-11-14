@@ -62,15 +62,10 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
                 header,
             } => {
                 let theme = theme.map(|t| match t {
-                    ThemeOrString::Theme(theme) => {
-                        let theme: themes::Theme = theme.into();
-                        let theme = Box::leak(Box::new(theme));
-                        &*theme
+                    ThemeOrString::Theme(theme) => theme.into(),
+                    ThemeOrString::String(name) => {
+                        themes::get(name).unwrap_or_else(|_| themes::Theme::default())
                     }
-                    ThemeOrString::String(name) => themes::get(name).unwrap_or_else(|_| {
-                        let theme = Box::leak(Box::new(themes::Theme::default()));
-                        &*theme
-                    }),
                 });
 
                 let highlight_lines = highlight_lines.map(|hl| html_inline::HighlightLines {
@@ -131,15 +126,10 @@ impl<'a> From<ExFormatterOption<'a>> for FormatterOption<'a> {
             }
             ExFormatterOption::Terminal { theme } => {
                 let theme = theme.map(|t| match t {
-                    ThemeOrString::Theme(theme) => {
-                        let theme: themes::Theme = theme.into();
-                        let theme = Box::leak(Box::new(theme));
-                        &*theme
+                    ThemeOrString::Theme(theme) => theme.into(),
+                    ThemeOrString::String(name) => {
+                        themes::get(name).unwrap_or_else(|_| themes::Theme::default())
                     }
-                    ThemeOrString::String(name) => themes::get(name).unwrap_or_else(|_| {
-                        let theme = Box::leak(Box::new(themes::Theme::default()));
-                        &*theme
-                    }),
                 });
 
                 FormatterOption::Terminal { theme }

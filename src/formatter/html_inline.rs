@@ -129,7 +129,7 @@ impl Default for HighlightLines {
 pub struct HtmlInline<'a> {
     source: &'a str,
     lang: Language,
-    theme: Option<&'a Theme>,
+    theme: Option<Theme>,
     pre_class: Option<&'a str>,
     italic: bool,
     include_highlights: bool,
@@ -148,7 +148,7 @@ impl<'a> HtmlInline<'a> {
     pub fn new(
         source: &'a str,
         lang: Language,
-        theme: Option<&'a Theme>,
+        theme: Option<Theme>,
         pre_class: Option<&'a str>,
         italic: bool,
         include_highlights: bool,
@@ -207,7 +207,7 @@ impl Formatter for HtmlInline<'_> {
                     output.extend(b"\"");
                 }
 
-                if let Some(theme) = self.theme {
+                if let Some(theme) = &self.theme {
                     if let Some(style) = theme.get_style(scope) {
                         if self.include_highlights {
                             output.extend(b" ");
@@ -239,7 +239,7 @@ impl Formatter for HtmlInline<'_> {
 
                     let style = match &highlight_lines.style {
                         Some(HighlightLinesStyle::Theme) => {
-                            if let Some(theme) = self.theme {
+                            if let Some(theme) = &self.theme {
                                 if let Some(highlighted_style) = theme.get_style("highlighted") {
                                     format!(
                                         " style=\"{}\"",
@@ -312,6 +312,7 @@ impl HtmlFormatter for HtmlInline<'_> {
             class,
             &self
                 .theme
+                .as_ref()
                 .and_then(|theme| theme.pre_style(" "))
                 .map(|pre_style| format!(" style=\"{pre_style}\""))
                 .unwrap_or_default(),

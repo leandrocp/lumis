@@ -168,14 +168,19 @@ let html = highlight("javascript", code, Options::default());
 #### Using a Specific Theme
 
 ```rust
-use autumnus::{highlight, Options, themes};
+use autumnus::{highlight, Options, themes::Theme};
 
 let code = "SELECT * FROM users WHERE active = true;";
+
+// Parse theme from string
+let theme: Theme = "dracula".parse().expect("Theme not found");
+// Or: let theme = themes::get("dracula").expect("Theme not found");
+
 let html = highlight(
     "sql",
     code,
     Options {
-        theme: themes::get("dracula").expect("Theme not found"),
+        theme,
         ..Options::default()
     }
 );
