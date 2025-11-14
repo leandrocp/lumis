@@ -53,8 +53,40 @@ impl Default for ThemeOrString<'_> {
     }
 }
 
+/// Resolves a theme from ThemeOrString, returning None if the theme doesn't exist.
+fn resolve_theme(theme_or_string: ThemeOrString) -> Option<themes::Theme> {
+    match theme_or_string {
+        ThemeOrString::Theme(theme) => Some(theme.into()),
+        ThemeOrString::String(name) => themes::get(name).ok(),
+    }
+}
+
+/// Converts ExLineSpec to RangeInclusive without intermediate allocation.
+#[inline]
+fn convert_line_specs(lines: Vec<ExLineSpec>) -> Vec<std::ops::RangeInclusive<usize>> {
+    lines
+        .into_iter()
+        .map(|line_spec| line_spec.to_range_inclusive())
+        .collect()
+}
+
+/// Converts ExHtmlInlineHighlightLinesStyle to html_inline::HighlightLinesStyle.
+#[inline]
+fn convert_inline_style(style: ExHtmlInlineHighlightLinesStyle) -> html_inline::HighlightLinesStyle {
+    match style {
+        ExHtmlInlineHighlightLinesStyle::Theme => html_inline::HighlightLinesStyle::Theme,
+        ExHtmlInlineHighlightLinesStyle::Style { style } => {
+            html_inline::HighlightLinesStyle::Style(style)
+        }
+    }
+}
+
 impl<'a> ExFormatterOption<'a> {
     /// Convert ExFormatterOption to a boxed Formatter trait object.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the formatter builder fails, which should not happen with valid input data.
     pub fn into_formatter(self, language: Language) -> Box<dyn Formatter + 'a> {
         match self {
             ExFormatterOption::HtmlInline {
@@ -65,27 +97,11 @@ impl<'a> ExFormatterOption<'a> {
                 highlight_lines,
                 header,
             } => {
-                let theme = theme.map(|t| match t {
-                    ThemeOrString::Theme(theme) => theme.into(),
-                    ThemeOrString::String(name) => {
-                        themes::get(name).unwrap_or_else(|_| themes::Theme::default())
-                    }
-                });
+                let theme = theme.and_then(|t| resolve_theme(t));
 
                 let highlight_lines = highlight_lines.map(|hl| html_inline::HighlightLines {
-                    lines: hl
-                        .lines
-                        .into_iter()
-                        .map(|line_spec| line_spec.to_range_inclusive())
-                        .collect(),
-                    style: hl.style.map(|s| match s {
-                        ExHtmlInlineHighlightLinesStyle::Theme => {
-                            html_inline::HighlightLinesStyle::Theme
-                        }
-                        ExHtmlInlineHighlightLinesStyle::Style { style } => {
-                            html_inline::HighlightLinesStyle::Style(style)
-                        }
-                    }),
+                    lines: convert_line_specs(hl.lines),
+                    style: hl.style.map(convert_inline_style),
                     class: hl.class,
                 });
 
@@ -113,11 +129,7 @@ impl<'a> ExFormatterOption<'a> {
                 header,
             } => {
                 let highlight_lines = highlight_lines.map(|hl| html_linked::HighlightLines {
-                    lines: hl
-                        .lines
-                        .into_iter()
-                        .map(|line_spec| line_spec.to_range_inclusive())
-                        .collect(),
+                    lines: convert_line_specs(hl.lines),
                     class: hl.class,
                 });
 
@@ -137,12 +149,7 @@ impl<'a> ExFormatterOption<'a> {
                 Box::new(formatter)
             }
             ExFormatterOption::Terminal { theme } => {
-                let theme = theme.map(|t| match t {
-                    ThemeOrString::Theme(theme) => theme.into(),
-                    ThemeOrString::String(name) => {
-                        themes::get(name).unwrap_or_else(|_| themes::Theme::default())
-                    }
-                });
+                let theme = theme.and_then(|t| resolve_theme(t));
 
                 let formatter = TerminalBuilder::new()
                     .lang(language)
@@ -156,7 +163,7 @@ impl<'a> ExFormatterOption<'a> {
     }
 }
 
-#[derive(Debug, Default, NifStruct)]
+#[derive(Clone, Debug, Default, NifStruct)]
 #[module = "Autumn.Theme"]
 pub struct ExTheme {
     pub name: String,
@@ -194,20 +201,52 @@ impl From<ExTheme> for themes::Theme {
 
 impl<'a> From<&'a themes::Theme> for ExTheme {
     fn from(theme: &'a themes::Theme) -> Self {
+        // Color deduplication: intern color strings to reduce allocations
+        // Many styles share the same colors (e.g., "#ff0000" appears in multiple scopes)
+        let mut color_cache: HashMap<&str, String> = HashMap::new();
+
+        let highlights = theme
+            .highlights
+            .iter()
+            .map(|(k, v)| {
+                let fg = v.fg.as_ref().map(|color_str| {
+                    color_cache
+                        .entry(color_str.as_str())
+                        .or_insert_with(|| color_str.to_string())
+                        .clone()
+                });
+
+                let bg = v.bg.as_ref().map(|color_str| {
+                    color_cache
+                        .entry(color_str.as_str())
+                        .or_insert_with(|| color_str.to_string())
+                        .clone()
+                });
+
+                (
+                    k.to_owned(),
+                    ExStyle {
+                        fg,
+                        bg,
+                        underline: v.underline,
+                        bold: v.bold,
+                        italic: v.italic,
+                        strikethrough: v.strikethrough,
+                    },
+                )
+            })
+            .collect();
+
         ExTheme {
             name: theme.name.to_owned(),
             appearance: theme.appearance.to_owned(),
             revision: theme.revision.to_owned(),
-            highlights: theme
-                .highlights
-                .iter()
-                .map(|(k, v)| (k.to_owned(), ExStyle::from(v)))
-                .collect(),
+            highlights,
         }
     }
 }
 
-#[derive(Debug, Default, NifStruct)]
+#[derive(Clone, Debug, Default, NifStruct)]
 #[module = "Autumn.Theme.Style"]
 pub struct ExStyle {
     pub fg: Option<String>,
