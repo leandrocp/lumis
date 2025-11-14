@@ -41,20 +41,16 @@ GROUP BY users.id
 HAVING COUNT(posts.id) > 5
 ORDER BY post_count DESC;"#;
 
-    // Get a theme
     let theme = themes::get("catppuccin_mocha").ok();
 
-    // Create a stateful highlighter
     let mut highlighter = Highlighter::new(Language::SQL, theme);
 
-    // Highlight the entire code
     let segments = highlighter
         .highlight(code)
         .expect("Failed to highlight code");
 
     println!("Highlighted code with {} segments:\n", segments.len());
 
-    // Process each styled segment
     for (style, text) in segments {
         if let Some(fg) = &style.fg {
             print!("Color {}: ", fg);

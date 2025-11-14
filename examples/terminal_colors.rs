@@ -17,12 +17,10 @@ fn main() {
   end
 end"#;
 
-    // Use a dark theme suitable for terminals
     let theme = themes::get("github_dark").expect("github_dark theme should be available");
 
     let lang = Language::guess(Some("ruby"), code);
 
-    // Build terminal formatter
     let formatter = TerminalBuilder::new()
         .lang(lang)
         .theme(Some(theme))
@@ -37,6 +35,5 @@ end"#;
 
     let ansi_output = highlight(options);
 
-    // Print to terminal (ANSI codes will be rendered as colors)
     println!("{}", ansi_output);
 }

@@ -112,6 +112,9 @@
 
 use std::io::{self, Write};
 
+pub mod ansi;
+pub mod html;
+
 pub mod html_inline;
 pub use html_inline::{HtmlInline, HtmlInlineBuilder};
 
@@ -162,13 +165,91 @@ pub struct HtmlElement {
     pub close_tag: String,
 }
 
+/// Trait for implementing custom syntax highlighting formatters.
+///
+/// The `Formatter` trait allows you to create custom output formats for syntax highlighted code.
+/// Use the [`highlight`](crate::highlight) module to access highlighted tokens without dealing
+/// with tree-sitter internals.
+///
+/// For HTML formatters, see the [`html`](crate::formatter::html) module for helper functions
+/// that handle HTML generation, escaping, and styling.
+///
+/// For terminal/ANSI formatters, see the [`ansi`](crate::formatter::ansi) module for helper functions
+/// that handle ANSI escape sequences and color conversion.
+///
+/// # Required Methods
+///
+/// - [`format`](Formatter::format) - Format source code with syntax highlighting
+///
+/// # Creating Custom Formatters
+///
+/// Use [`highlight_iter()`](crate::highlight::highlight_iter) to iterate over styled tokens:
+///
+/// ```rust
+/// use autumnus::{
+///     formatter::Formatter,
+///     highlight::highlight_iter,
+///     languages::Language,
+///     themes,
+/// };
+/// use std::io::{self, Write};
+///
+/// struct CsvFormatter {
+///     language: Language,
+///     theme: Option<themes::Theme>,
+/// }
+///
+/// impl Formatter for CsvFormatter {
+///     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
+///         writeln!(output, "style,text,start,end")?;
+///
+///         let iter = highlight_iter(source, self.language, self.theme.clone())
+///             .map_err(io::Error::other)?;
+///
+///         for (style, text, range) in iter {
+///             let fg = style.fg.as_deref().unwrap_or("none");
+///             let escaped = text.replace('"', "\"\"");
+///             writeln!(output, "{},\"{}\",{},{}", fg, escaped, range.start, range.end)?;
+///         }
+///
+///         Ok(())
+///     }
+///
+///     fn highlights(&self, _source: &str, _output: &mut dyn Write) -> io::Result<()> {
+///         // Not needed for this formatter
+///         Ok(())
+///     }
+/// }
+/// ```
+///
+/// # See Also
+///
+/// - [`highlight`](crate::highlight) module - High-level API for accessing styled tokens
+/// - [`highlight_iter()`](crate::highlight::highlight_iter) - Convenient iterator over styled segments
+/// - [`examples/custom_formatter.rs`](https://github.com/leandrocp/autumnus/blob/main/examples/custom_formatter.rs) - Complete custom formatter example
 pub trait Formatter: Send + Sync {
+    /// Format source code with syntax highlighting.
+    ///
+    /// This is the main method for generating formatted output. Write the highlighted
+    /// code to the provided `output` writer.
+    ///
+    /// # Arguments
+    ///
+    /// * `source` - The source code to highlight
+    /// * `output` - Writer to send formatted output to
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use autumnus::{formatter::Formatter, HtmlInlineBuilder, languages::Language};
+    ///
+    /// let formatter = HtmlInlineBuilder::new()
+    ///     .lang(Language::Rust)
+    ///     .build()
+    ///     .unwrap();
+    ///
+    /// let mut output = Vec::new();
+    /// formatter.format("fn main() {}", &mut output).unwrap();
+    /// ```
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()>;
-    fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()>;
-}
-
-pub trait HtmlFormatter: Formatter {
-    fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()>;
-    fn open_code_tag(&self, output: &mut dyn Write) -> io::Result<()>;
-    fn closing_tags(&self, output: &mut dyn Write) -> io::Result<()>;
 }

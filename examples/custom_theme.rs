@@ -107,10 +107,8 @@ fn main() {
         highlights,
     };
 
-    // Detect the language
     let lang = Language::guess(Some("rust"), code);
 
-    // Use the custom theme with the builder pattern
     let formatter = HtmlInlineBuilder::new()
         .lang(lang)
         .theme(Some(custom_theme))

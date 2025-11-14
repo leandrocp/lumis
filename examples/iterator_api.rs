@@ -51,7 +51,6 @@ fn main() {
     let theme = themes::get("github_light").ok();
     let lang = Language::guess(Some("rust"), code);
 
-    // Use the iterator API for streaming access
     let iter = highlight_iter(code, lang, theme).expect("Failed to create iterator");
 
     println!("Tokens with position information:\n");

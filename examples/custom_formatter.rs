@@ -1,41 +1,34 @@
 //! Creating a custom formatter
 //!
-//! This example demonstrates how to implement a custom formatter
-//! by implementing the Formatter trait. This allows you to create
-//! output in any format you need (JSON, Markdown, XML, etc.)
+//! This example demonstrates how to implement a custom formatter by implementing
+//! the Formatter trait. Here we create a token metadata formatter that explicitly
+//! shows what data is available from `highlight_iter()`.
 //!
-//! # Output
+//! # How It Works
 //!
-//! ```json
-//! {
-//!   "language": "JavaScript",
-//!   "tokens": [
-//!     {
-//!       "text": "const",
-//!       "start": 0,
-//!       "end": 5,
-//!       "fg": "#ff79c6",
-//!       "bold": false,
-//!       "italic": false
-//!     },
-//!     {
-//!       "text": " ",
-//!       "start": 5,
-//!       "end": 6,
-//!       "bold": false,
-//!       "italic": false
-//!     },
-//!     {
-//!       "text": "greeting",
-//!       "start": 6,
-//!       "end": 14,
-//!       "fg": "#f8f8f2",
-//!       "bold": false,
-//!       "italic": false
-//!     },
-//!     ...
-//!   ]
-//! }
+//! 1. Implement the `Formatter` trait for your struct
+//! 2. Use `highlight_iter()` to get styled tokens as `(Style, text, range)` tuples
+//! 3. Access some the available data:
+//!    - `Style` - colors (fg/bg)
+//!    - `text` - the actual source code text
+//!    - `range` - byte positions (start..end)
+//!
+//! # Output Format
+//!
+//! ```text
+//! token (fg:color bg:color pos:start..end)
+//! ```
+//!
+//! # Example Output
+//!
+//! For JavaScript code `const greeting = "Hello";`:
+//!
+//! ```text
+//! const (fg:#ff79c6 bg:none pos:0..5)
+//!   (fg:none bg:none pos:5..6)
+//! greeting (fg:#f8f8f2 bg:none pos:6..14)
+//!   (fg:none bg:none pos:14..15)
+//! = (fg:#ff79c6 bg:none pos:15..16)
 //! ```
 
 use autumnus::{
@@ -44,65 +37,37 @@ use autumnus::{
 };
 use std::io::{self, Write};
 
-/// A custom formatter that outputs JSON with token information
-struct JsonFormatter {
+/// A custom formatter that outputs token metadata to show available data
+struct TokenMetadataFormatter {
     language: Language,
     theme: Option<autumnus::themes::Theme>,
 }
 
-impl JsonFormatter {
+impl TokenMetadataFormatter {
     fn new(language: Language, theme: Option<autumnus::themes::Theme>) -> Self {
         Self { language, theme }
     }
 }
 
-impl Formatter for JsonFormatter {
+impl Formatter for TokenMetadataFormatter {
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        writeln!(output, "{{")?;
-        writeln!(output, r#"  "language": "{:?}","#, self.language)?;
-        writeln!(output, r#"  "tokens": ["#)?;
-
+        // Use highlight_iter() to get styled tokens
+        // Returns an iterator of (Style, &str, Range<usize>) tuples
         let iter =
             highlight_iter(source, self.language, self.theme.clone()).map_err(io::Error::other)?;
 
-        let tokens: Vec<_> = iter.collect();
-        for (i, (style, text, range)) in tokens.iter().enumerate() {
-            let is_last = i == tokens.len() - 1;
-            let comma = if is_last { "" } else { "," };
-
-            // Escape the text for JSON
-            let escaped_text = text
-                .replace('\\', "\\\\")
-                .replace('"', "\\\"")
-                .replace('\n', "\\n")
-                .replace('\r', "\\r")
-                .replace('\t', "\\t");
-
-            writeln!(output, "    {{")?;
-            writeln!(output, r#"      "text": "{}","#, escaped_text)?;
-            writeln!(output, r#"      "start": {},"#, range.start)?;
-            writeln!(output, r#"      "end": {},"#, range.end)?;
-
-            if let Some(fg) = &style.fg {
-                writeln!(output, r#"      "fg": "{}","#, fg)?;
-            }
-            if let Some(bg) = &style.bg {
-                writeln!(output, r#"      "bg": "{}","#, bg)?;
-            }
-
-            writeln!(output, r#"      "bold": {},"#, style.bold)?;
-            writeln!(output, r#"      "italic": {}"#, style.italic)?;
-            writeln!(output, "    }}{}", comma)?;
+        for (style, text, range) in iter {
+            writeln!(
+                output,
+                "{} (fg:{} bg:{} pos:{}..{})",
+                text.escape_debug(),
+                style.fg.as_deref().unwrap_or("none"),
+                style.bg.as_deref().unwrap_or("none"),
+                range.start,
+                range.end,
+            )?;
         }
 
-        writeln!(output, "  ]")?;
-        writeln!(output, "}}")?;
-
-        Ok(())
-    }
-
-    fn highlights(&self, _source: &str, _output: &mut dyn Write) -> io::Result<()> {
-        // Not used for this formatter
         Ok(())
     }
 }
@@ -114,8 +79,7 @@ console.log(greeting);"#;
     let theme = themes::get("dracula").ok();
     let lang = Language::guess(Some("javascript"), code);
 
-    // Create our custom formatter
-    let formatter = JsonFormatter::new(lang, theme);
+    let formatter = TokenMetadataFormatter::new(lang, theme);
 
     let options = Options {
         source: code,
@@ -123,6 +87,5 @@ console.log(greeting);"#;
         formatter: Box::new(formatter),
     };
 
-    // Use write_highlight to write to stdout
     write_highlight(&mut io::stdout(), options).expect("Failed to write output");
 }

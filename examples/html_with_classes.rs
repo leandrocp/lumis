@@ -62,7 +62,6 @@ export default {
 
     let lang = Language::guess(Some("vue"), code);
 
-    // Build HTML formatter with linked CSS
     let formatter = HtmlLinkedBuilder::new()
         .lang(lang)
         .pre_class(Some("code-block"))
@@ -77,9 +76,8 @@ export default {
 
     let html = highlight(options);
 
-    // Get the theme and generate CSS
     let theme = themes::get("github_light").expect("github_light theme should be available");
-    let css = theme.css(true); // true = minified
+    let css = theme.css(true);
 
     println!("<!-- Include this CSS in your HTML -->");
     println!("<style>\n{}\n</style>\n", css);

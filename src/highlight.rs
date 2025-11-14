@@ -1,6 +1,42 @@
 //! Core highlighting API that abstracts away tree-sitter complexity.
 //!
-//! Use this module to build custom formatters without dealing with tree-sitter directly.
+//! This module provides a high-level interface for accessing syntax-highlighted tokens.
+//! It's particularly useful for building custom formatters.
+//!
+//! # For Custom Formatter Authors
+//!
+//! If you're implementing a custom formatter, use [`highlight_iter()`] to get styled tokens:
+//!
+//! ```rust,no_run
+//! use autumnus::{formatter::Formatter, highlight::highlight_iter};
+//! use std::io::{self, Write};
+//!
+//! # struct MyFormatter { language: autumnus::languages::Language, theme: Option<autumnus::themes::Theme> }
+//! impl Formatter for MyFormatter {
+//!     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
+//!         let iter = highlight_iter(source, self.language, self.theme.clone())
+//!             .map_err(io::Error::other)?;
+//!
+//!         for (style, text, range) in iter {
+//!             // Format tokens however you want!
+//!             // style: colors and font modifiers
+//!             // text: the actual source text
+//!             // range: byte positions in source
+//! #           let _ = (style, text, range);
+//!         }
+//!         Ok(())
+//!     }
+//! #   fn highlights(&self, _: &str, _: &mut dyn Write) -> io::Result<()> { Ok(()) }
+//! }
+//! ```
+//!
+//! See also:
+//! - [`Formatter`](crate::formatter::Formatter) trait documentation
+//! - [`formatter::html`](crate::formatter::html) module for HTML-specific helpers
+//! - [`formatter::ansi`](crate::formatter::ansi) module for terminal/ANSI-specific helpers
+//! - [`examples/custom_formatter.rs`](https://github.com/leandrocp/autumnus/blob/main/examples/custom_formatter.rs)
+//! - [`examples/custom_html_formatter.rs`](https://github.com/leandrocp/autumnus/blob/main/examples/custom_html_formatter.rs)
+//! - [`examples/custom_terminal_formatter.rs`](https://github.com/leandrocp/autumnus/blob/main/examples/custom_terminal_formatter.rs)
 //!
 //! # Architecture
 //!
@@ -10,10 +46,11 @@
 //!    - `highlight()` - One-shot highlighting of entire source code
 //!    - `highlight_line()` - Line-by-line incremental highlighting (future)
 //!
-//! 2. **Low-level API** - [`HighlightIterator`] provides streaming access:
+//! 2. **Iterator API** - [`HighlightIterator`] provides streaming access:
 //!    - Lazy iteration over styled segments
 //!    - Includes byte position information
 //!    - Zero intermediate allocations
+//!    - Created via [`highlight_iter()`] convenience function
 //!
 //! # Examples
 //!
@@ -54,6 +91,7 @@ use crate::constants::HIGHLIGHT_NAMES;
 use crate::languages::Language;
 use crate::themes::Theme;
 use std::ops::Range;
+use std::sync::Arc;
 use tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
 
 /// A styled segment of text.
@@ -78,7 +116,7 @@ pub struct Style {
 
 impl Style {
     /// Create a new style from a theme's style definition
-    fn from_theme_style(theme_style: &crate::themes::Style) -> Self {
+    pub(crate) fn from_theme_style(theme_style: &crate::themes::Style) -> Self {
         Self {
             fg: theme_style.fg.clone(),
             bg: theme_style.bg.clone(),
@@ -150,8 +188,8 @@ impl Highlighter {
     ///
     /// # Returns
     ///
-    /// A vector of (Style, &str) tuples where:
-    /// - Style contains the styling information (colors, modifiers)
+    /// A vector of (Arc<Style>, &str) tuples where:
+    /// - Arc<Style> contains the styling information (colors, modifiers) in a shared reference
     /// - &str is a slice of the original source text
     ///
     /// # Errors
@@ -172,7 +210,7 @@ impl Highlighter {
     ///     print!("{}", text);  // Print the highlighted code
     /// }
     /// ```
-    pub fn highlight<'a>(&mut self, source: &'a str) -> Result<Vec<(Style, &'a str)>, String> {
+    pub fn highlight<'a>(&mut self, source: &'a str) -> Result<Vec<(Arc<Style>, &'a str)>, String> {
         let mut ts_highlighter = TSHighlighter::new();
         let events = ts_highlighter
             .highlight(
@@ -184,7 +222,7 @@ impl Highlighter {
             .map_err(|e| format!("Failed to generate highlight events: {:?}", e))?;
 
         let mut result = Vec::new();
-        let mut current_style = Style::default();
+        let mut current_style = Arc::new(Style::default());
 
         for event in events {
             let event = event.map_err(|e| format!("Failed to get highlight event: {:?}", e))?;
@@ -194,22 +232,24 @@ impl Highlighter {
                     let scope = HIGHLIGHT_NAMES[idx.0];
 
                     current_style = if let Some(ref theme) = self.theme {
-                        theme
-                            .get_style(scope)
-                            .map(Style::from_theme_style)
-                            .unwrap_or_default()
+                        Arc::new(
+                            theme
+                                .get_style(scope)
+                                .map(Style::from_theme_style)
+                                .unwrap_or_default(),
+                        )
                     } else {
-                        Style::default()
+                        Arc::new(Style::default())
                     };
                 }
                 HighlightEvent::Source { start, end } => {
                     let text = &source[start..end];
                     if !text.is_empty() {
-                        result.push((current_style.clone(), text));
+                        result.push((Arc::clone(&current_style), text));
                     }
                 }
                 HighlightEvent::HighlightEnd => {
-                    current_style = Style::default();
+                    current_style = Arc::new(Style::default());
                 }
             }
         }
@@ -233,7 +273,10 @@ impl Highlighter {
     ///
     /// A vector of (Style, &str) tuples for the styled segments in this line.
     #[allow(dead_code)]
-    pub fn highlight_line<'a>(&mut self, line: &'a str) -> Result<Vec<(Style, &'a str)>, String> {
+    pub fn highlight_line<'a>(
+        &mut self,
+        line: &'a str,
+    ) -> Result<Vec<(Arc<Style>, &'a str)>, String> {
         // For now, just highlight the entire line as a single unit
         // Future: maintain parse state across lines for true incremental highlighting
         self.highlight(line)
@@ -259,7 +302,7 @@ impl Highlighter {
 /// }
 /// ```
 pub struct HighlightIterator<'a> {
-    segments: Vec<(Style, &'a str, Range<usize>)>,
+    segments: Vec<(Arc<Style>, &'a str, Range<usize>)>,
     index: usize,
 }
 
@@ -276,7 +319,7 @@ impl<'a> HighlightIterator<'a> {
             .map_err(|e| format!("Failed to generate highlight events: {:?}", e))?;
 
         let mut segments = Vec::new();
-        let mut current_style = Style::default();
+        let mut current_style = Arc::new(Style::default());
 
         for event in events {
             let event = event.map_err(|e| format!("Failed to get highlight event: {:?}", e))?;
@@ -286,22 +329,24 @@ impl<'a> HighlightIterator<'a> {
                     let scope = HIGHLIGHT_NAMES[idx.0];
 
                     current_style = if let Some(ref theme) = theme {
-                        theme
-                            .get_style(scope)
-                            .map(Style::from_theme_style)
-                            .unwrap_or_default()
+                        Arc::new(
+                            theme
+                                .get_style(scope)
+                                .map(Style::from_theme_style)
+                                .unwrap_or_default(),
+                        )
                     } else {
-                        Style::default()
+                        Arc::new(Style::default())
                     };
                 }
                 HighlightEvent::Source { start, end } => {
                     let text = &source[start..end];
                     if !text.is_empty() {
-                        segments.push((current_style.clone(), text, start..end));
+                        segments.push((Arc::clone(&current_style), text, start..end));
                     }
                 }
                 HighlightEvent::HighlightEnd => {
-                    current_style = Style::default();
+                    current_style = Arc::new(Style::default());
                 }
             }
         }
@@ -311,7 +356,7 @@ impl<'a> HighlightIterator<'a> {
 }
 
 impl<'a> Iterator for HighlightIterator<'a> {
-    type Item = (Style, &'a str, Range<usize>);
+    type Item = (Arc<Style>, &'a str, Range<usize>);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.segments.len() {

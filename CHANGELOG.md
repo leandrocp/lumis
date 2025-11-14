@@ -89,6 +89,7 @@ let html = highlight(options);
 - Update `Language::guess()` calls to use `Option<&str>` for first parameter
 
 ### Changed
+- **BREAKING**: Removed `HtmlFormatter` trait - use helper functions in `html` module instead (`html::open_pre_tag()`, `html::open_code_tag()`, `html::closing_tags()`)
 - **BREAKING**: Removed `FormatterOption` enum - use builder pattern instead (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`)
 - **BREAKING**: Changed `highlight()` signature from `(source: &str, options: Options)` to `(options: Options)` - source now passed via `Options.source` field
 - **BREAKING**: Changed `write_highlight()` signature from `(output: &mut dyn Write, source: &str, options: Options)` to `(output: &mut dyn Write, options: Options)` - source now passed via `Options.source` field
@@ -112,6 +113,10 @@ let html = highlight(options);
   - `Highlighter` - Stateful highlighter for repeated operations
   - `HighlightIterator` - Lazy iterator for streaming access with position information
   - `highlight_iter()` - Convenient function to create iterators
+- Helper functions in `html` module for HTML generation:
+  - `html::open_pre_tag()` - Generate opening `<pre>` tag with optional class and theme styles
+  - `html::open_code_tag()` - Generate opening `<code>` tag with language class
+  - `html::closing_tags()` - Generate closing `</code></pre>` tags
 - Builder pattern for formatters: `HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`
 - Custom formatters can now be implemented via the `Formatter` trait
 - Implemented `FromStr` trait for `Language` enabling `.parse()` method

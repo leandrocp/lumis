@@ -262,12 +262,15 @@
 //! | zenburn |
 //! | zephyr_dark |
 
-#[doc(hidden)]
 pub mod constants;
 pub mod formatter;
 pub mod highlight;
 pub mod languages;
 pub mod themes;
+
+// Re-export helper modules from formatter for convenience
+pub use formatter::ansi;
+pub use formatter::html;
 
 #[cfg(feature = "elixir-nif")]
 #[doc(hidden)]

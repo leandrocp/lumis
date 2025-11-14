@@ -17,7 +17,7 @@
 
 #![allow(unused_must_use)]
 
-use super::{Formatter, HtmlElement, HtmlFormatter};
+use super::{Formatter, HtmlElement};
 use crate::constants::CLASSES;
 use crate::languages::Language;
 use derive_builder::Builder;
@@ -143,7 +143,16 @@ impl Default for HtmlLinked<'_> {
 }
 
 impl Formatter for HtmlLinked<'_> {
-    fn highlights(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
+    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
+        let mut buffer = Vec::new();
+
+        if let Some(ref header) = self.header {
+            write!(buffer, "{}", header.open_tag)?;
+        }
+
+        crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class, None)?;
+        crate::formatter::html::open_code_tag(&mut buffer, &self.lang)?;
+
         let mut highlighter = Highlighter::new();
         let events = highlighter
             .highlight(self.lang.config(), source.as_bytes(), None, |injected| {
@@ -179,28 +188,16 @@ impl Formatter for HtmlLinked<'_> {
                 String::new()
             };
 
+            let line_with_braces = line.replace('{', "&lbrace;").replace('}', "&rbrace;");
+
             write!(
-                output,
+                &mut buffer,
                 "<div class=\"line{}\" data-line=\"{}\">{}</div>",
-                highlighted_class,
-                line_number,
-                line.replace('{', "&lbrace;").replace('}', "&rbrace;")
+                highlighted_class, line_number, line_with_braces
             );
         }
-        Ok(())
-    }
 
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        let mut buffer = Vec::new();
-
-        if let Some(ref header) = self.header {
-            write!(buffer, "{}", header.open_tag)?;
-        }
-
-        self.open_pre_tag(&mut buffer)?;
-        self.open_code_tag(&mut buffer)?;
-        self.highlights(source, &mut buffer)?;
-        self.closing_tags(&mut buffer)?;
+        crate::formatter::html::closing_tags(&mut buffer)?;
 
         if let Some(ref header) = self.header {
             write!(buffer, "{}", header.close_tag)?;
@@ -211,29 +208,7 @@ impl Formatter for HtmlLinked<'_> {
     }
 }
 
-impl HtmlFormatter for HtmlLinked<'_> {
-    fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()> {
-        let class = if let Some(pre_class) = self.pre_class {
-            format!("athl {pre_class}")
-        } else {
-            "athl".to_string()
-        };
 
-        write!(output, "<pre class=\"{class}\">")
-    }
-
-    fn open_code_tag(&self, output: &mut dyn Write) -> io::Result<()> {
-        write!(
-            output,
-            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
-            self.lang.id_name()
-        )
-    }
-
-    fn closing_tags(&self, output: &mut dyn Write) -> io::Result<()> {
-        output.write_all(b"</code></pre>")
-    }
-}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -258,7 +233,7 @@ mod tests {
     fn test_include_pre_class() {
         let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"), None, None);
         let mut buffer = Vec::new();
-        formatter.open_pre_tag(&mut buffer);
+        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class, None).unwrap();
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="athl test-pre-class">"#;
         assert_str_eq!(result, expected);
@@ -268,7 +243,7 @@ mod tests {
     fn test_code_tag_with_language() {
         let formatter = HtmlLinked::new(Language::Rust, None, None, None);
         let mut buffer = Vec::new();
-        formatter.open_code_tag(&mut buffer);
+        crate::formatter::html::open_code_tag(&mut buffer, &formatter.lang).unwrap();
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<code class="language-rust" translate="no" tabindex="0">"#;
         assert_str_eq!(result, expected);
@@ -283,13 +258,13 @@ mod tests {
             .unwrap();
 
         let mut buffer = Vec::new();
-        formatter.open_pre_tag(&mut buffer);
+        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class, None).unwrap();
         let pre_result = String::from_utf8(buffer).unwrap();
         let pre_expected = r#"<pre class="athl test-pre-class">"#;
         assert_str_eq!(pre_result, pre_expected);
 
         let mut buffer = Vec::new();
-        formatter.open_code_tag(&mut buffer);
+        crate::formatter::html::open_code_tag(&mut buffer, &formatter.lang).unwrap();
         let code_result = String::from_utf8(buffer).unwrap();
         let code_expected = r#"<code class="language-rust" translate="no" tabindex="0">"#;
         assert_str_eq!(code_result, code_expected);
