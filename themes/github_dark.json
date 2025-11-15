@@ -25,22 +25,22 @@
       "fg": "#8b949e"
     },
     "comment.error": {
-      "fg": "#30363d",
+      "fg": "#0d1117",
       "bg": "#f85149"
     },
     "comment.hint": {
-      "fg": "#30363d",
+      "fg": "#0d1117",
       "bg": "#7d8590"
     },
     "comment.note": {
       "fg": "#2f81f7"
     },
     "comment.todo": {
-      "fg": "#30363d",
+      "fg": "#0d1117",
       "bg": "#7d8590"
     },
     "comment.warning": {
-      "fg": "#30363d",
+      "fg": "#0d1117",
       "bg": "#d29922"
     },
     "constant": {
@@ -66,15 +66,15 @@
     },
     "diff.delta": {
       "fg": "#d29922",
-      "bg": "#413e34"
+      "bg": "#231e14"
     },
     "diff.minus": {
       "fg": "#f85149",
-      "bg": "#4a363c"
+      "bg": "#2c171b"
     },
     "diff.plus": {
       "fg": "#3fb950",
-      "bg": "#2e423c"
+      "bg": "#10231c"
     },
     "function": {
       "fg": "#d2a8ff"
@@ -263,7 +263,7 @@
     },
     "normal": {
       "fg": "#e6edf3",
-      "bg": "#30363d"
+      "bg": "#0d1117"
     },
     "number": {
       "fg": "#79c0ff"

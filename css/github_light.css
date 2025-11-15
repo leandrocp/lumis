@@ -89,7 +89,7 @@ pre.athl {
   color: #6639ba;
 }
 .function-macro {
-  color: #cf222e;
+  color: #6639ba;
 }
 .function-method {
   color: #6639ba;
@@ -119,7 +119,7 @@ pre.athl {
   color: #cf222e;
 }
 .keyword-debug {
-  color: #1f2328;
+  color: #cf222e;
 }
 .keyword-directive {
   color: #cf222e;
@@ -161,7 +161,7 @@ pre.athl {
   color: #cf222e;
 }
 .keyword-type {
-  color: #953800;
+  color: #cf222e;
 }
 .label {
   color: #116329;
@@ -221,6 +221,7 @@ pre.athl {
   color: #1f2328;
 }
 .markup-link-url {
+  color: #1f2328;
   text-decoration: underline;
 }
 .markup-list {

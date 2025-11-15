@@ -4,7 +4,7 @@
 
 pre.athl {
   color: #e6edf3;
-  background-color: #30363d;
+  background-color: #0d1117;
 }
 .attribute {
   color: #79c0ff;
@@ -28,22 +28,22 @@ pre.athl {
   color: #8b949e;
 }
 .comment-error {
-  color: #30363d;
+  color: #0d1117;
   background-color: #f85149;
 }
 .comment-hint {
-  color: #30363d;
+  color: #0d1117;
   background-color: #7d8590;
 }
 .comment-note {
   color: #2f81f7;
 }
 .comment-todo {
-  color: #30363d;
+  color: #0d1117;
   background-color: #7d8590;
 }
 .comment-warning {
-  color: #30363d;
+  color: #0d1117;
   background-color: #d29922;
 }
 .constant {
@@ -69,15 +69,15 @@ pre.athl {
 }
 .diff-delta {
   color: #d29922;
-  background-color: #413e34;
+  background-color: #231e14;
 }
 .diff-minus {
   color: #f85149;
-  background-color: #4a363c;
+  background-color: #2c171b;
 }
 .diff-plus {
   color: #3fb950;
-  background-color: #2e423c;
+  background-color: #10231c;
 }
 .function {
   color: #d2a8ff;
@@ -266,7 +266,7 @@ pre.athl {
 }
 .normal {
   color: #e6edf3;
-  background-color: #30363d;
+  background-color: #0d1117;
 }
 .number {
   color: #79c0ff;

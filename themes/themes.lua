@@ -149,14 +149,6 @@ return {
 		name = "github_dark",
 		config = function()
 			vim.o.background = "dark"
-			vim.cmd([[colorscheme github_dark]])
-		end,
-	},
-	{
-		url = "https://github.com/projekt0n/github-nvim-theme",
-		name = "github_dark_default",
-		config = function()
-			vim.o.background = "dark"
 			vim.cmd([[colorscheme github_dark_default]])
 		end,
 	},
@@ -195,14 +187,6 @@ return {
 	{
 		url = "https://github.com/projekt0n/github-nvim-theme",
 		name = "github_light",
-		config = function()
-			vim.o.background = "light"
-			vim.cmd([[colorscheme github_light]])
-		end,
-	},
-	{
-		url = "https://github.com/projekt0n/github-nvim-theme",
-		name = "github_light_default",
 		config = function()
 			vim.o.background = "light"
 			vim.cmd([[colorscheme github_light_default]])

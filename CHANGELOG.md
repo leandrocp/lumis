@@ -57,6 +57,7 @@ let html = highlight(options);
 - **BREAKING**: `Formatter::format()` now takes `source: &str` parameter - custom formatters must update trait implementation
 - **BREAKING**: `Language::guess()` signature changed to `guess(Option<&str>, &str)` - `None` for auto-detection, empty string defaults to `PlainText`
 - **BREAKING**: `themes::get()` returns owned `Theme` instead of `&'static Theme` - removed lifetime parameters from formatters
+- **BREAKING**: Removed `github_light_default` and `github_dark_default` theme variants (replaced by `github_light` and `github_dark` using default colorschemes)
 
 ### Added
 - `OptionsBuilder` for fluent options construction and `Default` implementation for `Options`

@@ -86,7 +86,7 @@
       "fg": "#6639ba"
     },
     "function.macro": {
-      "fg": "#cf222e"
+      "fg": "#6639ba"
     },
     "function.method": {
       "fg": "#6639ba"
@@ -116,7 +116,7 @@
       "fg": "#cf222e"
     },
     "keyword.debug": {
-      "fg": "#1f2328"
+      "fg": "#cf222e"
     },
     "keyword.directive": {
       "fg": "#cf222e"
@@ -158,7 +158,7 @@
       "fg": "#cf222e"
     },
     "keyword.type": {
-      "fg": "#953800"
+      "fg": "#cf222e"
     },
     "label": {
       "fg": "#116329"
@@ -218,6 +218,7 @@
       "fg": "#1f2328"
     },
     "markup.link.url": {
+      "fg": "#1f2328",
       "underline": true
     },
     "markup.list": {
