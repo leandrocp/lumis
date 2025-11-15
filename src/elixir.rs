@@ -72,7 +72,9 @@ fn convert_line_specs(lines: Vec<ExLineSpec>) -> Vec<std::ops::RangeInclusive<us
 
 /// Converts ExHtmlInlineHighlightLinesStyle to html_inline::HighlightLinesStyle.
 #[inline]
-fn convert_inline_style(style: ExHtmlInlineHighlightLinesStyle) -> html_inline::HighlightLinesStyle {
+fn convert_inline_style(
+    style: ExHtmlInlineHighlightLinesStyle,
+) -> html_inline::HighlightLinesStyle {
     match style {
         ExHtmlInlineHighlightLinesStyle::Theme => html_inline::HighlightLinesStyle::Theme,
         ExHtmlInlineHighlightLinesStyle::Style { style } => {
@@ -84,10 +86,10 @@ fn convert_inline_style(style: ExHtmlInlineHighlightLinesStyle) -> html_inline::
 impl<'a> ExFormatterOption<'a> {
     /// Convert ExFormatterOption to a boxed Formatter trait object.
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// Panics if the formatter builder fails, which should not happen with valid input data.
-    pub fn into_formatter(self, language: Language) -> Box<dyn Formatter + 'a> {
+    /// Returns an error if the formatter builder fails (should not happen with valid input data).
+    pub fn into_formatter(self, language: Language) -> Result<Box<dyn Formatter + 'a>, String> {
         match self {
             ExFormatterOption::HtmlInline {
                 theme,
@@ -119,9 +121,9 @@ impl<'a> ExFormatterOption<'a> {
                     .highlight_lines(highlight_lines)
                     .header(header)
                     .build()
-                    .expect("Failed to build HtmlInline formatter");
+                    .map_err(|e| format!("HtmlInline builder error: {:?}", e))?;
 
-                Box::new(formatter)
+                Ok(Box::new(formatter))
             }
             ExFormatterOption::HtmlLinked {
                 pre_class,
@@ -144,9 +146,9 @@ impl<'a> ExFormatterOption<'a> {
                     .highlight_lines(highlight_lines)
                     .header(header)
                     .build()
-                    .expect("Failed to build HtmlLinked formatter");
+                    .map_err(|e| format!("HtmlLinked builder error: {:?}", e))?;
 
-                Box::new(formatter)
+                Ok(Box::new(formatter))
             }
             ExFormatterOption::Terminal { theme } => {
                 let theme = theme.and_then(|t| resolve_theme(t));
@@ -155,9 +157,9 @@ impl<'a> ExFormatterOption<'a> {
                     .lang(language)
                     .theme(theme)
                     .build()
-                    .expect("Failed to build Terminal formatter");
+                    .map_err(|e| format!("Terminal builder error: {:?}", e))?;
 
-                Box::new(formatter)
+                Ok(Box::new(formatter))
             }
         }
     }
@@ -203,7 +205,8 @@ impl<'a> From<&'a themes::Theme> for ExTheme {
     fn from(theme: &'a themes::Theme) -> Self {
         // Color deduplication: intern color strings to reduce allocations
         // Many styles share the same colors (e.g., "#ff0000" appears in multiple scopes)
-        let mut color_cache: HashMap<&str, String> = HashMap::new();
+        // Pre-allocate for typical themes (10-25 unique colors)
+        let mut color_cache: HashMap<&str, String> = HashMap::with_capacity(32);
 
         let highlights = theme
             .highlights
@@ -556,7 +559,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("rust"), code);
-        let formatter = ex_formatter.into_formatter(lang);
+        let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
             source: code,
             language: Some("rust"),
@@ -594,7 +597,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("text"), code);
-        let formatter = ex_formatter.into_formatter(lang);
+        let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
             source: code,
             language: Some("text"),
@@ -629,7 +632,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("javascript"), code);
-        let formatter = ex_formatter.into_formatter(lang);
+        let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
             source: code,
             language: Some("javascript"),
@@ -663,7 +666,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("elixir"), code);
-        let formatter = ex_formatter.into_formatter(lang);
+        let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
             source: code,
             language: Some("elixir"),
@@ -687,7 +690,7 @@ mod tests {
         };
 
         let lang = Language::guess(Some("ruby"), code);
-        let formatter = ex_formatter.into_formatter(lang);
+        let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
             source: code,
             language: Some("ruby"),

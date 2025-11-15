@@ -30,11 +30,11 @@
 
 use crate::constants::HIGHLIGHT_NAMES;
 use crate::highlight::Style;
-use std::sync::Arc;
 use crate::languages::Language;
 use crate::themes::Theme;
 use std::io::{self, Write};
 use std::ops::Range;
+use std::sync::Arc;
 use tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
 
 /// Iterator over highlighted tokens with scope names.

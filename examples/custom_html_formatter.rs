@@ -4,9 +4,7 @@
 //! the public APIs from the `html` module, without needing to interact with
 //! tree-sitter internals directly.
 
-use autumnus::{
-    formatter::Formatter, html, languages::Language, themes, write_highlight, Options,
-};
+use autumnus::{formatter::Formatter, html, languages::Language, themes, write_highlight, Options};
 use std::io::{self, Write};
 
 /// A custom HTML formatter built using only public helper functions

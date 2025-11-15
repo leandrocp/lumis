@@ -178,7 +178,11 @@ impl<'a> HtmlInline<'a> {
         write!(output, "<div class=\"line")?;
 
         if is_highlighted {
-            if let Some(class) = self.highlight_lines.as_ref().and_then(|hl| hl.class.as_ref()) {
+            if let Some(class) = self
+                .highlight_lines
+                .as_ref()
+                .and_then(|hl| hl.class.as_ref())
+            {
                 write!(output, " {}", class)?;
             }
         }
@@ -239,7 +243,7 @@ impl Formatter for HtmlInline<'_> {
             .highlight(self.lang.config(), source.as_bytes(), None, |injected| {
                 Some(Language::guess(Some(injected), "").config())
             })
-            .expect("failed to generate highlight events");
+            .map_err(io::Error::other)?;
 
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
@@ -265,7 +269,7 @@ impl Formatter for HtmlInline<'_> {
                     }
                 }
             })
-            .expect("failed to render highlight events");
+            .map_err(io::Error::other)?;
 
         for (i, line) in renderer.lines().enumerate() {
             let line_number = i + 1;
@@ -279,7 +283,7 @@ impl Formatter for HtmlInline<'_> {
             write!(buffer, "{}", header.close_tag)?;
         }
 
-        write!(output, "{}", &String::from_utf8(buffer).unwrap())?;
+        write!(output, "{}", &String::from_utf8_lossy(&buffer))?;
         Ok(())
     }
 }
@@ -309,7 +313,12 @@ mod tests {
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
         let mut buffer = Vec::new();
-        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class, formatter.theme.as_ref()).unwrap();
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            formatter.pre_class,
+            formatter.theme.as_ref(),
+        )
+        .unwrap();
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
@@ -326,7 +335,12 @@ mod tests {
             None,
         );
         let mut buffer = Vec::new();
-        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class, formatter.theme.as_ref()).unwrap();
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            formatter.pre_class,
+            formatter.theme.as_ref(),
+        )
+        .unwrap();
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
@@ -344,7 +358,12 @@ mod tests {
             None,
         );
         let mut buffer = Vec::new();
-        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class, formatter.theme.as_ref()).unwrap();
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            formatter.pre_class,
+            formatter.theme.as_ref(),
+        )
+        .unwrap();
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }
@@ -362,7 +381,12 @@ mod tests {
             .unwrap();
 
         let mut buffer = Vec::new();
-        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class, formatter.theme.as_ref()).unwrap();
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            formatter.pre_class,
+            formatter.theme.as_ref(),
+        )
+        .unwrap();
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }

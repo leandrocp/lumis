@@ -15,9 +15,7 @@
 //!   2 │ console.log(greeting);
 //! ```
 
-use autumnus::{
-    ansi, formatter::Formatter, languages::Language, themes, write_highlight, Options,
-};
+use autumnus::{ansi, formatter::Formatter, languages::Language, themes, write_highlight, Options};
 use std::io::{self, Write};
 
 /// A custom terminal formatter that adds line numbers
@@ -34,9 +32,8 @@ impl LineNumberedTerminal {
 
 impl Formatter for LineNumberedTerminal {
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        let iter =
-            ansi::highlight_iter_with_ansi(source, self.language, self.theme.clone())
-                .map_err(io::Error::other)?;
+        let iter = ansi::highlight_iter_with_ansi(source, self.language, self.theme.clone())
+            .map_err(io::Error::other)?;
 
         let mut line_num = 1;
         let mut at_line_start = true;

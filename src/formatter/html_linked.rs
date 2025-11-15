@@ -158,7 +158,7 @@ impl Formatter for HtmlLinked<'_> {
             .highlight(self.lang.config(), source.as_bytes(), None, |injected| {
                 Some(Language::guess(Some(injected), "").config())
             })
-            .expect("failed to generate highlight events");
+            .map_err(io::Error::other)?;
 
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
@@ -170,7 +170,7 @@ impl Formatter for HtmlLinked<'_> {
                 output.extend(class.as_bytes());
                 output.extend(b"\"");
             })
-            .expect("failed to render highlight events");
+            .map_err(io::Error::other)?;
 
         for (i, line) in renderer.lines().enumerate() {
             let line_number = i + 1;
@@ -203,11 +203,10 @@ impl Formatter for HtmlLinked<'_> {
             write!(buffer, "{}", header.close_tag)?;
         }
 
-        write!(output, "{}", &String::from_utf8(buffer).unwrap())?;
+        write!(output, "{}", &String::from_utf8_lossy(&buffer))?;
         Ok(())
     }
 }
-
 
 #[cfg(test)]
 mod tests {

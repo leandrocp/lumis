@@ -73,8 +73,8 @@ mod tests {
         let code = "@lang :rust";
         let formatter = Terminal::new(Language::Elixir, None);
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer);
-        let result = String::from_utf8(buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
+        let result = String::from_utf8_lossy(&buffer);
 
         assert!(result.contains("@"));
         assert!(result.contains("lang"));
