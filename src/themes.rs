@@ -21,11 +21,11 @@
 //! let theme = themes::get("dracula").expect("Theme not found");
 //! println!("Theme: {} ({})", theme.name, theme.appearance);
 //!
-//! // Parse a theme from a string (idiomatic Rust)
+//! // Parse from string
 //! let theme: Theme = "catppuccin_mocha".parse().expect("Theme not found");
 //! println!("Theme: {}", theme.name);
 //!
-//! // Or use FromStr explicitly
+//! // Using FromStr
 //! let theme = Theme::from_str("github_light").expect("Theme not found");
 //!
 //! // List all available themes
@@ -67,10 +67,23 @@
 //! - **Color definitions**: Foreground/background colors, font styles
 //! - **Scope mappings**: Which colors apply to which syntax elements
 //!
-//! # External Theme Files
+//! # Custom Themes
 //!
-//! You can also load themes from JSON files using [`from_file`] or [`from_json`]
-//! for custom colorschemes or theme development.
+//! Create custom themes by loading from JSON files or building programmatically:
+//!
+//! ```rust,no_run
+//! use autumnus::themes;
+//!
+//! // Load from a JSON file
+//! let theme = themes::from_file("my_theme.json").unwrap();
+//!
+//! // Or parse from a JSON string
+//! let json = r#"{"name": "my_theme", "appearance": "dark", ...}"#;
+//! let theme = themes::from_json(json).unwrap();
+//! ```
+//!
+//! See [custom_theme.rs](https://github.com/leandrocp/autumnus/blob/main/examples/custom_theme.rs)
+//! for a complete example of building themes programmatically.
 
 #![allow(unused_must_use)]
 

@@ -82,7 +82,7 @@ enum Commands {
 
     /// Generate a theme JSON from a Git repository containing a Neovim theme
     GenTheme {
-        /// Git repository URL (e.g., https://github.com/catppuccin/nvim)
+        /// Git repository URL (e.g., <https://github.com/catppuccin/nvim>)
         #[arg(short = 'u', long)]
         url: String,
 

@@ -306,7 +306,19 @@ pub enum Language {
     Zig,
 }
 
-/// Error type returned when parsing a language from a string fails.
+/// Error returned when a language cannot be determined from input.
+///
+/// This error occurs when using [`std::str::FromStr`] or the `.parse()` method
+/// with an unrecognized language name, file extension, or file path.
+///
+/// # Example
+///
+/// ```rust
+/// use autumnus::languages::Language;
+///
+/// let result: Result<Language, _> = "unknown_lang".parse();
+/// assert!(result.is_err());
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LanguageParseError(String);
 

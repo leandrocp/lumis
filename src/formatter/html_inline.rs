@@ -124,6 +124,37 @@ impl Default for HighlightLines {
     }
 }
 
+/// HTML formatter with inline CSS styles.
+///
+/// Generates self-contained HTML with styles embedded directly in elements.
+/// Use this when you need standalone HTML without external stylesheets.
+/// Use [`HtmlInlineBuilder`] to create instances.
+///
+/// # When to use
+///
+/// - Need standalone HTML with no external dependencies
+/// - Embedding code snippets in emails or restricted environments
+/// - Quick prototyping without CSS setup
+///
+/// # Example
+///
+/// ```rust
+/// use autumnus::{HtmlInlineBuilder, languages::Language, themes, formatter::Formatter};
+/// use std::io::Write;
+///
+/// let code = "const x = 42;";
+/// let theme = themes::get("github_dark").unwrap();
+///
+/// let formatter = HtmlInlineBuilder::new()
+///     .lang(Language::JavaScript)
+///     .theme(Some(theme))
+///     .pre_class(Some("code-block"))
+///     .build()
+///     .unwrap();
+///
+/// let mut output = Vec::new();
+/// formatter.format(code, &mut output).unwrap();
+/// ```
 #[derive(Builder, Debug)]
 #[builder(default)]
 pub struct HtmlInline<'a> {

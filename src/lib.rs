@@ -2,28 +2,84 @@
 //!
 //! ## Quick Start
 //!
-//! Use the builder pattern for type-safe, ergonomic formatter creation:
+//! Highlight code in three steps: pick a formatter, configure it, format your code.
 //!
 //! ```rust
-//! use autumnus::{HtmlInlineBuilder, languages::Language, themes::Theme, formatter::Formatter};
-//! use std::io::Write;
+//! use autumnus::{HtmlInlineBuilder, languages::Language, themes, formatter::Formatter};
 //!
 //! let code = "fn main() { println!(\"Hello, world!\"); }";
-//!
-//! // Parse theme from string
-//! let theme: Theme = "dracula".parse().unwrap();
-//! // Or: let theme = themes::get("dracula").unwrap();
+//! let theme = themes::get("dracula").unwrap();
 //!
 //! let formatter = HtmlInlineBuilder::new()
 //!     .lang(Language::Rust)
 //!     .theme(Some(theme))
-//!     .pre_class(Some("code-block"))
 //!     .build()
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
 //! formatter.format(code, &mut output).unwrap();
 //! let html = String::from_utf8(output).unwrap();
+//! ```
+//!
+//! ### Choose Your Output Format
+//!
+//! ```rust
+//! use autumnus::{HtmlLinkedBuilder, TerminalBuilder, languages::Language, themes};
+//!
+//! let code = "console.log('Hello');";
+//! let theme = themes::get("github_dark").unwrap();
+//!
+//! // HTML with CSS classes - smaller output, needs external stylesheet
+//! let html_formatter = HtmlLinkedBuilder::new()
+//!     .lang(Language::JavaScript)
+//!     .build()
+//!     .unwrap();
+//!
+//! // Terminal with ANSI colors - perfect for CLI tools
+//! let term_formatter = TerminalBuilder::new()
+//!     .lang(Language::JavaScript)
+//!     .theme(Some(theme))
+//!     .build()
+//!     .unwrap();
+//! ```
+//!
+//! ### Alternative: Using `highlight()` and `write_highlight()`
+//!
+//! ```rust
+//! use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, themes};
+//!
+//! let code = "print('Hello')";
+//! let theme = themes::get("dracula").unwrap();
+//!
+//! let formatter = HtmlInlineBuilder::new()
+//!     .lang(Language::Python)
+//!     .theme(Some(theme))
+//!     .build()
+//!     .unwrap();
+//!
+//! // Returns highlighted code as String
+//! let html = highlight(Options {
+//!     source: code,
+//!     language: Some("python"),
+//!     formatter: Box::new(formatter),
+//! });
+//! ```
+//!
+//! For large outputs, use `write_highlight()` to stream directly to a writer:
+//!
+//! ```rust,no_run
+//! use autumnus::{write_highlight, Options, TerminalBuilder, languages::Language};
+//! use std::fs::File;
+//!
+//! # let code = "x = 1";
+//! # let formatter = TerminalBuilder::new().lang(Language::Python).build().unwrap();
+//! let mut file = File::create("output.txt").unwrap();
+//!
+//! write_highlight(&mut file, Options {
+//!     source: code,
+//!     language: Some("python"),
+//!     formatter: Box::new(formatter),
+//! }).unwrap();
 //! ```
 //!
 //! ## Language Feature Flags
@@ -48,15 +104,32 @@
 //! autumnus = { version = "0.3", features = ["all-languages"] }
 //! ```
 //!
-//! ## Available Builders
+//! ## Formatters
 //!
-//! - [`HtmlInlineBuilder`] - HTML output with inline CSS styles
-//! - [`HtmlLinkedBuilder`] - HTML output with CSS classes (requires external CSS)
-//! - [`TerminalBuilder`] - ANSI color codes for terminal output
+//! | Formatter | Output | Use When |
+//! |-----------|--------|----------|
+//! | [`HtmlInlineBuilder`] | HTML with inline styles | Need standalone HTML, email, no external CSS |
+//! | [`HtmlLinkedBuilder`] | HTML with CSS classes | Multiple code blocks, custom styling |
+//! | [`TerminalBuilder`] | ANSI escape codes | CLI tools, terminal output |
 //!
-//! ## More Examples
+//! See the [`formatter`] module for advanced features like line highlighting and custom formatters.
 //!
-//! See the [`formatter`] module for detailed examples and usage patterns.
+//! ## Themes
+//!
+//! 120+ themes from popular Neovim colorschemes. Use with HTML inline and terminal formatters.
+//!
+//! ```rust
+//! use autumnus::themes;
+//!
+//! // Get a theme by name
+//! let theme = themes::get("dracula").unwrap();
+//!
+//! // Or parse from string
+//! let theme: themes::Theme = "catppuccin_mocha".parse().unwrap();
+//! ```
+//!
+//! See the [`themes`] module for loading custom themes from JSON files.
+//! Available themes are listed below.
 //!
 //! ## Languages available
 //!
@@ -286,7 +359,7 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///
 /// This struct provides all the configuration needed to highlight source code,
 /// including language detection and output formatting options. It's used with
-/// the [`highlight`] and [`write_highlight`] functions.
+/// the [`highlight()`] and [`write_highlight()`] functions.
 ///
 /// # Language Detection
 ///
@@ -704,7 +777,7 @@ pub fn highlight(options: Options) -> String {
 
 /// Write syntax highlighted output directly to a writer.
 ///
-/// This function performs the same syntax highlighting as [`highlight`] but writes
+/// This function performs the same syntax highlighting as [`highlight()`] but writes
 /// the output directly to any type that implements [`Write`] instead of returning
 /// a string. This is more memory efficient for large outputs and allows streaming
 /// to files, network connections, or other destinations.

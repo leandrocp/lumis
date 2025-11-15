@@ -100,6 +100,36 @@ impl Default for HighlightLines {
     }
 }
 
+/// HTML formatter with CSS classes.
+///
+/// Generates HTML with CSS classes instead of inline styles. Requires external CSS files.
+/// Use this for better performance and smaller HTML when serving multiple code blocks.
+/// Use [`HtmlLinkedBuilder`] to create instances.
+///
+/// # When to use
+///
+/// - Multiple code blocks sharing the same theme (smaller HTML output)
+/// - Need to customize or override styles with CSS
+/// - Prefer separation of content and styling
+///
+/// # Example
+///
+/// ```rust
+/// use autumnus::{HtmlLinkedBuilder, languages::Language, formatter::Formatter};
+/// use std::io::Write;
+///
+/// let code = "print('Hello')";
+///
+/// let formatter = HtmlLinkedBuilder::new()
+///     .lang(Language::Python)
+///     .pre_class(Some("my-code"))
+///     .build()
+///     .unwrap();
+///
+/// let mut output = Vec::new();
+/// formatter.format(code, &mut output).unwrap();
+/// // Remember to include the corresponding CSS file for your theme
+/// ```
 #[derive(Builder, Debug)]
 #[builder(default)]
 pub struct HtmlLinked<'a> {

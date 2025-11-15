@@ -1,3 +1,20 @@
+//! Syntax highlighting scope names and CSS class mappings.
+//!
+//! This module defines the mapping between Tree-sitter highlight scopes and CSS class names
+//! used by formatters. These constants are used internally for syntax highlighting.
+//!
+//! # Constants
+//!
+//! - [`HIGHLIGHT_NAMES`] - Tree-sitter highlight scope names (e.g., "function.builtin", "string.escape")
+//! - [`CLASSES`] - CSS class names corresponding to each scope (e.g., "function-builtin", "string-escape")
+//!
+//! The arrays maintain a 1:1 mapping by index. For example, `HIGHLIGHT_NAMES[0]` corresponds to `CLASSES[0]`.
+
+/// Tree-sitter highlight scope names.
+///
+/// These are the canonical scope names used by Tree-sitter queries to identify
+/// different syntax elements. Used internally by the highlighting system to map
+/// tree-sitter events to theme styles.
 pub const HIGHLIGHT_NAMES: [&str; 131] = [
     "attribute",
     "attribute.builtin",
@@ -132,6 +149,13 @@ pub const HIGHLIGHT_NAMES: [&str; 131] = [
     "variable.parameter.builtin",
 ];
 
+/// CSS class names for syntax highlighting.
+///
+/// These are hyphenated CSS class names derived from Tree-sitter scope names.
+/// Used by the [`HtmlLinked`](crate::formatter::HtmlLinked) formatter to generate
+/// HTML with CSS classes instead of inline styles.
+///
+/// Each class name corresponds to a scope name in [`HIGHLIGHT_NAMES`] at the same index.
 pub const CLASSES: [&str; 131] = [
     "attribute",
     "attribute-builtin",

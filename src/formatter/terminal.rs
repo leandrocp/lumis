@@ -22,6 +22,29 @@ use crate::{languages::Language, themes::Theme};
 use derive_builder::Builder;
 use std::io::{self, Write};
 
+/// Terminal formatter for syntax highlighting with ANSI color codes.
+///
+/// Generates terminal output with ANSI escape sequences. Use [`TerminalBuilder`] to create instances.
+///
+/// # Example
+///
+/// ```rust
+/// use autumnus::{TerminalBuilder, languages::Language, themes, formatter::Formatter};
+/// use std::io::Write;
+///
+/// let code = "fn main() { println!(\"Hello\"); }";
+/// let theme = themes::get("dracula").unwrap();
+///
+/// let formatter = TerminalBuilder::new()
+///     .lang(Language::Rust)
+///     .theme(Some(theme))
+///     .build()
+///     .unwrap();
+///
+/// let mut output = Vec::new();
+/// formatter.format(code, &mut output).unwrap();
+/// println!("{}", String::from_utf8(output).unwrap());
+/// ```
 #[derive(Builder, Debug)]
 #[builder(default)]
 pub struct Terminal {

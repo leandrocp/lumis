@@ -34,23 +34,14 @@
 //! - [`Formatter`](crate::formatter::Formatter) trait documentation
 //! - [`formatter::html`](crate::formatter::html) module for HTML-specific helpers
 //! - [`formatter::ansi`](crate::formatter::ansi) module for terminal/ANSI-specific helpers
-//! - [`examples/custom_formatter.rs`](https://github.com/leandrocp/autumnus/blob/main/examples/custom_formatter.rs)
-//! - [`examples/custom_html_formatter.rs`](https://github.com/leandrocp/autumnus/blob/main/examples/custom_html_formatter.rs)
-//! - [`examples/custom_terminal_formatter.rs`](https://github.com/leandrocp/autumnus/blob/main/examples/custom_terminal_formatter.rs)
 //!
 //! # Architecture
 //!
 //! The highlighting system has two levels of abstraction:
 //!
-//! 1. **High-level API** - [`Highlighter`] provides stateful highlighting:
-//!    - `highlight()` - One-shot highlighting of entire source code
-//!    - `highlight_line()` - Line-by-line incremental highlighting (future)
+//! 1. **High-level API** - [`Highlighter`] provides stateful highlighting.
 //!
-//! 2. **Iterator API** - [`HighlightIterator`] provides streaming access:
-//!    - Lazy iteration over styled segments
-//!    - Includes byte position information
-//!    - Zero intermediate allocations
-//!    - Created via [`highlight_iter()`] convenience function
+//! 2. **Iterator API** - [`HighlightIterator`] provides streaming access.
 //!
 //! # Examples
 //!
@@ -188,9 +179,9 @@ impl Highlighter {
     ///
     /// # Returns
     ///
-    /// A vector of (Arc<Style>, &str) tuples where:
-    /// - Arc<Style> contains the styling information (colors, modifiers) in a shared reference
-    /// - &str is a slice of the original source text
+    /// A vector of (`Arc<Style>`, `&str`) tuples where:
+    /// - `Arc<Style>` contains the styling information (colors, modifiers) in a shared reference
+    /// - `&str` is a slice of the original source text
     ///
     /// # Errors
     ///
@@ -381,7 +372,7 @@ impl<'a> Iterator for HighlightIterator<'a> {
 ///
 /// # Returns
 ///
-/// A `HighlightIterator` that yields (Style, &str, Range<usize>) tuples.
+/// A `HighlightIterator` that yields (`Style`, `&str`, `Range<usize>`) tuples.
 ///
 /// # Examples
 ///
