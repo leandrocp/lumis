@@ -2,11 +2,9 @@
 
 ## Unreleased
 
-**Important:** This release introduces several breaking changes. Please refer to the migration guide below for details on updating your code.
+**Important:** This release introduces several breaking changes. Please refer to the migration guide below.
 
 ### Migration Guide
-
-#### Formatter API Changes
 
 **Before:**
 ```rust
@@ -18,16 +16,13 @@ let options = Options {
     formatter: FormatterOption::HtmlInline {
         theme: themes::get("dracula").ok(),
         pre_class: Some("code-block"),
-        italic: false,
-        include_highlights: false,
-        highlight_lines: None,
-        header: None,
+        // ... other options
     },
 };
 let html = highlight(code, options);
 ```
 
-**After (direct initialization):**
+**After:**
 ```rust
 use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, themes};
 
@@ -37,8 +32,7 @@ let formatter = HtmlInlineBuilder::new()
     .lang(lang)
     .theme(themes::get("dracula").ok())
     .pre_class(Some("code-block"))
-    .build()
-    .unwrap();
+    .build()?;
 
 let options = Options {
     source: code,
@@ -48,83 +42,30 @@ let options = Options {
 let html = highlight(options);
 ```
 
-**After (builder pattern):**
-```rust
-use autumnus::{highlight, OptionsBuilder, HtmlInlineBuilder, languages::Language, themes};
-
-let code = "fn main() {}";
-let lang = Language::guess(Some("rust"), code);
-let formatter = HtmlInlineBuilder::new()
-    .lang(lang)
-    .theme(themes::get("dracula").ok())
-    .pre_class(Some("code-block"))
-    .build()
-    .unwrap();
-
-let options = OptionsBuilder::new()
-    .source(code)
-    .language("rust")
-    .formatter(Box::new(formatter))
-    .build()
-    .unwrap();
-
-let html = highlight(options);
-```
-
 **Key Changes:**
-1. Formatters are now configuration-only - no `.source()` method on builders
-2. Source code is passed via `Options.source` field instead
-3. `Options` can be created using direct initialization, `Options::new()`, or `OptionsBuilder`
-4. This allows formatters to be reusable across multiple source strings
-
-#### Function Signature Changes
-
-- `highlight(source, options)` → `highlight(options)` where `options.source` contains the code
-- `write_highlight(output, source, options)` → `write_highlight(output, options)` where `options.source` contains the code
-- `Formatter::format(&self, output)` → `Formatter::format(&self, source, output)` for custom formatters
-
-#### Theme and Language Changes (from previous releases)
-
-- Remove `&` when storing themes: `let theme = themes::get("dracula")?;` (no longer returns a reference)
-- Update `Language::guess()` calls to use `Option<&str>` for first parameter
+- Use builder pattern for formatters (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`)
+- Pass source via `Options.source` field instead of function parameter
+- Themes now return owned values (no `&` needed)
+- `Language::guess()` takes `Option<&str>` for explicit auto-detection
+- Function signatures: `highlight(options)` and `write_highlight(output, options)`
 
 ### Changed
-- **BREAKING**: Removed `HtmlFormatter` trait - use helper functions in `html` module instead (`html::open_pre_tag()`, `html::open_code_tag()`, `html::closing_tags()`)
-- **BREAKING**: Removed `FormatterOption` enum - use builder pattern instead (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`)
-- **BREAKING**: Changed `highlight()` signature from `(source: &str, options: Options)` to `(options: Options)` - source now passed via `Options.source` field
-- **BREAKING**: Changed `write_highlight()` signature from `(output: &mut dyn Write, source: &str, options: Options)` to `(output: &mut dyn Write, options: Options)` - source now passed via `Options.source` field
-- **BREAKING**: Added required `source: &str` field to `Options` struct
-- **BREAKING**: `Options.formatter` changed from `FormatterOption` to `Box<dyn Formatter>`
-- **BREAKING**: Renamed `Options.lang_or_file` field to `Options.language` for clearer semantics
-- **BREAKING**: Removed `.source()` method from formatter builders - formatters are now configuration-only objects
-- **BREAKING**: Changed `Formatter::format()` signature to take `source: &str` parameter - custom formatters must update trait implementation
-- **BREAKING**: Changed `Options::new()` signature from `new(source, language)` to `new(source, language, formatter)` - all three parameters now required
-- **BREAKING**: Changed `Language::guess()` signature from `guess(&str, &str)` to `guess(Option<&str>, &str)`
-  - `None` now explicitly means auto-detect from content
-  - Empty string (`""`) defaults to `Language::PlainText`
-  - Eliminates lossy `.unwrap_or("")` conversion
-- **BREAKING**: `themes::get()` now returns owned `Theme` instead of `&'static Theme`
-- **BREAKING**: Removed `'a` lifetime parameter from formatters where only used for theme
+- **BREAKING**: Removed `FormatterOption` enum and `HtmlFormatter` trait - use builder pattern (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`) and helper functions in `html` module
+- **BREAKING**: `highlight()` and `write_highlight()` no longer take source as parameter - pass via `Options.source` field instead
+- **BREAKING**: `Options` struct changes: added required `source` field, `formatter` is now `Box<dyn Formatter>`, renamed `lang_or_file` to `language`, `Options::new()` now requires all three parameters
+- **BREAKING**: Formatter builders are configuration-only (removed `.source()` method) - formatters now reusable across multiple sources
+- **BREAKING**: `Formatter::format()` now takes `source: &str` parameter - custom formatters must update trait implementation
+- **BREAKING**: `Language::guess()` signature changed to `guess(Option<&str>, &str)` - `None` for auto-detection, empty string defaults to `PlainText`
+- **BREAKING**: `themes::get()` returns owned `Theme` instead of `&'static Theme` - removed lifetime parameters from formatters
 
 ### Added
-- `OptionsBuilder` for fluent API to build `Options` with builder pattern
-- `Default` implementation for `Options` (empty source, no language hint, HTML inline formatter)
-- New `highlight` module with ergonomic API for building custom formatters:
-  - `Highlighter` - Stateful highlighter for repeated operations
-  - `HighlightIterator` - Lazy iterator for streaming access with position information
-  - `highlight_iter()` - Convenient function to create iterators
-- Helper functions in `html` module for HTML generation:
-  - `html::open_pre_tag()` - Generate opening `<pre>` tag with optional class and theme styles
-  - `html::open_code_tag()` - Generate opening `<code>` tag with language class
-  - `html::closing_tags()` - Generate closing `</code></pre>` tags
-- Builder pattern for formatters: `HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`
-- Custom formatters can now be implemented via the `Formatter` trait
-- Implemented `FromStr` trait for `Language` enabling `.parse()` method
-- Added `LanguageParseError` type for parse failures
-- Language parsing now supports language names, file extensions, and file paths via `FromStr`
-- Implemented `FromStr` trait for `Theme` enabling `.parse()` method
-- Added `ThemeParseError` type for parse failures
-- Added 7 comprehensive examples: `basic_highlighting`, `custom_theme`, `terminal_colors`, `custom_formatter`, `iterator_api`, `line_by_line`, `html_with_classes`
+- `OptionsBuilder` for fluent options construction and `Default` implementation for `Options`
+- Builder pattern for all formatters: `HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`
+- `highlight` module with ergonomic API: `Highlighter`, `HighlightIterator`, and `highlight_iter()` for streaming access
+- Helper functions in `html` module: `open_pre_tag()`, `open_code_tag()`, `closing_tags()`
+- `Formatter` trait for implementing custom formatters
+- `FromStr` trait implementation for `Language` and `Theme` with corresponding error types (`LanguageParseError`, `ThemeParseError`)
+- Examples demonstrating new APIs
 
 ## [0.7.8] - 2025-11-13
 
