@@ -17,7 +17,7 @@
 
 #![allow(unused_must_use)]
 
-use super::{Formatter, HtmlElement, HtmlFormatter};
+use super::{Formatter, HtmlElement};
 use crate::languages::Language;
 use crate::themes::Theme;
 use derive_builder::Builder;
@@ -127,7 +127,6 @@ impl Default for HighlightLines {
 #[derive(Builder, Debug)]
 #[builder(default)]
 pub struct HtmlInline<'a> {
-    source: &'a str,
     lang: Language,
     theme: Option<Theme>,
     pre_class: Option<&'a str>,
@@ -146,7 +145,6 @@ impl<'a> HtmlInlineBuilder<'a> {
 impl<'a> HtmlInline<'a> {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        source: &'a str,
         lang: Language,
         theme: Option<Theme>,
         pre_class: Option<&'a str>,
@@ -156,7 +154,6 @@ impl<'a> HtmlInline<'a> {
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
-            source,
             lang,
             theme,
             pre_class,
@@ -166,12 +163,59 @@ impl<'a> HtmlInline<'a> {
             header,
         }
     }
+
+    fn write_line(
+        &self,
+        output: &mut dyn Write,
+        line_number: usize,
+        content: &str,
+    ) -> io::Result<()> {
+        let is_highlighted = self
+            .highlight_lines
+            .as_ref()
+            .is_some_and(|hl| hl.lines.iter().any(|r| r.contains(&line_number)));
+
+        write!(output, "<div class=\"line")?;
+
+        if is_highlighted {
+            if let Some(class) = self
+                .highlight_lines
+                .as_ref()
+                .and_then(|hl| hl.class.as_ref())
+            {
+                write!(output, " {}", class)?;
+            }
+        }
+
+        write!(output, "\"")?;
+
+        if is_highlighted {
+            if let Some(style_str) = self.get_highlight_style() {
+                write!(output, " style=\"{}\"", style_str)?;
+            }
+        }
+
+        write!(output, " data-line=\"{}\">{}</div>", line_number, content)
+    }
+
+    fn get_highlight_style(&self) -> Option<String> {
+        let highlight_lines = self.highlight_lines.as_ref()?;
+
+        match &highlight_lines.style {
+            Some(HighlightLinesStyle::Theme) => {
+                let theme = self.theme.as_ref()?;
+                let highlighted_style = theme.get_style("highlighted")?;
+                Some(highlighted_style.css(self.italic, " "))
+            }
+            Some(HighlightLinesStyle::Style(style_string)) => Some(style_string.clone()),
+            None => None,
+        }
+    }
 }
 
 impl Default for HtmlInline<'_> {
     fn default() -> Self {
         Self {
-            source: "",
             lang: Language::PlainText,
             theme: None,
             pre_class: None,
@@ -184,21 +228,27 @@ impl Default for HtmlInline<'_> {
 }
 
 impl Formatter for HtmlInline<'_> {
-    fn highlights(&self, output: &mut dyn Write) -> io::Result<()> {
+    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
+        let mut buffer = Vec::new();
+
+        if let Some(ref header) = self.header {
+            write!(buffer, "{}", header.open_tag)?;
+        }
+
+        crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class, self.theme.as_ref())?;
+        crate::formatter::html::open_code_tag(&mut buffer, &self.lang)?;
+
         let mut highlighter = Highlighter::new();
         let events = highlighter
-            .highlight(
-                self.lang.config(),
-                self.source.as_bytes(),
-                None,
-                |injected| Some(Language::guess(Some(injected), "").config()),
-            )
-            .expect("failed to generate highlight events");
+            .highlight(self.lang.config(), source.as_bytes(), None, |injected| {
+                Some(Language::guess(Some(injected), "").config())
+            })
+            .map_err(io::Error::other)?;
 
         let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
 
         renderer
-            .render(events, self.source.as_bytes(), &move |highlight, output| {
+            .render(events, source.as_bytes(), &move |highlight, output| {
                 let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
 
                 if self.include_highlights {
@@ -219,116 +269,22 @@ impl Formatter for HtmlInline<'_> {
                     }
                 }
             })
-            .expect("failed to render highlight events");
+            .map_err(io::Error::other)?;
 
         for (i, line) in renderer.lines().enumerate() {
             let line_number = i + 1;
-            let (highlighted_class, highlighted_style) = if let Some(ref highlight_lines) =
-                self.highlight_lines
-            {
-                if highlight_lines
-                    .lines
-                    .iter()
-                    .any(|range| range.contains(&line_number))
-                {
-                    let class = highlight_lines
-                        .class
-                        .as_ref()
-                        .map(|c| format!(" {c}"))
-                        .unwrap_or_default();
-
-                    let style = match &highlight_lines.style {
-                        Some(HighlightLinesStyle::Theme) => {
-                            if let Some(theme) = &self.theme {
-                                if let Some(highlighted_style) = theme.get_style("highlighted") {
-                                    format!(
-                                        " style=\"{}\"",
-                                        highlighted_style.css(self.italic, " ")
-                                    )
-                                } else {
-                                    String::new()
-                                }
-                            } else {
-                                String::new()
-                            }
-                        }
-                        Some(HighlightLinesStyle::Style(style_string)) => {
-                            format!(" style=\"{style_string}\"")
-                        }
-                        None => String::new(),
-                    };
-                    (class, style)
-                } else {
-                    (String::new(), String::new())
-                }
-            } else {
-                (String::new(), String::new())
-            };
-
-            write!(
-                output,
-                "<div class=\"line{}\"{} data-line=\"{}\">{}</div>",
-                highlighted_class,
-                highlighted_style,
-                line_number,
-                line.replace('{', "&lbrace;").replace('}', "&rbrace;")
-            )?;
-        }
-        Ok(())
-    }
-
-    fn format(&self, output: &mut dyn Write) -> io::Result<()> {
-        let mut buffer = Vec::new();
-
-        if let Some(ref header) = self.header {
-            write!(buffer, "{}", header.open_tag)?;
+            let line_with_braces = line.replace('{', "&lbrace;").replace('}', "&rbrace;");
+            self.write_line(&mut buffer, line_number, &line_with_braces)?;
         }
 
-        self.open_pre_tag(&mut buffer)?;
-        self.open_code_tag(&mut buffer)?;
-        self.highlights(&mut buffer)?;
-        self.closing_tags(&mut buffer)?;
+        crate::formatter::html::closing_tags(&mut buffer)?;
 
         if let Some(ref header) = self.header {
             write!(buffer, "{}", header.close_tag)?;
         }
 
-        write!(output, "{}", &String::from_utf8(buffer).unwrap())?;
+        write!(output, "{}", &String::from_utf8_lossy(&buffer))?;
         Ok(())
-    }
-}
-
-impl HtmlFormatter for HtmlInline<'_> {
-    fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()> {
-        let class = if let Some(pre_class) = &self.pre_class {
-            format!("athl {pre_class}")
-        } else {
-            "athl".to_string()
-        };
-
-        write!(
-            output,
-            "<pre class=\"{}\"{}>",
-            class,
-            &self
-                .theme
-                .as_ref()
-                .and_then(|theme| theme.pre_style(" "))
-                .map(|pre_style| format!(" style=\"{pre_style}\""))
-                .unwrap_or_default(),
-        )
-    }
-
-    fn open_code_tag(&self, output: &mut dyn Write) -> io::Result<()> {
-        write!(
-            output,
-            "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
-            self.lang.id_name()
-        )
-    }
-
-    fn closing_tags(&self, output: &mut dyn Write) -> io::Result<()> {
-        output.write_all(b"</code></pre>")
     }
 }
 
@@ -343,18 +299,10 @@ mod tests {
 
     #[test]
     fn test_no_attrs() {
-        let formatter = HtmlInline::new(
-            "@lang :rust",
-            Language::Elixir,
-            None,
-            None,
-            false,
-            false,
-            None,
-            None,
-        );
+        let code = "@lang :rust";
+        let formatter = HtmlInline::new(Language::Elixir, None, None, false, false, None, None);
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer);
+        formatter.format(code, &mut buffer);
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span ><span >@<span ><span >lang <span >:rust</span></span></span></span></span>
 </div></code></pre>"#;
@@ -365,7 +313,12 @@ mod tests {
     fn test_do_not_append_pre_style_if_missing_theme_style() {
         let formatter = HtmlInline::default();
         let mut buffer = Vec::new();
-        formatter.open_pre_tag(&mut buffer);
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            formatter.pre_class,
+            formatter.theme.as_ref(),
+        )
+        .unwrap();
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl\">"));
     }
@@ -373,7 +326,6 @@ mod tests {
     #[test]
     fn test_include_pre_class() {
         let formatter = HtmlInline::new(
-            "",
             Language::PlainText,
             None,
             Some("test-pre-class"),
@@ -383,7 +335,12 @@ mod tests {
             None,
         );
         let mut buffer = Vec::new();
-        formatter.open_pre_tag(&mut buffer);
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            formatter.pre_class,
+            formatter.theme.as_ref(),
+        )
+        .unwrap();
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\">"));
     }
@@ -392,7 +349,6 @@ mod tests {
     fn test_include_pre_class_with_theme() {
         let theme = themes::get("github_light").unwrap();
         let formatter = HtmlInline::new(
-            "",
             Language::PlainText,
             Some(theme),
             Some("test-pre-class"),
@@ -402,7 +358,12 @@ mod tests {
             None,
         );
         let mut buffer = Vec::new();
-        formatter.open_pre_tag(&mut buffer);
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            formatter.pre_class,
+            formatter.theme.as_ref(),
+        )
+        .unwrap();
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }
@@ -411,7 +372,6 @@ mod tests {
     fn test_builder_pattern() {
         let theme = themes::get("github_light").unwrap();
         let formatter = HtmlInlineBuilder::new()
-            .source("")
             .lang(Language::Rust)
             .theme(Some(theme))
             .pre_class(Some("test-pre-class"))
@@ -421,7 +381,12 @@ mod tests {
             .unwrap();
 
         let mut buffer = Vec::new();
-        formatter.open_pre_tag(&mut buffer);
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            formatter.pre_class,
+            formatter.theme.as_ref(),
+        )
+        .unwrap();
         let pre_tag = String::from_utf8(buffer).unwrap();
         assert!(pre_tag.contains("<pre class=\"athl test-pre-class\" style=\"color: #1f2328; background-color: #ffffff;\">"));
     }
@@ -436,7 +401,6 @@ mod tests {
         };
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
         let formatter = HtmlInline::new(
-            code,
             Language::PlainText,
             Some(theme),
             None,
@@ -447,7 +411,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" style="background-color: #e7eaf0;" data-line="1">line 1
@@ -470,7 +434,6 @@ mod tests {
         };
         let code = "line 1\nline 2\nline 3\nline 4\nline 5";
         let formatter = HtmlInline::new(
-            code,
             Language::PlainText,
             None,
             None,
@@ -481,7 +444,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" style="background-color: yellow" data-line="1">line 1
@@ -504,7 +467,6 @@ mod tests {
         };
         let code = "line 1\nline 2\nline 3\nline 4";
         let formatter = HtmlInline::new(
-            code,
             Language::PlainText,
             None,
             None,
@@ -515,7 +477,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-highlight" style="background-color: yellow" data-line="1">line 1
@@ -535,7 +497,6 @@ mod tests {
         };
         let code = "fn main() {\n    println!(\"Hello, world!\");\n    let x = 42;\n}";
         let formatter = HtmlInline::new(
-            code,
             Language::Rust,
             None,
             None,
@@ -546,7 +507,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="athl"><code class="language-rust" translate="no" tabindex="0"><div class="line custom-highlight" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span>
@@ -565,7 +526,6 @@ mod tests {
         };
         let code = "line 1\nline 2";
         let formatter = HtmlInline::new(
-            code,
             Language::PlainText,
             None,
             None,
@@ -576,7 +536,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<div class="code-wrapper"><pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
@@ -593,7 +553,6 @@ mod tests {
         };
         let code = "fn main() { }";
         let formatter = HtmlInline::new(
-            code,
             Language::Rust,
             None,
             Some("custom-class"),
@@ -604,7 +563,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(&mut buffer).unwrap();
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<section class="highlight" data-lang="rust"><pre class="athl custom-class"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span >fn</span> <span >main</span><span >(</span><span >)</span> <span >&lbrace;</span> <span >&rbrace;</span>
