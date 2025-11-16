@@ -118,11 +118,10 @@ fn main() {
         .expect("Failed to build formatter");
 
     let options = Options {
-        source: code,
         language: Some("rust"),
         formatter: Box::new(formatter),
     };
 
-    let html = highlight(options);
+    let html = highlight(code, options);
     println!("{}", html);
 }

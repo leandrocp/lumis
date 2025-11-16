@@ -35,25 +35,21 @@ let formatter = HtmlInlineBuilder::new()
     .build()?;
 
 let options = Options {
-    source: code,
     language: Some("rust"),
     formatter: Box::new(formatter),
 };
-let html = highlight(options);
+let html = highlight(code, options);
 ```
 
 **Key Changes:**
 - Use builder pattern for formatters (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`)
-- Pass source via `Options.source` field instead of function parameter
 - Themes now return owned values (no `&` needed)
 - `Language::guess()` takes `Option<&str>` for explicit auto-detection
-- Function signatures: `highlight(options)` and `write_highlight(output, options)`
 
 ### Changed
-- **BREAKING**: Removed `FormatterOption` enum and `HtmlFormatter` trait - use builder pattern (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`) and helper functions in `html` module
-- **BREAKING**: `highlight()` and `write_highlight()` no longer take source as parameter - pass via `Options.source` field instead
-- **BREAKING**: `Options` struct changes: added required `source` field, `formatter` is now `Box<dyn Formatter>`, renamed `lang_or_file` to `language`, `Options::new()` now requires all three parameters
-- **BREAKING**: Formatter builders are configuration-only (removed `.source()` method) - formatters now reusable across multiple sources
+- **BREAKING**: Removed `FormatterOption` enum and `HtmlFormatter` trait - use builder pattern (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`) instead
+- **BREAKING**: `Options` struct: `formatter` is now `Box<dyn Formatter>`, renamed `lang_or_file` to `language`
+- **BREAKING**: `Options::new()` signature changed to take `language` and `formatter` parameters
 - **BREAKING**: `Formatter::format()` now takes `source: &str` parameter - custom formatters must update trait implementation
 - **BREAKING**: `Language::guess()` signature changed to `guess(Option<&str>, &str)` - `None` for auto-detection, empty string defaults to `PlainText`
 - **BREAKING**: `themes::get()` returns owned `Theme` instead of `&'static Theme` - removed lifetime parameters from formatters

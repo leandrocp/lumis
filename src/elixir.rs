@@ -561,12 +561,11 @@ mod tests {
         let lang = Language::guess(Some("rust"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
-            source: code,
             language: Some("rust"),
             formatter,
         };
 
-        let result = highlight(options);
+        let result = highlight(code, options);
         let expected = r#"<pre class="athl code-block" style="color: #f8f8f2; background-color: #282a36;"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #8be9fd;">fn</span> <span style="color: #50fa7b;">main</span><span style="color: #f8f8f2;">(</span><span style="color: #f8f8f2;">)</span> <span style="color: #f8f8f2;">&lbrace;</span> <span style="color: #bd93f9;">println</span><span style="color: #50fa7b;">!</span><span style="color: #f8f8f2;">(</span><span style="color: #f1fa8c;">&quot;Hello&quot;</span><span style="color: #f8f8f2;">)</span><span style="color: #f8f8f2;">;</span> <span style="color: #f8f8f2;">&rbrace;</span>
 </div></code></pre>"#;
         assert_str_eq!(result, expected);
@@ -599,12 +598,11 @@ mod tests {
         let lang = Language::guess(Some("text"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
-            source: code,
             language: Some("text"),
             formatter,
         };
 
-        let result = highlight(options);
+        let result = highlight(code, options);
         let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-class" style="background-color: yellow" data-line="1">line 1
 </div><div class="line" data-line="2">line 2
 </div><div class="line custom-class" style="background-color: yellow" data-line="3">line 3
@@ -634,12 +632,11 @@ mod tests {
         let lang = Language::guess(Some("javascript"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
-            source: code,
             language: Some("javascript"),
             formatter,
         };
 
-        let result = highlight(options);
+        let result = highlight(code, options);
         let expected = r#"<section class="code-wrapper"><pre class="athl"><code class="language-javascript" translate="no" tabindex="0"><div class="line" data-line="1"><span >const</span> <span >x</span> <span >=</span> <span >42</span><span >;</span>
 </div></code></pre></section>"#;
         assert_str_eq!(result, expected);
@@ -668,12 +665,11 @@ mod tests {
         let lang = Language::guess(Some("elixir"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
-            source: code,
             language: Some("elixir"),
             formatter,
         };
 
-        let result = highlight(options);
+        let result = highlight(code, options);
         let expected = r#"<div class="elixir-code"><pre class="athl syntax-highlight"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="keyword">defmodule</span> <span class="module">Test</span> <span class="keyword">do</span>
 </div><div class="line custom-hl" data-line="2">  <span class="keyword">def</span> <span class="variable">hello</span><span class="punctuation-delimiter">,</span> <span class="string-special-symbol">do: </span><span class="string-special-symbol">:world</span>
 </div><div class="line" data-line="3"><span class="keyword">end</span>
@@ -692,12 +688,11 @@ mod tests {
         let lang = Language::guess(Some("ruby"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
         let options = Options {
-            source: code,
             language: Some("ruby"),
             formatter,
         };
 
-        let result = highlight(options);
+        let result = highlight(code, options);
         let expected = "\x1b[0m\x1b[38;2;210;168;255mputs\x1b[0m \x1b[0m\x1b[38;2;165;214;255m'\x1b[0m\x1b[0m\x1b[38;2;165;214;255mHello Ruby\x1b[0m\x1b[0m\x1b[38;2;165;214;255m'\x1b[0m";
         assert_str_eq!(result, expected);
     }

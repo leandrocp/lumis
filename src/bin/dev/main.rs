@@ -151,11 +151,13 @@ fn gen_samples_entries(
                 .build()
                 .expect("Failed to build formatter");
 
-            let highlighted = autumnus::highlight(autumnus::Options {
-                source: &contents,
-                language: Some(file_name),
-                formatter: Box::new(formatter),
-            });
+            let highlighted = autumnus::highlight(
+                &contents,
+                autumnus::Options {
+                    language: Some(file_name),
+                    formatter: Box::new(formatter),
+                },
+            );
 
             let base_name = file_name.split('.').next().unwrap_or(file_name);
             let html_path = samples_path.join(format!("{}.{}.html", base_name, theme.name));

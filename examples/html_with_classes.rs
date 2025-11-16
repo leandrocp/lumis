@@ -69,12 +69,11 @@ export default {
         .expect("Failed to build formatter");
 
     let options = Options {
-        source: code,
         language: Some("vue"),
         formatter: Box::new(formatter),
     };
 
-    let html = highlight(options);
+    let html = highlight(code, options);
 
     let theme = themes::get("github_light").expect("github_light theme should be available");
     let css = theme.css(true);

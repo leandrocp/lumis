@@ -33,9 +33,9 @@ print(fibonacci(10))
 "#;
 
     // Simple API using builder with defaults
-    let options = OptionsBuilder::new().source(code).build().unwrap();
+    let options = OptionsBuilder::new().build().unwrap();
 
-    let html = highlight(options);
+    let html = highlight(code, options);
 
     println!("{}", html);
 }

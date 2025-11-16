@@ -28,12 +28,11 @@ end"#;
         .expect("Failed to build formatter");
 
     let options = Options {
-        source: code,
         language: Some("ruby"),
         formatter: Box::new(formatter),
     };
 
-    let ansi_output = highlight(options);
+    let ansi_output = highlight(code, options);
 
     println!("{}", ansi_output);
 }

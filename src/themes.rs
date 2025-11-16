@@ -52,12 +52,11 @@
 //!     .unwrap();
 //!
 //! let options = Options {
-//!     source: code,
 //!     language: Some("rust"),
 //!     formatter: Box::new(formatter),
 //! };
 //!
-//! let highlighted = highlight(options);
+//! let highlighted = highlight(code, options);
 //! ```
 //!
 //! # Theme Structure

@@ -26,7 +26,6 @@
 //!         }
 //!         Ok(())
 //!     }
-//! #   fn highlights(&self, _: &str, _: &mut dyn Write) -> io::Result<()> { Ok(()) }
 //! }
 //! ```
 //!

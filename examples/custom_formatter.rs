@@ -82,10 +82,9 @@ console.log(greeting);"#;
     let formatter = TokenMetadataFormatter::new(lang, theme);
 
     let options = Options {
-        source: code,
         language: Some("javascript"),
         formatter: Box::new(formatter),
     };
 
-    write_highlight(&mut io::stdout(), options).expect("Failed to write output");
+    write_highlight(&mut io::stdout(), code, options).expect("Failed to write output");
 }

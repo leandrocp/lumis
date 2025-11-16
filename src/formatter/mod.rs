@@ -220,11 +220,6 @@ pub struct HtmlElement {
 ///
 ///         Ok(())
 ///     }
-///
-///     fn highlights(&self, _source: &str, _output: &mut dyn Write) -> io::Result<()> {
-///         // Not needed for this formatter
-///         Ok(())
-///     }
 /// }
 /// ```
 ///

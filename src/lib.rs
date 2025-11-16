@@ -58,8 +58,7 @@
 //!     .unwrap();
 //!
 //! // Returns highlighted code as String
-//! let html = highlight(Options {
-//!     source: code,
+//! let html = highlight(code, Options {
 //!     language: Some("python"),
 //!     formatter: Box::new(formatter),
 //! });
@@ -75,8 +74,7 @@
 //! # let formatter = TerminalBuilder::new().lang(Language::Python).build().unwrap();
 //! let mut file = File::create("output.txt").unwrap();
 //!
-//! write_highlight(&mut file, Options {
-//!     source: code,
+//! write_highlight(&mut file, code, Options {
 //!     language: Some("python"),
 //!     formatter: Box::new(formatter),
 //! }).unwrap();
@@ -386,13 +384,12 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///     .unwrap();
 ///
 /// let options = OptionsBuilder::new()
-///     .source(code)
 ///     .language("rust")
 ///     .formatter(Box::new(formatter))
 ///     .build()
 ///     .unwrap();
 ///
-/// let html = highlight(options);
+/// let html = highlight(code, options);
 /// ```
 ///
 /// ## Explicit language specification
@@ -409,13 +406,10 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///     .build()
 ///     .unwrap();
 ///
-/// let options = Options {
-///     source: code,
+/// let html = highlight(code, Options {
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
-/// };
-///
-/// let html = highlight(options);
+/// });
 /// ```
 ///
 /// ## File path-based detection
@@ -434,13 +428,10 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///     .build()
 ///     .unwrap();
 ///
-/// let options = Options {
-///     source: code,
+/// let html = highlight(code, Options {
 ///     language: Some("lib/my_app.ex"),
 ///     formatter: Box::new(formatter),
-/// };
-///
-/// let html = highlight(options);
+/// });
 /// ```
 ///
 /// ## Parsing languages from strings
@@ -458,13 +449,10 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///     .build()
 ///     .unwrap();
 ///
-/// let options = Options {
-///     source: code,
+/// let html = highlight(code, Options {
 ///     language: Some("javascript"),  // Also accepts: "js", "app.js"
 ///     formatter: Box::new(formatter),
-/// };
-///
-/// let html = highlight(options);
+/// });
 /// ```
 ///
 /// ## Terminal output
@@ -482,13 +470,10 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///     .build()
 ///     .unwrap();
 ///
-/// let options = Options {
-///     source: code,
+/// let ansi = highlight(code, Options {
 ///     language: Some("sql"),
 ///     formatter: Box::new(formatter),
-/// };
-///
-/// let ansi = highlight(options);
+/// });
 /// ```
 ///
 /// ## HTML with linked CSS
@@ -505,22 +490,15 @@ pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder
 ///     .build()
 ///     .unwrap();
 ///
-/// let options = Options {
-///     source: code,
+/// let html = highlight(code, Options {
 ///     language: Some("html"),
 ///     formatter: Box::new(formatter),
-/// };
-///
-/// let html = highlight(options);
+/// });
 /// // Remember to include the corresponding CSS file for your theme
 /// ```
 #[derive(Builder)]
 #[builder(default, pattern = "owned")]
 pub struct Options<'a> {
-    /// The source code to highlight.
-    #[builder(default = "\"\"")]
-    pub source: &'a str,
-
     /// Optional language hint for syntax highlighting.
     ///
     /// This field controls language detection and can accept:
@@ -545,11 +523,9 @@ pub struct Options<'a> {
     /// ```rust
     /// use autumnus::{Options, HtmlInlineBuilder, languages::Language, themes};
     ///
-    /// let code = "fn main() {}";
     /// let theme = themes::get("dracula").unwrap();
     ///
     /// let options = Options {
-    ///     source: code,
     ///     language: Some("rust"),
     ///     formatter: Box::new(
     ///         HtmlInlineBuilder::default()
@@ -567,7 +543,6 @@ pub struct Options<'a> {
 impl Default for Options<'_> {
     fn default() -> Self {
         Self {
-            source: "",
             language: None,
             formatter: Box::new(formatter::HtmlInline::default()),
         }
@@ -581,7 +556,6 @@ impl<'a> Options<'a> {
     ///
     /// # Arguments
     ///
-    /// * `source` - The source code to highlight
     /// * `language` - Optional language hint
     /// * `formatter` - The formatter to use for highlighting
     ///
@@ -590,21 +564,15 @@ impl<'a> Options<'a> {
     /// ```rust
     /// use autumnus::{Options, HtmlInlineBuilder, languages::Language};
     ///
-    /// let code = "fn main() {}";
     /// let formatter = HtmlInlineBuilder::default()
     ///     .lang(Language::Rust)
     ///     .build()
     ///     .unwrap();
     ///
-    /// let options = Options::new(code, Some("rust"), Box::new(formatter));
+    /// let options = Options::new(Some("rust"), Box::new(formatter));
     /// ```
-    pub fn new(
-        source: &'a str,
-        language: Option<&'a str>,
-        formatter: Box<dyn Formatter + 'a>,
-    ) -> Self {
+    pub fn new(language: Option<&'a str>, formatter: Box<dyn Formatter + 'a>) -> Self {
         Self {
-            source,
             language,
             formatter,
         }
@@ -619,14 +587,12 @@ impl<'a> OptionsBuilder<'a> {
     /// ```rust
     /// use autumnus::{OptionsBuilder, HtmlInlineBuilder, languages::Language};
     ///
-    /// let code = "fn main() {}";
     /// let formatter = HtmlInlineBuilder::default()
     ///     .lang(Language::Rust)
     ///     .build()
     ///     .unwrap();
     ///
     /// let options = OptionsBuilder::new()
-    ///     .source(code)
     ///     .language("rust")
     ///     .formatter(Box::new(formatter))
     ///     .build()
@@ -669,8 +635,7 @@ impl<'a> OptionsBuilder<'a> {
 ///     .build()
 ///     .unwrap();
 ///
-/// let html = highlight(Options {
-///     source: code,
+/// let html = highlight(code, Options {
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// });
@@ -709,8 +674,7 @@ impl<'a> OptionsBuilder<'a> {
 ///     .build()
 ///     .unwrap();
 ///
-/// let html = highlight(Options {
-///     source: code,
+/// let html = highlight(code, Options {
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// });
@@ -755,8 +719,7 @@ impl<'a> OptionsBuilder<'a> {
 ///     .build()
 ///     .unwrap();
 ///
-/// let ansi = highlight(Options {
-///     source: code,
+/// let ansi = highlight(code, Options {
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// });
@@ -769,9 +732,9 @@ impl<'a> OptionsBuilder<'a> {
 /// }
 /// ```
 ///
-pub fn highlight(options: Options) -> String {
+pub fn highlight(source: &str, options: Options) -> String {
     let mut buffer = Vec::new();
-    let _ = options.formatter.format(options.source, &mut buffer);
+    let _ = options.formatter.format(source, &mut buffer);
     String::from_utf8(buffer).unwrap()
 }
 
@@ -826,8 +789,7 @@ pub fn highlight(options: Options) -> String {
 ///
 /// let mut file = BufWriter::new(File::create("highlighted.html")?);
 ///
-/// write_highlight(&mut file, Options {
-///     source: code,
+/// write_highlight(&mut file, code, Options {
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// })?;
@@ -850,8 +812,7 @@ pub fn highlight(options: Options) -> String {
 ///     .build()
 ///     .unwrap();
 ///
-/// write_highlight(&mut io::stdout(), Options {
-///     source: code,
+/// write_highlight(&mut io::stdout(), code, Options {
 ///     language: Some("python"),
 ///     formatter: Box::new(formatter),
 /// }).expect("Failed to write to stdout");
@@ -872,8 +833,7 @@ pub fn highlight(options: Options) -> String {
 ///
 /// let mut buffer = Vec::new();
 ///
-/// write_highlight(&mut buffer, Options {
-///     source: code,
+/// write_highlight(&mut buffer, code, Options {
 ///     language: Some("javascript"),
 ///     formatter: Box::new(formatter),
 /// }).expect("Failed to write to buffer");
@@ -904,8 +864,7 @@ pub fn highlight(options: Options) -> String {
 /// // Stream highlighted output to another file
 /// let mut output_file = BufWriter::new(File::create("highlighted_output.html")?);
 ///
-/// write_highlight(&mut output_file, Options {
-///     source: &source,
+/// write_highlight(&mut output_file, &source, Options {
 ///     language: Some("rust"),
 ///     formatter: Box::new(formatter),
 /// })?;
@@ -922,18 +881,17 @@ pub fn highlight(options: Options) -> String {
 /// let mut buffer = Vec::new();
 ///
 /// let options = OptionsBuilder::new()
-///     .source(code)
 ///     .build()
 ///     .unwrap();
 ///
-/// match write_highlight(&mut buffer, options) {
+/// match write_highlight(&mut buffer, code, options) {
 ///     Ok(()) => println!("Successfully highlighted {} bytes", buffer.len()),
 ///     Err(e) => eprintln!("Failed to highlight: {}", e),
 /// }
 /// ```
 ///
-pub fn write_highlight(output: &mut dyn Write, options: Options) -> io::Result<()> {
-    options.formatter.format(options.source, output)?;
+pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -> io::Result<()> {
+    options.formatter.format(source, output)?;
     Ok(())
 }
 
@@ -962,8 +920,8 @@ mod tests {
 
         write_highlight(
             &mut buffer,
+            code,
             Options {
-                source: code,
                 language: Some("javascript"),
                 formatter: Box::new(formatter),
             },
@@ -1005,11 +963,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code,
-            language: Some("elixir"),
-            formatter: Box::new(formatter),
-        });
+        let result = highlight(
+            code,
+            Options {
+                language: Some("elixir"),
+                formatter: Box::new(formatter),
+            },
+        );
 
         assert_eq!(result, expected);
     }
@@ -1033,11 +993,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code,
-            language: Some("elixir"),
-            formatter: Box::new(formatter),
-        });
+        let result = highlight(
+            code,
+            Options {
+                language: Some("elixir"),
+                formatter: Box::new(formatter),
+            },
+        );
 
         assert_eq!(result, expected);
     }
@@ -1054,11 +1016,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code,
-            language: Some("elixir"),
-            formatter: Box::new(formatter),
-        });
+        let result = highlight(
+            code,
+            Options {
+                language: Some("elixir"),
+                formatter: Box::new(formatter),
+            },
+        );
 
         assert_eq!(result, expected);
     }
@@ -1092,11 +1056,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code,
-            language: Some("elixir"),
-            formatter: Box::new(formatter),
-        });
+        let result = highlight(
+            code,
+            Options {
+                language: Some("elixir"),
+                formatter: Box::new(formatter),
+            },
+        );
 
         assert_eq!(result, expected);
     }
@@ -1112,11 +1078,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code,
-            language: Some("elixir"),
-            formatter: Box::new(formatter),
-        });
+        let result = highlight(
+            code,
+            Options {
+                language: Some("elixir"),
+                formatter: Box::new(formatter),
+            },
+        );
 
         assert_eq!(result, expected);
     }
@@ -1130,11 +1098,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code,
-            language: Some("app.ex"),
-            formatter: Box::new(formatter),
-        });
+        let result = highlight(
+            code,
+            Options {
+                language: Some("app.ex"),
+                formatter: Box::new(formatter),
+            },
+        );
         assert!(result.as_str().contains("language-elixir"));
     }
 
@@ -1147,11 +1117,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code1,
-            language: Some("md"),
-            formatter: Box::new(formatter1),
-        });
+        let result = highlight(
+            code1,
+            Options {
+                language: Some("md"),
+                formatter: Box::new(formatter1),
+            },
+        );
         assert!(result.as_str().contains("language-markdown"));
 
         let code2 = "foo = 1";
@@ -1161,11 +1133,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code2,
-            language: Some("ex"),
-            formatter: Box::new(formatter2),
-        });
+        let result = highlight(
+            code2,
+            Options {
+                language: Some("ex"),
+                formatter: Box::new(formatter2),
+            },
+        );
         assert!(result.as_str().contains("language-elixir"));
     }
 
@@ -1178,11 +1152,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code,
-            language: Some("test"),
-            formatter: Box::new(formatter),
-        });
+        let result = highlight(
+            code,
+            Options {
+                language: Some("test"),
+                formatter: Box::new(formatter),
+            },
+        );
         assert!(result.as_str().contains("language-elixir"));
     }
 
@@ -1195,11 +1171,13 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(Options {
-            source: code,
-            language: Some("none"),
-            formatter: Box::new(formatter),
-        });
+        let result = highlight(
+            code,
+            Options {
+                language: Some("none"),
+                formatter: Box::new(formatter),
+            },
+        );
         assert!(result.as_str().contains("language-plaintext"));
     }
 
@@ -1212,11 +1190,13 @@ end
             .build()
             .unwrap();
 
-        let ansi = highlight(Options {
-            source: code,
-            language: Some("ruby"),
-            formatter: Box::new(formatter),
-        });
+        let ansi = highlight(
+            code,
+            Options {
+                language: Some("ruby"),
+                formatter: Box::new(formatter),
+            },
+        );
 
         assert!(ansi.as_str().contains("[38;2;241;250;140mHello from Ruby!"));
     }
@@ -1235,11 +1215,13 @@ end
             .build()
             .unwrap();
 
-        let inline_result = highlight(Options {
-            source: code,
-            language: Some("rust"),
-            formatter: Box::new(inline_formatter),
-        });
+        let inline_result = highlight(
+            code,
+            Options {
+                language: Some("rust"),
+                formatter: Box::new(inline_formatter),
+            },
+        );
 
         assert!(inline_result.starts_with("<div class=\"code-container\">"));
         assert!(inline_result.ends_with("</div>"));
@@ -1255,11 +1237,13 @@ end
             .build()
             .unwrap();
 
-        let linked_result = highlight(Options {
-            source: code,
-            language: Some("rust"),
-            formatter: Box::new(linked_formatter),
-        });
+        let linked_result = highlight(
+            code,
+            Options {
+                language: Some("rust"),
+                formatter: Box::new(linked_formatter),
+            },
+        );
 
         assert!(linked_result.starts_with("<section class=\"code-section\">"));
         assert!(linked_result.ends_with("</section>"));
