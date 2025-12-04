@@ -224,7 +224,7 @@ tree-sitter-cpp = { version = "0.23.4", optional = true }
 tree-sitter-css = { version = "0.25.0", optional = true }
 tree-sitter-diff = "0.1.0"
 tree-sitter-elixir = { version = "0.3.4", optional = true }
-tree-sitter-elm = { version = "5.8.0", optional = true }
+tree-sitter-elm = { version = "5.9.0", optional = true }
 tree-sitter-embedded-template = { version = "0.25.0", optional = true }
 tree-sitter-erlang = { version = "0.15.0", optional = true }
 tree-sitter-fsharp = { version = "0.1.0", optional = true }
