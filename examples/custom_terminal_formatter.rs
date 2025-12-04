@@ -35,7 +35,11 @@ struct LineNumberedTerminal {
 }
 
 impl LineNumberedTerminal {
-    fn new(language: Language, theme: Option<autumnus::themes::Theme>, filename: Option<String>) -> Self {
+    fn new(
+        language: Language,
+        theme: Option<autumnus::themes::Theme>,
+        filename: Option<String>,
+    ) -> Self {
         Self {
             language,
             theme,
