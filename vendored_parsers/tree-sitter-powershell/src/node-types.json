@@ -578,7 +578,7 @@
       },
       "command_name": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "command_name",
@@ -597,10 +597,6 @@
       "types": [
         {
           "type": "command_invokation_operator",
-          "named": true
-        },
-        {
-          "type": "foreach_command",
           "named": true
         }
       ]
@@ -645,6 +641,10 @@
         },
         {
           "type": "redirection",
+          "named": true
+        },
+        {
+          "type": "script_block_expression",
           "named": true
         },
         {
@@ -1289,22 +1289,6 @@
           "named": true
         }
       ]
-    }
-  },
-  {
-    "type": "foreach_command",
-    "named": true,
-    "fields": {
-      "command_elements": {
-        "multiple": true,
-        "required": true,
-        "types": [
-          {
-            "type": "script_block_expression",
-            "named": true
-          }
-        ]
-      }
     }
   },
   {
@@ -3985,10 +3969,6 @@
   },
   {
     "type": "foreach",
-    "named": false
-  },
-  {
-    "type": "foreach-object",
     "named": false
   },
   {
