@@ -3219,7 +3219,7 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "-?[a-zA-Z_\\$][a-zA-Z0-9_\\$]*"
+      "value": "[-a-zA-Z_\\$][-a-zA-Z0-9_\\$]*"
     },
     "string": {
       "type": "CHOICE",
@@ -3500,12 +3500,33 @@
                         "type": "SYMBOL",
                         "name": "call_expression"
                       }
+                    },
+                    {
+                      "type": "FIELD",
+                      "name": "unit",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "style_unit"
+                      }
                     }
                   ]
                 }
               ]
             }
           ]
+        }
+      ]
+    },
+    "style_unit": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "px"
+        },
+        {
+          "type": "STRING",
+          "value": "%"
         }
       ]
     },
