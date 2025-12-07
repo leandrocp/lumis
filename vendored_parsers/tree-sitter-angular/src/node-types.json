@@ -2112,6 +2112,16 @@
             "named": true
           }
         ]
+      },
+      "unit": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "style_unit",
+            "named": true
+          }
+        ]
       }
     }
   },
@@ -2943,6 +2953,11 @@
     }
   },
   {
+    "type": "style_unit",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "switch_body",
     "named": true,
     "fields": {},
@@ -3585,6 +3600,10 @@
   {
     "type": "prefetch_keyword",
     "named": true
+  },
+  {
+    "type": "px",
+    "named": false
   },
   {
     "type": "raw_text",
