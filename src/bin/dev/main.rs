@@ -52,8 +52,6 @@ fn gen_samples() -> Result<()> {
         "gruvbox_light",
         "gruvbox_light_hard",
         "gruvbox_light_soft",
-        "horizon_light",
-        "horizon_dark",
         "iceberg",
         "kanagawa_lotus",
         "kanagawa_wave",

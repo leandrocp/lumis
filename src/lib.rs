@@ -257,7 +257,6 @@
 //! | github_light_high_contrast |
 //! | github_light_tritanopia |
 //! | horizon_dark |
-//! | horizon_light |
 //! | iceberg |
 //! | gruvbox_dark |
 //! | gruvbox_dark_hard |
