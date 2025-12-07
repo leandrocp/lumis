@@ -61,7 +61,7 @@
       "fg": "#cc6d00"
     },
     "constant.macro": {
-      "fg": "#c84053"
+      "fg": "#cc6d00"
     },
     "constructor": {
       "fg": "#6693bf"
@@ -94,7 +94,7 @@
       "fg": "#4d699b"
     },
     "function.macro": {
-      "fg": "#c84053"
+      "fg": "#4d699b"
     },
     "function.method": {
       "fg": "#4d699b"
@@ -117,27 +117,31 @@
     },
     "keyword.conditional": {
       "fg": "#624c83",
-      "bold": true
+      "italic": true
     },
     "keyword.conditional.ternary": {
       "fg": "#624c83",
-      "bold": true
+      "italic": true
     },
     "keyword.coroutine": {
       "fg": "#624c83",
       "italic": true
     },
     "keyword.debug": {
-      "fg": "#5f8787"
+      "fg": "#624c83",
+      "italic": true
     },
     "keyword.directive": {
-      "fg": "#c84053"
+      "fg": "#624c83",
+      "italic": true
     },
     "keyword.directive.css": {
-      "fg": "#c84053"
+      "fg": "#624c83",
+      "italic": true
     },
     "keyword.directive.define": {
-      "fg": "#c84053"
+      "fg": "#624c83",
+      "italic": true
     },
     "keyword.exception": {
       "fg": "#c84053",
@@ -170,14 +174,15 @@
     },
     "keyword.repeat": {
       "fg": "#624c83",
-      "bold": true
+      "italic": true
     },
     "keyword.return": {
       "fg": "#c84053",
       "italic": true
     },
     "keyword.type": {
-      "fg": "#597b75"
+      "fg": "#624c83",
+      "italic": true
     },
     "label": {
       "fg": "#624c83",
@@ -223,13 +228,16 @@
       "italic": true
     },
     "markup.link": {
-      "fg": "#77713f"
+      "fg": "#6693bf",
+      "underline": true
     },
     "markup.link.label": {
-      "fg": "#77713f"
+      "fg": "#6693bf",
+      "underline": true
     },
     "markup.link.label.html": {
-      "fg": "#77713f"
+      "fg": "#6693bf",
+      "underline": true
     },
     "markup.link.url": {
       "fg": "#6693bf",
@@ -266,7 +274,7 @@
       "underline": true
     },
     "module": {
-      "fg": "#77713f"
+      "fg": "#597b75"
     },
     "module.builtin": {
       "fg": "#6693bf"

@@ -1,7 +1,7 @@
 {
   "name": "onedark_cool",
   "appearance": "dark",
-  "revision": "6c10964f91321c6a0f09bcc41dd64e7a6602bc4f",
+  "revision": "213c23ae45a04797572242568d5d51937181792d",
   "highlights": {
     "attribute": {
       "fg": "#4dbdcb"
@@ -356,16 +356,16 @@
       "underline": true
     },
     "tag": {
-      "fg": "#97ca72"
+      "fg": "#ca72e4"
     },
     "tag.attribute": {
-      "fg": "#97ca72"
+      "fg": "#ebc275"
     },
     "tag.builtin": {
-      "fg": "#ef5f6b"
+      "fg": "#ca72e4"
     },
     "tag.delimiter": {
-      "fg": "#97ca72"
+      "fg": "#ca72e4"
     },
     "type": {
       "fg": "#ebc275"

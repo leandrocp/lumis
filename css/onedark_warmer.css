@@ -1,5 +1,5 @@
 /* onedark_warmer
- * revision: 918e89e6993b2901eea47b9f4eb666d53c2542a6
+ * revision: 213c23ae45a04797572242568d5d51937181792d
  */
 
 pre.athl {
@@ -26,7 +26,7 @@ pre.athl {
   font-style: italic;
 }
 .comment-documentation {
-  color: #818387;
+  color: #5a5b5e;
   font-style: italic;
 }
 .comment-error {
@@ -359,16 +359,16 @@ pre.athl {
   text-decoration: underline;
 }
 .tag {
-  color: #8fb573;
+  color: #bb70d2;
 }
 .tag-attribute {
-  color: #8fb573;
+  color: #dbb671;
 }
 .tag-builtin {
-  color: #de5d68;
+  color: #bb70d2;
 }
 .tag-delimiter {
-  color: #8fb573;
+  color: #bb70d2;
 }
 .type {
   color: #dbb671;

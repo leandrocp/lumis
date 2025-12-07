@@ -1,7 +1,7 @@
 {
   "name": "onedark_warmer",
   "appearance": "dark",
-  "revision": "6c10964f91321c6a0f09bcc41dd64e7a6602bc4f",
+  "revision": "213c23ae45a04797572242568d5d51937181792d",
   "highlights": {
     "attribute": {
       "fg": "#51a8b3"
@@ -356,16 +356,16 @@
       "underline": true
     },
     "tag": {
-      "fg": "#8fb573"
+      "fg": "#bb70d2"
     },
     "tag.attribute": {
-      "fg": "#8fb573"
+      "fg": "#dbb671"
     },
     "tag.builtin": {
-      "fg": "#de5d68"
+      "fg": "#bb70d2"
     },
     "tag.delimiter": {
-      "fg": "#8fb573"
+      "fg": "#bb70d2"
     },
     "type": {
       "fg": "#dbb671"

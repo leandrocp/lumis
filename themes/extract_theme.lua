@@ -330,7 +330,13 @@ for _, plugin in ipairs(plugins_to_install) do
 end
 
 if theme.config then
-	theme.config()
+	local success, err = pcall(theme.config)
+	if not success then
+		print(string.format("❌ Failed to configure theme '%s'\n", theme.name))
+		print(string.format("   Error: %s\n", err))
+		print(string.format("   Skipping theme extraction for '%s'\n\n", theme.name))
+		os.exit(0)
+	end
 else
 	print("⚠️  No config function found for theme\n")
 end

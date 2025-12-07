@@ -119,16 +119,16 @@ pre.athl {
   color: #907aa9;
 }
 .keyword-debug {
-  color: #295e73;
+  color: #907aa9;
 }
 .keyword-directive {
-  color: #c9709e;
+  color: #907aa9;
 }
 .keyword-directive-css {
-  color: #c9709e;
+  color: #907aa9;
 }
 .keyword-directive-define {
-  color: #c9709e;
+  color: #907aa9;
 }
 .keyword-exception {
   color: #907aa9;
@@ -161,7 +161,7 @@ pre.athl {
   color: #b4637a;
 }
 .keyword-type {
-  color: #ea9d34;
+  color: #907aa9;
 }
 .label {
   color: #816b9a;

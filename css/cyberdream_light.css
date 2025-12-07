@@ -1,5 +1,5 @@
 /* cyberdream_light
- * revision: eba11f590026e74915e13d12a53cdbdc9b98d9f9
+ * revision: a43b45423e8494898c353c0604e0b2e4e99bd056
  */
 
 pre.athl {
@@ -65,7 +65,7 @@ pre.athl {
   color: #f40064;
 }
 .diff-delta {
-  color: #ffaf5f;
+  color: #007373;
 }
 .diff-minus {
   color: #d11500;
@@ -107,10 +107,10 @@ pre.athl {
   color: #d17c00;
 }
 .keyword-conditional {
-  color: #d100bf;
+  color: #d17c00;
 }
 .keyword-conditional-ternary {
-  color: #d100bf;
+  color: #d17c00;
 }
 .keyword-coroutine {
   color: #d17c00;
@@ -119,16 +119,16 @@ pre.athl {
   color: #d17c00;
 }
 .keyword-directive {
-  color: #008c99;
+  color: #d17c00;
 }
 .keyword-directive-css {
-  color: #008c99;
+  color: #d17c00;
 }
 .keyword-directive-define {
-  color: #008c99;
+  color: #d17c00;
 }
 .keyword-exception {
-  color: #d100bf;
+  color: #d17c00;
 }
 .keyword-export {
   color: #d17c00;
@@ -137,13 +137,13 @@ pre.athl {
   color: #d17c00;
 }
 .keyword-import {
-  color: #008c99;
+  color: #d17c00;
 }
 .keyword-import-c {
-  color: #008c99;
+  color: #d17c00;
 }
 .keyword-import-cpp {
-  color: #008c99;
+  color: #d17c00;
 }
 .keyword-modifier {
   color: #d17c00;
@@ -152,7 +152,7 @@ pre.athl {
   color: #a018ff;
 }
 .keyword-repeat {
-  color: #d100bf;
+  color: #d17c00;
 }
 .keyword-return {
   color: #d17c00;
@@ -208,7 +208,7 @@ pre.athl {
   font-style: italic;
 }
 .markup-link {
-  color: #16181a;
+  text-decoration: underline;
 }
 .markup-link-label {
   color: #d17c00;
@@ -238,10 +238,10 @@ pre.athl {
   color: #7b8496;
 }
 .markup-raw {
-  color: #7b8496;
+  color: #f40064;
 }
 .markup-raw-block {
-  color: #7b8496;
+  color: #f40064;
 }
 .markup-strikethrough {
   text-decoration: line-through;

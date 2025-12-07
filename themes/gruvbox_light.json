@@ -127,7 +127,7 @@
       "fg": "#9d0006"
     },
     "keyword.debug": {
-      "fg": "#5f8787"
+      "fg": "#af3a03"
     },
     "keyword.directive": {
       "fg": "#427b58"
@@ -169,7 +169,7 @@
       "fg": "#9d0006"
     },
     "keyword.type": {
-      "fg": "#427b58"
+      "fg": "#9d0006"
     },
     "label": {
       "fg": "#9d0006"

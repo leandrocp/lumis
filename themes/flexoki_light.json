@@ -113,16 +113,16 @@
       "fg": "#66800b"
     },
     "keyword.debug": {
-      "fg": "#a02f6f"
+      "fg": "#66800b"
     },
     "keyword.directive": {
-      "fg": "#a02f6f"
+      "fg": "#66800b"
     },
     "keyword.directive.css": {
-      "fg": "#a02f6f"
+      "fg": "#66800b"
     },
     "keyword.directive.define": {
-      "fg": "#a02f6f"
+      "fg": "#66800b"
     },
     "keyword.exception": {
       "fg": "#66800b"
@@ -134,13 +134,13 @@
       "fg": "#66800b"
     },
     "keyword.import": {
-      "fg": "#af3029"
+      "fg": "#66800b"
     },
     "keyword.import.c": {
-      "fg": "#af3029"
+      "fg": "#66800b"
     },
     "keyword.import.cpp": {
-      "fg": "#af3029"
+      "fg": "#66800b"
     },
     "keyword.modifier": {
       "fg": "#66800b"
@@ -155,7 +155,7 @@
       "fg": "#66800b"
     },
     "keyword.type": {
-      "fg": "#bc5215"
+      "fg": "#66800b"
     },
     "label": {
       "fg": "#66800b"
@@ -204,13 +204,13 @@
       "italic": true
     },
     "markup.link": {
-      "fg": "#205ea6"
+      "underline": true
     },
     "markup.link.label": {
-      "fg": "#205ea6"
+      "underline": true
     },
     "markup.link.label.html": {
-      "fg": "#205ea6"
+      "underline": true
     },
     "markup.link.url": {
       "underline": true
@@ -231,10 +231,10 @@
       "fg": "#6f6e69"
     },
     "markup.raw": {
-      "fg": "#b7b5ac"
+      "fg": "#6f6e69"
     },
     "markup.raw.block": {
-      "fg": "#b7b5ac"
+      "fg": "#6f6e69"
     },
     "markup.strikethrough": {
       "strikethrough": true
@@ -246,7 +246,7 @@
       "underline": true
     },
     "module": {
-      "fg": "#205ea6"
+      "fg": "#bc5215"
     },
     "module.builtin": {
       "fg": "#6f6e69"

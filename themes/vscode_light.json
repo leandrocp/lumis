@@ -1,7 +1,7 @@
 {
   "name": "vscode_light",
   "appearance": "light",
-  "revision": "cb9df0873c10a21d05362455ae3bb355eadcef6b",
+  "revision": "aa1102a7e15195c9cca22730b09224a7f7745ba8",
   "highlights": {
     "attribute": {
       "fg": "#795e26"
@@ -44,8 +44,14 @@
       "fg": "#800000",
       "bold": true
     },
+    "constant": {
+      "fg": "#4fc1ff"
+    },
     "constant.builtin": {
       "fg": "#0000ff"
+    },
+    "constant.java": {
+      "fg": "#4fc1ff"
     },
     "constant.macro": {
       "fg": "#16825d"

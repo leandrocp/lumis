@@ -1,7 +1,7 @@
 {
   "name": "onedark_darker",
   "appearance": "dark",
-  "revision": "6c10964f91321c6a0f09bcc41dd64e7a6602bc4f",
+  "revision": "213c23ae45a04797572242568d5d51937181792d",
   "highlights": {
     "attribute": {
       "fg": "#48b0bd"
@@ -356,16 +356,16 @@
       "underline": true
     },
     "tag": {
-      "fg": "#8ebd6b"
+      "fg": "#bf68d9"
     },
     "tag.attribute": {
-      "fg": "#8ebd6b"
+      "fg": "#e2b86b"
     },
     "tag.builtin": {
-      "fg": "#e55561"
+      "fg": "#bf68d9"
     },
     "tag.delimiter": {
-      "fg": "#8ebd6b"
+      "fg": "#bf68d9"
     },
     "type": {
       "fg": "#e2b86b"

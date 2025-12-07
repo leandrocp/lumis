@@ -122,7 +122,7 @@
       "italic": true
     },
     "keyword.debug": {
-      "fg": "#5f8787"
+      "fg": "#005f5f"
     },
     "keyword.directive": {
       "fg": "#a0132f"

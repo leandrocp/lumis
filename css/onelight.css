@@ -68,13 +68,13 @@ pre.athl {
   color: #eea825;
 }
 .diff-delta {
-  color: #ffaf5f;
+  color: #007373;
 }
 .diff-minus {
-  color: #d75f5f;
+  color: #590008;
 }
 .diff-plus {
-  color: #5fd75f;
+  color: #005523;
 }
 .function {
   color: #118dc3;
@@ -119,16 +119,16 @@ pre.athl {
   color: #9a77cf;
 }
 .keyword-debug {
-  color: #5f8787;
+  color: #9a77cf;
 }
 .keyword-directive {
-  color: #eea825;
+  color: #9a77cf;
 }
 .keyword-directive-css {
-  color: #eea825;
+  color: #9a77cf;
 }
 .keyword-directive-define {
-  color: #eea825;
+  color: #9a77cf;
 }
 .keyword-exception {
   color: #9a77cf;
@@ -210,7 +210,7 @@ pre.athl {
   font-style: italic;
 }
 .markup-link {
-  color: #e05661;
+  text-decoration: underline;
 }
 .markup-link-label {
   color: #118dc3;

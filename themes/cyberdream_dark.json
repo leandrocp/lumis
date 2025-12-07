@@ -1,7 +1,7 @@
 {
   "name": "cyberdream_dark",
   "appearance": "dark",
-  "revision": "22b993f79c7aab934c00bfc3437d41f4621974dc",
+  "revision": "a43b45423e8494898c353c0604e0b2e4e99bd056",
   "highlights": {
     "attribute": {
       "fg": "#5ef1ff"

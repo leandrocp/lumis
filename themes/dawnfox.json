@@ -116,16 +116,16 @@
       "fg": "#907aa9"
     },
     "keyword.debug": {
-      "fg": "#295e73"
+      "fg": "#907aa9"
     },
     "keyword.directive": {
-      "fg": "#c9709e"
+      "fg": "#907aa9"
     },
     "keyword.directive.css": {
-      "fg": "#c9709e"
+      "fg": "#907aa9"
     },
     "keyword.directive.define": {
-      "fg": "#c9709e"
+      "fg": "#907aa9"
     },
     "keyword.exception": {
       "fg": "#907aa9"
@@ -158,7 +158,7 @@
       "fg": "#b4637a"
     },
     "keyword.type": {
-      "fg": "#ea9d34"
+      "fg": "#907aa9"
     },
     "label": {
       "fg": "#816b9a"

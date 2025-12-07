@@ -165,7 +165,7 @@
       "fg": "#286983"
     },
     "keyword.type": {
-      "fg": "#56949f"
+      "fg": "#286983"
     },
     "label": {
       "fg": "#56949f"
@@ -214,13 +214,16 @@
       "italic": true
     },
     "markup.link": {
-      "fg": "#464261"
+      "fg": "#907aa9",
+      "underline": true
     },
     "markup.link.label": {
-      "fg": "#464261"
+      "fg": "#907aa9",
+      "underline": true
     },
     "markup.link.label.html": {
-      "fg": "#464261"
+      "fg": "#907aa9",
+      "underline": true
     },
     "markup.link.url": {
       "fg": "#907aa9"
@@ -242,12 +245,10 @@
       "fg": "#464261"
     },
     "markup.raw": {
-      "fg": "#797593",
-      "italic": true
+      "fg": "#56949f"
     },
     "markup.raw.block": {
-      "fg": "#797593",
-      "italic": true
+      "fg": "#56949f"
     },
     "markup.strikethrough": {
       "strikethrough": true

@@ -116,16 +116,16 @@ pre.athl {
   color: #66800b;
 }
 .keyword-debug {
-  color: #a02f6f;
+  color: #66800b;
 }
 .keyword-directive {
-  color: #a02f6f;
+  color: #66800b;
 }
 .keyword-directive-css {
-  color: #a02f6f;
+  color: #66800b;
 }
 .keyword-directive-define {
-  color: #a02f6f;
+  color: #66800b;
 }
 .keyword-exception {
   color: #66800b;
@@ -137,13 +137,13 @@ pre.athl {
   color: #66800b;
 }
 .keyword-import {
-  color: #af3029;
+  color: #66800b;
 }
 .keyword-import-c {
-  color: #af3029;
+  color: #66800b;
 }
 .keyword-import-cpp {
-  color: #af3029;
+  color: #66800b;
 }
 .keyword-modifier {
   color: #66800b;
@@ -158,7 +158,7 @@ pre.athl {
   color: #66800b;
 }
 .keyword-type {
-  color: #bc5215;
+  color: #66800b;
 }
 .label {
   color: #66800b;
@@ -207,13 +207,13 @@ pre.athl {
   font-style: italic;
 }
 .markup-link {
-  color: #205ea6;
+  text-decoration: underline;
 }
 .markup-link-label {
-  color: #205ea6;
+  text-decoration: underline;
 }
 .markup-link-label-html {
-  color: #205ea6;
+  text-decoration: underline;
 }
 .markup-link-url {
   text-decoration: underline;
@@ -234,10 +234,10 @@ pre.athl {
   color: #6f6e69;
 }
 .markup-raw {
-  color: #b7b5ac;
+  color: #6f6e69;
 }
 .markup-raw-block {
-  color: #b7b5ac;
+  color: #6f6e69;
 }
 .markup-strikethrough {
   text-decoration: line-through;
@@ -249,7 +249,7 @@ pre.athl {
   text-decoration: underline;
 }
 .module {
-  color: #205ea6;
+  color: #bc5215;
 }
 .module-builtin {
   color: #6f6e69;

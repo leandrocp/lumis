@@ -1,5 +1,5 @@
 /* vscode_light
- * revision: cb9df0873c10a21d05362455ae3bb355eadcef6b
+ * revision: aa1102a7e15195c9cca22730b09224a7f7745ba8
  */
 
 pre.athl {
@@ -47,8 +47,14 @@ pre.athl {
   color: #800000;
   font-weight: bold;
 }
+.constant {
+  color: #4fc1ff;
+}
 .constant-builtin {
   color: #0000ff;
+}
+.constant-java {
+  color: #4fc1ff;
 }
 .constant-macro {
   color: #16825d;

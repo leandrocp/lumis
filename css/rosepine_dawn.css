@@ -1,5 +1,5 @@
 /* rosepine_dawn
- * revision: eb3ff49a4f2b4e8b06d27de529e44fa52a60ab8a
+ * revision: cf2a288696b03d0934da713d66c6d71557b5c997
  */
 
 pre.athl {
@@ -168,7 +168,7 @@ pre.athl {
   color: #286983;
 }
 .keyword-type {
-  color: #56949f;
+  color: #286983;
 }
 .label {
   color: #56949f;
@@ -217,13 +217,16 @@ pre.athl {
   font-style: italic;
 }
 .markup-link {
-  color: #464261;
+  color: #907aa9;
+  text-decoration: underline;
 }
 .markup-link-label {
-  color: #464261;
+  color: #907aa9;
+  text-decoration: underline;
 }
 .markup-link-label-html {
-  color: #464261;
+  color: #907aa9;
+  text-decoration: underline;
 }
 .markup-link-url {
   color: #907aa9;
@@ -245,12 +248,10 @@ pre.athl {
   color: #464261;
 }
 .markup-raw {
-  color: #797593;
-  font-style: italic;
+  color: #56949f;
 }
 .markup-raw-block {
-  color: #797593;
-  font-style: italic;
+  color: #56949f;
 }
 .markup-strikethrough {
   text-decoration: line-through;

@@ -1,7 +1,7 @@
 {
   "name": "cyberdream_light",
   "appearance": "light",
-  "revision": "22b993f79c7aab934c00bfc3437d41f4621974dc",
+  "revision": "a43b45423e8494898c353c0604e0b2e4e99bd056",
   "highlights": {
     "attribute": {
       "fg": "#008c99"
@@ -62,7 +62,7 @@
       "fg": "#f40064"
     },
     "diff.delta": {
-      "fg": "#ffaf5f"
+      "fg": "#007373"
     },
     "diff.minus": {
       "fg": "#d11500"
@@ -104,10 +104,10 @@
       "fg": "#d17c00"
     },
     "keyword.conditional": {
-      "fg": "#d100bf"
+      "fg": "#d17c00"
     },
     "keyword.conditional.ternary": {
-      "fg": "#d100bf"
+      "fg": "#d17c00"
     },
     "keyword.coroutine": {
       "fg": "#d17c00"
@@ -116,16 +116,16 @@
       "fg": "#d17c00"
     },
     "keyword.directive": {
-      "fg": "#008c99"
+      "fg": "#d17c00"
     },
     "keyword.directive.css": {
-      "fg": "#008c99"
+      "fg": "#d17c00"
     },
     "keyword.directive.define": {
-      "fg": "#008c99"
+      "fg": "#d17c00"
     },
     "keyword.exception": {
-      "fg": "#d100bf"
+      "fg": "#d17c00"
     },
     "keyword.export": {
       "fg": "#d17c00"
@@ -134,13 +134,13 @@
       "fg": "#d17c00"
     },
     "keyword.import": {
-      "fg": "#008c99"
+      "fg": "#d17c00"
     },
     "keyword.import.c": {
-      "fg": "#008c99"
+      "fg": "#d17c00"
     },
     "keyword.import.cpp": {
-      "fg": "#008c99"
+      "fg": "#d17c00"
     },
     "keyword.modifier": {
       "fg": "#d17c00"
@@ -149,7 +149,7 @@
       "fg": "#a018ff"
     },
     "keyword.repeat": {
-      "fg": "#d100bf"
+      "fg": "#d17c00"
     },
     "keyword.return": {
       "fg": "#d17c00"
@@ -205,7 +205,7 @@
       "italic": true
     },
     "markup.link": {
-      "fg": "#16181a"
+      "underline": true
     },
     "markup.link.label": {
       "fg": "#d17c00"
@@ -235,10 +235,10 @@
       "fg": "#7b8496"
     },
     "markup.raw": {
-      "fg": "#7b8496"
+      "fg": "#f40064"
     },
     "markup.raw.block": {
-      "fg": "#7b8496"
+      "fg": "#f40064"
     },
     "markup.strikethrough": {
       "strikethrough": true

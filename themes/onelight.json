@@ -65,13 +65,13 @@
       "fg": "#eea825"
     },
     "diff.delta": {
-      "fg": "#ffaf5f"
+      "fg": "#007373"
     },
     "diff.minus": {
-      "fg": "#d75f5f"
+      "fg": "#590008"
     },
     "diff.plus": {
-      "fg": "#5fd75f"
+      "fg": "#005523"
     },
     "function": {
       "fg": "#118dc3"
@@ -116,16 +116,16 @@
       "fg": "#9a77cf"
     },
     "keyword.debug": {
-      "fg": "#5f8787"
+      "fg": "#9a77cf"
     },
     "keyword.directive": {
-      "fg": "#eea825"
+      "fg": "#9a77cf"
     },
     "keyword.directive.css": {
-      "fg": "#eea825"
+      "fg": "#9a77cf"
     },
     "keyword.directive.define": {
-      "fg": "#eea825"
+      "fg": "#9a77cf"
     },
     "keyword.exception": {
       "fg": "#9a77cf"
@@ -207,7 +207,7 @@
       "italic": true
     },
     "markup.link": {
-      "fg": "#e05661"
+      "underline": true
     },
     "markup.link.label": {
       "fg": "#118dc3"

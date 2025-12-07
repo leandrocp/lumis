@@ -161,7 +161,8 @@
       "italic": true
     },
     "keyword.type": {
-      "fg": "#188092"
+      "fg": "#7847bd",
+      "italic": true
     },
     "label": {
       "fg": "#2e7de9"

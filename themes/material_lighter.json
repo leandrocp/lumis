@@ -121,7 +121,7 @@
       "italic": true
     },
     "keyword.debug": {
-      "fg": "#e53935"
+      "fg": "#39adb5"
     },
     "keyword.directive": {
       "fg": "#39adb5"
@@ -131,9 +131,6 @@
     },
     "keyword.directive.define": {
       "fg": "#39adb5"
-    },
-    "keyword.exception": {
-      "fg": "#e53935"
     },
     "keyword.export": {
       "fg": "#39adb5"
@@ -163,7 +160,7 @@
       "fg": "#39adb5"
     },
     "keyword.type": {
-      "fg": "#7c4dff"
+      "fg": "#39adb5"
     },
     "label": {
       "fg": "#f6a434"

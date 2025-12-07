@@ -162,7 +162,8 @@ pre.athl {
   color: #859900;
 }
 .keyword-type {
-  color: #b58900;
+  color: #586e75;
+  font-weight: bold;
 }
 .label {
   color: #859900;

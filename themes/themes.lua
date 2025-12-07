@@ -512,7 +512,7 @@ return {
 		name = "onedark_warm",
 		config = function()
 			vim.o.background = "dark"
-			require("onedark").setup({ style = "warn" })
+			require("onedark").setup({ style = "warm" })
 			require("onedark").load()
 		end,
 	},
