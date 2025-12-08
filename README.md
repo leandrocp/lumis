@@ -122,7 +122,7 @@ autumnus = { version = "0.3", features = ["all-languages"] }
 
 ### As a CLI Tool
 
-Install the `autumn` command-line tool:
+Install the `autumnus` command-line tool:
 
 ```sh
 cargo install autumnus
@@ -144,8 +144,6 @@ cargo install autumnus --features "all-languages"
 ```
 
 This can significantly reduce compilation time, especially on slower machines or CI environments.
-
-Note: While the package name is `autumnus`, the installed binary is named `autumn`. This means you use `cargo install autumnus` to install it, but run it as `autumn` in your terminal.
 
 ## Usage
 
@@ -240,12 +238,12 @@ When using `FormatterOption::HtmlLinked`, include the corresponding CSS file for
 
 ### Command-Line Usage
 
-The `autumn` command-line tool provides several commands for syntax highlighting and code analysis:
+The `autumnus` command-line tool provides several commands for syntax highlighting and code analysis:
 
 #### List Available Languages
 
 ```sh
-autumn list-languages
+autumnus list-languages
 ```
 
 Lists all supported programming languages and their associated file patterns.
@@ -253,7 +251,7 @@ Lists all supported programming languages and their associated file patterns.
 #### List Available Themes
 
 ```sh
-autumn list-themes
+autumnus list-themes
 ```
 
 Lists all available syntax highlighting themes.
@@ -261,7 +259,7 @@ Lists all available syntax highlighting themes.
 #### Highlight a File
 
 ```sh
-autumn highlight <path> [options]
+autumnus highlight <path> [options]
 ```
 
 Highlights the contents of a file with syntax highlighting.
@@ -275,13 +273,13 @@ Options:
 
 Example:
 ```sh
-autumn highlight src/main.rs --formatter html-inline --theme github_dark
+autumnus highlight src/main.rs --formatter html-inline --theme github_dark
 ```
 
 #### Highlight Source Code
 
 ```sh
-autumn highlight-source <source> [options]
+autumnus highlight-source <source> [options]
 ```
 
 Highlights a string of source code.
@@ -293,13 +291,13 @@ Options:
 
 Example:
 ```sh
-autumn highlight-source "println!(\"Hello World!\");" -l rust
+autumnus highlight-source "println!(\"Hello World!\");" -l rust
 ```
 
 #### Dump Tree-sitter AST
 
 ```sh
-autumn dump-tree-sitter <path>
+autumnus dump-tree-sitter <path>
 ```
 
 Dumps the Tree-sitter AST (Abstract Syntax Tree) for a given file. This is useful for debugging or understanding how Tree-sitter parses your code.
@@ -307,7 +305,7 @@ Dumps the Tree-sitter AST (Abstract Syntax Tree) for a given file. This is usefu
 #### Generate Theme
 
 ```sh
-autumn gen-theme --url <git-url> --colorscheme <name> [options]
+autumnus gen-theme --url <git-url> --colorscheme <name> [options]
 ```
 
 Generates a theme JSON file from any Git repository containing a Neovim theme.
@@ -327,23 +325,23 @@ Examples:
 
 ```sh
 # Basic usage - output to stdout
-autumn gen-theme --url https://github.com/catppuccin/nvim --colorscheme catppuccin-mocha
+autumnus gen-theme --url https://github.com/catppuccin/nvim --colorscheme catppuccin-mocha
 
 # Save to file
-autumn gen-theme \
+autumnus gen-theme \
   --url https://github.com/folke/tokyonight.nvim \
   --colorscheme tokyonight \
   -o tokyonight.json
 
 # With custom setup code
-autumn gen-theme \
+autumnus gen-theme \
   --url https://github.com/ellisonleao/gruvbox.nvim \
   --colorscheme gruvbox \
   --setup "require('gruvbox').setup({ contrast = 'hard' })" \
   -o gruvbox-hard.json
 
 # Specify light appearance
-autumn gen-theme \
+autumnus gen-theme \
   --url https://github.com/projekt0n/github-nvim-theme \
   --colorscheme github_light \
   --appearance light \

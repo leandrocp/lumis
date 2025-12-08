@@ -36,7 +36,7 @@ rustdoc-args = ["--generate-link-to-definition"]
 no-default-features = true
 
 [[bin]]
-name = "autumn"
+name = "autumnus"
 path = "src/bin/autumn/main.rs"
 doc = true
 

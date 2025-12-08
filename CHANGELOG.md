@@ -124,19 +124,19 @@ let html = highlight(code, options);
 ## [0.7.1] - 2025-08-09
 
 ### Added
-- Add `--color` option to `autumn dump-tree-sitter` command for colored AST output
+- Add `--color` option to `autumnus dump-tree-sitter` command for colored AST output
 
 ### Changed
 - Sync vendored parsers with nvim-treesitter repo
 - Add language markdown-inline
 - Update parsers: angular, latex, llvm, markdown, perl, vim
 - Update queries: c, csharp, ecma, fsharp, javascript, php, powershell, swift, tsx
-- Improve `autumn dump-tree-sitter` output to display field names and match Neovim's `:InspectTree` format while preserving raw text tokens
+- Improve `autumnus dump-tree-sitter` output to display field names and match Neovim's `:InspectTree` format while preserving raw text tokens
 
 ## [0.7.0] - 2025-07-26
 
 ### Added
-- Add `--highlight-lines` option to autumn CLI for highlighting specific line ranges
+- Add `--highlight-lines` option to autumnus CLI for highlighting specific line ranges
 
 ### Changed
 - **Breaking** Change HTML line containers from `<span>` elements to `<div>` elements in both HTML inline and linked formatters

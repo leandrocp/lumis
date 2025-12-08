@@ -13,7 +13,6 @@ use strum::IntoEnumIterator;
 /// CLI for the Autumnus syntax highlighter
 ///
 /// This binary provides command-line access to Autumnus's syntax highlighting capabilities.
-/// While the package is named 'autumnus', this binary is named 'autumn' for easier typing.
 #[derive(Parser)]
 #[command(version)]
 struct Cli {
@@ -21,7 +20,7 @@ struct Cli {
     command: Commands,
 }
 
-/// Commands available in the autumn CLI
+/// Commands available in the autumnus CLI
 #[derive(Subcommand)]
 enum Commands {
     /// List all supported programming languages and their file patterns
@@ -116,7 +115,7 @@ enum Formatter {
     Terminal,
 }
 
-/// Entry point for the autumn CLI
+/// Entry point for the autumnus CLI
 ///
 /// Parses command line arguments and dispatches to the appropriate handler function.
 fn main() -> Result<()> {

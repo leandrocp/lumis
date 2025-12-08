@@ -15,8 +15,8 @@
 
 ## Commands
 - `just` is used for common development tasks; use it when a request involves running such commands
-- `cargo run --bin autumn` is the CLI tool for Autumnus
-- Use `--help` to learn more about `autumn` bin commands, for eg: `cargo run --bin autumn highlight --help`
+- `cargo run --bin autumnus` is the CLI tool for Autumnus
+- Use `--help` to learn more about `autumnus` bin commands, for eg: `cargo run --bin autumnus highlight --help`
 
 ## Non-standard Directories
 - `vendored_parsers/`: Tree-sitter parser and grammar for additional languages not included in `Cargo.toml`
