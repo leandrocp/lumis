@@ -47,13 +47,14 @@ let html = highlight(code, options);
 - `Language::guess()` takes `Option<&str>` for explicit auto-detection
 
 ### Changed
-- **BREAKING**: Removed `FormatterOption` enum and `HtmlFormatter` trait - use builder pattern (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`) instead
+- **BREAKING**: Rename cli bin `autumn` -> `autumnus`
+- **BREAKING**: Remove `FormatterOption` enum and `HtmlFormatter` trait - use builder pattern (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`) instead
 - **BREAKING**: `Options` struct: `formatter` is now `Box<dyn Formatter>`, renamed `lang_or_file` to `language`
 - **BREAKING**: `Options::new()` signature changed to take `language` and `formatter` parameters
 - **BREAKING**: `Formatter::format()` now takes `source: &str` parameter - custom formatters must update trait implementation
 - **BREAKING**: `Language::guess()` signature changed to `guess(Option<&str>, &str)` - `None` for auto-detection, empty string defaults to `PlainText`
 - **BREAKING**: `themes::get()` returns owned `Theme` instead of `&'static Theme` - removed lifetime parameters from formatters
-- **BREAKING**: Removed `github_light_default` and `github_dark_default` theme variants (replaced by `github_light` and `github_dark` using default colorschemes)
+- **BREAKING**: Remove `github_light_default` and `github_dark_default` theme variants (replaced by `github_light` and `github_dark` using default colorschemes)
 
 ### Added
 - `OptionsBuilder` for fluent options construction and `Default` implementation for `Options`
