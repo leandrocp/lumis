@@ -141,6 +141,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "autumnus-cli"
+version = "0.7.8"
+dependencies = [
+ "anyhow",
+ "autumnus",
+ "clap",
+ "strum",
+ "tempfile",
+ "tree-sitter",
+]
+
+[[package]]
+name = "autumnus-dev"
+version = "0.7.8"
+dependencies = [
+ "anyhow",
+ "autumnus",
+ "clap",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

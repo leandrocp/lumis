@@ -151,7 +151,7 @@ impl std::error::Error for ThemeParseError {}
 ///
 /// Loading a theme from a JSON file:
 ///
-/// ```
+/// ```no_run
 /// use autumnus::themes;
 /// use std::path::Path;
 ///
@@ -707,8 +707,11 @@ mod tests {
 
     #[test]
     fn test_from_file() {
-        let path = Path::new("themes/catppuccin_frappe.json");
-        let theme = from_file(path).unwrap();
+        // Tests run from the crate directory, so we need to go up to workspace root
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let workspace_root = Path::new(manifest_dir).parent().unwrap().parent().unwrap();
+        let path = workspace_root.join("themes/catppuccin_frappe.json");
+        let theme = from_file(&path).unwrap();
 
         assert_eq!(theme.name, "catppuccin_frappe");
 

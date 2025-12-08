@@ -1,7 +1,18 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
+use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
+
+fn workspace_root() -> PathBuf {
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    Path::new(&manifest_dir)
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
+}
 
 #[derive(Parser)]
 #[command(version)]
@@ -26,7 +37,8 @@ fn main() -> Result<()> {
 }
 
 fn gen_samples() -> Result<()> {
-    let samples_path = PathBuf::from("./samples");
+    let root = workspace_root();
+    let samples_path = root.join("samples");
 
     let themes = [
         "aura_dark",
@@ -170,8 +182,9 @@ fn gen_samples_entries(
 }
 
 fn gen_css() -> Result<()> {
-    let css_dir = Path::new("css");
-    fs::create_dir_all(css_dir)?;
+    let root = workspace_root();
+    let css_dir = root.join("css");
+    fs::create_dir_all(&css_dir)?;
 
     let mut themes: Vec<_> = autumnus::themes::ALL_THEMES.iter().collect();
     themes.sort_by(|a, b| a.name.cmp(&b.name));

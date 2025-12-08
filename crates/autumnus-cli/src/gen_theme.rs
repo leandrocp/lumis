@@ -1,8 +1,18 @@
 use anyhow::{Context, Result};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempfile::TempDir;
+
+fn workspace_root() -> PathBuf {
+    let manifest_dir = env!("CARGO_MANIFEST_DIR");
+    Path::new(manifest_dir)
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
+}
 
 pub fn generate_theme(
     url: &str,
@@ -93,9 +103,7 @@ fn create_themes_lua(
 }
 
 fn copy_extract_theme_lua(temp_path: &std::path::Path) -> Result<()> {
-    let extract_theme_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("themes")
-        .join("extract_theme.lua");
+    let extract_theme_path = workspace_root().join("themes").join("extract_theme.lua");
 
     let content = fs::read_to_string(&extract_theme_path)
         .context("Failed to read themes/extract_theme.lua")?;

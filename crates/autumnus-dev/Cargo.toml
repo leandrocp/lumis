@@ -1,0 +1,21 @@
+[package]
+name = "autumnus-dev"
+version.workspace = true
+homepage.workspace = true
+repository.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Development tools for Autumnus"
+publish = false
+
+[[bin]]
+name = "dev"
+path = "src/main.rs"
+doc = false
+
+[dependencies]
+autumnus = { workspace = true, default-features = true }
+anyhow = { workspace = true }
+clap = { workspace = true }

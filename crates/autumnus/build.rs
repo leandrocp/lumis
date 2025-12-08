@@ -6,6 +6,23 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
+fn workspace_root() -> PathBuf {
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    Path::new(&manifest_dir)
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
+}
+
+fn vendored_parser_path(parser_name: &str) -> String {
+    workspace_root()
+        .join(format!("vendored_parsers/{}/src", parser_name))
+        .display()
+        .to_string()
+}
+
 fn main() {
     vendored_parsers();
     queries();
@@ -14,7 +31,7 @@ fn main() {
 
 struct TreeSitterParser {
     name: &'static str,
-    src_dir: &'static str,
+    src_dir: String,
     extra_files: Vec<&'static str>,
 }
 
@@ -87,187 +104,187 @@ fn vendored_parsers() {
     #[cfg(feature = "lang-angular")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-angular",
-        src_dir: "vendored_parsers/tree-sitter-angular/src",
+        src_dir: vendored_parser_path("tree-sitter-angular"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-astro")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-astro",
-        src_dir: "vendored_parsers/tree-sitter-astro/src",
+        src_dir: vendored_parser_path("tree-sitter-astro"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-caddy")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-caddy",
-        src_dir: "vendored_parsers/tree-sitter-caddy/src",
+        src_dir: vendored_parser_path("tree-sitter-caddy"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-clojure")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-clojure",
-        src_dir: "vendored_parsers/tree-sitter-clojure/src",
+        src_dir: vendored_parser_path("tree-sitter-clojure"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-commonlisp")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-commonlisp",
-        src_dir: "vendored_parsers/tree-sitter-commonlisp/src",
+        src_dir: vendored_parser_path("tree-sitter-commonlisp"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-csv")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-csv",
-        src_dir: "vendored_parsers/tree-sitter-csv/csv/src",
+        src_dir: vendored_parser_path("tree-sitter-csv/csv"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-dart")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-dart",
-        src_dir: "vendored_parsers/tree-sitter-dart/src",
+        src_dir: vendored_parser_path("tree-sitter-dart"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-dockerfile")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-dockerfile",
-        src_dir: "vendored_parsers/tree-sitter-dockerfile/src",
+        src_dir: vendored_parser_path("tree-sitter-dockerfile"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-eex")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-eex",
-        src_dir: "vendored_parsers/tree-sitter-eex/src",
+        src_dir: vendored_parser_path("tree-sitter-eex"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-fish")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-fish",
-        src_dir: "vendored_parsers/tree-sitter-fish/src",
+        src_dir: vendored_parser_path("tree-sitter-fish"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-glimmer")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-glimmer",
-        src_dir: "vendored_parsers/tree-sitter-glimmer/src",
+        src_dir: vendored_parser_path("tree-sitter-glimmer"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-graphql")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-graphql",
-        src_dir: "vendored_parsers/tree-sitter-graphql/src",
+        src_dir: vendored_parser_path("tree-sitter-graphql"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-iex")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-iex",
-        src_dir: "vendored_parsers/tree-sitter-iex/src",
+        src_dir: vendored_parser_path("tree-sitter-iex"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-kotlin")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-kotlin",
-        src_dir: "vendored_parsers/tree-sitter-kotlin/src",
+        src_dir: vendored_parser_path("tree-sitter-kotlin"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-latex")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-latex",
-        src_dir: "vendored_parsers/tree-sitter-latex/src",
+        src_dir: vendored_parser_path("tree-sitter-latex"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-liquid")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-liquid",
-        src_dir: "vendored_parsers/tree-sitter-liquid/src",
+        src_dir: vendored_parser_path("tree-sitter-liquid"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-llvm")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-llvm",
-        src_dir: "vendored_parsers/tree-sitter-llvm/src",
+        src_dir: vendored_parser_path("tree-sitter-llvm"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-make")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-make",
-        src_dir: "vendored_parsers/tree-sitter-make/src",
+        src_dir: vendored_parser_path("tree-sitter-make"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-markdown")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-markdown",
-        src_dir: "vendored_parsers/tree-sitter-markdown/src",
+        src_dir: vendored_parser_path("tree-sitter-markdown"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-markdown-inline")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-markdown_inline",
-        src_dir: "vendored_parsers/tree-sitter-markdown_inline/src",
+        src_dir: vendored_parser_path("tree-sitter-markdown_inline"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-perl")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-perl",
-        src_dir: "vendored_parsers/tree-sitter-perl/src",
+        src_dir: vendored_parser_path("tree-sitter-perl"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-scss")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-scss",
-        src_dir: "vendored_parsers/tree-sitter-scss/src",
+        src_dir: vendored_parser_path("tree-sitter-scss"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-surface")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-surface",
-        src_dir: "vendored_parsers/tree-sitter-surface/src",
+        src_dir: vendored_parser_path("tree-sitter-surface"),
         extra_files: vec![],
     });
 
     #[cfg(feature = "lang-typst")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-typst",
-        src_dir: "vendored_parsers/tree-sitter-typst/src",
+        src_dir: vendored_parser_path("tree-sitter-typst"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-vim")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-vim",
-        src_dir: "vendored_parsers/tree-sitter-vim/src",
+        src_dir: vendored_parser_path("tree-sitter-vim"),
         extra_files: vec!["scanner.c"],
     });
 
     #[cfg(feature = "lang-vue")]
     parsers.push(TreeSitterParser {
         name: "tree-sitter-vue",
-        src_dir: "vendored_parsers/tree-sitter-vue/src",
+        src_dir: vendored_parser_path("tree-sitter-vue"),
         extra_files: vec!["scanner.c"],
     });
 
     for parser in &parsers {
-        println!("cargo:rerun-if-changed={}", parser.src_dir);
+        println!("cargo:rerun-if-changed={}", &parser.src_dir);
     }
 
     parsers.par_iter().for_each(|p| p.build());
@@ -280,7 +297,7 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
 
     let mut query_content: Vec<String> = Vec::new();
 
-    let original_content = fs::read_to_string(path).expect("failed to ready query file");
+    let original_content = fs::read_to_string(path).expect("failed to read query file");
 
     // fix incompatible patterns
     let content = original_content
@@ -319,7 +336,8 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
                 .collect();
 
             for parent_language in parent_languages {
-                let parent_path = PathBuf::from(format!("queries/{parent_language}/{query}.scm"));
+                let root = workspace_root();
+                let parent_path = root.join(format!("queries/{parent_language}/{query}.scm"));
                 let parent_content = read_query_file(&parent_path, &parent_language, query);
                 query_content.push(parent_content.clone());
             }
@@ -329,7 +347,8 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
     query_content.push(format!("\n; query: {language}"));
     query_content.push(content.clone());
 
-    let overwrite_path = PathBuf::from(format!("overwrites/{language}/{query}.scm"));
+    let root = workspace_root();
+    let overwrite_path = root.join(format!("overwrites/{language}/{query}.scm"));
     if overwrite_path.exists() {
         println!(
             "cargo:warning=appending {} into {}",
@@ -346,10 +365,11 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
 }
 
 fn queries() {
+    let root = workspace_root();
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let dest_path = out_dir.join("queries_constants.rs");
 
-    let queries_path = PathBuf::from("queries");
+    let queries_path = root.join("queries");
     let mut generated_code = TokenStream::new();
 
     let entries = fs::read_dir(&queries_path).unwrap();
@@ -630,12 +650,12 @@ fn convert_lua_pattern_to_rust_regex(lua_pattern: &str) -> String {
 }
 
 fn themes() {
+    let root = workspace_root();
     println!("cargo:rerun-if-changed=themes");
 
     let out_dir = env::var("OUT_DIR").unwrap();
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("theme_data.rs");
-    let themes_dir = Path::new(&manifest_dir).join("themes");
+    let themes_dir = root.join("themes");
 
     let theme_names: Vec<String> = fs::read_dir(&themes_dir)
         .unwrap()

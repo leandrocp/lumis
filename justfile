@@ -6,12 +6,12 @@ default:
 list-languages:
     #!/usr/bin/env bash
     set -euo pipefail
-    cargo run --bin autumn list-languages
+    cargo run --bin autumnus list-languages
 
 list-themes:
     #!/usr/bin/env bash
     set -euo pipefail
-    cargo run --bin autumn list-themes
+    cargo run --bin autumnus list-themes
 
 list-vendored-parsers:
     #!/usr/bin/env bash
