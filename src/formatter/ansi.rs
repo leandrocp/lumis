@@ -248,11 +248,11 @@ impl<'a> Iterator for AnsiIterator<'a> {
 ///     write!(&mut output, "{}", ansi_text).unwrap();
 /// }
 /// ```
-pub fn highlight_iter_with_ansi<'a>(
-    source: &'a str,
+pub fn highlight_iter_with_ansi(
+    source: &str,
     language: Language,
     theme: Option<Theme>,
-) -> Result<AnsiIterator<'a>, String> {
+) -> Result<AnsiIterator<'_>, String> {
     let iter = highlight_iter(source, language, theme)?;
 
     let segments: Vec<(String, Range<usize>)> = iter

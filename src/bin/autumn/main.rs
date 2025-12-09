@@ -44,13 +44,25 @@ enum Commands {
         /// Path to the file to highlight
         path: String,
 
-        /// Output format (terminal, html-inline, html-linked)
+        /// Output format (terminal, html-inline, html-linked, html-multi-themes)
         #[arg(short = 'f', long)]
         formatter: Option<Formatter>,
 
         /// Theme name (e.g., "dracula", "github_dark")
         #[arg(short = 't', long)]
         theme: Option<String>,
+
+        /// Multiple themes with format "name:theme_id" (can be repeated)
+        #[arg(long)]
+        themes: Vec<String>,
+
+        /// Default theme name for inline styles (when using --themes)
+        #[arg(long)]
+        default_theme: Option<String>,
+
+        /// CSS variable prefix for theme variables
+        #[arg(long, default_value = "--athl")]
+        css_variable_prefix: String,
 
         /// Highlight lines
         #[arg(short = 'l', long)]
@@ -66,13 +78,25 @@ enum Commands {
         #[arg(short = 'l', long)]
         language: Option<String>,
 
-        /// Output format (terminal, html-inline, html-linked)
+        /// Output format (terminal, html-inline, html-linked, html-multi-themes)
         #[arg(short = 'f', long)]
         formatter: Option<Formatter>,
 
         /// Theme name (e.g., "dracula", "github_dark")
         #[arg(short = 't', long)]
         theme: Option<String>,
+
+        /// Multiple themes with format "name:theme_id" (can be repeated)
+        #[arg(long)]
+        themes: Vec<String>,
+
+        /// Default theme name for inline styles (when using --themes)
+        #[arg(long)]
+        default_theme: Option<String>,
+
+        /// CSS variable prefix for theme variables
+        #[arg(long, default_value = "--athl")]
+        css_variable_prefix: String,
 
         /// Highlight lines
         #[arg(long)]
@@ -108,6 +132,8 @@ enum Commands {
 enum Formatter {
     /// HTML output with inline styles
     HtmlInline,
+    /// HTML output with inline styles and multiple themes
+    HtmlMultiThemes,
     /// HTML output with linked stylesheet
     HtmlLinked,
     /// ANSI colored output for terminal (default)
@@ -129,19 +155,36 @@ fn main() -> Result<()> {
             path,
             formatter,
             theme,
+            themes,
+            default_theme,
+            css_variable_prefix,
             highlight_lines,
-        } => highlight(&path, formatter, theme, highlight_lines),
+        } => highlight(
+            &path,
+            formatter,
+            theme,
+            themes,
+            default_theme,
+            css_variable_prefix,
+            highlight_lines,
+        ),
         Commands::HighlightSource {
             source,
             language,
             formatter,
             theme,
+            themes,
+            default_theme,
+            css_variable_prefix,
             highlight_lines,
         } => highlight_source(
             &source,
             language.as_deref(),
             formatter,
             theme,
+            themes,
+            default_theme,
+            css_variable_prefix,
             highlight_lines,
         ),
         Commands::GenTheme {
@@ -344,6 +387,9 @@ fn highlight(
     path: &str,
     formatter: Option<Formatter>,
     theme: Option<String>,
+    themes: Vec<String>,
+    default_theme: Option<String>,
+    css_variable_prefix: String,
     highlight_lines: Option<String>,
 ) -> Result<()> {
     let theme = theme.unwrap_or("catppuccin_frappe".to_string());
@@ -387,6 +433,58 @@ fn highlight(
                     .unwrap()
             };
 
+            let mut output = Vec::new();
+            formatter.format(source, &mut output).unwrap();
+            let highlighted = String::from_utf8(output).unwrap();
+
+            println!("{highlighted}");
+        }
+
+        Formatter::HtmlMultiThemes => {
+            if themes.is_empty() {
+                return Err(anyhow::anyhow!(
+                    "--formatter html-multi-themes requires --themes"
+                ));
+            }
+
+            let mut theme_map = std::collections::HashMap::new();
+            for theme_spec in themes {
+                let parts: Vec<&str> = theme_spec.split(':').collect();
+                if parts.len() != 2 {
+                    return Err(anyhow::anyhow!(
+                        "Invalid theme format '{}', expected 'name:theme_id'",
+                        theme_spec
+                    ));
+                }
+                let theme_name = parts[0].to_string();
+                let theme_id = parts[1];
+                let theme_obj = autumnus::themes::get(theme_id)
+                    .map_err(|_| anyhow::anyhow!("Theme '{}' not found", theme_id))?;
+                theme_map.insert(theme_name, theme_obj);
+            }
+
+            let formatter = {
+                let mut builder = autumnus::HtmlMultiThemesBuilder::new();
+                builder
+                    .lang(language)
+                    .themes(theme_map)
+                    .css_variable_prefix(css_variable_prefix);
+
+                if let Some(default) = default_theme {
+                    builder.default_theme(default);
+                }
+
+                if let Some(lines) = parsed_highlight_lines {
+                    let html_highlight_lines = autumnus::formatter::html_inline::HighlightLines {
+                        lines,
+                        style: Some(autumnus::formatter::html_inline::HighlightLinesStyle::Theme),
+                        class: None,
+                    };
+                    builder.highlight_lines(Some(html_highlight_lines));
+                }
+
+                builder.build().map_err(|e| anyhow::anyhow!("{}", e))?
+            };
             let mut output = Vec::new();
             formatter.format(source, &mut output).unwrap();
             let highlighted = String::from_utf8(output).unwrap();
@@ -588,11 +686,15 @@ fn try_canonicalize(path: &Path) -> PathBuf {
 /// * `formatter` - Output format (terminal, html-inline, html-linked)
 /// * `theme` - Theme name to use for highlighting
 /// * `highlight_lines` - Optional string specifying lines to highlight (e.g., "1,3-5,8")
+#[allow(clippy::too_many_arguments)]
 fn highlight_source(
     source: &str,
     language: Option<&str>,
     formatter: Option<Formatter>,
     theme: Option<String>,
+    themes: Vec<String>,
+    default_theme: Option<String>,
+    css_variable_prefix: String,
     highlight_lines: Option<String>,
 ) -> Result<()> {
     let theme = theme.unwrap_or("catppuccin_frappe".to_string());
@@ -657,6 +759,69 @@ fn highlight_source(
                     .unwrap()
             };
 
+            let mut output = Vec::new();
+            formatter.format(source, &mut output).unwrap();
+            let highlighted = String::from_utf8(output).unwrap();
+
+            println!("{highlighted}");
+        }
+
+        Formatter::HtmlMultiThemes => {
+            if themes.is_empty() {
+                eprintln!("Error: --formatter html-multi-themes requires --themes");
+                std::process::exit(1);
+            }
+
+            let mut theme_map = std::collections::HashMap::new();
+            for theme_spec in themes {
+                let parts: Vec<&str> = theme_spec.split(':').collect();
+                if parts.len() != 2 {
+                    eprintln!(
+                        "Error: Invalid theme format '{}', expected 'name:theme_id'",
+                        theme_spec
+                    );
+                    std::process::exit(1);
+                }
+                let theme_name = parts[0].to_string();
+                let theme_id = parts[1];
+                let theme_obj = match autumnus::themes::get(theme_id) {
+                    Ok(t) => t,
+                    Err(_) => {
+                        eprintln!("Error: Theme '{}' not found", theme_id);
+                        std::process::exit(1);
+                    }
+                };
+                theme_map.insert(theme_name, theme_obj);
+            }
+
+            let formatter = {
+                let mut builder = autumnus::HtmlMultiThemesBuilder::new();
+                builder
+                    .lang(lang)
+                    .themes(theme_map)
+                    .css_variable_prefix(css_variable_prefix);
+
+                if let Some(default) = default_theme {
+                    builder.default_theme(default);
+                }
+
+                if let Some(lines) = parsed_highlight_lines {
+                    let html_highlight_lines = autumnus::formatter::html_inline::HighlightLines {
+                        lines,
+                        style: Some(autumnus::formatter::html_inline::HighlightLinesStyle::Theme),
+                        class: None,
+                    };
+                    builder.highlight_lines(Some(html_highlight_lines));
+                }
+
+                match builder.build() {
+                    Ok(f) => f,
+                    Err(e) => {
+                        eprintln!("Error building formatter: {}", e);
+                        std::process::exit(1);
+                    }
+                }
+            };
             let mut output = Vec::new();
             formatter.format(source, &mut output).unwrap();
             let highlighted = String::from_utf8(output).unwrap();

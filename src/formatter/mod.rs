@@ -1,7 +1,8 @@
 //! Formatter implementations for generating syntax highlighted output.
 //!
-//! This module provides three different formatters for rendering syntax highlighted code:
-//! - [`html_inline`] - HTML output with inline CSS styles
+//! This module provides four different formatters for rendering syntax highlighted code:
+//! - [`html_inline`] - HTML output with inline CSS styles (single theme)
+//! - [`html_multi_themes`] - HTML output with inline CSS styles (multiple themes)
 //! - [`html_linked`] - HTML output with CSS classes (requires external CSS)
 //! - [`terminal`] - ANSI color codes for terminal output
 //!
@@ -9,12 +10,13 @@
 //!
 //! Each formatter has a dedicated builder that provides a type-safe, ergonomic API:
 //! - [`HtmlInlineBuilder`] - Create HTML formatters with inline CSS styles
+//! - [`HtmlMultiThemesBuilder`] - Create HTML formatters with multiple theme support
 //! - [`HtmlLinkedBuilder`] - Create HTML formatters with CSS classes
 //! - [`TerminalBuilder`] - Create terminal formatters with ANSI colors
 //!
 //! Builders are exported at the crate root for convenient access:
 //! ```rust
-//! use autumnus::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder};
+//! use autumnus::{HtmlInlineBuilder, HtmlMultiThemesBuilder, HtmlLinkedBuilder, TerminalBuilder};
 //! ```
 //!
 //! # Examples
@@ -43,6 +45,30 @@
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
+//! ## Using HtmlMultiThemesBuilder
+//!
+//! ```rust
+//! use autumnus::{HtmlMultiThemesBuilder, languages::Language, themes, formatter::Formatter};
+//! use std::collections::HashMap;
+//!
+//! let code = "fn main() { println!(\"Hello\"); }";
+//!
+//! let mut themes_map = HashMap::new();
+//! themes_map.insert("light".to_string(), themes::get("github_light").unwrap());
+//! themes_map.insert("dark".to_string(), themes::get("github_dark").unwrap());
+//!
+//! // HTML with multiple theme support using CSS variables
+//! let formatter = HtmlMultiThemesBuilder::new()
+//!     .lang(Language::Rust)
+//!     .themes(themes_map)
+//!     .default_theme("light")
+//!     .build()
+//!     .unwrap();
+//!
+//! let mut output = Vec::new();
+//! formatter.format(code, &mut output).unwrap();
+//! let html = String::from_utf8(output).unwrap();
+//! ```
 //!
 //! ## Using HtmlLinkedBuilder
 //!
@@ -123,6 +149,9 @@ pub mod html;
 
 pub mod html_inline;
 pub use html_inline::{HtmlInline, HtmlInlineBuilder};
+
+pub mod html_multi_themes;
+pub use html_multi_themes::{HtmlMultiThemes, HtmlMultiThemesBuilder};
 
 pub mod html_linked;
 pub use html_linked::{HtmlLinked, HtmlLinkedBuilder};

@@ -387,11 +387,11 @@ impl<'a> Iterator for HighlightIterator<'a> {
 ///     println!("{}..{}: '{}' (fg: {:?})", range.start, range.end, text, style.fg);
 /// }
 /// ```
-pub fn highlight_iter<'a>(
-    source: &'a str,
+pub fn highlight_iter(
+    source: &str,
     language: Language,
     theme: Option<Theme>,
-) -> Result<HighlightIterator<'a>, String> {
+) -> Result<HighlightIterator<'_>, String> {
     HighlightIterator::new(source, language, theme)
 }
 

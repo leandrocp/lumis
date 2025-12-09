@@ -90,11 +90,11 @@ impl<'a> Iterator for HighlightIteratorWithScopes<'a> {
 ///     println!("{} (scope: {}, color: {:?})", text, scope, style.fg);
 /// }
 /// ```
-pub fn highlight_iter_with_scopes<'a>(
-    source: &'a str,
+pub fn highlight_iter_with_scopes(
+    source: &str,
     language: Language,
     theme: Option<Theme>,
-) -> Result<HighlightIteratorWithScopes<'a>, String> {
+) -> Result<HighlightIteratorWithScopes<'_>, String> {
     let mut highlighter = TSHighlighter::new();
     let events = highlighter
         .highlight(language.config(), source.as_bytes(), None, |injected| {

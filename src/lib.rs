@@ -21,28 +21,6 @@
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
-//! ### Choose Your Output Format
-//!
-//! ```rust
-//! use autumnus::{HtmlLinkedBuilder, TerminalBuilder, languages::Language, themes};
-//!
-//! let code = "console.log('Hello');";
-//! let theme = themes::get("github_dark").unwrap();
-//!
-//! // HTML with CSS classes - smaller output, needs external stylesheet
-//! let html_formatter = HtmlLinkedBuilder::new()
-//!     .lang(Language::JavaScript)
-//!     .build()
-//!     .unwrap();
-//!
-//! // Terminal with ANSI colors - perfect for CLI tools
-//! let term_formatter = TerminalBuilder::new()
-//!     .lang(Language::JavaScript)
-//!     .theme(Some(theme))
-//!     .build()
-//!     .unwrap();
-//! ```
-//!
 //! ### Alternative: Using `highlight()` and `write_highlight()`
 //!
 //! ```rust
@@ -88,7 +66,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! autumnus = { version = "0.3", default-features = false, features = ["lang-rust", "lang-javascript"] }
+//! autumnus = { version = "0.7", default-features = false, features = ["lang-rust", "lang-javascript"] }
 //! ```
 //!
 //! Available language features include: `lang-angular`, `lang-astro`, `lang-bash`, `lang-c`,
@@ -99,7 +77,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! autumnus = { version = "0.3", features = ["all-languages"] }
+//! autumnus = { version = "0.7", features = ["all-languages"] }
 //! ```
 //!
 //! ## Formatters
@@ -107,6 +85,7 @@
 //! | Formatter | Output | Use When |
 //! |-----------|--------|----------|
 //! | [`HtmlInlineBuilder`] | HTML with inline styles | Need standalone HTML, email, no external CSS |
+//! | [`HtmlMultiThemesBuilder`] | HTML (inline) with multiple themes | Support light/dark mode, theme switching |
 //! | [`HtmlLinkedBuilder`] | HTML with CSS classes | Multiple code blocks, custom styling |
 //! | [`TerminalBuilder`] | ANSI escape codes | CLI tools, terminal output |
 //!
@@ -351,7 +330,9 @@ use derive_builder::Builder;
 use std::io::{self, Write};
 
 // Re-export builders for easier access
-pub use crate::formatter::{HtmlInlineBuilder, HtmlLinkedBuilder, TerminalBuilder};
+pub use crate::formatter::{
+    HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder, TerminalBuilder,
+};
 /// Configuration options for syntax highlighting.
 ///
 /// This struct provides all the configuration needed to highlight source code,
