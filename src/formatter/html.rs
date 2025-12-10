@@ -235,13 +235,13 @@ pub fn span_linked(text: &str, scope: &str) -> String {
 /// Escape text for safe HTML output.
 ///
 /// Escapes the following characters:
-/// - `{` → `&lbrace;` (for framework compatibility)
-/// - `}` → `&rbrace;` (for framework compatibility)
+/// - `&` → `&amp;`
 /// - `<` → `&lt;`
 /// - `>` → `&gt;`
-/// - `&` → `&amp;`
 /// - `"` → `&quot;`
 /// - `'` → `&#39;`
+/// - `{` → `&lbrace;` (for framework compatibility)
+/// - `}` → `&rbrace;` (for framework compatibility)
 ///
 /// # Example
 ///
@@ -252,31 +252,113 @@ pub fn span_linked(text: &str, scope: &str) -> String {
 /// assert_eq!(html::escape("{code}"), "&lbrace;code&rbrace;");
 /// ```
 pub fn escape(text: &str) -> String {
-    text.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#39;")
-        .replace('{', "&lbrace;")
-        .replace('}', "&rbrace;")
+    let mut buf = String::with_capacity(text.len() + text.len() / 10);
+
+    for c in text.chars() {
+        match c {
+            '&' => buf.push_str("&amp;"),
+            '<' => buf.push_str("&lt;"),
+            '>' => buf.push_str("&gt;"),
+            '"' => buf.push_str("&quot;"),
+            '\'' => buf.push_str("&#39;"),
+            '{' => buf.push_str("&lbrace;"),
+            '}' => buf.push_str("&rbrace;"),
+            _ => buf.push(c),
+        }
+    }
+
+    buf
 }
 
-/// Map tree-sitter scope to CSS class name.
+/// Escape braces for framework compatibility.
 ///
-/// Converts scope names like "keyword.control" to CSS-friendly class names
-/// like "keyword".
+/// Replaces `{` with `&lbrace;` and `}` with `&rbrace;`. This is useful
+/// when rendering code inside template systems that use braces for interpolation
+/// (like Handlebars, Liquid, Jinja, Phoenix templates, etc.).
 ///
 /// # Example
 ///
 /// ```rust
 /// use autumnus::html;
 ///
-/// assert_eq!(html::scope_to_class("keyword.control"), "keyword");
-/// assert_eq!(html::scope_to_class("string.quoted"), "string");
+/// assert_eq!(html::escape_braces("fn main() { }"), "fn main() &lbrace; &rbrace;");
+/// ```
+pub fn escape_braces(text: &str) -> String {
+    text.replace('{', "&lbrace;").replace('}', "&rbrace;")
+}
+
+/// Wrap content in a line div with optional class and style attributes.
+///
+/// Creates a `<div class="line..." data-line="N">content</div>` element
+/// with optional additional CSS classes and inline styles.
+///
+/// # Arguments
+///
+/// * `line_number` - The 1-based line number
+/// * `content` - The HTML content for the line
+/// * `class_suffix` - Optional additional CSS classes (e.g., " highlighted custom-class")
+/// * `style` - Optional inline style attribute content
+///
+/// # Example
+///
+/// ```rust
+/// use autumnus::html;
+///
+/// let line = html::wrap_line(1, "content", Some(" highlighted"), Some("background: yellow"));
+/// // Returns: <div class="line highlighted" style="background: yellow" data-line="1">content</div>
+/// ```
+pub fn wrap_line(
+    line_number: usize,
+    content: &str,
+    class_suffix: Option<&str>,
+    style: Option<&str>,
+) -> String {
+    let class_attr = if let Some(suffix) = class_suffix {
+        format!("line{}", suffix)
+    } else {
+        "line".to_string()
+    };
+
+    let style_attr = if let Some(s) = style {
+        format!(" style=\"{}\"", s)
+    } else {
+        String::new()
+    };
+
+    format!(
+        "<div class=\"{}\"{}data-line=\"{}\">{}</div>",
+        class_attr,
+        if style.is_some() {
+            format!("{} ", style_attr)
+        } else {
+            " ".to_string()
+        },
+        line_number,
+        content
+    )
+}
+
+/// Map tree-sitter scope to CSS class name.
+///
+/// Converts scope names to their corresponding CSS class names using the
+/// CLASSES constant. This maintains the full scope hierarchy specificity.
+///
+/// # Example
+///
+/// ```rust
+/// use autumnus::html;
+///
+/// assert_eq!(html::scope_to_class("keyword.conditional"), "keyword-conditional");
+/// assert_eq!(html::scope_to_class("string.escape"), "string-escape");
+/// assert_eq!(html::scope_to_class("function.method.call"), "function-method-call");
 /// ```
 pub fn scope_to_class(scope: &str) -> &str {
-    // Map to first segment of scope
-    scope.split('.').next().unwrap_or("text")
+    crate::constants::HIGHLIGHT_NAMES
+        .iter()
+        .position(|&s| s == scope)
+        .and_then(|idx| crate::constants::CLASSES.get(idx))
+        .copied()
+        .unwrap_or("text")
 }
 
 /// Wrap HTML content into line-wrapped divs.
@@ -400,4 +482,165 @@ pub fn open_code_tag(output: &mut dyn Write, lang: &Language) -> io::Result<()> 
 /// ```
 pub fn closing_tags(output: &mut dyn Write) -> io::Result<()> {
     output.write_all(b"</code></pre>")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_escape_all_entities() {
+        assert_eq!(
+            escape("&<>\"'{}"),
+            "&amp;&lt;&gt;&quot;&#39;&lbrace;&rbrace;"
+        );
+    }
+
+    #[test]
+    fn test_escape_preserves_normal_text() {
+        assert_eq!(escape("hello world"), "hello world");
+    }
+
+    #[test]
+    fn test_escape_mixed_content() {
+        assert_eq!(
+            escape("fn main() { println!(\"<html>\"); }"),
+            "fn main() &lbrace; println!(&quot;&lt;html&gt;&quot;); &rbrace;"
+        );
+    }
+
+    #[test]
+    fn test_escape_empty_string() {
+        assert_eq!(escape(""), "");
+    }
+
+    #[test]
+    fn test_escape_braces_only() {
+        assert_eq!(escape_braces("fn() {}"), "fn() &lbrace;&rbrace;");
+    }
+
+    #[test]
+    fn test_escape_braces_preserves_other_chars() {
+        assert_eq!(
+            escape_braces("fn main() { let x = 42; }"),
+            "fn main() &lbrace; let x = 42; &rbrace;"
+        );
+    }
+
+    #[test]
+    fn test_escape_braces_no_braces() {
+        assert_eq!(escape_braces("hello world"), "hello world");
+    }
+
+    #[test]
+    fn test_escape_braces_empty_string() {
+        assert_eq!(escape_braces(""), "");
+    }
+
+    #[test]
+    fn test_scope_to_class_keyword_conditional() {
+        assert_eq!(scope_to_class("keyword.conditional"), "keyword-conditional");
+    }
+
+    #[test]
+    fn test_scope_to_class_string_escape() {
+        assert_eq!(scope_to_class("string.escape"), "string-escape");
+    }
+
+    #[test]
+    fn test_scope_to_class_function_method_call() {
+        assert_eq!(
+            scope_to_class("function.method.call"),
+            "function-method-call"
+        );
+    }
+
+    #[test]
+    fn test_scope_to_class_comment_documentation() {
+        assert_eq!(
+            scope_to_class("comment.documentation"),
+            "comment-documentation"
+        );
+    }
+
+    #[test]
+    fn test_scope_to_class_unknown_scope() {
+        assert_eq!(scope_to_class("unknown.scope.name"), "text");
+    }
+
+    #[test]
+    fn test_scope_to_class_simple_scope() {
+        assert_eq!(scope_to_class("keyword"), "keyword");
+    }
+
+    #[test]
+    fn test_wrap_line_simple() {
+        let result = wrap_line(1, "content", None, None);
+        assert_eq!(result, "<div class=\"line\" data-line=\"1\">content</div>");
+    }
+
+    #[test]
+    fn test_wrap_line_with_class() {
+        let result = wrap_line(5, "highlighted content", Some(" highlighted"), None);
+        assert_eq!(
+            result,
+            "<div class=\"line highlighted\" data-line=\"5\">highlighted content</div>"
+        );
+    }
+
+    #[test]
+    fn test_wrap_line_with_style() {
+        let result = wrap_line(3, "styled", None, Some("color: red;"));
+        assert_eq!(
+            result,
+            "<div class=\"line\" style=\"color: red;\" data-line=\"3\">styled</div>"
+        );
+    }
+
+    #[test]
+    fn test_wrap_line_with_class_and_style() {
+        let result = wrap_line(
+            10,
+            "both",
+            Some(" custom-class"),
+            Some("background: yellow;"),
+        );
+        assert_eq!(
+            result,
+            "<div class=\"line custom-class\" style=\"background: yellow;\" data-line=\"10\">both</div>"
+        );
+    }
+
+    #[test]
+    fn test_wrap_line_empty_content() {
+        let result = wrap_line(1, "", None, None);
+        assert_eq!(result, "<div class=\"line\" data-line=\"1\"></div>");
+    }
+
+    #[test]
+    fn test_span_inline_with_style_and_scope() {
+        let style = Style {
+            fg: Some("#ff79c6".to_string()),
+            bold: true,
+            ..Default::default()
+        };
+        let result = span_inline("keyword", &style, Some("keyword"));
+        assert_eq!(
+            result,
+            "<span data-highlight=\"keyword\" style=\"color: #ff79c6; font-weight: bold;\">keyword</span>"
+        );
+    }
+
+    #[test]
+    fn test_span_inline_no_style() {
+        let style = Style::default();
+        let result = span_inline("text", &style, None);
+        assert_eq!(result, "text");
+    }
+
+    #[test]
+    fn test_span_linked() {
+        let result = span_linked("fn", "keyword.function");
+        assert_eq!(result, "<span class=\"keyword-function\">fn</span>");
+    }
 }
