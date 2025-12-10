@@ -4,3 +4,4 @@
 /queries/**/indents.scm
 /.claude/
 mise.toml
+.envrc
