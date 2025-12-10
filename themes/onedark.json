@@ -1,7 +1,7 @@
 {
   "name": "onedark",
   "appearance": "dark",
-  "revision": "eeac8847a46a02c4de4e887c4c6d34b282060b5d",
+  "revision": "97f1748bd100036194bd84aed53dc72b6d3aab99",
   "highlights": {
     "attribute": {
       "fg": "#c678dd"
@@ -71,7 +71,7 @@
       "fg": "#ffc0b9"
     },
     "diff.plus": {
-      "fg": "#b3f6c0"
+      "fg": "#98c379"
     },
     "function": {
       "fg": "#61afef"
