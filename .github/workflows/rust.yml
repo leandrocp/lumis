@@ -10,8 +10,8 @@ jobs:
   test:
     uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
-      msrv: '1.82.0'
+      msrv: '1.91'
   lint:
     uses: leandrocp/github-actions/.github/workflows/rust-lint.yml@main
     with:
-      msrv: '1.82.0'
+      msrv: '1.91'
