@@ -42,7 +42,7 @@ let html = highlight(code, options);
 ```
 
 **Key Changes:**
-- Use builder pattern for formatters (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`)
+- Use builder pattern for formatters (`HtmlInlineBuilder`, `HtmlLinkedBuilder`, `HtmlMultiThemesBuilder`, `TerminalBuilder`)
 - Themes now return owned values (no `&` needed)
 - `Language::guess()` takes `Option<&str>` for explicit auto-detection
 
@@ -55,8 +55,10 @@ let html = highlight(code, options);
 - **BREAKING**: `Language::guess()` signature changed to `guess(Option<&str>, &str)` - `None` for auto-detection, empty string defaults to `PlainText`
 - **BREAKING**: `themes::get()` returns owned `Theme` instead of `&'static Theme` - removed lifetime parameters from formatters
 - **BREAKING**: Remove `github_light_default` and `github_dark_default` theme variants (replaced by `github_light` and `github_dark` using default colorschemes)
+- Update languages: bash, cmake, ecma, fsharp, haskell, html, java, json, ruby, sql, tsx, typescript, xml
 
 ### Added
+- Formatter `HtmlMultiThemes` to support Light/Dark themes inspired by [Shiki Dual Themes](https://shiki.style/guide/dual-themes)
 - `OptionsBuilder` for fluent options construction and `Default` implementation for `Options`
 - Builder pattern for all formatters: `HtmlInlineBuilder`, `HtmlLinkedBuilder`, `TerminalBuilder`
 - `highlight` module with ergonomic API: `Highlighter`, `HighlightIterator`, and `highlight_iter()` for streaming access
