@@ -372,7 +372,7 @@
 </div><div class="line" data-line="372"><span data-highlight="keyword.repeat" style="color: #ca72e4;">done</span>
 </div><div class="line" data-line="373">
 </div><div class="line" data-line="374"><span data-highlight="comment" style="color: #546178;"># while loop:</span>
-</div><div class="line" data-line="375"><span data-highlight="keyword.repeat" style="color: #ca72e4;">while</span> <span data-highlight="punctuation.bracket" style="color: #7d899f;">[</span> <span data-highlight="boolean" style="color: #d99a5e;">true</span> <span data-highlight="punctuation.bracket" style="color: #7d899f;">]</span>
+</div><div class="line" data-line="375"><span data-highlight="keyword.repeat" style="color: #ca72e4;">while</span> <span data-highlight="punctuation.bracket" style="color: #7d899f;">[</span> true <span data-highlight="punctuation.bracket" style="color: #7d899f;">]</span>
 </div><div class="line" data-line="376"><span data-highlight="keyword.repeat" style="color: #ca72e4;">do</span>
 </div><div class="line" data-line="377">    <span data-highlight="function.builtin" style="color: #4dbdcb;">echo</span> <span data-highlight="string" style="color: #97ca72;">&quot;loop body here...&quot;</span>
 </div><div class="line" data-line="378">    <span data-highlight="function.builtin" style="color: #4dbdcb;">break</span>
@@ -454,7 +454,7 @@
 </div><div class="line" data-line="454"><span data-highlight="comment" style="color: #546178;"># The `trap` command allows you to execute a command whenever your script</span>
 </div><div class="line" data-line="455"><span data-highlight="comment" style="color: #546178;"># receives a signal. Here, `trap` will execute `rm` if it receives any of the</span>
 </div><div class="line" data-line="456"><span data-highlight="comment" style="color: #546178;"># three listed signals.</span>
-</div><div class="line" data-line="457"><span data-highlight="function.builtin" style="color: #4dbdcb;">trap</span> <span data-highlight="string" style="color: #97ca72;">&quot;rm <span data-highlight="punctuation.special" style="color: #ef5f6b;">$</span><span data-highlight="constant" style="color: #d99a5e;">TEMP_FILE</span>; exit&quot;</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">SIGHUP</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">SIGINT</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">SIGTERM</span>
+</div><div class="line" data-line="457">trap <span data-highlight="string" style="color: #97ca72;">&quot;rm <span data-highlight="punctuation.special" style="color: #ef5f6b;">$</span><span data-highlight="constant" style="color: #d99a5e;">TEMP_FILE</span>; exit&quot;</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">SIGHUP</span> <span data-highlight="variable.parameter" style="color: #ef5f6b;">SIGINT</span> <span data-highlight="string.special" style="color: #25747d;">SIGTERM</span>
 </div><div class="line" data-line="458">
 </div><div class="line" data-line="459"><span data-highlight="comment" style="color: #546178;"># `sudo` is used to perform commands as the superuser</span>
 </div><div class="line" data-line="460"><span data-highlight="comment" style="color: #546178;"># usually it will ask interactively the password of superuser</span>

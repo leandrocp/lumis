@@ -55,7 +55,9 @@ let html = highlight(code, options);
 - **BREAKING**: `Language::guess()` signature changed to `guess(Option<&str>, &str)` - `None` for auto-detection, empty string defaults to `PlainText`
 - **BREAKING**: `themes::get()` returns owned `Theme` instead of `&'static Theme` - removed lifetime parameters from formatters
 - **BREAKING**: Remove `github_light_default` and `github_dark_default` theme variants (replaced by `github_light` and `github_dark` using default colorschemes)
-- Update languages: bash, cmake, ecma, fsharp, haskell, html, java, json, ruby, sql, tsx, typescript, xml
+- **BREAKING**: Require Rust 1.91 or later
+- Update languages: angular, bash, cmake, csv, ecma, fsharp, haskell, html, java, json, perl, powershell, ruby, sql, tsx, typescript, xml
+- Fix HTML formatter scope handling
 
 ### Added
 - Formatter `HtmlMultiThemes` to support Light/Dark themes inspired by [Shiki Dual Themes](https://shiki.style/guide/dual-themes)
