@@ -304,7 +304,7 @@ impl Formatter for HtmlInline<'_> {
 
         for (i, line) in renderer.lines().enumerate() {
             let line_number = i + 1;
-            let line_with_braces = line.replace('{', "&lbrace;").replace('}', "&rbrace;");
+            let line_with_braces = crate::formatter::html::escape_braces(line);
             self.write_line(&mut buffer, line_number, &line_with_braces)?;
         }
 
