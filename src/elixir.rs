@@ -1133,4 +1133,133 @@ mod tests {
         assert!(result.contains("--athl-solarized-"));
         assert!(result.contains("color:#"));
     }
+
+    #[test]
+    fn test_html_multi_themes_font_style_css_variables() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("light"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: true,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("--athl-light-font-style:"));
+        assert!(result.contains("--athl-dark-font-style:"));
+        assert!(result.contains("--athl-light-font-weight:"));
+        assert!(result.contains("--athl-dark-font-weight:"));
+        assert!(result.contains("--athl-light-text-decoration:"));
+        assert!(result.contains("--athl-dark-text-decoration:"));
+    }
+
+    #[test]
+    fn test_html_multi_themes_lightdark_font_decorations() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("light-dark()"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: true,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("font-weight: light-dark("));
+        assert!(result.contains("font-style: light-dark("));
+        assert!(result.contains("text-decoration: light-dark("));
+    }
+
+    #[test]
+    fn test_html_multi_themes_none_mode_font_decorations() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: None,
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("--athl-light-font-style:"));
+        assert!(result.contains("--athl-dark-font-style:"));
+        assert!(result.contains("--athl-light-font-weight:"));
+        assert!(result.contains("--athl-dark-font-weight:"));
+        assert!(result.contains("--athl-light-text-decoration:"));
+        assert!(result.contains("--athl-dark-text-decoration:"));
+        assert!(!result.contains("font-style:italic;"));
+        assert!(!result.contains("font-weight:bold;"));
+    }
+
+    #[test]
+    fn test_ex_style_font_decorations_conversion() {
+        let ex_style = ExStyle {
+            fg: Some("#ff0000".to_string()),
+            bg: Some("#ffffff".to_string()),
+            underline: true,
+            bold: true,
+            italic: true,
+            strikethrough: true,
+        };
+
+        let rust_style: themes::Style = themes::Style {
+            fg: ex_style.fg.clone(),
+            bg: ex_style.bg.clone(),
+            underline: ex_style.underline,
+            bold: ex_style.bold,
+            italic: ex_style.italic,
+            strikethrough: ex_style.strikethrough,
+        };
+
+        assert_eq!(rust_style.fg, Some("#ff0000".to_string()));
+        assert_eq!(rust_style.bg, Some("#ffffff".to_string()));
+        assert!(rust_style.underline);
+        assert!(rust_style.bold);
+        assert!(rust_style.italic);
+        assert!(rust_style.strikethrough);
+
+        let back_to_ex: ExStyle = (&rust_style).into();
+        assert_eq!(back_to_ex.underline, ex_style.underline);
+        assert_eq!(back_to_ex.bold, ex_style.bold);
+        assert_eq!(back_to_ex.italic, ex_style.italic);
+        assert_eq!(back_to_ex.strikethrough, ex_style.strikethrough);
+    }
 }

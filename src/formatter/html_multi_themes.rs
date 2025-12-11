@@ -28,11 +28,15 @@
 //!
 //! # How It Works
 //!
-//! Generated HTML includes inline colors for the default theme and CSS variables for alternates:
+//! Generated HTML includes inline colors and font styles for the default theme, plus CSS
+//! variables for all themes (including font styles):
 //!
 //! ```html
-//! <span style="color:#d73a49; --athl-dark:#ff7b72;">keyword</span>
+//! <span style="color:#d73a49; font-weight:bold; --athl-light:#d73a49; --athl-light-font-weight:bold; --athl-dark:#ff7b72; --athl-dark-font-weight:normal;">keyword</span>
 //! ```
+//!
+//! **Note**: Multi-theme formatter generates a larger HTML payload due to CSS variables for
+//! each theme. If you only need a single theme, use [`HtmlInline`](crate::HtmlInline) instead.
 //!
 //! # CSS You Must Provide
 //!
@@ -41,27 +45,39 @@
 //! **Option 1: OS Preference (automatic dark mode)**
 //! ```css
 //! @media (prefers-color-scheme: dark) {
-//!   .athl-themes, .athl-themes span {
+//!   .athl,
+//!   .athl span {
 //!     color: var(--athl-dark) !important;
 //!     background-color: var(--athl-dark-bg) !important;
+//!     font-style: var(--athl-dark-font-style) !important;
+//!     font-weight: var(--athl-dark-font-weight) !important;
+//!     text-decoration: var(--athl-dark-text-decoration) !important;
 //!   }
 //! }
 //! ```
 //!
 //! **Option 2: Manual switching with `data-theme` attribute**
 //! ```css
-//! html[data-theme="dark"] .athl-themes,
-//! html[data-theme="dark"] .athl-themes span {
+//! html[data-theme="dark"] .athl,
+//! html[data-theme="dark"] .athl span {
 //!   color: var(--athl-dark) !important;
 //!   background-color: var(--athl-dark-bg) !important;
+//!   font-style: var(--athl-dark-font-style) !important;
+//!   font-weight: var(--athl-dark-font-weight) !important;
+//!   text-decoration: var(--athl-dark-text-decoration) !important;
 //! }
 //! ```
 //!
 //! **Option 3: Class-based switching**
 //! ```css
-//! html.dark .athl-themes, html.dark .athl-themes span {
+//! html.dark .athl,
+//! html.dark .athl span {
 //!   color: var(--athl-dark) !important;
 //!   background-color: var(--athl-dark-bg) !important;
+//!   /* Optional, if you also want font styles */
+//!   font-style: var(--athl-dark-font-style) !important;
+//!   font-weight: var(--athl-dark-font-weight) !important;
+//!   text-decoration: var(--athl-dark-text-decoration) !important;
 //! }
 //! ```
 //!
@@ -322,6 +338,15 @@ impl<'a> HtmlMultiThemes<'a> {
             .collect()
     }
 
+    fn text_decoration_value(underline: bool, strikethrough: bool) -> &'static str {
+        match (underline, strikethrough) {
+            (true, true) => "underline line-through",
+            (true, false) => "underline",
+            (false, true) => "line-through",
+            (false, false) => "none",
+        }
+    }
+
     fn generate_pre_classes(&self) -> String {
         let mut classes = vec!["athl".to_string(), "athl-themes".to_string()];
 
@@ -448,6 +473,27 @@ impl<'a> HtmlMultiThemes<'a> {
                             inline_styles
                                 .push(format!("text-decoration:{};", decorations.join(" ")));
                         }
+
+                        // Add CSS variables for default theme font styles
+                        let sanitized = Self::sanitize_theme_name(default_name);
+                        let font_style = if style.italic { "italic" } else { "normal" };
+                        css_vars.push(format!(
+                            "{}-{}-font-style:{};",
+                            self.css_variable_prefix, sanitized, font_style
+                        ));
+
+                        let font_weight = if style.bold { "bold" } else { "normal" };
+                        css_vars.push(format!(
+                            "{}-{}-font-weight:{};",
+                            self.css_variable_prefix, sanitized, font_weight
+                        ));
+
+                        let text_decoration =
+                            Self::text_decoration_value(style.underline, style.strikethrough);
+                        css_vars.push(format!(
+                            "{}-{}-text-decoration:{};",
+                            self.css_variable_prefix, sanitized, text_decoration
+                        ));
                     }
                 }
 
@@ -468,6 +514,26 @@ impl<'a> HtmlMultiThemes<'a> {
                                     self.css_variable_prefix, sanitized, bg
                                 ));
                             }
+
+                            // Add font style CSS variables (always output)
+                            let font_style = if style.italic { "italic" } else { "normal" };
+                            css_vars.push(format!(
+                                "{}-{}-font-style:{};",
+                                self.css_variable_prefix, sanitized, font_style
+                            ));
+
+                            let font_weight = if style.bold { "bold" } else { "normal" };
+                            css_vars.push(format!(
+                                "{}-{}-font-weight:{};",
+                                self.css_variable_prefix, sanitized, font_weight
+                            ));
+
+                            let text_decoration =
+                                Self::text_decoration_value(style.underline, style.strikethrough);
+                            css_vars.push(format!(
+                                "{}-{}-text-decoration:{};",
+                                self.css_variable_prefix, sanitized, text_decoration
+                            ));
                         }
                     }
                 }
@@ -489,15 +555,16 @@ impl<'a> HtmlMultiThemes<'a> {
                                 light_bg, dark_bg
                             ));
                         }
-                        if light_style.bold || dark_style.bold {
-                            let light_weight = if light_style.bold { "bold" } else { "normal" };
-                            let dark_weight = if dark_style.bold { "bold" } else { "normal" };
-                            inline_styles.push(format!(
-                                "font-weight: light-dark({}, {});",
-                                light_weight, dark_weight
-                            ));
-                        }
-                        if self.italic && (light_style.italic || dark_style.italic) {
+                        // Always output font-weight
+                        let light_weight = if light_style.bold { "bold" } else { "normal" };
+                        let dark_weight = if dark_style.bold { "bold" } else { "normal" };
+                        inline_styles.push(format!(
+                            "font-weight: light-dark({}, {});",
+                            light_weight, dark_weight
+                        ));
+
+                        // Always output font-style (respecting self.italic flag)
+                        if self.italic {
                             let light_style_val = if light_style.italic {
                                 "italic"
                             } else {
@@ -513,6 +580,20 @@ impl<'a> HtmlMultiThemes<'a> {
                                 light_style_val, dark_style_val
                             ));
                         }
+
+                        // Always output text-decoration
+                        let light_decoration = Self::text_decoration_value(
+                            light_style.underline,
+                            light_style.strikethrough,
+                        );
+                        let dark_decoration = Self::text_decoration_value(
+                            dark_style.underline,
+                            dark_style.strikethrough,
+                        );
+                        inline_styles.push(format!(
+                            "text-decoration: light-dark({}, {});",
+                            light_decoration, dark_decoration
+                        ));
                     }
                 }
             }
@@ -533,6 +614,26 @@ impl<'a> HtmlMultiThemes<'a> {
                                 self.css_variable_prefix, sanitized, bg
                             ));
                         }
+
+                        // Add font style CSS variables (always output)
+                        let font_style = if style.italic { "italic" } else { "normal" };
+                        css_vars.push(format!(
+                            "{}-{}-font-style: {};",
+                            self.css_variable_prefix, sanitized, font_style
+                        ));
+
+                        let font_weight = if style.bold { "bold" } else { "normal" };
+                        css_vars.push(format!(
+                            "{}-{}-font-weight: {};",
+                            self.css_variable_prefix, sanitized, font_weight
+                        ));
+
+                        let text_decoration =
+                            Self::text_decoration_value(style.underline, style.strikethrough);
+                        css_vars.push(format!(
+                            "{}-{}-text-decoration: {};",
+                            self.css_variable_prefix, sanitized, text_decoration
+                        ));
                     }
                 }
             }
@@ -661,5 +762,231 @@ impl Formatter for HtmlMultiThemes<'_> {
 
         write!(output, "{}", &String::from_utf8_lossy(&buffer))?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_text_decoration_value() {
+        assert_eq!(HtmlMultiThemes::text_decoration_value(false, false), "none");
+        assert_eq!(
+            HtmlMultiThemes::text_decoration_value(true, false),
+            "underline"
+        );
+        assert_eq!(
+            HtmlMultiThemes::text_decoration_value(false, true),
+            "line-through"
+        );
+        assert_eq!(
+            HtmlMultiThemes::text_decoration_value(true, true),
+            "underline line-through"
+        );
+    }
+
+    #[test]
+    fn test_theme_mode_generates_font_css_variables() {
+        let mut themes = HashMap::new();
+        themes.insert(
+            "light".to_string(),
+            crate::themes::get("github_light").unwrap(),
+        );
+        themes.insert(
+            "dark".to_string(),
+            crate::themes::get("github_dark").unwrap(),
+        );
+
+        let formatter = HtmlMultiThemesBuilder::new()
+            .lang(Language::Rust)
+            .themes(themes)
+            .default_theme("light")
+            .italic(true)
+            .build()
+            .unwrap();
+
+        let source = "fn main() {}";
+        let mut output = Vec::new();
+        formatter.format(source, &mut output).unwrap();
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(html.contains("--athl-light-font-style:"));
+        assert!(html.contains("--athl-dark-font-style:"));
+        assert!(html.contains("--athl-light-font-weight:"));
+        assert!(html.contains("--athl-dark-font-weight:"));
+        assert!(html.contains("--athl-light-text-decoration:"));
+        assert!(html.contains("--athl-dark-text-decoration:"));
+    }
+
+    #[test]
+    fn test_lightdark_mode_includes_text_decoration() {
+        let mut themes = HashMap::new();
+        themes.insert(
+            "light".to_string(),
+            crate::themes::get("github_light").unwrap(),
+        );
+        themes.insert(
+            "dark".to_string(),
+            crate::themes::get("github_dark").unwrap(),
+        );
+
+        let formatter = HtmlMultiThemesBuilder::new()
+            .lang(Language::Rust)
+            .themes(themes)
+            .default_theme("light-dark()")
+            .italic(true)
+            .build()
+            .unwrap();
+
+        let source = "fn main() {}";
+        let mut output = Vec::new();
+        formatter.format(source, &mut output).unwrap();
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(html.contains("font-weight: light-dark("));
+        assert!(html.contains("font-style: light-dark("));
+        assert!(html.contains("text-decoration: light-dark("));
+    }
+
+    #[test]
+    fn test_lightdark_mode_always_outputs_font_weight() {
+        let mut themes = HashMap::new();
+        themes.insert(
+            "light".to_string(),
+            crate::themes::get("github_light").unwrap(),
+        );
+        themes.insert(
+            "dark".to_string(),
+            crate::themes::get("github_dark").unwrap(),
+        );
+
+        let formatter = HtmlMultiThemesBuilder::new()
+            .lang(Language::Rust)
+            .themes(themes)
+            .default_theme("light-dark()")
+            .build()
+            .unwrap();
+
+        let source = "// comment";
+        let mut output = Vec::new();
+        formatter.format(source, &mut output).unwrap();
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(html.contains("font-weight: light-dark(normal, normal)"));
+    }
+
+    #[test]
+    fn test_none_mode_generates_font_css_variables() {
+        let mut themes = HashMap::new();
+        themes.insert(
+            "light".to_string(),
+            crate::themes::get("github_light").unwrap(),
+        );
+        themes.insert(
+            "dark".to_string(),
+            crate::themes::get("github_dark").unwrap(),
+        );
+
+        let formatter = HtmlMultiThemesBuilder::new()
+            .lang(Language::Rust)
+            .themes(themes)
+            .build()
+            .unwrap();
+
+        let source = "fn main() {}";
+        let mut output = Vec::new();
+        formatter.format(source, &mut output).unwrap();
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(html.contains("--athl-light-font-style:"));
+        assert!(html.contains("--athl-dark-font-style:"));
+        assert!(html.contains("--athl-light-font-weight:"));
+        assert!(html.contains("--athl-dark-font-weight:"));
+        assert!(html.contains("--athl-light-text-decoration:"));
+        assert!(html.contains("--athl-dark-text-decoration:"));
+        assert!(!html.contains("font-style:italic;"));
+        assert!(!html.contains("font-weight:bold;"));
+    }
+
+    #[test]
+    fn test_font_style_values_are_correct() {
+        let mut themes = HashMap::new();
+        themes.insert(
+            "light".to_string(),
+            crate::themes::get("github_light").unwrap(),
+        );
+        themes.insert(
+            "dark".to_string(),
+            crate::themes::get("github_dark").unwrap(),
+        );
+
+        let formatter = HtmlMultiThemesBuilder::new()
+            .lang(Language::Rust)
+            .themes(themes)
+            .default_theme("light")
+            .italic(true)
+            .build()
+            .unwrap();
+
+        let source = "fn main() {}";
+        let mut output = Vec::new();
+        formatter.format(source, &mut output).unwrap();
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(
+            html.contains("--athl-light-font-style:normal")
+                || html.contains("--athl-dark-font-style:normal")
+        );
+        assert!(
+            html.contains("--athl-light-font-weight:normal")
+                || html.contains("--athl-dark-font-weight:normal")
+        );
+        assert!(
+            html.contains("--athl-light-text-decoration:none")
+                || html.contains("--athl-dark-text-decoration:none")
+        );
+    }
+
+    #[test]
+    fn test_italic_flag_respects_lightdark_mode() {
+        let mut themes = HashMap::new();
+        themes.insert(
+            "light".to_string(),
+            crate::themes::get("github_light").unwrap(),
+        );
+        themes.insert(
+            "dark".to_string(),
+            crate::themes::get("github_dark").unwrap(),
+        );
+
+        let formatter = HtmlMultiThemesBuilder::new()
+            .lang(Language::Rust)
+            .themes(themes.clone())
+            .default_theme("light-dark()")
+            .italic(false)
+            .build()
+            .unwrap();
+
+        let source = "// comment";
+        let mut output = Vec::new();
+        formatter.format(source, &mut output).unwrap();
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(!html.contains("font-style: light-dark("));
+
+        let formatter = HtmlMultiThemesBuilder::new()
+            .lang(Language::Rust)
+            .themes(themes)
+            .default_theme("light-dark()")
+            .italic(true)
+            .build()
+            .unwrap();
+
+        let mut output = Vec::new();
+        formatter.format(source, &mut output).unwrap();
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(html.contains("font-style: light-dark("));
     }
 }
