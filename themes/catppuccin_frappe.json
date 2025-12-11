@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_frappe",
   "appearance": "dark",
-  "revision": "234fc048de931a0e42ebcad675bf6559d75e23df",
+  "revision": "193e123cdbc4dd3e86db883d55349e9587f0ded6",
   "highlights": {
     "attribute": {
       "fg": "#ef9f76"
