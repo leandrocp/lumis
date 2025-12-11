@@ -2,7 +2,7 @@
 
 use crate::formatter::{
     html_inline, html_linked, Formatter, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder,
-    TerminalBuilder,
+    HtmlMultiThemesBuilder, TerminalBuilder,
 };
 use crate::{languages::Language, themes};
 use rustler::{NifStruct, NifTaggedEnum};
@@ -21,6 +21,16 @@ pub enum ExFormatterOption<'a> {
     HtmlLinked {
         pre_class: Option<&'a str>,
         highlight_lines: Option<ExHtmlLinkedHighlightLines>,
+        header: Option<ExHtmlElement>,
+    },
+    HtmlMultiThemes {
+        themes: HashMap<String, ExTheme>,
+        default_theme: Option<&'a str>,
+        css_variable_prefix: Option<&'a str>,
+        pre_class: Option<&'a str>,
+        italic: bool,
+        include_highlights: bool,
+        highlight_lines: Option<ExHtmlInlineHighlightLines>,
         header: Option<ExHtmlElement>,
     },
     Terminal {
@@ -147,6 +157,51 @@ impl<'a> ExFormatterOption<'a> {
                     .header(header)
                     .build()
                     .map_err(|e| format!("HtmlLinked builder error: {:?}", e))?;
+
+                Ok(Box::new(formatter))
+            }
+            ExFormatterOption::HtmlMultiThemes {
+                themes,
+                default_theme,
+                css_variable_prefix,
+                pre_class,
+                italic,
+                include_highlights,
+                highlight_lines,
+                header,
+            } => {
+                let themes_map: HashMap<String, themes::Theme> =
+                    themes.into_iter().map(|(k, v)| (k, v.into())).collect();
+
+                let highlight_lines = highlight_lines.map(|hl| html_inline::HighlightLines {
+                    lines: convert_line_specs(hl.lines),
+                    style: hl.style.map(convert_inline_style),
+                    class: hl.class,
+                });
+
+                let header = header.map(|h| HtmlElement {
+                    open_tag: h.open_tag,
+                    close_tag: h.close_tag,
+                });
+
+                let mut builder = HtmlMultiThemesBuilder::new();
+                builder
+                    .lang(language)
+                    .themes(themes_map)
+                    .css_variable_prefix(css_variable_prefix.unwrap_or("--athl"))
+                    .pre_class(pre_class)
+                    .italic(italic)
+                    .include_highlights(include_highlights)
+                    .highlight_lines(highlight_lines)
+                    .header(header);
+
+                if let Some(dt_str) = default_theme {
+                    builder.default_theme(dt_str);
+                }
+
+                let formatter = builder
+                    .build()
+                    .map_err(|e| format!("HtmlMultiThemes builder error: {:?}", e))?;
 
                 Ok(Box::new(formatter))
             }
@@ -420,14 +475,12 @@ mod tests {
 
     #[test]
     fn test_theme_or_string_conversion() {
-        // Test string theme
         let theme_str = ThemeOrString::String("dracula");
         match theme_str {
             ThemeOrString::String(name) => assert_eq!(name, "dracula"),
             _ => panic!("Should be String variant"),
         }
 
-        // Test theme object
         let ex_theme = ExTheme {
             name: "test_theme".to_string(),
             appearance: "dark".to_string(),
@@ -474,7 +527,6 @@ mod tests {
             class: None,
         };
 
-        // Convert to formatter through the into_formatter method
         let formatter_option = ExFormatterOption::HtmlInline {
             theme: None,
             pre_class: None,
@@ -486,9 +538,6 @@ mod tests {
 
         let lang = Language::guess(Some("text"), code);
         let _formatter = formatter_option.into_formatter(lang);
-
-        // The formatter is created successfully - the highlight lines configuration
-        // will be tested in the integration test below
     }
 
     #[test]
@@ -507,9 +556,6 @@ mod tests {
 
         let lang = Language::guess(Some("text"), code);
         let _formatter = formatter_option.into_formatter(lang);
-
-        // The formatter is created successfully - the highlight lines configuration
-        // will be tested in the integration test below
     }
 
     #[test]
@@ -717,20 +763,16 @@ mod tests {
 
         let lang = Language::guess(Some("text"), code);
         let _formatter = ex_formatter.into_formatter(lang);
-
-        // The formatter is created successfully - the highlight lines with Theme style
-        // will be tested in the integration tests
     }
 
     #[test]
     fn test_ex_line_spec_single_and_range() {
-        // Test both single lines and ranges
         let code = "line 1\nline 2\nline 3\nline 4\nline 5\nline 6\nline 7";
         let highlight_lines = ExHtmlInlineHighlightLines {
             lines: vec![
-                ExLineSpec::Single(1),                  // Single line
-                ExLineSpec::Range { start: 3, end: 5 }, // Range
-                ExLineSpec::Single(7),                  // Another single line
+                ExLineSpec::Single(1),
+                ExLineSpec::Range { start: 3, end: 5 },
+                ExLineSpec::Single(7),
             ],
             style: Some(ExHtmlInlineHighlightLinesStyle::Theme),
             class: None,
@@ -747,8 +789,6 @@ mod tests {
 
         let lang = Language::guess(Some("text"), code);
         let _formatter = formatter_option.into_formatter(lang);
-
-        // The formatter is created successfully with all highlight line specifications
     }
 
     #[test]
@@ -763,11 +803,334 @@ mod tests {
             header: None,
         };
 
-        // This should not panic but fall back to default theme
         let lang = Language::guess(Some("text"), code);
         let _formatter = ex_formatter.into_formatter(lang);
+    }
 
-        // The formatter is created successfully even with invalid theme name
-        // It falls back to default theme
+    fn create_test_theme(name: &str, appearance: &str) -> ExTheme {
+        let mut highlights = HashMap::new();
+        highlights.insert(
+            "keyword".to_string(),
+            ExStyle {
+                fg: Some("#ff0000".to_string()),
+                bg: None,
+                underline: false,
+                bold: true,
+                italic: false,
+                strikethrough: false,
+            },
+        );
+        highlights.insert(
+            "string".to_string(),
+            ExStyle {
+                fg: Some("#00ff00".to_string()),
+                bg: None,
+                underline: false,
+                bold: false,
+                italic: false,
+                strikethrough: false,
+            },
+        );
+        highlights.insert(
+            "normal".to_string(),
+            ExStyle {
+                fg: Some(
+                    if appearance == "light" {
+                        "#000000"
+                    } else {
+                        "#ffffff"
+                    }
+                    .to_string(),
+                ),
+                bg: Some(
+                    if appearance == "light" {
+                        "#ffffff"
+                    } else {
+                        "#000000"
+                    }
+                    .to_string(),
+                ),
+                underline: false,
+                bold: false,
+                italic: false,
+                strikethrough: false,
+            },
+        );
+
+        ExTheme {
+            name: name.to_string(),
+            appearance: appearance.to_string(),
+            revision: "1.0".to_string(),
+            highlights,
+        }
+    }
+
+    #[test]
+    fn test_html_multi_themes_basic() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("light"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("--athl-dark-"));
+        assert!(result.contains("color:#"));
+    }
+
+    #[test]
+    fn test_html_multi_themes_none() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "high_contrast".to_string(),
+            create_test_theme("high_contrast", "dark"),
+        );
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: None,
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("--athl-light-"));
+        assert!(result.contains("--athl-dark-"));
+        assert!(result.contains("--athl-high_contrast-"));
+        assert!(!result.contains("color:#"));
+    }
+
+    #[test]
+    fn test_html_multi_themes_light_dark() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("light-dark()"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("light-dark("));
+    }
+
+    #[test]
+    fn test_html_multi_themes_custom_prefix() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("light"),
+            css_variable_prefix: Some("--custom"),
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("--custom-dark-"));
+        assert!(!result.contains("--athl-"));
+    }
+
+    #[test]
+    fn test_html_multi_themes_with_highlight_lines() {
+        let code = "line 1\nline 2\nline 3";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let highlight_lines = ExHtmlInlineHighlightLines {
+            lines: vec![ExLineSpec::Range { start: 1, end: 2 }],
+            style: Some(ExHtmlInlineHighlightLinesStyle::Theme),
+            class: None,
+        };
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("light"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: Some(highlight_lines),
+            header: None,
+        };
+
+        let lang = Language::guess(Some("text"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("text"), formatter));
+
+        assert!(result.contains("<div"));
+    }
+
+    #[test]
+    fn test_html_multi_themes_with_header() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let header = ExHtmlElement {
+            open_tag: "<div class=\"code-wrapper\">".to_string(),
+            close_tag: "</div>".to_string(),
+        };
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("light"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: Some(header),
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("<div class=\"code-wrapper\">"));
+        assert!(result.contains("</div>"));
+    }
+
+    #[test]
+    fn test_html_multi_themes_error_missing_default() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("nonexistent"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let result = formatter_option.into_formatter(lang);
+
+        assert!(result.is_err());
+        if let Err(err_msg) = result {
+            assert!(err_msg.contains("Default theme 'nonexistent' not found"));
+        }
+    }
+
+    #[test]
+    fn test_html_multi_themes_error_light_dark_incomplete() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("light".to_string(), create_test_theme("light", "light"));
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("light-dark()"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let result = formatter_option.into_formatter(lang);
+
+        assert!(result.is_err());
+        if let Err(err_msg) = result {
+            assert!(err_msg.contains("requires themes named 'light' and 'dark'"));
+        }
+    }
+
+    #[test]
+    fn test_html_multi_themes_three_themes() {
+        let code = "fn main() {}";
+        let mut themes = HashMap::new();
+        themes.insert("nord".to_string(), create_test_theme("nord", "dark"));
+        themes.insert("gruvbox".to_string(), create_test_theme("gruvbox", "dark"));
+        themes.insert(
+            "solarized".to_string(),
+            create_test_theme("solarized", "light"),
+        );
+
+        let formatter_option = ExFormatterOption::HtmlMultiThemes {
+            themes,
+            default_theme: Some("nord"),
+            css_variable_prefix: None,
+            pre_class: None,
+            italic: false,
+            include_highlights: false,
+            highlight_lines: None,
+            header: None,
+        };
+
+        let lang = Language::guess(Some("rust"), code);
+        let formatter = formatter_option
+            .into_formatter(lang)
+            .expect("Should create formatter");
+        let result = highlight(code, Options::new(Some("rust"), formatter));
+
+        assert!(result.contains("--athl-gruvbox-"));
+        assert!(result.contains("--athl-solarized-"));
+        assert!(result.contains("color:#"));
     }
 }

@@ -118,12 +118,12 @@ use tree_sitter_highlight::Highlighter;
 ///
 /// The default theme's colors are rendered as direct inline styles (e.g., `color:#d73a49`),
 /// while other themes are defined as CSS variables (e.g., `--athl-dark:#ff7b72`).
+///
+/// Use `Option<DefaultTheme>` where `None` means no default theme (all CSS variables only).
 #[derive(Clone, Debug)]
 pub enum DefaultTheme {
     /// Use a specific named theme as the default (e.g., "light", "dark")
     Theme(String),
-    /// No default theme - all themes are CSS variables only
-    None,
     /// Use CSS `light-dark()` function (requires light and dark themes)
     ///
     /// Generates inline styles using the CSS `light-dark(light-color, dark-color)` function.
@@ -138,7 +138,6 @@ impl FromStr for DefaultTheme {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "light-dark()" => DefaultTheme::LightDark,
-            "false" | "none" => DefaultTheme::None,
             theme_name => DefaultTheme::Theme(theme_name.to_string()),
         })
     }
@@ -172,7 +171,7 @@ pub struct HtmlMultiThemes<'a> {
     lang: Language,
     themes: HashMap<String, Theme>,
     #[builder(setter(custom))]
-    default_theme: DefaultTheme,
+    default_theme: Option<DefaultTheme>,
     #[builder(setter(into))]
     css_variable_prefix: String,
     pre_class: Option<&'a str>,
@@ -215,10 +214,10 @@ impl<'a> HtmlMultiThemesBuilder<'a> {
     }
 
     pub fn build(&mut self) -> Result<HtmlMultiThemes<'a>, String> {
-        let mut result = HtmlMultiThemes {
+        let result = HtmlMultiThemes {
             lang: self.lang.take().unwrap_or(Language::PlainText),
             themes: self.themes.take().unwrap_or_default(),
-            default_theme: self.default_theme.take().unwrap_or(DefaultTheme::None),
+            default_theme: self.default_theme.take().flatten(),
             css_variable_prefix: self
                 .css_variable_prefix
                 .take()
@@ -234,25 +233,22 @@ impl<'a> HtmlMultiThemesBuilder<'a> {
             return Err("At least one theme is required".to_string());
         }
 
-        if matches!(result.default_theme, DefaultTheme::None) {
-            let first_theme_name = result.themes.keys().next().unwrap().clone();
-            result.default_theme = DefaultTheme::Theme(first_theme_name);
-        }
-
         match &result.default_theme {
-            DefaultTheme::Theme(name) => {
+            Some(DefaultTheme::Theme(name)) => {
                 if !result.themes.contains_key(name) {
                     return Err(format!("Default theme '{}' not found in themes map", name));
                 }
             }
-            DefaultTheme::LightDark => {
+            Some(DefaultTheme::LightDark) => {
                 if !result.themes.contains_key("light") || !result.themes.contains_key("dark") {
                     return Err(
                         "LightDark mode requires themes named 'light' and 'dark'".to_string()
                     );
                 }
             }
-            DefaultTheme::None => {}
+            None => {
+                // No default theme - all themes are CSS variables only
+            }
         }
 
         Ok(result)
@@ -270,11 +266,11 @@ pub enum DefaultThemeArg {
 }
 
 impl DefaultThemeArg {
-    fn into_enum(self) -> DefaultTheme {
+    fn into_enum(self) -> Option<DefaultTheme> {
         match self {
-            DefaultThemeArg::String(s) => s.parse().unwrap(),
-            DefaultThemeArg::Bool(false) => DefaultTheme::None,
-            DefaultThemeArg::Bool(true) => DefaultTheme::Theme("light".to_string()),
+            DefaultThemeArg::String(s) => Some(s.parse().unwrap()),
+            DefaultThemeArg::Bool(false) => None,
+            DefaultThemeArg::Bool(true) => Some(DefaultTheme::Theme("light".to_string())),
         }
     }
 }
@@ -302,7 +298,7 @@ impl Default for HtmlMultiThemes<'_> {
         Self {
             lang: Language::PlainText,
             themes: HashMap::new(),
-            default_theme: DefaultTheme::None,
+            default_theme: None,
             css_variable_prefix: "--athl".to_string(),
             pre_class: None,
             italic: false,
@@ -344,7 +340,7 @@ impl<'a> HtmlMultiThemes<'a> {
         let mut styles = Vec::new();
 
         match &self.default_theme {
-            DefaultTheme::Theme(default_name) => {
+            Some(DefaultTheme::Theme(default_name)) => {
                 if let Some(default_theme) = self.themes.get(default_name) {
                     if let Some(fg) = default_theme.fg() {
                         styles.push(format!("color:{};", fg));
@@ -372,7 +368,23 @@ impl<'a> HtmlMultiThemes<'a> {
                     }
                 }
             }
-            DefaultTheme::None => {
+            Some(DefaultTheme::LightDark) => {
+                if let (Some(light), Some(dark)) =
+                    (self.themes.get("light"), self.themes.get("dark"))
+                {
+                    let light_fg = light.fg().unwrap_or_else(|| "#000000".to_string());
+                    let light_bg = light.bg().unwrap_or_else(|| "#ffffff".to_string());
+                    let dark_fg = dark.fg().unwrap_or_else(|| "#ffffff".to_string());
+                    let dark_bg = dark.bg().unwrap_or_else(|| "#000000".to_string());
+
+                    styles.push(format!("color: light-dark({}, {});", light_fg, dark_fg));
+                    styles.push(format!(
+                        "background-color: light-dark({}, {});",
+                        light_bg, dark_bg
+                    ));
+                }
+            }
+            None => {
                 for (theme_name, theme) in &self.themes {
                     let sanitized = Self::sanitize_theme_name(theme_name);
                     if let Some(fg) = theme.fg() {
@@ -387,22 +399,6 @@ impl<'a> HtmlMultiThemes<'a> {
                             self.css_variable_prefix, sanitized, bg
                         ));
                     }
-                }
-            }
-            DefaultTheme::LightDark => {
-                if let (Some(light), Some(dark)) =
-                    (self.themes.get("light"), self.themes.get("dark"))
-                {
-                    let light_fg = light.fg().unwrap_or_else(|| "#000000".to_string());
-                    let light_bg = light.bg().unwrap_or_else(|| "#ffffff".to_string());
-                    let dark_fg = dark.fg().unwrap_or_else(|| "#ffffff".to_string());
-                    let dark_bg = dark.bg().unwrap_or_else(|| "#000000".to_string());
-
-                    styles.push(format!("color: light-dark({}, {});", light_fg, dark_fg));
-                    styles.push(format!(
-                        "background-color: light-dark({}, {});",
-                        light_bg, dark_bg
-                    ));
                 }
             }
         }
@@ -426,7 +422,7 @@ impl<'a> HtmlMultiThemes<'a> {
         let mut css_vars = Vec::new();
 
         match &self.default_theme {
-            DefaultTheme::Theme(default_name) => {
+            Some(DefaultTheme::Theme(default_name)) => {
                 if let Some(default_theme) = self.themes.get(default_name) {
                     if let Some(style) = default_theme.get_style(scope) {
                         if let Some(fg) = &style.fg {
@@ -476,27 +472,7 @@ impl<'a> HtmlMultiThemes<'a> {
                     }
                 }
             }
-            DefaultTheme::None => {
-                for (theme_name, theme) in &self.themes {
-                    if let Some(style) = theme.get_style(scope) {
-                        let sanitized = Self::sanitize_theme_name(theme_name);
-
-                        if let Some(fg) = &style.fg {
-                            css_vars.push(format!(
-                                "{}-{}: {};",
-                                self.css_variable_prefix, sanitized, fg
-                            ));
-                        }
-                        if let Some(bg) = &style.bg {
-                            css_vars.push(format!(
-                                "{}-{}-bg: {};",
-                                self.css_variable_prefix, sanitized, bg
-                            ));
-                        }
-                    }
-                }
-            }
-            DefaultTheme::LightDark => {
+            Some(DefaultTheme::LightDark) => {
                 if let (Some(light), Some(dark)) =
                     (self.themes.get("light"), self.themes.get("dark"))
                 {
@@ -535,6 +511,26 @@ impl<'a> HtmlMultiThemes<'a> {
                             inline_styles.push(format!(
                                 "font-style: light-dark({}, {});",
                                 light_style_val, dark_style_val
+                            ));
+                        }
+                    }
+                }
+            }
+            None => {
+                for (theme_name, theme) in &self.themes {
+                    if let Some(style) = theme.get_style(scope) {
+                        let sanitized = Self::sanitize_theme_name(theme_name);
+
+                        if let Some(fg) = &style.fg {
+                            css_vars.push(format!(
+                                "{}-{}: {};",
+                                self.css_variable_prefix, sanitized, fg
+                            ));
+                        }
+                        if let Some(bg) = &style.bg {
+                            css_vars.push(format!(
+                                "{}-{}-bg: {};",
+                                self.css_variable_prefix, sanitized, bg
                             ));
                         }
                     }
@@ -603,7 +599,7 @@ impl<'a> HtmlMultiThemes<'a> {
 
         match &highlight_lines.style {
             Some(HighlightLinesStyle::Theme) => {
-                if let DefaultTheme::Theme(default_name) = &self.default_theme {
+                if let Some(DefaultTheme::Theme(default_name)) = &self.default_theme {
                     let theme = self.themes.get(default_name)?;
                     let highlighted_style = theme.get_style("highlighted")?;
                     Some(highlighted_style.css(self.italic, " "))
