@@ -66,7 +66,7 @@ fn main() {
         highlighted
     );
 
-    std::fs::write("examples/html_multi_themes.html", html)?;
+    std::fs::write("examples/html_multi_themes_vars.html", html)?;
 
     Ok(())
 }
