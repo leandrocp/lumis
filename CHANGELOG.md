@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.8.0-beta.1] - 2025-12-11
 
 **Important:** This release introduces several breaking changes. Please refer to the migration guide below.
 
