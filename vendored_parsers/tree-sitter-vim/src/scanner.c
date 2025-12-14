@@ -140,7 +140,7 @@ static bool try_lex_heredoc_marker(Scanner *scanner, TSLexer *lexer)
 
   // We should be at the start of the script marker
   // Note that :let-heredocs do not allow for spaces in the endmarker
-  while ((!IS_SPACE_TABS(lexer->lookahead)) && lexer->lookahead && lexer->lookahead != '\n' && marker_len < HEREDOC_MARKER_LEN) {
+  while ((!IS_SPACE_TABS(lexer->lookahead)) && lexer->lookahead && lexer->lookahead != '\n' && lexer->lookahead != '\r' && marker_len < HEREDOC_MARKER_LEN) {
     marker[marker_len] = lexer->lookahead;
     marker_len++;
     advance(lexer, false);
@@ -173,10 +173,17 @@ static bool lex_literal_string(TSLexer *lexer) {
         lexer->mark_end(lexer);
         return true;
       }
-    } else if (lexer->lookahead == '\n') {
+    } else if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
       // Not sure at this point, look after that if there's not a \\ character
       lexer->mark_end(lexer);
-      advance(lexer, true);
+      if (lexer->lookahead == '\r') {
+          advance(lexer, true);
+          if (lexer->lookahead == '\n') {
+              advance(lexer, true);
+          }
+      } else {
+          advance(lexer, true);
+      }
       skip_space_tabs(lexer);
       if (lexer->lookahead != '\\') {
         // Was an invalid end...
@@ -201,10 +208,17 @@ static bool lex_escapable_string(TSLexer *lexer) {
       lexer->mark_end(lexer);
       lexer->result_symbol = STRING;
       return true;
-    } else if (lexer->lookahead == '\n') {
+    } else if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
       // Not sure at this point, look after that if there's not a \\ character
       lexer->mark_end(lexer);
-      advance(lexer, false);
+      if (lexer->lookahead == '\r') {
+          advance(lexer, false);
+          if (lexer->lookahead == '\n') {
+              advance(lexer, false);
+          }
+      } else {
+          advance(lexer, false);
+      }
       skip_space_tabs(lexer);
       if (lexer->lookahead != '\\') {
         // Was a comment...
@@ -363,8 +377,15 @@ bool tree_sitter_vim_external_scanner_scan(void *payload, TSLexer *lexer,
   //
   // This ambiguity forces us to use the mark_end function and lookahead more
   // than just past the final newline and indentationg character.
-  if (lexer->lookahead == '\n') {
-    advance(lexer, false);
+  if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+      if (lexer->lookahead == '\r') {
+          advance(lexer, false);
+          if (lexer->lookahead == '\n') {
+              advance(lexer, false);
+          }
+      } else {
+          advance(lexer, false);
+      }
     lexer->mark_end(lexer);
     skip_space_tabs(lexer);
 
@@ -389,7 +410,7 @@ bool tree_sitter_vim_external_scanner_scan(void *payload, TSLexer *lexer,
       lexer->result_symbol = LINE_CONTINUATION;
       return true;
     } else if (s->marker_len == 0 && check_prefix(lexer, "\"\\ ", 3, LINE_CONTINUATION_COMMENT)) {
-      while (lexer->lookahead != '\0' && lexer->lookahead != '\n') {
+      while (lexer->lookahead != '\0' && lexer->lookahead != '\n' && lexer->lookahead != '\r') {
         advance(lexer, false);
       }
       lexer->mark_end(lexer);
@@ -438,7 +459,7 @@ bool tree_sitter_vim_external_scanner_scan(void *payload, TSLexer *lexer,
     }
 
     // Ensure there aren't any remaining characters in the line
-    if (lexer->lookahead != '\0' && lexer->lookahead != '\n') {
+    if (lexer->lookahead != '\0' && lexer->lookahead != '\n' && lexer->lookahead != '\r') {
       return false;
     }
 
@@ -454,7 +475,7 @@ bool tree_sitter_vim_external_scanner_scan(void *payload, TSLexer *lexer,
     // This con only be a comment
     do {
       advance(lexer, false);
-    } while (lexer->lookahead != '\n' && lexer->lookahead != '\0');
+    } while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && lexer->lookahead != '\0');
 
     lexer->result_symbol = COMMENT;
     return true;

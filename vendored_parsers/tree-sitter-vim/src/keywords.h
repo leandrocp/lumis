@@ -79,21 +79,22 @@ typedef enum {
   CALL = 77,
   BREAK = 78,
   CONTINUE = 79,
-  VERTICAL = 80,
-  LEFTABOVE = 81,
-  ABOVELEFT = 82,
-  RIGHTBELOWS = 83,
-  BELOWRIGHT = 84,
-  TOPLEFT = 85,
-  BOTRIGHT = 86,
-  EDIT = 87,
-  ENEW = 88,
-  FIND = 89,
-  EX = 90,
-  VISUAL = 91,
-  VIEW = 92,
-  EVAL = 93,
-  SUBSTITUTE = 94,
+  TAB = 80,
+  VERTICAL = 81,
+  LEFTABOVE = 82,
+  ABOVELEFT = 83,
+  RIGHTBELOWS = 84,
+  BELOWRIGHT = 85,
+  TOPLEFT = 86,
+  BOTRIGHT = 87,
+  EDIT = 88,
+  ENEW = 89,
+  FIND = 90,
+  EX = 91,
+  VISUAL = 92,
+  VIEW = 93,
+  EVAL = 94,
+  SUBSTITUTE = 95,
   UNKNOWN_COMMAND
 } kwid;
 
@@ -496,6 +497,11 @@ keyword keywords[] = {
   [CONTINUE] = {
     .mandat = "con",
     .opt = "tinue",
+    .ignore_comments_after = false
+  },
+  [TAB] = {
+    .mandat = "tab",
+    .opt = "",
     .ignore_comments_after = false
   },
   [VERTICAL] = {

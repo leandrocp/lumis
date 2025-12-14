@@ -175,6 +175,10 @@
             },
             {
               "type": "SYMBOL",
+              "name": "tab_statement"
+            },
+            {
+              "type": "SYMBOL",
               "name": "vertical_statement"
             },
             {
@@ -3841,6 +3845,24 @@
               ]
             }
           ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_statement"
+        }
+      ]
+    },
+    "tab_statement": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_tab"
+          },
+          "named": false,
+          "value": "tab"
         },
         {
           "type": "SYMBOL",
@@ -14334,6 +14356,10 @@
     {
       "type": "SYMBOL",
       "name": "_continue"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_tab"
     },
     {
       "type": "SYMBOL",
