@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_mocha",
   "appearance": "dark",
-  "revision": "234fc048de931a0e42ebcad675bf6559d75e23df",
+  "revision": "ce8d176faa4643e026e597ae3c31db59b63cef09",
   "highlights": {
     "attribute": {
       "fg": "#fab387"

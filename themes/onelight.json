@@ -1,7 +1,7 @@
 {
   "name": "onelight",
   "appearance": "light",
-  "revision": "97f1748bd100036194bd84aed53dc72b6d3aab99",
+  "revision": "215c4bd767cab608c1ae8b74cebea3846aa5b84c",
   "highlights": {
     "attribute": {
       "fg": "#9a77cf"
