@@ -1,5 +1,5 @@
 /* catppuccin_frappe
- * revision: 234fc048de931a0e42ebcad675bf6559d75e23df
+ * revision: 193e123cdbc4dd3e86db883d55349e9587f0ded6
  */
 
 pre.athl {
@@ -12,6 +12,9 @@ pre.athl {
 .attribute-builtin {
   color: #f4b8e4;
 }
+.attribute-c_sharp {
+  color: #e5c890;
+}
 .boolean {
   color: #ef9f76;
 }
@@ -20,6 +23,9 @@ pre.athl {
 }
 .character-special {
   color: #f4b8e4;
+}
+.character-special-html {
+  color: #e78284;
 }
 .comment {
   color: #949cbb;
@@ -48,6 +54,9 @@ pre.athl {
 .comment-warning {
   color: #303446;
   background-color: #e5c890;
+}
+.comment-warning-gitcommit {
+  color: #e5c890;
 }
 .constant {
   color: #ef9f76;
@@ -102,12 +111,6 @@ pre.athl {
   color: #8caaee;
 }
 .function-method-call {
-  color: #8caaee;
-}
-.function-method-call-php {
-  color: #8caaee;
-}
-.function-method-php {
   color: #8caaee;
 }
 .highlighted {
@@ -192,20 +195,62 @@ pre.athl {
 .markup-heading-1 {
   color: #8caaee;
 }
+.markup-heading-1-html {
+  color: #c6d0f5;
+}
+.markup-heading-1-markdown {
+  color: #e78284;
+}
 .markup-heading-2 {
   color: #8caaee;
+}
+.markup-heading-2-html {
+  color: #c6d0f5;
+}
+.markup-heading-2-markdown {
+  color: #ef9f76;
 }
 .markup-heading-3 {
   color: #8caaee;
 }
+.markup-heading-3-html {
+  color: #c6d0f5;
+}
+.markup-heading-3-markdown {
+  color: #e5c890;
+}
 .markup-heading-4 {
   color: #8caaee;
+}
+.markup-heading-4-html {
+  color: #c6d0f5;
+}
+.markup-heading-4-markdown {
+  color: #a6d189;
 }
 .markup-heading-5 {
   color: #8caaee;
 }
+.markup-heading-5-html {
+  color: #c6d0f5;
+}
+.markup-heading-5-markdown {
+  color: #85c1dc;
+}
 .markup-heading-6 {
   color: #8caaee;
+}
+.markup-heading-6-html {
+  color: #c6d0f5;
+}
+.markup-heading-6-markdown {
+  color: #babbf1;
+}
+.markup-heading-html {
+  color: #c6d0f5;
+}
+.markup-heading-markdown {
+  font-weight: bold;
 }
 .markup-italic {
   color: #e78284;
@@ -275,9 +320,6 @@ pre.athl {
 .number {
   color: #ef9f76;
 }
-.number-css {
-  color: #ef9f76;
-}
 .number-float {
   color: #ef9f76;
 }
@@ -287,26 +329,11 @@ pre.athl {
 .property {
   color: #babbf1;
 }
-.property-class-css {
-  color: #e5c890;
-}
 .property-css {
   color: #8caaee;
 }
-.property-id-css {
-  color: #e5c890;
-}
-.property-json {
-  color: #babbf1;
-}
 .property-scss {
   color: #8caaee;
-}
-.property-toml {
-  color: #babbf1;
-}
-.property-yaml {
-  color: #babbf1;
 }
 .punctuation-bracket {
   color: #949cbb;
@@ -329,8 +356,8 @@ pre.athl {
 .string-escape {
   color: #f4b8e4;
 }
-.string-plain-css {
-  color: #c6d0f5;
+.string-regex {
+  color: #f4b8e4;
 }
 .string-regexp {
   color: #f4b8e4;
@@ -341,10 +368,10 @@ pre.athl {
 .string-special-path {
   color: #f4b8e4;
 }
-.string-special-symbol {
-  color: #eebebe;
+.string-special-path-gitignore {
+  color: #c6d0f5;
 }
-.string-special-symbol-ruby {
+.string-special-symbol {
   color: #eebebe;
 }
 .string-special-url {
@@ -379,9 +406,6 @@ pre.athl {
 }
 .type-definition {
   color: #e5c890;
-}
-.type-tag-css {
-  color: #8caaee;
 }
 .variable {
   color: #c6d0f5;

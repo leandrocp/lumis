@@ -32,10 +32,10 @@ use crate::constants::HIGHLIGHT_NAMES;
 use crate::highlight::Style;
 use crate::languages::Language;
 use crate::themes::Theme;
+use crate::vendor::tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
 use std::io::{self, Write};
 use std::ops::Range;
 use std::sync::Arc;
-use tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
 
 /// Iterator over highlighted tokens with scope names.
 ///
@@ -110,14 +110,18 @@ pub fn highlight_iter_with_scopes(
         let event = event.map_err(|e| format!("Failed to get highlight event: {:?}", e))?;
 
         match event {
-            HighlightEvent::HighlightStart(idx) => {
-                let scope = HIGHLIGHT_NAMES[idx.0];
+            HighlightEvent::HighlightStart {
+                highlight,
+                language,
+            } => {
+                let scope = HIGHLIGHT_NAMES[highlight.0];
+                let specialized_scope = format!("{}.{}", scope, language);
                 current_scope = scope;
 
                 current_style = if let Some(ref theme) = theme {
                     Arc::new(
                         theme
-                            .get_style(scope)
+                            .get_style(&specialized_scope)
                             .map(Style::from_theme_style)
                             .unwrap_or_default(),
                     )
@@ -376,6 +380,7 @@ pub fn scope_to_class(scope: &str) -> &str {
 ///
 /// assert_eq!(lines.len(), 3);
 /// ```
+// TODO: remove wrap_in_line in favor of wrap_line
 pub fn wrap_in_lines(html: &str) -> Vec<String> {
     html.lines()
         .enumerate()

@@ -73,10 +73,15 @@ list-vendored-parsers:
         echo "$parser"
     done
 
-extract-scopes:
+extract-scopes-highlights:
     #!/usr/bin/env bash
     set -euo pipefail
-    (cd queries && bash extract_scopes.sh)
+    find queries -type f -name "*.scm" -exec grep -oh '@[^_ ][^ ]*' {} \; 2>/dev/null | sed 's/^@//; s/[^a-zA-Z0-9_.-]//g' | sort -u
+
+extract-scopes-themes:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    jq -r '.highlights | keys[]' themes/*.json | sort -u
 
 update-vendored-parsers parser_name="":
     #!/usr/bin/env bash

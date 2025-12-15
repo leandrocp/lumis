@@ -74,7 +74,7 @@
 //!
 //! ```rust
 //! use autumnus::languages::Language;
-//! use tree_sitter_highlight::Highlighter;
+//! use autumnus::vendor::tree_sitter_highlight::Highlighter;
 //!
 //! let lang = Language::Rust;
 //! let config = lang.config();
@@ -91,12 +91,12 @@
 // Guess Language copied from https://github.com/Wilfred/difftastic/blob/f34a9014760efbaed01b972caba8b73754da16c9/src/parse/guess_language.rs
 
 use crate::constants::HIGHLIGHT_NAMES;
+use crate::vendor::tree_sitter_highlight::HighlightConfiguration;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 use std::{path::Path, sync::LazyLock};
 use strum::{EnumIter, IntoEnumIterator};
-use tree_sitter_highlight::HighlightConfiguration;
 
 unsafe extern "C" {
     #[cfg(feature = "lang-angular")]
@@ -2653,7 +2653,7 @@ static ZIG_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tree_sitter_highlight::Highlighter;
+    use crate::vendor::tree_sitter_highlight::Highlighter;
 
     #[test]
     fn test_match_exact_name() {

@@ -11,7 +11,6 @@ local treesitter_groups = {
 	"character",
 	"character.special",
 	"charset",
-	"clicke",
 	"comment",
 	"comment.documentation",
 	"comment.error",
@@ -21,24 +20,18 @@ local treesitter_groups = {
 	"comment.warning",
 	"constant",
 	"constant.builtin",
-	"constant.java",
 	"constant.macro",
 	"constructor",
-	"constructor.lua",
-	"constructor.python",
 	"diff.delta",
 	"diff.minus",
 	"diff.plus",
 	"error",
 	"function",
 	"function.builtin",
-	"function.builtin.bash",
 	"function.call",
 	"function.macro",
 	"function.method",
 	"function.method.call",
-	"function.method.call.php",
-	"function.method.php",
 	"import",
 	"injection.content",
 	"injection.language",
@@ -49,21 +42,17 @@ local treesitter_groups = {
 	"keyword.coroutine",
 	"keyword.debug",
 	"keyword.directive",
-	"keyword.directive.css",
 	"keyword.directive.define",
 	"keyword.exception",
 	"keyword.export",
 	"keyword.function",
 	"keyword.import",
-	"keyword.import.c",
-	"keyword.import.cpp",
 	"keyword.modifier",
 	"keyword.operator",
 	"keyword.repeat",
 	"keyword.return",
 	"keyword.type",
 	"label",
-	"label.yaml",
 	"markup",
 	"markup.environment",
 	"markup.environment.name",
@@ -77,7 +66,6 @@ local treesitter_groups = {
 	"markup.italic",
 	"markup.link",
 	"markup.link.label",
-	"markup.link.label.html",
 	"markup.link.url",
 	"markup.list",
 	"markup.list.checked",
@@ -94,32 +82,20 @@ local treesitter_groups = {
 	"module.builtin",
 	"namespace",
 	"number",
-	"number.css",
 	"number.float",
 	"operator",
 	"property",
-	"property.class.css",
-	"property.css",
-	"property.id.css",
-	"property.json",
-	"property.scss",
-	"property.toml",
-	"property.yaml",
 	"punctuation.bracket",
 	"punctuation.delimiter",
-	"punctuation.delimiter.regex",
 	"punctuation.special",
 	"string",
 	"string.documentation",
 	"string.escape",
-	"string.plain.css",
 	"string.regexp",
 	"string.special",
 	"string.special.path",
 	"string.special.symbol",
-	"string.special.symbol.ruby",
 	"string.special.url",
-	"string.special.url.html",
 	"supports",
 	"tag",
 	"tag.attribute",
@@ -127,16 +103,145 @@ local treesitter_groups = {
 	"tag.delimiter",
 	"type",
 	"type.builtin",
-	"type.css",
 	"type.definition",
-	"type.tag.css",
 	"variable",
 	"variable.builtin",
 	"variable.member",
 	"variable.parameter",
-	"variable.parameter.bash",
 	"variable.parameter.builtin",
 }
+
+-- Language-specific scopes for specialized capture groups
+-- Safe to include all supported languages since we only generate if the scope exists and differs from base
+local specialized_scopes = {
+	-- Already supported
+	"bash",
+	"c",
+	"c_sharp",
+	"cpp",
+	"css",
+	"doc",
+	"documentation",
+	"elixir",
+	"gitcommit",
+	"gitignore",
+	"html",
+	"java",
+	"javascript",
+	"js",
+	"json",
+	"lua",
+	"markdown",
+	"markdown_inline",
+	"php",
+	"python",
+	"regex",
+	"ruby",
+	"rust",
+	"scss",
+	"toml",
+	"tsx",
+	"yaml",
+	-- Common languages
+	"erlang",
+	"fsharp",
+	"go",
+	"haskell",
+	"kotlin",
+	"nix",
+	"ocaml",
+	"scala",
+	"sql",
+	"swift",
+	"typescript",
+	"vim",
+	"xml",
+	"zig",
+	-- Web/templating
+	"angular",
+	"astro",
+	"eex",
+	"glimmer",
+	"heex",
+	"jsx",
+	"liquid",
+	"surface",
+	"svelte",
+	"vue",
+	-- Other supported languages
+	"asm",
+	"caddy",
+	"clojure",
+	"cmake",
+	"commonlisp",
+	"csv",
+	"dart",
+	"diff",
+	"dockerfile",
+	"elm",
+	"fish",
+	"gleam",
+	"graphql",
+	"hcl",
+	"http",
+	"iex",
+	"latex",
+	"llvm",
+	"make",
+	"objc",
+	"perl",
+	"powershell",
+	"proto",
+	"r",
+	"typst",
+}
+
+-- Helper function to compare two styles for equality
+local function styles_equal(a, b)
+	if a == nil and b == nil then
+		return true
+	end
+	if a == nil or b == nil then
+		return false
+	end
+	return a.fg == b.fg
+		and a.bg == b.bg
+		and a.bold == b.bold
+		and a.italic == b.italic
+		and a.underline == b.underline
+		and a.strikethrough == b.strikethrough
+end
+
+-- Helper function to extract style from highlight definition
+local function extract_style(hl)
+	local style = {}
+
+	if hl.fg then
+		style.fg = string.format("#%06x", hl.fg)
+	end
+
+	if hl.bg then
+		style.bg = string.format("#%06x", hl.bg)
+	end
+
+	if hl.bold then
+		style.bold = true
+	end
+	if hl.italic then
+		style.italic = true
+	end
+	if hl.underline then
+		style.underline = true
+	end
+	if hl.undercurl then
+		style.undercurl = true
+	end
+	if hl.strikethrough then
+		style.strikethrough = true
+	end
+
+	return style
+end
 
 local function get_plugin_revision(repo_url)
 	local plugin_name = repo_url:match("/([^/]+)$")
@@ -185,33 +290,10 @@ local function extract_colorscheme_colors(theme)
 
 	local highlights = {}
 
+	-- Extract base groups
 	for _, group in ipairs(all_groups) do
 		local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
-		local style = {}
-
-		if hl.fg then
-			style.fg = string.format("#%06x", hl.fg)
-		end
-
-		if hl.bg then
-			style.bg = string.format("#%06x", hl.bg)
-		end
-
-		if hl.bold then
-			style.bold = true
-		end
-		if hl.italic then
-			style.italic = true
-		end
-		if hl.underline then
-			style.underline = true
-		end
-		if hl.undercurl then
-			style.undercurl = true
-		end
-		if hl.strikethrough then
-			style.strikethrough = true
-		end
+		local style = extract_style(hl)
 
 		if next(style) ~= nil then
 			local key = string.lower(string.gsub(group, "@", ""))
@@ -219,6 +301,27 @@ local function extract_colorscheme_colors(theme)
 				key = "highlighted"
 			end
 			highlights[key] = style
+		end
+	end
+
+	-- Extract specialized (language-specific) groups
+	for _, group in ipairs(treesitter_groups) do
+		for _, scope in ipairs(specialized_scopes) do
+			local specialized_group = "@" .. group .. "." .. scope
+			local hl = vim.api.nvim_get_hl(0, { name = specialized_group, link = false })
+
+			-- Only add if the highlight exists (non-empty table)
+			if next(hl) ~= nil then
+				local base_key = string.lower(group)
+				local base_style = highlights[base_key]
+				local specialized_style = extract_style(hl)
+
+				-- Only add if it differs from the base style
+				if not styles_equal(base_style, specialized_style) and next(specialized_style) ~= nil then
+					local key = string.lower(group) .. "." .. scope
+					highlights[key] = specialized_style
+				end
+			end
 		end
 	end
 

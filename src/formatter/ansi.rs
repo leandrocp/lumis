@@ -162,6 +162,8 @@ pub fn style_to_ansi(style: &Style) -> String {
 /// Wrap text with ANSI color codes based on a Style.
 ///
 /// Applies ANSI escape sequences to the text and adds a reset sequence at the end.
+/// When the style includes a background color, resets are inserted before newlines
+/// to prevent the background from extending across the entire terminal line width.
 ///
 /// # Arguments
 ///
@@ -190,6 +192,33 @@ pub fn wrap_with_ansi(text: &str, style: &Style) -> String {
 
     if ansi_codes.is_empty() {
         text.to_string()
+    } else if style.bg.is_some() {
+        // When there's a background color, we need to reset before newlines
+        // to prevent the background from extending across the entire line width
+        let mut result = String::with_capacity(text.len() + ansi_codes.len() * 2 + 10);
+        result.push_str(ANSI_RESET);
+        result.push_str(&ansi_codes);
+
+        for (i, ch) in text.char_indices() {
+            if ch == '\n' {
+                // Reset before the newline, then output newline, then reapply style
+                result.push_str(ANSI_RESET);
+                result.push('\n');
+                // Only reapply style if there's more content after this newline
+                if i + 1 < text.len() {
+                    result.push_str(&ansi_codes);
+                }
+            } else {
+                result.push(ch);
+            }
+        }
+
+        // Final reset if text doesn't end with newline
+        if !text.ends_with('\n') {
+            result.push_str(ANSI_RESET);
+        }
+
+        result
     } else {
         format!("{}{}{}{}", ANSI_RESET, ansi_codes, text, ANSI_RESET)
     }

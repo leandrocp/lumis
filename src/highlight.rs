@@ -80,9 +80,9 @@
 use crate::constants::HIGHLIGHT_NAMES;
 use crate::languages::Language;
 use crate::themes::Theme;
+use crate::vendor::tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
 use std::ops::Range;
 use std::sync::Arc;
-use tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
 
 /// A styled segment of text.
 ///
@@ -212,64 +212,47 @@ impl Highlighter {
             .map_err(|e| format!("Failed to generate highlight events: {:?}", e))?;
 
         let mut result = Vec::new();
-        let mut current_style = Arc::new(Style::default());
+        let mut style_stack: Vec<Arc<Style>> = vec![Arc::new(Style::default())];
 
         for event in events {
             let event = event.map_err(|e| format!("Failed to get highlight event: {:?}", e))?;
 
             match event {
-                HighlightEvent::HighlightStart(idx) => {
-                    let scope = HIGHLIGHT_NAMES[idx.0];
+                HighlightEvent::HighlightStart {
+                    highlight,
+                    language,
+                } => {
+                    let scope = HIGHLIGHT_NAMES[highlight.0];
+                    let specialized_scope = format!("{}.{}", scope, language);
 
-                    current_style = if let Some(ref theme) = self.theme {
+                    let new_style = if let Some(ref theme) = self.theme {
                         Arc::new(
                             theme
-                                .get_style(scope)
+                                .get_style(&specialized_scope)
                                 .map(Style::from_theme_style)
                                 .unwrap_or_default(),
                         )
                     } else {
                         Arc::new(Style::default())
                     };
+                    style_stack.push(new_style);
                 }
                 HighlightEvent::Source { start, end } => {
                     let text = &source[start..end];
                     if !text.is_empty() {
-                        result.push((Arc::clone(&current_style), text));
+                        let current_style = style_stack.last().cloned().unwrap_or_default();
+                        result.push((current_style, text));
                     }
                 }
                 HighlightEvent::HighlightEnd => {
-                    current_style = Arc::new(Style::default());
+                    if style_stack.len() > 1 {
+                        style_stack.pop();
+                    }
                 }
             }
         }
 
         Ok(result)
-    }
-
-    /// Highlight a single line of code (incremental highlighting).
-    ///
-    /// This method is designed for editors and other tools that need to highlight
-    /// code line-by-line while maintaining parse state across lines.
-    ///
-    /// **Note:** This is a placeholder for future incremental highlighting support.
-    /// Currently, it falls back to highlighting the entire source.
-    ///
-    /// # Arguments
-    ///
-    /// * `line` - A single line of source code to highlight
-    ///
-    /// # Returns
-    ///
-    /// A vector of (Style, &str) tuples for the styled segments in this line.
-    #[allow(dead_code)]
-    pub fn highlight_line<'a>(
-        &mut self,
-        line: &'a str,
-    ) -> Result<Vec<(Arc<Style>, &'a str)>, String> {
-        // For now, just highlight the entire line as a single unit
-        // Future: maintain parse state across lines for true incremental highlighting
-        self.highlight(line)
     }
 }
 
@@ -309,34 +292,42 @@ impl<'a> HighlightIterator<'a> {
             .map_err(|e| format!("Failed to generate highlight events: {:?}", e))?;
 
         let mut segments = Vec::new();
-        let mut current_style = Arc::new(Style::default());
+        let mut style_stack: Vec<Arc<Style>> = vec![Arc::new(Style::default())];
 
         for event in events {
             let event = event.map_err(|e| format!("Failed to get highlight event: {:?}", e))?;
 
             match event {
-                HighlightEvent::HighlightStart(idx) => {
-                    let scope = HIGHLIGHT_NAMES[idx.0];
+                HighlightEvent::HighlightStart {
+                    highlight,
+                    language,
+                } => {
+                    let scope = HIGHLIGHT_NAMES[highlight.0];
+                    let specialized_scope = format!("{}.{}", scope, language);
 
-                    current_style = if let Some(ref theme) = theme {
+                    let new_style = if let Some(ref theme) = theme {
                         Arc::new(
                             theme
-                                .get_style(scope)
+                                .get_style(&specialized_scope)
                                 .map(Style::from_theme_style)
                                 .unwrap_or_default(),
                         )
                     } else {
                         Arc::new(Style::default())
                     };
+                    style_stack.push(new_style);
                 }
                 HighlightEvent::Source { start, end } => {
                     let text = &source[start..end];
                     if !text.is_empty() {
-                        segments.push((Arc::clone(&current_style), text, start..end));
+                        let current_style = style_stack.last().cloned().unwrap_or_default();
+                        segments.push((current_style, text, start..end));
                     }
                 }
                 HighlightEvent::HighlightEnd => {
-                    current_style = Arc::new(Style::default());
+                    if style_stack.len() > 1 {
+                        style_stack.pop();
+                    }
                 }
             }
         }

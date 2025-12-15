@@ -475,24 +475,24 @@
 </div><div class="line" data-line="475"><span data-highlight="keyword.type" style="color: #cf87e8;">class</span> <span data-highlight="type" style="color: #36c692;">Human</span>
 </div><div class="line" data-line="476">
 </div><div class="line" data-line="477">  <span data-highlight="comment.documentation" style="color: #949494;"># A class variable. It is shared by all instances of this class.</span>
-</div><div class="line" data-line="478">  <span data-highlight="variable.member" style="color: #adadf3;">@@species</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="string" style="color: #c6c684;">&#39;</span><span data-highlight="string" style="color: #c6c684;">H. sapiens</span><span data-highlight="string" style="color: #c6c684;">&#39;</span>
+</div><div class="line" data-line="478">  <span data-highlight="variable.member" style="color: #79dac8;">@@species</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="string" style="color: #c6c684;">&#39;</span><span data-highlight="string" style="color: #c6c684;">H. sapiens</span><span data-highlight="string" style="color: #c6c684;">&#39;</span>
 </div><div class="line" data-line="479">
 </div><div class="line" data-line="480">  <span data-highlight="comment.documentation" style="color: #949494;"># Basic initializer</span>
 </div><div class="line" data-line="481">  <span data-highlight="keyword.function" style="color: #cf87e8;">def</span> <span data-highlight="function" style="color: #74b2ff;">initialize</span><span data-highlight="punctuation.bracket" style="color: #c6c6c6;">(</span><span data-highlight="variable.parameter" style="color: #e196a2;">name</span><span data-highlight="punctuation.delimiter" style="color: #c6c6c6;">,</span> <span data-highlight="variable.parameter" style="color: #e196a2;">age</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="number" style="color: #de935f;">0</span><span data-highlight="punctuation.bracket" style="color: #c6c6c6;">)</span>
 </div><div class="line" data-line="482">    <span data-highlight="comment" style="color: #949494;"># Assign the argument to the &#39;name&#39; instance variable for the instance.</span>
-</div><div class="line" data-line="483">    <span data-highlight="variable.member" style="color: #adadf3;">@name</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">name</span>
+</div><div class="line" data-line="483">    <span data-highlight="variable.member" style="color: #79dac8;">@name</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">name</span>
 </div><div class="line" data-line="484">    <span data-highlight="comment" style="color: #949494;"># If no age given, we will fall back to the default in the arguments list.</span>
-</div><div class="line" data-line="485">    <span data-highlight="variable.member" style="color: #adadf3;">@age</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">age</span>
+</div><div class="line" data-line="485">    <span data-highlight="variable.member" style="color: #79dac8;">@age</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">age</span>
 </div><div class="line" data-line="486">  <span data-highlight="keyword.function" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="487">
 </div><div class="line" data-line="488">  <span data-highlight="comment" style="color: #949494;"># Basic setter method</span>
 </div><div class="line" data-line="489">  <span data-highlight="keyword.function" style="color: #cf87e8;">def</span> <span data-highlight="function" style="color: #74b2ff;">name</span><span data-highlight="operator" style="color: #e65e72;">=</span><span data-highlight="punctuation.bracket" style="color: #c6c6c6;">(</span><span data-highlight="variable.parameter" style="color: #e196a2;">name</span><span data-highlight="punctuation.bracket" style="color: #c6c6c6;">)</span>
-</div><div class="line" data-line="490">    <span data-highlight="variable.member" style="color: #adadf3;">@name</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">name</span>
+</div><div class="line" data-line="490">    <span data-highlight="variable.member" style="color: #79dac8;">@name</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">name</span>
 </div><div class="line" data-line="491">  <span data-highlight="keyword.function" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="492">
 </div><div class="line" data-line="493">  <span data-highlight="comment" style="color: #949494;"># Basic getter method</span>
 </div><div class="line" data-line="494">  <span data-highlight="keyword.function" style="color: #cf87e8;">def</span> <span data-highlight="function" style="color: #74b2ff;">name</span>
-</div><div class="line" data-line="495">    <span data-highlight="variable.member" style="color: #adadf3;">@name</span>
+</div><div class="line" data-line="495">    <span data-highlight="variable.member" style="color: #79dac8;">@name</span>
 </div><div class="line" data-line="496">  <span data-highlight="keyword.function" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="497">
 </div><div class="line" data-line="498">  <span data-highlight="comment" style="color: #949494;"># The above functionality can be encapsulated using the attr_accessor method</span>
@@ -510,7 +510,7 @@
 </div><div class="line" data-line="510">  <span data-highlight="keyword" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="511">
 </div><div class="line" data-line="512">  <span data-highlight="keyword.function" style="color: #cf87e8;">def</span> <span data-highlight="function" style="color: #74b2ff;">species</span>
-</div><div class="line" data-line="513">    <span data-highlight="variable.member" style="color: #adadf3;">@@species</span>
+</div><div class="line" data-line="513">    <span data-highlight="variable.member" style="color: #79dac8;">@@species</span>
 </div><div class="line" data-line="514">  <span data-highlight="keyword.function" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="515"><span data-highlight="keyword" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="516">
@@ -535,12 +535,12 @@
 </div><div class="line" data-line="535"><span data-highlight="function" style="color: #74b2ff;">defined?</span> <span data-highlight="variable" style="color: #c6c6c6;">$var</span> <span data-highlight="comment" style="color: #949494;">#=&gt; &quot;global-variable&quot;</span>
 </div><div class="line" data-line="536">
 </div><div class="line" data-line="537"><span data-highlight="comment" style="color: #949494;"># Variables that start with @ have instance scope.</span>
-</div><div class="line" data-line="538"><span data-highlight="variable.member" style="color: #adadf3;">@var</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="string" style="color: #c6c684;">&quot;</span><span data-highlight="string" style="color: #c6c684;">I&#39;m an instance var</span><span data-highlight="string" style="color: #c6c684;">&quot;</span>
-</div><div class="line" data-line="539"><span data-highlight="function" style="color: #74b2ff;">defined?</span> <span data-highlight="variable.member" style="color: #adadf3;">@var</span> <span data-highlight="comment" style="color: #949494;">#=&gt; &quot;instance-variable&quot;</span>
+</div><div class="line" data-line="538"><span data-highlight="variable.member" style="color: #79dac8;">@var</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="string" style="color: #c6c684;">&quot;</span><span data-highlight="string" style="color: #c6c684;">I&#39;m an instance var</span><span data-highlight="string" style="color: #c6c684;">&quot;</span>
+</div><div class="line" data-line="539"><span data-highlight="function" style="color: #74b2ff;">defined?</span> <span data-highlight="variable.member" style="color: #79dac8;">@var</span> <span data-highlight="comment" style="color: #949494;">#=&gt; &quot;instance-variable&quot;</span>
 </div><div class="line" data-line="540">
 </div><div class="line" data-line="541"><span data-highlight="comment" style="color: #949494;"># Variables that start with @@ have class scope.</span>
-</div><div class="line" data-line="542"><span data-highlight="variable.member" style="color: #adadf3;">@@var</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="string" style="color: #c6c684;">&quot;</span><span data-highlight="string" style="color: #c6c684;">I&#39;m a class var</span><span data-highlight="string" style="color: #c6c684;">&quot;</span>
-</div><div class="line" data-line="543"><span data-highlight="function" style="color: #74b2ff;">defined?</span> <span data-highlight="variable.member" style="color: #adadf3;">@@var</span> <span data-highlight="comment" style="color: #949494;">#=&gt; &quot;class variable&quot;</span>
+</div><div class="line" data-line="542"><span data-highlight="variable.member" style="color: #79dac8;">@@var</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="string" style="color: #c6c684;">&quot;</span><span data-highlight="string" style="color: #c6c684;">I&#39;m a class var</span><span data-highlight="string" style="color: #c6c684;">&quot;</span>
+</div><div class="line" data-line="543"><span data-highlight="function" style="color: #74b2ff;">defined?</span> <span data-highlight="variable.member" style="color: #79dac8;">@@var</span> <span data-highlight="comment" style="color: #949494;">#=&gt; &quot;class variable&quot;</span>
 </div><div class="line" data-line="544">
 </div><div class="line" data-line="545"><span data-highlight="comment" style="color: #949494;"># Variables that start with a capital letter are constants.</span>
 </div><div class="line" data-line="546"><span data-highlight="type" style="color: #36c692;">Var</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="string" style="color: #c6c684;">&quot;</span><span data-highlight="string" style="color: #c6c684;">I&#39;m a constant</span><span data-highlight="string" style="color: #c6c684;">&quot;</span>
@@ -551,14 +551,14 @@
 </div><div class="line" data-line="551">
 </div><div class="line" data-line="552"><span data-highlight="comment" style="color: #949494;"># Base class</span>
 </div><div class="line" data-line="553"><span data-highlight="keyword.type" style="color: #cf87e8;">class</span> <span data-highlight="type" style="color: #36c692;">Human</span>
-</div><div class="line" data-line="554">  <span data-highlight="variable.member" style="color: #adadf3;">@@foo</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="number" style="color: #de935f;">0</span>
+</div><div class="line" data-line="554">  <span data-highlight="variable.member" style="color: #79dac8;">@@foo</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="number" style="color: #de935f;">0</span>
 </div><div class="line" data-line="555">
 </div><div class="line" data-line="556">  <span data-highlight="keyword.function" style="color: #cf87e8;">def</span> <span data-highlight="variable.builtin" style="color: #8cc85f;">self</span><span data-highlight="punctuation.delimiter" style="color: #c6c6c6;">.</span><span data-highlight="function" style="color: #74b2ff;">foo</span>
-</div><div class="line" data-line="557">    <span data-highlight="variable.member" style="color: #adadf3;">@@foo</span>
+</div><div class="line" data-line="557">    <span data-highlight="variable.member" style="color: #79dac8;">@@foo</span>
 </div><div class="line" data-line="558">  <span data-highlight="keyword" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="559">
 </div><div class="line" data-line="560">  <span data-highlight="keyword.function" style="color: #cf87e8;">def</span> <span data-highlight="variable.builtin" style="color: #8cc85f;">self</span><span data-highlight="punctuation.delimiter" style="color: #c6c6c6;">.</span><span data-highlight="function" style="color: #74b2ff;">foo</span><span data-highlight="operator" style="color: #e65e72;">=</span><span data-highlight="punctuation.bracket" style="color: #c6c6c6;">(</span><span data-highlight="variable.parameter" style="color: #e196a2;">value</span><span data-highlight="punctuation.bracket" style="color: #c6c6c6;">)</span>
-</div><div class="line" data-line="561">    <span data-highlight="variable.member" style="color: #adadf3;">@@foo</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">value</span>
+</div><div class="line" data-line="561">    <span data-highlight="variable.member" style="color: #79dac8;">@@foo</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">value</span>
 </div><div class="line" data-line="562">  <span data-highlight="keyword" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="563"><span data-highlight="keyword" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="564">
@@ -574,14 +574,14 @@
 </div><div class="line" data-line="574">
 </div><div class="line" data-line="575"><span data-highlight="comment" style="color: #949494;"># A class instance variable is not shared by the class&#39;s descendants.</span>
 </div><div class="line" data-line="576"><span data-highlight="keyword.type" style="color: #cf87e8;">class</span> <span data-highlight="type" style="color: #36c692;">Human</span>
-</div><div class="line" data-line="577">  <span data-highlight="variable.member" style="color: #adadf3;">@bar</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="number" style="color: #de935f;">0</span>
+</div><div class="line" data-line="577">  <span data-highlight="variable.member" style="color: #79dac8;">@bar</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="number" style="color: #de935f;">0</span>
 </div><div class="line" data-line="578">
 </div><div class="line" data-line="579">  <span data-highlight="keyword.function" style="color: #cf87e8;">def</span> <span data-highlight="variable.builtin" style="color: #8cc85f;">self</span><span data-highlight="punctuation.delimiter" style="color: #c6c6c6;">.</span><span data-highlight="function" style="color: #74b2ff;">bar</span>
-</div><div class="line" data-line="580">    <span data-highlight="variable.member" style="color: #adadf3;">@bar</span>
+</div><div class="line" data-line="580">    <span data-highlight="variable.member" style="color: #79dac8;">@bar</span>
 </div><div class="line" data-line="581">  <span data-highlight="keyword" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="582">
 </div><div class="line" data-line="583">  <span data-highlight="keyword.function" style="color: #cf87e8;">def</span> <span data-highlight="variable.builtin" style="color: #8cc85f;">self</span><span data-highlight="punctuation.delimiter" style="color: #c6c6c6;">.</span><span data-highlight="function" style="color: #74b2ff;">bar</span><span data-highlight="operator" style="color: #e65e72;">=</span><span data-highlight="punctuation.bracket" style="color: #c6c6c6;">(</span><span data-highlight="variable.parameter" style="color: #e196a2;">value</span><span data-highlight="punctuation.bracket" style="color: #c6c6c6;">)</span>
-</div><div class="line" data-line="584">    <span data-highlight="variable.member" style="color: #adadf3;">@bar</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">value</span>
+</div><div class="line" data-line="584">    <span data-highlight="variable.member" style="color: #79dac8;">@bar</span> <span data-highlight="operator" style="color: #e65e72;">=</span> <span data-highlight="variable" style="color: #c6c6c6;">value</span>
 </div><div class="line" data-line="585">  <span data-highlight="keyword" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="586"><span data-highlight="keyword" style="color: #cf87e8;">end</span>
 </div><div class="line" data-line="587">

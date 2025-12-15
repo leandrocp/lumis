@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Support for language-specific (specialized) capture groups following Neovim's treesitter-highlight-groups spec - captures like `@comment.lua` or `@keyword.function.ruby` now take precedence over base captures ([#287](https://github.com/leandrocp/autumnus/issues/287))
+- Update vim language queries
+
 ## [0.8.0-beta.1] - 2025-12-11
 
 **Important:** This release introduces several breaking changes. Please refer to the migration guide below.

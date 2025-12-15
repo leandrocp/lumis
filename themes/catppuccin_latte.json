@@ -1,13 +1,16 @@
 {
   "name": "catppuccin_latte",
   "appearance": "light",
-  "revision": "234fc048de931a0e42ebcad675bf6559d75e23df",
+  "revision": "193e123cdbc4dd3e86db883d55349e9587f0ded6",
   "highlights": {
     "attribute": {
       "fg": "#fe640b"
     },
     "attribute.builtin": {
       "fg": "#ea76cb"
+    },
+    "attribute.c_sharp": {
+      "fg": "#df8e1d"
     },
     "boolean": {
       "fg": "#fe640b"
@@ -17,6 +20,9 @@
     },
     "character.special": {
       "fg": "#ea76cb"
+    },
+    "character.special.html": {
+      "fg": "#d20f39"
     },
     "comment": {
       "fg": "#7c7f93",
@@ -45,6 +51,9 @@
     "comment.warning": {
       "fg": "#eff1f5",
       "bg": "#df8e1d"
+    },
+    "comment.warning.gitcommit": {
+      "fg": "#df8e1d"
     },
     "constant": {
       "fg": "#fe640b"
@@ -99,12 +108,6 @@
       "fg": "#1e66f5"
     },
     "function.method.call": {
-      "fg": "#1e66f5"
-    },
-    "function.method.call.php": {
-      "fg": "#1e66f5"
-    },
-    "function.method.php": {
       "fg": "#1e66f5"
     },
     "highlighted": {
@@ -189,20 +192,62 @@
     "markup.heading.1": {
       "fg": "#1e66f5"
     },
+    "markup.heading.1.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.1.markdown": {
+      "fg": "#d20f39"
+    },
     "markup.heading.2": {
       "fg": "#1e66f5"
+    },
+    "markup.heading.2.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.2.markdown": {
+      "fg": "#fe640b"
     },
     "markup.heading.3": {
       "fg": "#1e66f5"
     },
+    "markup.heading.3.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.3.markdown": {
+      "fg": "#df8e1d"
+    },
     "markup.heading.4": {
       "fg": "#1e66f5"
+    },
+    "markup.heading.4.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.4.markdown": {
+      "fg": "#40a02b"
     },
     "markup.heading.5": {
       "fg": "#1e66f5"
     },
+    "markup.heading.5.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.5.markdown": {
+      "fg": "#209fb5"
+    },
     "markup.heading.6": {
       "fg": "#1e66f5"
+    },
+    "markup.heading.6.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.6.markdown": {
+      "fg": "#7287fd"
+    },
+    "markup.heading.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.markdown": {
+      "bold": true
     },
     "markup.italic": {
       "fg": "#d20f39",
@@ -272,9 +317,6 @@
     "number": {
       "fg": "#fe640b"
     },
-    "number.css": {
-      "fg": "#fe640b"
-    },
     "number.float": {
       "fg": "#fe640b"
     },
@@ -284,26 +326,11 @@
     "property": {
       "fg": "#7287fd"
     },
-    "property.class.css": {
-      "fg": "#df8e1d"
-    },
     "property.css": {
       "fg": "#1e66f5"
     },
-    "property.id.css": {
-      "fg": "#df8e1d"
-    },
-    "property.json": {
-      "fg": "#7287fd"
-    },
     "property.scss": {
       "fg": "#1e66f5"
-    },
-    "property.toml": {
-      "fg": "#7287fd"
-    },
-    "property.yaml": {
-      "fg": "#7287fd"
     },
     "punctuation.bracket": {
       "fg": "#7c7f93"
@@ -326,8 +353,8 @@
     "string.escape": {
       "fg": "#ea76cb"
     },
-    "string.plain.css": {
-      "fg": "#4c4f69"
+    "string.regex": {
+      "fg": "#ea76cb"
     },
     "string.regexp": {
       "fg": "#ea76cb"
@@ -338,10 +365,10 @@
     "string.special.path": {
       "fg": "#ea76cb"
     },
-    "string.special.symbol": {
-      "fg": "#dd7878"
+    "string.special.path.gitignore": {
+      "fg": "#4c4f69"
     },
-    "string.special.symbol.ruby": {
+    "string.special.symbol": {
       "fg": "#dd7878"
     },
     "string.special.url": {
@@ -376,9 +403,6 @@
     },
     "type.definition": {
       "fg": "#df8e1d"
-    },
-    "type.tag.css": {
-      "fg": "#1e66f5"
     },
     "variable": {
       "fg": "#4c4f69"

@@ -124,11 +124,11 @@ use super::{Formatter, HtmlElement};
 use crate::formatter::html_inline::HighlightLines;
 use crate::languages::Language;
 use crate::themes::Theme;
+use crate::vendor::tree_sitter_highlight::{Highlighter, HtmlRenderer};
 use derive_builder::Builder;
 use std::collections::HashMap;
 use std::io::{self, Write};
 use std::str::FromStr;
-use tree_sitter_highlight::Highlighter;
 
 /// Configuration for which theme to use as the default (inline styles).
 ///
@@ -442,14 +442,15 @@ impl<'a> HtmlMultiThemes<'a> {
         write!(output, ">")
     }
 
-    fn render_token_style(&self, scope: &str, output: &mut Vec<u8>) {
+    fn render_token_style(&self, scope: &str, language: &str, output: &mut Vec<u8>) {
         let mut inline_styles = Vec::new();
         let mut css_vars = Vec::new();
+        let specialized_scope = format!("{}.{}", scope, language);
 
         match &self.default_theme {
             Some(DefaultTheme::Theme(default_name)) => {
                 if let Some(default_theme) = self.themes.get(default_name) {
-                    if let Some(style) = default_theme.get_style(scope) {
+                    if let Some(style) = default_theme.get_style(&specialized_scope) {
                         if let Some(fg) = &style.fg {
                             inline_styles.push(format!("color:{};", fg));
                         }
@@ -499,7 +500,7 @@ impl<'a> HtmlMultiThemes<'a> {
 
                 for (theme_name, theme) in &self.themes {
                     if theme_name != default_name {
-                        if let Some(style) = theme.get_style(scope) {
+                        if let Some(style) = theme.get_style(&specialized_scope) {
                             let sanitized = Self::sanitize_theme_name(theme_name);
 
                             if let Some(fg) = &style.fg {
@@ -542,9 +543,10 @@ impl<'a> HtmlMultiThemes<'a> {
                 if let (Some(light), Some(dark)) =
                     (self.themes.get("light"), self.themes.get("dark"))
                 {
-                    if let (Some(light_style), Some(dark_style)) =
-                        (light.get_style(scope), dark.get_style(scope))
-                    {
+                    if let (Some(light_style), Some(dark_style)) = (
+                        light.get_style(&specialized_scope),
+                        dark.get_style(&specialized_scope),
+                    ) {
                         if let (Some(light_fg), Some(dark_fg)) = (&light_style.fg, &dark_style.fg) {
                             inline_styles
                                 .push(format!("color: light-dark({}, {});", light_fg, dark_fg));
@@ -599,7 +601,7 @@ impl<'a> HtmlMultiThemes<'a> {
             }
             None => {
                 for (theme_name, theme) in &self.themes {
-                    if let Some(style) = theme.get_style(scope) {
+                    if let Some(style) = theme.get_style(&specialized_scope) {
                         let sanitized = Self::sanitize_theme_name(theme_name);
 
                         if let Some(fg) = &style.fg {
@@ -732,20 +734,24 @@ impl Formatter for HtmlMultiThemes<'_> {
             })
             .map_err(io::Error::other)?;
 
-        let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
+        let mut renderer = HtmlRenderer::new();
 
         renderer
-            .render(events, source.as_bytes(), &move |highlight, output| {
-                let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
+            .render(
+                events,
+                source.as_bytes(),
+                &move |highlight, language, output| {
+                    let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
 
-                if self.include_highlights {
-                    output.extend("data-highlight=\"".as_bytes());
-                    output.extend(scope.as_bytes());
-                    output.extend(b"\"");
-                }
+                    if self.include_highlights {
+                        output.extend("data-highlight=\"".as_bytes());
+                        output.extend(scope.as_bytes());
+                        output.extend(b"\"");
+                    }
 
-                self.render_token_style(scope, output);
-            })
+                    self.render_token_style(scope, language, output);
+                },
+            )
             .map_err(io::Error::other)?;
 
         for (i, line) in renderer.lines().enumerate() {

@@ -13,6 +13,9 @@ pre.athl {
   color: #907aa9;
   font-weight: bold;
 }
+.attribute-diff {
+  color: #ea9d34;
+}
 .boolean {
   color: #d7827e;
 }
@@ -55,19 +58,10 @@ pre.athl {
   color: #ea9d34;
   font-weight: bold;
 }
-.constant-java {
-  color: #ea9d34;
-}
 .constant-macro {
   color: #ea9d34;
 }
 .constructor {
-  color: #56949f;
-}
-.constructor-lua {
-  color: #56949f;
-}
-.constructor-python {
   color: #56949f;
 }
 .diff-delta {
@@ -88,10 +82,6 @@ pre.athl {
   color: #d7827e;
   font-weight: bold;
 }
-.function-builtin-bash {
-  color: #d7827e;
-  font-weight: bold;
-}
 .function-call {
   color: #d7827e;
 }
@@ -103,12 +93,6 @@ pre.athl {
 }
 .function-method-call {
   color: #907aa9;
-}
-.function-method-call-php {
-  color: #907aa9;
-}
-.function-method-php {
-  color: #d7827e;
 }
 .highlighted {
   background-color: #f2e9e1;
@@ -131,9 +115,6 @@ pre.athl {
 .keyword-directive {
   color: #907aa9;
 }
-.keyword-directive-css {
-  color: #907aa9;
-}
 .keyword-directive-define {
   color: #907aa9;
 }
@@ -147,12 +128,6 @@ pre.athl {
   color: #286983;
 }
 .keyword-import {
-  color: #286983;
-}
-.keyword-import-c {
-  color: #286983;
-}
-.keyword-import-cpp {
   color: #286983;
 }
 .keyword-modifier {
@@ -173,9 +148,6 @@ pre.athl {
 .label {
   color: #56949f;
 }
-.label-yaml {
-  color: #56949f;
-}
 .markup {
   color: #56949f;
 }
@@ -193,6 +165,10 @@ pre.athl {
   color: #56949f;
   font-weight: bold;
 }
+.markup-heading-1-markdown {
+  color: #907aa9;
+  font-weight: bold;
+}
 .markup-heading-2 {
   color: #56949f;
   font-weight: bold;
@@ -201,16 +177,32 @@ pre.athl {
   color: #56949f;
   font-weight: bold;
 }
+.markup-heading-3-markdown {
+  color: #d7827e;
+  font-weight: bold;
+}
 .markup-heading-4 {
   color: #56949f;
+  font-weight: bold;
+}
+.markup-heading-4-markdown {
+  color: #ea9d34;
   font-weight: bold;
 }
 .markup-heading-5 {
   color: #56949f;
   font-weight: bold;
 }
+.markup-heading-5-markdown {
+  color: #286983;
+  font-weight: bold;
+}
 .markup-heading-6 {
   color: #56949f;
+  font-weight: bold;
+}
+.markup-heading-6-markdown {
+  color: #6d8f89;
   font-weight: bold;
 }
 .markup-italic {
@@ -224,9 +216,11 @@ pre.athl {
   color: #907aa9;
   text-decoration: underline;
 }
-.markup-link-label-html {
-  color: #907aa9;
-  text-decoration: underline;
+.markup-link-label-markdown_inline {
+  color: #56949f;
+}
+.markup-link-markdown_inline {
+  color: #797593;
 }
 .markup-link-url {
   color: #907aa9;
@@ -279,9 +273,6 @@ pre.athl {
 .number {
   color: #ea9d34;
 }
-.number-css {
-  color: #ea9d34;
-}
 .number-float {
   color: #ea9d34;
 }
@@ -292,41 +283,10 @@ pre.athl {
   color: #56949f;
   font-style: italic;
 }
-.property-class-css {
-  color: #56949f;
-  font-style: italic;
-}
-.property-css {
-  color: #56949f;
-  font-style: italic;
-}
-.property-id-css {
-  color: #56949f;
-  font-style: italic;
-}
-.property-json {
-  color: #56949f;
-  font-style: italic;
-}
-.property-scss {
-  color: #56949f;
-  font-style: italic;
-}
-.property-toml {
-  color: #56949f;
-  font-style: italic;
-}
-.property-yaml {
-  color: #56949f;
-  font-style: italic;
-}
 .punctuation-bracket {
   color: #797593;
 }
 .punctuation-delimiter {
-  color: #797593;
-}
-.punctuation-delimiter-regex {
   color: #797593;
 }
 .punctuation-special {
@@ -341,9 +301,6 @@ pre.athl {
 .string-escape {
   color: #286983;
 }
-.string-plain-css {
-  color: #ea9d34;
-}
 .string-regexp {
   color: #907aa9;
 }
@@ -356,13 +313,7 @@ pre.athl {
 .string-special-symbol {
   color: #464261;
 }
-.string-special-symbol-ruby {
-  color: #464261;
-}
 .string-special-url {
-  color: #907aa9;
-}
-.string-special-url-html {
   color: #907aa9;
 }
 .tag {
@@ -384,13 +335,7 @@ pre.athl {
   color: #56949f;
   font-weight: bold;
 }
-.type-css {
-  color: #56949f;
-}
 .type-definition {
-  color: #56949f;
-}
-.type-tag-css {
   color: #56949f;
 }
 .variable {
@@ -406,10 +351,6 @@ pre.athl {
   color: #56949f;
 }
 .variable-parameter {
-  color: #907aa9;
-  font-style: italic;
-}
-.variable-parameter-bash {
   color: #907aa9;
   font-style: italic;
 }

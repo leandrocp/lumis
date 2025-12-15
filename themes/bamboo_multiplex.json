@@ -9,6 +9,9 @@
     "attribute.builtin": {
       "fg": "#dc4f62"
     },
+    "attribute.typescript": {
+      "fg": "#409cdc"
+    },
     "boolean": {
       "fg": "#ef9946"
     },
@@ -50,13 +53,13 @@
       "bg": "#ef9946",
       "bold": true
     },
+    "comment.warning.gitcommit": {
+      "bg": "#56452c"
+    },
     "constant": {
       "fg": "#ef9946"
     },
     "constant.builtin": {
-      "fg": "#ef9946"
-    },
-    "constant.java": {
       "fg": "#ef9946"
     },
     "constant.macro": {
@@ -68,10 +71,6 @@
     },
     "constructor.lua": {
       "fg": "#ceba49"
-    },
-    "constructor.python": {
-      "fg": "#ceba49",
-      "bold": true
     },
     "diff.delta": {
       "bg": "#2a3a57"
@@ -91,9 +90,6 @@
     "function.builtin": {
       "fg": "#ef9946"
     },
-    "function.builtin.bash": {
-      "fg": "#ef9946"
-    },
     "function.call": {
       "fg": "#409cdc"
     },
@@ -104,12 +100,6 @@
       "fg": "#409cdc"
     },
     "function.method.call": {
-      "fg": "#409cdc"
-    },
-    "function.method.call.php": {
-      "fg": "#409cdc"
-    },
-    "function.method.php": {
       "fg": "#409cdc"
     },
     "highlighted": {
@@ -134,9 +124,6 @@
     "keyword.directive": {
       "fg": "#a09af8"
     },
-    "keyword.directive.css": {
-      "fg": "#a09af8"
-    },
     "keyword.directive.define": {
       "fg": "#a09af8",
       "bold": true
@@ -151,12 +138,6 @@
       "fg": "#a09af8"
     },
     "keyword.import": {
-      "fg": "#a09af8"
-    },
-    "keyword.import.c": {
-      "fg": "#a09af8"
-    },
-    "keyword.import.cpp": {
       "fg": "#a09af8"
     },
     "keyword.modifier": {
@@ -179,9 +160,8 @@
       "fg": "#dc4f62",
       "bold": true
     },
-    "label.yaml": {
-      "fg": "#dc4f62",
-      "bold": true
+    "label.diff": {
+      "fg": "#ceba49"
     },
     "markup": {
       "fg": "#dc4f62"
@@ -228,10 +208,6 @@
       "fg": "#409cdc"
     },
     "markup.link.label": {
-      "fg": "#409cdc",
-      "underline": true
-    },
-    "markup.link.label.html": {
       "fg": "#409cdc",
       "underline": true
     },
@@ -282,14 +258,15 @@
     "module.builtin": {
       "fg": "#dc4f62"
     },
+    "module.latex": {
+      "fg": "#68baae",
+      "italic": true
+    },
     "normal": {
       "fg": "#ece1c0",
       "bg": "#232923"
     },
     "number": {
-      "fg": "#ef9946"
-    },
-    "number.css": {
       "fg": "#ef9946"
     },
     "number.float": {
@@ -301,38 +278,17 @@
     "property": {
       "fg": "#68baae"
     },
-    "property.class.css": {
-      "fg": "#68baae"
-    },
-    "property.css": {
-      "fg": "#68baae"
-    },
-    "property.id.css": {
-      "fg": "#68baae"
-    },
-    "property.json": {
-      "fg": "#68baae"
-    },
-    "property.scss": {
-      "fg": "#68baae"
-    },
-    "property.toml": {
-      "fg": "#68baae"
-    },
-    "property.yaml": {
-      "fg": "#68baae"
-    },
     "punctuation.bracket": {
       "fg": "#818781"
     },
     "punctuation.delimiter": {
       "fg": "#818781"
     },
-    "punctuation.delimiter.regex": {
-      "fg": "#818781"
-    },
     "punctuation.special": {
       "fg": "#dc4f62"
+    },
+    "punctuation.special.diff": {
+      "fg": "#818781"
     },
     "string": {
       "fg": "#81af58"
@@ -342,9 +298,6 @@
     },
     "string.escape": {
       "fg": "#e07870"
-    },
-    "string.plain.css": {
-      "fg": "#81af58"
     },
     "string.regexp": {
       "fg": "#ef9946"
@@ -356,18 +309,13 @@
       "fg": "#88c1e9",
       "underline": true
     },
+    "string.special.path.diff": {
+      "fg": "#88c1e9"
+    },
     "string.special.symbol": {
       "fg": "#68baae"
     },
-    "string.special.symbol.ruby": {
-      "fg": "#68baae"
-    },
     "string.special.url": {
-      "fg": "#68baae",
-      "italic": true,
-      "underline": true
-    },
-    "string.special.url.html": {
       "fg": "#68baae",
       "italic": true,
       "underline": true
@@ -390,13 +338,7 @@
     "type.builtin": {
       "fg": "#ceba49"
     },
-    "type.css": {
-      "fg": "#ceba49"
-    },
     "type.definition": {
-      "fg": "#ceba49"
-    },
-    "type.tag.css": {
       "fg": "#ceba49"
     },
     "variable": {
@@ -409,10 +351,6 @@
       "fg": "#68baae"
     },
     "variable.parameter": {
-      "fg": "#e07870",
-      "italic": true
-    },
-    "variable.parameter.bash": {
       "fg": "#e07870",
       "italic": true
     },

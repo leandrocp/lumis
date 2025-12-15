@@ -480,6 +480,37 @@ impl Theme {
         rules.join("")
     }
 
+    /// Get style for a scope.
+    ///
+    /// This implements Neovim's treesitter-highlight-groups spec where capture groups
+    /// can be specialized by language or other suffix. For example, `@comment.lua` takes
+    /// precedence over `@comment` when highlighting Lua code.
+    ///
+    /// The lookup order is:
+    /// 1. `{scope}` exact match
+    /// 2. Parent scope fallback (e.g., "markup.heading" for "markup.heading.2")
+    ///
+    /// For language-specific styles, callers should construct the full scope themselves
+    /// (e.g., "comment.lua" instead of "comment"). If the specialized scope doesn't exist,
+    /// it automatically falls back to parent scopes.
+    ///
+    /// # Arguments
+    ///
+    /// * `scope` - The capture scope name (e.g., "markup.heading.2.markdown", "comment.lua")
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use autumnus::themes;
+    ///
+    /// let theme = themes::get("catppuccin_mocha").unwrap();
+    ///
+    /// // Request specialized scope - falls back to parent if not found
+    /// let style = theme.get_style("comment.lua");
+    ///
+    /// // Request generic scope
+    /// let style = theme.get_style("keyword");
+    /// ```
     pub fn get_style(&self, scope: &str) -> Option<&Style> {
         match self.highlights.get(scope) {
             Some(syntax) => Some(syntax),
@@ -765,5 +796,230 @@ pre.athl {
 "#;
 
         assert_eq!(theme.css(true), expected);
+    }
+
+    // Tests for specialized capture groups (issue #287)
+    // https://github.com/leandrocp/autumnus/issues/287
+
+    #[test]
+    fn test_get_style_specialized() {
+        // Theme with both generic and language-specific styles
+        let json = r##"{
+            "name": "test",
+            "appearance": "dark",
+            "revision": "test",
+            "highlights": {
+                "comment": {"fg": "#666666"},
+                "comment.lua": {"fg": "#888888", "italic": true},
+                "markup.heading.2": {"fg": "#ff0000", "bold": true},
+                "markup.heading.2.markdown": {"fg": "#00ff00", "bold": true}
+            }
+        }"##;
+        let theme = from_json(json).unwrap();
+
+        // Should return specialized style when it exists (caller constructs full scope)
+        let lua_comment = theme.get_style("comment.lua");
+        assert_eq!(
+            lua_comment,
+            Some(&Style {
+                fg: Some("#888888".to_string()),
+                italic: true,
+                ..Default::default()
+            })
+        );
+
+        // Should return specialized markdown heading style
+        let md_heading = theme.get_style("markup.heading.2.markdown");
+        assert_eq!(
+            md_heading,
+            Some(&Style {
+                fg: Some("#00ff00".to_string()),
+                bold: true,
+                ..Default::default()
+            })
+        );
+    }
+
+    #[test]
+    fn test_get_style_fallback_to_generic() {
+        // Theme with only generic style
+        let json = r##"{
+            "name": "test",
+            "appearance": "dark",
+            "revision": "test",
+            "highlights": {
+                "comment": {"fg": "#666666"},
+                "markup.heading.2": {"fg": "#ff0000", "bold": true}
+            }
+        }"##;
+        let theme = from_json(json).unwrap();
+
+        // Should fall back to generic style when specialized doesn't exist
+        // (comment.rust doesn't exist, falls back to comment)
+        let rust_comment = theme.get_style("comment.rust");
+        assert_eq!(
+            rust_comment,
+            Some(&Style {
+                fg: Some("#666666".to_string()),
+                ..Default::default()
+            })
+        );
+
+        // Should fall back to generic heading when markdown-specific doesn't exist
+        let md_heading = theme.get_style("markup.heading.2.markdown");
+        assert_eq!(
+            md_heading,
+            Some(&Style {
+                fg: Some("#ff0000".to_string()),
+                bold: true,
+                ..Default::default()
+            })
+        );
+    }
+
+    #[test]
+    fn test_get_style_fallback_to_parent_scope() {
+        // Theme with parent scope but not child scope
+        let json = r##"{
+            "name": "test",
+            "appearance": "dark",
+            "revision": "test",
+            "highlights": {
+                "markup.heading": {"fg": "#ff0000", "bold": true}
+            }
+        }"##;
+        let theme = from_json(json).unwrap();
+
+        // Should fall back to parent scope when neither specialized nor exact scope exists
+        // markup.heading.2.markdown -> markup.heading.2 -> markup.heading
+        let md_heading = theme.get_style("markup.heading.2.markdown");
+        assert_eq!(
+            md_heading,
+            Some(&Style {
+                fg: Some("#ff0000".to_string()),
+                bold: true,
+                ..Default::default()
+            })
+        );
+    }
+
+    #[test]
+    fn test_get_style_no_match() {
+        // Theme without matching style
+        let json = r##"{
+            "name": "test",
+            "appearance": "dark",
+            "revision": "test",
+            "highlights": {
+                "keyword": {"fg": "#ff0000"}
+            }
+        }"##;
+        let theme = from_json(json).unwrap();
+
+        // Should return None when no matching style exists
+        let result = theme.get_style("comment.rust");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_get_style_prefers_specialized_over_generic() {
+        // Ensure specialized takes precedence over generic with different styles
+        let json = r##"{
+            "name": "test",
+            "appearance": "dark",
+            "revision": "test",
+            "highlights": {
+                "string.special.symbol": {"fg": "#aaaaaa"},
+                "string.special.symbol.ruby": {"fg": "#bbbbbb", "bold": true},
+                "string.special.symbol.elixir": {"fg": "#cccccc", "italic": true}
+            }
+        }"##;
+        let theme = from_json(json).unwrap();
+
+        // Ruby should get ruby-specific style
+        let ruby_symbol = theme.get_style("string.special.symbol.ruby");
+        assert_eq!(
+            ruby_symbol,
+            Some(&Style {
+                fg: Some("#bbbbbb".to_string()),
+                bold: true,
+                ..Default::default()
+            })
+        );
+
+        // Elixir should get elixir-specific style
+        let elixir_symbol = theme.get_style("string.special.symbol.elixir");
+        assert_eq!(
+            elixir_symbol,
+            Some(&Style {
+                fg: Some("#cccccc".to_string()),
+                italic: true,
+                ..Default::default()
+            })
+        );
+
+        // Python should fall back to generic (string.special.symbol.python doesn't exist)
+        let python_symbol = theme.get_style("string.special.symbol.python");
+        assert_eq!(
+            python_symbol,
+            Some(&Style {
+                fg: Some("#aaaaaa".to_string()),
+                ..Default::default()
+            })
+        );
+    }
+
+    #[test]
+    fn test_get_style_real_world_scenario() {
+        // Real-world scenario: Elixir with injected markdown in doc comments
+        // When highlighting `@moduledoc "## Intro"`, the markdown heading should use markdown-specific style
+        let json = r##"{
+            "name": "test",
+            "appearance": "dark",
+            "revision": "test",
+            "highlights": {
+                "markup.heading": {"fg": "#ff6b6b"},
+                "markup.heading.1": {"fg": "#ff0000", "bold": true},
+                "markup.heading.2": {"fg": "#00ff00", "bold": true},
+                "markup.heading.2.markdown": {"fg": "#4ecdc4", "bold": true, "underline": true},
+                "string.special.symbol": {"fg": "#ffeaa7"},
+                "string.special.symbol.elixir": {"fg": "#fab1a0", "italic": true}
+            }
+        }"##;
+        let theme = from_json(json).unwrap();
+
+        // In Elixir doc comment with markdown injection:
+        // The "## Intro" should be styled as markdown heading, not elixir
+        let markdown_h2 = theme.get_style("markup.heading.2.markdown");
+        assert_eq!(
+            markdown_h2,
+            Some(&Style {
+                fg: Some("#4ecdc4".to_string()),
+                bold: true,
+                underline: true,
+                ..Default::default()
+            })
+        );
+
+        // Elixir atoms should use elixir-specific symbol style
+        let elixir_atom = theme.get_style("string.special.symbol.elixir");
+        assert_eq!(
+            elixir_atom,
+            Some(&Style {
+                fg: Some("#fab1a0".to_string()),
+                italic: true,
+                ..Default::default()
+            })
+        );
+
+        // For languages without specific styles, fall back to generic
+        let rust_symbol = theme.get_style("string.special.symbol.rust");
+        assert_eq!(
+            rust_symbol,
+            Some(&Style {
+                fg: Some("#ffeaa7".to_string()),
+                ..Default::default()
+            })
+        );
     }
 }

@@ -20,12 +20,12 @@
 use super::{Formatter, HtmlElement};
 use crate::languages::Language;
 use crate::themes::Theme;
+use crate::vendor::tree_sitter_highlight::{Highlighter, HtmlRenderer};
 use derive_builder::Builder;
 use std::{
     io::{self, Write},
     ops::RangeInclusive,
 };
-use tree_sitter_highlight::Highlighter;
 
 /// Configuration for highlighting specific lines in HTML inline output.
 ///
@@ -276,30 +276,35 @@ impl Formatter for HtmlInline<'_> {
             })
             .map_err(io::Error::other)?;
 
-        let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
+        let mut renderer = HtmlRenderer::new();
 
         renderer
-            .render(events, source.as_bytes(), &move |highlight, output| {
-                let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
+            .render(
+                events,
+                source.as_bytes(),
+                &move |highlight, language, output| {
+                    let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
+                    let specialized_scope = format!("{}.{}", scope, language);
 
-                if self.include_highlights {
-                    output.extend("data-highlight=\"".as_bytes());
-                    output.extend(scope.as_bytes());
-                    output.extend(b"\"");
-                }
-
-                if let Some(theme) = &self.theme {
-                    if let Some(style) = theme.get_style(scope) {
-                        if self.include_highlights {
-                            output.extend(b" ");
-                        }
-
-                        output.extend(b"style=\"");
-                        output.extend(style.css(self.italic, " ").as_bytes());
+                    if self.include_highlights {
+                        output.extend("data-highlight=\"".as_bytes());
+                        output.extend(scope.as_bytes());
                         output.extend(b"\"");
                     }
-                }
-            })
+
+                    if let Some(theme) = &self.theme {
+                        if let Some(style) = theme.get_style(&specialized_scope) {
+                            if self.include_highlights {
+                                output.extend(b" ");
+                            }
+
+                            output.extend(b"style=\"");
+                            output.extend(style.css(self.italic, " ").as_bytes());
+                            output.extend(b"\"");
+                        }
+                    }
+                },
+            )
             .map_err(io::Error::other)?;
 
         for (i, line) in renderer.lines().enumerate() {

@@ -316,6 +316,7 @@ pub mod formatter;
 pub mod highlight;
 pub mod languages;
 pub mod themes;
+pub mod vendor;
 
 // Re-export helper modules from formatter for convenience
 pub use formatter::ansi;

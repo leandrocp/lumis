@@ -30,11 +30,21 @@
 - Vendored parsers are necessary for languages not yet available as crates or needing custom modifications
 - Query files support inheritance (`;inherits: language1,language2`) and override system
 
+## Update vendorized tree_sitter_highlight.rs
+- Fetch the tree-sitter-highlight locked version
+- Fetch raw source code from https://github.com/tree-sitter/tree-sitter
+- Update `vendor/tree_sitter_highlight.rs` with the new code, keeping changes minimal
+- Keep credits
+
 ## Theme System
 - Themes are extracted from Neovim colorschemes using Lua scripts in `themes/`
 - Each theme is a JSON file defining colors for syntax highlighting scopes
 - CSS generation creates stylesheets for HTML linked formatter
 - Themes are lazily loaded as static constants
+
+## Update constants.rs
+- Run `just extract-scopes-highlights` and `just extract-scopes-themes`
+- Combine results and put into both `const`
 
 ## Adding New Languages from crates.io
 1. Search parser in https://crates.io

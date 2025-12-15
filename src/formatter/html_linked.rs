@@ -20,12 +20,12 @@
 use super::{Formatter, HtmlElement};
 use crate::constants::CLASSES;
 use crate::languages::Language;
+use crate::vendor::tree_sitter_highlight::{Highlighter, HtmlRenderer};
 use derive_builder::Builder;
 use std::{
     io::{self, Write},
     ops::RangeInclusive,
 };
-use tree_sitter_highlight::Highlighter;
 
 /// Configuration for highlighting specific lines in HTML linked output.
 ///
@@ -190,16 +190,20 @@ impl Formatter for HtmlLinked<'_> {
             })
             .map_err(io::Error::other)?;
 
-        let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
+        let mut renderer = HtmlRenderer::new();
 
         renderer
-            .render(events, source.as_bytes(), &move |highlight, output| {
-                let class = CLASSES[highlight.0];
+            .render(
+                events,
+                source.as_bytes(),
+                &move |highlight, _language, output| {
+                    let class = CLASSES[highlight.0];
 
-                output.extend(b"class=\"");
-                output.extend(class.as_bytes());
-                output.extend(b"\"");
-            })
+                    output.extend(b"class=\"");
+                    output.extend(class.as_bytes());
+                    output.extend(b"\"");
+                },
+            )
             .map_err(io::Error::other)?;
 
         for (i, line) in renderer.lines().enumerate() {

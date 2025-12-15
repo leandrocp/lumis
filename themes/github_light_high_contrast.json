@@ -49,8 +49,11 @@
     "constant.builtin": {
       "fg": "#023b95"
     },
-    "constant.java": {
-      "fg": "#023b95"
+    "constant.builtin.rust": {
+      "fg": "#702c00"
+    },
+    "constant.html": {
+      "fg": "#024c1a"
     },
     "constant.macro": {
       "fg": "#a0111f"
@@ -60,9 +63,6 @@
     },
     "constructor.lua": {
       "fg": "#010409"
-    },
-    "constructor.python": {
-      "fg": "#702c00"
     },
     "diff.delta": {
       "fg": "#744500",
@@ -82,8 +82,17 @@
     "function.builtin.bash": {
       "fg": "#a0111f"
     },
+    "function.builtin.lua": {
+      "fg": "#023b95"
+    },
+    "function.builtin.make": {
+      "fg": "#023b95"
+    },
     "function.call": {
       "fg": "#512598"
+    },
+    "function.call.bash": {
+      "fg": "#023b95"
     },
     "function.macro": {
       "fg": "#512598"
@@ -92,12 +101,6 @@
       "fg": "#512598"
     },
     "function.method.call": {
-      "fg": "#512598"
-    },
-    "function.method.call.php": {
-      "fg": "#512598"
-    },
-    "function.method.php": {
       "fg": "#512598"
     },
     "highlighted": {
@@ -121,11 +124,11 @@
     "keyword.directive": {
       "fg": "#a0111f"
     },
-    "keyword.directive.css": {
-      "fg": "#a0111f"
-    },
     "keyword.directive.define": {
       "fg": "#a0111f"
+    },
+    "keyword.directive.rust": {
+      "fg": "#023b95"
     },
     "keyword.exception": {
       "fg": "#023b95"
@@ -137,12 +140,6 @@
       "fg": "#a0111f"
     },
     "keyword.import": {
-      "fg": "#a0111f"
-    },
-    "keyword.import.c": {
-      "fg": "#a0111f"
-    },
-    "keyword.import.cpp": {
       "fg": "#a0111f"
     },
     "keyword.modifier": {
@@ -163,8 +160,8 @@
     "label": {
       "fg": "#024c1a"
     },
-    "label.yaml": {
-      "fg": "#024c1a"
+    "label.ruby": {
+      "fg": "#023b95"
     },
     "markup": {
       "fg": "#010409"
@@ -203,6 +200,9 @@
       "fg": "#023b95",
       "bold": true
     },
+    "markup.heading.html": {
+      "fg": "#010409"
+    },
     "markup.italic": {
       "fg": "#010409",
       "italic": true
@@ -214,15 +214,15 @@
     "markup.link.label": {
       "fg": "#010409"
     },
-    "markup.link.label.html": {
-      "fg": "#010409"
-    },
     "markup.link.url": {
       "fg": "#010409",
       "underline": true
     },
     "markup.list": {
       "fg": "#023b95"
+    },
+    "markup.list.bash": {
+      "fg": "#010409"
     },
     "markup.list.checked": {
       "fg": "#024c1a"
@@ -235,6 +235,9 @@
     },
     "markup.quote": {
       "fg": "#010409"
+    },
+    "markup.quote.markdown": {
+      "fg": "#024c1a"
     },
     "markup.raw": {
       "fg": "#010409",
@@ -261,14 +264,20 @@
     "module.builtin": {
       "fg": "#023b95"
     },
+    "module.c_sharp": {
+      "fg": "#702c00"
+    },
+    "module.elixir": {
+      "fg": "#702c00"
+    },
+    "module.php": {
+      "fg": "#702c00"
+    },
     "normal": {
       "fg": "#010409",
       "bg": "#ffffff"
     },
     "number": {
-      "fg": "#023b95"
-    },
-    "number.css": {
       "fg": "#023b95"
     },
     "number.float": {
@@ -277,26 +286,20 @@
     "operator": {
       "fg": "#023b95"
     },
+    "operator.bash": {
+      "fg": "#a0111f"
+    },
+    "operator.lua": {
+      "fg": "#a0111f"
+    },
     "property": {
-      "fg": "#023b95"
-    },
-    "property.class.css": {
-      "fg": "#023b95"
-    },
-    "property.css": {
-      "fg": "#023b95"
-    },
-    "property.id.css": {
       "fg": "#023b95"
     },
     "property.json": {
       "fg": "#024c1a"
     },
-    "property.scss": {
-      "fg": "#023b95"
-    },
-    "property.toml": {
-      "fg": "#023b95"
+    "property.lua": {
+      "fg": "#010409"
     },
     "property.yaml": {
       "fg": "#024c1a"
@@ -307,8 +310,8 @@
     "punctuation.delimiter": {
       "fg": "#010409"
     },
-    "punctuation.delimiter.regex": {
-      "fg": "#010409"
+    "punctuation.delimiter.bash": {
+      "fg": "#a0111f"
     },
     "punctuation.special": {
       "fg": "#010409"
@@ -323,9 +326,6 @@
       "fg": "#032563",
       "bold": true
     },
-    "string.plain.css": {
-      "fg": "#032563"
-    },
     "string.regexp": {
       "fg": "#032563"
     },
@@ -335,18 +335,19 @@
     "string.special.path": {
       "fg": "#010409"
     },
+    "string.special.path.gitignore": {
+      "fg": "#512598"
+    },
+    "string.special.path.nix": {
+      "fg": "#032563"
+    },
     "string.special.symbol": {
       "fg": "#023b95"
     },
-    "string.special.symbol.ruby": {
-      "fg": "#023b95"
+    "string.special.symbol.make": {
+      "fg": "#512598"
     },
     "string.special.url": {
-      "fg": "#023b95",
-      "italic": true,
-      "underline": true
-    },
-    "string.special.url.html": {
       "fg": "#023b95",
       "italic": true,
       "underline": true
@@ -360,11 +361,26 @@
     "tag.builtin": {
       "fg": "#024c1a"
     },
+    "tag.delimiter.javascript": {
+      "fg": "#023b95"
+    },
+    "tag.delimiter.tsx": {
+      "fg": "#023b95"
+    },
+    "tag.javascript": {
+      "fg": "#702c00"
+    },
+    "tag.tsx": {
+      "fg": "#702c00"
+    },
     "type": {
       "fg": "#702c00"
     },
     "type.builtin": {
       "fg": "#a0111f"
+    },
+    "type.builtin.python": {
+      "fg": "#023b95"
     },
     "type.css": {
       "fg": "#024c1a"
@@ -372,8 +388,8 @@
     "type.definition": {
       "fg": "#702c00"
     },
-    "type.tag.css": {
-      "fg": "#702c00"
+    "type.sql": {
+      "fg": "#010409"
     },
     "variable": {
       "fg": "#010409"
@@ -384,13 +400,16 @@
     "variable.member": {
       "fg": "#023b95"
     },
+    "variable.member.python": {
+      "fg": "#010409"
+    },
     "variable.parameter": {
       "fg": "#010409"
     },
-    "variable.parameter.bash": {
-      "fg": "#010409"
-    },
     "variable.parameter.builtin": {
+      "fg": "#023b95"
+    },
+    "variable.sql": {
       "fg": "#023b95"
     }
   }
