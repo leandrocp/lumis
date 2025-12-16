@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.0-beta.3] - 2025-12-15
+
+### Changed
+- Fix overwrites by including missing ./overwrites/ directory in the release package
+
 ## [0.8.0-beta.2] - 2025-12-15
 
 ### Changed

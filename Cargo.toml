@@ -1,6 +1,6 @@
 [package]
 name = "autumnus"
-version = "0.8.0-beta.2"
+version = "0.8.0-beta.3"
 homepage = "https://autumnus.dev"
 repository = "https://github.com/leandrocp/autumnus"
 authors = ["Leandro Pereira <leandro@leandro.io>"]
@@ -25,6 +25,7 @@ include = [
     "/queries/**/highlights.scm",
     "/queries/**/injections.scm",
     "/queries/**/locals.scm",
+    "/overwrites/",
     "/css/*.css",
     "/themes/*.json",
     "/LICENSE",
