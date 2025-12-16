@@ -157,12 +157,18 @@
       "fg": "#82aaff",
       "bold": true
     },
+    "markup.heading.1.markdown": {
+      "fg": "#82aaff",
+      "bg": "#2c314a",
+      "bold": true
+    },
     "markup.heading.2": {
       "fg": "#82aaff",
       "bold": true
     },
     "markup.heading.2.markdown": {
       "fg": "#ffc777",
+      "bg": "#38343d",
       "bold": true
     },
     "markup.heading.3": {
@@ -171,6 +177,7 @@
     },
     "markup.heading.3.markdown": {
       "fg": "#c3e88d",
+      "bg": "#32383f",
       "bold": true
     },
     "markup.heading.4": {
@@ -179,6 +186,7 @@
     },
     "markup.heading.4.markdown": {
       "fg": "#4fd6be",
+      "bg": "#273644",
       "bold": true
     },
     "markup.heading.5": {
@@ -187,6 +195,7 @@
     },
     "markup.heading.5.markdown": {
       "fg": "#c099ff",
+      "bg": "#32304a",
       "bold": true
     },
     "markup.heading.6": {
@@ -195,6 +204,7 @@
     },
     "markup.heading.6.markdown": {
       "fg": "#fca7ea",
+      "bg": "#383148",
       "bold": true
     },
     "markup.italic": {
