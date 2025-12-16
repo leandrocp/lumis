@@ -365,35 +365,6 @@ pub fn scope_to_class(scope: &str) -> &str {
         .unwrap_or("text")
 }
 
-/// Wrap HTML content into line-wrapped divs.
-///
-/// Takes HTML content and wraps it in `<div class="line">` elements,
-/// one per line of code.
-///
-/// # Example
-///
-/// ```rust
-/// use autumnus::html;
-///
-/// let html = "line1\nline2\nline3";
-/// let lines = html::wrap_in_lines(html);
-///
-/// assert_eq!(lines.len(), 3);
-/// ```
-// TODO: remove wrap_in_line in favor of wrap_line
-pub fn wrap_in_lines(html: &str) -> Vec<String> {
-    html.lines()
-        .enumerate()
-        .map(|(i, line)| {
-            let line_number = i + 1;
-            format!(
-                "<div class=\"line\" data-line=\"{}\">{}\n</div>",
-                line_number, line
-            )
-        })
-        .collect()
-}
-
 /// Generate an opening `<pre>` tag with optional class and theme styles.
 ///
 /// Creates the opening `<pre>` tag with the base "athl" class, an optional custom class,
