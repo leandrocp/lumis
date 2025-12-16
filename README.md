@@ -12,7 +12,7 @@ Autumnus is a syntax highlighter powered by Tree-sitter and Neovim themes. It pr
   - GitHub themes (light/dark)
   - Solarized variants
   - Nord, OneDark, and many more
-- 🌳 Tree-sitter powered syntax highlighting for accurate parsing
+- 🌳 Tree-sitter powered syntax highlighting with [specialized scoping](https://neovim.io/doc/user/treesitter.html#treesitter-highlight)
 - 📝 Support for 70+ programming languages
 - 🎯 Multiple output formats:
   - HTML with inline styles
