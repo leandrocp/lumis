@@ -36,7 +36,7 @@
 //! ```
 //!
 //! **Note**: Multi-theme formatter generates a larger HTML payload due to CSS variables for
-//! each theme. If you only need a single theme, use [`HtmlInline`](crate::HtmlInline) instead.
+//! each theme. If you only need a single theme, use [`HtmlInline`](crate::formatter::HtmlInline) instead.
 //!
 //! # CSS You Must Provide
 //!
@@ -183,14 +183,14 @@ impl FromStr for DefaultTheme {
 /// ```
 #[derive(Builder, Debug)]
 #[builder(default, build_fn(skip))]
-pub struct HtmlMultiThemes<'a> {
+pub struct HtmlMultiThemes {
     lang: Language,
     themes: HashMap<String, Theme>,
     #[builder(setter(custom))]
     default_theme: Option<DefaultTheme>,
     #[builder(setter(into))]
     css_variable_prefix: String,
-    pre_class: Option<&'a str>,
+    pre_class: Option<String>,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
@@ -219,7 +219,7 @@ pub struct HtmlMultiThemes<'a> {
 ///     .build()
 ///     .unwrap();
 /// ```
-impl<'a> HtmlMultiThemesBuilder<'a> {
+impl HtmlMultiThemesBuilder {
     pub fn new() -> Self {
         Self::default()
     }
@@ -229,7 +229,7 @@ impl<'a> HtmlMultiThemesBuilder<'a> {
         self
     }
 
-    pub fn build(&mut self) -> Result<HtmlMultiThemes<'a>, String> {
+    pub fn build(&mut self) -> Result<HtmlMultiThemes, String> {
         let result = HtmlMultiThemes {
             lang: self.lang.take().unwrap_or(Language::PlainText),
             themes: self.themes.take().unwrap_or_default(),
@@ -309,7 +309,7 @@ impl From<bool> for DefaultThemeArg {
     }
 }
 
-impl Default for HtmlMultiThemes<'_> {
+impl Default for HtmlMultiThemes {
     fn default() -> Self {
         Self {
             lang: Language::PlainText,
@@ -325,33 +325,12 @@ impl Default for HtmlMultiThemes<'_> {
     }
 }
 
-impl<'a> HtmlMultiThemes<'a> {
-    fn sanitize_theme_name(name: &str) -> String {
-        name.chars()
-            .map(|c| {
-                if c.is_alphanumeric() || c == '-' || c == '_' {
-                    c
-                } else {
-                    '-'
-                }
-            })
-            .collect()
-    }
-
-    fn text_decoration_value(underline: bool, strikethrough: bool) -> &'static str {
-        match (underline, strikethrough) {
-            (true, true) => "underline line-through",
-            (true, false) => "underline",
-            (false, true) => "line-through",
-            (false, false) => "none",
-        }
-    }
-
+impl HtmlMultiThemes {
     fn generate_pre_classes(&self) -> String {
         let mut classes = vec!["athl".to_string(), "athl-themes".to_string()];
 
-        if let Some(pre_class) = self.pre_class {
-            classes.push(pre_class.to_string());
+        if let Some(ref pre_class) = self.pre_class {
+            classes.push(pre_class.clone());
         }
 
         for theme_name in self.themes.keys() {
@@ -377,7 +356,7 @@ impl<'a> HtmlMultiThemes<'a> {
 
                 for (theme_name, theme) in &self.themes {
                     if theme_name != default_name {
-                        let sanitized = Self::sanitize_theme_name(theme_name);
+                        let sanitized = crate::formatter::html::sanitize_theme_name(theme_name);
                         if let Some(fg) = theme.fg() {
                             styles.push(format!(
                                 "{}-{}:{};",
@@ -411,7 +390,7 @@ impl<'a> HtmlMultiThemes<'a> {
             }
             None => {
                 for (theme_name, theme) in &self.themes {
-                    let sanitized = Self::sanitize_theme_name(theme_name);
+                    let sanitized = crate::formatter::html::sanitize_theme_name(theme_name);
                     if let Some(fg) = theme.fg() {
                         styles.push(format!(
                             "{}-{}: {};",
@@ -442,257 +421,25 @@ impl<'a> HtmlMultiThemes<'a> {
         write!(output, ">")
     }
 
-    fn render_token_style(&self, scope: &str, language: &str, output: &mut Vec<u8>) {
-        let mut inline_styles = Vec::new();
-        let mut css_vars = Vec::new();
-        let specialized_scope = format!("{}.{}", scope, language);
-
-        match &self.default_theme {
-            Some(DefaultTheme::Theme(default_name)) => {
-                if let Some(default_theme) = self.themes.get(default_name) {
-                    if let Some(style) = default_theme.get_style(&specialized_scope) {
-                        if let Some(fg) = &style.fg {
-                            inline_styles.push(format!("color:{};", fg));
-                        }
-                        if let Some(bg) = &style.bg {
-                            inline_styles.push(format!("background-color:{};", bg));
-                        }
-                        if style.bold {
-                            inline_styles.push("font-weight:bold;".to_string());
-                        }
-                        if self.italic && style.italic {
-                            inline_styles.push("font-style:italic;".to_string());
-                        }
-                        if style.underline || style.strikethrough {
-                            let mut decorations = Vec::new();
-                            if style.underline {
-                                decorations.push("underline");
-                            }
-                            if style.strikethrough {
-                                decorations.push("line-through");
-                            }
-                            inline_styles
-                                .push(format!("text-decoration:{};", decorations.join(" ")));
-                        }
-
-                        // Add CSS variables for default theme font styles
-                        let sanitized = Self::sanitize_theme_name(default_name);
-                        let font_style = if style.italic { "italic" } else { "normal" };
-                        css_vars.push(format!(
-                            "{}-{}-font-style:{};",
-                            self.css_variable_prefix, sanitized, font_style
-                        ));
-
-                        let font_weight = if style.bold { "bold" } else { "normal" };
-                        css_vars.push(format!(
-                            "{}-{}-font-weight:{};",
-                            self.css_variable_prefix, sanitized, font_weight
-                        ));
-
-                        let text_decoration =
-                            Self::text_decoration_value(style.underline, style.strikethrough);
-                        css_vars.push(format!(
-                            "{}-{}-text-decoration:{};",
-                            self.css_variable_prefix, sanitized, text_decoration
-                        ));
-                    }
-                }
-
-                for (theme_name, theme) in &self.themes {
-                    if theme_name != default_name {
-                        if let Some(style) = theme.get_style(&specialized_scope) {
-                            let sanitized = Self::sanitize_theme_name(theme_name);
-
-                            if let Some(fg) = &style.fg {
-                                css_vars.push(format!(
-                                    "{}-{}:{};",
-                                    self.css_variable_prefix, sanitized, fg
-                                ));
-                            }
-                            if let Some(bg) = &style.bg {
-                                css_vars.push(format!(
-                                    "{}-{}-bg:{};",
-                                    self.css_variable_prefix, sanitized, bg
-                                ));
-                            }
-
-                            // Add font style CSS variables (always output)
-                            let font_style = if style.italic { "italic" } else { "normal" };
-                            css_vars.push(format!(
-                                "{}-{}-font-style:{};",
-                                self.css_variable_prefix, sanitized, font_style
-                            ));
-
-                            let font_weight = if style.bold { "bold" } else { "normal" };
-                            css_vars.push(format!(
-                                "{}-{}-font-weight:{};",
-                                self.css_variable_prefix, sanitized, font_weight
-                            ));
-
-                            let text_decoration =
-                                Self::text_decoration_value(style.underline, style.strikethrough);
-                            css_vars.push(format!(
-                                "{}-{}-text-decoration:{};",
-                                self.css_variable_prefix, sanitized, text_decoration
-                            ));
-                        }
-                    }
-                }
-            }
-            Some(DefaultTheme::LightDark) => {
-                if let (Some(light), Some(dark)) =
-                    (self.themes.get("light"), self.themes.get("dark"))
-                {
-                    if let (Some(light_style), Some(dark_style)) = (
-                        light.get_style(&specialized_scope),
-                        dark.get_style(&specialized_scope),
-                    ) {
-                        if let (Some(light_fg), Some(dark_fg)) = (&light_style.fg, &dark_style.fg) {
-                            inline_styles
-                                .push(format!("color: light-dark({}, {});", light_fg, dark_fg));
-                        }
-                        if let (Some(light_bg), Some(dark_bg)) = (&light_style.bg, &dark_style.bg) {
-                            inline_styles.push(format!(
-                                "background-color: light-dark({}, {});",
-                                light_bg, dark_bg
-                            ));
-                        }
-                        // Always output font-weight
-                        let light_weight = if light_style.bold { "bold" } else { "normal" };
-                        let dark_weight = if dark_style.bold { "bold" } else { "normal" };
-                        inline_styles.push(format!(
-                            "font-weight: light-dark({}, {});",
-                            light_weight, dark_weight
-                        ));
-
-                        // Always output font-style (respecting self.italic flag)
-                        if self.italic {
-                            let light_style_val = if light_style.italic {
-                                "italic"
-                            } else {
-                                "normal"
-                            };
-                            let dark_style_val = if dark_style.italic {
-                                "italic"
-                            } else {
-                                "normal"
-                            };
-                            inline_styles.push(format!(
-                                "font-style: light-dark({}, {});",
-                                light_style_val, dark_style_val
-                            ));
-                        }
-
-                        // Always output text-decoration
-                        let light_decoration = Self::text_decoration_value(
-                            light_style.underline,
-                            light_style.strikethrough,
-                        );
-                        let dark_decoration = Self::text_decoration_value(
-                            dark_style.underline,
-                            dark_style.strikethrough,
-                        );
-                        inline_styles.push(format!(
-                            "text-decoration: light-dark({}, {});",
-                            light_decoration, dark_decoration
-                        ));
-                    }
-                }
-            }
-            None => {
-                for (theme_name, theme) in &self.themes {
-                    if let Some(style) = theme.get_style(&specialized_scope) {
-                        let sanitized = Self::sanitize_theme_name(theme_name);
-
-                        if let Some(fg) = &style.fg {
-                            css_vars.push(format!(
-                                "{}-{}: {};",
-                                self.css_variable_prefix, sanitized, fg
-                            ));
-                        }
-                        if let Some(bg) = &style.bg {
-                            css_vars.push(format!(
-                                "{}-{}-bg: {};",
-                                self.css_variable_prefix, sanitized, bg
-                            ));
-                        }
-
-                        // Add font style CSS variables (always output)
-                        let font_style = if style.italic { "italic" } else { "normal" };
-                        css_vars.push(format!(
-                            "{}-{}-font-style: {};",
-                            self.css_variable_prefix, sanitized, font_style
-                        ));
-
-                        let font_weight = if style.bold { "bold" } else { "normal" };
-                        css_vars.push(format!(
-                            "{}-{}-font-weight: {};",
-                            self.css_variable_prefix, sanitized, font_weight
-                        ));
-
-                        let text_decoration =
-                            Self::text_decoration_value(style.underline, style.strikethrough);
-                        css_vars.push(format!(
-                            "{}-{}-text-decoration: {};",
-                            self.css_variable_prefix, sanitized, text_decoration
-                        ));
-                    }
-                }
-            }
-        }
-
-        if !inline_styles.is_empty() || !css_vars.is_empty() {
-            if self.include_highlights {
-                output.extend(b" ");
-            }
-            output.extend(b"style=\"");
-
-            if !inline_styles.is_empty() {
-                output.extend(inline_styles.join(" ").as_bytes());
-            }
-            if !css_vars.is_empty() {
-                if !inline_styles.is_empty() {
-                    output.extend(b" ");
-                }
-                output.extend(css_vars.join(" ").as_bytes());
-            }
-
-            output.extend(b"\"");
-        }
-    }
-
-    fn write_line(
-        &self,
-        output: &mut dyn Write,
-        line_number: usize,
-        content: &str,
-    ) -> io::Result<()> {
+    fn get_line_attrs(&self, line_number: usize) -> (Option<String>, Option<String>) {
         let is_highlighted = self
             .highlight_lines
             .as_ref()
             .is_some_and(|hl| hl.lines.iter().any(|r| r.contains(&line_number)));
 
-        write!(output, "<div class=\"line")?;
-
-        if is_highlighted {
-            if let Some(class) = self
-                .highlight_lines
-                .as_ref()
-                .and_then(|hl| hl.class.as_ref())
-            {
-                write!(output, " {}", class)?;
-            }
+        if !is_highlighted {
+            return (None, None);
         }
 
-        write!(output, "\"")?;
+        let class_suffix = self
+            .highlight_lines
+            .as_ref()
+            .and_then(|hl| hl.class.as_ref())
+            .map(|c| format!(" {}", c));
 
-        if is_highlighted {
-            if let Some(style_str) = self.get_highlight_style() {
-                write!(output, " style=\"{}\"", style_str)?;
-            }
-        }
+        let style = self.get_highlight_style();
 
-        write!(output, " data-line=\"{}\">{}</div>", line_number, content)
+        (class_suffix, style)
     }
 
     fn get_highlight_style(&self) -> Option<String> {
@@ -716,7 +463,7 @@ impl<'a> HtmlMultiThemes<'a> {
     }
 }
 
-impl Formatter for HtmlMultiThemes<'_> {
+impl Formatter for HtmlMultiThemes {
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut buffer = Vec::new();
 
@@ -742,14 +489,22 @@ impl Formatter for HtmlMultiThemes<'_> {
                 source.as_bytes(),
                 &move |highlight, language, output| {
                     let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
-
-                    if self.include_highlights {
-                        output.extend("data-highlight=\"".as_bytes());
-                        output.extend(scope.as_bytes());
-                        output.extend(b"\"");
-                    }
-
-                    self.render_token_style(scope, language, output);
+                    let lang = Language::guess(Some(language), "");
+                    let default_theme_str = match &self.default_theme {
+                        Some(DefaultTheme::Theme(name)) => Some(name.as_str()),
+                        Some(DefaultTheme::LightDark) => Some("light-dark()"),
+                        None => None,
+                    };
+                    let attrs = crate::formatter::html::span_multi_themes_attrs(
+                        scope,
+                        Some(lang),
+                        &self.themes,
+                        default_theme_str,
+                        &self.css_variable_prefix,
+                        self.italic,
+                        self.include_highlights,
+                    );
+                    output.extend(attrs.as_bytes());
                 },
             )
             .map_err(io::Error::other)?;
@@ -757,7 +512,14 @@ impl Formatter for HtmlMultiThemes<'_> {
         for (i, line) in renderer.lines().enumerate() {
             let line_number = i + 1;
             let line_with_braces = crate::formatter::html::escape_braces(line);
-            self.write_line(&mut buffer, line_number, &line_with_braces)?;
+            let (class_suffix, style) = self.get_line_attrs(line_number);
+            let wrapped = crate::formatter::html::wrap_line(
+                line_number,
+                &line_with_braces,
+                class_suffix.as_deref(),
+                style.as_deref(),
+            );
+            write!(&mut buffer, "{}", wrapped)?;
         }
 
         crate::formatter::html::closing_tags(&mut buffer)?;
@@ -776,20 +538,42 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_text_decoration_value() {
-        assert_eq!(HtmlMultiThemes::text_decoration_value(false, false), "none");
-        assert_eq!(
-            HtmlMultiThemes::text_decoration_value(true, false),
-            "underline"
-        );
-        assert_eq!(
-            HtmlMultiThemes::text_decoration_value(false, true),
-            "line-through"
-        );
-        assert_eq!(
-            HtmlMultiThemes::text_decoration_value(true, true),
-            "underline line-through"
-        );
+    fn test_text_decoration() {
+        use crate::formatter::html::text_decoration;
+        use crate::themes::{TextDecoration, UnderlineStyle};
+
+        let none = TextDecoration::default();
+        assert_eq!(text_decoration(&none), "none");
+
+        let underline = TextDecoration {
+            underline: UnderlineStyle::Solid,
+            strikethrough: false,
+        };
+        assert_eq!(text_decoration(&underline), "underline");
+
+        let wavy = TextDecoration {
+            underline: UnderlineStyle::Wavy,
+            strikethrough: false,
+        };
+        assert_eq!(text_decoration(&wavy), "underline wavy");
+
+        let strike = TextDecoration {
+            underline: UnderlineStyle::None,
+            strikethrough: true,
+        };
+        assert_eq!(text_decoration(&strike), "line-through");
+
+        let both = TextDecoration {
+            underline: UnderlineStyle::Solid,
+            strikethrough: true,
+        };
+        assert_eq!(text_decoration(&both), "underline line-through");
+
+        let wavy_strike = TextDecoration {
+            underline: UnderlineStyle::Wavy,
+            strikethrough: true,
+        };
+        assert_eq!(text_decoration(&wavy_strike), "underline wavy line-through");
     }
 
     #[test]

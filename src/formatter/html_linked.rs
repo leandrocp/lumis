@@ -18,7 +18,6 @@
 #![allow(unused_must_use)]
 
 use super::{Formatter, HtmlElement};
-use crate::constants::CLASSES;
 use crate::languages::Language;
 use crate::vendor::tree_sitter_highlight::{Highlighter, HtmlRenderer};
 use derive_builder::Builder;
@@ -122,7 +121,7 @@ impl Default for HighlightLines {
 ///
 /// let formatter = HtmlLinkedBuilder::new()
 ///     .lang(Language::Python)
-///     .pre_class(Some("my-code"))
+///     .pre_class(Some("my-code".to_string()))
 ///     .build()
 ///     .unwrap();
 ///
@@ -132,23 +131,23 @@ impl Default for HighlightLines {
 /// ```
 #[derive(Builder, Debug)]
 #[builder(default)]
-pub struct HtmlLinked<'a> {
+pub struct HtmlLinked {
     lang: Language,
-    pre_class: Option<&'a str>,
+    pre_class: Option<String>,
     highlight_lines: Option<HighlightLines>,
     header: Option<HtmlElement>,
 }
 
-impl<'a> HtmlLinkedBuilder<'a> {
+impl HtmlLinkedBuilder {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<'a> HtmlLinked<'a> {
+impl HtmlLinked {
     pub fn new(
         lang: Language,
-        pre_class: Option<&'a str>,
+        pre_class: Option<String>,
         highlight_lines: Option<HighlightLines>,
         header: Option<HtmlElement>,
     ) -> Self {
@@ -161,7 +160,7 @@ impl<'a> HtmlLinked<'a> {
     }
 }
 
-impl Default for HtmlLinked<'_> {
+impl Default for HtmlLinked {
     fn default() -> Self {
         Self {
             lang: Language::PlainText,
@@ -172,7 +171,7 @@ impl Default for HtmlLinked<'_> {
     }
 }
 
-impl Formatter for HtmlLinked<'_> {
+impl Formatter for HtmlLinked {
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut buffer = Vec::new();
 
@@ -180,7 +179,7 @@ impl Formatter for HtmlLinked<'_> {
             write!(buffer, "{}", header.open_tag)?;
         }
 
-        crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class, None)?;
+        crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class.as_deref(), None)?;
         crate::formatter::html::open_code_tag(&mut buffer, &self.lang)?;
 
         let mut highlighter = Highlighter::new();
@@ -197,38 +196,31 @@ impl Formatter for HtmlLinked<'_> {
                 events,
                 source.as_bytes(),
                 &move |highlight, _language, output| {
-                    let class = CLASSES[highlight.0];
-
-                    output.extend(b"class=\"");
-                    output.extend(class.as_bytes());
-                    output.extend(b"\"");
+                    let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
+                    let attrs = crate::formatter::html::span_linked_attrs(scope);
+                    output.extend(attrs.as_bytes());
                 },
             )
             .map_err(io::Error::other)?;
 
         for (i, line) in renderer.lines().enumerate() {
             let line_number = i + 1;
-            let highlighted_class = if let Some(ref highlight_lines) = self.highlight_lines {
-                if highlight_lines
-                    .lines
-                    .iter()
-                    .any(|range| range.contains(&line_number))
-                {
-                    format!(" {}", highlight_lines.class)
+            let class_suffix = self.highlight_lines.as_ref().and_then(|hl| {
+                if hl.lines.iter().any(|range| range.contains(&line_number)) {
+                    Some(format!(" {}", hl.class))
                 } else {
-                    String::new()
+                    None
                 }
-            } else {
-                String::new()
-            };
+            });
 
             let line_with_braces = crate::formatter::html::escape_braces(line);
-
-            write!(
-                &mut buffer,
-                "<div class=\"line{}\" data-line=\"{}\">{}</div>",
-                highlighted_class, line_number, line_with_braces
+            let wrapped = crate::formatter::html::wrap_line(
+                line_number,
+                &line_with_braces,
+                class_suffix.as_deref(),
+                None,
             );
+            write!(&mut buffer, "{}", wrapped)?;
         }
 
         crate::formatter::html::closing_tags(&mut buffer)?;
@@ -264,9 +256,9 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class"), None, None);
+        let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class".to_string()), None, None);
         let mut buffer = Vec::new();
-        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class, None).unwrap();
+        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class.as_deref(), None).unwrap();
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="athl test-pre-class">"#;
         assert_str_eq!(result, expected);
@@ -286,12 +278,12 @@ mod tests {
     fn test_builder_pattern() {
         let formatter = HtmlLinkedBuilder::new()
             .lang(Language::Rust)
-            .pre_class(Some("test-pre-class"))
+            .pre_class(Some("test-pre-class".to_string()))
             .build()
             .unwrap();
 
         let mut buffer = Vec::new();
-        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class, None).unwrap();
+        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class.as_deref(), None).unwrap();
         let pre_result = String::from_utf8(buffer).unwrap();
         let pre_expected = r#"<pre class="athl test-pre-class">"#;
         assert_str_eq!(pre_result, pre_expected);
@@ -378,7 +370,7 @@ mod tests {
         let code = "line 1\nline 2";
         let formatter = HtmlLinked::new(
             Language::PlainText,
-            Some("custom-pre"),
+            Some("custom-pre".to_string()),
             Some(highlight_lines),
             Some(header),
         );

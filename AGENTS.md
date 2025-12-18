@@ -5,6 +5,10 @@
 - Run `cargo doc` after doc changes; Fix any warnings or errors in the documentation
 - Run `cargo clippy --all-features -- -D warnings` eventually to check for linting issues and fix any warnings and errors
 
+## API Design Guidelines
+- Follow the Rust API Guidelines checklist: https://rust-lang.github.io/api-guidelines/checklist.html
+- When more context is needed or when working on code that affects a specific guideline, fetch and review the individual guideline page (e.g., https://rust-lang.github.io/api-guidelines/naming.html for naming conventions)
+
 ## Changelog
 - Follow the https://common-changelog.org format
 - Create a "## Unreleased" section if it doesn't exist yet

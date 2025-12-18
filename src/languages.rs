@@ -155,7 +155,7 @@ unsafe extern "C" {
 
 include!(concat!(env!("OUT_DIR"), "/queries_constants.rs"));
 
-#[derive(Clone, Copy, Debug, Default, EnumIter, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, EnumIter, Eq, Hash, PartialEq)]
 pub enum Language {
     #[cfg(feature = "lang-angular")]
     Angular,
@@ -324,7 +324,7 @@ pub struct LanguageParseError(String);
 
 impl std::fmt::Display for LanguageParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Unknown language or file type: {}", self.0)
+        write!(f, "unknown language or file type: {}", self.0)
     }
 }
 

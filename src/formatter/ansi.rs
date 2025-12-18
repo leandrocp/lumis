@@ -23,7 +23,7 @@
 //! - [`Formatter`](crate::formatter::Formatter) trait documentation
 //! - [`examples/custom_terminal_formatter.rs`](https://github.com/leandrocp/autumnus/blob/main/examples/custom_terminal_formatter.rs)
 
-use crate::highlight::{highlight_iter, Style};
+use crate::highlight::{highlight_iter, HighlightError, Style};
 use crate::languages::Language;
 use crate::themes::Theme;
 use std::ops::Range;
@@ -123,7 +123,6 @@ pub fn rgb_to_ansi(r: u8, g: u8, b: u8, is_background: bool) -> String {
 /// };
 ///
 /// let ansi = style_to_ansi(&style);
-/// // Returns combined ANSI codes for fg, bg, and bold
 /// ```
 pub fn style_to_ansi(style: &Style) -> String {
     let mut codes = Vec::new();
@@ -148,11 +147,17 @@ pub fn style_to_ansi(style: &Style) -> String {
         codes.push("\u{1b}[3m".to_string());
     }
 
-    if style.underline {
-        codes.push("\u{1b}[4m".to_string());
+    use crate::themes::UnderlineStyle;
+    match style.text_decoration.underline {
+        UnderlineStyle::None => {}
+        UnderlineStyle::Solid => codes.push("\u{1b}[4m".to_string()),
+        UnderlineStyle::Wavy => codes.push("\u{1b}[4:3m".to_string()),
+        UnderlineStyle::Double => codes.push("\u{1b}[4:2m".to_string()),
+        UnderlineStyle::Dotted => codes.push("\u{1b}[4:4m".to_string()),
+        UnderlineStyle::Dashed => codes.push("\u{1b}[4:5m".to_string()),
     }
 
-    if style.strikethrough {
+    if style.text_decoration.strikethrough {
         codes.push("\u{1b}[9m".to_string());
     }
 
@@ -185,7 +190,7 @@ pub fn style_to_ansi(style: &Style) -> String {
 /// };
 ///
 /// let wrapped = wrap_with_ansi("fn", &style);
-/// // Returns: "\u{1b}[0m\u{1b}[38;2;139;233;253mfn\u{1b}[0m"
+/// assert_eq!(wrapped, "\u{1b}[0m\u{1b}[38;2;139;233;253mfn\u{1b}[0m");
 /// ```
 pub fn wrap_with_ansi(text: &str, style: &Style) -> String {
     let ansi_codes = style_to_ansi(style);
@@ -281,11 +286,11 @@ pub fn highlight_iter_with_ansi(
     source: &str,
     language: Language,
     theme: Option<Theme>,
-) -> Result<AnsiIterator<'_>, String> {
+) -> Result<AnsiIterator<'_>, HighlightError> {
     let iter = highlight_iter(source, language, theme)?;
 
     let segments: Vec<(String, Range<usize>)> = iter
-        .map(|(style, text, range)| {
+        .map(|(style, text, range, _scope)| {
             let wrapped = wrap_with_ansi(text, &style);
             (wrapped, range)
         })

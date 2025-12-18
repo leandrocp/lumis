@@ -148,7 +148,7 @@ impl Default for HighlightLines {
 /// let formatter = HtmlInlineBuilder::new()
 ///     .lang(Language::JavaScript)
 ///     .theme(Some(theme))
-///     .pre_class(Some("code-block"))
+///     .pre_class(Some("code-block".to_string()))
 ///     .build()
 ///     .unwrap();
 ///
@@ -157,28 +157,28 @@ impl Default for HighlightLines {
 /// ```
 #[derive(Builder, Debug)]
 #[builder(default)]
-pub struct HtmlInline<'a> {
+pub struct HtmlInline {
     lang: Language,
     theme: Option<Theme>,
-    pre_class: Option<&'a str>,
+    pre_class: Option<String>,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
     header: Option<HtmlElement>,
 }
 
-impl<'a> HtmlInlineBuilder<'a> {
+impl HtmlInlineBuilder {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<'a> HtmlInline<'a> {
+impl HtmlInline {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         lang: Language,
         theme: Option<Theme>,
-        pre_class: Option<&'a str>,
+        pre_class: Option<String>,
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
@@ -195,38 +195,25 @@ impl<'a> HtmlInline<'a> {
         }
     }
 
-    fn write_line(
-        &self,
-        output: &mut dyn Write,
-        line_number: usize,
-        content: &str,
-    ) -> io::Result<()> {
+    fn get_line_attrs(&self, line_number: usize) -> (Option<String>, Option<String>) {
         let is_highlighted = self
             .highlight_lines
             .as_ref()
             .is_some_and(|hl| hl.lines.iter().any(|r| r.contains(&line_number)));
 
-        write!(output, "<div class=\"line")?;
-
-        if is_highlighted {
-            if let Some(class) = self
-                .highlight_lines
-                .as_ref()
-                .and_then(|hl| hl.class.as_ref())
-            {
-                write!(output, " {}", class)?;
-            }
+        if !is_highlighted {
+            return (None, None);
         }
 
-        write!(output, "\"")?;
+        let class_suffix = self
+            .highlight_lines
+            .as_ref()
+            .and_then(|hl| hl.class.as_ref())
+            .map(|c| format!(" {}", c));
 
-        if is_highlighted {
-            if let Some(style_str) = self.get_highlight_style() {
-                write!(output, " style=\"{}\"", style_str)?;
-            }
-        }
+        let style = self.get_highlight_style();
 
-        write!(output, " data-line=\"{}\">{}</div>", line_number, content)
+        (class_suffix, style)
     }
 
     fn get_highlight_style(&self) -> Option<String> {
@@ -244,7 +231,7 @@ impl<'a> HtmlInline<'a> {
     }
 }
 
-impl Default for HtmlInline<'_> {
+impl Default for HtmlInline {
     fn default() -> Self {
         Self {
             lang: Language::PlainText,
@@ -258,7 +245,7 @@ impl Default for HtmlInline<'_> {
     }
 }
 
-impl Formatter for HtmlInline<'_> {
+impl Formatter for HtmlInline {
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
         let mut buffer = Vec::new();
 
@@ -266,7 +253,7 @@ impl Formatter for HtmlInline<'_> {
             write!(buffer, "{}", header.open_tag)?;
         }
 
-        crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class, self.theme.as_ref())?;
+        crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class.as_deref(), self.theme.as_ref())?;
         crate::formatter::html::open_code_tag(&mut buffer, &self.lang)?;
 
         let mut highlighter = Highlighter::new();
@@ -284,25 +271,15 @@ impl Formatter for HtmlInline<'_> {
                 source.as_bytes(),
                 &move |highlight, language, output| {
                     let scope = crate::constants::HIGHLIGHT_NAMES[highlight.0];
-                    let specialized_scope = format!("{}.{}", scope, language);
-
-                    if self.include_highlights {
-                        output.extend("data-highlight=\"".as_bytes());
-                        output.extend(scope.as_bytes());
-                        output.extend(b"\"");
-                    }
-
-                    if let Some(theme) = &self.theme {
-                        if let Some(style) = theme.get_style(&specialized_scope) {
-                            if self.include_highlights {
-                                output.extend(b" ");
-                            }
-
-                            output.extend(b"style=\"");
-                            output.extend(style.css(self.italic, " ").as_bytes());
-                            output.extend(b"\"");
-                        }
-                    }
+                    let lang = Language::guess(Some(language), "");
+                    let attrs = crate::formatter::html::span_inline_attrs(
+                        scope,
+                        Some(lang),
+                        self.theme.as_ref(),
+                        self.italic,
+                        self.include_highlights,
+                    );
+                    output.extend(attrs.as_bytes());
                 },
             )
             .map_err(io::Error::other)?;
@@ -310,7 +287,14 @@ impl Formatter for HtmlInline<'_> {
         for (i, line) in renderer.lines().enumerate() {
             let line_number = i + 1;
             let line_with_braces = crate::formatter::html::escape_braces(line);
-            self.write_line(&mut buffer, line_number, &line_with_braces)?;
+            let (class_suffix, style) = self.get_line_attrs(line_number);
+            let wrapped = crate::formatter::html::wrap_line(
+                line_number,
+                &line_with_braces,
+                class_suffix.as_deref(),
+                style.as_deref(),
+            );
+            write!(&mut buffer, "{}", wrapped)?;
         }
 
         crate::formatter::html::closing_tags(&mut buffer)?;
@@ -351,7 +335,7 @@ mod tests {
         let mut buffer = Vec::new();
         crate::formatter::html::open_pre_tag(
             &mut buffer,
-            formatter.pre_class,
+            formatter.pre_class.as_deref(),
             formatter.theme.as_ref(),
         )
         .unwrap();
@@ -364,7 +348,7 @@ mod tests {
         let formatter = HtmlInline::new(
             Language::PlainText,
             None,
-            Some("test-pre-class"),
+            Some("test-pre-class".to_string()),
             false,
             false,
             None,
@@ -373,7 +357,7 @@ mod tests {
         let mut buffer = Vec::new();
         crate::formatter::html::open_pre_tag(
             &mut buffer,
-            formatter.pre_class,
+            formatter.pre_class.as_deref(),
             formatter.theme.as_ref(),
         )
         .unwrap();
@@ -387,7 +371,7 @@ mod tests {
         let formatter = HtmlInline::new(
             Language::PlainText,
             Some(theme),
-            Some("test-pre-class"),
+            Some("test-pre-class".to_string()),
             false,
             false,
             None,
@@ -396,7 +380,7 @@ mod tests {
         let mut buffer = Vec::new();
         crate::formatter::html::open_pre_tag(
             &mut buffer,
-            formatter.pre_class,
+            formatter.pre_class.as_deref(),
             formatter.theme.as_ref(),
         )
         .unwrap();
@@ -410,7 +394,7 @@ mod tests {
         let formatter = HtmlInlineBuilder::new()
             .lang(Language::Rust)
             .theme(Some(theme))
-            .pre_class(Some("test-pre-class"))
+            .pre_class(Some("test-pre-class".to_string()))
             .italic(true)
             .include_highlights(true)
             .build()
@@ -419,7 +403,7 @@ mod tests {
         let mut buffer = Vec::new();
         crate::formatter::html::open_pre_tag(
             &mut buffer,
-            formatter.pre_class,
+            formatter.pre_class.as_deref(),
             formatter.theme.as_ref(),
         )
         .unwrap();
@@ -591,7 +575,7 @@ mod tests {
         let formatter = HtmlInline::new(
             Language::Rust,
             None,
-            Some("custom-class"),
+            Some("custom-class".to_string()),
             false,
             false,
             None,

@@ -5,40 +5,40 @@ use crate::formatter::{
     HtmlMultiThemesBuilder, TerminalBuilder,
 };
 use crate::{languages::Language, themes};
-use rustler::{NifStruct, NifTaggedEnum};
+use rustler::{NifStruct, NifTaggedEnum, NifUnitEnum};
 use std::collections::HashMap;
 
 #[derive(Debug, NifTaggedEnum)]
-pub enum ExFormatterOption<'a> {
+pub enum ExFormatterOption {
     HtmlInline {
-        theme: Option<ThemeOrString<'a>>,
-        pre_class: Option<&'a str>,
+        theme: Option<ThemeOrString>,
+        pre_class: Option<String>,
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<ExHtmlInlineHighlightLines>,
         header: Option<ExHtmlElement>,
     },
     HtmlLinked {
-        pre_class: Option<&'a str>,
+        pre_class: Option<String>,
         highlight_lines: Option<ExHtmlLinkedHighlightLines>,
         header: Option<ExHtmlElement>,
     },
     HtmlMultiThemes {
         themes: HashMap<String, ExTheme>,
-        default_theme: Option<&'a str>,
-        css_variable_prefix: Option<&'a str>,
-        pre_class: Option<&'a str>,
+        default_theme: Option<String>,
+        css_variable_prefix: Option<String>,
+        pre_class: Option<String>,
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<ExHtmlInlineHighlightLines>,
         header: Option<ExHtmlElement>,
     },
     Terminal {
-        theme: Option<ThemeOrString<'a>>,
+        theme: Option<ThemeOrString>,
     },
 }
 
-impl Default for ExFormatterOption<'_> {
+impl Default for ExFormatterOption {
     fn default() -> Self {
         Self::HtmlInline {
             theme: None,
@@ -52,14 +52,14 @@ impl Default for ExFormatterOption<'_> {
 }
 
 #[derive(Debug, NifTaggedEnum)]
-pub enum ThemeOrString<'a> {
+pub enum ThemeOrString {
     Theme(ExTheme),
-    String(&'a str),
+    String(String),
 }
 
-impl Default for ThemeOrString<'_> {
+impl Default for ThemeOrString {
     fn default() -> Self {
-        Self::String("onedark")
+        Self::String("onedark".to_string())
     }
 }
 
@@ -67,7 +67,7 @@ impl Default for ThemeOrString<'_> {
 fn resolve_theme(theme_or_string: ThemeOrString) -> Option<themes::Theme> {
     match theme_or_string {
         ThemeOrString::Theme(theme) => Some(theme.into()),
-        ThemeOrString::String(name) => themes::get(name).ok(),
+        ThemeOrString::String(name) => themes::get(&name).ok(),
     }
 }
 
@@ -93,13 +93,13 @@ fn convert_inline_style(
     }
 }
 
-impl<'a> ExFormatterOption<'a> {
+impl ExFormatterOption {
     /// Convert ExFormatterOption to a boxed Formatter trait object.
     ///
     /// # Errors
     ///
     /// Returns an error if the formatter builder fails (should not happen with valid input data).
-    pub fn into_formatter(self, language: Language) -> Result<Box<dyn Formatter + 'a>, String> {
+    pub fn into_formatter(self, language: Language) -> Result<Box<dyn Formatter>, String> {
         match self {
             ExFormatterOption::HtmlInline {
                 theme,
@@ -109,7 +109,7 @@ impl<'a> ExFormatterOption<'a> {
                 highlight_lines,
                 header,
             } => {
-                let theme = theme.and_then(|t| resolve_theme(t));
+                let theme = theme.and_then(resolve_theme);
 
                 let highlight_lines = highlight_lines.map(|hl| html_inline::HighlightLines {
                     lines: convert_line_specs(hl.lines),
@@ -188,7 +188,7 @@ impl<'a> ExFormatterOption<'a> {
                 builder
                     .lang(language)
                     .themes(themes_map)
-                    .css_variable_prefix(css_variable_prefix.unwrap_or("--athl"))
+                    .css_variable_prefix(css_variable_prefix.as_deref().unwrap_or("--athl"))
                     .pre_class(pre_class)
                     .italic(italic)
                     .include_highlights(include_highlights)
@@ -206,7 +206,7 @@ impl<'a> ExFormatterOption<'a> {
                 Ok(Box::new(formatter))
             }
             ExFormatterOption::Terminal { theme } => {
-                let theme = theme.and_then(|t| resolve_theme(t));
+                let theme = theme.and_then(resolve_theme);
 
                 let formatter = TerminalBuilder::new()
                     .lang(language)
@@ -244,10 +244,9 @@ impl From<ExTheme> for themes::Theme {
                         themes::Style {
                             fg: v.fg,
                             bg: v.bg,
-                            underline: v.underline,
                             bold: v.bold,
                             italic: v.italic,
-                            strikethrough: v.strikethrough,
+                            text_decoration: v.text_decoration.into(),
                         },
                     )
                 })
@@ -286,10 +285,9 @@ impl<'a> From<&'a themes::Theme> for ExTheme {
                     ExStyle {
                         fg,
                         bg,
-                        underline: v.underline,
                         bold: v.bold,
                         italic: v.italic,
-                        strikethrough: v.strikethrough,
+                        text_decoration: v.text_decoration.into(),
                     },
                 )
             })
@@ -304,15 +302,74 @@ impl<'a> From<&'a themes::Theme> for ExTheme {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, NifUnitEnum)]
+pub enum ExUnderlineStyle {
+    Solid,
+    Wavy,
+    Double,
+    Dotted,
+    Dashed,
+}
+
+impl From<themes::UnderlineStyle> for Option<ExUnderlineStyle> {
+    fn from(style: themes::UnderlineStyle) -> Self {
+        match style {
+            themes::UnderlineStyle::None => None,
+            themes::UnderlineStyle::Solid => Some(ExUnderlineStyle::Solid),
+            themes::UnderlineStyle::Wavy => Some(ExUnderlineStyle::Wavy),
+            themes::UnderlineStyle::Double => Some(ExUnderlineStyle::Double),
+            themes::UnderlineStyle::Dotted => Some(ExUnderlineStyle::Dotted),
+            themes::UnderlineStyle::Dashed => Some(ExUnderlineStyle::Dashed),
+        }
+    }
+}
+
+impl From<Option<ExUnderlineStyle>> for themes::UnderlineStyle {
+    fn from(style: Option<ExUnderlineStyle>) -> Self {
+        match style {
+            None => themes::UnderlineStyle::None,
+            Some(ExUnderlineStyle::Solid) => themes::UnderlineStyle::Solid,
+            Some(ExUnderlineStyle::Wavy) => themes::UnderlineStyle::Wavy,
+            Some(ExUnderlineStyle::Double) => themes::UnderlineStyle::Double,
+            Some(ExUnderlineStyle::Dotted) => themes::UnderlineStyle::Dotted,
+            Some(ExUnderlineStyle::Dashed) => themes::UnderlineStyle::Dashed,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, NifStruct)]
+#[module = "Autumn.Theme.TextDecoration"]
+pub struct ExTextDecoration {
+    pub underline: Option<ExUnderlineStyle>,
+    pub strikethrough: bool,
+}
+
+impl From<themes::TextDecoration> for ExTextDecoration {
+    fn from(td: themes::TextDecoration) -> Self {
+        ExTextDecoration {
+            underline: td.underline.into(),
+            strikethrough: td.strikethrough,
+        }
+    }
+}
+
+impl From<ExTextDecoration> for themes::TextDecoration {
+    fn from(td: ExTextDecoration) -> Self {
+        themes::TextDecoration {
+            underline: td.underline.into(),
+            strikethrough: td.strikethrough,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Default, NifStruct)]
 #[module = "Autumn.Theme.Style"]
 pub struct ExStyle {
     pub fg: Option<String>,
     pub bg: Option<String>,
-    pub underline: bool,
     pub bold: bool,
     pub italic: bool,
-    pub strikethrough: bool,
+    pub text_decoration: ExTextDecoration,
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
@@ -376,10 +433,9 @@ impl<'a> From<&'a themes::Style> for ExStyle {
         ExStyle {
             fg: style.fg.clone(),
             bg: style.bg.clone(),
-            underline: style.underline,
             bold: style.bold,
             italic: style.italic,
-            strikethrough: style.strikethrough,
+            text_decoration: style.text_decoration.into(),
         }
     }
 }
@@ -443,7 +499,7 @@ impl From<html_linked::HighlightLines> for ExHtmlLinkedHighlightLines {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{highlight, themes, Options};
+    use crate::{highlight, themes};
     use std::collections::HashMap;
 
     #[cfg(test)]
@@ -475,7 +531,7 @@ mod tests {
 
     #[test]
     fn test_theme_or_string_conversion() {
-        let theme_str = ThemeOrString::String("dracula");
+        let theme_str = ThemeOrString::String("dracula".to_string());
         match theme_str {
             ThemeOrString::String(name) => assert_eq!(name, "dracula"),
             _ => panic!("Should be String variant"),
@@ -568,8 +624,7 @@ mod tests {
                 bg: None,
                 bold: true,
                 italic: false,
-                underline: false,
-                strikethrough: false,
+                text_decoration: ExTextDecoration::default(),
             },
         );
 
@@ -596,8 +651,8 @@ mod tests {
         let code = "fn main() { println!(\"Hello\"); }";
 
         let ex_formatter = ExFormatterOption::HtmlInline {
-            theme: Some(ThemeOrString::String("dracula")),
-            pre_class: Some("code-block"),
+            theme: Some(ThemeOrString::String("dracula".to_string())),
+            pre_class: Some("code-block".to_string()),
             italic: false,
             include_highlights: false,
             highlight_lines: None,
@@ -606,12 +661,8 @@ mod tests {
 
         let lang = Language::guess(Some("rust"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
-        let options = Options {
-            language: Some("rust"),
-            formatter,
-        };
 
-        let result = highlight(code, options);
+        let result = highlight(code, formatter);
         let expected = r#"<pre class="athl code-block" style="color: #f8f8f2; background-color: #282a36;"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #8be9fd;">fn</span> <span style="color: #50fa7b;">main</span><span style="color: #f8f8f2;">(</span><span style="color: #f8f8f2;">)</span> <span style="color: #f8f8f2;">&lbrace;</span> <span style="color: #bd93f9;">println</span><span style="color: #50fa7b;">!</span><span style="color: #f8f8f2;">(</span><span style="color: #f1fa8c;">&quot;Hello&quot;</span><span style="color: #f8f8f2;">)</span><span style="color: #f8f8f2;">;</span> <span style="color: #f8f8f2;">&rbrace;</span>
 </div></code></pre>"#;
         assert_str_eq!(result, expected);
@@ -633,7 +684,7 @@ mod tests {
         };
 
         let ex_formatter = ExFormatterOption::HtmlInline {
-            theme: Some(ThemeOrString::String("github_light")),
+            theme: Some(ThemeOrString::String("github_light".to_string())),
             pre_class: None,
             italic: false,
             include_highlights: false,
@@ -643,12 +694,8 @@ mod tests {
 
         let lang = Language::guess(Some("text"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
-        let options = Options {
-            language: Some("text"),
-            formatter,
-        };
 
-        let result = highlight(code, options);
+        let result = highlight(code, formatter);
         let expected = r#"<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-class" style="background-color: yellow" data-line="1">line 1
 </div><div class="line" data-line="2">line 2
 </div><div class="line custom-class" style="background-color: yellow" data-line="3">line 3
@@ -677,12 +724,8 @@ mod tests {
 
         let lang = Language::guess(Some("javascript"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
-        let options = Options {
-            language: Some("javascript"),
-            formatter,
-        };
 
-        let result = highlight(code, options);
+        let result = highlight(code, formatter);
         let expected = r#"<section class="code-wrapper"><pre class="athl"><code class="language-javascript" translate="no" tabindex="0"><div class="line" data-line="1"><span >const</span> <span >x</span> <span >=</span> <span >42</span><span >;</span>
 </div></code></pre></section>"#;
         assert_str_eq!(result, expected);
@@ -703,19 +746,15 @@ mod tests {
         };
 
         let ex_formatter = ExFormatterOption::HtmlLinked {
-            pre_class: Some("syntax-highlight"),
+            pre_class: Some("syntax-highlight".to_string()),
             highlight_lines: Some(highlight_lines),
             header: Some(header),
         };
 
         let lang = Language::guess(Some("elixir"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
-        let options = Options {
-            language: Some("elixir"),
-            formatter,
-        };
 
-        let result = highlight(code, options);
+        let result = highlight(code, formatter);
         let expected = r#"<div class="elixir-code"><pre class="athl syntax-highlight"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="keyword">defmodule</span> <span class="module">Test</span> <span class="keyword">do</span>
 </div><div class="line custom-hl" data-line="2">  <span class="keyword">def</span> <span class="variable">hello</span><span class="punctuation-delimiter">,</span> <span class="string-special-symbol">do: </span><span class="string-special-symbol">:world</span>
 </div><div class="line" data-line="3"><span class="keyword">end</span>
@@ -728,17 +767,13 @@ mod tests {
         let code = "puts 'Hello Ruby'";
 
         let ex_formatter = ExFormatterOption::Terminal {
-            theme: Some(ThemeOrString::String("github_dark")),
+            theme: Some(ThemeOrString::String("github_dark".to_string())),
         };
 
         let lang = Language::guess(Some("ruby"), code);
         let formatter = ex_formatter.into_formatter(lang).unwrap();
-        let options = Options {
-            language: Some("ruby"),
-            formatter,
-        };
 
-        let result = highlight(code, options);
+        let result = highlight(code, formatter);
         let expected = "\x1b[0m\x1b[38;2;210;168;255mputs\x1b[0m \x1b[0m\x1b[38;2;165;214;255m'\x1b[0m\x1b[0m\x1b[38;2;165;214;255mHello Ruby\x1b[0m\x1b[0m\x1b[38;2;165;214;255m'\x1b[0m";
         assert_str_eq!(result, expected);
     }
@@ -753,7 +788,7 @@ mod tests {
         };
 
         let ex_formatter = ExFormatterOption::HtmlInline {
-            theme: Some(ThemeOrString::String("catppuccin_mocha")),
+            theme: Some(ThemeOrString::String("catppuccin_mocha".to_string())),
             pre_class: None,
             italic: false,
             include_highlights: false,
@@ -779,7 +814,7 @@ mod tests {
         };
 
         let formatter_option = ExFormatterOption::HtmlInline {
-            theme: Some(ThemeOrString::String("github_light")),
+            theme: Some(ThemeOrString::String("github_light".to_string())),
             pre_class: None,
             italic: false,
             include_highlights: false,
@@ -795,7 +830,7 @@ mod tests {
     fn test_error_handling_invalid_theme_name() {
         let code = "test code";
         let ex_formatter = ExFormatterOption::HtmlInline {
-            theme: Some(ThemeOrString::String("nonexistent_theme")),
+            theme: Some(ThemeOrString::String("nonexistent_theme".to_string())),
             pre_class: None,
             italic: false,
             include_highlights: false,
@@ -814,10 +849,9 @@ mod tests {
             ExStyle {
                 fg: Some("#ff0000".to_string()),
                 bg: None,
-                underline: false,
                 bold: true,
                 italic: false,
-                strikethrough: false,
+                text_decoration: ExTextDecoration::default(),
             },
         );
         highlights.insert(
@@ -825,10 +859,9 @@ mod tests {
             ExStyle {
                 fg: Some("#00ff00".to_string()),
                 bg: None,
-                underline: false,
                 bold: false,
                 italic: false,
-                strikethrough: false,
+                text_decoration: ExTextDecoration::default(),
             },
         );
         highlights.insert(
@@ -850,10 +883,9 @@ mod tests {
                     }
                     .to_string(),
                 ),
-                underline: false,
                 bold: false,
                 italic: false,
-                strikethrough: false,
+                text_decoration: ExTextDecoration::default(),
             },
         );
 
@@ -874,7 +906,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("light"),
+            default_theme: Some("light".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: false,
@@ -887,7 +919,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("--athl-dark-"));
         assert!(result.contains("color:#"));
@@ -919,7 +951,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("--athl-light-"));
         assert!(result.contains("--athl-dark-"));
@@ -936,7 +968,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("light-dark()"),
+            default_theme: Some("light-dark()".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: false,
@@ -949,7 +981,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("light-dark("));
     }
@@ -963,8 +995,8 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("light"),
-            css_variable_prefix: Some("--custom"),
+            default_theme: Some("light".to_string()),
+            css_variable_prefix: Some("--custom".to_string()),
             pre_class: None,
             italic: false,
             include_highlights: false,
@@ -976,7 +1008,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("--custom-dark-"));
         assert!(!result.contains("--athl-"));
@@ -997,7 +1029,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("light"),
+            default_theme: Some("light".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: false,
@@ -1010,7 +1042,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("text"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("<div"));
     }
@@ -1029,7 +1061,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("light"),
+            default_theme: Some("light".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: false,
@@ -1042,7 +1074,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("<div class=\"code-wrapper\">"));
         assert!(result.contains("</div>"));
@@ -1057,7 +1089,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("nonexistent"),
+            default_theme: Some("nonexistent".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: false,
@@ -1083,7 +1115,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("light-dark()"),
+            default_theme: Some("light-dark()".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: false,
@@ -1114,7 +1146,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("nord"),
+            default_theme: Some("nord".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: false,
@@ -1127,7 +1159,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("--athl-gruvbox-"));
         assert!(result.contains("--athl-solarized-"));
@@ -1143,7 +1175,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("light"),
+            default_theme: Some("light".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: true,
@@ -1156,7 +1188,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("--athl-light-font-style:"));
         assert!(result.contains("--athl-dark-font-style:"));
@@ -1175,7 +1207,7 @@ mod tests {
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
-            default_theme: Some("light-dark()"),
+            default_theme: Some("light-dark()".to_string()),
             css_variable_prefix: None,
             pre_class: None,
             italic: true,
@@ -1188,7 +1220,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("font-weight: light-dark("));
         assert!(result.contains("font-style: light-dark("));
@@ -1217,7 +1249,7 @@ mod tests {
         let formatter = formatter_option
             .into_formatter(lang)
             .expect("Should create formatter");
-        let result = highlight(code, Options::new(Some("rust"), formatter));
+        let result = highlight(code, formatter);
 
         assert!(result.contains("--athl-light-font-style:"));
         assert!(result.contains("--athl-dark-font-style:"));
@@ -1231,35 +1263,94 @@ mod tests {
 
     #[test]
     fn test_ex_style_font_decorations_conversion() {
+        use themes::{TextDecoration, UnderlineStyle};
+
         let ex_style = ExStyle {
             fg: Some("#ff0000".to_string()),
             bg: Some("#ffffff".to_string()),
-            underline: true,
             bold: true,
             italic: true,
-            strikethrough: true,
+            text_decoration: ExTextDecoration {
+                underline: Some(ExUnderlineStyle::Solid),
+                strikethrough: true,
+            },
         };
 
         let rust_style: themes::Style = themes::Style {
             fg: ex_style.fg.clone(),
             bg: ex_style.bg.clone(),
-            underline: ex_style.underline,
             bold: ex_style.bold,
             italic: ex_style.italic,
-            strikethrough: ex_style.strikethrough,
+            text_decoration: TextDecoration {
+                underline: UnderlineStyle::Solid,
+                strikethrough: true,
+            },
         };
 
         assert_eq!(rust_style.fg, Some("#ff0000".to_string()));
         assert_eq!(rust_style.bg, Some("#ffffff".to_string()));
-        assert!(rust_style.underline);
         assert!(rust_style.bold);
         assert!(rust_style.italic);
-        assert!(rust_style.strikethrough);
+        assert_eq!(rust_style.text_decoration.underline, UnderlineStyle::Solid);
+        assert!(rust_style.text_decoration.strikethrough);
 
         let back_to_ex: ExStyle = (&rust_style).into();
-        assert_eq!(back_to_ex.underline, ex_style.underline);
+        assert_eq!(
+            back_to_ex.text_decoration.underline,
+            ex_style.text_decoration.underline
+        );
         assert_eq!(back_to_ex.bold, ex_style.bold);
         assert_eq!(back_to_ex.italic, ex_style.italic);
-        assert_eq!(back_to_ex.strikethrough, ex_style.strikethrough);
+        assert_eq!(
+            back_to_ex.text_decoration.strikethrough,
+            ex_style.text_decoration.strikethrough
+        );
+    }
+
+    #[test]
+    fn test_ex_style_undercurl_conversion() {
+        use themes::UnderlineStyle;
+
+        let rust_style: themes::Style = themes::Style {
+            fg: None,
+            bg: None,
+            bold: false,
+            italic: false,
+            text_decoration: themes::TextDecoration {
+                underline: UnderlineStyle::Wavy,
+                strikethrough: false,
+            },
+        };
+
+        assert_eq!(rust_style.text_decoration.underline, UnderlineStyle::Wavy);
+
+        let back_to_ex: ExStyle = (&rust_style).into();
+        assert_eq!(
+            back_to_ex.text_decoration.underline,
+            Some(ExUnderlineStyle::Wavy)
+        );
+        assert!(!back_to_ex.text_decoration.strikethrough);
+    }
+
+    #[test]
+    fn test_ex_style_no_underline_conversion() {
+        use themes::UnderlineStyle;
+
+        let rust_style: themes::Style = themes::Style {
+            fg: None,
+            bg: None,
+            bold: false,
+            italic: false,
+            text_decoration: themes::TextDecoration {
+                underline: UnderlineStyle::None,
+                strikethrough: false,
+            },
+        };
+
+        assert_eq!(rust_style.text_decoration.underline, UnderlineStyle::None);
+
+        let back_to_ex: ExStyle = (&rust_style).into();
+        assert_eq!(back_to_ex.text_decoration.underline, None);
+        assert!(!back_to_ex.text_decoration.strikethrough);
     }
 }

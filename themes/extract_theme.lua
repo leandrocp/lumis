@@ -209,6 +209,10 @@ local function styles_equal(a, b)
 		and a.bold == b.bold
 		and a.italic == b.italic
 		and a.underline == b.underline
+		and a.undercurl == b.undercurl
+		and a.underdouble == b.underdouble
+		and a.underdotted == b.underdotted
+		and a.underdashed == b.underdashed
 		and a.strikethrough == b.strikethrough
 end
 
@@ -235,6 +239,15 @@ local function extract_style(hl)
 	end
 	if hl.undercurl then
 		style.undercurl = true
+	end
+	if hl.underdouble then
+		style.underdouble = true
+	end
+	if hl.underdotted then
+		style.underdotted = true
+	end
+	if hl.underdashed then
+		style.underdashed = true
 	end
 	if hl.strikethrough then
 		style.strikethrough = true
@@ -353,8 +366,11 @@ local function extract_colorscheme_colors(theme)
               bg: .value.bg,
               bold: .value.bold,
               italic: .value.italic,
-              undercurl: .value.undercurl,
               underline: .value.underline,
+              undercurl: .value.undercurl,
+              underdouble: .value.underdouble,
+              underdotted: .value.underdotted,
+              underdashed: .value.underdashed,
               strikethrough: .value.strikethrough
             }
           ) | with_entries(select(.value != null))

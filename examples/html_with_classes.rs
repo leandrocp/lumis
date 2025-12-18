@@ -4,43 +4,8 @@
 //! - Using HtmlLinkedBuilder for CSS class-based output
 //! - Generating separate CSS that can be linked in your HTML
 //! - Highlighting specific lines with custom classes
-//!
-//! # Output
-//!
-//! First, the CSS is generated:
-//!
-//! ```css
-//! /* github_light
-//!  * revision: c106c9472154d6b2c74b74565616b877ae8ed31d
-//!  */
-//!
-//! pre.athl {
-//!   color: #1f2328;
-//!   background-color: #ffffff;
-//! }
-//! .attribute {
-//!   color: #0550ae;
-//! }
-//! .comment {
-//!   color: #57606a;
-//! }
-//! .keyword {
-//!   color: #cf222e;
-//! }
-//! ...
-//! ```
-//!
-//! Then the HTML markup with CSS classes:
-//!
-//! ```html
-//! <pre class="athl code-block"><code class="language-vue" translate="no" tabindex="0">
-//! <div class="line" data-line="1"><span class="tag">&lt;template&gt;</span></div>
-//! <div class="line" data-line="2">  <span class="tag">&lt;div</span> <span class="attribute">class</span><span class="tag">=</span><span class="string">&quot;user-profile&quot;</span><span class="tag">&gt;</span></div>
-//! ...
-//! </code></pre>
-//! ```
 
-use autumnus::{highlight, languages::Language, themes, HtmlLinkedBuilder, Options};
+use autumnus::{highlight, languages::Language, themes, HtmlLinkedBuilder};
 
 fn main() {
     let code = r#"<template>
@@ -64,16 +29,11 @@ export default {
 
     let formatter = HtmlLinkedBuilder::new()
         .lang(lang)
-        .pre_class(Some("code-block"))
+        .pre_class(Some("code-block".to_string()))
         .build()
         .expect("Failed to build formatter");
 
-    let options = Options {
-        language: Some("vue"),
-        formatter: Box::new(formatter),
-    };
-
-    let html = highlight(code, options);
+    let html = highlight(code, formatter);
 
     let theme = themes::get("github_light").expect("github_light theme should be available");
     let css = theme.css(true);

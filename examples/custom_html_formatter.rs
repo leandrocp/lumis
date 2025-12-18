@@ -1,10 +1,12 @@
 //! Custom HTML formatter using public helper functions.
 //!
-//! This example demonstrates how to create a custom HTML formatter using only
-//! the public APIs from the `html` module, without needing to interact with
-//! tree-sitter internals directly.
+//! This example demonstrates how to build a custom HTML formatter using
+//! the public APIs from the `html` module:
 
-use autumnus::{formatter::Formatter, html, languages::Language, themes, write_highlight, Options};
+use autumnus::{
+    formatter::Formatter, highlight::highlight_iter, html, languages::Language, themes,
+    write_highlight,
+};
 use std::io::{self, Write};
 
 /// A custom HTML formatter built using only public helper functions
@@ -21,17 +23,24 @@ impl CustomHtmlFormatter {
 
 impl Formatter for CustomHtmlFormatter {
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        writeln!(output, "<pre><code>")?;
+        html::open_pre_tag(output, None, self.theme.as_ref())?;
+        html::open_code_tag(output, &self.language)?;
 
-        for (style, text, _range, scope) in
-            html::highlight_iter_with_scopes(source, self.language, self.theme.clone())
-                .map_err(io::Error::other)?
+        for (_style, text, _range, scope) in
+            highlight_iter(source, self.language, self.theme.clone()).map_err(io::Error::other)?
         {
-            let span = html::span_inline(text, &style, Some(scope));
+            let span = html::span_inline(
+                text,
+                scope,
+                Some(self.language),
+                self.theme.as_ref(),
+                false,
+                true,
+            );
             write!(output, "{}", span)?;
         }
 
-        writeln!(output, "</code></pre>")?;
+        html::closing_tags(output)?;
         Ok(())
     }
 }
@@ -45,10 +54,5 @@ console.log(greeting);"#;
 
     let formatter = CustomHtmlFormatter::new(lang, theme);
 
-    let options = Options {
-        language: Some("javascript"),
-        formatter: Box::new(formatter),
-    };
-
-    write_highlight(&mut io::stdout(), code, options).expect("Failed to write output");
+    write_highlight(&mut io::stdout(), code, formatter).expect("Failed to write output");
 }

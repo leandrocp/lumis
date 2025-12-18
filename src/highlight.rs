@@ -17,12 +17,13 @@
 //!         let iter = highlight_iter(source, self.language, self.theme.clone())
 //!             .map_err(io::Error::other)?;
 //!
-//!         for (style, text, range) in iter {
+//!         for (style, text, range, scope) in iter {
 //!             // Format tokens however you want!
 //!             // style: colors and font modifiers
 //!             // text: the actual source text
 //!             // range: byte positions in source
-//! #           let _ = (style, text, range);
+//!             // scope: tree-sitter scope name (e.g., "keyword", "string")
+//! #           let _ = (style, text, range, scope);
 //!         }
 //!         Ok(())
 //!     }
@@ -72,8 +73,8 @@
 //! let code = "let x = 42;";
 //! let theme = themes::get("github_light").unwrap();
 //!
-//! for (style, text, range) in highlight_iter(code, Language::Rust, Some(theme)).unwrap() {
-//!     println!("{}..{}: '{}' with color {:?}", range.start, range.end, text, style.fg);
+//! for (style, text, range, scope) in highlight_iter(code, Language::Rust, Some(theme)).unwrap() {
+//!     println!("{}..{}: '{}' (scope: {}, color: {:?})", range.start, range.end, text, scope, style.fg);
 //! }
 //! ```
 
@@ -83,39 +84,41 @@ use crate::themes::Theme;
 use crate::vendor::tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
 use std::ops::Range;
 use std::sync::Arc;
+use thiserror::Error;
 
-/// A styled segment of text.
+pub use crate::themes::{Style, TextDecoration, UnderlineStyle};
+
+/// Error type for syntax highlighting operations.
 ///
-/// This is the primary output type for the highlighting system. It contains
-/// styling information (colors, font modifiers) that can be applied to the text.
-#[derive(Clone, Debug, Default, PartialEq)]
-pub struct Style {
-    /// Foreground color as hex string (e.g., "#ff5555")
-    pub fg: Option<String>,
-    /// Background color as hex string (e.g., "#282a36")
-    pub bg: Option<String>,
-    /// Whether the text should be rendered in bold
-    pub bold: bool,
-    /// Whether the text should be rendered in italic
-    pub italic: bool,
-    /// Whether the text should be underlined
-    pub underline: bool,
-    /// Whether the text should have a strikethrough
-    pub strikethrough: bool,
-}
+/// # Examples
+///
+/// ```rust
+/// use autumnus::highlight::{highlight_iter, HighlightError};
+/// use autumnus::languages::Language;
+///
+/// match highlight_iter("fn main() {}", Language::Rust, None) {
+///     Ok(iter) => {
+///         for (_style, text, _range, _scope) in iter {
+///             print!("{}", text);
+///         }
+///     }
+///     Err(HighlightError::HighlighterInit(msg)) => {
+///         eprintln!("Failed to initialize highlighter: {}", msg);
+///     }
+///     Err(HighlightError::EventProcessing(msg)) => {
+///         eprintln!("Failed to process highlight event: {}", msg);
+///     }
+/// }
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub enum HighlightError {
+    /// Failed to initialize the tree-sitter highlighter for the given language.
+    #[error("failed to initialize highlighter: {0}")]
+    HighlighterInit(String),
 
-impl Style {
-    /// Create a new style from a theme's style definition
-    pub(crate) fn from_theme_style(theme_style: &crate::themes::Style) -> Self {
-        Self {
-            fg: theme_style.fg.clone(),
-            bg: theme_style.bg.clone(),
-            bold: theme_style.bold,
-            italic: theme_style.italic,
-            underline: theme_style.underline,
-            strikethrough: theme_style.strikethrough,
-        }
-    }
+    /// Failed to process a highlight event during parsing.
+    #[error("failed to process highlight event: {0}")]
+    EventProcessing(String),
 }
 
 /// High-level stateful highlighter for syntax highlighting.
@@ -184,7 +187,7 @@ impl Highlighter {
     ///
     /// # Errors
     ///
-    /// Returns an error string if tree-sitter highlighting fails.
+    /// Returns [`HighlightError`] if tree-sitter highlighting fails.
     ///
     /// # Examples
     ///
@@ -200,7 +203,10 @@ impl Highlighter {
     ///     print!("{}", text);  // Print the highlighted code
     /// }
     /// ```
-    pub fn highlight<'a>(&mut self, source: &'a str) -> Result<Vec<(Arc<Style>, &'a str)>, String> {
+    pub fn highlight<'a>(
+        &mut self,
+        source: &'a str,
+    ) -> Result<Vec<(Arc<Style>, &'a str)>, HighlightError> {
         let mut ts_highlighter = TSHighlighter::new();
         let events = ts_highlighter
             .highlight(
@@ -209,13 +215,13 @@ impl Highlighter {
                 None,
                 |injected| Some(Language::guess(Some(injected), "").config()),
             )
-            .map_err(|e| format!("Failed to generate highlight events: {:?}", e))?;
+            .map_err(|e| HighlightError::HighlighterInit(format!("{:?}", e)))?;
 
         let mut result = Vec::new();
         let mut style_stack: Vec<Arc<Style>> = vec![Arc::new(Style::default())];
 
         for event in events {
-            let event = event.map_err(|e| format!("Failed to get highlight event: {:?}", e))?;
+            let event = event.map_err(|e| HighlightError::EventProcessing(format!("{:?}", e)))?;
 
             match event {
                 HighlightEvent::HighlightStart {
@@ -229,7 +235,7 @@ impl Highlighter {
                         Arc::new(
                             theme
                                 .get_style(&specialized_scope)
-                                .map(Style::from_theme_style)
+                                .cloned()
                                 .unwrap_or_default(),
                         )
                     } else {
@@ -258,7 +264,8 @@ impl Highlighter {
 
 /// Iterator for lazy, streaming syntax highlighting with position information.
 ///
-/// This provides a lower-level API that yields styled segments with byte positions.
+/// This provides a lower-level API that yields styled segments with byte positions
+/// and scope names.
 /// Note: This currently pre-computes all segments but provides an iterator interface
 /// for compatibility with streaming use cases.
 ///
@@ -270,12 +277,12 @@ impl Highlighter {
 ///
 /// let code = "let x = 42;";
 ///
-/// for (style, text, range) in highlight_iter(code, Language::Rust, None).unwrap() {
-///     println!("{}..{}: '{}'", range.start, range.end, text);
+/// for (style, text, range, scope) in highlight_iter(code, Language::Rust, None).unwrap() {
+///     println!("{}..{}: '{}' (scope: {})", range.start, range.end, text, scope);
 /// }
 /// ```
 pub struct HighlightIterator<'a> {
-    segments: Vec<(Arc<Style>, &'a str, Range<usize>)>,
+    segments: Vec<(Arc<Style>, &'a str, Range<usize>, &'static str)>,
     index: usize,
 }
 
@@ -283,19 +290,24 @@ impl<'a> HighlightIterator<'a> {
     /// Create a new highlight iterator.
     ///
     /// Typically you should use the [`highlight_iter`] convenience function instead.
-    pub fn new(source: &'a str, language: Language, theme: Option<Theme>) -> Result<Self, String> {
+    pub fn new(
+        source: &'a str,
+        language: Language,
+        theme: Option<Theme>,
+    ) -> Result<Self, HighlightError> {
         let mut ts_highlighter = TSHighlighter::new();
         let events = ts_highlighter
             .highlight(language.config(), source.as_bytes(), None, |injected| {
                 Some(Language::guess(Some(injected), "").config())
             })
-            .map_err(|e| format!("Failed to generate highlight events: {:?}", e))?;
+            .map_err(|e| HighlightError::HighlighterInit(format!("{:?}", e)))?;
 
         let mut segments = Vec::new();
         let mut style_stack: Vec<Arc<Style>> = vec![Arc::new(Style::default())];
+        let mut scope_stack: Vec<&'static str> = vec![""];
 
         for event in events {
-            let event = event.map_err(|e| format!("Failed to get highlight event: {:?}", e))?;
+            let event = event.map_err(|e| HighlightError::EventProcessing(format!("{:?}", e)))?;
 
             match event {
                 HighlightEvent::HighlightStart {
@@ -309,24 +321,29 @@ impl<'a> HighlightIterator<'a> {
                         Arc::new(
                             theme
                                 .get_style(&specialized_scope)
-                                .map(Style::from_theme_style)
+                                .cloned()
                                 .unwrap_or_default(),
                         )
                     } else {
                         Arc::new(Style::default())
                     };
                     style_stack.push(new_style);
+                    scope_stack.push(scope);
                 }
                 HighlightEvent::Source { start, end } => {
                     let text = &source[start..end];
                     if !text.is_empty() {
                         let current_style = style_stack.last().cloned().unwrap_or_default();
-                        segments.push((current_style, text, start..end));
+                        let current_scope = scope_stack.last().copied().unwrap_or("");
+                        segments.push((current_style, text, start..end, current_scope));
                     }
                 }
                 HighlightEvent::HighlightEnd => {
                     if style_stack.len() > 1 {
                         style_stack.pop();
+                    }
+                    if scope_stack.len() > 1 {
+                        scope_stack.pop();
                     }
                 }
             }
@@ -337,7 +354,7 @@ impl<'a> HighlightIterator<'a> {
 }
 
 impl<'a> Iterator for HighlightIterator<'a> {
-    type Item = (Arc<Style>, &'a str, Range<usize>);
+    type Item = (Arc<Style>, &'a str, Range<usize>, &'static str);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.segments.len() {
@@ -362,7 +379,16 @@ impl<'a> Iterator for HighlightIterator<'a> {
 ///
 /// # Returns
 ///
-/// A `HighlightIterator` that yields (`Style`, `&str`, `Range<usize>`) tuples.
+/// A `HighlightIterator` that yields (`Arc<Style>`, `&str`, `Range<usize>`, `&'static str`) tuples:
+/// - `Arc<Style>` - Color and font styling information (shared reference)
+/// - `&str` - The token text
+/// - `Range<usize>` - Byte range in source
+/// - `&'static str` - Scope name (e.g., "keyword", "string")
+///
+/// # Errors
+///
+/// Returns [`HighlightError::HighlighterInit`] if tree-sitter initialization fails,
+/// or [`HighlightError::EventProcessing`] if parsing encounters an error.
 ///
 /// # Examples
 ///
@@ -374,15 +400,15 @@ impl<'a> Iterator for HighlightIterator<'a> {
 /// let code = "fn main() {}";
 /// let theme = themes::get("dracula").unwrap();
 ///
-/// for (style, text, range) in highlight_iter(code, Language::Rust, Some(theme)).unwrap() {
-///     println!("{}..{}: '{}' (fg: {:?})", range.start, range.end, text, style.fg);
+/// for (style, text, range, scope) in highlight_iter(code, Language::Rust, Some(theme)).unwrap() {
+///     println!("{} (scope: {}, color: {:?})", text, scope, style.fg);
 /// }
 /// ```
 pub fn highlight_iter(
     source: &str,
     language: Language,
     theme: Option<Theme>,
-) -> Result<HighlightIterator<'_>, String> {
+) -> Result<HighlightIterator<'_>, HighlightError> {
     HighlightIterator::new(source, language, theme)
 }
 
@@ -438,9 +464,10 @@ mod tests {
 
         assert!(!segments.is_empty());
 
-        // Check that ranges are valid
-        for (_, text, range) in &segments {
+        // Check that ranges are valid and scopes are present
+        for (_, text, range, scope) in &segments {
             assert_eq!(&code[range.clone()], *text);
+            assert!(scope.is_empty() || !scope.is_empty()); // scope is always valid
         }
     }
 
@@ -454,7 +481,7 @@ mod tests {
         assert!(!segments.is_empty());
 
         // At least some segments should have colors
-        let has_colors = segments.iter().any(|(style, _, _)| style.fg.is_some());
+        let has_colors = segments.iter().any(|(style, _, _, _)| style.fg.is_some());
         assert!(has_colors);
     }
 

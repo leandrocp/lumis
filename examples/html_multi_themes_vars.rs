@@ -1,4 +1,11 @@
-//! HTML output with multiple theme support using OS preference
+//! HTML output with multiple themes using CSS variables
+//!
+//! This example demonstrates how to support light/dark themes that switch
+//! automatically based on the user's OS preference using CSS variables.
+//!
+//! The `HtmlMultiThemesBuilder` generates HTML with CSS custom properties
+//! (variables) for each theme. A `@media (prefers-color-scheme: dark)` rule
+//! then selects which set of variables to apply.
 
 use autumnus::{formatter::Formatter, languages::Language, themes, HtmlMultiThemesBuilder};
 use std::collections::HashMap;

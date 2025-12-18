@@ -1,34 +1,7 @@
-//! Processing code line by line with the Highlighter API
+//! Using the Highlighter struct for stateful highlighting
 //!
-//! This example demonstrates:
-//! - Using the stateful Highlighter for repeated highlighting operations
-//! - Processing source code without tree-sitter internals
-//! - Accessing styled segments
-//!
-//! # Output
-//!
-//! ```text
-//! Highlighted code with 79 segments:
-//!
-//! Color #cba6f7: "SELECT"
-//! " "
-//! Color #f9e2af: "users"
-//! Color #9399b2: "."
-//! Color #b4befe: "name"
-//! Color #9399b2: ","
-//! " "
-//! Color #f9e2af: "COUNT"
-//! Color #9399b2: "("
-//! Color #f9e2af: "posts"
-//! Color #9399b2: "."
-//! Color #b4befe: "id"
-//! Color #9399b2: ")"
-//! " "
-//! Color #cba6f7: "as"
-//! " "
-//! Color #cdd6f4: "post_count"
-//! ...
-//! ```
+//! This example demonstrates using `Highlighter` to get a vector of styled
+//! segments `(Style, &str)` for custom processing.
 
 use autumnus::{highlight::Highlighter, languages::Language, themes};
 
