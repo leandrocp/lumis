@@ -160,12 +160,18 @@ pre.athl {
   color: #82aaff;
   font-weight: bold;
 }
+.markup-heading-1-markdown {
+  color: #82aaff;
+  background-color: #2c314a;
+  font-weight: bold;
+}
 .markup-heading-2 {
   color: #82aaff;
   font-weight: bold;
 }
 .markup-heading-2-markdown {
   color: #ffc777;
+  background-color: #38343d;
   font-weight: bold;
 }
 .markup-heading-3 {
@@ -174,6 +180,7 @@ pre.athl {
 }
 .markup-heading-3-markdown {
   color: #c3e88d;
+  background-color: #32383f;
   font-weight: bold;
 }
 .markup-heading-4 {
@@ -182,6 +189,7 @@ pre.athl {
 }
 .markup-heading-4-markdown {
   color: #4fd6be;
+  background-color: #273644;
   font-weight: bold;
 }
 .markup-heading-5 {
@@ -190,6 +198,7 @@ pre.athl {
 }
 .markup-heading-5-markdown {
   color: #c099ff;
+  background-color: #32304a;
   font-weight: bold;
 }
 .markup-heading-6 {
@@ -198,6 +207,7 @@ pre.athl {
 }
 .markup-heading-6-markdown {
   color: #fca7ea;
+  background-color: #383148;
   font-weight: bold;
 }
 .markup-italic {
