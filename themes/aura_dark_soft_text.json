@@ -1,7 +1,7 @@
 {
   "name": "aura_dark_soft_text",
   "appearance": "dark",
-  "revision": "6356de2fa2551b9dbc3a7d7b6c5328658353084e",
+  "revision": "20924aa0a43975420edd0e0b2f919e07a3eff9c9",
   "highlights": {
     "attribute": {
       "fg": "#a277ff"
