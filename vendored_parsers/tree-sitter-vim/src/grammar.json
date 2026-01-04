@@ -336,6 +336,10 @@
             {
               "type": "SYMBOL",
               "name": "user_command"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "shebang"
             }
           ]
         }
@@ -4044,6 +4048,27 @@
           },
           "named": true,
           "value": "arguments"
+        }
+      ]
+    },
+    "shebang": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "#!"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": ".+"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },
@@ -9635,6 +9660,14 @@
             {
               "type": "PATTERN",
               "value": "[rR][eE][mM][oO][tT][eE][rR][eE][pP][lL][yY]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[sS][aA][fF][eE][sS][tT][aA][tT][eE]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[sS][aA][fF][eE][sS][tT][aA][tT][eE][aA][gG][aA][iI][nN]"
             },
             {
               "type": "PATTERN",

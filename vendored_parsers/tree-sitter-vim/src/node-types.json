@@ -204,6 +204,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -571,6 +575,10 @@
           },
           {
             "type": "setlocal_statement",
+            "named": true
+          },
+          {
+            "type": "shebang",
             "named": true
           },
           {
@@ -1144,6 +1152,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -1651,6 +1663,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -1931,6 +1947,10 @@
         },
         {
           "type": "setlocal_statement",
+          "named": true
+        },
+        {
+          "type": "shebang",
           "named": true
         },
         {
@@ -4576,6 +4596,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -6016,6 +6040,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -7358,6 +7386,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -7549,6 +7581,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "shebang",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "sign_argument",
@@ -7920,6 +7957,10 @@
         },
         {
           "type": "setlocal_statement",
+          "named": true
+        },
+        {
+          "type": "shebang",
           "named": true
         },
         {
@@ -8916,6 +8957,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -9615,6 +9660,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -10195,6 +10244,10 @@
           "named": true
         },
         {
+          "type": "shebang",
+          "named": true
+        },
+        {
           "type": "sign_statement",
           "named": true
         },
@@ -10491,6 +10544,10 @@
   },
   {
     "type": "#",
+    "named": false
+  },
+  {
+    "type": "#!",
     "named": false
   },
   {
