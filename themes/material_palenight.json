@@ -1,7 +1,7 @@
 {
   "name": "material_palenight",
   "appearance": "dark",
-  "revision": "8a34cb0d05e12a05b64edaf6ca1c3c7bde545628",
+  "revision": "52c121551ffbf7b8f25bed3ef5878e5d6896c786",
   "highlights": {
     "attribute": {
       "bg": "#3b4665"
@@ -110,9 +110,6 @@
     },
     "keyword.directive.define": {
       "fg": "#89ddff"
-    },
-    "keyword.exception": {
-      "fg": "#f07178"
     },
     "keyword.export": {
       "fg": "#89ddff"
