@@ -114,6 +114,9 @@ pre.athl {
 .keyword-directive-define {
   color: #39adb5;
 }
+.keyword-exception {
+  color: #e53935;
+}
 .keyword-export {
   color: #39adb5;
 }

@@ -211,6 +211,7 @@ pre.athl {
 }
 .markup-link-url {
   color: #949fb5;
+  text-decoration: underline wavy;
 }
 .markup-list {
   color: #949fb5;
@@ -297,6 +298,7 @@ pre.athl {
 }
 .string-special-url {
   color: #949fb5;
+  text-decoration: underline wavy;
 }
 .tag {
   color: #949fb5;
