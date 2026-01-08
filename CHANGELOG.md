@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.8.0-beta.4] - 2026-01-08
 
 ### Added
 - Full Neovim text decoration support: `underline`, `undercurl` (wavy), `underdouble`, `underdotted`, `underdashed`, and `strikethrough`
