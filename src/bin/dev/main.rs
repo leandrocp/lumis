@@ -142,7 +142,8 @@ fn gen_samples_entries(
                 .lang(lang)
                 .theme(Some(theme.clone()))
                 .pre_class(Some(
-                    "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6".to_string(),
+                    "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6"
+                        .to_string(),
                 ))
                 .italic(false)
                 .include_highlights(true)

@@ -253,7 +253,11 @@ impl Formatter for HtmlInline {
             write!(buffer, "{}", header.open_tag)?;
         }
 
-        crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class.as_deref(), self.theme.as_ref())?;
+        crate::formatter::html::open_pre_tag(
+            &mut buffer,
+            self.pre_class.as_deref(),
+            self.theme.as_ref(),
+        )?;
         crate::formatter::html::open_code_tag(&mut buffer, &self.lang)?;
 
         let mut highlighter = Highlighter::new();

@@ -415,12 +415,7 @@ mod tests {
             .build()
             .unwrap();
 
-        write_highlight(
-            &mut buffer,
-            code,
-            formatter,
-        )
-        .unwrap();
+        write_highlight(&mut buffer, code, formatter).unwrap();
 
         let result = String::from_utf8(buffer).unwrap();
 
@@ -457,10 +452,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            formatter,
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -484,10 +476,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            formatter,
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -504,10 +493,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            formatter,
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -541,10 +527,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            formatter,
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -560,10 +543,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            formatter,
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -577,10 +557,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            formatter,
-        );
+        let result = highlight(code, formatter);
         assert!(result.as_str().contains("language-elixir"));
     }
 

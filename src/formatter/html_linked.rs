@@ -256,9 +256,15 @@ mod tests {
 
     #[test]
     fn test_include_pre_class() {
-        let formatter = HtmlLinked::new(Language::PlainText, Some("test-pre-class".to_string()), None, None);
+        let formatter = HtmlLinked::new(
+            Language::PlainText,
+            Some("test-pre-class".to_string()),
+            None,
+            None,
+        );
         let mut buffer = Vec::new();
-        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class.as_deref(), None).unwrap();
+        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class.as_deref(), None)
+            .unwrap();
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="athl test-pre-class">"#;
         assert_str_eq!(result, expected);
@@ -283,7 +289,8 @@ mod tests {
             .unwrap();
 
         let mut buffer = Vec::new();
-        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class.as_deref(), None).unwrap();
+        crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class.as_deref(), None)
+            .unwrap();
         let pre_result = String::from_utf8(buffer).unwrap();
         let pre_expected = r#"<pre class="athl test-pre-class">"#;
         assert_str_eq!(pre_result, pre_expected);
