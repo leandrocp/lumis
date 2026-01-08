@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Full Neovim text decoration support: `underline`, `undercurl` (wavy), `underdouble`, `underdotted`, `underdashed`, and `strikethrough`
+- New `UnderlineStyle` enum and `TextDecoration` struct in `themes` module for structured text decoration handling
+- CSS output for all underline variants: `underline`, `underline wavy`, `underline double`, `underline dotted`, `underline dashed`
+- ANSI terminal escape sequences for all underline variants
+- `html::close_code_tag()` and `html::close_pre_tag()` helper functions for individual closing tags
+- New `HighlightError` enum in `highlight` module for typed error handling
+- `Hash` trait for `Language` enum, enabling use as HashMap/HashSet keys
+- `Clone` trait for `ThemeError`
+- `From<std::io::Error>` and `From<serde_json::Error>` implementations for `ThemeError`
+- `# Errors` documentation sections to fallible public functions
+- `Formatter` impl for `Box<dyn Formatter>` to support dynamic dispatch
+
+### Changed
+- Error messages now follow Rust conventions (lowercase, no trailing punctuation)
+- **BREAKING**: Remove `Options` struct and `OptionsBuilder` - `highlight()` and `write_highlight()` now take formatters directly
+- **BREAKING**: `highlight()` signature changed from `highlight(source, options)` to `highlight(source, formatter)`
+- **BREAKING**: `write_highlight()` signature changed from `write_highlight(output, source, options)` to `write_highlight(output, source, formatter)`
+- **BREAKING**: `themes::Style` now uses `text_decoration: TextDecoration` instead of separate `underline: bool` and `strikethrough: bool` fields
+- **BREAKING**: `highlight::Highlighter::highlight()`, `highlight::HighlightIterator::new()`, `highlight::highlight_iter()`, and `ansi::highlight_iter_with_ansi()` now return `Result<..., HighlightError>` instead of `Result<..., String>`
+- **BREAKING**: Renamed `html::text_decoration_value()` to `html::text_decoration()` with new signature accepting `&TextDecoration`
+- **BREAKING**: Elixir NIF `ExStyle` now uses `text_decoration: ExTextDecoration` struct with `underline: Option<ExUnderlineStyle>` instead of flat boolean fields
+- **BREAKING**: Formatters (`HtmlInline`, `HtmlLinked`, `HtmlMultiThemes`) now own their string data (`pre_class: Option<String>` instead of `Option<&'a str>`) - removes lifetime parameters
+- **BREAKING**: Elixir NIF `ExFormatterOption` and `ThemeOrString` now use owned `String` instead of borrowed `&str` - removes lifetime parameters from NIF types
+
 ## [0.8.0-beta.3] - 2025-12-15
 
 ### Changed

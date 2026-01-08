@@ -3,25 +3,8 @@
 //! This example demonstrates how to create a custom terminal formatter using only
 //! the public APIs from the `ansi` module, without needing to interact with
 //! tree-sitter or termcolor internals directly.
-//!
-//! # Output
-//!
-//! The formatter creates a minimal bat-style terminal output with:
-//! - File header with horizontal divider lines
-//! - Line numbers with gray coloring
-//! - Syntax highlighted code content
-//!
-//! # Example Output
-//!
-//! ```text
-//! ────────────────────────────────────────────────────────────────────────────────
-//! File: src/index.html
-//! ────────────────────────────────────────────────────────────────────────────────
-//!   1 │ const greeting = "Hello, World!";
-//!   2 │ console.log(greeting);
-//! ```
 
-use autumnus::{ansi, formatter::Formatter, languages::Language, themes, write_highlight, Options};
+use autumnus::{ansi, formatter::Formatter, languages::Language, themes, write_highlight};
 use std::io::{self, Write};
 
 const HORIZONTAL_LINE: char = '─';
@@ -118,10 +101,5 @@ console.log(greeting);"#;
 
     let formatter = LineNumberedTerminal::new(lang, theme, Some("src/index.html".to_string()));
 
-    let options = Options {
-        language: Some("javascript"),
-        formatter: Box::new(formatter),
-    };
-
-    write_highlight(&mut io::stdout(), code, options).expect("Failed to write output");
+    write_highlight(&mut io::stdout(), code, formatter).expect("Failed to write output");
 }

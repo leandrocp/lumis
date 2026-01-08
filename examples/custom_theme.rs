@@ -4,26 +4,12 @@
 //! - Building a custom theme from scratch
 //! - Defining custom colors for different syntax elements
 //! - Using the custom theme with the highlighter
-//!
-//! # Output
-//!
-//! ```html
-//! <pre class="athl my-code-block"><code class="language-rust" translate="no" tabindex="0">
-//! <div class="line" data-line="1"><span style="color: #ff6b9d; font-weight: bold;">fn</span> <span style="color: #c792ea;">main</span><span >(</span><span >)</span> <span >&lbrace;</span></div>
-//! <div class="line" data-line="2">    <span style="color: #ff6b9d; font-weight: bold;">println</span><span style="color: #c792ea;">!</span><span >(</span><span style="color: #a5ff90; font-style: italic;">&quot;Hello from Rust!&quot;</span><span >)</span><span >;</span></div>
-//! <div class="line" data-line="3">    <span style="color: #ff6b9d; font-weight: bold;">let</span> <span >numbers</span> <span >=</span> <span style="color: #ff6b9d; font-weight: bold;">vec</span><span style="color: #c792ea;">!</span><span >[</span><span style="color: #ffc799;">1</span><span >,</span> <span style="color: #ffc799;">2</span><span >,</span> <span style="color: #ffc799;">3</span><span >,</span> <span style="color: #ffc799;">4</span><span >,</span> <span style="color: #ffc799;">5</span><span >]</span><span >;</span></div>
-//! <div class="line" data-line="4">    <span style="color: #ff6b9d; font-weight: bold;">for</span> <span >n</span> <span style="color: #ff6b9d; font-weight: bold;">in</span> <span >numbers</span><span >.</span><span style="color: #c792ea;">iter</span><span >(</span><span >)</span> <span >&lbrace;</span></div>
-//! <div class="line" data-line="5">        <span style="color: #ff6b9d; font-weight: bold;">println</span><span style="color: #c792ea;">!</span><span >(</span><span style="color: #a5ff90; font-style: italic;">&quot;&lbrace;&rbrace;&quot;</span><span >,</span> <span >n</span><span >)</span><span >;</span></div>
-//! <div class="line" data-line="6">    <span >&rbrace;</span></div>
-//! <div class="line" data-line="7"><span >&rbrace;</span></div>
-//! </code></pre>
-//! ```
 
 use autumnus::{
     highlight,
     languages::Language,
     themes::{Style, Theme},
-    HtmlInlineBuilder, Options,
+    HtmlInlineBuilder,
 };
 use std::collections::BTreeMap;
 
@@ -47,8 +33,7 @@ fn main() {
             bg: None,
             bold: true,
             italic: false,
-            underline: false,
-            strikethrough: false,
+            ..Default::default()
         },
     );
 
@@ -59,8 +44,7 @@ fn main() {
             bg: None,
             bold: false,
             italic: false,
-            underline: false,
-            strikethrough: false,
+            ..Default::default()
         },
     );
 
@@ -71,8 +55,7 @@ fn main() {
             bg: None,
             bold: false,
             italic: true,
-            underline: false,
-            strikethrough: false,
+            ..Default::default()
         },
     );
 
@@ -83,8 +66,7 @@ fn main() {
             bg: None,
             bold: false,
             italic: false,
-            underline: false,
-            strikethrough: false,
+            ..Default::default()
         },
     );
 
@@ -95,8 +77,7 @@ fn main() {
             bg: None,
             bold: false,
             italic: true,
-            underline: false,
-            strikethrough: false,
+            ..Default::default()
         },
     );
 
@@ -112,16 +93,11 @@ fn main() {
     let formatter = HtmlInlineBuilder::new()
         .lang(lang)
         .theme(Some(custom_theme))
-        .pre_class(Some("my-code-block"))
+        .pre_class(Some("my-code-block".to_string()))
         .italic(true) // Enable italic rendering for elements marked as italic
         .build()
         .expect("Failed to build formatter");
 
-    let options = Options {
-        language: Some("rust"),
-        formatter: Box::new(formatter),
-    };
-
-    let html = highlight(code, options);
+    let html = highlight(code, formatter);
     println!("{}", html);
 }

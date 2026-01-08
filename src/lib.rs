@@ -24,7 +24,7 @@
 //! ### Alternative: Using `highlight()` and `write_highlight()`
 //!
 //! ```rust
-//! use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, themes};
+//! use autumnus::{highlight, HtmlInlineBuilder, languages::Language, themes};
 //!
 //! let code = "print('Hello')";
 //! let theme = themes::get("dracula").unwrap();
@@ -35,27 +35,20 @@
 //!     .build()
 //!     .unwrap();
 //!
-//! // Returns highlighted code as String
-//! let html = highlight(code, Options {
-//!     language: Some("python"),
-//!     formatter: Box::new(formatter),
-//! });
+//! let html = highlight(code, formatter);
 //! ```
 //!
 //! For large outputs, use `write_highlight()` to stream directly to a writer:
 //!
 //! ```rust,no_run
-//! use autumnus::{write_highlight, Options, TerminalBuilder, languages::Language};
+//! use autumnus::{write_highlight, TerminalBuilder, languages::Language};
 //! use std::fs::File;
 //!
 //! # let code = "x = 1";
 //! # let formatter = TerminalBuilder::new().lang(Language::Python).build().unwrap();
 //! let mut file = File::create("output.txt").unwrap();
 //!
-//! write_highlight(&mut file, code, Options {
-//!     language: Some("python"),
-//!     formatter: Box::new(formatter),
-//! }).unwrap();
+//! write_highlight(&mut file, code, formatter).unwrap();
 //! ```
 //!
 //! ## Language Feature Flags
@@ -327,553 +320,76 @@ pub use formatter::html;
 pub mod elixir;
 
 use crate::formatter::Formatter;
-use derive_builder::Builder;
 use std::io::{self, Write};
 
 // Re-export builders for easier access
 pub use crate::formatter::{
     HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder, TerminalBuilder,
 };
-/// Configuration options for syntax highlighting.
-///
-/// This struct provides all the configuration needed to highlight source code,
-/// including language detection and output formatting options. It's used with
-/// the [`highlight()`] and [`write_highlight()`] functions.
-///
-/// # Language Detection
-///
-/// The `language` field supports multiple input formats:
-/// - **Language names**: `"rust"`, `"python"`, `"javascript"`
-/// - **File paths**: `"src/main.rs"`, `"app.py"`, `"script.js"`
-/// - **File extensions**: `"rs"`, `"py"`, `"js"`
-/// - **None**: Try to auto-detect from source content
-///
-/// # Examples
-///
-/// ## Using the builder pattern
-///
-/// ```rust
-/// use autumnus::{highlight, OptionsBuilder, HtmlInlineBuilder, languages::Language};
-///
-/// let code = "fn main() { println!(\"Hello\"); }";
-/// let lang = Language::guess(Some("rust"), code);
-///
-/// let formatter = HtmlInlineBuilder::new()
-///     .lang(lang)
-///     .pre_class(Some("code-block"))
-///     .build()
-///     .unwrap();
-///
-/// let options = OptionsBuilder::new()
-///     .language("rust")
-///     .formatter(Box::new(formatter))
-///     .build()
-///     .unwrap();
-///
-/// let html = highlight(code, options);
-/// ```
-///
-/// ## Explicit language specification
-///
-/// ```rust
-/// use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language};
-///
-/// let code = "fn main() { println!(\"Hello\"); }";
-/// let lang = Language::guess(Some("rust"), code);
-///
-/// let formatter = HtmlInlineBuilder::new()
-///     .lang(lang)
-///     .pre_class(Some("code-block"))
-///     .build()
-///     .unwrap();
-///
-/// let html = highlight(code, Options {
-///     language: Some("rust"),
-///     formatter: Box::new(formatter),
-/// });
-/// ```
-///
-/// ## File path-based detection
-///
-/// ```rust
-/// use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, themes};
-///
-/// let code = "defmodule MyApp do\n  def hello, do: :world\nend";
-/// let lang = Language::guess(Some("lib/my_app.ex"), code);
-/// let theme = themes::get("dracula").unwrap();
-///
-/// let formatter = HtmlInlineBuilder::new()
-///     .lang(lang)
-///     .theme(Some(theme))
-///     .italic(true)
-///     .build()
-///     .unwrap();
-///
-/// let html = highlight(code, Options {
-///     language: Some("lib/my_app.ex"),
-///     formatter: Box::new(formatter),
-/// });
-/// ```
-///
-/// ## Parsing languages from strings
-///
-/// ```rust
-/// use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language};
-///
-/// let code = "const greeting = 'Hello, World!';";
-///
-/// // Parse language from string
-/// let lang: Language = "javascript".parse().unwrap();
-///
-/// let formatter = HtmlInlineBuilder::new()
-///     .lang(lang)
-///     .build()
-///     .unwrap();
-///
-/// let html = highlight(code, Options {
-///     language: Some("javascript"),  // Also accepts: "js", "app.js"
-///     formatter: Box::new(formatter),
-/// });
-/// ```
-///
-/// ## Terminal output
-///
-/// ```rust
-/// use autumnus::{highlight, Options, TerminalBuilder, languages::Language, themes};
-///
-/// let code = "SELECT * FROM users WHERE active = true;";
-/// let lang = Language::guess(Some("sql"), code);
-/// let theme = themes::get("github_light").unwrap();
-///
-/// let formatter = TerminalBuilder::new()
-///     .lang(lang)
-///     .theme(Some(theme))
-///     .build()
-///     .unwrap();
-///
-/// let ansi = highlight(code, Options {
-///     language: Some("sql"),
-///     formatter: Box::new(formatter),
-/// });
-/// ```
-///
-/// ## HTML with linked CSS
-///
-/// ```rust
-/// use autumnus::{highlight, Options, HtmlLinkedBuilder, languages::Language};
-///
-/// let code = "<div class=\"container\">Hello</div>";
-/// let lang = Language::guess(Some("html"), code);
-///
-/// let formatter = HtmlLinkedBuilder::new()
-///     .lang(lang)
-///     .pre_class(Some("syntax-highlight"))
-///     .build()
-///     .unwrap();
-///
-/// let html = highlight(code, Options {
-///     language: Some("html"),
-///     formatter: Box::new(formatter),
-/// });
-/// // Remember to include the corresponding CSS file for your theme
-/// ```
-#[derive(Builder)]
-#[builder(default, pattern = "owned")]
-pub struct Options<'a> {
-    /// Optional language hint for syntax highlighting.
-    ///
-    /// This field controls language detection and can accept:
-    /// - **Language names**: `"rust"`, `"python"`, `"javascript"`, etc.
-    /// - **File paths**: `"src/main.rs"`, `"app.py"`, `"Dockerfile"`
-    /// - **File extensions**: `"rs"`, `"py"`, `"js"`
-    /// - **None**: Try to auto-detect from source content (shebang, doctype, etc.)
-    ///
-    /// When `None`, the highlighter will analyze the source content to detect
-    /// the language using shebangs, file content patterns, and other heuristics.
-    #[builder(default, setter(strip_option))]
-    pub language: Option<&'a str>,
 
-    /// The output formatter to use.
-    ///
-    /// This is a trait object that implements the [`Formatter`] trait. You can use:
-    /// - Built-in formatters via builders: [`HtmlInlineBuilder`], [`HtmlLinkedBuilder`], [`TerminalBuilder`]
-    /// - Custom formatters by implementing the [`Formatter`] trait
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use autumnus::{Options, HtmlInlineBuilder, languages::Language, themes};
-    ///
-    /// let theme = themes::get("dracula").unwrap();
-    ///
-    /// let options = Options {
-    ///     language: Some("rust"),
-    ///     formatter: Box::new(
-    ///         HtmlInlineBuilder::default()
-    ///             .lang(Language::Rust)
-    ///             .theme(Some(theme))
-    ///             .build()
-    ///             .unwrap()
-    ///     )
-    /// };
-    /// ```
-    #[builder(default = "Box::new(formatter::HtmlInline::default())")]
-    pub formatter: Box<dyn Formatter + 'a>,
-}
-
-impl Default for Options<'_> {
-    fn default() -> Self {
-        Self {
-            language: None,
-            formatter: Box::new(formatter::HtmlInline::default()),
-        }
-    }
-}
-
-impl<'a> Options<'a> {
-    /// Create a new Options with the specified parameters.
-    ///
-    /// This is a convenience constructor that takes all required fields.
-    ///
-    /// # Arguments
-    ///
-    /// * `language` - Optional language hint
-    /// * `formatter` - The formatter to use for highlighting
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use autumnus::{Options, HtmlInlineBuilder, languages::Language};
-    ///
-    /// let formatter = HtmlInlineBuilder::default()
-    ///     .lang(Language::Rust)
-    ///     .build()
-    ///     .unwrap();
-    ///
-    /// let options = Options::new(Some("rust"), Box::new(formatter));
-    /// ```
-    pub fn new(language: Option<&'a str>, formatter: Box<dyn Formatter + 'a>) -> Self {
-        Self {
-            language,
-            formatter,
-        }
-    }
-}
-
-impl<'a> OptionsBuilder<'a> {
-    /// Create a new OptionsBuilder with default values.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use autumnus::{OptionsBuilder, HtmlInlineBuilder, languages::Language};
-    ///
-    /// let formatter = HtmlInlineBuilder::default()
-    ///     .lang(Language::Rust)
-    ///     .build()
-    ///     .unwrap();
-    ///
-    /// let options = OptionsBuilder::new()
-    ///     .language("rust")
-    ///     .formatter(Box::new(formatter))
-    ///     .build()
-    ///     .unwrap();
-    /// ```
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-/// Highlights source code and returns it as a string with syntax highlighting.
+/// Highlights source code and returns it as a string.
 ///
-/// This function takes the source code and options as input,
-/// and returns a string with the source code highlighted according to the specified formatter.
-///
-/// For a more ergonomic API, consider using the builder pattern - see [`formatter`] for examples.
+/// This is a convenience wrapper that calls the formatter and returns the result as a String.
+/// For streaming to files or other writers, use [`write_highlight()`] instead.
 ///
 /// # Arguments
 ///
-/// * `source` - A string slice that represents the source code to be highlighted.
-/// * `options` - An `Options` struct that contains the configuration options for the highlighter,
-///   including the optional language/file path and formatter type to use.
+/// * `source` - The source code to highlight.
+/// * `formatter` - A configured formatter (e.g., from [`HtmlInlineBuilder`], [`TerminalBuilder`]).
 ///
 /// # Examples
 ///
-/// Basic usage with HTML inline styles (default):
-///
 /// ```rust
-/// use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language};
+/// use autumnus::{highlight, HtmlInlineBuilder, languages::Language};
 ///
-/// let code = r#"
-/// fn main() {
-///     println!("Hello, world!");
-/// }
-/// "#;
+/// let code = r#"fn main() { println!("Hello!"); }"#;
 ///
-/// let lang = Language::guess(Some("rust"), code);
 /// let formatter = HtmlInlineBuilder::new()
-///     .lang(lang)
+///     .lang(Language::Rust)
 ///     .build()
 ///     .unwrap();
 ///
-/// let html = highlight(code, Options {
-///     language: Some("rust"),
-///     formatter: Box::new(formatter),
-/// });
+/// let html = highlight(code, formatter);
 /// ```
-///
-/// Output with HTML inline styles (default):
-/// ```html
-/// <pre class="athl" style="color: #c6d0f5; background-color: #303446;">
-///   <code class="language-rust" translate="no" tabindex="0">
-///     <div class="line" data-line="1">
-///       <span style="color: #ca9ee6;">fn</span> <span style="color: #8caaee;">main</span>() {
-///     </div>
-///     <div class="line" data-line="2">
-///       <span style="color: #8caaee;">println!</span>(<span style="color: #a6d189;">"Hello, world!"</span>);
-///     </div>
-///     <div class="line" data-line="3">}</div>
-///   </code>
-/// </pre>
-/// ```
-///
-/// Using HTML with linked styles:
-///
-/// ```rust
-/// use autumnus::{highlight, Options, HtmlLinkedBuilder, languages::Language};
-///
-/// let code = r#"
-/// fn main() {
-///     println!("Hello, world!");
-/// }
-/// "#;
-///
-/// let lang = Language::guess(Some("rust"), code);
-/// let formatter = HtmlLinkedBuilder::new()
-///     .lang(lang)
-///     .pre_class(Some("my-code-block"))
-///     .build()
-///     .unwrap();
-///
-/// let html = highlight(code, Options {
-///     language: Some("rust"),
-///     formatter: Box::new(formatter),
-/// });
-/// ```
-///
-/// Output with HTML linked styles:
-/// ```html
-/// <pre class="athl my-code-block">
-///   <code class="language-rust" translate="no" tabindex="0">
-///     <div class="line" data-line="1">
-///       <span class="keyword-function">fn</span> <span class="function">main</span>() {
-///     </div>
-///     <div class="line" data-line="2">
-///       <span class="function-macro">println!</span>(<span class="string">"Hello, world!"</span>);
-///     </div>
-///     <div class="line" data-line="3">}</div>
-///   </code>
-/// </pre>
-/// ```
-///
-/// When using `FormatterOption::HtmlLinked`, you need to include the corresponding CSS file for your chosen theme.
-/// CSS files for all themes are available in the `css/` directory:
-///
-/// ```html
-/// <link rel="stylesheet" href="css/dracula.css">
-/// ```
-///
-/// Using terminal output:
-///
-/// ```rust
-/// use autumnus::{highlight, Options, TerminalBuilder, languages::Language};
-///
-/// let code = r#"
-/// fn main() {
-///     println!("Hello, world!");
-/// }
-/// "#;
-///
-/// let lang = Language::guess(Some("rust"), code);
-/// let formatter = TerminalBuilder::new()
-///     .lang(lang)
-///     .build()
-///     .unwrap();
-///
-/// let ansi = highlight(code, Options {
-///     language: Some("rust"),
-///     formatter: Box::new(formatter),
-/// });
-/// ```
-///
-/// Output with ANSI terminal colors:
-/// ```text
-/// [38;2;202;158;230mfn[0m [38;2;140;170;238mmain[0m() {
-///     [38;2;140;170;238mprintln![0m([38;2;166;209;137m"Hello, world!"[0m);
-/// }
-/// ```
-///
-pub fn highlight(source: &str, options: Options) -> String {
+pub fn highlight<F: Formatter>(source: &str, formatter: F) -> String {
     let mut buffer = Vec::new();
-    let _ = options.formatter.format(source, &mut buffer);
+    let _ = formatter.format(source, &mut buffer);
     String::from_utf8(buffer).unwrap()
 }
 
 /// Write syntax highlighted output directly to a writer.
 ///
-/// This function performs the same syntax highlighting as [`highlight()`] but writes
-/// the output directly to any type that implements [`Write`] instead of returning
-/// a string. This is more memory efficient for large outputs and allows streaming
-/// to files, network connections, or other destinations.
-///
-/// For a more ergonomic API, consider using the builder pattern - see [`formatter`] for examples.
+/// This function writes highlighted output directly to any [`Write`] implementation,
+/// which is more memory efficient for large outputs than [`highlight()`].
 ///
 /// # Arguments
 ///
-/// * `output` - The writer to send highlighted output to
-/// * `source` - The source code to highlight
-/// * `options` - Configuration options for highlighting and formatting
-///
-/// # Returns
-///
-/// * `Ok(())` - Successfully wrote highlighted output
-/// * `Err(io::Error)` - Write operation failed
+/// * `output` - The writer to send highlighted output to.
+/// * `source` - The source code to highlight.
+/// * `formatter` - A configured formatter.
 ///
 /// # Examples
 ///
-/// ## Writing to a file
-///
 /// ```rust,no_run
-/// use autumnus::{write_highlight, Options, HtmlInlineBuilder, languages::Language, themes};
+/// use autumnus::{write_highlight, HtmlInlineBuilder, languages::Language};
 /// use std::fs::File;
-/// use std::io::BufWriter;
 ///
-/// let code = r#"
-/// fn fibonacci(n: u32) -> u32 {
-///     match n {
-///         0 => 0,
-///         1 => 1,
-///         _ => fibonacci(n - 1) + fibonacci(n - 2),
-///     }
-/// }
-/// "#;
-///
-/// let lang = Language::guess(Some("rust"), code);
-/// let theme = themes::get("dracula").unwrap();
+/// let code = "fn main() { }";
 /// let formatter = HtmlInlineBuilder::new()
-///     .lang(lang)
-///     .theme(Some(theme))
-///     .pre_class(Some("code-block"))
-///     .italic(true)
+///     .lang(Language::Rust)
 ///     .build()
 ///     .unwrap();
 ///
-/// let mut file = BufWriter::new(File::create("highlighted.html")?);
-///
-/// write_highlight(&mut file, code, Options {
-///     language: Some("rust"),
-///     formatter: Box::new(formatter),
-/// })?;
-/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// let mut file = File::create("output.html")?;
+/// write_highlight(&mut file, code, formatter)?;
+/// # Ok::<(), std::io::Error>(())
 /// ```
-///
-/// ## Writing to stdout
-///
-/// ```rust
-/// use autumnus::{write_highlight, Options, TerminalBuilder, languages::Language, themes};
-/// use std::io;
-///
-/// let code = "print('Hello, World!')";
-/// let lang = Language::guess(Some("python"), code);
-/// let theme = themes::get("github_light").unwrap();
-///
-/// let formatter = TerminalBuilder::new()
-///     .lang(lang)
-///     .theme(Some(theme))
-///     .build()
-///     .unwrap();
-///
-/// write_highlight(&mut io::stdout(), code, Options {
-///     language: Some("python"),
-///     formatter: Box::new(formatter),
-/// }).expect("Failed to write to stdout");
-/// ```
-///
-/// ## Writing to a vector (in-memory buffer)
-///
-/// ```rust
-/// use autumnus::{write_highlight, Options, HtmlInlineBuilder, languages::Language};
-///
-/// let code = "const x = 42;";
-/// let lang = Language::guess(Some("javascript"), code);
-///
-/// let formatter = HtmlInlineBuilder::new()
-///     .lang(lang)
-///     .build()
-///     .unwrap();
-///
-/// let mut buffer = Vec::new();
-///
-/// write_highlight(&mut buffer, code, Options {
-///     language: Some("javascript"),
-///     formatter: Box::new(formatter),
-/// }).expect("Failed to write to buffer");
-///
-/// let result = String::from_utf8(buffer).expect("Invalid UTF-8");
-/// println!("Highlighted: {}", result);
-/// ```
-///
-/// ## Streaming large files
-///
-/// ```rust,no_run
-/// use autumnus::{write_highlight, Options, HtmlLinkedBuilder, languages::Language};
-/// use std::fs::File;
-/// use std::io::{BufReader, BufWriter, Read};
-///
-/// // Read source code from large file
-/// let mut source = String::new();
-/// BufReader::new(File::open("large_source.rs")?)
-///     .read_to_string(&mut source)?;
-///
-/// let lang = Language::guess(Some("rust"), &source);
-/// let formatter = HtmlLinkedBuilder::new()
-///     .lang(lang)
-///     .pre_class(Some("large-code"))
-///     .build()
-///     .unwrap();
-///
-/// // Stream highlighted output to another file
-/// let mut output_file = BufWriter::new(File::create("highlighted_output.html")?);
-///
-/// write_highlight(&mut output_file, &source, Options {
-///     language: Some("rust"),
-///     formatter: Box::new(formatter),
-/// })?;
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-///
-/// ## Error handling
-///
-/// ```rust
-/// use autumnus::{write_highlight, OptionsBuilder};
-/// use std::io;
-///
-/// let code = "invalid source";
-/// let mut buffer = Vec::new();
-///
-/// let options = OptionsBuilder::new()
-///     .build()
-///     .unwrap();
-///
-/// match write_highlight(&mut buffer, code, options) {
-///     Ok(()) => println!("Successfully highlighted {} bytes", buffer.len()),
-///     Err(e) => eprintln!("Failed to highlight: {}", e),
-/// }
-/// ```
-///
-pub fn write_highlight(output: &mut dyn Write, source: &str, options: Options) -> io::Result<()> {
-    options.formatter.format(source, output)?;
-    Ok(())
+pub fn write_highlight<F: Formatter>(
+    output: &mut dyn Write,
+    source: &str,
+    formatter: F,
+) -> io::Result<()> {
+    formatter.format(source, output)
 }
 
 #[cfg(test)]
@@ -899,15 +415,7 @@ mod tests {
             .build()
             .unwrap();
 
-        write_highlight(
-            &mut buffer,
-            code,
-            Options {
-                language: Some("javascript"),
-                formatter: Box::new(formatter),
-            },
-        )
-        .unwrap();
+        write_highlight(&mut buffer, code, formatter).unwrap();
 
         let result = String::from_utf8(buffer).unwrap();
 
@@ -944,13 +452,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            Options {
-                language: Some("elixir"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -974,13 +476,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            Options {
-                language: Some("elixir"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -997,13 +493,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            Options {
-                language: Some("elixir"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -1037,13 +527,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            Options {
-                language: Some("elixir"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -1059,13 +543,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            Options {
-                language: Some("elixir"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let result = highlight(code, formatter);
 
         assert_eq!(result, expected);
     }
@@ -1079,13 +557,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            Options {
-                language: Some("app.ex"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let result = highlight(code, formatter);
         assert!(result.as_str().contains("language-elixir"));
     }
 
@@ -1098,13 +570,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code1,
-            Options {
-                language: Some("md"),
-                formatter: Box::new(formatter1),
-            },
-        );
+        let result = highlight(code1, formatter1);
         assert!(result.as_str().contains("language-markdown"));
 
         let code2 = "foo = 1";
@@ -1114,13 +580,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code2,
-            Options {
-                language: Some("ex"),
-                formatter: Box::new(formatter2),
-            },
-        );
+        let result = highlight(code2, formatter2);
         assert!(result.as_str().contains("language-elixir"));
     }
 
@@ -1133,13 +593,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            Options {
-                language: Some("test"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let result = highlight(code, formatter);
         assert!(result.as_str().contains("language-elixir"));
     }
 
@@ -1152,13 +606,7 @@ end
             .build()
             .unwrap();
 
-        let result = highlight(
-            code,
-            Options {
-                language: Some("none"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let result = highlight(code, formatter);
         assert!(result.as_str().contains("language-plaintext"));
     }
 
@@ -1171,13 +619,7 @@ end
             .build()
             .unwrap();
 
-        let ansi = highlight(
-            code,
-            Options {
-                language: Some("ruby"),
-                formatter: Box::new(formatter),
-            },
-        );
+        let ansi = highlight(code, formatter);
 
         assert!(ansi.as_str().contains("[38;2;241;250;140mHello from Ruby!"));
     }
@@ -1196,13 +638,7 @@ end
             .build()
             .unwrap();
 
-        let inline_result = highlight(
-            code,
-            Options {
-                language: Some("rust"),
-                formatter: Box::new(inline_formatter),
-            },
-        );
+        let inline_result = highlight(code, inline_formatter);
 
         assert!(inline_result.starts_with("<div class=\"code-container\">"));
         assert!(inline_result.ends_with("</div>"));
@@ -1218,13 +654,7 @@ end
             .build()
             .unwrap();
 
-        let linked_result = highlight(
-            code,
-            Options {
-                language: Some("rust"),
-                formatter: Box::new(linked_formatter),
-            },
-        );
+        let linked_result = highlight(code, linked_formatter);
 
         assert!(linked_result.starts_with("<section class=\"code-section\">"));
         assert!(linked_result.ends_with("</section>"));

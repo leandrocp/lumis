@@ -1,28 +1,11 @@
-//! Basic syntax highlighting with HTML inline styles
+//! Auto-detecting language from file extension or source content
 //!
-//! This example demonstrates the simplest way to highlight code using autumnus:
-//! - Using the default theme (if available)
-//! - Outputting HTML with inline CSS styles
-//! - Auto-detecting language from source code
-//!
-//! # Output
-//!
-//! ```html
-//! <pre class="athl"><code class="language-python" translate="no" tabindex="0">
-//! <div class="line" data-line="1"><span >#!/usr/bin/env python3</span></div>
-//! <div class="line" data-line="2"><span >def</span> <span >fibonacci</span>(<span >n</span>):</div>
-//! <div class="line" data-line="3">    <span >if</span> <span >n</span> <span >&lt;=</span> <span >1</span>:</div>
-//! <div class="line" data-line="4">        <span >return</span> <span >n</span></div>
-//! <div class="line" data-line="5">    <span >return</span> <span >fibonacci</span>(<span >n</span><span >-</span><span >1</span>) <span >+</span> <span >fibonacci</span>(<span >n</span><span >-</span><span >2</span>)</div>
-//! <div class="line" data-line="6"></div>
-//! <div class="line" data-line="7"><span >print</span>(<span >fibonacci</span>(<span >10</span>))</div>
-//! </code></pre>
-//! ```
+//! This example demonstrates using `Language::guess()` to detect the
+//! programming language from a file extension or source code content.
 
-use autumnus::{highlight, OptionsBuilder};
+use autumnus::{highlight, languages::Language, HtmlInlineBuilder};
 
 fn main() {
-    // Python code with shebang for auto-detection
     let code = r#"#!/usr/bin/env python3
 def fibonacci(n):
     if n <= 1:
@@ -32,10 +15,17 @@ def fibonacci(n):
 print(fibonacci(10))
 "#;
 
-    // Simple API using builder with defaults
-    let options = OptionsBuilder::new().build().unwrap();
+    // Detect language from file path/extension or source content.
+    // Pass the file path as the first argument (can be just filename).
+    // The source code is used for shebang detection if no file extension matches.
+    let lang = Language::guess(None, code);
 
-    let html = highlight(code, options);
+    let formatter = HtmlInlineBuilder::new()
+        .lang(lang)
+        .build()
+        .expect("Failed to build formatter");
+
+    let html = highlight(code, formatter);
 
     println!("{}", html);
 }

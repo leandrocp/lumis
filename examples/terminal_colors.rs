@@ -1,11 +1,12 @@
 //! Terminal output with ANSI color codes
 //!
-//! This example demonstrates:
-//! - Using the Terminal formatter for CLI output
-//! - Applying themes to terminal output
-//! - Direct printing to stdout
+//! This example demonstrates using the `TerminalBuilder` formatter to produce
+//! syntax-highlighted output for terminals that support ANSI escape codes.
+//!
+//! The output can be printed directly to stdout or captured as a string.
+//! Colors are applied based on the selected theme.
 
-use autumnus::{highlight, languages::Language, themes, Options, TerminalBuilder};
+use autumnus::{highlight, languages::Language, themes, TerminalBuilder};
 
 fn main() {
     let code = r#"class User < ApplicationRecord
@@ -19,20 +20,13 @@ end"#;
 
     let theme = themes::get("github_dark").expect("github_dark theme should be available");
 
-    let lang = Language::guess(Some("ruby"), code);
-
     let formatter = TerminalBuilder::new()
-        .lang(lang)
+        .lang(Language::Ruby)
         .theme(Some(theme))
         .build()
         .expect("Failed to build formatter");
 
-    let options = Options {
-        language: Some("ruby"),
-        formatter: Box::new(formatter),
-    };
-
-    let ansi_output = highlight(code, options);
+    let ansi_output = highlight(code, formatter);
 
     println!("{}", ansi_output);
 }

@@ -34,7 +34,7 @@
 //! let formatter = HtmlInlineBuilder::new()
 //!     .lang(Language::Rust)
 //!     .theme(Some(theme))
-//!     .pre_class(Some("code-block"))
+//!     .pre_class(Some("code-block".to_string()))
 //!     .italic(false)
 //!     .include_highlights(false)
 //!     .build()
@@ -80,7 +80,7 @@
 //!
 //! let formatter = HtmlLinkedBuilder::new()
 //!     .lang(Language::HTML)
-//!     .pre_class(Some("my-code"))
+//!     .pre_class(Some("my-code".to_string()))
 //!     .build()
 //!     .unwrap();
 //!
@@ -236,15 +236,15 @@ pub struct HtmlElement {
 ///
 /// impl Formatter for CsvFormatter {
 ///     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-///         writeln!(output, "style,text,start,end")?;
+///         writeln!(output, "scope,style,text,start,end")?;
 ///
 ///         let iter = highlight_iter(source, self.language, self.theme.clone())
 ///             .map_err(io::Error::other)?;
 ///
-///         for (style, text, range) in iter {
+///         for (style, text, range, scope) in iter {
 ///             let fg = style.fg.as_deref().unwrap_or("none");
 ///             let escaped = text.replace('"', "\"\"");
-///             writeln!(output, "{},\"{}\",{},{}", fg, escaped, range.start, range.end)?;
+///             writeln!(output, "{},{},\"{}\",{},{}", scope, fg, escaped, range.start, range.end)?;
 ///         }
 ///
 ///         Ok(())
@@ -282,4 +282,10 @@ pub trait Formatter: Send + Sync {
     /// formatter.format("fn main() {}", &mut output).unwrap();
     /// ```
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()>;
+}
+
+impl Formatter for Box<dyn Formatter> {
+    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
+        (**self).format(source, output)
+    }
 }

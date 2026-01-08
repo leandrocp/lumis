@@ -1,4 +1,13 @@
-//! HTML output with light-dark() function for automatic theme switching
+//! HTML output using the CSS `light-dark()` function
+//!
+//! This example demonstrates automatic theme switching using the modern CSS
+//! `light-dark()` function, which selects colors based on the computed
+//! `color-scheme` property.
+//!
+//! Set `default_theme("light-dark()")` to generate inline styles that use
+//! `light-dark(light_color, dark_color)` for each token.
+//!
+//! Note: Requires browser support for `light-dark()` (Chrome 123+, Firefox 120+).
 
 use autumnus::{formatter::Formatter, languages::Language, themes, HtmlMultiThemesBuilder};
 use std::collections::HashMap;

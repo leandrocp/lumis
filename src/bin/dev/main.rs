@@ -142,20 +142,15 @@ fn gen_samples_entries(
                 .lang(lang)
                 .theme(Some(theme.clone()))
                 .pre_class(Some(
-                    "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6",
+                    "w-full overflow-auto rounded-lg p-8 font-mono text-sm antialiased leading-6"
+                        .to_string(),
                 ))
                 .italic(false)
                 .include_highlights(true)
                 .build()
                 .expect("Failed to build formatter");
 
-            let highlighted = autumnus::highlight(
-                &contents,
-                autumnus::Options {
-                    language: Some(file_name),
-                    formatter: Box::new(formatter),
-                },
-            );
+            let highlighted = autumnus::highlight(&contents, formatter);
 
             let base_name = file_name.split('.').next().unwrap_or(file_name);
             let html_path = samples_path.join(format!("{}.{}.html", base_name, theme.name));

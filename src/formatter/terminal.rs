@@ -78,7 +78,7 @@ impl Formatter for Terminal {
         let iter = crate::highlight::highlight_iter(source, self.lang, self.theme.clone())
             .map_err(io::Error::other)?;
 
-        for (style, text, _range) in iter {
+        for (style, text, _range, _scope) in iter {
             let ansi_text = ansi::wrap_with_ansi(text, &style);
             write!(output, "{}", ansi_text)?;
         }

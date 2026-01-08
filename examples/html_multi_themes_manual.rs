@@ -1,4 +1,8 @@
-//! HTML output with manual theme switching buttons
+//! HTML output with manual theme switching via JavaScript
+//!
+//! This example demonstrates how to implement theme switching with UI buttons.
+//! It uses CSS variables from `HtmlMultiThemesBuilder` and JavaScript to toggle
+//! between themes by adding/removing a CSS class on the `<html>` element.
 
 use autumnus::{formatter::Formatter, languages::Language, themes, HtmlMultiThemesBuilder};
 use std::collections::HashMap;

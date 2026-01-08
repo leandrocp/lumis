@@ -39,24 +39,18 @@
 //! to provide syntax highlighting colors:
 //!
 //! ```rust
-//! use autumnus::{highlight, Options, HtmlInlineBuilder, languages::Language, themes};
+//! use autumnus::{highlight, HtmlInlineBuilder, languages::Language, themes};
 //!
 //! let code = "fn main() { println!(\"Hello\"); }";
 //! let theme = themes::get("catppuccin_mocha").unwrap();
-//! let lang = Language::guess(Some("rust"), code);
 //!
 //! let formatter = HtmlInlineBuilder::new()
-//!     .lang(lang)
+//!     .lang(Language::Rust)
 //!     .theme(Some(theme))
 //!     .build()
 //!     .unwrap();
 //!
-//! let options = Options {
-//!     language: Some("rust"),
-//!     formatter: Box::new(formatter),
-//! };
-//!
-//! let highlighted = highlight(code, options);
+//! let highlighted = highlight(code, formatter);
 //! ```
 //!
 //! # Theme Structure
@@ -89,8 +83,8 @@
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fs, path::Path, str::FromStr};
 
-/// Error type for theme operations
-#[derive(Debug)]
+/// Error type for theme operations.
+#[derive(Debug, Clone)]
 pub enum ThemeError {
     /// Theme not found
     NotFound(String),
@@ -105,15 +99,31 @@ pub enum ThemeError {
 impl std::fmt::Display for ThemeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ThemeError::NotFound(name) => write!(f, "Theme '{name}' not found"),
-            ThemeError::InvalidJson(msg) => write!(f, "Invalid theme JSON: {msg}"),
-            ThemeError::FileNotFound(path) => write!(f, "Theme file not found: {path}"),
-            ThemeError::FileReadError(msg) => write!(f, "Failed to read theme file: {msg}"),
+            ThemeError::NotFound(name) => write!(f, "theme '{name}' not found"),
+            ThemeError::InvalidJson(msg) => write!(f, "invalid theme json: {msg}"),
+            ThemeError::FileNotFound(path) => write!(f, "theme file not found: {path}"),
+            ThemeError::FileReadError(msg) => write!(f, "failed to read theme file: {msg}"),
         }
     }
 }
 
 impl std::error::Error for ThemeError {}
+
+impl From<std::io::Error> for ThemeError {
+    fn from(err: std::io::Error) -> Self {
+        if err.kind() == std::io::ErrorKind::NotFound {
+            ThemeError::FileNotFound(err.to_string())
+        } else {
+            ThemeError::FileReadError(err.to_string())
+        }
+    }
+}
+
+impl From<serde_json::Error> for ThemeError {
+    fn from(err: serde_json::Error) -> Self {
+        ThemeError::InvalidJson(err.to_string())
+    }
+}
 
 /// Error type returned when parsing a theme from a string fails.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -121,11 +131,60 @@ pub struct ThemeParseError(String);
 
 impl std::fmt::Display for ThemeParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Unknown theme: {}", self.0)
+        write!(f, "unknown theme: {}", self.0)
     }
 }
 
 impl std::error::Error for ThemeParseError {}
+
+/// Underline style for text decoration.
+///
+/// Corresponds to Neovim's underline variants:
+/// - `Solid` - standard underline (`underline` in Neovim)
+/// - `Wavy` - wavy/curly underline (`undercurl` in Neovim)
+/// - `Double` - double underline (`underdouble` in Neovim)
+/// - `Dotted` - dotted underline (`underdotted` in Neovim)
+/// - `Dashed` - dashed underline (`underdashed` in Neovim)
+#[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum UnderlineStyle {
+    #[default]
+    None,
+    Solid,
+    Wavy,
+    Double,
+    Dotted,
+    Dashed,
+}
+
+/// Text decoration combining underline style and strikethrough.
+///
+/// # Examples
+///
+/// ```rust
+/// use autumnus::themes::{TextDecoration, UnderlineStyle};
+///
+/// // Wavy underline (like spell checker)
+/// let decoration = TextDecoration {
+///     underline: UnderlineStyle::Wavy,
+///     strikethrough: false,
+/// };
+///
+/// // Strikethrough with solid underline
+/// let decoration = TextDecoration {
+///     underline: UnderlineStyle::Solid,
+///     strikethrough: true,
+/// };
+/// ```
+#[derive(Default, Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+pub struct TextDecoration {
+    /// The underline style to apply.
+    #[serde(default)]
+    pub underline: UnderlineStyle,
+    /// Whether to apply strikethrough.
+    #[serde(default)]
+    pub strikethrough: bool,
+}
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// A theme for syntax highlighting.
@@ -197,7 +256,6 @@ impl FromStr for Theme {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 /// A style for syntax highlighting.
 ///
 /// A style defines the visual appearance of a highlight scope, including colors,
@@ -232,33 +290,144 @@ impl FromStr for Theme {
 /// Creating a style with text decoration:
 ///
 /// ```
-/// use autumnus::themes::Style;
+/// use autumnus::themes::{Style, TextDecoration, UnderlineStyle};
 ///
 /// let style = Style {
-///     underline: true,
-///     strikethrough: true,
+///     text_decoration: TextDecoration {
+///         underline: UnderlineStyle::Wavy,
+///         strikethrough: true,
+///     },
 ///     ..Default::default()
 /// };
 /// ```
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct Style {
     /// The foreground color in hex format (e.g., "#ff79c6").
-    #[serde(default)]
     pub fg: Option<String>,
     /// The background color in hex format (e.g., "#282a36").
-    #[serde(default)]
     pub bg: Option<String>,
-    /// Whether to underline the text.
-    #[serde(default)]
-    pub underline: bool,
     /// Whether to make the text bold.
-    #[serde(default)]
     pub bold: bool,
     /// Whether to make the text italic.
-    #[serde(default)]
     pub italic: bool,
-    /// Whether to strikethrough the text.
+    /// Text decoration (underline style and strikethrough).
+    pub text_decoration: TextDecoration,
+}
+
+/// Helper struct for deserializing Style from JSON with flat bool fields.
+#[derive(Deserialize)]
+struct StyleHelper {
     #[serde(default)]
-    pub strikethrough: bool,
+    fg: Option<String>,
+    #[serde(default)]
+    bg: Option<String>,
+    #[serde(default)]
+    bold: bool,
+    #[serde(default)]
+    italic: bool,
+    #[serde(default)]
+    underline: bool,
+    #[serde(default)]
+    undercurl: bool,
+    #[serde(default)]
+    underdouble: bool,
+    #[serde(default)]
+    underdotted: bool,
+    #[serde(default)]
+    underdashed: bool,
+    #[serde(default)]
+    strikethrough: bool,
+}
+
+impl<'de> Deserialize<'de> for Style {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let helper = StyleHelper::deserialize(deserializer)?;
+
+        let underline = if helper.undercurl {
+            UnderlineStyle::Wavy
+        } else if helper.underdouble {
+            UnderlineStyle::Double
+        } else if helper.underdotted {
+            UnderlineStyle::Dotted
+        } else if helper.underdashed {
+            UnderlineStyle::Dashed
+        } else if helper.underline {
+            UnderlineStyle::Solid
+        } else {
+            UnderlineStyle::None
+        };
+
+        Ok(Style {
+            fg: helper.fg,
+            bg: helper.bg,
+            bold: helper.bold,
+            italic: helper.italic,
+            text_decoration: TextDecoration {
+                underline,
+                strikethrough: helper.strikethrough,
+            },
+        })
+    }
+}
+
+impl Serialize for Style {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+
+        let mut count = 0;
+        if self.fg.is_some() {
+            count += 1;
+        }
+        if self.bg.is_some() {
+            count += 1;
+        }
+        if self.bold {
+            count += 1;
+        }
+        if self.italic {
+            count += 1;
+        }
+        if self.text_decoration.underline != UnderlineStyle::None {
+            count += 1;
+        }
+        if self.text_decoration.strikethrough {
+            count += 1;
+        }
+
+        let mut state = serializer.serialize_struct("Style", count)?;
+
+        if let Some(fg) = &self.fg {
+            state.serialize_field("fg", fg)?;
+        }
+        if let Some(bg) = &self.bg {
+            state.serialize_field("bg", bg)?;
+        }
+        if self.bold {
+            state.serialize_field("bold", &true)?;
+        }
+        if self.italic {
+            state.serialize_field("italic", &true)?;
+        }
+        match self.text_decoration.underline {
+            UnderlineStyle::None => {}
+            UnderlineStyle::Solid => state.serialize_field("underline", &true)?,
+            UnderlineStyle::Wavy => state.serialize_field("undercurl", &true)?,
+            UnderlineStyle::Double => state.serialize_field("underdouble", &true)?,
+            UnderlineStyle::Dotted => state.serialize_field("underdotted", &true)?,
+            UnderlineStyle::Dashed => state.serialize_field("underdashed", &true)?,
+        }
+        if self.text_decoration.strikethrough {
+            state.serialize_field("strikethrough", &true)?;
+        }
+
+        state.end()
+    }
 }
 
 include!(concat!(env!("OUT_DIR"), "/theme_data.rs"));
@@ -275,8 +444,13 @@ include!(concat!(env!("OUT_DIR"), "/theme_data.rs"));
 ///
 /// # Returns
 ///
-/// * `Ok(Theme)` - Successfully loaded and parsed theme
-/// * `Err(ThemeError)` - File not found, read error, or invalid JSON format
+/// A [`Theme`] if successfully loaded and parsed.
+///
+/// # Errors
+///
+/// Returns [`ThemeError::FileNotFound`] if the file doesn't exist,
+/// [`ThemeError::FileReadError`] if the file can't be read,
+/// or [`ThemeError::InvalidJson`] if the JSON is malformed.
 ///
 /// # JSON Format
 ///
@@ -351,8 +525,12 @@ pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Theme, ThemeError> {
 ///
 /// # Returns
 ///
-/// * `Ok(Theme)` - Successfully parsed theme
-/// * `Err(Box<dyn Error>)` - JSON parse error or validation failure
+/// A [`Theme`] if successfully parsed.
+///
+/// # Errors
+///
+/// Returns an error if the JSON is malformed or if required fields
+/// (name, appearance, revision, highlights) are missing or empty.
 ///
 /// # Validation
 ///
@@ -581,11 +759,21 @@ impl Style {
             rules.push("font-style: italic;".to_string())
         };
 
-        match (self.underline, self.strikethrough) {
-            (true, true) => rules.push("text-decoration: underline line-through;".to_string()),
-            (true, false) => rules.push("text-decoration: underline;".to_string()),
-            (false, true) => rules.push("text-decoration: line-through;".to_string()),
-            (false, false) => (),
+        let td = &self.text_decoration;
+        let underline_css = match td.underline {
+            UnderlineStyle::None => None,
+            UnderlineStyle::Solid => Some("underline"),
+            UnderlineStyle::Wavy => Some("underline wavy"),
+            UnderlineStyle::Double => Some("underline double"),
+            UnderlineStyle::Dotted => Some("underline dotted"),
+            UnderlineStyle::Dashed => Some("underline dashed"),
+        };
+
+        match (underline_css, td.strikethrough) {
+            (Some(u), true) => rules.push(format!("text-decoration: {u} line-through;")),
+            (Some(u), false) => rules.push(format!("text-decoration: {u};")),
+            (None, true) => rules.push("text-decoration: line-through;".to_string()),
+            (None, false) => (),
         };
 
         rules.join(separator)
@@ -757,8 +945,11 @@ mod tests {
     fn test_style_css() {
         let style = Style {
             fg: Some("blue".to_string()),
-            underline: true,
             italic: true,
+            text_decoration: TextDecoration {
+                underline: UnderlineStyle::Solid,
+                strikethrough: false,
+            },
             ..Default::default()
         };
 
@@ -996,7 +1187,10 @@ pre.athl {
             Some(&Style {
                 fg: Some("#4ecdc4".to_string()),
                 bold: true,
-                underline: true,
+                text_decoration: TextDecoration {
+                    underline: UnderlineStyle::Solid,
+                    strikethrough: false,
+                },
                 ..Default::default()
             })
         );
