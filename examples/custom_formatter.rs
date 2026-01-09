@@ -23,25 +23,26 @@ impl TokenMetadataFormatter {
 
 impl Formatter for TokenMetadataFormatter {
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        // Use highlight_iter() to get styled tokens
-        // Returns an iterator of (Style, &str, Range<usize>, scope) tuples
-        let iter =
-            highlight_iter(source, self.language, self.theme.clone()).map_err(io::Error::other)?;
-
-        for (style, text, range, scope) in iter {
-            writeln!(
-                output,
-                "{} (scope:{} fg:{} bg:{} pos:{}..{})",
-                text.escape_debug(),
-                scope,
-                style.fg.as_deref().unwrap_or("none"),
-                style.bg.as_deref().unwrap_or("none"),
-                range.start,
-                range.end,
-            )?;
-        }
-
-        Ok(())
+        // Use highlight_iter() with a callback to process styled tokens
+        // The callback receives (text, range, scope, style) for each token
+        highlight_iter(
+            source,
+            self.language,
+            self.theme.clone(),
+            |text, range, scope, style| {
+                writeln!(
+                    output,
+                    "{} (pos:{}..{} scope:{} fg:{} bg:{})",
+                    text.escape_debug(),
+                    range.start,
+                    range.end,
+                    scope,
+                    style.fg.as_deref().unwrap_or("none"),
+                    style.bg.as_deref().unwrap_or("none"),
+                )
+            },
+        )
+        .map_err(io::Error::other)
     }
 }
 

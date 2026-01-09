@@ -287,14 +287,13 @@ pub fn highlight_iter_with_ansi(
     language: Language,
     theme: Option<Theme>,
 ) -> Result<AnsiIterator<'_>, HighlightError> {
-    let iter = highlight_iter(source, language, theme)?;
+    let mut segments = Vec::new();
 
-    let segments: Vec<(String, Range<usize>)> = iter
-        .map(|(style, text, range, _scope)| {
-            let wrapped = wrap_with_ansi(text, &style);
-            (wrapped, range)
-        })
-        .collect();
+    highlight_iter(source, language, theme, |text, range, _scope, style| {
+        let wrapped = wrap_with_ansi(text, style);
+        segments.push((wrapped, range));
+        Ok::<_, std::io::Error>(())
+    })?;
 
     Ok(AnsiIterator {
         segments,

@@ -17,10 +17,10 @@
 //! html::open_pre_tag(&mut output, None, Some(&theme)).unwrap();
 //! html::open_code_tag(&mut output, &lang).unwrap();
 //!
-//! for (_style, text, _range, scope) in highlight_iter(code, lang, Some(theme.clone())).unwrap() {
+//! highlight_iter(code, lang, Some(theme.clone()), |text, _range, scope, _style| {
 //!     let span = html::span_inline(text, scope, Some(lang), Some(&theme), false, false);
-//!     write!(&mut output, "{}", span).unwrap();
-//! }
+//!     write!(&mut output, "{}", span)
+//! }).unwrap();
 //!
 //! html::closing_tags(&mut output).unwrap();
 //! ```

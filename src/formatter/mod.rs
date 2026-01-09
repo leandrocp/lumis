@@ -186,7 +186,7 @@ pub use terminal::{Terminal, TerminalBuilder};
 ///     close_tag: "</section>".to_string(),
 /// };
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct HtmlElement {
     /// The opening HTML tag that will be placed before the formatted code.
     ///
@@ -218,7 +218,7 @@ pub struct HtmlElement {
 ///
 /// # Creating Custom Formatters
 ///
-/// Use [`highlight_iter()`](crate::highlight::highlight_iter) to iterate over styled tokens:
+/// Use [`highlight_iter()`](crate::highlight::highlight_iter) to stream styled tokens:
 ///
 /// ```rust
 /// use autumnus::{
@@ -236,18 +236,14 @@ pub struct HtmlElement {
 ///
 /// impl Formatter for CsvFormatter {
 ///     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-///         writeln!(output, "scope,style,text,start,end")?;
+///         writeln!(output, "text,start,end,scope,fg")?;
 ///
-///         let iter = highlight_iter(source, self.language, self.theme.clone())
-///             .map_err(io::Error::other)?;
-///
-///         for (style, text, range, scope) in iter {
+///         highlight_iter(source, self.language, self.theme.clone(), |text, range, scope, style| {
 ///             let fg = style.fg.as_deref().unwrap_or("none");
 ///             let escaped = text.replace('"', "\"\"");
-///             writeln!(output, "{},{},\"{}\",{},{}", scope, fg, escaped, range.start, range.end)?;
-///         }
-///
-///         Ok(())
+///             writeln!(output, "\"{}\",{},{},{},{}", escaped, range.start, range.end, scope, fg)
+///         })
+///         .map_err(io::Error::other)
 ///     }
 /// }
 /// ```
@@ -255,7 +251,7 @@ pub struct HtmlElement {
 /// # See Also
 ///
 /// - [`highlight`](mod@crate::highlight) module - High-level API for accessing styled tokens
-/// - [`highlight_iter()`](crate::highlight::highlight_iter) - Convenient iterator over styled segments
+/// - [`highlight_iter()`](crate::highlight::highlight_iter) - Streaming callback API for styled segments
 /// - [Examples directory](https://github.com/leandrocp/autumnus/tree/main/examples) - Custom formatter implementations
 pub trait Formatter: Send + Sync {
     /// Format source code with syntax highlighting.

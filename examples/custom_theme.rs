@@ -8,7 +8,7 @@
 use autumnus::{
     highlight,
     languages::Language,
-    themes::{Style, Theme},
+    themes::{Appearance, Style, Theme},
     HtmlInlineBuilder,
 };
 use std::collections::BTreeMap;
@@ -83,7 +83,7 @@ fn main() {
 
     let custom_theme = Theme {
         name: "my_custom_theme".to_string(),
-        appearance: "dark".to_string(),
+        appearance: Appearance::Dark,
         revision: "1.0".to_string(),
         highlights,
     };

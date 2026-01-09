@@ -26,19 +26,23 @@ impl Formatter for CustomHtmlFormatter {
         html::open_pre_tag(output, None, self.theme.as_ref())?;
         html::open_code_tag(output, &self.language)?;
 
-        for (_style, text, _range, scope) in
-            highlight_iter(source, self.language, self.theme.clone()).map_err(io::Error::other)?
-        {
-            let span = html::span_inline(
-                text,
-                scope,
-                Some(self.language),
-                self.theme.as_ref(),
-                false,
-                true,
-            );
-            write!(output, "{}", span)?;
-        }
+        highlight_iter(
+            source,
+            self.language,
+            self.theme.clone(),
+            |text, _range, scope, _style| {
+                let span = html::span_inline(
+                    text,
+                    scope,
+                    Some(self.language),
+                    self.theme.as_ref(),
+                    false,
+                    true,
+                );
+                write!(output, "{}", span)
+            },
+        )
+        .map_err(io::Error::other)?;
 
         html::closing_tags(output)?;
         Ok(())

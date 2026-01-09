@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `Appearance` enum with `Light` and `Dark` variants for type-safe theme appearance handling
+- `PartialEq` and `Eq` traits for `Theme` and `Style` structs, enabling theme comparison
+- `Clone` trait for formatter types: `HtmlInline`, `HtmlLinked`, `HtmlMultiThemes`, `Terminal`
+- `PartialEq` and `Eq` traits for `HighlightLines` and `HighlightLinesStyle`
+- `Default`, `PartialEq`, and `Eq` traits for `HtmlElement`
+
+### Changed
+- Improve performance and reduce allocations in syntax highlighting operations
+- **BREAKING**: `highlight_iter()` is now a callback-based streaming API instead of returning an iterator - takes `on_event_source` closure that receives `(text, range, scope, style)` for each token
+- **BREAKING**: `Theme.appearance` is now `Appearance` enum instead of `String`
+- **BREAKING**: `Theme::new()` now takes `Appearance` instead of `String` for the `appearance` parameter
+- **BREAKING**: Elixir NIF `ExTheme.appearance` now uses `ExAppearance` enum (`:light` | `:dark`) instead of `String`
+- **BREAKING**: `Highlighter::highlight()` now takes `&self` instead of `&mut self`, enabling shared use across threads
+- **BREAKING**: `available_themes()` now returns `impl Iterator<Item = &'static Theme>` instead of `Vec<&'static Theme>`
+- **BREAKING**: `Theme::fg()` and `Theme::bg()` now return `Option<&str>` instead of `Option<String>` to avoid cloning
+- **BREAKING**: `from_json()` now returns `Result<Theme, ThemeError>` instead of `Result<Theme, Box<dyn Error>>` for typed error handling
+- `highlight()` now uses `expect()` with descriptive messages and documents panic conditions
+- Remove `HighlightIterator` struct - replaced by callback-based `highlight_iter()` API
+
 ## [0.8.0-beta.4] - 2026-01-08
 
 ### Added

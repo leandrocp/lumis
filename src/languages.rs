@@ -92,10 +92,10 @@
 
 use crate::constants::HIGHLIGHT_NAMES;
 use crate::vendor::tree_sitter_highlight::HighlightConfiguration;
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
-use std::{path::Path, sync::LazyLock};
+use std::path::Path;
+use std::sync::LazyLock;
 use strum::{EnumIter, IntoEnumIterator};
 
 unsafe extern "C" {
@@ -981,10 +981,10 @@ impl Language {
     /// <https://www.gnu.org/software/emacs/manual/html_node/emacs/Choosing-Modes.html>
     /// <https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html>
     fn from_emacs_mode_header(src: &str) -> Option<Language> {
-        lazy_static! {
-            static ref MODE_RE: Regex = Regex::new(r"-\*-.*mode:([^;]+?);.*-\*-").unwrap();
-            static ref SHORTHAND_RE: Regex = Regex::new(r"-\*-(.+)-\*-").unwrap();
-        }
+        static MODE_RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"-\*-.*mode:([^;]+?);.*-\*-").unwrap());
+        static SHORTHAND_RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"-\*-(.+)-\*-").unwrap());
 
         // Emacs allows the mode header to occur on the second line if the
         // first line is a shebang.
@@ -1078,9 +1078,9 @@ impl Language {
     }
 
     fn from_shebang(src: &str) -> Option<Language> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"#! *(?:/usr/bin/env )?([^ ]+)").unwrap();
-        }
+        static RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"#! *(?:/usr/bin/env )?([^ ]+)").unwrap());
+
         if let Some(first_line) = split_on_newlines(src).next() {
             if let Some(cap) = RE.captures(first_line) {
                 let interpreter_path = Path::new(&cap[1]);

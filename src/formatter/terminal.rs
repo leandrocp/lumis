@@ -15,8 +15,6 @@
 //!
 //! See the [formatter](crate::formatter) module for more information and examples.
 
-#![allow(unused_must_use)]
-
 use super::{ansi, Formatter};
 use crate::{languages::Language, themes::Theme};
 use derive_builder::Builder;
@@ -45,7 +43,7 @@ use std::io::{self, Write};
 /// formatter.format(code, &mut output).unwrap();
 /// println!("{}", String::from_utf8(output).unwrap());
 /// ```
-#[derive(Builder, Debug)]
+#[derive(Builder, Clone, Debug)]
 #[builder(default)]
 pub struct Terminal {
     lang: Language,
@@ -75,15 +73,16 @@ impl Default for Terminal {
 
 impl Formatter for Terminal {
     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        let iter = crate::highlight::highlight_iter(source, self.lang, self.theme.clone())
-            .map_err(io::Error::other)?;
-
-        for (style, text, _range, _scope) in iter {
-            let ansi_text = ansi::wrap_with_ansi(text, &style);
-            write!(output, "{}", ansi_text)?;
-        }
-
-        Ok(())
+        crate::highlight::highlight_iter(
+            source,
+            self.lang,
+            self.theme.clone(),
+            |text, _range, _scope, style| {
+                let ansi_text = ansi::wrap_with_ansi(text, style);
+                write!(output, "{}", ansi_text)
+            },
+        )
+        .map_err(io::Error::other)
     }
 }
 

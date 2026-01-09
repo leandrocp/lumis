@@ -29,7 +29,7 @@
 //! let theme = Theme::from_str("github_light").expect("Theme not found");
 //!
 //! // List all available themes
-//! let all_themes = themes::available_themes();
+//! let all_themes: Vec<_> = themes::available_themes().collect();
 //! println!("Found {} themes", all_themes.len());
 //! ```
 //!
@@ -77,8 +77,6 @@
 //!
 //! See [custom_theme.rs](https://github.com/leandrocp/autumnus/blob/main/examples/custom_theme.rs)
 //! for a complete example of building themes programmatically.
-
-#![allow(unused_must_use)]
 
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fs, path::Path, str::FromStr};
@@ -186,7 +184,30 @@ pub struct TextDecoration {
     pub strikethrough: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+/// The visual appearance of a theme.
+///
+/// Themes are categorized as either light (dark text on light background) or
+/// dark (light text on dark background).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Appearance {
+    /// Light theme (dark text on light background)
+    Light,
+    /// Dark theme (light text on dark background)
+    #[default]
+    Dark,
+}
+
+impl std::fmt::Display for Appearance {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Appearance::Light => write!(f, "light"),
+            Appearance::Dark => write!(f, "dark"),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize, Serialize)]
 /// A theme for syntax highlighting.
 ///
 /// A theme consists of a name, appearance (light/dark), revision (commit) and a collection of highlight styles
@@ -197,11 +218,11 @@ pub struct TextDecoration {
 /// Loading a theme by name:
 ///
 /// ```
-/// use autumnus::themes::{self, Theme};
+/// use autumnus::themes::{self, Theme, Appearance};
 ///
 /// // Using get function
 /// let theme = themes::get("github_light").expect("Theme not found");
-/// assert_eq!(theme.appearance, "light");
+/// assert_eq!(theme.appearance, Appearance::Light);
 ///
 /// // Using FromStr trait (idiomatic Rust)
 /// let theme: Theme = "dracula".parse().expect("Theme not found");
@@ -220,7 +241,7 @@ pub struct TextDecoration {
 /// Creating a theme programmatically:
 ///
 /// ```
-/// use autumnus::themes::{Theme, Style};
+/// use autumnus::themes::{Theme, Style, Appearance};
 /// use std::collections::BTreeMap;
 ///
 /// let mut highlights = BTreeMap::new();
@@ -232,7 +253,7 @@ pub struct TextDecoration {
 ///
 /// let theme = Theme::new(
 ///     "my_theme".to_string(),
-///     "dark".to_string(),
+///     Appearance::Dark,
 ///     "3e976b4".to_string(),
 ///     highlights
 /// );
@@ -240,8 +261,8 @@ pub struct TextDecoration {
 pub struct Theme {
     /// The name of the theme.
     pub name: String,
-    /// The appearance of the theme ("light" or "dark").
-    pub appearance: String,
+    /// The appearance of the theme (light or dark).
+    pub appearance: Appearance,
     /// The commit of the theme plugin
     pub revision: String,
     /// A map of highlight scope names to their styles.
@@ -300,7 +321,7 @@ impl FromStr for Theme {
 ///     ..Default::default()
 /// };
 /// ```
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Style {
     /// The foreground color in hex format (e.g., "#ff79c6").
     pub fg: Option<String>,
@@ -510,7 +531,7 @@ pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Theme, ThemeError> {
         }
     })?;
 
-    from_json(&json).map_err(|e| ThemeError::InvalidJson(e.to_string()))
+    from_json(&json)
 }
 
 /// Parse a theme from a JSON string.
@@ -529,8 +550,9 @@ pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Theme, ThemeError> {
 ///
 /// # Errors
 ///
-/// Returns an error if the JSON is malformed or if required fields
-/// (name, appearance, revision, highlights) are missing or empty.
+/// Returns [`ThemeError::InvalidJson`] if:
+/// - The JSON is malformed
+/// - Required fields (name, appearance, revision) are missing or empty
 ///
 /// # Validation
 ///
@@ -560,21 +582,21 @@ pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Theme, ThemeError> {
 ///
 /// let theme = themes::from_json(json).expect("Failed to parse theme");
 /// assert_eq!(theme.name, "my_theme");
-/// assert_eq!(theme.appearance, "dark");
+/// assert_eq!(theme.appearance, themes::Appearance::Dark);
 /// ```
 ///
 /// ## Error handling
 ///
 /// ```rust
-/// use autumnus::themes;
+/// use autumnus::themes::{self, ThemeError};
 ///
 /// // Invalid JSON
 /// let invalid_json = r#"{ invalid json }"#;
-/// assert!(themes::from_json(invalid_json).is_err());
+/// assert!(matches!(themes::from_json(invalid_json), Err(ThemeError::InvalidJson(_))));
 ///
 /// // Missing required fields
 /// let incomplete_json = r#"{ "name": "test" }"#;
-/// assert!(themes::from_json(incomplete_json).is_err());
+/// assert!(matches!(themes::from_json(incomplete_json), Err(ThemeError::InvalidJson(_))));
 /// ```
 ///
 /// ## Runtime theme creation
@@ -597,18 +619,17 @@ pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Theme, ThemeError> {
 /// let theme = themes::from_json(&theme_data.to_string())
 ///     .expect("Failed to create theme");
 /// ```
-pub fn from_json(json: &str) -> Result<Theme, Box<dyn std::error::Error>> {
+pub fn from_json(json: &str) -> Result<Theme, ThemeError> {
     let theme: Theme = serde_json::from_str(json)?;
 
     // Validate required fields
     if theme.name.is_empty() {
-        return Err("Theme name cannot be empty".into());
-    }
-    if theme.appearance.is_empty() {
-        return Err("Theme appearance cannot be empty".into());
+        return Err(ThemeError::InvalidJson("theme name cannot be empty".into()));
     }
     if theme.revision.is_empty() {
-        return Err("Theme revision cannot be empty".into());
+        return Err(ThemeError::InvalidJson(
+            "theme revision cannot be empty".into(),
+        ));
     }
 
     Ok(theme)
@@ -617,7 +638,7 @@ pub fn from_json(json: &str) -> Result<Theme, Box<dyn std::error::Error>> {
 impl Theme {
     pub fn new(
         name: String,
-        appearance: String,
+        appearance: Appearance,
         revision: String,
         highlights: BTreeMap<String, Style>,
     ) -> Self {
@@ -692,42 +713,28 @@ impl Theme {
     pub fn get_style(&self, scope: &str) -> Option<&Style> {
         match self.highlights.get(scope) {
             Some(syntax) => Some(syntax),
-            None => {
-                if scope.contains('.') {
-                    let split: Vec<&str> = scope.split('.').collect();
-                    let joined = split[0..split.len() - 1].join(".");
-                    self.get_style(joined.as_str())
-                } else {
-                    None
-                }
-            }
+            None => scope
+                .rsplit_once('.')
+                .and_then(|(parent, _)| self.get_style(parent)),
         }
     }
 
-    pub fn fg(&self) -> Option<String> {
-        if let Some(style) = self.get_style("normal") {
-            style.fg.clone()
-        } else {
-            None
-        }
+    pub fn fg(&self) -> Option<&str> {
+        self.get_style("normal").and_then(|s| s.fg.as_deref())
     }
 
-    pub fn bg(&self) -> Option<String> {
-        if let Some(style) = self.get_style("normal") {
-            style.bg.clone()
-        } else {
-            None
-        }
+    pub fn bg(&self) -> Option<&str> {
+        self.get_style("normal").and_then(|s| s.bg.as_deref())
     }
 
     pub fn pre_style(&self, separator: &str) -> Option<String> {
         let mut rules = Vec::new();
 
-        if let Some(fg) = &self.fg() {
+        if let Some(fg) = self.fg() {
             rules.push(format!("color: {fg};"));
         }
 
-        if let Some(bg) = &self.bg() {
+        if let Some(bg) = self.bg() {
             rules.push(format!("background-color: {bg};"));
         }
 
@@ -788,7 +795,7 @@ impl Style {
 ///
 /// # Returns
 ///
-/// A vector of theme references sorted alphabetically by name.
+/// An iterator over theme references sorted alphabetically by name.
 ///
 /// # Examples
 ///
@@ -797,7 +804,7 @@ impl Style {
 /// ```rust
 /// use autumnus::themes;
 ///
-/// let all_themes = themes::available_themes();
+/// let all_themes: Vec<_> = themes::available_themes().collect();
 /// println!("Available themes: {}", all_themes.len());
 ///
 /// for theme in &all_themes {
@@ -808,18 +815,14 @@ impl Style {
 /// ## Filter themes by appearance
 ///
 /// ```rust
-/// use autumnus::themes;
+/// use autumnus::themes::{self, Appearance};
 ///
-/// let all_themes = themes::available_themes();
-///
-/// let dark_themes: Vec<_> = all_themes
-///     .iter()
-///     .filter(|theme| theme.appearance == "dark")
+/// let dark_themes: Vec<_> = themes::available_themes()
+///     .filter(|theme| theme.appearance == Appearance::Dark)
 ///     .collect();
 ///
-/// let light_themes: Vec<_> = all_themes
-///     .iter()
-///     .filter(|theme| theme.appearance == "light")
+/// let light_themes: Vec<_> = themes::available_themes()
+///     .filter(|theme| theme.appearance == Appearance::Light)
 ///     .collect();
 ///
 /// println!("Dark themes: {}, Light themes: {}",
@@ -831,17 +834,13 @@ impl Style {
 /// ```rust
 /// use autumnus::themes;
 ///
-/// let all_themes = themes::available_themes();
-///
 /// // Find all Catppuccin variants
-/// let catppuccin_themes: Vec<_> = all_themes
-///     .iter()
+/// let catppuccin_themes: Vec<_> = themes::available_themes()
 ///     .filter(|theme| theme.name.starts_with("catppuccin"))
 ///     .collect();
 ///
 /// // Find GitHub themes
-/// let github_themes: Vec<_> = all_themes
-///     .iter()
+/// let github_themes: Vec<_> = themes::available_themes()
 ///     .filter(|theme| theme.name.contains("github"))
 ///     .collect();
 /// ```
@@ -851,8 +850,9 @@ impl Style {
 /// ```rust
 /// use autumnus::themes;
 ///
-/// let themes = themes::available_themes();
-/// let mut theme_names: Vec<&str> = themes.iter().map(|t| t.name.as_str()).collect();
+/// let mut theme_names: Vec<&str> = themes::available_themes()
+///     .map(|t| t.name.as_str())
+///     .collect();
 /// theme_names.sort();
 ///
 /// println!("Theme selector options:");
@@ -860,8 +860,8 @@ impl Style {
 ///     println!("{}. {}", i + 1, name);
 /// }
 /// ```
-pub fn available_themes() -> Vec<&'static Theme> {
-    ALL_THEMES.iter().copied().collect()
+pub fn available_themes() -> impl Iterator<Item = &'static Theme> {
+    ALL_THEMES.iter().copied()
 }
 
 #[cfg(test)]
@@ -871,22 +871,21 @@ mod tests {
 
     #[test]
     fn test_available_themes() {
-        let themes = available_themes();
+        let themes: Vec<_> = available_themes().collect();
 
         assert!(!themes.is_empty());
 
         let dracula = themes.iter().find(|t| t.name == "dracula").unwrap();
         assert_eq!(dracula.name, "dracula");
-        assert_eq!(dracula.appearance, "dark");
+        assert_eq!(dracula.appearance, Appearance::Dark);
 
         let github_light = themes.iter().find(|t| t.name == "github_light").unwrap();
         assert_eq!(github_light.name, "github_light");
-        assert_eq!(github_light.appearance, "light");
+        assert_eq!(github_light.appearance, Appearance::Light);
 
         for theme in themes {
             assert!(!theme.name.is_empty());
-            assert!(!theme.appearance.is_empty());
-            assert!(theme.appearance == "light" || theme.appearance == "dark");
+            assert!(theme.appearance == Appearance::Light || theme.appearance == Appearance::Dark);
         }
     }
 

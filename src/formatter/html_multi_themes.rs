@@ -181,7 +181,7 @@ impl FromStr for DefaultTheme {
 ///     .build()
 ///     .unwrap();
 /// ```
-#[derive(Builder, Debug)]
+#[derive(Builder, Clone, Debug)]
 #[builder(default, build_fn(skip))]
 pub struct HtmlMultiThemes {
     lang: Language,
@@ -376,10 +376,10 @@ impl HtmlMultiThemes {
                 if let (Some(light), Some(dark)) =
                     (self.themes.get("light"), self.themes.get("dark"))
                 {
-                    let light_fg = light.fg().unwrap_or_else(|| "#000000".to_string());
-                    let light_bg = light.bg().unwrap_or_else(|| "#ffffff".to_string());
-                    let dark_fg = dark.fg().unwrap_or_else(|| "#ffffff".to_string());
-                    let dark_bg = dark.bg().unwrap_or_else(|| "#000000".to_string());
+                    let light_fg = light.fg().unwrap_or("#000000");
+                    let light_bg = light.bg().unwrap_or("#ffffff");
+                    let dark_fg = dark.fg().unwrap_or("#ffffff");
+                    let dark_bg = dark.bg().unwrap_or("#000000");
 
                     styles.push(format!("color: light-dark({}, {});", light_fg, dark_fg));
                     styles.push(format!(
@@ -528,7 +528,7 @@ impl Formatter for HtmlMultiThemes {
             write!(buffer, "{}", header.close_tag)?;
         }
 
-        write!(output, "{}", &String::from_utf8_lossy(&buffer))?;
+        output.write_all(&buffer)?;
         Ok(())
     }
 }

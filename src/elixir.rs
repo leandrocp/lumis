@@ -8,6 +8,14 @@ use crate::{languages::Language, themes};
 use rustler::{NifStruct, NifTaggedEnum, NifUnitEnum};
 use std::collections::HashMap;
 
+/// Theme appearance enum that maps to Elixir atoms :light and :dark.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, NifUnitEnum)]
+pub enum ExAppearance {
+    Light,
+    #[default]
+    Dark,
+}
+
 #[derive(Debug, NifTaggedEnum)]
 pub enum ExFormatterOption {
     HtmlInline {
@@ -224,16 +232,20 @@ impl ExFormatterOption {
 #[module = "Autumn.Theme"]
 pub struct ExTheme {
     pub name: String,
-    pub appearance: String,
+    pub appearance: ExAppearance,
     pub revision: String,
     pub highlights: HashMap<String, ExStyle>,
 }
 
 impl From<ExTheme> for themes::Theme {
     fn from(theme: ExTheme) -> Self {
+        let appearance = match theme.appearance {
+            ExAppearance::Light => themes::Appearance::Light,
+            ExAppearance::Dark => themes::Appearance::Dark,
+        };
         themes::Theme {
             name: theme.name,
-            appearance: theme.appearance,
+            appearance,
             revision: theme.revision,
             highlights: theme
                 .highlights
@@ -293,9 +305,14 @@ impl<'a> From<&'a themes::Theme> for ExTheme {
             })
             .collect();
 
+        let appearance = match theme.appearance {
+            themes::Appearance::Light => ExAppearance::Light,
+            themes::Appearance::Dark => ExAppearance::Dark,
+        };
+
         ExTheme {
             name: theme.name.to_owned(),
-            appearance: theme.appearance.to_owned(),
+            appearance,
             revision: theme.revision.to_owned(),
             highlights,
         }
@@ -539,7 +556,7 @@ mod tests {
 
         let ex_theme = ExTheme {
             name: "test_theme".to_string(),
-            appearance: "dark".to_string(),
+            appearance: ExAppearance::Dark,
             revision: "1.0".to_string(),
             highlights: HashMap::new(),
         };
@@ -547,7 +564,7 @@ mod tests {
         match theme_obj {
             ThemeOrString::Theme(theme) => {
                 assert_eq!(theme.name, "test_theme");
-                assert_eq!(theme.appearance, "dark");
+                assert_eq!(theme.appearance, ExAppearance::Dark);
             }
             _ => panic!("Should be Theme variant"),
         }
@@ -630,14 +647,14 @@ mod tests {
 
         let ex_theme = ExTheme {
             name: "test_theme".to_string(),
-            appearance: "dark".to_string(),
+            appearance: ExAppearance::Dark,
             revision: "1.0".to_string(),
             highlights,
         };
 
         let rust_theme: themes::Theme = ex_theme.into();
         assert_eq!(rust_theme.name, "test_theme");
-        assert_eq!(rust_theme.appearance, "dark");
+        assert_eq!(rust_theme.appearance, themes::Appearance::Dark);
         assert_eq!(rust_theme.revision, "1.0");
 
         let keyword_style = rust_theme.highlights.get("keyword").unwrap();
@@ -842,7 +859,7 @@ mod tests {
         let _formatter = ex_formatter.into_formatter(lang);
     }
 
-    fn create_test_theme(name: &str, appearance: &str) -> ExTheme {
+    fn create_test_theme(name: &str, appearance: ExAppearance) -> ExTheme {
         let mut highlights = HashMap::new();
         highlights.insert(
             "keyword".to_string(),
@@ -868,7 +885,7 @@ mod tests {
             "normal".to_string(),
             ExStyle {
                 fg: Some(
-                    if appearance == "light" {
+                    if appearance == ExAppearance::Light {
                         "#000000"
                     } else {
                         "#ffffff"
@@ -876,7 +893,7 @@ mod tests {
                     .to_string(),
                 ),
                 bg: Some(
-                    if appearance == "light" {
+                    if appearance == ExAppearance::Light {
                         "#ffffff"
                     } else {
                         "#000000"
@@ -891,7 +908,7 @@ mod tests {
 
         ExTheme {
             name: name.to_string(),
-            appearance: appearance.to_string(),
+            appearance,
             revision: "1.0".to_string(),
             highlights,
         }
@@ -901,8 +918,14 @@ mod tests {
     fn test_html_multi_themes_basic() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
@@ -929,11 +952,17 @@ mod tests {
     fn test_html_multi_themes_none() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
         themes.insert(
             "high_contrast".to_string(),
-            create_test_theme("high_contrast", "dark"),
+            create_test_theme("high_contrast", ExAppearance::Dark),
         );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
@@ -963,8 +992,14 @@ mod tests {
     fn test_html_multi_themes_light_dark() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
@@ -990,8 +1025,14 @@ mod tests {
     fn test_html_multi_themes_custom_prefix() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
@@ -1018,8 +1059,14 @@ mod tests {
     fn test_html_multi_themes_with_highlight_lines() {
         let code = "line 1\nline 2\nline 3";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let highlight_lines = ExHtmlInlineHighlightLines {
             lines: vec![ExLineSpec::Range { start: 1, end: 2 }],
@@ -1051,8 +1098,14 @@ mod tests {
     fn test_html_multi_themes_with_header() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let header = ExHtmlElement {
             open_tag: "<div class=\"code-wrapper\">".to_string(),
@@ -1084,8 +1137,14 @@ mod tests {
     fn test_html_multi_themes_error_missing_default() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
@@ -1111,7 +1170,10 @@ mod tests {
     fn test_html_multi_themes_error_light_dark_incomplete() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
@@ -1137,11 +1199,17 @@ mod tests {
     fn test_html_multi_themes_three_themes() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("nord".to_string(), create_test_theme("nord", "dark"));
-        themes.insert("gruvbox".to_string(), create_test_theme("gruvbox", "dark"));
+        themes.insert(
+            "nord".to_string(),
+            create_test_theme("nord", ExAppearance::Dark),
+        );
+        themes.insert(
+            "gruvbox".to_string(),
+            create_test_theme("gruvbox", ExAppearance::Dark),
+        );
         themes.insert(
             "solarized".to_string(),
-            create_test_theme("solarized", "light"),
+            create_test_theme("solarized", ExAppearance::Light),
         );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
@@ -1170,8 +1238,14 @@ mod tests {
     fn test_html_multi_themes_font_style_css_variables() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
@@ -1202,8 +1276,14 @@ mod tests {
     fn test_html_multi_themes_lightdark_font_decorations() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,
@@ -1231,8 +1311,14 @@ mod tests {
     fn test_html_multi_themes_none_mode_font_decorations() {
         let code = "fn main() {}";
         let mut themes = HashMap::new();
-        themes.insert("light".to_string(), create_test_theme("light", "light"));
-        themes.insert("dark".to_string(), create_test_theme("dark", "dark"));
+        themes.insert(
+            "light".to_string(),
+            create_test_theme("light", ExAppearance::Light),
+        );
+        themes.insert(
+            "dark".to_string(),
+            create_test_theme("dark", ExAppearance::Dark),
+        );
 
         let formatter_option = ExFormatterOption::HtmlMultiThemes {
             themes,

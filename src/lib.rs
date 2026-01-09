@@ -337,6 +337,11 @@ pub use crate::formatter::{
 /// * `source` - The source code to highlight.
 /// * `formatter` - A configured formatter (e.g., from [`HtmlInlineBuilder`], [`TerminalBuilder`]).
 ///
+/// # Panics
+///
+/// Panics if the formatter fails to format the source code or produces invalid UTF-8 output.
+/// For fallible formatting, use [`write_highlight()`] instead.
+///
 /// # Examples
 ///
 /// ```rust
@@ -353,8 +358,10 @@ pub use crate::formatter::{
 /// ```
 pub fn highlight<F: Formatter>(source: &str, formatter: F) -> String {
     let mut buffer = Vec::new();
-    let _ = formatter.format(source, &mut buffer);
-    String::from_utf8(buffer).unwrap()
+    formatter
+        .format(source, &mut buffer)
+        .expect("formatter failed to format source code");
+    String::from_utf8(buffer).expect("formatter produced invalid UTF-8")
 }
 
 /// Write syntax highlighted output directly to a writer.
@@ -558,7 +565,7 @@ end
             .unwrap();
 
         let result = highlight(code, formatter);
-        assert!(result.as_str().contains("language-elixir"));
+        assert!(result.contains("language-elixir"));
     }
 
     #[test]
@@ -571,7 +578,7 @@ end
             .unwrap();
 
         let result = highlight(code1, formatter1);
-        assert!(result.as_str().contains("language-markdown"));
+        assert!(result.contains("language-markdown"));
 
         let code2 = "foo = 1";
         let formatter2 = HtmlInlineBuilder::default()
@@ -581,7 +588,7 @@ end
             .unwrap();
 
         let result = highlight(code2, formatter2);
-        assert!(result.as_str().contains("language-elixir"));
+        assert!(result.contains("language-elixir"));
     }
 
     #[test]
@@ -594,7 +601,7 @@ end
             .unwrap();
 
         let result = highlight(code, formatter);
-        assert!(result.as_str().contains("language-elixir"));
+        assert!(result.contains("language-elixir"));
     }
 
     #[test]
@@ -607,7 +614,7 @@ end
             .unwrap();
 
         let result = highlight(code, formatter);
-        assert!(result.as_str().contains("language-plaintext"));
+        assert!(result.contains("language-plaintext"));
     }
 
     #[test]
@@ -621,7 +628,7 @@ end
 
         let ansi = highlight(code, formatter);
 
-        assert!(ansi.as_str().contains("[38;2;241;250;140mHello from Ruby!"));
+        assert!(ansi.contains("[38;2;241;250;140mHello from Ruby!"));
     }
 
     #[test]

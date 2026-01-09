@@ -15,8 +15,6 @@
 //!
 //! See the [formatter](crate::formatter) module for more information and examples.
 
-#![allow(unused_must_use)]
-
 use super::{Formatter, HtmlElement};
 use crate::languages::Language;
 use crate::vendor::tree_sitter_highlight::{Highlighter, HtmlRenderer};
@@ -129,7 +127,7 @@ impl Default for HighlightLines {
 /// formatter.format(code, &mut output).unwrap();
 /// // Remember to include the corresponding CSS file for your theme
 /// ```
-#[derive(Builder, Debug)]
+#[derive(Builder, Clone, Debug)]
 #[builder(default)]
 pub struct HtmlLinked {
     lang: Language,
@@ -229,7 +227,7 @@ impl Formatter for HtmlLinked {
             write!(buffer, "{}", header.close_tag)?;
         }
 
-        write!(output, "{}", &String::from_utf8_lossy(&buffer))?;
+        output.write_all(&buffer)?;
         Ok(())
     }
 }
@@ -247,7 +245,7 @@ mod tests {
         let code = "@lang :rust";
         let formatter = HtmlLinked::new(Language::Elixir, None, None, None);
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer);
+        formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="operator"><span class="constant">@<span class="function-call"><span class="constant">lang <span class="string-special-symbol">:rust</span></span></span></span></span>
 </div></code></pre>"#;

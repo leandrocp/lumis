@@ -16,7 +16,7 @@ ORDER BY post_count DESC;"#;
 
     let theme = themes::get("catppuccin_mocha").ok();
 
-    let mut highlighter = Highlighter::new(Language::SQL, theme);
+    let highlighter = Highlighter::new(Language::SQL, theme);
 
     let segments = highlighter
         .highlight(code)
