@@ -1,7 +1,7 @@
 {
   "name": "ayu_dark",
   "appearance": "dark",
-  "revision": "38caa8b5b969010b1dcae8ab1a569d7669a643d5",
+  "revision": "e5a9f0fa2918d6b5f57c21b3ac014314ee5e41c8",
   "highlights": {
     "attribute": {
       "fg": "#e6b450"

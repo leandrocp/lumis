@@ -1,7 +1,7 @@
 {
   "name": "nightfly",
   "appearance": "dark",
-  "revision": "35b7292334eba451f9f94252c7df1509570f864b",
+  "revision": "24f2c71dcdbf1adf4656812a62247d101b7a4974",
   "highlights": {
     "attribute": {
       "fg": "#82aaff"
