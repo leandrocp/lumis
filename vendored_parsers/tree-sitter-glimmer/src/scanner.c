@@ -1,9 +1,11 @@
 #include <tree_sitter/parser.h>
 #include <wctype.h>
 #include <stdio.h>
+#include <string.h>
 
 enum TokenType {
-  COMMENT
+    COMMENT,
+    RAW_TEXT,
 };
 
 void *tree_sitter_glimmer_external_scanner_create() { return NULL; }
@@ -13,6 +15,55 @@ unsigned tree_sitter_glimmer_external_scanner_serialize(void *p, char *buffer) {
 void tree_sitter_glimmer_external_scanner_deserialize(void *p, const char *b, unsigned n) {}
 
 static void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
+
+static bool scan_raw_text(TSLexer *lexer) {
+    // Scan everything up to (but not including) the closing `</style` or
+    // `</script` tag.
+    //
+    // This is inspired by tree-sitter-html's raw_text scanning approach, but
+    // simplified: we don't maintain an HTML tag stack, so we stop at whichever
+    // of the two closing tags appears first.
+    lexer->mark_end(lexer);
+
+    const char *style_end = "</STYLE";
+    const char *script_end = "</SCRIPT";
+    const unsigned style_end_len = (unsigned)strlen(style_end);
+    const unsigned script_end_len = (unsigned)strlen(script_end);
+
+    unsigned style_i = 0;
+    unsigned script_i = 0;
+
+    while (lexer->lookahead) {
+        const wint_t c = towupper(lexer->lookahead);
+
+        if (c == (wint_t)style_end[style_i]) {
+            style_i++;
+        } else {
+            style_i = (c == (wint_t)style_end[0]) ? 1 : 0;
+        }
+
+        if (c == (wint_t)script_end[script_i]) {
+            script_i++;
+        } else {
+            script_i = (c == (wint_t)script_end[0]) ? 1 : 0;
+        }
+
+        if (style_i == style_end_len || script_i == script_end_len) {
+            break;
+        }
+
+        advance(lexer);
+
+        // Only mark the end once we are sure the consumed characters cannot be
+        // the beginning of a closing delimiter.
+        if (style_i == 0 && script_i == 0) {
+            lexer->mark_end(lexer);
+        }
+    }
+
+    lexer->result_symbol = RAW_TEXT;
+    return true;
+}
 
 static bool scan_html_comment(TSLexer *lexer) {
     // Ensure the next characters are `!--`
@@ -130,9 +181,16 @@ static bool scan_handlebars_comment(TSLexer *lexer) {
 
 bool tree_sitter_glimmer_external_scanner_scan(void *payload, TSLexer *lexer,
                                                   const bool *valid_symbols) {
-    // Eat whitespace
+    // When parsing a <style> element's content, the grammar expects a single
+    // RAW_TEXT token that includes whitespace.
+    if (valid_symbols[RAW_TEXT]) {
+        return scan_raw_text(lexer);
+    }
+
+    // Eat whitespace for the comment token. Note: raw text must *not* take
+    // this path, because whitespace is significant inside <style>.
     while (iswspace(lexer->lookahead)) {
-      lexer->advance(lexer, true);
+        lexer->advance(lexer, true);
     }
 
     if (valid_symbols[COMMENT]) {
