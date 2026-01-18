@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "make",
   "word": "word",
   "rules": {
@@ -3781,7 +3782,7 @@
   "extras": [
     {
       "type": "PATTERN",
-      "value": "[\\s]"
+      "value": "\\s"
     },
     {
       "type": "ALIAS",
@@ -3825,4 +3826,3 @@
   ],
   "supertypes": []
 }
-

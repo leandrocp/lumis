@@ -228,6 +228,10 @@
         "required": false,
         "types": [
           {
+            "type": "\t",
+            "named": false
+          },
+          {
             "type": "RECIPEPREFIX_assignment",
             "named": true
           },
@@ -374,6 +378,10 @@
         "required": false,
         "types": [
           {
+            "type": "\t",
+            "named": false
+          },
+          {
             "type": "RECIPEPREFIX_assignment",
             "named": true
           },
@@ -475,6 +483,10 @@
         "multiple": true,
         "required": false,
         "types": [
+          {
+            "type": "\t",
+            "named": false
+          },
           {
             "type": "RECIPEPREFIX_assignment",
             "named": true
@@ -1077,6 +1089,7 @@
   {
     "type": "makefile",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -1979,6 +1992,10 @@
         ]
       }
     }
+  },
+  {
+    "type": "\t",
+    "named": false
   },
   {
     "type": "!=",
