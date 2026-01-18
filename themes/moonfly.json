@@ -1,7 +1,7 @@
 {
   "name": "moonfly",
   "appearance": "dark",
-  "revision": "1ad5a8d40176a8749f0c77b8875225d9d299a438",
+  "revision": "d11b3d04cc1cb71a778d67a4df73283a5a6d66f4",
   "highlights": {
     "attribute": {
       "fg": "#74b2ff"
@@ -62,14 +62,13 @@
       "fg": "#36c692"
     },
     "diff.delta": {
-      "bg": "#2e2e2e"
+      "fg": "#74b2ff"
     },
     "diff.minus": {
-      "fg": "#626262",
-      "bg": "#2e2e2e"
+      "fg": "#ff5d5d"
     },
     "diff.plus": {
-      "bg": "#314940"
+      "fg": "#8cc85f"
     },
     "function": {
       "fg": "#74b2ff"
@@ -211,7 +210,7 @@
       "fg": "#8cc85f"
     },
     "markup.link.gitcommit": {
-      "fg": "#80a0ff"
+      "fg": "#36c692"
     },
     "markup.link.label": {
       "fg": "#8cc85f"
@@ -325,7 +324,7 @@
       "fg": "#c6c684"
     },
     "string.documentation": {
-      "fg": "#79dac8"
+      "fg": "#88a2b7"
     },
     "string.escape": {
       "fg": "#e65e72"

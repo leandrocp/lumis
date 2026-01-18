@@ -1,7 +1,7 @@
 {
   "name": "nightfly",
   "appearance": "dark",
-  "revision": "35b7292334eba451f9f94252c7df1509570f864b",
+  "revision": "3b48dc0c5921f899aeb1e6e61b77b9345888a2f7",
   "highlights": {
     "attribute": {
       "fg": "#82aaff"
@@ -62,14 +62,13 @@
       "fg": "#21c7a8"
     },
     "diff.delta": {
-      "bg": "#2c3043"
+      "fg": "#87bcff"
     },
     "diff.minus": {
-      "fg": "#4b6479",
-      "bg": "#2c3043"
+      "fg": "#fc514e"
     },
     "diff.plus": {
-      "bg": "#2a4e57"
+      "fg": "#a1cd5e"
     },
     "function": {
       "fg": "#82aaff"
@@ -211,7 +210,7 @@
       "fg": "#a1cd5e"
     },
     "markup.link.gitcommit": {
-      "fg": "#82aaff"
+      "fg": "#21c7a8"
     },
     "markup.link.label": {
       "fg": "#a1cd5e"
@@ -325,7 +324,7 @@
       "fg": "#ecc48d"
     },
     "string.documentation": {
-      "fg": "#7fdbca"
+      "fg": "#87a3ba"
     },
     "string.escape": {
       "fg": "#ff5874"
