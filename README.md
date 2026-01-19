@@ -1,9 +1,9 @@
-# Autumnus
+# Lumis
 
-[![Crates.io](https://img.shields.io/crates/v/autumnus)](https://crates.io/crates/autumnus)
-[![docs.rs](https://img.shields.io/docsrs/autumnus)](https://docs.rs/autumnus)
+[![Crates.io](https://img.shields.io/crates/v/lumis)](https://crates.io/crates/lumis)
+[![docs.rs](https://img.shields.io/docsrs/lumis)](https://docs.rs/lumis)
 
-Autumnus is a syntax highlighter powered by Tree-sitter and Neovim themes. It provides beautiful and accurate syntax highlighting for over 70 programming languages with support for over 100 themes.
+Lumis is a syntax highlighter powered by Tree-sitter and Neovim themes. It provides beautiful and accurate syntax highlighting for over 70 programming languages with support for over 100 themes.
 
 ## Features
 
@@ -27,20 +27,20 @@ Autumnus is a syntax highlighter powered by Tree-sitter and Neovim themes. It pr
 
 ### As a Library
 
-Add Autumnus to your `Cargo.toml`:
+Add Lumis to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-autumnus = "0.7"
+lumis = "0.2"
 ```
 
 #### Selective Language Support
 
-By default, Autumnus includes support for all languages, which can result in longer compilation times. You can reduce compilation time and binary size by enabling only the languages you need:
+By default, Lumis includes support for all languages, which can result in longer compilation times. You can reduce compilation time and binary size by enabling only the languages you need:
 
 ```toml
 [dependencies]
-autumnus = { version = "0.7", default-features = false, features = ["lang-rust", "lang-javascript", "lang-python"] }
+lumis = { version = "0.2", default-features = false, features = ["lang-rust", "lang-javascript", "lang-python"] }
 ```
 
 Available language features:
@@ -123,15 +123,15 @@ Or use the convenience feature to enable all languages:
 
 ```toml
 [dependencies]
-autumnus = { version = "0.7", features = ["all-languages"] }
+lumis = { version = "0.2", features = ["all-languages"] }
 ```
 
 ### As a CLI Tool
 
-Install the `autumnus` command-line tool:
+Install the `lumis` command-line tool:
 
 ```sh
-cargo install autumnus
+cargo install lumis
 ```
 
 #### Faster CLI Installation with Selective Languages
@@ -140,13 +140,13 @@ For faster compilation, you can install the CLI with only the languages you need
 
 ```sh
 # Install with only specific languages
-cargo install autumnus --no-default-features --features "lang-rust,lang-python,lang-javascript"
+cargo install lumis --no-default-features --features "lang-rust,lang-python,lang-javascript"
 
 # Install with web development languages
-cargo install autumnus --no-default-features --features "lang-html,lang-css,lang-javascript,lang-typescript,lang-json"
+cargo install lumis --no-default-features --features "lang-html,lang-css,lang-javascript,lang-typescript,lang-json"
 
 # Install with all languages (same as default)
-cargo install autumnus --features "all-languages"
+cargo install lumis --features "all-languages"
 ```
 
 This can significantly reduce compilation time, especially on slower machines or CI environments.
@@ -158,7 +158,7 @@ This can significantly reduce compilation time, especially on slower machines or
 #### Basic Example
 
 ```rust
-use autumnus::{highlight, Options};
+use lumis::{highlight, Options};
 
 let code = r#"
     function greet(name) {
@@ -172,7 +172,7 @@ let html = highlight("javascript", code, Options::default());
 #### Using a Specific Theme
 
 ```rust
-use autumnus::{highlight, Options, themes::Theme};
+use lumis::{highlight, Options, themes::Theme};
 
 let code = "SELECT * FROM users WHERE active = true;";
 
@@ -193,7 +193,7 @@ let html = highlight(
 #### Language Detection from File Path
 
 ```rust
-use autumnus::{highlight, Options};
+use lumis::{highlight, Options};
 
 let code = r#"
     defmodule MyApp do
@@ -207,7 +207,7 @@ let html = highlight("app.ex", code, Options::default());
 #### Terminal Output with ANSI Colors
 
 ```rust
-use autumnus::{highlight, Options, FormatterOption};
+use lumis::{highlight, Options, FormatterOption};
 
 let code = "puts 'Hello from Ruby!'";
 let ansi = highlight(
@@ -223,7 +223,7 @@ let ansi = highlight(
 #### HTML with Linked Stylesheets
 
 ```rust
-use autumnus::{highlight, Options, FormatterOption};
+use lumis::{highlight, Options, FormatterOption};
 
 let code = "console.log('Hello!')";
 let html = highlight(
@@ -244,12 +244,12 @@ When using `FormatterOption::HtmlLinked`, include the corresponding CSS file for
 
 ### Command-Line Usage
 
-The `autumnus` command-line tool provides several commands for syntax highlighting and code analysis:
+The `lumis` command-line tool provides several commands for syntax highlighting and code analysis:
 
 #### List Available Languages
 
 ```sh
-autumnus list-languages
+lumis list-languages
 ```
 
 Lists all supported programming languages and their associated file patterns.
@@ -257,7 +257,7 @@ Lists all supported programming languages and their associated file patterns.
 #### List Available Themes
 
 ```sh
-autumnus list-themes
+lumis list-themes
 ```
 
 Lists all available syntax highlighting themes.
@@ -265,7 +265,7 @@ Lists all available syntax highlighting themes.
 #### Highlight a File
 
 ```sh
-autumnus highlight <path> [options]
+lumis highlight <path> [options]
 ```
 
 Highlights the contents of a file with syntax highlighting.
@@ -279,13 +279,13 @@ Options:
 
 Example:
 ```sh
-autumnus highlight src/main.rs --formatter html-inline --theme github_dark
+lumis highlight src/main.rs --formatter html-inline --theme github_dark
 ```
 
 #### Highlight Source Code
 
 ```sh
-autumnus highlight-source <source> [options]
+lumis highlight-source <source> [options]
 ```
 
 Highlights a string of source code.
@@ -297,13 +297,13 @@ Options:
 
 Example:
 ```sh
-autumnus highlight-source "println!(\"Hello World!\");" -l rust
+lumis highlight-source "println!(\"Hello World!\");" -l rust
 ```
 
 #### Dump Tree-sitter AST
 
 ```sh
-autumnus dump-tree-sitter <path>
+lumis dump-tree-sitter <path>
 ```
 
 Dumps the Tree-sitter AST (Abstract Syntax Tree) for a given file. This is useful for debugging or understanding how Tree-sitter parses your code.
@@ -311,7 +311,7 @@ Dumps the Tree-sitter AST (Abstract Syntax Tree) for a given file. This is usefu
 #### Generate Theme
 
 ```sh
-autumnus gen-theme --url <git-url> --colorscheme <name> [options]
+lumis gen-theme --url <git-url> --colorscheme <name> [options]
 ```
 
 Generates a theme JSON file from any Git repository containing a Neovim theme.
@@ -331,23 +331,23 @@ Examples:
 
 ```sh
 # Basic usage - output to stdout
-autumnus gen-theme --url https://github.com/catppuccin/nvim --colorscheme catppuccin-mocha
+lumis gen-theme --url https://github.com/catppuccin/nvim --colorscheme catppuccin-mocha
 
 # Save to file
-autumnus gen-theme \
+lumis gen-theme \
   --url https://github.com/folke/tokyonight.nvim \
   --colorscheme tokyonight \
   -o tokyonight.json
 
 # With custom setup code
-autumnus gen-theme \
+lumis gen-theme \
   --url https://github.com/ellisonleao/gruvbox.nvim \
   --colorscheme gruvbox \
   --setup "require('gruvbox').setup({ contrast = 'hard' })" \
   -o gruvbox-hard.json
 
 # Specify light appearance
-autumnus gen-theme \
+lumis gen-theme \
   --url https://github.com/projekt0n/github-nvim-theme \
   --colorscheme github_light \
   --appearance light \
@@ -358,11 +358,11 @@ See [themes/README.md](themes/README.md) for more details on theme generation.
 
 ## Supported Languages
 
-Check the [documentation](https://docs.rs/autumnus/latest/autumnus/#languages-available) for a complete list of supported languages and file extensions.
+Check the [documentation](https://docs.rs/lumis/latest/lumis/#languages-available) for a complete list of supported languages and file extensions.
 
 ## Available Themes
 
-Autumnus includes over 100 themes, such as:
+Lumis includes over 100 themes, such as:
 
 - Dracula and Dracula Soft
 - Catppuccin (Mocha, Macchiato, Frappe, Latte)
@@ -375,7 +375,33 @@ Autumnus includes over 100 themes, such as:
 - Tokyo Night variants
 - And many more!
 
-Check the [documentation](https://docs.rs/autumnus/latest/autumnus/#themes-available) for a complete list of supported themes.
+Check the [documentation](https://docs.rs/lumis/latest/lumis/#themes-available) for a complete list of supported themes.
+
+## Migration from autumnus
+
+If you were using the `autumnus` crate, simply update your dependencies:
+
+```toml
+# Before
+[dependencies]
+autumnus = "0.8"
+
+# After
+[dependencies]
+lumis = "0.2"
+```
+
+And update your imports:
+
+```rust
+// Before
+use autumnus::*;
+
+// After
+use lumis::*;
+```
+
+The API remains the same.
 
 ## Contributing
 
@@ -389,7 +415,7 @@ Contributions are welcome! Feel free to:
 
 ## Acknowledgements
 
-Autumnus would not be possible without these projects:
+Lumis would not be possible without these projects:
 
 - [inkjet](https://github.com/Colonial-Dev/inkjet)
 - [difftastic](https://github.com/Wilfred/difftastic)
