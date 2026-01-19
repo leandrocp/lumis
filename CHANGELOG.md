@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.8.0] - 2026-01-16
+## [0.8.0] - 2026-01-19
 
 **IMPORTANT:** This major release includes several breaking changes to improve the API ergonomics for future improvements.
 
