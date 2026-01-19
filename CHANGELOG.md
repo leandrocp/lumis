@@ -1,5 +1,104 @@
 # Changelog
 
+## [0.8.0] - 2026-01-16
+
+**IMPORTANT:** This major release includes several breaking changes to improve the API ergonomics for future improvements.
+
+Below is a summary of the breaking changes along with a migration guide to help update your code.
+
+### Breaking Changes Summary
+
+- **API**: `highlight()` and `write_highlight()` now take formatters directly (no `Options` struct)
+- **Formatters**: Use builder pattern, own their data (no lifetime parameters)
+- **Themes**: `get()` returns owned `Theme`, `appearance` is now `Appearance` enum
+- **Highlighter**: `highlight_iter()` is callback-based, `highlight()` takes `&self`
+- **Style**: `text_decoration: TextDecoration` replaces `underline`/`strikethrough` booleans
+- **CLI**: Binary renamed `autumn` → `autumnus`
+- **Rust**: Requires 1.91+
+
+### Migration Guide
+
+**Highlighting code**
+
+```rust
+// Before (0.7)
+let options = Options {
+    language: Some("rust"),
+    formatter: FormatterOption::HtmlInline { theme: themes::get("dracula"), pre_class: None },
+};
+let html = highlight(code, options);
+
+// After (0.8)
+let formatter = HtmlInlineBuilder::new()
+    .theme(themes::get("dracula"))
+    .build()?;
+let html = highlight(code, &formatter)?;
+```
+
+**Theme access**
+
+```rust
+// Before
+let theme: &'static Theme = themes::get("dracula")?;
+
+// After
+let theme: Theme = themes::get("dracula")?;
+
+// Appearance is now an enum
+match theme.appearance {
+    Appearance::Light => { /* ... */ }
+    Appearance::Dark => { /* ... */ }
+}
+```
+
+**Streaming highlights**
+
+```rust
+// Before: iterator-based
+for (text, range, scope, style) in highlight_iter(source, lang)? {
+    // ...
+}
+
+// After: callback-based
+highlight_iter(source, lang, |text, range, scope, style| {
+    // ...
+})?;
+```
+
+**Style text decoration**
+
+```rust
+// Before
+style.underline: bool
+style.strikethrough: bool
+
+// After
+style.text_decoration.underline: Option<UnderlineStyle>  // None, Solid, Wavy, Double, Dotted, Dashed
+style.text_decoration.strikethrough: bool
+```
+
+### Added
+
+- `Appearance` enum (`Light`/`Dark`) for type-safe theme appearance
+- `TextDecoration` struct with full Neovim underline support (wavy, double, dotted, dashed)
+- `HtmlMultiThemes` formatter for light/dark theme switching
+- `HighlightError` and `ThemeError` for typed error handling
+- `PartialEq`, `Eq`, `Clone` traits for `Theme`, `Style`, formatters
+- `Hash` trait for `Language` enum
+
+### Changed
+
+- `Highlighter::highlight()` takes `&self` (thread-safe, shareable)
+- `available_themes()` returns `impl Iterator` instead of `Vec`
+- `Theme::fg()`/`bg()` return `Option<&str>` (no allocation)
+- Error messages follow Rust conventions (lowercase, no trailing punctuation)
+
+### Removed
+
+- `Options` struct, `OptionsBuilder`, `FormatterOption` enum
+- `HighlightIterator` struct (replaced by callback API)
+- `github_light_default`, `github_dark_default` themes (use `github_light`/`github_dark`)
+
 ## [0.8.0-beta.5] - 2026-01-09
 
 ### Added
