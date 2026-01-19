@@ -1,5 +1,5 @@
 /* moonfly
- * revision: 1ad5a8d40176a8749f0c77b8875225d9d299a438
+ * revision: d11b3d04cc1cb71a778d67a4df73283a5a6d66f4
  */
 
 pre.athl {
@@ -65,14 +65,13 @@ pre.athl {
   color: #36c692;
 }
 .diff-delta {
-  background-color: #2e2e2e;
+  color: #74b2ff;
 }
 .diff-minus {
-  color: #626262;
-  background-color: #2e2e2e;
+  color: #ff5d5d;
 }
 .diff-plus {
-  background-color: #314940;
+  color: #8cc85f;
 }
 .function {
   color: #74b2ff;
@@ -214,7 +213,7 @@ pre.athl {
   color: #8cc85f;
 }
 .markup-link-gitcommit {
-  color: #80a0ff;
+  color: #36c692;
 }
 .markup-link-label {
   color: #8cc85f;
@@ -328,7 +327,7 @@ pre.athl {
   color: #c6c684;
 }
 .string-documentation {
-  color: #79dac8;
+  color: #88a2b7;
 }
 .string-escape {
   color: #e65e72;
