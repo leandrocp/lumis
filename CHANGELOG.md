@@ -1,14 +1,8 @@
 # Changelog
 
-## [0.2.0] - Unreleased
+## 0.1.0 - 2026-01-23
 
 First release of `lumis`, a renamed and restructured version of `autumnus`.
-
-### Changed
-
-- Crate renamed from `autumnus` to `lumis`
-- CLI binary renamed from `autumnus` to `lumis`
-- Restructured as Cargo workspace
 
 ### Migration from autumnus
 
@@ -21,7 +15,7 @@ autumnus = "0.8"
 
 # After
 [dependencies]
-lumis = "0.2"
+lumis = "0.1"
 ```
 
 Update your imports:
