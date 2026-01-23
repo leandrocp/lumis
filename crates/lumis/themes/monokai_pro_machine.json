@@ -1,7 +1,7 @@
 {
   "name": "monokai_pro_machine",
   "appearance": "dark",
-  "revision": "8d43e7746754c2dc6e8b797cbcdd361b46086675",
+  "revision": "57582b155807082f7d5605140216e8cb025f0f2c",
   "highlights": {
     "attribute": {
       "fg": "#a2e57b"
@@ -96,7 +96,7 @@
       "fg": "#7cd5f1"
     },
     "highlighted": {
-      "bg": "#313b3f"
+      "bg": "#313b40"
     },
     "keyword": {
       "fg": "#ff6d7e",
