@@ -1,7 +1,7 @@
 {
   "name": "monokai_pro_dark",
   "appearance": "dark",
-  "revision": "8d43e7746754c2dc6e8b797cbcdd361b46086675",
+  "revision": "57582b155807082f7d5605140216e8cb025f0f2c",
   "highlights": {
     "attribute": {
       "fg": "#a9dc76"
@@ -96,7 +96,7 @@
       "fg": "#78dce8"
     },
     "highlighted": {
-      "bg": "#373438"
+      "bg": "#373538"
     },
     "keyword": {
       "fg": "#ff6188",
