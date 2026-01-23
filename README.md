@@ -40,7 +40,7 @@ By default, Lumis includes support for all languages, which can result in longer
 
 ```toml
 [dependencies]
-lumis = { version = "0.2", default-features = false, features = ["lang-rust", "lang-javascript", "lang-python"] }
+lumis = { version = "0.1", default-features = false, features = ["lang-rust", "lang-javascript", "lang-python"] }
 ```
 
 Available language features:
