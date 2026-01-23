@@ -10,4 +10,4 @@ description = "DEPRECATED - Use `lumis` instead. Syntax highlighter powered by T
 readme = "README.md"
 
 [dependencies]
-lumis = { path = "../lumis" }
+lumis = "0.1"

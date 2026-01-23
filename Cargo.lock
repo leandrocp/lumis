@@ -71,7 +71,7 @@ checksum = "a23eb6b1614318a8071c9b2521f36b424b2c83db5eb3a0fead4a6c0809af6e61"
 name = "autumnus"
 version = "0.9.0"
 dependencies = [
- "lumis",
+ "lumis 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -254,7 +254,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "lumis",
+ "lumis 0.1.0",
 ]
 
 [[package]]
@@ -408,6 +408,81 @@ dependencies = [
  "rayon",
  "regex",
  "rustler",
+ "serde",
+ "serde_json",
+ "smol_str",
+ "streaming-iterator",
+ "strum",
+ "syn",
+ "tempfile",
+ "termcolor",
+ "thiserror",
+ "tree-sitter",
+ "tree-sitter-asm",
+ "tree-sitter-bash",
+ "tree-sitter-c",
+ "tree-sitter-c-sharp",
+ "tree-sitter-cmake",
+ "tree-sitter-comment",
+ "tree-sitter-cpp",
+ "tree-sitter-css",
+ "tree-sitter-diff",
+ "tree-sitter-elixir",
+ "tree-sitter-elm",
+ "tree-sitter-embedded-template",
+ "tree-sitter-erlang",
+ "tree-sitter-fsharp",
+ "tree-sitter-gleam",
+ "tree-sitter-go",
+ "tree-sitter-haskell",
+ "tree-sitter-hcl",
+ "tree-sitter-heex",
+ "tree-sitter-highlight",
+ "tree-sitter-html",
+ "tree-sitter-java",
+ "tree-sitter-javascript",
+ "tree-sitter-json",
+ "tree-sitter-language",
+ "tree-sitter-lua",
+ "tree-sitter-nix",
+ "tree-sitter-objc",
+ "tree-sitter-ocaml",
+ "tree-sitter-php",
+ "tree-sitter-powershell",
+ "tree-sitter-proto",
+ "tree-sitter-python",
+ "tree-sitter-r",
+ "tree-sitter-regex",
+ "tree-sitter-ruby",
+ "tree-sitter-rust",
+ "tree-sitter-scala",
+ "tree-sitter-sequel",
+ "tree-sitter-svelte-ng",
+ "tree-sitter-swift",
+ "tree-sitter-toml-ng",
+ "tree-sitter-typescript",
+ "tree-sitter-xml",
+ "tree-sitter-yaml",
+ "tree-sitter-zig",
+ "v_htmlescape",
+]
+
+[[package]]
+name = "lumis"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3315ef359b1256f3de44ee4fc2965e5b93676195acd2a740ccd94e923a59308b"
+dependencies = [
+ "anyhow",
+ "cc",
+ "clap",
+ "derive_builder",
+ "glob",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "rayon",
+ "regex",
  "serde",
  "serde_json",
  "smol_str",
