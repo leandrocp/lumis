@@ -56,8 +56,8 @@ jobs:
         with:
           token: ${{ secrets.CI_TOKEN }}
           add-paths: |
-            vendored_parsers
-            queries
+            crates/lumis/vendored_parsers
+            crates/lumis/queries
           commit-message: "chore: update ${{ matrix.language }}"
           title: "chore: update ${{ matrix.language }}"
           body: |

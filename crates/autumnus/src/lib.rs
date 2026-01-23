@@ -13,7 +13,7 @@
 //! autumnus = "0.8"
 //!
 //! # After
-//! lumis = "0.1"
+//! lumis = "0.2"
 //! ```
 //!
 //! Update your imports:

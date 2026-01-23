@@ -6,13 +6,8 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-fn workspace_root() -> PathBuf {
+fn manifest_dir() -> PathBuf {
     PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
-        .parent()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .to_path_buf()
 }
 
 fn main() {
@@ -29,7 +24,7 @@ struct TreeSitterParser {
 
 impl TreeSitterParser {
     fn build(&self) {
-        let dir = workspace_root().join(self.src_dir);
+        let dir = manifest_dir().join(self.src_dir);
 
         let mut c_files = vec!["parser.c"];
         let mut cpp_files = vec![];
@@ -278,7 +273,7 @@ fn vendored_parsers() {
     for parser in &parsers {
         println!(
             "cargo:rerun-if-changed={}",
-            workspace_root().join(parser.src_dir).display()
+            manifest_dir().join(parser.src_dir).display()
         );
     }
 
@@ -332,7 +327,7 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
 
             for parent_language in parent_languages {
                 let parent_path =
-                    workspace_root().join(format!("queries/{parent_language}/{query}.scm"));
+                    manifest_dir().join(format!("queries/{parent_language}/{query}.scm"));
                 let parent_content = read_query_file(&parent_path, &parent_language, query);
                 query_content.push(parent_content.clone());
             }
@@ -342,7 +337,7 @@ fn read_query_file(path: &Path, language: &str, query: &str) -> String {
     query_content.push(format!("\n; query: {language}"));
     query_content.push(content.clone());
 
-    let overwrite_path = workspace_root().join(format!("overwrites/{language}/{query}.scm"));
+    let overwrite_path = manifest_dir().join(format!("overwrites/{language}/{query}.scm"));
     if overwrite_path.exists() {
         println!(
             "cargo:warning=appending {} into {}",
@@ -362,7 +357,7 @@ fn queries() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let dest_path = out_dir.join("queries_constants.rs");
 
-    let queries_path = workspace_root().join("queries");
+    let queries_path = manifest_dir().join("queries");
     let mut generated_code = TokenStream::new();
 
     let entries = fs::read_dir(&queries_path).unwrap();
@@ -378,13 +373,13 @@ fn queries() {
         let language = path.file_name().unwrap().to_str().unwrap();
         println!(
             "cargo:rerun-if-changed={}",
-            workspace_root()
+            manifest_dir()
                 .join(format!("queries/{language}"))
                 .display()
         );
         println!(
             "cargo:rerun-if-changed={}",
-            workspace_root()
+            manifest_dir()
                 .join(format!("overwrites/{language}"))
                 .display()
         );
@@ -655,12 +650,12 @@ fn convert_lua_pattern_to_rust_regex(lua_pattern: &str) -> String {
 fn themes() {
     println!(
         "cargo:rerun-if-changed={}",
-        workspace_root().join("themes").display()
+        manifest_dir().join("themes").display()
     );
 
     let out_dir = env::var("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("theme_data.rs");
-    let themes_dir = workspace_root().join("themes");
+    let themes_dir = manifest_dir().join("themes");
 
     let theme_names: Vec<String> = fs::read_dir(&themes_dir)
         .unwrap()
