@@ -76,12 +76,12 @@ list-vendored-parsers:
 extract-scopes-highlights:
     #!/usr/bin/env bash
     set -euo pipefail
-    find queries -type f -name "*.scm" -exec grep -oh '@[^_ ][^ ]*' {} \; 2>/dev/null | sed 's/^@//; s/[^a-zA-Z0-9_.-]//g' | sort -u
+    find crates/lumis/queries -type f -name "*.scm" -exec grep -oh '@[^_ ][^ ]*' {} \; 2>/dev/null | sed 's/^@//; s/[^a-zA-Z0-9_.-]//g' | sort -u
 
 extract-scopes-themes:
     #!/usr/bin/env bash
     set -euo pipefail
-    jq -r '.highlights | keys[]' themes/*.json | sort -u
+    jq -r '.highlights | keys[]' crates/lumis/themes/*.json | sort -u
 
 update-vendored-parsers parser_name="":
     #!/usr/bin/env bash
@@ -155,27 +155,27 @@ update-vendored-parsers parser_name="":
             fi
         fi
 
-        mkdir -p "vendored_parsers/$parser"
+        mkdir -p "crates/lumis/vendored_parsers/$parser"
 
         if [ "$parser" = "tree-sitter-latex" ] || [ "$parser" = "tree-sitter-perl" ]; then
-            rm -rf "vendored_parsers/$parser"/*
-            cp -r "$TEMP_DIR/$parser"/* "vendored_parsers/$parser/"
-            (cd "vendored_parsers/$parser" && npm install --no-save tree-sitter-cli && npx tree-sitter generate)
-            rm -f "vendored_parsers/$parser/Cargo.toml"
-            rm -rf "vendored_parsers/$parser/node_modules"
-            rm -rf "vendored_parsers/$parser/bindings"
+            rm -rf "crates/lumis/vendored_parsers/$parser"/*
+            cp -r "$TEMP_DIR/$parser"/* "crates/lumis/vendored_parsers/$parser/"
+            (cd "crates/lumis/vendored_parsers/$parser" && npm install --no-save tree-sitter-cli && npx tree-sitter generate)
+            rm -f "crates/lumis/vendored_parsers/$parser/Cargo.toml"
+            rm -rf "crates/lumis/vendored_parsers/$parser/node_modules"
+            rm -rf "crates/lumis/vendored_parsers/$parser/bindings"
             echo "✓ Updated $parser"
         elif [ "$location" != "null" ] && [ -n "$location" ]; then
             if [ -d "$TEMP_DIR/$parser/$location/src" ]; then
-                rm -rf "vendored_parsers/$parser/src"
-                cp -r "$TEMP_DIR/$parser/$location/src" "vendored_parsers/$parser/"
+                rm -rf "crates/lumis/vendored_parsers/$parser/src"
+                cp -r "$TEMP_DIR/$parser/$location/src" "crates/lumis/vendored_parsers/$parser/"
                 echo "✓ Updated $parser (with location: $location)"
             else
                 echo "⚠️  No src directory found for $parser in location $location"
             fi
         elif [ -d "$TEMP_DIR/$parser/src" ]; then
-            rm -rf "vendored_parsers/$parser/src"
-            cp -r "$TEMP_DIR/$parser/src" "vendored_parsers/$parser/"
+            rm -rf "crates/lumis/vendored_parsers/$parser/src"
+            cp -r "$TEMP_DIR/$parser/src" "crates/lumis/vendored_parsers/$parser/"
             echo "✓ Updated $parser"
         else
             echo "⚠️  No src directory found for $parser"
@@ -196,11 +196,11 @@ update-vendored-parsers parser_name="":
 
         git clone --depth 1 --branch "$branch" "$repo" "$TEMP_DIR/$parser"
 
-        mkdir -p "vendored_parsers/$parser"
+        mkdir -p "crates/lumis/vendored_parsers/$parser"
 
         if [ -d "$TEMP_DIR/$parser/src" ]; then
-            rm -rf "vendored_parsers/$parser/src"
-            cp -r "$TEMP_DIR/$parser/src" "vendored_parsers/$parser/"
+            rm -rf "crates/lumis/vendored_parsers/$parser/src"
+            cp -r "$TEMP_DIR/$parser/src" "crates/lumis/vendored_parsers/$parser/"
             echo "✓ Updated $parser"
         else
             echo "⚠️  No src directory found for $parser"
@@ -238,11 +238,11 @@ update-queries query_name="":
     if [[ -n "{{query_name}}" ]]; then
         LANGUAGES="{{query_name}}"
     else
-        LANGUAGES=$(find queries -maxdepth 1 -type d | grep -v "^queries$" | sed 's|queries/||')
+        LANGUAGES=$(find crates/lumis/queries -maxdepth 1 -type d | grep -v "^crates/lumis/queries$" | sed 's|crates/lumis/queries/||')
     fi
 
     for LANG in $LANGUAGES; do
-        DEST_DIR="queries/$LANG"
+        DEST_DIR="crates/lumis/queries/$LANG"
 
         if [[ -n "${special_repos[$LANG]:-}" ]]; then
             IFS=' ' read -r repo branch <<< "${special_repos[$LANG]}"
@@ -294,10 +294,10 @@ gen-themes theme_name="":
     fi
 
     if [[ -z "{{theme_name}}" ]]; then
-        find themes -type f -name "*.json" -delete
+        find crates/lumis/themes -type f -name "*.json" -delete
     fi
 
-    cd themes
+    cd crates/lumis/themes
 
     if [[ -n "{{theme_name}}" ]]; then
         nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "{{theme_name}}"
@@ -324,7 +324,7 @@ gen-css:
         exit 0
     fi
 
-    find css -type f -name "*.css" -delete
+    find crates/lumis/css -type f -name "*.css" -delete
     cargo run -p dev --release gen-css
 
 gen-samples:
