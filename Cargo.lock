@@ -394,7 +394,7 @@ checksum = "df1d3c3b53da64cf5760482273a98e575c651a67eec7f77df96b5b642de8f039"
 
 [[package]]
 name = "lumis"
-version = "0.2.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "cc",

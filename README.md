@@ -31,7 +31,7 @@ Add Lumis to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-lumis = "0.2"
+lumis = "0.1"
 ```
 
 #### Selective Language Support
@@ -388,7 +388,7 @@ autumnus = "0.8"
 
 # After
 [dependencies]
-lumis = "0.2"
+lumis = "0.1"
 ```
 
 And update your imports:
