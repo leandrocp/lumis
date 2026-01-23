@@ -94,10 +94,6 @@ fn create_themes_lua(
 
 fn copy_extract_theme_lua(temp_path: &std::path::Path) -> Result<()> {
     let extract_theme_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .unwrap()
-        .parent()
-        .unwrap()
         .join("themes")
         .join("extract_theme.lua");
 
