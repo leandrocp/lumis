@@ -1,10 +1,7 @@
-#include "stdio.h"
-#include "stdlib.h"
 #include "tree_sitter/parser.h"
 #include <string.h>
 #include <wctype.h>
 #include <assert.h>
-#include <stdbool.h>
 
 #define IS_SPACE_TABS(char) ((char) == ' ' || (char) == '\t')
 #define HEREDOC_MARKER_LEN 32
@@ -45,6 +42,14 @@ enum TokenType {
   // src/keywords.h
   KEYWORDS_BASE
 };
+
+// TODO(clason): remove when added to tree-sitter's WASM stdlib
+static inline bool _iswpunct(wint_t wch) {
+  return (wch >= 33 && wch <= 47) ||
+         (wch >= 58 && wch <= 64) ||
+         (wch >= 91 && wch <= 96) ||
+         (wch >= 123 && wch <= 126);
+}
 
 void *tree_sitter_vim_external_scanner_create() {
   Scanner *s = (Scanner *)malloc(sizeof(Scanner));
@@ -338,7 +343,7 @@ bool tree_sitter_vim_external_scanner_scan(void *payload, TSLexer *lexer,
   }
 
   // Not sure about the punctuation here...
-  if (valid_symbols[SEP_FIRST] && iswpunct(lexer->lookahead)) {
+  if (valid_symbols[SEP_FIRST] && _iswpunct(lexer->lookahead)) {
     s->separator = lexer->lookahead;
     advance(lexer, false);
     s->ignore_comments = true;
