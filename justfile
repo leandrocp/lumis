@@ -6,12 +6,12 @@ default:
 list-languages:
     #!/usr/bin/env bash
     set -euo pipefail
-    cargo run --bin autumnus list-languages
+    cargo run -p lumis list-languages
 
 list-themes:
     #!/usr/bin/env bash
     set -euo pipefail
-    cargo run --bin autumnus list-themes
+    cargo run -p lumis list-themes
 
 list-vendored-parsers:
     #!/usr/bin/env bash
@@ -232,7 +232,7 @@ update-queries query_name="":
     declare -A special_repos
     special_repos["iex"]="https://github.com/elixir-lang/tree-sitter-iex.git main"
     special_repos["nix"]="https://github.com/nix-community/tree-sitter-nix.git master"
-    # https://github.com/leandrocp/autumnus/pull/200
+    # https://github.com/leandrocp/lumis/pull/200
     special_repos["python"]="https://github.com/tree-sitter/tree-sitter-python.git master"
 
     if [[ -n "{{query_name}}" ]]; then
@@ -325,7 +325,7 @@ gen-css:
     fi
 
     find css -type f -name "*.css" -delete
-    cargo run --release --features=dev --bin dev gen-css
+    cargo run -p dev --release gen-css
 
 gen-samples:
     #!/usr/bin/env bash
@@ -341,7 +341,7 @@ gen-samples:
     fi
 
     find samples -type f -name "*.html" ! -name "index.html" ! -name "html.html" -delete
-    cargo run --release --features=dev --bin dev gen-samples
+    cargo run -p dev --release gen-samples
 
 dev-server:
     #!/usr/bin/env bash
