@@ -1,5 +1,5 @@
 /* nightfly
- * revision: 35b7292334eba451f9f94252c7df1509570f864b
+ * revision: 3b48dc0c5921f899aeb1e6e61b77b9345888a2f7
  */
 
 pre.athl {
@@ -65,14 +65,13 @@ pre.athl {
   color: #21c7a8;
 }
 .diff-delta {
-  background-color: #2c3043;
+  color: #87bcff;
 }
 .diff-minus {
-  color: #4b6479;
-  background-color: #2c3043;
+  color: #fc514e;
 }
 .diff-plus {
-  background-color: #2a4e57;
+  color: #a1cd5e;
 }
 .function {
   color: #82aaff;
@@ -214,7 +213,7 @@ pre.athl {
   color: #a1cd5e;
 }
 .markup-link-gitcommit {
-  color: #82aaff;
+  color: #21c7a8;
 }
 .markup-link-label {
   color: #a1cd5e;
@@ -328,7 +327,7 @@ pre.athl {
   color: #ecc48d;
 }
 .string-documentation {
-  color: #7fdbca;
+  color: #87a3ba;
 }
 .string-escape {
   color: #ff5874;
