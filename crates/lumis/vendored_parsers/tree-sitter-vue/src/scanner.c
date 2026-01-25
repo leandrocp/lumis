@@ -294,7 +294,8 @@ static bool scan_self_closing_tag_delimiter(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead == '>') {
         advance(lexer);
         if (scanner->tags.size > 0) {
-            tag_free(&array_pop(&scanner->tags));
+            Tag last_tag = array_pop(&scanner->tags);
+            tag_free(&last_tag);
             lexer->result_symbol = SELF_CLOSING_TAG_DELIMITER;
         }
         return true;
@@ -349,6 +350,14 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
                     advanced_once = true;
                     break;
 
+                case '\r':
+                    advance(lexer);
+                    // Mirror `default` case behavior if this is _not_ a CRLF, otherwise fallthrough and handle newline
+                    if (lexer->lookahead != '\n') {
+                        advanced_once = true;
+                        advance(lexer);
+                        break;
+                    }
                 case '\n':
                     if (valid_symbols[TEXT_FRAGMENT]) {
                         lexer->mark_end(lexer);
