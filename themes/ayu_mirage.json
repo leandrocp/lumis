@@ -1,0 +1,302 @@
+{
+  "name": "ayu_mirage",
+  "appearance": "dark",
+  "revision": "e5a9f0fa2918d6b5f57c21b3ac014314ee5e41c8",
+  "highlights": {
+    "attribute": {
+      "fg": "#ffcc66"
+    },
+    "attribute.builtin": {
+      "fg": "#ffcc66"
+    },
+    "boolean": {
+      "fg": "#dfbfff"
+    },
+    "character": {
+      "fg": "#dfbfff"
+    },
+    "character.special": {
+      "fg": "#ffcc66"
+    },
+    "comment": {
+      "fg": "#6c7a8b",
+      "italic": true
+    },
+    "comment.documentation": {
+      "fg": "#6c7a8b",
+      "italic": true
+    },
+    "comment.error": {
+      "fg": "#ff6666"
+    },
+    "comment.hint": {
+      "fg": "#6c7a8b",
+      "italic": true
+    },
+    "comment.note": {
+      "fg": "#5ccfe6"
+    },
+    "comment.todo": {
+      "fg": "#f28779"
+    },
+    "comment.warning": {
+      "fg": "#ffad66"
+    },
+    "constant": {
+      "fg": "#dfbfff"
+    },
+    "constant.builtin": {
+      "fg": "#ffcc66"
+    },
+    "constant.macro": {
+      "fg": "#dfbfff"
+    },
+    "constructor": {
+      "fg": "#ffcc66"
+    },
+    "diff.delta": {
+      "fg": "#80bfff"
+    },
+    "diff.minus": {
+      "fg": "#f27983"
+    },
+    "diff.plus": {
+      "fg": "#87d96c"
+    },
+    "function": {
+      "fg": "#ffd173"
+    },
+    "function.builtin": {
+      "fg": "#ffcc66"
+    },
+    "function.call": {
+      "fg": "#ffd173"
+    },
+    "function.macro": {
+      "fg": "#ffd173"
+    },
+    "function.method": {
+      "fg": "#ffd173"
+    },
+    "function.method.call": {
+      "fg": "#ffd173"
+    },
+    "highlighted": {
+      "bg": "#171b24"
+    },
+    "keyword": {
+      "fg": "#ffad66"
+    },
+    "keyword.conditional": {
+      "fg": "#ffad66"
+    },
+    "keyword.conditional.ternary": {
+      "fg": "#ffad66"
+    },
+    "keyword.coroutine": {
+      "fg": "#ffad66"
+    },
+    "keyword.debug": {
+      "fg": "#ffad66"
+    },
+    "keyword.directive": {
+      "fg": "#ffad66"
+    },
+    "keyword.directive.define": {
+      "fg": "#ffad66"
+    },
+    "keyword.exception": {
+      "fg": "#ffad66"
+    },
+    "keyword.export": {
+      "fg": "#ffad66"
+    },
+    "keyword.function": {
+      "fg": "#ffad66"
+    },
+    "keyword.import": {
+      "fg": "#ffad66"
+    },
+    "keyword.modifier": {
+      "fg": "#ffad66"
+    },
+    "keyword.operator": {
+      "fg": "#ffad66"
+    },
+    "keyword.repeat": {
+      "fg": "#ffad66"
+    },
+    "keyword.return": {
+      "fg": "#ffad66"
+    },
+    "keyword.type": {
+      "fg": "#ffad66"
+    },
+    "label": {
+      "fg": "#ffad66"
+    },
+    "markup": {
+      "fg": "#ffcc66"
+    },
+    "markup.environment": {
+      "fg": "#ffcc66"
+    },
+    "markup.environment.name": {
+      "fg": "#ffcc66"
+    },
+    "markup.heading": {
+      "fg": "#ffad66"
+    },
+    "markup.heading.1": {
+      "fg": "#ffad66"
+    },
+    "markup.heading.2": {
+      "fg": "#ffad66"
+    },
+    "markup.heading.3": {
+      "fg": "#ffad66"
+    },
+    "markup.heading.4": {
+      "fg": "#ffad66"
+    },
+    "markup.heading.5": {
+      "fg": "#ffad66"
+    },
+    "markup.heading.6": {
+      "fg": "#ffad66"
+    },
+    "markup.italic": {
+      "italic": true
+    },
+    "markup.link": {
+      "underline": true
+    },
+    "markup.link.label": {
+      "underline": true
+    },
+    "markup.link.url": {
+      "underline": true
+    },
+    "markup.list": {
+      "fg": "#ffcc66"
+    },
+    "markup.list.checked": {
+      "fg": "#ffcc66"
+    },
+    "markup.list.unchecked": {
+      "fg": "#ffcc66"
+    },
+    "markup.math": {
+      "fg": "#ffcc66"
+    },
+    "markup.quote": {
+      "fg": "#ffcc66"
+    },
+    "markup.raw": {
+      "fg": "#ffcc66"
+    },
+    "markup.raw.block": {
+      "fg": "#ffcc66"
+    },
+    "markup.strikethrough": {
+      "strikethrough": true
+    },
+    "markup.strong": {
+      "bold": true
+    },
+    "markup.underline": {
+      "underline": true
+    },
+    "module": {
+      "fg": "#ffd173"
+    },
+    "module.builtin": {
+      "fg": "#ffcc66"
+    },
+    "normal": {
+      "fg": "#cccac2",
+      "bg": "#1f2430"
+    },
+    "number": {
+      "fg": "#dfbfff"
+    },
+    "number.float": {
+      "fg": "#dfbfff"
+    },
+    "operator": {
+      "fg": "#f29e74"
+    },
+    "property": {
+      "fg": "#5ccfe6"
+    },
+    "punctuation.bracket": {
+      "fg": "#ffdfb3"
+    },
+    "punctuation.delimiter": {
+      "fg": "#ffdfb3"
+    },
+    "punctuation.special": {
+      "fg": "#ffcc66"
+    },
+    "string": {
+      "fg": "#d5ff80"
+    },
+    "string.documentation": {
+      "fg": "#d5ff80"
+    },
+    "string.escape": {
+      "fg": "#ffcc66"
+    },
+    "string.regexp": {
+      "fg": "#ffcc66"
+    },
+    "string.special": {
+      "fg": "#ffcc66"
+    },
+    "string.special.path": {
+      "fg": "#ffcc66"
+    },
+    "string.special.symbol": {
+      "fg": "#ffcc66"
+    },
+    "string.special.url": {
+      "underline": true
+    },
+    "tag": {
+      "fg": "#ffad66"
+    },
+    "tag.attribute": {
+      "fg": "#73d0ff"
+    },
+    "tag.builtin": {
+      "fg": "#ffcc66"
+    },
+    "tag.delimiter": {
+      "fg": "#ffdfb3"
+    },
+    "type": {
+      "fg": "#73d0ff"
+    },
+    "type.builtin": {
+      "fg": "#ffcc66"
+    },
+    "type.definition": {
+      "fg": "#73d0ff"
+    },
+    "variable": {
+      "fg": "#cccac2"
+    },
+    "variable.builtin": {
+      "fg": "#ffd173"
+    },
+    "variable.member": {
+      "fg": "#5ccfe6"
+    },
+    "variable.parameter": {
+      "fg": "#cccac2"
+    },
+    "variable.parameter.builtin": {
+      "fg": "#ffcc66"
+    }
+  }
+}

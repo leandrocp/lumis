@@ -1,0 +1,153 @@
+# Light/Dark Themes with Manual Switching
+
+```elixir
+Mix.install([
+  {:phoenix_playground, "~> 0.1"},
+  {:phoenix_html, "~> 4.3"},
+  {:lumis, ">= 0.1"}
+])
+```
+
+## HtmlMultiThemes Formatter
+
+Use JavaScript to switch between Light and Dark colors.
+
+```elixir
+defmodule SyntaxHighlighterLive do
+  use Phoenix.LiveView
+
+  def mount(_params, _session, socket) do
+    code = ~S"""
+    @doc "Defines a public function with the given name and body."
+    defmacro def(call, expr \\ nil) do
+      assert_no_match_or_guard_scope(__CALLER__.context, "def/2")
+      define(:def, call, expr, __CALLER__)
+    end
+    """
+
+    code =
+      Lumis.highlight!(
+        code,
+        language: "elixir",
+        formatter:
+          {
+            :html_multi_themes,
+            themes: [light: "github_light", dark: "github_dark"],
+            default_theme: "light"
+          }
+      )
+
+    {:ok, assign(socket, code: code)}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+    <style>
+      body {
+        min-height: 100vh;
+        font-family: ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      html.dark body {
+        background: #0d1117;
+        color: #e6edf3;
+      }
+
+      .theme-buttons {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .theme-button {
+        padding: 8px 16px;
+        border: 2px solid #ccc;
+        background: white;
+        color: black;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .theme-button:hover {
+        background: #f5f5f5;
+      }
+
+      html.dark .theme-button {
+        background: #21262d;
+        color: #e6edf3;
+        border-color: #444;
+      }
+
+      html.dark .theme-button:hover {
+        background: #30363d;
+      }
+
+      .theme-button.active {
+        background: #0969da;
+        color: white;
+        border-color: #0969da;
+      }
+
+      html.dark .theme-button.active {
+        background: #58a6ff;
+        color: #0d1117;
+        border-color: #58a6ff;
+      }
+
+      html.dark .athl,
+      html.dark .athl span {
+        color: var(--athl-dark) !important;
+        background-color: var(--athl-dark-bg) !important;
+        font-style: var(--athl-dark-font-style) !important;
+        font-weight: var(--athl-dark-font-weight) !important;
+        text-decoration: var(--athl-dark-text-decoration) !important;
+      }
+    </style>
+
+    <div class="max-w-4xl mx-auto p-8">
+      <h1 class="text-lg font-bold">Manual Light/Dark Theme Switching</h1>
+
+      <div class="theme-buttons">
+        <button onclick="setTheme('light')" id="btn-light" class="theme-button active">
+          Light
+        </button>
+        <button onclick="setTheme('dark')" id="btn-dark" class="theme-button">
+          Dark
+        </button>
+      </div>
+
+      <p class="text-sm mb-4">Click the buttons above to manually switch between light and dark themes.</p>
+      <p class="text-sm opacity-75 mb-10">This example uses CSS variables with class-based theme switching.</p>
+
+      {Phoenix.HTML.raw(@code)}
+    </div>
+
+    <script>
+      function setTheme(theme) {
+        const html = document.documentElement;
+        const lightBtn = document.getElementById('btn-light');
+        const darkBtn = document.getElementById('btn-dark');
+
+        if (theme === 'light') {
+          html.classList.remove('dark');
+          lightBtn.classList.add('active');
+          darkBtn.classList.remove('active');
+        } else {
+          html.classList.add('dark');
+          darkBtn.classList.add('active');
+          lightBtn.classList.remove('active');
+        }
+      }
+    </script>
+    """
+  end
+end
+```
+
+```elixir
+PhoenixPlayground.start(live: SyntaxHighlighterLive, open_browser: true, port: 4000)
+```

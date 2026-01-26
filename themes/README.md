@@ -16,23 +16,23 @@ Generate a theme JSON from any Git repository containing a Neovim theme:
 
 ```bash
 # Basic usage - output to stdout
-autumnus gen-theme --url https://github.com/catppuccin/nvim --colorscheme catppuccin-mocha
+lumis gen-theme --url https://github.com/catppuccin/nvim --colorscheme catppuccin-mocha
 
 # Save to file
-autumnus gen-theme \
+lumis gen-theme \
   --url https://github.com/folke/tokyonight.nvim \
   --colorscheme tokyonight \
   -o tokyonight.json
 
 # With custom setup code
-autumnus gen-theme \
+lumis gen-theme \
   --url https://github.com/ellisonleao/gruvbox.nvim \
   --colorscheme gruvbox \
   --setup "require('gruvbox').setup({ contrast = 'hard' })" \
   -o gruvbox-hard.json
 
 # Specify light appearance
-autumnus gen-theme \
+lumis gen-theme \
   --url https://github.com/projekt0n/github-nvim-theme \
   --colorscheme github_light \
   --appearance light \

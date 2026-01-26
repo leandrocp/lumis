@@ -1,0 +1,323 @@
+{
+  "name": "onedark_warm",
+  "appearance": "dark",
+  "revision": "213c23ae45a04797572242568d5d51937181792d",
+  "highlights": {
+    "attribute": {
+      "fg": "#5fafb9"
+    },
+    "attribute.builtin": {
+      "fg": "#68aee8"
+    },
+    "boolean": {
+      "fg": "#c99a6e"
+    },
+    "character": {
+      "fg": "#c99a6e"
+    },
+    "character.special": {
+      "fg": "#e16d77"
+    },
+    "comment": {
+      "fg": "#646568",
+      "italic": true
+    },
+    "comment.documentation": {
+      "fg": "#646568",
+      "italic": true
+    },
+    "comment.error": {
+      "fg": "#e16d77",
+      "italic": true
+    },
+    "comment.hint": {
+      "fg": "#646568",
+      "italic": true
+    },
+    "comment.note": {
+      "fg": "#68aee8",
+      "italic": true
+    },
+    "comment.todo": {
+      "fg": "#c27fd7",
+      "italic": true
+    },
+    "comment.warning": {
+      "fg": "#dfbe81",
+      "italic": true
+    },
+    "constant": {
+      "fg": "#c99a6e"
+    },
+    "constant.builtin": {
+      "fg": "#c99a6e"
+    },
+    "constant.macro": {
+      "fg": "#c99a6e"
+    },
+    "constructor": {
+      "fg": "#dfbe81",
+      "bold": true
+    },
+    "diff.delta": {
+      "fg": "#68aee8"
+    },
+    "diff.minus": {
+      "fg": "#e16d77"
+    },
+    "diff.plus": {
+      "fg": "#99bc80"
+    },
+    "function": {
+      "fg": "#68aee8"
+    },
+    "function.builtin": {
+      "fg": "#5fafb9"
+    },
+    "function.call": {
+      "fg": "#68aee8"
+    },
+    "function.macro": {
+      "fg": "#5fafb9"
+    },
+    "function.method": {
+      "fg": "#68aee8"
+    },
+    "function.method.call": {
+      "fg": "#68aee8"
+    },
+    "highlighted": {
+      "bg": "#35373b"
+    },
+    "keyword": {
+      "fg": "#c27fd7"
+    },
+    "keyword.conditional": {
+      "fg": "#c27fd7"
+    },
+    "keyword.conditional.ternary": {
+      "fg": "#c27fd7"
+    },
+    "keyword.coroutine": {
+      "fg": "#c27fd7"
+    },
+    "keyword.debug": {
+      "fg": "#e16d77"
+    },
+    "keyword.directive": {
+      "fg": "#c27fd7"
+    },
+    "keyword.directive.define": {
+      "fg": "#c27fd7"
+    },
+    "keyword.exception": {
+      "fg": "#c27fd7"
+    },
+    "keyword.export": {
+      "fg": "#c27fd7"
+    },
+    "keyword.function": {
+      "fg": "#c27fd7"
+    },
+    "keyword.import": {
+      "fg": "#c27fd7"
+    },
+    "keyword.modifier": {
+      "fg": "#c27fd7"
+    },
+    "keyword.operator": {
+      "fg": "#c27fd7"
+    },
+    "keyword.repeat": {
+      "fg": "#c27fd7"
+    },
+    "keyword.return": {
+      "fg": "#c27fd7"
+    },
+    "keyword.type": {
+      "fg": "#c27fd7"
+    },
+    "label": {
+      "fg": "#e16d77"
+    },
+    "markup": {
+      "fg": "#e16d77"
+    },
+    "markup.environment": {
+      "fg": "#e16d77"
+    },
+    "markup.environment.name": {
+      "fg": "#e16d77"
+    },
+    "markup.heading": {
+      "fg": "#c99a6e",
+      "bold": true
+    },
+    "markup.heading.1": {
+      "fg": "#e16d77",
+      "bold": true
+    },
+    "markup.heading.2": {
+      "fg": "#c27fd7",
+      "bold": true
+    },
+    "markup.heading.3": {
+      "fg": "#c99a6e",
+      "bold": true
+    },
+    "markup.heading.4": {
+      "fg": "#e16d77",
+      "bold": true
+    },
+    "markup.heading.5": {
+      "fg": "#c27fd7",
+      "bold": true
+    },
+    "markup.heading.6": {
+      "fg": "#c99a6e",
+      "bold": true
+    },
+    "markup.italic": {
+      "fg": "#b1b4b9",
+      "italic": true
+    },
+    "markup.link": {
+      "fg": "#68aee8"
+    },
+    "markup.link.label": {
+      "fg": "#5fafb9"
+    },
+    "markup.link.url": {
+      "fg": "#5fafb9",
+      "underline": true
+    },
+    "markup.list": {
+      "fg": "#e16d77"
+    },
+    "markup.list.checked": {
+      "fg": "#99bc80",
+      "italic": true
+    },
+    "markup.list.unchecked": {
+      "fg": "#e16d77",
+      "italic": true
+    },
+    "markup.math": {
+      "fg": "#b1b4b9"
+    },
+    "markup.quote": {
+      "fg": "#646568",
+      "italic": true
+    },
+    "markup.raw": {
+      "fg": "#99bc80"
+    },
+    "markup.raw.block": {
+      "fg": "#99bc80"
+    },
+    "markup.strikethrough": {
+      "fg": "#b1b4b9",
+      "strikethrough": true
+    },
+    "markup.strong": {
+      "fg": "#b1b4b9",
+      "bold": true
+    },
+    "markup.underline": {
+      "fg": "#b1b4b9",
+      "underline": true
+    },
+    "module": {
+      "fg": "#dfbe81"
+    },
+    "module.builtin": {
+      "fg": "#c99a6e"
+    },
+    "normal": {
+      "fg": "#b1b4b9",
+      "bg": "#2c2d30"
+    },
+    "number": {
+      "fg": "#c99a6e"
+    },
+    "number.float": {
+      "fg": "#c99a6e"
+    },
+    "operator": {
+      "fg": "#b1b4b9"
+    },
+    "property": {
+      "fg": "#5fafb9"
+    },
+    "punctuation.bracket": {
+      "fg": "#8b8d91"
+    },
+    "punctuation.delimiter": {
+      "fg": "#8b8d91"
+    },
+    "punctuation.special": {
+      "fg": "#e16d77"
+    },
+    "string": {
+      "fg": "#99bc80"
+    },
+    "string.documentation": {
+      "fg": "#99bc80"
+    },
+    "string.escape": {
+      "fg": "#e16d77"
+    },
+    "string.regexp": {
+      "fg": "#c99a6e"
+    },
+    "string.special": {
+      "fg": "#316a71"
+    },
+    "string.special.path": {
+      "fg": "#99bc80"
+    },
+    "string.special.symbol": {
+      "fg": "#5fafb9"
+    },
+    "string.special.url": {
+      "fg": "#5fafb9",
+      "underline": true
+    },
+    "tag": {
+      "fg": "#c27fd7"
+    },
+    "tag.attribute": {
+      "fg": "#dfbe81"
+    },
+    "tag.builtin": {
+      "fg": "#c27fd7"
+    },
+    "tag.delimiter": {
+      "fg": "#c27fd7"
+    },
+    "type": {
+      "fg": "#dfbe81"
+    },
+    "type.builtin": {
+      "fg": "#c99a6e"
+    },
+    "type.definition": {
+      "fg": "#dfbe81"
+    },
+    "variable": {
+      "fg": "#b1b4b9"
+    },
+    "variable.builtin": {
+      "fg": "#e16d77"
+    },
+    "variable.member": {
+      "fg": "#5fafb9"
+    },
+    "variable.parameter": {
+      "fg": "#e16d77"
+    },
+    "variable.parameter.builtin": {
+      "fg": "#c99a6e"
+    }
+  }
+}

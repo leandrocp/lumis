@@ -44,7 +44,9 @@ jobs:
         with:
           token: ${{ secrets.CI_TOKEN }}
           add-paths: |
+            css
             crates/lumis/css
+            packages/elixir/lumis/priv/static/css
           commit-message: "chore: generate css"
           title: "chore: generate css"
           body: |

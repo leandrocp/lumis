@@ -1,0 +1,417 @@
+/* github_dark_high_contrast
+ * revision: c106c9472154d6b2c74b74565616b877ae8ed31d
+ */
+
+pre.athl {
+  color: #f0f3f6;
+  background-color: #0a0c10;
+}
+.attribute {
+  color: #91cbff;
+}
+.attribute-builtin {
+  color: #f0f3f6;
+}
+.boolean {
+  color: #91cbff;
+}
+.character {
+  color: #addcff;
+}
+.character-special {
+  color: #f0f3f6;
+}
+.comment {
+  color: #bdc4cc;
+}
+.comment-documentation {
+  color: #bdc4cc;
+}
+.comment-error {
+  color: #0a0c10;
+  background-color: #ff6a69;
+}
+.comment-hint {
+  color: #0a0c10;
+  background-color: #d9dee3;
+}
+.comment-note {
+  color: #409eff;
+}
+.comment-todo {
+  color: #0a0c10;
+  background-color: #d9dee3;
+}
+.comment-warning {
+  color: #0a0c10;
+  background-color: #e09b13;
+}
+.constant {
+  color: #91cbff;
+}
+.constant-builtin {
+  color: #91cbff;
+}
+.constant-builtin-rust {
+  color: #ffb757;
+}
+.constant-html {
+  color: #72f088;
+}
+.constant-macro {
+  color: #ff9492;
+}
+.constructor {
+  color: #ffb757;
+}
+.constructor-lua {
+  color: #f0f3f6;
+}
+.diff-delta {
+  color: #e09b13;
+  background-color: #2a2110;
+}
+.diff-minus {
+  color: #ff6a69;
+  background-color: #2f1a1d;
+}
+.diff-plus {
+  color: #09b43a;
+  background-color: #0a2516;
+}
+.function {
+  color: #dbb7ff;
+}
+.function-builtin-bash {
+  color: #ff9492;
+}
+.function-builtin-lua {
+  color: #91cbff;
+}
+.function-builtin-make {
+  color: #91cbff;
+}
+.function-call {
+  color: #dbb7ff;
+}
+.function-call-bash {
+  color: #91cbff;
+}
+.function-macro {
+  color: #dbb7ff;
+}
+.function-method {
+  color: #dbb7ff;
+}
+.function-method-call {
+  color: #dbb7ff;
+}
+.highlighted {
+  background-color: #212327;
+}
+.keyword {
+  color: #ff9492;
+}
+.keyword-conditional {
+  color: #ff9492;
+}
+.keyword-conditional-ternary {
+  color: #ff9492;
+}
+.keyword-coroutine {
+  color: #ff9492;
+}
+.keyword-debug {
+  color: #ff9492;
+}
+.keyword-directive {
+  color: #ff9492;
+}
+.keyword-directive-define {
+  color: #ff9492;
+}
+.keyword-directive-rust {
+  color: #91cbff;
+}
+.keyword-exception {
+  color: #91cbff;
+}
+.keyword-export {
+  color: #ff9492;
+}
+.keyword-function {
+  color: #ff9492;
+}
+.keyword-import {
+  color: #ff9492;
+}
+.keyword-modifier {
+  color: #ff9492;
+}
+.keyword-operator {
+  color: #ff9492;
+}
+.keyword-repeat {
+  color: #ff9492;
+}
+.keyword-return {
+  color: #ff9492;
+}
+.keyword-type {
+  color: #ff9492;
+}
+.label {
+  color: #72f088;
+}
+.label-ruby {
+  color: #91cbff;
+}
+.markup {
+  color: #f0f3f6;
+}
+.markup-environment {
+  color: #ff9492;
+}
+.markup-environment-name {
+  color: #dbb7ff;
+}
+.markup-heading {
+  color: #91cbff;
+  font-weight: bold;
+}
+.markup-heading-1 {
+  color: #91cbff;
+  font-weight: bold;
+}
+.markup-heading-2 {
+  color: #91cbff;
+  font-weight: bold;
+}
+.markup-heading-3 {
+  color: #91cbff;
+  font-weight: bold;
+}
+.markup-heading-4 {
+  color: #91cbff;
+  font-weight: bold;
+}
+.markup-heading-5 {
+  color: #91cbff;
+  font-weight: bold;
+}
+.markup-heading-6 {
+  color: #91cbff;
+  font-weight: bold;
+}
+.markup-heading-html {
+  color: #f0f3f6;
+}
+.markup-italic {
+  color: #f0f3f6;
+  font-style: italic;
+}
+.markup-link {
+  color: #f0f3f6;
+  text-decoration: underline;
+}
+.markup-link-label {
+  color: #f0f3f6;
+}
+.markup-link-url {
+  color: #f0f3f6;
+  text-decoration: underline;
+}
+.markup-list {
+  color: #91cbff;
+}
+.markup-list-bash {
+  color: #f0f3f6;
+}
+.markup-list-checked {
+  color: #26cd4d;
+}
+.markup-list-unchecked {
+  color: #9ea7b3;
+}
+.markup-math {
+  color: #f0f3f6;
+}
+.markup-quote {
+  color: #f0f3f6;
+}
+.markup-quote-markdown {
+  color: #72f088;
+}
+.markup-raw {
+  color: #f0f3f6;
+  font-style: italic;
+}
+.markup-raw-block {
+  color: #f0f3f6;
+  font-style: italic;
+}
+.markup-strikethrough {
+  color: #f0f3f6;
+  text-decoration: line-through;
+}
+.markup-strong {
+  color: #f0f3f6;
+  font-weight: bold;
+}
+.markup-underline {
+  text-decoration: underline;
+}
+.module {
+  color: #ff9492;
+}
+.module-builtin {
+  color: #91cbff;
+}
+.module-c_sharp {
+  color: #ffb757;
+}
+.module-elixir {
+  color: #ffb757;
+}
+.module-php {
+  color: #ffb757;
+}
+.normal {
+  color: #f0f3f6;
+  background-color: #0a0c10;
+}
+.number {
+  color: #91cbff;
+}
+.number-float {
+  color: #91cbff;
+}
+.operator {
+  color: #91cbff;
+}
+.operator-bash {
+  color: #ff9492;
+}
+.operator-lua {
+  color: #ff9492;
+}
+.property {
+  color: #91cbff;
+}
+.property-json {
+  color: #72f088;
+}
+.property-lua {
+  color: #f0f3f6;
+}
+.property-yaml {
+  color: #72f088;
+}
+.punctuation-bracket {
+  color: #f0f3f6;
+}
+.punctuation-delimiter {
+  color: #f0f3f6;
+}
+.punctuation-delimiter-bash {
+  color: #ff9492;
+}
+.punctuation-special {
+  color: #f0f3f6;
+}
+.string {
+  color: #addcff;
+}
+.string-documentation {
+  color: #addcff;
+}
+.string-escape {
+  color: #addcff;
+  font-weight: bold;
+}
+.string-regexp {
+  color: #addcff;
+}
+.string-special {
+  color: #f0f3f6;
+}
+.string-special-path {
+  color: #f0f3f6;
+}
+.string-special-path-gitignore {
+  color: #dbb7ff;
+}
+.string-special-path-nix {
+  color: #addcff;
+}
+.string-special-symbol {
+  color: #91cbff;
+}
+.string-special-symbol-make {
+  color: #dbb7ff;
+}
+.string-special-url {
+  color: #91cbff;
+  font-style: italic;
+  text-decoration: underline;
+}
+.tag {
+  color: #72f088;
+}
+.tag-attribute {
+  color: #91cbff;
+}
+.tag-builtin {
+  color: #72f088;
+}
+.tag-delimiter-javascript {
+  color: #91cbff;
+}
+.tag-delimiter-tsx {
+  color: #91cbff;
+}
+.tag-javascript {
+  color: #ffb757;
+}
+.tag-tsx {
+  color: #ffb757;
+}
+.type {
+  color: #ffb757;
+}
+.type-builtin {
+  color: #ff9492;
+}
+.type-builtin-python {
+  color: #91cbff;
+}
+.type-css {
+  color: #72f088;
+}
+.type-definition {
+  color: #ffb757;
+}
+.type-sql {
+  color: #f0f3f6;
+}
+.variable {
+  color: #f0f3f6;
+}
+.variable-builtin {
+  color: #91cbff;
+}
+.variable-member {
+  color: #91cbff;
+}
+.variable-member-python {
+  color: #f0f3f6;
+}
+.variable-parameter {
+  color: #f0f3f6;
+}
+.variable-parameter-builtin {
+  color: #91cbff;
+}
+.variable-sql {
+  color: #91cbff;
+}

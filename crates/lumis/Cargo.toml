@@ -42,9 +42,7 @@ no-default-features = true
 
 [features]
 dev = []
-elixir-nif = ["rustler", "nif_version_2_15"]
 default = ["all-languages"]
-nif_version_2_15 = ["rustler/nif_version_2_15"]
 
 all-languages = [
     "lang-angular",
@@ -200,7 +198,6 @@ clap = { version = "4.5", features = ["derive"] }
 derive_builder = "0.20"
 glob = "0.3"
 regex = "1.12"
-rustler = { version = "0.37", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 smol_str = "0.3"

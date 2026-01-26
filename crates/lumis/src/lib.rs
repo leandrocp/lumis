@@ -315,10 +315,6 @@ pub mod vendor;
 pub use formatter::ansi;
 pub use formatter::html;
 
-#[cfg(feature = "elixir-nif")]
-#[doc(hidden)]
-pub mod elixir;
-
 use crate::formatter::Formatter;
 use std::io::{self, Write};
 

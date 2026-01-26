@@ -1,18 +1,48 @@
 #!/usr/bin/env just --justfile
 
+# List available commands
 default:
     @just --list
 
+# Run all tests (Rust crates and Elixir)
+test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Running Rust tests..."
+    cargo test --all-features
+    echo ""
+    echo "Running Elixir tests..."
+    cd packages/elixir/lumis && LUMIS_BUILD=1 mix test
+
+# Run all linters (Rust and Elixir)
+lint:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Running Rust clippy..."
+    cargo clippy --all-features -- -D warnings
+    echo ""
+    echo "Running Rust fmt check..."
+    cargo fmt --all -- --check
+    echo ""
+    echo "Running Elixir format check..."
+    (cd packages/elixir/lumis && mix format --check-formatted)
+    echo ""
+    echo "Running Elixir compile warnings..."
+    (cd packages/elixir/lumis && LUMIS_BUILD=1 mix compile --warnings-as-errors)
+
+# List all supported languages
 list-languages:
     #!/usr/bin/env bash
     set -euo pipefail
     cargo run -p lumis list-languages
 
+# List all available themes
 list-themes:
     #!/usr/bin/env bash
     set -euo pipefail
     cargo run -p lumis list-themes
 
+# List vendored tree-sitter parsers
 list-vendored-parsers:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -73,16 +103,19 @@ list-vendored-parsers:
         echo "$parser"
     done
 
+# Extract highlight scopes from query files
 extract-scopes-highlights:
     #!/usr/bin/env bash
     set -euo pipefail
     find crates/lumis/queries -type f -name "*.scm" -exec grep -oh '@[^_ ][^ ]*' {} \; 2>/dev/null | sed 's/^@//; s/[^a-zA-Z0-9_.-]//g' | sort -u
 
+# Extract highlight scopes from theme files
 extract-scopes-themes:
     #!/usr/bin/env bash
     set -euo pipefail
-    jq -r '.highlights | keys[]' crates/lumis/themes/*.json | sort -u
+    jq -r '.highlights | keys[]' themes/*.json | sort -u
 
+# Update vendored tree-sitter parsers from upstream
 update-vendored-parsers parser_name="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -209,6 +242,7 @@ update-vendored-parsers parser_name="":
         rm -rf "$TEMP_DIR/$parser"
     done
 
+# Update tree-sitter query files from nvim-treesitter
 update-queries query_name="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -276,6 +310,7 @@ update-queries query_name="":
 
     rm -rf "$TEMP_DIR"
 
+# Generate theme JSON files from Neovim colorschemes
 gen-themes theme_name="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -294,10 +329,10 @@ gen-themes theme_name="":
     fi
 
     if [[ -z "{{theme_name}}" ]]; then
-        find crates/lumis/themes -type f -name "*.json" -delete
+        find themes -type f -name "*.json" -delete
     fi
 
-    cd crates/lumis/themes
+    cd themes
 
     if [[ -n "{{theme_name}}" ]]; then
         nvim --clean --headless -V3 -u init.lua -l extract_theme.lua "{{theme_name}}"
@@ -311,6 +346,18 @@ gen-themes theme_name="":
         done <<< "$THEME_NAMES"
     fi
 
+    cd ..
+    just sync-themes
+
+# Copy theme JSON files to crates/lumis/themes
+sync-themes:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p crates/lumis/themes
+    rm -f crates/lumis/themes/*.json || true
+    cp themes/*.json crates/lumis/themes/
+
+# Generate CSS files for HTML linked formatter
 gen-css:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -324,9 +371,22 @@ gen-css:
         exit 0
     fi
 
-    find crates/lumis/css -type f -name "*.css" -delete
+    find css -type f -name "*.css" -delete
     cargo run -p dev --release gen-css
+    just sync-css
 
+# Copy CSS files to crates and packages
+sync-css:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p crates/lumis/css
+    mkdir -p packages/elixir/lumis/priv/static/css
+    rm -f crates/lumis/css/*.css || true
+    rm -f packages/elixir/lumis/priv/static/css/*.css || true
+    cp css/*.css crates/lumis/css/
+    cp css/*.css packages/elixir/lumis/priv/static/css/
+
+# Generate HTML sample files for the website
 gen-samples:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -343,6 +403,14 @@ gen-samples:
     find samples -type f -name "*.html" ! -name "index.html" ! -name "html.html" -delete
     cargo run -p dev --release gen-samples
 
+# Generate documentation for both Rust and Elixir
+docs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cargo doc --all-features --no-deps
+    (cd packages/elixir/lumis && LUMIS_BUILD=1 mix docs)
+
+# Start local dev server for samples
 dev-server:
     #!/usr/bin/env bash
     set -euo pipefail

@@ -1,0 +1,23 @@
+[package]
+name = "lumis_nif"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.91"
+
+[lib]
+name = "lumis_nif"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+once_cell = "1.21"
+parking_lot = "0.12"
+rustler = "0.37"
+lumis = { version = "0.1", features = ["all-languages"] }
+# lumis = { path = "../../../../../crates/lumis", features = ["all-languages"] }
+# lumis = { git = "https://github.com/leandrocp/lumis", features = ["all-languages"] }
+
+[features]
+default = ["nif_version_2_15"]
+# Feature necessary for Rustler Precompiled.
+nif_version_2_15 = ["rustler/nif_version_2_15"]

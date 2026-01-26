@@ -10,3 +10,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "mix"
+    directory: "/packages/elixir/lumis"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "cargo"
+    directory: "/packages/elixir/lumis/native/lumis_nif"
+    schedule:
+      interval: "weekly"

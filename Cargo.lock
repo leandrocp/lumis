@@ -350,15 +350,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "inventory"
-version = "0.3.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc61209c082fbeb19919bee74b176221b27223e27b65d781eb91af24eb1fb46e"
-dependencies = [
- "rustversion",
-]
-
-[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -375,16 +366,6 @@ name = "libc"
 version = "0.2.177"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976"
-
-[[package]]
-name = "libloading"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "754ca22de805bb5744484a5b151a9e1a8e837d5dc232c2d7d8c2e3492edc8b60"
-dependencies = [
- "cfg-if",
- "windows-link",
-]
 
 [[package]]
 name = "linux-raw-sys"
@@ -407,7 +388,6 @@ dependencies = [
  "quote",
  "rayon",
  "regex",
- "rustler",
  "serde",
  "serde_json",
  "smol_str",
@@ -648,12 +628,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "regex-lite"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "943f41321c63ef1c92fd763bfe054d2668f7f225a5c29f0105903dc2fc04ba30"
-
-[[package]]
 name = "regex-syntax"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -671,37 +645,6 @@ dependencies = [
  "linux-raw-sys",
  "windows-sys 0.61.2",
 ]
-
-[[package]]
-name = "rustler"
-version = "0.37.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5c708d8b686a8d426681908369f835af90349f7ebb92ab87ddf14a851efd556"
-dependencies = [
- "inventory",
- "libloading",
- "regex-lite",
- "rustler_codegen",
-]
-
-[[package]]
-name = "rustler_codegen"
-version = "0.37.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da3f478ec72581782a7dd62a5adb406aa076af7cedd7de63fa3676c927eb216a"
-dependencies = [
- "heck",
- "inventory",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "rustversion"
-version = "1.0.22"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "serde"

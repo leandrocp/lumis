@@ -1,0 +1,426 @@
+{
+  "name": "catppuccin_latte",
+  "appearance": "light",
+  "revision": "beaf41a30c26fd7d6c386d383155cbd65dd554cd",
+  "highlights": {
+    "attribute": {
+      "fg": "#fe640b"
+    },
+    "attribute.builtin": {
+      "fg": "#ea76cb"
+    },
+    "attribute.c_sharp": {
+      "fg": "#df8e1d"
+    },
+    "boolean": {
+      "fg": "#fe640b"
+    },
+    "character": {
+      "fg": "#179299"
+    },
+    "character.special": {
+      "fg": "#ea76cb"
+    },
+    "character.special.html": {
+      "fg": "#d20f39"
+    },
+    "comment": {
+      "fg": "#7c7f93",
+      "italic": true
+    },
+    "comment.documentation": {
+      "fg": "#7c7f93",
+      "italic": true
+    },
+    "comment.error": {
+      "fg": "#eff1f5",
+      "bg": "#d20f39"
+    },
+    "comment.hint": {
+      "fg": "#eff1f5",
+      "bg": "#1e66f5"
+    },
+    "comment.note": {
+      "fg": "#eff1f5",
+      "bg": "#1e66f5"
+    },
+    "comment.todo": {
+      "fg": "#eff1f5",
+      "bg": "#dd7878"
+    },
+    "comment.warning": {
+      "fg": "#eff1f5",
+      "bg": "#df8e1d"
+    },
+    "comment.warning.gitcommit": {
+      "fg": "#df8e1d"
+    },
+    "constant": {
+      "fg": "#fe640b"
+    },
+    "constant.builtin": {
+      "fg": "#fe640b"
+    },
+    "constant.java": {
+      "fg": "#179299"
+    },
+    "constant.macro": {
+      "fg": "#8839ef"
+    },
+    "constructor": {
+      "fg": "#df8e1d"
+    },
+    "constructor.lua": {
+      "fg": "#7c7f93"
+    },
+    "constructor.python": {
+      "fg": "#04a5e5"
+    },
+    "diff.delta": {
+      "fg": "#1e66f5"
+    },
+    "diff.minus": {
+      "fg": "#d20f39"
+    },
+    "diff.plus": {
+      "fg": "#40a02b"
+    },
+    "error": {
+      "fg": "#d20f39"
+    },
+    "function": {
+      "fg": "#1e66f5"
+    },
+    "function.builtin": {
+      "fg": "#fe640b"
+    },
+    "function.builtin.bash": {
+      "fg": "#d20f39",
+      "italic": true
+    },
+    "function.call": {
+      "fg": "#1e66f5"
+    },
+    "function.macro": {
+      "fg": "#ea76cb"
+    },
+    "function.method": {
+      "fg": "#1e66f5"
+    },
+    "function.method.call": {
+      "fg": "#1e66f5"
+    },
+    "highlighted": {
+      "bg": "#e9ebf1"
+    },
+    "keyword": {
+      "fg": "#8839ef"
+    },
+    "keyword.conditional": {
+      "fg": "#8839ef",
+      "italic": true
+    },
+    "keyword.conditional.ternary": {
+      "fg": "#04a5e5"
+    },
+    "keyword.coroutine": {
+      "fg": "#8839ef"
+    },
+    "keyword.debug": {
+      "fg": "#8839ef"
+    },
+    "keyword.directive": {
+      "fg": "#ea76cb"
+    },
+    "keyword.directive.css": {
+      "fg": "#8839ef"
+    },
+    "keyword.directive.define": {
+      "fg": "#ea76cb"
+    },
+    "keyword.exception": {
+      "fg": "#8839ef"
+    },
+    "keyword.export": {
+      "fg": "#8839ef"
+    },
+    "keyword.function": {
+      "fg": "#8839ef"
+    },
+    "keyword.import": {
+      "fg": "#8839ef"
+    },
+    "keyword.import.c": {
+      "fg": "#df8e1d"
+    },
+    "keyword.import.cpp": {
+      "fg": "#df8e1d"
+    },
+    "keyword.modifier": {
+      "fg": "#8839ef"
+    },
+    "keyword.operator": {
+      "fg": "#8839ef"
+    },
+    "keyword.repeat": {
+      "fg": "#8839ef"
+    },
+    "keyword.return": {
+      "fg": "#8839ef"
+    },
+    "keyword.type": {
+      "fg": "#8839ef"
+    },
+    "label": {
+      "fg": "#209fb5"
+    },
+    "label.yaml": {
+      "fg": "#df8e1d"
+    },
+    "markup": {
+      "fg": "#4c4f69"
+    },
+    "markup.environment": {
+      "fg": "#ea76cb"
+    },
+    "markup.environment.name": {
+      "fg": "#1e66f5"
+    },
+    "markup.heading": {
+      "fg": "#1e66f5"
+    },
+    "markup.heading.1": {
+      "fg": "#1e66f5"
+    },
+    "markup.heading.1.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.1.markdown": {
+      "fg": "#d20f39"
+    },
+    "markup.heading.2": {
+      "fg": "#1e66f5"
+    },
+    "markup.heading.2.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.2.markdown": {
+      "fg": "#fe640b"
+    },
+    "markup.heading.3": {
+      "fg": "#1e66f5"
+    },
+    "markup.heading.3.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.3.markdown": {
+      "fg": "#df8e1d"
+    },
+    "markup.heading.4": {
+      "fg": "#1e66f5"
+    },
+    "markup.heading.4.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.4.markdown": {
+      "fg": "#40a02b"
+    },
+    "markup.heading.5": {
+      "fg": "#1e66f5"
+    },
+    "markup.heading.5.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.5.markdown": {
+      "fg": "#209fb5"
+    },
+    "markup.heading.6": {
+      "fg": "#1e66f5"
+    },
+    "markup.heading.6.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.6.markdown": {
+      "fg": "#7287fd"
+    },
+    "markup.heading.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.heading.markdown": {
+      "bold": true
+    },
+    "markup.italic": {
+      "fg": "#d20f39",
+      "italic": true
+    },
+    "markup.link": {
+      "fg": "#7287fd"
+    },
+    "markup.link.label": {
+      "fg": "#7287fd"
+    },
+    "markup.link.label.html": {
+      "fg": "#4c4f69"
+    },
+    "markup.link.url": {
+      "fg": "#1e66f5",
+      "italic": true,
+      "underline": true
+    },
+    "markup.list": {
+      "fg": "#179299"
+    },
+    "markup.list.checked": {
+      "fg": "#40a02b"
+    },
+    "markup.list.unchecked": {
+      "fg": "#8c8fa1"
+    },
+    "markup.math": {
+      "fg": "#1e66f5"
+    },
+    "markup.quote": {
+      "fg": "#ea76cb"
+    },
+    "markup.raw": {
+      "fg": "#40a02b"
+    },
+    "markup.raw.block": {
+      "fg": "#40a02b"
+    },
+    "markup.strikethrough": {
+      "fg": "#4c4f69",
+      "strikethrough": true
+    },
+    "markup.strong": {
+      "fg": "#d20f39",
+      "bold": true
+    },
+    "markup.underline": {
+      "underline": true
+    },
+    "module": {
+      "fg": "#df8e1d",
+      "italic": true
+    },
+    "module.builtin": {
+      "fg": "#ea76cb"
+    },
+    "namespace": {
+      "fg": "#df8e1d",
+      "italic": true
+    },
+    "normal": {
+      "fg": "#4c4f69",
+      "bg": "#eff1f5"
+    },
+    "number": {
+      "fg": "#fe640b"
+    },
+    "number.float": {
+      "fg": "#fe640b"
+    },
+    "operator": {
+      "fg": "#04a5e5"
+    },
+    "property": {
+      "fg": "#7287fd"
+    },
+    "property.css": {
+      "fg": "#1e66f5"
+    },
+    "property.scss": {
+      "fg": "#1e66f5"
+    },
+    "punctuation.bracket": {
+      "fg": "#7c7f93"
+    },
+    "punctuation.delimiter": {
+      "fg": "#7c7f93"
+    },
+    "punctuation.delimiter.regex": {
+      "fg": "#ea76cb"
+    },
+    "punctuation.special": {
+      "fg": "#ea76cb"
+    },
+    "string": {
+      "fg": "#40a02b"
+    },
+    "string.documentation": {
+      "fg": "#179299"
+    },
+    "string.escape": {
+      "fg": "#ea76cb"
+    },
+    "string.regex": {
+      "fg": "#ea76cb"
+    },
+    "string.regexp": {
+      "fg": "#ea76cb"
+    },
+    "string.special": {
+      "fg": "#ea76cb"
+    },
+    "string.special.path": {
+      "fg": "#ea76cb"
+    },
+    "string.special.path.gitignore": {
+      "fg": "#4c4f69"
+    },
+    "string.special.symbol": {
+      "fg": "#dd7878"
+    },
+    "string.special.url": {
+      "fg": "#1e66f5",
+      "italic": true,
+      "underline": true
+    },
+    "string.special.url.html": {
+      "fg": "#40a02b"
+    },
+    "tag": {
+      "fg": "#1e66f5"
+    },
+    "tag.attribute": {
+      "fg": "#df8e1d",
+      "italic": true
+    },
+    "tag.builtin": {
+      "fg": "#1e66f5"
+    },
+    "tag.delimiter": {
+      "fg": "#179299"
+    },
+    "type": {
+      "fg": "#df8e1d"
+    },
+    "type.builtin": {
+      "fg": "#8839ef"
+    },
+    "type.css": {
+      "fg": "#7287fd"
+    },
+    "type.definition": {
+      "fg": "#df8e1d"
+    },
+    "variable": {
+      "fg": "#4c4f69"
+    },
+    "variable.builtin": {
+      "fg": "#d20f39"
+    },
+    "variable.member": {
+      "fg": "#7287fd"
+    },
+    "variable.parameter": {
+      "fg": "#e64553"
+    },
+    "variable.parameter.bash": {
+      "fg": "#40a02b"
+    },
+    "variable.parameter.builtin": {
+      "fg": "#ea76cb"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+# Light/Dark Themes using vars
+
+```elixir
+Mix.install([
+  {:phoenix_playground, "~> 0.1"},
+  {:phoenix_html, "~> 4.3"},
+  {:lumis, ">= 0.1"}
+])
+```
+
+## HtmlMultiThemes Formatter
+
+Define CSS vars to resolve the colors and style based on [@media prefers-color-scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-color-scheme).
+
+```elixir
+defmodule SyntaxHighlighterLive do
+  use Phoenix.LiveView
+
+  def mount(_params, _session, socket) do
+    code = ~S"""
+    @doc "Defines a public function with the given name and body."
+    defmacro def(call, expr \\ nil) do
+      assert_no_match_or_guard_scope(__CALLER__.context, "def/2")
+      define(:def, call, expr, __CALLER__)
+    end
+    """
+
+    code = Lumis.highlight!(
+      code,
+      language: "elixir",
+      formatter:
+        {
+          :html_multi_themes,
+          themes: [light: "github_light", dark: "github_dark"],
+          default_theme: "light"
+        }
+    )
+
+    {:ok, assign(socket, code: code)}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+    <style>
+      /* Enable light/dark mode based on system preference */
+      html {
+        color-scheme: light dark;
+      }
+
+      body {
+        background: light-dark(#ffffff, #0d1117);
+        color: light-dark(#1f2328, #e6edf3);
+        min-height: 100vh;
+        font-family: ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+      }
+
+      /* Apply dark theme variables when in dark mode */
+      @media (prefers-color-scheme: dark) {
+        .athl,
+        .athl span {
+          color: var(--athl-dark) !important;
+          background-color: var(--athl-dark-bg) !important;
+          font-style: var(--athl-dark-font-style) !important;
+          font-weight: var(--athl-dark-font-weight) !important;
+          text-decoration: var(--athl-dark-text-decoration) !important;
+        }
+      }
+    </style>
+
+    <div class="max-w-4xl mx-auto p-8">
+      <h1 class="text-lg font-bold">Light/Dark Theme Demo with CSS Variables</h1>
+      <p class="text-sm">Change your OS theme setting to light/dark to see the code highlighting change automatically.</p>
+      <p class="text-sm opacity-75 mb-10">This example uses CSS variables and <a class="text-blue-500" href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-color-scheme">@media prefers-color-scheme</a> for manual theme control. Light theme uses inline styles, dark theme applies CSS variables via media query.</p>
+      {Phoenix.HTML.raw(@code)}
+    </div>
+    """
+  end
+end
+```
+
+```elixir
+PhoenixPlayground.start(live: SyntaxHighlighterLive, open_browser: true, port: 4000)
+```

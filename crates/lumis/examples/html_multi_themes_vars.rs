@@ -38,7 +38,7 @@ fn main() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autumnus Multiple Themes Demo</title>
+    <title>Lumis Multiple Themes Demo</title>
     <style>
         body {{
             font-family: system-ui, -apple-system, sans-serif;
@@ -63,7 +63,7 @@ fn main() {
     </style>
 </head>
 <body>
-    <h1>Autumnus Multiple Themes Demo</h1>
+    <h1>Lumis Multiple Themes Demo</h1>
     <p>Change your system theme preference to see the syntax highlighting update automatically.</p>
 
     {}

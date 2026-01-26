@@ -165,7 +165,7 @@ fn gen_samples_entries(
 }
 
 fn gen_css() -> Result<()> {
-    let css_dir = Path::new("crates/lumis/css");
+    let css_dir = Path::new("css");
     fs::create_dir_all(css_dir)?;
 
     let mut themes: Vec<_> = lumis::themes::ALL_THEMES.iter().collect();

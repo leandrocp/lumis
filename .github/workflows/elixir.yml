@@ -1,0 +1,26 @@
+name: Elixir CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "packages/elixir/lumis/**"
+      - ".github/workflows/elixir.yml"
+  pull_request:
+    paths:
+      - "packages/elixir/lumis/**"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: packages/elixir/lumis
+
+jobs:
+  test:
+    uses: leandrocp/github-actions/.github/workflows/elixir-test.yml@main
+    with:
+      working-directory: packages/elixir/lumis
+  lint:
+    uses: leandrocp/github-actions/.github/workflows/elixir-lint.yml@main
+    with:
+      working-directory: packages/elixir/lumis

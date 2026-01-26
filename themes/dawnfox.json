@@ -1,0 +1,329 @@
+{
+  "name": "dawnfox",
+  "appearance": "light",
+  "revision": "ba47d4b4c5ec308718641ba7402c143836f35aa9",
+  "highlights": {
+    "attribute": {
+      "fg": "#ca6e69"
+    },
+    "attribute.builtin": {
+      "fg": "#295e73"
+    },
+    "boolean": {
+      "fg": "#d7827e"
+    },
+    "character": {
+      "fg": "#618774"
+    },
+    "character.special": {
+      "fg": "#295e73"
+    },
+    "comment": {
+      "fg": "#9893a5"
+    },
+    "comment.documentation": {
+      "fg": "#9893a5"
+    },
+    "comment.error": {
+      "fg": "#faf4ed",
+      "bg": "#b4637a"
+    },
+    "comment.hint": {
+      "fg": "#9893a5"
+    },
+    "comment.note": {
+      "fg": "#faf4ed",
+      "bg": "#286983"
+    },
+    "comment.todo": {
+      "fg": "#faf4ed",
+      "bg": "#618774"
+    },
+    "comment.warning": {
+      "fg": "#faf4ed",
+      "bg": "#ea9d34"
+    },
+    "constant": {
+      "fg": "#ca6e69"
+    },
+    "constant.builtin": {
+      "fg": "#ca6e69"
+    },
+    "constant.macro": {
+      "fg": "#c9709e"
+    },
+    "constructor": {
+      "fg": "#56949f"
+    },
+    "constructor.lua": {
+      "fg": "#625c87"
+    },
+    "diff.delta": {
+      "fg": "#ea9d34"
+    },
+    "diff.minus": {
+      "fg": "#b4637a"
+    },
+    "diff.plus": {
+      "fg": "#618774"
+    },
+    "function": {
+      "fg": "#295e73"
+    },
+    "function.builtin": {
+      "fg": "#b4637a"
+    },
+    "function.call": {
+      "fg": "#295e73"
+    },
+    "function.macro": {
+      "fg": "#b4637a"
+    },
+    "function.method": {
+      "fg": "#295e73"
+    },
+    "function.method.call": {
+      "fg": "#295e73"
+    },
+    "highlighted": {
+      "bg": "#ebdfe4"
+    },
+    "keyword": {
+      "fg": "#907aa9"
+    },
+    "keyword.conditional": {
+      "fg": "#816b9a"
+    },
+    "keyword.conditional.ternary": {
+      "fg": "#816b9a"
+    },
+    "keyword.coroutine": {
+      "fg": "#907aa9"
+    },
+    "keyword.debug": {
+      "fg": "#907aa9"
+    },
+    "keyword.directive": {
+      "fg": "#907aa9"
+    },
+    "keyword.directive.define": {
+      "fg": "#907aa9"
+    },
+    "keyword.exception": {
+      "fg": "#907aa9"
+    },
+    "keyword.export": {
+      "fg": "#907aa9"
+    },
+    "keyword.function": {
+      "fg": "#907aa9"
+    },
+    "keyword.import": {
+      "fg": "#c9709e"
+    },
+    "keyword.modifier": {
+      "fg": "#907aa9"
+    },
+    "keyword.operator": {
+      "fg": "#625c87"
+    },
+    "keyword.repeat": {
+      "fg": "#816b9a"
+    },
+    "keyword.return": {
+      "fg": "#b4637a"
+    },
+    "keyword.type": {
+      "fg": "#907aa9"
+    },
+    "label": {
+      "fg": "#816b9a"
+    },
+    "label.json": {
+      "fg": "#295e73"
+    },
+    "markup": {
+      "fg": "#575279"
+    },
+    "markup.environment": {
+      "fg": "#575279"
+    },
+    "markup.environment.name": {
+      "fg": "#575279"
+    },
+    "markup.heading": {
+      "fg": "#295e73",
+      "bold": true
+    },
+    "markup.heading.1": {
+      "fg": "#295e73",
+      "bold": true
+    },
+    "markup.heading.2": {
+      "fg": "#295e73",
+      "bold": true
+    },
+    "markup.heading.3": {
+      "fg": "#295e73",
+      "bold": true
+    },
+    "markup.heading.4": {
+      "fg": "#295e73",
+      "bold": true
+    },
+    "markup.heading.5": {
+      "fg": "#295e73",
+      "bold": true
+    },
+    "markup.heading.6": {
+      "fg": "#295e73",
+      "bold": true
+    },
+    "markup.italic": {
+      "italic": true
+    },
+    "markup.link": {
+      "fg": "#907aa9",
+      "bold": true
+    },
+    "markup.link.label": {
+      "fg": "#295e73"
+    },
+    "markup.link.url": {
+      "fg": "#ca6e69",
+      "italic": true,
+      "underline": true
+    },
+    "markup.list": {
+      "fg": "#50848c"
+    },
+    "markup.list.checked": {
+      "fg": "#618774"
+    },
+    "markup.list.unchecked": {
+      "fg": "#ea9d34"
+    },
+    "markup.math": {
+      "fg": "#295e73"
+    },
+    "markup.quote": {
+      "fg": "#625c87"
+    },
+    "markup.raw": {
+      "fg": "#56949f",
+      "italic": true
+    },
+    "markup.raw.block": {
+      "fg": "#d685af"
+    },
+    "markup.strikethrough": {
+      "fg": "#575279",
+      "strikethrough": true
+    },
+    "markup.strong": {
+      "fg": "#c26d85",
+      "bold": true
+    },
+    "module": {
+      "fg": "#50848c"
+    },
+    "module.builtin": {
+      "fg": "#295e73"
+    },
+    "namespace": {
+      "fg": "#50848c"
+    },
+    "normal": {
+      "fg": "#575279",
+      "bg": "#faf4ed"
+    },
+    "number": {
+      "fg": "#d7827e"
+    },
+    "number.float": {
+      "fg": "#d7827e"
+    },
+    "operator": {
+      "fg": "#625c87"
+    },
+    "property": {
+      "fg": "#286983"
+    },
+    "punctuation.bracket": {
+      "fg": "#625c87"
+    },
+    "punctuation.delimiter": {
+      "fg": "#625c87"
+    },
+    "punctuation.special": {
+      "fg": "#50848c"
+    },
+    "string": {
+      "fg": "#618774"
+    },
+    "string.documentation": {
+      "fg": "#618774"
+    },
+    "string.escape": {
+      "fg": "#dd9024",
+      "bold": true
+    },
+    "string.regex": {
+      "fg": "#dd9024"
+    },
+    "string.regexp": {
+      "fg": "#dd9024"
+    },
+    "string.special": {
+      "fg": "#295e73"
+    },
+    "string.special.path": {
+      "fg": "#295e73"
+    },
+    "string.special.symbol": {
+      "fg": "#295e73"
+    },
+    "string.special.url": {
+      "fg": "#ca6e69",
+      "italic": true,
+      "underline": true
+    },
+    "tag": {
+      "fg": "#907aa9"
+    },
+    "tag.attribute": {
+      "fg": "#295e73",
+      "italic": true
+    },
+    "tag.builtin": {
+      "fg": "#295e73"
+    },
+    "tag.delimiter": {
+      "fg": "#50848c"
+    },
+    "type": {
+      "fg": "#ea9d34"
+    },
+    "type.builtin": {
+      "fg": "#50848c"
+    },
+    "type.definition": {
+      "fg": "#ea9d34"
+    },
+    "variable": {
+      "fg": "#575279"
+    },
+    "variable.builtin": {
+      "fg": "#b4637a"
+    },
+    "variable.member": {
+      "fg": "#286983"
+    },
+    "variable.parameter": {
+      "fg": "#50848c"
+    },
+    "variable.parameter.builtin": {
+      "fg": "#295e73"
+    }
+  }
+}

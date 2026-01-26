@@ -1,4 +1,5 @@
 /target
+/packages/elixir/lumis/native/lumis_nif/target
 /themes/nvim
 /queries/**/folds.scm
 /queries/**/indents.scm

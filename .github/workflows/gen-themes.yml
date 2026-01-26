@@ -34,6 +34,7 @@ jobs:
         with:
           token: ${{ secrets.CI_TOKEN }}
           add-paths: |
+            themes
             crates/lumis/themes
           commit-message: "chore: generate themes"
           title: "chore: generate themes"

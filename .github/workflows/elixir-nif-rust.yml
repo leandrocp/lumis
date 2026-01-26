@@ -1,0 +1,24 @@
+name: Elixir NIF Rust CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/elixir/lumis/native/**"
+  pull_request:
+    paths:
+      - "packages/elixir/lumis/native/**"
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
+    with:
+      manifest-path: 'packages/elixir/lumis/native/lumis_nif/Cargo.toml'
+      msrv: '1.91'
+  lint:
+    uses: leandrocp/github-actions/.github/workflows/rust-lint.yml@main
+    with:
+      manifest-path: 'packages/elixir/lumis/native/lumis_nif/Cargo.toml'
+      msrv: '1.91'

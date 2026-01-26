@@ -1,0 +1,322 @@
+{
+  "name": "molokai",
+  "appearance": "dark",
+  "revision": "720bacc534fa3b1566d75612986737088a4fb132",
+  "highlights": {
+    "attribute": {
+      "fg": "#f92672"
+    },
+    "attribute.builtin": {
+      "fg": "#819aff"
+    },
+    "boolean": {
+      "fg": "#ae81ff"
+    },
+    "character": {
+      "fg": "#a6e22e"
+    },
+    "character.special": {
+      "fg": "#819aff"
+    },
+    "comment": {
+      "fg": "#7e8e91",
+      "italic": true
+    },
+    "comment.documentation": {
+      "fg": "#7e8e91",
+      "italic": true
+    },
+    "comment.error": {
+      "fg": "#ff4a44"
+    },
+    "comment.hint": {
+      "fg": "#7e8e91",
+      "italic": true
+    },
+    "comment.note": {
+      "fg": "#6796e6"
+    },
+    "comment.todo": {
+      "fg": "#1b1d1e",
+      "bg": "#e6db74"
+    },
+    "comment.warning": {
+      "fg": "#cd9731"
+    },
+    "constant": {
+      "fg": "#ae81ff"
+    },
+    "constant.builtin": {
+      "fg": "#a6e22e"
+    },
+    "constant.macro": {
+      "fg": "#f92672"
+    },
+    "constructor": {
+      "fg": "#819aff"
+    },
+    "diff.delta": {
+      "fg": "#8cf8f7"
+    },
+    "diff.minus": {
+      "fg": "#ffc0b9"
+    },
+    "diff.plus": {
+      "fg": "#b3f6c0"
+    },
+    "function": {
+      "fg": "#a6e22e"
+    },
+    "function.builtin": {
+      "fg": "#819aff"
+    },
+    "function.call": {
+      "fg": "#a6e22e"
+    },
+    "function.macro": {
+      "fg": "#a6e22e"
+    },
+    "function.method": {
+      "fg": "#a6e22e"
+    },
+    "function.method.call": {
+      "fg": "#a6e22e"
+    },
+    "highlighted": {
+      "bg": "#303132"
+    },
+    "keyword": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.conditional": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.conditional.ternary": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.coroutine": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.debug": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.directive": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.directive.define": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.exception": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.export": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.function": {
+      "fg": "#f92672"
+    },
+    "keyword.import": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.modifier": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.operator": {
+      "fg": "#f92672"
+    },
+    "keyword.repeat": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "keyword.return": {
+      "fg": "#f92672",
+      "italic": true
+    },
+    "keyword.type": {
+      "fg": "#66d9ef",
+      "italic": true
+    },
+    "label": {
+      "fg": "#819aff"
+    },
+    "markup": {
+      "fg": "#819aff"
+    },
+    "markup.environment": {
+      "fg": "#819aff"
+    },
+    "markup.environment.name": {
+      "fg": "#819aff"
+    },
+    "markup.heading": {
+      "fg": "#a6e22e",
+      "bold": true
+    },
+    "markup.heading.1": {
+      "fg": "#a6e22e",
+      "bold": true
+    },
+    "markup.heading.2": {
+      "fg": "#a6e22e",
+      "bold": true
+    },
+    "markup.heading.3": {
+      "fg": "#a6e22e",
+      "bold": true
+    },
+    "markup.heading.4": {
+      "fg": "#a6e22e",
+      "bold": true
+    },
+    "markup.heading.5": {
+      "fg": "#a6e22e",
+      "bold": true
+    },
+    "markup.heading.6": {
+      "fg": "#a6e22e",
+      "bold": true
+    },
+    "markup.italic": {
+      "italic": true
+    },
+    "markup.link": {
+      "underline": true
+    },
+    "markup.link.label": {
+      "underline": true
+    },
+    "markup.link.url": {
+      "underline": true
+    },
+    "markup.list": {
+      "fg": "#819aff"
+    },
+    "markup.list.checked": {
+      "fg": "#819aff"
+    },
+    "markup.list.unchecked": {
+      "fg": "#819aff"
+    },
+    "markup.math": {
+      "fg": "#819aff"
+    },
+    "markup.quote": {
+      "fg": "#819aff"
+    },
+    "markup.raw": {
+      "fg": "#819aff"
+    },
+    "markup.raw.block": {
+      "fg": "#819aff"
+    },
+    "markup.strikethrough": {
+      "strikethrough": true
+    },
+    "markup.strong": {
+      "bold": true
+    },
+    "markup.underline": {
+      "underline": true
+    },
+    "module": {
+      "fg": "#66d9ef"
+    },
+    "module.builtin": {
+      "fg": "#819aff"
+    },
+    "namespace": {
+      "fg": "#f92672"
+    },
+    "normal": {
+      "fg": "#f8f8f2",
+      "bg": "#1b1d1e"
+    },
+    "number": {
+      "fg": "#ae81ff"
+    },
+    "number.float": {
+      "fg": "#ae81ff"
+    },
+    "operator": {
+      "fg": "#f92672"
+    },
+    "property": {
+      "fg": "#f8f8f2"
+    },
+    "punctuation.bracket": {
+      "fg": "#fd971f"
+    },
+    "punctuation.delimiter": {
+      "fg": "#e0e2ea"
+    },
+    "punctuation.special": {
+      "fg": "#e0e2ea"
+    },
+    "punctuation.special.markdown": {
+      "fg": "#fd971f",
+      "bold": true
+    },
+    "string": {
+      "fg": "#e6db74"
+    },
+    "string.documentation": {
+      "fg": "#e6db74"
+    },
+    "string.escape": {
+      "fg": "#ae81ff"
+    },
+    "string.regexp": {
+      "fg": "#819aff"
+    },
+    "string.special": {
+      "fg": "#819aff"
+    },
+    "string.special.path": {
+      "fg": "#819aff"
+    },
+    "string.special.symbol": {
+      "fg": "#819aff"
+    },
+    "string.special.url": {
+      "underline": true
+    },
+    "tag": {
+      "fg": "#f92672"
+    },
+    "tag.attribute": {
+      "fg": "#f8f8f2"
+    },
+    "tag.builtin": {
+      "fg": "#819aff"
+    },
+    "tag.delimiter": {
+      "fg": "#e0e2ea"
+    },
+    "type": {
+      "fg": "#66d9ef"
+    },
+    "type.builtin": {
+      "fg": "#66d9ef"
+    },
+    "type.definition": {
+      "fg": "#66d9ef"
+    },
+    "variable.builtin": {
+      "fg": "#fd971f"
+    },
+    "variable.parameter.builtin": {
+      "fg": "#819aff"
+    }
+  }
+}

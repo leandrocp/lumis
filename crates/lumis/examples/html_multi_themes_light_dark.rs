@@ -40,7 +40,7 @@ fn main() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autumnus light-dark() Demo</title>
+    <title>Lumis light-dark() Demo</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         html {{
@@ -53,7 +53,7 @@ fn main() {
     </style>
 </head>
 <body class="max-w-4xl mx-auto p-8 transition-colors duration-300">
-    <h1 class="text-3xl font-bold mb-6">Autumnus light-dark() Demo</h1>
+    <h1 class="text-3xl font-bold mb-6">Lumis light-dark() Demo</h1>
 
     <p class="mb-4">
         This demo uses the CSS <code>light-dark()</code> function which automatically

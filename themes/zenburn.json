@@ -1,0 +1,342 @@
+{
+  "name": "zenburn",
+  "appearance": "dark",
+  "revision": "f5ee12b30119499c7fa7f95719cd7c5aab9f9f29",
+  "highlights": {
+    "attribute": {
+      "fg": "#ffcfaf",
+      "bold": true
+    },
+    "attribute.builtin": {
+      "fg": "#cfbfaf"
+    },
+    "boolean": {
+      "fg": "#dca3a3"
+    },
+    "character": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "character.special": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "comment": {
+      "fg": "#7f9f7f"
+    },
+    "comment.documentation": {
+      "fg": "#7f9f7f"
+    },
+    "comment.error": {
+      "fg": "#e89393"
+    },
+    "comment.hint": {
+      "fg": "#7f9f7f"
+    },
+    "comment.note": {
+      "fg": "#e3ceab"
+    },
+    "comment.todo": {
+      "fg": "#dfdfdf",
+      "bold": true
+    },
+    "comment.warning": {
+      "fg": "#ffcfaf"
+    },
+    "constant": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "constant.builtin": {
+      "fg": "#cfbfaf"
+    },
+    "constant.macro": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "constructor": {
+      "fg": "#cfbfaf"
+    },
+    "diff.delta": {
+      "fg": "#8cf8f7"
+    },
+    "diff.minus": {
+      "fg": "#ffc0b9"
+    },
+    "diff.plus": {
+      "fg": "#b3f6c0"
+    },
+    "function": {
+      "fg": "#efef8f"
+    },
+    "function.builtin": {
+      "fg": "#cfbfaf"
+    },
+    "function.call": {
+      "fg": "#efef8f"
+    },
+    "function.macro": {
+      "fg": "#efef8f"
+    },
+    "function.method": {
+      "fg": "#efef8f"
+    },
+    "function.method.call": {
+      "fg": "#efef8f"
+    },
+    "highlighted": {
+      "bg": "#434443"
+    },
+    "keyword": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.conditional": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.conditional.ternary": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.coroutine": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.debug": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.directive": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.directive.define": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.exception": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.export": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.function": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.import": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.modifier": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.operator": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.repeat": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.return": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "keyword.type": {
+      "fg": "#f0dfaf",
+      "bold": true
+    },
+    "label": {
+      "fg": "#dfcfaf",
+      "underline": true
+    },
+    "markup": {
+      "fg": "#cfbfaf"
+    },
+    "markup.environment": {
+      "fg": "#cfbfaf"
+    },
+    "markup.environment.name": {
+      "fg": "#cfbfaf"
+    },
+    "markup.heading": {
+      "fg": "#efefef",
+      "bold": true
+    },
+    "markup.heading.1": {
+      "fg": "#efefef",
+      "bold": true
+    },
+    "markup.heading.2": {
+      "fg": "#efefef",
+      "bold": true
+    },
+    "markup.heading.3": {
+      "fg": "#efefef",
+      "bold": true
+    },
+    "markup.heading.4": {
+      "fg": "#efefef",
+      "bold": true
+    },
+    "markup.heading.5": {
+      "fg": "#efefef",
+      "bold": true
+    },
+    "markup.heading.6": {
+      "fg": "#efefef",
+      "bold": true
+    },
+    "markup.italic": {
+      "italic": true
+    },
+    "markup.link": {
+      "fg": "#dcdccc",
+      "underline": true
+    },
+    "markup.link.label": {
+      "fg": "#dcdccc",
+      "underline": true
+    },
+    "markup.link.url": {
+      "fg": "#dcdccc",
+      "underline": true
+    },
+    "markup.list": {
+      "fg": "#cfbfaf"
+    },
+    "markup.list.checked": {
+      "fg": "#cfbfaf"
+    },
+    "markup.list.unchecked": {
+      "fg": "#cfbfaf"
+    },
+    "markup.math": {
+      "fg": "#cfbfaf"
+    },
+    "markup.quote": {
+      "fg": "#cfbfaf"
+    },
+    "markup.raw": {
+      "fg": "#cfbfaf"
+    },
+    "markup.raw.block": {
+      "fg": "#cfbfaf"
+    },
+    "markup.strikethrough": {
+      "strikethrough": true
+    },
+    "markup.strong": {
+      "bold": true
+    },
+    "markup.underline": {
+      "underline": true
+    },
+    "module": {
+      "fg": "#efefaf",
+      "bold": true
+    },
+    "module.builtin": {
+      "fg": "#cfbfaf"
+    },
+    "normal": {
+      "fg": "#dcdccc",
+      "bg": "#3f3f3f"
+    },
+    "number": {
+      "fg": "#8cd0d3"
+    },
+    "number.float": {
+      "fg": "#c0bed1"
+    },
+    "operator": {
+      "fg": "#f0efd0"
+    },
+    "property": {
+      "fg": "#efdcbc"
+    },
+    "punctuation.bracket": {
+      "fg": "#8f8f8f"
+    },
+    "punctuation.delimiter": {
+      "fg": "#8f8f8f"
+    },
+    "punctuation.special": {
+      "fg": "#cfbfaf"
+    },
+    "string": {
+      "fg": "#cc9393"
+    },
+    "string.documentation": {
+      "fg": "#cc9393"
+    },
+    "string.escape": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "string.regexp": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "string.special": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "string.special.path": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "string.special.symbol": {
+      "fg": "#dca3a3",
+      "bold": true
+    },
+    "string.special.url": {
+      "fg": "#dcdccc",
+      "underline": true
+    },
+    "tag": {
+      "fg": "#e89393",
+      "bold": true
+    },
+    "tag.attribute": {
+      "fg": "#e89393",
+      "bold": true
+    },
+    "tag.builtin": {
+      "fg": "#cfbfaf"
+    },
+    "tag.delimiter": {
+      "fg": "#e89393",
+      "bold": true
+    },
+    "type": {
+      "fg": "#dfdfbf"
+    },
+    "type.builtin": {
+      "fg": "#cfbfaf"
+    },
+    "type.definition": {
+      "fg": "#dfdfbf"
+    },
+    "variable": {
+      "fg": "#e0e2ea"
+    },
+    "variable.builtin": {
+      "fg": "#cfbfaf"
+    },
+    "variable.member": {
+      "fg": "#e0e2ea"
+    },
+    "variable.parameter": {
+      "fg": "#e0e2ea"
+    },
+    "variable.parameter.builtin": {
+      "fg": "#cfbfaf"
+    }
+  }
+}

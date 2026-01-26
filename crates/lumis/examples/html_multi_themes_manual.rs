@@ -34,7 +34,7 @@ fn main() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autumnus Manual Theme Switching</title>
+    <title>Lumis Manual Theme Switching</title>
     <style>
         body {{
             font-family: system-ui, -apple-system, sans-serif;
@@ -102,7 +102,7 @@ fn main() {
     </style>
 </head>
 <body>
-    <h1>Autumnus Manual Theme Switching</h1>
+    <h1>Lumis Manual Theme Switching</h1>
 
     <div class="theme-buttons">
         <button onclick="setTheme('light')" id="btn-light" class="theme-button active">

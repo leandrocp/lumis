@@ -1,0 +1,11 @@
+name: Elixir NIF Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    uses: leandrocp/github-actions/.github/workflows/nif-release.yml@main
+    with:
+      project-name: lumis_nif
+      project-dir: packages/elixir/lumis/native/lumis_nif

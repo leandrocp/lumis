@@ -1,0 +1,417 @@
+/* github_light
+ * revision: c106c9472154d6b2c74b74565616b877ae8ed31d
+ */
+
+pre.athl {
+  color: #1f2328;
+  background-color: #ffffff;
+}
+.attribute {
+  color: #0550ae;
+}
+.attribute-builtin {
+  color: #1f2328;
+}
+.boolean {
+  color: #0550ae;
+}
+.character {
+  color: #0a3069;
+}
+.character-special {
+  color: #1f2328;
+}
+.comment {
+  color: #57606a;
+}
+.comment-documentation {
+  color: #57606a;
+}
+.comment-error {
+  color: #ffffff;
+  background-color: #d1242f;
+}
+.comment-hint {
+  color: #ffffff;
+  background-color: #d0d7de;
+}
+.comment-note {
+  color: #0969da;
+}
+.comment-todo {
+  color: #ffffff;
+  background-color: #d0d7de;
+}
+.comment-warning {
+  color: #ffffff;
+  background-color: #9a6700;
+}
+.constant {
+  color: #0550ae;
+}
+.constant-builtin {
+  color: #0550ae;
+}
+.constant-builtin-rust {
+  color: #953800;
+}
+.constant-html {
+  color: #116329;
+}
+.constant-macro {
+  color: #cf222e;
+}
+.constructor {
+  color: #953800;
+}
+.constructor-lua {
+  color: #1f2328;
+}
+.diff-delta {
+  color: #9a6700;
+  background-color: #d8cab3;
+}
+.diff-minus {
+  color: #d1242f;
+  background-color: #e4b7be;
+}
+.diff-plus {
+  color: #1a7f37;
+  background-color: #b8d0bf;
+}
+.function {
+  color: #6639ba;
+}
+.function-builtin-bash {
+  color: #cf222e;
+}
+.function-builtin-lua {
+  color: #0550ae;
+}
+.function-builtin-make {
+  color: #0550ae;
+}
+.function-call {
+  color: #6639ba;
+}
+.function-call-bash {
+  color: #0550ae;
+}
+.function-macro {
+  color: #6639ba;
+}
+.function-method {
+  color: #6639ba;
+}
+.function-method-call {
+  color: #6639ba;
+}
+.highlighted {
+  background-color: #e7eaf0;
+}
+.keyword {
+  color: #cf222e;
+}
+.keyword-conditional {
+  color: #cf222e;
+}
+.keyword-conditional-ternary {
+  color: #cf222e;
+}
+.keyword-coroutine {
+  color: #cf222e;
+}
+.keyword-debug {
+  color: #cf222e;
+}
+.keyword-directive {
+  color: #cf222e;
+}
+.keyword-directive-define {
+  color: #cf222e;
+}
+.keyword-directive-rust {
+  color: #0550ae;
+}
+.keyword-exception {
+  color: #0550ae;
+}
+.keyword-export {
+  color: #cf222e;
+}
+.keyword-function {
+  color: #cf222e;
+}
+.keyword-import {
+  color: #cf222e;
+}
+.keyword-modifier {
+  color: #cf222e;
+}
+.keyword-operator {
+  color: #cf222e;
+}
+.keyword-repeat {
+  color: #cf222e;
+}
+.keyword-return {
+  color: #cf222e;
+}
+.keyword-type {
+  color: #cf222e;
+}
+.label {
+  color: #116329;
+}
+.label-ruby {
+  color: #0550ae;
+}
+.markup {
+  color: #1f2328;
+}
+.markup-environment {
+  color: #cf222e;
+}
+.markup-environment-name {
+  color: #6639ba;
+}
+.markup-heading {
+  color: #0550ae;
+  font-weight: bold;
+}
+.markup-heading-1 {
+  color: #0550ae;
+  font-weight: bold;
+}
+.markup-heading-2 {
+  color: #0550ae;
+  font-weight: bold;
+}
+.markup-heading-3 {
+  color: #0550ae;
+  font-weight: bold;
+}
+.markup-heading-4 {
+  color: #0550ae;
+  font-weight: bold;
+}
+.markup-heading-5 {
+  color: #0550ae;
+  font-weight: bold;
+}
+.markup-heading-6 {
+  color: #0550ae;
+  font-weight: bold;
+}
+.markup-heading-html {
+  color: #1f2328;
+}
+.markup-italic {
+  color: #1f2328;
+  font-style: italic;
+}
+.markup-link {
+  color: #1f2328;
+  text-decoration: underline;
+}
+.markup-link-label {
+  color: #1f2328;
+}
+.markup-link-url {
+  color: #1f2328;
+  text-decoration: underline;
+}
+.markup-list {
+  color: #0550ae;
+}
+.markup-list-bash {
+  color: #1f2328;
+}
+.markup-list-checked {
+  color: #116329;
+}
+.markup-list-unchecked {
+  color: #57606a;
+}
+.markup-math {
+  color: #1f2328;
+}
+.markup-quote {
+  color: #1f2328;
+}
+.markup-quote-markdown {
+  color: #116329;
+}
+.markup-raw {
+  color: #1f2328;
+  font-style: italic;
+}
+.markup-raw-block {
+  color: #1f2328;
+  font-style: italic;
+}
+.markup-strikethrough {
+  color: #1f2328;
+  text-decoration: line-through;
+}
+.markup-strong {
+  color: #1f2328;
+  font-weight: bold;
+}
+.markup-underline {
+  text-decoration: underline;
+}
+.module {
+  color: #cf222e;
+}
+.module-builtin {
+  color: #0550ae;
+}
+.module-c_sharp {
+  color: #953800;
+}
+.module-elixir {
+  color: #953800;
+}
+.module-php {
+  color: #953800;
+}
+.normal {
+  color: #1f2328;
+  background-color: #ffffff;
+}
+.number {
+  color: #0550ae;
+}
+.number-float {
+  color: #0550ae;
+}
+.operator {
+  color: #0550ae;
+}
+.operator-bash {
+  color: #cf222e;
+}
+.operator-lua {
+  color: #cf222e;
+}
+.property {
+  color: #0550ae;
+}
+.property-json {
+  color: #116329;
+}
+.property-lua {
+  color: #1f2328;
+}
+.property-yaml {
+  color: #116329;
+}
+.punctuation-bracket {
+  color: #1f2328;
+}
+.punctuation-delimiter {
+  color: #1f2328;
+}
+.punctuation-delimiter-bash {
+  color: #cf222e;
+}
+.punctuation-special {
+  color: #1f2328;
+}
+.string {
+  color: #0a3069;
+}
+.string-documentation {
+  color: #0a3069;
+}
+.string-escape {
+  color: #0a3069;
+  font-weight: bold;
+}
+.string-regexp {
+  color: #0a3069;
+}
+.string-special {
+  color: #1f2328;
+}
+.string-special-path {
+  color: #1f2328;
+}
+.string-special-path-gitignore {
+  color: #6639ba;
+}
+.string-special-path-nix {
+  color: #0a3069;
+}
+.string-special-symbol {
+  color: #0550ae;
+}
+.string-special-symbol-make {
+  color: #6639ba;
+}
+.string-special-url {
+  color: #0550ae;
+  font-style: italic;
+  text-decoration: underline;
+}
+.tag {
+  color: #116329;
+}
+.tag-attribute {
+  color: #0550ae;
+}
+.tag-builtin {
+  color: #116329;
+}
+.tag-delimiter-javascript {
+  color: #0550ae;
+}
+.tag-delimiter-tsx {
+  color: #0550ae;
+}
+.tag-javascript {
+  color: #953800;
+}
+.tag-tsx {
+  color: #953800;
+}
+.type {
+  color: #953800;
+}
+.type-builtin {
+  color: #cf222e;
+}
+.type-builtin-python {
+  color: #0550ae;
+}
+.type-css {
+  color: #116329;
+}
+.type-definition {
+  color: #953800;
+}
+.type-sql {
+  color: #1f2328;
+}
+.variable {
+  color: #1f2328;
+}
+.variable-builtin {
+  color: #0550ae;
+}
+.variable-member {
+  color: #0550ae;
+}
+.variable-member-python {
+  color: #1f2328;
+}
+.variable-parameter {
+  color: #1f2328;
+}
+.variable-parameter-builtin {
+  color: #0550ae;
+}
+.variable-sql {
+  color: #0550ae;
+}

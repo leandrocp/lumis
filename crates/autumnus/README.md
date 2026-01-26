@@ -24,9 +24,3 @@ use autumnus::*;
 // After
 use lumis::*;
 ```
-
-The API remains the same - only the crate name has changed.
-
-## Why the rename?
-
-The project has been renamed to `lumis` (Latin for "light") to better reflect its purpose as a syntax highlighting library.

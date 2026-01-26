@@ -1,0 +1,73 @@
+# Light/Dark Themes using light-dark()
+
+```elixir
+Mix.install([
+  {:phoenix_playground, "~> 0.1"},
+  {:phoenix_html, "~> 4.3"},
+  {:lumis, ">= 0.1"}
+])
+```
+
+## HtmlMultiThemes Formatter
+
+Use the [light-dark()](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark) CSS function to resolve the theme. It requires both `light` and `dark` theme defined in `:themes` option.
+
+```elixir
+defmodule SyntaxHighlighterLive do
+  use Phoenix.LiveView
+
+  def mount(_params, _session, socket) do
+    code = ~S"""
+    @doc "Defines a public function with the given name and body."
+    defmacro def(call, expr \\ nil) do
+      assert_no_match_or_guard_scope(__CALLER__.context, "def/2")
+      define(:def, call, expr, __CALLER__)
+    end
+    """
+
+    code = Lumis.highlight!(
+      code,
+      language: "elixir",
+      formatter:
+        {
+          :html_multi_themes,
+          themes: [light: "github_light", dark: "github_dark"],
+          default_theme: "light-dark()"
+        }
+    )
+
+    {:ok, assign(socket, code: code)}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+    <style>
+      /* Enable light/dark mode based on system preference */
+      html {
+        color-scheme: light dark;
+      }
+
+      body {
+        background: light-dark(#ffffff, #0d1117);
+        color: light-dark(#1f2328, #e6edf3);
+        min-height: 100vh;
+        font-family: ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace
+      }
+    </style>
+
+    <div class="max-w-4xl mx-auto p-8">
+      <h1 class="text-lg font-bold">Light/Dark Theme Demo</h1>
+      <p class="text-sm">Change your OS theme setting to light/dark to see the code highlighting change automatically.</p>
+      <p class="text-sm opacity-75 mb-10">Uses CSS <a class="text-blue-500" href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark">light-dark()</a> function for automatic theme switching.</p>
+      {Phoenix.HTML.raw(@code)}
+    </div>
+    """
+  end
+end
+```
+
+```elixir
+PhoenixPlayground.start(live: SyntaxHighlighterLive, open_browser: true, port: 4000)
+```

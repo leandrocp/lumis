@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Removed
+
+- Remove `elixir-nif` feature. The Elixir/Rustler bridge code is now maintained in the Elixir package's NIF crate.
+
 ## 0.1.0 - 2026-01-23
 
 First release of `lumis`, a renamed and restructured version of `autumnus`.
