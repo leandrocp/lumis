@@ -468,7 +468,7 @@ pub fn span_multi_themes_attrs(
 /// * `language` - Optional language for specialized scope lookup
 /// * `themes` - Map of theme name to Theme
 /// * `default_theme` - Optional name of the default theme (gets inline styles)
-/// * `css_variable_prefix` - CSS variable prefix (e.g., "--athl")
+/// * `css_variable_prefix` - CSS variable prefix (e.g., "--lumis")
 /// * `italic` - Whether to enable italic styling
 /// * `include_highlights` - Whether to include data-highlight attribute
 ///
@@ -661,7 +661,7 @@ pub fn scope_to_class(scope: &str) -> &str {
 
 /// Generate an opening `<pre>` tag with optional class and theme styles.
 ///
-/// Creates the opening `<pre>` tag with the base "athl" class, an optional custom class,
+/// Creates the opening `<pre>` tag with the base "lumis" class, an optional custom class,
 /// and optional theme styling for background and foreground colors.
 ///
 /// # Arguments
@@ -677,7 +677,7 @@ pub fn scope_to_class(scope: &str) -> &str {
 ///
 /// let mut output = Vec::new();
 /// html::open_pre_tag(&mut output, Some("my-code"), None).unwrap();
-/// assert_eq!(String::from_utf8(output).unwrap(), r#"<pre class="athl my-code">"#);
+/// assert_eq!(String::from_utf8(output).unwrap(), r#"<pre class="lumis my-code">"#);
 /// ```
 pub fn open_pre_tag(
     output: &mut dyn Write,
@@ -685,9 +685,9 @@ pub fn open_pre_tag(
     theme: Option<&Theme>,
 ) -> io::Result<()> {
     let class = if let Some(pre_class) = pre_class {
-        format!("athl {pre_class}")
+        format!("lumis {pre_class}")
     } else {
-        "athl".to_string()
+        "lumis".to_string()
     };
 
     write!(

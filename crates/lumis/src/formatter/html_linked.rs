@@ -10,7 +10,7 @@
 //! HTML with CSS classes like:
 //!
 //! ```html
-//! <pre class="athl"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span class="keyword-function">fn</span> <span class="function">main</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span> <span class="punctuation-bracket">&lbrace;</span> <span class="keyword-exception">println</span><span class="function-macro">!</span><span class="punctuation-bracket">(</span><span class="string">&quot;Hello&quot;</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">;</span> <span class="punctuation-bracket">&rbrace;</span></div></code></pre>
+//! <pre class="lumis"><code class="language-rust" translate="no" tabindex="0"><div class="line" data-line="1"><span class="keyword-function">fn</span> <span class="function">main</span><span class="punctuation-bracket">(</span><span class="punctuation-bracket">)</span> <span class="punctuation-bracket">&lbrace;</span> <span class="keyword-exception">println</span><span class="function-macro">!</span><span class="punctuation-bracket">(</span><span class="string">&quot;Hello&quot;</span><span class="punctuation-bracket">)</span><span class="punctuation-delimiter">;</span> <span class="punctuation-bracket">&rbrace;</span></div></code></pre>
 //! ```
 //!
 //! See the [formatter](crate::formatter) module for more information and examples.
@@ -247,7 +247,7 @@ mod tests {
         let mut buffer = Vec::new();
         formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
-        let expected = r#"<pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="operator"><span class="constant">@<span class="function-call"><span class="constant">lang <span class="string-special-symbol">:rust</span></span></span></span></span>
+        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="operator"><span class="constant">@<span class="function-call"><span class="constant">lang <span class="string-special-symbol">:rust</span></span></span></span></span>
 </div></code></pre>"#;
         assert_eq!(result, expected)
     }
@@ -264,7 +264,7 @@ mod tests {
         crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class.as_deref(), None)
             .unwrap();
         let result = String::from_utf8(buffer).unwrap();
-        let expected = r#"<pre class="athl test-pre-class">"#;
+        let expected = r#"<pre class="lumis test-pre-class">"#;
         assert_str_eq!(result, expected);
     }
 
@@ -290,7 +290,7 @@ mod tests {
         crate::formatter::html::open_pre_tag(&mut buffer, formatter.pre_class.as_deref(), None)
             .unwrap();
         let pre_result = String::from_utf8(buffer).unwrap();
-        let pre_expected = r#"<pre class="athl test-pre-class">"#;
+        let pre_expected = r#"<pre class="lumis test-pre-class">"#;
         assert_str_eq!(pre_result, pre_expected);
 
         let mut buffer = Vec::new();
@@ -314,7 +314,7 @@ mod tests {
         formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
+        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
 </div><div class="line highlighted" data-line="2">line 2
 </div><div class="line" data-line="3">line 3
 </div></code></pre>"#;
@@ -334,7 +334,7 @@ mod tests {
         formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-hl" data-line="1">line 1
+        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="line custom-hl" data-line="1">line 1
 </div><div class="line" data-line="2">line 2
 </div><div class="line custom-hl" data-line="3">line 3
 </div><div class="line custom-hl" data-line="4">line 4
@@ -356,7 +356,7 @@ mod tests {
         formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<div class="code-wrapper"><pre class="athl"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
+        let expected = r#"<div class="code-wrapper"><pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="line" data-line="1">line 1
 </div><div class="line" data-line="2">line 2
 </div></code></pre></div>"#;
         assert_str_eq!(result, expected);
@@ -384,7 +384,7 @@ mod tests {
         formatter.format(code, &mut buffer).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
-        let expected = r#"<section class="code-section"><pre class="athl custom-pre"><code class="language-plaintext" translate="no" tabindex="0"><div class="line highlighted" data-line="1">line 1
+        let expected = r#"<section class="code-section"><pre class="lumis custom-pre"><code class="language-plaintext" translate="no" tabindex="0"><div class="line highlighted" data-line="1">line 1
 </div><div class="line" data-line="2">line 2
 </div></code></pre></section>"#;
         assert_str_eq!(result, expected);

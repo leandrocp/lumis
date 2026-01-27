@@ -212,7 +212,7 @@ Lumis.highlight!(code,
 ```
 
 **How it works:**
-- Generates CSS custom properties like `--athl-light-fg`, `--athl-dark-fg`, etc.
+- Generates CSS custom properties like `--lumis-light-fg`, `--lumis-dark-fg`, etc.
 - Theme identifiers (from the keyword list keys) become CSS class names
 - Use CSS media queries or JavaScript to switch between themes
 - The `default_theme` option controls inline color rendering:
@@ -225,35 +225,35 @@ Lumis.highlight!(code,
 ```css
 /* Automatic light/dark mode based on system preference */
 @media (prefers-color-scheme: light) {
-  .athl-themes {
-    color: var(--athl-light);
-    background-color: var(--athl-light-bg);
+  .lumis-themes {
+    color: var(--lumis-light);
+    background-color: var(--lumis-light-bg);
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  .athl-themes {
-    color: var(--athl-dark);
-    background-color: var(--athl-dark-bg);
+  .lumis-themes {
+    color: var(--lumis-dark);
+    background-color: var(--lumis-dark-bg);
   }
 }
 
 /* Manual control with data attributes */
-[data-theme="light"] .athl-themes {
-  color: var(--athl-light);
-  background-color: var(--athl-light-bg);
+[data-theme="light"] .lumis-themes {
+  color: var(--lumis-light);
+  background-color: var(--lumis-light-bg);
 }
 
-[data-theme="dark"] .athl-themes {
-  color: var(--athl-dark);
-  background-color: var(--athl-dark-bg);
+[data-theme="dark"] .lumis-themes {
+  color: var(--lumis-dark);
+  background-color: var(--lumis-dark-bg);
 }
 ```
 
 Available options for `:html_multi_themes`:
 - `:themes` (required) - Keyword list mapping theme identifiers to theme names or structs, e.g., `[light: "github_light", dark: "github_dark"]`
 - `:default_theme` - Controls inline color rendering: theme identifier, `"light-dark()"`, or `nil` (default: `nil`)
-- `:css_variable_prefix` - Custom CSS variable prefix (default: `"--athl"`)
+- `:css_variable_prefix` - Custom CSS variable prefix (default: `"--lumis"`)
 - `:pre_class` - CSS class to add to the `<pre>` tag
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
@@ -398,7 +398,7 @@ Both `:open_tag` and `:close_tag` are required when using `:header`.
 Lumis generates semantic HTML with line wrappers:
 
 ```html
-<pre class="athl" style="color: #abb2bf; background-color: #282c34;">
+<pre class="lumis" style="color: #abb2bf; background-color: #282c34;">
   <code class="language-elixir" translate="no" tabindex="0">
     <div class="line" data-line="1">
       <span style="color: #c678dd;">defmodule</span>

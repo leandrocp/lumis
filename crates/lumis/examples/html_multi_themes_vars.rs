@@ -50,14 +50,14 @@ fn main() {
         }}
 
         @media (prefers-color-scheme: dark) {{
-            .athl,
-            .athl span {{
-                color: var(--athl-dark) !important;
-                background-color: var(--athl-dark-bg) !important;
+            .lumis,
+            .lumis span {{
+                color: var(--lumis-dark) !important;
+                background-color: var(--lumis-dark-bg) !important;
                 /* Optional, if you also want font styles */
-                font-style: var(--athl-dark-font-style) !important;
-                font-weight: var(--athl-dark-font-weight) !important;
-                text-decoration: var(--athl-dark-text-decoration) !important;
+                font-style: var(--lumis-dark-font-style) !important;
+                font-weight: var(--lumis-dark-font-weight) !important;
+                text-decoration: var(--lumis-dark-text-decoration) !important;
             }}
         }}
     </style>

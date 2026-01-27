@@ -654,7 +654,7 @@ impl Theme {
         let mut rules = Vec::new();
 
         rules.push(format!(
-            "/* {}\n * revision: {}\n */\n\npre.athl",
+            "/* {}\n * revision: {}\n */\n\npre.lumis",
             self.name, self.revision
         ));
 
@@ -968,7 +968,7 @@ mod tests {
  * revision: 3e976b4
  */
 
-pre.athl {
+pre.lumis {
   color: red;
   background-color: green;
 }

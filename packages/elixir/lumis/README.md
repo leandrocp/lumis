@@ -51,7 +51,7 @@ end
 
 ```elixir
 iex> Lumis.highlight!("Atom.to_string(:elixir)", language: "elixir")
-~s|<pre class="athl" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #e5c07b;">Atom</span><span style="color: #56b6c2;">.</span><span style="color: #61afef;">to_string</span><span style="color: #c678dd;">(</span><span style="color: #e06c75;">:elixir</span><span style="color: #c678dd;">)</span>
+~s|<pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #e5c07b;">Atom</span><span style="color: #56b6c2;">.</span><span style="color: #61afef;">to_string</span><span style="color: #c678dd;">(</span><span style="color: #e06c75;">:elixir</span><span style="color: #c678dd;">)</span>
 </span></code></pre>|
 ```
 
@@ -61,7 +61,7 @@ See the HTML Linked and Terminal formatters below for more options.
 
 ```elixir
 iex> Lumis.highlight!("#!/usr/bin/env bash\nID=1")
-~s|<pre class="athl" style="color: #abb2bf; background-color: #282c34;"><code class="language-bash" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #c678dd;">#!/usr/bin/env bash</span>
+~s|<pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-bash" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #c678dd;">#!/usr/bin/env bash</span>
 </div><div class="line" data-line="2"><span style="color: #d19a66;">ID</span><span style="color: #56b6c2;">=</span><span style="color: #d19a66;">1</span>
 </span></code></pre>|
 ```
@@ -75,7 +75,7 @@ Use `Lumis.available_themes/0` to list all available themes. You can specify a t
 ```elixir
 # Using theme name in formatter options
 iex> Lumis.highlight!("setTimeout(fun, 5000);", language: "js", formatter: {:html_inline, theme: "github_light"})
-~s|<pre class="athl" style="color: #1f2328; background-color: #ffffff;"><code class="language-javascript" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #6639ba;">setTimeout</span><span style="color: #1f2328;">(</span><span style="color: #1f2328;">fun</span><span style="color: #1f2328;">,</span> <span style="color: #0550ae;">5000</span><span style="color: #1f2328;">)</span><span style="color: #1f2328;">;</span>
+~s|<pre class="lumis" style="color: #1f2328; background-color: #ffffff;"><code class="language-javascript" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #6639ba;">setTimeout</span><span style="color: #1f2328;">(</span><span style="color: #1f2328;">fun</span><span style="color: #1f2328;">,</span> <span style="color: #0550ae;">5000</span><span style="color: #1f2328;">)</span><span style="color: #1f2328;">;</span>
 </span></code></pre>|
 
 # Using theme struct
@@ -104,7 +104,7 @@ It's also capable of handling incomplete or malformed code, useful for streaming
 
 ```elixir
 iex> Lumis.highlight!("const header = document.getEl", language: "js")
-~s|<pre class="athl" style="color: #abb2bf; background-color: #282c34;"><code class="language-javascript" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #c678dd;">const</span> <span style="color: #abb2bf;">header</span> <span style="color: #abb2bf;">=</span> <span style="color: #e86671;">document</span><span style="color: #848b98;">.</span><span style="color: #56b6c2;">getEl</span>
+~s|<pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-javascript" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #c678dd;">const</span> <span style="color: #abb2bf;">header</span> <span style="color: #abb2bf;">=</span> <span style="color: #e86671;">document</span><span style="color: #848b98;">.</span><span style="color: #56b6c2;">getEl</span>
 </span></code></pre>|
 ```
 
@@ -188,36 +188,36 @@ iex> Lumis.highlight!("Atom.to_string(:elixir)",
 )
 ```
 
-The generated HTML includes CSS custom properties like `--athl-light`, `--athl-dark`, `--athl-{theme}-bg`, and font styling variables (`-font-style`, `-font-weight`, `-text-decoration`) that can be used with CSS media queries or JavaScript for theme switching:
+The generated HTML includes CSS custom properties like `--lumis-light`, `--lumis-dark`, `--lumis-{theme}-bg`, and font styling variables (`-font-style`, `-font-weight`, `-text-decoration`) that can be used with CSS media queries or JavaScript for theme switching:
 
 ```css
 /* Automatic light/dark mode based on system preference */
 @media (prefers-color-scheme: dark) {
-  .athl,
-  .athl span {
-    color: var(--athl-dark) !important;
-    background-color: var(--athl-dark-bg) !important;
-    font-style: var(--athl-dark-font-style) !important;
-    font-weight: var(--athl-dark-font-weight) !important;
-    text-decoration: var(--athl-dark-text-decoration) !important;
+  .lumis,
+  .lumis span {
+    color: var(--lumis-dark) !important;
+    background-color: var(--lumis-dark-bg) !important;
+    font-style: var(--lumis-dark-font-style) !important;
+    font-weight: var(--lumis-dark-font-weight) !important;
+    text-decoration: var(--lumis-dark-text-decoration) !important;
   }
 }
 
 /* Manual control with class-based switching */
-html.dark .athl,
-html.dark .athl span {
-  color: var(--athl-dark) !important;
-  background-color: var(--athl-dark-bg) !important;
-  font-style: var(--athl-dark-font-style) !important;
-  font-weight: var(--athl-dark-font-weight) !important;
-  text-decoration: var(--athl-dark-text-decoration) !important;
+html.dark .lumis,
+html.dark .lumis span {
+  color: var(--lumis-dark) !important;
+  background-color: var(--lumis-dark-bg) !important;
+  font-style: var(--lumis-dark-font-style) !important;
+  font-weight: var(--lumis-dark-font-weight) !important;
+  text-decoration: var(--lumis-dark-text-decoration) !important;
 }
 ```
 
 Options:
 - `:themes` (required) - keyword list mapping theme identifiers to theme names, e.g., `[light: "github_light", dark: "github_dark"]`
 - `:default_theme` - controls inline color rendering: theme identifier for inline colors, `"light-dark()"` for CSS function, or `nil` for CSS variables only
-- `:css_variable_prefix` - custom CSS variable prefix (default: `"--athl"`)
+- `:css_variable_prefix` - custom CSS variable prefix (default: `"--lumis"`)
 - `:pre_class` - CSS class for the `<pre>` tag
 - `:italic` - enable italic styles
 - `:include_highlights` - include highlight scope names in `data-highlight` attributes

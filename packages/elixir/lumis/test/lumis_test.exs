@@ -25,22 +25,22 @@ defmodule Lumis.LumisTest do
         assert {:ok, hl} = Lumis.highlight("elixir", ":test")
 
         assert hl =~
-                 ~s|<pre class="athl" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir"|
+                 ~s|<pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir"|
 
         assert {:ok, hl} = Lumis.highlight("elixir", ":test", theme: "dracula")
 
         assert hl =~
-                 ~s|<pre class="athl" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir"|
+                 ~s|<pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir"|
       end)
     end
 
     test "highlight!" do
       capture_io(:stderr, fn ->
         assert Lumis.highlight!("elixir", ":test") =~
-                 ~s|<pre class="athl" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir"|
+                 ~s|<pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir"|
 
         assert Lumis.highlight!("elixir", ":test", theme: "dracula") =~
-                 ~s|<pre class="athl" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir"|
+                 ~s|<pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir"|
       end)
     end
 
@@ -50,14 +50,14 @@ defmodule Lumis.LumisTest do
                  Lumis.highlight(":test", language: "elixir", theme: "github_light")
 
         assert highlighted =~
-                 ~s|<pre class="athl" style="color: #1f2328; background-color: #ffffff;">|
+                 ~s|<pre class="lumis" style="color: #1f2328; background-color: #ffffff;">|
       end)
     end
 
     test "inline_style option" do
       capture_io(:stderr, fn ->
         assert {:ok,
-                "<pre class=\"athl\" style=\"color: #abb2bf; background-color: #282c34;\"><code class=\"language-elixir\" translate=\"no\" tabindex=\"0\"><div class=\"line\" data-line=\"1\"><span style=\"color: #e06c75;\">:test</span>\n</div></code></pre>"} =
+                "<pre class=\"lumis\" style=\"color: #abb2bf; background-color: #282c34;\"><code class=\"language-elixir\" translate=\"no\" tabindex=\"0\"><div class=\"line\" data-line=\"1\"><span style=\"color: #e06c75;\">:test</span>\n</div></code></pre>"} =
                  Lumis.highlight(":test", language: "elixir", inline_style: true)
       end)
     end
@@ -67,7 +67,7 @@ defmodule Lumis.LumisTest do
         assert {:ok, highlighted} =
                  Lumis.highlight(":test", language: "elixir", pre_class: "deprecated")
 
-        assert highlighted =~ ~s|<pre class="athl deprecated"|
+        assert highlighted =~ ~s|<pre class="lumis deprecated"|
       end)
     end
   end
@@ -173,7 +173,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="athl" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #c678dd;">defmodule</span> <span style="color: #e5c07b;">Test</span> <span style="color: #c678dd;">do</span>
+        <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #c678dd;">defmodule</span> <span style="color: #e5c07b;">Test</span> <span style="color: #c678dd;">do</span>
         </div><div class="line" data-line="2">  <span style="color: #56b6c2;"><span style="color: #d19a66;">@<span style="color: #61afef;"><span style="color: #d19a66;">lang <span style="color: #e06c75;">:elixir</span></span></span></span></span>
         </div><div class="line" data-line="3"><span style="color: #c678dd;">end</span>
         </div></code></pre>
@@ -186,7 +186,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="athl" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #ff79c6;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #ff79c6;">do</span>
+        <pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #ff79c6;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #ff79c6;">do</span>
         </div><div class="line" data-line="2">  <span style="color: #ff79c6;"><span style="color: #bd93f9;">@<span style="color: #50fa7b;"><span style="color: #bd93f9;">lang <span style="color: #bd93f9;">:elixir</span></span></span></span></span>
         </div><div class="line" data-line="3"><span style="color: #ff79c6;">end</span>
         </div></code></pre>
@@ -200,7 +200,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="athl" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #ff79c6;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #ff79c6;">do</span>
+        <pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #ff79c6;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #ff79c6;">do</span>
         </div><div class="line" data-line="2">  <span style="color: #ff79c6;"><span style="color: #bd93f9;">@<span style="color: #50fa7b;"><span style="color: #bd93f9;">lang <span style="color: #bd93f9;">:elixir</span></span></span></span></span>
         </div><div class="line" data-line="3"><span style="color: #ff79c6;">end</span>
         </div></code></pre>
@@ -213,7 +213,7 @@ defmodule Lumis.LumisTest do
     test "with pre_class" do
       assert_contains(
         "defmodule Test do\n  @lang :elixir\nend",
-        ~s|<pre class="athl test-pre-class"|,
+        ~s|<pre class="lumis test-pre-class"|,
         language: "elixir",
         formatter: {:html_inline, pre_class: "test-pre-class"}
       )
@@ -223,7 +223,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="athl" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span data-highlight="keyword" style="color: #c678dd;">defmodule</span> <span data-highlight="module" style="color: #e5c07b;">Test</span> <span data-highlight="keyword" style="color: #c678dd;">do</span>
+        <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span data-highlight="keyword" style="color: #c678dd;">defmodule</span> <span data-highlight="module" style="color: #e5c07b;">Test</span> <span data-highlight="keyword" style="color: #c678dd;">do</span>
         </div><div class="line" data-line="2">  <span data-highlight="operator" style="color: #56b6c2;"><span data-highlight="constant" style="color: #d19a66;">@<span data-highlight="function.call" style="color: #61afef;"><span data-highlight="constant" style="color: #d19a66;">lang <span data-highlight="string.special.symbol" style="color: #e06c75;">:elixir</span></span></span></span></span>
         </div><div class="line" data-line="3"><span data-highlight="keyword" style="color: #c678dd;">end</span>
         </div></code></pre>
@@ -239,7 +239,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "defmodule Test do\n  @lang :elixir\nend",
         ~s"""
-        <pre class="athl"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="keyword">defmodule</span> <span class="module">Test</span> <span class="keyword">do</span>
+        <pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span class="keyword">defmodule</span> <span class="module">Test</span> <span class="keyword">do</span>
         </div><div class="line" data-line="2">  <span class="operator"><span class="constant">@<span class="function-call"><span class="constant">lang <span class="string-special-symbol">:elixir</span></span></span></span></span>
         </div><div class="line" data-line="3"><span class="keyword">end</span>
         </div></code></pre>
@@ -256,7 +256,7 @@ defmodule Lumis.LumisTest do
                  formatter: {:html_linked, pre_class: "custom-class"}
                )
 
-      assert result =~ ~s|<pre class="athl custom-class"|
+      assert result =~ ~s|<pre class="lumis custom-class"|
     end
   end
 
@@ -284,7 +284,7 @@ defmodule Lumis.LumisTest do
     test "with basic dual theme support" do
       assert_contains(
         "defmodule Test do\nend",
-        ~s|--athl-light-bg: #ffffff;|,
+        ~s|--lumis-light-bg: #ffffff;|,
         language: "elixir",
         formatter: {:html_multi_themes, themes: [light: "github_light", dark: "github_dark"]}
       )
@@ -294,7 +294,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "test code",
         ~s"""
-        <pre class="athl athl-themes main" style="--athl-main: #abb2bf; --athl-main-bg: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="--athl-main: #61afef; --athl-main-font-style: normal; --athl-main-font-weight: normal; --athl-main-text-decoration: none;">test</span> <span style="--athl-main: #e06c75; --athl-main-font-style: normal; --athl-main-font-weight: normal; --athl-main-text-decoration: none;">code</span>
+        <pre class="lumis lumis-themes main" style="--lumis-main: #abb2bf; --lumis-main-bg: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="--lumis-main: #61afef; --lumis-main-font-style: normal; --lumis-main-font-weight: normal; --lumis-main-text-decoration: none;">test</span> <span style="--lumis-main: #e06c75; --lumis-main-font-style: normal; --lumis-main-font-weight: normal; --lumis-main-text-decoration: none;">code</span>
         </div></code></pre>
         """,
         language: "elixir",
@@ -326,7 +326,7 @@ defmodule Lumis.LumisTest do
     test "with pre_class option" do
       assert_contains(
         "test",
-        ~s|class="athl athl-themes custom-class main"|,
+        ~s|class="lumis lumis-themes custom-class main"|,
         language: "elixir",
         formatter: {:html_multi_themes, themes: [main: "onedark"], pre_class: "custom-class"}
       )
@@ -368,7 +368,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "test code",
         ~s"""
-        <pre class="athl athl-themes main" style="--athl-main: #abb2bf; --athl-main-bg: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="--athl-main: #61afef; --athl-main-font-style: normal; --athl-main-font-weight: normal; --athl-main-text-decoration: none;">test</span> <span style="--athl-main: #e06c75; --athl-main-font-style: normal; --athl-main-font-weight: normal; --athl-main-text-decoration: none;">code</span>
+        <pre class="lumis lumis-themes main" style="--lumis-main: #abb2bf; --lumis-main-bg: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="--lumis-main: #61afef; --lumis-main-font-style: normal; --lumis-main-font-weight: normal; --lumis-main-text-decoration: none;">test</span> <span style="--lumis-main: #e06c75; --lumis-main-font-style: normal; --lumis-main-font-weight: normal; --lumis-main-text-decoration: none;">code</span>
         </div></code></pre>
         """,
         language: "elixir",
@@ -381,7 +381,7 @@ defmodule Lumis.LumisTest do
 
       assert_contains(
         "test",
-        ~s|--athl-light: #1f2328; --athl-light-bg: #ffffff;|,
+        ~s|--lumis-light: #1f2328; --lumis-light-bg: #ffffff;|,
         language: "elixir",
         formatter: {:html_multi_themes, themes: [light: "github_light", dark: theme]}
       )
@@ -727,7 +727,7 @@ defmodule Lumis.LumisTest do
           formatter: {:html_inline, header: header}
         )
 
-      assert String.starts_with?(result, ~s|<div class="wrapper"><pre class="athl"|)
+      assert String.starts_with?(result, ~s|<div class="wrapper"><pre class="lumis"|)
       assert String.ends_with?(result, "</div>")
     end
 
@@ -829,7 +829,7 @@ defmodule Lumis.LumisTest do
 
       assert String.starts_with?(result, "<section class='example'>")
       assert String.ends_with?(result, "</section>")
-      assert String.contains?(result, "class=\"athl custom-code\"")
+      assert String.contains?(result, "class=\"lumis custom-code\"")
       assert String.contains?(result, "data-highlight=")
       assert String.contains?(result, "data-line=\"2\"")
       # Dracula theme colors

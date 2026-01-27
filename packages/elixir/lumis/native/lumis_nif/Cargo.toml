@@ -13,8 +13,8 @@ crate-type = ["cdylib"]
 once_cell = "1.21"
 parking_lot = "0.12"
 rustler = "0.37"
-lumis = { version = "0.1", features = ["all-languages"] }
-# lumis = { path = "../../../../../crates/lumis", features = ["all-languages"] }
+# lumis = { version = "0.1", features = ["all-languages"] }
+lumis = { path = "../../../../../crates/lumis", features = ["all-languages"] }
 # lumis = { git = "https://github.com/leandrocp/lumis", features = ["all-languages"] }
 
 [features]

@@ -32,7 +32,7 @@
 //! variables for all themes (including font styles):
 //!
 //! ```html
-//! <span style="color:#d73a49; font-weight:bold; --athl-light:#d73a49; --athl-light-font-weight:bold; --athl-dark:#ff7b72; --athl-dark-font-weight:normal;">keyword</span>
+//! <span style="color:#d73a49; font-weight:bold; --lumis-light:#d73a49; --lumis-light-font-weight:bold; --lumis-dark:#ff7b72; --lumis-dark-font-weight:normal;">keyword</span>
 //! ```
 //!
 //! **Note**: Multi-theme formatter generates a larger HTML payload due to CSS variables for
@@ -45,39 +45,39 @@
 //! **Option 1: OS Preference (automatic dark mode)**
 //! ```css
 //! @media (prefers-color-scheme: dark) {
-//!   .athl,
-//!   .athl span {
-//!     color: var(--athl-dark) !important;
-//!     background-color: var(--athl-dark-bg) !important;
-//!     font-style: var(--athl-dark-font-style) !important;
-//!     font-weight: var(--athl-dark-font-weight) !important;
-//!     text-decoration: var(--athl-dark-text-decoration) !important;
+//!   .lumis,
+//!   .lumis span {
+//!     color: var(--lumis-dark) !important;
+//!     background-color: var(--lumis-dark-bg) !important;
+//!     font-style: var(--lumis-dark-font-style) !important;
+//!     font-weight: var(--lumis-dark-font-weight) !important;
+//!     text-decoration: var(--lumis-dark-text-decoration) !important;
 //!   }
 //! }
 //! ```
 //!
 //! **Option 2: Manual switching with `data-theme` attribute**
 //! ```css
-//! html[data-theme="dark"] .athl,
-//! html[data-theme="dark"] .athl span {
-//!   color: var(--athl-dark) !important;
-//!   background-color: var(--athl-dark-bg) !important;
-//!   font-style: var(--athl-dark-font-style) !important;
-//!   font-weight: var(--athl-dark-font-weight) !important;
-//!   text-decoration: var(--athl-dark-text-decoration) !important;
+//! html[data-theme="dark"] .lumis,
+//! html[data-theme="dark"] .lumis span {
+//!   color: var(--lumis-dark) !important;
+//!   background-color: var(--lumis-dark-bg) !important;
+//!   font-style: var(--lumis-dark-font-style) !important;
+//!   font-weight: var(--lumis-dark-font-weight) !important;
+//!   text-decoration: var(--lumis-dark-text-decoration) !important;
 //! }
 //! ```
 //!
 //! **Option 3: Class-based switching**
 //! ```css
-//! html.dark .athl,
-//! html.dark .athl span {
-//!   color: var(--athl-dark) !important;
-//!   background-color: var(--athl-dark-bg) !important;
+//! html.dark .lumis,
+//! html.dark .lumis span {
+//!   color: var(--lumis-dark) !important;
+//!   background-color: var(--lumis-dark-bg) !important;
 //!   /* Optional, if you also want font styles */
-//!   font-style: var(--athl-dark-font-style) !important;
-//!   font-weight: var(--athl-dark-font-weight) !important;
-//!   text-decoration: var(--athl-dark-text-decoration) !important;
+//!   font-style: var(--lumis-dark-font-style) !important;
+//!   font-weight: var(--lumis-dark-font-weight) !important;
+//!   text-decoration: var(--lumis-dark-text-decoration) !important;
 //! }
 //! ```
 //!
@@ -133,7 +133,7 @@ use std::str::FromStr;
 /// Configuration for which theme to use as the default (inline styles).
 ///
 /// The default theme's colors are rendered as direct inline styles (e.g., `color:#d73a49`),
-/// while other themes are defined as CSS variables (e.g., `--athl-dark:#ff7b72`).
+/// while other themes are defined as CSS variables (e.g., `--lumis-dark:#ff7b72`).
 ///
 /// Use `Option<DefaultTheme>` where `None` means no default theme (all CSS variables only).
 #[derive(Clone, Debug)]
@@ -237,7 +237,7 @@ impl HtmlMultiThemesBuilder {
             css_variable_prefix: self
                 .css_variable_prefix
                 .take()
-                .unwrap_or_else(|| "--athl".to_string()),
+                .unwrap_or_else(|| "--lumis".to_string()),
             pre_class: self.pre_class.take().flatten(),
             italic: self.italic.take().unwrap_or(false),
             include_highlights: self.include_highlights.take().unwrap_or(false),
@@ -315,7 +315,7 @@ impl Default for HtmlMultiThemes {
             lang: Language::PlainText,
             themes: HashMap::new(),
             default_theme: None,
-            css_variable_prefix: "--athl".to_string(),
+            css_variable_prefix: "--lumis".to_string(),
             pre_class: None,
             italic: false,
             include_highlights: false,
@@ -327,7 +327,7 @@ impl Default for HtmlMultiThemes {
 
 impl HtmlMultiThemes {
     fn generate_pre_classes(&self) -> String {
-        let mut classes = vec!["athl".to_string(), "athl-themes".to_string()];
+        let mut classes = vec!["lumis".to_string(), "lumis-themes".to_string()];
 
         if let Some(ref pre_class) = self.pre_class {
             classes.push(pre_class.clone());
@@ -601,12 +601,12 @@ mod tests {
         formatter.format(source, &mut output).unwrap();
         let html = String::from_utf8(output).unwrap();
 
-        assert!(html.contains("--athl-light-font-style:"));
-        assert!(html.contains("--athl-dark-font-style:"));
-        assert!(html.contains("--athl-light-font-weight:"));
-        assert!(html.contains("--athl-dark-font-weight:"));
-        assert!(html.contains("--athl-light-text-decoration:"));
-        assert!(html.contains("--athl-dark-text-decoration:"));
+        assert!(html.contains("--lumis-light-font-style:"));
+        assert!(html.contains("--lumis-dark-font-style:"));
+        assert!(html.contains("--lumis-light-font-weight:"));
+        assert!(html.contains("--lumis-dark-font-weight:"));
+        assert!(html.contains("--lumis-light-text-decoration:"));
+        assert!(html.contains("--lumis-dark-text-decoration:"));
     }
 
     #[test]
@@ -689,12 +689,12 @@ mod tests {
         formatter.format(source, &mut output).unwrap();
         let html = String::from_utf8(output).unwrap();
 
-        assert!(html.contains("--athl-light-font-style:"));
-        assert!(html.contains("--athl-dark-font-style:"));
-        assert!(html.contains("--athl-light-font-weight:"));
-        assert!(html.contains("--athl-dark-font-weight:"));
-        assert!(html.contains("--athl-light-text-decoration:"));
-        assert!(html.contains("--athl-dark-text-decoration:"));
+        assert!(html.contains("--lumis-light-font-style:"));
+        assert!(html.contains("--lumis-dark-font-style:"));
+        assert!(html.contains("--lumis-light-font-weight:"));
+        assert!(html.contains("--lumis-dark-font-weight:"));
+        assert!(html.contains("--lumis-light-text-decoration:"));
+        assert!(html.contains("--lumis-dark-text-decoration:"));
         assert!(!html.contains("font-style:italic;"));
         assert!(!html.contains("font-weight:bold;"));
     }
@@ -725,16 +725,16 @@ mod tests {
         let html = String::from_utf8(output).unwrap();
 
         assert!(
-            html.contains("--athl-light-font-style:normal")
-                || html.contains("--athl-dark-font-style:normal")
+            html.contains("--lumis-light-font-style:normal")
+                || html.contains("--lumis-dark-font-style:normal")
         );
         assert!(
-            html.contains("--athl-light-font-weight:normal")
-                || html.contains("--athl-dark-font-weight:normal")
+            html.contains("--lumis-light-font-weight:normal")
+                || html.contains("--lumis-dark-font-weight:normal")
         );
         assert!(
-            html.contains("--athl-light-text-decoration:none")
-                || html.contains("--athl-dark-text-decoration:none")
+            html.contains("--lumis-light-text-decoration:none")
+                || html.contains("--lumis-dark-text-decoration:none")
         );
     }
 

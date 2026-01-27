@@ -61,7 +61,7 @@ enum Commands {
         default_theme: Option<String>,
 
         /// CSS variable prefix for theme variables
-        #[arg(long, default_value = "--athl")]
+        #[arg(long, default_value = "--lumis")]
         css_variable_prefix: String,
 
         /// Highlight lines
@@ -95,7 +95,7 @@ enum Commands {
         default_theme: Option<String>,
 
         /// CSS variable prefix for theme variables
-        #[arg(long, default_value = "--athl")]
+        #[arg(long, default_value = "--lumis")]
         css_variable_prefix: String,
 
         /// Highlight lines

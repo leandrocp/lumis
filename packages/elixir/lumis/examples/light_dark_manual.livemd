@@ -98,13 +98,13 @@ defmodule SyntaxHighlighterLive do
         border-color: #58a6ff;
       }
 
-      html.dark .athl,
-      html.dark .athl span {
-        color: var(--athl-dark) !important;
-        background-color: var(--athl-dark-bg) !important;
-        font-style: var(--athl-dark-font-style) !important;
-        font-weight: var(--athl-dark-font-weight) !important;
-        text-decoration: var(--athl-dark-text-decoration) !important;
+      html.dark .lumis,
+      html.dark .lumis span {
+        color: var(--lumis-dark) !important;
+        background-color: var(--lumis-dark-bg) !important;
+        font-style: var(--lumis-dark-font-style) !important;
+        font-weight: var(--lumis-dark-font-weight) !important;
+        text-decoration: var(--lumis-dark-text-decoration) !important;
       }
     </style>
 

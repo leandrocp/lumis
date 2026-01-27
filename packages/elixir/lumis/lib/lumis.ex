@@ -123,7 +123,7 @@ defmodule Lumis do
 
       - `:themes` (`keyword(theme())` - required) - keyword list of theme identifiers to theme names/structs. Theme identifiers become CSS class names and CSS variable prefixes. Example: `[light: "github_light", dark: "github_dark"]`.
       - `:default_theme` (`t:String.t/0` - default: `nil`) - controls inline color rendering: specify a theme identifier for inline colors, use `"light-dark()"` for CSS light-dark() function, or `nil` for CSS variables only.
-      - `:css_variable_prefix` (`t:String.t/0` - default: `nil`) - CSS variable prefix (defaults to `"--athl"` if nil). Generates variables like `--athl-light` (color), `--athl-light-bg` (background), `--athl-light-font-style`, etc.
+      - `:css_variable_prefix` (`t:String.t/0` - default: `nil`) - CSS variable prefix (defaults to `"--lumis"` if nil). Generates variables like `--lumis-light` (color), `--lumis-light-bg` (background), `--lumis-light-font-style`, etc.
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
       - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute.
@@ -402,7 +402,7 @@ defmodule Lumis do
       css_variable_prefix: [
         type: {:or, [:string, nil]},
         default: nil,
-        doc: "CSS variable prefix (defaults to \"--athl\" if nil)"
+        doc: "CSS variable prefix (defaults to \"--lumis\" if nil)"
       ],
       pre_class: [type: {:or, [:string, nil]}, default: nil],
       italic: [type: :boolean, default: false],
@@ -728,19 +728,19 @@ defmodule Lumis do
       iex> Lumis.highlight("Atom.to_string(:elixir)", language: "elixir")
       {
         :ok,
-        <pre class="athl" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #e5c07b;">Atom</span><span style="color: #56b6c2;">.</span><span style="color: #61afef;">to_string</span><span style="color: #c678dd;">(</span><span style="color: #e06c75;">:elixir</span><span style="color: #c678dd;">)</span>
+        <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="line" data-line="1"><span style="color: #e5c07b;">Atom</span><span style="color: #56b6c2;">.</span><span style="color: #61afef;">to_string</span><span style="color: #c678dd;">(</span><span style="color: #e06c75;">:elixir</span><span style="color: #c678dd;">)</span>
         </div></code></pre>
       }
 
   Guessing the language based on the provided source code:
 
       iex> Lumis.highlight("#!/usr/bin/env bash\\nID=1")
-      {:ok, "<pre class=\"athl\" ...><code class=\"language-bash\" ...>...</code></pre>"}
+      {:ok, "<pre class=\"lumis\" ...><code class=\"language-bash\" ...>...</code></pre>"}
 
   With custom options:
 
       iex> Lumis.highlight("Atom.to_string(:elixir)", language: "example.ex", formatter: {:html_inline, pre_class: "example-elixir"})
-      {:ok, "<pre class=\"athl example-elixir\" ...><code ...>...</code></pre>"}
+      {:ok, "<pre class=\"lumis example-elixir\" ...><code ...>...</code></pre>"}
 
   Terminal formatter:
 
@@ -780,7 +780,7 @@ defmodule Lumis do
       ...>   close_tag: "</figure>"
       ...> }
       iex> Lumis.highlight("IO.puts('hello')", language: "elixir", formatter: {:html_inline, header: header})
-      # Returns: "<div class='code-block' data-lang='elixir'><pre class='athl'>...</pre></div>"
+      # Returns: "<div class='code-block' data-lang='elixir'><pre class='lumis'>...</pre></div>"
       {:ok, "<figure><span>file: example.exs</span><pre...><code ...>...</code></pre></figure>"}
 
   See https://docs.rs/lumis/latest/lumis/fn.highlight.html for more info.

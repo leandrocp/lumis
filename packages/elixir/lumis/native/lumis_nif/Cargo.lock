@@ -381,9 +381,7 @@ dependencies = [
 
 [[package]]
 name = "lumis"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3315ef359b1256f3de44ee4fc2965e5b93676195acd2a740ccd94e923a59308b"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "cc",
