@@ -1,7 +1,7 @@
 {
   "name": "monokai_pro_spectrum",
   "appearance": "dark",
-  "revision": "8d43e7746754c2dc6e8b797cbcdd361b46086675",
+  "revision": "e862648545a783c5364e95f206bb496e560dc76c",
   "highlights": {
     "attribute": {
       "fg": "#7bd88f"
@@ -96,7 +96,7 @@
       "fg": "#5ad4e6"
     },
     "highlighted": {
-      "bg": "#2c2c2d"
+      "bg": "#2d2c2d"
     },
     "keyword": {
       "fg": "#fc618d",
