@@ -1,7 +1,7 @@
 {
   "name": "edge_aura",
   "appearance": "dark",
-  "revision": "f421d597a2f81abcdb14a56e48d20429f7029334",
+  "revision": "7ec78c21bd8f0b2b0b47043bb1e730c561647c72",
   "highlights": {
     "attribute": {
       "fg": "#deb974"
