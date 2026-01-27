@@ -2,6 +2,9 @@ name: Elixir NIF Release
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'elixir@v*'
 
 permissions:
   attestations: write
