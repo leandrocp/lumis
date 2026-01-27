@@ -4,7 +4,7 @@
 
 ### Removed
 
-- Remove `elixir-nif` feature. The Elixir/Rustler bridge code is now maintained in the Elixir package's NIF crate.
+- Remove `elixir-nif` feature. The Elixir/Rustler bridge code is now maintained in the Elixir package itself.
 
 ## 0.1.0 - 2026-01-23
 

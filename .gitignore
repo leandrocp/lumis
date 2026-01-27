@@ -3,6 +3,8 @@
 /themes/nvim
 /queries/**/folds.scm
 /queries/**/indents.scm
-/.claude/
 mise.toml
 .envrc
+/.claude/
+AGENTS.md
+CLAUDE.md

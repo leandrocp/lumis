@@ -30,6 +30,7 @@ include = [
     "/themes/*.json",
     "/LICENSE",
     "/README.md",
+    "/CHANGELOG.md",
 ]
 
 [[bin]]
