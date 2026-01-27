@@ -3,6 +3,11 @@ name: Elixir NIF Release
 on:
   workflow_dispatch:
 
+permissions:
+  attestations: write
+  contents: write
+  id-token: write
+
 jobs:
   release:
     uses: leandrocp/github-actions/.github/workflows/nif-release.yml@main
