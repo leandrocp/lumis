@@ -17,3 +17,4 @@ jobs:
     with:
       project-name: lumis_nif
       project-dir: packages/elixir/lumis/native/lumis_nif
+      working-directory: packages/elixir/lumis
