@@ -1,0 +1,75 @@
+<%!-- HEEx - HTML + Embedded Elixir for Phoenix LiveView --%>
+
+<.flash_group flash={@flash} />
+
+<div class="container mx-auto px-4">
+  <header class="py-6">
+    <h1 class="text-3xl font-bold">
+      Welcome, <%= @current_user.name %>!
+    </h1>
+  </header>
+
+  <%!-- Conditional rendering --%>
+  <%= if @logged_in do %>
+    <p>You are logged in as <strong><%= @current_user.email %></strong></p>
+  <% else %>
+    <.link navigate={~p"/login"} class="btn btn-primary">
+      Log In
+    </.link>
+  <% end %>
+
+  <%!-- Phoenix Component --%>
+  <.card>
+    <:header>
+      <h2>Featured Items</h2>
+    </:header>
+
+    <ul class="divide-y">
+      <%= for item <- @items do %>
+        <li id={"item-#{item.id}"} class={["p-4", item.active && "bg-blue-50"]}>
+          <.link patch={~p"/items/#{item}"}>
+            <%= item.name %>
+          </.link>
+          <span class="text-gray-500">
+            <%= Number.Currency.number_to_currency(item.price) %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+
+    <:footer>
+      <p>Total: <%= length(@items) %> items</p>
+    </:footer>
+  </.card>
+
+  <%!-- Form with Phoenix Components --%>
+  <.simple_form for={@form} phx-submit="save" phx-change="validate">
+    <.input field={@form[:name]} label="Name" required />
+    <.input field={@form[:email]} type="email" label="Email" />
+    <.input field={@form[:role]} type="select" label="Role" options={@role_options} />
+    <.input field={@form[:bio]} type="textarea" label="Bio" rows={4} />
+    <.input field={@form[:active]} type="checkbox" label="Active" />
+
+    <:actions>
+      <.button phx-disable-with="Saving...">
+        Save Changes
+      </.button>
+    </:actions>
+  </.simple_form>
+
+  <%!-- LiveView events --%>
+  <button phx-click="increment" phx-value-amount={5} class="btn">
+    Add 5
+  </button>
+
+  <div phx-click-away="close_modal" phx-window-keydown="close_modal" phx-key="escape">
+    <.modal :if={@show_modal} id="confirm-modal" show on_cancel={JS.push("close_modal")}>
+      <p>Are you sure?</p>
+    </.modal>
+  </div>
+
+  <%!-- Dynamic attributes --%>
+  <div {assigns_to_attributes(assigns, [:class])} class={["base-class", @extra_class]}>
+    Content here
+  </div>
+</div>

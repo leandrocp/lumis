@@ -1,0 +1,67 @@
+# IEx - Interactive Elixir Session
+
+iex> 1 + 2
+3
+
+iex> name = "World"
+"World"
+
+iex> "Hello, #{name}!"
+"Hello, World!"
+
+iex> list = [1, 2, 3, 4, 5]
+[1, 2, 3, 4, 5]
+
+iex> Enum.map(list, fn x -> x * 2 end)
+[2, 4, 6, 8, 10]
+
+iex> Enum.filter(list, &(&1 > 2))
+[3, 4, 5]
+
+iex> list |> Enum.map(&(&1 * 2)) |> Enum.sum()
+30
+
+iex> defmodule Greeter do
+...>   def hello(name) do
+...>     "Hello, #{name}!"
+...>   end
+...> end
+{:module, Greeter, <<...>>, {:hello, 1}}
+
+iex> Greeter.hello("Elixir")
+"Hello, Elixir!"
+
+iex> {:ok, file} = File.read("mix.exs")
+{:ok, "defmodule MyApp.MixProject do..."}
+
+iex> case File.read("nonexistent") do
+...>   {:ok, content} -> content
+...>   {:error, reason} -> "Error: #{reason}"
+...> end
+"Error: enoent"
+
+iex> for x <- 1..5, y <- 1..5, x < y, do: {x, y}
+[{1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5}]
+
+iex> spawn(fn -> IO.puts("Hello from process!") end)
+Hello from process!
+#PID<0.123.0>
+
+iex> self()
+#PID<0.110.0>
+
+iex> h Enum.map
+# Shows help for Enum.map/2
+
+iex> i [1, 2, 3]
+Term
+  [1, 2, 3]
+Data type
+  List
+...
+
+iex> recompile()
+:ok
+
+iex> c "lib/my_module.ex"
+[MyModule]

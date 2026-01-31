@@ -1,0 +1,12 @@
+target/
+.git/
+*.md
+!samples/*.md
+css/
+packages/
+.github/
+.vscode/
+.idea/
+*.log
+crates/autumnus/
+crates/dev/

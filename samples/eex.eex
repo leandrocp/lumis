@@ -1,0 +1,58 @@
+<%# EEx - Embedded Elixir Template %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= @title %></title>
+</head>
+<body>
+  <header>
+    <h1>Welcome, <%= @user.name %>!</h1>
+  </header>
+
+  <main>
+    <%# Conditional rendering %>
+    <%= if @logged_in do %>
+      <p>You are logged in as <%= @user.email %></p>
+    <% else %>
+      <p>Please <a href="/login">log in</a></p>
+    <% end %>
+
+    <%# Loop through a list %>
+    <ul>
+      <%= for item <- @items do %>
+        <li class="<%= if item.active, do: "active", else: "" %>">
+          <%= item.name %> - $<%= :erlang.float_to_binary(item.price, decimals: 2) %>
+        </li>
+      <% end %>
+    </ul>
+
+    <%# Case statement %>
+    <%= case @status do %>
+      <% :pending -> %>
+        <span class="badge pending">Pending</span>
+      <% :approved -> %>
+        <span class="badge approved">Approved</span>
+      <% :rejected -> %>
+        <span class="badge rejected">Rejected</span>
+      <% _ -> %>
+        <span class="badge">Unknown</span>
+    <% end %>
+
+    <%# Raw HTML output (unescaped) %>
+    <%= raw @html_content %>
+
+    <%# Embedded Elixir code block %>
+    <%
+      total = Enum.reduce(@items, 0, fn item, acc ->
+        acc + item.price * item.quantity
+      end)
+    %>
+    <p>Total: $<%= total %></p>
+  </main>
+
+  <footer>
+    <p>&copy; <%= DateTime.utc_now().year %> My App</p>
+  </footer>
+</body>
+</html>
