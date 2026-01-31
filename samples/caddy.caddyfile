@@ -1,0 +1,72 @@
+# Caddyfile - Caddy Web Server Configuration
+
+# Global options
+{
+    email admin@example.com
+    acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+    admin off
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+}
+
+# Simple static site
+example.com {
+    root * /var/www/html
+    file_server
+    encode gzip zstd
+}
+
+# Reverse proxy with load balancing
+api.example.com {
+    reverse_proxy /api/* {
+        to localhost:8080 localhost:8081 localhost:8082
+        lb_policy round_robin
+        health_uri /health
+        health_interval 30s
+
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_down -Server
+    }
+
+    log {
+        output file /var/log/caddy/api.log
+    }
+}
+
+# HTTPS with custom certificates
+secure.example.com {
+    tls /etc/ssl/certs/cert.pem /etc/ssl/private/key.pem
+
+    @websockets {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+
+    reverse_proxy @websockets localhost:3000
+
+    respond /health 200
+
+    handle_errors {
+        respond "{http.error.status_code} {http.error.status_text}"
+    }
+}
+
+# Basic auth and rate limiting
+admin.example.com {
+    basicauth {
+        admin $2a$14$hashhere
+    }
+
+    rate_limit {
+        zone static {
+            key static
+            events 100
+            window 1m
+        }
+    }
+
+    php_fastcgi unix//run/php/php-fpm.sock
+}

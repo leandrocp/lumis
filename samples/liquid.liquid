@@ -1,0 +1,75 @@
+{% comment %}
+  Liquid Template Language (Shopify/Jekyll)
+{% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{{ page.title | escape }} - {{ site.name }}</title>
+  <meta description="{{ page.description | truncate: 160 }}">
+</head>
+<body>
+  <header>
+    <h1>{{ site.name }}</h1>
+    <nav>
+      {% for item in site.navigation %}
+        <a href="{{ item.url }}" {% if page.url == item.url %}class="active"{% endif %}>
+          {{ item.title }}
+        </a>
+      {% endfor %}
+    </nav>
+  </header>
+
+  <main>
+    {%- if user -%}
+      <p>Welcome back, {{ user.name | capitalize }}!</p>
+    {%- else -%}
+      <p>Please <a href="/login">log in</a></p>
+    {%- endif -%}
+
+    {% assign featured_products = products | where: "featured", true | limit: 4 %}
+
+    <section class="products">
+      {% for product in featured_products %}
+        <article class="product">
+          <h2>{{ product.title }}</h2>
+          <img src="{{ product.image | img_url: '400x' }}" alt="{{ product.title }}">
+          <p class="price">{{ product.price | money }}</p>
+          <p>{{ product.description | strip_html | truncatewords: 30 }}</p>
+
+          {% if product.available %}
+            <button>Add to Cart</button>
+          {% else %}
+            <span class="sold-out">Sold Out</span>
+          {% endif %}
+        </article>
+      {% else %}
+        <p>No featured products available.</p>
+      {% endfor %}
+    </section>
+
+    {% case shipping_method %}
+      {% when 'standard' %}
+        <p>Delivery in 5-7 business days</p>
+      {% when 'express' %}
+        <p>Delivery in 2-3 business days</p>
+      {% when 'overnight' %}
+        <p>Next day delivery</p>
+      {% else %}
+        <p>Please select a shipping method</p>
+    {% endcase %}
+
+    {% capture email_body %}
+      Dear {{ customer.name }},
+      Thank you for your order #{{ order.number }}.
+      Total: {{ order.total | money }}
+    {% endcapture %}
+
+    {% include 'footer', year: 'now' | date: '%Y' %}
+  </main>
+
+  {{ content }}
+
+  {{ 'application.js' | asset_url | script_tag }}
+</body>
+</html>

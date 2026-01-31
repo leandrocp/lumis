@@ -1,0 +1,60 @@
+# Regular Expression Examples
+
+# Basic patterns
+hello           # Literal match
+^start          # Start of string
+end$            # End of string
+^exact$         # Exact match
+
+# Character classes
+[abc]           # Match a, b, or c
+[^abc]          # Match anything except a, b, c
+[a-z]           # Match lowercase letters
+[A-Z]           # Match uppercase letters
+[0-9]           # Match digits
+[a-zA-Z0-9]     # Match alphanumeric
+
+# Predefined character classes
+\d              # Digit [0-9]
+\D              # Non-digit [^0-9]
+\w              # Word character [a-zA-Z0-9_]
+\W              # Non-word character
+\s              # Whitespace [ \t\n\r\f]
+\S              # Non-whitespace
+.               # Any character except newline
+
+# Quantifiers
+a*              # Zero or more
+a+              # One or more
+a?              # Zero or one
+a{3}            # Exactly 3
+a{2,5}          # Between 2 and 5
+a{2,}           # 2 or more
+a*?             # Non-greedy zero or more
+a+?             # Non-greedy one or more
+
+# Groups and capturing
+(abc)           # Capturing group
+(?:abc)         # Non-capturing group
+(?<name>abc)    # Named capturing group
+\1              # Backreference to group 1
+\k<name>        # Backreference to named group
+
+# Alternation
+cat|dog         # Match cat or dog
+(cat|dog)fish   # catfish or dogfish
+
+# Lookahead and lookbehind
+foo(?=bar)      # Positive lookahead
+foo(?!bar)      # Negative lookahead
+(?<=foo)bar     # Positive lookbehind
+(?<!foo)bar     # Negative lookbehind
+
+# Common patterns
+^[\w.-]+@[\w.-]+\.\w{2,}$                    # Email
+^https?://[\w.-]+(?:/[\w./-]*)?$             # URL
+^\+?[1-9]\d{1,14}$                           # Phone (E.164)
+^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$        # Password strength
+^\d{4}-\d{2}-\d{2}$                          # Date YYYY-MM-DD
+^([01]?[0-9]|2[0-3]):[0-5][0-9]$             # Time HH:MM
+^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$          # Hex color

@@ -1,0 +1,61 @@
+<%# ERB - Embedded Ruby Template %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= @title %></title>
+  <%= stylesheet_link_tag 'application' %>
+</head>
+<body>
+  <header>
+    <h1>Welcome, <%= @user.name %>!</h1>
+  </header>
+
+  <main>
+    <%# Conditional rendering %>
+    <% if @logged_in %>
+      <p>You are logged in as <%= @user.email %></p>
+    <% else %>
+      <p>Please <%= link_to 'log in', login_path %></p>
+    <% end %>
+
+    <%# Loop through a collection %>
+    <ul>
+      <% @items.each_with_index do |item, index| %>
+        <li class="<%= 'active' if item.active? %>">
+          <%= index + 1 %>. <%= item.name %> - <%= number_to_currency(item.price) %>
+        </li>
+      <% end %>
+    </ul>
+
+    <%# Case statement %>
+    <span class="badge <%=
+      case @status
+      when :pending then 'pending'
+      when :approved then 'approved'
+      when :rejected then 'rejected'
+      else ''
+      end
+    %>">
+      <%= @status.to_s.titleize %>
+    </span>
+
+    <%# Raw HTML output (unescaped) %>
+    <%= raw @html_content %>
+
+    <%# Form helper %>
+    <%= form_with model: @user do |f| %>
+      <%= f.label :name %>
+      <%= f.text_field :name, class: 'form-control' %>
+      <%= f.submit 'Save', class: 'btn btn-primary' %>
+    <% end %>
+
+    <%# Render partial %>
+    <%= render 'shared/sidebar', categories: @categories %>
+  </main>
+
+  <footer>
+    <p>&copy; <%= Time.current.year %> My App</p>
+  </footer>
+</body>
+</html>

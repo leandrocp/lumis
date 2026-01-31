@@ -1,0 +1,57 @@
+<%# EJS - Embedded JavaScript Template %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+</head>
+<body>
+  <header>
+    <h1>Welcome, <%= user.name %>!</h1>
+  </header>
+
+  <main>
+    <%# Conditional rendering %>
+    <% if (loggedIn) { %>
+      <p>You are logged in as <%= user.email %></p>
+    <% } else { %>
+      <p>Please <a href="/login">log in</a></p>
+    <% } %>
+
+    <%# Loop through an array %>
+    <ul>
+      <% items.forEach(function(item, index) { %>
+        <li class="<%= item.active ? 'active' : '' %>">
+          <%= index + 1 %>. <%= item.name %> - $<%= item.price.toFixed(2) %>
+        </li>
+      <% }); %>
+    </ul>
+
+    <%# Include another template %>
+    <%- include('partials/sidebar', { categories: categories }) %>
+
+    <%# Unescaped output (raw HTML) %>
+    <%- htmlContent %>
+
+    <%# Using locals safely %>
+    <p>Count: <%= typeof count !== 'undefined' ? count : 0 %></p>
+
+    <%# JavaScript expressions %>
+    <p>Today is <%= new Date().toLocaleDateString() %></p>
+    <p>Total items: <%= items.length %></p>
+
+    <%# Switch-like pattern %>
+    <span class="badge <%=
+      status === 'pending' ? 'pending' :
+      status === 'approved' ? 'approved' :
+      status === 'rejected' ? 'rejected' : ''
+    %>">
+      <%= status %>
+    </span>
+  </main>
+
+  <footer>
+    <p>&copy; <%= new Date().getFullYear() %> My App</p>
+  </footer>
+</body>
+</html>

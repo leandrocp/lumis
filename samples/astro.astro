@@ -1,0 +1,83 @@
+---
+// Astro Component Script (runs at build time)
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/Card.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Default description' } = Astro.props;
+
+// Fetch data at build time
+const response = await fetch('https://api.example.com/posts');
+const posts = await response.json();
+
+// Define local variables
+const greeting = 'Hello, Astro!';
+const items = ['One', 'Two', 'Three'];
+---
+
+<Layout title={title}>
+  <main>
+    <h1>{greeting}</h1>
+    <p>{description}</p>
+
+    <!-- Conditional rendering -->
+    {posts.length > 0 ? (
+      <ul>
+        {posts.map((post) => (
+          <li>
+            <a href={`/posts/${post.slug}`}>{post.title}</a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>No posts found.</p>
+    )}
+
+    <!-- Loop through items -->
+    <ul class="items">
+      {items.map((item, index) => (
+        <li class:list={['item', { active: index === 0 }]}>
+          {item}
+        </li>
+      ))}
+    </ul>
+
+    <!-- Slot for child content -->
+    <Card title="Featured">
+      <slot />
+    </Card>
+  </main>
+</Layout>
+
+<style>
+  main {
+    margin: auto;
+    padding: 1rem;
+    max-width: 800px;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: #333;
+  }
+
+  .items {
+    list-style: none;
+    padding: 0;
+  }
+
+  .item.active {
+    font-weight: bold;
+  }
+</style>
+
+<script>
+  // Client-side JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('Page loaded!');
+  });
+</script>

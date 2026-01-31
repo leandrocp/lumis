@@ -1,0 +1,172 @@
+// SCSS - Sassy CSS Example
+
+// Variables
+$primary-color: #3498db;
+$secondary-color: #2ecc71;
+$font-stack: 'Helvetica Neue', Arial, sans-serif;
+$base-spacing: 1rem;
+$border-radius: 4px;
+
+// Maps
+$breakpoints: (
+  'small': 576px,
+  'medium': 768px,
+  'large': 992px,
+  'xlarge': 1200px
+);
+
+$colors: (
+  'primary': $primary-color,
+  'secondary': $secondary-color,
+  'danger': #e74c3c,
+  'warning': #f39c12,
+  'success': #27ae60
+);
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  }
+}
+
+@mixin button-variant($bg-color, $text-color: white) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: 1px solid darken($bg-color, 10%);
+
+  &:hover {
+    background-color: darken($bg-color, 10%);
+  }
+
+  &:active {
+    background-color: darken($bg-color, 15%);
+  }
+}
+
+// Functions
+@function rem($pixels, $base: 16) {
+  @return ($pixels / $base) * 1rem;
+}
+
+@function color($name) {
+  @return map-get($colors, $name);
+}
+
+// Placeholders (extend-only selectors)
+%clearfix {
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
+
+%visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+// Base styles
+body {
+  font-family: $font-stack;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+// Nesting
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $base-spacing;
+
+  @include respond-to('medium') {
+    padding: 0 ($base-spacing * 2);
+  }
+}
+
+.card {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: $base-spacing;
+
+  &__header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: $base-spacing;
+    margin-bottom: $base-spacing;
+  }
+
+  &__title {
+    font-size: rem(24);
+    margin: 0;
+  }
+
+  &__body {
+    @include flex-center;
+    flex-direction: column;
+  }
+
+  &--featured {
+    border: 2px solid $primary-color;
+  }
+}
+
+// Loops
+@each $name, $color in $colors {
+  .text-#{$name} {
+    color: $color;
+  }
+
+  .bg-#{$name} {
+    background-color: $color;
+  }
+
+  .btn-#{$name} {
+    @include button-variant($color);
+  }
+}
+
+@for $i from 1 through 6 {
+  .mt-#{$i} {
+    margin-top: $base-spacing * $i;
+  }
+}
+
+// Conditionals
+@mixin theme($mode) {
+  @if $mode == 'dark' {
+    background: #1a1a1a;
+    color: #fff;
+  } @else if $mode == 'light' {
+    background: #fff;
+    color: #333;
+  } @else {
+    @warn "Unknown theme mode: #{$mode}";
+  }
+}
+
+// Import and use
+@use 'sass:math';
+@use 'sass:color';
+
+.element {
+  width: math.div(100%, 3);
+  background: color.adjust($primary-color, $lightness: 20%);
+}
