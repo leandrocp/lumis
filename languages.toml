@@ -6,7 +6,7 @@
 
 [queries.default]
 git = "https://github.com/nvim-treesitter/nvim-treesitter.git"
-rev = "857651fce37eba032ebe28f3a206283cdc65c45a"
+rev = "0d0969030ad955b510d7c8012b40252a25c12a6d"
 path = "runtime/queries"
 
 [queries.iex]
