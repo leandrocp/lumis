@@ -533,8 +533,8 @@ globs = ["*.mli"]
 
 [parsers.perl]
 git = "https://github.com/tree-sitter-perl/tree-sitter-perl.git"
-rev = "c3e17b31179bf8f658c9f37c7a3ea6a202212d5a"
-version = "1.2.1"
+rev = "50904961d6a87c5191e611276aa2ecb9d66ca4ff"
+version = "2.0.0"
 generate = true
 globs = ["*.pm", "*.pl", "*.t"]
 emacs = ["perl"]
