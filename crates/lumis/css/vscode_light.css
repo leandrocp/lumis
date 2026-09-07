@@ -1,5 +1,5 @@
 /* vscode_light
- * revision: aa1102a7e15195c9cca22730b09224a7f7745ba8
+ * revision: 6439ed89d0e10193f07e92268a321d7c6f6e93ee
  */
 .lumis {
   color: #343434;
@@ -15,7 +15,7 @@
   color: #0000ff;
 }
 .l-character {
-  color: #c72e0f;
+  color: #a31515;
 }
 .l-character-special {
   color: #343434;
@@ -47,7 +47,7 @@
   font-weight: bold;
 }
 .l-constant {
-  color: #4fc1ff;
+  color: #267f99;
 }
 .l-constant-builtin {
   color: #0000ff;
@@ -143,7 +143,7 @@
   color: #0000ff;
 }
 .l-label {
-  color: #0451a5;
+  color: #001080;
 }
 .l-markup {
   color: #800000;
@@ -214,7 +214,7 @@
   text-decoration: underline;
 }
 .l-markup-link-label {
-  color: #0451a5;
+  color: #001080;
 }
 .l-markup-link-url {
   color: #343434;
@@ -281,7 +281,7 @@
   color: #343434;
 }
 .l-property {
-  color: #0451a5;
+  color: #001080;
 }
 .l-punctuation-bracket {
   color: #343434;
@@ -311,16 +311,16 @@
   color: #343434;
 }
 .l-string {
-  color: #c72e0f;
+  color: #a31515;
 }
 .l-string-documentation {
-  color: #c72e0f;
+  color: #a31515;
 }
 .l-string-escape {
   color: #343434;
 }
 .l-string-regexp {
-  color: #c72e0f;
+  color: #a31515;
 }
 .l-string-special {
   color: #343434;
@@ -338,7 +338,7 @@
   color: #0000ff;
 }
 .l-tag-attribute {
-  color: #0451a5;
+  color: #001080;
 }
 .l-tag-builtin {
   color: #0000ff;
@@ -362,16 +362,16 @@
   color: #16825d;
 }
 .l-variable {
-  color: #0451a5;
+  color: #001080;
 }
 .l-variable-builtin {
   color: #0000ff;
 }
 .l-variable-member {
-  color: #0451a5;
+  color: #001080;
 }
 .l-variable-parameter {
-  color: #0451a5;
+  color: #001080;
 }
 .l-variable-parameter-builtin {
   color: #800000;
