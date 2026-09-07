@@ -45,6 +45,10 @@ defmodule DiffHtmlFormatter do
     ]
   end
 
+  # Rust and JavaScript formatters call `lumis::formatters::html` and
+  # `@lumis-sh/lumis/formatters/html` for these two. Elixir has no equivalent
+  # yet, so they are hand-rolled here and have to track the Rust versions by
+  # hand — see leandrocp/lumis#1359.
   defp scope_class(scope), do: "l-" <> String.replace(scope, ".", "-")
 
   defp escape(text) do
@@ -53,6 +57,7 @@ defmodule DiffHtmlFormatter do
     |> String.replace("<", "&lt;")
     |> String.replace(">", "&gt;")
     |> String.replace("\"", "&quot;")
+    |> String.replace("'", "&#39;")
   end
 end
 
