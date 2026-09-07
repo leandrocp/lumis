@@ -16,7 +16,7 @@ import TabItem from '@theme/TabItem';
 
 # Annotations
 
-An annotation is a source range you supply, carrying properties Lumis never
+An annotation is a source range you supply, carrying data Lumis never
 inspects. Lumis composes those ranges with the syntax events for one
 highlighting operation, and a [custom formatter](/formatters/custom) decides how
 to render them.
@@ -55,7 +55,7 @@ character falls outside the range.
 const annotations = [
   {
     range: {type: 'offset', start: 12, end: 23},
-    properties: {change: 'added'},
+    data: {change: 'added'},
   },
   {
     range: {
@@ -63,7 +63,7 @@ const annotations = [
       start: {line: 1, column: 10},
       end: {line: 1, column: 21},
     },
-    properties: {change: 'removed'},
+    data: {change: 'removed'},
   },
 ]
 
@@ -127,7 +127,7 @@ annotations = [
 ## Rendering them
 
 A formatter receives two events beyond the syntax ones: an annotation opens and
-an annotation closes. The opening event carries your properties, and the range
+an annotation closes. The opening event carries your data, and the range
 resolved to byte offsets whichever form you built it from.
 
 The closing event carries **no payload**, so a formatter that renders more than
@@ -149,7 +149,7 @@ const formatter: Formatter<Change> = {
 
     for (const event of events) {
       if (event.type === 'annotationStart') {
-        const tag = event.annotation.properties.change === 'added' ? 'ins' : 'del'
+        const tag = event.annotation.data.change === 'added' ? 'ins' : 'del'
         out.push(`<${tag}>`)
         open.push(tag)
       } else if (event.type === 'annotationEnd') {
@@ -190,7 +190,7 @@ impl Formatter<Change> for DiffFormatter {
         for event in events {
             match event {
                 HighlightEvent::AnnotationStart { annotation } => {
-                    let tag = match annotation.properties() {
+                    let tag = match annotation.data() {
                         Change::Added => "ins",
                         Change::Removed => "del",
                     };
@@ -224,7 +224,7 @@ defmodule DiffFormatter do
   def render(source, events, _options) do
     {output, []} =
       Enum.map_reduce(events, [], fn
-        {:annotation_start, %Lumis.Annotation{properties: %{change: change}}}, open ->
+        {:annotation_start, %Lumis.Annotation{data: %{change: change}}}, open ->
           tag = if change == :added, do: "ins", else: "del"
           {["<", tag, ">"], [tag | open]}
 
@@ -274,7 +274,7 @@ count the events.
 
 `html_inline`, `html_linked`, `html_multi_themes`, `terminal` and
 `bbcode_scoped` skip annotation events, because they cannot know how to render
-properties they have never seen. Annotations are for custom formatters.
+data they have never seen. Annotations are for custom formatters.
 
 ## Complete examples
 

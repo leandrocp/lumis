@@ -18,16 +18,16 @@ defmodule DiffHtmlFormatter do
           text = binary_part(source, start, end_offset - start)
           {escape(text), annotation_closings}
 
-        {:annotation_start, %{properties: %{type: :line} = line}}, annotation_closings ->
+        {:annotation_start, %{data: %{type: :line} = line}}, annotation_closings ->
           opening =
             ~s(<span class="diff-line diff-line-#{line.kind}" data-line="#{line.number}" data-marker="#{@line_markers[line.kind]}">)
 
           {opening, ["</span>" | annotation_closings]}
 
-        {:annotation_start, %{properties: %{type: :span} = span}}, annotation_closings ->
+        {:annotation_start, %{data: %{type: :span} = span}}, annotation_closings ->
           {~s(<mark class="diff-span diff-span-#{span.kind}">), ["</mark>" | annotation_closings]}
 
-        {:annotation_start, %{properties: %{type: :annotation} = annotation}},
+        {:annotation_start, %{data: %{type: :annotation} = annotation}},
         annotation_closings ->
           opening =
             ~s(<span class="diff-annotation" data-label="#{escape(annotation.label)}">)
@@ -159,7 +159,7 @@ defmodule LumisDiffViewerExample do
     html
   end
 
-  defp annotation(source, text, properties, occurrence \\ :first) do
+  defp annotation(source, text, data, occurrence \\ :first) do
     matches = :binary.matches(source, text)
 
     {start, length} =
@@ -170,7 +170,7 @@ defmodule LumisDiffViewerExample do
 
     Annotation.new(
       Offset.new(start, start + length),
-      properties
+      data
     )
   end
 

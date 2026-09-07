@@ -89,20 +89,20 @@ class DiffHtmlFormatter implements Formatter<DiffAnnotation> {
       return;
     }
 
-    const { properties } = event.annotation;
-    if (properties.type === "line") {
+    const { data } = event.annotation;
+    if (data.type === "line") {
       output.push(
         openSpanTag({
-          class: `diff-line diff-line-${properties.kind}`,
-          "data-line": properties.number,
-          "data-marker": lineMarkers[properties.kind],
+          class: `diff-line diff-line-${data.kind}`,
+          "data-line": data.number,
+          "data-marker": lineMarkers[data.kind],
         }),
       );
       annotationClosings.push("</span>");
       return;
     }
-    if (properties.type === "span") {
-      output.push(`<mark class="diff-span diff-span-${properties.kind}">`);
+    if (data.type === "span") {
+      output.push(`<mark class="diff-span diff-span-${data.kind}">`);
       annotationClosings.push("</mark>");
       return;
     }
@@ -110,7 +110,7 @@ class DiffHtmlFormatter implements Formatter<DiffAnnotation> {
     output.push(
       openSpanTag({
         class: "diff-annotation",
-        "data-label": properties.label,
+        "data-label": data.label,
       }),
     );
     annotationClosings.push("</span>");
@@ -153,58 +153,58 @@ export async function renderExample(): Promise<string> {
   const oldAnnotations = [
     {
       range: rangeOf(oldSource, "function calculate(price, tax) {"),
-      properties: { type: "line", number: 1, kind: "changed" },
+      data: { type: "line", number: 1, kind: "changed" },
     },
     {
       range: rangeOf(oldSource, "  return price + tax"),
-      properties: { type: "line", number: 2, kind: "removed" },
+      data: { type: "line", number: 2, kind: "removed" },
     },
     {
       range: lastRangeOf(oldSource, "}"),
-      properties: { type: "line", number: 3, kind: "context" },
+      data: { type: "line", number: 3, kind: "context" },
     },
     {
       range: rangeOf(oldSource, "price, tax"),
-      properties: { type: "span", kind: "removed" },
+      data: { type: "span", kind: "removed" },
     },
     {
       range: rangeOf(oldSource, "price + tax"),
-      properties: { type: "span", kind: "removed" },
+      data: { type: "span", kind: "removed" },
     },
   ] satisfies Annotation<DiffAnnotation>[];
 
   const newAnnotations = [
     {
       range: rangeOf(newSource, "function calculate(price, tax, fee) {"),
-      properties: { type: "line", number: 1, kind: "changed" },
+      data: { type: "line", number: 1, kind: "changed" },
     },
     {
       range: rangeOf(newSource, "  const subtotal = price + tax"),
-      properties: { type: "line", number: 2, kind: "added" },
+      data: { type: "line", number: 2, kind: "added" },
     },
     {
       range: rangeOf(newSource, "  return subtotal + fee"),
-      properties: { type: "line", number: 3, kind: "added" },
+      data: { type: "line", number: 3, kind: "added" },
     },
     {
       range: lastRangeOf(newSource, "}"),
-      properties: { type: "line", number: 4, kind: "context" },
+      data: { type: "line", number: 4, kind: "context" },
     },
     {
       range: rangeOf(newSource, "price, tax, fee"),
-      properties: { type: "span", kind: "added" },
+      data: { type: "span", kind: "added" },
     },
     {
       range: rangeOf(newSource, "  const subtotal = price + tax"),
-      properties: { type: "span", kind: "added" },
+      data: { type: "span", kind: "added" },
     },
     {
       range: rangeOf(newSource, "  return subtotal + fee"),
-      properties: { type: "span", kind: "added" },
+      data: { type: "span", kind: "added" },
     },
     {
       range: lastRangeOf(newSource, "fee"),
-      properties: { type: "annotation", label: "New service fee" },
+      data: { type: "annotation", label: "New service fee" },
     },
   ] satisfies Annotation<DiffAnnotation>[];
 

@@ -3,26 +3,26 @@ defmodule Lumis.Annotation do
   A caller-provided semantic range consumed by a formatter.
 
   Ranges use either absolute UTF-8 byte offsets or zero-based lines and UTF-8
-  byte columns. `properties` stays as an Elixir term and is passed unchanged
+  byte columns. `data` stays as an Elixir term and is passed unchanged
   to custom formatters.
   """
 
-  @enforce_keys [:range, :properties]
-  defstruct [:range, :properties]
+  @enforce_keys [:range, :data]
+  defstruct [:range, :data]
 
   @typedoc "A half-open offset or source-position range."
   @type range :: Lumis.Range.Offset.t() | Lumis.Range.Position.t()
 
-  @typedoc "A semantic source range with caller-owned properties."
-  @type t(properties) :: %__MODULE__{
+  @typedoc "A semantic source range with caller-owned data."
+  @type t(data) :: %__MODULE__{
           range: range(),
-          properties: properties
+          data: data
         }
 
   @typedoc "An annotation materialized to an offset range for formatter events."
-  @type resolved_t(properties) :: %__MODULE__{
+  @type resolved_t(data) :: %__MODULE__{
           range: Lumis.Range.Offset.t(),
-          properties: properties
+          data: data
         }
 
   @doc """
@@ -42,13 +42,13 @@ defmodule Lumis.Annotation do
   `{:annotation_start, annotation}` before `price` and `:annotation_end` after
   it.
   """
-  @spec new(range(), properties) :: t(properties) when properties: term()
-  def new(%Lumis.Range.Offset{} = range, properties) do
-    %__MODULE__{range: range, properties: properties}
+  @spec new(range(), data) :: t(data) when data: term()
+  def new(%Lumis.Range.Offset{} = range, data) do
+    %__MODULE__{range: range, data: data}
   end
 
-  def new(%Lumis.Range.Position{} = range, properties) do
-    %__MODULE__{range: range, properties: properties}
+  def new(%Lumis.Range.Position{} = range, data) do
+    %__MODULE__{range: range, data: data}
   end
 
   def new(range, _properties) do

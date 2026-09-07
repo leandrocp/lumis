@@ -143,7 +143,7 @@ function resolveAnnotations<T>(
 ): ResolvedAnnotation<T>[] {
   return annotations.map((annotation, index) => ({
     range: resolveRange(sourceIndex, index, annotation.range),
-    properties: annotation.properties,
+    data: annotation.data,
   }));
 }
 

@@ -46,7 +46,7 @@ enum SyntaxEvent {
 #[derive(Debug, Deserialize)]
 struct CaseAnnotation {
     range: CaseRange,
-    properties: String,
+    data: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -113,7 +113,7 @@ fn render(source: &str, case: &Case) -> String {
                     Position::new(start.line, start.column)..Position::new(end.line, end.column),
                 ),
             };
-            Annotation::new(range, annotation.properties.clone())
+            Annotation::new(range, annotation.data.clone())
                 .expect("fixture annotations are well-formed")
         })
         .collect();
@@ -130,7 +130,7 @@ fn render(source: &str, case: &Case) -> String {
                 HighlightEvent::End => "E".to_string(),
                 HighlightEvent::AnnotationStart { annotation } => format!(
                     "A+{}@{}-{}",
-                    annotation.properties(),
+                    annotation.data(),
                     annotation.range().start,
                     annotation.range().end
                 ),

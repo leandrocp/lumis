@@ -70,7 +70,7 @@ export const annotationFormatter: Formatter<{ id: number }> = {
   render(source: string, events: readonly HighlightEvent<{ id: number }>[]): string {
     const annotated: number[] = [];
     for (const event of events) {
-      if (event.type === "annotationStart") annotated.push(event.annotation.properties.id);
+      if (event.type === "annotationStart") annotated.push(event.annotation.data.id);
     }
     return `${source.length}:${annotated.join(",")}`;
   },
@@ -80,10 +80,10 @@ export const browserAnnotationFormatter: BrowserFormatter<{ id: number }> = anno
 
 export const offsetAnnotation: Annotation<{ id: number }> = {
   range: { type: "offset", start: 0, end: 1 },
-  properties: { id: 1 },
+  data: { id: 1 },
 };
 
 export const positionAnnotation: Annotation<{ id: number }> = {
   range: { type: "position", start: { line: 0, column: 0 }, end: { line: 0, column: 1 } },
-  properties: { id: 2 },
+  data: { id: 2 },
 };

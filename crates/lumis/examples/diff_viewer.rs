@@ -89,7 +89,7 @@ impl Formatter<DiffAnnotation> for DiffHtmlFormatter {
                     write!(output, "<span {}>", html::span_linked_attrs(scope))?;
                 }
                 HighlightEvent::End => output.write_all(b"</span>")?,
-                HighlightEvent::AnnotationStart { annotation } => match annotation.properties() {
+                HighlightEvent::AnnotationStart { annotation } => match annotation.data() {
                     DiffAnnotation::Line { number, kind } => {
                         write!(
                             output,

@@ -351,7 +351,7 @@ export interface HighlightLinesLinked {
 }
 
 /**
- * A caller-provided semantic range with typed properties.
+ * A caller-provided semantic range with typed data.
  *
  * This annotation marks only `price` in a one-line source:
  *
@@ -359,7 +359,7 @@ export interface HighlightLinesLinked {
  * const source = "let total = price;"
  * const annotation: Annotation<string> = {
  *   range: { type: "offset", start: 12, end: 17 },
- *   properties: "search-match",
+ *   data: "search-match",
  * }
  *
  * // Offsets are UTF-8 bytes, which String.prototype.slice does not count.
@@ -373,14 +373,14 @@ export interface HighlightLinesLinked {
 export interface Annotation<T = unknown> {
   /** A tagged offset or position range into the formatted source. */
   range: AnnotationRange;
-  /** Caller-owned properties interpreted by custom formatters. */
-  properties: T;
+  /** Caller-owned data interpreted by custom formatters. */
+  data: T;
 }
 
 /** An annotation materialized to the offset range consumed by formatters. */
 export interface ResolvedAnnotation<T = unknown> {
   range: HighlightRange;
-  properties: T;
+  data: T;
 }
 
 /** Options for one highlighting operation. */

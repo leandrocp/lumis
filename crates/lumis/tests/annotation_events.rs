@@ -49,7 +49,7 @@ impl Formatter<Change> for TestFormatter {
                     observation.annotation_starts += 1;
                     observation
                         .annotations
-                        .push((annotation.range().clone(), annotation.properties().id));
+                        .push((annotation.range().clone(), annotation.data().id));
                 }
                 HighlightEvent::AnnotationEnd => observation.annotation_ends += 1,
                 HighlightEvent::Source { start, end } => {

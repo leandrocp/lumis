@@ -52,7 +52,7 @@ impl From<Range<Position>> for AnnotationRange {
     }
 }
 
-/// A caller-provided semantic range with arbitrary typed properties.
+/// A caller-provided semantic range with arbitrary typed data.
 ///
 /// This annotation marks only `price` in a one-line source:
 ///
@@ -75,8 +75,8 @@ impl From<Range<Position>> for AnnotationRange {
 pub struct Annotation<T = ()> {
     /// Half-open source range.
     range: AnnotationRange,
-    /// Caller-owned properties interpreted by formatters.
-    properties: T,
+    /// Caller-owned data interpreted by formatters.
+    data: T,
 }
 
 impl<T> Annotation<T> {
@@ -93,7 +93,7 @@ impl<T> Annotation<T> {
     /// Only a reversed range is rejected. Source bounds, position bounds, and
     /// UTF-8 character boundaries are checked when the annotation is used to
     /// format a specific source.
-    pub fn new(range: impl Into<AnnotationRange>, properties: T) -> Result<Self, AnnotationError> {
+    pub fn new(range: impl Into<AnnotationRange>, data: T) -> Result<Self, AnnotationError> {
         let range = range.into();
         let is_reversed = match &range {
             AnnotationRange::Offset(range) => range.start > range.end,
@@ -104,7 +104,7 @@ impl<T> Annotation<T> {
             return Err(AnnotationError::InvalidRange { range });
         }
 
-        Ok(Self { range, properties })
+        Ok(Self { range, data })
     }
 
     /// Returns the caller-provided source range.
@@ -112,14 +112,14 @@ impl<T> Annotation<T> {
         &self.range
     }
 
-    /// Returns the caller-owned properties.
-    pub fn properties(&self) -> &T {
-        &self.properties
+    /// Returns the caller-owned data.
+    pub fn data(&self) -> &T {
+        &self.data
     }
 
-    /// Consumes the annotation and returns its caller-owned properties.
-    pub fn into_properties(self) -> T {
-        self.properties
+    /// Consumes the annotation and returns its caller-owned data.
+    pub fn into_data(self) -> T {
+        self.data
     }
 }
 
@@ -127,14 +127,14 @@ impl<T> Annotation<T> {
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct ResolvedAnnotation<'a, T = ()> {
     range: Range<usize>,
-    properties: &'a T,
+    data: &'a T,
 }
 
 impl<T> Clone for ResolvedAnnotation<'_, T> {
     fn clone(&self) -> Self {
         Self {
             range: self.range.clone(),
-            properties: self.properties,
+            data: self.data,
         }
     }
 }
@@ -145,9 +145,9 @@ impl<'a, T> ResolvedAnnotation<'a, T> {
         &self.range
     }
 
-    /// Returns the caller-owned properties.
-    pub const fn properties(&self) -> &'a T {
-        self.properties
+    /// Returns the caller-owned data.
+    pub const fn data(&self) -> &'a T {
+        self.data
     }
 }
 
@@ -435,7 +435,7 @@ fn resolve_annotations<'a, T>(
 
         resolved.push(ResolvedAnnotation {
             range,
-            properties: &annotation.properties,
+            data: &annotation.data,
         });
     }
 
@@ -635,7 +635,7 @@ mod tests {
                 HighlightEvent::AnnotationStart {
                     annotation: ResolvedAnnotation {
                         range: 2..2,
-                        properties: &"blank-line",
+                        data: &"blank-line",
                     },
                 },
                 HighlightEvent::AnnotationEnd,
@@ -661,7 +661,7 @@ mod tests {
                 HighlightEvent::AnnotationStart {
                     annotation: ResolvedAnnotation {
                         range: 2..2,
-                        properties: &"trailing",
+                        data: &"trailing",
                     },
                 },
                 HighlightEvent::AnnotationEnd,
@@ -708,7 +708,7 @@ mod tests {
         let order: Vec<&str> = events
             .iter()
             .filter_map(|event| match event {
-                HighlightEvent::AnnotationStart { annotation } => Some(*annotation.properties()),
+                HighlightEvent::AnnotationStart { annotation } => Some(*annotation.data()),
                 _ => None,
             })
             .collect();
@@ -848,7 +848,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(resolved.range(), &(4..9));
-        assert_eq!(*resolved.properties(), 7);
+        assert_eq!(*resolved.data(), 7);
     }
 
     #[test]

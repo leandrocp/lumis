@@ -21,7 +21,7 @@ defmodule Lumis.AnnotationsTest do
         {:source, %{start: start, end: end_offset}} ->
           binary_part(source, start, end_offset - start)
 
-        {:annotation_start, %Annotation{range: range, properties: %{id: id}}} ->
+        {:annotation_start, %Annotation{range: range, data: %{id: id}}} ->
           send(self(), {:resolved_range, id, range})
           ["<annotation:", Integer.to_string(id), ">"]
 
@@ -34,7 +34,7 @@ defmodule Lumis.AnnotationsTest do
     end
   end
 
-  test "annotations and their Elixir properties reach a custom formatter" do
+  test "annotations and their Elixir data reach a custom formatter" do
     source = "(price + tax)"
 
     annotations = [

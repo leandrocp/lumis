@@ -315,7 +315,7 @@ pub mod themes;
 /// Caller-provided semantic ranges for formatter event streams.
 ///
 /// Annotations use UTF-8 offsets or zero-based line and byte-column
-/// positions, and keep caller-owned properties typed:
+/// positions, and keep caller-owned data typed:
 ///
 /// ```rust
 /// use lumis::{HighlightOptions, Annotation};

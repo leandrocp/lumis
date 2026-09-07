@@ -22,7 +22,7 @@ describe("annotations", () => {
     const annotations: Annotation<Change>[] = [
       {
         range: { type: "offset", start, end: start + new TextEncoder().encode(changedText).length },
-        properties: { id: 7 },
+        data: { id: 7 },
       },
     ];
     const formatter: Formatter<Change> = {
@@ -36,7 +36,7 @@ describe("annotations", () => {
           if (event.type === "start") output.push(`<syntax:${event.scope}>`);
           if (event.type === "end") output.push("</syntax>");
           if (event.type === "annotationStart") {
-            output.push(`<annotation:${event.annotation.properties.id}>`);
+            output.push(`<annotation:${event.annotation.data.id}>`);
           }
           if (event.type === "annotationEnd") output.push("</annotation>");
           if (event.type === "source") {
@@ -66,7 +66,7 @@ describe("annotations", () => {
     const annotations: Annotation[] = [
       {
         range: { type: "offset", start: 10, end: 11 },
-        properties: {},
+        data: {},
       },
     ];
     const formatter: Formatter = {
@@ -92,7 +92,7 @@ describe("annotations", () => {
           start: { line: 1, column: 6 },
           end: { line: 1, column: 11 },
         },
-        properties: { id: 8 },
+        data: { id: 8 },
       },
     ];
     const formatter: Formatter<Change> = {
@@ -132,7 +132,7 @@ describe("annotations", () => {
           start: { line: 1, column: 0 },
           end: { line: 1, column: 4 },
         },
-        properties: {},
+        data: {},
       },
     ];
     const formatter: Formatter = {
@@ -156,7 +156,7 @@ describe("annotations", () => {
     const annotations: Annotation<Change>[] = [
       {
         range: { type: "offset", start: blankLineOffset, end: blankLineOffset },
-        properties: { id: 1 },
+        data: { id: 1 },
       },
     ];
     const formatter: Formatter<Change> = {
@@ -166,8 +166,7 @@ describe("annotations", () => {
         const decoder = new TextDecoder();
         const parts: string[] = [];
         for (const event of events) {
-          if (event.type === "annotationStart")
-            parts.push(`<mark:${event.annotation.properties.id}>`);
+          if (event.type === "annotationStart") parts.push(`<mark:${event.annotation.data.id}>`);
           else if (event.type === "annotationEnd") parts.push("</mark>");
           else if (event.type === "source") {
             parts.push(decoder.decode(bytes.subarray(event.startByte, event.endByte)));
@@ -186,7 +185,7 @@ describe("annotations", () => {
   it("does not let a point annotation leak into the rest of the document", async () => {
     const source = "const a = 1;";
     const annotations: Annotation<Change>[] = [
-      { range: { type: "offset", start: 5, end: 5 }, properties: { id: 2 } },
+      { range: { type: "offset", start: 5, end: 5 }, data: { id: 2 } },
     ];
     const formatter: Formatter<Change> = {
       language: javascript,
@@ -204,7 +203,7 @@ describe("annotations", () => {
   it("rejects a range that runs backwards", async () => {
     const source = "const a = 1;";
     const annotations: Annotation<Change>[] = [
-      { range: { type: "offset", start: 8, end: 5 }, properties: { id: 3 } },
+      { range: { type: "offset", start: 8, end: 5 }, data: { id: 3 } },
     ];
     const formatter: Formatter<Change> = {
       language: javascript,

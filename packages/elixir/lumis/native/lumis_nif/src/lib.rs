@@ -262,14 +262,14 @@ impl Encoder for ExAnnotationRange {
 #[module = "Lumis.Annotation"]
 pub struct ExAnnotation<'a> {
     pub range: ExAnnotationRange,
-    pub properties: Term<'a>,
+    pub data: Term<'a>,
 }
 
 #[derive(Clone, Debug, NifStruct)]
 #[module = "Lumis.Annotation"]
 pub struct ExResolvedAnnotation<'a> {
     pub range: ExOffsetRange,
-    pub properties: Term<'a>,
+    pub data: Term<'a>,
 }
 
 #[derive(Debug, NifMap)]
@@ -360,7 +360,7 @@ impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
                             start: annotation.range().start,
                             end: annotation.range().end,
                         },
-                        properties: *annotation.properties(),
+                        data: *annotation.data(),
                     })
                 }
                 HighlightEvent::AnnotationEnd => CollectedEvent::AnnotationEnd,
@@ -531,7 +531,7 @@ fn decode_annotations(annotations: Vec<ExAnnotation<'_>>) -> NifResult<Vec<Annot
                 }
             };
 
-            Annotation::new(range, annotation.properties)
+            Annotation::new(range, annotation.data)
         })
         .collect::<Result<Vec<_>, _>>()
         .map_err(|error| Error::Term(Box::new(error.to_string())))
