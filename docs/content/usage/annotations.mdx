@@ -272,12 +272,14 @@ data they have never seen. Annotations are for custom formatters.
 
 ## Complete examples
 
-Each runtime ships a runnable side-by-side diff viewer built on annotations,
-with added, removed and changed lines, changed spans, gutter markers and a
-labelled annotation:
+Each runtime ships one runnable example over the same four-line source, where
+every annotation demonstrates a different case: a position range crossing a
+line boundary, an offset range starting mid-token so a syntax scope splits, a
+multibyte literal, a point on a blank line, and two annotations that overlap
+without nesting. All three print the same output.
 
 | Runtime | Example |
 | --- | --- |
-| JavaScript | [`examples/diff_viewer.ts`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/examples/diff_viewer.ts) |
-| Rust | [`examples/diff_viewer.rs`](https://github.com/leandrocp/lumis/blob/main/crates/lumis/examples/diff_viewer.rs) |
-| Elixir | [`examples/diff_viewer.exs`](https://github.com/leandrocp/lumis/blob/main/packages/elixir/lumis/examples/diff_viewer.exs) |
+| JavaScript | [`examples/annotations.ts`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/examples/annotations.ts) |
+| Rust | [`examples/annotations.rs`](https://github.com/leandrocp/lumis/blob/main/crates/lumis/examples/annotations.rs) |
+| Elixir | [`examples/annotations.exs`](https://github.com/leandrocp/lumis/blob/main/packages/elixir/lumis/examples/annotations.exs) |

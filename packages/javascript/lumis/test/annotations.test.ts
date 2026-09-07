@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import javascript from "../langs/javascript.ts";
 import { createHighlighter, type Annotation } from "../src/index.js";
 import type { Formatter } from "../src/formatters.js";
-import { renderExample } from "../examples/diff_viewer.ts";
+import { renderExample } from "../examples/annotations.ts";
 import { configureLocalWasmResolver } from "./wasm.js";
 
 interface Change {
@@ -216,17 +216,20 @@ describe("annotations", () => {
     );
   }, 30_000);
 
-  it("renders the complete JavaScript diff viewer example", async () => {
+  it("renders every annotation shape in the example", async () => {
     const output = await renderExample();
 
-    expect(output).toContain("calculator.js · before");
-    expect(output).toContain("calculator.js · after");
-    expect(output).toContain('data-marker="-"');
-    expect(output).toContain('data-marker="+"');
-    expect(output).toContain('data-marker="~"');
-    expect(output).toContain("diff-span-removed");
-    expect(output).toContain("diff-span-added");
-    expect(output).toContain('data-label="New service fee"');
-    expect(output).toContain('class="l-');
+    // A position range crossing a line boundary.
+    expect(output).toContain('<span class="line-changed">');
+    // An offset range starting mid-token splits the `variable` scope.
+    expect(output).toContain(
+      '<span class="l-variable">p</span><mark class="edit"><span class="l-variable">rice</span>',
+    );
+    // Byte offsets over a multibyte literal.
+    expect(output).toContain("&quot;☕ café&quot;");
+    // A point renders as an empty element.
+    expect(output).toContain('<i data-note="why the gap?"></i>');
+    // The overlapping annotation is closed and reopened, so it starts twice.
+    expect(output.match(/<mark class="right">/g)).toHaveLength(2);
   }, 30_000);
 });

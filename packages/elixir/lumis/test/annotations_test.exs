@@ -184,18 +184,21 @@ defmodule Lumis.AnnotationsTest do
     assert_received {:resolved_range, 3, {2, 2}}
   end
 
-  test "the diff viewer example renders the complete annotation flow" do
-    example = Path.expand("../examples/diff_viewer.exs", __DIR__)
+  test "the example renders every annotation shape" do
+    example = Path.expand("../examples/annotations.exs", __DIR__)
     output = capture_io(fn -> Code.require_file(example) end)
 
-    assert output =~ "calculator.ex · before"
-    assert output =~ "calculator.ex · after"
-    assert output =~ ~s(data-marker="-")
-    assert output =~ ~s(data-marker="+")
-    assert output =~ ~s(data-marker="~")
-    assert output =~ "diff-span-removed"
-    assert output =~ "diff-span-added"
-    assert output =~ ~s(data-label="New service fee")
-    assert output =~ ~s(<span class="l-)
+    # A position range crossing a line boundary.
+    assert output =~ ~s(<span class="line-changed">)
+    # An offset range starting mid-token splits the `variable` scope.
+    assert output =~
+             ~s(<span class="l-variable">p</span><mark class="edit"><span class="l-variable">rice</span>)
+
+    # Byte offsets over a multibyte literal.
+    assert output =~ "&quot;☕ café&quot;"
+    # A point renders as an empty element.
+    assert output =~ ~s(<i data-note="why the gap?"></i>)
+    # The overlapping annotation is closed and reopened, so it starts twice.
+    assert length(String.split(output, ~s(<mark class="right">))) - 1 == 2
   end
 end
