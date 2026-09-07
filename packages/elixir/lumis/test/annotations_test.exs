@@ -4,9 +4,6 @@ defmodule Lumis.AnnotationsTest do
   import ExUnit.CaptureIO
 
   alias Lumis.Annotation
-  alias Lumis.Position
-  alias Lumis.Range.Offset
-  alias Lumis.Range.Position, as: PositionRange
 
   defmodule TestFormatter do
     @behaviour Lumis.Formatter
@@ -21,8 +18,8 @@ defmodule Lumis.AnnotationsTest do
         {:source, %{start: start, end: end_offset}} ->
           binary_part(source, start, end_offset - start)
 
-        {:annotation_start, %Annotation{range: range, data: %{id: id}}} ->
-          send(self(), {:resolved_range, id, range})
+        {:annotation_start, %Annotation{start: start, end: stop, data: %{id: id}}} ->
+          send(self(), {:resolved_range, id, {start, stop}})
           ["<annotation:", Integer.to_string(id), ">"]
 
         :annotation_end ->
@@ -38,10 +35,7 @@ defmodule Lumis.AnnotationsTest do
     source = "(price + tax)"
 
     annotations = [
-      Annotation.new(
-        Offset.new(1, byte_size(source) - 1),
-        %{id: 7}
-      )
+      [offset: {1, byte_size(source) - 1}, data: %{id: 7}]
     ]
 
     assert {:ok, output} =
@@ -52,16 +46,13 @@ defmodule Lumis.AnnotationsTest do
              )
 
     assert output == "(<annotation:7>price + tax</annotation>)"
-    assert_received {:resolved_range, 7, %Offset{start: 1, end: 12}}
+    assert_received {:resolved_range, 7, {1, 12}}
     assert_received :saw_rainbow_bracket
   end
 
   test "invalid UTF-8 byte boundaries are rejected against the source" do
     annotations = [
-      Annotation.new(
-        Offset.new(1, 2),
-        %{}
-      )
+      [offset: {1, 2}, data: %{}]
     ]
 
     assert_raise Lumis.HighlightError, ~r/not a UTF-8 character boundary/, fn ->
@@ -76,13 +67,7 @@ defmodule Lumis.AnnotationsTest do
     source = "π\ncafé"
 
     annotations = [
-      Annotation.new(
-        PositionRange.new(
-          Position.new(1, 0),
-          Position.new(1, 5)
-        ),
-        %{id: 8}
-      )
+      [position: {[line: 1, column: 0], [line: 1, column: 5]}, data: %{id: 8}]
     ]
 
     assert {:ok, output} =
@@ -92,18 +77,12 @@ defmodule Lumis.AnnotationsTest do
              )
 
     assert output == "π\n<annotation:8>café</annotation>"
-    assert_received {:resolved_range, 8, %Offset{start: 3, end: 8}}
+    assert_received {:resolved_range, 8, {3, 8}}
   end
 
   test "position columns must be UTF-8 byte boundaries" do
     annotations = [
-      Annotation.new(
-        PositionRange.new(
-          Position.new(1, 0),
-          Position.new(1, 4)
-        ),
-        %{}
-      )
+      [position: {[line: 1, column: 0], [line: 1, column: 4]}, data: %{}]
     ]
 
     assert_raise Lumis.HighlightError, ~r/not a UTF-8 character boundary/, fn ->
@@ -114,29 +93,86 @@ defmodule Lumis.AnnotationsTest do
     end
   end
 
-  test "range constructors reject reversed ranges" do
-    assert_raise ArgumentError, ~r/offset range start must not be after its end/, fn ->
-      Offset.new(6, 4)
-    end
+  defp highlight_with(annotations) do
+    Lumis.highlight("a\n\nb", formatter: :html_inline, annotations: annotations)
+  end
 
-    assert_raise ArgumentError, ~r/position range start must not be after its end/, fn ->
-      PositionRange.new(Position.new(2, 0), Position.new(1, 0))
+  test "rejects a range that runs backwards" do
+    assert_raise NimbleOptions.ValidationError,
+                 ~r/annotation 0 offset range start must not be after its end: 6\.\.4/,
+                 fn -> highlight_with([[offset: {6, 4}]]) end
+
+    assert_raise NimbleOptions.ValidationError,
+                 ~r/annotation 0 position range start must not be after its end/,
+                 fn ->
+                   highlight_with([
+                     [position: {[line: 2, column: 0], [line: 1, column: 0]}]
+                   ])
+                 end
+  end
+
+  test "accepts an empty range as a point" do
+    assert {:ok, _html} = highlight_with([[offset: {1, 1}]])
+
+    assert {:ok, _html} =
+             highlight_with([[position: {[line: 0, column: 1], [line: 0, column: 1]}]])
+  end
+
+  test "requires exactly one of :offset and :position" do
+    assert_raise NimbleOptions.ValidationError,
+                 ~r/annotation 0 needs an :offset or a :position range/,
+                 fn -> highlight_with([[data: %{}]]) end
+
+    assert_raise NimbleOptions.ValidationError,
+                 ~r/annotation 0 sets both :offset and :position, which is ambiguous/,
+                 fn ->
+                   highlight_with([
+                     [offset: {0, 1}, position: {[line: 0, column: 0], [line: 0, column: 1]}]
+                   ])
+                 end
+  end
+
+  test "rejects an annotation that is not a keyword list" do
+    assert_raise NimbleOptions.ValidationError,
+                 ~r/annotation 0 must be a keyword list with :offset or :position/,
+                 fn -> highlight_with([%{offset: {0, 1}}]) end
+  end
+
+  test "rejects an unknown key rather than ignoring it" do
+    assert_raise NimbleOptions.ValidationError,
+                 ~r/annotation 0: unknown options \[:colour\]/,
+                 fn ->
+                   highlight_with([[offset: {0, 1}, colour: :red]])
+                 end
+  end
+
+  test "rejects a malformed position" do
+    assert_raise NimbleOptions.ValidationError, ~r/annotation 0 position:/, fn ->
+      highlight_with([[position: {[line: 0], [line: 0, column: 1]}]])
     end
   end
 
-  test "range constructors accept an empty range as a point" do
-    assert %Offset{start: 4, end: 4} = Offset.new(4, 4)
+  test "data defaults to nil when omitted" do
+    defmodule DataFormatter do
+      @behaviour Lumis.Formatter
 
-    position = Position.new(1, 4)
+      @impl true
+      def render(_source, events, _options) do
+        for {:annotation_start, annotation} <- events, do: inspect(annotation.data)
+      end
+    end
 
-    assert %PositionRange{start: ^position, end: ^position} =
-             PositionRange.new(position, position)
+    assert {:ok, "nil"} =
+             Lumis.highlight("ab",
+               formatter: {DataFormatter, language: "elixir"},
+               annotations: [[offset: {0, 1}]]
+             )
   end
 
   test "a point annotation on a blank line reaches the formatter" do
     source = "a\n\nb"
 
-    annotations = [Annotation.new(Offset.new(2, 2), %{id: 3})]
+    annotations = [[offset: {2, 2}, data: %{id: 3}]]
 
     assert {:ok, output} =
              Lumis.highlight(source,
@@ -145,7 +181,7 @@ defmodule Lumis.AnnotationsTest do
              )
 
     assert output == "a\n<annotation:3></annotation>\nb"
-    assert_received {:resolved_range, 3, %Offset{start: 2, end: 2}}
+    assert_received {:resolved_range, 3, {2, 2}}
   end
 
   test "the diff viewer example renders the complete annotation flow" do

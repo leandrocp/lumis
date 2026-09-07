@@ -12,7 +12,7 @@ defmodule Lumis.Formatter do
           {:start, %{scope: String.t(), language: String.t()}}
           | {:source, %{start: non_neg_integer(), end: non_neg_integer()}}
           | :end
-          | {:annotation_start, Lumis.Annotation.resolved_t(data)}
+          | {:annotation_start, Lumis.Annotation.t(data)}
           | :annotation_end
 
   @doc "Renders a unified event stream for `source`."

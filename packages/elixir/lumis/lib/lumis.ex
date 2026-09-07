@@ -294,10 +294,22 @@ defmodule Lumis do
   @highlight_options [
     annotations: [
       type: {:custom, Lumis, :annotations_type, []},
-      type_spec: quote(do: [Lumis.Annotation.t(term())]),
-      type_doc: "`t:Lumis.Annotation.t/1`",
+      type_spec: quote(do: [keyword()]),
+      type_doc: "`t:keyword/0`",
       default: [],
-      doc: "Caller-provided semantic ranges for this highlighting operation."
+      doc: """
+      Caller-provided semantic ranges for this highlighting operation. Each is a
+      keyword list with either an `:offset` or a `:position` range and optional
+      `:data`:
+
+          annotations: [
+            [offset: {12, 23}, data: %{change: :added}],
+            [position: {[line: 1, column: 10], [line: 1, column: 21]}, data: %{change: :removed}]
+          ]
+
+      A formatter receives them as `t:Lumis.Annotation.t/1`, resolved to byte
+      offsets. An empty range is a point.
+      """
     ],
     rainbow_brackets: [
       type: :boolean,
@@ -559,53 +571,97 @@ defmodule Lumis do
     {:error, "invalid formatter option: #{inspect(other)}"}
   end
 
+  @position_schema [
+    line: [type: :non_neg_integer, required: true],
+    column: [type: :non_neg_integer, required: true]
+  ]
+
+  @annotation_schema [
+    offset: [
+      type: {:tuple, [:non_neg_integer, :non_neg_integer]},
+      doc: "Half-open range of absolute UTF-8 byte offsets, as `{start, end}`."
+    ],
+    position: [
+      type: {:tuple, [:keyword_list, :keyword_list]},
+      doc: "Half-open range of zero-based lines and UTF-8 byte columns."
+    ],
+    data: [type: :any, default: nil, doc: "Any term, passed to the formatter untouched."]
+  ]
+
   @doc false
   def annotations_type(annotations) when is_list(annotations) do
-    with :ok <- validate_annotations(annotations), do: {:ok, annotations}
+    annotations
+    |> Enum.with_index()
+    |> Enum.reduce_while({:ok, []}, fn {annotation, index}, {:ok, acc} ->
+      case validate_annotation(annotation, index) do
+        {:ok, normalized} -> {:cont, {:ok, [normalized | acc]}}
+        {:error, message} -> {:halt, {:error, message}}
+      end
+    end)
+    |> case do
+      {:ok, normalized} -> {:ok, Enum.reverse(normalized)}
+      error -> error
+    end
   end
 
   def annotations_type(_annotations), do: {:error, "annotations must be a list"}
 
-  defp validate_annotations(annotations) do
-    annotations
-    |> Enum.with_index()
-    |> Enum.reduce_while(:ok, fn {annotation, index}, :ok ->
-      if valid_annotation?(annotation) do
-        {:cont, :ok}
+  defp validate_annotation(annotation, index) when is_list(annotation) do
+    with {:ok, opts} <- NimbleOptions.validate(annotation, @annotation_schema),
+         {:ok, range} <- annotation_range(opts, index) do
+      {:ok, Tuple.insert_at(range, tuple_size(range), opts[:data])}
+    else
+      {:error, %NimbleOptions.ValidationError{} = error} ->
+        {:error, "annotation #{index}: #{Exception.message(error)}"}
+
+      {:error, message} ->
+        {:error, message}
+    end
+  end
+
+  defp validate_annotation(_annotation, index) do
+    {:error, "annotation #{index} must be a keyword list with :offset or :position"}
+  end
+
+  # Exactly one of the two range keys, so there is one way to spell a range.
+  defp annotation_range(opts, index) do
+    case {Keyword.fetch(opts, :offset), Keyword.fetch(opts, :position)} do
+      {{:ok, {start, stop}}, :error} when stop >= start ->
+        {:ok, {:offset, start, stop}}
+
+      {{:ok, {start, stop}}, :error} ->
+        {:error,
+         "annotation #{index} offset range start must not be after its end: #{start}..#{stop}"}
+
+      {:error, {:ok, {start, stop}}} ->
+        validate_position_range(start, stop, index)
+
+      {:error, :error} ->
+        {:error, "annotation #{index} needs an :offset or a :position range"}
+
+      {{:ok, _offset}, {:ok, _position}} ->
+        {:error, "annotation #{index} sets both :offset and :position, which is ambiguous"}
+    end
+  end
+
+  defp validate_position_range(start, stop, index) do
+    with {:ok, start_pair} <- validate_position(start, index),
+         {:ok, stop_pair} <- validate_position(stop, index) do
+      if start_pair <= stop_pair do
+        {:ok, {:position, start_pair, stop_pair}}
       else
-        {:halt,
-         {:error,
-          "annotation #{index} must be a Lumis.Annotation whose offset or position range does not run backwards"}}
+        {:error,
+         "annotation #{index} position range start must not be after its end: " <>
+           "#{inspect(start_pair)}..#{inspect(stop_pair)}"}
       end
-    end)
+    end
   end
 
-  defp valid_annotation?(%Lumis.Annotation{
-         range: %Lumis.Range.Offset{start: start, end: end_offset}
-       }) do
-    is_integer(start) and start >= 0 and is_integer(end_offset) and end_offset >= start
-  end
-
-  defp valid_annotation?(%Lumis.Annotation{
-         range: %Lumis.Range.Position{
-           start: %Lumis.Position{} = start,
-           end: %Lumis.Position{} = stop
-         }
-       }) do
-    valid_position?(start) and valid_position?(stop) and not_after?(start, stop)
-  end
-
-  defp valid_annotation?(_annotation), do: false
-
-  defp valid_position?(%Lumis.Position{line: line, column: column}) do
-    is_integer(line) and line >= 0 and is_integer(column) and column >= 0
-  end
-
-  defp not_after?(%Lumis.Position{line: line, column: column}, %Lumis.Position{
-         line: stop_line,
-         column: stop_column
-       }) do
-    line < stop_line or (line == stop_line and column <= stop_column)
+  defp validate_position(position, index) do
+    case NimbleOptions.validate(position, @position_schema) do
+      {:ok, opts} -> {:ok, {opts[:line], opts[:column]}}
+      {:error, error} -> {:error, "annotation #{index} position: #{Exception.message(error)}"}
+    end
   end
 
   @doc false

@@ -101,17 +101,11 @@ let html = highlight_with_options(
 
 ```elixir
 annotations = [
-  Lumis.Annotation.new(
-    Lumis.Range.Offset.new(12, 23),
-    %{change: :added}
-  ),
-  Lumis.Annotation.new(
-    Lumis.Range.Position.new(
-      Lumis.Position.new(1, 10),
-      Lumis.Position.new(1, 21)
-    ),
-    %{change: :removed}
-  )
+  [offset: {12, 23}, data: %{change: :added}],
+  [
+    position: {[line: 1, column: 10], [line: 1, column: 21]},
+    data: %{change: :removed}
+  ]
 ]
 
 {:ok, html} =

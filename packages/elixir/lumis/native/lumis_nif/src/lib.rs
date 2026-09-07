@@ -15,7 +15,7 @@ use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
 use lumis_wasm_runtime::{catalog, store, Runtime, RuntimeError};
 use parking_lot::RwLock;
-use rustler::{Decoder, Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
+use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
 
 /// Lazy per-theme cache to eliminate repeated allocations.
 /// Themes are converted and cached on first access, amortizing the cost.
@@ -199,83 +199,22 @@ rustler::init!("Elixir.Lumis.Native");
 pub struct ExOptions<'a> {
     pub language: Option<&'a str>,
     pub formatter: ExFormatterOption,
-    pub annotations: Vec<ExAnnotation<'a>>,
+    pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
-}
-
-#[derive(Clone, Copy, Debug, NifStruct)]
-#[module = "Lumis.Position"]
-pub struct ExPosition {
-    pub line: usize,
-    pub column: usize,
-}
-
-impl From<ExPosition> for Position {
-    fn from(position: ExPosition) -> Self {
-        Self::new(position.line, position.column)
-    }
-}
-
-#[derive(Clone, Copy, Debug, NifStruct)]
-#[module = "Lumis.Range.Offset"]
-pub struct ExOffsetRange {
-    pub start: usize,
-    pub end: usize,
-}
-
-#[derive(Clone, Debug, NifStruct)]
-#[module = "Lumis.Range.Position"]
-pub struct ExPositionRange {
-    pub start: ExPosition,
-    pub end: ExPosition,
-}
-
-#[derive(Clone, Debug)]
-pub enum ExAnnotationRange {
-    Offset(ExOffsetRange),
-    Position(ExPositionRange),
-}
-
-impl<'a> Decoder<'a> for ExAnnotationRange {
-    fn decode(term: Term<'a>) -> NifResult<Self> {
-        if let Ok(range) = term.decode::<ExOffsetRange>() {
-            return Ok(Self::Offset(range));
-        }
-        if let Ok(range) = term.decode::<ExPositionRange>() {
-            return Ok(Self::Position(range));
-        }
-
-        Err(Error::BadArg)
-    }
-}
-
-impl Encoder for ExAnnotationRange {
-    fn encode<'a>(&self, env: Env<'a>) -> Term<'a> {
-        match self {
-            Self::Offset(range) => range.encode(env),
-            Self::Position(range) => range.encode(env),
-        }
-    }
-}
-
-#[derive(Clone, Debug, NifStruct)]
-#[module = "Lumis.Annotation"]
-pub struct ExAnnotation<'a> {
-    pub range: ExAnnotationRange,
-    pub data: Term<'a>,
 }
 
 #[derive(Clone, Debug, NifStruct)]
 #[module = "Lumis.Annotation"]
 pub struct ExResolvedAnnotation<'a> {
-    pub range: ExOffsetRange,
+    pub start: usize,
+    pub end: usize,
     pub data: Term<'a>,
 }
 
 #[derive(Debug, NifMap)]
 pub struct ExEventOptions<'a> {
     pub language: Option<&'a str>,
-    pub annotations: Vec<ExAnnotation<'a>>,
+    pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
 }
 
@@ -356,10 +295,8 @@ impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
                 HighlightEvent::End => CollectedEvent::End,
                 HighlightEvent::AnnotationStart { annotation } => {
                     CollectedEvent::AnnotationStart(ExResolvedAnnotation {
-                        range: ExOffsetRange {
-                            start: annotation.range().start,
-                            end: annotation.range().end,
-                        },
+                        start: annotation.range().start,
+                        end: annotation.range().end,
                         data: *annotation.data(),
                     })
                 }
@@ -520,21 +457,36 @@ pub(crate) fn highlight_events<'a>(
     Ok((ok(), events).encode(env))
 }
 
-fn decode_annotations(annotations: Vec<ExAnnotation<'_>>) -> NifResult<Vec<Annotation<Term<'_>>>> {
+/// Reads the tagged tuples `Lumis.annotations_type/1` normalizes to:
+/// `{:offset, start, end, data}`, or `{:position, {line, column}, {line,
+/// column}, data}`. Elixir has already validated the shape and the ordering.
+fn decode_annotations(annotations: Vec<Term<'_>>) -> NifResult<Vec<Annotation<Term<'_>>>> {
     annotations
         .into_iter()
-        .map(|annotation| {
-            let range = match annotation.range {
-                ExAnnotationRange::Offset(range) => AnnotationRange::Offset(range.start..range.end),
-                ExAnnotationRange::Position(range) => {
-                    AnnotationRange::Position(range.start.into()..range.end.into())
-                }
+        .map(|term| {
+            let parts = rustler::types::tuple::get_tuple(term)?;
+            let [kind, start, end, data] = parts.as_slice() else {
+                return Err(Error::BadArg);
             };
 
-            Annotation::new(range, annotation.data)
+            let range = match kind.atom_to_string()?.as_str() {
+                "offset" => {
+                    AnnotationRange::Offset(start.decode::<usize>()?..end.decode::<usize>()?)
+                }
+                "position" => {
+                    AnnotationRange::Position(decode_position(*start)?..decode_position(*end)?)
+                }
+                _ => return Err(Error::BadArg),
+            };
+
+            Annotation::new(range, *data).map_err(|error| Error::Term(Box::new(error.to_string())))
         })
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|error| Error::Term(Box::new(error.to_string())))
+        .collect()
+}
+
+fn decode_position(term: Term<'_>) -> NifResult<Position> {
+    let (line, column) = term.decode::<(usize, usize)>()?;
+    Ok(Position::new(line, column))
 }
 
 fn executor() -> Result<&'static WasmExecutor> {
