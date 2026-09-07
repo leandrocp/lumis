@@ -283,3 +283,14 @@ without nesting. All three print the same output.
 | JavaScript | [`examples/annotations.ts`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/examples/annotations.ts) |
 | Rust | [`examples/annotations.rs`](https://github.com/leandrocp/lumis/blob/main/crates/lumis/examples/annotations.rs) |
 | Elixir | [`examples/annotations.exs`](https://github.com/leandrocp/lumis/blob/main/packages/elixir/lumis/examples/annotations.exs) |
+
+Styled, the output shows each case: the amber and green bars are whole-line
+position ranges, `rice` is outlined on its own because the annotation split the
+`variable` scope around it, the string literal is covered by byte offsets over
+multibyte characters, `why the gap?` is a point on a blank line, and the last
+line carries two annotations that overlap without nesting.
+
+![The example's output. Lines one and two share an amber whole-line annotation,
+`rice` inside `price` is outlined separately, the string literal is outlined,
+a note marks the blank line, and the last line shows two overlapping
+marks.](/img/annotations.png)
