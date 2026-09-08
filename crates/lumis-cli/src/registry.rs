@@ -30,10 +30,7 @@ impl Registry {
             Box::new(HttpFetcher),
         );
 
-        let runtime = Runtime::with_worker_limit(1)?.with_store(store);
-        for language in catalog::LANGUAGES {
-            runtime.declare_language(language.id, language.aliases);
-        }
+        let runtime = lumis_wasm_runtime::runtime_with_catalog(store, 1)?;
 
         Ok(Self { data_dir, runtime })
     }

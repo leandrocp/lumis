@@ -1410,8 +1410,8 @@ dependencies = [
  "derive_builder",
  "glob",
  "lumis-build",
- "lumis-core",
- "lumis-wasm-runtime",
+ "lumis-core 2.5.0",
+ "lumis-wasm-runtime 0.2.1",
  "pretty_assertions",
  "prettyplease",
  "proc-macro2",
@@ -1512,8 +1512,8 @@ dependencies = [
  "assert_cmd",
  "clap",
  "etcetera",
- "lumis-core",
- "lumis-wasm-runtime",
+ "lumis-core 2.5.0",
+ "lumis-wasm-runtime 0.2.1",
  "predicates",
  "serde",
  "serde_json",
@@ -1538,6 +1538,27 @@ dependencies = [
  "proc-macro2",
  "quote",
  "regex",
+ "rustler",
+ "serde",
+ "serde_json",
+ "syn 3.0.4",
+ "toml 1.1.4+spec-1.1.0",
+ "typed-path",
+ "v_htmlescape",
+]
+
+[[package]]
+name = "lumis-core"
+version = "2.5.0"
+source = "git+https://github.com/leandrocp/lumis?branch=refactor%2Fshare-wasm-runtime#f0e7aba526cd2b2ebcb2cc65ba641ac01f0156be"
+dependencies = [
+ "derive_builder",
+ "glob",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "regex",
+ "rustler",
  "serde",
  "serde_json",
  "syn 3.0.4",
@@ -1551,8 +1572,8 @@ name = "lumis-js-native"
 version = "0.7.1"
 dependencies = [
  "base64 0.23.1",
- "lumis-core",
- "lumis-wasm-runtime",
+ "lumis-core 2.5.0",
+ "lumis-wasm-runtime 0.2.1",
  "napi",
  "napi-build",
  "napi-derive",
@@ -1566,7 +1587,7 @@ name = "lumis-wasm-runtime"
 version = "0.2.1"
 dependencies = [
  "etcetera",
- "lumis-core",
+ "lumis-core 2.5.0",
  "semver",
  "serde",
  "serde_json",
@@ -1583,12 +1604,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "lumis-wasm-runtime"
+version = "0.2.1"
+source = "git+https://github.com/leandrocp/lumis?branch=refactor%2Fshare-wasm-runtime#f0e7aba526cd2b2ebcb2cc65ba641ac01f0156be"
+dependencies = [
+ "etcetera",
+ "lumis-core 2.5.0 (git+https://github.com/leandrocp/lumis?branch=refactor%2Fshare-wasm-runtime)",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "streaming-iterator",
+ "tempfile",
+ "thiserror 2.0.20",
+ "tree-sitter",
+ "typed-arena",
+ "ureq",
+ "wasmparser 0.258.0",
+ "wasmtime",
+]
+
+[[package]]
 name = "lumis_nif"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "lumis-core",
- "lumis-wasm-runtime",
+ "lumis-core 2.5.0 (git+https://github.com/leandrocp/lumis?branch=refactor%2Fshare-wasm-runtime)",
+ "lumis-wasm-runtime 0.2.1 (git+https://github.com/leandrocp/lumis?branch=refactor%2Fshare-wasm-runtime)",
  "once_cell",
  "parking_lot",
  "rustler",
@@ -2742,7 +2784,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.3",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",

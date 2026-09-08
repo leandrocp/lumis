@@ -1114,4 +1114,21 @@ defmodule Lumis do
       when is_binary(language) and is_binary(source) do
     highlight!(source, language: language)
   end
+
+  @doc """
+  Returns the directory parsers are downloaded to and compiled in.
+
+  `Lumis.Application` resolves this at boot from `config :lumis, :data_dir`,
+  `LUMIS_DATA_DIR`, or the application's `priv`. A library that embeds Lumis
+  reads it here rather than repeating the resolution, so both end up on the
+  same store and a parser is fetched and compiled once.
+
+  ## Examples
+
+      Lumis.data_dir()
+      #=> "/home/user/.local/share/lumis"
+
+  """
+  @spec data_dir() :: String.t()
+  def data_dir, do: Lumis.Native.data_dir()
 end

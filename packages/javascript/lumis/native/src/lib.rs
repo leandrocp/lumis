@@ -231,13 +231,8 @@ static SHARED_DEFINITIONS: LazyLock<Mutex<HashMap<String, Arc<lumis_wasm_runtime
 
 fn build_runtime() -> std::result::Result<Runtime, String> {
     let workers = std::thread::available_parallelism().map_or(1, usize::from);
-    let runtime = Runtime::with_worker_limit(workers)
-        .map_err(|error| error.to_string())?
-        .with_store(language_store(None));
-    for language in catalog::LANGUAGES {
-        runtime.declare_language(language.id, language.aliases);
-    }
-    Ok(runtime)
+    lumis_wasm_runtime::runtime_with_catalog(language_store(None), workers)
+        .map_err(|error| error.to_string())
 }
 
 fn shared_runtime() -> Result<&'static Arc<Runtime>> {

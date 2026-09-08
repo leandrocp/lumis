@@ -1,9 +1,14 @@
-use lumis_core::formatter::{
+//! Elixir-facing decoders for the Lumis option surface.
+//!
+//! Both `lumis_nif` and `mdex_native_nif` decode the same option maps from the
+//! BEAM. One copy lives here so the wire format cannot drift between them.
+
+use crate::formatter::{
     html_inline, html_linked, BBCodeScopedBuilder, Formatter, HtmlElement, HtmlInlineBuilder,
     HtmlLinkedBuilder, HtmlMultiThemesBuilder, TerminalBackground, TerminalBuilder,
 };
-use lumis_core::{languages::Language, themes};
-use rustler::{NifMap, NifStruct, NifTaggedEnum, NifUnitEnum};
+use crate::{languages::Language, themes};
+use rustler::{Encoder, NifMap, NifStruct, NifTaggedEnum, NifUnitEnum};
 use std::collections::HashMap;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, NifUnitEnum)]
@@ -13,7 +18,7 @@ pub enum ExAppearance {
     Dark,
 }
 
-#[derive(Debug, NifTaggedEnum)]
+#[derive(Clone, Debug, NifTaggedEnum)]
 pub enum ExFormatterOption {
     HtmlInline {
         theme: Option<ThemeOrString>,
@@ -52,7 +57,7 @@ pub enum ExFormatterOption {
     },
 }
 
-#[derive(Debug, NifTaggedEnum)]
+#[derive(Clone, Debug, NifTaggedEnum)]
 pub enum ExTerminalBackground {
     Theme,
     String(String),
@@ -72,10 +77,47 @@ impl Default for ExFormatterOption {
     }
 }
 
-#[derive(Debug, NifTaggedEnum)]
+#[derive(Clone, Debug)]
 pub enum ThemeOrString {
     Theme(ExTheme),
     String(String),
+}
+
+/// Also accepts a bare name, which is how `mdex_native` has always spelled a
+/// theme in `{:html_inline, theme: "onedark"}`. The tagged forms `{:string,
+/// name}` and `{:theme, theme}` keep working.
+impl<'a> rustler::Decoder<'a> for ThemeOrString {
+    fn decode(term: rustler::Term<'a>) -> rustler::NifResult<Self> {
+        if let Ok(name) = String::decode(term) {
+            return Ok(Self::String(name));
+        }
+
+        let (kind, value): (rustler::Atom, rustler::Term<'a>) = term.decode()?;
+        let env = term.get_env();
+
+        if kind == rustler::Atom::from_str(env, "string")? {
+            return Ok(Self::String(value.decode()?));
+        }
+
+        if kind == rustler::Atom::from_str(env, "theme")? {
+            return Ok(Self::Theme(value.decode()?));
+        }
+
+        Err(rustler::Error::BadArg)
+    }
+}
+
+impl rustler::Encoder for ThemeOrString {
+    fn encode<'a>(&self, env: rustler::Env<'a>) -> rustler::Term<'a> {
+        match self {
+            Self::Theme(theme) => {
+                (rustler::Atom::from_str(env, "theme").unwrap(), theme).encode(env)
+            }
+            Self::String(name) => {
+                (rustler::Atom::from_str(env, "string").unwrap(), name).encode(env)
+            }
+        }
+    }
 }
 
 impl Default for ThemeOrString {
@@ -470,7 +512,7 @@ pub struct ExHtmlLinkedHighlightLines {
 }
 
 #[derive(Clone, Debug, NifMap)]
-pub(crate) struct ExCssOptions {
+pub struct ExCssOptions {
     pub enable_italic: bool,
     pub scope: String,
     pub container_selector: String,

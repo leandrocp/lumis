@@ -227,6 +227,8 @@ pub mod store;
 pub mod tree_sitter_highlight;
 
 #[cfg(feature = "wasm")]
+pub mod executor;
+#[cfg(feature = "wasm")]
 mod runtime;
 
 #[cfg(feature = "wasm")]
@@ -234,6 +236,8 @@ pub use brackets::{
     bracket_pairs, capture_indices, colorize_bracket_pairs, BracketPair, RainbowRange,
     RAINBOW_BRACKET_SCOPES, RAINBOW_SCOPE_INDICES,
 };
+#[cfg(feature = "wasm")]
+pub use executor::{runtime_with_catalog, Executor, ExecutorError, LoadFailure};
 pub use package::{
     grammar_name, sha256_hex, LanguagePackage, LanguagePackageError, PackagedLanguage,
     ParserMetadata,

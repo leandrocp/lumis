@@ -66,6 +66,7 @@ defmodule Lumis.Native do
   def theme_css_from_name(_name, _options), do: :erlang.nif_error(:nif_not_loaded)
   def theme_css_from_theme(_theme, _options), do: :erlang.nif_error(:nif_not_loaded)
   def configure_store(_data_dir), do: :erlang.nif_error(:nif_not_loaded)
+  def data_dir, do: :erlang.nif_error(:nif_not_loaded)
   def language_package_refs, do: :erlang.nif_error(:nif_not_loaded)
   def language_bundles, do: :erlang.nif_error(:nif_not_loaded)
   def load_language_by_name(_name), do: :erlang.nif_error(:nif_not_loaded)

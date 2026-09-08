@@ -1,15 +1,12 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
-use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
-mod elixir;
-
 use anyhow::{anyhow, Context, Result};
-use elixir::{ExCssOptions, ExFormatterOption, ExTheme};
+use lumis_core::elixir::{ExCssOptions, ExFormatterOption, ExTheme};
 use lumis_core::events::HighlightEvent;
 use lumis_core::{languages, themes};
-use lumis_wasm_runtime::{catalog, store, Runtime, RuntimeError};
+use lumis_wasm_runtime::{catalog, store, Executor, LoadFailure, RuntimeError};
 use parking_lot::RwLock;
 use rustler::{Encoder, Env, Error, NifMap, NifResult, Term};
 
@@ -20,40 +17,20 @@ static THEME_CACHE: std::sync::LazyLock<RwLock<HashMap<String, ExTheme>>> =
 
 // `LazyLock::get`, which `configure_store` needs, is newer than the MSRV.
 #[allow(clippy::non_std_lazy_statics)]
-static EXECUTOR: Lazy<Result<WasmExecutor>> = Lazy::new(WasmExecutor::new);
+static EXECUTOR: Lazy<Result<Executor>> = Lazy::new(|| {
+    Executor::new(language_store(None)).context("could not start the Lumis WASM executor")
+});
 static CACHE_BATCH: std::sync::LazyLock<parking_lot::Mutex<()>> =
     std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
 static PRECOMPILE_BATCH: std::sync::LazyLock<parking_lot::Mutex<()>> =
     std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
 
-enum WasmJob {
-    LoadNamed {
-        name: String,
-        reply: mpsc::SyncSender<Result<(), RuntimeError>>,
-    },
-    Highlight {
-        source: String,
-        language: String,
-        rainbow_brackets: bool,
-        reply: mpsc::SyncSender<Result<Vec<HighlightEvent>, RuntimeError>>,
-    },
-}
-
-/// Why a load failed, at the granularity Elixir matches on.
-///
-/// A caller decides between "I typed the name wrong" and "it could not be
-/// obtained"; the detail behind the second is not something a `case` can act on.
-enum LoadFailure {
-    UnknownLanguage,
-    Parser,
-}
-
-impl Encoder for LoadFailure {
-    fn encode<'a>(&self, env: Env<'a>) -> Term<'a> {
-        match self {
-            Self::UnknownLanguage => unknown_language().encode(env),
-            Self::Parser => failed_to_load_parser().encode(env),
-        }
+/// `LoadFailure` belongs to the runtime crate, so the atom mapping lives at the
+/// boundary rather than as an orphan `Encoder`.
+fn load_failure_atom(failure: LoadFailure) -> rustler::Atom {
+    match failure {
+        LoadFailure::UnknownLanguage => unknown_language(),
+        LoadFailure::Parser => failed_to_load_parser(),
     }
 }
 
@@ -77,103 +54,6 @@ fn language_store(cache_dir: Option<std::path::PathBuf>) -> store::LanguageStore
         store::StoreConfig { cache_dir },
         Box::new(store::HttpFetcher),
     )
-}
-
-struct WasmExecutor {
-    runtime: Arc<Runtime>,
-    sender: mpsc::SyncSender<WasmJob>,
-}
-
-impl WasmExecutor {
-    fn new() -> Result<Self> {
-        // Sized to the machine, not capped. These threads exist for their 8 MiB
-        // stacks: nested injections recurse per layer and overflow the BEAM
-        // dirty-scheduler default, which crashes the VM rather than erroring.
-        let workers = thread::available_parallelism().map_or(1, usize::from);
-        let runtime = thread::Builder::new()
-            .name("lumis-wasm-init".into())
-            .stack_size(8 * 1024 * 1024)
-            .spawn(move || -> Result<Runtime, RuntimeError> {
-                let runtime = Runtime::with_worker_limit(workers)?.with_store(language_store(None));
-                for language in catalog::LANGUAGES {
-                    runtime.declare_language(language.id, language.aliases);
-                }
-                Ok(runtime)
-            })
-            .context("could not spawn the Lumis WASM runtime initializer")?
-            .join()
-            .map_err(|_| anyhow!("Lumis WASM runtime initialization panicked"))??;
-        let runtime = Arc::new(runtime);
-        let (sender, receiver) = mpsc::sync_channel::<WasmJob>(workers * 2);
-        let receiver = Arc::new(Mutex::new(receiver));
-
-        for index in 0..workers {
-            let runtime = Arc::clone(&runtime);
-            let receiver = Arc::clone(&receiver);
-            thread::Builder::new()
-                .name(format!("lumis-wasm-{index}"))
-                .stack_size(8 * 1024 * 1024)
-                .spawn(move || loop {
-                    let Ok(job) = receiver.lock().expect("executor lock poisoned").recv() else {
-                        return;
-                    };
-                    match job {
-                        WasmJob::LoadNamed { name, reply } => {
-                            let _ = reply.send(runtime.load_named_language(&name));
-                        }
-                        WasmJob::Highlight {
-                            source,
-                            language,
-                            rainbow_brackets,
-                            reply,
-                        } => {
-                            let _ =
-                                reply.send(runtime.highlight(&source, &language, rainbow_brackets));
-                        }
-                    }
-                })
-                .with_context(|| format!("could not spawn Lumis WASM worker {index}"))?;
-        }
-
-        Ok(Self { runtime, sender })
-    }
-
-    /// Resolving a language does a TLS handshake, which needs far more stack
-    /// than a BEAM dirty scheduler has; run it on the executor's own threads.
-    fn load_named_language(&self, name: &str) -> Result<(), LoadFailure> {
-        let (reply, result) = mpsc::sync_channel(1);
-        self.sender
-            .send(WasmJob::LoadNamed {
-                name: name.to_string(),
-                reply,
-            })
-            .map_err(|_| LoadFailure::Parser)?;
-        match result.recv().map_err(|_| LoadFailure::Parser)? {
-            Ok(()) => Ok(()),
-            Err(RuntimeError::LanguageNotLoaded(_)) => Err(LoadFailure::UnknownLanguage),
-            Err(_) => Err(LoadFailure::Parser),
-        }
-    }
-
-    fn highlight(
-        &self,
-        source: &str,
-        language: &str,
-        rainbow_brackets: bool,
-    ) -> Result<Vec<HighlightEvent>, RuntimeError> {
-        let (reply, result) = mpsc::sync_channel(1);
-        self.sender
-            .send(WasmJob::Highlight {
-                source: source.to_string(),
-                language: language.to_string(),
-                rainbow_brackets,
-                reply,
-            })
-            .map_err(|_| RuntimeError::Highlight("WASM executor is unavailable".into()))?;
-        result.recv().map_err(|_| {
-            RuntimeError::Highlight("WASM executor stopped before highlighting".into())
-        })?
-    }
 }
 
 rustler::atoms! {
@@ -294,7 +174,7 @@ pub(crate) fn highlight<'a>(
     Ok((ok(), output).encode(env))
 }
 
-fn executor() -> Result<&'static WasmExecutor> {
+fn executor() -> Result<&'static Executor> {
     EXECUTOR.as_ref().map_err(|error| anyhow!("{error:#}"))
 }
 
@@ -315,6 +195,18 @@ fn configure_store(data_dir: Option<String>) -> bool {
     true
 }
 
+/// The directory the store actually resolved to.
+///
+/// `Lumis.Application` decides this, and a second library embedding Lumis has
+/// to reach the same store or the same parser is downloaded and compiled twice.
+/// One resolve, readable by anyone who needs it.
+#[rustler::nif]
+fn data_dir() -> String {
+    store::resolve_data_dir(STORE_PATHS.read().data_dir.clone())
+        .to_string_lossy()
+        .into_owned()
+}
+
 /// Resolve, download, verify and load `name` through the shared store.
 ///
 /// Elixir no longer fetches anything: this is the same path the CLI takes, so
@@ -326,7 +218,7 @@ fn load_language_by_name<'a>(env: Env<'a>, name: &str) -> Term<'a> {
         .and_then(|runtime| runtime.load_named_language(name));
     match result {
         Ok(()) => ok().encode(env),
-        Err(failure) => (error(), failure).encode(env),
+        Err(failure) => (error(), load_failure_atom(failure)).encode(env),
     }
 }
 
@@ -393,16 +285,16 @@ fn cache_languages(env: Env<'_>, names: Vec<String>, force: bool) -> Term<'_> {
 /// order.
 #[rustler::nif(schedule = "DirtyCpu")]
 fn precompile_languages(env: Env<'_>, names: Vec<String>) -> Term<'_> {
+    let count = names.len();
     let executor = match executor() {
         Ok(executor) => executor,
-        Err(error) => return repeated_failure(env, &format!("{error:#}"), names.len()),
+        Err(error) => return repeated_failure(env, &format!("{error:#}"), count),
     };
 
     let results = on_deep_stack(|| {
         let _batch = PRECOMPILE_BATCH.lock();
         executor
-            .runtime
-            .precompile_languages(&names, lumis_wasm_runtime::compile_concurrency())
+            .precompile_languages(names, lumis_wasm_runtime::compile_concurrency())
             .into_iter()
             .map(|result| result.map_err(|failure| failure.to_string()))
             .collect::<Vec<_>>()
@@ -417,7 +309,7 @@ fn precompile_languages(env: Env<'_>, names: Vec<String>) -> Term<'_> {
             })
             .collect::<Vec<_>>()
             .encode(env),
-        Err(error) => repeated_failure(env, &format!("{error:#}"), names.len()),
+        Err(error) => repeated_failure(env, &format!("{error:#}"), count),
     }
 }
 
@@ -438,13 +330,13 @@ fn guess_language(name: Option<&str>, source: &str) -> &'static str {
 
 #[rustler::nif]
 fn has_language(name: &str) -> bool {
-    executor().is_ok_and(|executor| executor.runtime.has_language(name))
+    executor().is_ok_and(|executor| executor.has_language(name))
 }
 
 #[rustler::nif]
 fn loaded_languages() -> Vec<String> {
     executor()
-        .map(|executor| executor.runtime.loaded_languages())
+        .map(Executor::loaded_languages)
         .unwrap_or_default()
 }
 

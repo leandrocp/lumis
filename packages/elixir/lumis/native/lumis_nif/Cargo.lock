@@ -723,9 +723,8 @@ checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 
 [[package]]
 name = "lumis-core"
-version = "2.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b86aa67672256aa5dc91681d78f98b52dd3af7daae28c631673e98db8440596d"
+version = "2.4.0"
+source = "git+https://github.com/leandrocp/lumis?branch=refactor%2Fshare-wasm-runtime#5be6edfe91aa94776b1340b66d43eb2acd27f7d4"
 dependencies = [
  "derive_builder",
  "glob",
@@ -733,6 +732,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "regex",
+ "rustler",
  "serde",
  "serde_json",
  "syn 3.0.3",
@@ -743,9 +743,8 @@ dependencies = [
 
 [[package]]
 name = "lumis-wasm-runtime"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b19dfdab518688ba8605277e74d210af62c67d59b515e678507cf74d21dfd82e"
+version = "0.2.0"
+source = "git+https://github.com/leandrocp/lumis?branch=refactor%2Fshare-wasm-runtime#5be6edfe91aa94776b1340b66d43eb2acd27f7d4"
 dependencies = [
  "etcetera",
  "lumis-core",
@@ -759,7 +758,7 @@ dependencies = [
  "tree-sitter",
  "typed-arena",
  "ureq",
- "wasmparser 0.258.0",
+ "wasmparser 0.257.1",
  "wasmtime",
 ]
 
@@ -1586,9 +1585,9 @@ dependencies = [
 
 [[package]]
 name = "wasmparser"
-version = "0.258.0"
+version = "0.257.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9a61719f93a87b16d325921e251800c4833f8fab50fa21c7de73aed50086313"
+checksum = "d92fc335fb6d48f46bda1d8b26b69e28320c15ac3272208333833d6e217e2b4a"
 dependencies = [
  "bitflags",
  "hashbrown 0.17.1",
