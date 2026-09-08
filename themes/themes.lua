@@ -2150,4 +2150,84 @@ return {
 			vim.cmd([[colorscheme darkvoid]])
 		end,
 	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_ultra_dark",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme token-ultra]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_ultra_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme token-ultra]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_meridian_dark",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme token-meridian]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_meridian_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme token-meridian]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_dark",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme token]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme token]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_flint_dark",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme token-flint]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_flint_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme token-flint]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_temper_dark",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd([[colorscheme token-temper]])
+		end,
+	},
+	{
+		url = "https://github.com/ThorstenRhau/token",
+		name = "token_temper_light",
+		config = function()
+			vim.o.background = "light"
+			vim.cmd([[colorscheme token-temper]])
+		end,
+	},
 }

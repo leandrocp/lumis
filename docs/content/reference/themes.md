@@ -244,6 +244,16 @@ For usage examples, see [Themes](/themes) and [CSS Theme Files](/themes/css-file
 | `synthweave` | [samharju/synthweave.nvim](https://github.com/samharju/synthweave.nvim) |
 | `synthweave_aqua` | [samharju/synthweave.nvim](https://github.com/samharju/synthweave.nvim) |
 | `terafox` | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) |
+| `token_dark` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_flint_dark` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_flint_light` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_light` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_meridian_dark` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_meridian_light` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_temper_dark` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_temper_light` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_ultra_dark` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
+| `token_ultra_light` | [ThorstenRhau/token](https://github.com/ThorstenRhau/token) |
 | `tokyobones_dark` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) |
 | `tokyobones_light` | [zenbones-theme/zenbones.nvim](https://github.com/zenbones-theme/zenbones.nvim) |
 | `tokyodark` | [tiagovla/tokyodark.nvim](https://github.com/tiagovla/tokyodark.nvim) |
