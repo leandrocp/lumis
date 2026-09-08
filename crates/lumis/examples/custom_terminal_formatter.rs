@@ -119,7 +119,8 @@ impl Formatter for LineNumberedTerminal {
                         at_line_start = true;
                     }
                 }
-                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
+                // Anything this formatter does not render, it skips.
+                _ => {}
             }
         }
 

@@ -75,7 +75,7 @@ impl Formatter for TokenMetadataFormatter {
                         style.bg.as_deref().unwrap_or("none"),
                     )?;
                 }
-                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
+                _ => {}
             }
         }
 

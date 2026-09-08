@@ -301,6 +301,9 @@ impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
                     })
                 }
                 HighlightEvent::AnnotationEnd => CollectedEvent::AnnotationEnd,
+                // A kind this build predates: drop it rather than crossing the
+                // NIF boundary with a shape Elixir has no clause for.
+                _ => continue,
             };
             output.push(event);
         }

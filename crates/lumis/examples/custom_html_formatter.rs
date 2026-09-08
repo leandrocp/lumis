@@ -51,7 +51,8 @@ impl Formatter for CustomHtmlFormatter {
                 HighlightEvent::Source { start, end } => {
                     write!(output, "{}", html::escape(&source[*start..*end]))?;
                 }
-                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
+                // Anything this formatter does not render, it skips.
+                _ => {}
             }
         }
 

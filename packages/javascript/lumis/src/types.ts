@@ -464,6 +464,9 @@ export type HighlightIterFn = (
  *   },
  * }
  * ```
+ *
+ * Lumis adds event kinds as it grows, so a formatter should render the ones it
+ * knows and ignore the rest rather than assuming the union is closed.
  */
 export interface Formatter<T = unknown> {
   language?: LanguageRef;

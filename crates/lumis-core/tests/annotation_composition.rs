@@ -135,6 +135,7 @@ fn render(source: &str, case: &Case) -> String {
                     annotation.range().end
                 ),
                 HighlightEvent::AnnotationEnd => "A-".to_string(),
+                event => panic!("fixture corpus has no notation for {event:?}"),
             })
             .collect::<Vec<_>>()
             .join(" "),

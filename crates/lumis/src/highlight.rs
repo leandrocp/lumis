@@ -491,9 +491,9 @@ where
                     language_stack.pop();
                 }
             }
-            // The flat token stream has no place to surface an annotation.
-            // Formatters take the composed event stream instead.
-            CoreHighlightEvent::AnnotationStart { .. } | CoreHighlightEvent::AnnotationEnd => {}
+            // The flat token stream has no place to surface anything but a
+            // scope and its text. Formatters take the composed stream instead.
+            _ => {}
         }
     }
 

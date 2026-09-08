@@ -11,6 +11,11 @@ use crate::annotations::ResolvedAnnotation;
 /// This enum mirrors tree-sitter's `HighlightEvent` but uses plain Rust types,
 /// making it usable without any tree-sitter dependency. Lumis can enrich the
 /// stream with caller-provided events before a formatter consumes it.
+///
+/// Lumis adds event kinds as it grows, so a formatter matches the ones it
+/// renders and ignores the rest. That is what the built-in formatters do with
+/// annotations, which they cannot render without knowing the caller's data.
+#[non_exhaustive]
 #[derive(Debug, PartialEq, Eq)]
 pub enum HighlightEvent<'a, T = ()> {
     /// A highlight scope begins.

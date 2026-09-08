@@ -280,9 +280,7 @@ fn serialize_events(events: Vec<HighlightEvent<'_>>) -> Vec<SerializableHighligh
                 SerializableHighlightEvent::Source { start, end }
             }
             HighlightEvent::End => SerializableHighlightEvent::End,
-            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {
-                unreachable!("syntax highlighting does not emit caller-provided events")
-            }
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect()
 }

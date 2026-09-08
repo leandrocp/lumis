@@ -69,6 +69,10 @@ impl Formatter<Mark> for MarkFormatter {
                 HighlightEvent::Source { start, end } => {
                     write!(out, "{}", html::escape(&source[*start..*end]))?;
                 }
+                // Lumis adds event kinds over time. A formatter renders the
+                // ones it knows and skips the rest, rather than failing to
+                // compile against a newer Lumis.
+                _ => {}
             }
         }
 

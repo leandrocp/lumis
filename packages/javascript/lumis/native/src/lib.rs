@@ -554,7 +554,7 @@ fn encode_events(events: &[HighlightEvent<'_>]) -> Result<Buffer> {
                 output.extend_from_slice(language.as_bytes());
             }
             HighlightEvent::End => output.push(END_EVENT),
-            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {
+            _ => {
                 return Err(native_error(
                     "the native event protocol only supports syntax events",
                 ));

@@ -55,6 +55,7 @@ impl Formatter<Change> for TestFormatter {
                 HighlightEvent::Source { start, end } => {
                     output.write_all(&source.as_bytes()[*start..*end])?;
                 }
+                event => panic!("this test observes every event kind, and missed {event:?}"),
             }
         }
 

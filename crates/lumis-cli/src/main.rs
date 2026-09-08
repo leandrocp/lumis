@@ -985,9 +985,7 @@ fn dump_events(
                 SerializableHighlightEvent::Source { start, end }
             }
             HighlightEvent::End => SerializableHighlightEvent::End,
-            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {
-                unreachable!("syntax highlighting does not emit caller-provided events")
-            }
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect::<Vec<_>>();
 
@@ -1158,9 +1156,7 @@ fn tree_highlights(events: Vec<HighlightEvent>) -> Result<Vec<TreeHighlight>> {
                     });
                 }
             }
-            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {
-                unreachable!("syntax highlighting does not emit caller-provided events")
-            }
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         }
     }
 

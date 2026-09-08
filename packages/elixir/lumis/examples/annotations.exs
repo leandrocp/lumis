@@ -36,6 +36,11 @@ defmodule MarkFormatter do
 
         {:source, %{start: start, end: stop}}, open ->
           {escape(binary_part(source, start, stop - start)), open}
+
+        # Lumis adds event kinds over time. Render the ones you know and skip
+        # the rest, or a newer Lumis raises FunctionClauseError here.
+        _event, open ->
+          {[], open}
       end)
 
     output

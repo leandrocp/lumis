@@ -109,10 +109,7 @@ fn check_events(fixture: &Fixture) {
                 SerializableHighlightEvent::Source { start, end }
             }
             lumis_core::events::HighlightEvent::End => SerializableHighlightEvent::End,
-            lumis_core::events::HighlightEvent::AnnotationStart { .. }
-            | lumis_core::events::HighlightEvent::AnnotationEnd => {
-                unreachable!("syntax highlighting does not emit caller-provided events")
-            }
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect::<Vec<_>>();
     assert_eq!(serialized, fixture.metadata.events);
