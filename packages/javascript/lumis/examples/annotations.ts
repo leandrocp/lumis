@@ -66,44 +66,31 @@ const formatter: Formatter<Mark> = {
   },
 };
 
-/** Byte range of the first occurrence of `text`. A diff or search library would
- *  report these; nothing here is hand-counted. */
-function find(text: string): AnnotationRange {
-  const start = encoder.encode(SOURCE.slice(0, SOURCE.indexOf(text))).length;
-  return { type: "offset", start, end: start + encoder.encode(text).length };
-}
-
-/** Lines `first` through `last`, as zero-based lines and UTF-8 byte columns. */
-function lines(first: number, last: number): AnnotationRange {
-  const width = encoder.encode(SOURCE.split("\n")[last] ?? "").length;
-  return {
-    type: "position",
-    start: { line: first, column: 0 },
-    end: { line: last, column: width },
-  };
-}
-
 const annotations: Annotation<Mark>[] = [
-  // A position range, and one that crosses a line boundary. Zero-based line,
-  // UTF-8 byte column, which is what a diff reports.
-  { range: lines(0, 1), data: { type: "line", kind: "changed" } },
-  // An offset range starting mid-token. Lumis closes and reopens the
-  // `variable` scope around it, so `price` renders as `p` + `rice`.
-  { range: find("rice"), data: { type: "span", name: "edit" } },
-  // Offsets are UTF-8 bytes, not characters. `☕` is 3 and `é` is 2, and `find`
-  // counts them, so the whole literal is covered.
-  { range: find('"☕ café"'), data: { type: "span", name: "text" } },
+  // Zero-based line and UTF-8 byte column. This one crosses a line.
+  {
+    range: { type: "position", start: { line: 0, column: 0 }, end: { line: 1, column: 24 } },
+    data: { type: "line", kind: "changed" },
+  },
+  // `rice`, inside `price`. Starting mid-token makes Lumis close and reopen
+  // the `variable` scope, so it renders as `p` + `rice`.
+  { range: { type: "offset", start: 13, end: 17 }, data: { type: "span", name: "edit" } },
+  // `"☕ café"`. Offsets are UTF-8 bytes, so `☕` costs 3 and `é` costs 2.
+  { range: { type: "offset", start: 37, end: 48 }, data: { type: "span", name: "text" } },
   // An empty range is a point. Line 2 is blank, so there is nothing to cover,
   // and a review comment still has somewhere to land.
   {
     range: { type: "position", start: { line: 2, column: 0 }, end: { line: 2, column: 0 } },
     data: { type: "note", label: "why the gap?" },
   },
-  { range: lines(3, 3), data: { type: "line", kind: "added" } },
-  // Two that overlap without either containing the other. Lumis closes `left`
-  // and reopens `right` after it, so `right` opens twice.
-  { range: find("total - "), data: { type: "span", name: "left" } },
-  { range: find("- fee"), data: { type: "span", name: "right" } },
+  {
+    range: { type: "position", start: { line: 3, column: 0 }, end: { line: 3, column: 22 } },
+    data: { type: "line", kind: "added" },
+  },
+  // `total - ` and `- fee` overlap without either containing the other, so
+  // Lumis closes `left` and reopens `right` after it.
+  { range: { type: "offset", start: 61, end: 69 }, data: { type: "span", name: "left" } },
+  { range: { type: "offset", start: 67, end: 72 }, data: { type: "span", name: "right" } },
 ];
 
 export async function renderExample(): Promise<string> {

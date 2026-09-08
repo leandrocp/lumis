@@ -12,7 +12,6 @@ use lumis::formatters::Formatter;
 use lumis::languages::Language;
 use lumis::{highlight_with_options, html, HighlightOptions};
 use std::io::{self, Write};
-use std::ops::Range;
 
 const SOURCE: &str = "let total = price + tax;\nlet label = \"☕ café\";\n\nlet net = total - fee;";
 
@@ -80,41 +79,32 @@ impl Formatter<Mark> for MarkFormatter {
     }
 }
 
-/// Byte range of the first occurrence of `text`. A diff or search library would
-/// report these; nothing here is hand-counted.
-fn find(text: &str) -> Range<usize> {
-    let start = SOURCE.find(text).expect("sample contains the text");
-    start..start + text.len()
-}
-
-/// Lines `first` through `last`, as zero-based lines and UTF-8 byte columns.
-fn lines(first: usize, last: usize) -> Range<Position> {
-    let width = SOURCE.lines().nth(last).unwrap_or_default().len();
-    Position::new(first, 0)..Position::new(last, width)
-}
-
 fn render_example() -> Result<String, lumis::AnnotationError> {
     let annotations = [
-        // A position range, and one that crosses a line boundary. Zero-based
-        // line, UTF-8 byte column, which is what a diff reports.
-        Annotation::new(lines(0, 1), Mark::Line("changed"))?,
-        // An offset range starting mid-token. Lumis closes and reopens the
-        // `variable` scope around it, so `price` renders as `p` + `rice`.
-        Annotation::new(find("rice"), Mark::Span("edit"))?,
-        // Offsets are UTF-8 bytes, not characters. `☕` is 3 and `é` is 2, and
-        // `find` counts them, so the whole literal is covered.
-        Annotation::new(find("\"☕ café\""), Mark::Span("text"))?,
+        // Zero-based line and UTF-8 byte column. This one crosses a line.
+        Annotation::new(
+            Position::new(0, 0)..Position::new(1, 24),
+            Mark::Line("changed"),
+        )?,
+        // `rice`, inside `price`. Starting mid-token makes Lumis close and
+        // reopen the `variable` scope, so it renders as `p` + `rice`.
+        Annotation::new(13..17, Mark::Span("edit"))?,
+        // `"☕ café"`. Offsets are UTF-8 bytes, so `☕` costs 3 and `é` costs 2.
+        Annotation::new(37..48, Mark::Span("text"))?,
         // An empty range is a point. Line 2 is blank, so there is nothing to
         // cover, and a review comment still has somewhere to land.
         Annotation::new(
             Position::new(2, 0)..Position::new(2, 0),
             Mark::Note("why the gap?"),
         )?,
-        Annotation::new(lines(3, 3), Mark::Line("added"))?,
-        // Two that overlap without either containing the other. Lumis closes
-        // `left` and reopens `right` after it, so `right` opens twice.
-        Annotation::new(find("total - "), Mark::Span("left"))?,
-        Annotation::new(find("- fee"), Mark::Span("right"))?,
+        Annotation::new(
+            Position::new(3, 0)..Position::new(3, 22),
+            Mark::Line("added"),
+        )?,
+        // `total - ` and `- fee` overlap without either containing the other,
+        // so Lumis closes `left` and reopens `right` after it.
+        Annotation::new(61..69, Mark::Span("left"))?,
+        Annotation::new(67..72, Mark::Span("right"))?,
     ];
 
     Ok(highlight_with_options(

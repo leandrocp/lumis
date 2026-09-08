@@ -66,26 +66,30 @@ defmodule LumisAnnotationsExample do
 
   def render_example do
     annotations = [
-      # A position range, and one that crosses a line boundary. Zero-based
-      # line, UTF-8 byte column, which is what a diff reports.
-      [position: lines(0, 1), data: %{type: :line, kind: :changed}],
-      # An offset range starting mid-token. Lumis closes and reopens the
-      # `variable` scope around it, so `price` renders as `p` + `rice`.
-      [offset: find("rice"), data: %{type: :span, name: :edit}],
-      # Offsets are UTF-8 bytes, not characters. `☕` is 3 and `é` is 2, and
-      # `find` counts them, so the whole literal is covered.
-      [offset: find(~s("☕ café")), data: %{type: :span, name: :text}],
+      # Zero-based line and UTF-8 byte column. This one crosses a line.
+      [
+        position: {[line: 0, column: 0], [line: 1, column: 24]},
+        data: %{type: :line, kind: :changed}
+      ],
+      # `rice`, inside `price`. Starting mid-token makes Lumis close and reopen
+      # the `variable` scope, so it renders as `p` + `rice`.
+      [offset: {13, 17}, data: %{type: :span, name: :edit}],
+      # `"☕ café"`. Offsets are UTF-8 bytes, so `☕` costs 3 and `é` costs 2.
+      [offset: {37, 48}, data: %{type: :span, name: :text}],
       # An empty range is a point. Line 2 is blank, so there is nothing to
       # cover, and a review comment still has somewhere to land.
       [
         position: {[line: 2, column: 0], [line: 2, column: 0]},
         data: %{type: :note, label: "why the gap?"}
       ],
-      [position: lines(3, 3), data: %{type: :line, kind: :added}],
-      # Two that overlap without either containing the other. Lumis closes
-      # `left` and reopens `right` after it, so `right` opens twice.
-      [offset: find("total - "), data: %{type: :span, name: :left}],
-      [offset: find("- fee"), data: %{type: :span, name: :right}]
+      [
+        position: {[line: 3, column: 0], [line: 3, column: 22]},
+        data: %{type: :line, kind: :added}
+      ],
+      # `total - ` and `- fee` overlap without either containing the other, so
+      # Lumis closes `left` and reopens `right` after it.
+      [offset: {61, 69}, data: %{type: :span, name: :left}],
+      [offset: {67, 72}, data: %{type: :span, name: :right}]
     ]
 
     {:ok, html} =
@@ -97,23 +101,6 @@ defmodule LumisAnnotationsExample do
     html
   end
 
-  # Byte range of the first occurrence of `text`. A diff or search library would
-  # report these; nothing here is hand-counted.
-  defp find(text) do
-    {start, length} = :binary.match(@source, text)
-    {start, start + length}
-  end
-
-  # Lines `first` through `last`, as zero-based lines and UTF-8 byte columns.
-  defp lines(first, last) do
-    width =
-      @source
-      |> String.split("\n")
-      |> Enum.at(last, "")
-      |> byte_size()
-
-    {[line: first, column: 0], [line: last, column: width]}
-  end
 end
 
 LumisAnnotationsExample.render_example() |> IO.puts()
