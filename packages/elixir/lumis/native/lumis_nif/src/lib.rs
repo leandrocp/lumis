@@ -206,8 +206,7 @@ pub struct ExOptions<'a> {
 #[derive(Clone, Debug, NifStruct)]
 #[module = "Lumis.Annotation"]
 pub struct ExResolvedAnnotation<'a> {
-    pub start: usize,
-    pub end: usize,
+    pub range: (usize, usize),
     pub data: Term<'a>,
 }
 
@@ -295,8 +294,7 @@ impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
                 HighlightEvent::End => CollectedEvent::End,
                 HighlightEvent::AnnotationStart { annotation } => {
                     CollectedEvent::AnnotationStart(ExResolvedAnnotation {
-                        start: annotation.range().start,
-                        end: annotation.range().end,
+                        range: (annotation.range().start, annotation.range().end),
                         data: *annotation.data(),
                     })
                 }

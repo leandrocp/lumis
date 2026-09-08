@@ -68,7 +68,7 @@ defmodule LumisAnnotationsExample do
     annotations = [
       # Zero-based line and UTF-8 byte column. This one crosses a line.
       [
-        position: {[line: 0, column: 0], [line: 1, column: 24]},
+        position: {{0, 0}, {1, 24}},
         data: %{type: :line, kind: :changed}
       ],
       # `rice`, inside `price`. Starting mid-token makes Lumis close and reopen
@@ -79,11 +79,11 @@ defmodule LumisAnnotationsExample do
       # An empty range is a point. Line 2 is blank, so there is nothing to
       # cover, and a review comment still has somewhere to land.
       [
-        position: {[line: 2, column: 0], [line: 2, column: 0]},
+        position: {{2, 0}, {2, 0}},
         data: %{type: :note, label: "why the gap?"}
       ],
       [
-        position: {[line: 3, column: 0], [line: 3, column: 22]},
+        position: {{3, 0}, {3, 22}},
         data: %{type: :line, kind: :added}
       ],
       # `total - ` and `- fee` overlap without either containing the other, so

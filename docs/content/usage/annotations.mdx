@@ -102,10 +102,7 @@ let html = highlight_with_options(
 ```elixir
 annotations = [
   [offset: {12, 23}, data: %{change: :added}],
-  [
-    position: {[line: 1, column: 10], [line: 1, column: 21]},
-    data: %{change: :removed}
-  ]
+  [position: {{1, 10}, {1, 21}}, data: %{change: :removed}]
 ]
 
 {:ok, html} =

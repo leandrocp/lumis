@@ -304,7 +304,7 @@ defmodule Lumis do
 
           annotations: [
             [offset: {12, 23}, data: %{change: :added}],
-            [position: {[line: 1, column: 10], [line: 1, column: 21]}, data: %{change: :removed}]
+            [position: {{1, 10}, {1, 21}}, data: %{change: :removed}]
           ]
 
       A formatter receives them as `t:Lumis.Annotation.t/1`, resolved to byte
@@ -571,10 +571,7 @@ defmodule Lumis do
     {:error, "invalid formatter option: #{inspect(other)}"}
   end
 
-  @position_schema [
-    line: [type: :non_neg_integer, required: true],
-    column: [type: :non_neg_integer, required: true]
-  ]
+  @position {:tuple, [:non_neg_integer, :non_neg_integer]}
 
   @annotation_schema [
     offset: [
@@ -582,8 +579,10 @@ defmodule Lumis do
       doc: "Half-open range of absolute UTF-8 byte offsets, as `{start, end}`."
     ],
     position: [
-      type: {:tuple, [:keyword_list, :keyword_list]},
-      doc: "Half-open range of zero-based lines and UTF-8 byte columns."
+      type: {:tuple, [@position, @position]},
+      doc:
+        "Half-open range of zero-based lines and UTF-8 byte columns, " <>
+          "as `{{line, column}, {line, column}}`."
     ],
     data: [type: :any, default: nil, doc: "Any term, passed to the formatter untouched."]
   ]
@@ -645,22 +644,12 @@ defmodule Lumis do
   end
 
   defp validate_position_range(start, stop, index) do
-    with {:ok, start_pair} <- validate_position(start, index),
-         {:ok, stop_pair} <- validate_position(stop, index) do
-      if start_pair <= stop_pair do
-        {:ok, {:position, start_pair, stop_pair}}
-      else
-        {:error,
-         "annotation #{index} position range start must not be after its end: " <>
-           "#{inspect(start_pair)}..#{inspect(stop_pair)}"}
-      end
-    end
-  end
-
-  defp validate_position(position, index) do
-    case NimbleOptions.validate(position, @position_schema) do
-      {:ok, opts} -> {:ok, {opts[:line], opts[:column]}}
-      {:error, error} -> {:error, "annotation #{index} position: #{Exception.message(error)}"}
+    if start <= stop do
+      {:ok, {:position, start, stop}}
+    else
+      {:error,
+       "annotation #{index} position range start must not be after its end: " <>
+         "#{inspect(start)}..#{inspect(stop)}"}
     end
   end
 

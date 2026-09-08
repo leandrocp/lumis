@@ -18,8 +18,8 @@ defmodule Lumis.AnnotationsTest do
         {:source, %{start: start, end: end_offset}} ->
           binary_part(source, start, end_offset - start)
 
-        {:annotation_start, %Annotation{start: start, end: stop, data: %{id: id}}} ->
-          send(self(), {:resolved_range, id, {start, stop}})
+        {:annotation_start, %Annotation{range: range, data: %{id: id}}} ->
+          send(self(), {:resolved_range, id, range})
           ["<annotation:", Integer.to_string(id), ">"]
 
         :annotation_end ->
@@ -67,7 +67,7 @@ defmodule Lumis.AnnotationsTest do
     source = "π\ncafé"
 
     annotations = [
-      [position: {[line: 1, column: 0], [line: 1, column: 5]}, data: %{id: 8}]
+      [position: {{1, 0}, {1, 5}}, data: %{id: 8}]
     ]
 
     assert {:ok, output} =
@@ -82,7 +82,7 @@ defmodule Lumis.AnnotationsTest do
 
   test "position columns must be UTF-8 byte boundaries" do
     annotations = [
-      [position: {[line: 1, column: 0], [line: 1, column: 4]}, data: %{}]
+      [position: {{1, 0}, {1, 4}}, data: %{}]
     ]
 
     assert_raise Lumis.HighlightError, ~r/not a UTF-8 character boundary/, fn ->
@@ -106,7 +106,7 @@ defmodule Lumis.AnnotationsTest do
                  ~r/annotation 0 position range start must not be after its end/,
                  fn ->
                    highlight_with([
-                     [position: {[line: 2, column: 0], [line: 1, column: 0]}]
+                     [position: {{2, 0}, {1, 0}}]
                    ])
                  end
   end
@@ -115,7 +115,7 @@ defmodule Lumis.AnnotationsTest do
     assert {:ok, _html} = highlight_with([[offset: {1, 1}]])
 
     assert {:ok, _html} =
-             highlight_with([[position: {[line: 0, column: 1], [line: 0, column: 1]}]])
+             highlight_with([[position: {{0, 1}, {0, 1}}]])
   end
 
   test "requires exactly one of :offset and :position" do
@@ -127,7 +127,7 @@ defmodule Lumis.AnnotationsTest do
                  ~r/annotation 0 sets both :offset and :position, which is ambiguous/,
                  fn ->
                    highlight_with([
-                     [offset: {0, 1}, position: {[line: 0, column: 0], [line: 0, column: 1]}]
+                     [offset: {0, 1}, position: {{0, 0}, {0, 1}}]
                    ])
                  end
   end
@@ -147,9 +147,11 @@ defmodule Lumis.AnnotationsTest do
   end
 
   test "rejects a malformed position" do
-    assert_raise NimbleOptions.ValidationError, ~r/annotation 0 position:/, fn ->
-      highlight_with([[position: {[line: 0], [line: 0, column: 1]}]])
-    end
+    assert_raise NimbleOptions.ValidationError,
+                 ~r/annotation 0: invalid tuple in :position option/,
+                 fn ->
+                   highlight_with([[position: {{0}, {0, 1}}]])
+                 end
   end
 
   test "data defaults to nil when omitted" do
