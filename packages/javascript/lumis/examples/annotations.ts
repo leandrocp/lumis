@@ -9,12 +9,7 @@
 import { pathToFileURL } from "node:url";
 
 import javascript from "../langs/javascript.ts";
-import {
-  createHighlighter,
-  type Annotation,
-  type AnnotationRange,
-  type HighlightEvent,
-} from "../src/index.ts";
+import { createHighlighter, type Annotation, type HighlightEvent } from "../src/index.ts";
 import type { Formatter } from "../src/formatters.ts";
 import { escape, scopeToClass } from "../src/formatter/html.ts";
 
