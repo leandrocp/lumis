@@ -1,9 +1,15 @@
 import diff from "../langs/diff.js";
 import plaintext from "../langs/plaintext.js";
 import { withWasm } from "../src/index.js";
-import type { CreateHighlighterOptions as BrowserCreateHighlighterOptions } from "../src/index.browser.js";
 import type {
+  CreateHighlighterOptions as BrowserCreateHighlighterOptions,
+  Formatter as BrowserFormatter,
+} from "../src/index.browser.js";
+import type {
+  Annotation,
   CreateHighlighterOptions,
+  Formatter,
+  HighlightEvent,
   Language,
   LanguagePackageHandle,
   LanguageRef,
@@ -53,4 +59,31 @@ export const plaintextWithUndefinedWasm: PlaintextLanguage = {
   aliases: ["text", "txt", "plain"],
   // @ts-expect-error -- plaintext never has a parser source.
   wasm: undefined,
+};
+
+// Writing a formatter that consumes annotations needs the event types and the
+// interface those events are delivered to. Both entry points carry the whole
+// set, so a custom formatter never has to reach into `/formatters` for the one
+// type the root forgot.
+export const annotationFormatter: Formatter<{ id: number }> = {
+  language: plaintext,
+  render(source: string, events: readonly HighlightEvent<{ id: number }>[]): string {
+    const annotated: number[] = [];
+    for (const event of events) {
+      if (event.type === "annotationStart") annotated.push(event.annotation.data.id);
+    }
+    return `${source.length}:${annotated.join(",")}`;
+  },
+};
+
+export const browserAnnotationFormatter: BrowserFormatter<{ id: number }> = annotationFormatter;
+
+export const offsetAnnotation: Annotation<{ id: number }> = {
+  range: { type: "offset", start: 0, end: 1 },
+  data: { id: 1 },
+};
+
+export const positionAnnotation: Annotation<{ id: number }> = {
+  range: { type: "position", start: { line: 0, column: 0 }, end: { line: 0, column: 1 } },
+  data: { id: 2 },
 };

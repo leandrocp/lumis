@@ -1,4 +1,3 @@
-use lumis::formatters::Formatter as _;
 use lumis::{
     highlight, highlight::highlight_events_with_options, highlight::HighlightOptions,
     languages::Language, themes, BBCodeScopedBuilder, HtmlInlineBuilder, HtmlLinkedBuilder,
@@ -93,9 +92,7 @@ fn check_events(fixture: &Fixture) {
     let events = highlight_events_with_options(
         &fixture.source,
         lang,
-        HighlightOptions {
-            rainbow_brackets: fixture.metadata.rainbow_brackets,
-        },
+        HighlightOptions::new().rainbow_brackets(fixture.metadata.rainbow_brackets),
     )
     .expect("events should build");
     let serialized = events
@@ -112,6 +109,7 @@ fn check_events(fixture: &Fixture) {
                 SerializableHighlightEvent::Source { start, end }
             }
             lumis_core::events::HighlightEvent::End => SerializableHighlightEvent::End,
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect::<Vec<_>>();
     assert_eq!(serialized, fixture.metadata.events);
@@ -123,24 +121,29 @@ fn check_html_inline(fixture: &Fixture) {
     let fmt = HtmlInlineBuilder::new()
         .language(lang)
         .theme(Some(theme))
-        .rainbow_brackets(fixture.metadata.rainbow_brackets)
         .build()
         .unwrap();
     assert_eq!(
-        normalize_newlines(&highlight(&fixture.source, fmt)),
+        normalize_newlines(&lumis::highlight_with_options(
+            &fixture.source,
+            fmt,
+            HighlightOptions::new().rainbow_brackets(fixture.metadata.rainbow_brackets),
+        )),
         normalize_newlines(&fixture.html_inline)
     );
 }
 
 fn check_html_linked(fixture: &Fixture) {
     let lang: Language = fixture.metadata.language.parse().unwrap();
-    let fmt = HtmlLinkedBuilder::new()
-        .language(lang)
-        .rainbow_brackets(fixture.metadata.rainbow_brackets)
-        .build()
-        .unwrap();
+    let fmt = HtmlLinkedBuilder::new().language(lang).build().unwrap();
     let mut out = Vec::new();
-    fmt.format(&fixture.source, &mut out).unwrap();
+    lumis::write_highlight_with_options(
+        &mut out,
+        &fixture.source,
+        fmt,
+        HighlightOptions::new().rainbow_brackets(fixture.metadata.rainbow_brackets),
+    )
+    .unwrap();
     assert_eq!(
         normalize_newlines(&String::from_utf8(out).unwrap()),
         normalize_newlines(&fixture.html_linked)
@@ -176,14 +179,15 @@ fn check_html_multi_themes(fixture: &Fixture) {
         builder.default_theme("main");
     }
 
-    let fmt = builder
-        .language(lang)
-        .themes(map)
-        .rainbow_brackets(fixture.metadata.rainbow_brackets)
-        .build()
-        .unwrap();
+    let fmt = builder.language(lang).themes(map).build().unwrap();
     let mut out = Vec::new();
-    fmt.format(&fixture.source, &mut out).unwrap();
+    lumis::write_highlight_with_options(
+        &mut out,
+        &fixture.source,
+        fmt,
+        HighlightOptions::new().rainbow_brackets(fixture.metadata.rainbow_brackets),
+    )
+    .unwrap();
     assert_eq!(
         normalize_newlines(&String::from_utf8(out).unwrap()),
         normalize_newlines(&fixture.html_multi_themes)
@@ -196,11 +200,16 @@ fn check_terminal(fixture: &Fixture) {
     let fmt = TerminalBuilder::new()
         .language(lang)
         .theme(Some(theme))
-        .rainbow_brackets(fixture.metadata.rainbow_brackets)
         .build()
         .unwrap();
     let mut out = Vec::new();
-    fmt.format(&fixture.source, &mut out).unwrap();
+    lumis::write_highlight_with_options(
+        &mut out,
+        &fixture.source,
+        fmt,
+        HighlightOptions::new().rainbow_brackets(fixture.metadata.rainbow_brackets),
+    )
+    .unwrap();
     assert_eq!(
         normalize_newlines(&String::from_utf8(out).unwrap()),
         normalize_newlines(&fixture.terminal)
@@ -209,13 +218,15 @@ fn check_terminal(fixture: &Fixture) {
 
 fn check_bbcode(fixture: &Fixture) {
     let lang: Language = fixture.metadata.language.parse().unwrap();
-    let fmt = BBCodeScopedBuilder::new()
-        .language(lang)
-        .rainbow_brackets(fixture.metadata.rainbow_brackets)
-        .build()
-        .unwrap();
+    let fmt = BBCodeScopedBuilder::new().language(lang).build().unwrap();
     let mut out = Vec::new();
-    fmt.format(&fixture.source, &mut out).unwrap();
+    lumis::write_highlight_with_options(
+        &mut out,
+        &fixture.source,
+        fmt,
+        HighlightOptions::new().rainbow_brackets(fixture.metadata.rainbow_brackets),
+    )
+    .unwrap();
     assert_eq!(
         normalize_newlines(&String::from_utf8(out).unwrap()),
         normalize_newlines(&fixture.bbcode)

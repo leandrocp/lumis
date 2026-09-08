@@ -95,11 +95,11 @@ fn tag_name(scope_index: usize, language: &str) -> String {
     scope_to_tag_name(&specialized)
 }
 
-impl Formatter for BBCodeScoped {
+impl<T> Formatter<T> for BBCodeScoped {
     fn render(
         &self,
         source: &str,
-        events: &[HighlightEvent],
+        events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
         let source_bytes = source.as_bytes();
@@ -137,6 +137,7 @@ impl Formatter for BBCodeScoped {
                         write!(output, "[/{tag_name}]")?;
                     }
                 }
+                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
             }
         }
 
@@ -159,14 +160,9 @@ mod tests {
     fn escapes_bbcode_delimiters_in_source_text() {
         let formatter = BBCodeScoped::default();
         let mut output = Vec::new();
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 7 }];
 
-        formatter
-            .render(
-                "[url=x]",
-                &[HighlightEvent::Source { start: 0, end: 7 }],
-                &mut output,
-            )
-            .unwrap();
+        formatter.render("[url=x]", &events, &mut output).unwrap();
 
         assert_eq!(String::from_utf8(output).unwrap(), "&#91;url=x&#93;");
     }
@@ -177,28 +173,23 @@ mod tests {
         let mut output = Vec::new();
         let string_scope = scope_index("string");
         let tag_scope = scope_index("tag");
+        let events: [HighlightEvent<'_, ()>; 7] = [
+            HighlightEvent::Start {
+                scope_index: string_scope,
+                language: "javascript".to_string(),
+            },
+            HighlightEvent::Source { start: 0, end: 1 },
+            HighlightEvent::Start {
+                scope_index: tag_scope,
+                language: "html".to_string(),
+            },
+            HighlightEvent::Source { start: 1, end: 4 },
+            HighlightEvent::End,
+            HighlightEvent::Source { start: 4, end: 5 },
+            HighlightEvent::End,
+        ];
 
-        formatter
-            .render(
-                "`<a>`",
-                &[
-                    HighlightEvent::Start {
-                        scope_index: string_scope,
-                        language: "javascript".to_string(),
-                    },
-                    HighlightEvent::Source { start: 0, end: 1 },
-                    HighlightEvent::Start {
-                        scope_index: tag_scope,
-                        language: "html".to_string(),
-                    },
-                    HighlightEvent::Source { start: 1, end: 4 },
-                    HighlightEvent::End,
-                    HighlightEvent::Source { start: 4, end: 5 },
-                    HighlightEvent::End,
-                ],
-                &mut output,
-            )
-            .unwrap();
+        formatter.render("`<a>`", &events, &mut output).unwrap();
 
         assert_eq!(
             String::from_utf8(output).unwrap(),

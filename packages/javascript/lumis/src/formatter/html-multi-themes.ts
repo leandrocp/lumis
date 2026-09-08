@@ -143,7 +143,7 @@ function getLineAttrs(
 
 export function formatHtmlMultiThemes(
   source: string,
-  events: HighlightEvent[],
+  events: readonly HighlightEvent[],
   formatter: HtmlMultiThemesFormatter,
 ): string {
   const theme = formatter.defaultTheme ? formatter.themes[formatter.defaultTheme] : undefined;

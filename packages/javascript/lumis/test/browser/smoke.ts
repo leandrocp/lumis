@@ -259,23 +259,25 @@ async function run(): Promise<void> {
         )
       : { main: theme };
 
+    const options = { rainbowBrackets };
+
     return {
-      htmlInline: highlighter.highlight(source, htmlInline({ language, theme, rainbowBrackets })),
-      htmlLinked: highlighter.highlight(source, htmlLinked({ language, rainbowBrackets })),
+      htmlInline: highlighter.highlight(source, htmlInline({ language, theme }), options),
+      htmlLinked: highlighter.highlight(source, htmlLinked({ language }), options),
       htmlMultiThemes: highlighter.highlight(
         source,
         htmlMultiThemes({
           language,
           themes: formatterThemes,
           defaultTheme: config ? config.defaultTheme : "main",
-          rainbowBrackets,
           highlightLines: config?.highlightLines?.length
             ? { lines: config.highlightLines, style: "theme" }
             : undefined,
         }),
+        options,
       ),
-      bbcodeScoped: highlighter.highlight(source, bbcodeScoped({ language, rainbowBrackets })),
-      terminal: highlighter.highlight(source, terminal({ language, theme, rainbowBrackets })),
+      bbcodeScoped: highlighter.highlight(source, bbcodeScoped({ language }), options),
+      terminal: highlighter.highlight(source, terminal({ language, theme }), options),
     };
   };
 
@@ -292,11 +294,8 @@ async function run(): Promise<void> {
 
   const customFormatter: Formatter = {
     language: "js",
-    rainbowBrackets: true,
-    format(source: string): string {
-      const events = highlightEvents(source, this.language, {
-        rainbowBrackets: this.rainbowBrackets,
-      });
+    render(source: string): string {
+      const events = highlightEvents(source, this.language, { rainbowBrackets: true });
       const sourceBytes = new TextEncoder().encode(source);
       const decoder = new TextDecoder();
       const eventLanguages = new Set<string>();

@@ -5,10 +5,11 @@ import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../generated/package-version-ran
 import type { NativeBinding, NativeFormatter, NativeRuntimeInstance } from "../native-binding.js";
 import type {
   Formatter,
-  HighlightEvent,
+  HighlightOptions,
   LanguageDefinition,
   LanguageInfo,
   LoadedLanguage,
+  SyntaxHighlightEvent,
   WasmRef,
 } from "../types.js";
 import { BUILTIN_FORMATTER, getBuiltinFormatter } from "./builtin-formatter.js";
@@ -438,7 +439,7 @@ export function createNativeLanguagesModule(
       source: string,
       language: LoadedLanguage,
       options: { rainbowBrackets?: boolean } = {},
-    ): HighlightEvent[] {
+    ): SyntaxHighlightEvent[] {
       rejectReentrantHighlight();
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", startByte: 0, endByte: encoder.encode(source).byteLength }];
@@ -462,9 +463,14 @@ export function createNativeLanguagesModule(
       );
     }
 
-    format(source: string, language: LoadedLanguage, formatter: Formatter): string | undefined {
+    format(
+      source: string,
+      language: LoadedLanguage,
+      formatter: Formatter,
+      options: HighlightOptions = {},
+    ): string | undefined {
       rejectReentrantHighlight();
-      const nativeFormatter = this.nativeFormatter(language, formatter, true);
+      const nativeFormatter = this.nativeFormatter(language, formatter, options, true);
       if (!nativeFormatter) return undefined;
 
       const hasResolvers = hasResolverOverride(this.resolverState);
@@ -483,9 +489,10 @@ export function createNativeLanguagesModule(
       source: string,
       language: LoadedLanguage,
       formatter: Formatter,
+      options: HighlightOptions = {},
     ): Promise<string | undefined> {
       rejectReentrantHighlight();
-      const nativeFormatter = this.nativeFormatter(language, formatter, false);
+      const nativeFormatter = this.nativeFormatter(language, formatter, options, false);
       if (!nativeFormatter) return undefined;
 
       const formatted = await this.native.formatAsync(
@@ -500,6 +507,7 @@ export function createNativeLanguagesModule(
     private nativeFormatter(
       language: LoadedLanguage,
       formatter: Formatter,
+      highlightOptions: HighlightOptions,
       canCallResolver: boolean,
     ): NativeFormatter | undefined {
       const builtin = getBuiltinFormatter(formatter);
@@ -513,7 +521,7 @@ export function createNativeLanguagesModule(
       if (!kind || kind === "html-multi-themes") return undefined;
       if (!this.canFormatNatively(language, canCallResolver)) return undefined;
 
-      const rainbowBrackets = builtin.rainbowBrackets;
+      const rainbowBrackets = highlightOptions.rainbowBrackets;
 
       switch (kind) {
         case "html-inline":

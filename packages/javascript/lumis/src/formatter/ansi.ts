@@ -29,7 +29,7 @@ export async function highlightIterWithAnsi(
 
   await highlight(source, {
     language,
-    format(src) {
+    render(src) {
       highlightIter(src, this.language, theme, (text, _language, range, _scope, style) => {
         segments.push([paint(text, style), range]);
       });

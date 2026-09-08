@@ -87,7 +87,7 @@ const html = await highlight('const x = 1', htmlInline({ language: javascript, t
 
 Parsers download on demand, including languages injected inside a document.
 Browsers are the exception: loading is asynchronous there, so an injected
-language has to be loaded first. See [WASM and CDN](https://lumis.sh/docs/usage/wasm-and-cdn).
+language has to be loaded first. See [WASM and CDN](https://lumis.sh/docs/advanced/wasm-and-cdn).
 
 ### [Browsers / CDN](https://www.npmjs.com/package/@lumis-sh/lumis)
 
@@ -111,7 +111,7 @@ Lumis.highlight!("const x = 1", formatter: {:html_inline, language: "javascript"
 Parsers download on demand and load once per VM. Call
 `Lumis.Languages.async_load/1` from your application's `start/2` to move the
 download and compile off the first request without holding up the boot.
-See [Elixir integration](https://lumis.sh/docs/usage/elixir-integration).
+See [Elixir integration](https://lumis.sh/docs/usage/elixir).
 
 ### [Java](https://github.com/roastedroot/lumis4j)
 

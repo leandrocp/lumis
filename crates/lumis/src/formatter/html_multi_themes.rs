@@ -23,7 +23,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format("fn main() {}", &mut output).unwrap();
+//! lumis::write_highlight(&mut output, "fn main() {}", formatter).unwrap();
 //! ```
 //!
 //! # How It Works
@@ -101,7 +101,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format("fn main() {}", &mut output).unwrap();
+//! lumis::write_highlight(&mut output, "fn main() {}", formatter).unwrap();
 //! ```
 //!
 //! This generates HTML using the native `light-dark()` CSS function:
@@ -124,7 +124,6 @@
 
 use super::{Formatter, HtmlElement};
 use crate::formatters::html_inline::HighlightLines;
-use crate::highlight;
 use crate::languages::Language;
 use crate::themes::Theme;
 use derive_builder::Builder;
@@ -197,7 +196,6 @@ pub struct HtmlMultiThemes {
     pre_class: Option<String>,
     italic: bool,
     include_highlights: bool,
-    rainbow_brackets: bool,
     highlight_lines: Option<HighlightLines>,
     header: Option<HtmlElement>,
 }
@@ -256,7 +254,6 @@ impl HtmlMultiThemesBuilder {
             pre_class: self.pre_class.take().flatten(),
             italic: self.italic.take().unwrap_or(false),
             include_highlights: self.include_highlights.take().unwrap_or(false),
-            rainbow_brackets: self.rainbow_brackets.take().unwrap_or(false),
             highlight_lines: self.highlight_lines.take().flatten(),
             header: self.header.take().flatten(),
         };
@@ -330,24 +327,23 @@ impl Default for HtmlMultiThemes {
             pre_class: None,
             italic: false,
             include_highlights: false,
-            rainbow_brackets: false,
             highlight_lines: None,
             header: None,
         }
     }
 }
 
-impl Formatter for HtmlMultiThemes {
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        let events = highlight::highlight_events_with_options(
-            source,
-            self.language,
-            highlight::HighlightOptions {
-                rainbow_brackets: self.rainbow_brackets,
-            },
-        )
-        .map_err(io::Error::other)?;
+impl<T> Formatter<T> for HtmlMultiThemes {
+    fn language(&self) -> Language {
+        self.language
+    }
 
+    fn render(
+        &self,
+        source: &str,
+        events: &[lumis_core::events::HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
         let core_formatter = lumis_core::formatter::html_multi_themes::HtmlMultiThemes::new(
             self.language,
             self.themes.clone(),
@@ -362,7 +358,7 @@ impl Formatter for HtmlMultiThemes {
             self.header.clone(),
         );
 
-        core_formatter.render(source, &events, output)
+        core_formatter.render(source, events, output)
     }
 }
 
@@ -444,7 +440,7 @@ mod tests {
 
         let source = "fn main() {}";
         let mut output = Vec::new();
-        formatter.format(source, &mut output).unwrap();
+        crate::write_highlight(&mut output, source, formatter).unwrap();
         let html = String::from_utf8(output).unwrap();
 
         assert!(html.contains("--lumis-light-font-style:"));
@@ -477,7 +473,7 @@ mod tests {
 
         let source = "fn main() {}";
         let mut output = Vec::new();
-        formatter.format(source, &mut output).unwrap();
+        crate::write_highlight(&mut output, source, formatter).unwrap();
         let html = String::from_utf8(output).unwrap();
 
         assert!(html.contains("font-weight: light-dark("));
@@ -506,7 +502,7 @@ mod tests {
 
         let source = "// comment";
         let mut output = Vec::new();
-        formatter.format(source, &mut output).unwrap();
+        crate::write_highlight(&mut output, source, formatter).unwrap();
         let html = String::from_utf8(output).unwrap();
 
         assert!(html.contains("font-weight: light-dark(normal, normal)"));
@@ -532,7 +528,7 @@ mod tests {
 
         let source = "fn main() {}";
         let mut output = Vec::new();
-        formatter.format(source, &mut output).unwrap();
+        crate::write_highlight(&mut output, source, formatter).unwrap();
         let html = String::from_utf8(output).unwrap();
 
         assert!(html.contains("--lumis-light-font-style:"));
@@ -567,7 +563,7 @@ mod tests {
 
         let source = "fn main() {}";
         let mut output = Vec::new();
-        formatter.format(source, &mut output).unwrap();
+        crate::write_highlight(&mut output, source, formatter).unwrap();
         let html = String::from_utf8(output).unwrap();
 
         assert!(
@@ -606,7 +602,7 @@ mod tests {
 
         let source = "// comment";
         let mut output = Vec::new();
-        formatter.format(source, &mut output).unwrap();
+        crate::write_highlight(&mut output, source, formatter).unwrap();
         let html = String::from_utf8(output).unwrap();
 
         assert!(!html.contains("font-style: light-dark("));
@@ -620,7 +616,7 @@ mod tests {
             .unwrap();
 
         let mut output = Vec::new();
-        formatter.format(source, &mut output).unwrap();
+        crate::write_highlight(&mut output, source, formatter).unwrap();
         let html = String::from_utf8(output).unwrap();
 
         assert!(html.contains("font-style: light-dark("));

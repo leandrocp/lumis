@@ -1,7 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::{Parser, Subcommand};
 use lumis::events::HighlightEvent;
-use lumis::formatters::Formatter as _;
 use lumis::highlight::{highlight_events_with_options, HighlightOptions};
 use lumis::languages::Language;
 use lumis_wasm_runtime::{parser_filename, LanguagePackage, PackagedLanguage, ParserMetadata};
@@ -266,7 +265,7 @@ struct FixtureOutputs {
     bbcode: String,
 }
 
-fn serialize_events(events: Vec<HighlightEvent>) -> Vec<SerializableHighlightEvent> {
+fn serialize_events(events: Vec<HighlightEvent<'_>>) -> Vec<SerializableHighlightEvent> {
     events
         .into_iter()
         .map(|event| match event {
@@ -281,6 +280,7 @@ fn serialize_events(events: Vec<HighlightEvent>) -> Vec<SerializableHighlightEve
                 SerializableHighlightEvent::Source { start, end }
             }
             HighlightEvent::End => SerializableHighlightEvent::End,
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect()
 }
@@ -351,10 +351,7 @@ fn render_html_multi_themes_fixture(
     }
 
     let mut builder = lumis::HtmlMultiThemesBuilder::new();
-    builder
-        .language(language)
-        .themes(theme_map)
-        .rainbow_brackets(rainbow_brackets);
+    builder.language(language).themes(theme_map);
 
     if let Some(default_theme) = default_theme {
         builder.default_theme(default_theme);
@@ -371,7 +368,12 @@ fn render_html_multi_themes_fixture(
     }
 
     let formatter = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
-    formatter.format(source, output)?;
+    lumis::write_highlight_with_options(
+        output,
+        source,
+        formatter,
+        lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+    )?;
     Ok(())
 }
 
@@ -395,18 +397,26 @@ fn render_formatter_output(
             let formatter = lumis::HtmlInlineBuilder::new()
                 .language(language)
                 .theme(Some(theme))
-                .rainbow_brackets(rainbow_brackets)
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
-            formatter.format(source, &mut output)?;
+            lumis::write_highlight_with_options(
+                &mut output,
+                source,
+                formatter,
+                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+            )?;
         }
         "html-linked" => {
             let formatter = lumis::HtmlLinkedBuilder::new()
                 .language(language)
-                .rainbow_brackets(rainbow_brackets)
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
-            formatter.format(source, &mut output)?;
+            lumis::write_highlight_with_options(
+                &mut output,
+                source,
+                formatter,
+                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+            )?;
         }
         "html-multi-themes" => {
             render_html_multi_themes_fixture(
@@ -425,18 +435,26 @@ fn render_formatter_output(
             let formatter = lumis::TerminalBuilder::new()
                 .language(language)
                 .theme(Some(theme))
-                .rainbow_brackets(rainbow_brackets)
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
-            formatter.format(source, &mut output)?;
+            lumis::write_highlight_with_options(
+                &mut output,
+                source,
+                formatter,
+                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+            )?;
         }
         "bbcode-scoped" => {
             let formatter = lumis::BBCodeScopedBuilder::new()
                 .language(language)
-                .rainbow_brackets(rainbow_brackets)
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
-            formatter.format(source, &mut output)?;
+            lumis::write_highlight_with_options(
+                &mut output,
+                source,
+                formatter,
+                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+            )?;
         }
         other => bail!("unsupported formatter '{other}'"),
     }
@@ -452,8 +470,11 @@ fn fixture_outputs(
     rainbow_brackets: bool,
     html_multi_themes: Option<HtmlMultiThemesFixture>,
 ) -> Result<FixtureOutputs> {
-    let events =
-        highlight_events_with_options(source, language, HighlightOptions { rainbow_brackets })?;
+    let events = highlight_events_with_options(
+        source,
+        language,
+        HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+    )?;
     let (multi_themes, multi_default_theme, multi_highlight_lines) =
         html_multi_themes.as_ref().map_or_else(
             || {

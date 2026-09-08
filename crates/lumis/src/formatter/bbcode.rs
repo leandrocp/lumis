@@ -16,7 +16,6 @@
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 use super::Formatter;
-use crate::highlight;
 use crate::languages::Language;
 use derive_builder::Builder;
 use lumis_core::formatter::Formatter as _;
@@ -44,7 +43,7 @@ use std::io::{self, Write};
 ///     .unwrap();
 ///
 /// let mut output = Vec::new();
-/// formatter.format(code, &mut output).unwrap();
+/// lumis::write_highlight(&mut output, code, formatter).unwrap();
 /// let bbcode = String::from_utf8(output).unwrap();
 /// ```
 #[derive(Builder, Clone, Debug)]
@@ -52,7 +51,6 @@ use std::io::{self, Write};
 pub struct BBCodeScoped {
     #[builder(setter(custom))]
     language: Language,
-    rainbow_brackets: bool,
 }
 
 impl BBCodeScopedBuilder {
@@ -73,10 +71,7 @@ impl BBCodeScopedBuilder {
 
 impl BBCodeScoped {
     pub fn new(language: Language) -> Self {
-        Self {
-            language,
-            rainbow_brackets: false,
-        }
+        Self { language }
     }
 }
 
@@ -84,24 +79,23 @@ impl Default for BBCodeScoped {
     fn default() -> Self {
         Self {
             language: Language::PlainText,
-            rainbow_brackets: false,
         }
     }
 }
 
-impl Formatter for BBCodeScoped {
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        let events = highlight::highlight_events_with_options(
-            source,
-            self.language,
-            highlight::HighlightOptions {
-                rainbow_brackets: self.rainbow_brackets,
-            },
-        )
-        .map_err(io::Error::other)?;
+impl<T> Formatter<T> for BBCodeScoped {
+    fn language(&self) -> Language {
+        self.language
+    }
 
+    fn render(
+        &self,
+        source: &str,
+        events: &[lumis_core::events::HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
         let core_formatter = lumis_core::formatter::bbcode::BBCodeScoped::new(self.language);
-        core_formatter.render(source, &events, output)
+        core_formatter.render(source, events, output)
     }
 }
 
@@ -114,7 +108,7 @@ mod tests {
         let code = "@lang :rust";
         let formatter = BBCodeScoped::new(Language::Elixir);
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         assert!(result.contains('@'));
@@ -127,7 +121,7 @@ mod tests {
         let code = "hello world";
         let formatter = BBCodeScoped::new(Language::PlainText);
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         assert_eq!(result, "hello world");
@@ -142,7 +136,7 @@ mod tests {
 
         let code = "fn main() {}";
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         assert!(result.contains("fn"));

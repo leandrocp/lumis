@@ -11,7 +11,6 @@ import type {
   TerminalOptions,
   TerminalFormatter,
 } from "./types.js";
-import { highlightEvents } from "./core/highlighter.js";
 import { markBuiltinFormatter } from "./core/builtin-formatter.js";
 import { formatBBCode } from "./formatter/bbcode.js";
 import { formatHtmlInline } from "./formatter/html-inline.js";
@@ -34,12 +33,8 @@ import { formatHtmlMultiThemes } from "./formatter/html-multi-themes.js";
 export function htmlInline(options: HtmlInlineOptions = {}): HtmlInlineFormatter {
   const formatter: HtmlInlineFormatter = {
     ...options,
-    format(source: string): string {
-      return formatHtmlInline(
-        source,
-        highlightEvents(source, formatter.language, { rainbowBrackets: formatter.rainbowBrackets }),
-        formatter,
-      );
+    render(source, events): string {
+      return formatHtmlInline(source, events, formatter);
     },
   };
   return markBuiltinFormatter(formatter, "html-inline");
@@ -61,12 +56,8 @@ export function htmlInline(options: HtmlInlineOptions = {}): HtmlInlineFormatter
 export function htmlLinked(options: HtmlLinkedOptions = {}): HtmlLinkedFormatter {
   const formatter: HtmlLinkedFormatter = {
     ...options,
-    format(source: string): string {
-      return formatHtmlLinked(
-        source,
-        highlightEvents(source, formatter.language, { rainbowBrackets: formatter.rainbowBrackets }),
-        formatter,
-      );
+    render(source, events): string {
+      return formatHtmlLinked(source, events, formatter);
     },
   };
   return markBuiltinFormatter(formatter, "html-linked");
@@ -129,15 +120,11 @@ export function htmlMultiThemes(options: HtmlMultiThemesOptions): HtmlMultiTheme
 
   const formatter: HtmlMultiThemesFormatter = {
     ...options,
-    format(source: string): string {
+    render(source, events): string {
       // Formatter objects are mutable in JavaScript, so construction-time
       // validation alone does not protect the actual render boundary.
       validateMultiThemes(formatter);
-      return formatHtmlMultiThemes(
-        source,
-        highlightEvents(source, formatter.language, { rainbowBrackets: formatter.rainbowBrackets }),
-        formatter,
-      );
+      return formatHtmlMultiThemes(source, events, formatter);
     },
   };
   return markBuiltinFormatter(formatter, "html-multi-themes");
@@ -159,11 +146,8 @@ export function htmlMultiThemes(options: HtmlMultiThemesOptions): HtmlMultiTheme
 export function bbcodeScoped(options: BBCodeScopedOptions = {}): BBCodeScopedFormatter {
   const formatter: BBCodeScopedFormatter = {
     ...options,
-    format(source: string): string {
-      return formatBBCode(
-        source,
-        highlightEvents(source, formatter.language, { rainbowBrackets: formatter.rainbowBrackets }),
-      );
+    render(source, events): string {
+      return formatBBCode(source, events);
     },
   };
   return markBuiltinFormatter(formatter, "bbcode-scoped");
@@ -172,7 +156,9 @@ export function bbcodeScoped(options: BBCodeScopedOptions = {}): BBCodeScopedFor
 export type {
   BBCodeScopedFormatter,
   BBCodeScopedOptions,
+  Annotation,
   Formatter,
+  HighlightOptions,
   HighlightCallback,
   HighlightEvent,
   HighlightIterFn,

@@ -9,7 +9,7 @@
 //!
 //! Note: Requires browser support for `light-dark()` (Chrome 123+, Firefox 120+).
 
-use lumis::{formatters::Formatter, languages::Language, themes, HtmlMultiThemesBuilder};
+use lumis::{languages::Language, themes, HtmlMultiThemesBuilder};
 use std::collections::HashMap;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -31,7 +31,7 @@ fn main() {
         .map_err(|e| format!("Build error: {e}"))?;
 
     let mut output = Vec::new();
-    formatter.format(source, &mut output)?;
+    lumis::write_highlight(&mut output, source, formatter)?;
     let highlighted = String::from_utf8(output)?;
 
     let html = format!(

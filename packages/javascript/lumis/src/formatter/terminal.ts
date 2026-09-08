@@ -92,7 +92,7 @@ function paintSegment(
 
 export function formatTerminal(
   source: string,
-  events: HighlightEvent[],
+  events: readonly HighlightEvent[],
   formatter: TerminalFormatter,
 ): string {
   let output = "";
@@ -109,6 +109,10 @@ export function formatTerminal(
 
     if (event.type === "end") {
       scopeStack.pop();
+      continue;
+    }
+
+    if (event.type === "annotationStart" || event.type === "annotationEnd") {
       continue;
     }
 

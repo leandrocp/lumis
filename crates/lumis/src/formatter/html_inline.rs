@@ -16,7 +16,6 @@
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 use super::{Formatter, HtmlElement};
-use crate::highlight;
 use crate::languages::Language;
 use crate::themes::Theme;
 use derive_builder::Builder;
@@ -152,7 +151,7 @@ impl Default for HighlightLines {
 ///     .unwrap();
 ///
 /// let mut output = Vec::new();
-/// formatter.format(code, &mut output).unwrap();
+/// lumis::write_highlight(&mut output, code, formatter).unwrap();
 /// ```
 #[derive(Builder, Clone, Debug)]
 #[builder(default)]
@@ -163,7 +162,6 @@ pub struct HtmlInline {
     pre_class: Option<String>,
     italic: bool,
     include_highlights: bool,
-    rainbow_brackets: bool,
     highlight_lines: Option<HighlightLines>,
     header: Option<HtmlElement>,
 }
@@ -201,7 +199,6 @@ impl HtmlInline {
             pre_class,
             italic,
             include_highlights,
-            rainbow_brackets: false,
             highlight_lines,
             header,
         }
@@ -216,24 +213,23 @@ impl Default for HtmlInline {
             pre_class: None,
             italic: false,
             include_highlights: false,
-            rainbow_brackets: false,
             highlight_lines: None,
             header: None,
         }
     }
 }
 
-impl Formatter for HtmlInline {
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        let events = highlight::highlight_events_with_options(
-            source,
-            self.language,
-            highlight::HighlightOptions {
-                rainbow_brackets: self.rainbow_brackets,
-            },
-        )
-        .map_err(io::Error::other)?;
+impl<T> Formatter<T> for HtmlInline {
+    fn language(&self) -> Language {
+        self.language
+    }
 
+    fn render(
+        &self,
+        source: &str,
+        events: &[lumis_core::events::HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
         let core_formatter = lumis_core::formatter::html_inline::HtmlInline::new(
             self.language,
             self.theme.clone(),
@@ -246,7 +242,7 @@ impl Formatter for HtmlInline {
             self.header.clone(),
         );
 
-        core_formatter.render(source, &events, output)
+        core_formatter.render(source, events, output)
     }
 }
 
@@ -264,7 +260,7 @@ mod tests {
         let code = "@lang :rust";
         let formatter = HtmlInline::new(Language::Elixir, None, None, false, false, None, None);
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span><span>@<span><span>lang <span>:rust</span></span></span></span></span>
 </div></code></pre>"#;
@@ -285,7 +281,7 @@ mod tests {
             None,
         );
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         assert!(
@@ -400,7 +396,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="lumis" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line" style="background-color: #e7eaf0;" data-line="1">line 1
@@ -433,7 +429,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line" style="background-color: yellow" data-line="1">line 1
@@ -466,7 +462,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line custom-highlight" style="background-color: yellow" data-line="1">line 1
@@ -496,7 +492,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="lumis"><code class="language-rust" translate="no" tabindex="0"><div class="l-line custom-highlight" data-line="1"><span>fn</span> <span>main</span><span>(</span><span>)</span> <span>{</span>
@@ -525,7 +521,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<div class="code-wrapper"><pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line" data-line="1">line 1
@@ -552,7 +548,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<section class="highlight" data-lang="rust"><pre class="lumis custom-class"><code class="language-rust" translate="no" tabindex="0"><div class="l-line" data-line="1"><span>fn</span> <span>main</span><span>(</span><span>)</span> <span>{</span> <span>}</span>

@@ -45,7 +45,7 @@ pub struct HtmlElement {
 ///
 /// Formatters in lumis-core work with pre-computed highlight events,
 /// making them independent of tree-sitter.
-pub trait Formatter: Send + Sync {
+pub trait Formatter<T = ()>: Send + Sync {
     /// Format source code using pre-computed highlight events.
     ///
     /// # Arguments
@@ -56,16 +56,16 @@ pub trait Formatter: Send + Sync {
     fn render(
         &self,
         source: &str,
-        events: &[HighlightEvent],
+        events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()>;
 }
 
-impl Formatter for Box<dyn Formatter> {
+impl<T> Formatter<T> for Box<dyn Formatter<T>> {
     fn render(
         &self,
         source: &str,
-        events: &[HighlightEvent],
+        events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
         (**self).render(source, events, output)

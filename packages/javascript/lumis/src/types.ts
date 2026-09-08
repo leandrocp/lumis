@@ -42,6 +42,27 @@ export interface HighlightRange {
   end: number;
 }
 
+/** A zero-based source position with a UTF-8 byte column. */
+export interface Position {
+  line: number;
+  column: number;
+}
+
+/** A half-open range expressed as absolute offsets measured in UTF-8 bytes. */
+export interface OffsetAnnotationRange extends HighlightRange {
+  type: "offset";
+}
+
+/** A half-open range expressed as zero-based lines and UTF-8 byte columns. */
+export interface PositionAnnotationRange {
+  type: "position";
+  start: Position;
+  end: Position;
+}
+
+/** A half-open annotation range expressed as offsets or source positions. */
+export type AnnotationRange = OffsetAnnotationRange | PositionAnnotationRange;
+
 /**
  * Metadata about a supported language. Returned by {@link availableLanguages}.
  *
@@ -330,17 +351,64 @@ export interface HighlightLinesLinked {
 }
 
 /**
- * A nested highlight event from tree-sitter.
+ * A caller-provided semantic range with typed data.
+ *
+ * This annotation marks only `price` in a one-line source:
+ *
+ * ```ts
+ * const source = "let total = price;"
+ * const annotation: Annotation<string> = {
+ *   range: { type: "offset", start: 12, end: 17 },
+ *   data: "search-match",
+ * }
+ *
+ * // Offsets are UTF-8 bytes, which String.prototype.slice does not count.
+ * const bytes = new TextEncoder().encode(source)
+ * new TextDecoder().decode(bytes.subarray(annotation.range.start, annotation.range.end)) // "price"
+ * ```
+ *
+ * When passed in highlighting options, a custom formatter receives
+ * `annotationStart` before `price` and `annotationEnd` after it.
+ */
+export interface Annotation<T = unknown> {
+  /** A tagged offset or position range into the formatted source. */
+  range: AnnotationRange;
+  /** Caller-owned data interpreted by custom formatters. */
+  data: T;
+}
+
+/** An annotation materialized to the offset range consumed by formatters. */
+export interface ResolvedAnnotation<T = unknown> {
+  range: HighlightRange;
+  data: T;
+}
+
+/** Options for one highlighting operation. */
+export interface HighlightOptions<T = unknown> {
+  /** Caller-provided semantic ranges composed into the formatter event stream. */
+  annotations?: readonly Annotation<T>[];
+  /** Render nested brackets with rainbow bracket scopes. */
+  rainbowBrackets?: boolean;
+}
+
+/**
+ * A nested syntax highlight event from tree-sitter.
  *
  * Events form a nested structure: a `start` event opens a scope,
  * `source` events provide text ranges, and `end` closes the scope.
  * Parent scopes stay open across child scopes (e.g. a `string` scope
  * wraps injected `tag` scopes inside template literals).
  */
-export type HighlightEvent =
+export type SyntaxHighlightEvent =
   | { type: "start"; scope: string; language: string }
   | { type: "source"; startByte: number; endByte: number }
   | { type: "end" };
+
+/** A unified syntax and caller-provided annotation event. */
+export type HighlightEvent<T = unknown> =
+  | SyntaxHighlightEvent
+  | { type: "annotationStart"; annotation: ResolvedAnnotation<T> }
+  | { type: "annotationEnd" };
 
 /**
  * Signature of the `highlightIter` free function and the `hl.highlightIter`
@@ -371,41 +439,38 @@ export type HighlightIterFn = (
  * A formatter renders highlighted source code into an output string.
  *
  * Built-in formatters are created with `htmlInline()`, `htmlLinked()`, etc.
- * Custom formatters implement the same interface. Inside `format()`, call the
- * sync free functions `highlightIter` (for flat token callbacks) or
- * `highlightEvents` (for nested open/close events) imported from
- * `@lumis-sh/lumis`.
+ * Custom formatters implement the same interface and render the already
+ * highlighted, properly nested event stream.
  *
- * While `format()` is running, `this.language` is set to the resolved language
+ * While `render()` is running, `this.language` is set to the resolved language
  * after detection, so the formatter can render language-dependent output
  * (e.g. `<code class="language-...">`) without re-running detection.
  *
  * ```ts
- * import { highlightIter, type Formatter } from '@lumis-sh/lumis'
+ * import { type Formatter } from '@lumis-sh/lumis'
  *
  * const formatter: Formatter = {
  *   language: javascript,
- *   format(source) {
- *     const parts: string[] = []
- *     highlightIter(source, this.language, dracula, (text, _lang, _range, scope) => {
- *       parts.push(scope ? `[${scope}] ${text}` : text)
- *     })
- *     return parts.join('\n')
+ *   render(source, events) {
+ *     // Byte offsets, so decode the slice rather than using String.slice,
+ *     // which counts UTF-16 code units.
+ *     const bytes = new TextEncoder().encode(source)
+ *     const decoder = new TextDecoder()
+ *
+ *     return events
+ *       .filter(event => event.type === 'source')
+ *       .map(event => decoder.decode(bytes.subarray(event.startByte, event.endByte)))
+ *       .join('')
  *   },
  * }
  * ```
+ *
+ * Lumis adds event kinds as it grows, so a formatter should render the ones it
+ * knows and ignore the rest rather than assuming the union is closed.
  */
-/**
- * Options that influence which highlight events are produced.
- */
-export interface HighlightOptions {
-  /** Render nested brackets with rainbow bracket scopes. */
-  rainbowBrackets?: boolean;
-}
-
-export interface Formatter extends HighlightOptions {
+export interface Formatter<T = unknown> {
   language?: LanguageRef;
-  format(source: string): string;
+  render(source: string, events: readonly HighlightEvent<T>[]): string;
 }
 
 /**
@@ -432,7 +497,7 @@ export type HighlightCallback = (
  * htmlInline({ language: javascript, theme: dracula, preClass: 'my-code', italic: true })
  * ```
  */
-export interface HtmlInlineOptions extends HighlightOptions {
+export interface HtmlInlineOptions {
   language?: LanguageRef;
   theme?: Theme;
   preClass?: string;
@@ -453,7 +518,7 @@ export interface HtmlInlineFormatter extends Formatter, HtmlInlineOptions {}
  * htmlLinked({ language: javascript, preClass: 'my-code' })
  * ```
  */
-export interface HtmlLinkedOptions extends HighlightOptions {
+export interface HtmlLinkedOptions {
   language?: LanguageRef;
   preClass?: string;
   highlightLines?: HighlightLinesLinked;
@@ -473,7 +538,7 @@ export interface HtmlLinkedFormatter extends Formatter, HtmlLinkedOptions {}
  * })
  * ```
  */
-export interface HtmlMultiThemesOptions extends HighlightOptions {
+export interface HtmlMultiThemesOptions {
   language?: LanguageRef;
   themes: Record<string, Theme>;
   /**
@@ -499,7 +564,7 @@ export interface HtmlMultiThemesFormatter extends Formatter, HtmlMultiThemesOpti
  * bbcodeScoped({ language: javascript })
  * ```
  */
-export interface BBCodeScopedOptions extends HighlightOptions {
+export interface BBCodeScopedOptions {
   language?: LanguageRef;
 }
 
@@ -513,7 +578,7 @@ export interface BBCodeScopedFormatter extends Formatter, BBCodeScopedOptions {}
  * terminal({ language: javascript, theme: dracula, background: 'theme', width: 120 })
  * ```
  */
-export interface TerminalOptions extends HighlightOptions {
+export interface TerminalOptions {
   language?: LanguageRef;
   theme?: Theme;
   /**

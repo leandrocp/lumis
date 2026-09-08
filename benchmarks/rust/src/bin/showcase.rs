@@ -1,8 +1,4 @@
-use lumis::{
-    formatters::{Formatter as _, HtmlInline},
-    languages::Language,
-    themes, HtmlInlineBuilder,
-};
+use lumis::{formatters::HtmlInline, languages::Language, themes, HtmlInlineBuilder};
 use serde::Deserialize;
 use std::{env, fs, path::PathBuf};
 use syntect::{highlighting::ThemeSet, html::highlighted_html_for_string};
@@ -64,8 +60,7 @@ fn main() {
                 .build()
                 .expect("build Lumis formatter");
             let mut lumis_output = Vec::with_capacity(source.len().saturating_mul(3));
-            formatter
-                .format(&source, &mut lumis_output)
+            lumis::write_highlight(&mut lumis_output, &source, &formatter)
                 .expect("highlight showcase fixture with Lumis");
             validate(&lumis_output, source.len(), "Lumis Rust");
             fs::write(fragments_dir.join("lumis-rust.html"), lumis_output)

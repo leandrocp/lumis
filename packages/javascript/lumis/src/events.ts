@@ -37,12 +37,16 @@ interface CaptureSnapshot {
   matchCount: number;
 }
 
-export interface SourceMaps {
-  utf8Offsets: number[];
-  utf16Indices: Array<number | undefined>;
-  lineStarts: number[];
-  byteLineStarts: number[];
+/** @internal */
+export interface SourceIndex {
   sourceBytes: Uint8Array;
+  utf8Offsets: number[];
+  lineStarts: number[];
+}
+
+export interface SourceMaps extends SourceIndex {
+  utf16Indices: Array<number | undefined>;
+  byteLineStarts: number[];
   sourceLength: number;
   sourceUtf8ByteLength: number;
 }
@@ -176,6 +180,11 @@ export function buildSourceMaps(source: string): SourceMaps {
     sourceLength: source.length,
     sourceUtf8ByteLength,
   };
+}
+
+/** @internal */
+export function buildSourceIndex(source: string): SourceIndex {
+  return buildSourceMaps(source);
 }
 
 function nodeStartByte(node: Node, maps: SourceMaps): number {
@@ -756,16 +765,29 @@ function makeRange(
   return { startIndex, endIndex, startPosition, endPosition };
 }
 
+/** @internal */
+export function buildHighlightEventsWithSourceIndex(
+  source: string,
+  language: LoadedLanguage,
+  runtime: RuntimeLookup,
+  options: { rainbowBrackets?: boolean } = {},
+): { events: HighlightEvent[]; sourceIndex: SourceIndex } {
+  const maps = buildSourceMaps(source);
+  const layers = collectHighlightLayers(source, maps, runtime, language, 0);
+  const events = buildNestedEvents(layers, maps);
+  return {
+    events: options.rainbowBrackets ? applyRainbowBrackets(source, events, language, maps) : events,
+    sourceIndex: maps,
+  };
+}
+
 export function buildHighlightEvents(
   source: string,
   language: LoadedLanguage,
   runtime: RuntimeLookup,
   options: { rainbowBrackets?: boolean } = {},
 ): HighlightEvent[] {
-  const maps = buildSourceMaps(source);
-  const layers = collectHighlightLayers(source, maps, runtime, language, 0);
-  const events = buildNestedEvents(layers, maps);
-  return options.rainbowBrackets ? applyRainbowBrackets(source, events, language, maps) : events;
+  return buildHighlightEventsWithSourceIndex(source, language, runtime, options).events;
 }
 
 const RAINBOW_BRACKET_SCOPES = [

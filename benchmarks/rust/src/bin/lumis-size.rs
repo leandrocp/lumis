@@ -1,8 +1,4 @@
-use lumis::{
-    formatters::{Formatter as _, HtmlInline},
-    languages::Language,
-    themes, HtmlInlineBuilder,
-};
+use lumis::{formatters::HtmlInline, languages::Language, themes, HtmlInlineBuilder};
 
 const SOURCE: &str = r#"
 fn main() {
@@ -33,9 +29,7 @@ fn main() {
                 .build()
                 .expect("build Lumis formatter");
             let mut output = Vec::new();
-            formatter
-                .format(SOURCE, &mut output)
-                .expect("highlight with Lumis");
+            lumis::write_highlight(&mut output, SOURCE, &formatter).expect("highlight with Lumis");
             output.len()
         })
         .sum::<usize>();

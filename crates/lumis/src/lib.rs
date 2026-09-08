@@ -17,7 +17,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -312,6 +312,33 @@ pub mod highlight;
 pub mod languages;
 pub mod themes;
 
+/// Caller-provided semantic ranges for formatter event streams.
+///
+/// Annotations use UTF-8 offsets or zero-based line and byte-column
+/// positions, and keep caller-owned data typed:
+///
+/// ```rust
+/// use lumis::{HighlightOptions, Annotation};
+///
+/// #[derive(Debug)]
+/// struct Change {
+///     id: u64,
+/// }
+///
+/// let annotations = [
+///     Annotation::new(4..9, Change { id: 7 })?,
+/// ];
+/// let options = HighlightOptions::new().annotations(&annotations);
+///
+/// # let _ = options;
+/// # Ok::<(), lumis::annotations::AnnotationError>(())
+/// ```
+pub mod annotations {
+    pub use lumis_core::annotations::{
+        Annotation, AnnotationError, AnnotationRange, Position, ResolvedAnnotation,
+    };
+}
+
 pub use lumis_core::events;
 pub use lumis_core::highlights;
 
@@ -320,6 +347,7 @@ pub use formatters::ansi;
 pub use formatters::html;
 
 use crate::formatters::Formatter;
+use lumis_core::annotations::compose_annotations;
 use std::io::{self, Write};
 
 // Re-export builders for easier access
@@ -327,6 +355,8 @@ pub use crate::formatters::{
     BBCodeScopedBuilder, HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder,
     TerminalBackground, TerminalBuilder,
 };
+pub use crate::highlight::HighlightOptions;
+pub use lumis_core::annotations::{Annotation, AnnotationError, AnnotationRange};
 
 /// Highlights source code and returns it as a string.
 ///
@@ -337,7 +367,6 @@ pub use crate::formatters::{
 ///
 /// * `source` - The source code to highlight.
 /// * `formatter` - A configured formatter (e.g., from [`HtmlInlineBuilder`], [`TerminalBuilder`]).
-///
 /// # Panics
 ///
 /// Panics if the formatter fails to format the source code or produces invalid UTF-8 output.
@@ -358,11 +387,34 @@ pub use crate::formatters::{
 ///
 /// let html = highlight(code, formatter);
 /// ```
-pub fn highlight<F: Formatter>(source: &str, formatter: F) -> String {
+pub fn highlight<F>(source: &str, formatter: F) -> String
+where
+    F: Formatter<()>,
+{
+    highlight_with_options(source, formatter, HighlightOptions::new())
+}
+
+/// Highlights source code with per-operation options and returns it as a string.
+///
+/// Use this variant when supplying annotations or enabling rainbow brackets.
+///
+/// # Panics
+///
+/// Annotation ranges are checked against `source`, not at construction, so an
+/// annotation reaching past the end of the source or landing inside a UTF-8
+/// character panics here. Call
+/// [`write_highlight_with_options`] instead to handle that as an error.
+pub fn highlight_with_options<T, F>(
+    source: &str,
+    formatter: F,
+    options: HighlightOptions<'_, T>,
+) -> String
+where
+    F: Formatter<T>,
+{
     let mut buffer = Vec::new();
-    formatter
-        .format(source, &mut buffer)
-        .expect("formatter failed to format source code");
+    write_highlight_with_options(&mut buffer, source, formatter, options)
+        .unwrap_or_else(|error| panic!("could not highlight source: {error}"));
     String::from_utf8(buffer).expect("formatter produced invalid UTF-8")
 }
 
@@ -376,7 +428,6 @@ pub fn highlight<F: Formatter>(source: &str, formatter: F) -> String {
 /// * `output` - The writer to send highlighted output to.
 /// * `source` - The source code to highlight.
 /// * `formatter` - A configured formatter.
-///
 /// # Examples
 ///
 /// ```rust,no_run
@@ -394,12 +445,35 @@ pub fn highlight<F: Formatter>(source: &str, formatter: F) -> String {
 /// write_highlight(&mut file, code, formatter)?;
 /// # Ok::<(), std::io::Error>(())
 /// ```
-pub fn write_highlight<F: Formatter>(
+pub fn write_highlight<F>(output: &mut dyn Write, source: &str, formatter: F) -> io::Result<()>
+where
+    F: Formatter<()>,
+{
+    write_highlight_with_options(output, source, formatter, HighlightOptions::new())
+}
+
+/// Writes syntax highlighted output with per-operation options.
+///
+/// Use this variant when supplying annotations or enabling rainbow brackets.
+pub fn write_highlight_with_options<T, F>(
     output: &mut dyn Write,
     source: &str,
     formatter: F,
-) -> io::Result<()> {
-    formatter.format(source, output)
+    options: HighlightOptions<'_, T>,
+) -> io::Result<()>
+where
+    F: Formatter<T>,
+{
+    let syntax_events = crate::highlight::highlight_events_with_options(
+        source,
+        formatter.language(),
+        HighlightOptions::new().rainbow_brackets(options.rainbow_brackets_enabled()),
+    )
+    .map_err(io::Error::other)?;
+    let events = compose_annotations(source, &syntax_events, options.annotation_items())
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidInput, error))?;
+
+    formatter.render(source, &events, output)
 }
 
 #[cfg(test)]

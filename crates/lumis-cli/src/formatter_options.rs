@@ -201,7 +201,7 @@ mod tests {
         for (formatter, options) in FORMATTER_OPTIONS {
             for option in *options {
                 assert!(
-                    grouped.contains(option) || matches!(*option, "language" | "rainbow_brackets"),
+                    grouped.contains(option) || matches!(*option, "language"),
                     "manifest option `{option}` on `{formatter}` belongs to no group; \
                      add it to OPTION_GROUPS or to the universal list"
                 );

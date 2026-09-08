@@ -9,7 +9,7 @@ function scopeToTagName(scope: string, language: string): string {
   return `${scope}.${language}`.replaceAll(".", "-");
 }
 
-export function formatBBCode(source: string, events: HighlightEvent[]): string {
+export function formatBBCode(source: string, events: readonly HighlightEvent[]): string {
   const sourceBytes = encodeSource(source);
   const parts: string[] = [];
   const scopeStack: string[] = [];
@@ -27,6 +27,10 @@ export function formatBBCode(source: string, events: HighlightEvent[]): string {
       if (tagName) {
         parts.push(`[/${tagName}]`);
       }
+      continue;
+    }
+
+    if (event.type === "annotationStart" || event.type === "annotationEnd") {
       continue;
     }
 

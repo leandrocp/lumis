@@ -31,7 +31,7 @@ function getLineAttrs(formatter: HtmlLinkedFormatter, lineNumber: number): { cla
 
 export function formatHtmlLinked(
   source: string,
-  events: HighlightEvent[],
+  events: readonly HighlightEvent[],
   formatter: HtmlLinkedFormatter,
 ): string {
   const { lines } = formatHighlightIterLines(source, events, formatter.language, undefined, {

@@ -105,11 +105,11 @@ impl Default for HtmlLinked {
     }
 }
 
-impl Formatter for HtmlLinked {
+impl<T> Formatter<T> for HtmlLinked {
     fn render(
         &self,
         source: &str,
-        events: &[HighlightEvent],
+        events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
         let mut buffer = Vec::new();

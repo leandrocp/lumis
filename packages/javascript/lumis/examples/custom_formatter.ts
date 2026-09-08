@@ -16,7 +16,7 @@ import dracula from "@lumis-sh/themes/dracula";
 class InteractiveDocsFormatter implements Formatter {
   constructor(readonly language = html) {}
 
-  format(source: string): string {
+  render(source: string): string {
     let tokenId = 0;
     const lines = [""];
 

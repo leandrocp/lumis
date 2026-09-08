@@ -43,7 +43,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -68,7 +68,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -87,7 +87,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -107,7 +107,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let ansi_output = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -148,6 +148,8 @@
 
 // Originally based on https://github.com/Colonial-Dev/inkjet/tree/da289fa8b68f11dffad176e4b8fabae8d6ac376d/src/formatter
 
+use crate::languages::Language;
+use lumis_core::events::HighlightEvent;
 use std::io::{self, Write};
 
 pub mod ansi;
@@ -191,8 +193,8 @@ pub(crate) fn map_inline_highlight_lines(
 
 /// Trait for implementing custom syntax highlighting formatters.
 ///
-/// The `Formatter` trait allows you to create custom output formats for syntax highlighted code.
-/// It bundles parsing and rendering into a single `format()` call.
+/// The `Formatter` trait allows custom output formats to consume Lumis's
+/// unified syntax and annotation event stream.
 ///
 /// For HTML formatters, see the [`html`] module for helper functions
 /// that handle HTML generation, escaping, and styling.
@@ -202,35 +204,46 @@ pub(crate) fn map_inline_highlight_lines(
 ///
 /// # Creating Custom Formatters
 ///
-/// Minimal HTML formatter that wraps each token in a colored `<span>`:
+/// Minimal formatter that writes the highlighted source:
 ///
 /// ```rust
 /// use lumis::{
+///     events::HighlightEvent,
 ///     formatters::Formatter,
-///     formatters::html::{open_pre_tag, open_code_tag, closing_tags, span_inline},
-///     highlight::highlight_iter,
 ///     languages::Language,
-///     themes,
+///     write_highlight,
 /// };
 /// use std::io::{self, Write};
 ///
-/// struct MinimalHtmlFormatter {
-///     language: Language,
-///     theme: Option<themes::Theme>,
-/// }
+/// struct SourceFormatter;
 ///
-/// impl Formatter for MinimalHtmlFormatter {
-///     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-///         open_pre_tag(output, None, self.theme.as_ref())?;
-///         open_code_tag(output, &self.language)?;
-///         highlight_iter(source, self.language, self.theme.clone(), |text, language, _range, scope, _style| {
-///             write!(output, "{}", span_inline(text, Some(language), scope, self.theme.as_ref(), false, false))
-///         })
-///         .map_err(io::Error::other)?;
-///         closing_tags(output)?;
+/// impl Formatter for SourceFormatter {
+///     fn language(&self) -> Language {
+///         Language::Rust
+///     }
+///
+///     fn render(
+///         &self,
+///         source: &str,
+///         events: &[HighlightEvent<'_>],
+///         output: &mut dyn Write,
+///     ) -> io::Result<()> {
+///         for event in events {
+///             if let HighlightEvent::Source { start, end } = event {
+///                 output.write_all(&source.as_bytes()[*start..*end])?;
+///             }
+///         }
 ///         Ok(())
 ///     }
 /// }
+///
+/// let mut output = Vec::new();
+/// write_highlight(
+///     &mut output,
+///     "let answer = 42;",
+///     SourceFormatter,
+/// )?;
+/// # Ok::<(), std::io::Error>(())
 /// ```
 ///
 /// # See Also
@@ -238,35 +251,48 @@ pub(crate) fn map_inline_highlight_lines(
 /// - [`highlight`](mod@crate::highlight) module - High-level API for accessing styled tokens
 /// - [`highlight_iter()`](crate::highlight::highlight_iter) - Streaming callback API
 /// - [Crate examples](https://github.com/leandrocp/lumis/tree/main/crates/lumis/examples) - Custom formatter implementations
-pub trait Formatter: Send + Sync {
-    /// Format source code with syntax highlighting.
-    ///
-    /// This is the main method for generating formatted output. Write the highlighted
-    /// code to the provided `output` writer.
-    ///
-    /// # Arguments
-    ///
-    /// * `source` - The source code to highlight
-    /// * `output` - Writer to send formatted output to
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use lumis::{formatters::Formatter, HtmlInlineBuilder, languages::Language};
-    ///
-    /// let formatter = HtmlInlineBuilder::new()
-    ///     .language(Language::Rust)
-    ///     .build()
-    ///     .unwrap();
-    ///
-    /// let mut output = Vec::new();
-    /// formatter.format("fn main() {}", &mut output).unwrap();
-    /// ```
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()>;
+pub trait Formatter<T = ()>: Send + Sync {
+    /// Returns the source language this formatter highlights.
+    fn language(&self) -> Language;
+
+    /// Renders the unified syntax and annotation event stream.
+    fn render(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()>;
 }
 
-impl Formatter for Box<dyn Formatter> {
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        (**self).format(source, output)
+impl<T> Formatter<T> for Box<dyn Formatter<T>> {
+    fn language(&self) -> Language {
+        (**self).language()
+    }
+
+    fn render(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
+        (**self).render(source, events, output)
+    }
+}
+
+impl<T, F> Formatter<T> for &F
+where
+    F: Formatter<T> + ?Sized,
+{
+    fn language(&self) -> Language {
+        (**self).language()
+    }
+
+    fn render(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
+        (**self).render(source, events, output)
     }
 }

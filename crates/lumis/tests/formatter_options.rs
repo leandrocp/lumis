@@ -160,7 +160,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .pre_class(Some("code".to_string()))
         .italic(true)
         .include_highlights(true)
-        .rainbow_brackets(true)
         .highlight_lines(Some(highlight_lines()))
         .header(Some(header()))
         .build()
@@ -173,7 +172,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "pre_class",
             "italic",
             "include_highlights",
-            "rainbow_brackets",
             "highlight_lines",
             "header",
         ]
@@ -183,7 +181,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
     HtmlLinkedBuilder::new()
         .language(Language::Rust)
         .pre_class(Some("code".to_string()))
-        .rainbow_brackets(true)
         .highlight_lines(Some(lumis::formatters::html_linked::HighlightLines {
             lines: vec![1..=1, 3..=4],
             class: "active".to_string(),
@@ -193,14 +190,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .expect("html_linked builds");
     exercised.insert(
         "html_linked",
-        [
-            "language",
-            "pre_class",
-            "rainbow_brackets",
-            "highlight_lines",
-            "header",
-        ]
-        .into(),
+        ["language", "pre_class", "highlight_lines", "header"].into(),
     );
 
     let mut themes_map = HashMap::new();
@@ -213,7 +203,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .pre_class(Some("code".to_string()))
         .italic(true)
         .include_highlights(true)
-        .rainbow_brackets(true)
         .highlight_lines(Some(highlight_lines()))
         .header(Some(header()))
         .build()
@@ -228,7 +217,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "pre_class",
             "italic",
             "include_highlights",
-            "rainbow_brackets",
             "highlight_lines",
             "header",
         ]
@@ -240,27 +228,18 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .theme(Some(theme()))
         .background(TerminalBackground::Theme)
         .width(Some(120))
-        .rainbow_brackets(true)
         .build()
         .expect("terminal builds");
     exercised.insert(
         "terminal",
-        [
-            "language",
-            "theme",
-            "background",
-            "width",
-            "rainbow_brackets",
-        ]
-        .into(),
+        ["language", "theme", "background", "width"].into(),
     );
 
     BBCodeScopedBuilder::new()
         .language(Language::Rust)
-        .rainbow_brackets(true)
         .build()
         .expect("bbcode_scoped builds");
-    exercised.insert("bbcode_scoped", ["language", "rainbow_brackets"].into());
+    exercised.insert("bbcode_scoped", ["language"].into());
 
     exercised
 }

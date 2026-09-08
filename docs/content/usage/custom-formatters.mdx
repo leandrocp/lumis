@@ -19,18 +19,23 @@ Write your own formatter when the built-in ones don't produce the output you nee
 
 - wrap output with custom HTML
 - emit Markdown, LaTeX, or a structured AST
-- add annotations, data attributes, or extra classes
+- overlay your own semantic ranges with [annotations](/formatters/annotations)
+- add data attributes or extra classes
 - feed Lumis tokens into an existing rendering pipeline
 
 ## Rust
 
 Implement the [`Formatter`](https://docs.rs/lumis/latest/lumis/formatters/trait.Formatter.html) trait.
 
+Lumis highlights the source and hands your formatter the resulting event
+stream. A `Start` opens a scope, `Source` events carry byte ranges into the
+original text, and `End` closes it.
+
 ```rust
 use lumis::{
+    events::HighlightEvent,
     formatters::Formatter,
     formatters::html::{open_pre_tag, open_code_tag, closing_tags, span_inline},
-    highlight::highlight_iter,
     languages::Language,
     themes,
 };
@@ -42,13 +47,49 @@ struct MinimalHtmlFormatter {
 }
 
 impl Formatter for MinimalHtmlFormatter {
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
+    fn language(&self) -> Language {
+        self.language
+    }
+
+    fn render(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
+        let mut scopes: Vec<&str> = Vec::new();
+
         open_pre_tag(output, None, self.theme.as_ref())?;
         open_code_tag(output, &self.language)?;
-        highlight_iter(source, self.language, self.theme.clone(), |text, language, _range, scope, _style| {
-            write!(output, "{}", span_inline(text, Some(language), scope, self.theme.as_ref(), false, false))
-        })
-        .map_err(io::Error::other)?;
+
+        for event in events {
+            match event {
+                HighlightEvent::Start { .. } => {
+                    scopes.push(event.scope().unwrap_or_default());
+                }
+                HighlightEvent::End => {
+                    scopes.pop();
+                }
+                HighlightEvent::Source { start, end } => {
+                    let text = &source[*start..*end];
+                    let scope = scopes.last().copied().unwrap_or_default();
+                    write!(
+                        output,
+                        "{}",
+                        span_inline(
+                            text,
+                            Some(self.language.id_name()),
+                            scope,
+                            self.theme.as_ref(),
+                            false,
+                            false
+                        )
+                    )?;
+                }
+                _ => {}
+            }
+        }
+
         closing_tags(output)?;
         Ok(())
     }
@@ -57,10 +98,10 @@ impl Formatter for MinimalHtmlFormatter {
 
 ## JavaScript
 
-Pass an object with `language` and `format(source)`. Inside `format()`, use the sync free functions `highlightIter()` or `highlightEvents()` imported from `@lumis-sh/lumis`.
+Pass an object with `language` and `render(source, events)`. Lumis highlights the source and hands you the event stream; the synchronous free functions `highlightIter()` and `highlightEvents()` from `@lumis-sh/lumis` remain available if you need to highlight something else from inside `render()`.
 
 ```ts
-import {createHighlighter, highlightIter} from '@lumis-sh/lumis'
+import {createHighlighter} from '@lumis-sh/lumis'
 import type {Formatter} from '@lumis-sh/lumis/formatters'
 import {openPreTag, openCodeTag, closingTags, spanInline} from '@lumis-sh/lumis/formatters/html'
 import rust from '@lumis-sh/lumis/langs/rust'
@@ -70,19 +111,26 @@ const hl = await createHighlighter({languages: [rust]})
 
 const formatter: Formatter = {
   language: rust,
-  format(source) {
+  render(source, events) {
+    const bytes = new TextEncoder().encode(source)
+    const decoder = new TextDecoder()
+    const scopes: string[] = []
     const parts: string[] = []
 
     parts.push(openPreTag({preClass: 'docs-demo', theme: frappe}))
     parts.push(openCodeTag(this.language))
 
-    highlightIter(source, this.language, frappe, (text, language, _range, scope, _style) => {
-      if (scope) {
-        parts.push(spanInline(text, {language, scope, theme: frappe}))
-      } else {
-        parts.push(text)
+    for (const event of events) {
+      if (event.type === 'start') {
+        scopes.push(event.scope)
+      } else if (event.type === 'end') {
+        scopes.pop()
+      } else if (event.type === 'source') {
+        const text = decoder.decode(bytes.subarray(event.startByte, event.endByte))
+        const scope = scopes[scopes.length - 1]
+        parts.push(scope ? spanInline(text, {language: 'rust', scope, theme: frappe}) : text)
       }
-    })
+    }
 
     parts.push(closingTags())
     return parts.join('')
@@ -113,7 +161,7 @@ highlightIter(source, this.language, frappe, (text, language, _range, scope) => 
 ```rust
 use lumis::highlight::{highlight_iter_with_options, HighlightOptions};
 
-let options = HighlightOptions { rainbow_brackets: true };
+let options = HighlightOptions::new().rainbow_brackets(true);
 
 highlight_iter_with_options(source, self.language, self.theme.clone(), options, |text, language, _range, scope, _style| {
     // scope is punctuation.bracket.rainbow.1 .. .6 on bracket pairs
@@ -151,7 +199,7 @@ use lumis::events::HighlightEvent;
 use lumis::highlight::{highlight_events_with_options, HighlightOptions};
 use lumis::languages::Language;
 
-let options = HighlightOptions { rainbow_brackets: true };
+let options = HighlightOptions::new().rainbow_brackets(true);
 for event in highlight_events_with_options(source, Language::Rust, options)? {
     if let HighlightEvent::Start { .. } = event {
         println!("{:?} {:?}", event.scope(), event.language());

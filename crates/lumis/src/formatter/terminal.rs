@@ -16,7 +16,6 @@
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 use super::Formatter;
-use crate::highlight;
 use crate::languages::Language;
 use crate::themes::Theme;
 use derive_builder::Builder;
@@ -44,7 +43,7 @@ use std::io::{self, Write};
 ///     .unwrap();
 ///
 /// let mut output = Vec::new();
-/// formatter.format(code, &mut output).unwrap();
+/// lumis::write_highlight(&mut output, code, formatter).unwrap();
 /// println!("{}", String::from_utf8(output).unwrap());
 /// ```
 #[derive(Builder, Clone, Debug)]
@@ -53,7 +52,6 @@ pub struct Terminal {
     #[builder(setter(custom))]
     language: Language,
     theme: Option<Theme>,
-    rainbow_brackets: bool,
     background: Background,
     width: Option<usize>,
 }
@@ -84,7 +82,6 @@ impl Terminal {
         Self {
             language,
             theme,
-            rainbow_brackets: false,
             background,
             width,
         }
@@ -96,31 +93,30 @@ impl Default for Terminal {
         Self {
             language: Language::PlainText,
             theme: None,
-            rainbow_brackets: false,
             background: Background::Inherit,
             width: None,
         }
     }
 }
 
-impl Formatter for Terminal {
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        let events = highlight::highlight_events_with_options(
-            source,
-            self.language,
-            highlight::HighlightOptions {
-                rainbow_brackets: self.rainbow_brackets,
-            },
-        )
-        .map_err(io::Error::other)?;
+impl<T> Formatter<T> for Terminal {
+    fn language(&self) -> Language {
+        self.language
+    }
 
+    fn render(
+        &self,
+        source: &str,
+        events: &[lumis_core::events::HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
         let core_formatter = lumis_core::formatter::terminal::Terminal::new(
             self.language,
             self.theme.clone(),
             self.background.clone(),
             self.width,
         );
-        core_formatter.render(source, &events, output)
+        core_formatter.render(source, events, output)
     }
 }
 
@@ -133,7 +129,7 @@ mod tests {
         let code = "@lang :rust";
         let formatter = Terminal::new(Language::Elixir, None, Background::Inherit, None);
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8_lossy(&buffer);
 
         assert!(result.contains('@'));

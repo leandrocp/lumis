@@ -77,4 +77,5 @@ defmodule Lumis.Native do
   def has_language(_name), do: :erlang.nif_error(:nif_not_loaded)
   def loaded_languages, do: :erlang.nif_error(:nif_not_loaded)
   def highlight(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
+  def highlight_events(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
 end

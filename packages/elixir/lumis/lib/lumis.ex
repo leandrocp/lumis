@@ -9,6 +9,14 @@ defmodule Lumis do
   require Logger
   alias Lumis.Theme
 
+  @built_in_formatters [
+    :html_inline,
+    :html_linked,
+    :html_multi_themes,
+    :bbcode_scoped,
+    :terminal
+  ]
+
   @typedoc """
   A language name, filename, or path with extension.
 
@@ -101,6 +109,11 @@ defmodule Lumis do
       # is the same as passing an empty list of options:
       {:html_inline, []}
 
+  A custom formatter can be any module implementing `Lumis.Formatter`, passed
+  either directly or with options:
+
+      {MyFormatter, language: "elixir"}
+
   ## Available Options:
 
   * `html_inline`:
@@ -110,7 +123,6 @@ defmodule Lumis do
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
       - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute. Useful for debugging.
-      - `:rainbow_brackets` (`t:boolean/0` - default: `false`) - render nested brackets with rainbow bracket scopes.
       - `:highlight_lines` (`t:html_inline_highlight_lines/0` - default: `nil`) - highlight specific lines either using the theme `highlighted` style or with custom CSS styling.
       - `:header` (`t:header/0` - default: `nil`) - wrap the highlighted code with custom open and close HTML tags.
 
@@ -118,7 +130,6 @@ defmodule Lumis do
 
       - `:language` (`t:language/0` - default: `nil`) - the language used by the formatter. When omitted, Lumis tries to auto-detect it from the source.
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
-      - `:rainbow_brackets` (`t:boolean/0` - default: `false`) - render nested brackets with rainbow bracket scopes.
       - `:highlight_lines` (`t:html_linked_highlight_lines/0` - default: `nil`) - highlight specific lines either using the `l-highlighted` class from themes or with a custom CSS class.
       - `:header` (`t:header/0` - default: `nil`) - wrap the highlighted code with custom open and close HTML tags.
 
@@ -131,7 +142,6 @@ defmodule Lumis do
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
       - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute.
-      - `:rainbow_brackets` (`t:boolean/0` - default: `false`) - render nested brackets with rainbow bracket scopes.
       - `:highlight_lines` (`t:html_inline_highlight_lines/0` - default: `nil`) - highlight specific lines (same as html_inline).
       - `:header` (`t:header/0` - default: `nil`) - wrap the highlighted code with custom open and close HTML tags.
 
@@ -141,12 +151,10 @@ defmodule Lumis do
       - `:theme` (`t:theme/0` - default: `nil`) - the theme to apply styles on the highlighted source code.
       - `:background` (`:theme | t:String.t/0 | nil` - default: `nil`) - fallback background behavior: `nil` inherits the output background, `:theme` uses the theme's normal background color, and a string uses that color.
       - `:width` (`pos_integer() | nil` - default: `nil`) - pad each rendered terminal line to the given width. This is most useful with `:background`.
-      - `:rainbow_brackets` (`t:boolean/0` - default: `false`) - render nested brackets with rainbow bracket scopes.
 
   * `bbcode_scoped`:
 
       - `:language` (`t:language/0` - default: `nil`) - available when passed as `{:bbcode_scoped, ...}`.
-      - `:rainbow_brackets` (`t:boolean/0` - default: `false`) - render nested brackets with rainbow bracket scopes.
 
   ## Examples
 
@@ -246,7 +254,6 @@ defmodule Lumis do
                pre_class: String.t(),
                italic: boolean(),
                include_highlights: boolean(),
-               rainbow_brackets: boolean(),
                highlight_lines: html_inline_highlight_lines(),
                header: header()
              ]}
@@ -255,7 +262,6 @@ defmodule Lumis do
              [
                language: language(),
                pre_class: String.t(),
-               rainbow_brackets: boolean(),
                highlight_lines: html_linked_highlight_lines(),
                header: header()
              ]}
@@ -269,7 +275,6 @@ defmodule Lumis do
                pre_class: String.t(),
                italic: boolean(),
                include_highlights: boolean(),
-               rainbow_brackets: boolean(),
                highlight_lines: html_inline_highlight_lines(),
                header: header()
              ]}
@@ -279,14 +284,38 @@ defmodule Lumis do
                language: language(),
                theme: theme(),
                background: :theme | String.t() | nil,
-               width: pos_integer() | nil,
-               rainbow_brackets: boolean()
+               width: pos_integer() | nil
              ]}
           | :bbcode_scoped
-          | {:bbcode_scoped, [language: language(), rainbow_brackets: boolean()]}
+          | {:bbcode_scoped, [language: language()]}
+          | module()
+          | {module(), keyword()}
 
   @highlight_options [
-    rainbow_brackets: [type: :boolean, default: false]
+    annotations: [
+      type: {:custom, Lumis, :annotations_type, []},
+      type_spec: quote(do: [keyword()]),
+      type_doc: "`t:keyword/0`",
+      default: [],
+      doc: """
+      Caller-provided semantic ranges for this highlighting operation. Each is a
+      keyword list with either an `:offset` or a `:position` range and optional
+      `:data`:
+
+          annotations: [
+            [offset: {12, 23}, data: %{change: :added}],
+            [position: {{1, 10}, {1, 21}}, data: %{change: :removed}]
+          ]
+
+      A formatter receives them as `t:Lumis.Annotation.t/1`, resolved to byte
+      offsets. An empty range is a point.
+      """
+    ],
+    rainbow_brackets: [
+      type: :boolean,
+      default: false,
+      doc: "Render nested brackets with rainbow bracket scopes."
+    ]
   ]
 
   @formatter_schema [
@@ -298,27 +327,27 @@ defmodule Lumis do
   ]
 
   @options_schema [
-    language: [
-      type: {:or, [:string, nil]},
-      type_spec: quote(do: Lumis.language()),
-      type_doc: "`t:Lumis.language/0`",
-      deprecated:
-        "Use the :language option inside the formatter tuple instead, eg: {:html_inline, language: \"elixir\"}"
-    ],
-    formatter: @formatter_schema,
-    theme: [
-      type: {:or, [{:struct, Lumis.Theme}, :string, nil]},
-      deprecated: "Use :formatter instead."
-    ],
-    inline_style: [
-      type: :boolean,
-      deprecated: "Use :formatter instead."
-    ],
-    pre_class: [
-      type: {:or, [:string, nil]},
-      deprecated: "Use :formatter instead."
-    ]
-  ]
+                    language: [
+                      type: {:or, [:string, nil]},
+                      type_spec: quote(do: Lumis.language()),
+                      type_doc: "`t:Lumis.language/0`",
+                      deprecated:
+                        "Use the :language option inside the formatter tuple instead, eg: {:html_inline, language: \"elixir\"}"
+                    ],
+                    formatter: @formatter_schema,
+                    theme: [
+                      type: {:or, [{:struct, Lumis.Theme}, :string, nil]},
+                      deprecated: "Use :formatter instead."
+                    ],
+                    inline_style: [
+                      type: :boolean,
+                      deprecated: "Use :formatter instead."
+                    ],
+                    pre_class: [
+                      type: {:or, [:string, nil]},
+                      deprecated: "Use :formatter instead."
+                    ]
+                  ] ++ @highlight_options
 
   @doc false
   def formatter_schema, do: @formatter_schema
@@ -328,50 +357,43 @@ defmodule Lumis do
 
   @doc false
   def formatter_type(formatter)
-      when formatter in [
-             :html_inline,
-             :html_linked,
-             :html_multi_themes,
-             :bbcode_scoped,
-             :terminal
-           ] do
+      when formatter in @built_in_formatters do
     formatter_type({formatter, []})
   end
 
   def formatter_type({:html_inline, options}) when is_list(options) do
-    schema =
-      [
-        language: [type: {:or, [:string, nil]}, default: nil],
-        theme: [type: {:or, [{:struct, Lumis.Theme}, :string, nil]}, default: nil],
-        pre_class: [type: {:or, [:string, nil]}, default: nil],
-        italic: [type: :boolean, default: false],
-        include_highlights: [type: :boolean, default: false],
-        highlight_lines: [
-          type:
-            {:or,
-             [
-               nil,
-               map: [
-                 lines: [type: {:list, {:custom, Lumis, :highlight_lines_type, []}}],
-                 style: [type: {:or, [:string, {:in, [:theme]}, nil]}, default: :theme],
-                 class: [type: {:or, [:string, nil]}, default: nil]
-               ]
-             ]},
-          default: nil
-        ],
-        header: [
-          type:
-            {:or,
-             [
-               nil,
-               map: [
-                 open_tag: [type: :string],
-                 close_tag: [type: :string]
-               ]
-             ]},
-          default: nil
-        ]
-      ] ++ @highlight_options
+    schema = [
+      language: [type: {:or, [:string, nil]}, default: nil],
+      theme: [type: {:or, [{:struct, Lumis.Theme}, :string, nil]}, default: nil],
+      pre_class: [type: {:or, [:string, nil]}, default: nil],
+      italic: [type: :boolean, default: false],
+      include_highlights: [type: :boolean, default: false],
+      highlight_lines: [
+        type:
+          {:or,
+           [
+             nil,
+             map: [
+               lines: [type: {:list, {:custom, Lumis, :highlight_lines_type, []}}],
+               style: [type: {:or, [:string, {:in, [:theme]}, nil]}, default: :theme],
+               class: [type: {:or, [:string, nil]}, default: nil]
+             ]
+           ]},
+        default: nil
+      ],
+      header: [
+        type:
+          {:or,
+           [
+             nil,
+             map: [
+               open_tag: [type: :string],
+               close_tag: [type: :string]
+             ]
+           ]},
+        default: nil
+      ]
+    ]
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
@@ -389,35 +411,34 @@ defmodule Lumis do
   end
 
   def formatter_type({:html_linked, options}) when is_list(options) do
-    schema =
-      [
-        language: [type: {:or, [:string, nil]}, default: nil],
-        pre_class: [type: {:or, [:string, nil]}, default: nil],
-        highlight_lines: [
-          type:
-            {:or,
-             [
-               nil,
-               map: [
-                 lines: [type: {:list, {:custom, Lumis, :highlight_lines_type, []}}],
-                 class: [type: :string, default: "l-highlighted"]
-               ]
-             ]},
-          default: nil
-        ],
-        header: [
-          type:
-            {:or,
-             [
-               nil,
-               map: [
-                 open_tag: [type: :string],
-                 close_tag: [type: :string]
-               ]
-             ]},
-          default: nil
-        ]
-      ] ++ @highlight_options
+    schema = [
+      language: [type: {:or, [:string, nil]}, default: nil],
+      pre_class: [type: {:or, [:string, nil]}, default: nil],
+      highlight_lines: [
+        type:
+          {:or,
+           [
+             nil,
+             map: [
+               lines: [type: {:list, {:custom, Lumis, :highlight_lines_type, []}}],
+               class: [type: :string, default: "l-highlighted"]
+             ]
+           ]},
+        default: nil
+      ],
+      header: [
+        type:
+          {:or,
+           [
+             nil,
+             map: [
+               open_tag: [type: :string],
+               close_tag: [type: :string]
+             ]
+           ]},
+        default: nil
+      ]
+    ]
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
@@ -435,55 +456,54 @@ defmodule Lumis do
   end
 
   def formatter_type({:html_multi_themes, options}) when is_list(options) do
-    schema =
-      [
-        language: [type: {:or, [:string, nil]}, default: nil],
-        themes: [
-          type: :keyword_list,
-          required: true,
-          doc:
-            "Keyword list of theme identifiers to theme names/structs, e.g., [light: \"github_light\", dark: \"github_dark\"]"
-        ],
-        default_theme: [
-          type: {:or, [:string, nil]},
-          default: nil,
-          doc:
-            "Default theme rendering mode: theme name, \"light-dark()\", or nil for CSS variables only"
-        ],
-        css_variable_prefix: [
-          type: {:or, [:string, nil]},
-          default: nil,
-          doc: "CSS variable prefix (defaults to \"--lumis\" if nil)"
-        ],
-        pre_class: [type: {:or, [:string, nil]}, default: nil],
-        italic: [type: :boolean, default: false],
-        include_highlights: [type: :boolean, default: false],
-        highlight_lines: [
-          type:
-            {:or,
-             [
-               nil,
-               map: [
-                 lines: [type: {:list, {:custom, Lumis, :highlight_lines_type, []}}],
-                 style: [type: {:or, [:string, {:in, [:theme]}, nil]}, default: :theme],
-                 class: [type: {:or, [:string, nil]}, default: nil]
-               ]
-             ]},
-          default: nil
-        ],
-        header: [
-          type:
-            {:or,
-             [
-               nil,
-               map: [
-                 open_tag: [type: :string],
-                 close_tag: [type: :string]
-               ]
-             ]},
-          default: nil
-        ]
-      ] ++ @highlight_options
+    schema = [
+      language: [type: {:or, [:string, nil]}, default: nil],
+      themes: [
+        type: :keyword_list,
+        required: true,
+        doc:
+          "Keyword list of theme identifiers to theme names/structs, e.g., [light: \"github_light\", dark: \"github_dark\"]"
+      ],
+      default_theme: [
+        type: {:or, [:string, nil]},
+        default: nil,
+        doc:
+          "Default theme rendering mode: theme name, \"light-dark()\", or nil for CSS variables only"
+      ],
+      css_variable_prefix: [
+        type: {:or, [:string, nil]},
+        default: nil,
+        doc: "CSS variable prefix (defaults to \"--lumis\" if nil)"
+      ],
+      pre_class: [type: {:or, [:string, nil]}, default: nil],
+      italic: [type: :boolean, default: false],
+      include_highlights: [type: :boolean, default: false],
+      highlight_lines: [
+        type:
+          {:or,
+           [
+             nil,
+             map: [
+               lines: [type: {:list, {:custom, Lumis, :highlight_lines_type, []}}],
+               style: [type: {:or, [:string, {:in, [:theme]}, nil]}, default: :theme],
+               class: [type: {:or, [:string, nil]}, default: nil]
+             ]
+           ]},
+        default: nil
+      ],
+      header: [
+        type:
+          {:or,
+           [
+             nil,
+             map: [
+               open_tag: [type: :string],
+               close_tag: [type: :string]
+             ]
+           ]},
+        default: nil
+      ]
+    ]
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
@@ -501,13 +521,12 @@ defmodule Lumis do
   end
 
   def formatter_type({:terminal, options}) when is_list(options) do
-    schema =
-      [
-        language: [type: {:or, [:string, nil]}, default: nil],
-        theme: [type: {:or, [{:struct, Lumis.Theme}, :string, nil]}, default: nil],
-        background: [type: {:or, [:string, {:in, [:theme]}, nil]}, default: nil],
-        width: [type: {:or, [:pos_integer, nil]}, default: nil]
-      ] ++ @highlight_options
+    schema = [
+      language: [type: {:or, [:string, nil]}, default: nil],
+      theme: [type: {:or, [{:struct, Lumis.Theme}, :string, nil]}, default: nil],
+      background: [type: {:or, [:string, {:in, [:theme]}, nil]}, default: nil],
+      width: [type: {:or, [:pos_integer, nil]}, default: nil]
+    ]
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
@@ -519,17 +538,119 @@ defmodule Lumis do
   end
 
   def formatter_type({:bbcode_scoped, options}) when is_list(options) do
-    case Keyword.keys(options) -- [:language, :rainbow_brackets] do
+    case Keyword.keys(options) -- [:language] do
       [] ->
-        {:ok, {:bbcode_scoped, Keyword.merge([language: nil, rainbow_brackets: false], options)}}
+        {:ok, {:bbcode_scoped, Keyword.put_new(options, :language, nil)}}
 
       invalid ->
         {:error, "invalid options given to bbcode_scoped: #{inspect(invalid)}"}
     end
   end
 
+  def formatter_type(formatter) when is_atom(formatter) do
+    formatter_type({formatter, []})
+  end
+
+  def formatter_type({formatter, options}) when is_atom(formatter) and is_list(options) do
+    cond do
+      not Keyword.keyword?(options) ->
+        {:error, "custom formatter options must be a keyword list"}
+
+      not Code.ensure_loaded?(formatter) ->
+        {:error, "custom formatter module is not available: #{inspect(formatter)}"}
+
+      not function_exported?(formatter, :render, 3) ->
+        {:error, "custom formatter must export render/3: #{inspect(formatter)}"}
+
+      true ->
+        {:ok, {formatter, Keyword.put_new(options, :language, nil)}}
+    end
+  end
+
   def formatter_type(other) do
     {:error, "invalid formatter option: #{inspect(other)}"}
+  end
+
+  @position {:tuple, [:non_neg_integer, :non_neg_integer]}
+
+  @annotation_schema [
+    offset: [
+      type: {:tuple, [:non_neg_integer, :non_neg_integer]},
+      doc: "Half-open range of absolute UTF-8 byte offsets, as `{start, end}`."
+    ],
+    position: [
+      type: {:tuple, [@position, @position]},
+      doc:
+        "Half-open range of zero-based lines and UTF-8 byte columns, " <>
+          "as `{{line, column}, {line, column}}`."
+    ],
+    data: [type: :any, default: nil, doc: "Any term, passed to the formatter untouched."]
+  ]
+
+  @doc false
+  def annotations_type(annotations) when is_list(annotations) do
+    annotations
+    |> Enum.with_index()
+    |> Enum.reduce_while({:ok, []}, fn {annotation, index}, {:ok, acc} ->
+      case validate_annotation(annotation, index) do
+        {:ok, normalized} -> {:cont, {:ok, [normalized | acc]}}
+        {:error, message} -> {:halt, {:error, message}}
+      end
+    end)
+    |> case do
+      {:ok, normalized} -> {:ok, Enum.reverse(normalized)}
+      error -> error
+    end
+  end
+
+  def annotations_type(_annotations), do: {:error, "annotations must be a list"}
+
+  defp validate_annotation(annotation, index) when is_list(annotation) do
+    with {:ok, opts} <- NimbleOptions.validate(annotation, @annotation_schema),
+         {:ok, range} <- annotation_range(opts, index) do
+      {:ok, Tuple.insert_at(range, tuple_size(range), opts[:data])}
+    else
+      {:error, %NimbleOptions.ValidationError{} = error} ->
+        {:error, "annotation #{index}: #{Exception.message(error)}"}
+
+      {:error, message} ->
+        {:error, message}
+    end
+  end
+
+  defp validate_annotation(_annotation, index) do
+    {:error, "annotation #{index} must be a keyword list with :offset or :position"}
+  end
+
+  # Exactly one of the two range keys, so there is one way to spell a range.
+  defp annotation_range(opts, index) do
+    case {Keyword.fetch(opts, :offset), Keyword.fetch(opts, :position)} do
+      {{:ok, {start, stop}}, :error} when stop >= start ->
+        {:ok, {:offset, start, stop}}
+
+      {{:ok, {start, stop}}, :error} ->
+        {:error,
+         "annotation #{index} offset range start must not be after its end: #{start}..#{stop}"}
+
+      {:error, {:ok, {start, stop}}} ->
+        validate_position_range(start, stop, index)
+
+      {:error, :error} ->
+        {:error, "annotation #{index} needs an :offset or a :position range"}
+
+      {{:ok, _offset}, {:ok, _position}} ->
+        {:error, "annotation #{index} sets both :offset and :position, which is ambiguous"}
+    end
+  end
+
+  defp validate_position_range(start, stop, index) do
+    if start <= stop do
+      {:ok, {:position, start, stop}}
+    else
+      {:error,
+       "annotation #{index} position range start must not be after its end: " <>
+         "#{inspect(start)}..#{inspect(stop)}"}
+    end
   end
 
   @doc false
@@ -891,20 +1012,21 @@ defmodule Lumis do
   def highlight(source, options \\ [])
 
   def highlight(source, options) when is_binary(source) and is_list(options) do
-    options =
-      options
-      |> validate_options!()
-      |> rust_options!()
+    options = validate_options!(options)
+    {formatter, formatter_options} = Keyword.fetch!(options, :formatter)
 
-    case Lumis.Native.highlight(source, options) do
-      {:error, {:language_not_loaded, language}} ->
-        {:error,
-         "language #{inspect(language)} could not be loaded. Warm it with " <>
-           "`Lumis.Languages.async_load([#{inspect(language)}])` from your " <>
-           "application's start/2 if this host has no network access"}
-
-      other ->
-        other
+    if formatter in @built_in_formatters do
+      source
+      |> Lumis.Native.highlight(rust_options!(options))
+      |> describe_highlight_error()
+    else
+      render_with_custom_formatter(
+        source,
+        formatter,
+        formatter_options,
+        Keyword.fetch!(options, :annotations),
+        Keyword.fetch!(options, :rainbow_brackets)
+      )
     end
   end
 
@@ -912,6 +1034,15 @@ defmodule Lumis do
       when is_binary(language) and is_binary(source) do
     highlight(source, language: language)
   end
+
+  defp describe_highlight_error({:error, {:language_not_loaded, language}}) do
+    {:error,
+     "language #{inspect(language)} could not be loaded. Warm it with " <>
+       "`Lumis.Languages.async_load([#{inspect(language)}])` from your " <>
+       "application's start/2 if this host has no network access"}
+  end
+
+  defp describe_highlight_error(other), do: other
 
   @doc """
   Validates the given options against the options schema.
@@ -943,7 +1074,10 @@ defmodule Lumis do
   def rust_options!(options) do
     {formatter, formatter_opts} = options[:formatter]
     {language, formatter_opts} = Keyword.pop(formatter_opts, :language)
-    options = Keyword.delete(options, :language)
+
+    options =
+      options
+      |> Keyword.delete(:language)
 
     {theme, options} = Keyword.pop(options, :theme)
     theme = build_theme(theme || Keyword.get(formatter_opts, :theme))
@@ -977,6 +1111,32 @@ defmodule Lumis do
     |> Keyword.put(:language, language)
     |> Keyword.put(:formatter, rust_formatter)
     |> Map.new()
+  end
+
+  defp render_with_custom_formatter(
+         source,
+         formatter,
+         formatter_options,
+         annotations,
+         rainbow_brackets
+       ) do
+    options = %{
+      language: Keyword.get(formatter_options, :language),
+      annotations: annotations,
+      rainbow_brackets: rainbow_brackets
+    }
+
+    case Lumis.Native.highlight_events(source, options) do
+      {:error, _reason} = error ->
+        describe_highlight_error(error)
+
+      {:ok, events} ->
+        output =
+          formatter.render(source, events, formatter_options)
+          |> IO.iodata_to_binary()
+
+        {:ok, output}
+    end
   end
 
   defp normalize_formatter_language(options) do
@@ -1039,14 +1199,13 @@ defmodule Lumis do
        :pre_class,
        :italic,
        :include_highlights,
-       :rainbow_brackets,
        :highlight_lines,
        :header
      ])}
   end
 
   defp convert_formatter_for_nif(:html_linked, opts) do
-    {:html_linked, Map.take(opts, [:pre_class, :rainbow_brackets, :highlight_lines, :header])}
+    {:html_linked, Map.take(opts, [:pre_class, :highlight_lines, :header])}
   end
 
   defp convert_formatter_for_nif(:terminal, opts) do
@@ -1059,11 +1218,11 @@ defmodule Lumis do
         nil -> Map.put(opts, :background, nil)
       end
 
-    {:terminal, Map.take(opts, [:theme, :background, :width, :rainbow_brackets])}
+    {:terminal, Map.take(opts, [:theme, :background, :width])}
   end
 
-  defp convert_formatter_for_nif(:bbcode_scoped, opts) do
-    {:bbcode_scoped, Map.take(opts, [:rainbow_brackets])}
+  defp convert_formatter_for_nif(:bbcode_scoped, _opts) do
+    {:bbcode_scoped, %{}}
   end
 
   defp convert_formatter_for_nif(:html_multi_themes, opts) do
@@ -1075,7 +1234,6 @@ defmodule Lumis do
        :pre_class,
        :italic,
        :include_highlights,
-       :rainbow_brackets,
        :highlight_lines,
        :header
      ])}

@@ -83,11 +83,11 @@ impl Default for Terminal {
     }
 }
 
-impl Formatter for Terminal {
+impl<T> Formatter<T> for Terminal {
     fn render(
         &self,
         source: &str,
-        events: &[HighlightEvent],
+        events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
         let source_bytes = source.as_bytes();
@@ -159,6 +159,7 @@ impl Formatter for Terminal {
                 HighlightEvent::End => {
                     scope_stack.pop();
                 }
+                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
             }
         }
 
@@ -309,7 +310,7 @@ mod tests {
             Background::Color("#282a36".to_string()),
             Some(5),
         );
-        let events = [HighlightEvent::Source { start: 0, end: 2 }];
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 2 }];
         let mut output = Vec::new();
 
         formatter.render("hi", &events, &mut output).unwrap();
@@ -328,7 +329,7 @@ mod tests {
             Background::Color("#282a36".to_string()),
             Some(4),
         );
-        let events = [HighlightEvent::Source { start: 0, end: 3 }];
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 3 }];
         let mut output = Vec::new();
 
         formatter.render("a\nb", &events, &mut output).unwrap();
@@ -347,7 +348,7 @@ mod tests {
             Background::Theme,
             None,
         );
-        let events = [HighlightEvent::Source { start: 0, end: 2 }];
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 2 }];
         let mut output = Vec::new();
 
         formatter.render("hi", &events, &mut output).unwrap();
@@ -373,7 +374,7 @@ mod tests {
             Background::Inherit,
             None,
         );
-        let events = [
+        let events: [HighlightEvent<'_, ()>; 3] = [
             HighlightEvent::Start {
                 scope_index: 0,
                 language: "plaintext".to_string(),

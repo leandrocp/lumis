@@ -16,7 +16,6 @@
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 use super::{Formatter, HtmlElement};
-use crate::highlight;
 use crate::languages::Language;
 use derive_builder::Builder;
 use lumis_core::formatter::Formatter as _;
@@ -125,7 +124,7 @@ impl Default for HighlightLines {
 ///     .unwrap();
 ///
 /// let mut output = Vec::new();
-/// formatter.format(code, &mut output).unwrap();
+/// lumis::write_highlight(&mut output, code, formatter).unwrap();
 /// // Remember to include the corresponding CSS file for your theme
 /// ```
 #[derive(Builder, Clone, Debug)]
@@ -134,7 +133,6 @@ pub struct HtmlLinked {
     #[builder(setter(custom))]
     language: Language,
     pre_class: Option<String>,
-    rainbow_brackets: bool,
     highlight_lines: Option<HighlightLines>,
     header: Option<HtmlElement>,
 }
@@ -165,7 +163,6 @@ impl HtmlLinked {
         Self {
             language,
             pre_class,
-            rainbow_brackets: false,
             highlight_lines,
             header,
         }
@@ -177,24 +174,23 @@ impl Default for HtmlLinked {
         Self {
             language: Language::PlainText,
             pre_class: None,
-            rainbow_brackets: false,
             highlight_lines: None,
             header: None,
         }
     }
 }
 
-impl Formatter for HtmlLinked {
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        let events = highlight::highlight_events_with_options(
-            source,
-            self.language,
-            highlight::HighlightOptions {
-                rainbow_brackets: self.rainbow_brackets,
-            },
-        )
-        .map_err(io::Error::other)?;
+impl<T> Formatter<T> for HtmlLinked {
+    fn language(&self) -> Language {
+        self.language
+    }
 
+    fn render(
+        &self,
+        source: &str,
+        events: &[lumis_core::events::HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
         let core_formatter = lumis_core::formatter::html_linked::HtmlLinked::new(
             self.language,
             self.pre_class.clone(),
@@ -202,7 +198,7 @@ impl Formatter for HtmlLinked {
             self.header.clone(),
         );
 
-        core_formatter.render(source, &events, output)
+        core_formatter.render(source, events, output)
     }
 }
 
@@ -228,7 +224,7 @@ mod tests {
         let code = "@lang :rust";
         let formatter = HtmlLinked::new(Language::Elixir, None, None, None);
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
         let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-operator"><span class="l-constant">@<span class="l-function-call"><span class="l-constant">lang <span class="l-string-special-symbol">:rust</span></span></span></span></span>
 </div></code></pre>"#;
@@ -295,7 +291,7 @@ mod tests {
         let formatter = HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line" data-line="1">line 1
@@ -315,7 +311,7 @@ mod tests {
         let formatter = HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line custom-hl" data-line="1">line 1
@@ -337,7 +333,7 @@ mod tests {
         let formatter = HtmlLinked::new(Language::PlainText, None, None, Some(header));
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<div class="code-wrapper"><pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line" data-line="1">line 1
@@ -366,7 +362,7 @@ mod tests {
         );
 
         let mut buffer = Vec::new();
-        formatter.format(code, &mut buffer).unwrap();
+        crate::write_highlight(&mut buffer, code, formatter).unwrap();
         let result = String::from_utf8(buffer).unwrap();
 
         let expected = r#"<section class="code-section"><pre class="lumis custom-pre"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line l-highlighted" data-line="1">line 1

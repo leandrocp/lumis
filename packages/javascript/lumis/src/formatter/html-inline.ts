@@ -80,7 +80,7 @@ function getLineAttrs(
 
 export function formatHtmlInline(
   source: string,
-  events: HighlightEvent[],
+  events: readonly HighlightEvent[],
   formatter: HtmlInlineFormatter,
 ): string {
   const { lines } = formatHighlightIterLines(source, events, formatter.language, formatter.theme, {

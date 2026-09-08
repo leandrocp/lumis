@@ -1,5 +1,6 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
+use std::io::Write;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
@@ -7,11 +8,14 @@ mod elixir;
 
 use anyhow::{anyhow, Context, Result};
 use elixir::{ExCssOptions, ExFormatterOption, ExTheme};
+use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
 use lumis_core::events::HighlightEvent;
+use lumis_core::formatter::Formatter;
+use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
 use lumis_wasm_runtime::{catalog, store, Runtime, RuntimeError};
 use parking_lot::RwLock;
-use rustler::{Encoder, Env, Error, NifMap, NifResult, Term};
+use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
 
 /// Lazy per-theme cache to eliminate repeated allocations.
 /// Themes are converted and cached on first access, amortizing the cost.
@@ -35,7 +39,7 @@ enum WasmJob {
         source: String,
         language: String,
         rainbow_brackets: bool,
-        reply: mpsc::SyncSender<Result<Vec<HighlightEvent>, RuntimeError>>,
+        reply: mpsc::SyncSender<Result<Vec<HighlightEvent<'static>>, RuntimeError>>,
     },
 }
 
@@ -160,7 +164,7 @@ impl WasmExecutor {
         source: &str,
         language: &str,
         rainbow_brackets: bool,
-    ) -> Result<Vec<HighlightEvent>, RuntimeError> {
+    ) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
         let (reply, result) = mpsc::sync_channel(1);
         self.sender
             .send(WasmJob::Highlight {
@@ -179,6 +183,11 @@ impl WasmExecutor {
 rustler::atoms! {
     ok,
     error,
+    event_start = "start",
+    event_source = "source",
+    event_end = "end",
+    annotation_start,
+    annotation_end,
     language_not_loaded,
     unknown_language,
     failed_to_load_parser,
@@ -190,6 +199,115 @@ rustler::init!("Elixir.Lumis.Native");
 pub struct ExOptions<'a> {
     pub language: Option<&'a str>,
     pub formatter: ExFormatterOption,
+    pub annotations: Vec<Term<'a>>,
+    pub rainbow_brackets: bool,
+}
+
+#[derive(Clone, Debug, NifStruct)]
+#[module = "Lumis.Annotation"]
+pub struct ExResolvedAnnotation<'a> {
+    pub range: (usize, usize),
+    pub data: Term<'a>,
+}
+
+#[derive(Debug, NifMap)]
+pub struct ExEventOptions<'a> {
+    pub language: Option<&'a str>,
+    pub annotations: Vec<Term<'a>>,
+    pub rainbow_brackets: bool,
+}
+
+#[derive(Debug, NifMap)]
+struct ExStartEvent {
+    scope: String,
+    language: String,
+}
+
+#[derive(Debug, NifMap)]
+struct ExSourceEvent {
+    start: usize,
+    end: usize,
+}
+
+enum CollectedEvent<'a> {
+    Start { scope: String, language: String },
+    Source { start: usize, end: usize },
+    End,
+    AnnotationStart(ExResolvedAnnotation<'a>),
+    AnnotationEnd,
+}
+
+impl<'a> CollectedEvent<'a> {
+    fn encode(self, env: Env<'a>) -> Term<'a> {
+        match self {
+            Self::Start { scope, language } => {
+                (event_start(), ExStartEvent { scope, language }).encode(env)
+            }
+            Self::Source { start, end } => {
+                (event_source(), ExSourceEvent { start, end }).encode(env)
+            }
+            Self::End => event_end().encode(env),
+            Self::AnnotationStart(annotation) => (annotation_start(), annotation).encode(env),
+            Self::AnnotationEnd => annotation_end().encode(env),
+        }
+    }
+}
+
+struct EventFormatter<'a> {
+    events: Mutex<Vec<CollectedEvent<'a>>>,
+}
+
+impl<'a> EventFormatter<'a> {
+    fn new() -> Self {
+        Self {
+            events: Mutex::new(Vec::new()),
+        }
+    }
+
+    fn into_events(self) -> Vec<CollectedEvent<'a>> {
+        self.events.into_inner().expect("event lock poisoned")
+    }
+}
+
+impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
+    fn render(
+        &self,
+        _source: &str,
+        events: &[HighlightEvent<'_, Term<'a>>],
+        _output: &mut dyn Write,
+    ) -> std::io::Result<()> {
+        let mut output = self.events.lock().expect("event lock poisoned");
+
+        for event in events {
+            let event = match event {
+                HighlightEvent::Start {
+                    scope_index,
+                    language,
+                } => CollectedEvent::Start {
+                    scope: lumis_core::highlights::HIGHLIGHT_NAMES[*scope_index].to_owned(),
+                    language: language.clone(),
+                },
+                HighlightEvent::Source { start, end } => CollectedEvent::Source {
+                    start: *start,
+                    end: *end,
+                },
+                HighlightEvent::End => CollectedEvent::End,
+                HighlightEvent::AnnotationStart { annotation } => {
+                    CollectedEvent::AnnotationStart(ExResolvedAnnotation {
+                        range: (annotation.range().start, annotation.range().end),
+                        data: *annotation.data(),
+                    })
+                }
+                HighlightEvent::AnnotationEnd => CollectedEvent::AnnotationEnd,
+                // A kind this build predates: drop it rather than crossing the
+                // NIF boundary with a shape Elixir has no clause for.
+                _ => continue,
+            };
+            output.push(event);
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Clone, Debug, NifMap)]
@@ -256,33 +374,22 @@ impl From<&catalog::LanguagePackageRef> for ExLanguagePackageRef<'static> {
 pub(crate) fn highlight<'a>(
     env: Env<'a>,
     source: &'a str,
-    options: ExOptions<'_>,
+    options: ExOptions<'a>,
 ) -> NifResult<Term<'a>> {
     let language = languages::Language::guess(options.language, source);
-    let (formatter, rainbow_brackets) = match options.formatter.into_formatter(language) {
+    let annotations = decode_annotations(options.annotations)?;
+    let formatter = match options.formatter.into_formatter(language) {
         Ok(formatter) => formatter,
         Err(message) => return Ok((error(), message).encode(env)),
     };
 
-    let events = if language == languages::Language::PlainText {
-        vec![HighlightEvent::Source {
-            start: 0,
-            end: source.len(),
-        }]
-    } else {
-        let executor = match executor() {
-            Ok(executor) => executor,
-            Err(reason) => return Ok((error(), format!("{reason:#}")).encode(env)),
-        };
-        match executor.highlight(source, language.id_name(), rainbow_brackets) {
-            Ok(events) => events,
-            Err(RuntimeError::LanguageNotLoaded(language)) => {
-                return Ok((error(), (language_not_loaded(), language)).encode(env));
-            }
-            Err(runtime_error) => {
-                return Ok((error(), runtime_error.to_string()).encode(env));
-            }
-        }
+    let events = match syntax_events(env, source, language, options.rainbow_brackets) {
+        Ok(events) => events,
+        Err(failure) => return Ok(failure),
+    };
+    let events = match compose_annotations(source, &events, &annotations) {
+        Ok(events) => events,
+        Err(annotation_error) => return Ok((error(), annotation_error.to_string()).encode(env)),
     };
 
     let mut output = Vec::new();
@@ -292,6 +399,95 @@ pub(crate) fn highlight<'a>(
     let output = String::from_utf8(output)
         .map_err(|error| Error::Term(Box::new(format!("invalid formatter output: {error}"))))?;
     Ok((ok(), output).encode(env))
+}
+
+/// Syntax events for `source`, or the error term Elixir should receive.
+fn syntax_events<'a>(
+    env: Env<'a>,
+    source: &str,
+    language: Language,
+    rainbow_brackets: bool,
+) -> Result<Vec<HighlightEvent<'static>>, Term<'a>> {
+    if language == languages::Language::PlainText {
+        return Ok(vec![HighlightEvent::Source {
+            start: 0,
+            end: source.len(),
+        }]);
+    }
+
+    let executor = executor().map_err(|reason| (error(), format!("{reason:#}")).encode(env))?;
+    executor
+        .highlight(source, language.id_name(), rainbow_brackets)
+        .map_err(|runtime_error| match runtime_error {
+            RuntimeError::LanguageNotLoaded(language) => {
+                (error(), (language_not_loaded(), language)).encode(env)
+            }
+            runtime_error => (error(), runtime_error.to_string()).encode(env),
+        })
+}
+
+#[rustler::nif(schedule = "DirtyCpu")]
+pub(crate) fn highlight_events<'a>(
+    env: Env<'a>,
+    source: &'a str,
+    options: ExEventOptions<'a>,
+) -> NifResult<Term<'a>> {
+    let language = Language::guess(options.language, source);
+    let annotations = decode_annotations(options.annotations)?;
+    let formatter = EventFormatter::new();
+
+    let events = match syntax_events(env, source, language, options.rainbow_brackets) {
+        Ok(events) => events,
+        Err(failure) => return Ok(failure),
+    };
+    let events = match compose_annotations(source, &events, &annotations) {
+        Ok(events) => events,
+        Err(annotation_error) => return Ok((error(), annotation_error.to_string()).encode(env)),
+    };
+
+    formatter
+        .render(source, &events, &mut std::io::sink())
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+
+    let events = formatter
+        .into_events()
+        .into_iter()
+        .map(|event| event.encode(env))
+        .collect::<Vec<_>>();
+
+    Ok((ok(), events).encode(env))
+}
+
+/// Reads the tagged tuples `Lumis.annotations_type/1` normalizes to:
+/// `{:offset, start, end, data}`, or `{:position, {line, column}, {line,
+/// column}, data}`. Elixir has already validated the shape and the ordering.
+fn decode_annotations(annotations: Vec<Term<'_>>) -> NifResult<Vec<Annotation<Term<'_>>>> {
+    annotations
+        .into_iter()
+        .map(|term| {
+            let parts = rustler::types::tuple::get_tuple(term)?;
+            let [kind, start, end, data] = parts.as_slice() else {
+                return Err(Error::BadArg);
+            };
+
+            let range = match kind.atom_to_string()?.as_str() {
+                "offset" => {
+                    AnnotationRange::Offset(start.decode::<usize>()?..end.decode::<usize>()?)
+                }
+                "position" => {
+                    AnnotationRange::Position(decode_position(*start)?..decode_position(*end)?)
+                }
+                _ => return Err(Error::BadArg),
+            };
+
+            Annotation::new(range, *data).map_err(|error| Error::Term(Box::new(error.to_string())))
+        })
+        .collect()
+}
+
+fn decode_position(term: Term<'_>) -> NifResult<Position> {
+    let (line, column) = term.decode::<(usize, usize)>()?;
+    Ok(Position::new(line, column))
 }
 
 fn executor() -> Result<&'static WasmExecutor> {
@@ -565,7 +761,7 @@ mod tests {
         let source = "@test :test";
         let lang = Language::guess(Some("elixir"), source);
         let formatter = HtmlInlineBuilder::new().language(lang).build().unwrap();
-        let events = [HighlightEvent::Source {
+        let events: [HighlightEvent<'_>; 1] = [HighlightEvent::Source {
             start: 0,
             end: source.len(),
         }];

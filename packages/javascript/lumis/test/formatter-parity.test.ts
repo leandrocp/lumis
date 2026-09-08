@@ -161,6 +161,6 @@ describe("D5 htmlMultiThemes validation", () => {
     const formatter = htmlMultiThemes({ themes: { light: theme }, defaultTheme: "light" });
     formatter.themes = {};
 
-    expect(() => formatter.format("const x = 1")).toThrow(/at least one theme/);
+    expect(() => formatter.render("const x = 1", [])).toThrow(/at least one theme/);
   });
 });

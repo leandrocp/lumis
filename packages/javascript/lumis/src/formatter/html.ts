@@ -1,10 +1,11 @@
 import type {
-  HighlightEvent,
   HighlightStyle,
   HighlightSpan,
+  HighlightEvent,
   HtmlElement,
   LineSpec,
   LanguageRef,
+  SyntaxHighlightEvent,
   Theme,
 } from "../types.js";
 import { HIGHLIGHT_NAMES } from "../highlights.js";
@@ -1000,7 +1001,7 @@ function closeSpanEvent(
 /** @internal */
 export function formatHighlightIterLines(
   source: string,
-  events: HighlightEvent[],
+  events: readonly HighlightEvent[],
   languageRef: LanguageRef | undefined,
   theme: Theme | undefined,
   options: {
@@ -1021,7 +1022,7 @@ export function formatHighlightIterLines(
       openSpanEvent(lines, stack, event, theme, options.openSpan);
     } else if (event.type === "end") {
       closeSpanEvent(lines, stack, theme, closeSpan);
-    } else {
+    } else if (event.type === "source") {
       // The document's language is the outermost span's, once one is open.
       language = resolveDocumentLanguage(language, stack);
       const text = decodeSourceSlice(sourceBytes, event.startByte, event.endByte);
@@ -1056,7 +1057,7 @@ function closeRemainingSpans(
  */
 export function renderLinesFromEvents(
   source: string,
-  events: HighlightEvent[],
+  events: readonly HighlightEvent[],
   spanAttrs: (scope: string, language: string) => string,
 ): string[] {
   return formatHighlightIterLines(source, events, undefined, undefined, {
@@ -1083,7 +1084,7 @@ function escapeChar(char: string): string {
 
 export function renderEvents(
   source: string,
-  events: HighlightEvent[],
+  events: SyntaxHighlightEvent[],
   attributeCallback: (scope: string, language: string, html: string[]) => void,
 ): [Uint8Array, number[]] {
   const sourceBytes = encodeSource(source);

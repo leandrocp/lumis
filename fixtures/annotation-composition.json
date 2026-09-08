@@ -1,0 +1,719 @@
+{
+  "$comment": [
+    "Annotation composition, pinned between Rust and the TypeScript port.",
+    "",
+    "`compose_annotations` in crates/lumis-core/src/annotations.rs and",
+    "`composeAnnotations` in packages/javascript/lumis/src/annotations.ts are two",
+    "implementations of one algorithm. Rust is the reference; the browser cannot",
+    "call into it, so AGENTS.md requires a test pinning both against the same input.",
+    "",
+    "Each case supplies synthetic syntax events rather than highlighting real",
+    "source, so what is under test is the composition alone: where a syntax scope",
+    "has to be closed and reopened around an annotation boundary, how overlapping",
+    "and nested annotations nest, and which offsets are rejected.",
+    "",
+    "`expected` is one stream both runtimes must produce, not a column each. They",
+    "are a port, so a divergence is a bug rather than something to record.",
+    "",
+    "Notation: S:<scope> opens a syntax scope, E closes one, T:<start>-<end> is a",
+    "source span in UTF-8 bytes, A+<data>@<start>-<end> opens an annotation",
+    "and A- closes it. `ERROR: ...` is the message both must raise, verbatim."
+  ],
+  "cases": [
+    {
+      "name": "passthrough/no-annotations",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        },
+        {
+          "type": "start",
+          "scope": "variable",
+          "language": "rust"
+        },
+        {
+          "type": "source",
+          "startByte": 4,
+          "endByte": 9
+        },
+        {
+          "type": "end"
+        },
+        {
+          "type": "source",
+          "startByte": 9,
+          "endByte": 14
+        }
+      ],
+      "annotations": [],
+      "expected": "T:0-4 S:variable T:4-9 E T:9-14"
+    },
+    {
+      "name": "flat/whole-source",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 0,
+            "end": 14
+          },
+          "data": "whole"
+        }
+      ],
+      "expected": "A+whole@0-14 T:0-14 A-"
+    },
+    {
+      "name": "scope/annotation-inside-scope",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        },
+        {
+          "type": "start",
+          "scope": "variable",
+          "language": "rust"
+        },
+        {
+          "type": "source",
+          "startByte": 4,
+          "endByte": 9
+        },
+        {
+          "type": "end"
+        },
+        {
+          "type": "source",
+          "startByte": 9,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 5,
+            "end": 8
+          },
+          "data": "inside"
+        }
+      ],
+      "expected": "T:0-4 S:variable T:4-5 E A+inside@5-8 S:variable T:5-8 E A- S:variable T:8-9 E T:9-14"
+    },
+    {
+      "name": "scope/annotation-exactly-scope",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        },
+        {
+          "type": "start",
+          "scope": "variable",
+          "language": "rust"
+        },
+        {
+          "type": "source",
+          "startByte": 4,
+          "endByte": 9
+        },
+        {
+          "type": "end"
+        },
+        {
+          "type": "source",
+          "startByte": 9,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 4,
+            "end": 9
+          },
+          "data": "exact"
+        }
+      ],
+      "expected": "T:0-4 A+exact@4-9 S:variable T:4-9 E A- T:9-14"
+    },
+    {
+      "name": "scope/annotation-spans-scope-boundary",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        },
+        {
+          "type": "start",
+          "scope": "variable",
+          "language": "rust"
+        },
+        {
+          "type": "source",
+          "startByte": 4,
+          "endByte": 9
+        },
+        {
+          "type": "end"
+        },
+        {
+          "type": "source",
+          "startByte": 9,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 2,
+            "end": 11
+          },
+          "data": "spanning"
+        }
+      ],
+      "expected": "T:0-2 A+spanning@2-11 T:2-4 S:variable T:4-9 E T:9-11 A- T:11-14"
+    },
+    {
+      "name": "multi/overlapping",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 0,
+            "end": 8
+          },
+          "data": "a"
+        },
+        {
+          "range": {
+            "type": "offset",
+            "start": 4,
+            "end": 12
+          },
+          "data": "b"
+        }
+      ],
+      "expected": "A+a@0-8 T:0-4 A+b@4-12 T:4-8 A- A- A+b@4-12 T:8-12 A- T:12-14"
+    },
+    {
+      "name": "multi/nested",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 0,
+            "end": 14
+          },
+          "data": "outer"
+        },
+        {
+          "range": {
+            "type": "offset",
+            "start": 4,
+            "end": 9
+          },
+          "data": "inner"
+        }
+      ],
+      "expected": "A+outer@0-14 T:0-4 A+inner@4-9 T:4-9 A- T:9-14 A-"
+    },
+    {
+      "name": "multi/adjacent",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 0,
+            "end": 7
+          },
+          "data": "left"
+        },
+        {
+          "range": {
+            "type": "offset",
+            "start": 7,
+            "end": 14
+          },
+          "data": "right"
+        }
+      ],
+      "expected": "A+left@0-7 T:0-7 A- A+right@7-14 T:7-14 A-"
+    },
+    {
+      "name": "multi/identical-ranges",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 4,
+            "end": 9
+          },
+          "data": "first"
+        },
+        {
+          "range": {
+            "type": "offset",
+            "start": 4,
+            "end": 9
+          },
+          "data": "second"
+        }
+      ],
+      "expected": "T:0-4 A+first@4-9 A+second@4-9 T:4-9 A- A- T:9-14"
+    },
+    {
+      "name": "position/single-line",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "position",
+            "start": {
+              "line": 0,
+              "column": 4
+            },
+            "end": {
+              "line": 0,
+              "column": 9
+            }
+          },
+          "data": "pos"
+        }
+      ],
+      "expected": "T:0-4 A+pos@4-9 T:4-9 A- T:9-14"
+    },
+    {
+      "name": "position/across-lines",
+      "source": "let a = 1;\nlet b = 2;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 21
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "position",
+            "start": {
+              "line": 0,
+              "column": 4
+            },
+            "end": {
+              "line": 1,
+              "column": 5
+            }
+          },
+          "data": "multiline"
+        }
+      ],
+      "expected": "T:0-4 A+multiline@4-16 T:4-16 A- T:16-21"
+    },
+    {
+      "name": "position/line-end-column",
+      "source": "let a = 1;\nlet b = 2;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 21
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "position",
+            "start": {
+              "line": 0,
+              "column": 0
+            },
+            "end": {
+              "line": 0,
+              "column": 10
+            }
+          },
+          "data": "eol"
+        }
+      ],
+      "expected": "A+eol@0-10 T:0-10 A- T:10-21"
+    },
+    {
+      "name": "utf8/around-multibyte",
+      "source": "let caf\u00e9 = \"x\";",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 16
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 4,
+            "end": 9
+          },
+          "data": "cafe"
+        }
+      ],
+      "expected": "T:0-4 A+cafe@4-9 T:4-9 A- T:9-16"
+    },
+    {
+      "name": "utf8/mid-character-offset",
+      "source": "let caf\u00e9 = \"x\";",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 16
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 4,
+            "end": 8
+          },
+          "data": "split-e-acute"
+        }
+      ],
+      "expected": "ERROR: annotation 0 offset 8 is not a UTF-8 character boundary"
+    },
+    {
+      "name": "error/offset-past-end",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 10,
+            "end": 99
+          },
+          "data": "oob"
+        }
+      ],
+      "expected": "ERROR: annotation 0 ends at byte 99, beyond source length 14"
+    },
+    {
+      "name": "error/position-past-end",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "position",
+            "start": {
+              "line": 0,
+              "column": 0
+            },
+            "end": {
+              "line": 9,
+              "column": 0
+            }
+          },
+          "data": "oob-pos"
+        }
+      ],
+      "expected": "ERROR: annotation 0 line 9 is outside the source's 1 lines"
+    },
+    {
+      "name": "point/blank-line",
+      "source": "a\n\nb",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 2,
+            "end": 2
+          },
+          "data": "blank"
+        }
+      ],
+      "expected": "T:0-2 A+blank@2-2 A- T:2-4"
+    },
+    {
+      "name": "point/blank-line-by-position",
+      "source": "a\n\nb",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "position",
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 0
+            }
+          },
+          "data": "blank-pos"
+        }
+      ],
+      "expected": "T:0-2 A+blank-pos@2-2 A- T:2-4"
+    },
+    {
+      "name": "point/end-of-source",
+      "source": "a\n",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 2
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 2,
+            "end": 2
+          },
+          "data": "trailing"
+        }
+      ],
+      "expected": "T:0-2 A+trailing@2-2 A-"
+    },
+    {
+      "name": "point/start-of-source",
+      "source": "ab",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 2
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 0,
+            "end": 0
+          },
+          "data": "leading"
+        }
+      ],
+      "expected": "A+leading@0-0 A- T:0-2"
+    },
+    {
+      "name": "point/inside-scope",
+      "source": "let total = 1;",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        },
+        {
+          "type": "start",
+          "scope": "variable",
+          "language": "rust"
+        },
+        {
+          "type": "source",
+          "startByte": 4,
+          "endByte": 9
+        },
+        {
+          "type": "end"
+        },
+        {
+          "type": "source",
+          "startByte": 9,
+          "endByte": 14
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 6,
+            "end": 6
+          },
+          "data": "caret"
+        }
+      ],
+      "expected": "T:0-4 S:variable T:4-6 A+caret@6-6 A- T:6-9 E T:9-14"
+    },
+    {
+      "name": "point/nested-in-span-start",
+      "source": "abcd",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 1,
+            "end": 3
+          },
+          "data": "span"
+        },
+        {
+          "range": {
+            "type": "offset",
+            "start": 1,
+            "end": 1
+          },
+          "data": "point"
+        }
+      ],
+      "expected": "T:0-1 A+span@1-3 A+point@1-1 A- T:1-3 A- T:3-4"
+    },
+    {
+      "name": "point/at-span-end",
+      "source": "abcd",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 1,
+            "end": 3
+          },
+          "data": "span"
+        },
+        {
+          "range": {
+            "type": "offset",
+            "start": 3,
+            "end": 3
+          },
+          "data": "point"
+        }
+      ],
+      "expected": "T:0-1 A+span@1-3 T:1-3 A- A+point@3-3 A- T:3-4"
+    },
+    {
+      "name": "point/several-at-one-offset",
+      "source": "abcd",
+      "events": [
+        {
+          "type": "source",
+          "startByte": 0,
+          "endByte": 4
+        }
+      ],
+      "annotations": [
+        {
+          "range": {
+            "type": "offset",
+            "start": 2,
+            "end": 2
+          },
+          "data": "first"
+        },
+        {
+          "range": {
+            "type": "offset",
+            "start": 2,
+            "end": 2
+          },
+          "data": "second"
+        }
+      ],
+      "expected": "T:0-2 A+first@2-2 A- A+second@2-2 A- T:2-4"
+    }
+  ]
+}

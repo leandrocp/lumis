@@ -1,5 +1,5 @@
 import { HIGHLIGHT_NAMES } from "../highlights.js";
-import type { HighlightEvent } from "../types.js";
+import type { SyntaxHighlightEvent } from "../types.js";
 
 const SOURCE_EVENT = 0;
 const START_EVENT = 1;
@@ -22,9 +22,9 @@ function requireBytes(offset: number, count: number, length: number): void {
  * - start  (1): scope index as u16 LE, language byte length as u16 LE, UTF-8 language
  * - end    (2): no payload
  */
-export function decodeNativeEvents(data: Uint8Array): HighlightEvent[] {
+export function decodeNativeEvents(data: Uint8Array): SyntaxHighlightEvent[] {
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
-  const events: HighlightEvent[] = [];
+  const events: SyntaxHighlightEvent[] = [];
   let offset = 0;
 
   while (offset < data.byteLength) {

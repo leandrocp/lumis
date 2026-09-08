@@ -163,11 +163,11 @@ impl Default for HtmlInline {
     }
 }
 
-impl Formatter for HtmlInline {
+impl<T> Formatter<T> for HtmlInline {
     fn render(
         &self,
         source: &str,
-        events: &[HighlightEvent],
+        events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
         let mut buffer = Vec::new();

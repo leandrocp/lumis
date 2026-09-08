@@ -93,7 +93,7 @@ This is also the base for advanced custom formatters.
 ```rust
 use lumis::{highlight::{highlight_iter_with_options, HighlightOptions}, languages::Language};
 
-let options = HighlightOptions { rainbow_brackets: true };
+let options = HighlightOptions::new().rainbow_brackets(true);
 
 highlight_iter_with_options(source, Language::Rust, None, options, |text, _language, _range, scope, _style| {
     // scope is punctuation.bracket.rainbow.1 .. .6 on bracket pairs
