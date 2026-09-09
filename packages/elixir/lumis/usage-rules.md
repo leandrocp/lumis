@@ -518,6 +518,12 @@ calls the same Rust the built-in formatters call:
 `span_attrs/1` and `classes/0` return whole tables because resolving a scope is
 a per-token operation. Build the table once outside the loop and read it inside.
 
+Do not hand-roll ANSI color or text-decoration escape sequences either.
+`Lumis.Formatter.ANSI` calls the same Rust helpers as `:terminal`:
+
+- `hex_to_rgb/1`, `rgb_to_ansi/4`
+- `style_to_ansi/1`, `paint/2`, `reset/0`
+
 ## HTML Output Structure
 
 Lumis generates semantic HTML with line wrappers:

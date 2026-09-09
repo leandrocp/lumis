@@ -147,9 +147,9 @@ Implement the [`Lumis.Formatter`](https://hexdocs.pm/lumis/Lumis.Formatter.html)
 behaviour and pass the module as the formatter. Lumis highlights the source and
 hands `render/3` the event stream, with the resolved language in `options`.
 
-[`Lumis.Formatter.HTML`](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) has
-the same pieces `lumis::formatters::html` and `@lumis-sh/lumis/formatters/html`
-do.
+[`Lumis.Formatter.HTML`](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) and
+[`Lumis.Formatter.ANSI`](https://hexdocs.pm/lumis/Lumis.Formatter.ANSI.html) have
+the same HTML and terminal pieces the built-in formatters use.
 
 ```elixir
 defmodule MinimalHtmlFormatter do
@@ -284,6 +284,7 @@ name JavaScript's event carries directly.
 | Rust | `lumis::formatters::html` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/html/index.html) |
 | Rust | `lumis::formatters::ansi` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/ansi/index.html) |
 | Elixir | `Lumis.Formatter.HTML` | [hexdocs](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) |
+| Elixir | `Lumis.Formatter.ANSI` | [hexdocs](https://hexdocs.pm/lumis/Lumis.Formatter.ANSI.html) |
 
 ## Tip
 

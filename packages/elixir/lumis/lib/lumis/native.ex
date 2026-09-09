@@ -79,6 +79,12 @@ defmodule Lumis.Native do
   def highlight(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
   def highlight_events(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
 
+  def ansi_hex_to_rgb(_hex), do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_rgb_to_ansi(_r, _g, _b, _is_background), do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_style_to_ansi(_style), do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_paint(_text, _style), do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_reset, do: :erlang.nif_error(:nif_not_loaded)
+
   def html_escape(_text), do: :erlang.nif_error(:nif_not_loaded)
   def html_escape_braces(_text), do: :erlang.nif_error(:nif_not_loaded)
   def html_classes, do: :erlang.nif_error(:nif_not_loaded)

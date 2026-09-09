@@ -267,18 +267,7 @@ impl From<ExTheme> for themes::Theme {
             highlights: theme
                 .highlights
                 .into_iter()
-                .map(|(k, v)| {
-                    (
-                        k,
-                        themes::Style {
-                            fg: v.fg,
-                            bg: v.bg,
-                            bold: v.bold,
-                            italic: v.italic,
-                            text_decoration: v.text_decoration.into(),
-                        },
-                    )
-                })
+                .map(|(name, style)| (name, style.into()))
                 .collect(),
         }
     }
@@ -399,6 +388,18 @@ pub struct ExStyle {
     pub bold: bool,
     pub italic: bool,
     pub text_decoration: ExTextDecoration,
+}
+
+impl From<ExStyle> for themes::Style {
+    fn from(style: ExStyle) -> Self {
+        themes::Style {
+            fg: style.fg,
+            bg: style.bg,
+            bold: style.bold,
+            italic: style.italic,
+            text_decoration: style.text_decoration.into(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
