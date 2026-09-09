@@ -1,7 +1,7 @@
 //! `BBCode` formatter for syntax highlighting.
 //!
 //! This module provides the [`BBCodeScoped`] formatter that generates `BBCode` output with
-//! highlight scope names as tags (e.g., `[keyword-function]text[/keyword-function]`).
+//! highlight scope names as tags (e.g., `[keyword-function-rust]text[/keyword-function-rust]`).
 //!
 //! It does not emit standard forum-style `BBCode` such as `[b]`, `[color]`, or `[code]`.
 //!
@@ -16,8 +16,9 @@ use std::io::{self, Write};
 /// `BBCode` formatter for syntax highlighting using highlight scope names as tags.
 ///
 /// Generates `BBCode` output using scope-based tags derived from tree-sitter scope names.
-/// Dots in scope names are converted to hyphens (e.g., `keyword.function` becomes
-/// `[keyword-function]...[/keyword-function]`).
+/// A tag is the scope and the language it was matched in, with the dots turned into
+/// hyphens: `keyword.function` in Rust becomes
+/// `[keyword-function-rust]...[/keyword-function-rust]`.
 /// It does not emit standard forum-style `BBCode` tags.
 ///
 /// Use [`BBCodeScopedBuilder`] to create instances.
@@ -27,7 +28,7 @@ use std::io::{self, Write};
 /// For the Rust code `fn main() {}`, the formatter generates:
 ///
 /// ```text
-/// [keyword-function]fn[/keyword-function] [function]main[/function][punctuation-bracket]([/punctuation-bracket][punctuation-bracket])[/punctuation-bracket] [punctuation-bracket]{[/punctuation-bracket][punctuation-bracket]}[/punctuation-bracket]
+/// [keyword-function-rust]fn[/keyword-function-rust] [function-rust]main[/function-rust][punctuation-bracket-rust]([/punctuation-bracket-rust][punctuation-bracket-rust])[/punctuation-bracket-rust] [punctuation-bracket-rust]{[/punctuation-bracket-rust][punctuation-bracket-rust]}[/punctuation-bracket-rust]
 /// ```
 #[derive(Builder, Clone, Debug)]
 #[builder(default)]

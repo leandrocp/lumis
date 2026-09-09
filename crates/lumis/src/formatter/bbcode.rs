@@ -1,9 +1,9 @@
 //! `BBCode` formatter for syntax highlighting.
 //!
 //! This module re-exports the [`BBCodeScoped`] formatter that generates `BBCode` output with
-//! highlight scope names as tags (e.g., `[keyword-function]text[/keyword-function]`).
-//! Dots in scope names are converted to hyphens (e.g., `keyword.function` becomes
-//! `[keyword-function]...[/keyword-function]`).
+//! highlight scope names as tags. A tag is the scope and the language it was matched
+//! in, with the dots turned into hyphens: `keyword.function` in Rust becomes
+//! `[keyword-function-rust]...[/keyword-function-rust]`.
 //!
 //! It does not emit standard forum-style `BBCode` such as `[b]`, `[color]`, or `[code]`.
 //!
@@ -12,12 +12,12 @@
 //! For the Rust code `fn main() {}`, the formatter generates:
 //!
 //! ```text
-//! [keyword-function]fn[/keyword-function] [function]main[/function][punctuation-bracket]([/punctuation-bracket][punctuation-bracket])[/punctuation-bracket] [punctuation-bracket]{[/punctuation-bracket][punctuation-bracket]}[/punctuation-bracket]
+//! [keyword-function-rust]fn[/keyword-function-rust] [function-rust]main[/function-rust][punctuation-bracket-rust]([/punctuation-bracket-rust][punctuation-bracket-rust])[/punctuation-bracket-rust] [punctuation-bracket-rust]{[/punctuation-bracket-rust][punctuation-bracket-rust]}[/punctuation-bracket-rust]
 //! ```
 //!
 //! # Example
 //!
-//! ```rust,ignore
+//! ```rust
 //! use lumis::{BBCodeScopedBuilder, languages::Language};
 //!
 //! let code = "fn main() { println!(\"Hello\"); }";
@@ -30,6 +30,8 @@
 //! let mut output = Vec::new();
 //! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let bbcode = String::from_utf8(output).unwrap();
+//!
+//! assert!(bbcode.starts_with("[keyword-function-rust]fn[/keyword-function-rust]"));
 //! ```
 //!
 //! See the [formatter](crate::formatter) module for more information and examples.
