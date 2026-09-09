@@ -68,7 +68,7 @@ Convert highlighted tokens into output:
 | HTML Linked | `<span class="l-keyword">` |
 | HTML Multi-Themes | `<span style="--lumis-light:#333; --lumis-dark:#ccc;">` |
 | Terminal | ANSI escape codes |
-| BBCode Scoped | `[keyword-function-rust]main[/keyword-function-rust]` |
+| BBCode Scoped | `[keyword-function-rust]fn[/keyword-function-rust]` |
 
 ## Crate structure
 
