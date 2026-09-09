@@ -10,13 +10,15 @@ defmodule MarkFormatter do
   @moduledoc false
   @behaviour Lumis.Formatter
 
+  alias Lumis.Formatter.HTML
+
   @impl true
   def render(source, events, _options) do
     # `:annotation_end` carries no payload, so keep a stack of what was opened.
     {output, []} =
       Enum.map_reduce(events, [], fn
         {:start, %{scope: scope}}, open ->
-          {~s(<span class="#{scope_class(scope)}">), open}
+          {"<span #{HTML.span_linked_attrs(scope)}>", open}
 
         :end, open ->
           {"</span>", open}
@@ -29,13 +31,13 @@ defmodule MarkFormatter do
 
         # A point opens and closes with nothing between it.
         {:annotation_start, %{data: %{type: :note, label: label}}}, open ->
-          {~s(<i data-note="#{escape(label)}">), ["i" | open]}
+          {~s(<i data-note="#{HTML.escape(label)}">), ["i" | open]}
 
         :annotation_end, [tag | open] ->
           {"</#{tag}>", open}
 
         {:source, %{start: start, end: stop}}, open ->
-          {escape(binary_part(source, start, stop - start)), open}
+          {HTML.escape(binary_part(source, start, stop - start)), open}
 
         # Lumis adds event kinds over time. Render the ones you know and skip
         # the rest, or a newer Lumis raises FunctionClauseError here.
@@ -44,18 +46,6 @@ defmodule MarkFormatter do
       end)
 
     output
-  end
-
-  defp scope_class(scope), do: "l-" <> String.replace(scope, ".", "-")
-
-  # Lumis has no Elixir HTML helpers yet — see leandrocp/lumis#1359.
-  defp escape(text) do
-    text
-    |> String.replace("&", "&amp;")
-    |> String.replace("<", "&lt;")
-    |> String.replace(">", "&gt;")
-    |> String.replace("\"", "&quot;")
-    |> String.replace("'", "&#39;")
   end
 end
 

@@ -402,7 +402,7 @@ pub struct ExStyle {
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
-#[module = "Lumis.HtmlElement"]
+#[module = "Lumis.HTMLElement"]
 pub struct ExHtmlElement {
     pub open_tag: String,
     pub close_tag: String,
@@ -444,7 +444,7 @@ pub enum ExHtmlInlineHighlightLinesStyle {
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
-#[module = "Lumis.HtmlInlineHighlightLines"]
+#[module = "Lumis.HTMLInlineHighlightLines"]
 pub struct ExHtmlInlineHighlightLines {
     pub lines: Vec<ExLineSpec>,
     pub style: Option<ExHtmlInlineHighlightLinesStyle>,
@@ -452,7 +452,7 @@ pub struct ExHtmlInlineHighlightLines {
 }
 
 #[derive(Clone, Debug, Default, NifStruct)]
-#[module = "Lumis.HtmlLinkedHighlightLines"]
+#[module = "Lumis.HTMLLinkedHighlightLines"]
 pub struct ExHtmlLinkedHighlightLines {
     pub lines: Vec<ExLineSpec>,
     pub class: String,

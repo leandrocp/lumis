@@ -749,7 +749,7 @@ defmodule Lumis do
         class = hl[:class]
 
         opts
-        |> Keyword.put(:highlight_lines, %Lumis.HtmlInlineHighlightLines{
+        |> Keyword.put(:highlight_lines, %Lumis.HTMLInlineHighlightLines{
           lines: lines,
           style: style,
           class: class
@@ -774,7 +774,7 @@ defmodule Lumis do
         class = hl[:class] || "l-highlighted"
 
         opts
-        |> Keyword.put(:highlight_lines, %Lumis.HtmlLinkedHighlightLines{
+        |> Keyword.put(:highlight_lines, %Lumis.HTMLLinkedHighlightLines{
           lines: lines,
           class: class
         })
@@ -790,7 +790,7 @@ defmodule Lumis do
 
       %{open_tag: open_tag, close_tag: close_tag} ->
         opts
-        |> Keyword.put(:header, %Lumis.HtmlElement{
+        |> Keyword.put(:header, %Lumis.HTMLElement{
           open_tag: open_tag,
           close_tag: close_tag
         })
@@ -1130,7 +1130,12 @@ defmodule Lumis do
       {:error, _reason} = error ->
         describe_highlight_error(error)
 
-      {:ok, events} ->
+      {:ok, language, events} ->
+        # `:language` is whatever the caller named, which is nothing when they
+        # let Lumis detect it. A formatter has to label its output, so it is
+        # handed the language highlighting actually used.
+        formatter_options = Keyword.put(formatter_options, :language, language)
+
         output =
           formatter.render(source, events, formatter_options)
           |> IO.iodata_to_binary()

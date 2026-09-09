@@ -401,7 +401,7 @@ export interface HighlightOptions<T = unknown> {
  */
 export type SyntaxHighlightEvent =
   | { type: "start"; scope: string; language: string }
-  | { type: "source"; startByte: number; endByte: number }
+  | { type: "source"; start: number; end: number }
   | { type: "end" };
 
 /** A unified syntax and caller-provided annotation event. */
@@ -459,7 +459,7 @@ export type HighlightIterFn = (
  *
  *     return events
  *       .filter(event => event.type === 'source')
- *       .map(event => decoder.decode(bytes.subarray(event.startByte, event.endByte)))
+ *       .map(event => decoder.decode(bytes.subarray(event.start, event.end)))
  *       .join('')
  *   },
  * }

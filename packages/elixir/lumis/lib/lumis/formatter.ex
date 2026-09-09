@@ -14,6 +14,17 @@ defmodule Lumis.Formatter do
   Without that clause a newer Lumis raises `FunctionClauseError` rather than
   rendering. The built-in formatters do the same thing with annotations, which
   they cannot render without knowing the caller's data.
+
+  ## Options
+
+  `render/3` receives the options the formatter was given, plus `:language`,
+  which is always the language highlighting **actually used**. A caller who
+  named none gets the detected one rather than `nil`, so a formatter can label
+  its output without running detection a second time:
+
+      def render(source, events, options) do
+        Lumis.Formatter.HTML.open_code_tag(Keyword.fetch!(options, :language))
+      end
   """
 
   @typedoc "A syntax or caller-provided annotation event."

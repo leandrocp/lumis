@@ -455,7 +455,11 @@ pub(crate) fn highlight_events<'a>(
         .map(|event| event.encode(env))
         .collect::<Vec<_>>();
 
-    Ok((ok(), events).encode(env))
+    // The resolved language rides along because detection happened here. A
+    // formatter needs it to label its output, and asking Elixir to guess again
+    // would run detection over the whole source a second time to reach an answer
+    // this call already has.
+    Ok((ok(), language.id_name(), events).encode(env))
 }
 
 /// Reads the tagged tuples `Lumis.annotations_type/1` normalizes to:
@@ -744,6 +748,116 @@ fn build_theme_css(theme: &themes::Theme, options: ExCssOptions) -> String {
     builder.container_style(options.container_style);
 
     builder.build()
+}
+
+/// `lumis_core::formatter::html`, reachable from Elixir.
+///
+/// A formatter written in Elixir needs the same pieces the built-in HTML
+/// formatters are assembled from. These hand them over rather than let every
+/// formatter grow its own copy, which is how `examples/annotations.exs` shipped
+/// an `escape` missing `'` and a `scope_to_class` that could not express the
+/// `l-text` fallback at all.
+///
+/// The split is by call frequency, not by taste. What a formatter calls once per
+/// document crosses the boundary as a call. The two things it calls once per
+/// token cross once per document as a table instead, because 5000 NIF calls to
+/// look up a constant is not what reusing the Rust core should cost.
+#[rustler::nif]
+fn html_escape(text: &str) -> String {
+    lumis_core::formatter::html::escape(text)
+}
+
+#[rustler::nif]
+fn html_escape_braces(text: &str) -> String {
+    lumis_core::formatter::html::escape_braces(text)
+}
+
+/// Every highlight scope and the class `:html_linked` gives it.
+///
+/// `scope_to_class` is a lookup into two generated 293-row tables, so Elixir
+/// cannot spell it without copying them. The whole table crosses once instead.
+#[rustler::nif]
+fn html_classes() -> HashMap<&'static str, String> {
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .map(|scope| (*scope, lumis_core::formatter::html::scope_to_class(scope)))
+        .collect()
+}
+
+/// Every scope's `<span>` attributes for one theme, language and option set.
+///
+/// The per-token counterpart of [`html_classes`]. `span_inline_attrs` resolves a
+/// scope against a theme, and sending the theme across the boundary once per
+/// token to do that would cost more than the highlighting did. There are only
+/// ever 293 answers, so all of them come back at once.
+#[rustler::nif]
+fn html_span_attrs(
+    theme: Option<ExTheme>,
+    language: &str,
+    italic: bool,
+    include_highlights: bool,
+) -> HashMap<&'static str, String> {
+    let theme = theme.map(themes::Theme::from);
+    let language = Language::guess(Some(language), "");
+
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .map(|scope| {
+            let attrs = lumis_core::formatter::html::span_inline_attrs(
+                Some(language),
+                scope,
+                theme.as_ref(),
+                italic,
+                include_highlights,
+            );
+            (*scope, attrs)
+        })
+        .collect()
+}
+
+#[rustler::nif]
+fn html_open_pre_tag(pre_class: Option<String>, theme: Option<ExTheme>) -> NifResult<String> {
+    let theme = theme.map(themes::Theme::from);
+    let mut output = Vec::new();
+    lumis_core::formatter::html::open_pre_tag(&mut output, pre_class.as_deref(), theme.as_ref())
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_open_code_tag(language: &str) -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::open_code_tag(&mut output, &Language::guess(Some(language), ""))
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_closing_tags() -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::closing_tags(&mut output)
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_wrap_line(
+    line_number: usize,
+    content: &str,
+    class_suffix: Option<String>,
+    style: Option<String>,
+) -> String {
+    lumis_core::formatter::html::wrap_line(
+        line_number,
+        content,
+        class_suffix.as_deref(),
+        style.as_deref(),
+    )
+}
+
+fn html_utf8(output: Vec<u8>) -> NifResult<String> {
+    String::from_utf8(output)
+        .map_err(|error| Error::Term(Box::new(format!("invalid HTML helper output: {error}"))))
 }
 
 #[cfg(test)]

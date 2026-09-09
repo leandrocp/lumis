@@ -146,7 +146,7 @@ const formatter: Formatter<Change> = {
       } else if (event.type === 'annotationEnd') {
         out.push(`</${open.pop()}>`)
       } else if (event.type === 'source') {
-        out.push(decoder.decode(bytes.subarray(event.startByte, event.endByte)))
+        out.push(decoder.decode(bytes.subarray(event.start, event.end)))
       }
       // 'start' and 'end' carry the syntax scopes
     }

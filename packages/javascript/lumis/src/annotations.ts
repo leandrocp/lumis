@@ -294,7 +294,7 @@ function emitPoints<T>(
  * syntax layers around each piece so the emitted stream stays nested.
  */
 function composeSourceEvent<T>(
-  event: { startByte: number; endByte: number },
+  event: { start: number; end: number },
   state: ComposeState<T>,
   boundaries: BoundaryTable,
   activeAnnotations: Set<number>,
@@ -306,13 +306,13 @@ function composeSourceEvent<T>(
     boundaries,
     activeAnnotations,
     state.boundaryIndex,
-    event.startByte,
+    event.start,
   );
 
-  let cursor = event.startByte;
-  while (cursor < event.endByte) {
+  let cursor = event.start;
+  while (cursor < event.end) {
     const boundary = boundaries.offsets[state.boundaryIndex];
-    const next = boundary !== undefined && boundary < event.endByte ? boundary : event.endByte;
+    const next = boundary !== undefined && boundary < event.end ? boundary : event.end;
 
     state.activeLayers = transitionLayers(
       output,
@@ -322,7 +322,7 @@ function composeSourceEvent<T>(
     emitPoints(output, boundaries, annotations, state.pendingPoints, cursor);
 
     if (cursor < next) {
-      output.push({ type: "source", startByte: cursor, endByte: next });
+      output.push({ type: "source", start: cursor, end: next });
     }
     cursor = next;
 

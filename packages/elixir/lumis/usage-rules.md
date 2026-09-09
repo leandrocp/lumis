@@ -467,6 +467,57 @@ Lumis.highlight!(code,
 
 Both `:open_tag` and `:close_tag` are required when using `:header`.
 
+### Custom Formatters
+
+When no built-in formatter emits what you need, implement `Lumis.Formatter` and
+pass the module. Lumis highlights the source and hands `render/3` the event
+stream, with the resolved language in `options`.
+
+```elixir
+defmodule MyFormatter do
+  @behaviour Lumis.Formatter
+
+  alias Lumis.Formatter.HTML
+
+  @impl true
+  def render(source, events, options) do
+    language = Keyword.fetch!(options, :language)
+    theme = Keyword.get(options, :theme)
+    attrs = HTML.span_attrs(theme: theme, language: language)
+
+    body =
+      Enum.map(events, fn
+        {:start, %{scope: scope}} -> HTML.open_span(attrs, scope)
+        :end -> "</span>"
+        {:source, %{start: start, end: stop}} ->
+          HTML.escape(binary_part(source, start, stop - start))
+
+        # Always keep this clause. Lumis adds event kinds as it grows, and
+        # without it a newer Lumis raises FunctionClauseError instead of
+        # rendering.
+        _event -> []
+      end)
+
+    [HTML.open_pre_tag(theme: theme), HTML.open_code_tag(language), body, HTML.closing_tags()]
+  end
+end
+
+Lumis.highlight!(code, formatter: {MyFormatter, language: "elixir", theme: "github_light"})
+```
+
+`render/3` returns iodata; Lumis flattens it once at the end.
+
+Do not hand-roll HTML escaping or scope-to-class mapping. `Lumis.Formatter.HTML`
+calls the same Rust the built-in formatters call:
+
+- `escape/1`, `escape_braces/1`
+- `scope_to_class/1`, `span_linked_attrs/1`, `span_linked/2`
+- `span_attrs/1`, `open_span/2`, `span_inline_attrs/2`, `span_inline/3`
+- `open_pre_tag/1`, `open_code_tag/1`, `closing_tags/0`, `wrap_line/3`
+
+`span_attrs/1` and `classes/0` return whole tables because resolving a scope is
+a per-token operation. Build the table once outside the loop and read it inside.
+
 ## HTML Output Structure
 
 Lumis generates semantic HTML with line wrappers:
@@ -705,6 +756,9 @@ highlight_lines: %{lines: [1, 2]}
 
 # Highlight and raise on error
 html = Lumis.highlight!(source, opts)
+
+# Render the event stream yourself
+html = Lumis.highlight!(source, formatter: {MyFormatter, language: "elixir"})
 
 # Get all available languages
 [%{id: _} | _] = Lumis.available_languages()

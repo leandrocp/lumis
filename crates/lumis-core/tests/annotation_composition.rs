@@ -30,16 +30,8 @@ struct Case {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 enum SyntaxEvent {
-    Start {
-        scope: String,
-        language: String,
-    },
-    Source {
-        #[serde(rename = "startByte")]
-        start_byte: usize,
-        #[serde(rename = "endByte")]
-        end_byte: usize,
-    },
+    Start { scope: String, language: String },
+    Source { start: usize, end: usize },
     End,
 }
 
@@ -92,12 +84,9 @@ fn render(source: &str, case: &Case) -> String {
                 scope_index: scope_index(scope),
                 language: language.clone(),
             },
-            SyntaxEvent::Source {
-                start_byte,
-                end_byte,
-            } => HighlightEvent::Source {
-                start: *start_byte,
-                end: *end_byte,
+            SyntaxEvent::Source { start, end } => HighlightEvent::Source {
+                start: *start,
+                end: *end,
             },
             SyntaxEvent::End => HighlightEvent::End,
         })

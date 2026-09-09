@@ -164,11 +164,11 @@ describe("formatter shared helpers", () => {
       "a\nb",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 1 },
+        { type: "source", start: 0, end: 1 },
         { type: "end" },
-        { type: "source", startByte: 1, endByte: 2 },
+        { type: "source", start: 1, end: 2 },
         { type: "start", scope: "number", language: "json" },
-        { type: "source", startByte: 2, endByte: 3 },
+        { type: "source", start: 2, end: 3 },
         { type: "end" },
       ],
       jsonLang,
@@ -190,7 +190,7 @@ describe("formatter shared helpers", () => {
       "ab\ncd",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 5 },
+        { type: "source", start: 0, end: 5 },
         { type: "end" },
       ],
       jsonLang,
@@ -211,7 +211,7 @@ describe("formatter shared helpers", () => {
       "a\nb",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 3 },
+        { type: "source", start: 0, end: 3 },
         { type: "end" },
       ],
       jsonLang,
@@ -233,7 +233,7 @@ describe("formatter shared helpers", () => {
       "a\nb",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 3 },
+        { type: "source", start: 0, end: 3 },
         { type: "end" },
       ],
       (scope) => `class="${scope}"`,
@@ -247,9 +247,9 @@ describe("formatter shared helpers", () => {
       "ab",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 1 },
+        { type: "source", start: 0, end: 1 },
         { type: "start", scope: "unstyled", language: "json" },
-        { type: "source", startByte: 1, endByte: 2 },
+        { type: "source", start: 1, end: 2 },
         { type: "end" },
         { type: "end" },
       ],
@@ -264,7 +264,7 @@ describe("formatter shared helpers", () => {
       "a\nb",
       [
         { type: "start", scope: "unstyled", language: "json" },
-        { type: "source", startByte: 0, endByte: 3 },
+        { type: "source", start: 0, end: 3 },
         { type: "end" },
       ],
       () => "",
@@ -278,7 +278,7 @@ describe("formatter shared helpers", () => {
       "ab",
       [
         { type: "start", scope: "unstyled", language: "json" },
-        { type: "source", startByte: 0, endByte: 2 },
+        { type: "source", start: 0, end: 2 },
         { type: "end" },
       ],
       () => {},
@@ -292,7 +292,7 @@ describe("formatter shared helpers", () => {
       "a\n<b>",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 5 },
+        { type: "source", start: 0, end: 5 },
         { type: "end" },
       ],
       (scope, _language, out) => {

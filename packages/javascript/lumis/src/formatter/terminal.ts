@@ -116,7 +116,7 @@ export function formatTerminal(
       continue;
     }
 
-    const text = decodeSourceSlice(sourceBytes, event.startByte, event.endByte);
+    const text = decodeSourceSlice(sourceBytes, event.start, event.end);
     const style = activeStyle(scopeStack, formatter.theme);
 
     if (fallbackBg === undefined) {

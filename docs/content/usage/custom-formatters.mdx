@@ -2,11 +2,12 @@
 sidebar_position: 3
 slug: /formatters/custom
 title: Custom Formatters
-description: Build your own output format on top of Lumis tokens in Rust and JavaScript.
+description: Build your own output format on top of Lumis tokens in Rust, JavaScript and Elixir.
 keywords:
   - lumis custom formatters
   - formatter trait
   - highlightIter
+  - Lumis.Formatter
   - custom html
 ---
 
@@ -126,7 +127,7 @@ const formatter: Formatter = {
       } else if (event.type === 'end') {
         scopes.pop()
       } else if (event.type === 'source') {
-        const text = decoder.decode(bytes.subarray(event.startByte, event.endByte))
+        const text = decoder.decode(bytes.subarray(event.start, event.end))
         const scope = scopes[scopes.length - 1]
         parts.push(scope ? spanInline(text, {language: 'rust', scope, theme: frappe}) : text)
       }
@@ -139,6 +140,65 @@ const formatter: Formatter = {
 
 const html = hl.highlight('fn main() {}', formatter)
 ```
+
+## Elixir
+
+Implement the [`Lumis.Formatter`](https://hexdocs.pm/lumis/Lumis.Formatter.html)
+behaviour and pass the module as the formatter. Lumis highlights the source and
+hands `render/3` the event stream, with the resolved language in `options`.
+
+[`Lumis.Formatter.HTML`](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) has
+the same pieces `lumis::formatters::html` and `@lumis-sh/lumis/formatters/html`
+do.
+
+```elixir
+defmodule MinimalHtmlFormatter do
+  @behaviour Lumis.Formatter
+
+  alias Lumis.Formatter.HTML
+
+  @impl true
+  def render(source, events, options) do
+    language = Keyword.fetch!(options, :language)
+    theme = Keyword.get(options, :theme)
+
+    # Resolving a scope against a theme is a table lookup, so build the table
+    # once here rather than crossing into Rust once per token.
+    attrs = HTML.span_attrs(theme: theme, language: language)
+
+    body =
+      Enum.map(events, fn
+        {:start, %{scope: scope}} ->
+          HTML.open_span(attrs, scope)
+
+        :end ->
+          "</span>"
+
+        {:source, %{start: start, end: stop}} ->
+          HTML.escape(binary_part(source, start, stop - start))
+
+        # Lumis adds event kinds as it grows. Render the ones you know and skip
+        # the rest, or a newer Lumis raises FunctionClauseError here.
+        _event ->
+          []
+      end)
+
+    [
+      HTML.open_pre_tag(theme: theme),
+      HTML.open_code_tag(language),
+      body,
+      HTML.closing_tags()
+    ]
+  end
+end
+
+Lumis.highlight!("defmodule App do\nend",
+  formatter: {MinimalHtmlFormatter, language: "elixir", theme: "github_light"}
+)
+```
+
+`render/3` returns iodata, so there is no need to flatten it into a binary;
+Lumis does that once at the end.
 
 ## Highlight options
 
@@ -223,6 +283,7 @@ name JavaScript's event carries directly.
 | JavaScript | `@lumis-sh/lumis/formatters/ansi` | [source](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/formatter/ansi.ts) |
 | Rust | `lumis::formatters::html` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/html/index.html) |
 | Rust | `lumis::formatters::ansi` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/ansi/index.html) |
+| Elixir | `Lumis.Formatter.HTML` | [hexdocs](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) |
 
 ## Tip
 

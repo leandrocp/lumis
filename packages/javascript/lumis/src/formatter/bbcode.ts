@@ -34,7 +34,7 @@ export function formatBBCode(source: string, events: readonly HighlightEvent[]):
       continue;
     }
 
-    const text = decodeSourceSlice(sourceBytes, event.startByte, event.endByte);
+    const text = decodeSourceSlice(sourceBytes, event.start, event.end);
     parts.push(escapeBbcodeText(text));
   }
 

@@ -1025,7 +1025,7 @@ export function formatHighlightIterLines(
     } else if (event.type === "source") {
       // The document's language is the outermost span's, once one is open.
       language = resolveDocumentLanguage(language, stack);
-      const text = decodeSourceSlice(sourceBytes, event.startByte, event.endByte);
+      const text = decodeSourceSlice(sourceBytes, event.start, event.end);
       renderSourceEvent(lines, text, stack, formatText, options.openSpan, closeSpan, theme);
     }
   }
@@ -1110,7 +1110,7 @@ export function renderEvents(
       continue;
     }
 
-    const text = decodeSourceSlice(sourceBytes, event.startByte, event.endByte);
+    const text = decodeSourceSlice(sourceBytes, event.start, event.end);
     for (let i = 0; i < text.length; i += 1) {
       const char = text[i]!;
       push(escapeChar(char));

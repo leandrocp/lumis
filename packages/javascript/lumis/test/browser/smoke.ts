@@ -315,9 +315,7 @@ async function run(): Promise<void> {
           depth -= 1;
           balancedEvents &&= depth >= 0;
         } else {
-          reconstructedSource += decoder.decode(
-            sourceBytes.subarray(event.startByte, event.endByte),
-          );
+          reconstructedSource += decoder.decode(sourceBytes.subarray(event.start, event.end));
         }
       }
       balancedEvents &&= depth === 0;
