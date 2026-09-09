@@ -455,7 +455,11 @@ pub(crate) fn highlight_events<'a>(
         .map(|event| event.encode(env))
         .collect::<Vec<_>>();
 
-    Ok((ok(), events).encode(env))
+    // The resolved language rides along because detection happened here. A
+    // formatter needs it to label its output, and asking Elixir to guess again
+    // would run detection over the whole source a second time to reach an answer
+    // this call already has.
+    Ok((ok(), language.id_name(), events).encode(env))
 }
 
 /// Reads the tagged tuples `Lumis.annotations_type/1` normalizes to:

@@ -1130,7 +1130,13 @@ defmodule Lumis do
       {:error, _reason} = error ->
         describe_highlight_error(error)
 
-      {:ok, events} ->
+      {:ok, language, events} ->
+        # `:language` is whatever the caller named, which is nothing when they
+        # let Lumis detect it. A formatter has to label its output, so it is
+        # handed the language highlighting actually used, the way Rust's
+        # `Formatter::language()` and JavaScript's `this.language` do.
+        formatter_options = Keyword.put(formatter_options, :language, language)
+
         output =
           formatter.render(source, events, formatter_options)
           |> IO.iodata_to_binary()
