@@ -78,4 +78,18 @@ defmodule Lumis.Native do
   def loaded_languages, do: :erlang.nif_error(:nif_not_loaded)
   def highlight(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
   def highlight_events(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_escape(_text), do: :erlang.nif_error(:nif_not_loaded)
+  def html_escape_braces(_text), do: :erlang.nif_error(:nif_not_loaded)
+  def html_classes, do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_span_attrs(_theme, _language, _italic, _include_highlights),
+    do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_open_pre_tag(_pre_class, _theme), do: :erlang.nif_error(:nif_not_loaded)
+  def html_open_code_tag(_language), do: :erlang.nif_error(:nif_not_loaded)
+  def html_closing_tags, do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_wrap_line(_line_number, _content, _class_suffix, _style),
+    do: :erlang.nif_error(:nif_not_loaded)
 end

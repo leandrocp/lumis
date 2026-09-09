@@ -59,6 +59,10 @@ shebang. The theme is optional too, but there is no default: without one,
 Formatters decide the output: `:html_inline`, `:html_linked`,
 `:html_multi_themes`, `:terminal`, `:bbcode_scoped`, or your own.
 
+For your own, implement `Lumis.Formatter` and build the markup with
+`Lumis.Formatter.HTML`, which holds the same pieces the built-in HTML formatters
+are assembled from. See [custom formatters](https://lumis.sh/docs/formatters/custom).
+
 ## Parsers
 
 Highlighting downloads, verifies and loads whatever a document needs, including
@@ -101,6 +105,7 @@ to use the mirror when GitHub is down, see
 
 - [Elixir integration](https://lumis.sh/docs/usage/elixir) — configuration, releases, Phoenix
 - [Formatters](https://lumis.sh/docs/formatters) — every formatter and its options
+- [Custom formatters](https://lumis.sh/docs/formatters/custom) — render the event stream yourself
 - [Annotations](https://lumis.sh/docs/formatters/annotations) — compose your own ranges into the event stream
 - [Themes](https://lumis.sh/docs/themes) — the theme list, custom themes, CSS files
 - [Languages](https://lumis.sh/docs/reference/languages) — what is supported and how detection works
