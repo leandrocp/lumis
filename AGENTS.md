@@ -363,6 +363,7 @@ Large parts of the repository are generated from shared inputs such as `language
 - Edit the source inputs, not generated outputs, unless the generated file is the intended source.
 - For query changes, treat `queries/upstream/` as fetched source material, `queries/override/` as full replacements, and `queries/append/` as additive local patches.
 - Regenerate checked-in artifacts with the documented `mise run` workflows.
+- When generated or vendored files are added, removed, moved, or reclassified, update `.gitattributes` in the same change. For content-only updates, verify that its existing patterns still cover every affected path.
 - Keep Rust, JavaScript, Elixir, docs, fixtures, and generated metadata in sync.
 
 ## Verification
