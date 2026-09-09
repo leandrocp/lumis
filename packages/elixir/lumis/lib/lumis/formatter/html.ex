@@ -2,14 +2,12 @@ defmodule Lumis.Formatter.HTML do
   @moduledoc """
   The HTML pieces the built-in formatters are assembled from.
 
-  The Elixir counterpart of `lumis::formatters::html` in Rust and
-  `@lumis-sh/lumis/formatters/html` in JavaScript. A module implementing
-  `Lumis.Formatter` gets an event stream and has to turn it into markup; these
-  are the parts of that job worth not writing again.
+  A module implementing `Lumis.Formatter` gets an event stream and has to turn
+  it into markup; these are the parts of that job worth not writing again.
 
-  Every function here calls into the same Rust that the built-in `:html_inline`
-  and `:html_linked` formatters call, so output built with them is styled by the
-  same theme stylesheets and escapes the same characters.
+  Every function here calls into the same code the built-in `:html_inline` and
+  `:html_linked` formatters use, so output built with them is styled by the same
+  theme stylesheets and escapes the same characters.
 
   ## Example
 
@@ -42,15 +40,6 @@ defmodule Lumis.Formatter.HTML do
           ]
         end
       end
-
-  ## Where the work happens
-
-  Everything below is Rust. What a formatter calls once per document crosses the
-  NIF boundary as a call; the two things it calls once per *token* — resolving a
-  scope to a class, and resolving a scope to a theme's inline style — cross once
-  per document as a table, because a NIF call per token to look up a constant
-  costs more than the highlighting did. `classes/0` and `span_attrs/1` return
-  those tables; `scope_to_class/1` and `open_span/2` read them.
   """
 
   alias Lumis.Native

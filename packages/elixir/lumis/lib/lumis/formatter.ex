@@ -25,9 +25,6 @@ defmodule Lumis.Formatter do
       def render(source, events, options) do
         Lumis.Formatter.HTML.open_code_tag(Keyword.fetch!(options, :language))
       end
-
-  This is the counterpart of `Formatter::language()` in Rust and `this.language`
-  in JavaScript.
   """
 
   @typedoc "A syntax or caller-provided annotation event."
