@@ -1,0 +1,160 @@
+{
+  "$comment": [
+    "HTML attribute escaping, pinned between Rust and the TypeScript port.",
+    "",
+    "`crates/lumis-core/src/formatter/html.rs` and",
+    "`packages/javascript/lumis/src/formatter/html.ts` build the same tags. Rust",
+    "used to interpolate attribute values raw while JavaScript routed every one",
+    "through `escapeAttr`, so the same class or theme colour produced two",
+    "different documents (#1378). Rust is the reference; `expected` is one string",
+    "both runtimes must produce.",
+    "",
+    "Two values reach these helpers from outside the binary, and both are covered",
+    "here: a caller-supplied class or style (`pre_class`, `highlight_lines`), and",
+    "a theme, which is data loaded from JSON at run time.",
+    "",
+    "`helper` selects which tag a case builds:",
+    "  preTag           `<pre>` from `preClass` and `theme`",
+    "  spanInline       `<span>` from `text`, `scope`, `theme`, `includeHighlights`",
+    "  spanMultiThemes  `<span>` from `text`, `scope`, `themes`, `defaultTheme`",
+    "  line             the opening `<div>` of a line from `lineClass` and `lineStyle`",
+    "",
+    "`line` is the one case checked as a prefix rather than in full: Rust's",
+    "`wrap_line` takes the trailing newline in `content` and the TypeScript",
+    "`wrapLine` appends it, so the two agree on the tag but not on what follows it.",
+    "",
+    "`theme` and the values of `themes` name an entry in `themes` below rather",
+    "than repeating it, so a colour is written once."
+  ],
+  "themes": {
+    "evil": {
+      "name": "evil",
+      "appearance": "dark",
+      "revision": "fixture",
+      "highlights": {
+        "normal": { "fg": "red\" onmouseover=\"alert(1)", "bg": "#101010" },
+        "keyword": { "fg": "red\" onmouseover=\"alert(1)" }
+      }
+    },
+    "quoted-font": {
+      "name": "quoted-font",
+      "appearance": "light",
+      "revision": "fixture",
+      "highlights": {
+        "normal": { "fg": "#1f2328", "bg": "#ffffff" },
+        "keyword": { "fg": "#0550ae" }
+      }
+    }
+  },
+  "cases": [
+    {
+      "name": "pre/plain",
+      "helper": "preTag",
+      "expected": "<pre class=\"lumis\">"
+    },
+    {
+      "name": "pre/ordinary-theme-is-unchanged",
+      "helper": "preTag",
+      "preClass": "my-code",
+      "theme": "quoted-font",
+      "expected": "<pre class=\"lumis my-code\" style=\"color: #1f2328; background-color: #ffffff;\">"
+    },
+    {
+      "name": "pre/caller-class-closes-the-attribute",
+      "helper": "preTag",
+      "preClass": "x\"><script>",
+      "expected": "<pre class=\"lumis x&quot;&gt;&lt;script&gt;\">"
+    },
+    {
+      "name": "pre/caller-class-with-apostrophe",
+      "helper": "preTag",
+      "preClass": "it's-fine",
+      "expected": "<pre class=\"lumis it&#39;s-fine\">"
+    },
+    {
+      "name": "pre/theme-colour-closes-the-attribute",
+      "helper": "preTag",
+      "theme": "evil",
+      "expected": "<pre class=\"lumis\" style=\"color: red&quot; onmouseover=&quot;alert(1); background-color: #101010;\">"
+    },
+    {
+      "name": "span/no-theme-escapes-only-the-text",
+      "helper": "spanInline",
+      "text": "<b>&\"",
+      "scope": "keyword",
+      "expected": "<span>&lt;b&gt;&amp;&quot;</span>"
+    },
+    {
+      "name": "span/ordinary-theme-is-unchanged",
+      "helper": "spanInline",
+      "text": "fn",
+      "scope": "keyword",
+      "theme": "quoted-font",
+      "expected": "<span style=\"color: #0550ae;\">fn</span>"
+    },
+    {
+      "name": "span/theme-colour-closes-the-attribute",
+      "helper": "spanInline",
+      "text": "fn",
+      "scope": "keyword",
+      "theme": "evil",
+      "expected": "<span style=\"color: red&quot; onmouseover=&quot;alert(1);\">fn</span>"
+    },
+    {
+      "name": "span/theme-colour-with-data-highlight",
+      "helper": "spanInline",
+      "text": "fn",
+      "scope": "keyword",
+      "theme": "evil",
+      "includeHighlights": true,
+      "expected": "<span data-highlight=\"keyword\" style=\"color: red&quot; onmouseover=&quot;alert(1);\">fn</span>"
+    },
+    {
+      "name": "multi-themes/theme-colour-closes-the-attribute",
+      "helper": "spanMultiThemes",
+      "text": "fn",
+      "scope": "keyword",
+      "themes": { "evil": "evil" },
+      "expected": "<span style=\"--lumis-evil:red&quot; onmouseover=&quot;alert(1); --lumis-evil-font-style:normal; --lumis-evil-font-weight:normal; --lumis-evil-text-decoration:none;\">fn</span>"
+    },
+    {
+      "name": "multi-themes/named-default-theme-colour",
+      "helper": "spanMultiThemes",
+      "text": "fn",
+      "scope": "keyword",
+      "themes": { "evil": "evil" },
+      "defaultTheme": "evil",
+      "expected": "<span style=\"color:red&quot; onmouseover=&quot;alert(1); --lumis-evil-font-style:normal; --lumis-evil-font-weight:normal; --lumis-evil-text-decoration:none;\">fn</span>"
+    },
+    {
+      "name": "line/plain",
+      "helper": "line",
+      "expected": "<div class=\"l-line\" data-line=\"1\">"
+    },
+    {
+      "name": "line/ordinary-class-and-style-are-unchanged",
+      "helper": "line",
+      "lineClass": "highlighted",
+      "lineStyle": "background-color: #fffbdd;",
+      "expected": "<div class=\"l-line highlighted\" style=\"background-color: #fffbdd;\" data-line=\"1\">"
+    },
+    {
+      "name": "line/caller-class-closes-the-attribute",
+      "helper": "line",
+      "lineClass": "x\"><script>",
+      "expected": "<div class=\"l-line x&quot;&gt;&lt;script&gt;\" data-line=\"1\">"
+    },
+    {
+      "name": "line/caller-style-closes-the-attribute",
+      "helper": "line",
+      "lineStyle": "color: red\" onmouseover=\"alert(1)",
+      "expected": "<div class=\"l-line\" style=\"color: red&quot; onmouseover=&quot;alert(1)\" data-line=\"1\">"
+    },
+    {
+      "name": "line/quoted-font-family-survives",
+      "helper": "line",
+      "lineStyle": "font-family: 'Fira Code';",
+      "expected": "<div class=\"l-line\" style=\"font-family: &#39;Fira Code&#39;;\" data-line=\"1\">"
+    }
+  ]
+}
