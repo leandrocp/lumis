@@ -1,14 +1,14 @@
-defmodule Lumis.HtmlElement do
+defmodule Lumis.HTMLElement do
   @moduledoc false
   defstruct open_tag: nil, close_tag: nil
 end
 
-defmodule Lumis.HtmlInlineHighlightLines do
+defmodule Lumis.HTMLInlineHighlightLines do
   @moduledoc false
   defstruct lines: [], style: :theme, class: nil
 end
 
-defmodule Lumis.HtmlLinkedHighlightLines do
+defmodule Lumis.HTMLLinkedHighlightLines do
   @moduledoc false
   defstruct lines: [], class: "l-highlighted"
 end

@@ -1463,7 +1463,7 @@ defmodule Lumis.LumisTest do
                  {:html_inline,
                   %{
                     header: nil,
-                    highlight_lines: %Lumis.HtmlInlineHighlightLines{},
+                    highlight_lines: %Lumis.HTMLInlineHighlightLines{},
                     include_highlights: false,
                     italic: false,
                     pre_class: nil,
@@ -1480,7 +1480,7 @@ defmodule Lumis.LumisTest do
                formatter:
                  {:html_inline,
                   %{
-                    header: %Lumis.HtmlElement{open_tag: "<div>", close_tag: "</div>"},
+                    header: %Lumis.HTMLElement{open_tag: "<div>", close_tag: "</div>"},
                     highlight_lines: nil,
                     include_highlights: false,
                     italic: false,
