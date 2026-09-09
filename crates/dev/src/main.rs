@@ -4267,6 +4267,36 @@ mod tests {
         path
     }
 
+    /// `execve` reports `ETXTBSY` for a file any process still holds open for
+    /// writing. Nothing here keeps a stub open, but `cargo test` runs the rest
+    /// of the suite on sibling threads, and a child one of them forks inherits
+    /// whatever descriptors are open at that instant — including the one
+    /// `stub_tree_sitter` writes through. `O_CLOEXEC` only closes it once that
+    /// child reaches its own `execve`, so the stub is unrunnable until then and
+    /// retrying is what clears it. Distinct stub paths do not: the race is in
+    /// writing a file and then executing it, not in reusing the name.
+    #[cfg(unix)]
+    fn build_with_stub(stub: &Path, dir: &Path, log: &Path) -> Result<()> {
+        for _ in 0..100 {
+            let result = build_repo_wasm_with(
+                stub.to_str().unwrap(),
+                dir.to_str().unwrap(),
+                &dir.join("out.wasm"),
+                log,
+            );
+            let busy = result
+                .as_ref()
+                .err()
+                .and_then(|error| error.downcast_ref::<std::io::Error>())
+                .is_some_and(|error| error.kind() == std::io::ErrorKind::ExecutableFileBusy);
+            if !busy {
+                return result;
+            }
+            thread::sleep(Duration::from_millis(10));
+        }
+        panic!("{} stayed busy for a second", stub.display());
+    }
+
     // This used to pass through `sh -c ... | tee`, whose exit status is `tee`'s.
     // A failed build reported success and the caller printed the path of a wasm
     // that was never written.
@@ -4279,24 +4309,17 @@ mod tests {
         let failed_stub = stub_tree_sitter(&dir, 1);
         let succeeded_stub = stub_tree_sitter(&dir, 0);
 
-        let failed = build_repo_wasm_with(
-            failed_stub.to_str().unwrap(),
-            dir.to_str().unwrap(),
-            &dir.join("out.wasm"),
-            &log,
+        let failed = build_with_stub(&failed_stub, &dir, &log);
+        assert!(
+            failed.is_err(),
+            "a nonzero exit status must be an error: {failed:?}"
         );
-        assert!(failed.is_err(), "a nonzero exit status must be an error");
         assert!(
             fs::read_to_string(&log).unwrap().contains("stub compiler"),
             "a failed build still has to leave its output in the log"
         );
 
-        let succeeded = build_repo_wasm_with(
-            succeeded_stub.to_str().unwrap(),
-            dir.to_str().unwrap(),
-            &dir.join("out.wasm"),
-            &log,
-        );
+        let succeeded = build_with_stub(&succeeded_stub, &dir, &log);
 
         let _ = fs::remove_dir_all(&dir);
         assert!(
