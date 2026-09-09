@@ -36,7 +36,7 @@ export function decodeNativeEvents(data: Uint8Array): SyntaxHighlightEvent[] {
         const startByte = view.getUint32(offset, true);
         const endByte = view.getUint32(offset + 4, true);
         offset += SOURCE_EVENT_BYTES;
-        events.push({ type: "source", startByte, endByte });
+        events.push({ type: "source", start: startByte, end: endByte });
         break;
       }
       case START_EVENT: {

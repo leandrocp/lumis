@@ -127,7 +127,7 @@ const formatter: Formatter = {
       } else if (event.type === 'end') {
         scopes.pop()
       } else if (event.type === 'source') {
-        const text = decoder.decode(bytes.subarray(event.startByte, event.endByte))
+        const text = decoder.decode(bytes.subarray(event.start, event.end))
         const scope = scopes[scopes.length - 1]
         parts.push(scope ? spanInline(text, {language: 'rust', scope, theme: frappe}) : text)
       }

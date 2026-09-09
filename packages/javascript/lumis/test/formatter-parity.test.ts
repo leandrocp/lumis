@@ -23,7 +23,7 @@ const theme: Theme = {
 };
 
 function sourceEvents(source: string): HighlightEvent[] {
-  return [{ type: "source", startByte: 0, endByte: Buffer.byteLength(source) }];
+  return [{ type: "source", start: 0, end: Buffer.byteLength(source) }];
 }
 
 function terminalFormatter(options: Partial<TerminalFormatter>): TerminalFormatter {

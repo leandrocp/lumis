@@ -40,7 +40,7 @@ describe("annotations", () => {
           }
           if (event.type === "annotationEnd") output.push("</annotation>");
           if (event.type === "source") {
-            output.push(decoder.decode(bytes.subarray(event.startByte, event.endByte)));
+            output.push(decoder.decode(bytes.subarray(event.start, event.end)));
           }
         }
 
@@ -107,7 +107,7 @@ describe("annotations", () => {
               resolvedRange = event.annotation.range;
             }
             if (event.type === "source") {
-              return decoder.decode(sourceBytes.subarray(event.startByte, event.endByte));
+              return decoder.decode(sourceBytes.subarray(event.start, event.end));
             }
             return "";
           })
@@ -169,7 +169,7 @@ describe("annotations", () => {
           if (event.type === "annotationStart") parts.push(`<mark:${event.annotation.data.id}>`);
           else if (event.type === "annotationEnd") parts.push("</mark>");
           else if (event.type === "source") {
-            parts.push(decoder.decode(bytes.subarray(event.startByte, event.endByte)));
+            parts.push(decoder.decode(bytes.subarray(event.start, event.end)));
           }
         }
         return parts.join("");

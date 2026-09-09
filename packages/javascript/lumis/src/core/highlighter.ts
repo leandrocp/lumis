@@ -225,7 +225,7 @@ function runHighlightIter(
 // The innermost open span decides a token's scope and language; a token outside
 // any span carries the document's language and no scope.
 function emitToken(
-  event: { startByte: number; endByte: number },
+  event: { start: number; end: number },
   scopeStack: Array<{ scope: string; language: string }>,
   bytes: Uint8Array,
   theme: Theme | undefined,
@@ -237,9 +237,9 @@ function emitToken(
   const tokenLanguage = active?.language ?? documentLanguage;
 
   onToken(
-    decodeSlice(bytes, event.startByte, event.endByte),
+    decodeSlice(bytes, event.start, event.end),
     tokenLanguage,
-    { start: event.startByte, end: event.endByte },
+    { start: event.start, end: event.end },
     scope,
     scope.length > 0 ? getScopedThemeStyle(theme, scope, tokenLanguage) : undefined,
   );

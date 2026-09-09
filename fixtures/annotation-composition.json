@@ -26,8 +26,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         },
         {
           "type": "start",
@@ -36,16 +36,16 @@
         },
         {
           "type": "source",
-          "startByte": 4,
-          "endByte": 9
+          "start": 4,
+          "end": 9
         },
         {
           "type": "end"
         },
         {
           "type": "source",
-          "startByte": 9,
-          "endByte": 14
+          "start": 9,
+          "end": 14
         }
       ],
       "annotations": [],
@@ -57,8 +57,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 14
+          "start": 0,
+          "end": 14
         }
       ],
       "annotations": [
@@ -79,8 +79,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         },
         {
           "type": "start",
@@ -89,16 +89,16 @@
         },
         {
           "type": "source",
-          "startByte": 4,
-          "endByte": 9
+          "start": 4,
+          "end": 9
         },
         {
           "type": "end"
         },
         {
           "type": "source",
-          "startByte": 9,
-          "endByte": 14
+          "start": 9,
+          "end": 14
         }
       ],
       "annotations": [
@@ -119,8 +119,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         },
         {
           "type": "start",
@@ -129,16 +129,16 @@
         },
         {
           "type": "source",
-          "startByte": 4,
-          "endByte": 9
+          "start": 4,
+          "end": 9
         },
         {
           "type": "end"
         },
         {
           "type": "source",
-          "startByte": 9,
-          "endByte": 14
+          "start": 9,
+          "end": 14
         }
       ],
       "annotations": [
@@ -159,8 +159,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         },
         {
           "type": "start",
@@ -169,16 +169,16 @@
         },
         {
           "type": "source",
-          "startByte": 4,
-          "endByte": 9
+          "start": 4,
+          "end": 9
         },
         {
           "type": "end"
         },
         {
           "type": "source",
-          "startByte": 9,
-          "endByte": 14
+          "start": 9,
+          "end": 14
         }
       ],
       "annotations": [
@@ -199,8 +199,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 14
+          "start": 0,
+          "end": 14
         }
       ],
       "annotations": [
@@ -229,8 +229,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 14
+          "start": 0,
+          "end": 14
         }
       ],
       "annotations": [
@@ -259,8 +259,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 14
+          "start": 0,
+          "end": 14
         }
       ],
       "annotations": [
@@ -289,8 +289,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 14
+          "start": 0,
+          "end": 14
         }
       ],
       "annotations": [
@@ -319,8 +319,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 14
+          "start": 0,
+          "end": 14
         }
       ],
       "annotations": [
@@ -347,8 +347,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 21
+          "start": 0,
+          "end": 21
         }
       ],
       "annotations": [
@@ -375,8 +375,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 21
+          "start": 0,
+          "end": 21
         }
       ],
       "annotations": [
@@ -403,8 +403,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 16
+          "start": 0,
+          "end": 16
         }
       ],
       "annotations": [
@@ -425,8 +425,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 16
+          "start": 0,
+          "end": 16
         }
       ],
       "annotations": [
@@ -447,8 +447,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 14
+          "start": 0,
+          "end": 14
         }
       ],
       "annotations": [
@@ -469,8 +469,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 14
+          "start": 0,
+          "end": 14
         }
       ],
       "annotations": [
@@ -497,8 +497,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         }
       ],
       "annotations": [
@@ -519,8 +519,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         }
       ],
       "annotations": [
@@ -547,8 +547,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 2
+          "start": 0,
+          "end": 2
         }
       ],
       "annotations": [
@@ -569,8 +569,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 2
+          "start": 0,
+          "end": 2
         }
       ],
       "annotations": [
@@ -591,8 +591,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         },
         {
           "type": "start",
@@ -601,16 +601,16 @@
         },
         {
           "type": "source",
-          "startByte": 4,
-          "endByte": 9
+          "start": 4,
+          "end": 9
         },
         {
           "type": "end"
         },
         {
           "type": "source",
-          "startByte": 9,
-          "endByte": 14
+          "start": 9,
+          "end": 14
         }
       ],
       "annotations": [
@@ -631,8 +631,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         }
       ],
       "annotations": [
@@ -661,8 +661,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         }
       ],
       "annotations": [
@@ -691,8 +691,8 @@
       "events": [
         {
           "type": "source",
-          "startByte": 0,
-          "endByte": 4
+          "start": 0,
+          "end": 4
         }
       ],
       "annotations": [

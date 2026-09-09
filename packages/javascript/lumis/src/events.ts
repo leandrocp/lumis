@@ -71,8 +71,8 @@ export interface HighlightStartEvent {
 
 export interface HighlightSourceEvent {
   type: "source";
-  startByte: number;
-  endByte: number;
+  start: number;
+  end: number;
 }
 
 export interface HighlightEndEvent {
@@ -931,7 +931,7 @@ function applyRainbowBrackets(
       continue;
     }
 
-    while (rangeIndex < ranges.length && ranges[rangeIndex]!.endByte <= event.startByte) {
+    while (rangeIndex < ranges.length && ranges[rangeIndex]!.endByte <= event.start) {
       rangeIndex += 1;
     }
 
@@ -945,30 +945,30 @@ function applyRainbowBrackets(
 // range it wholly contains. A range that straddles the event is left to the
 // event that does contain it.
 function splitSourceEvent(
-  event: { type: "source"; startByte: number; endByte: number },
+  event: { type: "source"; start: number; end: number },
   ranges: Array<{ startByte: number; endByte: number; scope: string }>,
   rangeIndex: number,
   languageId: string,
 ): HighlightEvent[] {
   const output: HighlightEvent[] = [];
-  let cursor = event.startByte;
+  let cursor = event.start;
 
   for (let index = rangeIndex; index < ranges.length; index += 1) {
     const range = ranges[index]!;
-    if (range.startByte >= event.endByte) break;
-    if (range.startByte < event.startByte || range.endByte > event.endByte) continue;
+    if (range.startByte >= event.end) break;
+    if (range.startByte < event.start || range.endByte > event.end) continue;
 
     if (cursor < range.startByte) {
-      output.push({ type: "source", startByte: cursor, endByte: range.startByte });
+      output.push({ type: "source", start: cursor, end: range.startByte });
     }
     output.push({ type: "start", scope: range.scope, language: languageId });
-    output.push({ type: "source", startByte: range.startByte, endByte: range.endByte });
+    output.push({ type: "source", start: range.startByte, end: range.endByte });
     output.push({ type: "end" });
     cursor = range.endByte;
   }
 
-  if (cursor < event.endByte) {
-    output.push({ type: "source", startByte: cursor, endByte: event.endByte });
+  if (cursor < event.end) {
+    output.push({ type: "source", start: cursor, end: event.end });
   }
 
   return output;
@@ -1273,7 +1273,7 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
 
   function emitSource(endByte: number): void {
     if (endByte > cursor) {
-      events.push({ type: "source", startByte: cursor, endByte });
+      events.push({ type: "source", start: cursor, end: endByte });
       cursor = endByte;
     }
   }

@@ -1436,7 +1436,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       options: { rainbowBrackets?: boolean } = {},
     ): SyntaxHighlightEvent[] {
       if (language.definition.id === PLAINTEXT_LANG_ID) {
-        return [{ type: "source", startByte: 0, endByte: encoder.encode(source).byteLength }];
+        return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
       }
       if (options.rainbowBrackets && !language.brackets) {
         const compile = this.bracketCompilers.get(language);

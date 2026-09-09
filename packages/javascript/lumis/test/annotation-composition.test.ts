@@ -40,7 +40,7 @@ function render(testCase: Case): string {
           case "start":
             return `S:${event.scope}`;
           case "source":
-            return `T:${event.startByte}-${event.endByte}`;
+            return `T:${event.start}-${event.end}`;
           case "end":
             return "E";
           case "annotationEnd":

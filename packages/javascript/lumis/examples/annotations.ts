@@ -53,7 +53,7 @@ const formatter: Formatter<Mark> = {
       } else if (event.type === "annotationEnd") {
         out.push(`</${open.pop()}>`);
       } else {
-        out.push(escape(decoder.decode(bytes.subarray(event.startByte, event.endByte))));
+        out.push(escape(decoder.decode(bytes.subarray(event.start, event.end))));
       }
     }
 

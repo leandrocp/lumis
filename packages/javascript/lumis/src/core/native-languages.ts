@@ -442,7 +442,7 @@ export function createNativeLanguagesModule(
     ): SyntaxHighlightEvent[] {
       rejectReentrantHighlight();
       if (language.definition.id === PLAINTEXT_LANG_ID) {
-        return [{ type: "source", startByte: 0, endByte: encoder.encode(source).byteLength }];
+        return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
       }
       const hasResolvers = hasResolverOverride(this.resolverState);
       const highlighted = this.native.highlightEvents(
