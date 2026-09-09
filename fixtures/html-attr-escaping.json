@@ -59,7 +59,7 @@
       "highlights": {
         "normal": { "fg": "#c0c0c0", "bg": "#101010" },
         "keyword": { "fg": "red\" data-scope=\"generic" },
-        "keyword.rust": { "fg": "red\" data-scope=\"rust" }
+        "keyword.diff": { "fg": "red\" data-scope=\"diff" }
       }
     }
   },
@@ -131,9 +131,9 @@
       "helper": "spanInline",
       "text": "fn",
       "scope": "keyword",
-      "language": "rust",
+      "language": "diff",
       "theme": "specialized",
-      "expected": "<span style=\"color: red&quot; data-scope=&quot;rust;\">fn</span>"
+      "expected": "<span style=\"color: red&quot; data-scope=&quot;diff;\">fn</span>"
     },
     {
       "name": "span/language-falls-back-to-the-generic-scope",
