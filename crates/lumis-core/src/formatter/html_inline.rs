@@ -164,6 +164,10 @@ impl Default for HtmlInline {
 }
 
 impl<T> Formatter<T> for HtmlInline {
+    fn language(&self) -> Language {
+        self.language
+    }
+
     fn render(
         &self,
         source: &str,

@@ -96,6 +96,10 @@ fn tag_name(scope_index: usize, language: &str) -> String {
 }
 
 impl<T> Formatter<T> for BBCodeScoped {
+    fn language(&self) -> Language {
+        self.language
+    }
+
     fn render(
         &self,
         source: &str,

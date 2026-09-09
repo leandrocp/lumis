@@ -272,6 +272,10 @@ impl HtmlMultiThemes {
 }
 
 impl<T> Formatter<T> for HtmlMultiThemes {
+    fn language(&self) -> Language {
+        self.language
+    }
+
     fn render(
         &self,
         source: &str,

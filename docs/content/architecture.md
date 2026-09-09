@@ -73,8 +73,8 @@ Convert highlighted tokens into output:
 ## Crate structure
 
 ```text
-lumis-core        internal: language detection, theme/style logic, formatter behavior
-lumis             public Rust API, Tree-sitter adapter, builder patterns
+lumis-core        internal: language detection, theme/style logic, the formatters and their builders
+lumis             public Rust API, Tree-sitter adapter, re-exports the formatters
 lumis-cli         CLI binary
 lumis-build       build-time code generation
 lumis-wasm-runtime shared Tree-sitter WASM engine, lazy registry, and bounded worker pool
