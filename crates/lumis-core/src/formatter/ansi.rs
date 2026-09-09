@@ -16,9 +16,9 @@ pub fn hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
         return None;
     }
 
-    let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
-    let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
-    let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+    let r = u8::from_str_radix(hex.get(0..2)?, 16).ok()?;
+    let g = u8::from_str_radix(hex.get(2..4)?, 16).ok()?;
+    let b = u8::from_str_radix(hex.get(4..6)?, 16).ok()?;
 
     Some((r, g, b))
 }
@@ -124,6 +124,7 @@ mod tests {
     fn test_hex_to_rgb_invalid() {
         assert_eq!(hex_to_rgb("invalid"), None);
         assert_eq!(hex_to_rgb("#fff"), None);
+        assert_eq!(hex_to_rgb("aéaaa"), None);
         assert_eq!(hex_to_rgb(""), None);
     }
 
