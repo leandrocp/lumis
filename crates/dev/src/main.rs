@@ -4257,7 +4257,7 @@ mod tests {
     fn stub_tree_sitter(dir: &Path, code: i32) -> PathBuf {
         use std::os::unix::fs::PermissionsExt as _;
 
-        let path = dir.join("tree-sitter-stub");
+        let path = dir.join(format!("tree-sitter-stub-{code}"));
         fs::write(
             &path,
             format!("#!/bin/sh\necho 'stub compiler' >&2\nexit {code}\n"),
@@ -4276,9 +4276,11 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("lumis-build-status-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
         let log = dir.join("build.log");
+        let failed_stub = stub_tree_sitter(&dir, 1);
+        let succeeded_stub = stub_tree_sitter(&dir, 0);
 
         let failed = build_repo_wasm_with(
-            stub_tree_sitter(&dir, 1).to_str().unwrap(),
+            failed_stub.to_str().unwrap(),
             dir.to_str().unwrap(),
             &dir.join("out.wasm"),
             &log,
@@ -4290,14 +4292,17 @@ mod tests {
         );
 
         let succeeded = build_repo_wasm_with(
-            stub_tree_sitter(&dir, 0).to_str().unwrap(),
+            succeeded_stub.to_str().unwrap(),
             dir.to_str().unwrap(),
             &dir.join("out.wasm"),
             &log,
         );
 
         let _ = fs::remove_dir_all(&dir);
-        assert!(succeeded.is_ok(), "a zero exit status must succeed");
+        assert!(
+            succeeded.is_ok(),
+            "a zero exit status must succeed: {succeeded:?}"
+        );
     }
 
     #[test]
