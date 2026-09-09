@@ -7,11 +7,13 @@
 //! a bug in the port rather than something to record.
 
 use lumis_core::formatter::html;
+use lumis_core::languages::Language;
 use lumis_core::themes::Theme;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+use std::str::FromStr as _;
 
 #[derive(Debug, Deserialize)]
 struct Manifest {
@@ -29,6 +31,11 @@ struct Case {
     text: String,
     #[serde(default)]
     scope: String,
+    /// The same string the port passes, so both resolve the same specialized
+    /// scope. Rust's argument is optional and the port's is not, so leaving it
+    /// to each side would have them look up different scopes.
+    #[serde(default = "plaintext")]
+    language: String,
     #[serde(default)]
     theme: Option<String>,
     #[serde(default)]
@@ -54,6 +61,10 @@ enum Helper {
     Line,
 }
 
+fn plaintext() -> String {
+    "plaintext".to_string()
+}
+
 fn manifest() -> Manifest {
     let path =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/html-attr-escaping.json");
@@ -67,6 +78,11 @@ fn theme(manifest: &Manifest, key: &str) -> Theme {
         .get(key)
         .unwrap_or_else(|| panic!("`{key}` is not a fixture theme"));
     lumis_core::themes::from_json(&source.to_string()).expect("fixture themes are well-formed")
+}
+
+fn language(case: &Case) -> Language {
+    Language::from_str(&case.language)
+        .unwrap_or_else(|_| panic!("`{}` is not a language", case.language))
 }
 
 fn render(manifest: &Manifest, case: &Case) -> String {
@@ -83,7 +99,7 @@ fn render(manifest: &Manifest, case: &Case) -> String {
         }
         Helper::SpanInline => html::span_inline(
             &case.text,
-            None,
+            Some(language(case)),
             &case.scope,
             case.theme.as_ref().map(|key| theme(manifest, key)).as_ref(),
             false,
@@ -99,7 +115,7 @@ fn render(manifest: &Manifest, case: &Case) -> String {
             html::span_multi_themes(
                 &case.text,
                 &case.scope,
-                None,
+                Some(language(case)),
                 &themes,
                 case.default_theme.as_deref(),
                 "--lumis",
@@ -137,6 +153,7 @@ fn covers_both_vectors_that_reach_an_attribute() {
         "multi-themes/theme-colour-closes-the-attribute",
         "line/caller-class-closes-the-attribute",
         "line/caller-style-closes-the-attribute",
+        "span/language-specialized-theme-colour",
     ] {
         assert!(
             names.contains(&required),

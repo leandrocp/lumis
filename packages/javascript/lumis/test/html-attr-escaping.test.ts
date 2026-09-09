@@ -20,6 +20,12 @@ interface Case {
   expected: string;
   text?: string;
   scope?: string;
+  /**
+   * The same string Rust passes, so both resolve the same specialized scope.
+   * Rust's argument is optional and this port's is not, so leaving it to each
+   * side would have them look up different scopes.
+   */
+  language?: string;
   theme?: string;
   includeHighlights?: boolean;
   themes?: Record<string, string>;
@@ -54,7 +60,7 @@ const RENDERERS: Record<Helper, (testCase: Case) => string> = {
 
   spanInline: (testCase) =>
     spanInline(testCase.text ?? "", {
-      language: "plaintext",
+      language: testCase.language ?? "plaintext",
       scope: testCase.scope ?? "",
       theme: themeOf(testCase),
       italic: false,
@@ -63,7 +69,7 @@ const RENDERERS: Record<Helper, (testCase: Case) => string> = {
 
   spanMultiThemes: (testCase) =>
     spanMultiThemes(testCase.text ?? "", {
-      language: "plaintext",
+      language: testCase.language ?? "plaintext",
       scope: testCase.scope ?? "",
       themes: themesOf(testCase),
       defaultTheme: testCase.defaultTheme,
@@ -92,6 +98,7 @@ describe("html attribute escaping parity", () => {
       "multi-themes/theme-colour-closes-the-attribute",
       "line/caller-class-closes-the-attribute",
       "line/caller-style-closes-the-attribute",
+      "span/language-specialized-theme-colour",
     ]) {
       expect(names, `the corpus lost its \`${required}\` case`).toContain(required);
     }
