@@ -1,6 +1,8 @@
 defmodule Lumis.Formatter.ANSITest do
   use ExUnit.Case, async: true
 
+  doctest Lumis.Formatter.ANSI
+
   alias Lumis.Formatter.ANSI
   alias Lumis.Theme
   alias Lumis.Theme.Style
