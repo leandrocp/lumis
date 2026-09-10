@@ -85,6 +85,9 @@ defmodule Lumis.Formatter.ANSITest do
     assert ANSI.hex_to_rgb("fff") == nil
     assert ANSI.hex_to_rgb("not-a-color") == nil
     assert ANSI.hex_to_rgb("aéaaa") == nil
+    # Six digits is the whole string, not a prefix of it.
+    assert ANSI.hex_to_rgb("ff79cz") == nil
+    assert ANSI.hex_to_rgb("ff+79c") == nil
 
     {r, g, b} = rgb
     assert ANSI.style_to_ansi(%Style{fg: "#ff79c6"}) == ANSI.rgb_to_ansi(r, g, b, false)

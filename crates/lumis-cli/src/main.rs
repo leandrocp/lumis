@@ -9,6 +9,7 @@ use formatter_options::{
     OPTSET_GLOBAL, OPTSET_HTML, OPTSET_MULTI_THEME, OPTSET_STYLED, OPTSET_TERMINAL,
 };
 use lumis_core::events::HighlightEvent as CoreHighlightEvent;
+use lumis_core::formatter::ansi::hex_to_rgb;
 use lumis_core::formatter::Formatter as CoreFormatter;
 use lumis_core::formatter::TerminalBackground;
 use lumis_core::languages::Language;
@@ -835,24 +836,11 @@ fn guess_terminal_theme() -> Option<String> {
 fn closest_builtin_theme(background: (u8, u8, u8)) -> Option<String> {
     lumis_core::themes::available_themes()
         .filter_map(|theme| {
-            let theme_background = theme.bg().and_then(parse_hex_color)?;
+            let theme_background = theme.bg().and_then(hex_to_rgb)?;
             Some((color_distance(background, theme_background), &theme.name))
         })
         .min_by_key(|(distance, _)| *distance)
         .map(|(_, name)| name.clone())
-}
-
-fn parse_hex_color(color: &str) -> Option<(u8, u8, u8)> {
-    let color = color.strip_prefix('#')?;
-    if color.len() != 6 {
-        return None;
-    }
-
-    Some((
-        u8::from_str_radix(&color[0..2], 16).ok()?,
-        u8::from_str_radix(&color[2..4], 16).ok()?,
-        u8::from_str_radix(&color[4..6], 16).ok()?,
-    ))
 }
 
 // Redmean color distance weights RGB channels based on human perception.
@@ -1962,13 +1950,6 @@ mod tests {
             closest_builtin_theme((0x22, 0x24, 0x36)).as_deref(),
             Some("tokyonight_moon")
         );
-    }
-
-    #[test]
-    fn parse_hex_color_rejects_invalid_values() {
-        assert_eq!(parse_hex_color("#282a36"), Some((0x28, 0x2a, 0x36)));
-        assert_eq!(parse_hex_color("282a36"), None);
-        assert_eq!(parse_hex_color("#fff"), None);
     }
 
     #[test]

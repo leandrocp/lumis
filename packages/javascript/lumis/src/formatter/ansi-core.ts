@@ -3,8 +3,17 @@ import type { HighlightStyle } from "../types.js";
 /** ANSI reset escape sequence. */
 export const ANSI_RESET = "\u001B[0m";
 
+/** Exactly six hex digits, which is what `hex_to_rgb` accepts in Rust. */
+const HEX_COLOR = /^[0-9a-fA-F]{6}$/;
+
 /**
  * Parse a hex color string to RGB components.
+ *
+ * Testing the whole string is what keeps this equal to Rust's
+ * `u8::from_str_radix`, which rejects a component it cannot consume entirely.
+ * `Number.parseInt` instead takes the longest valid prefix and returns `NaN`
+ * only when there is none, so `'ff79cz'` used to read as `[255, 121, 12]` here
+ * and as no color at all in the built-in terminal formatter.
  *
  * ```ts
  * hexToRgb('#ff79c6')  // [255, 121, 198]
@@ -12,18 +21,15 @@ export const ANSI_RESET = "\u001B[0m";
  * ```
  */
 export function hexToRgb(hex: string): [number, number, number] | undefined {
-  const normalized = hex.startsWith("#") ? hex.slice(1) : hex;
-  if (normalized.length !== 6) return undefined;
+  // Rust trims with `trim_start_matches('#')`, which drops every leading `#`.
+  const normalized = hex.replace(/^#+/, "");
+  if (!HEX_COLOR.test(normalized)) return undefined;
 
-  const r = Number.parseInt(normalized.slice(0, 2), 16);
-  const g = Number.parseInt(normalized.slice(2, 4), 16);
-  const b = Number.parseInt(normalized.slice(4, 6), 16);
-
-  if ([r, g, b].some((value) => Number.isNaN(value))) {
-    return undefined;
-  }
-
-  return [r, g, b];
+  return [
+    Number.parseInt(normalized.slice(0, 2), 16),
+    Number.parseInt(normalized.slice(2, 4), 16),
+    Number.parseInt(normalized.slice(4, 6), 16),
+  ];
 }
 
 /**
@@ -99,7 +105,10 @@ export function paint(text: string, style: HighlightStyle | undefined): string {
     return text;
   }
 
-  if (style?.bg) {
+  // Rust branches on `style.bg.is_some()`, so a background that parsed to no
+  // color still resets at each newline. `style?.bg` alone would not, since `''`
+  // is falsy in JavaScript and `Some("")` is not `None` in Rust.
+  if (style?.bg != null) {
     let result = ANSI_RESET + open;
 
     for (let i = 0; i < text.length; i += 1) {
