@@ -59,9 +59,9 @@ shebang. The theme is optional too, but there is no default: without one,
 Formatters decide the output: `:html_inline`, `:html_linked`,
 `:html_multi_themes`, `:terminal`, `:bbcode_scoped`, or your own.
 
-For your own, implement `Lumis.Formatter` and build the markup with
-`Lumis.Formatter.HTML`, which holds the same pieces the built-in HTML formatters
-are assembled from. See [custom formatters](https://lumis.sh/docs/formatters/custom).
+For your own, implement `Lumis.Formatter` and build the output with
+`Lumis.Formatter.HTML` or `Lumis.Formatter.ANSI`, which hold the same pieces the
+built-in formatters use. See [custom formatters](https://lumis.sh/docs/formatters/custom).
 
 ## Parsers
 

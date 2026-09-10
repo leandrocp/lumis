@@ -152,9 +152,9 @@ Implement the [`Lumis.Formatter`](https://hexdocs.pm/lumis/Lumis.Formatter.html)
 behaviour and pass the module as the formatter. Lumis highlights the source and
 hands `render/3` the event stream, with the resolved language in `options`.
 
-[`Lumis.Formatter.HTML`](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) has
-the same pieces `lumis::formatters::html` and `@lumis-sh/lumis/formatters/html`
-do.
+[`Lumis.Formatter.HTML`](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) and
+[`Lumis.Formatter.ANSI`](https://hexdocs.pm/lumis/Lumis.Formatter.ANSI.html) have
+the same HTML and terminal pieces the built-in formatters use.
 
 ```elixir
 defmodule MinimalHtmlFormatter do
@@ -204,6 +204,66 @@ Lumis.highlight!("defmodule App do\nend",
 
 `render/3` returns iodata, so there is no need to flatten it into a binary;
 Lumis does that once at the end.
+
+`Lumis.Formatter.ANSI` is the terminal counterpart, and `styles/1` is where a
+scope becomes a color. Reach for it rather than `theme.highlights`, which misses
+the fallbacks `:terminal` applies: `tag.delimiter` is painted by `tag` in a theme
+that styles only `tag`. A theme can also style a scope per language, and an
+injected block carries its own language, so the table is per language.
+
+```elixir
+defmodule MinimalTerminalFormatter do
+  @behaviour Lumis.Formatter
+
+  alias Lumis.Formatter.ANSI
+
+  @impl true
+  def render(source, events, options) do
+    theme = Keyword.get(options, :theme)
+
+    {output, _scopes, _tables} =
+      Enum.reduce(events, {[], [], %{}}, fn
+        {:start, %{scope: scope, language: language}}, {output, scopes, tables} ->
+          {output, [{scope, language} | scopes], tables}
+
+        :end, {output, [_scope | scopes], tables} ->
+          {output, scopes, tables}
+
+        {:source, %{start: start, end: stop}}, {output, scopes, tables} ->
+          text = binary_part(source, start, stop - start)
+
+          case scopes do
+            [] ->
+              {[text | output], scopes, tables}
+
+            [{scope, language} | _rest] ->
+              # One table per language, built once and read per token.
+              tables =
+                Map.put_new_lazy(tables, language, fn ->
+                  ANSI.styles(theme: theme, language: language)
+                end)
+
+              painted = ANSI.paint(text, ANSI.style_for(tables[language], scope))
+              {[painted | output], scopes, tables}
+          end
+
+        # Lumis adds event kinds as it grows. Render the ones you know and skip
+        # the rest, or a newer Lumis raises FunctionClauseError here.
+        _event, state ->
+          state
+      end)
+
+    Enum.reverse(output)
+  end
+end
+
+Lumis.highlight!("defmodule App do\nend",
+  formatter: {MinimalTerminalFormatter, language: "elixir", theme: "dracula"}
+)
+```
+
+`ANSI.paint/2` takes the `nil` that `style_for/2` returns for an unstyled scope
+and hands the text back unchanged, so there is no branch to write for it.
 
 ## Highlight options
 
@@ -289,6 +349,7 @@ name JavaScript's event carries directly.
 | Rust | `lumis::formatters::html` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/html/index.html) |
 | Rust | `lumis::formatters::ansi` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/ansi/index.html) |
 | Elixir | `Lumis.Formatter.HTML` | [hexdocs](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) |
+| Elixir | `Lumis.Formatter.ANSI` | [hexdocs](https://hexdocs.pm/lumis/Lumis.Formatter.ANSI.html) |
 
 ## Tip
 

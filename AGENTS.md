@@ -338,6 +338,34 @@ the line apart. Better still, check whether the `cd` is needed at all: `node
 packages/javascript/lumis/test.mjs` runs from the repo root, because Node
 resolves imports from the file rather than the working directory.
 
+### Public docs describe the runtime, not what is under it
+
+Rust being the reference implementation is a rule for contributors, not a fact
+users need. Someone reading `Lumis.Formatter.ANSI` cannot act on "this calls into
+Rust", cannot see the crate, and would not do anything differently if the answer
+were Zig. Every sentence of it is bloat in a place with a low budget for it.
+
+- **A public doc says what the function does and what to do with it.** Not what
+  it delegates to, not which crate owns the logic, not that a table crosses a
+  boundary once instead of per token. `styles/1` returns the whole table because
+  a reader is told to build it once and read it per token, which is a fact about
+  their loop; whether that is Rust, a `:persistent_term` or a literal is not.
+- **Name the behaviour, not the implementation, when explaining a difference.**
+  "`Map.get(theme.highlights, scope)` misses the fallbacks `:terminal` applies"
+  is actionable. "Scope resolution belongs in Rust" is trivia that happens to
+  sit where the actionable sentence should have been.
+- **The Rust origin belongs where a contributor reads it**: this file, the
+  binding crate's own doc comments, a commit message. `html_span_attrs` in
+  `lumis_nif` explains the call-frequency split at length, correctly — that is a
+  contributor's file.
+- **Cross-runtime pointers are not this.** "The counterpart of `Language::guess`
+  in Rust and `guessLanguage()` in JavaScript" helps someone moving between the
+  packages Lumis publishes, and stays.
+
+This applies to every published surface: package docs, READMEs, `usage-rules.md`,
+and `docs/content/`. It came out of an ANSI helper module whose moduledoc opened
+by explaining that its functions call Rust, before saying what any of them did.
+
 ### READMEs stay small, detail lives in the docs site
 
 READMEs are entry points, not manuals. Keep them small, direct, and targeted: the minimal usage to get started, then a link to the relevant page under `docs/content/`.

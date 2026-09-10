@@ -7,7 +7,7 @@ use std::thread;
 mod elixir;
 
 use anyhow::{anyhow, Context, Result};
-use elixir::{ExCssOptions, ExFormatterOption, ExTheme};
+use elixir::{ExCssOptions, ExFormatterOption, ExStyle, ExTheme};
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
 use lumis_core::events::HighlightEvent;
 use lumis_core::formatter::Formatter;
@@ -754,6 +754,59 @@ fn build_theme_css(theme: &themes::Theme, options: ExCssOptions) -> String {
     builder.container_style(options.container_style);
 
     builder.build()
+}
+
+#[rustler::nif]
+fn ansi_hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
+    lumis_core::formatter::ansi::hex_to_rgb(hex)
+}
+
+#[rustler::nif]
+fn ansi_rgb_to_ansi(r: u8, g: u8, b: u8, is_background: bool) -> String {
+    lumis_core::formatter::ansi::rgb_to_ansi(r, g, b, is_background)
+}
+
+#[rustler::nif]
+fn ansi_style_to_ansi(style: ExStyle) -> String {
+    lumis_core::formatter::ansi::style_to_ansi(&style.into())
+}
+
+#[rustler::nif]
+fn ansi_paint(text: &str, style: ExStyle) -> String {
+    lumis_core::formatter::ansi::paint(text, &style.into())
+}
+
+#[rustler::nif]
+fn ansi_reset() -> &'static str {
+    lumis_core::formatter::ansi::ANSI_RESET
+}
+
+/// Every scope's style for one theme and language, resolved the way the
+/// built-in terminal formatter resolves it.
+///
+/// The per-token counterpart of the rest of these, split for the same reason as
+/// [`html_span_attrs`]. `Theme::get_style` walks a scope up to its parent and
+/// consults the rainbow-bracket fallbacks, so an Elixir formatter that looks a
+/// scope up in `theme.highlights` itself gets a different answer than
+/// `:terminal` does. There are only ever 293 answers, so all of them come back
+/// at once and Elixir never resolves anything.
+#[rustler::nif]
+fn ansi_styles(theme: Option<ExTheme>, language: &str) -> HashMap<&'static str, ExStyle> {
+    let Some(theme) = theme.map(themes::Theme::from) else {
+        return HashMap::new();
+    };
+    let language = Language::guess(Some(language), "");
+
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .filter_map(|scope| {
+            let specialized = format!("{scope}.{}", language.id_name());
+            let style = theme
+                .get_style(&specialized)
+                .or_else(|| theme.get_style(scope))?;
+            Some((*scope, ExStyle::from(style)))
+        })
+        .collect()
 }
 
 /// `lumis_core::formatter::html`, reachable from Elixir.

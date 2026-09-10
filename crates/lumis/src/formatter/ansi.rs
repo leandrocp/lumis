@@ -26,13 +26,13 @@
 
 use crate::highlight::{highlight_iter, HighlightError, Style};
 use crate::languages::Language;
-use crate::themes::{Theme, UnderlineStyle};
+use crate::themes::Theme;
 use std::ops::Range;
 
 /// ANSI reset sequence to clear all formatting.
 ///
 /// Use this to reset terminal colors and styles back to default.
-pub const ANSI_RESET: &str = "\u{1b}[0m";
+pub const ANSI_RESET: &str = lumis_core::formatter::ansi::ANSI_RESET;
 
 /// Convert a hex color string to RGB tuple.
 ///
@@ -54,17 +54,7 @@ pub const ANSI_RESET: &str = "\u{1b}[0m";
 /// assert_eq!(hex_to_rgb("invalid"), None);
 /// ```
 pub fn hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
-    let hex = hex.trim_start_matches('#');
-
-    if hex.len() != 6 {
-        return None;
-    }
-
-    let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
-    let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
-    let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
-
-    Some((r, g, b))
+    lumis_core::formatter::ansi::hex_to_rgb(hex)
 }
 
 /// Generate ANSI color escape sequence from RGB values.
@@ -90,11 +80,7 @@ pub fn hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
 /// assert_eq!(bg, "\u{1b}[48;2;40;42;54m");
 /// ```
 pub fn rgb_to_ansi(r: u8, g: u8, b: u8, is_background: bool) -> String {
-    if is_background {
-        format!("\u{1b}[48;2;{r};{g};{b}m")
-    } else {
-        format!("\u{1b}[38;2;{r};{g};{b}m")
-    }
+    lumis_core::formatter::ansi::rgb_to_ansi(r, g, b, is_background)
 }
 
 /// Convert a Style to ANSI escape sequences.
@@ -126,42 +112,7 @@ pub fn rgb_to_ansi(r: u8, g: u8, b: u8, is_background: bool) -> String {
 /// let ansi = style_to_ansi(&style);
 /// ```
 pub fn style_to_ansi(style: &Style) -> String {
-    let mut result = String::new();
-
-    if let Some(fg) = &style.fg {
-        if let Some((r, g, b)) = hex_to_rgb(fg) {
-            result.push_str(&rgb_to_ansi(r, g, b, false));
-        }
-    }
-
-    if let Some(bg) = &style.bg {
-        if let Some((r, g, b)) = hex_to_rgb(bg) {
-            result.push_str(&rgb_to_ansi(r, g, b, true));
-        }
-    }
-
-    if style.bold {
-        result.push_str("\u{1b}[1m");
-    }
-
-    if style.italic {
-        result.push_str("\u{1b}[3m");
-    }
-
-    match style.text_decoration.underline {
-        UnderlineStyle::None => {}
-        UnderlineStyle::Solid => result.push_str("\u{1b}[4m"),
-        UnderlineStyle::Wavy => result.push_str("\u{1b}[4:3m"),
-        UnderlineStyle::Double => result.push_str("\u{1b}[4:2m"),
-        UnderlineStyle::Dotted => result.push_str("\u{1b}[4:4m"),
-        UnderlineStyle::Dashed => result.push_str("\u{1b}[4:5m"),
-    }
-
-    if style.text_decoration.strikethrough {
-        result.push_str("\u{1b}[9m");
-    }
-
-    result
+    lumis_core::formatter::ansi::style_to_ansi(style)
 }
 
 /// Render text with ANSI color codes based on a Style.
@@ -303,6 +254,7 @@ mod tests {
     fn test_hex_to_rgb_invalid() {
         assert_eq!(hex_to_rgb("invalid"), None);
         assert_eq!(hex_to_rgb("#fff"), None);
+        assert_eq!(hex_to_rgb("aéaaa"), None);
         assert_eq!(hex_to_rgb(""), None);
         assert_eq!(hex_to_rgb("#gggggg"), None);
     }

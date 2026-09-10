@@ -508,7 +508,7 @@ Lumis.highlight!(code, formatter: {MyFormatter, language: "elixir", theme: "gith
 `render/3` returns iodata; Lumis flattens it once at the end.
 
 Do not hand-roll HTML escaping or scope-to-class mapping. `Lumis.Formatter.HTML`
-calls the same Rust the built-in formatters call:
+gives the built-in formatters' pieces:
 
 - `escape/1`, `escape_braces/1`
 - `scope_to_class/1`, `span_linked_attrs/1`, `span_linked/2`
@@ -517,6 +517,20 @@ calls the same Rust the built-in formatters call:
 
 `span_attrs/1` and `classes/0` return whole tables because resolving a scope is
 a per-token operation. Build the table once outside the loop and read it inside.
+
+Do not hand-roll ANSI color or text-decoration escape sequences either.
+`Lumis.Formatter.ANSI` gives `:terminal`'s pieces:
+
+- `hex_to_rgb/1`, `rgb_to_ansi/4`
+- `style_to_ansi/1`, `paint/2`, `reset/0`
+- `styles/1`, `style_for/2`
+
+Do not resolve a scope with `Map.get(theme.highlights, scope)`. That misses the
+fallbacks `:terminal` applies — `tag.delimiter` is painted by `tag` in a theme
+that styles only `tag` — so it paints differently. Use `styles/1` and read it
+with `style_for/2`, and build one table per language you meet: a theme can style
+a scope per language, and an injected block carries its own language on its
+`:start` event.
 
 ## HTML Output Structure
 
