@@ -7,7 +7,10 @@ use std::thread;
 mod elixir;
 
 use anyhow::{anyhow, Context, Result};
-use elixir::{ExCssOptions, ExFormatterOption, ExStyle, ExTheme};
+use elixir::{
+    convert_line_specs, ExCssOptions, ExFormatterOption, ExLineSpec, ExStyle, ExTextDecoration,
+    ExTheme,
+};
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
 use lumis_core::events::HighlightEvent;
 use lumis_core::formatter::Formatter;
@@ -912,6 +915,189 @@ fn html_wrap_line(
         class_suffix.as_deref(),
         style.as_deref(),
     )
+}
+
+#[rustler::nif]
+fn html_escape_attr(value: &str) -> String {
+    lumis_core::formatter::html::escape_attr(value)
+}
+
+#[rustler::nif]
+fn html_sanitize_theme_name(name: &str) -> String {
+    lumis_core::formatter::html::sanitize_theme_name(name)
+}
+
+#[rustler::nif]
+fn html_text_decoration(text_decoration: ExTextDecoration) -> &'static str {
+    lumis_core::formatter::html::text_decoration(&text_decoration.into())
+}
+
+#[rustler::nif]
+fn html_style_to_css(style: ExStyle, italic: bool, separator: &str) -> String {
+    themes::Style::from(style).css(italic, separator)
+}
+
+#[rustler::nif]
+fn html_close_pre_tag() -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::close_pre_tag(&mut output)
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_close_code_tag() -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::close_code_tag(&mut output)
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+/// Every scope's multi-theme `<span>` attributes, for one theme set and language.
+///
+/// The multi-theme counterpart of [`html_span_attrs`], split for the same
+/// reason: sending the whole theme set across the boundary once per token to
+/// resolve one scope would cost more than the highlighting did.
+#[rustler::nif]
+fn html_multi_themes_span_attrs(
+    themes_map: HashMap<String, ExTheme>,
+    default_theme: Option<String>,
+    css_variable_prefix: &str,
+    language: &str,
+    italic: bool,
+    include_highlights: bool,
+) -> HashMap<&'static str, String> {
+    let themes_map: HashMap<String, themes::Theme> = themes_map
+        .into_iter()
+        .map(|(name, theme)| (name, themes::Theme::from(theme)))
+        .collect();
+    let language = Language::guess(Some(language), "");
+
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .map(|scope| {
+            let attrs = lumis_core::formatter::html::span_multi_themes_attrs(
+                scope,
+                Some(language),
+                &themes_map,
+                default_theme.as_deref(),
+                css_variable_prefix,
+                italic,
+                include_highlights,
+            );
+            (*scope, attrs)
+        })
+        .collect()
+}
+
+#[rustler::nif]
+fn html_open_multi_themes_pre_tag(
+    pre_class: Option<String>,
+    themes_map: HashMap<String, ExTheme>,
+    default_theme: Option<String>,
+    css_variable_prefix: &str,
+) -> NifResult<String> {
+    let themes_map: HashMap<String, themes::Theme> = themes_map
+        .into_iter()
+        .map(|(name, theme)| (name, themes::Theme::from(theme)))
+        .collect();
+
+    let mut output = Vec::new();
+    lumis_core::formatter::html::open_multi_themes_pre_tag(
+        &mut output,
+        pre_class.as_deref(),
+        &themes_map,
+        default_theme.as_deref(),
+        css_variable_prefix,
+    )
+    .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_line_is_highlighted(lines: Vec<ExLineSpec>, line_number: usize) -> bool {
+    lumis_core::formatter::html::line_is_highlighted(&convert_line_specs(lines), line_number)
+}
+
+#[rustler::nif]
+fn html_highlight_line_class(
+    lines: Vec<ExLineSpec>,
+    line_number: usize,
+    class: Option<String>,
+    default_class: Option<String>,
+) -> Option<String> {
+    lumis_core::formatter::html::highlight_line_class(
+        &convert_line_specs(lines),
+        line_number,
+        class.as_deref(),
+        default_class.as_deref(),
+    )
+    .map(str::to_owned)
+}
+
+/// The event stream rendered into HTML lines, with spans reopened across newlines.
+///
+/// The one helper an Elixir formatter cannot assemble from the others, because
+/// closing and reopening the open spans at every newline is the part that is
+/// easy to get wrong. `attrs` is a table from [`html_span_attrs`] or
+/// [`html_multi_themes_span_attrs`], so the whole render costs one call rather
+/// than one per token.
+#[rustler::nif(schedule = "DirtyCpu")]
+fn html_render_lines_from_events(
+    source: &str,
+    events: Vec<Term<'_>>,
+    attrs: HashMap<String, String>,
+) -> Vec<String> {
+    let mut scopes: Vec<String> = Vec::new();
+    let mut decoded: Vec<HighlightEvent<'static>> = Vec::with_capacity(events.len());
+
+    for event in events {
+        // Decoded by hand rather than through a tagged enum so that an event
+        // kind this build predates, or one carrying caller data, is skipped
+        // instead of failing the whole render.
+        if let Ok(atom) = event.decode::<rustler::Atom>() {
+            if atom == event_end() {
+                decoded.push(HighlightEvent::End);
+            }
+            continue;
+        }
+
+        let Ok((tag, payload)) = event.decode::<(rustler::Atom, Term<'_>)>() else {
+            continue;
+        };
+
+        if tag == event_start() {
+            let Ok(start) = payload.decode::<ExStartEvent>() else {
+                continue;
+            };
+            let scope_index = scopes
+                .iter()
+                .position(|scope| *scope == start.scope)
+                .unwrap_or_else(|| {
+                    scopes.push(start.scope);
+                    scopes.len() - 1
+                });
+            decoded.push(HighlightEvent::Start {
+                scope_index,
+                language: start.language,
+            });
+        } else if tag == event_source() {
+            if let Ok(source_event) = payload.decode::<ExSourceEvent>() {
+                decoded.push(HighlightEvent::Source {
+                    start: source_event.start,
+                    end: source_event.end,
+                });
+            }
+        }
+    }
+
+    lumis_core::formatter::html::render_lines_from_events(source, &decoded, |scope_index, _| {
+        scopes
+            .get(scope_index)
+            .and_then(|scope| attrs.get(scope))
+            .cloned()
+            .unwrap_or_default()
+    })
 }
 
 fn html_utf8(output: Vec<u8>) -> NifResult<String> {

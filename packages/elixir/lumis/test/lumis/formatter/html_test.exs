@@ -3,6 +3,8 @@ defmodule Lumis.Formatter.HTMLTest do
 
   alias Lumis.Formatter.HTML
 
+  doctest Lumis.Formatter.HTML
+
   # The only public way to see an event stream is to be handed one, so this
   # captures it the way any formatter would.
   defmodule CaptureFormatter do
@@ -259,6 +261,304 @@ defmodule Lumis.Formatter.HTMLTest do
           assert String.contains?(html, "<span #{HTML.span_linked_attrs(scope)}>"),
                  "#{language}: html_linked never opens <span #{HTML.span_linked_attrs(scope)}>"
         end)
+      end
+    end
+  end
+
+  describe "escape_attr/1" do
+    test "escapes the same five entities escape/1 does" do
+      assert HTML.escape_attr(~s|&<>"'|) == "&amp;&lt;&gt;&quot;&#39;"
+    end
+
+    test "closes an injection through a caller-supplied class" do
+      assert HTML.open_pre_tag(class: ~s|x"><script>|) ==
+               ~s|<pre class="lumis #{HTML.escape_attr(~s|x"><script>|)}">|
+    end
+
+    test "leaves quoted CSS readable after the parser decodes it" do
+      assert HTML.escape_attr("font-family: 'Fira Code';") == "font-family: &#39;Fira Code&#39;;"
+    end
+  end
+
+  describe "sanitize_theme_name/1" do
+    test "keeps letters, digits, dash and underscore" do
+      assert HTML.sanitize_theme_name("catppuccin_mocha-2") == "catppuccin_mocha-2"
+    end
+
+    test "replaces everything else with a dash, keeping non-ASCII letters" do
+      assert HTML.sanitize_theme_name("Rosé Pine (Dawn)") == "Rosé-Pine--Dawn-"
+    end
+
+    test "is the form a theme name takes in the CSS variables span_multi_themes_attrs writes" do
+      attrs =
+        HTML.span_multi_themes_attrs(themes: [{:"my theme", "github_light"}], language: "elixir")
+
+      assert attrs["keyword"] =~ "--lumis-#{HTML.sanitize_theme_name("my theme")}:"
+    end
+  end
+
+  describe "text_decoration/1 and style_to_css/2" do
+    test "text_decoration/1 covers underline styles and strikethrough" do
+      assert HTML.text_decoration(%Lumis.Theme.TextDecoration{}) == "none"
+
+      assert HTML.text_decoration(%Lumis.Theme.TextDecoration{strikethrough: true}) ==
+               "line-through"
+
+      assert HTML.text_decoration(%Lumis.Theme.TextDecoration{underline: :dotted}) ==
+               "underline dotted"
+
+      assert HTML.text_decoration(%Lumis.Theme.TextDecoration{
+               underline: :double,
+               strikethrough: true
+             }) == "underline double line-through"
+    end
+
+    test "style_to_css/2 writes the declarations span_attrs puts in a style attribute" do
+      theme = Lumis.Theme.get("dracula")
+      attrs = HTML.span_attrs(theme: theme, language: "elixir")
+      style = theme.highlights["keyword"]
+
+      assert HTML.open_span(attrs, "keyword") =~ HTML.style_to_css(style)
+    end
+
+    test "style_to_css/2 honours :italic and :separator" do
+      style = %Lumis.Theme.Style{fg: "#ff79c6", italic: true}
+
+      assert HTML.style_to_css(style) == "color: #ff79c6;"
+      assert HTML.style_to_css(style, italic: true) == "color: #ff79c6; font-style: italic;"
+
+      assert HTML.style_to_css(style, italic: true, separator: "\n") ==
+               "color: #ff79c6;\nfont-style: italic;"
+    end
+  end
+
+  describe "close_pre_tag/0 and close_code_tag/0" do
+    test "together they are closing_tags/0" do
+      assert HTML.close_code_tag() <> HTML.close_pre_tag() == HTML.closing_tags()
+    end
+  end
+
+  describe "span_multi_themes_attrs/1 and open_multi_themes_pre_tag/1" do
+    @themes_option [light: "github_light", dark: "dracula"]
+
+    defp html_multi_themes(source, language, options) do
+      Lumis.highlight!(
+        source,
+        formatter: {:html_multi_themes, [language: language, themes: @themes_option] ++ options}
+      )
+    end
+
+    test "opens the <pre> html_multi_themes opens" do
+      for default_theme <- [nil, "light", "light-dark()"],
+          {source, language} <- @sources do
+        options = if default_theme, do: [default_theme: default_theme], else: []
+
+        assert String.starts_with?(
+                 html_multi_themes(source, language, options),
+                 HTML.open_multi_themes_pre_tag([themes: @themes_option] ++ options)
+               ),
+               "#{inspect(default_theme)}/#{language} opened differently"
+      end
+    end
+
+    test "every span html_multi_themes opens is one span_multi_themes_attrs produces" do
+      for default_theme <- [nil, "light", "light-dark()"],
+          {source, language} <- @sources,
+          source != "" do
+        options = if default_theme, do: [default_theme: default_theme], else: []
+
+        attrs =
+          HTML.span_multi_themes_attrs([themes: @themes_option, language: language] ++ options)
+
+        html_multi_themes(source, language, options)
+        |> then(&Regex.scan(~r|(<span[^>]*>)|, &1))
+        |> Enum.map(fn [_, tag] -> tag end)
+        |> Enum.uniq()
+        |> Enum.each(fn tag ->
+          assert scope_of(tag, attrs),
+                 "#{inspect(default_theme)}/#{language}: no scope produces #{inspect(tag)}"
+        end)
+      end
+    end
+
+    test "span_multi_themes/3 escapes the text and opens with the table's attributes" do
+      attrs = HTML.span_multi_themes_attrs(themes: @themes_option, language: "elixir")
+
+      assert HTML.span_multi_themes("a & b", attrs, "keyword") ==
+               "#{HTML.open_span(attrs, "keyword")}a &amp; b</span>"
+    end
+
+    test "no themes leaves every scope unstyled" do
+      attrs = HTML.span_multi_themes_attrs(themes: [], language: "elixir")
+
+      assert HTML.open_span(attrs, "keyword") == "<span>"
+    end
+  end
+
+  describe "line_is_highlighted/2 and highlight_line_class/3" do
+    test "reads integers and ranges the way :highlight_lines does" do
+      lines = [1, 3..5]
+
+      assert HTML.line_is_highlighted(lines, 1)
+      assert HTML.line_is_highlighted(lines, 4)
+      assert HTML.line_is_highlighted(lines, 5)
+      refute HTML.line_is_highlighted(lines, 2)
+      refute HTML.line_is_highlighted(lines, 6)
+      refute HTML.line_is_highlighted([], 1)
+    end
+
+    test "highlight_line_class/3 prefers :class over :default_class" do
+      lines = [1, 3..5]
+
+      assert HTML.highlight_line_class(lines, 4, default_class: "l-highlighted") ==
+               "l-highlighted"
+
+      assert HTML.highlight_line_class(lines, 4, class: "active", default_class: "l-highlighted") ==
+               "active"
+
+      assert HTML.highlight_line_class(lines, 2, class: "active") == nil
+      assert HTML.highlight_line_class(lines, 4, []) == nil
+    end
+
+    test "picks the lines html_linked marks with its highlight class" do
+      source = "one\ntwo\nthree\nfour\nfive\n"
+      lines = [1, 3..4]
+
+      html =
+        Lumis.highlight!(source,
+          formatter:
+            {:html_linked, language: "plaintext", highlight_lines: %{lines: lines, class: "hl"}}
+        )
+
+      for line_number <- 1..5 do
+        marked = String.contains?(html, ~s|class="l-line hl" data-line="#{line_number}"|)
+
+        assert marked == HTML.line_is_highlighted(lines, line_number),
+               "line #{line_number}: html_linked and line_is_highlighted/2 disagree"
+      end
+    end
+  end
+
+  describe "render_lines_from_events/3" do
+    test "renders the lines html_linked wraps, for every source" do
+      linked_attrs =
+        Map.new(HTML.classes(), fn {scope, _class} -> {scope, HTML.span_linked_attrs(scope)} end)
+
+      for {source, language} <- @sources, source != "" do
+        expected =
+          source
+          |> html_linked(language)
+          |> then(&Regex.scan(~r|<div class="l-line" data-line="\d+">(.*?)</div>|s, &1))
+          |> Enum.map(fn [_, content] -> String.trim_trailing(content, "\n") end)
+
+        actual =
+          HTML.render_lines_from_events(source, events(source, language), linked_attrs)
+
+        assert actual == expected,
+               "#{language}: render_lines_from_events differs from html_linked"
+      end
+    end
+
+    test "reopens a span that crosses a newline" do
+      events = [
+        {:start, %{scope: "keyword", language: "elixir"}},
+        {:source, %{start: 0, end: 3}},
+        :end
+      ]
+
+      assert HTML.render_lines_from_events("a\nb", events, %{"keyword" => ~s|class="l-keyword"|}) ==
+               [~s|<span class="l-keyword">a</span>|, ~s|<span class="l-keyword">b</span>|]
+    end
+
+    test "a scope the table does not carry opens a bare span" do
+      events = [
+        {:start, %{scope: "not.a.scope", language: "elixir"}},
+        {:source, %{start: 0, end: 1}},
+        :end
+      ]
+
+      assert HTML.render_lines_from_events("a", events, %{}) == ["<span>a</span>"]
+    end
+
+    test "skips an event kind it has no markup for rather than raising" do
+      events = [
+        {:annotation_start, %Lumis.Annotation{range: {0, 1}, data: %{anything: true}}},
+        {:source, %{start: 0, end: 1}},
+        :annotation_end,
+        {:something_a_newer_lumis_adds, %{}}
+      ]
+
+      assert HTML.render_lines_from_events("a", events, %{}) == ["a"]
+    end
+
+    test "escapes the source it renders" do
+      events = [{:source, %{start: 0, end: 5}}]
+
+      assert HTML.render_lines_from_events("a & b", events, %{}) == ["a &amp; b"]
+    end
+  end
+
+  # The point of the whole module: a formatter assembled from the helpers is the
+  # built-in one, byte for byte. This is the formatter #1381 said could not be
+  # written in Elixir at all.
+  defmodule MultiThemeFormatter do
+    @moduledoc false
+    @behaviour Lumis.Formatter
+
+    alias Lumis.Formatter.HTML
+
+    @themes [light: "github_light", dark: "dracula"]
+
+    @impl true
+    def render(source, events, options) do
+      language = Keyword.fetch!(options, :language)
+      default_theme = Keyword.fetch!(options, :default_theme)
+
+      attrs =
+        HTML.span_multi_themes_attrs(
+          themes: @themes,
+          default_theme: default_theme,
+          language: language
+        )
+
+      body =
+        source
+        |> HTML.render_lines_from_events(events, attrs)
+        |> Enum.with_index(1)
+        |> Enum.map(fn {line, number} -> HTML.wrap_line(number, [line, "\n"]) end)
+
+      [
+        HTML.open_multi_themes_pre_tag(themes: @themes, default_theme: default_theme),
+        HTML.open_code_tag(language),
+        body,
+        HTML.closing_tags()
+      ]
+    end
+  end
+
+  describe "a formatter built from the helpers" do
+    test "reproduces :html_multi_themes byte for byte" do
+      for default_theme <- [nil, "light", "light-dark()"],
+          {source, language} <- @sources,
+          source != "" do
+        options = if default_theme, do: [default_theme: default_theme], else: []
+
+        builtin =
+          Lumis.highlight!(
+            source,
+            formatter:
+              {:html_multi_themes,
+               [language: language, themes: [light: "github_light", dark: "dracula"]] ++ options}
+          )
+
+        mine =
+          Lumis.highlight!(
+            source,
+            formatter: {MultiThemeFormatter, language: language, default_theme: default_theme}
+          )
+
+        assert mine == builtin,
+               "#{inspect(default_theme)}/#{language}: the helper-built formatter differs"
       end
     end
   end

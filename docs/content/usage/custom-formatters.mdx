@@ -205,6 +205,47 @@ Lumis.highlight!("defmodule App do\nend",
 `render/3` returns iodata, so there is no need to flatten it into a binary;
 Lumis does that once at the end.
 
+For line-based output, reach for `render_lines_from_events/3` rather than
+splitting rendered markup on newlines. A `<span>` that crosses a newline has to
+be closed and reopened for each line's tags to nest. Swapping `span_attrs/1` for
+`span_multi_themes_attrs/1` is the whole difference between one theme and a set
+of them, restyled later by CSS alone:
+
+```elixir
+defmodule MultiThemeFormatter do
+  @behaviour Lumis.Formatter
+
+  alias Lumis.Formatter.HTML
+
+  @themes [light: "github_light", dark: "dracula"]
+
+  @impl true
+  def render(source, events, options) do
+    language = Keyword.fetch!(options, :language)
+    attrs = HTML.span_multi_themes_attrs(themes: @themes, default_theme: "light-dark()", language: language)
+
+    body =
+      source
+      |> HTML.render_lines_from_events(events, attrs)
+      |> Enum.with_index(1)
+      # A rendered line carries no trailing newline. The built-in formatters put
+      # one inside the <div> so the block still copies as lines.
+      |> Enum.map(fn {line, number} -> HTML.wrap_line(number, [line, "\n"]) end)
+
+    [
+      HTML.open_multi_themes_pre_tag(themes: @themes, default_theme: "light-dark()"),
+      HTML.open_code_tag(language),
+      body,
+      HTML.closing_tags()
+    ]
+  end
+end
+
+Lumis.highlight!("defmodule App do\nend",
+  formatter: {MultiThemeFormatter, language: "elixir"}
+)
+```
+
 `Lumis.Formatter.ANSI` is the terminal counterpart, and `styles/1` is where a
 scope becomes a color. Reach for it rather than `theme.highlights`, which misses
 the fallbacks `:terminal` applies: `tag.delimiter` is painted by `tag` in a theme
@@ -342,6 +383,11 @@ name JavaScript's event carries directly.
 
 ## Available helpers
 
+Every runtime offers the same set, so a formatter written against one can be
+ported to another without reimplementing a piece of it. Names follow each
+language's convention — `scope_to_class` in Rust and Elixir, `scopeToClass` in
+JavaScript — and so do argument shapes.
+
 | Runtime | Module | Reference |
 | --- | --- | --- |
 | JavaScript | `@lumis-sh/lumis/formatters/html` | [source](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/formatter/html.ts) |
@@ -350,6 +396,33 @@ name JavaScript's event carries directly.
 | Rust | `lumis::formatters::ansi` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/ansi/index.html) |
 | Elixir | `Lumis.Formatter.HTML` | [hexdocs](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) |
 | Elixir | `Lumis.Formatter.ANSI` | [hexdocs](https://hexdocs.pm/lumis/Lumis.Formatter.ANSI.html) |
+
+### HTML
+
+| Capability | Helper |
+| --- | --- |
+| Escape text, an attribute value, or braces a template would read | `escape`, `escape_attr`, `escape_braces` |
+| Resolve a scope to a CSS class, or a style to CSS declarations | `scope_to_class`, `style_to_css`, `text_decoration` |
+| Open a `<span>` for a scope | `open_span`, `span_inline_attrs`, `span_inline`, `span_linked_attrs`, `span_linked` |
+| Open one for a set of themes, as CSS custom properties | `span_multi_themes_attrs`, `span_multi_themes`, `sanitize_theme_name` |
+| Open and close the block | `open_pre_tag`, `open_multi_themes_pre_tag`, `open_code_tag`, `close_pre_tag`, `close_code_tag`, `closing_tags` |
+| Wrap a line, and decide whether it is highlighted | `wrap_line`, `line_is_highlighted`, `highlight_line_class` |
+| Turn the whole event stream into lines, reopening spans across newlines | `render_lines_from_events` |
+
+### ANSI
+
+| Capability | Helper |
+| --- | --- |
+| Build a color escape | `hex_to_rgb`, `rgb_to_ansi`, `style_to_ansi` |
+| Paint text, and clear formatting | `paint`, `reset` |
+
+A few helpers are one runtime's alone, because the boundary dictates the
+signature rather than taste. Elixir returns whole scope tables from `classes/0`,
+`span_attrs/1` and `ANSI.styles/1`, because crossing into Rust once per token to
+read a constant costs more than the highlighting; JavaScript exports
+`encodeSource` and `decodeSourceSlice`, because its strings are UTF-16 and the
+event offsets are UTF-8 byte offsets. `fixtures/formatter-helpers.json` records
+the set, the exceptions, and why each one is one.
 
 ## Tip
 

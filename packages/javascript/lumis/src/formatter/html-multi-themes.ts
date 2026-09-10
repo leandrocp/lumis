@@ -1,60 +1,19 @@
-import type { HighlightEvent, HighlightSpan, HtmlMultiThemesFormatter, Theme } from "../types.js";
+import type { HighlightEvent, HighlightSpan, HtmlMultiThemesFormatter } from "../types.js";
 import {
   type HtmlAttrs,
-  buildNormalThemeVars,
   closingTags,
   formatHighlightIterLines,
   getHighlightLineClass,
   getThemeStyle,
-  joinClasses,
   lineIsHighlighted,
   openCodeTag,
+  openMultiThemesPreTag,
   openSpanTag,
-  openTag,
-  sortedThemeNames,
   spanMultiThemesAttrs,
   styleToCss,
   wrapLine,
   wrapWithHeader,
 } from "./html.js";
-
-// The `<pre>` colours for `light-dark()`, falling back to black on white and
-// white on black where a theme leaves them unset.
-function lightDarkPreStyles(themes: Record<string, Theme>): string[] {
-  const lightNormal = getThemeStyle(themes.light, "normal");
-  const darkNormal = getThemeStyle(themes.dark, "normal");
-  const lightFg = lightNormal?.fg ?? "#000000";
-  const lightBg = lightNormal?.bg ?? "#ffffff";
-  const darkFg = darkNormal?.fg ?? "#ffffff";
-  const darkBg = darkNormal?.bg ?? "#000000";
-
-  return [
-    `color: light-dark(${lightFg}, ${darkFg});`,
-    `background-color: light-dark(${lightBg}, ${darkBg});`,
-  ];
-}
-
-function buildPreThemeStyle(options: {
-  themes: Record<string, Theme>;
-  defaultTheme?: string;
-  cssVariablePrefix?: string;
-}): string | undefined {
-  const prefix = options.cssVariablePrefix ?? "--lumis";
-  const styles: string[] = [];
-
-  if (options.defaultTheme === "light-dark()") {
-    styles.push(...lightDarkPreStyles(options.themes));
-  } else if (options.defaultTheme) {
-    const defaultStyle = getThemeStyle(options.themes[options.defaultTheme], "normal");
-    if (defaultStyle?.fg) styles.push(`color:${defaultStyle.fg};`);
-    if (defaultStyle?.bg) styles.push(`background-color:${defaultStyle.bg};`);
-    buildNormalThemeVars(styles, prefix, options.themes, options.defaultTheme);
-  } else {
-    buildNormalThemeVars(styles, prefix, options.themes);
-  }
-
-  return styles.length > 0 ? styles.join(" ") : undefined;
-}
 
 function spanAttrs(span: HighlightSpan, formatter: HtmlMultiThemesFormatter): HtmlAttrs {
   return spanMultiThemesAttrs({
@@ -65,25 +24,6 @@ function spanAttrs(span: HighlightSpan, formatter: HtmlMultiThemesFormatter): Ht
     cssVariablePrefix: formatter.cssVariablePrefix,
     italic: formatter.italic,
     includeHighlights: formatter.includeHighlights,
-  });
-}
-
-function generatePreClasses(formatter: HtmlMultiThemesFormatter): string {
-  return (
-    joinClasses(
-      "lumis",
-      "lumis-themes",
-      formatter.preClass,
-      ...sortedThemeNames(formatter.themes),
-    ) ?? "lumis lumis-themes"
-  );
-}
-
-function generatePreStyle(formatter: HtmlMultiThemesFormatter): string | undefined {
-  return buildPreThemeStyle({
-    themes: formatter.themes,
-    defaultTheme: formatter.defaultTheme,
-    cssVariablePrefix: formatter.cssVariablePrefix,
   });
 }
 
@@ -151,9 +91,11 @@ export function formatHtmlMultiThemes(
     openSpan: (span, _style) => openSpanTag(spanAttrs(span, formatter)),
   });
 
-  const pre = openTag("pre", {
-    class: generatePreClasses(formatter),
-    style: generatePreStyle(formatter),
+  const pre = openMultiThemesPreTag({
+    preClass: formatter.preClass,
+    themes: formatter.themes,
+    defaultTheme: formatter.defaultTheme,
+    cssVariablePrefix: formatter.cssVariablePrefix,
   });
   const code = openCodeTag(formatter.language);
   const body = lines

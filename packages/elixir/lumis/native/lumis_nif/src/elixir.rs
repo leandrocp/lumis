@@ -85,7 +85,7 @@ fn resolve_theme(theme_or_string: ThemeOrString) -> Option<themes::Theme> {
 }
 
 #[inline]
-fn convert_line_specs(lines: Vec<ExLineSpec>) -> Vec<std::ops::RangeInclusive<usize>> {
+pub(crate) fn convert_line_specs(lines: Vec<ExLineSpec>) -> Vec<std::ops::RangeInclusive<usize>> {
     lines
         .into_iter()
         .map(|line_spec| line_spec.to_range_inclusive())

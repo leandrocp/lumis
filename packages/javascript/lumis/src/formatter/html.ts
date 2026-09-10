@@ -255,32 +255,14 @@ export function escapeAttr(value: string): string {
   return result;
 }
 
-/**
- * Join CSS class names, filtering out falsy values.
- *
- * ```ts
- * joinClasses('l-line', undefined, 'l-highlighted')  // "l-line l-highlighted"
- * joinClasses(undefined, false)                   // undefined
- * ```
- */
-export function joinClasses(
-  ...classes: Array<string | undefined | false | null>
-): string | undefined {
+function classList(...classes: Array<string | undefined | false | null>): string | undefined {
   const value = classes.filter(
     (className): className is string => !!className && className.length > 0,
   );
   return value.length > 0 ? value.join(" ") : undefined;
 }
 
-/**
- * Render an `HtmlAttrs` map to an HTML attribute string.
- *
- * ```ts
- * attrsToString({ class: 'foo', style: 'color: red', hidden: true })
- * // 'class="foo" style="color: red" hidden'
- * ```
- */
-export function attrsToString(attrs: HtmlAttrs): string {
+function renderAttrs(attrs: HtmlAttrs): string {
   const parts: string[] = [];
 
   for (const [name, value] of Object.entries(attrs)) {
@@ -296,6 +278,43 @@ export function attrsToString(attrs: HtmlAttrs): string {
   return parts.join(" ");
 }
 
+function tag(name: string, attrs: HtmlAttrs = {}): string {
+  const renderedAttrs = renderAttrs(attrs);
+  return renderedAttrs.length > 0 ? `<${name} ${renderedAttrs}>` : `<${name}>`;
+}
+
+/**
+ * Join CSS class names, filtering out falsy values.
+ *
+ * ```ts
+ * joinClasses('l-line', undefined, 'l-highlighted')  // "l-line l-highlighted"
+ * joinClasses(undefined, false)                   // undefined
+ * ```
+ *
+ * @deprecated Generic plumbing that Rust and Elixir do inline; it is not
+ * Lumis's to own. Removed in the next major.
+ */
+export function joinClasses(
+  ...classes: Array<string | undefined | false | null>
+): string | undefined {
+  return classList(...classes);
+}
+
+/**
+ * Render an `HtmlAttrs` map to an HTML attribute string.
+ *
+ * ```ts
+ * attrsToString({ class: 'foo', style: 'color: red', hidden: true })
+ * // 'class="foo" style="color: red" hidden'
+ * ```
+ *
+ * @deprecated Use {@link openSpanTag}, which renders the attributes it is
+ * given. Removed in the next major.
+ */
+export function attrsToString(attrs: HtmlAttrs): string {
+  return renderAttrs(attrs);
+}
+
 /**
  * Build an opening HTML tag with attributes.
  *
@@ -303,10 +322,12 @@ export function attrsToString(attrs: HtmlAttrs): string {
  * openTag('span', { class: 'keyword', style: 'color: red' })
  * // '<span class="keyword" style="color: red">'
  * ```
+ *
+ * @deprecated Use {@link openPreTag}, {@link openCodeTag} or
+ * {@link openSpanTag}. Removed in the next major.
  */
 export function openTag(name: string, attrs: HtmlAttrs = {}): string {
-  const renderedAttrs = attrsToString(attrs);
-  return renderedAttrs.length > 0 ? `<${name} ${renderedAttrs}>` : `<${name}>`;
+  return tag(name, attrs);
 }
 
 /**
@@ -315,6 +336,9 @@ export function openTag(name: string, attrs: HtmlAttrs = {}): string {
  * ```ts
  * closeTag('span')  // "</span>"
  * ```
+ *
+ * @deprecated Use {@link closePreTag}, {@link closeCodeTag} or
+ * {@link closingTags}. Removed in the next major.
  */
 export function closeTag(name: string): string {
   return `</${name}>`;
@@ -328,7 +352,7 @@ export function closeTag(name: string): string {
  * ```
  */
 export function openSpanTag(attrs: HtmlAttrs = {}): string {
-  return openSpan(attrsToString(attrs));
+  return openSpan(renderAttrs(attrs));
 }
 
 function openSpan(attrs: string): string {
@@ -358,10 +382,42 @@ export interface OpenPreTagOptions {
 export function openPreTag(options: OpenPreTagOptions = {}): string {
   const className = options.preClass ? `lumis ${options.preClass}` : "lumis";
   const style = styleToCss(getThemeStyle(options.theme, "normal"));
-  return openTag("pre", {
+  return tag("pre", {
     class: className,
     style: style.length > 0 ? style : undefined,
   });
+}
+
+/**
+ * Options for {@link openMultiThemesPreTag}.
+ */
+export interface OpenMultiThemesPreTagOptions {
+  preClass?: string;
+  themes: Record<string, Theme>;
+  defaultTheme?: string;
+  /** Defaults to `"--lumis"`. */
+  cssVariablePrefix?: string;
+}
+
+/**
+ * Open a `<pre>` tag carrying every theme's name as a class and its `normal`
+ * colours as CSS custom properties.
+ *
+ * The `<pre>` counterpart of {@link spanMultiThemesAttrs}: `defaultTheme` is
+ * written inline and every other theme becomes a variable, except for
+ * `"light-dark()"`, which writes both inline and contributes no variables.
+ *
+ * ```ts
+ * openMultiThemesPreTag({ themes: { light: githubLight, dark: githubDark }, defaultTheme: 'light' })
+ * // '<pre class="lumis lumis-themes dark light" style="color:#1f2328; ... --lumis-dark:#e6edf3; ...">'
+ * ```
+ */
+export function openMultiThemesPreTag(options: OpenMultiThemesPreTagOptions): string {
+  const classes =
+    classList("lumis", "lumis-themes", options.preClass, ...sortedThemeNames(options.themes)) ??
+    "lumis lumis-themes";
+
+  return tag("pre", { class: classes, style: multiThemesPreStyle(options) });
 }
 
 /**
@@ -373,7 +429,7 @@ export function openPreTag(options: OpenPreTagOptions = {}): string {
  */
 export function openCodeTag(language: LanguageRef | undefined): string {
   const id = language ? languageId(language) : "plaintext";
-  return openTag("code", {
+  return tag("code", {
     class: `language-${id}`,
     translate: "no",
     tabindex: 0,
@@ -388,7 +444,7 @@ export function openCodeTag(language: LanguageRef | undefined): string {
  * ```
  */
 export function closePreTag(): string {
-  return closeTag("pre");
+  return "</pre>";
 }
 
 /**
@@ -399,7 +455,7 @@ export function closePreTag(): string {
  * ```
  */
 export function closeCodeTag(): string {
-  return closeTag("code");
+  return "</code>";
 }
 
 /**
@@ -438,6 +494,9 @@ export function escapeBraces(text: string): string {
   return text.replaceAll("{", "&lbrace;").replaceAll("}", "&rbrace;");
 }
 
+/**
+ * @deprecated A pure alias of {@link escape}. Removed in the next major.
+ */
 export function escapeFragment(text: string): string {
   return escape(text);
 }
@@ -588,9 +647,9 @@ export function spanMultiThemesAttrs(options: SpanMultiThemesOptions): HtmlAttrs
     }
   } else if (defaultTheme) {
     applyDefaultMultiTheme(inlineStyles, cssVars, options);
-    appendThemeCssVars(cssVars, cssVariablePrefix, themes, scope, language, defaultTheme);
+    pushThemeCssVarsForAll(cssVars, cssVariablePrefix, themes, scope, language, defaultTheme);
   } else {
-    appendThemeCssVars(cssVars, cssVariablePrefix, themes, scope, language);
+    pushThemeCssVarsForAll(cssVars, cssVariablePrefix, themes, scope, language);
   }
 
   const styleParts = [...inlineStyles, ...cssVars].filter(Boolean);
@@ -737,7 +796,7 @@ export function sortedThemeNames(themes: Record<string, unknown>): string[] {
   });
 }
 
-export function appendThemeCssVars(
+function pushThemeCssVarsForAll(
   cssVars: string[],
   prefix: string,
   themes: Record<string, Theme | undefined>,
@@ -754,7 +813,23 @@ export function appendThemeCssVars(
   }
 }
 
-export function buildNormalThemeVars(
+/**
+ * @deprecated Internal multi-themes plumbing, exported by accident; Rust keeps
+ * its counterpart private. Use {@link spanMultiThemesAttrs}. Removed in the
+ * next major.
+ */
+export function appendThemeCssVars(
+  cssVars: string[],
+  prefix: string,
+  themes: Record<string, Theme | undefined>,
+  scope: string,
+  language: LanguageRef,
+  excludeTheme?: string,
+): void {
+  pushThemeCssVarsForAll(cssVars, prefix, themes, scope, language, excludeTheme);
+}
+
+function pushNormalThemeVars(
   styles: string[],
   prefix: string,
   themes: Record<string, Theme>,
@@ -770,6 +845,20 @@ export function buildNormalThemeVars(
     if (style?.fg) styles.push(`${prefix}-${sanitized}:${style.fg};`);
     if (style?.bg) styles.push(`${prefix}-${sanitized}-bg:${style.bg};`);
   }
+}
+
+/**
+ * @deprecated Internal multi-themes plumbing, exported by accident; Rust keeps
+ * its counterpart private. Use {@link openMultiThemesPreTag}. Removed in the
+ * next major.
+ */
+export function buildNormalThemeVars(
+  styles: string[],
+  prefix: string,
+  themes: Record<string, Theme>,
+  excludeTheme?: string,
+): void {
+  pushNormalThemeVars(styles, prefix, themes, excludeTheme);
 }
 
 // The `<pre>` colours for `light-dark()`, falling back to black on white and
@@ -788,7 +877,7 @@ function lightDarkPreStyles(themes: Record<string, Theme>): string[] {
   ];
 }
 
-export function buildPreThemeStyle(options: {
+function multiThemesPreStyle(options: {
   themes: Record<string, Theme>;
   defaultTheme?: string;
   cssVariablePrefix?: string;
@@ -802,14 +891,33 @@ export function buildPreThemeStyle(options: {
     const defaultStyle = getThemeStyle(options.themes[options.defaultTheme], "normal");
     if (defaultStyle?.fg) styles.push(`color:${defaultStyle.fg};`);
     if (defaultStyle?.bg) styles.push(`background-color:${defaultStyle.bg};`);
-    buildNormalThemeVars(styles, prefix, options.themes, options.defaultTheme);
+    pushNormalThemeVars(styles, prefix, options.themes, options.defaultTheme);
   } else {
-    buildNormalThemeVars(styles, prefix, options.themes);
+    pushNormalThemeVars(styles, prefix, options.themes);
   }
 
   return styles.length > 0 ? styles.join(" ") : undefined;
 }
 
+/**
+ * @deprecated Internal multi-themes plumbing, exported by accident; Rust keeps
+ * its counterpart private. Use {@link openMultiThemesPreTag}, which builds the
+ * whole tag. Removed in the next major.
+ */
+export function buildPreThemeStyle(options: {
+  themes: Record<string, Theme>;
+  defaultTheme?: string;
+  cssVariablePrefix?: string;
+}): string | undefined {
+  return multiThemesPreStyle(options);
+}
+
+/**
+ * @deprecated Composes {@link openPreTag}, {@link openCodeTag},
+ * {@link wrapLine} and {@link closingTags} in the one order the built-in
+ * formatters use, which is not a custom formatter's shape. Call them directly.
+ * Removed in the next major.
+ */
 export function renderHtmlBlock(options: {
   lines: string[];
   language: LanguageRef | undefined;
@@ -838,11 +946,11 @@ export function wrapLine(
   content: string,
   options: { className?: string; style?: string } = {},
 ): string {
-  return `${openTag("div", {
-    class: joinClasses("l-line", options.className),
+  return `${tag("div", {
+    class: classList("l-line", options.className),
     style: options.style,
     "data-line": lineNumber,
-  })}${content}\n${closeTag("div")}`;
+  })}${content}\n</div>`;
 }
 
 /**
@@ -1011,7 +1119,7 @@ export function formatHighlightIterLines(
   },
 ): { lines: string[]; language: string } {
   const formatText = options.formatText ?? escape;
-  const closeSpan = options.closeSpan ?? (() => closeTag("span"));
+  const closeSpan = options.closeSpan ?? (() => "</span>");
   const sourceBytes = encodeSource(source);
   const lines = [""];
   let language = languageRef ? languageId(languageRef) : "plaintext";
@@ -1082,6 +1190,11 @@ function escapeChar(char: string): string {
   return ESCAPED_CHARS[char] ?? char;
 }
 
+/**
+ * @deprecated Records line offsets without closing and reopening the spans that
+ * cross a line boundary, so slicing the buffer at them yields lines whose tags
+ * do not nest. Use {@link renderLinesFromEvents}. Removed in the next major.
+ */
 export function renderEvents(
   source: string,
   events: SyntaxHighlightEvent[],
@@ -1123,6 +1236,9 @@ export function renderEvents(
 
 /**
  * Slice rendered HTML back into lines using offsets from {@link renderEvents}.
+ *
+ * @deprecated Only useful for slicing what {@link renderEvents} returns. Use
+ * {@link renderLinesFromEvents}. Removed in the next major.
  */
 export function linesFromOffsets(html: Uint8Array, lineOffsets: number[]): string[] {
   const rendered = _decoder.decode(html);

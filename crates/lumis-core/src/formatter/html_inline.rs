@@ -102,7 +102,7 @@ impl HtmlInline {
         let is_highlighted = self
             .highlight_lines
             .as_ref()
-            .is_some_and(|hl| hl.lines.iter().any(|r| r.contains(&line_number)));
+            .is_some_and(|hl| crate::formatter::html::line_is_highlighted(&hl.lines, line_number));
 
         if !is_highlighted {
             return (None, None);

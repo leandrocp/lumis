@@ -11,6 +11,7 @@ use crate::languages::Language;
 use crate::themes::Theme;
 pub use lumis_core::formatter::HtmlElement;
 use std::io::{self, Write};
+use std::ops::RangeInclusive;
 
 /// Generate an HTML `<span>` element with inline CSS styles.
 ///
@@ -539,6 +540,124 @@ pub fn close_pre_tag(output: &mut dyn Write) -> io::Result<()> {
 /// ```
 pub fn closing_tags(output: &mut dyn Write) -> io::Result<()> {
     lumis_core::formatter::html::closing_tags(output)
+}
+
+/// Generate an opening `<span>` tag carrying `attrs`, or a bare one when empty.
+///
+/// A scope a theme styles in no way still opens a `<span>`, so every one pairs
+/// with the `</span>` an end event writes.
+///
+/// # Example
+///
+/// ```rust
+/// use lumis::html;
+///
+/// assert_eq!(html::open_span(&html::span_linked_attrs("keyword")), r#"<span class="l-keyword">"#);
+/// assert_eq!(html::open_span(""), "<span>");
+/// ```
+pub fn open_span(attrs: &str) -> String {
+    lumis_core::formatter::html::open_span(attrs)
+}
+
+/// Whether `line_number` falls inside any of `lines`.
+///
+/// Lines are 1-based, matching the `data-line` attribute [`wrap_line`] writes.
+///
+/// # Example
+///
+/// ```rust
+/// use lumis::html;
+///
+/// assert!(html::line_is_highlighted(&[1..=1, 3..=5], 4));
+/// assert!(!html::line_is_highlighted(&[1..=1, 3..=5], 2));
+/// ```
+pub fn line_is_highlighted(lines: &[RangeInclusive<usize>], line_number: usize) -> bool {
+    lumis_core::formatter::html::line_is_highlighted(lines, line_number)
+}
+
+/// The CSS class a highlighted line carries, or `None` when the line is not highlighted.
+///
+/// `class` wins over `default_class`, so a formatter can offer a caller-supplied
+/// class over its own.
+///
+/// # Example
+///
+/// ```rust
+/// use lumis::html;
+///
+/// let lines = [1..=1, 3..=5];
+/// assert_eq!(html::highlight_line_class(&lines, 4, None, Some("l-highlighted")), Some("l-highlighted"));
+/// assert_eq!(html::highlight_line_class(&lines, 4, Some("active"), Some("l-highlighted")), Some("active"));
+/// assert_eq!(html::highlight_line_class(&lines, 2, Some("active"), None), None);
+/// ```
+pub fn highlight_line_class<'a>(
+    lines: &[RangeInclusive<usize>],
+    line_number: usize,
+    class: Option<&'a str>,
+    default_class: Option<&'a str>,
+) -> Option<&'a str> {
+    lumis_core::formatter::html::highlight_line_class(lines, line_number, class, default_class)
+}
+
+/// Split a fragment across lines, appending to the current line and starting new ones at `\n`.
+///
+/// The line buffer [`render_lines_from_events`] fills, exposed for a formatter
+/// that fills its own.
+///
+/// # Example
+///
+/// ```rust
+/// use lumis::html;
+///
+/// let mut lines = vec![String::from("hello")];
+/// html::append_fragment(&mut lines, " world\nnew line");
+/// assert_eq!(lines, ["hello world", "new line"]);
+/// ```
+pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
+    lumis_core::formatter::html::append_fragment(lines, fragment);
+}
+
+/// Render highlight events into HTML lines, reopening active spans at line boundaries.
+///
+/// A span that crosses a newline is closed at the end of one line and reopened at
+/// the start of the next, so every line's tags nest on their own. `span_attrs`
+/// receives a scope index into [`highlights::HIGHLIGHT_NAMES`](crate::highlights::HIGHLIGHT_NAMES)
+/// and the language of the block the event came from.
+///
+/// # Example
+///
+/// ```rust
+/// use lumis::{events::HighlightEvent, highlights::HIGHLIGHT_NAMES, html};
+///
+/// let source = "a\nb";
+/// let keyword = HIGHLIGHT_NAMES.iter().position(|&s| s == "keyword").unwrap();
+/// let events: Vec<HighlightEvent<'_>> = vec![
+///     HighlightEvent::Start { scope_index: keyword, language: "rust".to_string() },
+///     HighlightEvent::Source { start: 0, end: source.len() },
+///     HighlightEvent::End,
+/// ];
+///
+/// let lines = html::render_lines_from_events(source, &events, |scope_index, _language| {
+///     html::span_linked_attrs(HIGHLIGHT_NAMES[scope_index])
+/// });
+///
+/// assert_eq!(
+///     lines,
+///     [
+///         r#"<span class="l-keyword">a</span>"#,
+///         r#"<span class="l-keyword">b</span>"#,
+///     ]
+/// );
+/// ```
+pub fn render_lines_from_events<T, F>(
+    source: &str,
+    events: &[lumis_core::events::HighlightEvent<'_, T>],
+    span_attrs: F,
+) -> Vec<String>
+where
+    F: Fn(usize, &str) -> String,
+{
+    lumis_core::formatter::html::render_lines_from_events(source, events, span_attrs)
 }
 
 #[cfg(test)]

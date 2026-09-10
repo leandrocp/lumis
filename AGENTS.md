@@ -29,6 +29,21 @@ Lumis should present one mental model everywhere. Public APIs across languages s
 
 The Rust implementation is the source of truth. When a cross-runtime API decision is unclear, follow Rust first and bring other runtimes into line with it instead of inventing runtime-specific behavior.
 
+### A shared surface needs a checked-in manifest, or it drifts silently
+
+"Keep the API aligned" is a rule nothing enforces. Two files do enforce it, each for one surface, and each read by a test in every runtime that has to offer it:
+
+- `fixtures/formatter-options.json` — what the built-in formatters **accept**.
+- `fixtures/formatter-helpers.json` — what a **custom** formatter can be built from.
+
+The second exists because the first was the only one. Options were pinned, helpers were not, and the three helper modules reached 46 names between them with 11 in all three ([#1381](https://github.com/leandrocp/lumis/issues/1381)): JavaScript had grown 20 helpers Rust never got, and a multi-theme formatter could not be written in Elixir at all. Nothing failed, because a helper another runtime lacks raises no error where it does exist.
+
+- **Add to the manifest first, then watch the runtimes go red.** That is the order that makes the gap visible instead of leaving it for an audit.
+- **Every runtime's test checks both directions.** A capability in the manifest that the runtime lacks fails, and a public helper the manifest does not account for fails too. Only the second one catches a helper added to one runtime and nowhere else, which is how this drifted.
+- **A capability is a thing a formatter can do, not a signature.** Runtimes keep their own argument shapes: Elixir returns a whole scope table where Rust takes a theme, because the NIF boundary is not free; JavaScript takes an attribute object where Rust takes a rendered string. Aligning the spelling of those would make the API worse.
+- **`runtime_only` is for a signature the boundary dictates, and it carries the reason.** Elixir's tables and JavaScript's `encodeSource`/`decodeSourceSlice` are there; generic tag plumbing exported by accident is not, that is `deprecated`.
+- **A new surface with the same shape gets the same treatment.** If a third module lands that every runtime must offer, it goes in a manifest before it goes in a second runtime.
+
 ### Reuse the Rust core instead of reimplementing it
 
 Shared behavior belongs in one Rust crate that every runtime consumes. A second implementation of the same logic in another language, or in another Rust crate, is a divergence that will drift.

@@ -77,11 +77,13 @@ impl HtmlLinked {
 
     fn get_line_class_suffix(&self, line_number: usize) -> Option<String> {
         self.highlight_lines.as_ref().and_then(|hl| {
-            if hl.lines.iter().any(|range| range.contains(&line_number)) {
-                Some(format!(" {}", hl.class))
-            } else {
-                None
-            }
+            crate::formatter::html::highlight_line_class(
+                &hl.lines,
+                line_number,
+                Some(hl.class.as_str()),
+                None,
+            )
+            .map(|class| format!(" {class}"))
         })
     }
 

@@ -6,7 +6,6 @@ import json from "../langs/json.ts";
 import { createHighlighter, highlightIter } from "../src/index.js";
 import { type Formatter, htmlInline } from "../src/formatters.js";
 import {
-  closeTag,
   closingTags,
   openCodeTag,
   openPreTag,
@@ -52,7 +51,7 @@ describe("custom formatter", () => {
               append(text);
             } else {
               append(
-                `${openSpanTag({ class: `tok ${scope.replaceAll(".", "-")}` })}${text}${closeTag("span")}`,
+                `${openSpanTag({ class: `tok ${scope.replaceAll(".", "-")}` })}${text}</span>`,
               );
             }
           },
@@ -62,7 +61,7 @@ describe("custom formatter", () => {
           .map((line, index) =>
             wrapLine(
               index + 1,
-              `${openSpanTag({ class: "line-no" })}${index + 1}${closeTag("span")}${openSpanTag({ class: "line-body" })}${line}${closeTag("span")}`,
+              `${openSpanTag({ class: "line-no" })}${index + 1}</span>${openSpanTag({ class: "line-body" })}${line}</span>`,
               {
                 className: index === 0 ? "first-line" : undefined,
               },

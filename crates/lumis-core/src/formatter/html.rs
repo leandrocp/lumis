@@ -6,6 +6,7 @@ use crate::languages::Language;
 use crate::themes::{Style, TextDecoration, Theme, UnderlineStyle};
 use std::fmt::Write as _;
 use std::io::{self, Write};
+use std::ops::RangeInclusive;
 
 /// Generate HTML attributes for a span with inline CSS styles.
 pub fn span_inline_attrs(
@@ -491,6 +492,30 @@ pub fn wrap_line(
     }
 }
 
+/// Whether `line_number` falls inside any of `lines`.
+///
+/// Lines are 1-based, matching the `data-line` attribute [`wrap_line`] writes.
+pub fn line_is_highlighted(lines: &[RangeInclusive<usize>], line_number: usize) -> bool {
+    lines.iter().any(|range| range.contains(&line_number))
+}
+
+/// The CSS class a highlighted line carries, or `None` when the line is not highlighted.
+///
+/// `class` wins over `default_class`, so a formatter can offer a caller-supplied
+/// class over its own.
+pub fn highlight_line_class<'a>(
+    lines: &[RangeInclusive<usize>],
+    line_number: usize,
+    class: Option<&'a str>,
+    default_class: Option<&'a str>,
+) -> Option<&'a str> {
+    if line_is_highlighted(lines, line_number) {
+        class.or(default_class)
+    } else {
+        None
+    }
+}
+
 /// Map tree-sitter scope to CSS class name.
 pub fn scope_to_class(scope: &str) -> String {
     crate::highlights::HIGHLIGHT_NAMES
@@ -668,11 +693,16 @@ pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
 }
 
 /// Escape text for use in HTML span content.
+#[deprecated(note = "use `escape(...)` instead")]
 pub fn escape_fragment(text: &str) -> String {
     escape(text)
 }
 
-fn open_span(attrs: &str) -> String {
+/// Generate an opening `<span>` tag carrying `attrs`, or a bare one when empty.
+///
+/// A scope a theme styles in no way still opens a `<span>`, so every one pairs
+/// with the `</span>` an end event writes.
+pub fn open_span(attrs: &str) -> String {
     if attrs.is_empty() {
         "<span>".to_string()
     } else {
@@ -737,13 +767,13 @@ fn render_source_event<F>(
     loop {
         if let Some(newline_index) = remaining.find('\n') {
             let fragment = &remaining[..newline_index];
-            append_fragment(lines, &escape_fragment(fragment));
+            append_fragment(lines, &escape(fragment));
             close_open_spans(lines, stack.len());
             lines.push(String::new());
             reopen_spans(lines, stack, span_attrs);
             remaining = &remaining[newline_index + 1..];
         } else {
-            append_fragment(lines, &escape_fragment(remaining));
+            append_fragment(lines, &escape(remaining));
             break;
         }
     }
@@ -769,6 +799,11 @@ where
 ///
 /// This is a simplified version of the vendored `HtmlRenderer` that works with
 /// pre-computed `HighlightEvent` slices instead of tree-sitter iterators.
+///
+/// Deprecated: it records line offsets without closing and reopening the spans
+/// that cross a line boundary, so slicing the buffer at them yields lines whose
+/// tags do not nest. [`render_lines_from_events`] does the same job correctly.
+#[deprecated(note = "use `render_lines_from_events(...)` instead")]
 pub fn render_events<T, F>(
     source: &str,
     events: &[crate::events::HighlightEvent<'_, T>],
@@ -837,6 +872,9 @@ where
 }
 
 /// Iterator over rendered HTML lines.
+///
+/// Deprecated: only useful for slicing what [`render_events`] returns.
+#[deprecated(note = "use `render_lines_from_events(...)` instead")]
 pub fn lines_from_offsets<'a>(
     html: &'a [u8],
     line_offsets: &'a [u32],

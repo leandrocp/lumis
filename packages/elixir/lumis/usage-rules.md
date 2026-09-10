@@ -510,13 +510,35 @@ Lumis.highlight!(code, formatter: {MyFormatter, language: "elixir", theme: "gith
 Do not hand-roll HTML escaping or scope-to-class mapping. `Lumis.Formatter.HTML`
 gives the built-in formatters' pieces:
 
-- `escape/1`, `escape_braces/1`
+- `escape/1`, `escape_attr/1`, `escape_braces/1`
 - `scope_to_class/1`, `span_linked_attrs/1`, `span_linked/2`
 - `span_attrs/1`, `open_span/2`, `span_inline_attrs/2`, `span_inline/3`
-- `open_pre_tag/1`, `open_code_tag/1`, `closing_tags/0`, `wrap_line/3`
+- `span_multi_themes_attrs/1`, `span_multi_themes/3`, `sanitize_theme_name/1`
+- `style_to_css/2`, `text_decoration/1`
+- `open_pre_tag/1`, `open_multi_themes_pre_tag/1`, `open_code_tag/1`
+- `close_pre_tag/0`, `close_code_tag/0`, `closing_tags/0`
+- `wrap_line/3`, `line_is_highlighted/2`, `highlight_line_class/3`
+- `render_lines_from_events/3`
 
-`span_attrs/1` and `classes/0` return whole tables because resolving a scope is
-a per-token operation. Build the table once outside the loop and read it inside.
+`span_attrs/1`, `span_multi_themes_attrs/1` and `classes/0` return whole tables
+because resolving a scope is a per-token operation. Build the table once outside
+the loop and read it inside.
+
+For line-based output, reach for `render_lines_from_events/3` rather than
+splitting rendered markup on newlines. A `<span>` that crosses a newline has to
+be closed and reopened for each line's tags to nest, and that is the part worth
+not writing again:
+
+```elixir
+attrs = HTML.span_attrs(theme: theme, language: language)
+
+source
+|> HTML.render_lines_from_events(events, attrs)
+|> Enum.with_index(1)
+# A rendered line carries no trailing newline. The built-in formatters put one
+# inside the <div> so the block still copies as lines.
+|> Enum.map(fn {line, number} -> HTML.wrap_line(number, [line, "\n"]) end)
+```
 
 Do not hand-roll ANSI color or text-decoration escape sequences either.
 `Lumis.Formatter.ANSI` gives `:terminal`'s pieces:
