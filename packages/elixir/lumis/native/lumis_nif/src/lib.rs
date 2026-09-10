@@ -775,6 +775,34 @@ fn ansi_reset() -> &'static str {
     lumis_core::formatter::ansi::ANSI_RESET
 }
 
+/// Every scope's style for one theme and language, resolved the way the
+/// built-in terminal formatter resolves it.
+///
+/// The per-token counterpart of the rest of these, split for the same reason as
+/// [`html_span_attrs`]. `Theme::get_style` walks a scope up to its parent and
+/// consults the rainbow-bracket fallbacks, so an Elixir formatter that looks a
+/// scope up in `theme.highlights` itself gets a different answer than
+/// `:terminal` does. There are only ever 293 answers, so all of them come back
+/// at once and Elixir never resolves anything.
+#[rustler::nif]
+fn ansi_styles(theme: Option<ExTheme>, language: &str) -> HashMap<&'static str, ExStyle> {
+    let Some(theme) = theme.map(themes::Theme::from) else {
+        return HashMap::new();
+    };
+    let language = Language::guess(Some(language), "");
+
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .filter_map(|scope| {
+            let specialized = format!("{scope}.{}", language.id_name());
+            let style = theme
+                .get_style(&specialized)
+                .or_else(|| theme.get_style(scope))?;
+            Some((*scope, ExStyle::from(style)))
+        })
+        .collect()
+}
+
 /// `lumis_core::formatter::html`, reachable from Elixir.
 ///
 /// A formatter written in Elixir needs the same pieces the built-in HTML

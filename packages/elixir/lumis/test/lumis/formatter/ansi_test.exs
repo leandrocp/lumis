@@ -31,17 +31,18 @@ defmodule Lumis.Formatter.ANSITest do
     def render(source, events, options) do
       theme = Keyword.fetch!(options, :theme)
 
-      {parts, _scopes} =
-        Enum.reduce(events, {[], []}, fn
-          {:start, %{scope: scope, language: language}}, {parts, scopes} ->
-            {parts, [{scope, language} | scopes]}
+      {parts, _scopes, _tables} =
+        Enum.reduce(events, {[], [], %{}}, fn
+          {:start, %{scope: scope, language: language}}, {parts, scopes, tables} ->
+            {parts, [{scope, language} | scopes], tables}
 
-          :end, {parts, [_scope | scopes]} ->
-            {parts, scopes}
+          :end, {parts, [_scope | scopes], tables} ->
+            {parts, scopes, tables}
 
-          {:source, %{start: start, end: stop}}, {parts, scopes} ->
+          {:source, %{start: start, end: stop}}, {parts, scopes, tables} ->
             text = binary_part(source, start, stop - start)
-            {[paint(text, scopes, theme) | parts], scopes}
+            {painted, tables} = paint(text, scopes, theme, tables)
+            {[painted | parts], scopes, tables}
 
           _event, state ->
             state
@@ -50,18 +51,31 @@ defmodule Lumis.Formatter.ANSITest do
       parts |> Enum.reverse() |> IO.iodata_to_binary()
     end
 
-    defp paint(text, [], _theme), do: text
+    defp paint(text, [], _theme, tables), do: {text, tables}
 
-    defp paint(text, [{scope, language} | _scopes], theme) do
-      style =
-        Map.get(theme.highlights, "#{scope}.#{language}") || Map.get(theme.highlights, scope)
+    defp paint(text, [{scope, language} | _scopes], theme, tables) do
+      tables =
+        Map.put_new_lazy(tables, language, fn ->
+          ANSI.styles(theme: theme, language: language)
+        end)
 
-      if style, do: ANSI.paint(text, style), else: text
+      {ANSI.paint(text, ANSI.style_for(tables[language], scope)), tables}
     end
   end
 
+  # A theme, a language, and source whose scopes that theme does not style
+  # directly, so resolution has to fall back the way `:terminal` falls back.
+  @terminal_parity_cases [
+    {"elixir", "dracula", @source},
+    {"html", "github_light", ~s|<div class="a">t</div>\n|},
+    {"markdown", "catppuccin_frappe", "# T\n\n> q\n\n```elixir\ndef run, do: :ok\n```\n"}
+  ]
+
   setup_all do
-    :ok = Lumis.Languages.load("elixir")
+    for {language, _theme, _source} <- @terminal_parity_cases do
+      :ok = Lumis.Languages.load(language)
+    end
+
     :ok
   end
 
@@ -128,7 +142,56 @@ defmodule Lumis.Formatter.ANSITest do
 
   test "paint/2 leaves text unchanged for an empty style" do
     assert ANSI.paint("plain text", %Style{}) == "plain text"
+    assert ANSI.paint("plain text", nil) == "plain text"
     assert ANSI.style_to_ansi(%Style{}) == ""
+  end
+
+  test "styles/1 resolves a scope to its parent, which theme.highlights alone does not" do
+    theme = Theme.get("github_light")
+    styles = ANSI.styles(theme: theme, language: "html")
+
+    assert Map.get(theme.highlights, "tag.delimiter") == nil
+    assert Map.get(theme.highlights, "tag") != nil
+    assert ANSI.style_for(styles, "tag.delimiter") == Map.get(theme.highlights, "tag")
+  end
+
+  test "styles/1 prefers a language's specialized scope" do
+    style = %Style{fg: "#ff79c6"}
+    specialized = %Style{fg: "#282a36"}
+
+    theme = %Theme{
+      theme_for(["comment"], style)
+      | highlights: %{"comment" => style, "comment.elixir" => specialized}
+    }
+
+    assert ANSI.style_for(ANSI.styles(theme: theme, language: "elixir"), "comment") == specialized
+    assert ANSI.style_for(ANSI.styles(theme: theme, language: "rust"), "comment") == style
+  end
+
+  test "styles/1 without a theme paints nothing" do
+    styles = ANSI.styles(language: "elixir")
+
+    assert styles == %{}
+    assert ANSI.style_for(styles, "keyword") == nil
+    assert ANSI.style_for(styles, nil) == nil
+    assert ANSI.paint("def", ANSI.style_for(styles, "keyword")) == "def"
+  end
+
+  test "styles/1 accepts a theme name" do
+    assert ANSI.styles(theme: "dracula", language: "elixir") ==
+             ANSI.styles(theme: Theme.get("dracula"), language: "elixir")
+  end
+
+  test "a formatter built on styles/1 reproduces :terminal for real themes" do
+    for {language, theme_name, source} <- @terminal_parity_cases do
+      theme = Theme.get(theme_name)
+
+      helper_output =
+        Lumis.highlight!(source, formatter: {HelperFormatter, language: language, theme: theme})
+
+      assert helper_output == terminal_output(source, theme, language),
+             "#{language} highlighted with #{theme_name} diverges from the :terminal formatter"
+    end
   end
 
   defp events(source, language) do

@@ -84,6 +84,7 @@ defmodule Lumis.Native do
   def ansi_style_to_ansi(_style), do: :erlang.nif_error(:nif_not_loaded)
   def ansi_paint(_text, _style), do: :erlang.nif_error(:nif_not_loaded)
   def ansi_reset, do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_styles(_theme, _language), do: :erlang.nif_error(:nif_not_loaded)
 
   def html_escape(_text), do: :erlang.nif_error(:nif_not_loaded)
   def html_escape_braces(_text), do: :erlang.nif_error(:nif_not_loaded)

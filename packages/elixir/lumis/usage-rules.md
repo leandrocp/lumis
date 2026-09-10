@@ -523,6 +523,17 @@ Do not hand-roll ANSI color or text-decoration escape sequences either.
 
 - `hex_to_rgb/1`, `rgb_to_ansi/4`
 - `style_to_ansi/1`, `paint/2`, `reset/0`
+- `styles/1`, `style_for/2`
+
+Do not resolve a scope by reading `theme.highlights` either. A scope falls back
+to its parent, so `tag.delimiter` is painted by `tag` in a theme that styles
+only `tag`, and rainbow-bracket scopes fall back to a table Lumis owns.
+`Map.get(theme.highlights, scope)` misses both and paints differently than
+`:terminal` does. `styles/1` returns the whole resolved table, for the same
+reason `span_attrs/1` does; build one per language you meet and read it with
+`style_for/2`. An injected block carries its own language on its `:start` event,
+and a theme can style a scope per language, so one table for the whole document
+is wrong when the document has injections.
 
 ## HTML Output Structure
 
