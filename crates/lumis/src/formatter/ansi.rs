@@ -38,11 +38,13 @@ pub const ANSI_RESET: &str = lumis_core::formatter::ansi::ANSI_RESET;
 ///
 /// # Arguments
 ///
-/// * `hex` - Hex color string (with or without '#' prefix)
+/// * `hex` - Exactly six hex digits, with or without a '#' prefix
 ///
 /// # Returns
 ///
 /// `Some((r, g, b))` tuple of u8 values if parsing succeeds, `None` otherwise.
+/// A string that merely starts with hex digits names no color either, so
+/// `"ff79cz"` is `None` rather than `(255, 121, 12)`.
 ///
 /// # Examples
 ///
@@ -52,6 +54,7 @@ pub const ANSI_RESET: &str = lumis_core::formatter::ansi::ANSI_RESET;
 /// assert_eq!(hex_to_rgb("#ff5555"), Some((255, 85, 85)));
 /// assert_eq!(hex_to_rgb("ff5555"), Some((255, 85, 85)));
 /// assert_eq!(hex_to_rgb("invalid"), None);
+/// assert_eq!(hex_to_rgb("ff79cz"), None);
 /// ```
 pub fn hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
     lumis_core::formatter::ansi::hex_to_rgb(hex)
@@ -257,6 +260,8 @@ mod tests {
         assert_eq!(hex_to_rgb("aéaaa"), None);
         assert_eq!(hex_to_rgb(""), None);
         assert_eq!(hex_to_rgb("#gggggg"), None);
+        assert_eq!(hex_to_rgb("ff79cz"), None);
+        assert_eq!(hex_to_rgb("ff+79c"), None);
     }
 
     #[test]

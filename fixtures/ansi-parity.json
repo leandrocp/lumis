@@ -1,0 +1,303 @@
+{
+  "$comment": [
+    "ANSI formatter helpers, pinned between Rust and the TypeScript port.",
+    "",
+    "`crates/lumis-core/src/formatter/ansi.rs` is the reference and",
+    "`packages/javascript/lumis/src/formatter/ansi-core.ts` is a hand port of it,",
+    "because the browser cannot call into Rust. The two disagreed on invalid hex",
+    "input (#1389): Rust's `u8::from_str_radix` rejects a component it cannot",
+    "consume whole, while `Number.parseInt` takes the longest valid prefix, so a",
+    "malformed theme painted a wrong colour in JavaScript and no colour at all in",
+    "the built-in terminal formatter. Rust also accepted a `+` sign inside a",
+    "component, which names no colour either; both sides now reject it.",
+    "",
+    "`helper` selects what a case exercises:",
+    "  hexToRgb    `hex` in, `rgb` out, or `null` where the string names no colour",
+    "  styleToAnsi `style` in, the opening escape sequence out",
+    "  paint       `text` and `style` in, the rendered string out",
+    "",
+    "`style` is the JSON shape a theme already carries, so Rust deserializes it",
+    "into `lumis_core::themes::Style` and the port reads it as a",
+    "`HighlightStyle` without either side reshaping it.",
+    "",
+    "`expected` is one value both runtimes must produce. Rust is the reference,",
+    "so a difference is a bug in the port unless the Rust half fails too."
+  ],
+  "cases": [
+    {
+      "name": "hex/six-digits",
+      "helper": "hexToRgb",
+      "hex": "ff79c6",
+      "expected": [255, 121, 198]
+    },
+    {
+      "name": "hex/leading-hash",
+      "helper": "hexToRgb",
+      "hex": "#ff79c6",
+      "expected": [255, 121, 198]
+    },
+    {
+      "name": "hex/uppercase",
+      "helper": "hexToRgb",
+      "hex": "#FF79C6",
+      "expected": [255, 121, 198]
+    },
+    {
+      "name": "hex/black-and-white",
+      "helper": "hexToRgb",
+      "hex": "#000000",
+      "expected": [0, 0, 0]
+    },
+    {
+      "name": "hex/repeated-hash-is-trimmed",
+      "helper": "hexToRgb",
+      "hex": "##ff5555",
+      "expected": [255, 85, 85]
+    },
+    {
+      "name": "hex/empty",
+      "helper": "hexToRgb",
+      "hex": "",
+      "expected": null
+    },
+    {
+      "name": "hex/three-digit-shorthand",
+      "helper": "hexToRgb",
+      "hex": "#fff",
+      "expected": null
+    },
+    {
+      "name": "hex/not-a-colour",
+      "helper": "hexToRgb",
+      "hex": "invalid",
+      "expected": null
+    },
+    {
+      "name": "hex/no-digit-is-hex",
+      "helper": "hexToRgb",
+      "hex": "#gggggg",
+      "expected": null
+    },
+    {
+      "name": "hex/trailing-non-hex-digit",
+      "helper": "hexToRgb",
+      "hex": "ff79cz",
+      "expected": null
+    },
+    {
+      "name": "hex/last-component-half-valid",
+      "helper": "hexToRgb",
+      "hex": "fffffg",
+      "expected": null
+    },
+    {
+      "name": "hex/trailing-space",
+      "helper": "hexToRgb",
+      "hex": "ff79c ",
+      "expected": null
+    },
+    {
+      "name": "hex/leading-space",
+      "helper": "hexToRgb",
+      "hex": " f79c1",
+      "expected": null
+    },
+    {
+      "name": "hex/signed-component",
+      "helper": "hexToRgb",
+      "hex": "ff+79c",
+      "expected": null
+    },
+    {
+      "name": "hex/every-component-signed",
+      "helper": "hexToRgb",
+      "hex": "+f+f+f",
+      "expected": null
+    },
+    {
+      "name": "hex/negative-component",
+      "helper": "hexToRgb",
+      "hex": "-0ffff",
+      "expected": null
+    },
+    {
+      "name": "hex/six-bytes-of-non-ascii",
+      "helper": "hexToRgb",
+      "hex": "aéaaa",
+      "expected": null
+    },
+    {
+      "name": "hex/non-ascii-in-the-last-component",
+      "helper": "hexToRgb",
+      "hex": "ff79cé",
+      "expected": null
+    },
+    {
+      "name": "hex/seven-digits",
+      "helper": "hexToRgb",
+      "hex": "ff79c6a",
+      "expected": null
+    },
+    {
+      "name": "style/empty",
+      "helper": "styleToAnsi",
+      "style": {},
+      "expected": ""
+    },
+    {
+      "name": "style/foreground",
+      "helper": "styleToAnsi",
+      "style": { "fg": "#8be9fd" },
+      "expected": "\u001b[38;2;139;233;253m"
+    },
+    {
+      "name": "style/background",
+      "helper": "styleToAnsi",
+      "style": { "bg": "#282a36" },
+      "expected": "\u001b[48;2;40;42;54m"
+    },
+    {
+      "name": "style/invalid-foreground-emits-no-colour",
+      "helper": "styleToAnsi",
+      "style": { "fg": "ff79cz", "bold": true },
+      "expected": "\u001b[1m"
+    },
+    {
+      "name": "style/invalid-background-emits-no-colour",
+      "helper": "styleToAnsi",
+      "style": { "bg": "fffffg", "italic": true },
+      "expected": "\u001b[3m"
+    },
+    {
+      "name": "style/order-is-fg-bg-bold-italic-underline-strikethrough",
+      "helper": "styleToAnsi",
+      "style": {
+        "fg": "#ffffff",
+        "bg": "#000000",
+        "bold": true,
+        "italic": true,
+        "underline": "solid",
+        "strikethrough": true
+      },
+      "expected": "\u001b[38;2;255;255;255m\u001b[48;2;0;0;0m\u001b[1m\u001b[3m\u001b[4m\u001b[9m"
+    },
+    {
+      "name": "style/underline-true-is-solid",
+      "helper": "styleToAnsi",
+      "style": { "underline": true },
+      "expected": "\u001b[4m"
+    },
+    {
+      "name": "style/underline-false-is-none",
+      "helper": "styleToAnsi",
+      "style": { "underline": false },
+      "expected": ""
+    },
+    {
+      "name": "style/underline-none",
+      "helper": "styleToAnsi",
+      "style": { "underline": "none" },
+      "expected": ""
+    },
+    {
+      "name": "style/underline-wavy",
+      "helper": "styleToAnsi",
+      "style": { "underline": "wavy" },
+      "expected": "\u001b[4:3m"
+    },
+    {
+      "name": "style/underline-undercurl-is-wavy",
+      "helper": "styleToAnsi",
+      "style": { "underline": "undercurl" },
+      "expected": "\u001b[4:3m"
+    },
+    {
+      "name": "style/underline-double",
+      "helper": "styleToAnsi",
+      "style": { "underline": "double" },
+      "expected": "\u001b[4:2m"
+    },
+    {
+      "name": "style/underline-dotted",
+      "helper": "styleToAnsi",
+      "style": { "underline": "dotted" },
+      "expected": "\u001b[4:4m"
+    },
+    {
+      "name": "style/underline-dashed",
+      "helper": "styleToAnsi",
+      "style": { "underline": "dashed" },
+      "expected": "\u001b[4:5m"
+    },
+    {
+      "name": "paint/empty-style-is-the-text",
+      "helper": "paint",
+      "text": "fn",
+      "style": {},
+      "expected": "fn"
+    },
+    {
+      "name": "paint/invalid-colour-alone-is-the-text",
+      "helper": "paint",
+      "text": "fn",
+      "style": { "fg": "ff79cz" },
+      "expected": "fn"
+    },
+    {
+      "name": "paint/foreground",
+      "helper": "paint",
+      "text": "fn",
+      "style": { "fg": "#8be9fd" },
+      "expected": "\u001b[0m\u001b[38;2;139;233;253mfn\u001b[0m"
+    },
+    {
+      "name": "paint/foreground-spans-newlines-uninterrupted",
+      "helper": "paint",
+      "text": "a\nb",
+      "style": { "fg": "#8be9fd" },
+      "expected": "\u001b[0m\u001b[38;2;139;233;253ma\nb\u001b[0m"
+    },
+    {
+      "name": "paint/background-resets-before-each-newline",
+      "helper": "paint",
+      "text": "a\nb",
+      "style": { "fg": "#8be9fd", "bg": "#282a36" },
+      "expected": "\u001b[0m\u001b[38;2;139;233;253m\u001b[48;2;40;42;54ma\u001b[0m\n\u001b[38;2;139;233;253m\u001b[48;2;40;42;54mb\u001b[0m"
+    },
+    {
+      "name": "paint/background-does-not-reopen-after-a-trailing-newline",
+      "helper": "paint",
+      "text": "a\n",
+      "style": { "bg": "#282a36" },
+      "expected": "\u001b[0m\u001b[48;2;40;42;54ma\u001b[0m\n"
+    },
+    {
+      "name": "paint/background-reopens-before-multi-byte-text",
+      "helper": "paint",
+      "text": "a\né",
+      "style": { "bg": "#282a36" },
+      "expected": "\u001b[0m\u001b[48;2;40;42;54ma\u001b[0m\n\u001b[48;2;40;42;54mé\u001b[0m"
+    },
+    {
+      "name": "paint/background-reopens-before-an-astral-char",
+      "helper": "paint",
+      "text": "a\n😀",
+      "style": { "bg": "#282a36" },
+      "expected": "\u001b[0m\u001b[48;2;40;42;54ma\u001b[0m\n\u001b[48;2;40;42;54m😀\u001b[0m"
+    },
+    {
+      "name": "paint/an-empty-background-still-takes-the-per-line-branch",
+      "helper": "paint",
+      "text": "a\nb",
+      "style": { "bg": "", "bold": true },
+      "expected": "\u001b[0m\u001b[1ma\u001b[0m\n\u001b[1mb\u001b[0m"
+    },
+    {
+      "name": "paint/an-unparseable-background-still-takes-the-per-line-branch",
+      "helper": "paint",
+      "text": "a\nb",
+      "style": { "bg": "ff79cz", "bold": true },
+      "expected": "\u001b[0m\u001b[1ma\u001b[0m\n\u001b[1mb\u001b[0m"
+    }
+  ]
+}
