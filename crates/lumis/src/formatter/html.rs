@@ -297,6 +297,24 @@ pub fn escape(text: &str) -> String {
     lumis_core::formatter::html::escape(text)
 }
 
+/// Escape a value for use inside a double-quoted HTML attribute.
+///
+/// The helpers in this module already escape every attribute they build, so this
+/// is for custom formatters that assemble their own tags. The escape set matches
+/// [`escape`].
+///
+/// # Example
+///
+/// ```rust
+/// use lumis::html;
+///
+/// assert_eq!(html::escape_attr(r#"x"><script>"#), "x&quot;&gt;&lt;script&gt;");
+/// assert_eq!(html::escape_attr("font-family: 'Fira Code'"), "font-family: &#39;Fira Code&#39;");
+/// ```
+pub fn escape_attr(value: &str) -> String {
+    lumis_core::formatter::html::escape_attr(value)
+}
+
 /// Escape braces for framework compatibility.
 ///
 /// Replaces `{` with `&lbrace;` and `}` with `&rbrace;`. This is useful

@@ -18,7 +18,7 @@ pub fn span_inline_attrs(
     let mut attrs = String::new();
 
     if include_highlights {
-        let _ = write!(attrs, "data-highlight=\"{scope}\"");
+        let _ = write!(attrs, "data-highlight=\"{}\"", escape_attr(scope));
     }
 
     if let Some(theme) = theme {
@@ -43,7 +43,7 @@ pub fn span_inline_attrs(
 
             let css = style.css(italic, " ");
             if !css.is_empty() {
-                let _ = write!(attrs, "style=\"{css}\"");
+                let _ = write!(attrs, "style=\"{}\"", escape_attr(&css));
             }
         }
     }
@@ -373,20 +373,21 @@ fn render_style_attrs(
 ) -> String {
     let mut attrs = String::new();
     if include_highlights {
-        let _ = write!(attrs, "data-highlight=\"{scope}\" ");
+        let _ = write!(attrs, "data-highlight=\"{}\" ", escape_attr(scope));
     }
 
-    attrs.push_str("style=\"");
+    let mut style = String::new();
     if !inline_styles.is_empty() {
-        attrs.push_str(&inline_styles.join(" "));
+        style.push_str(&inline_styles.join(" "));
     }
     if !css_vars.is_empty() {
         if !inline_styles.is_empty() {
-            attrs.push(' ');
+            style.push(' ');
         }
-        attrs.push_str(&css_vars.join(" "));
+        style.push_str(&css_vars.join(" "));
     }
-    attrs.push('"');
+
+    let _ = write!(attrs, "style=\"{}\"", escape_attr(&style));
 
     attrs
 }
@@ -446,6 +447,22 @@ pub fn escape(text: &str) -> String {
     buf
 }
 
+/// Escape a value for use inside a double-quoted HTML attribute.
+///
+/// Attribute values reach the formatters from two places outside the binary: a
+/// caller-supplied class or style (`pre_class`, `highlight_lines`), and a theme
+/// loaded with [`crate::themes::from_json`]. Neither is a generated constant, so
+/// both are escaped here rather than interpolated raw.
+///
+/// The escape set is the same as [`escape`], which is what `escapeAttr` in
+/// `packages/javascript/lumis/src/formatter/html.ts` covers, so the two runtimes
+/// answer the same for the same input. Escaping is safe for CSS in an attribute
+/// because the HTML parser decodes the entity before the CSS parser sees it, so
+/// `font-family: 'Fira Code'` survives the round trip.
+pub fn escape_attr(value: &str) -> String {
+    escape(value)
+}
+
 /// Escape braces for framework compatibility.
 pub fn escape_braces(text: &str) -> String {
     text.replace('{', "&lbrace;").replace('}', "&rbrace;")
@@ -459,14 +476,17 @@ pub fn wrap_line(
     style: Option<&str>,
 ) -> String {
     let class_attr = match class_suffix {
-        Some(suffix) => format!("l-line{suffix}"),
+        Some(suffix) => escape_attr(&format!("l-line{suffix}")),
         None => "l-line".to_string(),
     };
 
     match style {
-        Some(s) => format!(
-            "<div class=\"{class_attr}\" style=\"{s}\" data-line=\"{line_number}\">{content}</div>"
-        ),
+        Some(s) => {
+            let style_attr = escape_attr(s);
+            format!(
+                "<div class=\"{class_attr}\" style=\"{style_attr}\" data-line=\"{line_number}\">{content}</div>"
+            )
+        }
         None => format!("<div class=\"{class_attr}\" data-line=\"{line_number}\">{content}</div>"),
     }
 }
@@ -486,10 +506,9 @@ pub fn open_pre_tag(
     pre_class: Option<&str>,
     theme: Option<&Theme>,
 ) -> io::Result<()> {
-    let class = if let Some(pre_class) = pre_class {
-        format!("lumis {pre_class}")
-    } else {
-        "lumis".to_string()
+    let class = match pre_class {
+        Some(pre_class) => escape_attr(&format!("lumis {pre_class}")),
+        None => "lumis".to_string(),
     };
 
     write!(
@@ -498,7 +517,7 @@ pub fn open_pre_tag(
         class,
         theme
             .and_then(|theme| theme.pre_style(" "))
-            .map(|pre_style| format!(" style=\"{pre_style}\""))
+            .map(|pre_style| format!(" style=\"{}\"", escape_attr(&pre_style)))
             .unwrap_or_default(),
     )
 }
@@ -511,12 +530,12 @@ pub fn open_multi_themes_pre_tag(
     default_theme: Option<&str>,
     css_variable_prefix: &str,
 ) -> io::Result<()> {
-    let classes = multi_themes_pre_classes(pre_class, themes);
+    let classes = escape_attr(&multi_themes_pre_classes(pre_class, themes));
     let style = multi_themes_pre_style(themes, default_theme, css_variable_prefix);
 
     write!(output, "<pre class=\"{classes}\"")?;
     if !style.is_empty() {
-        write!(output, " style=\"{style}\"")?;
+        write!(output, " style=\"{}\"", escape_attr(&style))?;
     }
     write!(output, ">")
 }
@@ -908,6 +927,127 @@ mod tests {
     #[test]
     fn test_escape_braces_only() {
         assert_eq!(escape_braces("fn() {}"), "fn() &lbrace;&rbrace;");
+    }
+
+    /// A theme is data, so a colour can carry a quote out of a JSON file and
+    /// close the attribute it is written into.
+    fn quote_bearing_theme() -> Theme {
+        crate::themes::from_json(
+            r##"{
+              "name": "quote-bearing",
+              "appearance": "dark",
+              "revision": "test",
+              "highlights": {
+                "normal": { "fg": "red\" onmouseover=\"alert(1)", "bg": "#000000" },
+                "keyword": { "fg": "red\" onmouseover=\"alert(1)" }
+              }
+            }"##,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn test_escape_attr_matches_escape() {
+        assert_eq!(escape_attr("&<>\"'"), "&amp;&lt;&gt;&quot;&#39;");
+    }
+
+    #[test]
+    fn test_escape_attr_keeps_quoted_css_readable() {
+        assert_eq!(
+            escape_attr("font-family: 'Fira Code';"),
+            "font-family: &#39;Fira Code&#39;;"
+        );
+    }
+
+    #[test]
+    fn test_open_pre_tag_escapes_caller_class() {
+        let mut output = Vec::new();
+        open_pre_tag(&mut output, Some(r#"x"><script>"#), None).unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(output).unwrap(),
+            r#"<pre class="lumis x&quot;&gt;&lt;script&gt;">"#
+        );
+    }
+
+    #[test]
+    fn test_open_pre_tag_escapes_theme_colors() {
+        let mut output = Vec::new();
+        open_pre_tag(&mut output, None, Some(&quote_bearing_theme())).unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(output).unwrap(),
+            r#"<pre class="lumis" style="color: red&quot; onmouseover=&quot;alert(1); background-color: #000000;">"#
+        );
+    }
+
+    #[test]
+    fn test_open_multi_themes_pre_tag_escapes_caller_class() {
+        let mut themes = std::collections::HashMap::new();
+        themes.insert("dark".to_string(), quote_bearing_theme());
+
+        let mut output = Vec::new();
+        open_multi_themes_pre_tag(
+            &mut output,
+            Some(r#"x"><script>"#),
+            &themes,
+            Some("dark"),
+            "--lumis",
+        )
+        .unwrap();
+
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(
+            html.starts_with(r#"<pre class="lumis lumis-themes x&quot;&gt;&lt;script&gt; dark""#),
+            "unescaped class in {html}"
+        );
+        assert!(!html.contains("<script>"), "unescaped markup in {html}");
+    }
+
+    #[test]
+    fn test_wrap_line_escapes_caller_class_and_style() {
+        let result = wrap_line(
+            1,
+            "content",
+            Some(r#" x"><script>"#),
+            Some(r#"color: red" onmouseover="alert(1)"#),
+        );
+
+        assert_str_eq!(
+            result,
+            r#"<div class="l-line x&quot;&gt;&lt;script&gt;" style="color: red&quot; onmouseover=&quot;alert(1)" data-line="1">content</div>"#
+        );
+    }
+
+    #[test]
+    fn test_span_inline_escapes_theme_colors() {
+        assert_str_eq!(
+            span_inline(
+                "fn",
+                None,
+                "keyword",
+                Some(&quote_bearing_theme()),
+                false,
+                false
+            ),
+            r#"<span style="color: red&quot; onmouseover=&quot;alert(1);">fn</span>"#
+        );
+    }
+
+    #[test]
+    fn test_span_multi_themes_escapes_theme_colors() {
+        let mut themes = std::collections::HashMap::new();
+        themes.insert("dark".to_string(), quote_bearing_theme());
+
+        let result = span_multi_themes(
+            "fn", "keyword", None, &themes, None, "--lumis", false, false,
+        );
+
+        assert_str_eq!(
+            result,
+            r#"<span style="--lumis-dark:red&quot; onmouseover=&quot;alert(1); --lumis-dark-font-style:normal; --lumis-dark-font-weight:normal; --lumis-dark-text-decoration:none;">fn</span>"#
+        );
     }
 
     #[test]
