@@ -732,27 +732,26 @@ defmodule Lumis do
         {:ok, opts}
 
       hl ->
-        lines = Lumis.LineSpec.encode(hl[:lines] || [])
-
-        style =
-          case hl[:style] do
-            :theme -> :theme
-            str when is_binary(str) -> {:style, %{style: str}}
-            nil -> nil
-            _ -> :theme
-          end
-
-        class = hl[:class]
-
-        opts
-        |> Keyword.put(:highlight_lines, %Lumis.HTMLInlineHighlightLines{
-          lines: lines,
-          style: style,
-          class: class
-        })
-        |> then(&{:ok, &1})
+        put_inline_highlight_lines(opts, hl)
     end
   end
+
+  defp put_inline_highlight_lines(opts, hl) do
+    with {:ok, lines} <- Lumis.LineSpec.encode(hl[:lines] || []) do
+      opts
+      |> Keyword.put(:highlight_lines, %Lumis.HTMLInlineHighlightLines{
+        lines: lines,
+        style: inline_highlight_style(hl[:style]),
+        class: hl[:class]
+      })
+      |> then(&{:ok, &1})
+    end
+  end
+
+  defp inline_highlight_style(:theme), do: :theme
+  defp inline_highlight_style(style) when is_binary(style), do: {:style, %{style: style}}
+  defp inline_highlight_style(nil), do: nil
+  defp inline_highlight_style(_other), do: :theme
 
   @doc false
   defp convert_highlight_lines_linked(opts) do
@@ -761,16 +760,16 @@ defmodule Lumis do
         {:ok, opts}
 
       hl ->
-        lines = Lumis.LineSpec.encode(hl[:lines] || [])
+        with {:ok, lines} <- Lumis.LineSpec.encode(hl[:lines] || []) do
+          class = hl[:class] || "l-highlighted"
 
-        class = hl[:class] || "l-highlighted"
-
-        opts
-        |> Keyword.put(:highlight_lines, %Lumis.HTMLLinkedHighlightLines{
-          lines: lines,
-          class: class
-        })
-        |> then(&{:ok, &1})
+          opts
+          |> Keyword.put(:highlight_lines, %Lumis.HTMLLinkedHighlightLines{
+            lines: lines,
+            class: class
+          })
+          |> then(&{:ok, &1})
+        end
     end
   end
 

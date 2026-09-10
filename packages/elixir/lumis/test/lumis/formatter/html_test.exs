@@ -434,6 +434,34 @@ defmodule Lumis.Formatter.HTMLTest do
       refute HTML.line_is_highlighted([5..3//-1], 2)
 
       refute HTML.line_is_highlighted([1..0//1], 1), "an empty range highlights nothing"
+      refute HTML.line_is_highlighted([3..5//-1], 4), "so does an empty descending range"
+    end
+
+    # A step of 1 or -1 is a contiguous run either way round, so it crosses as
+    # one range whatever its span. Any other step has to be listed out, and
+    # `1..1_000_000_000//2` listed out is 500 million tuples.
+    test "a huge contiguous range costs nothing, whichever way round" do
+      assert HTML.line_is_highlighted([1..1_000_000_000], 999_999_999)
+      assert HTML.line_is_highlighted([1_000_000_000..1//-1], 999_999_999)
+    end
+
+    test "refuses to expand a stepped range too large to list out" do
+      assert_raise ArgumentError, ~r/over the 100000 limit/, fn ->
+        HTML.line_is_highlighted([1..1_000_000_000//2], 3)
+      end
+
+      assert_raise ArgumentError, ~r/over the 100000 limit/, fn ->
+        HTML.highlight_line_class([1..1_000_000_000//2], 3, default_class: "hl")
+      end
+    end
+
+    test "the same range is an error tuple through the formatter options" do
+      assert {:error, message} =
+               Lumis.formatter_type(
+                 {:html_linked, highlight_lines: %{lines: [1..1_000_000_000//2]}}
+               )
+
+      assert message =~ "over the 100000 limit"
     end
 
     test "picks the lines html_linked marks with its highlight class" do

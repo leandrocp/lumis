@@ -447,20 +447,30 @@ defmodule Lumis.Formatter.HTML do
   Lines are 1-based, matching the `data-line` `wrap_line/3` writes and the
   `:highlight_lines` option the built-in formatters take.
 
+  A range's step counts: `1..9//2` is five lines, not nine. A stepped range has
+  to be listed out line by line, so one spanning more than 100,000 lines raises
+  `ArgumentError`; a range stepping by 1 has no limit.
+
       iex> Lumis.Formatter.HTML.line_is_highlighted([1, 3..5], 4)
       true
 
       iex> Lumis.Formatter.HTML.line_is_highlighted([1, 3..5], 2)
       false
 
+      iex> Lumis.Formatter.HTML.line_is_highlighted([1..9//2], 4)
+      false
+
   """
   @spec line_is_highlighted([pos_integer() | Range.t()], pos_integer()) :: boolean()
   def line_is_highlighted(lines, line_number) when is_list(lines) do
-    Native.html_line_is_highlighted(LineSpec.encode(lines), line_number)
+    Native.html_line_is_highlighted(LineSpec.encode!(lines), line_number)
   end
 
   @doc """
   The CSS class a highlighted line carries, or `nil` when the line is not highlighted.
+
+  Reads `lines` the way `line_is_highlighted/2` does, including the limit on a
+  stepped range.
 
   ## Options
 
@@ -481,7 +491,7 @@ defmodule Lumis.Formatter.HTML do
   def highlight_line_class(lines, line_number, options \\ [])
       when is_list(lines) and is_list(options) do
     Native.html_highlight_line_class(
-      LineSpec.encode(lines),
+      LineSpec.encode!(lines),
       line_number,
       Keyword.get(options, :class),
       Keyword.get(options, :default_class)
