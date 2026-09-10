@@ -32,6 +32,11 @@ Lumis highlights the source and hands your formatter the resulting event
 stream. A `Start` opens a scope, `Source` events carry byte ranges into the
 original text, and `End` closes it.
 
+`lumis::formatters::Formatter` is a re-export of `lumis_core::formatter::Formatter`,
+so one implementation serves both crates: hand it to `lumis::highlight()`, which
+parses the source with the grammar `language()` names, or call `render()` yourself
+with an event stream you already have.
+
 ```rust
 use lumis::{
     events::HighlightEvent,

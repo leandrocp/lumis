@@ -75,12 +75,16 @@ fn header() -> HtmlElement {
     }
 }
 
-/// Named fields of every struct declared under `src/formatter`, by struct name.
+/// Named fields of every struct declared under `lumis-core`'s `src/formatter`,
+/// by struct name.
 ///
-/// Discovered by scanning the directory rather than by listing files, so moving
-/// a formatter between modules does not also mean editing this test.
+/// The formatters live in `lumis-core` and `lumis` re-exports them, so that is
+/// the directory to read the field lists from. Discovered by scanning it rather
+/// than by listing files, so moving a formatter between modules does not also
+/// mean editing this test.
 fn formatter_struct_fields() -> BTreeMap<String, BTreeSet<String>> {
-    let formatter_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/formatter");
+    let formatter_dir =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../lumis-core/src/formatter");
     let mut structs = BTreeMap::new();
 
     let entries = fs::read_dir(&formatter_dir)
@@ -139,7 +143,7 @@ fn formatter_fields() -> BTreeMap<&'static str, BTreeSet<String>> {
     .map(|(formatter, struct_name)| {
         let fields = structs
             .get(struct_name)
-            .unwrap_or_else(|| panic!("no struct {struct_name} under src/formatter"))
+            .unwrap_or_else(|| panic!("no struct {struct_name} under lumis-core's src/formatter"))
             .clone();
 
         (formatter, fields)

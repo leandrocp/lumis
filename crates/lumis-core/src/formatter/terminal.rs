@@ -84,6 +84,10 @@ impl Default for Terminal {
 }
 
 impl<T> Formatter<T> for Terminal {
+    fn language(&self) -> Language {
+        self.language
+    }
+
     fn render(
         &self,
         source: &str,

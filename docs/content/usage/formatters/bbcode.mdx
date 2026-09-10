@@ -107,10 +107,10 @@ lumis highlight main.rs -f bbcode-scoped
 
 ## Output format
 
-Scope names from the syntax tree are converted to BBCode tags by replacing dots with hyphens:
+A tag is the scope name from the syntax tree and the language it was matched in, with the dots replaced by hyphens:
 
 ```
-[keyword-function]fn[/keyword-function] [function]main[/function]
+[keyword-function-rust]fn[/keyword-function-rust] [function-rust]main[/function-rust]
 ```
 
 `bbcodeScoped()` / `:bbcode_scoped` / `bbcode-scoped` emit highlight scope names as tags. They do not try to generate standard forum-style BBCode such as `[b]`, `[color]`, or `[code]`.

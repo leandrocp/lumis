@@ -254,12 +254,14 @@ impl<'a> CollectedEvent<'a> {
 }
 
 struct EventFormatter<'a> {
+    language: Language,
     events: Mutex<Vec<CollectedEvent<'a>>>,
 }
 
 impl<'a> EventFormatter<'a> {
-    fn new() -> Self {
+    fn new(language: Language) -> Self {
         Self {
+            language,
             events: Mutex::new(Vec::new()),
         }
     }
@@ -270,6 +272,10 @@ impl<'a> EventFormatter<'a> {
 }
 
 impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
+    fn language(&self) -> Language {
+        self.language
+    }
+
     fn render(
         &self,
         _source: &str,
@@ -434,7 +440,7 @@ pub(crate) fn highlight_events<'a>(
 ) -> NifResult<Term<'a>> {
     let language = Language::guess(options.language, source);
     let annotations = decode_annotations(options.annotations)?;
-    let formatter = EventFormatter::new();
+    let formatter = EventFormatter::new(language);
 
     let events = match syntax_events(env, source, language, options.rainbow_brackets) {
         Ok(events) => events,

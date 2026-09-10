@@ -12,6 +12,7 @@
 //! - [`bbcode`] - `BBCode` scoped output using highlight scope names as tags
 
 use crate::events::HighlightEvent;
+use crate::languages::Language;
 use std::io::{self, Write};
 
 pub mod ansi;
@@ -44,8 +45,55 @@ pub struct HtmlElement {
 /// Trait for implementing custom syntax highlighting formatters.
 ///
 /// Formatters in lumis-core work with pre-computed highlight events,
-/// making them independent of tree-sitter.
+/// making them independent of tree-sitter. The `lumis` crate re-exports this
+/// trait, so a formatter written against it works with both crates.
+///
+/// # Example
+///
+/// ```rust
+/// use lumis_core::events::HighlightEvent;
+/// use lumis_core::formatter::Formatter;
+/// use lumis_core::languages::Language;
+/// use std::io::{self, Write};
+///
+/// struct SourceFormatter;
+///
+/// impl Formatter for SourceFormatter {
+///     fn language(&self) -> Language {
+///         Language::Rust
+///     }
+///
+///     fn render(
+///         &self,
+///         source: &str,
+///         events: &[HighlightEvent<'_>],
+///         output: &mut dyn Write,
+///     ) -> io::Result<()> {
+///         for event in events {
+///             if let HighlightEvent::Source { start, end } = event {
+///                 output.write_all(&source.as_bytes()[*start..*end])?;
+///             }
+///         }
+///         Ok(())
+///     }
+/// }
+///
+/// let source = "let answer = 42;";
+/// let events = [HighlightEvent::Source { start: 0, end: source.len() }];
+///
+/// let mut output = Vec::new();
+/// SourceFormatter.render(source, &events, &mut output)?;
+/// assert_eq!(output, source.as_bytes());
+/// # Ok::<(), std::io::Error>(())
+/// ```
 pub trait Formatter<T = ()>: Send + Sync {
+    /// Returns the source language this formatter renders.
+    ///
+    /// Callers that compute their own events already know the language and can
+    /// ignore this; the `lumis` entry points read it to pick the grammar they
+    /// parse `source` with.
+    fn language(&self) -> Language;
+
     /// Format source code using pre-computed highlight events.
     ///
     /// # Arguments
@@ -62,6 +110,28 @@ pub trait Formatter<T = ()>: Send + Sync {
 }
 
 impl<T> Formatter<T> for Box<dyn Formatter<T>> {
+    fn language(&self) -> Language {
+        (**self).language()
+    }
+
+    fn render(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+    ) -> io::Result<()> {
+        (**self).render(source, events, output)
+    }
+}
+
+impl<T, F> Formatter<T> for &F
+where
+    F: Formatter<T> + ?Sized,
+{
+    fn language(&self) -> Language {
+        (**self).language()
+    }
+
     fn render(
         &self,
         source: &str,

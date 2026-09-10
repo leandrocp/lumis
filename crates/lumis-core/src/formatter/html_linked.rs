@@ -106,6 +106,10 @@ impl Default for HtmlLinked {
 }
 
 impl<T> Formatter<T> for HtmlLinked {
+    fn language(&self) -> Language {
+        self.language
+    }
+
     fn render(
         &self,
         source: &str,
