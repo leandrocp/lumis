@@ -738,9 +738,12 @@ where
                 }
             }
             crate::events::HighlightEvent::Source { start, end } => {
-                let s = (*start).min(source.len());
-                let e = (*end).min(source.len()).max(s);
-                render_source_event(&mut lines, &source[s..e], &stack, &span_attrs);
+                render_source_event(
+                    &mut lines,
+                    source_slice(source, *start, *end),
+                    &stack,
+                    &span_attrs,
+                );
             }
             crate::events::HighlightEvent::AnnotationStart { .. }
             | crate::events::HighlightEvent::AnnotationEnd => {}
@@ -752,6 +755,34 @@ where
     }
 
     lines
+}
+
+/// The largest slice of `source` fully inside `start..end`.
+///
+/// A formatter can build its own events rather than replaying the ones Lumis
+/// handed it, so these offsets are caller data. Out of range is clamped, and an
+/// offset landing inside a multi-byte character moves to the boundary that keeps
+/// the slice smaller, because `&source[start..end]` would otherwise panic on a
+/// range that split one. Reversed offsets give an empty slice.
+fn source_slice(source: &str, start: usize, end: usize) -> &str {
+    let start = ceil_char_boundary(source, start.min(source.len()));
+    let end = floor_char_boundary(source, end.min(source.len())).max(start);
+
+    &source[start..end]
+}
+
+fn floor_char_boundary(source: &str, mut index: usize) -> usize {
+    while index > 0 && !source.is_char_boundary(index) {
+        index -= 1;
+    }
+    index
+}
+
+fn ceil_char_boundary(source: &str, mut index: usize) -> usize {
+    while index < source.len() && !source.is_char_boundary(index) {
+        index += 1;
+    }
+    index
 }
 
 fn render_source_event<F>(
@@ -917,6 +948,33 @@ mod tests {
     #[test]
     fn test_escape_all_entities() {
         assert_eq!(escape("&<>\"'{}"), "&amp;&lt;&gt;&quot;&#39;{}");
+    }
+
+    /// A formatter can build its own events, so a `Source` range is caller data
+    /// and `&source[start..end]` used to panic on one that split a character.
+    #[test]
+    fn test_source_slice_never_panics_on_caller_offsets() {
+        let source = "éx";
+
+        assert_eq!(source_slice(source, 0, 1), "", "end splits 'é'");
+        assert_eq!(source_slice(source, 1, 2), "", "start splits 'é'");
+        assert_eq!(source_slice(source, 1, 3), "x", "start splits 'é'");
+        assert_eq!(source_slice(source, 0, 2), "é");
+        assert_eq!(source_slice(source, 0, 3), "éx");
+        assert_eq!(source_slice(source, 0, 99), "éx", "end past the source");
+        assert_eq!(source_slice(source, 99, 99), "", "start past the source");
+        assert_eq!(source_slice(source, 3, 0), "", "reversed");
+    }
+
+    #[test]
+    fn test_render_lines_from_events_survives_a_split_character() {
+        let events: [crate::events::HighlightEvent<'_>; 1] =
+            [crate::events::HighlightEvent::Source { start: 0, end: 1 }];
+
+        assert_eq!(
+            render_lines_from_events("é", &events, |_, _| String::new()),
+            [""]
+        );
     }
 
     #[test]

@@ -732,11 +732,7 @@ defmodule Lumis do
         {:ok, opts}
 
       hl ->
-        lines =
-          Enum.map(hl[:lines] || [], fn
-            %Range{} = range -> {:range, %{start: range.first, end: range.last}}
-            n when is_integer(n) -> {:single, n}
-          end)
+        lines = Lumis.LineSpec.encode(hl[:lines] || [])
 
         style =
           case hl[:style] do
@@ -765,11 +761,7 @@ defmodule Lumis do
         {:ok, opts}
 
       hl ->
-        lines =
-          Enum.map(hl[:lines] || [], fn
-            %Range{} = range -> {:range, %{start: range.first, end: range.last}}
-            n when is_integer(n) -> {:single, n}
-          end)
+        lines = Lumis.LineSpec.encode(hl[:lines] || [])
 
         class = hl[:class] || "l-highlighted"
 

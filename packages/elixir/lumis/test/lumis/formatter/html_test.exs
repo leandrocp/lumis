@@ -420,21 +420,39 @@ defmodule Lumis.Formatter.HTMLTest do
       assert HTML.highlight_line_class(lines, 4, []) == nil
     end
 
+    # A `RangeInclusive<usize>` has no step and cannot run backwards, so a range
+    # that has either has to be expanded before it crosses. Sent as-is, `1..5//2`
+    # highlighted the two lines the step excluded and `5..3` matched nothing.
+    test "honours a range's step and direction" do
+      assert HTML.line_is_highlighted([1..5//2], 1)
+      refute HTML.line_is_highlighted([1..5//2], 2)
+      assert HTML.line_is_highlighted([1..5//2], 3)
+      refute HTML.line_is_highlighted([1..5//2], 4)
+      assert HTML.line_is_highlighted([1..5//2], 5)
+
+      assert HTML.line_is_highlighted([5..3//-1], 4)
+      refute HTML.line_is_highlighted([5..3//-1], 2)
+
+      refute HTML.line_is_highlighted([1..0//1], 1), "an empty range highlights nothing"
+    end
+
     test "picks the lines html_linked marks with its highlight class" do
       source = "one\ntwo\nthree\nfour\nfive\n"
-      lines = [1, 3..4]
 
-      html =
-        Lumis.highlight!(source,
-          formatter:
-            {:html_linked, language: "plaintext", highlight_lines: %{lines: lines, class: "hl"}}
-        )
+      for lines <- [[1, 3..4], [1..5//2], [5..3//-1]] do
+        html =
+          Lumis.highlight!(source,
+            formatter:
+              {:html_linked, language: "plaintext", highlight_lines: %{lines: lines, class: "hl"}}
+          )
 
-      for line_number <- 1..5 do
-        marked = String.contains?(html, ~s|class="l-line hl" data-line="#{line_number}"|)
+        for line_number <- 1..5 do
+          marked = String.contains?(html, ~s|class="l-line hl" data-line="#{line_number}"|)
 
-        assert marked == HTML.line_is_highlighted(lines, line_number),
-               "line #{line_number}: html_linked and line_is_highlighted/2 disagree"
+          assert marked == HTML.line_is_highlighted(lines, line_number),
+                 "#{inspect(lines)} line #{line_number}: html_linked and " <>
+                   "line_is_highlighted/2 disagree"
+        end
       end
     end
   end
@@ -495,6 +513,21 @@ defmodule Lumis.Formatter.HTMLTest do
       events = [{:source, %{start: 0, end: 5}}]
 
       assert HTML.render_lines_from_events("a & b", events, %{}) == ["a &amp; b"]
+    end
+
+    # A formatter can build its own events rather than replaying the ones it was
+    # handed, so these offsets are caller data. An offset landing inside a
+    # multi-byte character used to panic the NIF.
+    test "takes offsets that split a character without blowing up" do
+      assert HTML.render_lines_from_events("é", [{:source, %{start: 0, end: 1}}], %{}) == [""]
+      assert HTML.render_lines_from_events("éx", [{:source, %{start: 1, end: 3}}], %{}) == ["x"]
+      assert HTML.render_lines_from_events("é", [{:source, %{start: 0, end: 2}}], %{}) == ["é"]
+    end
+
+    test "takes offsets that are out of range or reversed" do
+      assert HTML.render_lines_from_events("ab", [{:source, %{start: 0, end: 99}}], %{}) == ["ab"]
+      assert HTML.render_lines_from_events("ab", [{:source, %{start: 99, end: 99}}], %{}) == [""]
+      assert HTML.render_lines_from_events("ab", [{:source, %{start: 2, end: 0}}], %{}) == [""]
     end
   end
 

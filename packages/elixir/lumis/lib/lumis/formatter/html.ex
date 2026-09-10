@@ -42,6 +42,7 @@ defmodule Lumis.Formatter.HTML do
       end
   """
 
+  alias Lumis.LineSpec
   alias Lumis.Native
   alias Lumis.Theme
   alias Lumis.Theme.Style
@@ -455,7 +456,7 @@ defmodule Lumis.Formatter.HTML do
   """
   @spec line_is_highlighted([pos_integer() | Range.t()], pos_integer()) :: boolean()
   def line_is_highlighted(lines, line_number) when is_list(lines) do
-    Native.html_line_is_highlighted(encode_line_specs(lines), line_number)
+    Native.html_line_is_highlighted(LineSpec.encode(lines), line_number)
   end
 
   @doc """
@@ -480,7 +481,7 @@ defmodule Lumis.Formatter.HTML do
   def highlight_line_class(lines, line_number, options \\ [])
       when is_list(lines) and is_list(options) do
     Native.html_highlight_line_class(
-      encode_line_specs(lines),
+      LineSpec.encode(lines),
       line_number,
       Keyword.get(options, :class),
       Keyword.get(options, :default_class)
@@ -535,12 +536,5 @@ defmodule Lumis.Formatter.HTML do
       end
     end)
     |> Map.new()
-  end
-
-  defp encode_line_specs(lines) do
-    Enum.map(lines, fn
-      %Range{} = range -> {:range, %{start: range.first, end: range.last}}
-      line when is_integer(line) -> {:single, line}
-    end)
   end
 end
