@@ -6,6 +6,14 @@
  (#set! injection.language "heex")
  (#set! injection.combined))
 
+; GPUI template
+((sigil
+  (sigil_name) @_sigil_name
+  (quoted_content) @injection.content)
+ (#eq? @_sigil_name "GPUI")
+ (#set! injection.language "heex")
+ (#set! injection.combined))
+
 ; SQL injection
 ((sigil
   (sigil_name) @_sigil_name
