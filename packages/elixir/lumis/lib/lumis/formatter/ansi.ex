@@ -6,12 +6,6 @@ defmodule Lumis.Formatter.ANSI do
   it into output; these helpers apply the same colors, text decorations, and
   reset behavior as the built-in formatter.
 
-  Every function here calls into the same Rust the built-in `:terminal`
-  formatter uses, including `styles/1`, which resolves a scope against a theme.
-  Resolution is not a map lookup — a scope falls back to its parent, and
-  rainbow-bracket scopes fall back to a table Lumis owns — so a formatter that
-  reads `theme.highlights` itself paints differently than `:terminal` does.
-
   ## Example
 
       defmodule MyTerminalFormatter do
@@ -106,15 +100,16 @@ defmodule Lumis.Formatter.ANSI do
   def style_to_ansi(%Style{} = style), do: Native.ansi_style_to_ansi(style)
 
   @doc """
-  Every scope's style for one theme and language, resolved as `:terminal` resolves it.
+  Every scope's style for one theme and language.
 
-  Resolving a scope is a per-token operation and this is the whole table, so
-  build it once outside the loop and read it inside with `style_for/2`. A scope
-  the theme styles in no way is absent from the table.
+  Resolving a scope is a per-token operation, so this is the whole table: build
+  it once outside the loop and read it inside with `style_for/2`. A scope the
+  theme styles in no way is absent from it.
 
-  A theme can style a scope per language, and an injected block carries its own
-  language on its `:start` event, so a document with injections needs one table
-  per language rather than one for the whole document.
+  A scope resolves the way `:terminal` resolves it, which is not a lookup in
+  `theme.highlights` — `tag.delimiter` falls back to `tag`, and a theme can
+  style a scope per language. An injected block carries its own language on its
+  `:start` event, so a document with injections needs one table per language.
 
   ## Options
 

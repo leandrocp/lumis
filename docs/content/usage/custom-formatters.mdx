@@ -200,11 +200,11 @@ Lumis.highlight!("defmodule App do\nend",
 `render/3` returns iodata, so there is no need to flatten it into a binary;
 Lumis does that once at the end.
 
-`Lumis.Formatter.ANSI` is the terminal counterpart. `styles/1` is where a scope
-becomes a color, and it belongs in Rust rather than in a `theme.highlights`
-lookup: a scope falls back to its parent, so `tag.delimiter` is painted by `tag`
-in a theme that styles only `tag`. A theme can also style a scope per language,
-and an injected block carries its own language, so the table is per language.
+`Lumis.Formatter.ANSI` is the terminal counterpart, and `styles/1` is where a
+scope becomes a color. Reach for it rather than `theme.highlights`, which misses
+the fallbacks `:terminal` applies: `tag.delimiter` is painted by `tag` in a theme
+that styles only `tag`. A theme can also style a scope per language, and an
+injected block carries its own language, so the table is per language.
 
 ```elixir
 defmodule MinimalTerminalFormatter do
