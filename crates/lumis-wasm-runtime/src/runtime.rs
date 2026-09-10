@@ -166,6 +166,7 @@ pub struct Runtime {
 }
 
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum RuntimeError {
     #[error("failed to initialize Wasmtime: {0}")]
     Wasmtime(#[from] wasmtime::Error),

@@ -28,6 +28,7 @@ const REPLACE_RETRY_DELAY: Duration = Duration::from_millis(5);
 const CDNS: [&str; 2] = ["https://cdn.jsdelivr.net/npm", "https://unpkg.com"];
 
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum StoreError {
     #[error("unknown language '{0}'")]
     UnknownLanguage(String),

@@ -186,9 +186,13 @@ thread_local! {
 ///     Err(HighlightError::EventProcessing(msg)) => {
 ///         eprintln!("Failed to process highlight event: {}", msg);
 ///     }
+///     Err(error) => {
+///         eprintln!("Failed to highlight: {}", error);
+///     }
 /// }
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
+#[non_exhaustive]
 pub enum HighlightError {
     /// Failed to initialize the tree-sitter highlighter for the given language.
     #[error("failed to initialize highlighter: {0}")]

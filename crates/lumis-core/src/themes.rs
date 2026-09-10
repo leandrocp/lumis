@@ -11,6 +11,7 @@ use derive_builder::Builder;
 
 /// Error type for theme operations.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub enum ThemeError {
     /// Theme not found
     NotFound(String),
