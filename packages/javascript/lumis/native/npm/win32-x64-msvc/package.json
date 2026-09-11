@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/lumis-native-win32-x64-msvc",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Native Lumis runtime for Windows x64",
   "license": "MIT",
   "repository": "github:leandrocp/lumis",

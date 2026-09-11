@@ -1,3 +1,29 @@
+## [0.8.0](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.7.1...npm-lumis/v0.8.0) (2026-09-11)
+
+
+### Bug Fixes
+
+- escape attribute values in the Rust formatters - [#1385](https://github.com/leandrocp/lumis/pull/1385)
+- reject a hex colour that is only partly hex - [#1394](https://github.com/leandrocp/lumis/pull/1394)
+- BREAKING: make public error enums non-exhaustive - [#1395](https://github.com/leandrocp/lumis/pull/1395)
+
+
+### Code Refactoring
+
+- BREAKING: re-export lumis-core's formatters from lumis - [#1387](https://github.com/leandrocp/lumis/pull/1387)
+
+
+### Features
+
+- update generated themes - [#1358](https://github.com/leandrocp/lumis/pull/1358)
+- update lang perl - [#1357](https://github.com/leandrocp/lumis/pull/1357)
+- add Token themes - [#1365](https://github.com/leandrocp/lumis/pull/1365)
+- update lang protobuf - [#1356](https://github.com/leandrocp/lumis/pull/1356)
+- BREAKING: introduce annotations - [#1100](https://github.com/leandrocp/lumis/pull/1100)
+- HTML formatter helpers - [#1377](https://github.com/leandrocp/lumis/pull/1377)
+- ANSI formatter helpers - [#1388](https://github.com/leandrocp/lumis/pull/1388)
+- export the same helpers across runtimes - [#1396](https://github.com/leandrocp/lumis/pull/1396)
+
 ## [0.7.1](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.7.0...npm-lumis/v0.7.1) (2026-09-03)
 
 
