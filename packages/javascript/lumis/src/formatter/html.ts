@@ -1,4 +1,5 @@
 import type {
+  Decoration,
   HighlightStyle,
   HighlightSpan,
   HighlightEvent,
@@ -8,6 +9,7 @@ import type {
   SyntaxHighlightEvent,
   Theme,
 } from "../types.js";
+import { LineSelection, composeLineDecorations } from "../decorations.js";
 import { HIGHLIGHT_NAMES } from "../highlights.js";
 import { sanitizeThemeName } from "../themes.js";
 
@@ -1026,94 +1028,141 @@ export function appendFragment(lines: string[], fragment: string): void {
   }
 }
 
-interface SpanStackEntry {
-  scope: string;
+/** What a formatter does with each step of a line-decorated stream. */
+interface LineRenderOptions {
+  formatText?: (text: string) => string;
+  openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  closeSpan?: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+}
+
+interface LineRenderState {
+  /** The current line's rendered content, without its terminator. */
+  line: string;
+  decoration: Decoration;
+  /** The document's language: the innermost scope's, once one has been open. */
   language: string;
-  emitted: boolean;
+  /** The close tag of each open scope, empty when the formatter omitted it. */
+  openScopes: Array<{ close: string; language: string }>;
+  /**
+   * A line boundary reopens every span still open, so resolving a scope's tags
+   * once is the difference between paying per scope and paying per scope per
+   * line.
+   */
+  tags: Map<string, { open: string; close: string }>;
 }
 
-function closeOpenSpans(
-  lines: string[],
-  stack: SpanStackEntry[],
-  closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-  theme: Theme | undefined,
-): void {
-  for (let i = stack.length - 1; i >= 0; i -= 1) {
-    const entry = stack[i]!;
-    if (!entry.emitted) continue;
-    const style = getSpanStyle(theme, entry.scope, entry.language);
-    appendFragment(lines, closeSpan(emptySpan(entry.scope, entry.language), style));
-  }
-}
-
-function reopenSpans(
-  lines: string[],
-  stack: SpanStackEntry[],
-  renderOpenSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-  theme: Theme | undefined,
-): void {
-  for (const entry of stack) {
-    if (!entry.emitted) continue;
-    const style = getSpanStyle(theme, entry.scope, entry.language);
-    appendFragment(lines, renderOpenSpan(emptySpan(entry.scope, entry.language), style));
-  }
-}
-
-function renderSourceEvent(
-  lines: string[],
-  text: string,
-  stack: SpanStackEntry[],
-  formatText: (text: string) => string,
-  renderOpenSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-  closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-  theme: Theme | undefined,
-): void {
-  let remaining = text;
-
-  while (true) {
-    const newlineIndex = remaining.indexOf("\n");
-    if (newlineIndex === -1) {
-      appendFragment(lines, formatText(remaining));
-      return;
-    }
-
-    appendFragment(lines, formatText(remaining.slice(0, newlineIndex)));
-    closeOpenSpans(lines, stack, closeSpan, theme);
-    lines.push("");
-    reopenSpans(lines, stack, renderOpenSpan, theme);
-    remaining = remaining.slice(newlineIndex + 1);
-  }
-}
-
-function resolveDocumentLanguage(language: string, stack: SpanStackEntry[]): string {
-  if (language && language !== "plaintext") return language;
-  return stack.at(-1)?.language ?? language;
+interface LineRenderContext {
+  sourceBytes: Uint8Array;
+  theme: Theme | undefined;
+  formatText: (text: string) => string;
+  openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  onLine: (content: string, decoration: Decoration) => void;
 }
 
 function openSpanEvent(
-  lines: string[],
-  stack: SpanStackEntry[],
+  state: LineRenderState,
+  context: LineRenderContext,
   event: { scope: string; language: string },
-  theme: Theme | undefined,
-  renderOpen: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
 ): void {
-  const style = getSpanStyle(theme, event.scope, event.language);
-  const open = renderOpen(emptySpan(event.scope, event.language), style);
-  appendFragment(lines, open);
-  stack.push({ scope: event.scope, language: event.language, emitted: open.length > 0 });
+  const key = `${event.language} ${event.scope}`;
+  let tags = state.tags.get(key);
+
+  if (tags === undefined) {
+    const span = emptySpan(event.scope, event.language);
+    const style = getSpanStyle(context.theme, event.scope, event.language);
+    const open = context.openSpan(span, style);
+    // An `openSpan` that returns nothing means the formatter is deliberately
+    // omitting the span, so nothing closes it either.
+    tags = { open, close: open.length > 0 ? context.closeSpan(span, style) : "" };
+    state.tags.set(key, tags);
+  }
+
+  state.line += tags.open;
+  state.openScopes.push({ close: tags.close, language: event.language });
 }
 
-function closeSpanEvent(
-  lines: string[],
-  stack: SpanStackEntry[],
-  theme: Theme | undefined,
-  renderClose: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
+function sourceEvent(
+  state: LineRenderState,
+  context: LineRenderContext,
+  event: { start: number; end: number },
 ): void {
-  const top = stack.pop();
-  if (!top?.emitted) return;
+  if (!state.language || state.language === "plaintext") {
+    state.language = state.openScopes.at(-1)?.language ?? state.language;
+  }
 
-  const style = getSpanStyle(theme, top.scope, top.language);
-  appendFragment(lines, renderClose(emptySpan(top.scope, top.language), style));
+  // The trailing newline is not part of a line's content: a formatter writes
+  // its own terminator, and the last line of a source that does not end in one
+  // would otherwise be the only line without it.
+  const text = decodeSourceSlice(context.sourceBytes, event.start, event.end);
+  state.line += context.formatText(text.endsWith("\n") ? text.slice(0, -1) : text);
+}
+
+function applyLineEvent(
+  state: LineRenderState,
+  context: LineRenderContext,
+  event: HighlightEvent,
+): void {
+  switch (event.type) {
+    case "decorationStart":
+      state.decoration = event.decoration;
+      state.line = "";
+      break;
+    case "decorationEnd":
+      context.onLine(state.line, state.decoration);
+      break;
+    case "start":
+      openSpanEvent(state, context, event);
+      break;
+    case "end":
+      state.line += state.openScopes.pop()?.close ?? "";
+      break;
+    case "source":
+      sourceEvent(state, context, event);
+      break;
+    // Caller annotations carry data a built-in formatter has never seen.
+    default:
+      break;
+  }
+}
+
+/**
+ * Walk a line-decorated stream, handing each line's rendered content to `onLine`.
+ *
+ * Every span still open at a line boundary was closed and reopened by
+ * {@link composeLineDecorations}, so this only has to render what it is given.
+ *
+ * Returns the document's language.
+ */
+function renderDecoratedLines(
+  sourceBytes: Uint8Array,
+  composed: readonly HighlightEvent[],
+  theme: Theme | undefined,
+  language: string,
+  options: LineRenderOptions,
+  onLine: (content: string, decoration: Decoration) => void,
+): string {
+  const context: LineRenderContext = {
+    sourceBytes,
+    theme,
+    formatText: options.formatText ?? escape,
+    openSpan: options.openSpan,
+    closeSpan: options.closeSpan ?? (() => "</span>"),
+    onLine,
+  };
+  const state: LineRenderState = {
+    line: "",
+    decoration: { type: "line", number: 1, highlighted: false },
+    language,
+    openScopes: [],
+    tags: new Map(),
+  };
+
+  for (const event of composed) {
+    applyLineEvent(state, context, event);
+  }
+
+  return state.language;
 }
 
 /** @internal */
@@ -1122,47 +1171,65 @@ export function formatHighlightIterLines(
   events: readonly HighlightEvent[],
   languageRef: LanguageRef | undefined,
   theme: Theme | undefined,
-  options: {
-    formatText?: (text: string) => string;
-    openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-    closeSpan?: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-  },
+  options: LineRenderOptions,
 ): { lines: string[]; language: string } {
-  const formatText = options.formatText ?? escape;
-  const closeSpan = options.closeSpan ?? (() => "</span>");
   const sourceBytes = encodeSource(source);
-  const lines = [""];
-  let language = languageRef ? languageId(languageRef) : "plaintext";
-  const stack: SpanStackEntry[] = [];
-
-  for (const event of events) {
-    if (event.type === "start") {
-      openSpanEvent(lines, stack, event, theme, options.openSpan);
-    } else if (event.type === "end") {
-      closeSpanEvent(lines, stack, theme, closeSpan);
-    } else if (event.type === "source") {
-      // The document's language is the outermost span's, once one is open.
-      language = resolveDocumentLanguage(language, stack);
-      const text = decodeSourceSlice(sourceBytes, event.start, event.end);
-      renderSourceEvent(lines, text, stack, formatText, options.openSpan, closeSpan, theme);
-    }
-  }
-
-  closeRemainingSpans(lines, stack, closeSpan);
+  const lines: string[] = [];
+  const language = renderDecoratedLines(
+    sourceBytes,
+    composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
+    theme,
+    languageRef ? languageId(languageRef) : "plaintext",
+    options,
+    (content) => lines.push(content),
+  );
 
   return { lines, language };
 }
 
-function closeRemainingSpans(
-  lines: string[],
-  stack: SpanStackEntry[],
-  closeRemaining: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-): void {
-  for (let entry = stack.pop(); entry; entry = stack.pop()) {
-    if (entry.emitted) {
-      appendFragment(lines, closeRemaining(emptySpan("", ""), undefined));
-    }
-  }
+/**
+ * Render a line-decorated stream as the `<div class="l-line">` blocks every
+ * built-in HTML formatter emits.
+ *
+ * The three of them differ only in the attributes a span and a highlighted line
+ * carry, so those are the two inputs; the walk itself is shared. A highlighted
+ * line's attributes are resolved once rather than once per line.
+ *
+ * @internal
+ */
+export function formatHtmlLines(
+  source: string,
+  events: readonly HighlightEvent[],
+  formatter: {
+    language: LanguageRef | undefined;
+    theme: Theme | undefined;
+    lines: readonly LineSpec[] | undefined;
+    highlightedAttrs: { className?: string; style?: string };
+    openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  },
+): string {
+  const sourceBytes = encodeSource(source);
+  const composed = composeLineDecorations(sourceBytes, events, new LineSelection(formatter.lines));
+  const parts: string[] = [];
+
+  renderDecoratedLines(
+    sourceBytes,
+    composed,
+    formatter.theme,
+    formatter.language ? languageId(formatter.language) : "plaintext",
+    { openSpan: formatter.openSpan },
+    (content, decoration) => {
+      parts.push(
+        wrapLine(
+          decoration.number,
+          content,
+          decoration.highlighted ? formatter.highlightedAttrs : {},
+        ),
+      );
+    },
+  );
+
+  return parts.join("");
 }
 
 /**

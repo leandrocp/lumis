@@ -261,18 +261,32 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .theme(Some(theme()))
         .background(TerminalBackground::Theme)
         .width(Some(120))
+        .highlight_lines(Some(lumis::formatters::terminal::HighlightLines {
+            lines: vec![1..=1, 3..=4],
+            background: Some("#3a3a3a".to_string()),
+        }))
         .build()
         .expect("terminal builds");
     exercised.insert(
         "terminal",
-        ["language", "theme", "background", "width"].into(),
+        [
+            "language",
+            "theme",
+            "background",
+            "width",
+            "highlight_lines",
+        ]
+        .into(),
     );
 
     BBCodeScopedBuilder::new()
         .language(Language::Rust)
+        .highlight_lines(Some(lumis::formatters::bbcode::HighlightLines {
+            lines: vec![1..=1, 3..=4],
+        }))
         .build()
         .expect("bbcode_scoped builds");
-    exercised.insert("bbcode_scoped", ["language"].into());
+    exercised.insert("bbcode_scoped", ["language", "highlight_lines"].into());
 
     exercised
 }

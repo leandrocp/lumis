@@ -88,6 +88,7 @@ export type { LoadLanguages } from "./core/load-languages.js";
 export type {
   Annotation,
   AnnotationRange,
+  Decoration,
   Formatter,
   HighlightEvent,
   HighlightIterFn,
@@ -95,6 +96,8 @@ export type {
   HtmlElement,
   HighlightLinesInline,
   HighlightLinesLinked,
+  HighlightLinesTerminal,
+  HighlightLinesBBCode,
   LineSpec,
   HighlightRange,
   OffsetAnnotationRange,

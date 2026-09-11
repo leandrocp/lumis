@@ -3,6 +3,7 @@
 
 #[doc(hidden)]
 pub mod annotations;
+pub(crate) mod decorations;
 #[doc(hidden)]
 pub mod events;
 pub mod formatter;

@@ -351,6 +351,41 @@ export interface HighlightLinesLinked {
 }
 
 /**
+ * Line highlighting for the terminal formatter.
+ *
+ * A terminal has no class to hang a stylesheet off, so a highlighted line is
+ * painted with a background colour.
+ *
+ * ```ts
+ * terminal({ theme: dracula, highlightLines: { lines: [1, [3, 5]] } })
+ * ```
+ */
+export interface HighlightLinesTerminal {
+  lines: LineSpec[];
+  /**
+   * The background a highlighted line is painted with. Defaults to the theme's
+   * `highlighted` background; with neither, nothing marks the line.
+   */
+  background?: string;
+}
+
+/**
+ * Line highlighting for the BBCode formatter.
+ *
+ * A highlighted line is wrapped in `[highlighted]...[/highlighted]`, newline
+ * included. The tag is derived from the `highlighted` theme scope the way every
+ * other tag this formatter emits is derived from a scope, so there is nothing to
+ * configure.
+ *
+ * ```ts
+ * bbcodeScoped({ highlightLines: { lines: [1, [3, 5]] } })
+ * ```
+ */
+export interface HighlightLinesBBCode {
+  lines: LineSpec[];
+}
+
+/**
  * A caller-provided semantic range with typed data.
  *
  * This annotation marks only `price` in a one-line source:
@@ -404,11 +439,31 @@ export type SyntaxHighlightEvent =
   | { type: "source"; start: number; end: number }
   | { type: "end" };
 
-/** A unified syntax and caller-provided annotation event. */
+/**
+ * An overlay whose data Lumis owns and every built-in formatter understands.
+ *
+ * A caller's {@link Annotation} carries data only that caller understands, so
+ * the built-in formatters skip it. A decoration is a closed set they can switch
+ * on, which is how line highlighting reaches the same event stream.
+ *
+ * A line decoration covers the line's text and the newline that ends it; the
+ * last line of a source that does not end in one covers just the text.
+ */
+export type Decoration = {
+  type: "line";
+  /** The 1-based line number. */
+  number: number;
+  /** Whether the caller asked for this line to be highlighted. */
+  highlighted: boolean;
+};
+
+/** A unified syntax, caller-annotation and Lumis-decoration event. */
 export type HighlightEvent<T = unknown> =
   | SyntaxHighlightEvent
   | { type: "annotationStart"; annotation: ResolvedAnnotation<T> }
-  | { type: "annotationEnd" };
+  | { type: "annotationEnd" }
+  | { type: "decorationStart"; decoration: Decoration }
+  | { type: "decorationEnd" };
 
 /**
  * Signature of the `highlightIter` free function and the `hl.highlightIter`
@@ -566,6 +621,7 @@ export interface HtmlMultiThemesFormatter extends Formatter, HtmlMultiThemesOpti
  */
 export interface BBCodeScopedOptions {
   language?: LanguageRef;
+  highlightLines?: HighlightLinesBBCode;
 }
 
 export interface BBCodeScopedFormatter extends Formatter, BBCodeScopedOptions {}
@@ -590,10 +646,11 @@ export interface TerminalOptions {
   background?: string;
   /**
    * Pad each rendered line out to this width. Only takes effect alongside
-   * {@link TerminalOptions.background}, since padding is only visible as
-   * background fill.
+   * {@link TerminalOptions.background} or a highlighted line, since padding is
+   * only visible as background fill.
    */
   width?: number;
+  highlightLines?: HighlightLinesTerminal;
 }
 
 export interface TerminalFormatter extends Formatter, TerminalOptions {}

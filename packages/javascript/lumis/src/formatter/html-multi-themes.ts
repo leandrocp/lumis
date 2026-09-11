@@ -2,17 +2,15 @@ import type { HighlightEvent, HighlightSpan, HtmlMultiThemesFormatter } from "..
 import {
   type HtmlAttrs,
   closingTags,
-  formatHighlightIterLines,
+  formatHtmlLines,
   getThemeStyle,
   openCodeTag,
   openMultiThemesPreTag,
   openSpanTag,
   spanMultiThemesAttrs,
   styleToCss,
-  wrapLine,
   wrapWithHeader,
 } from "./html.js";
-import { selectedLineFlags } from "./line-highlights.js";
 
 function spanAttrs(span: HighlightSpan, formatter: HtmlMultiThemesFormatter): HtmlAttrs {
   return spanMultiThemesAttrs({
@@ -26,12 +24,8 @@ function spanAttrs(span: HighlightSpan, formatter: HtmlMultiThemesFormatter): Ht
   });
 }
 
-function highlightLineStyle(
-  formatter: HtmlMultiThemesFormatter,
-  isHighlighted: boolean,
-): string | undefined {
+function highlightLineStyle(formatter: HtmlMultiThemesFormatter): string | undefined {
   const highlightLines = formatter.highlightLines;
-  if (!isHighlighted) return undefined;
 
   // Explicit `null` opts out of the inline style entirely, leaving the class to
   // do the highlighting. Absent still means the theme's `highlighted` style.
@@ -59,31 +53,20 @@ function lightDarkHighlightStyle(formatter: HtmlMultiThemesFormatter): string | 
   return `background-color: light-dark(${light.bg}, ${dark.bg});`;
 }
 
-function highlightLineClass(
-  formatter: HtmlMultiThemesFormatter,
-  isHighlighted: boolean,
-): string | undefined {
-  return isHighlighted ? formatter.highlightLines?.class : undefined;
-}
-
-function getLineAttrs(
-  formatter: HtmlMultiThemesFormatter,
-  isHighlighted: boolean,
-): { className?: string; style?: string } {
-  return {
-    className: highlightLineClass(formatter, isHighlighted),
-    style: highlightLineStyle(formatter, isHighlighted),
-  };
-}
-
 export function formatHtmlMultiThemes(
   source: string,
   events: readonly HighlightEvent[],
   formatter: HtmlMultiThemesFormatter,
 ): string {
-  const theme = formatter.defaultTheme ? formatter.themes[formatter.defaultTheme] : undefined;
-  const { lines } = formatHighlightIterLines(source, events, formatter.language, theme, {
-    openSpan: (span, _style) => openSpanTag(spanAttrs(span, formatter)),
+  const body = formatHtmlLines(source, events, {
+    language: formatter.language,
+    theme: formatter.defaultTheme ? formatter.themes[formatter.defaultTheme] : undefined,
+    lines: formatter.highlightLines?.lines,
+    highlightedAttrs: {
+      className: formatter.highlightLines?.class,
+      style: highlightLineStyle(formatter),
+    },
+    openSpan: (span) => openSpanTag(spanAttrs(span, formatter)),
   });
 
   const pre = openMultiThemesPreTag({
@@ -93,12 +76,6 @@ export function formatHtmlMultiThemes(
     cssVariablePrefix: formatter.cssVariablePrefix,
   });
   const code = openCodeTag(formatter.language);
-  const highlighted = selectedLineFlags(formatter.highlightLines?.lines, lines.length);
-  const body = lines
-    .map((line, idx) =>
-      wrapLine(idx + 1, line, getLineAttrs(formatter, Boolean(highlighted?.[idx]))),
-    )
-    .join("");
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);
 }

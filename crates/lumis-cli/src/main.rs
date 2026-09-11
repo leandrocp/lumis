@@ -114,6 +114,10 @@ struct HighlightArgs {
     #[arg(long)]
     rainbow_brackets: bool,
 
+    /// Lines to highlight, e.g. "1,3-5,10"
+    #[arg(short = 'H', long)]
+    highlight_lines: Option<String>,
+
     #[command(flatten)]
     terminal: TerminalArgs,
 
@@ -137,6 +141,10 @@ struct TerminalArgs {
     /// Render width for background padding. Use a number or 'auto'.
     #[arg(short = 'w', long)]
     width: Option<String>,
+
+    /// Background for highlighted lines [default: the theme's `highlighted` background]
+    #[arg(long, requires = "highlight_lines")]
+    highlight_lines_background: Option<String>,
 }
 
 #[derive(clap::Args)]
@@ -153,10 +161,6 @@ struct HtmlArgs {
     /// Closing tag wrapped around the output, e.g. '</figure>'
     #[arg(long, requires = "header_open")]
     header_close: Option<String>,
-
-    /// Lines to highlight, e.g. "1,3-5,10"
-    #[arg(short = 'H', long)]
-    highlight_lines: Option<String>,
 
     /// CSS class added to highlighted lines
     #[arg(long, requires = "highlight_lines")]
@@ -230,10 +234,11 @@ impl HighlightArgs {
             "--theme" => self.theme.is_some(),
             "--background" => self.terminal.background.is_some(),
             "--width" => self.terminal.width.is_some(),
+            "--highlight-lines-background" => self.terminal.highlight_lines_background.is_some(),
             "--pre-class" => self.html.pre_class.is_some(),
             "--header-open" => self.html.header_open.is_some(),
             "--header-close" => self.html.header_close.is_some(),
-            "--highlight-lines" => self.html.highlight_lines.is_some(),
+            "--highlight-lines" => self.highlight_lines.is_some(),
             "--highlight-lines-class" => self.html.highlight_lines_class.is_some(),
             "--italic" => self.styled.italic,
             "--include-highlights" => self.styled.include_highlights,
@@ -1474,7 +1479,7 @@ fn inline_highlight_lines(
 ) -> Result<Option<lumis_core::formatter::html_inline::HighlightLines>> {
     use lumis_core::formatter::html_inline::{HighlightLines, HighlightLinesStyle};
 
-    let Some(lines) = args.html.highlight_lines.as_deref() else {
+    let Some(lines) = args.highlight_lines.as_deref() else {
         return Ok(None);
     };
 
@@ -1496,7 +1501,7 @@ fn linked_highlight_lines(
 ) -> Result<Option<lumis_core::formatter::html_linked::HighlightLines>> {
     use lumis_core::formatter::html_linked::HighlightLines;
 
-    let Some(lines) = args.html.highlight_lines.as_deref() else {
+    let Some(lines) = args.highlight_lines.as_deref() else {
         return Ok(None);
     };
 
@@ -1507,6 +1512,35 @@ fn linked_highlight_lines(
             .highlight_lines_class
             .clone()
             .unwrap_or_else(|| "l-highlighted".to_string()),
+    }))
+}
+
+fn terminal_highlight_lines(
+    args: &HighlightArgs,
+) -> Result<Option<lumis_core::formatter::terminal::HighlightLines>> {
+    use lumis_core::formatter::terminal::HighlightLines;
+
+    let Some(lines) = args.highlight_lines.as_deref() else {
+        return Ok(None);
+    };
+
+    Ok(Some(HighlightLines {
+        lines: parse_highlight_lines(lines)?,
+        background: args.terminal.highlight_lines_background.clone(),
+    }))
+}
+
+fn bbcode_highlight_lines(
+    args: &HighlightArgs,
+) -> Result<Option<lumis_core::formatter::bbcode::HighlightLines>> {
+    use lumis_core::formatter::bbcode::HighlightLines;
+
+    let Some(lines) = args.highlight_lines.as_deref() else {
+        return Ok(None);
+    };
+
+    Ok(Some(HighlightLines {
+        lines: parse_highlight_lines(lines)?,
     }))
 }
 
@@ -1602,10 +1636,12 @@ fn render_output(
     let chosen = args.formatter();
     let HighlightArgs {
         ref theme,
-        terminal: TerminalArgs {
-            ref background,
-            ref width,
-        },
+        terminal:
+            TerminalArgs {
+                ref background,
+                ref width,
+                ..
+            },
         html: HtmlArgs { ref pre_class, .. },
         styled:
             StyledArgs {
@@ -1687,7 +1723,8 @@ fn render_output(
                 .language(lang)
                 .theme(theme_obj)
                 .background(parse_terminal_background(background.as_deref()))
-                .width(resolve_terminal_width(width.as_deref())?);
+                .width(resolve_terminal_width(width.as_deref())?)
+                .highlight_lines(terminal_highlight_lines(&args)?);
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
@@ -1697,7 +1734,8 @@ fn render_output(
 
         Formatter::BbcodeScoped => {
             print_verbose_separator(verbose);
-            let fmt = lumis_core::formatter::BBCodeScoped::new(lang);
+            let fmt =
+                lumis_core::formatter::BBCodeScoped::new(lang, bbcode_highlight_lines(&args)?);
             let mut output = Vec::new();
             fmt.render(source, events, &mut output)?;
             print!("{}", String::from_utf8(output)?);

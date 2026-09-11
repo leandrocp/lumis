@@ -6,6 +6,10 @@
 
 use crate::annotations::ResolvedAnnotation;
 
+/// Re-exported so the one decoration a public event carries is nameable: the
+/// module it lives in is internal to this crate.
+pub use crate::decorations::Decoration;
+
 /// A single step in rendering syntax-highlighted source.
 ///
 /// This enum mirrors tree-sitter's `HighlightEvent` but uses plain Rust types,
@@ -39,6 +43,17 @@ pub enum HighlightEvent<'a, T = ()> {
     },
     /// The current caller-provided annotation ends.
     AnnotationEnd,
+    /// A Lumis-owned decoration begins.
+    ///
+    /// Unlike an annotation, its payload is a closed set every built-in
+    /// formatter understands, so the built-ins render these rather than skip
+    /// them.
+    DecorationStart {
+        /// What Lumis is marking here.
+        decoration: Decoration,
+    },
+    /// The current Lumis-owned decoration ends.
+    DecorationEnd,
 }
 
 impl<T> Clone for HighlightEvent<'_, T> {
@@ -60,6 +75,10 @@ impl<T> Clone for HighlightEvent<'_, T> {
                 annotation: annotation.clone(),
             },
             Self::AnnotationEnd => Self::AnnotationEnd,
+            Self::DecorationStart { decoration } => Self::DecorationStart {
+                decoration: *decoration,
+            },
+            Self::DecorationEnd => Self::DecorationEnd,
         }
     }
 }
@@ -79,10 +98,7 @@ impl<T> HighlightEvent<'_, T> {
             Self::Start { scope_index, .. } => crate::highlights::HIGHLIGHT_NAMES
                 .get(*scope_index)
                 .copied(),
-            Self::Source { .. }
-            | Self::End
-            | Self::AnnotationStart { .. }
-            | Self::AnnotationEnd => None,
+            _ => None,
         }
     }
 
@@ -92,10 +108,7 @@ impl<T> HighlightEvent<'_, T> {
     pub fn language(&self) -> Option<&str> {
         match self {
             Self::Start { language, .. } => Some(language),
-            Self::Source { .. }
-            | Self::End
-            | Self::AnnotationStart { .. }
-            | Self::AnnotationEnd => None,
+            _ => None,
         }
     }
 }

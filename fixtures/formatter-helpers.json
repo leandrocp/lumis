@@ -91,6 +91,7 @@
         "decodeSourceSlice": "See `encodeSource`.",
         "sortedThemeNames": "`Array.prototype.sort` orders by UTF-16 code unit and Rust orders `&str` by UTF-8 byte, so the two disagree on astral characters. Rust keeps its counterpart private; JavaScript exports it for the multi-themes formatter next door.",
         "formatHighlightIterLines": "The callback-shaped renderer `renderLinesFromEvents` is built on. Rust's equivalent is a set of private functions.",
+        "formatHtmlLines": "The `<div class=\"l-line\">` walk the three built-in HTML formatters share, over a line-decorated event stream. Rust's `write_html_lines` is crate-private, which JavaScript has no equivalent of across modules; Elixir's built-in formatters are that Rust.",
         "getThemeStyle": "Scope resolution, which walks a scope up to its parent and consults the rainbow-bracket fallbacks. Rust reaches it as `Theme::get_style`, a method on the theme; Elixir gets every answer at once from `span_attrs/1`, because resolving per token would cross the NIF boundary per token.",
         "getScopedThemeStyle": "See `getThemeStyle`.",
         "wrapWithHeader": "Concatenates three strings. JavaScript's formatters build strings; Rust's write to a `dyn Write` and Elixir's return iodata, so neither needs a function for it."

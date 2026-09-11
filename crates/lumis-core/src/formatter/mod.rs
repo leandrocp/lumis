@@ -33,6 +33,45 @@ pub use terminal::{Background as TerminalBackground, Terminal, TerminalBuilder};
 pub mod bbcode;
 pub use bbcode::{BBCodeScoped, BBCodeScopedBuilder};
 
+/// The source slice an event names, or an error when it names one that is not
+/// there.
+///
+/// A formatter can be handed events it did not produce, so these offsets are
+/// caller data. The HTML formatters clamp them; `terminal` and `bbcode_scoped`
+/// refuse them, which is what this is for.
+pub(crate) fn source_text(source: &[u8], start: usize, end: usize) -> io::Result<&str> {
+    if start > end || end > source.len() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!(
+                "invalid source range: {start}..{end} (len={})",
+                source.len()
+            ),
+        ));
+    }
+
+    std::str::from_utf8(&source[start..end])
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))
+}
+
+/// Reject an out-of-range `Source` before anything clamps it.
+///
+/// Line composition clips a `Source` to the document, so a formatter that
+/// refuses a malformed range has to say so before composing, or the option that
+/// turned composition on would quietly turn the error into truncated output.
+pub(crate) fn check_source_ranges<T>(
+    source: &[u8],
+    events: &[HighlightEvent<'_, T>],
+) -> io::Result<()> {
+    for event in events {
+        if let HighlightEvent::Source { start, end } = event {
+            source_text(source, *start, *end)?;
+        }
+    }
+
+    Ok(())
+}
+
 /// Configuration for wrapping the formatted output with custom HTML elements.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct HtmlElement {

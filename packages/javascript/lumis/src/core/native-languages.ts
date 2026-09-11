@@ -548,9 +548,18 @@ export function createNativeLanguagesModule(
             },
           };
         case "bbcode-scoped":
-          return { rainbowBrackets, kind, options: null };
+          return { rainbowBrackets, kind, options: { highlightLines: builtin.highlightLines } };
         case "terminal":
-          return { rainbowBrackets, kind, options: { theme: builtin.theme } };
+          return {
+            rainbowBrackets,
+            kind,
+            options: {
+              theme: builtin.theme,
+              background: builtin.background,
+              width: builtin.width,
+              highlightLines: builtin.highlightLines,
+            },
+          };
       }
     }
 

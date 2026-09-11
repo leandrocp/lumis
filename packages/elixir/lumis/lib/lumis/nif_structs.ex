@@ -12,3 +12,13 @@ defmodule Lumis.HTMLLinkedHighlightLines do
   @moduledoc false
   defstruct lines: [], class: "l-highlighted"
 end
+
+defmodule Lumis.TerminalHighlightLines do
+  @moduledoc false
+  defstruct lines: [], background: nil
+end
+
+defmodule Lumis.BBCodeHighlightLines do
+  @moduledoc false
+  defstruct lines: []
+end

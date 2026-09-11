@@ -35,7 +35,7 @@
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 pub use lumis_core::formatter::terminal::{
-    Background, Terminal, TerminalBuilder, TerminalBuilderError,
+    Background, HighlightLines, Terminal, TerminalBuilder, TerminalBuilderError,
 };
 
 #[cfg(test)]
@@ -46,7 +46,7 @@ mod tests {
     #[test]
     fn test_no_attrs() {
         let code = "@lang :rust";
-        let formatter = Terminal::new(Language::Elixir, None, Background::Inherit, None);
+        let formatter = Terminal::new(Language::Elixir, None, Background::Inherit, None, None);
         let result = crate::highlight(code, formatter);
 
         assert!(result.contains('@'));

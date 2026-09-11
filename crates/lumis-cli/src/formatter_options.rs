@@ -48,11 +48,14 @@ impl OptionGroup {
     }
 }
 
-/// `--highlight-lines-style` has no manifest entry of its own. The manifest
-/// carries one `highlight_lines` option covering the whole struct, and only the
-/// inline-style formatters have a `style` field on theirs, so the flag sits in
-/// the styled group and inherits the formatters `italic` and
-/// `include_highlights` derive.
+/// The manifest carries one `highlight_lines` option per formatter covering the
+/// whole struct, and each formatter's struct carries a different second field,
+/// so the sub-flags have no manifest entry of their own. Each one instead sits
+/// in the group whose manifest options already select the formatters that have
+/// it: `--highlight-lines-class` with the HTML options, `--highlight-lines-style`
+/// with the inline-style ones, `--highlight-lines-background` with the terminal
+/// ones. `--highlight-lines` itself is accepted everywhere, so it renders in the
+/// main block beside `--language` rather than under a heading.
 pub(crate) const OPTION_GROUPS: &[OptionGroup] = &[
     OptionGroup {
         label: "`--theme`",
@@ -61,8 +64,13 @@ pub(crate) const OPTION_GROUPS: &[OptionGroup] = &[
     },
     OptionGroup {
         label: "terminal options",
-        flags: &["--background", "--width"],
+        flags: &["--background", "--width", "--highlight-lines-background"],
         manifest_options: &["background", "width"],
+    },
+    OptionGroup {
+        label: "`--highlight-lines`",
+        flags: &["--highlight-lines"],
+        manifest_options: &["highlight_lines"],
     },
     OptionGroup {
         label: "HTML options",
@@ -70,10 +78,9 @@ pub(crate) const OPTION_GROUPS: &[OptionGroup] = &[
             "--pre-class",
             "--header-open",
             "--header-close",
-            "--highlight-lines",
             "--highlight-lines-class",
         ],
-        manifest_options: &["pre_class", "header", "highlight_lines"],
+        manifest_options: &["pre_class", "header"],
     },
     OptionGroup {
         label: "inline-style options",

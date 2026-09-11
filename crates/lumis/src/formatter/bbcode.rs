@@ -37,7 +37,7 @@
 //! See the [formatter](crate::formatter) module for more information and examples.
 
 pub use lumis_core::formatter::bbcode::{
-    BBCodeScoped, BBCodeScopedBuilder, BBCodeScopedBuilderError,
+    BBCodeScoped, BBCodeScopedBuilder, BBCodeScopedBuilderError, HighlightLines,
 };
 
 #[cfg(test)]
@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn test_no_attrs() {
         let code = "@lang :rust";
-        let formatter = BBCodeScoped::new(Language::Elixir);
+        let formatter = BBCodeScoped::new(Language::Elixir, None);
         let result = crate::highlight(code, formatter);
 
         assert!(result.contains('@'));
@@ -59,7 +59,7 @@ mod tests {
     #[test]
     fn test_plain_text() {
         let code = "hello world";
-        let formatter = BBCodeScoped::new(Language::PlainText);
+        let formatter = BBCodeScoped::new(Language::PlainText, None);
         let result = crate::highlight(code, formatter);
 
         assert_eq!(result, "hello world");

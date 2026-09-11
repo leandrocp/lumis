@@ -74,10 +74,12 @@ const terminal: Required<TerminalOptions> = {
   theme,
   background: "theme",
   width: 120,
+  highlightLines: { lines: [1], background: "#3a3a3a" },
 };
 
 const bbcodeScoped: Required<BBCodeScopedOptions> = {
   language: "rust",
+  highlightLines: { lines: [1] },
 };
 
 const exercised: Record<string, string[]> = {
