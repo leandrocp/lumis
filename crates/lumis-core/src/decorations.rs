@@ -573,7 +573,7 @@ mod tests {
         let selection = LineSelection::new(&[], &[ascending, descending]);
 
         assert_eq!(selection.spans, [(1, 1_000_000_000)]);
-        assert!(selection.stepped.is_empty());
+        assert_eq!(selection.stepped, Vec::new());
     }
 
     #[test]

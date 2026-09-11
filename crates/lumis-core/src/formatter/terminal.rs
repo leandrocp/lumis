@@ -2,7 +2,7 @@
 //!
 //! Works with pre-computed highlight events from any source.
 
-use super::{ansi, Formatter};
+use super::{ansi, check_source_ranges, source_text, Formatter};
 use crate::decorations::{compose_line_decorations, Decoration, LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
@@ -214,6 +214,7 @@ impl<T> Formatter<T> for Terminal {
         let events: &[HighlightEvent<'_, T>] = if selection.is_empty() {
             events
         } else {
+            check_source_ranges(source_bytes, events)?;
             composed = compose_line_decorations(source, events, &selection);
             &composed
         };
@@ -256,23 +257,6 @@ impl<T> Formatter<T> for Terminal {
 
         Ok(())
     }
-}
-
-/// The source slice an event names, or an error when it names one that is not
-/// there. A formatter can be handed events it did not produce.
-fn source_text(source_bytes: &[u8], start: usize, end: usize) -> io::Result<&str> {
-    if start > end || end > source_bytes.len() {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidData,
-            format!(
-                "invalid source range: {start}..{end} (len={})",
-                source_bytes.len()
-            ),
-        ));
-    }
-
-    std::str::from_utf8(&source_bytes[start..end])
-        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
 }
 
 fn paint_with_background(text: &str, style: Option<&Style>, fallback_bg: Option<&str>) -> String {
@@ -562,6 +546,37 @@ mod tests {
         );
 
         assert_eq!(render_lines(&formatter, "a\nb"), "a\nb");
+    }
+
+    /// Line composition clips a `Source` to the document, so asking for
+    /// highlighting must not turn a range this formatter refuses into
+    /// truncated output.
+    #[test]
+    fn an_out_of_range_source_is_refused_with_or_without_highlighting() {
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 99 }];
+
+        for highlight_lines in [
+            None,
+            Some(HighlightLines {
+                lines: std::iter::once(1..=1).collect(),
+                background: Some("#ff0000".to_string()),
+            }),
+        ] {
+            let formatter = Terminal::new(
+                Language::PlainText,
+                None,
+                Background::Inherit,
+                None,
+                highlight_lines,
+            );
+            let mut output = Vec::new();
+
+            let error = formatter
+                .render("a\nb", &events, &mut output)
+                .expect_err("an out-of-range source range is invalid data");
+
+            assert_eq!(error.kind(), io::ErrorKind::InvalidData);
+        }
     }
 
     #[test]

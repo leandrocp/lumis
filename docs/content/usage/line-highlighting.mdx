@@ -221,8 +221,10 @@ lumis highlight -f html-inline -h 2 --highlight-lines-style none --highlight-lin
 
 ## What changes between formatters
 
-Every formatter takes the same `lines`. What differs is how it marks them,
-because each output format has a different thing to mark a line with.
+In Rust, JavaScript, Elixir and the CLI, every formatter takes the same
+`lines`. What differs is how it marks them, because each output format has a
+different thing to mark a line with. `lumis4j` does not expose line
+highlighting.
 
 | Formatter | Highlight style |
 | --- | --- |
