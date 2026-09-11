@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/themes",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Neovim themes for Lumis Syntax Highlighter",
   "author": "Leandro Pereira",
   "license": "MIT",
