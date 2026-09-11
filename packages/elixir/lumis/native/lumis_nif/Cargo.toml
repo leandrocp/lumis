@@ -15,7 +15,7 @@ anyhow = "1"
 once_cell = "1.21"
 parking_lot = "0.12"
 rustler = "0.38"
-lumis-core = { version = "2.5.0", default-features = false, features = ["all-languages"] }
+lumis-core = { version = "3.0.0", default-features = false, features = ["all-languages"] }
 lumis-wasm-runtime = "0.2.1"
 
 [features]
