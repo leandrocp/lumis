@@ -1,6 +1,6 @@
 [package]
 name = "lumis-core"
-version = "2.5.0"
+version = "3.0.0"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
