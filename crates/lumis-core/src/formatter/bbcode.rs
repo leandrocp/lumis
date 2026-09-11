@@ -142,7 +142,12 @@ impl<T> Formatter<T> for BBCodeScoped {
                         write!(output, "[/{tag_name}]")?;
                     }
                 }
-                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
+                // `BBCode` has no block element to put a line in, and caller
+                // annotations carry data this formatter has never seen.
+                HighlightEvent::AnnotationStart { .. }
+                | HighlightEvent::AnnotationEnd
+                | HighlightEvent::DecorationStart { .. }
+                | HighlightEvent::DecorationEnd => {}
             }
         }
 

@@ -339,6 +339,35 @@ pub mod annotations {
     };
 }
 
+/// Lumis-owned overlays the built-in formatters render.
+///
+/// An [`Annotation`] carries data only the caller understands, so the built-in
+/// formatters skip it. A [`Decoration`](decorations::Decoration) carries data
+/// Lumis owns, which is how line highlighting reaches the same event stream:
+/// each line arrives as a
+/// [`DecorationStart`](events::HighlightEvent::DecorationStart) carrying its
+/// number and whether the caller asked for it to be highlighted, and the
+/// matching [`DecorationEnd`](events::HighlightEvent::DecorationEnd) closes it.
+///
+/// ```rust
+/// use lumis::decorations::Decoration;
+/// use lumis::events::HighlightEvent;
+///
+/// let event = HighlightEvent::<()>::DecorationStart {
+///     decoration: Decoration::Line { number: 3, highlighted: true },
+/// };
+///
+/// assert!(matches!(
+///     event,
+///     HighlightEvent::DecorationStart {
+///         decoration: Decoration::Line { number: 3, .. }
+///     }
+/// ));
+/// ```
+pub mod decorations {
+    pub use lumis_core::decorations::Decoration;
+}
+
 pub use lumis_core::events;
 pub use lumis_core::highlights;
 

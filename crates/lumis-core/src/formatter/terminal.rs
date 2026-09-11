@@ -163,7 +163,13 @@ impl<T> Formatter<T> for Terminal {
                 HighlightEvent::End => {
                     scope_stack.pop();
                 }
-                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
+                // Caller annotations carry data this formatter has never seen,
+                // and a line decoration adds nothing to a stream the terminal
+                // already writes one line at a time.
+                HighlightEvent::AnnotationStart { .. }
+                | HighlightEvent::AnnotationEnd
+                | HighlightEvent::DecorationStart { .. }
+                | HighlightEvent::DecorationEnd => {}
             }
         }
 

@@ -404,11 +404,31 @@ export type SyntaxHighlightEvent =
   | { type: "source"; start: number; end: number }
   | { type: "end" };
 
-/** A unified syntax and caller-provided annotation event. */
+/**
+ * An overlay whose data Lumis owns and every built-in formatter understands.
+ *
+ * A caller's {@link Annotation} carries data only that caller understands, so
+ * the built-in formatters skip it. A decoration is a closed set they can switch
+ * on, which is how line highlighting reaches the same event stream.
+ *
+ * A line decoration covers the line's text and the newline that ends it; the
+ * last line of a source that does not end in one covers just the text.
+ */
+export type Decoration = {
+  type: "line";
+  /** The 1-based line number. */
+  number: number;
+  /** Whether the caller asked for this line to be highlighted. */
+  highlighted: boolean;
+};
+
+/** A unified syntax, caller-annotation and Lumis-decoration event. */
 export type HighlightEvent<T = unknown> =
   | SyntaxHighlightEvent
   | { type: "annotationStart"; annotation: ResolvedAnnotation<T> }
-  | { type: "annotationEnd" };
+  | { type: "annotationEnd" }
+  | { type: "decorationStart"; decoration: Decoration }
+  | { type: "decorationEnd" };
 
 /**
  * Signature of the `highlightIter` free function and the `hl.highlightIter`

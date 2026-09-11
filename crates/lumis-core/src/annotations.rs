@@ -346,7 +346,10 @@ pub fn compose_annotations<'a, T>(
                     }
                 }
             }
-            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
+            HighlightEvent::AnnotationStart { .. }
+            | HighlightEvent::AnnotationEnd
+            | HighlightEvent::DecorationStart { .. }
+            | HighlightEvent::DecorationEnd => {}
         }
     }
 
@@ -391,7 +394,10 @@ fn copy_syntax_events<'a, T>(events: &[HighlightEvent<'_, ()>]) -> Vec<Highlight
                 end: *end,
             },
             HighlightEvent::End => HighlightEvent::End,
-            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => continue,
+            HighlightEvent::AnnotationStart { .. }
+            | HighlightEvent::AnnotationEnd
+            | HighlightEvent::DecorationStart { .. }
+            | HighlightEvent::DecorationEnd => continue,
         });
     }
 
@@ -804,6 +810,7 @@ mod tests {
                     depth = depth.checked_sub(1).expect("unbalanced closing event");
                 }
                 HighlightEvent::Source { start, end } => rendered.push_str(&source[start..end]),
+                _ => unreachable!("annotation composition emits no other event"),
             }
         }
 

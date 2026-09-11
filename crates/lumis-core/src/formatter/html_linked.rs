@@ -4,6 +4,7 @@
 //! CSS classes for syntax highlighting, working from pre-computed highlight events.
 
 use super::{Formatter, HtmlElement};
+use crate::decorations::{LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
 use derive_builder::Builder;
@@ -42,7 +43,7 @@ pub struct HtmlLinked {
     pre_class: Option<String>,
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
-    stepped_highlight_lines: Vec<crate::formatter::html::SteppedLineRange>,
+    stepped_highlight_lines: Vec<SteppedLineRange>,
     header: Option<HtmlElement>,
 }
 
@@ -80,11 +81,17 @@ impl HtmlLinked {
 
     /// Supply compact stepped ranges from a language binding.
     #[doc(hidden)]
-    pub fn set_stepped_highlight_lines(
-        &mut self,
-        lines: Vec<crate::formatter::html::SteppedLineRange>,
-    ) {
+    pub fn set_stepped_highlight_lines(&mut self, lines: Vec<SteppedLineRange>) {
         self.stepped_highlight_lines = lines;
+    }
+
+    fn line_selection(&self) -> LineSelection {
+        LineSelection::new(
+            self.highlight_lines
+                .as_ref()
+                .map_or(&[][..], |highlight| &highlight.lines),
+            &self.stepped_highlight_lines,
+        )
     }
 
     fn get_line_class_suffix(&self, is_highlighted: bool) -> Option<String> {
@@ -138,34 +145,15 @@ impl<T> Formatter<T> for HtmlLinked {
         crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class.as_deref(), None)?;
         crate::formatter::html::open_code_tag(&mut buffer, &self.language)?;
 
-        let lines = crate::formatter::html::render_lines_from_events(
+        let class_suffix = self.get_line_class_suffix(true);
+        crate::formatter::html::write_html_lines(
+            &mut buffer,
             source,
             events,
-            |scope_index, _language| Self::span_attrs_from_index(scope_index),
-        );
-        let highlighted_lines = self.highlight_lines.as_ref().map(|highlight| {
-            crate::formatter::html::highlighted_line_flags(
-                &highlight.lines,
-                &self.stepped_highlight_lines,
-                lines.len(),
-            )
-        });
-
-        for (i, line) in lines.iter().enumerate() {
-            let line_number = i + 1;
-            let is_highlighted = highlighted_lines
-                .as_ref()
-                .is_some_and(|selected| selected[i]);
-            let class_suffix = self.get_line_class_suffix(is_highlighted);
-            let line_with_newline = format!("{line}\n");
-            let wrapped = crate::formatter::html::wrap_line(
-                line_number,
-                &line_with_newline,
-                class_suffix.as_deref(),
-                None,
-            );
-            write!(&mut buffer, "{wrapped}")?;
-        }
+            &self.line_selection(),
+            &|scope_index, _language| Self::span_attrs_from_index(scope_index),
+            (class_suffix.as_deref(), None),
+        )?;
 
         crate::formatter::html::closing_tags(&mut buffer)?;
 

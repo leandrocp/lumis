@@ -1,0 +1,195 @@
+{
+  "$comment": "Expected event streams for line-decoration composition. Rust is the reference; crates/lumis-core/tests/decoration_composition.rs asserts it produces these, packages/javascript/lumis/test/decoration-composition.test.ts asserts the TypeScript port produces the same. Notation: L+N/L+N* opens a line decoration (starred when highlighted), L- closes it, S:scope / E a syntax scope, T:start-end a source range, A+data@start-end / A- a caller annotation.",
+  "cases": [
+    {
+      "name": "empty/no-events",
+      "source": "",
+      "events": [],
+      "highlightLines": [],
+      "expected": "L+1 L-"
+    },
+    {
+      "name": "empty/source-event-over-nothing",
+      "source": "",
+      "events": [{ "type": "source", "start": 0, "end": 0 }],
+      "highlightLines": [],
+      "expected": "L+1 L-"
+    },
+    {
+      "name": "lines/one-line-no-trailing-newline",
+      "source": "abc",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "highlightLines": [],
+      "expected": "L+1 T:0-3 L-"
+    },
+    {
+      "name": "lines/trailing-newline-opens-one-more",
+      "source": "abc\n",
+      "events": [{ "type": "source", "start": 0, "end": 4 }],
+      "highlightLines": [],
+      "expected": "L+1 T:0-4 L- L+2 L-"
+    },
+    {
+      "name": "lines/blank-line-in-the-middle",
+      "source": "a\n\nb",
+      "events": [{ "type": "source", "start": 0, "end": 4 }],
+      "highlightLines": [],
+      "expected": "L+1 T:0-2 L- L+2 T:2-3 L- L+3 T:3-4 L-"
+    },
+    {
+      "name": "lines/newline-only-source",
+      "source": "\n",
+      "events": [{ "type": "source", "start": 0, "end": 1 }],
+      "highlightLines": [],
+      "expected": "L+1 T:0-1 L- L+2 L-"
+    },
+    {
+      "name": "lines/split-across-two-source-events",
+      "source": "ab\ncd",
+      "events": [
+        { "type": "source", "start": 0, "end": 2 },
+        { "type": "source", "start": 2, "end": 5 }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 T:0-2 T:2-3 L- L+2 T:3-5 L-"
+    },
+    {
+      "name": "scope/closed-and-reopened-across-a-newline",
+      "source": "a\nb",
+      "events": [
+        { "type": "start", "scope": "string", "language": "json" },
+        { "type": "source", "start": 0, "end": 3 },
+        { "type": "end" }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:string T:0-2 E L- L+2 S:string T:2-3 E L-"
+    },
+    {
+      "name": "scope/nested-scopes-reopen-in-order",
+      "source": "ab\ncd",
+      "events": [
+        { "type": "start", "scope": "string", "language": "json" },
+        { "type": "start", "scope": "number", "language": "json" },
+        { "type": "source", "start": 0, "end": 5 },
+        { "type": "end" },
+        { "type": "end" }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:string S:number T:0-3 E E L- L+2 S:string S:number T:3-5 E E L-"
+    },
+    {
+      "name": "scope/closes-inside-the-line-it-opened",
+      "source": "ab\ncd",
+      "events": [
+        { "type": "start", "scope": "string", "language": "json" },
+        { "type": "source", "start": 0, "end": 1 },
+        { "type": "end" },
+        { "type": "source", "start": 1, "end": 5 }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:string T:0-1 E T:1-3 L- L+2 T:3-5 L-"
+    },
+    {
+      "name": "scope/unbalanced-start-closes-before-the-last-line-ends",
+      "source": "a",
+      "events": [
+        { "type": "start", "scope": "string", "language": "json" },
+        { "type": "source", "start": 0, "end": 1 }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:string T:0-1 E L-"
+    },
+    {
+      "name": "scope/unmatched-end-is-dropped",
+      "source": "a",
+      "events": [
+        { "type": "source", "start": 0, "end": 1 },
+        { "type": "end" }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 T:0-1 L-"
+    },
+    {
+      "name": "annotation/closed-and-reopened-across-a-newline",
+      "source": "ab\ncd",
+      "events": [{ "type": "source", "start": 0, "end": 5 }],
+      "annotations": [{ "start": 1, "end": 4, "data": "x" }],
+      "highlightLines": [],
+      "expected": "L+1 T:0-1 A+x@1-4 T:1-3 A- L- L+2 A+x@1-4 T:3-4 A- T:4-5 L-"
+    },
+    {
+      "name": "annotation/point-on-a-blank-line",
+      "source": "a\n\nb",
+      "events": [{ "type": "source", "start": 0, "end": 4 }],
+      "annotations": [{ "start": 2, "end": 2, "data": "blank" }],
+      "highlightLines": [2],
+      "expected": "L+1 T:0-2 L- L+2* A+blank@2-2 A- T:2-3 L- L+3 T:3-4 L-"
+    },
+    {
+      "name": "utf8/multibyte-lines",
+      "source": "é\ncafé\n",
+      "events": [{ "type": "source", "start": 0, "end": 9 }],
+      "highlightLines": [],
+      "expected": "L+1 T:0-3 L- L+2 T:3-9 L- L+3 L-"
+    },
+    {
+      "name": "highlight/single-line",
+      "source": "a\nb\nc",
+      "events": [{ "type": "source", "start": 0, "end": 5 }],
+      "highlightLines": [2],
+      "expected": "L+1 T:0-2 L- L+2* T:2-4 L- L+3 T:4-5 L-"
+    },
+    {
+      "name": "highlight/inclusive-range",
+      "source": "a\nb\nc\nd",
+      "events": [{ "type": "source", "start": 0, "end": 7 }],
+      "highlightLines": [[2, 3]],
+      "expected": "L+1 T:0-2 L- L+2* T:2-4 L- L+3* T:4-6 L- L+4 T:6-7 L-"
+    },
+    {
+      "name": "highlight/overlapping-ranges-merge",
+      "source": "a\nb\nc\nd",
+      "events": [{ "type": "source", "start": 0, "end": 7 }],
+      "highlightLines": [
+        [1, 2],
+        [2, 3]
+      ],
+      "expected": "L+1* T:0-2 L- L+2* T:2-4 L- L+3* T:4-6 L- L+4 T:6-7 L-"
+    },
+    {
+      "name": "highlight/unsorted-ranges",
+      "source": "a\nb\nc\nd",
+      "events": [{ "type": "source", "start": 0, "end": 7 }],
+      "highlightLines": [4, 1],
+      "expected": "L+1* T:0-2 L- L+2 T:2-4 L- L+3 T:4-6 L- L+4* T:6-7 L-"
+    },
+    {
+      "name": "highlight/line-zero-selects-nothing",
+      "source": "a\nb",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "highlightLines": [0],
+      "expected": "L+1 T:0-2 L- L+2 T:2-3 L-"
+    },
+    {
+      "name": "highlight/reversed-range-selects-nothing",
+      "source": "a\nb",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "highlightLines": [[3, 1]],
+      "expected": "L+1 T:0-2 L- L+2 T:2-3 L-"
+    },
+    {
+      "name": "highlight/range-beyond-the-document",
+      "source": "a\nb",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "highlightLines": [[1, 1000000000]],
+      "expected": "L+1* T:0-2 L- L+2* T:2-3 L-"
+    },
+    {
+      "name": "highlight/blank-line",
+      "source": "a\n\nb",
+      "events": [{ "type": "source", "start": 0, "end": 4 }],
+      "highlightLines": [2],
+      "expected": "L+1 T:0-2 L- L+2* T:2-3 L- L+3 T:3-4 L-"
+    }
+  ]
+}

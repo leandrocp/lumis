@@ -112,7 +112,10 @@ export function formatTerminal(
       continue;
     }
 
-    if (event.type === "annotationStart" || event.type === "annotationEnd") {
+    // Caller annotations carry data this formatter has never seen, and a line
+    // decoration adds nothing to a stream the terminal already writes one line
+    // at a time.
+    if (event.type !== "source") {
       continue;
     }
 

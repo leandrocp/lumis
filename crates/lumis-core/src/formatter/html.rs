@@ -2,82 +2,16 @@
 //!
 //! These helpers work with language names as strings, making them independent of tree-sitter.
 
+use crate::decorations::{compose_line_decorations, Decoration, LineSelection};
+use crate::events::HighlightEvent;
 use crate::languages::Language;
 use crate::themes::{Style, TextDecoration, Theme, UnderlineStyle};
 use std::fmt::Write as _;
 use std::io::{self, Write};
 use std::ops::RangeInclusive;
 
-/// A finite arithmetic progression of 1-based line numbers.
-///
-/// This is public only so language bindings can preserve a source runtime's
-/// stepped-range semantics without expanding the range into one allocation per
-/// selected line. Rust's formatter options continue to use
-/// [`RangeInclusive<usize>`].
 #[doc(hidden)]
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct SteppedLineRange {
-    first: usize,
-    last: usize,
-    step: usize,
-}
-
-impl SteppedLineRange {
-    /// Normalize an ascending or descending stepped range.
-    ///
-    /// Returns `None` for a zero step or when the step points away from the end.
-    #[doc(hidden)]
-    pub fn new(start: usize, end: usize, step: isize) -> Option<Self> {
-        let stride = step.unsigned_abs();
-        if stride == 0 {
-            return None;
-        }
-
-        let (first, last) = if step > 0 {
-            if start > end {
-                return None;
-            }
-            let span = end - start;
-            (start, start + span / stride * stride)
-        } else {
-            if start < end {
-                return None;
-            }
-            let span = start - end;
-            (start - span / stride * stride, start)
-        };
-
-        Some(Self {
-            first,
-            last,
-            step: stride,
-        })
-    }
-
-    /// Whether `line_number` is one of the range's selected lines.
-    #[doc(hidden)]
-    pub fn contains(&self, line_number: usize) -> bool {
-        (self.first..=self.last).contains(&line_number)
-            && (line_number - self.first).is_multiple_of(self.step)
-    }
-
-    fn mark(&self, selected: &mut [bool]) {
-        let mut line = if self.first == 0 {
-            self.step
-        } else {
-            self.first
-        };
-        let last = self.last.min(selected.len());
-
-        while line <= last {
-            selected[line - 1] = true;
-            let Some(next) = line.checked_add(self.step) else {
-                break;
-            };
-            line = next;
-        }
-    }
-}
+pub use crate::decorations::SteppedLineRange;
 
 /// Generate HTML attributes for a span with inline CSS styles.
 pub fn span_inline_attrs(
@@ -491,6 +425,18 @@ pub fn span_multi_themes(
     format!("{}{}</span>", open_span(&attrs), escaped)
 }
 
+/// The HTML entity a byte has to be written as, if any.
+const fn html_entity(byte: u8) -> Option<&'static str> {
+    match byte {
+        b'&' => Some("&amp;"),
+        b'<' => Some("&lt;"),
+        b'>' => Some("&gt;"),
+        b'"' => Some("&quot;"),
+        b'\'' => Some("&#39;"),
+        _ => None,
+    }
+}
+
 /// Escape text for safe HTML output.
 pub fn escape(text: &str) -> String {
     let bytes = text.as_bytes();
@@ -498,13 +444,8 @@ pub fn escape(text: &str) -> String {
     let mut last = 0;
 
     for (i, &b) in bytes.iter().enumerate() {
-        let replacement = match b {
-            b'&' => "&amp;",
-            b'<' => "&lt;",
-            b'>' => "&gt;",
-            b'"' => "&quot;",
-            b'\'' => "&#39;",
-            _ => continue,
+        let Some(replacement) = html_entity(b) else {
+            continue;
         };
         buf.push_str(&text[last..i]);
         buf.push_str(replacement);
@@ -517,6 +458,26 @@ pub fn escape(text: &str) -> String {
 
     buf.push_str(&text[last..]);
     buf
+}
+
+/// Escape text straight into `output`, without building a `String` first.
+///
+/// [`escape`] allocates once per call, which on a highlighted document is once
+/// per token. The built-in formatters write to a buffer they already own, so
+/// they take this instead.
+pub(crate) fn write_escaped(output: &mut dyn Write, text: &str) -> io::Result<()> {
+    let mut last = 0;
+
+    for (index, &byte) in text.as_bytes().iter().enumerate() {
+        let Some(replacement) = html_entity(byte) else {
+            continue;
+        };
+        output.write_all(&text.as_bytes()[last..index])?;
+        output.write_all(replacement.as_bytes())?;
+        last = index + 1;
+    }
+
+    output.write_all(&text.as_bytes()[last..])
 }
 
 /// Escape a value for use inside a double-quoted HTML attribute.
@@ -547,19 +508,41 @@ pub fn wrap_line(
     class_suffix: Option<&str>,
     style: Option<&str>,
 ) -> String {
-    let class_attr = match class_suffix {
-        Some(suffix) => escape_attr(&format!("l-line{suffix}")),
-        None => "l-line".to_string(),
-    };
+    let mut line = Vec::with_capacity(content.len() + 48);
+    let _ = LineTag::new(class_suffix, style).write(&mut line, line_number);
+    line.extend_from_slice(content.as_bytes());
+    line.extend_from_slice(b"</div>");
 
-    match style {
-        Some(s) => {
-            let style_attr = escape_attr(s);
-            format!(
-                "<div class=\"{class_attr}\" style=\"{style_attr}\" data-line=\"{line_number}\">{content}</div>"
-            )
+    String::from_utf8(line).expect("the tag and its content are both UTF-8")
+}
+
+/// Everything in a line's opening tag that does not change from line to line.
+///
+/// A document's lines differ only in their number and in whether they are
+/// highlighted, so the class and style attributes — which cost an escape each —
+/// are assembled once rather than once per line.
+struct LineTag(String);
+
+impl LineTag {
+    fn new(class_suffix: Option<&str>, style: Option<&str>) -> Self {
+        let mut tag = String::from("<div class=\"");
+        match class_suffix {
+            Some(suffix) => tag.push_str(&escape_attr(&format!("l-line{suffix}"))),
+            None => tag.push_str("l-line"),
         }
-        None => format!("<div class=\"{class_attr}\" data-line=\"{line_number}\">{content}</div>"),
+        tag.push('"');
+
+        if let Some(style) = style {
+            let _ = write!(tag, " style=\"{}\"", escape_attr(style));
+        }
+
+        tag.push_str(" data-line=\"");
+        Self(tag)
+    }
+
+    fn write(&self, output: &mut dyn Write, line_number: usize) -> io::Result<()> {
+        output.write_all(self.0.as_bytes())?;
+        write!(output, "{line_number}\">")
     }
 }
 
@@ -568,48 +551,6 @@ pub fn wrap_line(
 /// Lines are 1-based, matching the `data-line` attribute [`wrap_line`] writes.
 pub fn line_is_highlighted(lines: &[RangeInclusive<usize>], line_number: usize) -> bool {
     lines.iter().any(|range| range.contains(&line_number))
-}
-
-/// Resolve all highlighted lines once before a formatter walks its output.
-///
-/// Ordinary ranges are clamped, sorted, and merged before their slices are
-/// filled. Ordinary ranges therefore cost `O(lines + ranges log ranges)` instead
-/// of being scanned again for every output line. Stepped ranges stay compact and
-/// only visit their selected lines that actually exist in the rendered output.
-pub(crate) fn highlighted_line_flags(
-    lines: &[RangeInclusive<usize>],
-    stepped_lines: &[SteppedLineRange],
-    line_count: usize,
-) -> Vec<bool> {
-    let mut selected = vec![false; line_count];
-    let mut intervals: Vec<(usize, usize)> = lines
-        .iter()
-        .filter_map(|range| {
-            let start = (*range.start()).max(1);
-            let end = (*range.end()).min(line_count);
-            (start <= end).then_some((start, end))
-        })
-        .collect();
-    intervals.sort_unstable();
-
-    let mut intervals = intervals.into_iter();
-    if let Some((mut start, mut end)) = intervals.next() {
-        for (next_start, next_end) in intervals {
-            if next_start <= end.saturating_add(1) {
-                end = end.max(next_end);
-            } else {
-                selected[start - 1..end].fill(true);
-                (start, end) = (next_start, next_end);
-            }
-        }
-        selected[start - 1..end].fill(true);
-    }
-
-    for range in stepped_lines {
-        range.mark(&mut selected);
-    }
-
-    selected
 }
 
 /// The CSS class a highlighted line carries, or `None` when the line is not highlighted.
@@ -824,50 +765,144 @@ pub fn open_span(attrs: &str) -> String {
 }
 
 /// Render highlight events into HTML lines, reopening active spans at line boundaries.
+///
+/// The returned lines carry no `\n`; [`wrap_line`] is where one is added back.
 pub fn render_lines_from_events<T, F>(
     source: &str,
-    events: &[crate::events::HighlightEvent<'_, T>],
+    events: &[HighlightEvent<'_, T>],
     span_attrs: F,
 ) -> Vec<String>
 where
     F: Fn(usize, &str) -> String,
 {
-    let mut lines = vec![String::new()];
-    let mut stack: Vec<(usize, String)> = Vec::new();
+    let mut lines = Vec::new();
+    let mut line = String::new();
 
-    for event in events {
-        match event {
-            crate::events::HighlightEvent::Start {
-                scope_index,
-                language,
-            } => {
-                let attrs = span_attrs(*scope_index, language);
-                append_fragment(&mut lines, &open_span(&attrs));
-                stack.push((*scope_index, language.clone()));
+    write_line_events(
+        &compose_line_decorations(source, events, &LineSelection::default()),
+        source,
+        |fragment| match fragment {
+            LineFragment::Open(_) => {}
+            LineFragment::Close => lines.push(std::mem::take(&mut line)),
+            LineFragment::Text(text) => line.push_str(&escape(text)),
+            LineFragment::SpanOpen(scope_index, language) => {
+                line.push_str(&open_span(&span_attrs(scope_index, language)));
             }
-            crate::events::HighlightEvent::End => {
-                if stack.pop().is_some() {
-                    append_fragment(&mut lines, "</span>");
-                }
-            }
-            crate::events::HighlightEvent::Source { start, end } => {
-                render_source_event(
-                    &mut lines,
-                    source_slice(source, *start, *end),
-                    &stack,
-                    &span_attrs,
-                );
-            }
-            crate::events::HighlightEvent::AnnotationStart { .. }
-            | crate::events::HighlightEvent::AnnotationEnd => {}
-        }
-    }
-
-    while stack.pop().is_some() {
-        append_fragment(&mut lines, "</span>");
-    }
+            LineFragment::SpanClose => line.push_str("</span>"),
+        },
+    );
 
     lines
+}
+
+/// One step of a line-decorated event stream, with its text already sliced.
+pub(crate) enum LineFragment<'a> {
+    /// A line begins.
+    Open(Decoration),
+    /// The current line ends, newline included when the source had one.
+    Close,
+    /// Unescaped source text, never spanning a line boundary.
+    Text(&'a str),
+    /// A syntax scope begins.
+    SpanOpen(usize, &'a str),
+    /// The innermost syntax scope ends.
+    SpanClose,
+}
+
+/// Walk a line-decorated stream, handing each step to `on_fragment`.
+///
+/// The trailing newline of a line is stripped from its
+/// [`Text`](LineFragment::Text) — a formatter emits its own line terminator, and
+/// the last line of a source that does not end in one would otherwise be the
+/// only line without it. Caller annotations are skipped, which is what a
+/// built-in formatter does with data it has never seen.
+pub(crate) fn write_line_events<'a, T, F>(
+    events: &'a [HighlightEvent<'_, T>],
+    source: &'a str,
+    mut on_fragment: F,
+) where
+    F: FnMut(LineFragment<'a>),
+{
+    for event in events {
+        match event {
+            HighlightEvent::DecorationStart { decoration } => {
+                on_fragment(LineFragment::Open(*decoration));
+            }
+            HighlightEvent::DecorationEnd => on_fragment(LineFragment::Close),
+            HighlightEvent::Start {
+                scope_index,
+                language,
+            } => on_fragment(LineFragment::SpanOpen(*scope_index, language)),
+            HighlightEvent::End => on_fragment(LineFragment::SpanClose),
+            HighlightEvent::Source { start, end } => {
+                let text = source_slice(source, *start, *end);
+                on_fragment(LineFragment::Text(text.strip_suffix('\n').unwrap_or(text)));
+            }
+            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
+        }
+    }
+}
+
+/// Write a line-decorated stream as the `<div class="l-line">` blocks every
+/// built-in HTML formatter emits.
+///
+/// The three of them differ only in the attributes a span and a highlighted line
+/// carry, so those are the two inputs; the walk itself is shared.
+///
+/// Nothing here is recomputed per line. The two line tags are assembled once,
+/// and a scope's attributes are resolved the first time it is seen rather than
+/// again every time a line boundary reopens it — which on a long document is
+/// once per open scope per line.
+pub(crate) fn write_html_lines<T>(
+    output: &mut dyn Write,
+    source: &str,
+    events: &[HighlightEvent<'_, T>],
+    selection: &LineSelection,
+    span_attrs: &dyn Fn(usize, &str) -> String,
+    highlighted_line: (Option<&str>, Option<&str>),
+) -> io::Result<()> {
+    let plain_tag = LineTag::new(None, None);
+    let highlighted_tag = LineTag::new(highlighted_line.0, highlighted_line.1);
+    let composed = compose_line_decorations(source, events, selection);
+    let mut attrs: std::collections::HashMap<(usize, &str), String> =
+        std::collections::HashMap::new();
+    let mut result = Ok(());
+
+    write_line_events(&composed, source, |fragment| {
+        if result.is_err() {
+            return;
+        }
+        result = match fragment {
+            LineFragment::Open(Decoration::Line {
+                number,
+                highlighted,
+            }) => {
+                let tag = if highlighted {
+                    &highlighted_tag
+                } else {
+                    &plain_tag
+                };
+                tag.write(output, number)
+            }
+            // Every line ends with a newline, including the last one when the
+            // source did not have one.
+            LineFragment::Close => output.write_all(b"\n</div>"),
+            LineFragment::Text(text) => write_escaped(output, text),
+            LineFragment::SpanOpen(scope_index, language) => {
+                let attrs = attrs
+                    .entry((scope_index, language))
+                    .or_insert_with(|| span_attrs(scope_index, language));
+                if attrs.is_empty() {
+                    output.write_all(b"<span>")
+                } else {
+                    write!(output, "<span {attrs}>")
+                }
+            }
+            LineFragment::SpanClose => output.write_all(b"</span>"),
+        };
+    });
+
+    result
 }
 
 /// The largest slice of `source` fully inside `start..end`.
@@ -896,47 +931,6 @@ fn ceil_char_boundary(source: &str, mut index: usize) -> usize {
         index += 1;
     }
     index
-}
-
-fn render_source_event<F>(
-    lines: &mut Vec<String>,
-    text: &str,
-    stack: &[(usize, String)],
-    span_attrs: &F,
-) where
-    F: Fn(usize, &str) -> String,
-{
-    let mut remaining = text;
-
-    loop {
-        if let Some(newline_index) = remaining.find('\n') {
-            let fragment = &remaining[..newline_index];
-            append_fragment(lines, &escape(fragment));
-            close_open_spans(lines, stack.len());
-            lines.push(String::new());
-            reopen_spans(lines, stack, span_attrs);
-            remaining = &remaining[newline_index + 1..];
-        } else {
-            append_fragment(lines, &escape(remaining));
-            break;
-        }
-    }
-}
-
-fn close_open_spans(lines: &mut Vec<String>, len: usize) {
-    for _ in 0..len {
-        append_fragment(lines, "</span>");
-    }
-}
-
-fn reopen_spans<F>(lines: &mut Vec<String>, stack: &[(usize, String)], span_attrs: &F)
-where
-    F: Fn(usize, &str) -> String,
-{
-    for (scope_index, language) in stack {
-        let attrs = span_attrs(*scope_index, language);
-        append_fragment(lines, &open_span(&attrs));
-    }
 }
 
 /// Render highlight events into HTML lines, calling `attribute_callback` for each highlight span.
@@ -1008,7 +1002,9 @@ where
                 }
             }
             crate::events::HighlightEvent::AnnotationStart { .. }
-            | crate::events::HighlightEvent::AnnotationEnd => {}
+            | crate::events::HighlightEvent::AnnotationEnd
+            | crate::events::HighlightEvent::DecorationStart { .. }
+            | crate::events::HighlightEvent::DecorationEnd => {}
         }
     }
 
@@ -1090,33 +1086,37 @@ mod tests {
         );
     }
 
+    /// Lines are the only thing the helper and the built-in formatters split on,
+    /// so both have to agree about where a line ends.
     #[test]
-    fn stepped_line_ranges_stay_compact_and_clip_to_rendered_lines() {
-        let ascending = SteppedLineRange::new(1, 1_000_000_000, 2).unwrap();
-        let descending = SteppedLineRange::new(1_000_000_000, 1, -3).unwrap();
-        let unaligned_end = SteppedLineRange::new(10, 2, -3).unwrap();
+    fn render_lines_from_events_and_the_html_pass_split_alike() {
+        let source = "one\ntwo\n";
+        let events = [HighlightEvent::<()>::Source {
+            start: 0,
+            end: source.len(),
+        }];
 
-        assert_eq!(
-            highlighted_line_flags(&[], &[ascending], 6),
-            [true, false, true, false, true, false]
+        let lines = render_lines_from_events(source, &events, |_, _| String::new());
+        let mut html = Vec::new();
+        write_html_lines(
+            &mut html,
+            source,
+            &events,
+            &LineSelection::default(),
+            &|_, _| String::new(),
+            (None, None),
+        )
+        .unwrap();
+
+        assert_eq!(lines, ["one", "two", ""]);
+        assert_str_eq!(
+            String::from_utf8(html).unwrap(),
+            lines
+                .iter()
+                .enumerate()
+                .map(|(index, line)| wrap_line(index + 1, &format!("{line}\n"), None, None))
+                .collect::<String>()
         );
-        assert_eq!(
-            highlighted_line_flags(&[], &[descending], 6),
-            [true, false, false, true, false, false]
-        );
-        assert!(unaligned_end.contains(4));
-        assert!(!unaligned_end.contains(2));
-    }
-
-    #[test]
-    fn highlighted_line_flags_merge_many_native_rust_ranges() {
-        let ranges: Vec<_> = (1..=20_000).step_by(2).map(|line| line..=line).collect();
-        let selected = highlighted_line_flags(&ranges, &[], 20_000);
-
-        assert_eq!(selected.iter().filter(|&&line| line).count(), 10_000);
-        assert!(selected[0]);
-        assert!(!selected[1]);
-        assert!(selected[19_998]);
     }
 
     #[test]

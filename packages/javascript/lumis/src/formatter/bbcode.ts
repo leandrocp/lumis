@@ -30,7 +30,9 @@ export function formatBBCode(source: string, events: readonly HighlightEvent[]):
       continue;
     }
 
-    if (event.type === "annotationStart" || event.type === "annotationEnd") {
+    // BBCode has no block element to put a line in, and caller annotations
+    // carry data this formatter has never seen.
+    if (event.type !== "source") {
       continue;
     }
 
