@@ -1,3 +1,25 @@
+## [0.9.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.8.0...hex-lumis/v0.9.0) (2026-09-11)
+
+
+### Bug Fixes
+
+- reject a hex colour that is only partly hex - [#1394](https://github.com/leandrocp/lumis/pull/1394)
+
+
+### Code Refactoring
+
+- BREAKING: re-export lumis-core's formatters from lumis - [#1387](https://github.com/leandrocp/lumis/pull/1387)
+
+
+### Features
+
+- update generated themes - [#1358](https://github.com/leandrocp/lumis/pull/1358)
+- add Token themes - [#1365](https://github.com/leandrocp/lumis/pull/1365)
+- BREAKING: introduce annotations - [#1100](https://github.com/leandrocp/lumis/pull/1100)
+- HTML formatter helpers - [#1377](https://github.com/leandrocp/lumis/pull/1377)
+- ANSI formatter helpers - [#1388](https://github.com/leandrocp/lumis/pull/1388)
+- export the same helpers across runtimes - [#1396](https://github.com/leandrocp/lumis/pull/1396)
+
 ## [0.8.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.7.0...hex-lumis/v0.8.0) (2026-09-03)
 
 
