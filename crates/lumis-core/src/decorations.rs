@@ -100,7 +100,7 @@ impl SteppedLineRange {
 /// how many lines the document has, so a selection costs the same whether it
 /// covers ten lines or a billion.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct LineSelection {
+pub(crate) struct LineSelection {
     /// Merged, disjoint, ascending, 1-based and inclusive at both ends.
     spans: Vec<(usize, usize)>,
     /// Only ranges with a stride above 1; a stride of 1 is a span either way round.
@@ -109,7 +109,7 @@ pub struct LineSelection {
 
 impl LineSelection {
     /// Resolves the plain and stepped ranges a formatter was configured with.
-    pub fn new(ranges: &[RangeInclusive<usize>], stepped: &[SteppedLineRange]) -> Self {
+    pub(crate) fn new(ranges: &[RangeInclusive<usize>], stepped: &[SteppedLineRange]) -> Self {
         let mut spans: Vec<(usize, usize)> = ranges
             .iter()
             .map(|range| (*range.start(), *range.end()))
@@ -144,7 +144,7 @@ impl LineSelection {
     }
 
     /// Whether no line is selected.
-    pub fn is_empty(&self) -> bool {
+    pub(crate) fn is_empty(&self) -> bool {
         self.spans.is_empty() && self.stepped.is_empty()
     }
 
@@ -233,8 +233,7 @@ impl<'a, T> OpenLayer<'a, T> {
 ///
 /// Line decorations already present in `events` are dropped rather than nested,
 /// so composing twice gives the same answer as composing once.
-#[doc(hidden)]
-pub fn compose_line_decorations<'a, T>(
+pub(crate) fn compose_line_decorations<'a, T>(
     source: &str,
     events: &[HighlightEvent<'a, T>],
     selection: &LineSelection,
@@ -613,3 +612,7 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+#[path = "decorations_parity.rs"]
+mod parity;

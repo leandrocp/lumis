@@ -9,10 +9,10 @@
 //! Each case runs the pipeline a formatter sees: caller annotations composed
 //! first, then the line decorations over the top.
 
-use lumis_core::annotations::{compose_annotations, Annotation};
-use lumis_core::decorations::{compose_line_decorations, Decoration, LineSelection};
-use lumis_core::events::HighlightEvent;
-use lumis_core::highlights::HIGHLIGHT_NAMES;
+use super::{compose_line_decorations, Decoration, LineSelection};
+use crate::annotations::{compose_annotations, Annotation};
+use crate::events::HighlightEvent;
+use crate::highlights::HIGHLIGHT_NAMES;
 use serde::Deserialize;
 use std::fs;
 use std::ops::RangeInclusive;
@@ -123,7 +123,7 @@ fn compose<'a>(
 }
 
 /// One line per case, so a failure diff points at the event that moved.
-fn notation<T: std::fmt::Debug + std::fmt::Display>(event: &HighlightEvent<'_, T>) -> String {
+fn notation<T: std::fmt::Display>(event: &HighlightEvent<'_, T>) -> String {
     match event {
         HighlightEvent::Start { scope_index, .. } => {
             format!("S:{}", HIGHLIGHT_NAMES[*scope_index])
@@ -145,7 +145,6 @@ fn notation<T: std::fmt::Debug + std::fmt::Display>(event: &HighlightEvent<'_, T
                 },
         } => format!("L+{number}{}", if *highlighted { "*" } else { "" }),
         HighlightEvent::DecorationEnd => "L-".to_string(),
-        event => panic!("fixture corpus has no notation for {event:?}"),
     }
 }
 
@@ -246,7 +245,6 @@ fn every_line_is_balanced() {
                     depth = depth.checked_sub(1).expect("unbalanced closing event");
                 }
                 HighlightEvent::Source { .. } => {}
-                event => panic!("unexpected {event:?}"),
             }
         }
 

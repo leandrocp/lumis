@@ -5,7 +5,10 @@
 //! these events to produce HTML, terminal output, etc.
 
 use crate::annotations::ResolvedAnnotation;
-use crate::decorations::Decoration;
+
+/// Re-exported so the one decoration a public event carries is nameable: the
+/// module it lives in is internal to this crate.
+pub use crate::decorations::Decoration;
 
 /// A single step in rendering syntax-highlighted source.
 ///

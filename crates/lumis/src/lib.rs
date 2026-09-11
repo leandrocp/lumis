@@ -365,7 +365,7 @@ pub mod annotations {
 /// ));
 /// ```
 pub mod decorations {
-    pub use lumis_core::decorations::Decoration;
+    pub use lumis_core::events::Decoration;
 }
 
 pub use lumis_core::events;
