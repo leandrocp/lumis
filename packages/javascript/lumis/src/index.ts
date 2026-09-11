@@ -156,6 +156,8 @@ export type {
   HtmlElement,
   HighlightLinesInline,
   HighlightLinesLinked,
+  HighlightLinesTerminal,
+  HighlightLinesBBCode,
   LineSpec,
   HighlightRange,
   OffsetAnnotationRange,

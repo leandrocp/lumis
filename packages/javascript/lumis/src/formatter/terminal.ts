@@ -1,4 +1,5 @@
 import type { HighlightEvent, HighlightStyle, TerminalFormatter, Theme } from "../types.js";
+import { LineSelection, composeLineDecorations } from "../decorations.js";
 import { encodeSource, decodeSourceSlice, getScopedThemeStyle, getThemeStyle } from "./html.js";
 import { paint } from "./ansi-core.js";
 
@@ -7,6 +8,18 @@ function fallbackBackground(formatter: TerminalFormatter): string | undefined {
   if (background === undefined) return undefined;
   if (background === "theme") return getThemeStyle(formatter.theme, "normal")?.bg;
   return background;
+}
+
+/**
+ * The background a highlighted line is painted with, if any.
+ *
+ * Only the background is taken from the theme. A foreground would overwrite the
+ * colour every token on the line was already given.
+ */
+function highlightBackground(formatter: TerminalFormatter): string | undefined {
+  const highlight = formatter.highlightLines;
+  if (!highlight) return undefined;
+  return highlight.background ?? getThemeStyle(formatter.theme, "highlighted")?.bg;
 }
 
 function paintWithBackground(
@@ -90,53 +103,116 @@ function paintSegment(
   return { output, lineWidth: nextLineWidth };
 }
 
+/**
+ * Paint one source event, padding each line it ends out to the width.
+ *
+ * Without a background there is nothing to pad out to, so the text goes out in
+ * one piece and the width is never needed.
+ */
+function paintSource(
+  text: string,
+  style: HighlightStyle | undefined,
+  lineBg: string | undefined,
+  width: number | undefined,
+  lineWidth: number,
+): { output: string; lineWidth: number } {
+  if (lineBg === undefined) {
+    return { output: paintWithBackground(text, style, undefined), lineWidth };
+  }
+
+  let output = "";
+  let nextLineWidth = lineWidth;
+
+  for (const segment of splitInclusive(text)) {
+    const painted = paintSegment(segment, style, lineBg, width, nextLineWidth);
+    output += painted.output;
+    nextLineWidth = painted.lineWidth;
+  }
+
+  return { output, lineWidth: nextLineWidth };
+}
+
+/** What the walk carries from one event to the next. */
+interface TerminalState {
+  output: string;
+  scopeStack: Array<{ scope: string; language: string }>;
+  /** The background the current line is painted with. */
+  lineBg: string | undefined;
+  lineWidth: number;
+}
+
+function applyTerminalEvent(
+  state: TerminalState,
+  formatter: TerminalFormatter,
+  sourceBytes: Uint8Array,
+  backgrounds: { fallback: string | undefined; highlight: string | undefined },
+  event: HighlightEvent,
+): void {
+  switch (event.type) {
+    case "start":
+      state.scopeStack.push({ scope: event.scope, language: event.language });
+      break;
+    case "end":
+      state.scopeStack.pop();
+      break;
+    case "decorationStart":
+      state.lineBg = event.decoration.highlighted
+        ? (backgrounds.highlight ?? backgrounds.fallback)
+        : backgrounds.fallback;
+      state.lineWidth = 0;
+      break;
+    case "source": {
+      const painted = paintSource(
+        decodeSourceSlice(sourceBytes, event.start, event.end),
+        activeStyle(state.scopeStack, formatter.theme),
+        state.lineBg,
+        formatter.width,
+        state.lineWidth,
+      );
+      state.output += painted.output;
+      state.lineWidth = painted.lineWidth;
+      break;
+    }
+    // Caller annotations carry data this formatter has never seen.
+    default:
+      break;
+  }
+}
+
 export function formatTerminal(
   source: string,
   events: readonly HighlightEvent[],
   formatter: TerminalFormatter,
 ): string {
-  let output = "";
   const sourceBytes = encodeSource(source);
-  const scopeStack: Array<{ scope: string; language: string }> = [];
-  const fallbackBg = fallbackBackground(formatter);
-  let lineWidth = 0;
+  const backgrounds = {
+    fallback: fallbackBackground(formatter),
+    highlight: highlightBackground(formatter),
+  };
 
-  for (const event of events) {
-    if (event.type === "start") {
-      scopeStack.push({ scope: event.scope, language: event.language });
-      continue;
-    }
+  // A terminal writes one line after another whether or not it is told which
+  // lines to mark, so the line decorations are only worth composing when there
+  // is something to mark. Without them the stream, and the output, are exactly
+  // what they were.
+  const selection = new LineSelection(formatter.highlightLines?.lines);
+  const decorated = selection.isEmpty
+    ? events
+    : composeLineDecorations(sourceBytes, events, selection);
 
-    if (event.type === "end") {
-      scopeStack.pop();
-      continue;
-    }
+  const state: TerminalState = {
+    output: "",
+    scopeStack: [],
+    lineBg: backgrounds.fallback,
+    lineWidth: 0,
+  };
 
-    // Caller annotations carry data this formatter has never seen, and a line
-    // decoration adds nothing to a stream the terminal already writes one line
-    // at a time.
-    if (event.type !== "source") {
-      continue;
-    }
-
-    const text = decodeSourceSlice(sourceBytes, event.start, event.end);
-    const style = activeStyle(scopeStack, formatter.theme);
-
-    if (fallbackBg === undefined) {
-      output += paintWithBackground(text, style, undefined);
-      continue;
-    }
-
-    for (const segment of splitInclusive(text)) {
-      const painted = paintSegment(segment, style, fallbackBg, formatter.width, lineWidth);
-      output += painted.output;
-      lineWidth = painted.lineWidth;
-    }
+  for (const event of decorated) {
+    applyTerminalEvent(state, formatter, sourceBytes, backgrounds, event);
   }
 
   if (!source.endsWith("\n")) {
-    output += linePadding(fallbackBg, formatter.width, lineWidth);
+    state.output += linePadding(state.lineBg, formatter.width, state.lineWidth);
   }
 
-  return output;
+  return state.output;
 }

@@ -1,7 +1,7 @@
 use lumis_core::formatter::{
-    html::SteppedLineRange, html_inline, html_linked, BBCodeScopedBuilder, Formatter, HtmlElement,
-    HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder, TerminalBackground,
-    TerminalBuilder,
+    bbcode, html::SteppedLineRange, html_inline, html_linked, terminal, BBCodeScopedBuilder,
+    Formatter, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder,
+    TerminalBackground, TerminalBuilder,
 };
 use lumis_core::{languages::Language, themes};
 use rustler::{NifMap, NifStruct, NifTaggedEnum, NifUnitEnum};
@@ -43,8 +43,11 @@ pub enum ExFormatterOption {
         theme: Option<ThemeOrString>,
         background: Option<ExTerminalBackground>,
         width: Option<usize>,
+        highlight_lines: Option<ExTerminalHighlightLines>,
     },
-    BbcodeScoped {},
+    BbcodeScoped {
+        highlight_lines: Option<ExBBCodeHighlightLines>,
+    },
 }
 
 #[derive(Debug, NifTaggedEnum)]
@@ -145,6 +148,24 @@ fn convert_inline_highlight_lines(
         class: highlight.class,
     };
     (highlight, stepped)
+}
+
+fn convert_terminal_highlight_lines(
+    highlight: ExTerminalHighlightLines,
+) -> (terminal::HighlightLines, Vec<SteppedLineRange>) {
+    let (lines, stepped) = convert_line_specs(highlight.lines);
+    let highlight = terminal::HighlightLines {
+        lines,
+        background: highlight.background,
+    };
+    (highlight, stepped)
+}
+
+fn convert_bbcode_highlight_lines(
+    highlight: ExBBCodeHighlightLines,
+) -> (bbcode::HighlightLines, Vec<SteppedLineRange>) {
+    let (lines, stepped) = convert_line_specs(highlight.lines);
+    (bbcode::HighlightLines { lines }, stepped)
 }
 
 fn convert_linked_highlight_lines(
@@ -272,6 +293,7 @@ impl ExFormatterOption {
                 theme,
                 background,
                 width,
+                highlight_lines,
             } => {
                 let theme = theme.and_then(resolve_theme);
                 let background = match background {
@@ -279,22 +301,31 @@ impl ExFormatterOption {
                     Some(ExTerminalBackground::String(color)) => TerminalBackground::Color(color),
                     None => TerminalBackground::Inherit,
                 };
+                let (highlight_lines, stepped_highlight_lines) =
+                    split_highlight_lines(highlight_lines.map(convert_terminal_highlight_lines));
 
-                let formatter = TerminalBuilder::new()
+                let mut formatter = TerminalBuilder::new()
                     .language(language)
                     .theme(theme)
                     .background(background)
                     .width(width)
+                    .highlight_lines(highlight_lines)
                     .build()
                     .map_err(|e| format!("Terminal builder error: {e:?}"))?;
+                formatter.set_stepped_highlight_lines(stepped_highlight_lines);
 
                 Ok(Box::new(formatter))
             }
-            ExFormatterOption::BbcodeScoped {} => {
-                let formatter = BBCodeScopedBuilder::new()
+            ExFormatterOption::BbcodeScoped { highlight_lines } => {
+                let (highlight_lines, stepped_highlight_lines) =
+                    split_highlight_lines(highlight_lines.map(convert_bbcode_highlight_lines));
+
+                let mut formatter = BBCodeScopedBuilder::new()
                     .language(language)
+                    .highlight_lines(highlight_lines)
                     .build()
                     .map_err(|e| format!("BBCode scoped builder error: {e:?}"))?;
+                formatter.set_stepped_highlight_lines(stepped_highlight_lines);
 
                 Ok(Box::new(formatter))
             }
@@ -522,6 +553,19 @@ pub struct ExHtmlInlineHighlightLines {
 pub struct ExHtmlLinkedHighlightLines {
     pub lines: Vec<ExLineSpec>,
     pub class: String,
+}
+
+#[derive(Clone, Debug, Default, NifStruct)]
+#[module = "Lumis.TerminalHighlightLines"]
+pub struct ExTerminalHighlightLines {
+    pub lines: Vec<ExLineSpec>,
+    pub background: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, NifStruct)]
+#[module = "Lumis.BBCodeHighlightLines"]
+pub struct ExBBCodeHighlightLines {
+    pub lines: Vec<ExLineSpec>,
 }
 
 #[derive(Clone, Debug, NifMap)]

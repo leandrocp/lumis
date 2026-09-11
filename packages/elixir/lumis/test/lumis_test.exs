@@ -251,7 +251,8 @@ defmodule Lumis.LumisTest do
                  language: nil,
                  theme: nil,
                  background: nil,
-                 width: nil
+                 width: nil,
+                 highlight_lines: nil
                ],
                formatter_opts
              )
@@ -260,8 +261,9 @@ defmodule Lumis.LumisTest do
 
   describe "formatter_type: :bbcode_scoped" do
     test "default opts" do
-      assert Lumis.formatter_type(:bbcode_scoped) ==
-               {:ok, {:bbcode_scoped, [language: nil]}}
+      assert {:ok, {:bbcode_scoped, formatter_opts}} = Lumis.formatter_type(:bbcode_scoped)
+
+      assert Keyword.equal?([language: nil, highlight_lines: nil], formatter_opts)
     end
   end
 
@@ -294,6 +296,27 @@ defmodule Lumis.LumisTest do
                Lumis.highlight(":test", formatter: {:bbcode_scoped, language: "elixir"})
 
       assert result =~ "[string-special-symbol-elixir]"
+    end
+
+    test "terminal paints a highlighted line" do
+      assert {:ok, result} =
+               Lumis.highlight(":a\n:b",
+                 formatter:
+                   {:terminal,
+                    language: "elixir", highlight_lines: %{lines: [1], background: "#ff0000"}}
+               )
+
+      assert result =~ "\e[48;2;255;0;0m"
+    end
+
+    test "bbcode_scoped wraps a highlighted line" do
+      assert {:ok, result} =
+               Lumis.highlight(":a\n:b",
+                 formatter: {:bbcode_scoped, language: "elixir", highlight_lines: %{lines: [1]}}
+               )
+
+      assert result =~ "[highlighted]"
+      assert result =~ "[/highlighted]"
     end
 
     test "html_multi_themes with language" do
@@ -356,6 +379,26 @@ defmodule Lumis.LumisTest do
                Lumis.formatter_type({:bbcode_scoped, [language: "rust"]})
 
       assert Keyword.get(opts, :language) == "rust"
+    end
+
+    test "formatter_type encodes highlight_lines for terminal" do
+      assert {:ok, {:terminal, opts}} =
+               Lumis.formatter_type(
+                 {:terminal, [highlight_lines: %{lines: [1, 3..5], background: "#3a3a3a"}]}
+               )
+
+      assert %Lumis.TerminalHighlightLines{background: "#3a3a3a", lines: lines} =
+               Keyword.get(opts, :highlight_lines)
+
+      assert lines == [{:single, 1}, {:range, %{start: 3, end: 5, step: 1}}]
+    end
+
+    test "formatter_type encodes highlight_lines for bbcode_scoped" do
+      assert {:ok, {:bbcode_scoped, opts}} =
+               Lumis.formatter_type({:bbcode_scoped, [highlight_lines: %{lines: [2..4//2]}]})
+
+      assert %Lumis.BBCodeHighlightLines{lines: lines} = Keyword.get(opts, :highlight_lines)
+      assert lines == [{:range, %{start: 2, end: 4, step: 2}}]
     end
   end
 

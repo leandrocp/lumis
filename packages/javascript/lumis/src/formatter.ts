@@ -147,7 +147,7 @@ export function bbcodeScoped(options: BBCodeScopedOptions = {}): BBCodeScopedFor
   const formatter: BBCodeScopedFormatter = {
     ...options,
     render(source, events): string {
-      return formatBBCode(source, events);
+      return formatBBCode(source, events, formatter);
     },
   };
   return markBuiltinFormatter(formatter, "bbcode-scoped");

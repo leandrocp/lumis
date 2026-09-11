@@ -21,11 +21,14 @@ Scope-based BBCode tags for forum posts and BBCode-based platforms.
 
 | Runtime | Options |
 | --- | --- |
-| Rust | `language`, `rainbow_brackets` |
-| Elixir | `language`, `rainbow_brackets` |
-| JavaScript | `language`, `rainbowBrackets` |
+| Rust | `language`, `highlight_lines`, `rainbow_brackets` |
+| Elixir | `language`, `highlight_lines`, `rainbow_brackets` |
+| JavaScript | `language`, `highlightLines`, `rainbowBrackets` |
 | Java | `withLang()`, `withFormatter(Formatter.BBCODE)` |
-| CLI | `--rainbow-brackets` |
+| CLI | `--highlight-lines`, `--rainbow-brackets` |
+
+A highlighted line is wrapped in `[highlighted]...[/highlighted]`. See
+[Line Highlighting](/recipes/line-highlighting).
 
 ## Example
 

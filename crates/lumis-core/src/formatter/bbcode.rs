@@ -8,10 +8,31 @@
 //! Works with pre-computed highlight events from any source.
 
 use super::Formatter;
+use crate::decorations::{compose_line_decorations, Decoration, LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
 use derive_builder::Builder;
 use std::io::{self, Write};
+use std::ops::RangeInclusive;
+
+/// The tag a highlighted line is wrapped in.
+///
+/// Every other tag this formatter emits is a highlight scope with its dots
+/// turned into hyphens, and `highlighted` is the scope a theme styles a
+/// highlighted line with, so this one is derived the same way rather than
+/// configured.
+const HIGHLIGHTED_TAG: &str = "highlighted";
+
+/// Configuration for highlighting specific lines in `BBCode` output.
+///
+/// A highlighted line is wrapped in `[highlighted]...[/highlighted]`, newline
+/// included, the way an HTML line sits inside its `<div>`. The consumer defines
+/// what that tag looks like, as it already must for every scope tag.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct HighlightLines {
+    /// List of line ranges to highlight (1-based, inclusive).
+    pub lines: Vec<RangeInclusive<usize>>,
+}
 
 /// `BBCode` formatter for syntax highlighting using highlight scope names as tags.
 ///
@@ -35,6 +56,9 @@ use std::io::{self, Write};
 pub struct BBCodeScoped {
     #[builder(setter(custom))]
     language: Language,
+    highlight_lines: Option<HighlightLines>,
+    #[builder(setter(skip), default)]
+    stepped_highlight_lines: Vec<SteppedLineRange>,
 }
 
 impl BBCodeScopedBuilder {
@@ -54,8 +78,27 @@ impl BBCodeScopedBuilder {
 }
 
 impl BBCodeScoped {
-    pub fn new(language: Language) -> Self {
-        Self { language }
+    pub fn new(language: Language, highlight_lines: Option<HighlightLines>) -> Self {
+        Self {
+            language,
+            highlight_lines,
+            stepped_highlight_lines: Vec::new(),
+        }
+    }
+
+    /// Supply compact stepped ranges from a language binding.
+    #[doc(hidden)]
+    pub fn set_stepped_highlight_lines(&mut self, lines: Vec<SteppedLineRange>) {
+        self.stepped_highlight_lines = lines;
+    }
+
+    fn line_selection(&self) -> LineSelection {
+        LineSelection::new(
+            self.highlight_lines
+                .as_ref()
+                .map_or(&[][..], |highlight| &highlight.lines),
+            &self.stepped_highlight_lines,
+        )
     }
 }
 
@@ -63,6 +106,8 @@ impl Default for BBCodeScoped {
     fn default() -> Self {
         Self {
             language: Language::PlainText,
+            highlight_lines: None,
+            stepped_highlight_lines: Vec::new(),
         }
     }
 }
@@ -110,6 +155,19 @@ impl<T> Formatter<T> for BBCodeScoped {
         let source_bytes = source.as_bytes();
         let mut scope_stack: Vec<String> = Vec::new();
 
+        // `BBCode` carries no line structure of its own, so the line
+        // decorations are only worth composing when there is a line to mark.
+        // Without them the stream, and the output, are exactly what they were.
+        let selection = self.line_selection();
+        let composed;
+        let events: &[HighlightEvent<'_, T>] = if selection.is_empty() {
+            events
+        } else {
+            composed = compose_line_decorations(source, events, &selection);
+            &composed
+        };
+        let mut line_highlighted = false;
+
         for event in events {
             match event {
                 HighlightEvent::Source { start, end } => {
@@ -142,12 +200,22 @@ impl<T> Formatter<T> for BBCodeScoped {
                         write!(output, "[/{tag_name}]")?;
                     }
                 }
-                // `BBCode` has no block element to put a line in, and caller
-                // annotations carry data this formatter has never seen.
-                HighlightEvent::AnnotationStart { .. }
-                | HighlightEvent::AnnotationEnd
-                | HighlightEvent::DecorationStart { .. }
-                | HighlightEvent::DecorationEnd => {}
+                HighlightEvent::DecorationStart {
+                    decoration: Decoration::Line { highlighted, .. },
+                } => {
+                    line_highlighted = *highlighted;
+                    if line_highlighted {
+                        write!(output, "[{HIGHLIGHTED_TAG}]")?;
+                    }
+                }
+                HighlightEvent::DecorationEnd => {
+                    if line_highlighted {
+                        write!(output, "[/{HIGHLIGHTED_TAG}]")?;
+                        line_highlighted = false;
+                    }
+                }
+                // Caller annotations carry data this formatter has never seen.
+                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
             }
         }
 
@@ -175,6 +243,76 @@ mod tests {
         formatter.render("[url=x]", &events, &mut output).unwrap();
 
         assert_eq!(String::from_utf8(output).unwrap(), "&#91;url=x&#93;");
+    }
+
+    /// Without lines to mark there is nothing to compose, so a scope still
+    /// spans the newline it did before.
+    #[test]
+    fn leaves_the_stream_alone_when_no_line_is_highlighted() {
+        let formatter = BBCodeScoped::default();
+        let mut output = Vec::new();
+        let events: [HighlightEvent<'_, ()>; 3] = [
+            HighlightEvent::Start {
+                scope_index: scope_index("string"),
+                language: "json".to_string(),
+            },
+            HighlightEvent::Source { start: 0, end: 3 },
+            HighlightEvent::End,
+        ];
+
+        formatter.render("a\nb", &events, &mut output).unwrap();
+
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "[string-json]a\nb[/string-json]"
+        );
+    }
+
+    #[test]
+    fn wraps_a_highlighted_line_and_the_newline_that_ends_it() {
+        let formatter = BBCodeScoped::new(
+            Language::PlainText,
+            Some(HighlightLines {
+                lines: std::iter::once(1..=1).collect(),
+            }),
+        );
+        let mut output = Vec::new();
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 3 }];
+
+        formatter.render("a\nb", &events, &mut output).unwrap();
+
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "[highlighted]a\n[/highlighted]b"
+        );
+    }
+
+    /// Lines are the outer layer, so a scope crossing one is closed and
+    /// reopened inside each line's tag rather than straddling both.
+    #[test]
+    fn a_scope_crossing_a_highlighted_line_boundary_nests_inside_it() {
+        let formatter = BBCodeScoped::new(
+            Language::PlainText,
+            Some(HighlightLines {
+                lines: std::iter::once(2..=2).collect(),
+            }),
+        );
+        let mut output = Vec::new();
+        let events: [HighlightEvent<'_, ()>; 3] = [
+            HighlightEvent::Start {
+                scope_index: scope_index("string"),
+                language: "json".to_string(),
+            },
+            HighlightEvent::Source { start: 0, end: 3 },
+            HighlightEvent::End,
+        ];
+
+        formatter.render("a\nb", &events, &mut output).unwrap();
+
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "[string-json]a\n[/string-json][highlighted][string-json]b[/string-json][/highlighted]"
+        );
     }
 
     #[test]

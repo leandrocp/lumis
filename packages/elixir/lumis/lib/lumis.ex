@@ -61,6 +61,25 @@ defmodule Lumis do
           | nil
 
   @typedoc """
+  Highlight lines options for the Terminal formatter.
+  """
+  @type terminal_highlight_lines ::
+          %{
+            lines: [pos_integer() | Range.t()],
+            background: String.t() | nil
+          }
+          | nil
+
+  @typedoc """
+  Highlight lines options for the BBCode formatter.
+  """
+  @type bbcode_highlight_lines ::
+          %{
+            lines: [pos_integer() | Range.t()]
+          }
+          | nil
+
+  @typedoc """
   Wraps the highlighted code with custom open and close HTML tags.
   """
   @type header ::
@@ -151,10 +170,12 @@ defmodule Lumis do
       - `:theme` (`t:theme/0` - default: `nil`) - the theme to apply styles on the highlighted source code.
       - `:background` (`:theme | t:String.t/0 | nil` - default: `nil`) - fallback background behavior: `nil` inherits the output background, `:theme` uses the theme's normal background color, and a string uses that color.
       - `:width` (`pos_integer() | nil` - default: `nil`) - pad each rendered terminal line to the given width. This is most useful with `:background`.
+      - `:highlight_lines` (`t:terminal_highlight_lines/0` - default: `nil`) - paint specific lines with a background colour, either `:background` or the theme's `highlighted` background.
 
   * `bbcode_scoped`:
 
       - `:language` (`t:language/0` - default: `nil`) - available when passed as `{:bbcode_scoped, ...}`.
+      - `:highlight_lines` (`t:bbcode_highlight_lines/0` - default: `nil`) - wrap specific lines in `[highlighted]...[/highlighted]`.
 
   ## Examples
 
@@ -284,10 +305,11 @@ defmodule Lumis do
                language: language(),
                theme: theme(),
                background: :theme | String.t() | nil,
-               width: pos_integer() | nil
+               width: pos_integer() | nil,
+               highlight_lines: terminal_highlight_lines()
              ]}
           | :bbcode_scoped
-          | {:bbcode_scoped, [language: language()]}
+          | {:bbcode_scoped, [language: language(), highlight_lines: bbcode_highlight_lines()]}
           | module()
           | {module(), keyword()}
 
@@ -525,12 +547,24 @@ defmodule Lumis do
       language: [type: {:or, [:string, nil]}, default: nil],
       theme: [type: {:or, [{:struct, Lumis.Theme}, :string, nil]}, default: nil],
       background: [type: {:or, [:string, {:in, [:theme]}, nil]}, default: nil],
-      width: [type: {:or, [:pos_integer, nil]}, default: nil]
+      width: [type: {:or, [:pos_integer, nil]}, default: nil],
+      highlight_lines: [
+        type:
+          {:or,
+           [
+             nil,
+             map: [
+               lines: [type: {:list, {:custom, Lumis, :highlight_lines_type, []}}],
+               background: [type: {:or, [:string, nil]}, default: nil]
+             ]
+           ]},
+        default: nil
+      ]
     ]
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
-        {:ok, {:terminal, validated_opts}}
+        {:ok, {:terminal, convert_terminal_options(validated_opts)}}
 
       {:error, error} ->
         {:error, "invalid options given to terminal: #{inspect(error)}"}
@@ -538,12 +572,25 @@ defmodule Lumis do
   end
 
   def formatter_type({:bbcode_scoped, options}) when is_list(options) do
-    case Keyword.keys(options) -- [:language] do
-      [] ->
-        {:ok, {:bbcode_scoped, Keyword.put_new(options, :language, nil)}}
+    schema = [
+      language: [type: {:or, [:string, nil]}, default: nil],
+      highlight_lines: [
+        type:
+          {:or,
+           [
+             nil,
+             map: [lines: [type: {:list, {:custom, Lumis, :highlight_lines_type, []}}]]
+           ]},
+        default: nil
+      ]
+    ]
 
-      invalid ->
-        {:error, "invalid options given to bbcode_scoped: #{inspect(invalid)}"}
+    case NimbleOptions.validate(options, schema) do
+      {:ok, validated_opts} ->
+        {:ok, {:bbcode_scoped, convert_bbcode_options(validated_opts)}}
+
+      {:error, error} ->
+        {:error, "invalid options given to bbcode_scoped: #{inspect(error)}"}
     end
   end
 
@@ -770,6 +817,33 @@ defmodule Lumis do
           })
           |> then(&{:ok, &1})
         end
+    end
+  end
+
+  # A line spec always encodes, so unlike the HTML converters these two cannot
+  # fail and hand back the options rather than a result tuple.
+  defp convert_terminal_options(opts) do
+    case opts[:highlight_lines] do
+      nil ->
+        opts
+
+      hl ->
+        Keyword.put(opts, :highlight_lines, %Lumis.TerminalHighlightLines{
+          lines: Lumis.LineSpec.encode!(hl[:lines] || []),
+          background: hl[:background]
+        })
+    end
+  end
+
+  defp convert_bbcode_options(opts) do
+    case opts[:highlight_lines] do
+      nil ->
+        opts
+
+      hl ->
+        Keyword.put(opts, :highlight_lines, %Lumis.BBCodeHighlightLines{
+          lines: Lumis.LineSpec.encode!(hl[:lines] || [])
+        })
     end
   end
 
@@ -1214,11 +1288,11 @@ defmodule Lumis do
         nil -> Map.put(opts, :background, nil)
       end
 
-    {:terminal, Map.take(opts, [:theme, :background, :width])}
+    {:terminal, Map.take(opts, [:theme, :background, :width, :highlight_lines])}
   end
 
-  defp convert_formatter_for_nif(:bbcode_scoped, _opts) do
-    {:bbcode_scoped, %{}}
+  defp convert_formatter_for_nif(:bbcode_scoped, opts) do
+    {:bbcode_scoped, Map.take(opts, [:highlight_lines])}
   end
 
   defp convert_formatter_for_nif(:html_multi_themes, opts) do

@@ -221,10 +221,61 @@ lumis highlight -f html-inline -h 2 --highlight-lines-style none --highlight-lin
 
 ## What changes between formatters
 
+Every formatter takes the same `lines`. What differs is how it marks them,
+because each output format has a different thing to mark a line with.
+
 | Formatter | Highlight style |
 | --- | --- |
 | HTML Inline | theme style, custom inline CSS, or class only |
 | HTML Linked | CSS class names |
 | HTML Multi-Themes | theme style, custom inline CSS, or class only |
-| Terminal | no line highlight styling |
-| BBCode Scoped | no line highlight styling |
+| Terminal | a background colour, from `background` or the theme's `highlighted` style |
+| BBCode Scoped | a `[highlighted]` tag around the line |
+
+### Terminal
+
+A terminal has no class to hang a stylesheet off, so a highlighted line is
+painted with a background. Only the background is taken from the theme: a
+foreground would overwrite the colour every token on the line was already given.
+With neither a `background` nor a theme that styles `highlighted`, nothing marks
+the line.
+
+```rust
+use lumis::formatters::terminal::HighlightLines;
+
+let highlight_lines = HighlightLines {
+    lines: vec![1..=1, 3..=4],
+    // Omit it to take the theme's `highlighted` background.
+    background: Some("#3a3a3a".to_string()),
+};
+```
+
+```js
+terminal({language: javascript, theme: frappe, highlightLines: {lines: [1, [3, 4]]}});
+```
+
+```elixir
+{:terminal, theme: "catppuccin_frappe", highlight_lines: %{lines: [1, 3..4]}}
+```
+
+```sh
+lumis highlight -f terminal -t catppuccin_frappe -H 1,3-4 main.rs
+lumis highlight -f terminal -H 1,3-4 --highlight-lines-background '#3a3a3a' main.rs
+```
+
+### BBCode Scoped
+
+A highlighted line is wrapped in `[highlighted]...[/highlighted]`, newline
+included, the way an HTML line sits inside its `<div>`. The tag is derived from
+the `highlighted` theme scope exactly as every other tag this formatter emits is
+derived from a scope, so there is nothing to configure; the consumer defines what
+`[highlighted]` looks like, as it already must for `[keyword-rust]`.
+
+```sh
+lumis highlight -f bbcode-scoped -H 1,3-4 main.rs
+```
+
+Without `highlight_lines` these two formatters emit exactly what they did
+before. Neither carries line structure of its own, so lines only enter the
+stream when there is a line to mark — which is also why a scope spanning a
+newline is closed and reopened once you ask for highlighting, and not before.

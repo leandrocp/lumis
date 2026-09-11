@@ -1,12 +1,14 @@
 use base64::Engine as _;
 use lumis_core::events::HighlightEvent;
-use lumis_core::formatter::bbcode::BBCodeScoped;
+use lumis_core::formatter::bbcode::{BBCodeScoped, HighlightLines as BBCodeHighlightLines};
 use lumis_core::formatter::html_inline::{
     HighlightLines as InlineHighlightLines, HighlightLinesStyle as InlineHighlightLinesStyle,
     HtmlInline,
 };
 use lumis_core::formatter::html_linked::{HighlightLines as LinkedHighlightLines, HtmlLinked};
-use lumis_core::formatter::terminal::{Background as TerminalBackground, Terminal};
+use lumis_core::formatter::terminal::{
+    Background as TerminalBackground, HighlightLines as TerminalHighlightLines, Terminal,
+};
 use lumis_core::formatter::{Formatter as _, HtmlElement};
 use lumis_core::languages::Language;
 use lumis_core::themes::{Appearance, Style, Theme};
@@ -105,10 +107,31 @@ struct HtmlLinkedOptions {
     header: Option<JsHtmlElement>,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JsTerminalHighlightLines {
+    lines: Vec<LineSpec>,
+    background: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct JsBBCodeHighlightLines {
+    lines: Vec<LineSpec>,
+}
+
 #[derive(Default, Deserialize)]
-#[serde(default)]
+#[serde(default, rename_all = "camelCase")]
 struct TerminalOptions {
     theme: Option<JsTheme>,
+    background: Option<String>,
+    width: Option<usize>,
+    highlight_lines: Option<JsTerminalHighlightLines>,
+}
+
+#[derive(Default, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+struct BBCodeScopedOptions {
+    highlight_lines: Option<JsBBCodeHighlightLines>,
 }
 
 #[napi(object)]
@@ -509,15 +532,30 @@ fn render_events(
             .render(source, events, &mut output)?;
         }
         "bbcode-scoped" => {
-            BBCodeScoped::new(language).render(source, events, &mut output)?;
+            let options: BBCodeScopedOptions = serde_json::from_value(formatter.options)?;
+            BBCodeScoped::new(
+                language,
+                options.highlight_lines.map(|lines| BBCodeHighlightLines {
+                    lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
+                }),
+            )
+            .render(source, events, &mut output)?;
         }
         "terminal" => {
             let options: TerminalOptions = serde_json::from_value(formatter.options)?;
             Terminal::new(
                 language,
                 options.theme.map(Theme::from),
-                TerminalBackground::Inherit,
-                None,
+                match options.background.as_deref() {
+                    None => TerminalBackground::Inherit,
+                    Some("theme") => TerminalBackground::Theme,
+                    Some(color) => TerminalBackground::Color(color.to_string()),
+                },
+                options.width,
+                options.highlight_lines.map(|lines| TerminalHighlightLines {
+                    lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
+                    background: lines.background,
+                }),
             )
             .render(source, events, &mut output)?;
         }

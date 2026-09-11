@@ -1,12 +1,21 @@
 import { createRequire } from "node:module";
-import type { HtmlInlineOptions, HtmlLinkedOptions, TerminalOptions } from "./types.js";
+import type {
+  BBCodeScopedOptions,
+  HtmlInlineOptions,
+  HtmlLinkedOptions,
+  TerminalOptions,
+} from "./types.js";
 
 type NativeHtmlInlineOptions = Pick<
   HtmlInlineOptions,
   "theme" | "preClass" | "italic" | "includeHighlights" | "highlightLines" | "header"
 >;
 type NativeHtmlLinkedOptions = Pick<HtmlLinkedOptions, "preClass" | "highlightLines" | "header">;
-type NativeTerminalOptions = Pick<TerminalOptions, "theme">;
+type NativeTerminalOptions = Pick<
+  TerminalOptions,
+  "theme" | "background" | "width" | "highlightLines"
+>;
+type NativeBBCodeScopedOptions = Pick<BBCodeScopedOptions, "highlightLines">;
 
 interface NativeFormatterBase {
   rainbowBrackets?: boolean;
@@ -22,7 +31,7 @@ export type NativeFormatter = NativeFormatterBase &
         kind: "html-linked";
         options: NativeHtmlLinkedOptions;
       }
-    | { kind: "bbcode-scoped"; options: null }
+    | { kind: "bbcode-scoped"; options: NativeBBCodeScopedOptions }
     | { kind: "terminal"; options: NativeTerminalOptions }
   );
 

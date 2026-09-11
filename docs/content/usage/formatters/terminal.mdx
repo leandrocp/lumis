@@ -20,11 +20,15 @@ ANSI escape codes for shell output.
 
 | Runtime | Options |
 | --- | --- |
-| Rust | `language`, `theme`, `background`, `width`, `rainbow_brackets` |
-| Elixir | `language`, `theme`, `background`, `width`, `rainbow_brackets` |
-| JavaScript | `language`, `theme`, `background`, `width`, `rainbowBrackets` |
+| Rust | `language`, `theme`, `background`, `width`, `highlight_lines`, `rainbow_brackets` |
+| Elixir | `language`, `theme`, `background`, `width`, `highlight_lines`, `rainbow_brackets` |
+| JavaScript | `language`, `theme`, `background`, `width`, `highlightLines`, `rainbowBrackets` |
 | Java | `withLang()`, `withTheme()`, `withFormatter(Formatter.TERMINAL)` |
-| CLI | default formatter, `--theme`, `--background`, `--width`, `--rainbow-brackets` |
+| CLI | default formatter, `--theme`, `--background`, `--width`, `--highlight-lines`, `--highlight-lines-background`, `--rainbow-brackets` |
+
+A highlighted line is painted with a background, from `highlight_lines`'
+`background` or the theme's `highlighted` style. See
+[Line Highlighting](/recipes/line-highlighting).
 
 ## Example
 

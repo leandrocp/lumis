@@ -55,11 +55,12 @@
         { "name": "language" },
         { "name": "theme" },
         { "name": "background" },
-        { "name": "width" }
+        { "name": "width" },
+        { "name": "highlight_lines" }
       ]
     },
     "bbcode_scoped": {
-      "options": [{ "name": "language" }]
+      "options": [{ "name": "language" }, { "name": "highlight_lines" }]
     }
   },
   "waived": {
