@@ -23,5 +23,5 @@ export function availableThemes(): ThemeInfo[] {
  * ```
  */
 export function sanitizeThemeName(name: string): string {
-  return name.replaceAll(/[^0-9A-Za-z_-]/g, "-");
+  return name.replaceAll(/[^\p{Alphabetic}\p{Number}_-]/gu, "-");
 }

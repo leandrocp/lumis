@@ -112,6 +112,7 @@ fn formatter_struct_fields() -> BTreeMap<String, BTreeSet<String>> {
                 fields
                     .named
                     .iter()
+                    .filter(|field| !builder_skips_setter(field))
                     .map(|field| field.ident.as_ref().expect("named field").to_string())
                     .collect(),
             );
@@ -125,6 +126,34 @@ fn formatter_struct_fields() -> BTreeMap<String, BTreeSet<String>> {
     );
 
     structs
+}
+
+/// A formatter may keep derived rendering state that is deliberately absent
+/// from its builder. Such a field is not a formatter option and must not enter
+/// the cross-runtime option manifest.
+fn builder_skips_setter(field: &syn::Field) -> bool {
+    let mut skips_setter = false;
+
+    for attr in &field.attrs {
+        if !attr.path().is_ident("builder") {
+            continue;
+        }
+
+        attr.parse_nested_meta(|meta| {
+            if meta.path.is_ident("setter") {
+                meta.parse_nested_meta(|setter| {
+                    if setter.path.is_ident("skip") {
+                        skips_setter = true;
+                    }
+                    Ok(())
+                })?;
+            }
+            Ok(())
+        })
+        .expect("parse builder attribute");
+    }
+
+    skips_setter
 }
 
 /// The struct behind each manifest formatter. `BBCodeScoped` does not

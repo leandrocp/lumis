@@ -241,7 +241,7 @@ defmodule Lumis.Formatter.HTML do
     Native.html_multi_themes_span_attrs(
       resolve_themes(Keyword.get(options, :themes, %{})),
       Keyword.get(options, :default_theme),
-      Keyword.get(options, :css_variable_prefix, @default_css_variable_prefix),
+      css_variable_prefix(options),
       Keyword.get(options, :language) || "plaintext",
       Keyword.get(options, :italic, false),
       Keyword.get(options, :include_highlights, false)
@@ -309,8 +309,15 @@ defmodule Lumis.Formatter.HTML do
       Keyword.get(options, :class),
       resolve_themes(Keyword.get(options, :themes, %{})),
       Keyword.get(options, :default_theme),
-      Keyword.get(options, :css_variable_prefix, @default_css_variable_prefix)
+      css_variable_prefix(options)
     )
+  end
+
+  defp css_variable_prefix(options) do
+    case Keyword.get(options, :css_variable_prefix) do
+      nil -> @default_css_variable_prefix
+      prefix -> prefix
+    end
   end
 
   @doc """
@@ -447,9 +454,8 @@ defmodule Lumis.Formatter.HTML do
   Lines are 1-based, matching the `data-line` `wrap_line/3` writes and the
   `:highlight_lines` option the built-in formatters take.
 
-  A range's step counts: `1..9//2` is five lines, not nine. A stepped range has
-  to be listed out line by line, so one spanning more than 100,000 lines raises
-  `ArgumentError`; a range stepping by 1 has no limit.
+  A range's step counts: `1..9//2` is five lines, not nine. Stepped ranges stay
+  compact across the native boundary, regardless of their declared span.
 
       iex> Lumis.Formatter.HTML.line_is_highlighted([1, 3..5], 4)
       true
@@ -469,8 +475,8 @@ defmodule Lumis.Formatter.HTML do
   @doc """
   The CSS class a highlighted line carries, or `nil` when the line is not highlighted.
 
-  Reads `lines` the way `line_is_highlighted/2` does, including the limit on a
-  stepped range.
+  Reads `lines` the way `line_is_highlighted/2` does, including range steps and
+  direction.
 
   ## Options
 

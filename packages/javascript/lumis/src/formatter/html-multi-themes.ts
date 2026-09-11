@@ -3,9 +3,7 @@ import {
   type HtmlAttrs,
   closingTags,
   formatHighlightIterLines,
-  getHighlightLineClass,
   getThemeStyle,
-  lineIsHighlighted,
   openCodeTag,
   openMultiThemesPreTag,
   openSpanTag,
@@ -14,6 +12,7 @@ import {
   wrapLine,
   wrapWithHeader,
 } from "./html.js";
+import { selectedLineFlags } from "./line-highlights.js";
 
 function spanAttrs(span: HighlightSpan, formatter: HtmlMultiThemesFormatter): HtmlAttrs {
   return spanMultiThemesAttrs({
@@ -29,10 +28,10 @@ function spanAttrs(span: HighlightSpan, formatter: HtmlMultiThemesFormatter): Ht
 
 function highlightLineStyle(
   formatter: HtmlMultiThemesFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): string | undefined {
   const highlightLines = formatter.highlightLines;
-  if (!lineIsHighlighted(highlightLines?.lines, lineNumber)) return undefined;
+  if (!isHighlighted) return undefined;
 
   // Explicit `null` opts out of the inline style entirely, leaving the class to
   // do the highlighting. Absent still means the theme's `highlighted` style.
@@ -62,22 +61,18 @@ function lightDarkHighlightStyle(formatter: HtmlMultiThemesFormatter): string | 
 
 function highlightLineClass(
   formatter: HtmlMultiThemesFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): string | undefined {
-  return getHighlightLineClass(
-    formatter.highlightLines?.lines,
-    lineNumber,
-    formatter.highlightLines?.class,
-  );
+  return isHighlighted ? formatter.highlightLines?.class : undefined;
 }
 
 function getLineAttrs(
   formatter: HtmlMultiThemesFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): { className?: string; style?: string } {
   return {
-    className: highlightLineClass(formatter, lineNumber),
-    style: highlightLineStyle(formatter, lineNumber),
+    className: highlightLineClass(formatter, isHighlighted),
+    style: highlightLineStyle(formatter, isHighlighted),
   };
 }
 
@@ -98,8 +93,11 @@ export function formatHtmlMultiThemes(
     cssVariablePrefix: formatter.cssVariablePrefix,
   });
   const code = openCodeTag(formatter.language);
+  const highlighted = selectedLineFlags(formatter.highlightLines?.lines, lines.length);
   const body = lines
-    .map((line, idx) => wrapLine(idx + 1, line, getLineAttrs(formatter, idx + 1)))
+    .map((line, idx) =>
+      wrapLine(idx + 1, line, getLineAttrs(formatter, Boolean(highlighted?.[idx]))),
+    )
     .join("");
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);

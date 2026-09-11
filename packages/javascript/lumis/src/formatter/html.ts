@@ -28,7 +28,17 @@ export function decodeSourceSlice(
   startByte: number,
   endByte: number,
 ): string {
-  return _decoder.decode(sourceBytes.subarray(startByte, endByte));
+  let start = Math.min(Math.max(startByte, 0), sourceBytes.length);
+  while (start < sourceBytes.length && isUtf8Continuation(sourceBytes[start])) start += 1;
+
+  let end = Math.min(Math.max(endByte, 0), sourceBytes.length);
+  while (end > 0 && isUtf8Continuation(sourceBytes[end])) end -= 1;
+
+  return _decoder.decode(sourceBytes.subarray(start, Math.max(start, end)));
+}
+
+function isUtf8Continuation(byte: number | undefined): boolean {
+  return byte !== undefined && (byte & 0xc0) === 0x80;
 }
 
 /** HTML attribute map. Values of `undefined`, `null`, or `false` are omitted. */

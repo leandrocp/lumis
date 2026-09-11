@@ -8,7 +8,7 @@ mod elixir;
 
 use anyhow::{anyhow, Context, Result};
 use elixir::{
-    convert_line_specs, ExCssOptions, ExFormatterOption, ExLineSpec, ExStyle, ExTextDecoration,
+    line_specs_contain, ExCssOptions, ExFormatterOption, ExLineSpec, ExStyle, ExTextDecoration,
     ExTheme,
 };
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
@@ -1016,7 +1016,7 @@ fn html_open_multi_themes_pre_tag(
 
 #[rustler::nif]
 fn html_line_is_highlighted(lines: Vec<ExLineSpec>, line_number: usize) -> bool {
-    lumis_core::formatter::html::line_is_highlighted(&convert_line_specs(lines), line_number)
+    line_specs_contain(&lines, line_number)
 }
 
 #[rustler::nif]
@@ -1026,13 +1026,11 @@ fn html_highlight_line_class(
     class: Option<String>,
     default_class: Option<String>,
 ) -> Option<String> {
-    lumis_core::formatter::html::highlight_line_class(
-        &convert_line_specs(lines),
-        line_number,
-        class.as_deref(),
-        default_class.as_deref(),
-    )
-    .map(str::to_owned)
+    if line_specs_contain(&lines, line_number) {
+        class.or(default_class)
+    } else {
+        None
+    }
 }
 
 /// The event stream rendered into HTML lines, with spans reopened across newlines.

@@ -41,6 +41,8 @@ pub struct HtmlLinked {
     language: Language,
     pre_class: Option<String>,
     highlight_lines: Option<HighlightLines>,
+    #[builder(setter(skip), default)]
+    stepped_highlight_lines: Vec<crate::formatter::html::SteppedLineRange>,
     header: Option<HtmlElement>,
 }
 
@@ -71,20 +73,28 @@ impl HtmlLinked {
             language,
             pre_class,
             highlight_lines,
+            stepped_highlight_lines: Vec::new(),
             header,
         }
     }
 
-    fn get_line_class_suffix(&self, line_number: usize) -> Option<String> {
-        self.highlight_lines.as_ref().and_then(|hl| {
-            crate::formatter::html::highlight_line_class(
-                &hl.lines,
-                line_number,
-                Some(hl.class.as_str()),
-                None,
-            )
-            .map(|class| format!(" {class}"))
-        })
+    /// Supply compact stepped ranges from a language binding.
+    #[doc(hidden)]
+    pub fn set_stepped_highlight_lines(
+        &mut self,
+        lines: Vec<crate::formatter::html::SteppedLineRange>,
+    ) {
+        self.stepped_highlight_lines = lines;
+    }
+
+    fn get_line_class_suffix(&self, is_highlighted: bool) -> Option<String> {
+        if !is_highlighted {
+            return None;
+        }
+
+        self.highlight_lines
+            .as_ref()
+            .map(|highlight| format!(" {}", highlight.class))
     }
 
     fn span_attrs_from_index(scope_index: usize) -> String {
@@ -102,6 +112,7 @@ impl Default for HtmlLinked {
             language: Language::PlainText,
             pre_class: None,
             highlight_lines: None,
+            stepped_highlight_lines: Vec::new(),
             header: None,
         }
     }
@@ -132,10 +143,20 @@ impl<T> Formatter<T> for HtmlLinked {
             events,
             |scope_index, _language| Self::span_attrs_from_index(scope_index),
         );
+        let highlighted_lines = self.highlight_lines.as_ref().map(|highlight| {
+            crate::formatter::html::highlighted_line_flags(
+                &highlight.lines,
+                &self.stepped_highlight_lines,
+                lines.len(),
+            )
+        });
 
         for (i, line) in lines.iter().enumerate() {
             let line_number = i + 1;
-            let class_suffix = self.get_line_class_suffix(line_number);
+            let is_highlighted = highlighted_lines
+                .as_ref()
+                .is_some_and(|selected| selected[i]);
+            let class_suffix = self.get_line_class_suffix(is_highlighted);
             let line_with_newline = format!("{line}\n");
             let wrapped = crate::formatter::html::wrap_line(
                 line_number,

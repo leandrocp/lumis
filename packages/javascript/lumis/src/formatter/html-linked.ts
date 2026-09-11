@@ -2,7 +2,6 @@ import type { HighlightEvent, HtmlLinkedFormatter } from "../types.js";
 import {
   closingTags,
   formatHighlightIterLines,
-  getHighlightLineClass,
   openCodeTag,
   openPreTag,
   openSpanTag,
@@ -10,22 +9,21 @@ import {
   wrapLine,
   wrapWithHeader,
 } from "./html.js";
+import { selectedLineFlags } from "./line-highlights.js";
 
 function highlightLineClass(
   formatter: HtmlLinkedFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): string | undefined {
-  return getHighlightLineClass(
-    formatter.highlightLines?.lines,
-    lineNumber,
-    formatter.highlightLines?.class,
-    "l-highlighted",
-  );
+  return isHighlighted ? (formatter.highlightLines?.class ?? "l-highlighted") : undefined;
 }
 
-function getLineAttrs(formatter: HtmlLinkedFormatter, lineNumber: number): { className?: string } {
+function getLineAttrs(
+  formatter: HtmlLinkedFormatter,
+  isHighlighted: boolean,
+): { className?: string } {
   return {
-    className: highlightLineClass(formatter, lineNumber),
+    className: highlightLineClass(formatter, isHighlighted),
   };
 }
 
@@ -40,8 +38,11 @@ export function formatHtmlLinked(
 
   const pre = openPreTag({ preClass: formatter.preClass });
   const code = openCodeTag(formatter.language);
+  const highlighted = selectedLineFlags(formatter.highlightLines?.lines, lines.length);
   const body = lines
-    .map((line, idx) => wrapLine(idx + 1, line, getLineAttrs(formatter, idx + 1)))
+    .map((line, idx) =>
+      wrapLine(idx + 1, line, getLineAttrs(formatter, Boolean(highlighted?.[idx]))),
+    )
     .join("");
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);

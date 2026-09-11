@@ -388,6 +388,14 @@ defmodule Lumis.Formatter.HTMLTest do
                "#{HTML.open_span(attrs, "keyword")}a &amp; b</span>"
     end
 
+    test "an explicit nil CSS variable prefix uses the default" do
+      assert HTML.span_multi_themes_attrs(themes: @themes_option, css_variable_prefix: nil) ==
+               HTML.span_multi_themes_attrs(themes: @themes_option)
+
+      assert HTML.open_multi_themes_pre_tag(themes: @themes_option, css_variable_prefix: nil) ==
+               HTML.open_multi_themes_pre_tag(themes: @themes_option)
+    end
+
     test "no themes leaves every scope unstyled" do
       attrs = HTML.span_multi_themes_attrs(themes: [], language: "elixir")
 
@@ -420,9 +428,9 @@ defmodule Lumis.Formatter.HTMLTest do
       assert HTML.highlight_line_class(lines, 4, []) == nil
     end
 
-    # A `RangeInclusive<usize>` has no step and cannot run backwards, so a range
-    # that has either has to be expanded before it crosses. Sent as-is, `1..5//2`
-    # highlighted the two lines the step excluded and `5..3` matched nothing.
+    # The compact native representation has to preserve both pieces of Elixir
+    # range semantics. Dropping the step would highlight lines 2 and 4 here;
+    # dropping the direction would make the descending range match nothing.
     test "honours a range's step and direction" do
       assert HTML.line_is_highlighted([1..5//2], 1)
       refute HTML.line_is_highlighted([1..5//2], 2)
@@ -433,35 +441,41 @@ defmodule Lumis.Formatter.HTMLTest do
       assert HTML.line_is_highlighted([5..3//-1], 4)
       refute HTML.line_is_highlighted([5..3//-1], 2)
 
+      assert HTML.line_is_highlighted([10..2//-3], 4)
+      refute HTML.line_is_highlighted([10..2//-3], 2), "the last bound need not be selected"
+
       refute HTML.line_is_highlighted([1..0//1], 1), "an empty range highlights nothing"
       refute HTML.line_is_highlighted([3..5//-1], 4), "so does an empty descending range"
     end
 
-    # A step of 1 or -1 is a contiguous run either way round, so it crosses as
-    # one range whatever its span. Any other step has to be listed out, and
-    # `1..1_000_000_000//2` listed out is 500 million tuples.
+    # Every range crosses as one compact arithmetic progression, regardless of
+    # its direction, step, or declared span.
     test "a huge contiguous range costs nothing, whichever way round" do
       assert HTML.line_is_highlighted([1..1_000_000_000], 999_999_999)
       assert HTML.line_is_highlighted([1_000_000_000..1//-1], 999_999_999)
     end
 
-    test "refuses to expand a stepped range too large to list out" do
-      assert_raise ArgumentError, ~r/over the 100000 limit/, fn ->
-        HTML.line_is_highlighted([1..1_000_000_000//2], 3)
-      end
+    test "a huge stepped range stays compact" do
+      assert {:ok, [{:range, %{start: 1, end: 1_000_000_000, step: 2}}]} =
+               Lumis.LineSpec.encode([1..1_000_000_000//2])
 
-      assert_raise ArgumentError, ~r/over the 100000 limit/, fn ->
-        HTML.highlight_line_class([1..1_000_000_000//2], 3, default_class: "hl")
-      end
+      assert HTML.line_is_highlighted([1..1_000_000_000//2], 3)
+      refute HTML.line_is_highlighted([1..1_000_000_000//2], 4)
+
+      assert HTML.highlight_line_class([1..1_000_000_000//2], 3, default_class: "hl") == "hl"
     end
 
-    test "the same range is an error tuple through the formatter options" do
-      assert {:error, message} =
-               Lumis.formatter_type(
-                 {:html_linked, highlight_lines: %{lines: [1..1_000_000_000//2]}}
-               )
+    test "the formatter clips a huge stepped range to its rendered lines" do
+      html =
+        Lumis.highlight!("one\ntwo\nthree",
+          formatter:
+            {:html_linked,
+             language: "plaintext", highlight_lines: %{lines: [1..1_000_000_000//2], class: "hl"}}
+        )
 
-      assert message =~ "over the 100000 limit"
+      assert html =~ ~s|class="l-line hl" data-line="1"|
+      refute html =~ ~s|class="l-line hl" data-line="2"|
+      assert html =~ ~s|class="l-line hl" data-line="3"|
     end
 
     test "picks the lines html_linked marks with its highlight class" do

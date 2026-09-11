@@ -8,6 +8,77 @@ use std::fmt::Write as _;
 use std::io::{self, Write};
 use std::ops::RangeInclusive;
 
+/// A finite arithmetic progression of 1-based line numbers.
+///
+/// This is public only so language bindings can preserve a source runtime's
+/// stepped-range semantics without expanding the range into one allocation per
+/// selected line. Rust's formatter options continue to use
+/// [`RangeInclusive<usize>`].
+#[doc(hidden)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SteppedLineRange {
+    first: usize,
+    last: usize,
+    step: usize,
+}
+
+impl SteppedLineRange {
+    /// Normalize an ascending or descending stepped range.
+    ///
+    /// Returns `None` for a zero step or when the step points away from the end.
+    #[doc(hidden)]
+    pub fn new(start: usize, end: usize, step: isize) -> Option<Self> {
+        let stride = step.unsigned_abs();
+        if stride == 0 {
+            return None;
+        }
+
+        let (first, last) = if step > 0 {
+            if start > end {
+                return None;
+            }
+            let span = end - start;
+            (start, start + span / stride * stride)
+        } else {
+            if start < end {
+                return None;
+            }
+            let span = start - end;
+            (start - span / stride * stride, start)
+        };
+
+        Some(Self {
+            first,
+            last,
+            step: stride,
+        })
+    }
+
+    /// Whether `line_number` is one of the range's selected lines.
+    #[doc(hidden)]
+    pub fn contains(&self, line_number: usize) -> bool {
+        (self.first..=self.last).contains(&line_number)
+            && (line_number - self.first).is_multiple_of(self.step)
+    }
+
+    fn mark(&self, selected: &mut [bool]) {
+        let mut line = if self.first == 0 {
+            self.step
+        } else {
+            self.first
+        };
+        let last = self.last.min(selected.len());
+
+        while line <= last {
+            selected[line - 1] = true;
+            let Some(next) = line.checked_add(self.step) else {
+                break;
+            };
+            line = next;
+        }
+    }
+}
+
 /// Generate HTML attributes for a span with inline CSS styles.
 pub fn span_inline_attrs(
     language: Option<Language>,
@@ -499,6 +570,48 @@ pub fn line_is_highlighted(lines: &[RangeInclusive<usize>], line_number: usize) 
     lines.iter().any(|range| range.contains(&line_number))
 }
 
+/// Resolve all highlighted lines once before a formatter walks its output.
+///
+/// Ordinary ranges are clamped, sorted, and merged before their slices are
+/// filled. Ordinary ranges therefore cost `O(lines + ranges log ranges)` instead
+/// of being scanned again for every output line. Stepped ranges stay compact and
+/// only visit their selected lines that actually exist in the rendered output.
+pub(crate) fn highlighted_line_flags(
+    lines: &[RangeInclusive<usize>],
+    stepped_lines: &[SteppedLineRange],
+    line_count: usize,
+) -> Vec<bool> {
+    let mut selected = vec![false; line_count];
+    let mut intervals: Vec<(usize, usize)> = lines
+        .iter()
+        .filter_map(|range| {
+            let start = (*range.start()).max(1);
+            let end = (*range.end()).min(line_count);
+            (start <= end).then_some((start, end))
+        })
+        .collect();
+    intervals.sort_unstable();
+
+    let mut intervals = intervals.into_iter();
+    if let Some((mut start, mut end)) = intervals.next() {
+        for (next_start, next_end) in intervals {
+            if next_start <= end.saturating_add(1) {
+                end = end.max(next_end);
+            } else {
+                selected[start - 1..end].fill(true);
+                (start, end) = (next_start, next_end);
+            }
+        }
+        selected[start - 1..end].fill(true);
+    }
+
+    for range in stepped_lines {
+        range.mark(&mut selected);
+    }
+
+    selected
+}
+
 /// The CSS class a highlighted line carries, or `None` when the line is not highlighted.
 ///
 /// `class` wins over `default_class`, so a formatter can offer a caller-supplied
@@ -975,6 +1088,35 @@ mod tests {
             render_lines_from_events("é", &events, |_, _| String::new()),
             [""]
         );
+    }
+
+    #[test]
+    fn stepped_line_ranges_stay_compact_and_clip_to_rendered_lines() {
+        let ascending = SteppedLineRange::new(1, 1_000_000_000, 2).unwrap();
+        let descending = SteppedLineRange::new(1_000_000_000, 1, -3).unwrap();
+        let unaligned_end = SteppedLineRange::new(10, 2, -3).unwrap();
+
+        assert_eq!(
+            highlighted_line_flags(&[], &[ascending], 6),
+            [true, false, true, false, true, false]
+        );
+        assert_eq!(
+            highlighted_line_flags(&[], &[descending], 6),
+            [true, false, false, true, false, false]
+        );
+        assert!(unaligned_end.contains(4));
+        assert!(!unaligned_end.contains(2));
+    }
+
+    #[test]
+    fn highlighted_line_flags_merge_many_native_rust_ranges() {
+        let ranges: Vec<_> = (1..=20_000).step_by(2).map(|line| line..=line).collect();
+        let selected = highlighted_line_flags(&ranges, &[], 20_000);
+
+        assert_eq!(selected.iter().filter(|&&line| line).count(), 10_000);
+        assert!(selected[0]);
+        assert!(!selected[1]);
+        assert!(selected[19_998]);
     }
 
     #[test]
