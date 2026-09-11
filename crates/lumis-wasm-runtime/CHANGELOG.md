@@ -1,3 +1,15 @@
+## [0.3.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.2.1...cargo-lumis-wasm-runtime/v0.3.0) (2026-09-11)
+
+
+### Bug Fixes
+
+- BREAKING: make public error enums non-exhaustive - [#1395](https://github.com/leandrocp/lumis/pull/1395)
+
+
+### Features
+
+- BREAKING: introduce annotations - [#1100](https://github.com/leandrocp/lumis/pull/1100)
+
 ## [0.2.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.2.0...cargo-lumis-wasm-runtime/v0.2.1) (2026-09-03)
 
 
