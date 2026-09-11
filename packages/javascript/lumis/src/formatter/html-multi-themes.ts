@@ -1,60 +1,18 @@
-import type { HighlightEvent, HighlightSpan, HtmlMultiThemesFormatter, Theme } from "../types.js";
+import type { HighlightEvent, HighlightSpan, HtmlMultiThemesFormatter } from "../types.js";
 import {
   type HtmlAttrs,
-  buildNormalThemeVars,
   closingTags,
   formatHighlightIterLines,
-  getHighlightLineClass,
   getThemeStyle,
-  joinClasses,
-  lineIsHighlighted,
   openCodeTag,
+  openMultiThemesPreTag,
   openSpanTag,
-  openTag,
-  sortedThemeNames,
   spanMultiThemesAttrs,
   styleToCss,
   wrapLine,
   wrapWithHeader,
 } from "./html.js";
-
-// The `<pre>` colours for `light-dark()`, falling back to black on white and
-// white on black where a theme leaves them unset.
-function lightDarkPreStyles(themes: Record<string, Theme>): string[] {
-  const lightNormal = getThemeStyle(themes.light, "normal");
-  const darkNormal = getThemeStyle(themes.dark, "normal");
-  const lightFg = lightNormal?.fg ?? "#000000";
-  const lightBg = lightNormal?.bg ?? "#ffffff";
-  const darkFg = darkNormal?.fg ?? "#ffffff";
-  const darkBg = darkNormal?.bg ?? "#000000";
-
-  return [
-    `color: light-dark(${lightFg}, ${darkFg});`,
-    `background-color: light-dark(${lightBg}, ${darkBg});`,
-  ];
-}
-
-function buildPreThemeStyle(options: {
-  themes: Record<string, Theme>;
-  defaultTheme?: string;
-  cssVariablePrefix?: string;
-}): string | undefined {
-  const prefix = options.cssVariablePrefix ?? "--lumis";
-  const styles: string[] = [];
-
-  if (options.defaultTheme === "light-dark()") {
-    styles.push(...lightDarkPreStyles(options.themes));
-  } else if (options.defaultTheme) {
-    const defaultStyle = getThemeStyle(options.themes[options.defaultTheme], "normal");
-    if (defaultStyle?.fg) styles.push(`color:${defaultStyle.fg};`);
-    if (defaultStyle?.bg) styles.push(`background-color:${defaultStyle.bg};`);
-    buildNormalThemeVars(styles, prefix, options.themes, options.defaultTheme);
-  } else {
-    buildNormalThemeVars(styles, prefix, options.themes);
-  }
-
-  return styles.length > 0 ? styles.join(" ") : undefined;
-}
+import { selectedLineFlags } from "./line-highlights.js";
 
 function spanAttrs(span: HighlightSpan, formatter: HtmlMultiThemesFormatter): HtmlAttrs {
   return spanMultiThemesAttrs({
@@ -68,31 +26,12 @@ function spanAttrs(span: HighlightSpan, formatter: HtmlMultiThemesFormatter): Ht
   });
 }
 
-function generatePreClasses(formatter: HtmlMultiThemesFormatter): string {
-  return (
-    joinClasses(
-      "lumis",
-      "lumis-themes",
-      formatter.preClass,
-      ...sortedThemeNames(formatter.themes),
-    ) ?? "lumis lumis-themes"
-  );
-}
-
-function generatePreStyle(formatter: HtmlMultiThemesFormatter): string | undefined {
-  return buildPreThemeStyle({
-    themes: formatter.themes,
-    defaultTheme: formatter.defaultTheme,
-    cssVariablePrefix: formatter.cssVariablePrefix,
-  });
-}
-
 function highlightLineStyle(
   formatter: HtmlMultiThemesFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): string | undefined {
   const highlightLines = formatter.highlightLines;
-  if (!lineIsHighlighted(highlightLines?.lines, lineNumber)) return undefined;
+  if (!isHighlighted) return undefined;
 
   // Explicit `null` opts out of the inline style entirely, leaving the class to
   // do the highlighting. Absent still means the theme's `highlighted` style.
@@ -122,22 +61,18 @@ function lightDarkHighlightStyle(formatter: HtmlMultiThemesFormatter): string | 
 
 function highlightLineClass(
   formatter: HtmlMultiThemesFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): string | undefined {
-  return getHighlightLineClass(
-    formatter.highlightLines?.lines,
-    lineNumber,
-    formatter.highlightLines?.class,
-  );
+  return isHighlighted ? formatter.highlightLines?.class : undefined;
 }
 
 function getLineAttrs(
   formatter: HtmlMultiThemesFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): { className?: string; style?: string } {
   return {
-    className: highlightLineClass(formatter, lineNumber),
-    style: highlightLineStyle(formatter, lineNumber),
+    className: highlightLineClass(formatter, isHighlighted),
+    style: highlightLineStyle(formatter, isHighlighted),
   };
 }
 
@@ -151,13 +86,18 @@ export function formatHtmlMultiThemes(
     openSpan: (span, _style) => openSpanTag(spanAttrs(span, formatter)),
   });
 
-  const pre = openTag("pre", {
-    class: generatePreClasses(formatter),
-    style: generatePreStyle(formatter),
+  const pre = openMultiThemesPreTag({
+    preClass: formatter.preClass,
+    themes: formatter.themes,
+    defaultTheme: formatter.defaultTheme,
+    cssVariablePrefix: formatter.cssVariablePrefix,
   });
   const code = openCodeTag(formatter.language);
+  const highlighted = selectedLineFlags(formatter.highlightLines?.lines, lines.length);
   const body = lines
-    .map((line, idx) => wrapLine(idx + 1, line, getLineAttrs(formatter, idx + 1)))
+    .map((line, idx) =>
+      wrapLine(idx + 1, line, getLineAttrs(formatter, Boolean(highlighted?.[idx]))),
+    )
     .join("");
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);

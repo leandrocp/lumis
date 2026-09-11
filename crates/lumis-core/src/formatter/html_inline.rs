@@ -57,6 +57,8 @@ pub struct HtmlInline {
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
+    #[builder(setter(skip), default)]
+    stepped_highlight_lines: Vec<crate::formatter::html::SteppedLineRange>,
     header: Option<HtmlElement>,
 }
 
@@ -94,16 +96,21 @@ impl HtmlInline {
             italic,
             include_highlights,
             highlight_lines,
+            stepped_highlight_lines: Vec::new(),
             header,
         }
     }
 
-    fn get_line_attrs(&self, line_number: usize) -> (Option<String>, Option<String>) {
-        let is_highlighted = self
-            .highlight_lines
-            .as_ref()
-            .is_some_and(|hl| hl.lines.iter().any(|r| r.contains(&line_number)));
+    /// Supply compact stepped ranges from a language binding.
+    #[doc(hidden)]
+    pub fn set_stepped_highlight_lines(
+        &mut self,
+        lines: Vec<crate::formatter::html::SteppedLineRange>,
+    ) {
+        self.stepped_highlight_lines = lines;
+    }
 
+    fn get_line_attrs(&self, is_highlighted: bool) -> (Option<String>, Option<String>) {
         if !is_highlighted {
             return (None, None);
         }
@@ -158,6 +165,7 @@ impl Default for HtmlInline {
             italic: false,
             include_highlights: false,
             highlight_lines: None,
+            stepped_highlight_lines: Vec::new(),
             header: None,
         }
     }
@@ -192,11 +200,21 @@ impl<T> Formatter<T> for HtmlInline {
             events,
             |scope_index, language| self.span_attrs_from_index(scope_index, language),
         );
+        let highlighted_lines = self.highlight_lines.as_ref().map(|highlight| {
+            crate::formatter::html::highlighted_line_flags(
+                &highlight.lines,
+                &self.stepped_highlight_lines,
+                lines.len(),
+            )
+        });
 
         for (i, line) in lines.iter().enumerate() {
             let line_number = i + 1;
             let line_with_newline = format!("{line}\n");
-            let (class_suffix, style) = self.get_line_attrs(line_number);
+            let is_highlighted = highlighted_lines
+                .as_ref()
+                .is_some_and(|selected| selected[i]);
+            let (class_suffix, style) = self.get_line_attrs(is_highlighted);
             let wrapped = crate::formatter::html::wrap_line(
                 line_number,
                 &line_with_newline,

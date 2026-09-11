@@ -242,6 +242,15 @@ describe("formatter shared helpers", () => {
     expect(lines).toEqual(['<span class="string">a</span>', '<span class="string">b</span>']);
   });
 
+  it("shrinks source ranges that split a UTF-8 character", () => {
+    expect(renderLinesFromEvents("éx", [{ type: "source", start: 0, end: 1 }], () => "")).toEqual([
+      "",
+    ]);
+    expect(renderLinesFromEvents("éx", [{ type: "source", start: 1, end: 3 }], () => "")).toEqual([
+      "x",
+    ]);
+  });
+
   it("opens a bare span for a scope whose attrs come out empty", () => {
     const lines = renderLinesFromEvents(
       "ab",
@@ -312,6 +321,7 @@ describe("formatter shared helpers", () => {
     expect(sanitizeThemeName("one-dark")).toBe("one-dark");
     expect(sanitizeThemeName("my theme!")).toBe("my-theme-");
     expect(sanitizeThemeName("theme_v2")).toBe("theme_v2");
+    expect(sanitizeThemeName("Rosé Pine (Dawn)")).toBe("Rosé-Pine--Dawn-");
   });
 
   it("generates span inline attrs with theme styling", () => {

@@ -1,6 +1,7 @@
 use lumis_core::formatter::{
-    html_inline, html_linked, BBCodeScopedBuilder, Formatter, HtmlElement, HtmlInlineBuilder,
-    HtmlLinkedBuilder, HtmlMultiThemesBuilder, TerminalBackground, TerminalBuilder,
+    html::SteppedLineRange, html_inline, html_linked, BBCodeScopedBuilder, Formatter, HtmlElement,
+    HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder, TerminalBackground,
+    TerminalBuilder,
 };
 use lumis_core::{languages::Language, themes};
 use rustler::{NifMap, NifStruct, NifTaggedEnum, NifUnitEnum};
@@ -85,11 +86,41 @@ fn resolve_theme(theme_or_string: ThemeOrString) -> Option<themes::Theme> {
 }
 
 #[inline]
-fn convert_line_specs(lines: Vec<ExLineSpec>) -> Vec<std::ops::RangeInclusive<usize>> {
-    lines
-        .into_iter()
-        .map(|line_spec| line_spec.to_range_inclusive())
-        .collect()
+fn convert_line_specs(
+    lines: Vec<ExLineSpec>,
+) -> (Vec<std::ops::RangeInclusive<usize>>, Vec<SteppedLineRange>) {
+    let mut contiguous = Vec::new();
+    let mut stepped = Vec::new();
+
+    for line in lines {
+        match line {
+            ExLineSpec::Single(line) => contiguous.push(line..=line),
+            ExLineSpec::Range {
+                start,
+                end,
+                step: 1,
+            } if start <= end => contiguous.push(start..=end),
+            ExLineSpec::Range {
+                start,
+                end,
+                step: -1,
+            } if start >= end => contiguous.push(end..=start),
+            line @ ExLineSpec::Range { .. } => {
+                if let Some(range) = line.to_stepped_line_range() {
+                    stepped.push(range);
+                }
+            }
+        }
+    }
+
+    (contiguous, stepped)
+}
+
+pub(crate) fn line_specs_contain(lines: &[ExLineSpec], line_number: usize) -> bool {
+    lines.iter().any(|line| {
+        line.to_stepped_line_range()
+            .is_some_and(|range| range.contains(line_number))
+    })
 }
 
 #[inline]
@@ -102,6 +133,37 @@ fn convert_inline_style(
             html_inline::HighlightLinesStyle::Style(style)
         }
     }
+}
+
+fn convert_inline_highlight_lines(
+    highlight: ExHtmlInlineHighlightLines,
+) -> (html_inline::HighlightLines, Vec<SteppedLineRange>) {
+    let (lines, stepped) = convert_line_specs(highlight.lines);
+    let highlight = html_inline::HighlightLines {
+        lines,
+        style: highlight.style.map(convert_inline_style),
+        class: highlight.class,
+    };
+    (highlight, stepped)
+}
+
+fn convert_linked_highlight_lines(
+    highlight: ExHtmlLinkedHighlightLines,
+) -> (html_linked::HighlightLines, Vec<SteppedLineRange>) {
+    let (lines, stepped) = convert_line_specs(highlight.lines);
+    let highlight = html_linked::HighlightLines {
+        lines,
+        class: highlight.class,
+    };
+    (highlight, stepped)
+}
+
+fn split_highlight_lines<T>(
+    converted: Option<(T, Vec<SteppedLineRange>)>,
+) -> (Option<T>, Vec<SteppedLineRange>) {
+    converted.map_or((None, Vec::new()), |(highlight, stepped)| {
+        (Some(highlight), stepped)
+    })
 }
 
 impl ExFormatterOption {
@@ -117,18 +179,15 @@ impl ExFormatterOption {
             } => {
                 let theme = theme.and_then(resolve_theme);
 
-                let highlight_lines = highlight_lines.map(|hl| html_inline::HighlightLines {
-                    lines: convert_line_specs(hl.lines),
-                    style: hl.style.map(convert_inline_style),
-                    class: hl.class,
-                });
+                let (highlight_lines, stepped_highlight_lines) =
+                    split_highlight_lines(highlight_lines.map(convert_inline_highlight_lines));
 
                 let header = header.map(|h| HtmlElement {
                     open_tag: h.open_tag,
                     close_tag: h.close_tag,
                 });
 
-                let formatter = HtmlInlineBuilder::new()
+                let mut formatter = HtmlInlineBuilder::new()
                     .language(language)
                     .theme(theme)
                     .pre_class(pre_class)
@@ -138,6 +197,7 @@ impl ExFormatterOption {
                     .header(header)
                     .build()
                     .map_err(|e| format!("HtmlInline builder error: {e:?}"))?;
+                formatter.set_stepped_highlight_lines(stepped_highlight_lines);
 
                 Ok(Box::new(formatter))
             }
@@ -146,23 +206,22 @@ impl ExFormatterOption {
                 highlight_lines,
                 header,
             } => {
-                let highlight_lines = highlight_lines.map(|hl| html_linked::HighlightLines {
-                    lines: convert_line_specs(hl.lines),
-                    class: hl.class,
-                });
+                let (highlight_lines, stepped_highlight_lines) =
+                    split_highlight_lines(highlight_lines.map(convert_linked_highlight_lines));
 
                 let header = header.map(|h| HtmlElement {
                     open_tag: h.open_tag,
                     close_tag: h.close_tag,
                 });
 
-                let formatter = HtmlLinkedBuilder::new()
+                let mut formatter = HtmlLinkedBuilder::new()
                     .language(language)
                     .pre_class(pre_class)
                     .highlight_lines(highlight_lines)
                     .header(header)
                     .build()
                     .map_err(|e| format!("HtmlLinked builder error: {e:?}"))?;
+                formatter.set_stepped_highlight_lines(stepped_highlight_lines);
 
                 Ok(Box::new(formatter))
             }
@@ -179,11 +238,8 @@ impl ExFormatterOption {
                 let themes_map: HashMap<String, themes::Theme> =
                     themes.into_iter().map(|(k, v)| (k, v.into())).collect();
 
-                let highlight_lines = highlight_lines.map(|hl| html_inline::HighlightLines {
-                    lines: convert_line_specs(hl.lines),
-                    style: hl.style.map(convert_inline_style),
-                    class: hl.class,
-                });
+                let (highlight_lines, stepped_highlight_lines) =
+                    split_highlight_lines(highlight_lines.map(convert_inline_highlight_lines));
 
                 let header = header.map(|h| HtmlElement {
                     open_tag: h.open_tag,
@@ -205,9 +261,10 @@ impl ExFormatterOption {
                     builder.default_theme(dt_str);
                 }
 
-                let formatter = builder
+                let mut formatter = builder
                     .build()
                     .map_err(|e| format!("HtmlMultiThemes builder error: {e:?}"))?;
+                formatter.set_stepped_highlight_lines(stepped_highlight_lines);
 
                 Ok(Box::new(formatter))
             }
@@ -412,14 +469,18 @@ pub struct ExHtmlElement {
 #[derive(Clone, Debug, NifTaggedEnum)]
 pub enum ExLineSpec {
     Single(usize),
-    Range { start: usize, end: usize },
+    Range {
+        start: usize,
+        end: usize,
+        step: isize,
+    },
 }
 
 impl ExLineSpec {
-    fn to_range_inclusive(&self) -> std::ops::RangeInclusive<usize> {
+    fn to_stepped_line_range(&self) -> Option<SteppedLineRange> {
         match self {
-            ExLineSpec::Single(line) => *line..=*line,
-            ExLineSpec::Range { start, end } => *start..=*end,
+            ExLineSpec::Single(line) => SteppedLineRange::new(*line, *line, 1),
+            ExLineSpec::Range { start, end, step } => SteppedLineRange::new(*start, *end, *step),
         }
     }
 
@@ -430,7 +491,11 @@ impl ExLineSpec {
         if start == end {
             ExLineSpec::Single(start)
         } else {
-            ExLineSpec::Range { start, end }
+            ExLineSpec::Range {
+                start,
+                end,
+                step: 1,
+            }
         }
     }
 }
@@ -532,5 +597,37 @@ impl From<html_linked::HighlightLines> for ExHtmlLinkedHighlightLines {
                 .collect(),
             class: highlight_lines.class,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{convert_line_specs, ExLineSpec};
+
+    #[test]
+    fn partitions_contiguous_and_genuinely_stepped_line_specs() {
+        let (contiguous, stepped) = convert_line_specs(vec![
+            ExLineSpec::Single(2),
+            ExLineSpec::Range {
+                start: 3,
+                end: 5,
+                step: 1,
+            },
+            ExLineSpec::Range {
+                start: 9,
+                end: 7,
+                step: -1,
+            },
+            ExLineSpec::Range {
+                start: 1,
+                end: 9,
+                step: 2,
+            },
+        ]);
+
+        assert_eq!(contiguous, [2..=2, 3..=5, 7..=9]);
+        assert_eq!(stepped.len(), 1);
+        assert!(stepped[0].contains(7));
+        assert!(!stepped[0].contains(8));
     }
 }

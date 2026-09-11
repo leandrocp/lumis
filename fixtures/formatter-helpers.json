@@ -1,0 +1,194 @@
+{
+  "$comment": [
+    "The formatter helper surface every runtime must present.",
+    "",
+    "`formatter-options.json` pins what the built-in formatters ACCEPT. This pins",
+    "what a CUSTOM formatter can be built from, which nothing else checked: the",
+    "three helper modules drifted to 46 names between them with 11 in all three,",
+    "so a formatter written against one runtime could not be ported to another",
+    "(#1381). Options were pinned and helpers were not, which is why it was",
+    "silent.",
+    "",
+    "`name` is the canonical snake_case capability. Rust and Elixir spell it",
+    "verbatim, JavaScript camelCases it. `spelling` records the exceptions, and a",
+    "spelling with `::` or `.` in it names a home outside the helper module.",
+    "",
+    "A capability is a thing a formatter can do, not a signature. Runtimes keep",
+    "their own argument shapes: Elixir hands back a whole scope table because the",
+    "NIF boundary is not free, JavaScript takes an attribute object where Rust",
+    "takes a rendered string. Only the capability has to exist everywhere.",
+    "",
+    "Adding a helper means adding it here first, then watching the three local",
+    "implementations go red. `runtime_only` and `deprecated` are the two escape",
+    "hatches and both are checked, so neither can grow quietly."
+  ],
+  "modules": {
+    "html": {
+      "$comment": [
+        "`lumis::html` (re-exporting `lumis_core::formatter::html`),",
+        "`@lumis-sh/lumis/formatters/html`, and `Lumis.Formatter.HTML`."
+      ],
+      "helpers": [
+        { "name": "escape" },
+        { "name": "escape_attr" },
+        { "name": "escape_braces" },
+        { "name": "scope_to_class" },
+        { "name": "style_to_css", "spelling": { "rust": "themes::Style::css" } },
+        { "name": "text_decoration" },
+        { "name": "sanitize_theme_name" },
+        { "name": "open_span", "spelling": { "javascript": "openSpanTag" } },
+        { "name": "span_inline_attrs" },
+        { "name": "span_inline" },
+        { "name": "span_linked_attrs" },
+        { "name": "span_linked" },
+        { "name": "span_multi_themes_attrs" },
+        { "name": "span_multi_themes" },
+        { "name": "open_pre_tag" },
+        { "name": "open_multi_themes_pre_tag" },
+        { "name": "open_code_tag" },
+        { "name": "close_pre_tag" },
+        { "name": "close_code_tag" },
+        { "name": "closing_tags" },
+        { "name": "wrap_line" },
+        { "name": "line_is_highlighted" },
+        { "name": "highlight_line_class", "spelling": { "javascript": "getHighlightLineClass" } },
+        { "name": "render_lines_from_events" }
+      ]
+    },
+    "ansi": {
+      "$comment": [
+        "`lumis::ansi` (re-exporting `lumis_core::formatter::ansi`),",
+        "`@lumis-sh/lumis/formatters/ansi`, and `Lumis.Formatter.ANSI`."
+      ],
+      "helpers": [
+        { "name": "hex_to_rgb" },
+        { "name": "rgb_to_ansi" },
+        { "name": "style_to_ansi" },
+        { "name": "paint" },
+        {
+          "name": "reset",
+          "spelling": { "rust": "ANSI_RESET", "javascript": "ANSI_RESET" }
+        }
+      ]
+    }
+  },
+  "runtime_only": {
+    "$comment": [
+      "Helpers one runtime publishes and the others should not, because the",
+      "boundary dictates the signature rather than taste. Each entry says why,",
+      "and the tests fail on a name here that the runtime no longer exports, so",
+      "the list cannot outlive its reasons."
+    ],
+    "rust": {
+      "html": {
+        "append_fragment": "Splits a fragment across a `&mut Vec<String>` line buffer. JavaScript exposes the same mutable-array shape; Elixir's line buffer is immutable, so it takes `render_lines_from_events` whole instead."
+      }
+    },
+    "javascript": {
+      "html": {
+        "appendFragment": "See `append_fragment` under rust.",
+        "encodeSource": "JavaScript strings are UTF-16 and the event offsets are UTF-8 byte offsets, so a port has to encode before it can slice. Rust and Elixir index bytes already.",
+        "decodeSourceSlice": "See `encodeSource`.",
+        "sortedThemeNames": "`Array.prototype.sort` orders by UTF-16 code unit and Rust orders `&str` by UTF-8 byte, so the two disagree on astral characters. Rust keeps its counterpart private; JavaScript exports it for the multi-themes formatter next door.",
+        "formatHighlightIterLines": "The callback-shaped renderer `renderLinesFromEvents` is built on. Rust's equivalent is a set of private functions.",
+        "getThemeStyle": "Scope resolution, which walks a scope up to its parent and consults the rainbow-bracket fallbacks. Rust reaches it as `Theme::get_style`, a method on the theme; Elixir gets every answer at once from `span_attrs/1`, because resolving per token would cross the NIF boundary per token.",
+        "getScopedThemeStyle": "See `getThemeStyle`.",
+        "wrapWithHeader": "Concatenates three strings. JavaScript's formatters build strings; Rust's write to a `dyn Write` and Elixir's return iodata, so neither needs a function for it."
+      }
+    },
+    "elixir": {
+      "html": {
+        "classes": "The whole scope-to-class table. `scope_to_class` is a lookup into two generated 293-row tables, and crossing the NIF boundary per token to read a constant costs more than the highlighting.",
+        "span_attrs": "The whole scope-to-attributes table, for the same reason as `classes`. `span_multi_themes_attrs/1` is the multi-theme counterpart and is table-shaped for the same reason, which is why it is not listed here."
+      },
+      "ansi": {
+        "styles": "The whole scope-to-style table, for the same reason as `classes` under html.",
+        "style_for": "Reads a scope out of a `styles/1` table."
+      }
+    }
+  },
+  "deprecated": {
+    "$comment": [
+      "Helpers that were public before the set above was agreed and are on their",
+      "way out. Each is still exported, so the tests require it to be present AND",
+      "marked deprecated in every runtime that has it. Nothing may be added here",
+      "without a replacement named in `use`."
+    ],
+    "html": {
+      "escape_fragment": {
+        "use": "escape",
+        "reason": "A pure alias of `escape` in both runtimes that have it. Elixir never grew one.",
+        "runtimes": ["rust", "javascript"]
+      },
+      "render_events": {
+        "use": "render_lines_from_events",
+        "reason": "A simplified copy of the vendored `HtmlRenderer` that never reopens spans at a line boundary, so its lines do not nest. No caller in this repository. `render_lines_from_events` does the same job correctly.",
+        "runtimes": ["rust", "javascript"]
+      },
+      "lines_from_offsets": {
+        "use": "render_lines_from_events",
+        "reason": "Only useful for slicing what `render_events` returns.",
+        "runtimes": ["rust", "javascript"]
+      },
+      "openTag": {
+        "use": "openPreTag, openCodeTag, openSpanTag",
+        "reason": "Generic tag plumbing that Rust and Elixir do inline. Exported from a public subpath by accident.",
+        "runtimes": ["javascript"]
+      },
+      "closeTag": {
+        "use": "closePreTag, closeCodeTag, closingTags",
+        "reason": "See `openTag`.",
+        "runtimes": ["javascript"]
+      },
+      "attrsToString": {
+        "use": "openSpanTag",
+        "reason": "See `openTag`.",
+        "runtimes": ["javascript"]
+      },
+      "joinClasses": {
+        "use": "",
+        "reason": "See `openTag`. Filtering and joining a list of class names is not Lumis's to own.",
+        "runtimes": ["javascript"]
+      },
+      "renderHtmlBlock": {
+        "use": "openPreTag, openCodeTag, wrapLine, closingTags",
+        "reason": "Composes the four helpers above in one fixed order, which is the built-in formatters' shape rather than a custom formatter's. No caller in this repository.",
+        "runtimes": ["javascript"]
+      },
+      "buildPreThemeStyle": {
+        "use": "openMultiThemesPreTag",
+        "reason": "Multi-themes `<pre>` plumbing that Rust keeps private. The copy in `html-multi-themes.ts` is the one the formatter actually calls; this one has no caller.",
+        "runtimes": ["javascript"]
+      },
+      "buildNormalThemeVars": {
+        "use": "openMultiThemesPreTag",
+        "reason": "See `buildPreThemeStyle`.",
+        "runtimes": ["javascript"]
+      },
+      "appendThemeCssVars": {
+        "use": "spanMultiThemesAttrs",
+        "reason": "Multi-themes span plumbing that Rust keeps private. No caller in this repository.",
+        "runtimes": ["javascript"]
+      }
+    },
+    "ansi": {
+      "wrap_with_ansi": {
+        "use": "paint",
+        "reason": "An alias of `paint`.",
+        "runtimes": ["rust", "javascript"]
+      },
+      "highlight_iter_with_ansi": {
+        "use": "highlight_iter with paint",
+        "reason": "Collects every segment into a `Vec` before yielding the first, which is what the callback form avoids.",
+        "runtimes": ["rust", "javascript"]
+      }
+    }
+  },
+  "waived": {
+    "$comment": [
+      "Capabilities a runtime genuinely cannot offer, keyed by runtime then",
+      "module. Empty, and the tests fail on an entry that is no longer needed, so",
+      "it can only shrink."
+    ]
+  }
+}

@@ -2,10 +2,8 @@ import type { HighlightEvent, HighlightSpan, HtmlInlineFormatter } from "../type
 import {
   closingTags,
   formatHighlightIterLines,
-  getHighlightLineClass,
   getScopedThemeStyle,
   getThemeStyle,
-  lineIsHighlighted,
   openCodeTag,
   openPreTag,
   openSpanTag,
@@ -13,6 +11,7 @@ import {
   wrapLine,
   wrapWithHeader,
 } from "./html.js";
+import { selectedLineFlags } from "./line-highlights.js";
 
 function spanAttrs(
   span: HighlightSpan,
@@ -36,10 +35,10 @@ function spanAttrs(
 
 function highlightLineStyle(
   formatter: HtmlInlineFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): string | undefined {
   const highlightLines = formatter.highlightLines;
-  if (!lineIsHighlighted(highlightLines?.lines, lineNumber)) {
+  if (!isHighlighted) {
     return undefined;
   }
 
@@ -59,22 +58,18 @@ function highlightLineStyle(
 
 function highlightLineClass(
   formatter: HtmlInlineFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): string | undefined {
-  return getHighlightLineClass(
-    formatter.highlightLines?.lines,
-    lineNumber,
-    formatter.highlightLines?.class,
-  );
+  return isHighlighted ? formatter.highlightLines?.class : undefined;
 }
 
 function getLineAttrs(
   formatter: HtmlInlineFormatter,
-  lineNumber: number,
+  isHighlighted: boolean,
 ): { className?: string; style?: string } {
   return {
-    className: highlightLineClass(formatter, lineNumber),
-    style: highlightLineStyle(formatter, lineNumber),
+    className: highlightLineClass(formatter, isHighlighted),
+    style: highlightLineStyle(formatter, isHighlighted),
   };
 }
 
@@ -89,8 +84,11 @@ export function formatHtmlInline(
 
   const pre = openPreTag({ preClass: formatter.preClass, theme: formatter.theme });
   const code = openCodeTag(formatter.language);
+  const highlighted = selectedLineFlags(formatter.highlightLines?.lines, lines.length);
   const body = lines
-    .map((line, idx) => wrapLine(idx + 1, line, getLineAttrs(formatter, idx + 1)))
+    .map((line, idx) =>
+      wrapLine(idx + 1, line, getLineAttrs(formatter, Boolean(highlighted?.[idx]))),
+    )
     .join("");
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);
