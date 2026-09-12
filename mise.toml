@@ -377,7 +377,12 @@ mix credo --strict
 [tasks.'lint-complexity-rust']
 description = "Enforce cyclomatic complexity in every Rust source file"
 tools = { "pipx:lizard" = "1.24.0" }
-run = "lizard -l rust -C 20 -L 100000 -a 100000 -i 0 -w -W .lizard-whitelist ."
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+git ls-files -z --cached --others --exclude-standard -- '*.rs' |
+    xargs -0 lizard -l rust -C 20 -L 100000 -a 100000 -i 0 -w -W .lizard-whitelist --
+'''
 
 [tasks.'lint-lua']
 description = "Lint every Lua file with selene"
