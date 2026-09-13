@@ -20,8 +20,77 @@
     "",
     "Adding a helper means adding it here first, then watching the three local",
     "implementations go red. `runtime_only` and `deprecated` are the two escape",
-    "hatches and both are checked, so neither can grow quietly."
+    "hatches and both are checked, so neither can grow quietly.",
+    "",
+    "`contract` supplies one shared input scenario for every canonical helper.",
+    "Each runtime adapts only its boundary-shaped arguments, converts the result",
+    "to a string, and compares it with the helper's `expected` value. Attribute",
+    "maps and tables are normalized through `open_span`; lists are JSON strings,",
+    "RGB tuples are comma-separated, and booleans use `true` or `false`."
   ],
+  "contract": {
+    "themes": {
+      "sample": {
+        "name": "helper-contract",
+        "appearance": "dark",
+        "revision": "fixture",
+        "highlights": {
+          "normal": { "fg": "#f8f8f2", "bg": "#282a36" },
+          "keyword": { "fg": "#ff79c6" }
+        }
+      }
+    },
+    "html": {
+      "escapeText": "&<>\"'",
+      "bracedText": "{value}",
+      "text": "a & b",
+      "scope": "keyword",
+      "linkedScope": "keyword.function",
+      "language": "rust",
+      "theme": "sample",
+      "themes": { "dark": "sample" },
+      "themeName": "Catppuccin Mocha!",
+      "preClass": "sample",
+      "line": {
+        "number": 2,
+        "content": "content\n",
+        "class": "highlighted",
+        "style": "background-color: #fffbdd;"
+      },
+      "lines": [1, [3, 5]],
+      "selectedLine": 4,
+      "highlightClass": "selected",
+      "defaultHighlightClass": "fallback",
+      "source": "a\nb",
+      "events": [
+        { "type": "start", "scope": "keyword", "language": "rust" },
+        { "type": "source", "start": 0, "end": 3 },
+        { "type": "end" }
+      ],
+      "lineEndingCases": [
+        { "source": "", "expected": [""] },
+        { "source": "a", "expected": ["a"] },
+        { "source": "a\n", "expected": ["a\n", ""] },
+        { "source": "a\nb", "expected": ["a\n", "b"] },
+        { "source": "a\r\nb", "expected": ["a\r\n", "b"] },
+        { "source": "a\rb", "expected": ["a\rb"] }
+      ]
+    },
+    "style": {
+      "fg": "#ff79c6",
+      "bg": "#282a36",
+      "bold": true,
+      "italic": true,
+      "underline": "wavy",
+      "strikethrough": true
+    },
+    "ansi": {
+      "hex": "#ff79c6",
+      "rgb": [255, 121, 198],
+      "background": false,
+      "text": "a\nb"
+    }
+  },
   "modules": {
     "html": {
       "$comment": [
@@ -29,30 +98,69 @@
         "`@lumis-sh/lumis/formatters/html`, and `Lumis.Formatter.HTML`."
       ],
       "helpers": [
-        { "name": "escape" },
-        { "name": "escape_attr" },
-        { "name": "escape_braces" },
-        { "name": "scope_to_class" },
-        { "name": "style_to_css", "spelling": { "rust": "themes::Style::css" } },
-        { "name": "text_decoration" },
-        { "name": "sanitize_theme_name" },
-        { "name": "open_span", "spelling": { "javascript": "openSpanTag" } },
-        { "name": "span_inline_attrs" },
-        { "name": "span_inline" },
-        { "name": "span_linked_attrs" },
-        { "name": "span_linked" },
-        { "name": "span_multi_themes_attrs" },
-        { "name": "span_multi_themes" },
-        { "name": "open_pre_tag" },
-        { "name": "open_multi_themes_pre_tag" },
-        { "name": "open_code_tag" },
-        { "name": "close_pre_tag" },
-        { "name": "close_code_tag" },
-        { "name": "closing_tags" },
-        { "name": "wrap_line" },
-        { "name": "line_is_highlighted" },
-        { "name": "highlight_line_class", "spelling": { "javascript": "getHighlightLineClass" } },
-        { "name": "render_lines_from_events" }
+        { "name": "escape", "expected": "&amp;&lt;&gt;&quot;&#39;" },
+        { "name": "escape_attr", "expected": "&amp;&lt;&gt;&quot;&#39;" },
+        { "name": "escape_braces", "expected": "&lbrace;value&rbrace;" },
+        { "name": "scope_to_class", "expected": "l-keyword-function" },
+        {
+          "name": "style_to_css",
+          "spelling": { "rust": "themes::Style::css" },
+          "expected": "color: #ff79c6; background-color: #282a36; font-weight: bold; font-style: italic; text-decoration: underline wavy line-through;"
+        },
+        { "name": "text_decoration", "expected": "underline wavy line-through" },
+        { "name": "sanitize_theme_name", "expected": "Catppuccin-Mocha-" },
+        {
+          "name": "open_span",
+          "spelling": { "javascript": "openSpanTag" },
+          "expected": "<span class=\"l-keyword\">"
+        },
+        { "name": "span_inline_attrs", "expected": "<span style=\"color: #ff79c6;\">" },
+        {
+          "name": "span_inline",
+          "expected": "<span style=\"color: #ff79c6;\">a &amp; b</span>"
+        },
+        { "name": "span_linked_attrs", "expected": "class=\"l-keyword-function\"" },
+        {
+          "name": "span_linked",
+          "expected": "<span class=\"l-keyword-function\">a &amp; b</span>"
+        },
+        {
+          "name": "span_multi_themes_attrs",
+          "expected": "<span style=\"--lumis-dark:#ff79c6; --lumis-dark-font-style:normal; --lumis-dark-font-weight:normal; --lumis-dark-text-decoration:none;\">"
+        },
+        {
+          "name": "span_multi_themes",
+          "expected": "<span style=\"--lumis-dark:#ff79c6; --lumis-dark-font-style:normal; --lumis-dark-font-weight:normal; --lumis-dark-text-decoration:none;\">a &amp; b</span>"
+        },
+        {
+          "name": "open_pre_tag",
+          "expected": "<pre class=\"lumis sample\" style=\"color: #f8f8f2; background-color: #282a36;\">"
+        },
+        {
+          "name": "open_multi_themes_pre_tag",
+          "expected": "<pre class=\"lumis lumis-themes sample dark\" style=\"--lumis-dark:#f8f8f2; --lumis-dark-bg:#282a36;\">"
+        },
+        {
+          "name": "open_code_tag",
+          "expected": "<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"
+        },
+        { "name": "close_pre_tag", "expected": "</pre>" },
+        { "name": "close_code_tag", "expected": "</code>" },
+        { "name": "closing_tags", "expected": "</code></pre>" },
+        {
+          "name": "wrap_line",
+          "expected": "<div class=\"l-line highlighted\" style=\"background-color: #fffbdd;\" data-line=\"2\">content\n</div>"
+        },
+        { "name": "line_is_highlighted", "expected": "true" },
+        {
+          "name": "highlight_line_class",
+          "spelling": { "javascript": "getHighlightLineClass" },
+          "expected": "selected"
+        },
+        {
+          "name": "render_lines_from_events",
+          "expected": "[\"<span class=\\\"l-keyword\\\">a</span>\\n\",\"<span class=\\\"l-keyword\\\">b</span>\"]"
+        }
       ]
     },
     "ansi": {
@@ -61,13 +169,20 @@
         "`@lumis-sh/lumis/formatters/ansi`, and `Lumis.Formatter.ANSI`."
       ],
       "helpers": [
-        { "name": "hex_to_rgb" },
-        { "name": "rgb_to_ansi" },
-        { "name": "style_to_ansi" },
-        { "name": "paint" },
+        { "name": "hex_to_rgb", "expected": "255,121,198" },
+        { "name": "rgb_to_ansi", "expected": "\u001b[38;2;255;121;198m" },
+        {
+          "name": "style_to_ansi",
+          "expected": "\u001b[38;2;255;121;198m\u001b[48;2;40;42;54m\u001b[1m\u001b[3m\u001b[4:3m\u001b[9m"
+        },
+        {
+          "name": "paint",
+          "expected": "\u001b[0m\u001b[38;2;255;121;198m\u001b[48;2;40;42;54m\u001b[1m\u001b[3m\u001b[4:3m\u001b[9ma\u001b[0m\n\u001b[38;2;255;121;198m\u001b[48;2;40;42;54m\u001b[1m\u001b[3m\u001b[4:3m\u001b[9mb\u001b[0m"
+        },
         {
           "name": "reset",
-          "spelling": { "rust": "ANSI_RESET", "javascript": "ANSI_RESET" }
+          "spelling": { "rust": "ANSI_RESET", "javascript": "ANSI_RESET" },
+          "expected": "\u001b[0m"
         }
       ]
     }

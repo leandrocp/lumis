@@ -791,7 +791,8 @@ pub fn open_span(attrs: &str) -> String {
 
 /// Render highlight events into HTML lines, reopening active spans at line boundaries.
 ///
-/// The returned lines carry no `\n`; [`wrap_line`] is where one is added back.
+/// Each line carries the exact `\n` or `\r\n` that ended it in `source`, after
+/// any closing span tags. An unterminated final line has no terminator.
 pub fn render_lines_from_events<T, F>(
     source: &str,
     events: &[HighlightEvent<'_, T>],
@@ -808,7 +809,10 @@ where
         source,
         |fragment| match fragment {
             LineFragment::Open(_) => {}
-            LineFragment::Close => lines.push(std::mem::take(&mut line)),
+            LineFragment::Close(ending) => {
+                line.push_str(ending);
+                lines.push(std::mem::take(&mut line));
+            }
             LineFragment::Text(text) => line.push_str(&escape(text)),
             LineFragment::SpanOpen(scope_index, language) => {
                 line.push_str(&open_span(&span_attrs(scope_index, language)));
@@ -824,8 +828,8 @@ where
 pub(crate) enum LineFragment<'a> {
     /// A line begins.
     Open(Decoration),
-    /// The current line ends, newline included when the source had one.
-    Close,
+    /// The current line ends with the source terminator, when it had one.
+    Close(&'a str),
     /// Unescaped source text, never spanning a line boundary.
     Text(&'a str),
     /// A syntax scope begins.
@@ -836,11 +840,11 @@ pub(crate) enum LineFragment<'a> {
 
 /// Walk a line-decorated stream, handing each step to `on_fragment`.
 ///
-/// The trailing newline of a line is stripped from its
-/// [`Text`](LineFragment::Text) — a formatter emits its own line terminator, and
-/// the last line of a source that does not end in one would otherwise be the
-/// only line without it. Caller annotations are skipped, which is what a
-/// built-in formatter does with data it has never seen.
+/// A source line's `\n` or `\r\n` is held until
+/// [`Close`](LineFragment::Close), after all syntax spans have closed. This
+/// keeps the terminator outside syntax markup while preserving the source
+/// exactly. Caller annotations are skipped, which is what a built-in formatter
+/// does with data it has never seen.
 pub(crate) fn write_line_events<'a, T, F>(
     events: &'a [HighlightEvent<'_, T>],
     source: &'a str,
@@ -848,12 +852,15 @@ pub(crate) fn write_line_events<'a, T, F>(
 ) where
     F: FnMut(LineFragment<'a>),
 {
+    let mut ending = "";
+
     for event in events {
         match event {
             HighlightEvent::DecorationStart { decoration } => {
+                ending = "";
                 on_fragment(LineFragment::Open(*decoration));
             }
-            HighlightEvent::DecorationEnd => on_fragment(LineFragment::Close),
+            HighlightEvent::DecorationEnd => on_fragment(LineFragment::Close(ending)),
             HighlightEvent::Start {
                 scope_index,
                 language,
@@ -861,10 +868,23 @@ pub(crate) fn write_line_events<'a, T, F>(
             HighlightEvent::End => on_fragment(LineFragment::SpanClose),
             HighlightEvent::Source { start, end } => {
                 let text = source_slice(source, *start, *end);
-                on_fragment(LineFragment::Text(text.strip_suffix('\n').unwrap_or(text)));
+                let (text, source_ending) = split_line_ending(text);
+                ending = source_ending;
+                on_fragment(LineFragment::Text(text));
             }
             HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
         }
+    }
+}
+
+fn split_line_ending(text: &str) -> (&str, &str) {
+    let Some(content) = text.strip_suffix('\n') else {
+        return (text, "");
+    };
+
+    match content.strip_suffix('\r') {
+        Some(content) => (content, "\r\n"),
+        None => (content, "\n"),
     }
 }
 
@@ -885,6 +905,9 @@ pub(crate) struct HtmlLines<'a> {
 
 /// Write a line-decorated stream as the `<div class="l-line">` blocks every
 /// built-in HTML formatter emits.
+///
+/// [`write_line_events`] supplies the source terminator with each closing line,
+/// and this writer places it immediately before `</div>` without inventing one.
 ///
 /// Nothing here is recomputed per line. The two line tags are assembled once,
 /// and a scope's attributes are resolved the first time it is seen rather than
@@ -926,9 +949,9 @@ pub(crate) fn write_html_lines<T>(
                 };
                 tag.write(output, number)
             }
-            // Every line ends with a newline, including the last one when the
-            // source did not have one.
-            LineFragment::Close => output.write_all(b"\n</div>"),
+            LineFragment::Close(ending) => output
+                .write_all(ending.as_bytes())
+                .and_then(|()| output.write_all(b"</div>")),
             LineFragment::Text(text) => write_escaped(output, text),
             LineFragment::SpanOpen(scope_index, language) => {
                 let attrs = attrs
@@ -1151,23 +1174,59 @@ mod tests {
     /// so both have to agree about where a line ends.
     #[test]
     fn render_lines_from_events_and_the_html_pass_split_alike() {
-        let source = "one\ntwo\n";
-        let events = [HighlightEvent::<()>::Source {
-            start: 0,
-            end: source.len(),
-        }];
+        for source in ["", "one", "one\n", "one\ntwo", "one\r\ntwo", "one\rtwo"] {
+            let events = [HighlightEvent::<()>::Source {
+                start: 0,
+                end: source.len(),
+            }];
 
-        let lines = render_lines_from_events(source, &events, |_, _| String::new());
-        let html = html_lines(source, &events, &LineSelection::default(), None, None);
+            let lines = render_lines_from_events(source, &events, |_, _| String::new());
+            let html = html_lines(source, &events, &LineSelection::default(), None, None);
 
-        assert_eq!(lines, ["one", "two", ""]);
+            assert_str_eq!(
+                html,
+                lines
+                    .iter()
+                    .enumerate()
+                    .map(|(index, line)| wrap_line(index + 1, line, None, None))
+                    .collect::<String>()
+            );
+        }
+    }
+
+    #[test]
+    fn html_lines_write_source_endings_after_the_syntax_spans() {
+        let source = "a\r\nb";
+        let events = [
+            HighlightEvent::<()>::Start {
+                scope_index: 0,
+                language: "text".to_string(),
+            },
+            HighlightEvent::Source {
+                start: 0,
+                end: source.len(),
+            },
+            HighlightEvent::End,
+        ];
+        let mut html = Vec::new();
+
+        write_html_lines(
+            &mut html,
+            source,
+            &events,
+            &HtmlLines {
+                selection: &LineSelection::default(),
+                numbers: None,
+                highlighted_class: None,
+                highlighted_style: None,
+            },
+            &|_, _| "class=\"scope\"".to_string(),
+        )
+        .unwrap();
+
         assert_str_eq!(
-            html,
-            lines
-                .iter()
-                .enumerate()
-                .map(|(index, line)| wrap_line(index + 1, &format!("{line}\n"), None, None))
-                .collect::<String>()
+            String::from_utf8(html).unwrap(),
+            "<div class=\"l-line\" data-line=\"1\"><span class=\"scope\">a</span>\r\n</div><div class=\"l-line\" data-line=\"2\"><span class=\"scope\">b</span></div>"
         );
     }
 
@@ -1198,7 +1257,9 @@ mod tests {
                 "\n</div>",
                 r#"<div class="l-line l-highlighted" data-line="43">"#,
                 r#"<span class="l-line-number" aria-hidden="true">43</span>two"#,
-                "\n</div>",
+                // The last line is unterminated in the source, so it carries no
+                // terminator here either.
+                "</div>",
             )
         );
     }
@@ -1211,7 +1272,7 @@ mod tests {
 
         let html = html_lines("a", &events, &LineSelection::default(), None, None);
 
-        assert_str_eq!(html, "<div class=\"l-line\" data-line=\"1\">a\n</div>");
+        assert_str_eq!(html, "<div class=\"l-line\" data-line=\"1\">a</div>");
     }
 
     #[test]

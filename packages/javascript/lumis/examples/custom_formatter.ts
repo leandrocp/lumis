@@ -21,9 +21,10 @@ class InteractiveDocsFormatter implements Formatter {
     const lines = [""];
 
     highlightIter(source, this.language, dracula, (text, language, range, scope, style) => {
-      const parts = text.split("\n");
-      for (let i = 0; i < parts.length; i += 1) {
-        const part = parts[i] ?? "";
+      const fragments = text.split(/(\r?\n)/);
+      for (let i = 0; i < fragments.length; i += 2) {
+        const part = fragments[i] ?? "";
+        const ending = fragments[i + 1] ?? "";
         if (part.length > 0) {
           const escaped = escape(part);
           if (scope) {
@@ -43,7 +44,8 @@ class InteractiveDocsFormatter implements Formatter {
             lines[lines.length - 1] += escaped;
           }
         }
-        if (i < parts.length - 1) lines.push("");
+        lines[lines.length - 1] += ending;
+        if (ending) lines.push("");
       }
     });
 

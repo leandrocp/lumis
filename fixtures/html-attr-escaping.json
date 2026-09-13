@@ -17,11 +17,7 @@
     "  preTag           `<pre>` from `preClass` and `theme`",
     "  spanInline       `<span>` from `text`, `scope`, `theme`, `includeHighlights`",
     "  spanMultiThemes  `<span>` from `text`, `scope`, `themes`, `defaultTheme`",
-    "  line             the opening `<div>` of a line from `lineClass` and `lineStyle`",
-    "",
-    "`line` is the one case checked as a prefix rather than in full: Rust's",
-    "`wrap_line` takes the trailing newline in `content` and the TypeScript",
-    "`wrapLine` appends it, so the two agree on the tag but not on what follows it.",
+    "  line             a `<div>` line from `lineClass` and `lineStyle`",
     "",
     "`theme` and the values of `themes` name an entry in `themes` below rather",
     "than repeating it, so a colour is written once.",
@@ -164,32 +160,32 @@
     {
       "name": "line/plain",
       "helper": "line",
-      "expected": "<div class=\"l-line\" data-line=\"1\">"
+      "expected": "<div class=\"l-line\" data-line=\"1\"></div>"
     },
     {
       "name": "line/ordinary-class-and-style-are-unchanged",
       "helper": "line",
       "lineClass": "highlighted",
       "lineStyle": "background-color: #fffbdd;",
-      "expected": "<div class=\"l-line highlighted\" style=\"background-color: #fffbdd;\" data-line=\"1\">"
+      "expected": "<div class=\"l-line highlighted\" style=\"background-color: #fffbdd;\" data-line=\"1\"></div>"
     },
     {
       "name": "line/caller-class-closes-the-attribute",
       "helper": "line",
       "lineClass": "x\"><script>",
-      "expected": "<div class=\"l-line x&quot;&gt;&lt;script&gt;\" data-line=\"1\">"
+      "expected": "<div class=\"l-line x&quot;&gt;&lt;script&gt;\" data-line=\"1\"></div>"
     },
     {
       "name": "line/caller-style-closes-the-attribute",
       "helper": "line",
       "lineStyle": "color: red\" onmouseover=\"alert(1)",
-      "expected": "<div class=\"l-line\" style=\"color: red&quot; onmouseover=&quot;alert(1)\" data-line=\"1\">"
+      "expected": "<div class=\"l-line\" style=\"color: red&quot; onmouseover=&quot;alert(1)\" data-line=\"1\"></div>"
     },
     {
       "name": "line/quoted-font-family-survives",
       "helper": "line",
       "lineStyle": "font-family: 'Fira Code';",
-      "expected": "<div class=\"l-line\" style=\"font-family: &#39;Fira Code&#39;;\" data-line=\"1\">"
+      "expected": "<div class=\"l-line\" style=\"font-family: &#39;Fira Code&#39;;\" data-line=\"1\"></div>"
     }
   ]
 }

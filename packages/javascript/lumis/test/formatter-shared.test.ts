@@ -10,6 +10,7 @@ import {
   escapeAttr,
   escapeBraces,
   escapeFragment,
+  formatHtmlLines,
   formatHighlightIterLines,
   getScopedThemeStyle,
   getThemeStyle,
@@ -155,7 +156,7 @@ describe("formatter shared helpers", () => {
 
   it("wraps lines with optional class and style", () => {
     expect(wrapLine(2, "code", { className: "highlighted", style: "color: red;" })).toBe(
-      '<div class="l-line highlighted" style="color: red;" data-line="2">code\n</div>',
+      '<div class="l-line highlighted" style="color: red;" data-line="2">code</div>',
     );
   });
 
@@ -180,7 +181,7 @@ describe("formatter shared helpers", () => {
 
     expect(language).toBe("json");
     expect(lines).toEqual([
-      '<span data-scope="string">a</span>',
+      '<span data-scope="string">a</span>\n',
       '<span data-scope="number">b</span>',
     ]);
   });
@@ -201,9 +202,32 @@ describe("formatter shared helpers", () => {
     );
 
     expect(lines).toEqual([
-      '<span data-scope="string">ab</span>',
+      '<span data-scope="string">ab</span>\n',
       '<span data-scope="string">cd</span>',
     ]);
+  });
+
+  it("writes source endings after syntax spans in built-in HTML lines", () => {
+    expect(
+      formatHtmlLines(
+        "a\r\nb",
+        [
+          { type: "start", scope: "string", language: "json" },
+          { type: "source", start: 0, end: 4 },
+          { type: "end" },
+        ],
+        {
+          language: jsonLang,
+          theme: undefined,
+          lines: undefined,
+          highlightedAttrs: {},
+          openSpan: () => '<span class="scope">',
+        },
+      ),
+    ).toBe(
+      '<div class="l-line" data-line="1"><span class="scope">a</span>\r\n</div>' +
+        '<div class="l-line" data-line="2"><span class="scope">b</span></div>',
+    );
   });
 
   it("keeps a deliberately omitted custom span balanced", () => {
@@ -219,7 +243,7 @@ describe("formatter shared helpers", () => {
       { openSpan: () => "" },
     );
 
-    expect(lines).toEqual(["a", "b"]);
+    expect(lines).toEqual(["a\n", "b"]);
   });
 
   it("escapes braces only through the framework helper", () => {
@@ -239,7 +263,7 @@ describe("formatter shared helpers", () => {
       (scope) => `class="${scope}"`,
     );
 
-    expect(lines).toEqual(['<span class="string">a</span>', '<span class="string">b</span>']);
+    expect(lines).toEqual(['<span class="string">a</span>\n', '<span class="string">b</span>']);
   });
 
   it("shrinks source ranges that split a UTF-8 character", () => {
@@ -279,7 +303,7 @@ describe("formatter shared helpers", () => {
       () => "",
     );
 
-    expect(lines).toEqual(["<span>a</span>", "<span>b</span>"]);
+    expect(lines).toEqual(["<span>a</span>\n", "<span>b</span>"]);
   });
 
   it("opens a bare span in renderEvents when the callback writes nothing", () => {

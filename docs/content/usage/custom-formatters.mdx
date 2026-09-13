@@ -228,9 +228,7 @@ defmodule MultiThemeFormatter do
       source
       |> HTML.render_lines_from_events(events, attrs)
       |> Enum.with_index(1)
-      # A rendered line carries no trailing newline. The built-in formatters put
-      # one inside the <div> so the block still copies as lines.
-      |> Enum.map(fn {line, number} -> HTML.wrap_line(number, [line, "\n"]) end)
+      |> Enum.map(fn {line, number} -> HTML.wrap_line(number, line) end)
 
     [
       HTML.open_multi_themes_pre_tag(themes: @themes, default_theme: "light-dark()"),
@@ -408,6 +406,10 @@ JavaScript — and so do argument shapes.
 | Open and close the block | `open_pre_tag`, `open_multi_themes_pre_tag`, `open_code_tag`, `close_pre_tag`, `close_code_tag`, `closing_tags` |
 | Wrap a line, and decide whether it is highlighted | `wrap_line`, `line_is_highlighted`, `highlight_line_class` |
 | Turn the whole event stream into lines, reopening spans across newlines | `render_lines_from_events` |
+
+Rendered lines carry their exact source `\n` or `\r\n`, after any closing
+syntax spans. The unterminated final line carries none, so pass each result to
+`wrap_line` directly in every runtime.
 
 ### ANSI
 

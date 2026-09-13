@@ -500,6 +500,24 @@ defmodule Lumis.Formatter.HTMLTest do
   end
 
   describe "render_lines_from_events/3" do
+    test "built-in HTML preserves each source line ending" do
+      prefix =
+        ~s|<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0">|
+
+      suffix = "</code></pre>"
+
+      for {source, lines} <- [
+            {"", ~s|<div class="l-line" data-line="1"></div>|},
+            {"a", ~s|<div class="l-line" data-line="1">a</div>|},
+            {"a\n",
+             ~s|<div class="l-line" data-line="1">a\n</div><div class="l-line" data-line="2"></div>|},
+            {"a\r\nb",
+             ~s|<div class="l-line" data-line="1">a\r\n</div><div class="l-line" data-line="2">b</div>|}
+          ] do
+        assert html_linked(source, "plaintext") == prefix <> lines <> suffix
+      end
+    end
+
     test "renders the lines html_linked wraps, for every source" do
       linked_attrs =
         Map.new(HTML.classes(), fn {scope, _class} -> {scope, HTML.span_linked_attrs(scope)} end)
@@ -509,7 +527,7 @@ defmodule Lumis.Formatter.HTMLTest do
           source
           |> html_linked(language)
           |> then(&Regex.scan(~r|<div class="l-line" data-line="\d+">(.*?)</div>|s, &1))
-          |> Enum.map(fn [_, content] -> String.trim_trailing(content, "\n") end)
+          |> Enum.map(fn [_, content] -> content end)
 
         actual =
           HTML.render_lines_from_events(source, events(source, language), linked_attrs)
@@ -527,7 +545,7 @@ defmodule Lumis.Formatter.HTMLTest do
       ]
 
       assert HTML.render_lines_from_events("a\nb", events, %{"keyword" => ~s|class="l-keyword"|}) ==
-               [~s|<span class="l-keyword">a</span>|, ~s|<span class="l-keyword">b</span>|]
+               [~s|<span class="l-keyword">a</span>\n|, ~s|<span class="l-keyword">b</span>|]
     end
 
     test "a scope the table does not carry opens a bare span" do
@@ -600,7 +618,7 @@ defmodule Lumis.Formatter.HTMLTest do
         source
         |> HTML.render_lines_from_events(events, attrs)
         |> Enum.with_index(1)
-        |> Enum.map(fn {line, number} -> HTML.wrap_line(number, [line, "\n"]) end)
+        |> Enum.map(fn {line, number} -> HTML.wrap_line(number, line) end)
 
       [
         HTML.open_multi_themes_pre_tag(themes: @themes, default_theme: default_theme),
