@@ -1,0 +1,195 @@
+---
+sidebar_position: 5
+slug: /recipes/line-numbers
+title: Line Numbers
+description: Number the lines Lumis renders, in HTML and in the terminal, and start the numbering anywhere.
+keywords:
+  - lumis line numbers
+  - line number gutter
+  - start line
+  - html inline
+  - terminal
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Line Numbers
+
+`line_numbers` numbers the lines a formatter renders. The three HTML formatters
+and `terminal` take it; `bbcode_scoped` has nothing to render a number into and
+does not.
+
+<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
+  <TabItem value="javascript" label="JavaScript">
+
+```js
+import {highlight} from '@lumis-sh/lumis';
+import {htmlInline} from '@lumis-sh/lumis/formatters';
+import javascript from '@lumis-sh/lumis/langs/javascript';
+import frappe from '@lumis-sh/themes/catppuccin_frappe';
+
+const html = await highlight(
+  'line 1\nline 2\nline 3',
+  htmlInline({language: javascript, theme: frappe, lineNumbers: {}})
+);
+```
+
+  </TabItem>
+  <TabItem value="rust" label="Rust">
+
+```rust
+use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::formatters::LineNumbers;
+
+let formatter = HtmlInlineBuilder::new()
+    .language(Language::PlainText)
+    .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+    .line_numbers(Some(LineNumbers::default()))
+    .build()
+    .unwrap();
+
+let html = highlight("line 1\nline 2\nline 3", formatter);
+```
+
+  </TabItem>
+  <TabItem value="elixir" label="Elixir">
+
+```elixir
+Lumis.highlight!(
+  "line 1\nline 2\nline 3",
+  formatter: {:html_inline, language: "plaintext", theme: "catppuccin_frappe", line_numbers: %{}}
+)
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+Line numbers are not currently exposed by `lumis4j`.
+
+  </TabItem>
+  <TabItem value="cli" label="CLI">
+
+```bash
+lumis highlight main.rs --formatter html-inline --line-numbers
+```
+
+  </TabItem>
+</Tabs>
+
+## Starting somewhere other than line 1
+
+Rendering a fragment of a file wants the numbers it has *in that file*. `start`
+gives them:
+
+<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
+  <TabItem value="javascript" label="JavaScript">
+
+```js
+htmlInline({language: javascript, lineNumbers: {start: 42}})
+```
+
+  </TabItem>
+  <TabItem value="rust" label="Rust">
+
+```rust
+use lumis::formatters::LineNumbers;
+
+let line_numbers = LineNumbers { start: 42 };
+```
+
+  </TabItem>
+  <TabItem value="elixir" label="Elixir">
+
+```elixir
+{:html_inline, language: "elixir", line_numbers: %{start: 42}}
+```
+
+  </TabItem>
+  <TabItem value="cli" label="CLI">
+
+```bash
+lumis highlight fragment.rs -f html-inline --line-numbers --line-numbers-start 42
+```
+
+  </TabItem>
+</Tabs>
+
+**A line has one number.** `start` renumbers the whole render, so `data-line`,
+the gutter and `highlight_lines` all name the same thing. A fragment starting at
+42 highlights its second line by asking for 43, not 2:
+
+```js
+htmlLinked({
+  language: javascript,
+  lineNumbers: {start: 42},
+  highlightLines: {lines: [43]},
+})
+```
+
+## What each formatter renders
+
+| Formatter | Gutter |
+| --- | --- |
+| HTML Inline | `<span class="l-line-number">` inside the line's `<div>` |
+| HTML Linked | the same |
+| HTML Multi-Themes | the same |
+| Terminal | the number, right-aligned to the widest one and followed by a space |
+| BBCode Scoped | not available |
+
+### HTML
+
+The gutter is the first child of the line, inside `<code>`:
+
+```html
+<div class="l-line" data-line="42">
+  <span class="l-line-number" aria-hidden="true">42</span>
+  <span style="color: #ca9ee6;">fn</span>
+</div>
+```
+
+It is a real element rather than `content: attr(data-line)` so the number is in
+the document a reader can inspect, and `aria-hidden` so a screen reader is not
+read a number before every line. Lumis ships no stylesheet for it — give it a
+column, and keep it out of a copied selection:
+
+```css
+.l-line-number {
+  display: inline-block;
+  width: 3ch;
+  margin-right: 1ch;
+  text-align: right;
+  opacity: 0.5;
+  user-select: none;
+}
+```
+
+Without `line_numbers`, nothing is added: `data-line` is on every line as it
+always has been, and the CSS-only approach still works.
+
+```css
+.l-line::before { content: attr(data-line); }
+```
+
+### Terminal
+
+The number is padded to the widest one the render will show, so the code stays
+aligned past line 9, and it is dimmed with the theme's `comment` colour — no
+theme scope names a gutter, and `comment` is the one scope every theme styles as
+text meant to recede. A highlighted line's gutter takes that line's background.
+
+The number is written with the line's text, so the empty line a trailing newline
+opens carries none: a terminal writes nothing for that line, and a bare number
+after the output would be all you saw of it. HTML numbers it, because HTML emits
+a `<div>` for it.
+
+```sh
+lumis highlight -f terminal -t catppuccin_frappe -n main.rs
+lumis highlight -f terminal -n --line-numbers-start 42 fragment.rs
+```
+
+```text
+ 8 fn main() {
+ 9     println!("hello");
+10 }
+```

@@ -4,6 +4,7 @@ import type {
   HighlightSpan,
   HighlightEvent,
   HtmlElement,
+  LineNumbers,
   LineSpec,
   LanguageRef,
   SyntaxHighlightEvent,
@@ -966,6 +967,24 @@ export function wrapLine(
 }
 
 /**
+ * The class the gutter element carries, for a stylesheet to hang a column off.
+ *
+ * The number is written out rather than left to `content: attr(data-line)`
+ * because a formatter that cannot reach a stylesheet — `terminal` — has to show
+ * the same thing, and because generated content is not in the document a reader
+ * can inspect. It is `aria-hidden`, so a screen reader is not read a number
+ * before every line.
+ *
+ * Private for the same reason `l-line` is: it is a class the built-in formatters
+ * write, not a helper a custom one is built from.
+ */
+const LINE_NUMBER_CLASS = "l-line-number";
+
+function lineNumberGutter(lineNumber: number): string {
+  return `<span class="${LINE_NUMBER_CLASS}" aria-hidden="true">${lineNumber}</span>`;
+}
+
+/**
  * Check if a line number is in a list of highlighted lines.
  *
  * ```ts
@@ -1204,12 +1223,19 @@ export function formatHtmlLines(
     language: LanguageRef | undefined;
     theme: Theme | undefined;
     lines: readonly LineSpec[] | undefined;
+    lineNumbers: LineNumbers | undefined;
     highlightedAttrs: { className?: string; style?: string };
     openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
   },
 ): string {
   const sourceBytes = encodeSource(source);
-  const composed = composeLineDecorations(sourceBytes, events, new LineSelection(formatter.lines));
+  const numbered = formatter.lineNumbers !== undefined;
+  const composed = composeLineDecorations(
+    sourceBytes,
+    events,
+    new LineSelection(formatter.lines),
+    formatter.lineNumbers?.start ?? 1,
+  );
   const parts: string[] = [];
 
   renderDecoratedLines(
@@ -1222,7 +1248,7 @@ export function formatHtmlLines(
       parts.push(
         wrapLine(
           decoration.number,
-          content,
+          numbered ? `${lineNumberGutter(decoration.number)}${content}` : content,
           decoration.highlighted ? formatter.highlightedAttrs : {},
         ),
       );

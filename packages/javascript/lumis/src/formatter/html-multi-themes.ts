@@ -62,6 +62,7 @@ export function formatHtmlMultiThemes(
     language: formatter.language,
     theme: formatter.defaultTheme ? formatter.themes[formatter.defaultTheme] : undefined,
     lines: formatter.highlightLines?.lines,
+    lineNumbers: formatter.lineNumbers,
     highlightedAttrs: {
       className: formatter.highlightLines?.class,
       style: highlightLineStyle(formatter),

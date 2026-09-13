@@ -555,7 +555,7 @@ checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 
 [[package]]
 name = "lumis"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "anyhow",
  "cc",
@@ -613,7 +613,7 @@ version = "1.1.0"
 
 [[package]]
 name = "lumis-core"
-version = "2.4.0"
+version = "2.5.0"
 dependencies = [
  "derive_builder",
  "glob",
@@ -631,7 +631,7 @@ dependencies = [
 
 [[package]]
 name = "lumis-wasm-runtime"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "etcetera",
  "lumis-core",
@@ -1416,9 +1416,9 @@ dependencies = [
 
 [[package]]
 name = "wasmparser"
-version = "0.257.1"
+version = "0.258.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d92fc335fb6d48f46bda1d8b26b69e28320c15ac3272208333833d6e217e2b4a"
+checksum = "d9a61719f93a87b16d325921e251800c4833f8fab50fa21c7de73aed50086313"
 dependencies = [
  "bitflags",
  "hashbrown",

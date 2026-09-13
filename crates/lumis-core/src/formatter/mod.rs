@@ -72,6 +72,46 @@ pub(crate) fn check_source_ranges<T>(
     Ok(())
 }
 
+/// Configuration for numbering the lines a formatter renders.
+///
+/// A line's number is the one thing every output format can show, so every
+/// formatter that can show it takes the same value. Asking for numbers also
+/// *renumbers* the render: the gutter, HTML's `data-line` and `highlight_lines`
+/// all name the same line, which is what lets a fragment of a file carry the
+/// numbers it has in that file.
+///
+/// ```rust
+/// use lumis_core::formatter::LineNumbers;
+///
+/// // The fragment starts at line 42 of the file it came from.
+/// let numbers = LineNumbers { start: 42 };
+/// assert_eq!(LineNumbers::default(), LineNumbers { start: 1 });
+/// # let _ = numbers;
+/// ```
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct LineNumbers {
+    /// The number the first rendered line carries. Below 1 is read as 1.
+    pub start: usize,
+}
+
+impl Default for LineNumbers {
+    fn default() -> Self {
+        Self { start: 1 }
+    }
+}
+
+impl LineNumbers {
+    /// The number the first line carries, with line 0 read as line 1.
+    pub(crate) fn first(self) -> usize {
+        self.start.max(1)
+    }
+}
+
+/// The number the first line of a render carries.
+pub(crate) fn first_line_number(numbers: Option<LineNumbers>) -> usize {
+    numbers.map_or(1, LineNumbers::first)
+}
+
 /// Configuration for wrapping the formatted output with custom HTML elements.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct HtmlElement {

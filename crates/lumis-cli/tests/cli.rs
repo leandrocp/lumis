@@ -946,6 +946,7 @@ fn highlight_source_html_inline_routes_parity_options() {
             "selected",
             "--highlight-lines-style",
             "none",
+            "--line-numbers",
         ])
         .write_stdin(DIFF_SNIPPET)
         .assert()
@@ -954,7 +955,7 @@ fn highlight_source_html_inline_routes_parity_options() {
             "<figure><pre class=\"lumis custom\"",
         ))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"1\"><span",
+            "<div class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number\" aria-hidden=\"true\">1</span>",
         ))
         .stdout(predicate::str::contains("data-highlight=\""))
         .stdout(predicate::str::contains("font-style: italic;"))
@@ -979,9 +980,12 @@ fn highlight_source_diff_html_linked() {
             "--header-close",
             "</figure>",
             "-H",
-            "1",
+            "3",
             "--highlight-lines-class",
             "selected",
+            "--line-numbers",
+            "--line-numbers-start",
+            "3",
         ])
         .write_stdin(DIFF_SNIPPET)
         .assert()
@@ -990,7 +994,7 @@ fn highlight_source_diff_html_linked() {
             "<figure><pre class=\"lumis custom\"",
         ))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"1\">",
+            "<div class=\"l-line selected\" data-line=\"3\"><span class=\"l-line-number\" aria-hidden=\"true\">3</span>",
         ))
         .stdout(predicate::str::ends_with("</code></pre></figure>"));
 }
@@ -1060,6 +1064,7 @@ fn highlight_source_diff_html_multi_themes_with_all_options() {
             "selected",
             "--highlight-lines-style",
             "none",
+            "--line-numbers",
         ])
         .write_stdin(DIFF_SNIPPET)
         .assert()
@@ -1069,7 +1074,7 @@ fn highlight_source_diff_html_multi_themes_with_all_options() {
         ))
         .stdout(predicate::str::contains("--demo-alt"))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"2\"><span",
+            "<div class=\"l-line selected\" data-line=\"2\"><span class=\"l-line-number\" aria-hidden=\"true\">2</span>",
         ))
         .stdout(predicate::str::contains("data-highlight=\""))
         .stdout(predicate::str::contains("font-style:"))
@@ -1692,6 +1697,8 @@ fn formatters_show_lists_only_what_the_formatter_accepts() {
         .stdout(predicate::str::contains("--theme"))
         .stdout(predicate::str::contains("--highlight-lines"))
         .stdout(predicate::str::contains("--highlight-lines-background"))
+        .stdout(predicate::str::contains("--line-numbers"))
+        .stdout(predicate::str::contains("--line-numbers-start"))
         .stdout(predicate::str::contains("--formatter").not())
         .stdout(predicate::str::contains("--pre-class").not())
         .stdout(predicate::str::contains("--highlight-lines-class").not())
@@ -1720,6 +1727,51 @@ fn terminal_paints_a_highlighted_line() {
         .assert()
         .success()
         .stdout(predicate::str::contains("\u{1b}[48;2;255;0;0m"));
+}
+
+/// The gutter is padded to the widest number the render will show, and starts
+/// where the caller asked so a fragment carries the numbers it has in its file.
+#[test]
+fn terminal_numbers_its_lines() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args([
+            "highlight",
+            "-f",
+            "terminal",
+            "-l",
+            "diff",
+            "--line-numbers",
+            "--line-numbers-start",
+            "99",
+        ])
+        .write_stdin(DIFF_SNIPPET)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(" 99 "))
+        .stdout(predicate::str::contains("100 "));
+}
+
+/// `bbcode_scoped` has nothing to render a number into, so the manifest does not
+/// give it the option and the CLI has to say so rather than ignore it.
+#[test]
+fn bbcode_rejects_line_numbers() {
+    cmd()
+        .args([
+            "highlight",
+            "-l",
+            "diff",
+            "-f",
+            "bbcode-scoped",
+            "--line-numbers",
+        ])
+        .write_stdin(DIFF_SNIPPET)
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "`--line-numbers` is not accepted by the `bbcode-scoped` formatter",
+        ));
 }
 
 #[test]

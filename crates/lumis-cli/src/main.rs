@@ -6,7 +6,8 @@ mod registry;
 use anyhow::Result;
 use clap::{ArgAction, CommandFactory, Parser, Subcommand, ValueEnum};
 use formatter_options::{
-    OPTSET_GLOBAL, OPTSET_HTML, OPTSET_MULTI_THEME, OPTSET_STYLED, OPTSET_TERMINAL,
+    OPTSET_GLOBAL, OPTSET_HTML, OPTSET_LINE_NUMBERS, OPTSET_MULTI_THEME, OPTSET_STYLED,
+    OPTSET_TERMINAL,
 };
 use lumis_core::events::HighlightEvent as CoreHighlightEvent;
 use lumis_core::formatter::ansi::hex_to_rgb;
@@ -128,7 +129,22 @@ struct HighlightArgs {
     styled: StyledArgs,
 
     #[command(flatten)]
+    line_numbers: LineNumberArgs,
+
+    #[command(flatten)]
     multi_theme: MultiThemeArgs,
+}
+
+#[derive(clap::Args)]
+#[command(next_help_heading = OPTSET_LINE_NUMBERS)]
+struct LineNumberArgs {
+    /// Render a line number gutter
+    #[arg(short = 'n', long)]
+    line_numbers: bool,
+
+    /// Number the first line as this, for a fragment of a larger file [default: 1]
+    #[arg(long, requires = "line_numbers")]
+    line_numbers_start: Option<usize>,
 }
 
 #[derive(clap::Args)]
@@ -246,6 +262,8 @@ impl HighlightArgs {
             "--themes" => !self.multi_theme.themes.is_empty(),
             "--default-theme" => self.multi_theme.default_theme.is_some(),
             "--css-variable-prefix" => self.multi_theme.css_variable_prefix.is_some(),
+            "--line-numbers" => self.line_numbers.line_numbers,
+            "--line-numbers-start" => self.line_numbers.line_numbers_start.is_some(),
             other => unreachable!("OPTION_GROUPS names an unknown flag `{other}`"),
         }
     }
@@ -1530,6 +1548,15 @@ fn terminal_highlight_lines(
     }))
 }
 
+/// The line numbering `--line-numbers` asks for, if it was passed.
+fn line_numbers(args: &HighlightArgs) -> Option<lumis_core::formatter::LineNumbers> {
+    args.line_numbers
+        .line_numbers
+        .then(|| lumis_core::formatter::LineNumbers {
+            start: args.line_numbers.line_numbers_start.unwrap_or(1),
+        })
+}
+
 fn bbcode_highlight_lines(
     args: &HighlightArgs,
 ) -> Result<Option<lumis_core::formatter::bbcode::HighlightLines>> {
@@ -1575,6 +1602,7 @@ fn render_html_multi_themes(
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<lumis_core::formatter::html_inline::HighlightLines>,
+    line_numbers: Option<lumis_core::formatter::LineNumbers>,
     header: Option<lumis_core::formatter::HtmlElement>,
     verbose: bool,
 ) -> Result<Vec<u8>> {
@@ -1613,6 +1641,7 @@ fn render_html_multi_themes(
         .italic(italic)
         .include_highlights(include_highlights)
         .highlight_lines(highlight_lines)
+        .line_numbers(line_numbers)
         .header(header);
 
     if let Some(default) = default_theme {
@@ -1659,6 +1688,7 @@ fn render_output(
     } = args;
 
     let highlight_lines = inline_highlight_lines(&args)?;
+    let line_numbers = line_numbers(&args);
     let header = header_element(&args);
 
     match chosen {
@@ -1673,6 +1703,7 @@ fn render_output(
                 .italic(italic)
                 .include_highlights(include_highlights)
                 .highlight_lines(highlight_lines)
+                .line_numbers(line_numbers)
                 .header(header);
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
@@ -1694,6 +1725,7 @@ fn render_output(
                 italic,
                 include_highlights,
                 highlight_lines,
+                line_numbers,
                 header,
                 verbose,
             )?;
@@ -1707,6 +1739,7 @@ fn render_output(
                 .language(lang)
                 .pre_class(pre_class.clone())
                 .highlight_lines(linked_highlight_lines(&args)?)
+                .line_numbers(line_numbers)
                 .header(header);
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
@@ -1724,7 +1757,8 @@ fn render_output(
                 .theme(theme_obj)
                 .background(parse_terminal_background(background.as_deref()))
                 .width(resolve_terminal_width(width.as_deref())?)
-                .highlight_lines(terminal_highlight_lines(&args)?);
+                .highlight_lines(terminal_highlight_lines(&args)?)
+                .line_numbers(line_numbers);
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();

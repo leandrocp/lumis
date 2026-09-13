@@ -22,3 +22,8 @@ defmodule Lumis.BBCodeHighlightLines do
   @moduledoc false
   defstruct lines: []
 end
+
+defmodule Lumis.LineNumbers do
+  @moduledoc false
+  defstruct start: 1
+end

@@ -2,7 +2,7 @@
 //!
 //! Works with pre-computed highlight events from any source.
 
-use super::{Formatter, HtmlElement};
+use super::{Formatter, HtmlElement, LineNumbers};
 use crate::decorations::{LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::formatter::html_inline::HighlightLines;
@@ -50,6 +50,7 @@ pub struct HtmlMultiThemes {
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
+    line_numbers: Option<LineNumbers>,
     header: Option<HtmlElement>,
 }
 
@@ -87,6 +88,7 @@ impl HtmlMultiThemesBuilder {
             include_highlights: self.include_highlights.take().unwrap_or(false),
             highlight_lines: self.highlight_lines.take().flatten(),
             stepped_highlight_lines: Vec::new(),
+            line_numbers: self.line_numbers.take().flatten(),
             header: self.header.take().flatten(),
         };
 
@@ -157,6 +159,7 @@ impl Default for HtmlMultiThemes {
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
+            line_numbers: None,
             header: None,
         }
     }
@@ -173,6 +176,7 @@ impl HtmlMultiThemes {
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
+        line_numbers: Option<LineNumbers>,
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
@@ -185,6 +189,7 @@ impl HtmlMultiThemes {
             include_highlights,
             highlight_lines,
             stepped_highlight_lines: Vec::new(),
+            line_numbers,
             header,
         }
     }
@@ -312,9 +317,13 @@ impl<T> Formatter<T> for HtmlMultiThemes {
             &mut buffer,
             source,
             events,
-            &self.line_selection(),
+            &crate::formatter::html::HtmlLines {
+                selection: &self.line_selection(),
+                numbers: self.line_numbers,
+                highlighted_class: class_suffix.as_deref(),
+                highlighted_style: style.as_deref(),
+            },
             &|scope_index, language| self.span_attrs_from_index(scope_index, language),
-            (class_suffix.as_deref(), style.as_deref()),
         )?;
 
         crate::formatter::html::closing_tags(&mut buffer)?;
@@ -371,6 +380,7 @@ mod tests {
             false,
             None,
             None,
+            None,
         );
         let mut output = Vec::new();
         let events: [HighlightEvent<'_, ()>; 0] = [];
@@ -423,6 +433,7 @@ mod tests {
                 style: Some(HighlightLinesStyle::Theme),
                 class: None,
             }),
+            None,
             None,
         );
         let mut output = Vec::new();

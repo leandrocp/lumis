@@ -8,12 +8,21 @@ import type {
 
 type NativeHtmlInlineOptions = Pick<
   HtmlInlineOptions,
-  "theme" | "preClass" | "italic" | "includeHighlights" | "highlightLines" | "header"
+  | "theme"
+  | "preClass"
+  | "italic"
+  | "includeHighlights"
+  | "highlightLines"
+  | "lineNumbers"
+  | "header"
 >;
-type NativeHtmlLinkedOptions = Pick<HtmlLinkedOptions, "preClass" | "highlightLines" | "header">;
+type NativeHtmlLinkedOptions = Pick<
+  HtmlLinkedOptions,
+  "preClass" | "highlightLines" | "lineNumbers" | "header"
+>;
 type NativeTerminalOptions = Pick<
   TerminalOptions,
-  "theme" | "background" | "width" | "highlightLines"
+  "theme" | "background" | "width" | "highlightLines" | "lineNumbers"
 >;
 type NativeBBCodeScopedOptions = Pick<BBCodeScopedOptions, "highlightLines">;
 

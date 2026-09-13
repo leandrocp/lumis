@@ -23,6 +23,8 @@ interface Case {
   events: SyntaxHighlightEvent[];
   annotations?: Array<{ start: number; end: number; data: string }>;
   highlightLines: LineSpec[];
+  /** The number the first line carries, as `lineNumbers.start` sets it. */
+  startLine?: number;
   expected: string;
 }
 
@@ -48,6 +50,7 @@ function compose(testCase: Case): HighlightEvent<string>[] {
     new TextEncoder().encode(testCase.source),
     composed,
     new LineSelection(testCase.highlightLines),
+    testCase.startLine ?? 1,
   );
 }
 
@@ -87,6 +90,8 @@ describe("line decoration composition parity", () => {
       "highlight/overlapping-ranges-merge",
       "highlight/range-beyond-the-document",
       "highlight/blank-line",
+      "start/renumbers-the-whole-render",
+      "start/highlight-lines-name-the-new-numbers",
     ]) {
       expect(names, `the corpus lost its \`${required}\` case`).toContain(required);
     }

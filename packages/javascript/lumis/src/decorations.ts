@@ -1,6 +1,30 @@
 import type { Decoration, HighlightEvent, LineSpec } from "./types.js";
 
 /**
+ * The number of the last line of a composed stream.
+ *
+ * A gutter is padded to the widest number it will show, and a formatter only
+ * knows that number once the lines are known. Composition numbered them
+ * already, so this reads the answer off the stream rather than counting the
+ * source a second time.
+ *
+ * The port of `last_line_number` in `crates/lumis-core/src/decorations.rs`.
+ */
+export function lastLineNumber<T>(events: readonly HighlightEvent<T>[]): number {
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index]!;
+    if (event.type === "decorationStart") return event.decoration.number;
+  }
+
+  return 1;
+}
+
+/** Digits in the widest number a gutter showing up to `last` has to fit. */
+export function gutterWidth(last: number): number {
+  return String(Math.max(1, Math.trunc(last))).length;
+}
+
+/**
  * The lines a formatter was asked to highlight, resolved once.
  *
  * Ranges are clamped, sorted and merged, so testing lines in ascending order
@@ -77,7 +101,10 @@ type OpenLayer =
  * assembling lines and wrapping them afterwards.
  *
  * The returned stream always holds at least one line: an empty document is one
- * empty line, the same line a caller sees numbered `1`.
+ * empty line, the line a caller sees numbered `firstNumber`.
+ *
+ * `firstNumber` renumbers the whole render, so `selection` names the numbers the
+ * lines end up with rather than their position in the document.
  *
  * The port of `compose_line_decorations` in
  * `crates/lumis-core/src/decorations.rs`; `test/decoration-composition.test.ts`
@@ -87,10 +114,11 @@ export function composeLineDecorations<T>(
   sourceBytes: Uint8Array,
   events: readonly HighlightEvent<T>[],
   selection: LineSelection,
+  firstNumber = 1,
 ): HighlightEvent<T>[] {
   const output: HighlightEvent<T>[] = [];
   const layers: OpenLayer[] = [];
-  let line = 1;
+  let line = Math.max(1, firstNumber);
 
   output.push(lineStart(line, selection));
 

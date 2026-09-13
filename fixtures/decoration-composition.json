@@ -1,5 +1,5 @@
 {
-  "$comment": "Expected event streams for line-decoration composition. Rust is the reference; crates/lumis-core/tests/decoration_composition.rs asserts it produces these, packages/javascript/lumis/test/decoration-composition.test.ts asserts the TypeScript port produces the same. Notation: L+N/L+N* opens a line decoration (starred when highlighted), L- closes it, S:scope / E a syntax scope, T:start-end a source range, A+data@start-end / A- a caller annotation.",
+  "$comment": "Expected event streams for line-decoration composition. Rust is the reference; crates/lumis-core/tests/decoration_composition.rs asserts it produces these, packages/javascript/lumis/test/decoration-composition.test.ts asserts the TypeScript port produces the same. Notation: L+N/L+N* opens a line decoration (starred when highlighted), L- closes it, S:scope / E a syntax scope, T:start-end a source range, A+data@start-end / A- a caller annotation. startLine is what `line_numbers.start` sets, and defaults to 1.",
   "cases": [
     {
       "name": "empty/no-events",
@@ -183,6 +183,30 @@
       "events": [{ "type": "source", "start": 0, "end": 3 }],
       "highlightLines": [[1, 1000000000]],
       "expected": "L+1* T:0-2 L- L+2* T:2-3 L-"
+    },
+    {
+      "name": "start/renumbers-the-whole-render",
+      "source": "a\nb\nc",
+      "events": [{ "type": "source", "start": 0, "end": 5 }],
+      "highlightLines": [],
+      "startLine": 42,
+      "expected": "L+42 T:0-2 L- L+43 T:2-4 L- L+44 T:4-5 L-"
+    },
+    {
+      "name": "start/highlight-lines-name-the-new-numbers",
+      "source": "a\nb\nc",
+      "events": [{ "type": "source", "start": 0, "end": 5 }],
+      "highlightLines": [43],
+      "startLine": 42,
+      "expected": "L+42 T:0-2 L- L+43* T:2-4 L- L+44 T:4-5 L-"
+    },
+    {
+      "name": "start/line-zero-is-line-one",
+      "source": "a\nb",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "highlightLines": [1],
+      "startLine": 0,
+      "expected": "L+1* T:0-2 L- L+2 T:2-3 L-"
     },
     {
       "name": "highlight/blank-line",

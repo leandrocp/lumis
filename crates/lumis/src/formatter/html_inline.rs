@@ -97,7 +97,8 @@ mod tests {
     #[test]
     fn test_no_attrs() {
         let code = "@lang :rust";
-        let formatter = HtmlInline::new(Language::Elixir, None, None, false, false, None, None);
+        let formatter =
+            HtmlInline::new(Language::Elixir, None, None, false, false, None, None, None);
         let result = crate::highlight(code, formatter);
         let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span><span>@<span><span>lang <span>:rust</span></span></span></span></span>
 </div></code></pre>"#;
@@ -114,6 +115,7 @@ mod tests {
             None,
             false,
             false,
+            None,
             None,
             None,
         );
@@ -146,6 +148,7 @@ mod tests {
             false,
             None,
             None,
+            None,
         );
         let result = crate::highlight("", formatter);
         assert!(
@@ -163,6 +166,7 @@ mod tests {
             Some("test-pre-class".to_string()),
             false,
             false,
+            None,
             None,
             None,
         );
@@ -218,6 +222,7 @@ mod tests {
             false,
             Some(highlight_lines),
             None,
+            None,
         );
 
         let result = crate::highlight(code, formatter);
@@ -248,6 +253,7 @@ mod tests {
             false,
             false,
             Some(highlight_lines),
+            None,
             None,
         );
 
@@ -280,6 +286,7 @@ mod tests {
             false,
             Some(highlight_lines),
             None,
+            None,
         );
 
         let result = crate::highlight(code, formatter);
@@ -308,6 +315,7 @@ mod tests {
             false,
             Some(highlight_lines),
             None,
+            None,
         );
 
         let result = crate::highlight(code, formatter);
@@ -334,6 +342,7 @@ mod tests {
             false,
             false,
             None,
+            None,
             Some(header),
         );
 
@@ -358,6 +367,7 @@ mod tests {
             Some("custom-class".to_string()),
             false,
             false,
+            None,
             None,
             Some(header),
         );

@@ -3,7 +3,7 @@
 //! This module provides the [`HtmlInline`] formatter that generates HTML output with
 //! inline CSS styles for syntax highlighting, working from pre-computed highlight events.
 
-use super::{Formatter, HtmlElement};
+use super::{Formatter, HtmlElement, LineNumbers};
 use crate::decorations::{LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
@@ -60,6 +60,7 @@ pub struct HtmlInline {
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
+    line_numbers: Option<LineNumbers>,
     header: Option<HtmlElement>,
 }
 
@@ -88,6 +89,7 @@ impl HtmlInline {
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
+        line_numbers: Option<LineNumbers>,
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
@@ -98,6 +100,7 @@ impl HtmlInline {
             include_highlights,
             highlight_lines,
             stepped_highlight_lines: Vec::new(),
+            line_numbers,
             header,
         }
     }
@@ -173,6 +176,7 @@ impl Default for HtmlInline {
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
+            line_numbers: None,
             header: None,
         }
     }
@@ -207,9 +211,13 @@ impl<T> Formatter<T> for HtmlInline {
             &mut buffer,
             source,
             events,
-            &self.line_selection(),
+            &crate::formatter::html::HtmlLines {
+                selection: &self.line_selection(),
+                numbers: self.line_numbers,
+                highlighted_class: class_suffix.as_deref(),
+                highlighted_style: style.as_deref(),
+            },
             &|scope_index, language| self.span_attrs_from_index(scope_index, language),
-            (class_suffix.as_deref(), style.as_deref()),
         )?;
 
         crate::formatter::html::closing_tags(&mut buffer)?;

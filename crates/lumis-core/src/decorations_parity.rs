@@ -32,6 +32,9 @@ struct Case {
     #[serde(default)]
     annotations: Vec<CaseAnnotation>,
     highlight_lines: Vec<LineSpec>,
+    /// The number the first line carries, as `line_numbers.start` sets it.
+    #[serde(default = "first_line")]
+    start_line: usize,
     expected: String,
 }
 
@@ -57,6 +60,10 @@ struct CaseAnnotation {
 enum LineSpec {
     Single(usize),
     Range([usize; 2]),
+}
+
+fn first_line() -> usize {
+    1
 }
 
 fn manifest() -> Manifest {
@@ -119,7 +126,12 @@ fn compose<'a>(
     let events = compose_annotations(&case.source, &syntax_events(case), annotations)
         .expect("fixture annotations resolve");
 
-    compose_line_decorations(&case.source, &events, &selection(&case.highlight_lines))
+    compose_line_decorations(
+        &case.source,
+        &events,
+        &selection(&case.highlight_lines),
+        case.start_line,
+    )
 }
 
 /// One line per case, so a failure diff points at the event that moved.
@@ -170,6 +182,8 @@ fn the_corpus_covers_the_shapes_composition_has_to_get_right() {
         "highlight/overlapping-ranges-merge",
         "highlight/range-beyond-the-document",
         "highlight/blank-line",
+        "start/renumbers-the-whole-render",
+        "start/highlight-lines-name-the-new-numbers",
     ] {
         assert!(
             manifest.cases.iter().any(|case| case.name == required),

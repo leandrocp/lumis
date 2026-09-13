@@ -31,11 +31,37 @@ pub enum Decoration {
     /// text *and* the newline that ends it; the last line of a source that does
     /// not end in one covers just the text.
     Line {
-        /// The 1-based line number.
+        /// The line's number, 1-based unless the caller asked to start
+        /// elsewhere with
+        /// [`LineNumbers`](crate::formatter::LineNumbers).
         number: usize,
         /// Whether the caller asked for this line to be highlighted.
         highlighted: bool,
     },
+}
+
+/// The number of the last line of a composed stream.
+///
+/// A gutter is padded to the widest number it will show, and a formatter only
+/// knows that number once the lines are known. Composition numbered them
+/// already, so this reads the answer off the stream rather than counting the
+/// source a second time.
+pub(crate) fn last_line_number<T>(events: &[HighlightEvent<'_, T>]) -> usize {
+    events
+        .iter()
+        .rev()
+        .find_map(|event| match event {
+            HighlightEvent::DecorationStart {
+                decoration: Decoration::Line { number, .. },
+            } => Some(*number),
+            _ => None,
+        })
+        .unwrap_or(1)
+}
+
+/// Digits in the widest number a gutter showing up to `last` has to fit.
+pub(crate) fn gutter_width(last: usize) -> usize {
+    last.max(1).ilog10() as usize + 1
 }
 
 /// A finite arithmetic progression of 1-based line numbers.
@@ -229,7 +255,11 @@ impl<'a, T> OpenLayer<'a, T> {
 /// afterwards.
 ///
 /// The returned stream always holds at least one line: an empty document is one
-/// empty line, the same line a caller sees numbered `1`.
+/// empty line, the line a caller sees numbered `first_number`.
+///
+/// `first_number` renumbers the whole render, so `selection` names the numbers
+/// the lines end up with rather than their position in the document. Rendering
+/// lines 42 onwards of a file therefore highlights line 44 by asking for 44.
 ///
 /// Line decorations already present in `events` are dropped rather than nested,
 /// so composing twice gives the same answer as composing once.
@@ -237,13 +267,14 @@ pub(crate) fn compose_line_decorations<'a, T>(
     source: &str,
     events: &[HighlightEvent<'a, T>],
     selection: &LineSelection,
+    first_number: usize,
 ) -> Vec<HighlightEvent<'a, T>> {
     // One decoration pair per line, plus a close and reopen of every layer that
     // crosses one. The syntax events themselves pass through.
     let mut output = Vec::with_capacity(events.len() + 2);
     let mut layers: Vec<OpenLayer<'a, T>> = Vec::new();
     let mut cursor = selection.cursor();
-    let mut line = 1usize;
+    let mut line = first_number.max(1);
 
     output.push(line_start(line, &mut cursor));
 
@@ -406,7 +437,7 @@ mod tests {
     fn an_empty_document_is_one_line() {
         let events: [HighlightEvent<'_>; 0] = [];
 
-        let composed = compose_line_decorations("", &events, &LineSelection::default());
+        let composed = compose_line_decorations("", &events, &LineSelection::default(), 1);
 
         assert_eq!(lines(&composed), [(1, false)]);
         assert_eq!(composed.len(), 2, "a start and an end: {composed:?}");
@@ -417,7 +448,7 @@ mod tests {
         let source = "a\n";
         let events = [HighlightEvent::<()>::Source { start: 0, end: 2 }];
 
-        let composed = compose_line_decorations(source, &events, &LineSelection::default());
+        let composed = compose_line_decorations(source, &events, &LineSelection::default(), 1);
 
         assert_eq!(lines(&composed), [(1, false), (2, false)]);
         assert_eq!(rendered(source, &composed), source);
@@ -432,7 +463,7 @@ mod tests {
         }];
 
         let composed =
-            compose_line_decorations(source, &events, &selection(std::iter::once(2..=2)));
+            compose_line_decorations(source, &events, &selection(std::iter::once(2..=2)), 1);
 
         assert_eq!(lines(&composed), [(1, false), (2, true), (3, false)]);
         assert_eq!(rendered(source, &composed), source);
@@ -450,7 +481,7 @@ mod tests {
             HighlightEvent::End,
         ];
 
-        let composed = compose_line_decorations(source, &events, &LineSelection::default());
+        let composed = compose_line_decorations(source, &events, &LineSelection::default(), 1);
 
         assert_eq!(
             composed,
@@ -492,7 +523,7 @@ mod tests {
         let annotations = [Annotation::new(1..4, "span").unwrap()];
         let events = compose_annotations(source, &syntax, &annotations).unwrap();
 
-        let composed = compose_line_decorations(source, &events, &LineSelection::default());
+        let composed = compose_line_decorations(source, &events, &LineSelection::default(), 1);
 
         let starts = composed
             .iter()
@@ -514,7 +545,7 @@ mod tests {
             language: "rust".to_string(),
         }];
 
-        let composed = compose_line_decorations("", &events, &LineSelection::default());
+        let composed = compose_line_decorations("", &events, &LineSelection::default(), 1);
 
         assert_eq!(
             composed.last(),
@@ -532,8 +563,8 @@ mod tests {
         let source = "a\nb\n";
         let events = [HighlightEvent::<()>::Source { start: 0, end: 4 }];
 
-        let once = compose_line_decorations(source, &events, &selection(std::iter::once(1..=1)));
-        let twice = compose_line_decorations(source, &once, &selection(std::iter::once(1..=1)));
+        let once = compose_line_decorations(source, &events, &selection(std::iter::once(1..=1)), 1);
+        let twice = compose_line_decorations(source, &once, &selection(std::iter::once(1..=1)), 1);
 
         assert_eq!(once, twice);
     }

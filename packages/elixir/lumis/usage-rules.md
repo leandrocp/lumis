@@ -158,6 +158,7 @@ Available options for `:html_inline`:
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (see Line Highlighting section)
+- `:line_numbers` - Render a line number gutter (see Line Numbers section)
 - `:header` - Wrap with custom HTML tags (see Custom Wrappers section)
 
 ### HTML Linked
@@ -191,6 +192,7 @@ Then in your template:
 Available options for `:html_linked`:
 - `:pre_class` - CSS class to add to the `<pre>` tag
 - `:highlight_lines` - Highlight specific lines with CSS class
+- `:line_numbers` - Render a line number gutter (see Line Numbers section)
 - `:header` - Wrap with custom HTML tags
 
 #### Building scoped CSS
@@ -299,6 +301,7 @@ Available options for `:html_multi_themes`:
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (same options as `:html_inline`)
+- `:line_numbers` - Render a line number gutter (see Line Numbers section)
 - `:header` - Wrap with custom HTML tags (same options as other formatters)
 
 ### Terminal
@@ -318,6 +321,10 @@ Lumis.highlight!(code,
 
 Available options for `:terminal`:
 - `:theme` - Theme name (string) or `Lumis.Theme` struct
+- `:background` - Fallback background: `:theme`, a hex colour, or `nil` to inherit the terminal's
+- `:width` - Pad each line out to this width, so a background reaches the edge
+- `:highlight_lines` - Paint specific lines with a background colour
+- `:line_numbers` - Prefix each line with its number (see Line Numbers section)
 
 ### BBCode Scoped
 
@@ -330,7 +337,7 @@ Lumis.highlight!(code,
 ```
 
 Available options for `:bbcode_scoped`:
-- none
+- `:highlight_lines` - Wrap specific lines in `[highlighted]...[/highlighted]`
 
 ## Themes
 
@@ -440,6 +447,37 @@ Lumis.highlight!(code,
   formatter: {:html_linked,
     language: "elixir",
     highlight_lines: %{lines: [1, 2, 3], class: "error-line"}
+  }
+)
+```
+
+### Line Numbers
+
+`:line_numbers` numbers the lines a formatter renders. The three HTML formatters
+and `:terminal` take it; `:bbcode_scoped` has nothing to render a number into.
+
+```elixir
+# 1, 2, 3, ...
+Lumis.highlight!(code, formatter: {:html_inline, language: "elixir", line_numbers: %{}})
+
+# A fragment carrying the numbers it has in its file
+Lumis.highlight!(code, formatter: {:html_inline, language: "elixir", line_numbers: %{start: 42}})
+```
+
+HTML opens each line with `<span class="l-line-number" aria-hidden="true">N</span>`,
+which needs a stylesheet rule to become a column. The terminal writes the number
+right-aligned to the widest one, dimmed with the theme's `comment` colour.
+
+A line has one number: `:start` renumbers the whole render, so `data-line`, the
+gutter and `:highlight_lines` all name the same line.
+
+```elixir
+# Highlights the second rendered line, which is line 43 of the file
+Lumis.highlight!(code,
+  formatter: {:html_linked,
+    language: "elixir",
+    line_numbers: %{start: 42},
+    highlight_lines: %{lines: [43]}
   }
 )
 ```

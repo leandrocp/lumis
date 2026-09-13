@@ -386,6 +386,23 @@ export interface HighlightLinesBBCode {
 }
 
 /**
+ * Line numbering for the three HTML formatters and the terminal formatter.
+ *
+ * Asking for numbers also renumbers the render: the gutter, HTML's `data-line`
+ * and {@link HighlightLinesInline.lines} all name the same line, so a fragment
+ * of a file can carry the numbers it has in that file.
+ *
+ * ```ts
+ * htmlInline({ lineNumbers: {} })            // 1, 2, 3, …
+ * htmlInline({ lineNumbers: { start: 42 } }) // 42, 43, 44, …
+ * ```
+ */
+export interface LineNumbers {
+  /** The number the first rendered line carries. Defaults to `1`. */
+  start?: number;
+}
+
+/**
  * A caller-provided semantic range with typed data.
  *
  * This annotation marks only `price` in a one-line source:
@@ -451,7 +468,7 @@ export type SyntaxHighlightEvent =
  */
 export type Decoration = {
   type: "line";
-  /** The 1-based line number. */
+  /** The line's number, 1-based unless {@link LineNumbers} starts elsewhere. */
   number: number;
   /** Whether the caller asked for this line to be highlighted. */
   highlighted: boolean;
@@ -561,6 +578,7 @@ export interface HtmlInlineOptions {
   /** Add `data-highlight` attributes with scope names. */
   includeHighlights?: boolean;
   highlightLines?: HighlightLinesInline;
+  lineNumbers?: LineNumbers;
   header?: HtmlElement;
 }
 
@@ -577,6 +595,7 @@ export interface HtmlLinkedOptions {
   language?: LanguageRef;
   preClass?: string;
   highlightLines?: HighlightLinesLinked;
+  lineNumbers?: LineNumbers;
   header?: HtmlElement;
 }
 
@@ -607,6 +626,7 @@ export interface HtmlMultiThemesOptions {
   italic?: boolean;
   includeHighlights?: boolean;
   highlightLines?: HighlightLinesInline;
+  lineNumbers?: LineNumbers;
   header?: HtmlElement;
 }
 
@@ -651,6 +671,7 @@ export interface TerminalOptions {
    */
   width?: number;
   highlightLines?: HighlightLinesTerminal;
+  lineNumbers?: LineNumbers;
 }
 
 export interface TerminalFormatter extends Formatter, TerminalOptions {}
