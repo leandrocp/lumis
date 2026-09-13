@@ -520,7 +520,7 @@ const docsFormatter: Formatter = {
       }
     })
 
-    const body = lines.map((line, i) => wrapLine(i + 1, line)).join('')
+    const body = lines.map((line, i) => wrapLine(i + 1, line + '\\n')).join('')
     return openPreTag({ preClass: 'docs-demo' })
       + openCodeTag(html) + body + closingTags()
   },
@@ -559,7 +559,7 @@ const docsFormatter: Formatter = {
           }
         })
 
-        const body = lines.map((line, i) => wrapLine(i + 1, line)).join('')
+        const body = lines.map((line, i) => wrapLine(i + 1, line + '\n')).join('')
         return `${openPreTag({ preClass: 'docs-demo' })}${openCodeTag(html)}${body}${closingTags()}`
       },
     }

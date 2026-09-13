@@ -123,8 +123,6 @@ fn render(manifest: &Manifest, case: &Case) -> String {
                 case.include_highlights,
             )
         }
-        // The tag only: Rust takes the trailing newline in `content` and the
-        // TypeScript port appends it, so the two agree up to the `>`.
         Helper::Line => html::wrap_line(
             1,
             "",
@@ -168,15 +166,6 @@ fn escapes_every_attribute_value() {
 
     for case in &manifest.cases {
         let rendered = render(&manifest, case);
-
-        match case.helper {
-            Helper::Line => assert!(
-                rendered.starts_with(&case.expected),
-                "{}: expected the tag {:?}, got {rendered:?}",
-                case.name,
-                case.expected
-            ),
-            _ => assert_eq!(rendered, case.expected, "{}", case.name),
-        }
+        assert_eq!(rendered, case.expected, "{}", case.name);
     }
 }

@@ -47,7 +47,7 @@ class InteractiveDocsFormatter implements Formatter {
       }
     });
 
-    const body = lines.map((line, index) => wrapLine(index + 1, line)).join("");
+    const body = lines.map((line, index) => wrapLine(index + 1, `${line}\n`)).join("");
     return `${openPreTag({ preClass: "docs-demo" })}${openCodeTag(this.language)}${body}${closingTags()}`;
   }
 }

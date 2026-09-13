@@ -155,7 +155,7 @@ describe("formatter shared helpers", () => {
 
   it("wraps lines with optional class and style", () => {
     expect(wrapLine(2, "code", { className: "highlighted", style: "color: red;" })).toBe(
-      '<div class="l-line highlighted" style="color: red;" data-line="2">code\n</div>',
+      '<div class="l-line highlighted" style="color: red;" data-line="2">code</div>',
     );
   });
 

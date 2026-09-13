@@ -61,7 +61,7 @@ describe("custom formatter", () => {
           .map((line, index) =>
             wrapLine(
               index + 1,
-              `${openSpanTag({ class: "line-no" })}${index + 1}</span>${openSpanTag({ class: "line-body" })}${line}</span>`,
+              `${openSpanTag({ class: "line-no" })}${index + 1}</span>${openSpanTag({ class: "line-body" })}${line}</span>\n`,
               {
                 className: index === 0 ? "first-line" : undefined,
               },

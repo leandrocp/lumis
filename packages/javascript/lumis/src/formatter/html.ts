@@ -939,7 +939,7 @@ export function renderHtmlBlock(options: {
 }): string {
   const code = openCodeTag(options.language);
   const body = options.lines
-    .map((line, idx) => wrapLine(idx + 1, line, options.lineOptions(idx + 1)))
+    .map((line, idx) => wrapLine(idx + 1, `${line}\n`, options.lineOptions(idx + 1)))
     .join("");
 
   return wrapWithHeader(`${options.pre}${code}${body}${closingTags()}`, options.header);
@@ -947,9 +947,10 @@ export function renderHtmlBlock(options: {
 
 /**
  * Wrap a line of highlighted HTML in a `<div>` with line metadata.
+ * `content` is inserted verbatim, including any trailing newline.
  *
  * ```ts
- * wrapLine(1, '<span>const</span>', { className: 'l-highlighted' })
+ * wrapLine(1, '<span>const</span>\n', { className: 'l-highlighted' })
  * // '<div class="l-line l-highlighted" data-line="1"><span>const</span>\n</div>'
  * ```
  */
@@ -962,7 +963,7 @@ export function wrapLine(
     class: classList("l-line", options.className),
     style: options.style,
     "data-line": lineNumber,
-  })}${content}\n</div>`;
+  })}${content}</div>`;
 }
 
 /**
@@ -1222,7 +1223,7 @@ export function formatHtmlLines(
       parts.push(
         wrapLine(
           decoration.number,
-          content,
+          `${content}\n`,
           decoration.highlighted ? formatter.highlightedAttrs : {},
         ),
       );

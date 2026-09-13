@@ -78,8 +78,6 @@ const RENDERERS: Record<Helper, (testCase: Case) => string> = {
       includeHighlights: testCase.includeHighlights ?? false,
     }),
 
-  // The tag only: Rust takes the trailing newline in `content` and this port
-  // appends it, so the two agree up to the `>`.
   line: (testCase) => wrapLine(1, "", { className: testCase.lineClass, style: testCase.lineStyle }),
 };
 
@@ -107,14 +105,7 @@ describe("html attribute escaping parity", () => {
   it("produces the same tags as Rust", () => {
     for (const testCase of manifest.cases) {
       const rendered = render(testCase);
-
-      if (testCase.helper === "line") {
-        expect(rendered.startsWith(testCase.expected), `${testCase.name}: got ${rendered}`).toBe(
-          true,
-        );
-      } else {
-        expect(rendered, `${testCase.name}: diverged from Rust`).toBe(testCase.expected);
-      }
+      expect(rendered, `${testCase.name}: diverged from Rust`).toBe(testCase.expected);
     }
   });
 });

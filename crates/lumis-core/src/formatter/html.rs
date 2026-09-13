@@ -766,7 +766,8 @@ pub fn open_span(attrs: &str) -> String {
 
 /// Render highlight events into HTML lines, reopening active spans at line boundaries.
 ///
-/// The returned lines carry no `\n`; [`wrap_line`] is where one is added back.
+/// The returned lines carry no `\n`; [`write_html_lines`] adds one when building
+/// the built-in HTML formatters.
 pub fn render_lines_from_events<T, F>(
     source: &str,
     events: &[HighlightEvent<'_, T>],
