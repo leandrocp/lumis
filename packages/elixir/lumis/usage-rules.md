@@ -885,6 +885,7 @@ opts = Lumis.default_options()
         style: :theme | "custom-css" | nil,
         class: "custom-class"
       },
+      line_numbers: %{start: 1},
       header: %{
         open_tag: "<div>",
         close_tag: "</div>"
@@ -898,6 +899,7 @@ opts = Lumis.default_options()
         lines: [1, 2..5],
         class: "l-highlighted"
       },
+      line_numbers: %{start: 1},
       header: %{
         open_tag: "<div>",
         close_tag: "</div>"
@@ -906,7 +908,14 @@ opts = Lumis.default_options()
     :terminal |
     {:terminal, [
       language: "elixir" | ".ex" | "app.ex" | nil,
-      theme: "onedark" | %Lumis.Theme{}
+      theme: "onedark" | %Lumis.Theme{},
+      background: :theme | "#282a36" | nil,
+      width: 120 | nil,
+      highlight_lines: %{
+        lines: [1, 2..5],
+        background: "#3a3a3a" | nil
+      },
+      line_numbers: %{start: 1}
     ]} |
     :html_multi_themes |
     {:html_multi_themes, [
@@ -922,6 +931,7 @@ opts = Lumis.default_options()
         style: :theme | "custom-css" | nil,
         class: "custom-class"
       },
+      line_numbers: %{start: 1},
       header: %{
         open_tag: "<div>",
         close_tag: "</div>"
@@ -929,7 +939,8 @@ opts = Lumis.default_options()
     ]} |
     :bbcode_scoped |
     {:bbcode_scoped, [
-      language: "elixir" | ".ex" | "app.ex" | nil
+      language: "elixir" | ".ex" | "app.ex" | nil,
+      highlight_lines: %{lines: [1, 2..5]}
     ]}
 ]
 ```

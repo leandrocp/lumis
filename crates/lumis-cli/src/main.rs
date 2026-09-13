@@ -1476,16 +1476,17 @@ fn do_highlight(reg: &registry::Registry, args: HighlightArgs, verbose: bool) ->
         eprintln!("language: {}", lang.id_name());
     }
 
-    if lang == Language::PlainText {
-        if verbose {
-            eprintln!("--\n");
-        }
-        print!("{source}");
-        return Ok(());
-    }
-
-    let lang_name = lang.id_name();
-    let events = highlight_to_events(reg, &source, lang_name, args.rainbow_brackets)?;
+    // Plaintext has no grammar to walk, so its whole document is one `Source`
+    // event. It still goes through the formatter: the caller asked for HTML, or
+    // for line numbers, and gets them.
+    let events = if lang == Language::PlainText {
+        vec![HighlightEvent::Source {
+            start: 0,
+            end: source.len(),
+        }]
+    } else {
+        highlight_to_events(reg, &source, lang.id_name(), args.rainbow_brackets)?
+    };
 
     render_output(reg, &source, &events, lang, args, verbose)
 }

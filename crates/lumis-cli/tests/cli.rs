@@ -1753,6 +1753,46 @@ fn terminal_numbers_its_lines() {
         .stdout(predicate::str::contains("100 "));
 }
 
+/// Plaintext has no grammar, which used to mean the CLI printed the source and
+/// skipped the formatter — dropping every option it was given.
+#[test]
+fn plaintext_reaches_the_formatter() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args([
+            "highlight",
+            "-l",
+            "plaintext",
+            "-f",
+            "html-linked",
+            "--pre-class",
+            "custom",
+            "--line-numbers",
+        ])
+        .write_stdin("a\nb\n")
+        .assert()
+        .success()
+        .stdout(predicate::str::starts_with("<pre class=\"lumis custom\""))
+        .stdout(predicate::str::contains(
+            "<span class=\"l-line-number\" aria-hidden=\"true\">2</span>b",
+        ));
+}
+
+/// The default formatter over plaintext with no options still writes the source
+/// back out, which is what the skipped path used to be for.
+#[test]
+fn plaintext_without_options_is_the_source() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args(["highlight", "-l", "plaintext"])
+        .write_stdin("a\nb\n")
+        .assert()
+        .success()
+        .stdout(predicate::eq("a\nb\n"));
+}
+
 /// `bbcode_scoped` has nothing to render a number into, so the manifest does not
 /// give it the option and the CLI has to say so rather than ignore it.
 #[test]

@@ -118,7 +118,7 @@ export function composeLineDecorations<T>(
 ): HighlightEvent<T>[] {
   const output: HighlightEvent<T>[] = [];
   const layers: OpenLayer[] = [];
-  let line = Math.max(1, firstNumber);
+  let line = clampFirstNumber(firstNumber, sourceBytes.length);
 
   output.push(lineStart(line, selection));
 
@@ -132,6 +132,23 @@ export function composeLineDecorations<T>(
   output.push({ type: "decorationEnd" });
 
   return output;
+}
+
+/**
+ * The number the first line can carry without the counter losing precision.
+ *
+ * A document holds at most one more line than it has bytes, so leaving that much
+ * headroom below `Number.MAX_SAFE_INTEGER` is enough for the counter to reach
+ * the last line. Line 0 does not exist, so anything below 1 is line 1, and a
+ * value `usize` could not hold — fractional, `NaN`, infinite — is read as one
+ * that could.
+ *
+ * The port of `clamp_first_number` in `crates/lumis-core/src/decorations.rs`.
+ */
+function clampFirstNumber(firstNumber: number, sourceLength: number): number {
+  if (!Number.isFinite(firstNumber)) return 1;
+
+  return Math.min(Math.max(1, Math.trunc(firstNumber)), Number.MAX_SAFE_INTEGER - sourceLength - 1);
 }
 
 /** Copy one event through, and return the line number it ends on. */

@@ -274,7 +274,7 @@ pub(crate) fn compose_line_decorations<'a, T>(
     let mut output = Vec::with_capacity(events.len() + 2);
     let mut layers: Vec<OpenLayer<'a, T>> = Vec::new();
     let mut cursor = selection.cursor();
-    let mut line = first_number.max(1);
+    let mut line = clamp_first_number(first_number, source);
 
     output.push(line_start(line, &mut cursor));
 
@@ -328,6 +328,17 @@ pub(crate) fn compose_line_decorations<'a, T>(
     output.push(HighlightEvent::DecorationEnd);
 
     output
+}
+
+/// The number the first line can carry without the counter overflowing.
+///
+/// A document holds at most one more line than it has bytes, so leaving that
+/// much headroom below [`usize::MAX`] is enough for the counter to reach the
+/// last line. Line 0 does not exist, so anything below 1 is line 1.
+fn clamp_first_number(first_number: usize, source: &str) -> usize {
+    first_number
+        .max(1)
+        .min(usize::MAX - source.len().saturating_add(1))
 }
 
 fn line_start<'a, T>(line: usize, cursor: &mut LineCursor<'_>) -> HighlightEvent<'a, T> {
@@ -567,6 +578,36 @@ mod tests {
         let twice = compose_line_decorations(source, &once, &selection(std::iter::once(1..=1)), 1);
 
         assert_eq!(once, twice);
+    }
+
+    /// A start close to `usize::MAX` would otherwise overflow the counter the
+    /// first time a newline advanced it.
+    #[test]
+    fn a_start_leaves_room_for_every_line_the_source_has() {
+        let source = "a\nb\nc";
+        let events = [HighlightEvent::<()>::Source {
+            start: 0,
+            end: source.len(),
+        }];
+
+        let composed =
+            compose_line_decorations(source, &events, &LineSelection::default(), usize::MAX);
+
+        let numbers = lines(&composed)
+            .into_iter()
+            .map(|(number, _)| number)
+            .collect::<Vec<_>>();
+
+        assert_eq!(numbers.len(), 3);
+        assert!(
+            numbers.windows(2).all(|pair| pair[1] == pair[0] + 1),
+            "line numbers must keep ascending: {numbers:?}"
+        );
+        assert_eq!(
+            numbers[0],
+            usize::MAX - source.len() - 1,
+            "the start is clamped to leave room for every line: {numbers:?}"
+        );
     }
 
     #[test]
