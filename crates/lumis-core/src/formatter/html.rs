@@ -853,12 +853,13 @@ pub(crate) fn write_line_events<'a, T, F>(
 }
 
 fn split_line_ending(text: &str) -> (&str, &str) {
-    if let Some(content) = text.strip_suffix("\r\n") {
-        (content, "\r\n")
-    } else if let Some(content) = text.strip_suffix('\n') {
-        (content, "\n")
-    } else {
-        (text, "")
+    let Some(content) = text.strip_suffix('\n') else {
+        return (text, "");
+    };
+
+    match content.strip_suffix('\r') {
+        Some(content) => (content, "\r\n"),
+        None => (content, "\n"),
     }
 }
 
