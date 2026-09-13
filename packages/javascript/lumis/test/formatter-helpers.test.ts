@@ -51,6 +51,7 @@ interface Contract {
     defaultHighlightClass: string;
     source: string;
     events: HighlightEvent[];
+    lineEndingCases: Array<{ source: string; expected: string[] }>;
   };
   style: HighlightStyle;
   ansi: {
@@ -74,6 +75,19 @@ const manifest: Manifest = JSON.parse(
 );
 
 const modules: Record<string, Record<string, unknown>> = { html, ansi };
+
+it("preserves the shared line-ending contract", () => {
+  for (const testCase of manifest.contract.html.lineEndingCases) {
+    expect(
+      html.renderLinesFromEvents(
+        testCase.source,
+        [{ type: "source", start: 0, end: new TextEncoder().encode(testCase.source).length }],
+        () => "",
+      ),
+      JSON.stringify(testCase.source),
+    ).toEqual(testCase.expected);
+  }
+});
 
 // A helper defined in one file and re-exported from another is one helper, so
 // every file behind a module is read for the `@deprecated` tag.

@@ -422,9 +422,9 @@ defmodule Lumis.Formatter.HTML do
   Lines are 1-based, and `data-line` is what a "highlight these lines" feature
   and anchor links both key off.
 
-  `content` goes in verbatim. A line from `render_lines_from_events/3` carries no
-  trailing newline; the built-in formatters put one inside the `<div>` so the
-  block still copies as lines, which is `wrap_line(n, [line, "\\n"])`.
+  `content` goes in verbatim. A line from `render_lines_from_events/3` already
+  carries the exact terminator from the source, if it had one, so it can be
+  passed directly to `wrap_line/3`.
 
   ## Options
 
@@ -512,6 +512,9 @@ defmodule Lumis.Formatter.HTML do
   wrapped with `wrap_line/3` independently. That closing and reopening is the
   part worth not writing again.
 
+  Each returned line carries the exact `\n` or `\r\n` that ended it in `source`,
+  after any closing span tags. An unterminated final line has no terminator.
+
   `attrs` maps a scope to the attributes its `<span>` carries, so the whole render
   costs one call rather than one per token: a `span_attrs/1` or
   `span_multi_themes_attrs/1` table, or for class-based output,
@@ -525,7 +528,7 @@ defmodule Lumis.Formatter.HTML do
 
       iex> events = [{:start, %{scope: "keyword", language: "elixir"}}, {:source, %{start: 0, end: 3}}, :end]
       iex> Lumis.Formatter.HTML.render_lines_from_events("a\\nb", events, %{"keyword" => ~s|class="l-keyword"|})
-      [~s|<span class="l-keyword">a</span>|, ~s|<span class="l-keyword">b</span>|]
+      [~s|<span class="l-keyword">a</span>\\n|, ~s|<span class="l-keyword">b</span>|]
 
   """
   @spec render_lines_from_events(String.t(), [Lumis.Formatter.event(term())], %{

@@ -109,6 +109,13 @@ struct HtmlContract {
     default_highlight_class: String,
     source: String,
     events: Vec<ContractEvent>,
+    line_ending_cases: Vec<LineEndingCase>,
+}
+
+#[derive(Debug, Deserialize)]
+struct LineEndingCase {
+    source: String,
+    expected: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -212,6 +219,25 @@ fn fixture_themes(contract: &Contract) -> HashMap<String, Theme> {
         .iter()
         .map(|(name, theme)| (name.clone(), fixture_theme(contract, theme)))
         .collect()
+}
+
+#[test]
+fn render_lines_preserves_the_shared_line_ending_contract() {
+    let input = manifest().contract.html;
+
+    for case in input.line_ending_cases {
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source {
+            start: 0,
+            end: case.source.len(),
+        }];
+
+        assert_eq!(
+            html::render_lines_from_events(&case.source, &events, |_, _| String::new()),
+            case.expected,
+            "source {:?}",
+            case.source
+        );
+    }
 }
 
 fn language(name: &str) -> Language {

@@ -535,10 +535,11 @@ attrs = HTML.span_attrs(theme: theme, language: language)
 source
 |> HTML.render_lines_from_events(events, attrs)
 |> Enum.with_index(1)
-# A rendered line carries no trailing newline. The built-in formatters put one
-# inside the <div> so the block still copies as lines.
-|> Enum.map(fn {line, number} -> HTML.wrap_line(number, [line, "\n"]) end)
+|> Enum.map(fn {line, number} -> HTML.wrap_line(number, line) end)
 ```
+
+Each rendered line already carries the exact `\n` or `\r\n` that ended it in
+the source. An unterminated final line has no terminator.
 
 Do not hand-roll ANSI color or text-decoration escape sequences either.
 `Lumis.Formatter.ANSI` gives `:terminal`'s pieces:
@@ -574,6 +575,8 @@ Lumis generates semantic HTML with line wrappers:
 
 Key points:
 - Each line is wrapped in `<div class="l-line" data-line="N">`
+- Each source `\n` or `\r\n` sits just before its line's `</div>`; none is added
+  to an unterminated final line
 - The `data-line` attribute contains the line number (1-indexed)
 - The `<code>` tag has `translate="no"` to prevent browser translation
 - The `<code>` tag has `tabindex="0"` for keyboard accessibility

@@ -623,6 +623,9 @@ pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
 /// the start of the next, so every line's tags nest on their own. `span_attrs`
 /// receives a scope index into [`highlights::HIGHLIGHT_NAMES`](crate::highlights::HIGHLIGHT_NAMES)
 /// and the language of the block the event came from.
+/// Each line carries the exact `\n` or `\r\n` that ended it in `source`, after
+/// any closing span tags. An unterminated final line has no terminator, so each
+/// result can be passed directly to [`wrap_line`].
 ///
 /// # Example
 ///
@@ -644,7 +647,7 @@ pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
 /// assert_eq!(
 ///     lines,
 ///     [
-///         r#"<span class="l-keyword">a</span>"#,
+///         "<span class=\"l-keyword\">a</span>\n",
 ///         r#"<span class="l-keyword">b</span>"#,
 ///     ]
 /// );

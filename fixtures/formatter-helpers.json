@@ -66,6 +66,14 @@
         { "type": "start", "scope": "keyword", "language": "rust" },
         { "type": "source", "start": 0, "end": 3 },
         { "type": "end" }
+      ],
+      "lineEndingCases": [
+        { "source": "", "expected": [""] },
+        { "source": "a", "expected": ["a"] },
+        { "source": "a\n", "expected": ["a\n", ""] },
+        { "source": "a\nb", "expected": ["a\n", "b"] },
+        { "source": "a\r\nb", "expected": ["a\r\n", "b"] },
+        { "source": "a\rb", "expected": ["a\rb"] }
       ]
     },
     "style": {
@@ -151,7 +159,7 @@
         },
         {
           "name": "render_lines_from_events",
-          "expected": "[\"<span class=\\\"l-keyword\\\">a</span>\",\"<span class=\\\"l-keyword\\\">b</span>\"]"
+          "expected": "[\"<span class=\\\"l-keyword\\\">a</span>\\n\",\"<span class=\\\"l-keyword\\\">b</span>\"]"
         }
       ]
     },

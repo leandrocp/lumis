@@ -104,6 +104,16 @@ defmodule Lumis.FormatterHelpersTest do
   defp rgb_string(nil), do: ""
   defp rgb_string({red, green, blue}), do: Enum.join([red, green, blue], ",")
 
+  test "preserves the shared line-ending contract" do
+    for %{"source" => source, "expected" => expected} <-
+          manifest()["contract"]["html"]["lineEndingCases"] do
+      events = [{:source, %{start: 0, end: byte_size(source)}}]
+
+      assert HTML.render_lines_from_events(source, events, %{}) == expected,
+             "source #{inspect(source)}"
+    end
+  end
+
   defp contract_outputs(contract) do
     html = contract["html"]
     ansi = contract["ansi"]

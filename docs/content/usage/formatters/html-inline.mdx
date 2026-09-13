@@ -235,6 +235,8 @@ HTML Inline emits the full block structure with inline styles on each token:
 - `<pre class="lumis">` is the outer wrapper and carries the block background
 - `<code class="language-*">` identifies the language and keeps the block focusable
 - `<div class="l-line" data-line="N">` wraps each line
+- A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
+  final line gets no added newline
 - `<span style="...">` carries the token colors and font styles inline
 
 ## When to use it

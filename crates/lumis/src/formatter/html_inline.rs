@@ -99,8 +99,7 @@ mod tests {
         let code = "@lang :rust";
         let formatter = HtmlInline::new(Language::Elixir, None, None, false, false, None, None);
         let result = crate::highlight(code, formatter);
-        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span><span>@<span><span>lang <span>:rust</span></span></span></span></span>
-</div></code></pre>"#;
+        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span><span>@<span><span>lang <span>:rust</span></span></span></span></span></div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -226,8 +225,7 @@ mod tests {
 </div><div class="l-line" data-line="2">line 2
 </div><div class="l-line" style="background-color: #e7eaf0;" data-line="3">line 3
 </div><div class="l-line" style="background-color: #e7eaf0;" data-line="4">line 4
-</div><div class="l-line" data-line="5">line 5
-</div></code></pre>"#;
+</div><div class="l-line" data-line="5">line 5</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -257,8 +255,7 @@ mod tests {
 </div><div class="l-line" data-line="2">line 2
 </div><div class="l-line" style="background-color: yellow" data-line="3">line 3
 </div><div class="l-line" style="background-color: yellow" data-line="4">line 4
-</div><div class="l-line" data-line="5">line 5
-</div></code></pre>"#;
+</div><div class="l-line" data-line="5">line 5</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -287,8 +284,7 @@ mod tests {
         let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line custom-highlight" style="background-color: yellow" data-line="1">line 1
 </div><div class="l-line" data-line="2">line 2
 </div><div class="l-line custom-highlight" style="background-color: yellow" data-line="3">line 3
-</div><div class="l-line" data-line="4">line 4
-</div></code></pre>"#;
+</div><div class="l-line" data-line="4">line 4</div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -315,8 +311,7 @@ mod tests {
         let expected = r#"<pre class="lumis"><code class="language-rust" translate="no" tabindex="0"><div class="l-line custom-highlight" data-line="1"><span>fn</span> <span>main</span><span>(</span><span>)</span> <span>{</span>
 </div><div class="l-line" data-line="2">    <span>println</span><span>!</span><span>(</span><span>&quot;Hello, world!&quot;</span><span>)</span><span>;</span>
 </div><div class="l-line custom-highlight" data-line="3">    <span>let</span> <span>x</span> <span>=</span> <span>42</span><span>;</span>
-</div><div class="l-line" data-line="4"><span>}</span>
-</div></code></pre>"#;
+</div><div class="l-line" data-line="4"><span>}</span></div></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -340,8 +335,7 @@ mod tests {
         let result = crate::highlight(code, formatter);
 
         let expected = r#"<div class="code-wrapper"><pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line" data-line="1">line 1
-</div><div class="l-line" data-line="2">line 2
-</div></code></pre></div>"#;
+</div><div class="l-line" data-line="2">line 2</div></code></pre></div>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -364,8 +358,7 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<section class="highlight" data-lang="rust"><pre class="lumis custom-class"><code class="language-rust" translate="no" tabindex="0"><div class="l-line" data-line="1"><span>fn</span> <span>main</span><span>(</span><span>)</span> <span>{</span> <span>}</span>
-</div></code></pre></section>"#;
+        let expected = r#"<section class="highlight" data-lang="rust"><pre class="lumis custom-class"><code class="language-rust" translate="no" tabindex="0"><div class="l-line" data-line="1"><span>fn</span> <span>main</span><span>(</span><span>)</span> <span>{</span> <span>}</span></div></code></pre></section>"#;
         assert_str_eq!(result, expected);
     }
 }

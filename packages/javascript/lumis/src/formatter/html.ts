@@ -928,6 +928,7 @@ export function buildPreThemeStyle(options: {
  * @deprecated Composes {@link openPreTag}, {@link openCodeTag},
  * {@link wrapLine} and {@link closingTags} in the one order the built-in
  * formatters use, which is not a custom formatter's shape. Call them directly.
+ * Each `lines` entry must already contain its source terminator, if any.
  * Removed in the next major.
  */
 export function renderHtmlBlock(options: {
@@ -939,7 +940,7 @@ export function renderHtmlBlock(options: {
 }): string {
   const code = openCodeTag(options.language);
   const body = options.lines
-    .map((line, idx) => wrapLine(idx + 1, `${line}\n`, options.lineOptions(idx + 1)))
+    .map((line, idx) => wrapLine(idx + 1, line, options.lineOptions(idx + 1)))
     .join("");
 
   return wrapWithHeader(`${options.pre}${code}${body}${closingTags()}`, options.header);
@@ -1039,6 +1040,8 @@ interface LineRenderOptions {
 interface LineRenderState {
   /** The current line's rendered content, without its terminator. */
   line: string;
+  /** The exact source terminator held until every syntax span has closed. */
+  ending: string;
   decoration: Decoration;
   /** The document's language: the innermost scope's, once one has been open. */
   language: string;
@@ -1092,11 +1095,10 @@ function sourceEvent(
     state.language = state.openScopes.at(-1)?.language ?? state.language;
   }
 
-  // The trailing newline is not part of a line's content: a formatter writes
-  // its own terminator, and the last line of a source that does not end in one
-  // would otherwise be the only line without it.
   const text = decodeSourceSlice(context.sourceBytes, event.start, event.end);
-  state.line += context.formatText(text.endsWith("\n") ? text.slice(0, -1) : text);
+  const ending = text.endsWith("\r\n") ? "\r\n" : text.endsWith("\n") ? "\n" : "";
+  state.ending = ending;
+  state.line += context.formatText(ending ? text.slice(0, -ending.length) : text);
 }
 
 function applyLineEvent(
@@ -1108,9 +1110,10 @@ function applyLineEvent(
     case "decorationStart":
       state.decoration = event.decoration;
       state.line = "";
+      state.ending = "";
       break;
     case "decorationEnd":
-      context.onLine(state.line, state.decoration);
+      context.onLine(`${state.line}${state.ending}`, state.decoration);
       break;
     case "start":
       openSpanEvent(state, context, event);
@@ -1153,6 +1156,7 @@ function renderDecoratedLines(
   };
   const state: LineRenderState = {
     line: "",
+    ending: "",
     decoration: { type: "line", number: 1, highlighted: false },
     language,
     openScopes: [],
@@ -1195,6 +1199,8 @@ export function formatHighlightIterLines(
  * The three of them differ only in the attributes a span and a highlighted line
  * carry, so those are the two inputs; the walk itself is shared. A highlighted
  * line's attributes are resolved once rather than once per line.
+ * The line renderer supplies the source terminator after closing syntax spans;
+ * `wrapLine` places that content verbatim before `</div>`.
  *
  * @internal
  */
@@ -1223,7 +1229,7 @@ export function formatHtmlLines(
       parts.push(
         wrapLine(
           decoration.number,
-          `${content}\n`,
+          content,
           decoration.highlighted ? formatter.highlightedAttrs : {},
         ),
       );
@@ -1235,10 +1241,13 @@ export function formatHtmlLines(
 
 /**
  * Render highlight events into escaped HTML lines, reopening active spans across newlines.
+ * Each line carries its exact source terminator after any closing span tags;
+ * an unterminated final line has none, so the results can go straight to
+ * {@link wrapLine}.
  *
  * ```ts
  * renderLinesFromEvents('a\nb', events, (scope) => `class="${scope}"`)
- * // ['<span class="...">a</span>', '<span class="...">b</span>']
+ * // ['<span class="...">a</span>\n', '<span class="...">b</span>']
  * ```
  */
 export function renderLinesFromEvents(
