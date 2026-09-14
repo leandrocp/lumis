@@ -194,6 +194,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .italic(true)
         .include_highlights(true)
         .highlight_lines(Some(highlight_lines()))
+        .line_numbers(true)
         .header(Some(header()))
         .build()
         .expect("html_inline builds");
@@ -206,6 +207,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "italic",
             "include_highlights",
             "highlight_lines",
+            "line_numbers",
             "header",
         ]
         .into(),
@@ -218,12 +220,20 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             lines: vec![1..=1, 3..=4],
             class: "active".to_string(),
         }))
+        .line_numbers(true)
         .header(Some(header()))
         .build()
         .expect("html_linked builds");
     exercised.insert(
         "html_linked",
-        ["language", "pre_class", "highlight_lines", "header"].into(),
+        [
+            "language",
+            "pre_class",
+            "highlight_lines",
+            "line_numbers",
+            "header",
+        ]
+        .into(),
     );
 
     let mut themes_map = HashMap::new();
@@ -237,6 +247,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .italic(true)
         .include_highlights(true)
         .highlight_lines(Some(highlight_lines()))
+        .line_numbers(true)
         .header(Some(header()))
         .build()
         .expect("html_multi_themes builds");
@@ -251,6 +262,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "italic",
             "include_highlights",
             "highlight_lines",
+            "line_numbers",
             "header",
         ]
         .into(),
@@ -265,6 +277,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             lines: vec![1..=1, 3..=4],
             background: Some("#3a3a3a".to_string()),
         }))
+        .line_numbers(true)
         .build()
         .expect("terminal builds");
     exercised.insert(
@@ -275,6 +288,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "background",
             "width",
             "highlight_lines",
+            "line_numbers",
         ]
         .into(),
     );

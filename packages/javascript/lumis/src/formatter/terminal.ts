@@ -1,5 +1,10 @@
 import type { HighlightEvent, HighlightStyle, TerminalFormatter, Theme } from "../types.js";
-import { LineSelection, composeLineDecorations } from "../decorations.js";
+import {
+  LineSelection,
+  composeLineDecorations,
+  gutterWidth,
+  lastLineNumber,
+} from "../decorations.js";
 import { encodeSource, decodeSourceSlice, getScopedThemeStyle, getThemeStyle } from "./html.js";
 import { paint } from "./ansi-core.js";
 
@@ -20,6 +25,19 @@ function highlightBackground(formatter: TerminalFormatter): string | undefined {
   const highlight = formatter.highlightLines;
   if (!highlight) return undefined;
   return highlight.background ?? getThemeStyle(formatter.theme, "highlighted")?.bg;
+}
+
+/**
+ * The colour the gutter is dimmed with.
+ *
+ * No theme scope names a gutter, and `comment` is the one scope every theme
+ * styles as text meant to recede, so the gutter borrows its foreground — and
+ * only its foreground, since whether a theme sets comments in italic says
+ * nothing about a line number.
+ */
+function gutterStyle(theme: Theme | undefined): HighlightStyle | undefined {
+  const fg = getThemeStyle(theme, "comment")?.fg;
+  return fg === undefined ? undefined : { fg };
 }
 
 function paintWithBackground(
@@ -139,6 +157,48 @@ interface TerminalState {
   /** The background the current line is painted with. */
   lineBg: string | undefined;
   lineWidth: number;
+  /**
+   * The current line's number, until its first text is written.
+   *
+   * A terminal writes nothing at all for a line with no text. The last line of a
+   * source ending in a newline is one, and numbering it would leave a bare
+   * number after the output.
+   */
+  pendingNumber: number | undefined;
+}
+
+/** How a line's number is written, once the widest one is known. */
+interface Gutter {
+  width: number;
+  style: HighlightStyle | undefined;
+}
+
+/** Write one source event, opening the line with its number if it has not been. */
+function writeSource(
+  state: TerminalState,
+  formatter: TerminalFormatter,
+  gutter: Gutter | undefined,
+  fallbackBg: string | undefined,
+  text: string,
+): void {
+  if (gutter && state.pendingNumber !== undefined && text !== "") {
+    const written = `${String(state.pendingNumber).padStart(gutter.width, " ")} `;
+    // Neovim draws the number column with `CursorLineNr` alone, so `CursorLine`
+    // does not reach it: a highlighted line's background starts at its text.
+    state.output += paintWithBackground(written, gutter.style, fallbackBg);
+    state.lineWidth = written.length;
+    state.pendingNumber = undefined;
+  }
+
+  const painted = paintSource(
+    text,
+    activeStyle(state.scopeStack, formatter.theme),
+    state.lineBg,
+    formatter.width,
+    state.lineWidth,
+  );
+  state.output += painted.output;
+  state.lineWidth = painted.lineWidth;
 }
 
 function applyTerminalEvent(
@@ -146,6 +206,7 @@ function applyTerminalEvent(
   formatter: TerminalFormatter,
   sourceBytes: Uint8Array,
   backgrounds: { fallback: string | undefined; highlight: string | undefined },
+  gutter: Gutter | undefined,
   event: HighlightEvent,
 ): void {
   switch (event.type) {
@@ -160,19 +221,17 @@ function applyTerminalEvent(
         ? (backgrounds.highlight ?? backgrounds.fallback)
         : backgrounds.fallback;
       state.lineWidth = 0;
+      state.pendingNumber = gutter ? event.decoration.number : undefined;
       break;
-    case "source": {
-      const painted = paintSource(
+    case "source":
+      writeSource(
+        state,
+        formatter,
+        gutter,
+        backgrounds.fallback,
         decodeSourceSlice(sourceBytes, event.start, event.end),
-        activeStyle(state.scopeStack, formatter.theme),
-        state.lineBg,
-        formatter.width,
-        state.lineWidth,
       );
-      state.output += painted.output;
-      state.lineWidth = painted.lineWidth;
       break;
-    }
     // Caller annotations carry data this formatter has never seen.
     default:
       break;
@@ -191,23 +250,32 @@ export function formatTerminal(
   };
 
   // A terminal writes one line after another whether or not it is told which
-  // lines to mark, so the line decorations are only worth composing when there
-  // is something to mark. Without them the stream, and the output, are exactly
-  // what they were.
+  // lines to mark or number, so the line decorations are only worth composing
+  // when one of the two was asked for. Without them the stream, and the output,
+  // are exactly what they were.
   const selection = new LineSelection(formatter.highlightLines?.lines);
-  const decorated = selection.isEmpty
-    ? events
-    : composeLineDecorations(sourceBytes, events, selection);
+  const numbered = formatter.lineNumbers === true;
+  const decorated =
+    selection.isEmpty && !numbered
+      ? events
+      : composeLineDecorations(sourceBytes, events, selection);
+
+  // The gutter is padded to the widest number it will show, which is only known
+  // once the lines are.
+  const gutter: Gutter | undefined = numbered
+    ? { width: gutterWidth(lastLineNumber(decorated)), style: gutterStyle(formatter.theme) }
+    : undefined;
 
   const state: TerminalState = {
     output: "",
     scopeStack: [],
     lineBg: backgrounds.fallback,
     lineWidth: 0,
+    pendingNumber: undefined,
   };
 
   for (const event of decorated) {
-    applyTerminalEvent(state, formatter, sourceBytes, backgrounds, event);
+    applyTerminalEvent(state, formatter, sourceBytes, backgrounds, gutter, event);
   }
 
   if (!source.endsWith("\n")) {

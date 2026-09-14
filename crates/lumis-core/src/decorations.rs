@@ -38,6 +38,30 @@ pub enum Decoration {
     },
 }
 
+/// The number of the last line of a composed stream.
+///
+/// A gutter is padded to the widest number it will show, and a formatter only
+/// knows that number once the lines are known. Composition numbered them
+/// already, so this reads the answer off the stream rather than counting the
+/// source a second time.
+pub(crate) fn last_line_number<T>(events: &[HighlightEvent<'_, T>]) -> usize {
+    events
+        .iter()
+        .rev()
+        .find_map(|event| match event {
+            HighlightEvent::DecorationStart {
+                decoration: Decoration::Line { number, .. },
+            } => Some(*number),
+            _ => None,
+        })
+        .unwrap_or(1)
+}
+
+/// Digits in the widest number a gutter showing up to `last` has to fit.
+pub(crate) fn gutter_width(last: usize) -> usize {
+    last.max(1).ilog10() as usize + 1
+}
+
 /// A finite arithmetic progression of 1-based line numbers.
 ///
 /// This is public only so language bindings can preserve a source runtime's

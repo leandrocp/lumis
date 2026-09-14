@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn test_no_attrs() {
         let code = "@lang :rust";
-        let formatter = HtmlLinked::new(Language::Elixir, None, None, None);
+        let formatter = HtmlLinked::new(Language::Elixir, None, None, false, None);
         let result = crate::highlight(code, formatter);
         let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-operator"><span class="l-constant">@<span class="l-function-call"><span class="l-constant">lang <span class="l-string-special-symbol">:rust</span></span></span></span></span></div></code></pre>"#;
         assert_str_eq!(result, expected);
@@ -95,6 +95,7 @@ mod tests {
             Language::PlainText,
             Some("test-pre-class".to_string()),
             None,
+            false,
             None,
         );
         let result = crate::highlight("", formatter);
@@ -106,7 +107,7 @@ mod tests {
 
     #[test]
     fn test_code_tag_with_language() {
-        let formatter = HtmlLinked::new(Language::Rust, None, None, None);
+        let formatter = HtmlLinked::new(Language::Rust, None, None, false, None);
         let result = crate::highlight("", formatter);
         assert!(
             result.contains(r#"<code class="language-rust" translate="no" tabindex="0">"#),
@@ -142,7 +143,13 @@ mod tests {
             ..Default::default()
         };
 
-        let formatter = HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
+        let formatter = HtmlLinked::new(
+            Language::PlainText,
+            None,
+            Some(highlight_lines),
+            false,
+            None,
+        );
 
         let result = crate::highlight(code, formatter);
 
@@ -159,7 +166,13 @@ mod tests {
             lines: vec![1..=1, 3..=4],
             class: "custom-hl".to_string(),
         };
-        let formatter = HtmlLinked::new(Language::PlainText, None, Some(highlight_lines), None);
+        let formatter = HtmlLinked::new(
+            Language::PlainText,
+            None,
+            Some(highlight_lines),
+            false,
+            None,
+        );
 
         let result = crate::highlight(code, formatter);
 
@@ -178,7 +191,7 @@ mod tests {
             close_tag: "</div>".to_string(),
         };
         let code = "line 1\nline 2";
-        let formatter = HtmlLinked::new(Language::PlainText, None, None, Some(header));
+        let formatter = HtmlLinked::new(Language::PlainText, None, None, false, Some(header));
 
         let result = crate::highlight(code, formatter);
 
@@ -203,6 +216,7 @@ mod tests {
             Language::PlainText,
             Some("custom-pre".to_string()),
             Some(highlight_lines),
+            false,
             Some(header),
         );
 

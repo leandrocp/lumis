@@ -96,6 +96,7 @@ struct HtmlInlineOptions {
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<JsHighlightLines>,
+    line_numbers: bool,
     header: Option<JsHtmlElement>,
 }
 
@@ -104,6 +105,7 @@ struct HtmlInlineOptions {
 struct HtmlLinkedOptions {
     pre_class: Option<String>,
     highlight_lines: Option<JsHighlightLines>,
+    line_numbers: bool,
     header: Option<JsHtmlElement>,
 }
 
@@ -126,6 +128,7 @@ struct TerminalOptions {
     background: Option<String>,
     width: Option<usize>,
     highlight_lines: Option<JsTerminalHighlightLines>,
+    line_numbers: bool,
 }
 
 #[derive(Default, Deserialize)]
@@ -514,6 +517,7 @@ fn render_events(
                 options.italic,
                 options.include_highlights,
                 options.highlight_lines.map(inline_highlight_lines),
+                options.line_numbers,
                 options.header.map(HtmlElement::from),
             )
             .render(source, events, &mut output)?;
@@ -527,6 +531,7 @@ fn render_events(
                     lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
                     class: lines.class.unwrap_or_else(|| "l-highlighted".to_string()),
                 }),
+                options.line_numbers,
                 options.header.map(HtmlElement::from),
             )
             .render(source, events, &mut output)?;
@@ -556,6 +561,7 @@ fn render_events(
                     lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
                     background: lines.background,
                 }),
+                options.line_numbers,
             )
             .render(source, events, &mut output)?;
         }

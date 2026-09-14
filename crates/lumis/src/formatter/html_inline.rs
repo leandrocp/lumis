@@ -97,7 +97,16 @@ mod tests {
     #[test]
     fn test_no_attrs() {
         let code = "@lang :rust";
-        let formatter = HtmlInline::new(Language::Elixir, None, None, false, false, None, None);
+        let formatter = HtmlInline::new(
+            Language::Elixir,
+            None,
+            None,
+            false,
+            false,
+            None,
+            false,
+            None,
+        );
         let result = crate::highlight(code, formatter);
         let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span><span>@<span><span>lang <span>:rust</span></span></span></span></span></div></code></pre>"#;
         assert_str_eq!(result, expected);
@@ -114,6 +123,7 @@ mod tests {
             false,
             false,
             None,
+            false,
             None,
         );
         let result = crate::highlight(code, formatter);
@@ -144,6 +154,7 @@ mod tests {
             false,
             false,
             None,
+            false,
             None,
         );
         let result = crate::highlight("", formatter);
@@ -163,6 +174,7 @@ mod tests {
             false,
             false,
             None,
+            false,
             None,
         );
         let result = crate::highlight("", formatter);
@@ -216,6 +228,7 @@ mod tests {
             false,
             false,
             Some(highlight_lines),
+            false,
             None,
         );
 
@@ -246,6 +259,7 @@ mod tests {
             false,
             false,
             Some(highlight_lines),
+            false,
             None,
         );
 
@@ -276,6 +290,7 @@ mod tests {
             false,
             false,
             Some(highlight_lines),
+            false,
             None,
         );
 
@@ -303,6 +318,7 @@ mod tests {
             false,
             false,
             Some(highlight_lines),
+            false,
             None,
         );
 
@@ -329,6 +345,7 @@ mod tests {
             false,
             false,
             None,
+            false,
             Some(header),
         );
 
@@ -353,6 +370,7 @@ mod tests {
             false,
             false,
             None,
+            false,
             Some(header),
         );
 

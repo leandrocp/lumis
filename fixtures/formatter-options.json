@@ -26,6 +26,7 @@
         { "name": "italic" },
         { "name": "include_highlights" },
         { "name": "highlight_lines" },
+        { "name": "line_numbers" },
         { "name": "header", "spelling": { "cli": ["header-open", "header-close"] } }
       ]
     },
@@ -34,6 +35,7 @@
         { "name": "language" },
         { "name": "pre_class" },
         { "name": "highlight_lines" },
+        { "name": "line_numbers" },
         { "name": "header", "spelling": { "cli": ["header-open", "header-close"] } }
       ]
     },
@@ -47,6 +49,7 @@
         { "name": "italic" },
         { "name": "include_highlights" },
         { "name": "highlight_lines" },
+        { "name": "line_numbers" },
         { "name": "header", "spelling": { "cli": ["header-open", "header-close"] } }
       ]
     },
@@ -56,7 +59,8 @@
         { "name": "theme" },
         { "name": "background" },
         { "name": "width" },
-        { "name": "highlight_lines" }
+        { "name": "highlight_lines" },
+        { "name": "line_numbers" }
       ]
     },
     "bbcode_scoped": {

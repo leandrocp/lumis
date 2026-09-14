@@ -21,11 +21,11 @@ Class-based HTML that pairs with a CSS theme file. Smaller output than inline st
 
 | Runtime | Options |
 | --- | --- |
-| Rust | `language`, `pre_class`, `rainbow_brackets`, `highlight_lines`, `header` |
-| Elixir | `language`, `pre_class`, `rainbow_brackets`, `highlight_lines`, `header` |
-| JavaScript | `language`, `preClass`, `rainbowBrackets`, `highlightLines`, `header` |
+| Rust | `language`, `pre_class`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| Elixir | `language`, `pre_class`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| JavaScript | `language`, `preClass`, `rainbowBrackets`, `highlightLines`, `lineNumbers`, `header` |
 | Java | `withLang()`, `withFormatter(Formatter.HTML_LINKED)` |
-| CLI | `--pre-class`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--header-open`, `--header-close` |
+| CLI | `--pre-class`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--line-numbers`, `--header-open`, `--header-close` |
 
 ## Basic example
 
@@ -124,6 +124,7 @@ HTML Linked keeps the same block structure, but token styling moves to CSS class
 - `<pre class="lumis">` is the outer wrapper
 - `<code class="language-*">` identifies the language and keeps the block focusable
 - `<div class="l-line" data-line="N">` wraps each line
+- `<span class="l-line-number">` opens the line when `line_numbers` is on, see [Line Numbers](/recipes/line-numbers)
 - A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
   final line gets no added newline
 - `<span class="...">` carries semantic highlight classes such as `l-keyword` or `l-string`

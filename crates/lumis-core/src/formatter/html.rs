@@ -509,40 +509,64 @@ pub fn wrap_line(
     style: Option<&str>,
 ) -> String {
     let mut line = Vec::with_capacity(content.len() + 48);
-    let _ = LineTag::new(class_suffix, style).write(&mut line, line_number);
+    let _ = LineTag::new(class_suffix, style, false).write(&mut line, line_number);
     line.extend_from_slice(content.as_bytes());
     line.extend_from_slice(b"</div>");
 
     String::from_utf8(line).expect("the tag and its content are both UTF-8")
 }
 
+/// The class the gutter element carries, for a stylesheet to hang a column off.
+///
+/// The number is written out rather than left to `content: attr(data-line)`
+/// because a formatter that cannot reach a stylesheet — `terminal` — has to show
+/// the same thing, and because generated content is not in the document a reader
+/// can inspect. It is `aria-hidden`, so a screen reader is not read a number
+/// before every line.
+///
+/// Private for the same reason `l-line` is: it is a class the built-in
+/// formatters write, not a helper a custom one is built from.
+const LINE_NUMBER_CLASS: &str = "l-line-number";
+
 /// Everything in a line's opening tag that does not change from line to line.
 ///
 /// A document's lines differ only in their number and in whether they are
 /// highlighted, so the class and style attributes — which cost an escape each —
 /// are assembled once rather than once per line.
-struct LineTag(String);
+struct LineTag {
+    open: String,
+    numbered: bool,
+}
 
 impl LineTag {
-    fn new(class_suffix: Option<&str>, style: Option<&str>) -> Self {
-        let mut tag = String::from("<div class=\"");
+    fn new(class_suffix: Option<&str>, style: Option<&str>, numbered: bool) -> Self {
+        let mut open = String::from("<div class=\"");
         match class_suffix {
-            Some(suffix) => tag.push_str(&escape_attr(&format!("l-line{suffix}"))),
-            None => tag.push_str("l-line"),
+            Some(suffix) => open.push_str(&escape_attr(&format!("l-line{suffix}"))),
+            None => open.push_str("l-line"),
         }
-        tag.push('"');
+        open.push('"');
 
         if let Some(style) = style {
-            let _ = write!(tag, " style=\"{}\"", escape_attr(style));
+            let _ = write!(open, " style=\"{}\"", escape_attr(style));
         }
 
-        tag.push_str(" data-line=\"");
-        Self(tag)
+        open.push_str(" data-line=\"");
+        Self { open, numbered }
     }
 
     fn write(&self, output: &mut dyn Write, line_number: usize) -> io::Result<()> {
-        output.write_all(self.0.as_bytes())?;
-        write!(output, "{line_number}\">")
+        output.write_all(self.open.as_bytes())?;
+        write!(output, "{line_number}\">")?;
+
+        if self.numbered {
+            write!(
+                output,
+                "<span class=\"{LINE_NUMBER_CLASS}\" aria-hidden=\"true\">{line_number}</span>"
+            )?;
+        }
+
+        Ok(())
     }
 }
 
@@ -863,11 +887,24 @@ fn split_line_ending(text: &str) -> (&str, &str) {
     }
 }
 
+/// How one render's lines are numbered, marked and styled.
+///
+/// The three HTML formatters differ only in what a highlighted line carries, so
+/// this is what they hand [`write_html_lines`] to make the walk itself shared.
+pub(crate) struct HtmlLines<'a> {
+    /// Which lines the caller asked to highlight.
+    pub selection: &'a LineSelection,
+    /// Whether each line opens with a gutter carrying its number.
+    pub numbered: bool,
+    /// The class suffix a highlighted line's `<div>` carries.
+    pub highlighted_class: Option<&'a str>,
+    /// The inline style a highlighted line's `<div>` carries.
+    pub highlighted_style: Option<&'a str>,
+}
+
 /// Write a line-decorated stream as the `<div class="l-line">` blocks every
 /// built-in HTML formatter emits.
 ///
-/// The three of them differ only in the attributes a span and a highlighted line
-/// carry, so those are the two inputs; the walk itself is shared.
 /// [`write_line_events`] supplies the source terminator with each closing line,
 /// and this writer places it immediately before `</div>` without inventing one.
 ///
@@ -879,13 +916,16 @@ pub(crate) fn write_html_lines<T>(
     output: &mut dyn Write,
     source: &str,
     events: &[HighlightEvent<'_, T>],
-    selection: &LineSelection,
+    lines: &HtmlLines<'_>,
     span_attrs: &dyn Fn(usize, &str) -> String,
-    highlighted_line: (Option<&str>, Option<&str>),
 ) -> io::Result<()> {
-    let plain_tag = LineTag::new(None, None);
-    let highlighted_tag = LineTag::new(highlighted_line.0, highlighted_line.1);
-    let composed = compose_line_decorations(source, events, selection);
+    let plain_tag = LineTag::new(None, None, lines.numbered);
+    let highlighted_tag = LineTag::new(
+        lines.highlighted_class,
+        lines.highlighted_style,
+        lines.numbered,
+    );
+    let composed = compose_line_decorations(source, events, lines.selection);
     let mut attrs: std::collections::HashMap<(usize, &str), String> =
         std::collections::HashMap::new();
     let mut result = Ok(());
@@ -1076,6 +1116,25 @@ mod tests {
         }
     }
 
+    fn html_lines<T>(
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        selection: &LineSelection,
+        numbered: bool,
+        highlighted_class: Option<&str>,
+    ) -> String {
+        let mut output = Vec::new();
+        let lines = HtmlLines {
+            selection,
+            numbered,
+            highlighted_class,
+            highlighted_style: None,
+        };
+        write_html_lines(&mut output, source, events, &lines, &|_, _| String::new()).unwrap();
+
+        String::from_utf8(output).expect("the formatter writes UTF-8")
+    }
+
     #[test]
     fn test_escape_all_entities() {
         assert_eq!(escape("&<>\"'{}"), "&amp;&lt;&gt;&quot;&#39;{}");
@@ -1119,19 +1178,10 @@ mod tests {
             }];
 
             let lines = render_lines_from_events(source, &events, |_, _| String::new());
-            let mut html = Vec::new();
-            write_html_lines(
-                &mut html,
-                source,
-                &events,
-                &LineSelection::default(),
-                &|_, _| String::new(),
-                (None, None),
-            )
-            .unwrap();
+            let html = html_lines(source, &events, &LineSelection::default(), false, None);
 
             assert_str_eq!(
-                String::from_utf8(html).unwrap(),
+                html,
                 lines
                     .iter()
                     .enumerate()
@@ -1161,9 +1211,13 @@ mod tests {
             &mut html,
             source,
             &events,
-            &LineSelection::default(),
+            &HtmlLines {
+                selection: &LineSelection::default(),
+                numbered: false,
+                highlighted_class: None,
+                highlighted_style: None,
+            },
             &|_, _| "class=\"scope\"".to_string(),
-            (None, None),
         )
         .unwrap();
 
@@ -1171,6 +1225,45 @@ mod tests {
             String::from_utf8(html).unwrap(),
             "<div class=\"l-line\" data-line=\"1\"><span class=\"scope\">a</span>\r\n</div><div class=\"l-line\" data-line=\"2\"><span class=\"scope\">b</span></div>"
         );
+    }
+
+    /// The gutter carries the same number `data-line` does, because both read it
+    /// off the line's decoration.
+    #[test]
+    fn a_gutter_carries_the_number_data_line_does() {
+        let source = "one\ntwo";
+        let events = [HighlightEvent::<()>::Source {
+            start: 0,
+            end: source.len(),
+        }];
+        let selection = LineSelection::new(std::slice::from_ref(&(2..=2)), &[]);
+
+        let html = html_lines(source, &events, &selection, true, Some(" l-highlighted"));
+
+        assert_str_eq!(
+            html,
+            concat!(
+                r#"<div class="l-line" data-line="1">"#,
+                r#"<span class="l-line-number" aria-hidden="true">1</span>one"#,
+                "\n</div>",
+                r#"<div class="l-line l-highlighted" data-line="2">"#,
+                r#"<span class="l-line-number" aria-hidden="true">2</span>two"#,
+                // The last line is unterminated in the source, so it carries no
+                // terminator here either.
+                "</div>",
+            )
+        );
+    }
+
+    /// Without the option nothing is added, which is what keeps every existing
+    /// fixture byte for byte what it was.
+    #[test]
+    fn no_gutter_without_line_numbers() {
+        let events = [HighlightEvent::<()>::Source { start: 0, end: 1 }];
+
+        let html = html_lines("a", &events, &LineSelection::default(), false, None);
+
+        assert_str_eq!(html, "<div class=\"l-line\" data-line=\"1\">a</div>");
     }
 
     #[test]

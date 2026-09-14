@@ -18,6 +18,7 @@ export function formatHtmlLinked(
     language: formatter.language,
     theme: undefined,
     lines: formatter.highlightLines?.lines,
+    lineNumbers: formatter.lineNumbers,
     highlightedAttrs: { className: formatter.highlightLines?.class ?? "l-highlighted" },
     openSpan: (span) => openSpanTag({ class: scopeToClass(span.scope) }),
   });

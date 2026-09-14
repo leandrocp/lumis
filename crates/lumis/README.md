@@ -75,6 +75,7 @@ Formatters decide the output: `HtmlInline`, `HtmlLinked`, `HtmlMultiThemes`,
 - [Themes](https://lumis.sh/docs/themes) and [CSS theme files](https://lumis.sh/docs/themes/css-files)
 - [Languages](https://lumis.sh/docs/reference/languages) — the full list and how detection works
 - [Line highlighting](https://lumis.sh/docs/recipes/line-highlighting)
+- [Line numbers](https://lumis.sh/docs/recipes/line-numbers)
 - [Recipes](https://lumis.sh/docs/recipes)
 
 API reference: [docs.rs/lumis](https://docs.rs/lumis).
