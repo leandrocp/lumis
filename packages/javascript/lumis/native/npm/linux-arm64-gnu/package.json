@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/lumis-native-linux-arm64-gnu",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Native Lumis runtime for Linux arm64 glibc",
   "license": "MIT",
   "repository": "github:leandrocp/lumis",
