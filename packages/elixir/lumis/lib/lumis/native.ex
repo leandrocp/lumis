@@ -6,6 +6,7 @@ defmodule Lumis.Native do
   mix_config = Mix.Project.config()
   version = mix_config[:version]
   mode = if Mix.env() in [:dev, :test], do: :debug, else: :release
+  force_build = System.get_env("LUMIS_BUILD") in ["1", "true"]
 
   use_legacy =
     Application.compile_env(
@@ -27,6 +28,16 @@ defmodule Lumis.Native do
   ]
 
   other_variants = [legacy_cpu: fn -> use_legacy end]
+
+  workspace_crates_path = Path.expand("../../../../../crates", __DIR__)
+
+  if force_build and File.dir?(workspace_crates_path) do
+    nif_path = Path.expand("../../native/lumis_nif", __DIR__)
+
+    for resource <- Lumis.ComptimeUtils.local_cargo_dependency_resources(nif_path) do
+      @external_resource resource
+    end
+  end
 
   use RustlerPrecompiled,
     otp_app: :lumis,
@@ -55,7 +66,7 @@ defmodule Lumis.Native do
     # We don't use any features of newer NIF versions, so 2.15 is enough.
     nif_versions: ["2.15"],
     mode: mode,
-    force_build: System.get_env("LUMIS_BUILD") in ["1", "true"]
+    force_build: force_build
 
   def available_languages, do: :erlang.nif_error(:nif_not_loaded)
   def language_info(_name), do: :erlang.nif_error(:nif_not_loaded)
