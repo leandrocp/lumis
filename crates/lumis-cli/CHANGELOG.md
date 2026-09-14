@@ -1,3 +1,17 @@
+## [0.6.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.5.1...cargo-lumis-cli/v0.6.0) (2026-09-14)
+
+
+### Bug Fixes
+
+- reject a hex colour that is only partly hex - [#1394](https://github.com/leandrocp/lumis/pull/1394)
+- BREAKING: make public error enums non-exhaustive - [#1395](https://github.com/leandrocp/lumis/pull/1395)
+
+
+### Features
+
+- BREAKING: introduce annotations - [#1100](https://github.com/leandrocp/lumis/pull/1100)
+- BREAKING: render line highlighting as built-in decoration events - [#1398](https://github.com/leandrocp/lumis/pull/1398)
+
 ## [0.5.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.5.0...cargo-lumis-cli/v0.5.1) (2026-09-03)
 
 
