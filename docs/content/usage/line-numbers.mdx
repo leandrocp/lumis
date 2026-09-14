@@ -125,9 +125,14 @@ always has been, and the CSS-only approach still works.
 ### Terminal
 
 The number is padded to the widest one the render will show, so the code stays
-aligned past line 9, and it is dimmed with the theme's `comment` colour — no
-theme scope names a gutter, and `comment` is the one scope every theme styles as
-text meant to recede. A highlighted line's gutter takes that line's background.
+aligned past line 9.
+
+Neovim draws the number column with `LineNr`, and with `CursorLineNr` on the
+cursor line, so `CursorLine` never reaches it. Lumis follows that: a highlighted
+line's background starts at its text, not at its gutter. Neither `LineNr` nor
+`CursorLineNr` is extracted into a theme yet, so until they are the gutter
+borrows the theme's `comment` colour, the one scope every theme styles as text
+meant to recede.
 
 The number is written with the line's text, so the empty line a trailing newline
 opens carries none: a terminal writes nothing for that line, and a bare number

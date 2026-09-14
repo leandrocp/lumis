@@ -178,11 +178,14 @@ function writeSource(
   state: TerminalState,
   formatter: TerminalFormatter,
   gutter: Gutter | undefined,
+  fallbackBg: string | undefined,
   text: string,
 ): void {
   if (gutter && state.pendingNumber !== undefined && text !== "") {
     const written = `${String(state.pendingNumber).padStart(gutter.width, " ")} `;
-    state.output += paintWithBackground(written, gutter.style, state.lineBg);
+    // Neovim draws the number column with `CursorLineNr` alone, so `CursorLine`
+    // does not reach it: a highlighted line's background starts at its text.
+    state.output += paintWithBackground(written, gutter.style, fallbackBg);
     state.lineWidth = written.length;
     state.pendingNumber = undefined;
   }
@@ -221,7 +224,13 @@ function applyTerminalEvent(
       state.pendingNumber = gutter ? event.decoration.number : undefined;
       break;
     case "source":
-      writeSource(state, formatter, gutter, decodeSourceSlice(sourceBytes, event.start, event.end));
+      writeSource(
+        state,
+        formatter,
+        gutter,
+        backgrounds.fallback,
+        decodeSourceSlice(sourceBytes, event.start, event.end),
+      );
       break;
     // Caller annotations carry data this formatter has never seen.
     default:

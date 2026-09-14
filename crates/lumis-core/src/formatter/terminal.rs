@@ -274,8 +274,11 @@ impl<T> Formatter<T> for Terminal {
                     let text = source_text(source_bytes, *start, *end)?;
                     if !text.is_empty() {
                         if let (Some(number), Some((width, style))) = (pending_number, &gutter) {
+                            // Neovim draws the number column with `CursorLineNr`
+                            // alone, so `CursorLine` does not reach it: a
+                            // highlighted line's background starts at its text.
                             line_width =
-                                write_gutter(output, number, *width, style.as_ref(), line_bg)?;
+                                write_gutter(output, number, *width, style.as_ref(), fallback_bg)?;
                             pending_number = None;
                         }
                     }
@@ -687,8 +690,32 @@ mod tests {
         );
     }
 
-    /// No theme scope names a gutter, so it borrows the one scope every theme
-    /// styles as text meant to recede.
+    /// Neovim draws the number column with `CursorLineNr` alone, so `CursorLine`
+    /// does not reach it. A highlighted line's background starts at its text.
+    #[test]
+    fn a_highlighted_line_does_not_paint_its_gutter() {
+        let formatter = Terminal::new(
+            Language::PlainText,
+            None,
+            Background::Inherit,
+            None,
+            Some(HighlightLines {
+                lines: std::iter::once(1..=1).collect(),
+                background: Some("#ff0000".to_string()),
+            }),
+            true,
+        );
+
+        let rendered = render_lines(&formatter, "a\nb");
+
+        assert_eq!(
+            rendered, "1 \u{1b}[0m\u{1b}[48;2;255;0;0ma\u{1b}[0m\n2 b",
+            "the gutter is outside the highlight: {rendered:?}"
+        );
+    }
+
+    /// No theme scope names a gutter yet, so it borrows the one scope every
+    /// theme styles as text meant to recede.
     #[test]
     fn the_gutter_is_dimmed_with_the_comment_colour() {
         let theme = theme_with_scope_style(

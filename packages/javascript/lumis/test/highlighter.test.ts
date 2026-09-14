@@ -863,6 +863,22 @@ describe("lineNumbers", () => {
     expect(output).toContain("10 ");
   });
 
+  // Neovim draws the number column with `CursorLineNr` alone, so `CursorLine`
+  // does not reach it: a highlighted line's background starts at its text.
+  it("terminal: a highlighted line does not paint its gutter", () => {
+    const output = hl.highlight(
+      '{"a": 1}\n{"b": 2}',
+      terminal({
+        language: json,
+        lineNumbers: true,
+        highlightLines: { lines: [[1, 1]], background: "#ff0000" },
+      }),
+    );
+
+    expect(output.startsWith("1 ")).toBe(true);
+    expect(output).toContain("48;2;255;0;0");
+  });
+
   it("terminal: nothing is added without the option", () => {
     const output = hl.highlight(threeLines, terminal({ language: json }));
 
