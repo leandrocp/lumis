@@ -31,9 +31,7 @@ pub enum Decoration {
     /// text *and* the newline that ends it; the last line of a source that does
     /// not end in one covers just the text.
     Line {
-        /// The line's number, 1-based unless the caller asked to start
-        /// elsewhere with
-        /// [`LineNumbers`](crate::formatter::LineNumbers).
+        /// The 1-based line number.
         number: usize,
         /// Whether the caller asked for this line to be highlighted.
         highlighted: bool,
@@ -255,11 +253,7 @@ impl<'a, T> OpenLayer<'a, T> {
 /// afterwards.
 ///
 /// The returned stream always holds at least one line: an empty document is one
-/// empty line, the line a caller sees numbered `first_number`.
-///
-/// `first_number` renumbers the whole render, so `selection` names the numbers
-/// the lines end up with rather than their position in the document. Rendering
-/// lines 42 onwards of a file therefore highlights line 44 by asking for 44.
+/// empty line, the same line a caller sees numbered `1`.
 ///
 /// Line decorations already present in `events` are dropped rather than nested,
 /// so composing twice gives the same answer as composing once.
@@ -267,14 +261,13 @@ pub(crate) fn compose_line_decorations<'a, T>(
     source: &str,
     events: &[HighlightEvent<'a, T>],
     selection: &LineSelection,
-    first_number: usize,
 ) -> Vec<HighlightEvent<'a, T>> {
     // One decoration pair per line, plus a close and reopen of every layer that
     // crosses one. The syntax events themselves pass through.
     let mut output = Vec::with_capacity(events.len() + 2);
     let mut layers: Vec<OpenLayer<'a, T>> = Vec::new();
     let mut cursor = selection.cursor();
-    let mut line = clamp_first_number(first_number, source);
+    let mut line = 1usize;
 
     output.push(line_start(line, &mut cursor));
 
@@ -328,17 +321,6 @@ pub(crate) fn compose_line_decorations<'a, T>(
     output.push(HighlightEvent::DecorationEnd);
 
     output
-}
-
-/// The number the first line can carry without the counter overflowing.
-///
-/// A document holds at most one more line than it has bytes, so leaving that
-/// much headroom below [`usize::MAX`] is enough for the counter to reach the
-/// last line. Line 0 does not exist, so anything below 1 is line 1.
-fn clamp_first_number(first_number: usize, source: &str) -> usize {
-    first_number
-        .max(1)
-        .min(usize::MAX - source.len().saturating_add(1))
 }
 
 fn line_start<'a, T>(line: usize, cursor: &mut LineCursor<'_>) -> HighlightEvent<'a, T> {
@@ -448,7 +430,7 @@ mod tests {
     fn an_empty_document_is_one_line() {
         let events: [HighlightEvent<'_>; 0] = [];
 
-        let composed = compose_line_decorations("", &events, &LineSelection::default(), 1);
+        let composed = compose_line_decorations("", &events, &LineSelection::default());
 
         assert_eq!(lines(&composed), [(1, false)]);
         assert_eq!(composed.len(), 2, "a start and an end: {composed:?}");
@@ -459,7 +441,7 @@ mod tests {
         let source = "a\n";
         let events = [HighlightEvent::<()>::Source { start: 0, end: 2 }];
 
-        let composed = compose_line_decorations(source, &events, &LineSelection::default(), 1);
+        let composed = compose_line_decorations(source, &events, &LineSelection::default());
 
         assert_eq!(lines(&composed), [(1, false), (2, false)]);
         assert_eq!(rendered(source, &composed), source);
@@ -474,7 +456,7 @@ mod tests {
         }];
 
         let composed =
-            compose_line_decorations(source, &events, &selection(std::iter::once(2..=2)), 1);
+            compose_line_decorations(source, &events, &selection(std::iter::once(2..=2)));
 
         assert_eq!(lines(&composed), [(1, false), (2, true), (3, false)]);
         assert_eq!(rendered(source, &composed), source);
@@ -492,7 +474,7 @@ mod tests {
             HighlightEvent::End,
         ];
 
-        let composed = compose_line_decorations(source, &events, &LineSelection::default(), 1);
+        let composed = compose_line_decorations(source, &events, &LineSelection::default());
 
         assert_eq!(
             composed,
@@ -534,7 +516,7 @@ mod tests {
         let annotations = [Annotation::new(1..4, "span").unwrap()];
         let events = compose_annotations(source, &syntax, &annotations).unwrap();
 
-        let composed = compose_line_decorations(source, &events, &LineSelection::default(), 1);
+        let composed = compose_line_decorations(source, &events, &LineSelection::default());
 
         let starts = composed
             .iter()
@@ -556,7 +538,7 @@ mod tests {
             language: "rust".to_string(),
         }];
 
-        let composed = compose_line_decorations("", &events, &LineSelection::default(), 1);
+        let composed = compose_line_decorations("", &events, &LineSelection::default());
 
         assert_eq!(
             composed.last(),
@@ -574,40 +556,10 @@ mod tests {
         let source = "a\nb\n";
         let events = [HighlightEvent::<()>::Source { start: 0, end: 4 }];
 
-        let once = compose_line_decorations(source, &events, &selection(std::iter::once(1..=1)), 1);
-        let twice = compose_line_decorations(source, &once, &selection(std::iter::once(1..=1)), 1);
+        let once = compose_line_decorations(source, &events, &selection(std::iter::once(1..=1)));
+        let twice = compose_line_decorations(source, &once, &selection(std::iter::once(1..=1)));
 
         assert_eq!(once, twice);
-    }
-
-    /// A start close to `usize::MAX` would otherwise overflow the counter the
-    /// first time a newline advanced it.
-    #[test]
-    fn a_start_leaves_room_for_every_line_the_source_has() {
-        let source = "a\nb\nc";
-        let events = [HighlightEvent::<()>::Source {
-            start: 0,
-            end: source.len(),
-        }];
-
-        let composed =
-            compose_line_decorations(source, &events, &LineSelection::default(), usize::MAX);
-
-        let numbers = lines(&composed)
-            .into_iter()
-            .map(|(number, _)| number)
-            .collect::<Vec<_>>();
-
-        assert_eq!(numbers.len(), 3);
-        assert!(
-            numbers.windows(2).all(|pair| pair[1] == pair[0] + 1),
-            "line numbers must keep ascending: {numbers:?}"
-        );
-        assert_eq!(
-            numbers[0],
-            usize::MAX - source.len() - 1,
-            "the start is clamped to leave room for every line: {numbers:?}"
-        );
     }
 
     #[test]

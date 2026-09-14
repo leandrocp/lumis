@@ -245,18 +245,17 @@ export function formatTerminal(
   // when one of the two was asked for. Without them the stream, and the output,
   // are exactly what they were.
   const selection = new LineSelection(formatter.highlightLines?.lines);
-  const numbers = formatter.lineNumbers;
+  const numbered = formatter.lineNumbers === true;
   const decorated =
-    selection.isEmpty && numbers === undefined
+    selection.isEmpty && !numbered
       ? events
-      : composeLineDecorations(sourceBytes, events, selection, numbers?.start ?? 1);
+      : composeLineDecorations(sourceBytes, events, selection);
 
   // The gutter is padded to the widest number it will show, which is only known
   // once the lines are.
-  const gutter: Gutter | undefined = numbers && {
-    width: gutterWidth(lastLineNumber(decorated)),
-    style: gutterStyle(formatter.theme),
-  };
+  const gutter: Gutter | undefined = numbered
+    ? { width: gutterWidth(lastLineNumber(decorated)), style: gutterStyle(formatter.theme) }
+    : undefined;
 
   const state: TerminalState = {
     output: "",

@@ -209,12 +209,6 @@ pub use terminal::{Terminal, TerminalBuilder};
 pub mod bbcode;
 pub use bbcode::{BBCodeScoped, BBCodeScopedBuilder};
 
-/// How a render numbers the lines it emits.
-///
-/// Lives here rather than under [`html`] because a line's number is the one
-/// thing every output format can show, so [`terminal`] takes the same value.
-pub use lumis_core::formatter::LineNumbers;
-
 #[deprecated(note = "use `formatters::html::HtmlElement` instead")]
 pub use lumis_core::formatter::HtmlElement;
 

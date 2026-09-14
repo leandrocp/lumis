@@ -23,8 +23,6 @@ interface Case {
   events: SyntaxHighlightEvent[];
   annotations?: Array<{ start: number; end: number; data: string }>;
   highlightLines: LineSpec[];
-  /** The number the first line carries, as `lineNumbers.start` sets it. */
-  startLine?: number;
   expected: string;
 }
 
@@ -50,7 +48,6 @@ function compose(testCase: Case): HighlightEvent<string>[] {
     new TextEncoder().encode(testCase.source),
     composed,
     new LineSelection(testCase.highlightLines),
-    testCase.startLine ?? 1,
   );
 }
 
@@ -90,8 +87,6 @@ describe("line decoration composition parity", () => {
       "highlight/overlapping-ranges-merge",
       "highlight/range-beyond-the-document",
       "highlight/blank-line",
-      "start/renumbers-the-whole-render",
-      "start/highlight-lines-name-the-new-numbers",
     ]) {
       expect(names, `the corpus lost its \`${required}\` case`).toContain(required);
     }
@@ -106,31 +101,6 @@ describe("line decoration composition parity", () => {
         `${testCase.name}: diverged from Rust`,
       ).toBe(testCase.expected);
     }
-  });
-
-  // `LineNumbers.start` is a `number`, so a caller can hand over a value Rust's
-  // `usize` could not hold. Both runtimes read it as one that could.
-  it("normalizes a start no usize could hold", () => {
-    const source = "a\nb";
-    const bytes = new TextEncoder().encode(source);
-    const numbersFor = (start: number): number[] =>
-      composeLineDecorations(
-        bytes,
-        [{ type: "source", start: 0, end: 3 }],
-        new LineSelection([]),
-        start,
-      )
-        .filter((event) => event.type === "decorationStart")
-        .map((event) => event.decoration.number);
-
-    expect(numbersFor(Number.NaN)).toEqual([1, 2]);
-    expect(numbersFor(Number.POSITIVE_INFINITY)).toEqual([1, 2]);
-    expect(numbersFor(-5)).toEqual([1, 2]);
-    expect(numbersFor(2.7)).toEqual([2, 3]);
-    expect(numbersFor(Number.MAX_SAFE_INTEGER)).toEqual([
-      Number.MAX_SAFE_INTEGER - 4,
-      Number.MAX_SAFE_INTEGER - 3,
-    ]);
   });
 
   it("preserves the source", () => {

@@ -4,7 +4,6 @@ import type {
   HighlightSpan,
   HighlightEvent,
   HtmlElement,
-  LineNumbers,
   LineSpec,
   LanguageRef,
   SyntaxHighlightEvent,
@@ -1230,19 +1229,14 @@ export function formatHtmlLines(
     language: LanguageRef | undefined;
     theme: Theme | undefined;
     lines: readonly LineSpec[] | undefined;
-    lineNumbers: LineNumbers | undefined;
+    lineNumbers: boolean | undefined;
     highlightedAttrs: { className?: string; style?: string };
     openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
   },
 ): string {
   const sourceBytes = encodeSource(source);
-  const numbered = formatter.lineNumbers !== undefined;
-  const composed = composeLineDecorations(
-    sourceBytes,
-    events,
-    new LineSelection(formatter.lines),
-    formatter.lineNumbers?.start ?? 1,
-  );
+  const numbered = formatter.lineNumbers === true;
+  const composed = composeLineDecorations(sourceBytes, events, new LineSelection(formatter.lines));
   const parts: string[] = [];
 
   renderDecoratedLines(

@@ -3,7 +3,7 @@
 //! This module provides the [`HtmlInline`] formatter that generates HTML output with
 //! inline CSS styles for syntax highlighting, working from pre-computed highlight events.
 
-use super::{Formatter, HtmlElement, LineNumbers};
+use super::{Formatter, HtmlElement};
 use crate::decorations::{LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
@@ -60,7 +60,7 @@ pub struct HtmlInline {
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
-    line_numbers: Option<LineNumbers>,
+    line_numbers: bool,
     header: Option<HtmlElement>,
 }
 
@@ -89,7 +89,7 @@ impl HtmlInline {
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
-        line_numbers: Option<LineNumbers>,
+        line_numbers: bool,
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
@@ -176,7 +176,7 @@ impl Default for HtmlInline {
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
-            line_numbers: None,
+            line_numbers: false,
             header: None,
         }
     }
@@ -213,7 +213,7 @@ impl<T> Formatter<T> for HtmlInline {
             events,
             &crate::formatter::html::HtmlLines {
                 selection: &self.line_selection(),
-                numbers: self.line_numbers,
+                numbered: self.line_numbers,
                 highlighted_class: class_suffix.as_deref(),
                 highlighted_style: style.as_deref(),
             },

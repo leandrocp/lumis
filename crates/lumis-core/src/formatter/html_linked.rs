@@ -3,7 +3,7 @@
 //! This module provides the [`HtmlLinked`] formatter that generates HTML output with
 //! CSS classes for syntax highlighting, working from pre-computed highlight events.
 
-use super::{Formatter, HtmlElement, LineNumbers};
+use super::{Formatter, HtmlElement};
 use crate::decorations::{LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
@@ -44,7 +44,7 @@ pub struct HtmlLinked {
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
-    line_numbers: Option<LineNumbers>,
+    line_numbers: bool,
     header: Option<HtmlElement>,
 }
 
@@ -69,7 +69,7 @@ impl HtmlLinked {
         language: Language,
         pre_class: Option<String>,
         highlight_lines: Option<HighlightLines>,
-        line_numbers: Option<LineNumbers>,
+        line_numbers: bool,
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
@@ -123,7 +123,7 @@ impl Default for HtmlLinked {
             pre_class: None,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
-            line_numbers: None,
+            line_numbers: false,
             header: None,
         }
     }
@@ -156,7 +156,7 @@ impl<T> Formatter<T> for HtmlLinked {
             events,
             &crate::formatter::html::HtmlLines {
                 selection: &self.line_selection(),
-                numbers: self.line_numbers,
+                numbered: self.line_numbers,
                 highlighted_class: class_suffix.as_deref(),
                 highlighted_style: None,
             },

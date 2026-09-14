@@ -164,7 +164,7 @@ impl<T> Formatter<T> for BBCodeScoped {
             events
         } else {
             check_source_ranges(source_bytes, events)?;
-            composed = compose_line_decorations(source, events, &selection, 1);
+            composed = compose_line_decorations(source, events, &selection);
             &composed
         };
         let mut line_highlighted = false;

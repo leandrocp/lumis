@@ -2,7 +2,7 @@
 //!
 //! Works with pre-computed highlight events from any source.
 
-use super::{ansi, check_source_ranges, first_line_number, source_text, Formatter, LineNumbers};
+use super::{ansi, check_source_ranges, source_text, Formatter};
 use crate::decorations::{
     compose_line_decorations, gutter_width, last_line_number, Decoration, LineSelection,
     SteppedLineRange,
@@ -56,7 +56,7 @@ pub struct Terminal {
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
-    line_numbers: Option<LineNumbers>,
+    line_numbers: bool,
 }
 
 impl TerminalBuilder {
@@ -82,7 +82,7 @@ impl Terminal {
         background: Background,
         width: Option<usize>,
         highlight_lines: Option<HighlightLines>,
-        line_numbers: Option<LineNumbers>,
+        line_numbers: bool,
     ) -> Self {
         Self {
             language,
@@ -221,7 +221,7 @@ impl Default for Terminal {
             width: None,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
-            line_numbers: None,
+            line_numbers: false,
         }
     }
 }
@@ -249,24 +249,18 @@ impl<T> Formatter<T> for Terminal {
         // and the output, are exactly what they were.
         let selection = self.line_selection();
         let composed;
-        let events: &[HighlightEvent<'_, T>] =
-            if selection.is_empty() && self.line_numbers.is_none() {
-                events
-            } else {
-                check_source_ranges(source_bytes, events)?;
-                composed = compose_line_decorations(
-                    source,
-                    events,
-                    &selection,
-                    first_line_number(self.line_numbers),
-                );
-                &composed
-            };
+        let events: &[HighlightEvent<'_, T>] = if selection.is_empty() && !self.line_numbers {
+            events
+        } else {
+            check_source_ranges(source_bytes, events)?;
+            composed = compose_line_decorations(source, events, &selection);
+            &composed
+        };
         // The gutter is padded to the widest number it will show, which is only
         // known once the lines are.
         let gutter = self
             .line_numbers
-            .map(|_| (gutter_width(last_line_number(events)), self.gutter_style()));
+            .then(|| (gutter_width(last_line_number(events)), self.gutter_style()));
         let mut line_bg = fallback_bg;
         // A line's number is written with its first text rather than when the
         // line opens, because a terminal writes nothing at all for a line with
@@ -465,7 +459,7 @@ mod tests {
             Background::Color("#282a36".to_string()),
             Some(5),
             None,
-            None,
+            false,
         );
         let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 2 }];
         let mut output = Vec::new();
@@ -486,7 +480,7 @@ mod tests {
             Background::Color("#282a36".to_string()),
             Some(4),
             None,
-            None,
+            false,
         );
         let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 3 }];
         let mut output = Vec::new();
@@ -507,7 +501,7 @@ mod tests {
             Background::Theme,
             None,
             None,
-            None,
+            false,
         );
         let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 2 }];
         let mut output = Vec::new();
@@ -555,7 +549,7 @@ mod tests {
                 lines: std::iter::once(2..=2).collect(),
                 background: None,
             }),
-            None,
+            false,
         );
 
         assert_eq!(
@@ -575,7 +569,7 @@ mod tests {
                 lines: std::iter::once(1..=1).collect(),
                 background: Some("#ff0000".to_string()),
             }),
-            None,
+            false,
         );
 
         assert!(render_lines(&formatter, "a\nb").contains("\u{1b}[48;2;255;0;0m"));
@@ -594,7 +588,7 @@ mod tests {
                 lines: std::iter::once(1..=1).collect(),
                 background: Some("#282a36".to_string()),
             }),
-            None,
+            false,
         );
 
         assert_eq!(
@@ -616,20 +610,20 @@ mod tests {
                 lines: std::iter::once(1..=1).collect(),
                 background: None,
             }),
-            None,
+            false,
         );
 
         assert_eq!(render_lines(&formatter, "a\nb"), "a\nb");
     }
 
-    fn numbered(theme: Option<Theme>, width: Option<usize>, start: usize) -> Terminal {
+    fn numbered(theme: Option<Theme>, width: Option<usize>) -> Terminal {
         Terminal::new(
             Language::PlainText,
             theme,
             Background::Inherit,
             width,
             None,
-            Some(LineNumbers { start }),
+            true,
         )
     }
 
@@ -642,7 +636,7 @@ mod tests {
             acc
         });
 
-        let rendered = render_lines(&numbered(None, None, 1), &source);
+        let rendered = render_lines(&numbered(None, None), &source);
 
         assert_eq!(rendered.lines().next(), Some(" 1 1"));
         assert!(rendered.contains("10 10"), "{rendered}");
@@ -652,7 +646,7 @@ mod tests {
     /// nothing for it. Numbering it would leave a bare number after the output.
     #[test]
     fn the_line_a_trailing_newline_opens_carries_no_number() {
-        let rendered = render_lines(&numbered(None, None, 1), "a\n");
+        let rendered = render_lines(&numbered(None, None), "a\n");
 
         assert_eq!(rendered, "1 a\n");
     }
@@ -661,23 +655,14 @@ mod tests {
     /// still numbered.
     #[test]
     fn a_blank_line_keeps_its_number() {
-        let rendered = render_lines(&numbered(None, None, 1), "a\n\nb");
+        let rendered = render_lines(&numbered(None, None), "a\n\nb");
 
         assert_eq!(rendered, "1 a\n2 \n3 b");
     }
 
     #[test]
     fn an_empty_document_renders_nothing() {
-        assert_eq!(render_lines(&numbered(None, None, 1), ""), "");
-    }
-
-    /// Numbering renumbers the render, so a fragment carries the numbers it has
-    /// in the file it came from.
-    #[test]
-    fn numbering_starts_where_the_caller_asked() {
-        let rendered = render_lines(&numbered(None, None, 99), "a\nb");
-
-        assert_eq!(rendered, " 99 a\n100 b");
+        assert_eq!(render_lines(&numbered(None, None), ""), "");
     }
 
     /// The gutter takes columns, so the padding that fills a line out to `width`
@@ -690,7 +675,7 @@ mod tests {
             Background::Color("#282a36".to_string()),
             Some(6),
             None,
-            Some(LineNumbers { start: 1 }),
+            true,
         );
 
         let rendered = render_lines(&formatter, "ab");
@@ -715,7 +700,7 @@ mod tests {
             },
         );
 
-        let rendered = render_lines(&numbered(Some(theme), None, 1), "a");
+        let rendered = render_lines(&numbered(Some(theme), None), "a");
 
         assert_eq!(rendered, "\u{1b}[0m\u{1b}[38;2;98;114;164m1 \u{1b}[0ma");
     }
@@ -740,7 +725,7 @@ mod tests {
                 Background::Inherit,
                 None,
                 highlight_lines,
-                None,
+                false,
             );
             let mut output = Vec::new();
 
@@ -767,7 +752,7 @@ mod tests {
             Background::Inherit,
             None,
             None,
-            None,
+            false,
         );
         let events: [HighlightEvent<'_, ()>; 3] = [
             HighlightEvent::Start {

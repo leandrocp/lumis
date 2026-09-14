@@ -1,7 +1,7 @@
 use lumis_core::formatter::{
     bbcode, html::SteppedLineRange, html_inline, html_linked, terminal, BBCodeScopedBuilder,
     Formatter, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder,
-    LineNumbers, TerminalBackground, TerminalBuilder,
+    TerminalBackground, TerminalBuilder,
 };
 use lumis_core::{languages::Language, themes};
 use rustler::{NifMap, NifStruct, NifTaggedEnum, NifUnitEnum};
@@ -22,13 +22,13 @@ pub enum ExFormatterOption {
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<ExHtmlInlineHighlightLines>,
-        line_numbers: Option<ExLineNumbers>,
+        line_numbers: bool,
         header: Option<ExHtmlElement>,
     },
     HtmlLinked {
         pre_class: Option<String>,
         highlight_lines: Option<ExHtmlLinkedHighlightLines>,
-        line_numbers: Option<ExLineNumbers>,
+        line_numbers: bool,
         header: Option<ExHtmlElement>,
     },
     HtmlMultiThemes {
@@ -39,7 +39,7 @@ pub enum ExFormatterOption {
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<ExHtmlInlineHighlightLines>,
-        line_numbers: Option<ExLineNumbers>,
+        line_numbers: bool,
         header: Option<ExHtmlElement>,
     },
     Terminal {
@@ -47,7 +47,7 @@ pub enum ExFormatterOption {
         background: Option<ExTerminalBackground>,
         width: Option<usize>,
         highlight_lines: Option<ExTerminalHighlightLines>,
-        line_numbers: Option<ExLineNumbers>,
+        line_numbers: bool,
     },
     BbcodeScoped {
         highlight_lines: Option<ExBBCodeHighlightLines>,
@@ -68,7 +68,7 @@ impl Default for ExFormatterOption {
             italic: false,
             include_highlights: false,
             highlight_lines: None,
-            line_numbers: None,
+            line_numbers: false,
             header: None,
         }
     }
@@ -221,7 +221,7 @@ impl ExFormatterOption {
                     .italic(italic)
                     .include_highlights(include_highlights)
                     .highlight_lines(highlight_lines)
-                    .line_numbers(line_numbers.map(LineNumbers::from))
+                    .line_numbers(line_numbers)
                     .header(header)
                     .build()
                     .map_err(|e| format!("HtmlInline builder error: {e:?}"))?;
@@ -247,7 +247,7 @@ impl ExFormatterOption {
                     .language(language)
                     .pre_class(pre_class)
                     .highlight_lines(highlight_lines)
-                    .line_numbers(line_numbers.map(LineNumbers::from))
+                    .line_numbers(line_numbers)
                     .header(header)
                     .build()
                     .map_err(|e| format!("HtmlLinked builder error: {e:?}"))?;
@@ -286,7 +286,7 @@ impl ExFormatterOption {
                     .italic(italic)
                     .include_highlights(include_highlights)
                     .highlight_lines(highlight_lines)
-                    .line_numbers(line_numbers.map(LineNumbers::from))
+                    .line_numbers(line_numbers)
                     .header(header);
 
                 if let Some(dt_str) = default_theme {
@@ -322,7 +322,7 @@ impl ExFormatterOption {
                     .background(background)
                     .width(width)
                     .highlight_lines(highlight_lines)
-                    .line_numbers(line_numbers.map(LineNumbers::from))
+                    .line_numbers(line_numbers)
                     .build()
                     .map_err(|e| format!("Terminal builder error: {e:?}"))?;
                 formatter.set_stepped_highlight_lines(stepped_highlight_lines);
@@ -579,20 +579,6 @@ pub struct ExTerminalHighlightLines {
 #[module = "Lumis.BBCodeHighlightLines"]
 pub struct ExBBCodeHighlightLines {
     pub lines: Vec<ExLineSpec>,
-}
-
-#[derive(Clone, Copy, Debug, NifStruct)]
-#[module = "Lumis.LineNumbers"]
-pub struct ExLineNumbers {
-    pub start: usize,
-}
-
-impl From<ExLineNumbers> for LineNumbers {
-    fn from(numbers: ExLineNumbers) -> Self {
-        LineNumbers {
-            start: numbers.start,
-        }
-    }
 }
 
 #[derive(Clone, Debug, NifMap)]

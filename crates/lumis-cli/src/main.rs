@@ -141,10 +141,6 @@ struct LineNumberArgs {
     /// Render a line number gutter
     #[arg(short = 'n', long)]
     line_numbers: bool,
-
-    /// Number the first line as this, for a fragment of a larger file [default: 1]
-    #[arg(long, requires = "line_numbers")]
-    line_numbers_start: Option<usize>,
 }
 
 #[derive(clap::Args)]
@@ -263,7 +259,6 @@ impl HighlightArgs {
             "--default-theme" => self.multi_theme.default_theme.is_some(),
             "--css-variable-prefix" => self.multi_theme.css_variable_prefix.is_some(),
             "--line-numbers" => self.line_numbers.line_numbers,
-            "--line-numbers-start" => self.line_numbers.line_numbers_start.is_some(),
             other => unreachable!("OPTION_GROUPS names an unknown flag `{other}`"),
         }
     }
@@ -1549,15 +1544,6 @@ fn terminal_highlight_lines(
     }))
 }
 
-/// The line numbering `--line-numbers` asks for, if it was passed.
-fn line_numbers(args: &HighlightArgs) -> Option<lumis_core::formatter::LineNumbers> {
-    args.line_numbers
-        .line_numbers
-        .then(|| lumis_core::formatter::LineNumbers {
-            start: args.line_numbers.line_numbers_start.unwrap_or(1),
-        })
-}
-
 fn bbcode_highlight_lines(
     args: &HighlightArgs,
 ) -> Result<Option<lumis_core::formatter::bbcode::HighlightLines>> {
@@ -1589,8 +1575,9 @@ fn print_verbose_separator(verbose: bool) {
 }
 
 // These are the already-validated CLI option groups; bundling them again here
-// would create a second configuration model for one formatter.
-#[allow(clippy::too_many_arguments)]
+// would create a second configuration model for one formatter. That includes
+// the flags that are plain switches.
+#[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools)]
 fn render_html_multi_themes(
     reg: &registry::Registry,
     source: &str,
@@ -1603,7 +1590,7 @@ fn render_html_multi_themes(
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<lumis_core::formatter::html_inline::HighlightLines>,
-    line_numbers: Option<lumis_core::formatter::LineNumbers>,
+    line_numbers: bool,
     header: Option<lumis_core::formatter::HtmlElement>,
     verbose: bool,
 ) -> Result<Vec<u8>> {
@@ -1689,7 +1676,7 @@ fn render_output(
     } = args;
 
     let highlight_lines = inline_highlight_lines(&args)?;
-    let line_numbers = line_numbers(&args);
+    let line_numbers = args.line_numbers.line_numbers;
     let header = header_element(&args);
 
     match chosen {

@@ -52,7 +52,7 @@ mod tests {
             Background::Inherit,
             None,
             None,
-            None,
+            false,
         );
         let result = crate::highlight(code, formatter);
 

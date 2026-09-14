@@ -980,12 +980,10 @@ fn highlight_source_diff_html_linked() {
             "--header-close",
             "</figure>",
             "-H",
-            "3",
+            "1",
             "--highlight-lines-class",
             "selected",
             "--line-numbers",
-            "--line-numbers-start",
-            "3",
         ])
         .write_stdin(DIFF_SNIPPET)
         .assert()
@@ -994,7 +992,7 @@ fn highlight_source_diff_html_linked() {
             "<figure><pre class=\"lumis custom\"",
         ))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"3\"><span class=\"l-line-number\" aria-hidden=\"true\">3</span>",
+            "<div class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number\" aria-hidden=\"true\">1</span>",
         ))
         .stdout(predicate::str::ends_with("</code></pre></figure>"));
 }
@@ -1698,7 +1696,6 @@ fn formatters_show_lists_only_what_the_formatter_accepts() {
         .stdout(predicate::str::contains("--highlight-lines"))
         .stdout(predicate::str::contains("--highlight-lines-background"))
         .stdout(predicate::str::contains("--line-numbers"))
-        .stdout(predicate::str::contains("--line-numbers-start"))
         .stdout(predicate::str::contains("--formatter").not())
         .stdout(predicate::str::contains("--pre-class").not())
         .stdout(predicate::str::contains("--highlight-lines-class").not())
@@ -1729,8 +1726,7 @@ fn terminal_paints_a_highlighted_line() {
         .stdout(predicate::str::contains("\u{1b}[48;2;255;0;0m"));
 }
 
-/// The gutter is padded to the widest number the render will show, and starts
-/// where the caller asked so a fragment carries the numbers it has in its file.
+/// The gutter is padded to the widest number the render will show.
 #[test]
 fn terminal_numbers_its_lines() {
     cmd()
@@ -1743,14 +1739,12 @@ fn terminal_numbers_its_lines() {
             "-l",
             "diff",
             "--line-numbers",
-            "--line-numbers-start",
-            "99",
         ])
         .write_stdin(DIFF_SNIPPET)
         .assert()
         .success()
-        .stdout(predicate::str::contains(" 99 "))
-        .stdout(predicate::str::contains("100 "));
+        .stdout(predicate::str::contains("1 "))
+        .stdout(predicate::str::contains("2 "));
 }
 
 /// Plaintext has no grammar, which used to mean the CLI printed the source and

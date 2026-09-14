@@ -2,11 +2,10 @@
 sidebar_position: 5
 slug: /recipes/line-numbers
 title: Line Numbers
-description: Number the lines Lumis renders, in HTML and in the terminal, and start the numbering anywhere.
+description: Number the lines Lumis renders, in HTML and in the terminal.
 keywords:
   - lumis line numbers
   - line number gutter
-  - start line
   - html inline
   - terminal
 ---
@@ -31,7 +30,7 @@ import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
 const html = await highlight(
   'line 1\nline 2\nline 3',
-  htmlInline({language: javascript, theme: frappe, lineNumbers: {}})
+  htmlInline({language: javascript, theme: frappe, lineNumbers: true})
 );
 ```
 
@@ -40,12 +39,11 @@ const html = await highlight(
 
 ```rust
 use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
-use lumis::formatters::LineNumbers;
 
 let formatter = HtmlInlineBuilder::new()
     .language(Language::PlainText)
     .theme(Some(themes::get("catppuccin_frappe").unwrap()))
-    .line_numbers(Some(LineNumbers::default()))
+    .line_numbers(true)
     .build()
     .unwrap();
 
@@ -58,7 +56,7 @@ let html = highlight("line 1\nline 2\nline 3", formatter);
 ```elixir
 Lumis.highlight!(
   "line 1\nline 2\nline 3",
-  formatter: {:html_inline, language: "plaintext", theme: "catppuccin_frappe", line_numbers: %{}}
+  formatter: {:html_inline, language: "plaintext", theme: "catppuccin_frappe", line_numbers: true}
 )
 ```
 
@@ -77,55 +75,8 @@ lumis highlight main.rs --formatter html-inline --line-numbers
   </TabItem>
 </Tabs>
 
-## Starting somewhere other than line 1
-
-Rendering a fragment of a file wants the numbers it has *in that file*. `start`
-gives them:
-
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
-
-```js
-htmlInline({language: javascript, lineNumbers: {start: 42}})
-```
-
-  </TabItem>
-  <TabItem value="rust" label="Rust">
-
-```rust
-use lumis::formatters::LineNumbers;
-
-let line_numbers = LineNumbers { start: 42 };
-```
-
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
-
-```elixir
-{:html_inline, language: "elixir", line_numbers: %{start: 42}}
-```
-
-  </TabItem>
-  <TabItem value="cli" label="CLI">
-
-```bash
-lumis highlight fragment.rs -f html-inline --line-numbers --line-numbers-start 42
-```
-
-  </TabItem>
-</Tabs>
-
-**A line has one number.** `start` renumbers the whole render, so `data-line`,
-the gutter and `highlight_lines` all name the same thing. A fragment starting at
-42 highlights its second line by asking for 43, not 2:
-
-```js
-htmlLinked({
-  language: javascript,
-  lineNumbers: {start: 42},
-  highlightLines: {lines: [43]},
-})
-```
+The number is the one every line already carries: HTML's `data-line` and
+`highlight_lines` name the same line.
 
 ## What each formatter renders
 
@@ -142,8 +93,8 @@ htmlLinked({
 The gutter is the first child of the line, inside `<code>`:
 
 ```html
-<div class="l-line" data-line="42">
-  <span class="l-line-number" aria-hidden="true">42</span>
+<div class="l-line" data-line="1">
+  <span class="l-line-number" aria-hidden="true">1</span>
   <span style="color: #ca9ee6;">fn</span>
 </div>
 ```
@@ -185,7 +136,6 @@ a `<div>` for it.
 
 ```sh
 lumis highlight -f terminal -t catppuccin_frappe -n main.rs
-lumis highlight -f terminal -n --line-numbers-start 42 fragment.rs
 ```
 
 ```text

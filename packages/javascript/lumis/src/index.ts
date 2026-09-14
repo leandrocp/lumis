@@ -158,7 +158,6 @@ export type {
   HighlightLinesLinked,
   HighlightLinesTerminal,
   HighlightLinesBBCode,
-  LineNumbers,
   LineSpec,
   HighlightRange,
   OffsetAnnotationRange,

@@ -827,7 +827,7 @@ describe("lineNumbers", () => {
   const threeLines = '{"a": 1}\n{"b": 2}\n{"c": 3}';
 
   it("htmlInline: each line carries a gutter element", () => {
-    const html = hl.highlight(threeLines, htmlInline({ language: json, theme, lineNumbers: {} }));
+    const html = hl.highlight(threeLines, htmlInline({ language: json, theme, lineNumbers: true }));
 
     expect(html).toContain('<span class="l-line-number" aria-hidden="true">1</span>');
     expect(html).toContain('<span class="l-line-number" aria-hidden="true">3</span>');
@@ -839,49 +839,28 @@ describe("lineNumbers", () => {
     expect(html).not.toContain("l-line-number");
   });
 
-  it("htmlLinked: start renumbers data-line and the gutter together", () => {
-    const html = hl.highlight(
-      threeLines,
-      htmlLinked({ language: json, lineNumbers: { start: 42 } }),
-    );
+  it("htmlLinked: the gutter carries the number data-line does", () => {
+    const html = hl.highlight(threeLines, htmlLinked({ language: json, lineNumbers: true }));
 
-    expect(html).toContain(
-      'data-line="42"><span class="l-line-number" aria-hidden="true">42</span>',
-    );
-    expect(html).toContain(
-      'data-line="44"><span class="l-line-number" aria-hidden="true">44</span>',
-    );
+    expect(html).toContain('data-line="1"><span class="l-line-number" aria-hidden="true">1</span>');
+    expect(html).toContain('data-line="3"><span class="l-line-number" aria-hidden="true">3</span>');
   });
 
   it("htmlMultiThemes: each line carries a gutter element", () => {
     const html = hl.highlight(
       threeLines,
-      htmlMultiThemes({ language: json, themes: { dark: theme }, lineNumbers: {} }),
+      htmlMultiThemes({ language: json, themes: { dark: theme }, lineNumbers: true }),
     );
 
     expect(html).toContain('<span class="l-line-number" aria-hidden="true">2</span>');
   });
 
-  it("highlightLines names the numbers the lines end up with", () => {
-    const html = hl.highlight(
-      threeLines,
-      htmlLinked({
-        language: json,
-        lineNumbers: { start: 42 },
-        highlightLines: { lines: [[43, 43]], class: "hl-line" },
-      }),
-    );
-
-    expect(html).toContain('class="l-line hl-line" data-line="43"');
-    expect(html).not.toContain('class="l-line hl-line" data-line="42"');
-  });
-
   it("terminal: the gutter is padded to the widest number", () => {
-    const nineLines = Array.from({ length: 9 }, (_, index) => `{"a": ${index}}`).join("\n");
-    const output = hl.highlight(nineLines, terminal({ language: json, lineNumbers: { start: 8 } }));
+    const tenLines = Array.from({ length: 10 }, (_, index) => `{"a": ${index}}`).join("\n");
+    const output = hl.highlight(tenLines, terminal({ language: json, lineNumbers: true }));
 
-    expect(output).toContain(" 8 ");
-    expect(output).toContain("16 ");
+    expect(output).toContain(" 1 ");
+    expect(output).toContain("10 ");
   });
 
   it("terminal: nothing is added without the option", () => {
@@ -893,7 +872,7 @@ describe("lineNumbers", () => {
   // A terminal writes nothing at all for the line a trailing newline opens, so
   // numbering it would leave a bare number after the output.
   it("terminal: the line a trailing newline opens carries no number", () => {
-    const output = hl.highlight('{"a": 1}\n', terminal({ language: json, lineNumbers: {} }));
+    const output = hl.highlight('{"a": 1}\n', terminal({ language: json, lineNumbers: true }));
 
     expect(output.startsWith("1 ")).toBe(true);
     expect(output.endsWith("\n")).toBe(true);

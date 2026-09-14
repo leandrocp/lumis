@@ -4,7 +4,6 @@
 
 use crate::decorations::{compose_line_decorations, Decoration, LineSelection};
 use crate::events::HighlightEvent;
-use crate::formatter::{first_line_number, LineNumbers};
 use crate::languages::Language;
 use crate::themes::{Style, TextDecoration, Theme, UnderlineStyle};
 use std::fmt::Write as _;
@@ -805,7 +804,7 @@ where
     let mut line = String::new();
 
     write_line_events(
-        &compose_line_decorations(source, events, &LineSelection::default(), 1),
+        &compose_line_decorations(source, events, &LineSelection::default()),
         source,
         |fragment| match fragment {
             LineFragment::Open(_) => {}
@@ -895,8 +894,8 @@ fn split_line_ending(text: &str) -> (&str, &str) {
 pub(crate) struct HtmlLines<'a> {
     /// Which lines the caller asked to highlight.
     pub selection: &'a LineSelection,
-    /// Whether to render a gutter, and where the numbering starts.
-    pub numbers: Option<LineNumbers>,
+    /// Whether each line opens with a gutter carrying its number.
+    pub numbered: bool,
     /// The class suffix a highlighted line's `<div>` carries.
     pub highlighted_class: Option<&'a str>,
     /// The inline style a highlighted line's `<div>` carries.
@@ -920,15 +919,13 @@ pub(crate) fn write_html_lines<T>(
     lines: &HtmlLines<'_>,
     span_attrs: &dyn Fn(usize, &str) -> String,
 ) -> io::Result<()> {
-    let numbered = lines.numbers.is_some();
-    let plain_tag = LineTag::new(None, None, numbered);
-    let highlighted_tag = LineTag::new(lines.highlighted_class, lines.highlighted_style, numbered);
-    let composed = compose_line_decorations(
-        source,
-        events,
-        lines.selection,
-        first_line_number(lines.numbers),
+    let plain_tag = LineTag::new(None, None, lines.numbered);
+    let highlighted_tag = LineTag::new(
+        lines.highlighted_class,
+        lines.highlighted_style,
+        lines.numbered,
     );
+    let composed = compose_line_decorations(source, events, lines.selection);
     let mut attrs: std::collections::HashMap<(usize, &str), String> =
         std::collections::HashMap::new();
     let mut result = Ok(());
@@ -1123,13 +1120,13 @@ mod tests {
         source: &str,
         events: &[HighlightEvent<'_, T>],
         selection: &LineSelection,
-        numbers: Option<LineNumbers>,
+        numbered: bool,
         highlighted_class: Option<&str>,
     ) -> String {
         let mut output = Vec::new();
         let lines = HtmlLines {
             selection,
-            numbers,
+            numbered,
             highlighted_class,
             highlighted_style: None,
         };
@@ -1181,7 +1178,7 @@ mod tests {
             }];
 
             let lines = render_lines_from_events(source, &events, |_, _| String::new());
-            let html = html_lines(source, &events, &LineSelection::default(), None, None);
+            let html = html_lines(source, &events, &LineSelection::default(), false, None);
 
             assert_str_eq!(
                 html,
@@ -1216,7 +1213,7 @@ mod tests {
             &events,
             &HtmlLines {
                 selection: &LineSelection::default(),
-                numbers: None,
+                numbered: false,
                 highlighted_class: None,
                 highlighted_style: None,
             },
@@ -1230,8 +1227,8 @@ mod tests {
         );
     }
 
-    /// Numbering renumbers the render, so `data-line` and the gutter agree, and
-    /// `highlight_lines` names the numbers the lines end up with.
+    /// The gutter carries the same number `data-line` does, because both read it
+    /// off the line's decoration.
     #[test]
     fn a_gutter_carries_the_number_data_line_does() {
         let source = "one\ntwo";
@@ -1239,24 +1236,18 @@ mod tests {
             start: 0,
             end: source.len(),
         }];
-        let selection = LineSelection::new(std::slice::from_ref(&(43..=43)), &[]);
+        let selection = LineSelection::new(std::slice::from_ref(&(2..=2)), &[]);
 
-        let html = html_lines(
-            source,
-            &events,
-            &selection,
-            Some(LineNumbers { start: 42 }),
-            Some(" l-highlighted"),
-        );
+        let html = html_lines(source, &events, &selection, true, Some(" l-highlighted"));
 
         assert_str_eq!(
             html,
             concat!(
-                r#"<div class="l-line" data-line="42">"#,
-                r#"<span class="l-line-number" aria-hidden="true">42</span>one"#,
+                r#"<div class="l-line" data-line="1">"#,
+                r#"<span class="l-line-number" aria-hidden="true">1</span>one"#,
                 "\n</div>",
-                r#"<div class="l-line l-highlighted" data-line="43">"#,
-                r#"<span class="l-line-number" aria-hidden="true">43</span>two"#,
+                r#"<div class="l-line l-highlighted" data-line="2">"#,
+                r#"<span class="l-line-number" aria-hidden="true">2</span>two"#,
                 // The last line is unterminated in the source, so it carries no
                 // terminator here either.
                 "</div>",
@@ -1270,7 +1261,7 @@ mod tests {
     fn no_gutter_without_line_numbers() {
         let events = [HighlightEvent::<()>::Source { start: 0, end: 1 }];
 
-        let html = html_lines("a", &events, &LineSelection::default(), None, None);
+        let html = html_lines("a", &events, &LineSelection::default(), false, None);
 
         assert_str_eq!(html, "<div class=\"l-line\" data-line=\"1\">a</div>");
     }

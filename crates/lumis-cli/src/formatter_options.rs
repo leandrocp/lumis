@@ -95,7 +95,7 @@ pub(crate) const OPTION_GROUPS: &[OptionGroup] = &[
     },
     OptionGroup {
         label: "line-number options",
-        flags: &["--line-numbers", "--line-numbers-start"],
+        flags: &["--line-numbers"],
         manifest_options: &["line_numbers"],
     },
     OptionGroup {

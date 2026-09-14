@@ -202,7 +202,7 @@ defmodule Lumis.LumisTest do
                pre_class: nil,
                include_highlights: false,
                highlight_lines: nil,
-               line_numbers: nil
+               line_numbers: false
              ],
              formatter_opts
            )
@@ -220,7 +220,7 @@ defmodule Lumis.LumisTest do
                  pre_class: nil,
                  include_highlights: false,
                  highlight_lines: nil,
-                 line_numbers: nil,
+                 line_numbers: false,
                  header: nil
                ],
                formatter_opts
@@ -237,7 +237,7 @@ defmodule Lumis.LumisTest do
                  language: nil,
                  pre_class: nil,
                  highlight_lines: nil,
-                 line_numbers: nil,
+                 line_numbers: false,
                  header: nil
                ],
                formatter_opts
@@ -256,7 +256,7 @@ defmodule Lumis.LumisTest do
                  background: nil,
                  width: nil,
                  highlight_lines: nil,
-                 line_numbers: nil
+                 line_numbers: false
                ],
                formatter_opts
              )
@@ -687,7 +687,7 @@ defmodule Lumis.LumisTest do
     test "html_inline renders a gutter in every line" do
       result =
         Lumis.highlight!("line 1\nline 2",
-          formatter: {:html_inline, language: "text", line_numbers: %{}}
+          formatter: {:html_inline, language: "text", line_numbers: true}
         )
 
       assert String.contains?(
@@ -701,47 +701,26 @@ defmodule Lumis.LumisTest do
              )
     end
 
-    test "html_linked renumbers data-line and the gutter together" do
+    test "html_linked writes the gutter beside data-line" do
       result =
         Lumis.highlight!("line 1\nline 2",
-          formatter: {:html_linked, language: "text", line_numbers: %{start: 42}}
+          formatter: {:html_linked, language: "text", line_numbers: true}
         )
 
       assert String.contains?(
                result,
-               ~s|data-line="42"><span class="l-line-number" aria-hidden="true">42</span>|
+               ~s|data-line="2"><span class="l-line-number" aria-hidden="true">2</span>|
              )
-
-      assert String.contains?(
-               result,
-               ~s|data-line="43"><span class="l-line-number" aria-hidden="true">43</span>|
-             )
-    end
-
-    test "highlight_lines names the numbers the lines end up with" do
-      result =
-        Lumis.highlight!("line 1\nline 2",
-          formatter:
-            {:html_linked,
-             language: "text",
-             line_numbers: %{start: 42},
-             highlight_lines: %{lines: [43], class: "hl"}}
-        )
-
-      assert String.contains?(result, ~s|<div class="l-line hl" data-line="43">|)
-      refute String.contains?(result, ~s|<div class="l-line hl" data-line="42">|)
     end
 
     test "terminal pads the gutter to the widest number" do
-      source = Enum.map_join(1..9, "\n", &"line #{&1}")
+      source = Enum.map_join(1..10, "\n", &"line #{&1}")
 
       result =
-        Lumis.highlight!(source,
-          formatter: {:terminal, language: "text", line_numbers: %{start: 8}}
-        )
+        Lumis.highlight!(source, formatter: {:terminal, language: "text", line_numbers: true})
 
-      assert String.contains?(result, " 8 line 1")
-      assert String.contains?(result, "16 line 9")
+      assert String.contains?(result, " 1 line 1")
+      assert String.contains?(result, "10 line 10")
     end
 
     test "nothing is added without the option" do
@@ -1176,7 +1155,7 @@ defmodule Lumis.LumisTest do
                [
                  header: nil,
                  highlight_lines: nil,
-                 line_numbers: nil,
+                 line_numbers: false,
                  include_highlights: false,
                  italic: false,
                  pre_class: nil,
@@ -1199,7 +1178,7 @@ defmodule Lumis.LumisTest do
                [
                  header: nil,
                  highlight_lines: nil,
-                 line_numbers: nil,
+                 line_numbers: false,
                  include_highlights: false,
                  italic: false,
                  pre_class: nil,
@@ -1223,7 +1202,7 @@ defmodule Lumis.LumisTest do
                  language: nil,
                  header: nil,
                  highlight_lines: nil,
-                 line_numbers: nil,
+                 line_numbers: false,
                  include_highlights: false,
                  pre_class: nil,
                  theme: "dracula",
@@ -1241,7 +1220,7 @@ defmodule Lumis.LumisTest do
                     [
                       language: nil,
                       header: nil,
-                      line_numbers: nil,
+                      line_numbers: false,
                       highlight_lines: nil,
                       include_highlights: false,
                       italic: false,
@@ -1276,7 +1255,7 @@ defmodule Lumis.LumisTest do
                  language: "rust",
                  header: nil,
                  highlight_lines: nil,
-                 line_numbers: nil,
+                 line_numbers: false,
                  include_highlights: false,
                  italic: false,
                  pre_class: nil,
@@ -1304,7 +1283,7 @@ defmodule Lumis.LumisTest do
                    language: "rust",
                    header: nil,
                    highlight_lines: nil,
-                   line_numbers: nil,
+                   line_numbers: false,
                    include_highlights: false,
                    italic: false,
                    pre_class: nil,
@@ -1346,7 +1325,7 @@ defmodule Lumis.LumisTest do
                   %{
                     header: nil,
                     highlight_lines: nil,
-                    line_numbers: nil,
+                    line_numbers: false,
                     include_highlights: false,
                     italic: false,
                     pre_class: nil,
@@ -1380,7 +1359,7 @@ defmodule Lumis.LumisTest do
                     %{
                       header: nil,
                       highlight_lines: nil,
-                      line_numbers: nil,
+                      line_numbers: false,
                       include_highlights: false,
                       italic: false,
                       pre_class: nil,
@@ -1404,7 +1383,7 @@ defmodule Lumis.LumisTest do
                     %{
                       header: nil,
                       highlight_lines: nil,
-                      line_numbers: nil,
+                      line_numbers: false,
                       include_highlights: false,
                       italic: false,
                       pre_class: "deprecated-class",
@@ -1424,7 +1403,7 @@ defmodule Lumis.LumisTest do
                     %{
                       header: nil,
                       highlight_lines: nil,
-                      line_numbers: nil,
+                      line_numbers: false,
                       include_highlights: false,
                       italic: false,
                       pre_class: nil,
@@ -1445,7 +1424,7 @@ defmodule Lumis.LumisTest do
                     %{
                       header: nil,
                       highlight_lines: nil,
-                      line_numbers: nil,
+                      line_numbers: false,
                       pre_class: nil
                     }},
                  language: nil
@@ -1463,7 +1442,7 @@ defmodule Lumis.LumisTest do
                   %{
                     header: nil,
                     highlight_lines: nil,
-                    line_numbers: nil,
+                    line_numbers: false,
                     include_highlights: false,
                     italic: false,
                     pre_class: nil,
@@ -1481,7 +1460,7 @@ defmodule Lumis.LumisTest do
                   %{
                     header: nil,
                     highlight_lines: nil,
-                    line_numbers: nil,
+                    line_numbers: false,
                     include_highlights: false,
                     italic: false,
                     pre_class: nil,
@@ -1499,7 +1478,7 @@ defmodule Lumis.LumisTest do
                   %{
                     header: nil,
                     highlight_lines: nil,
-                    line_numbers: nil,
+                    line_numbers: false,
                     include_highlights: false,
                     italic: false,
                     pre_class: nil,
@@ -1517,7 +1496,7 @@ defmodule Lumis.LumisTest do
                   %{
                     header: nil,
                     highlight_lines: nil,
-                    line_numbers: nil,
+                    line_numbers: false,
                     pre_class: "test"
                   }}
              } = Lumis.rust_options!(options)
@@ -1605,7 +1584,7 @@ defmodule Lumis.LumisTest do
                   %{
                     header: %Lumis.HTMLElement{open_tag: "<div>", close_tag: "</div>"},
                     highlight_lines: nil,
-                    line_numbers: nil,
+                    line_numbers: false,
                     include_highlights: false,
                     italic: false,
                     pre_class: nil,

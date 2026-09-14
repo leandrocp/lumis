@@ -9,7 +9,6 @@ use lumis_core::formatter::html_linked::{HighlightLines as LinkedHighlightLines,
 use lumis_core::formatter::terminal::{
     Background as TerminalBackground, HighlightLines as TerminalHighlightLines, Terminal,
 };
-use lumis_core::formatter::LineNumbers;
 use lumis_core::formatter::{Formatter as _, HtmlElement};
 use lumis_core::languages::Language;
 use lumis_core::themes::{Appearance, Style, Theme};
@@ -51,20 +50,6 @@ struct JsHighlightLines {
     lines: Vec<LineSpec>,
     style: Option<String>,
     class: Option<String>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct JsLineNumbers {
-    start: Option<usize>,
-}
-
-impl From<JsLineNumbers> for LineNumbers {
-    fn from(value: JsLineNumbers) -> Self {
-        Self {
-            start: value.start.unwrap_or(1),
-        }
-    }
 }
 
 #[derive(Deserialize)]
@@ -111,7 +96,7 @@ struct HtmlInlineOptions {
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<JsHighlightLines>,
-    line_numbers: Option<JsLineNumbers>,
+    line_numbers: bool,
     header: Option<JsHtmlElement>,
 }
 
@@ -120,7 +105,7 @@ struct HtmlInlineOptions {
 struct HtmlLinkedOptions {
     pre_class: Option<String>,
     highlight_lines: Option<JsHighlightLines>,
-    line_numbers: Option<JsLineNumbers>,
+    line_numbers: bool,
     header: Option<JsHtmlElement>,
 }
 
@@ -143,7 +128,7 @@ struct TerminalOptions {
     background: Option<String>,
     width: Option<usize>,
     highlight_lines: Option<JsTerminalHighlightLines>,
-    line_numbers: Option<JsLineNumbers>,
+    line_numbers: bool,
 }
 
 #[derive(Default, Deserialize)]
@@ -532,7 +517,7 @@ fn render_events(
                 options.italic,
                 options.include_highlights,
                 options.highlight_lines.map(inline_highlight_lines),
-                options.line_numbers.map(LineNumbers::from),
+                options.line_numbers,
                 options.header.map(HtmlElement::from),
             )
             .render(source, events, &mut output)?;
@@ -546,7 +531,7 @@ fn render_events(
                     lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
                     class: lines.class.unwrap_or_else(|| "l-highlighted".to_string()),
                 }),
-                options.line_numbers.map(LineNumbers::from),
+                options.line_numbers,
                 options.header.map(HtmlElement::from),
             )
             .render(source, events, &mut output)?;
@@ -576,7 +561,7 @@ fn render_events(
                     lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
                     background: lines.background,
                 }),
-                options.line_numbers.map(LineNumbers::from),
+                options.line_numbers,
             )
             .render(source, events, &mut output)?;
         }

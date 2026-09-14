@@ -80,19 +80,6 @@ defmodule Lumis do
           | nil
 
   @typedoc """
-  Line numbering options.
-
-  Asking for numbers also renumbers the render: the gutter, HTML's `data-line`
-  and `:highlight_lines` all name the same line, so a fragment of a file can
-  carry the numbers it has in that file.
-  """
-  @type line_numbers ::
-          %{
-            optional(:start) => pos_integer()
-          }
-          | nil
-
-  @typedoc """
   Wraps the highlighted code with custom open and close HTML tags.
   """
   @type header ::
@@ -117,7 +104,7 @@ defmodule Lumis do
             italic: boolean(),
             include_highlights: boolean(),
             highlight_lines: html_inline_highlight_lines() | nil,
-            line_numbers: line_numbers(),
+            line_numbers: boolean(),
             header: header()
           }
           | nil
@@ -157,7 +144,7 @@ defmodule Lumis do
       - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute. Useful for debugging.
       - `:highlight_lines` (`t:html_inline_highlight_lines/0` - default: `nil`) - highlight specific lines either using the theme `highlighted` style or with custom CSS styling.
-      - `:line_numbers` (`t:line_numbers/0` - default: `nil`) - render a `<span class="l-line-number">` gutter in each line, numbered from `:start`.
+      - `:line_numbers` (`t:boolean/0` - default: `false`) - open each line with a `<span class="l-line-number">` gutter carrying its number.
       - `:header` (`t:header/0` - default: `nil`) - wrap the highlighted code with custom open and close HTML tags.
 
   * `html_linked`:
@@ -165,7 +152,7 @@ defmodule Lumis do
       - `:language` (`t:language/0` - default: `nil`) - the language used by the formatter. When omitted, Lumis tries to auto-detect it from the source.
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
       - `:highlight_lines` (`t:html_linked_highlight_lines/0` - default: `nil`) - highlight specific lines either using the `l-highlighted` class from themes or with a custom CSS class.
-      - `:line_numbers` (`t:line_numbers/0` - default: `nil`) - render a `<span class="l-line-number">` gutter in each line, numbered from `:start`.
+      - `:line_numbers` (`t:boolean/0` - default: `false`) - open each line with a `<span class="l-line-number">` gutter carrying its number.
       - `:header` (`t:header/0` - default: `nil`) - wrap the highlighted code with custom open and close HTML tags.
 
   * `html_multi_themes`:
@@ -178,7 +165,7 @@ defmodule Lumis do
       - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute.
       - `:highlight_lines` (`t:html_inline_highlight_lines/0` - default: `nil`) - highlight specific lines (same as html_inline).
-      - `:line_numbers` (`t:line_numbers/0` - default: `nil`) - render a `<span class="l-line-number">` gutter in each line, numbered from `:start`.
+      - `:line_numbers` (`t:boolean/0` - default: `false`) - open each line with a `<span class="l-line-number">` gutter carrying its number.
       - `:header` (`t:header/0` - default: `nil`) - wrap the highlighted code with custom open and close HTML tags.
 
   * `terminal`:
@@ -188,7 +175,7 @@ defmodule Lumis do
       - `:background` (`:theme | t:String.t/0 | nil` - default: `nil`) - fallback background behavior: `nil` inherits the output background, `:theme` uses the theme's normal background color, and a string uses that color.
       - `:width` (`pos_integer() | nil` - default: `nil`) - pad each rendered terminal line to the given width. This is most useful with `:background`.
       - `:highlight_lines` (`t:terminal_highlight_lines/0` - default: `nil`) - paint specific lines with a background colour, either `:background` or the theme's `highlighted` background.
-      - `:line_numbers` (`t:line_numbers/0` - default: `nil`) - prefix each line with its number, right-aligned to the widest one and dimmed with the theme's `comment` colour.
+      - `:line_numbers` (`t:boolean/0` - default: `false`) - prefix each line with its number, right-aligned to the widest one and dimmed with the theme's `comment` colour.
 
   * `bbcode_scoped`:
 
@@ -294,7 +281,7 @@ defmodule Lumis do
                italic: boolean(),
                include_highlights: boolean(),
                highlight_lines: html_inline_highlight_lines(),
-               line_numbers: line_numbers(),
+               line_numbers: boolean(),
                header: header()
              ]}
           | :html_linked
@@ -303,7 +290,7 @@ defmodule Lumis do
                language: language(),
                pre_class: String.t(),
                highlight_lines: html_linked_highlight_lines(),
-               line_numbers: line_numbers(),
+               line_numbers: boolean(),
                header: header()
              ]}
           | :html_multi_themes
@@ -317,7 +304,7 @@ defmodule Lumis do
                italic: boolean(),
                include_highlights: boolean(),
                highlight_lines: html_inline_highlight_lines(),
-               line_numbers: line_numbers(),
+               line_numbers: boolean(),
                header: header()
              ]}
           | :terminal
@@ -328,7 +315,7 @@ defmodule Lumis do
                background: :theme | String.t() | nil,
                width: pos_integer() | nil,
                highlight_lines: terminal_highlight_lines(),
-               line_numbers: line_numbers()
+               line_numbers: boolean()
              ]}
           | :bbcode_scoped
           | {:bbcode_scoped, [language: language(), highlight_lines: bbcode_highlight_lines()]}
@@ -425,10 +412,7 @@ defmodule Lumis do
            ]},
         default: nil
       ],
-      line_numbers: [
-        type: {:or, [nil, map: [start: [type: :pos_integer, default: 1]]]},
-        default: nil
-      ],
+      line_numbers: [type: :boolean, default: false],
       header: [
         type:
           {:or,
@@ -474,10 +458,7 @@ defmodule Lumis do
            ]},
         default: nil
       ],
-      line_numbers: [
-        type: {:or, [nil, map: [start: [type: :pos_integer, default: 1]]]},
-        default: nil
-      ],
+      line_numbers: [type: :boolean, default: false],
       header: [
         type:
           {:or,
@@ -543,10 +524,7 @@ defmodule Lumis do
            ]},
         default: nil
       ],
-      line_numbers: [
-        type: {:or, [nil, map: [start: [type: :pos_integer, default: 1]]]},
-        default: nil
-      ],
+      line_numbers: [type: :boolean, default: false],
       header: [
         type:
           {:or,
@@ -594,10 +572,7 @@ defmodule Lumis do
            ]},
         default: nil
       ],
-      line_numbers: [
-        type: {:or, [nil, map: [start: [type: :pos_integer, default: 1]]]},
-        default: nil
-      ]
+      line_numbers: [type: :boolean, default: false]
     ]
 
     case NimbleOptions.validate(options, schema) do
@@ -741,21 +716,21 @@ defmodule Lumis do
   @doc false
   defp convert_html_inline_options(opts) do
     with {:ok, opts} <- convert_highlight_lines_inline(opts) do
-      convert_header(convert_line_numbers(opts))
+      convert_header(opts)
     end
   end
 
   @doc false
   defp convert_html_linked_options(opts) do
     with {:ok, opts} <- convert_highlight_lines_linked(opts) do
-      convert_header(convert_line_numbers(opts))
+      convert_header(opts)
     end
   end
 
   defp convert_html_multi_themes_options(opts) do
     with {:ok, opts} <- validate_and_convert_themes(opts),
          {:ok, opts} <- convert_highlight_lines_inline(opts) do
-      convert_header(convert_line_numbers(opts))
+      convert_header(opts)
     end
   end
 
@@ -861,19 +836,16 @@ defmodule Lumis do
   # A line spec always encodes, so unlike the HTML converters these two cannot
   # fail and hand back the options rather than a result tuple.
   defp convert_terminal_options(opts) do
-    opts =
-      case opts[:highlight_lines] do
-        nil ->
-          opts
+    case opts[:highlight_lines] do
+      nil ->
+        opts
 
-        hl ->
-          Keyword.put(opts, :highlight_lines, %Lumis.TerminalHighlightLines{
-            lines: Lumis.LineSpec.encode!(hl[:lines] || []),
-            background: hl[:background]
-          })
-      end
-
-    convert_line_numbers(opts)
+      hl ->
+        Keyword.put(opts, :highlight_lines, %Lumis.TerminalHighlightLines{
+          lines: Lumis.LineSpec.encode!(hl[:lines] || []),
+          background: hl[:background]
+        })
+    end
   end
 
   defp convert_bbcode_options(opts) do
@@ -885,13 +857,6 @@ defmodule Lumis do
         Keyword.put(opts, :highlight_lines, %Lumis.BBCodeHighlightLines{
           lines: Lumis.LineSpec.encode!(hl[:lines] || [])
         })
-    end
-  end
-
-  defp convert_line_numbers(opts) do
-    case opts[:line_numbers] do
-      nil -> opts
-      numbers -> Keyword.put(opts, :line_numbers, %Lumis.LineNumbers{start: numbers[:start] || 1})
     end
   end
 

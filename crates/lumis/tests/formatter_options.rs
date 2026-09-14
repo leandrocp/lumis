@@ -20,7 +20,7 @@
 #![cfg(feature = "lang-rust")]
 
 use lumis::formatters::html_inline::{HighlightLines, HighlightLinesStyle};
-use lumis::formatters::{HtmlElement, LineNumbers};
+use lumis::formatters::HtmlElement;
 use lumis::{
     languages::Language, themes, BBCodeScopedBuilder, HtmlInlineBuilder, HtmlLinkedBuilder,
     HtmlMultiThemesBuilder, TerminalBackground, TerminalBuilder,
@@ -194,7 +194,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .italic(true)
         .include_highlights(true)
         .highlight_lines(Some(highlight_lines()))
-        .line_numbers(Some(LineNumbers { start: 42 }))
+        .line_numbers(true)
         .header(Some(header()))
         .build()
         .expect("html_inline builds");
@@ -220,7 +220,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             lines: vec![1..=1, 3..=4],
             class: "active".to_string(),
         }))
-        .line_numbers(Some(LineNumbers { start: 42 }))
+        .line_numbers(true)
         .header(Some(header()))
         .build()
         .expect("html_linked builds");
@@ -247,7 +247,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .italic(true)
         .include_highlights(true)
         .highlight_lines(Some(highlight_lines()))
-        .line_numbers(Some(LineNumbers { start: 42 }))
+        .line_numbers(true)
         .header(Some(header()))
         .build()
         .expect("html_multi_themes builds");
@@ -277,7 +277,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             lines: vec![1..=1, 3..=4],
             background: Some("#3a3a3a".to_string()),
         }))
-        .line_numbers(Some(LineNumbers { start: 42 }))
+        .line_numbers(true)
         .build()
         .expect("terminal builds");
     exercised.insert(

@@ -101,10 +101,7 @@ type OpenLayer =
  * assembling lines and wrapping them afterwards.
  *
  * The returned stream always holds at least one line: an empty document is one
- * empty line, the line a caller sees numbered `firstNumber`.
- *
- * `firstNumber` renumbers the whole render, so `selection` names the numbers the
- * lines end up with rather than their position in the document.
+ * empty line, the same line a caller sees numbered `1`.
  *
  * The port of `compose_line_decorations` in
  * `crates/lumis-core/src/decorations.rs`; `test/decoration-composition.test.ts`
@@ -114,11 +111,10 @@ export function composeLineDecorations<T>(
   sourceBytes: Uint8Array,
   events: readonly HighlightEvent<T>[],
   selection: LineSelection,
-  firstNumber = 1,
 ): HighlightEvent<T>[] {
   const output: HighlightEvent<T>[] = [];
   const layers: OpenLayer[] = [];
-  let line = clampFirstNumber(firstNumber, sourceBytes.length);
+  let line = 1;
 
   output.push(lineStart(line, selection));
 
@@ -132,23 +128,6 @@ export function composeLineDecorations<T>(
   output.push({ type: "decorationEnd" });
 
   return output;
-}
-
-/**
- * The number the first line can carry without the counter losing precision.
- *
- * A document holds at most one more line than it has bytes, so leaving that much
- * headroom below `Number.MAX_SAFE_INTEGER` is enough for the counter to reach
- * the last line. Line 0 does not exist, so anything below 1 is line 1, and a
- * value `usize` could not hold — fractional, `NaN`, infinite — is read as one
- * that could.
- *
- * The port of `clamp_first_number` in `crates/lumis-core/src/decorations.rs`.
- */
-function clampFirstNumber(firstNumber: number, sourceLength: number): number {
-  if (!Number.isFinite(firstNumber)) return 1;
-
-  return Math.min(Math.max(1, Math.trunc(firstNumber)), Number.MAX_SAFE_INTEGER - sourceLength - 1);
 }
 
 /** Copy one event through, and return the line number it ends on. */

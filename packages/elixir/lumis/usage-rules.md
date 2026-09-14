@@ -158,7 +158,7 @@ Available options for `:html_inline`:
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (see Line Highlighting section)
-- `:line_numbers` - Render a line number gutter (see Line Numbers section)
+- `:line_numbers` - Open each line with a line number gutter (see Line Numbers section)
 - `:header` - Wrap with custom HTML tags (see Custom Wrappers section)
 
 ### HTML Linked
@@ -192,7 +192,7 @@ Then in your template:
 Available options for `:html_linked`:
 - `:pre_class` - CSS class to add to the `<pre>` tag
 - `:highlight_lines` - Highlight specific lines with CSS class
-- `:line_numbers` - Render a line number gutter (see Line Numbers section)
+- `:line_numbers` - Open each line with a line number gutter (see Line Numbers section)
 - `:header` - Wrap with custom HTML tags
 
 #### Building scoped CSS
@@ -301,7 +301,7 @@ Available options for `:html_multi_themes`:
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (same options as `:html_inline`)
-- `:line_numbers` - Render a line number gutter (see Line Numbers section)
+- `:line_numbers` - Open each line with a line number gutter (see Line Numbers section)
 - `:header` - Wrap with custom HTML tags (same options as other formatters)
 
 ### Terminal
@@ -457,30 +457,12 @@ Lumis.highlight!(code,
 and `:terminal` take it; `:bbcode_scoped` has nothing to render a number into.
 
 ```elixir
-# 1, 2, 3, ...
-Lumis.highlight!(code, formatter: {:html_inline, language: "elixir", line_numbers: %{}})
-
-# A fragment carrying the numbers it has in its file
-Lumis.highlight!(code, formatter: {:html_inline, language: "elixir", line_numbers: %{start: 42}})
+Lumis.highlight!(code, formatter: {:html_inline, language: "elixir", line_numbers: true})
 ```
 
 HTML opens each line with `<span class="l-line-number" aria-hidden="true">N</span>`,
 which needs a stylesheet rule to become a column. The terminal writes the number
 right-aligned to the widest one, dimmed with the theme's `comment` colour.
-
-A line has one number: `:start` renumbers the whole render, so `data-line`, the
-gutter and `:highlight_lines` all name the same line.
-
-```elixir
-# Highlights the second rendered line, which is line 43 of the file
-Lumis.highlight!(code,
-  formatter: {:html_linked,
-    language: "elixir",
-    line_numbers: %{start: 42},
-    highlight_lines: %{lines: [43]}
-  }
-)
-```
 
 ### Custom HTML Wrappers
 
@@ -888,7 +870,7 @@ opts = Lumis.default_options()
         style: :theme | "custom-css" | nil,
         class: "custom-class"
       },
-      line_numbers: %{start: 1},
+      line_numbers: false,
       header: %{
         open_tag: "<div>",
         close_tag: "</div>"
@@ -902,7 +884,7 @@ opts = Lumis.default_options()
         lines: [1, 2..5],
         class: "l-highlighted"
       },
-      line_numbers: %{start: 1},
+      line_numbers: false,
       header: %{
         open_tag: "<div>",
         close_tag: "</div>"
@@ -918,7 +900,7 @@ opts = Lumis.default_options()
         lines: [1, 2..5],
         background: "#3a3a3a" | nil
       },
-      line_numbers: %{start: 1}
+      line_numbers: false
     ]} |
     :html_multi_themes |
     {:html_multi_themes, [
@@ -934,7 +916,7 @@ opts = Lumis.default_options()
         style: :theme | "custom-css" | nil,
         class: "custom-class"
       },
-      line_numbers: %{start: 1},
+      line_numbers: false,
       header: %{
         open_tag: "<div>",
         close_tag: "</div>"
