@@ -26,7 +26,7 @@ path = "queries"
 
 [queries.nix]
 git = "https://github.com/nix-community/tree-sitter-nix.git"
-rev = "3d0173d903e630b6e14d17f1cf79488791379ded"
+rev = "c688ab22826442c8c489dafac5e912002dd9a8a2"
 path = "queries"
 
 [queries.nu]
