@@ -802,8 +802,8 @@ globs = ["*.jq"]
 
 [parsers.kdl]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-kdl.git"
-rev = "3ca569b9f9af43593c24f9e7a21f02f43a13bb88"
-version = "1.1.0"
+rev = "e8ff98a113e175b84b92ec2096820517c1e10a66"
+version = "2.0.0"
 display_name = "KDL"
 globs = ["*.kdl"]
 
