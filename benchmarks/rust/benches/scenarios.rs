@@ -1,9 +1,5 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use lumis::{
-    formatters::{Formatter as _, HtmlInline},
-    languages::Language,
-    themes, HtmlInlineBuilder,
-};
+use lumis::{formatters::HtmlInline, languages::Language, themes, HtmlInlineBuilder};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::env;
@@ -161,8 +157,7 @@ fn render_lumis(runtime: &[(String, HtmlInline)], scenario: &Scenario, validate:
                 .expect("Lumis formatter for fixture language")
                 .1;
             let mut output = Vec::with_capacity(file.source.len().saturating_mul(3));
-            formatter
-                .format(black_box(&file.source), &mut output)
+            lumis::write_highlight(&mut output, black_box(&file.source), formatter)
                 .expect("highlight fixture with Lumis");
             if validate {
                 validate_html(&output, file.source.len(), "Lumis Rust");

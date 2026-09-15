@@ -486,6 +486,14 @@ end
 </div>
 """
 
+# GPUI sigil
+~GPUI"""
+<div class="flex grow flex-col items-center justify-center gap-4">
+  <text class="text-3xl font-semibold">Count: {assigns.count}</text>
+  <UI.button id="increment" label="Increment" variant="primary" phx-click="increment" />
+</div>
+"""
+
 # Regex sigils
 regex_pattern = ~r/[a-zA-Z0-9]+/
 case_insensitive = ~R/hello world/i

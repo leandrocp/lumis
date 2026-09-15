@@ -1,12 +1,14 @@
 use base64::Engine as _;
 use lumis_core::events::HighlightEvent;
-use lumis_core::formatter::bbcode::BBCodeScoped;
+use lumis_core::formatter::bbcode::{BBCodeScoped, HighlightLines as BBCodeHighlightLines};
 use lumis_core::formatter::html_inline::{
     HighlightLines as InlineHighlightLines, HighlightLinesStyle as InlineHighlightLinesStyle,
     HtmlInline,
 };
 use lumis_core::formatter::html_linked::{HighlightLines as LinkedHighlightLines, HtmlLinked};
-use lumis_core::formatter::terminal::{Background as TerminalBackground, Terminal};
+use lumis_core::formatter::terminal::{
+    Background as TerminalBackground, HighlightLines as TerminalHighlightLines, Terminal,
+};
 use lumis_core::formatter::{Formatter as _, HtmlElement};
 use lumis_core::languages::Language;
 use lumis_core::themes::{Appearance, Style, Theme};
@@ -105,10 +107,31 @@ struct HtmlLinkedOptions {
     header: Option<JsHtmlElement>,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JsTerminalHighlightLines {
+    lines: Vec<LineSpec>,
+    background: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct JsBBCodeHighlightLines {
+    lines: Vec<LineSpec>,
+}
+
 #[derive(Default, Deserialize)]
-#[serde(default)]
+#[serde(default, rename_all = "camelCase")]
 struct TerminalOptions {
     theme: Option<JsTheme>,
+    background: Option<String>,
+    width: Option<usize>,
+    highlight_lines: Option<JsTerminalHighlightLines>,
+}
+
+#[derive(Default, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+struct BBCodeScopedOptions {
+    highlight_lines: Option<JsBBCodeHighlightLines>,
 }
 
 #[napi(object)]
@@ -453,7 +476,7 @@ fn render_formatter(
     Ok((output, unresolved))
 }
 
-fn publicize_event_languages(events: &mut [HighlightEvent], ids: &HashMap<String, String>) {
+fn publicize_event_languages(events: &mut [HighlightEvent<'_>], ids: &HashMap<String, String>) {
     for event in events {
         if let HighlightEvent::Start { language, .. } = event {
             if let Some(public) = ids.get(language) {
@@ -467,7 +490,7 @@ fn render_events(
     source: &str,
     display_language: &str,
     formatter: NativeFormatter,
-    events: &[HighlightEvent],
+    events: &[HighlightEvent<'_>],
 ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let language = if display_language == "plaintext" {
         Language::PlainText
@@ -504,15 +527,30 @@ fn render_events(
             .render(source, events, &mut output)?;
         }
         "bbcode-scoped" => {
-            BBCodeScoped::new(language).render(source, events, &mut output)?;
+            let options: BBCodeScopedOptions = serde_json::from_value(formatter.options)?;
+            BBCodeScoped::new(
+                language,
+                options.highlight_lines.map(|lines| BBCodeHighlightLines {
+                    lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
+                }),
+            )
+            .render(source, events, &mut output)?;
         }
         "terminal" => {
             let options: TerminalOptions = serde_json::from_value(formatter.options)?;
             Terminal::new(
                 language,
                 options.theme.map(Theme::from),
-                TerminalBackground::Inherit,
-                None,
+                match options.background.as_deref() {
+                    None => TerminalBackground::Inherit,
+                    Some("theme") => TerminalBackground::Theme,
+                    Some(color) => TerminalBackground::Color(color.to_string()),
+                },
+                options.width,
+                options.highlight_lines.map(|lines| TerminalHighlightLines {
+                    lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
+                    background: lines.background,
+                }),
             )
             .render(source, events, &mut output)?;
         }
@@ -526,7 +564,7 @@ fn render_events(
 
 /// Encode the event protocol documented and decoded in
 /// `src/core/native-event-codec.ts`.
-fn encode_events(events: &[HighlightEvent]) -> Result<Buffer> {
+fn encode_events(events: &[HighlightEvent<'_>]) -> Result<Buffer> {
     let mut output = Vec::with_capacity(events.len() * 9);
     for event in events {
         match event {
@@ -549,6 +587,11 @@ fn encode_events(events: &[HighlightEvent]) -> Result<Buffer> {
                 output.extend_from_slice(language.as_bytes());
             }
             HighlightEvent::End => output.push(END_EVENT),
+            _ => {
+                return Err(native_error(
+                    "the native event protocol only supports syntax events",
+                ));
+            }
         }
     }
     Ok(output.into())
@@ -630,8 +673,10 @@ fn highlight_events(
     language: &str,
     rainbow_brackets: bool,
     internal_ids: &HashMap<String, String>,
-) -> std::result::Result<(Vec<HighlightEvent>, Vec<String>), Box<dyn std::error::Error + Send + Sync>>
-{
+) -> std::result::Result<
+    (Vec<HighlightEvent<'static>>, Vec<String>),
+    Box<dyn std::error::Error + Send + Sync>,
+> {
     if language == "plaintext" {
         return Ok((
             vec![HighlightEvent::Source {
@@ -819,7 +864,7 @@ impl NativeRuntime {
             .clone()
     }
 
-    fn publicize_events(&self, events: &mut [HighlightEvent]) {
+    fn publicize_events(&self, events: &mut [HighlightEvent<'_>]) {
         publicize_event_languages(events, &self.public_ids());
     }
 

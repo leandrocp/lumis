@@ -1,0 +1,338 @@
+/* token_light
+ * revision: 11be57ef691359f7a5853281ba43a86b3a0b80c2
+ */
+.lumis {
+  color: #323128;
+  background-color: #faf9f5;
+}
+.l-attribute {
+  color: #573c72;
+}
+.l-attribute-builtin {
+  color: #573c72;
+}
+.l-boolean {
+  color: #613500;
+}
+.l-character {
+  color: #365a33;
+}
+.l-character-special {
+  color: #573c72;
+}
+.l-comment {
+  color: #504b44;
+  font-style: italic;
+}
+.l-comment-documentation {
+  color: #504b44;
+  font-style: italic;
+}
+.l-comment-error {
+  color: #ad5253;
+  font-style: italic;
+}
+.l-comment-hint {
+  color: #504b44;
+  font-style: italic;
+}
+.l-comment-note {
+  color: #315270;
+  font-style: italic;
+}
+.l-comment-todo {
+  color: #857238;
+  font-style: italic;
+}
+.l-comment-warning {
+  color: #857238;
+  font-style: italic;
+}
+.l-constant {
+  color: #573c72;
+}
+.l-constant-builtin {
+  color: #613500;
+}
+.l-constant-macro {
+  color: #573c72;
+  font-weight: bold;
+}
+.l-constructor {
+  color: #315270;
+}
+.l-diff-delta {
+  background-color: #eee4c6;
+}
+.l-diff-minus {
+  background-color: #ffdada;
+}
+.l-diff-plus {
+  background-color: #daf6d5;
+}
+.l-error {
+  color: #ad5253;
+}
+.l-function {
+  color: #863716;
+}
+.l-function-builtin {
+  color: #863716;
+}
+.l-function-call {
+  color: #863716;
+}
+.l-function-macro {
+  color: #573c72;
+  font-weight: bold;
+}
+.l-function-method {
+  color: #863716;
+}
+.l-function-method-call {
+  color: #863716;
+}
+.l-highlighted {
+  background-color: #f0efeb;
+}
+.l-keyword {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-conditional {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-conditional-ternary {
+  color: #565141;
+  font-weight: bold;
+}
+.l-keyword-coroutine {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-debug {
+  color: #ad5253;
+  font-weight: bold;
+}
+.l-keyword-directive {
+  color: #573c72;
+  font-weight: bold;
+}
+.l-keyword-directive-define {
+  color: #573c72;
+  font-weight: bold;
+}
+.l-keyword-exception {
+  color: #ad5253;
+  font-weight: bold;
+}
+.l-keyword-export {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-function {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-import {
+  color: #573c72;
+  font-weight: bold;
+}
+.l-keyword-modifier {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-operator {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-repeat {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-return {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-keyword-type {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-label {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-markup {
+  color: #323128;
+}
+.l-markup-environment {
+  color: #573c72;
+}
+.l-markup-environment-name {
+  color: #573c72;
+}
+.l-markup-heading {
+  color: #863716;
+  font-weight: bold;
+}
+.l-markup-heading-1 {
+  color: #863716;
+  font-weight: bold;
+}
+.l-markup-heading-2 {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-markup-heading-3 {
+  color: #465509;
+  font-weight: bold;
+}
+.l-markup-heading-4 {
+  color: #315270;
+  font-weight: bold;
+}
+.l-markup-heading-5 {
+  color: #365a33;
+  font-weight: bold;
+}
+.l-markup-heading-6 {
+  color: #573c72;
+  font-weight: bold;
+}
+.l-markup-italic {
+  font-style: italic;
+}
+.l-markup-link {
+  color: #315270;
+  text-decoration: underline;
+}
+.l-markup-link-label {
+  color: #315270;
+  text-decoration: underline;
+}
+.l-markup-link-url {
+  color: #315270;
+  text-decoration: underline;
+}
+.l-markup-list {
+  color: #6d4717;
+  font-weight: bold;
+}
+.l-markup-list-checked {
+  color: #365a33;
+}
+.l-markup-list-unchecked {
+  color: #524e46;
+}
+.l-markup-math {
+  color: #315270;
+}
+.l-markup-quote {
+  color: #504b44;
+  font-style: italic;
+}
+.l-markup-raw {
+  color: #365a33;
+}
+.l-markup-raw-block {
+  color: #365a33;
+}
+.l-markup-strikethrough {
+  text-decoration: line-through;
+}
+.l-markup-strong {
+  font-weight: bold;
+}
+.l-markup-underline {
+  text-decoration: underline;
+}
+.l-module {
+  color: #315270;
+}
+.l-module-builtin {
+  color: #315270;
+}
+.l-number {
+  color: #613500;
+}
+.l-number-float {
+  color: #613500;
+}
+.l-operator {
+  color: #565141;
+}
+.l-property {
+  color: #323128;
+}
+.l-punctuation-bracket {
+  color: #565141;
+}
+.l-punctuation-delimiter {
+  color: #565141;
+}
+.l-punctuation-special {
+  color: #573c72;
+}
+.l-string {
+  color: #365a33;
+}
+.l-string-documentation {
+  color: #365a33;
+  font-style: italic;
+}
+.l-string-escape {
+  color: #573c72;
+}
+.l-string-regexp {
+  color: #573c72;
+}
+.l-string-special {
+  color: #573c72;
+}
+.l-string-special-path {
+  color: #315270;
+}
+.l-string-special-symbol {
+  color: #573c72;
+}
+.l-string-special-url {
+  color: #315270;
+  text-decoration: underline;
+}
+.l-tag {
+  color: #573c72;
+}
+.l-tag-attribute {
+  color: #6d4717;
+}
+.l-tag-builtin {
+  color: #573c72;
+}
+.l-tag-delimiter {
+  color: #504b44;
+}
+.l-type {
+  color: #315270;
+}
+.l-type-builtin {
+  color: #315270;
+}
+.l-type-definition {
+  color: #315270;
+}
+.l-variable {
+  color: #323128;
+}
+.l-variable-builtin {
+  color: #6d4717;
+}
+.l-variable-member {
+  color: #323128;
+}
+.l-variable-parameter {
+  color: #565141;
+}
+.l-variable-parameter-builtin {
+  color: #6d4717;
+}

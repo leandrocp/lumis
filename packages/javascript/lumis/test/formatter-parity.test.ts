@@ -23,7 +23,7 @@ const theme: Theme = {
 };
 
 function sourceEvents(source: string): HighlightEvent[] {
-  return [{ type: "source", startByte: 0, endByte: Buffer.byteLength(source) }];
+  return [{ type: "source", start: 0, end: Buffer.byteLength(source) }];
 }
 
 function terminalFormatter(options: Partial<TerminalFormatter>): TerminalFormatter {
@@ -161,6 +161,6 @@ describe("D5 htmlMultiThemes validation", () => {
     const formatter = htmlMultiThemes({ themes: { light: theme }, defaultTheme: "light" });
     formatter.themes = {};
 
-    expect(() => formatter.format("const x = 1")).toThrow(/at least one theme/);
+    expect(() => formatter.render("const x = 1", [])).toThrow(/at least one theme/);
   });
 });

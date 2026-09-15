@@ -1,6 +1,6 @@
 //! Formatter implementations for generating syntax highlighted output.
 //!
-//! This module provides four different formatters for rendering syntax highlighted code:
+//! This module re-exports `lumis-core`'s formatters for rendering syntax highlighted code:
 //! - [`html_inline`] - HTML output with inline CSS styles (single theme)
 //! - [`html_multi_themes`] - HTML output with inline CSS styles (multiple themes)
 //! - [`html_linked`] - HTML output with CSS classes (requires external CSS)
@@ -43,7 +43,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -68,7 +68,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -87,7 +87,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -107,7 +107,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let ansi_output = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -143,12 +143,52 @@
 //! and the [`html`] / [`ansi`] helper modules to build output consistently with the
 //! built-in formatters.
 //!
+//! The trait is [`lumis_core::formatter::Formatter`], so the same implementation
+//! serves both crates: pass it to [`write_highlight()`](crate::write_highlight),
+//! which parses `source` with the grammar
+//! [`Formatter::language()`](lumis_core::formatter::Formatter::language) names, or
+//! render your own event stream with it directly.
+//!
+//! ```rust
+//! use lumis::{
+//!     events::HighlightEvent,
+//!     formatters::Formatter,
+//!     languages::Language,
+//!     write_highlight,
+//! };
+//! use std::io::{self, Write};
+//!
+//! struct SourceFormatter;
+//!
+//! impl Formatter for SourceFormatter {
+//!     fn language(&self) -> Language {
+//!         Language::Rust
+//!     }
+//!
+//!     fn render(
+//!         &self,
+//!         source: &str,
+//!         events: &[HighlightEvent<'_>],
+//!         output: &mut dyn Write,
+//!     ) -> io::Result<()> {
+//!         for event in events {
+//!             if let HighlightEvent::Source { start, end } = event {
+//!                 output.write_all(&source.as_bytes()[*start..*end])?;
+//!             }
+//!         }
+//!         Ok(())
+//!     }
+//! }
+//!
+//! let mut output = Vec::new();
+//! write_highlight(&mut output, "let answer = 42;", SourceFormatter)?;
+//! # Ok::<(), std::io::Error>(())
+//! ```
+//!
 //! See the [crate examples](https://github.com/leandrocp/lumis/tree/main/crates/lumis/examples)
 //! for custom formatter implementations.
 
 // Originally based on https://github.com/Colonial-Dev/inkjet/tree/da289fa8b68f11dffad176e4b8fabae8d6ac376d/src/formatter
-
-use std::io::{self, Write};
 
 pub mod ansi;
 pub mod html;
@@ -172,27 +212,11 @@ pub use bbcode::{BBCodeScoped, BBCodeScopedBuilder};
 #[deprecated(note = "use `formatters::html::HtmlElement` instead")]
 pub use lumis_core::formatter::HtmlElement;
 
-pub(crate) fn map_inline_highlight_lines(
-    highlight_lines: html_inline::HighlightLines,
-) -> lumis_core::formatter::html_inline::HighlightLines {
-    lumis_core::formatter::html_inline::HighlightLines {
-        lines: highlight_lines.lines,
-        style: highlight_lines.style.map(|style| match style {
-            html_inline::HighlightLinesStyle::Theme => {
-                lumis_core::formatter::html_inline::HighlightLinesStyle::Theme
-            }
-            html_inline::HighlightLinesStyle::Style(style) => {
-                lumis_core::formatter::html_inline::HighlightLinesStyle::Style(style)
-            }
-        }),
-        class: highlight_lines.class,
-    }
-}
-
 /// Trait for implementing custom syntax highlighting formatters.
 ///
-/// The `Formatter` trait allows you to create custom output formats for syntax highlighted code.
-/// It bundles parsing and rendering into a single `format()` call.
+/// The `Formatter` trait allows custom output formats to consume Lumis's
+/// unified syntax and annotation event stream. It is defined in `lumis-core`
+/// and re-exported here, so one implementation serves both crates.
 ///
 /// For HTML formatters, see the [`html`] module for helper functions
 /// that handle HTML generation, escaping, and styling.
@@ -200,73 +224,11 @@ pub(crate) fn map_inline_highlight_lines(
 /// For terminal/ANSI formatters, see the [`ansi`] module for helper functions
 /// that handle ANSI escape sequences and color conversion.
 ///
-/// # Creating Custom Formatters
-///
-/// Minimal HTML formatter that wraps each token in a colored `<span>`:
-///
-/// ```rust
-/// use lumis::{
-///     formatters::Formatter,
-///     formatters::html::{open_pre_tag, open_code_tag, closing_tags, span_inline},
-///     highlight::highlight_iter,
-///     languages::Language,
-///     themes,
-/// };
-/// use std::io::{self, Write};
-///
-/// struct MinimalHtmlFormatter {
-///     language: Language,
-///     theme: Option<themes::Theme>,
-/// }
-///
-/// impl Formatter for MinimalHtmlFormatter {
-///     fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-///         open_pre_tag(output, None, self.theme.as_ref())?;
-///         open_code_tag(output, &self.language)?;
-///         highlight_iter(source, self.language, self.theme.clone(), |text, language, _range, scope, _style| {
-///             write!(output, "{}", span_inline(text, Some(language), scope, self.theme.as_ref(), false, false))
-///         })
-///         .map_err(io::Error::other)?;
-///         closing_tags(output)?;
-///         Ok(())
-///     }
-/// }
-/// ```
+/// See the [module docs](self#custom-formatters) for a worked example.
 ///
 /// # See Also
 ///
 /// - [`highlight`](mod@crate::highlight) module - High-level API for accessing styled tokens
 /// - [`highlight_iter()`](crate::highlight::highlight_iter) - Streaming callback API
 /// - [Crate examples](https://github.com/leandrocp/lumis/tree/main/crates/lumis/examples) - Custom formatter implementations
-pub trait Formatter: Send + Sync {
-    /// Format source code with syntax highlighting.
-    ///
-    /// This is the main method for generating formatted output. Write the highlighted
-    /// code to the provided `output` writer.
-    ///
-    /// # Arguments
-    ///
-    /// * `source` - The source code to highlight
-    /// * `output` - Writer to send formatted output to
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use lumis::{formatters::Formatter, HtmlInlineBuilder, languages::Language};
-    ///
-    /// let formatter = HtmlInlineBuilder::new()
-    ///     .language(Language::Rust)
-    ///     .build()
-    ///     .unwrap();
-    ///
-    /// let mut output = Vec::new();
-    /// formatter.format("fn main() {}", &mut output).unwrap();
-    /// ```
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()>;
-}
-
-impl Formatter for Box<dyn Formatter> {
-    fn format(&self, source: &str, output: &mut dyn Write) -> io::Result<()> {
-        (**self).format(source, output)
-    }
-}
+pub use lumis_core::formatter::Formatter;

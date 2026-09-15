@@ -703,6 +703,20 @@ describe("terminal", () => {
     const output = await highlight('{"a": 1}', terminal({ language: json, theme }));
     expect(output).toContain("\u001B[");
   });
+
+  // The native addon formats in Rust and the Wasm runtime formats in
+  // JavaScript. Every terminal option has to survive whichever boundary it
+  // crosses; `background` and `width` did not, and nothing noticed.
+  it("honours background and width on whichever runtime formats", () => {
+    const output = hl.highlight(
+      '{"a": 1}',
+      terminal({ language: json, theme, background: "theme", width: 40 }),
+    );
+
+    // tokyonight_moon's `normal` background, #222436.
+    expect(output).toContain("48;2;34;36;54");
+    expect(output).toContain("      ");
+  });
 });
 
 describe("highlightLines", () => {
@@ -765,6 +779,45 @@ describe("highlightLines", () => {
       }),
     );
     expect(html).toContain("hl-line");
+  });
+
+  it("terminal: a highlighted line takes the theme's highlighted background", () => {
+    const output = hl.highlight(
+      '{"a": 1}\n{"b": 2}',
+      terminal({ language: json, theme, highlightLines: { lines: [[1, 1]] } }),
+    );
+
+    // tokyonight_moon's `highlighted` background, #2f334d.
+    expect(output).toContain("48;2;47;51;77");
+  });
+
+  it("terminal: an explicit background wins over the theme", () => {
+    const output = hl.highlight(
+      '{"a": 1}\n{"b": 2}',
+      terminal({
+        language: json,
+        theme,
+        highlightLines: { lines: [[2, 2]], background: "#ff0000" },
+      }),
+    );
+
+    expect(output).toContain("48;2;255;0;0");
+  });
+
+  it("bbcodeScoped: a highlighted line is wrapped in [highlighted]", () => {
+    const output = hl.highlight(
+      '{"a": 1}\n{"b": 2}',
+      bbcodeScoped({ language: json, highlightLines: { lines: [[1, 1]] } }),
+    );
+
+    expect(output).toContain("[highlighted]");
+    expect(output).toContain("[/highlighted]");
+  });
+
+  it("bbcodeScoped: no lines means no line structure at all", () => {
+    const plain = hl.highlight('{"a": 1}\n{"b": 2}', bbcodeScoped({ language: json }));
+
+    expect(plain).not.toContain("[highlighted]");
   });
 });
 

@@ -1111,12 +1111,20 @@ fn an_inapplicable_flag_is_reported_before_its_value_is_parsed() {
     cmd()
         .arg("--data-dir")
         .arg(fixtures_dir())
-        .args(["highlight", "-l", "diff", "-H", "3-1"])
+        .args([
+            "highlight",
+            "-f",
+            "html-inline",
+            "-l",
+            "diff",
+            "-w",
+            "not-a-width",
+        ])
         .write_stdin(DIFF_SNIPPET)
         .assert()
         .failure()
         .stderr(predicate::str::contains(
-            "`--highlight-lines` is not accepted by the `terminal` formatter",
+            "`--width` is not accepted by the `html-inline` formatter",
         ));
 }
 
@@ -1682,9 +1690,61 @@ fn formatters_show_lists_only_what_the_formatter_accepts() {
         .stdout(predicate::str::contains("--background"))
         .stdout(predicate::str::contains("--width"))
         .stdout(predicate::str::contains("--theme"))
+        .stdout(predicate::str::contains("--highlight-lines"))
+        .stdout(predicate::str::contains("--highlight-lines-background"))
         .stdout(predicate::str::contains("--formatter").not())
         .stdout(predicate::str::contains("--pre-class").not())
+        .stdout(predicate::str::contains("--highlight-lines-class").not())
         .stdout(predicate::str::contains("--italic").not());
+}
+
+/// Every formatter takes `--highlight-lines` now, so the flag that used to be
+/// HTML-only has to reach the two that had no line structure of their own.
+#[test]
+fn terminal_paints_a_highlighted_line() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args([
+            "highlight",
+            "-f",
+            "terminal",
+            "-l",
+            "diff",
+            "-H",
+            "1",
+            "--highlight-lines-background",
+            "#ff0000",
+        ])
+        .write_stdin(DIFF_SNIPPET)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("\u{1b}[48;2;255;0;0m"));
+}
+
+#[test]
+fn bbcode_wraps_a_highlighted_line() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args(["highlight", "-f", "bbcode-scoped", "-l", "diff", "-H", "1"])
+        .write_stdin(DIFF_SNIPPET)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("[highlighted]"))
+        .stdout(predicate::str::contains("[/highlighted]"));
+}
+
+#[test]
+fn bbcode_without_highlight_lines_has_no_line_structure() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args(["highlight", "-f", "bbcode-scoped", "-l", "diff"])
+        .write_stdin(DIFF_SNIPPET)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("[highlighted]").not());
 }
 
 #[test]

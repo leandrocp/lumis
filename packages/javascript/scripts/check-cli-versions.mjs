@@ -13,6 +13,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const javascriptDir = dirname(dirname(fileURLToPath(import.meta.url)));
+const repoDir = dirname(dirname(javascriptDir));
 const cliDir = join(javascriptDir, "cli");
 const npmDir = join(cliDir, "npm");
 
@@ -38,6 +39,14 @@ function readJson(path) {
 const mainPackage = readJson(join(cliDir, "package.json"));
 const expected = mainPackage.version;
 const problems = [];
+const cargoManifest = readFileSync(join(repoDir, "crates/lumis-cli/Cargo.toml"), "utf8");
+const cargoVersion = cargoManifest.match(/^version = "([^"]+)"$/m)?.[1];
+
+if (mainPackage.binaryVersion !== cargoVersion) {
+  problems.push(
+    `packages/javascript/cli/package.json: binaryVersion is ${mainPackage.binaryVersion}, expected ${cargoVersion}`,
+  );
+}
 
 const present = new Set(readdirSync(npmDir));
 for (const directory of PLATFORM_DIRS) {
@@ -96,4 +105,6 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
-console.log(`${PLATFORM_DIRS.length + 1} CLI manifests are at ${expected}`);
+console.log(
+  `${PLATFORM_DIRS.length + 1} CLI manifests are at ${expected}; binaryVersion is ${cargoVersion}`,
+);

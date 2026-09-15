@@ -1,1 +1,50 @@
+# Normalize conformance source fixtures across platforms.
 fixtures/conformance/**/source.txt text eol=lf
+
+# Generated documentation and source files.
+LANGUAGES.md linguist-generated
+THEMES.md linguist-generated
+benchmarks/README.md linguist-generated
+crates/lumis-cli/formatter-options.json linguist-generated
+crates/lumis-core/src/highlights.rs linguist-generated
+crates/lumis-wasm-runtime/src/catalog.rs linguist-generated
+docs/content/reference/themes.md linguist-generated
+packages/javascript/lumis/bundles/*.ts linguist-generated
+packages/javascript/lumis/src/highlights.ts linguist-generated
+packages/javascript/themes/themes/*.ts linguist-generated
+packages/javascript/wasm-bundle-*/README.md linguist-generated
+packages/javascript/wasm-bundle-*/index.d.ts linguist-generated
+packages/javascript/wasm-bundle-*/index.js linguist-generated
+packages/javascript/wasm-bundle-*/package.json linguist-generated
+queries/processed/** linguist-generated
+
+# Generated themes and formatter output.
+crates/lumis-core/themes/*.json linguist-generated
+crates/lumis/css/*.css linguist-generated
+css/*.css linguist-generated
+packages/elixir/lumis/priv/static/css/*.css linguist-generated
+themes/*.json linguist-generated
+
+# Generated test and website artifacts.
+fixtures/conformance/**/bbcode.txt linguist-generated
+fixtures/conformance/**/fixture.json linguist-generated
+fixtures/conformance/**/html-inline.html linguist-generated
+fixtures/conformance/**/html-linked.html linguist-generated
+fixtures/conformance/**/html-multi-themes.html linguist-generated
+fixtures/conformance/**/terminal.txt linguist-generated
+fixtures/parsers/*.wasm linguist-generated
+fixtures/test-parsers/*.wasm linguist-generated
+website/public/benchmark-data/** linguist-generated
+website/public/comparison-data/** linguist-generated
+
+# Third-party source retained in the repository.
+benchmarks/go_json_encode.go linguist-vendored
+benchmarks/livebook_core_components.ex linguist-vendored
+benchmarks/ripgrep_searcher.rs linguist-vendored
+benchmarks/shadcn_sidebar.tsx linguist-vendored
+benchmarks/webgpu_compute_reduce.html linguist-vendored
+crates/lumis/vendored_parsers/** linguist-vendored
+crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs linguist-vendored
+packages/elixir/lumis/examples/nimble_publisher/assets/vendor/** linguist-vendored
+queries/upstream/** linguist-vendored
+samples/** linguist-vendored

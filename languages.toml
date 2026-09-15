@@ -6,7 +6,7 @@
 
 [queries.default]
 git = "https://github.com/nvim-treesitter/nvim-treesitter.git"
-rev = "857651fce37eba032ebe28f3a206283cdc65c45a"
+rev = "9a168f6357ed21c3a636e1727bc7d382abc451b8"
 path = "runtime/queries"
 
 [queries.iex]
@@ -26,7 +26,7 @@ path = "queries"
 
 [queries.nix]
 git = "https://github.com/nix-community/tree-sitter-nix.git"
-rev = "3d0173d903e630b6e14d17f1cf79488791379ded"
+rev = "c688ab22826442c8c489dafac5e912002dd9a8a2"
 path = "queries"
 
 [queries.nu]
@@ -116,9 +116,9 @@ emacs = ["clojure"]
 
 [parsers.cmake]
 git = "https://github.com/uyha/tree-sitter-cmake.git"
-rev = "ca627bb5828616b6246aafdc3c3222789e728e37"
+rev = "e997bd0b275ca525ce9befecedf5299031183661"
 crate = "tree-sitter-cmake"
-version = "0.7.4"
+version = "0.7.5"
 variant = "CMake"
 globs = ["*.cmake", "*.cmake.in", "CMakeLists.txt"]
 
@@ -260,9 +260,9 @@ globs = ["*.fish"]
 
 [parsers.fsharp]
 git = "https://github.com/ionide/tree-sitter-fsharp.git"
-rev = "789d8ea1481345d6f3bc1a06985dbf6a6b202744"
+rev = "aefd0c8741bdf3aeb827a228aa4a996a6536697e"
 crate = "tree-sitter-fsharp"
-version = "0.3.11"
+version = "0.3.12"
 location = "fsharp"
 aliases = ["f#"]
 variant = "FSharp"
@@ -511,9 +511,9 @@ emacs = ["objc"]
 
 [parsers.ocaml]
 git = "https://github.com/tree-sitter/tree-sitter-ocaml.git"
-rev = "6902a86ab5b3b80c622030210aae2d8cb95eb775"
+rev = "e3c9cf368f68bffd2f81188229aefa7b434eda65"
 crate = "tree-sitter-ocaml"
-version = "0.25.0"
+version = "0.26.0"
 location = "grammars/ocaml"
 variant = "OCaml"
 globs = ["*.ml"]
@@ -533,8 +533,8 @@ globs = ["*.mli"]
 
 [parsers.perl]
 git = "https://github.com/tree-sitter-perl/tree-sitter-perl.git"
-rev = "c3e17b31179bf8f658c9f37c7a3ea6a202212d5a"
-version = "1.2.1"
+rev = "50904961d6a87c5191e611276aa2ecb9d66ca4ff"
+version = "2.0.0"
 generate = true
 globs = ["*.pm", "*.pl", "*.t"]
 emacs = ["perl"]
@@ -560,8 +560,8 @@ globs = ["*.ps1", "*.psm1"]
 
 [parsers.protobuf]
 git = "https://github.com/coder3101/tree-sitter-proto.git"
-rev = "5a256fe3b6be3bd2ea4d03e1213d847c7093c2e1"
-version = "0.5.0"
+rev = "6c878d18628ebbff3474479d2fdd6d8ba1954c3e"
+version = "0.6.0"
 query_name = "proto"
 variant = "ProtoBuf"
 display_name = "Protocol Buffer"
@@ -802,8 +802,8 @@ globs = ["*.jq"]
 
 [parsers.kdl]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-kdl.git"
-rev = "3ca569b9f9af43593c24f9e7a21f02f43a13bb88"
-version = "1.1.0"
+rev = "e8ff98a113e175b84b92ec2096820517c1e10a66"
+version = "2.0.0"
 display_name = "KDL"
 globs = ["*.kdl"]
 

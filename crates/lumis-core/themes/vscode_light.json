@@ -1,7 +1,7 @@
 {
   "name": "vscode_light",
   "appearance": "light",
-  "revision": "aa1102a7e15195c9cca22730b09224a7f7745ba8",
+  "revision": "6439ed89d0e10193f07e92268a321d7c6f6e93ee",
   "highlights": {
     "attribute": {
       "fg": "#795e26"
@@ -13,7 +13,7 @@
       "fg": "#0000ff"
     },
     "character": {
-      "fg": "#c72e0f"
+      "fg": "#a31515"
     },
     "character.special": {
       "fg": "#343434"
@@ -45,7 +45,7 @@
       "bold": true
     },
     "constant": {
-      "fg": "#4fc1ff"
+      "fg": "#267f99"
     },
     "constant.builtin": {
       "fg": "#0000ff"
@@ -141,7 +141,7 @@
       "fg": "#0000ff"
     },
     "label": {
-      "fg": "#0451a5"
+      "fg": "#001080"
     },
     "markup": {
       "fg": "#800000"
@@ -212,7 +212,7 @@
       "underline": true
     },
     "markup.link.label": {
-      "fg": "#0451a5"
+      "fg": "#001080"
     },
     "markup.link.url": {
       "fg": "#343434"
@@ -283,7 +283,7 @@
       "fg": "#343434"
     },
     "property": {
-      "fg": "#0451a5"
+      "fg": "#001080"
     },
     "punctuation.bracket": {
       "fg": "#343434"
@@ -313,16 +313,16 @@
       "fg": "#343434"
     },
     "string": {
-      "fg": "#c72e0f"
+      "fg": "#a31515"
     },
     "string.documentation": {
-      "fg": "#c72e0f"
+      "fg": "#a31515"
     },
     "string.escape": {
       "fg": "#343434"
     },
     "string.regexp": {
-      "fg": "#c72e0f"
+      "fg": "#a31515"
     },
     "string.special": {
       "fg": "#343434"
@@ -340,7 +340,7 @@
       "fg": "#0000ff"
     },
     "tag.attribute": {
-      "fg": "#0451a5"
+      "fg": "#001080"
     },
     "tag.builtin": {
       "fg": "#0000ff"
@@ -364,16 +364,16 @@
       "fg": "#16825d"
     },
     "variable": {
-      "fg": "#0451a5"
+      "fg": "#001080"
     },
     "variable.builtin": {
       "fg": "#0000ff"
     },
     "variable.member": {
-      "fg": "#0451a5"
+      "fg": "#001080"
     },
     "variable.parameter": {
-      "fg": "#0451a5"
+      "fg": "#001080"
     },
     "variable.parameter.builtin": {
       "fg": "#800000"

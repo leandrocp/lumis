@@ -6,11 +6,11 @@ import json from "../langs/json.ts";
 import { createHighlighter, highlightIter } from "../src/index.js";
 import { type Formatter, htmlInline } from "../src/formatters.js";
 import {
-  closeTag,
   closingTags,
   openCodeTag,
   openPreTag,
   openSpanTag,
+  renderLinesFromEvents,
   wrapLine,
 } from "../src/formatter/html.js";
 import type { Theme } from "../src/types.js";
@@ -23,50 +23,23 @@ describe("custom formatter", () => {
     configureLocalWasmResolver(["diff", "json"]);
   }, 120_000);
 
-  it("flows through the public formatter contract using hl.highlightIter", async () => {
+  it("flows through the public formatter contract using rendered lines", async () => {
     const hl = await createHighlighter({ languages: [json] });
 
     const formatter: Formatter = {
       language: json,
-      format(source: string) {
-        const lines = [""];
-        let currentLine = 1;
-
-        const append = (text: string): void => {
-          const parts = text.split("\n");
-          lines[currentLine - 1] ??= "";
-          lines[currentLine - 1] += parts[0] ?? "";
-
-          for (let index = 1; index < parts.length; index += 1) {
-            lines.push(parts[index] ?? "");
-            currentLine += 1;
-          }
-        };
-
-        highlightIter(
+      render(source: string, events) {
+        const lines = renderLinesFromEvents(
           source,
-          this.language,
-          undefined,
-          (text, _language, _range, scope, _style) => {
-            if (scope.length === 0) {
-              append(text);
-            } else {
-              append(
-                `${openSpanTag({ class: `tok ${scope.replaceAll(".", "-")}` })}${text}${closeTag("span")}`,
-              );
-            }
-          },
+          events,
+          (scope) => `class="tok ${scope.replaceAll(".", "-")}"`,
         );
 
         const body = lines
           .map((line, index) =>
-            wrapLine(
-              index + 1,
-              `${openSpanTag({ class: "line-no" })}${index + 1}${closeTag("span")}${openSpanTag({ class: "line-body" })}${line}${closeTag("span")}`,
-              {
-                className: index === 0 ? "first-line" : undefined,
-              },
-            ),
+            wrapLine(index + 1, `${openSpanTag({ class: "line-no" })}${index + 1}</span>${line}`, {
+              className: index === 0 ? "first-line" : undefined,
+            }),
           )
           .join("");
 
@@ -79,8 +52,9 @@ describe("custom formatter", () => {
     expect(output).toContain('class="lumis custom-frame"');
     expect(output).toContain('class="language-json"');
     expect(output).toContain('class="line-no"');
-    expect(output).toContain('class="line-body"');
+    expect(output).toContain('class="tok string"');
     expect(output).toContain('class="l-line first-line"');
+    expect(output).not.toContain("\n");
   }, 30_000);
 
   it("keeps built-in formatters as plain convenience objects", async () => {
@@ -99,7 +73,7 @@ describe("custom formatter", () => {
       const scopes: string[] = [];
       const formatter: Formatter = {
         language: json,
-        format(src: string) {
+        render(src: string) {
           highlightIter(
             src,
             this.language,
@@ -163,14 +137,14 @@ describe("custom formatter", () => {
 
     const innerFormatter: Formatter = {
       language: diff,
-      format(source: string) {
+      render(source: string) {
         return collectScopes(source, this.language).join("|");
       },
     };
 
     const outerFormatter: Formatter = {
       language: json,
-      format(source: string) {
+      render(source: string) {
         const beforeNested = collectScopes(source, this.language);
         const nested = innerHighlighter.highlight("- old\n+ new", innerFormatter);
         const afterNested = collectScopes(source, this.language);

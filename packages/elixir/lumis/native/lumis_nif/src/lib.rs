@@ -1,14 +1,22 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
+use std::io::Write;
+use std::sync::Mutex;
 use std::thread;
 
 use anyhow::{anyhow, Context, Result};
-use lumis_core::elixir::{ExCssOptions, ExFormatterOption, ExTheme};
+use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
+use lumis_core::elixir::{
+    line_specs_contain, ExCssOptions, ExFormatterOption, ExLineSpec, ExStyle, ExTextDecoration,
+    ExTheme,
+};
 use lumis_core::events::HighlightEvent;
+use lumis_core::formatter::Formatter;
+use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
 use lumis_wasm_runtime::{catalog, store, Executor, LoadFailure, RuntimeError};
 use parking_lot::RwLock;
-use rustler::{Encoder, Env, Error, NifMap, NifResult, Term};
+use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
 
 /// Lazy per-theme cache to eliminate repeated allocations.
 /// Themes are converted and cached on first access, amortizing the cost.
@@ -59,6 +67,11 @@ fn language_store(cache_dir: Option<std::path::PathBuf>) -> store::LanguageStore
 rustler::atoms! {
     ok,
     error,
+    event_start = "start",
+    event_source = "source",
+    event_end = "end",
+    annotation_start,
+    annotation_end,
     language_not_loaded,
     unknown_language,
     failed_to_load_parser,
@@ -70,6 +83,121 @@ rustler::init!("Elixir.Lumis.Native");
 pub struct ExOptions<'a> {
     pub language: Option<&'a str>,
     pub formatter: ExFormatterOption,
+    pub annotations: Vec<Term<'a>>,
+    pub rainbow_brackets: bool,
+}
+
+#[derive(Clone, Debug, NifStruct)]
+#[module = "Lumis.Annotation"]
+pub struct ExResolvedAnnotation<'a> {
+    pub range: (usize, usize),
+    pub data: Term<'a>,
+}
+
+#[derive(Debug, NifMap)]
+pub struct ExEventOptions<'a> {
+    pub language: Option<&'a str>,
+    pub annotations: Vec<Term<'a>>,
+    pub rainbow_brackets: bool,
+}
+
+#[derive(Debug, NifMap)]
+struct ExStartEvent {
+    scope: String,
+    language: String,
+}
+
+#[derive(Debug, NifMap)]
+struct ExSourceEvent {
+    start: usize,
+    end: usize,
+}
+
+enum CollectedEvent<'a> {
+    Start { scope: String, language: String },
+    Source { start: usize, end: usize },
+    End,
+    AnnotationStart(ExResolvedAnnotation<'a>),
+    AnnotationEnd,
+}
+
+impl<'a> CollectedEvent<'a> {
+    fn encode(self, env: Env<'a>) -> Term<'a> {
+        match self {
+            Self::Start { scope, language } => {
+                (event_start(), ExStartEvent { scope, language }).encode(env)
+            }
+            Self::Source { start, end } => {
+                (event_source(), ExSourceEvent { start, end }).encode(env)
+            }
+            Self::End => event_end().encode(env),
+            Self::AnnotationStart(annotation) => (annotation_start(), annotation).encode(env),
+            Self::AnnotationEnd => annotation_end().encode(env),
+        }
+    }
+}
+
+struct EventFormatter<'a> {
+    language: Language,
+    events: Mutex<Vec<CollectedEvent<'a>>>,
+}
+
+impl<'a> EventFormatter<'a> {
+    fn new(language: Language) -> Self {
+        Self {
+            language,
+            events: Mutex::new(Vec::new()),
+        }
+    }
+
+    fn into_events(self) -> Vec<CollectedEvent<'a>> {
+        self.events.into_inner().expect("event lock poisoned")
+    }
+}
+
+impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
+    fn language(&self) -> Language {
+        self.language
+    }
+
+    fn render(
+        &self,
+        _source: &str,
+        events: &[HighlightEvent<'_, Term<'a>>],
+        _output: &mut dyn Write,
+    ) -> std::io::Result<()> {
+        let mut output = self.events.lock().expect("event lock poisoned");
+
+        for event in events {
+            let event = match event {
+                HighlightEvent::Start {
+                    scope_index,
+                    language,
+                } => CollectedEvent::Start {
+                    scope: lumis_core::highlights::HIGHLIGHT_NAMES[*scope_index].to_owned(),
+                    language: language.clone(),
+                },
+                HighlightEvent::Source { start, end } => CollectedEvent::Source {
+                    start: *start,
+                    end: *end,
+                },
+                HighlightEvent::End => CollectedEvent::End,
+                HighlightEvent::AnnotationStart { annotation } => {
+                    CollectedEvent::AnnotationStart(ExResolvedAnnotation {
+                        range: (annotation.range().start, annotation.range().end),
+                        data: *annotation.data(),
+                    })
+                }
+                HighlightEvent::AnnotationEnd => CollectedEvent::AnnotationEnd,
+                // A kind this build predates: drop it rather than crossing the
+                // NIF boundary with a shape Elixir has no clause for.
+                _ => continue,
+            };
+            output.push(event);
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Clone, Debug, NifMap)]
@@ -136,33 +264,22 @@ impl From<&catalog::LanguagePackageRef> for ExLanguagePackageRef<'static> {
 pub(crate) fn highlight<'a>(
     env: Env<'a>,
     source: &'a str,
-    options: ExOptions<'_>,
+    options: ExOptions<'a>,
 ) -> NifResult<Term<'a>> {
     let language = languages::Language::guess(options.language, source);
-    let (formatter, rainbow_brackets) = match options.formatter.into_formatter(language) {
+    let annotations = decode_annotations(options.annotations)?;
+    let formatter = match options.formatter.into_formatter(language) {
         Ok(formatter) => formatter,
         Err(message) => return Ok((error(), message).encode(env)),
     };
 
-    let events = if language == languages::Language::PlainText {
-        vec![HighlightEvent::Source {
-            start: 0,
-            end: source.len(),
-        }]
-    } else {
-        let executor = match executor() {
-            Ok(executor) => executor,
-            Err(reason) => return Ok((error(), format!("{reason:#}")).encode(env)),
-        };
-        match executor.highlight(source, language.id_name(), rainbow_brackets) {
-            Ok(events) => events,
-            Err(RuntimeError::LanguageNotLoaded(language)) => {
-                return Ok((error(), (language_not_loaded(), language)).encode(env));
-            }
-            Err(runtime_error) => {
-                return Ok((error(), runtime_error.to_string()).encode(env));
-            }
-        }
+    let events = match syntax_events(env, source, language, options.rainbow_brackets) {
+        Ok(events) => events,
+        Err(failure) => return Ok(failure),
+    };
+    let events = match compose_annotations(source, &events, &annotations) {
+        Ok(events) => events,
+        Err(annotation_error) => return Ok((error(), annotation_error.to_string()).encode(env)),
     };
 
     let mut output = Vec::new();
@@ -172,6 +289,99 @@ pub(crate) fn highlight<'a>(
     let output = String::from_utf8(output)
         .map_err(|error| Error::Term(Box::new(format!("invalid formatter output: {error}"))))?;
     Ok((ok(), output).encode(env))
+}
+
+/// Syntax events for `source`, or the error term Elixir should receive.
+fn syntax_events<'a>(
+    env: Env<'a>,
+    source: &str,
+    language: Language,
+    rainbow_brackets: bool,
+) -> Result<Vec<HighlightEvent<'static>>, Term<'a>> {
+    if language == languages::Language::PlainText {
+        return Ok(vec![HighlightEvent::Source {
+            start: 0,
+            end: source.len(),
+        }]);
+    }
+
+    let executor = executor().map_err(|reason| (error(), format!("{reason:#}")).encode(env))?;
+    executor
+        .highlight(source, language.id_name(), rainbow_brackets)
+        .map_err(|runtime_error| match runtime_error {
+            RuntimeError::LanguageNotLoaded(language) => {
+                (error(), (language_not_loaded(), language)).encode(env)
+            }
+            runtime_error => (error(), runtime_error.to_string()).encode(env),
+        })
+}
+
+#[rustler::nif(schedule = "DirtyCpu")]
+pub(crate) fn highlight_events<'a>(
+    env: Env<'a>,
+    source: &'a str,
+    options: ExEventOptions<'a>,
+) -> NifResult<Term<'a>> {
+    let language = Language::guess(options.language, source);
+    let annotations = decode_annotations(options.annotations)?;
+    let formatter = EventFormatter::new(language);
+
+    let events = match syntax_events(env, source, language, options.rainbow_brackets) {
+        Ok(events) => events,
+        Err(failure) => return Ok(failure),
+    };
+    let events = match compose_annotations(source, &events, &annotations) {
+        Ok(events) => events,
+        Err(annotation_error) => return Ok((error(), annotation_error.to_string()).encode(env)),
+    };
+
+    formatter
+        .render(source, &events, &mut std::io::sink())
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+
+    let events = formatter
+        .into_events()
+        .into_iter()
+        .map(|event| event.encode(env))
+        .collect::<Vec<_>>();
+
+    // The resolved language rides along because detection happened here. A
+    // formatter needs it to label its output, and asking Elixir to guess again
+    // would run detection over the whole source a second time to reach an answer
+    // this call already has.
+    Ok((ok(), language.id_name(), events).encode(env))
+}
+
+/// Reads the tagged tuples `Lumis.annotations_type/1` normalizes to:
+/// `{:offset, start, end, data}`, or `{:position, {line, column}, {line,
+/// column}, data}`. Elixir has already validated the shape and the ordering.
+fn decode_annotations(annotations: Vec<Term<'_>>) -> NifResult<Vec<Annotation<Term<'_>>>> {
+    annotations
+        .into_iter()
+        .map(|term| {
+            let parts = rustler::types::tuple::get_tuple(term)?;
+            let [kind, start, end, data] = parts.as_slice() else {
+                return Err(Error::BadArg);
+            };
+
+            let range = match kind.atom_to_string()?.as_str() {
+                "offset" => {
+                    AnnotationRange::Offset(start.decode::<usize>()?..end.decode::<usize>()?)
+                }
+                "position" => {
+                    AnnotationRange::Position(decode_position(*start)?..decode_position(*end)?)
+                }
+                _ => return Err(Error::BadArg),
+            };
+
+            Annotation::new(range, *data).map_err(|error| Error::Term(Box::new(error.to_string())))
+        })
+        .collect()
+}
+
+fn decode_position(term: Term<'_>) -> NifResult<Position> {
+    let (line, column) = term.decode::<(usize, usize)>()?;
+    Ok(Position::new(line, column))
 }
 
 fn executor() -> Result<&'static Executor> {
@@ -442,6 +652,350 @@ fn build_theme_css(theme: &themes::Theme, options: ExCssOptions) -> String {
     builder.build()
 }
 
+#[rustler::nif]
+fn ansi_hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
+    lumis_core::formatter::ansi::hex_to_rgb(hex)
+}
+
+#[rustler::nif]
+fn ansi_rgb_to_ansi(r: u8, g: u8, b: u8, is_background: bool) -> String {
+    lumis_core::formatter::ansi::rgb_to_ansi(r, g, b, is_background)
+}
+
+#[rustler::nif]
+fn ansi_style_to_ansi(style: ExStyle) -> String {
+    lumis_core::formatter::ansi::style_to_ansi(&style.into())
+}
+
+#[rustler::nif]
+fn ansi_paint(text: &str, style: ExStyle) -> String {
+    lumis_core::formatter::ansi::paint(text, &style.into())
+}
+
+#[rustler::nif]
+fn ansi_reset() -> &'static str {
+    lumis_core::formatter::ansi::ANSI_RESET
+}
+
+/// Every scope's style for one theme and language, resolved the way the
+/// built-in terminal formatter resolves it.
+///
+/// The per-token counterpart of the rest of these, split for the same reason as
+/// [`html_span_attrs`]. `Theme::get_style` walks a scope up to its parent and
+/// consults the rainbow-bracket fallbacks, so an Elixir formatter that looks a
+/// scope up in `theme.highlights` itself gets a different answer than
+/// `:terminal` does. There are only ever 293 answers, so all of them come back
+/// at once and Elixir never resolves anything.
+#[rustler::nif]
+fn ansi_styles(theme: Option<ExTheme>, language: &str) -> HashMap<&'static str, ExStyle> {
+    let Some(theme) = theme.map(themes::Theme::from) else {
+        return HashMap::new();
+    };
+    let language = Language::guess(Some(language), "");
+
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .filter_map(|scope| {
+            let specialized = format!("{scope}.{}", language.id_name());
+            let style = theme
+                .get_style(&specialized)
+                .or_else(|| theme.get_style(scope))?;
+            Some((*scope, ExStyle::from(style)))
+        })
+        .collect()
+}
+
+/// `lumis_core::formatter::html`, reachable from Elixir.
+///
+/// A formatter written in Elixir needs the same pieces the built-in HTML
+/// formatters are assembled from. These hand them over rather than let every
+/// formatter grow its own copy, which is how `examples/annotations.exs` shipped
+/// an `escape` missing `'` and a `scope_to_class` that could not express the
+/// `l-text` fallback at all.
+///
+/// The split is by call frequency, not by taste. What a formatter calls once per
+/// document crosses the boundary as a call. The two things it calls once per
+/// token cross once per document as a table instead, because 5000 NIF calls to
+/// look up a constant is not what reusing the Rust core should cost.
+#[rustler::nif]
+fn html_escape(text: &str) -> String {
+    lumis_core::formatter::html::escape(text)
+}
+
+#[rustler::nif]
+fn html_escape_braces(text: &str) -> String {
+    lumis_core::formatter::html::escape_braces(text)
+}
+
+/// Every highlight scope and the class `:html_linked` gives it.
+///
+/// `scope_to_class` is a lookup into two generated 293-row tables, so Elixir
+/// cannot spell it without copying them. The whole table crosses once instead.
+#[rustler::nif]
+fn html_classes() -> HashMap<&'static str, String> {
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .map(|scope| (*scope, lumis_core::formatter::html::scope_to_class(scope)))
+        .collect()
+}
+
+/// Every scope's `<span>` attributes for one theme, language and option set.
+///
+/// The per-token counterpart of [`html_classes`]. `span_inline_attrs` resolves a
+/// scope against a theme, and sending the theme across the boundary once per
+/// token to do that would cost more than the highlighting did. There are only
+/// ever 293 answers, so all of them come back at once.
+#[rustler::nif]
+fn html_span_attrs(
+    theme: Option<ExTheme>,
+    language: &str,
+    italic: bool,
+    include_highlights: bool,
+) -> HashMap<&'static str, String> {
+    let theme = theme.map(themes::Theme::from);
+    let language = Language::guess(Some(language), "");
+
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .map(|scope| {
+            let attrs = lumis_core::formatter::html::span_inline_attrs(
+                Some(language),
+                scope,
+                theme.as_ref(),
+                italic,
+                include_highlights,
+            );
+            (*scope, attrs)
+        })
+        .collect()
+}
+
+#[rustler::nif]
+fn html_open_pre_tag(pre_class: Option<String>, theme: Option<ExTheme>) -> NifResult<String> {
+    let theme = theme.map(themes::Theme::from);
+    let mut output = Vec::new();
+    lumis_core::formatter::html::open_pre_tag(&mut output, pre_class.as_deref(), theme.as_ref())
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_open_code_tag(language: &str) -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::open_code_tag(&mut output, &Language::guess(Some(language), ""))
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_closing_tags() -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::closing_tags(&mut output)
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_wrap_line(
+    line_number: usize,
+    content: &str,
+    class_suffix: Option<String>,
+    style: Option<String>,
+) -> String {
+    lumis_core::formatter::html::wrap_line(
+        line_number,
+        content,
+        class_suffix.as_deref(),
+        style.as_deref(),
+    )
+}
+
+#[rustler::nif]
+fn html_escape_attr(value: &str) -> String {
+    lumis_core::formatter::html::escape_attr(value)
+}
+
+#[rustler::nif]
+fn html_sanitize_theme_name(name: &str) -> String {
+    lumis_core::formatter::html::sanitize_theme_name(name)
+}
+
+#[rustler::nif]
+fn html_text_decoration(text_decoration: ExTextDecoration) -> &'static str {
+    lumis_core::formatter::html::text_decoration(&text_decoration.into())
+}
+
+#[rustler::nif]
+fn html_style_to_css(style: ExStyle, italic: bool, separator: &str) -> String {
+    themes::Style::from(style).css(italic, separator)
+}
+
+#[rustler::nif]
+fn html_close_pre_tag() -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::close_pre_tag(&mut output)
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_close_code_tag() -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::close_code_tag(&mut output)
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+/// Every scope's multi-theme `<span>` attributes, for one theme set and language.
+///
+/// The multi-theme counterpart of [`html_span_attrs`], split for the same
+/// reason: sending the whole theme set across the boundary once per token to
+/// resolve one scope would cost more than the highlighting did.
+#[rustler::nif]
+fn html_multi_themes_span_attrs(
+    themes_map: HashMap<String, ExTheme>,
+    default_theme: Option<String>,
+    css_variable_prefix: &str,
+    language: &str,
+    italic: bool,
+    include_highlights: bool,
+) -> HashMap<&'static str, String> {
+    let themes_map: HashMap<String, themes::Theme> = themes_map
+        .into_iter()
+        .map(|(name, theme)| (name, themes::Theme::from(theme)))
+        .collect();
+    let language = Language::guess(Some(language), "");
+
+    lumis_core::highlights::HIGHLIGHT_NAMES
+        .iter()
+        .map(|scope| {
+            let attrs = lumis_core::formatter::html::span_multi_themes_attrs(
+                scope,
+                Some(language),
+                &themes_map,
+                default_theme.as_deref(),
+                css_variable_prefix,
+                italic,
+                include_highlights,
+            );
+            (*scope, attrs)
+        })
+        .collect()
+}
+
+#[rustler::nif]
+fn html_open_multi_themes_pre_tag(
+    pre_class: Option<String>,
+    themes_map: HashMap<String, ExTheme>,
+    default_theme: Option<String>,
+    css_variable_prefix: &str,
+) -> NifResult<String> {
+    let themes_map: HashMap<String, themes::Theme> = themes_map
+        .into_iter()
+        .map(|(name, theme)| (name, themes::Theme::from(theme)))
+        .collect();
+
+    let mut output = Vec::new();
+    lumis_core::formatter::html::open_multi_themes_pre_tag(
+        &mut output,
+        pre_class.as_deref(),
+        &themes_map,
+        default_theme.as_deref(),
+        css_variable_prefix,
+    )
+    .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
+}
+
+#[rustler::nif]
+fn html_line_is_highlighted(lines: Vec<ExLineSpec>, line_number: usize) -> bool {
+    line_specs_contain(&lines, line_number)
+}
+
+#[rustler::nif]
+fn html_highlight_line_class(
+    lines: Vec<ExLineSpec>,
+    line_number: usize,
+    class: Option<String>,
+    default_class: Option<String>,
+) -> Option<String> {
+    if line_specs_contain(&lines, line_number) {
+        class.or(default_class)
+    } else {
+        None
+    }
+}
+
+/// The event stream rendered into HTML lines, with spans reopened across newlines.
+///
+/// The one helper an Elixir formatter cannot assemble from the others, because
+/// closing and reopening the open spans at every newline is the part that is
+/// easy to get wrong. `attrs` is a table from [`html_span_attrs`] or
+/// [`html_multi_themes_span_attrs`], so the whole render costs one call rather
+/// than one per token.
+#[rustler::nif(schedule = "DirtyCpu")]
+fn html_render_lines_from_events(
+    source: &str,
+    events: Vec<Term<'_>>,
+    attrs: HashMap<String, String>,
+) -> Vec<String> {
+    let mut scopes: Vec<String> = Vec::new();
+    let mut decoded: Vec<HighlightEvent<'static>> = Vec::with_capacity(events.len());
+
+    for event in events {
+        // Decoded by hand rather than through a tagged enum so that an event
+        // kind this build predates, or one carrying caller data, is skipped
+        // instead of failing the whole render.
+        if let Ok(atom) = event.decode::<rustler::Atom>() {
+            if atom == event_end() {
+                decoded.push(HighlightEvent::End);
+            }
+            continue;
+        }
+
+        let Ok((tag, payload)) = event.decode::<(rustler::Atom, Term<'_>)>() else {
+            continue;
+        };
+
+        if tag == event_start() {
+            let Ok(start) = payload.decode::<ExStartEvent>() else {
+                continue;
+            };
+            let scope_index = scopes
+                .iter()
+                .position(|scope| *scope == start.scope)
+                .unwrap_or_else(|| {
+                    scopes.push(start.scope);
+                    scopes.len() - 1
+                });
+            decoded.push(HighlightEvent::Start {
+                scope_index,
+                language: start.language,
+            });
+        } else if tag == event_source() {
+            if let Ok(source_event) = payload.decode::<ExSourceEvent>() {
+                decoded.push(HighlightEvent::Source {
+                    start: source_event.start,
+                    end: source_event.end,
+                });
+            }
+        }
+    }
+
+    lumis_core::formatter::html::render_lines_from_events(source, &decoded, |scope_index, _| {
+        scopes
+            .get(scope_index)
+            .and_then(|scope| attrs.get(scope))
+            .cloned()
+            .unwrap_or_default()
+    })
+}
+
+fn html_utf8(output: Vec<u8>) -> NifResult<String> {
+    String::from_utf8(output)
+        .map_err(|error| Error::Term(Box::new(format!("invalid HTML helper output: {error}"))))
+}
+
 #[cfg(test)]
 mod tests {
     use super::HighlightEvent;
@@ -457,7 +1011,7 @@ mod tests {
         let source = "@test :test";
         let lang = Language::guess(Some("elixir"), source);
         let formatter = HtmlInlineBuilder::new().language(lang).build().unwrap();
-        let events = [HighlightEvent::Source {
+        let events: [HighlightEvent<'_>; 1] = [HighlightEvent::Source {
             start: 0,
             end: source.len(),
         }];

@@ -78,4 +78,59 @@ defmodule Lumis.Native do
   def has_language(_name), do: :erlang.nif_error(:nif_not_loaded)
   def loaded_languages, do: :erlang.nif_error(:nif_not_loaded)
   def highlight(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
+  def highlight_events(_source, _options), do: :erlang.nif_error(:nif_not_loaded)
+
+  def ansi_hex_to_rgb(_hex), do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_rgb_to_ansi(_r, _g, _b, _is_background), do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_style_to_ansi(_style), do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_paint(_text, _style), do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_reset, do: :erlang.nif_error(:nif_not_loaded)
+  def ansi_styles(_theme, _language), do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_escape(_text), do: :erlang.nif_error(:nif_not_loaded)
+  def html_escape_attr(_value), do: :erlang.nif_error(:nif_not_loaded)
+  def html_escape_braces(_text), do: :erlang.nif_error(:nif_not_loaded)
+  def html_classes, do: :erlang.nif_error(:nif_not_loaded)
+  def html_sanitize_theme_name(_name), do: :erlang.nif_error(:nif_not_loaded)
+  def html_text_decoration(_text_decoration), do: :erlang.nif_error(:nif_not_loaded)
+  def html_style_to_css(_style, _italic, _separator), do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_span_attrs(_theme, _language, _italic, _include_highlights),
+    do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_multi_themes_span_attrs(
+        _themes,
+        _default_theme,
+        _css_variable_prefix,
+        _language,
+        _italic,
+        _include_highlights
+      ),
+      do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_open_pre_tag(_pre_class, _theme), do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_open_multi_themes_pre_tag(
+        _pre_class,
+        _themes,
+        _default_theme,
+        _css_variable_prefix
+      ),
+      do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_open_code_tag(_language), do: :erlang.nif_error(:nif_not_loaded)
+  def html_close_pre_tag, do: :erlang.nif_error(:nif_not_loaded)
+  def html_close_code_tag, do: :erlang.nif_error(:nif_not_loaded)
+  def html_closing_tags, do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_wrap_line(_line_number, _content, _class_suffix, _style),
+    do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_line_is_highlighted(_lines, _line_number), do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_highlight_line_class(_lines, _line_number, _class, _default_class),
+    do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_render_lines_from_events(_source, _events, _attrs),
+    do: :erlang.nif_error(:nif_not_loaded)
 end

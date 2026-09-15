@@ -1,5 +1,5 @@
 use ansi_to_tui::IntoText;
-use lumis::{formatters::Formatter, languages::Language, themes, TerminalBuilder};
+use lumis::{languages::Language, themes, TerminalBuilder};
 use ratatui::{
     crossterm::event::{self, Event, KeyCode},
     layout::Alignment,
@@ -28,7 +28,7 @@ fn highlight(source: &str, language: Language) -> String {
         .unwrap();
 
     let mut output = Vec::new();
-    formatter.format(source, &mut output).unwrap();
+    lumis::write_highlight(&mut output, source, formatter).unwrap();
     String::from_utf8(output).unwrap()
 }
 

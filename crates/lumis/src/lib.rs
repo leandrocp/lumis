@@ -17,7 +17,7 @@
 //!     .unwrap();
 //!
 //! let mut output = Vec::new();
-//! formatter.format(code, &mut output).unwrap();
+//! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! let html = String::from_utf8(output).unwrap();
 //! ```
 //!
@@ -312,6 +312,62 @@ pub mod highlight;
 pub mod languages;
 pub mod themes;
 
+/// Caller-provided semantic ranges for formatter event streams.
+///
+/// Annotations use UTF-8 offsets or zero-based line and byte-column
+/// positions, and keep caller-owned data typed:
+///
+/// ```rust
+/// use lumis::{HighlightOptions, Annotation};
+///
+/// #[derive(Debug)]
+/// struct Change {
+///     id: u64,
+/// }
+///
+/// let annotations = [
+///     Annotation::new(4..9, Change { id: 7 })?,
+/// ];
+/// let options = HighlightOptions::new().annotations(&annotations);
+///
+/// # let _ = options;
+/// # Ok::<(), lumis::annotations::AnnotationError>(())
+/// ```
+pub mod annotations {
+    pub use lumis_core::annotations::{
+        Annotation, AnnotationError, AnnotationRange, Position, ResolvedAnnotation,
+    };
+}
+
+/// Lumis-owned overlays the built-in formatters render.
+///
+/// An [`Annotation`] carries data only the caller understands, so the built-in
+/// formatters skip it. A [`Decoration`](decorations::Decoration) carries data
+/// Lumis owns, which is how line highlighting reaches the same event stream:
+/// each line arrives as a
+/// [`DecorationStart`](events::HighlightEvent::DecorationStart) carrying its
+/// number and whether the caller asked for it to be highlighted, and the
+/// matching [`DecorationEnd`](events::HighlightEvent::DecorationEnd) closes it.
+///
+/// ```rust
+/// use lumis::decorations::Decoration;
+/// use lumis::events::HighlightEvent;
+///
+/// let event = HighlightEvent::<()>::DecorationStart {
+///     decoration: Decoration::Line { number: 3, highlighted: true },
+/// };
+///
+/// assert!(matches!(
+///     event,
+///     HighlightEvent::DecorationStart {
+///         decoration: Decoration::Line { number: 3, .. }
+///     }
+/// ));
+/// ```
+pub mod decorations {
+    pub use lumis_core::events::Decoration;
+}
+
 pub use lumis_core::events;
 pub use lumis_core::highlights;
 
@@ -320,6 +376,7 @@ pub use formatters::ansi;
 pub use formatters::html;
 
 use crate::formatters::Formatter;
+use lumis_core::annotations::compose_annotations;
 use std::io::{self, Write};
 
 // Re-export builders for easier access
@@ -327,6 +384,8 @@ pub use crate::formatters::{
     BBCodeScopedBuilder, HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder,
     TerminalBackground, TerminalBuilder,
 };
+pub use crate::highlight::HighlightOptions;
+pub use lumis_core::annotations::{Annotation, AnnotationError, AnnotationRange};
 
 /// Highlights source code and returns it as a string.
 ///
@@ -337,7 +396,6 @@ pub use crate::formatters::{
 ///
 /// * `source` - The source code to highlight.
 /// * `formatter` - A configured formatter (e.g., from [`HtmlInlineBuilder`], [`TerminalBuilder`]).
-///
 /// # Panics
 ///
 /// Panics if the formatter fails to format the source code or produces invalid UTF-8 output.
@@ -358,11 +416,34 @@ pub use crate::formatters::{
 ///
 /// let html = highlight(code, formatter);
 /// ```
-pub fn highlight<F: Formatter>(source: &str, formatter: F) -> String {
+pub fn highlight<F>(source: &str, formatter: F) -> String
+where
+    F: Formatter<()>,
+{
+    highlight_with_options(source, formatter, HighlightOptions::new())
+}
+
+/// Highlights source code with per-operation options and returns it as a string.
+///
+/// Use this variant when supplying annotations or enabling rainbow brackets.
+///
+/// # Panics
+///
+/// Annotation ranges are checked against `source`, not at construction, so an
+/// annotation reaching past the end of the source or landing inside a UTF-8
+/// character panics here. Call
+/// [`write_highlight_with_options`] instead to handle that as an error.
+pub fn highlight_with_options<T, F>(
+    source: &str,
+    formatter: F,
+    options: HighlightOptions<'_, T>,
+) -> String
+where
+    F: Formatter<T>,
+{
     let mut buffer = Vec::new();
-    formatter
-        .format(source, &mut buffer)
-        .expect("formatter failed to format source code");
+    write_highlight_with_options(&mut buffer, source, formatter, options)
+        .unwrap_or_else(|error| panic!("could not highlight source: {error}"));
     String::from_utf8(buffer).expect("formatter produced invalid UTF-8")
 }
 
@@ -376,7 +457,6 @@ pub fn highlight<F: Formatter>(source: &str, formatter: F) -> String {
 /// * `output` - The writer to send highlighted output to.
 /// * `source` - The source code to highlight.
 /// * `formatter` - A configured formatter.
-///
 /// # Examples
 ///
 /// ```rust,no_run
@@ -394,12 +474,35 @@ pub fn highlight<F: Formatter>(source: &str, formatter: F) -> String {
 /// write_highlight(&mut file, code, formatter)?;
 /// # Ok::<(), std::io::Error>(())
 /// ```
-pub fn write_highlight<F: Formatter>(
+pub fn write_highlight<F>(output: &mut dyn Write, source: &str, formatter: F) -> io::Result<()>
+where
+    F: Formatter<()>,
+{
+    write_highlight_with_options(output, source, formatter, HighlightOptions::new())
+}
+
+/// Writes syntax highlighted output with per-operation options.
+///
+/// Use this variant when supplying annotations or enabling rainbow brackets.
+pub fn write_highlight_with_options<T, F>(
     output: &mut dyn Write,
     source: &str,
     formatter: F,
-) -> io::Result<()> {
-    formatter.format(source, output)
+    options: HighlightOptions<'_, T>,
+) -> io::Result<()>
+where
+    F: Formatter<T>,
+{
+    let syntax_events = crate::highlight::highlight_events_with_options(
+        source,
+        formatter.language(),
+        HighlightOptions::new().rainbow_brackets(options.rainbow_brackets_enabled()),
+    )
+    .map_err(io::Error::other)?;
+    let events = compose_annotations(source, &syntax_events, options.annotation_items())
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidInput, error))?;
+
+    formatter.render(source, &events, output)
 }
 
 #[cfg(test)]
@@ -440,8 +543,7 @@ mod tests {
     fn test_write_highlight() {
         let code = r"const = 1";
 
-        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-javascript" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #ca9ee7;">const</span> <span style="color: #99d1dc;">=</span> <span style="color: #ef9f77;">1</span>
-</div></code></pre>"#;
+        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-javascript" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #ca9ee7;">const</span> <span style="color: #99d1dc;">=</span> <span style="color: #ef9f77;">1</span></div></code></pre>"#;
 
         let mut buffer = Vec::new();
 
@@ -480,8 +582,7 @@ end
 </div><div class="l-line" data-line="7">
 </div><div class="l-line" data-line="8">  <span style="color: #ca9ee7;">def</span> <span style="color: #8caaef;">projects</span><span style="color: #949cbc;">,</span> <span style="color: #eebebf;">do: </span><span style="color: #99d1dc;"><span style="color: #ef9f77;">@<span style="color: #ef9f77;">projects</span></span></span>
 </div><div class="l-line" data-line="9"><span style="color: #ca9ee7;">end</span>
-</div><div class="l-line" data-line="10">
-</div></code></pre>"#;
+</div><div class="l-line" data-line="10"></div></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
             .language(Language::Elixir)
@@ -504,8 +605,7 @@ end
         let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span data-highlight="keyword.function" style="color: #ca9ee7;">defmodule</span> <span data-highlight="module" style="color: #e5c891;">Foo</span> <span data-highlight="keyword" style="color: #ca9ee7;">do</span>
 </div><div class="l-line" data-line="2">  <span data-highlight="operator" style="color: #99d1dc;"><span data-highlight="constant" style="color: #ef9f77;">@<span data-highlight="function.call" style="color: #8caaef;"><span data-highlight="constant" style="color: #ef9f77;">lang <span data-highlight="string.special.symbol" style="color: #eebebf;">:elixir</span></span></span></span></span>
 </div><div class="l-line" data-line="3"><span data-highlight="keyword" style="color: #ca9ee7;">end</span>
-</div><div class="l-line" data-line="4">
-</div></code></pre>"#;
+</div><div class="l-line" data-line="4"></div></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
             .language(Language::Elixir)
@@ -522,8 +622,7 @@ end
     #[test]
     fn test_highlight_html_inline_preserves_curly_braces() {
         let code = "{:ok, char: '{'}";
-        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #949cbc;">{</span><span style="color: #eebebf;">:ok</span><span style="color: #949cbc;">,</span> <span style="color: #eebebf;">char: </span><span style="color: #81c8bf;">&#39;{&#39;</span><span style="color: #949cbc;">}</span>
-</div></code></pre>"#;
+        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #949cbc;">{</span><span style="color: #eebebf;">:ok</span><span style="color: #949cbc;">,</span> <span style="color: #eebebf;">char: </span><span style="color: #81c8bf;">&#39;{&#39;</span><span style="color: #949cbc;">}</span></div></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
             .language(Language::Elixir)
@@ -558,8 +657,7 @@ end
 </div><div class="l-line" data-line="7">
 </div><div class="l-line" data-line="8">  <span class="l-keyword-function">def</span> <span class="l-function">projects</span><span class="l-punctuation-delimiter">,</span> <span class="l-string-special-symbol">do: </span><span class="l-operator"><span class="l-constant">@<span class="l-constant">projects</span></span></span>
 </div><div class="l-line" data-line="9"><span class="l-keyword">end</span>
-</div><div class="l-line" data-line="10">
-</div></code></pre>"#;
+</div><div class="l-line" data-line="10"></div></code></pre>"#;
 
         let formatter = HtmlLinkedBuilder::default()
             .language(Language::Elixir)
@@ -574,8 +672,7 @@ end
     #[test]
     fn test_highlight_html_linked_preserves_curly_braces() {
         let code = "{:ok, char: '{'}";
-        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-punctuation-bracket">{</span><span class="l-string-special-symbol">:ok</span><span class="l-punctuation-delimiter">,</span> <span class="l-string-special-symbol">char: </span><span class="l-character">&#39;{&#39;</span><span class="l-punctuation-bracket">}</span>
-</div></code></pre>"#;
+        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-punctuation-bracket">{</span><span class="l-string-special-symbol">:ok</span><span class="l-punctuation-delimiter">,</span> <span class="l-string-special-symbol">char: </span><span class="l-character">&#39;{&#39;</span><span class="l-punctuation-bracket">}</span></div></code></pre>"#;
 
         let formatter = HtmlLinkedBuilder::default()
             .language(Language::Elixir)

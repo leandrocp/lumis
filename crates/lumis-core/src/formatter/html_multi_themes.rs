@@ -3,6 +3,7 @@
 //! Works with pre-computed highlight events from any source.
 
 use super::{Formatter, HtmlElement};
+use crate::decorations::{LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::formatter::html_inline::HighlightLines;
 use crate::languages::Language;
@@ -47,6 +48,8 @@ pub struct HtmlMultiThemes {
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
+    #[builder(setter(skip), default)]
+    stepped_highlight_lines: Vec<SteppedLineRange>,
     header: Option<HtmlElement>,
 }
 
@@ -83,6 +86,7 @@ impl HtmlMultiThemesBuilder {
             italic: self.italic.take().unwrap_or(false),
             include_highlights: self.include_highlights.take().unwrap_or(false),
             highlight_lines: self.highlight_lines.take().flatten(),
+            stepped_highlight_lines: Vec::new(),
             header: self.header.take().flatten(),
         };
 
@@ -152,6 +156,7 @@ impl Default for HtmlMultiThemes {
             italic: false,
             include_highlights: false,
             highlight_lines: None,
+            stepped_highlight_lines: Vec::new(),
             header: None,
         }
     }
@@ -179,8 +184,24 @@ impl HtmlMultiThemes {
             italic,
             include_highlights,
             highlight_lines,
+            stepped_highlight_lines: Vec::new(),
             header,
         }
+    }
+
+    /// Supply compact stepped ranges from a language binding.
+    #[doc(hidden)]
+    pub fn set_stepped_highlight_lines(&mut self, lines: Vec<SteppedLineRange>) {
+        self.stepped_highlight_lines = lines;
+    }
+
+    fn line_selection(&self) -> LineSelection {
+        LineSelection::new(
+            self.highlight_lines
+                .as_ref()
+                .map_or(&[][..], |highlight| &highlight.lines),
+            &self.stepped_highlight_lines,
+        )
     }
 
     fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()> {
@@ -201,12 +222,7 @@ impl HtmlMultiThemes {
         }
     }
 
-    fn get_line_attrs(&self, line_number: usize) -> (Option<String>, Option<String>) {
-        let is_highlighted = self
-            .highlight_lines
-            .as_ref()
-            .is_some_and(|hl| hl.lines.iter().any(|r| r.contains(&line_number)));
-
+    fn get_line_attrs(&self, is_highlighted: bool) -> (Option<String>, Option<String>) {
         if !is_highlighted {
             return (None, None);
         }
@@ -271,11 +287,15 @@ impl HtmlMultiThemes {
     }
 }
 
-impl Formatter for HtmlMultiThemes {
+impl<T> Formatter<T> for HtmlMultiThemes {
+    fn language(&self) -> Language {
+        self.language
+    }
+
     fn render(
         &self,
         source: &str,
-        events: &[HighlightEvent],
+        events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
         let mut buffer = Vec::new();
@@ -287,24 +307,15 @@ impl Formatter for HtmlMultiThemes {
         self.open_pre_tag(&mut buffer)?;
         crate::formatter::html::open_code_tag(&mut buffer, &self.language)?;
 
-        let lines = crate::formatter::html::render_lines_from_events(
+        let (class_suffix, style) = self.get_line_attrs(true);
+        crate::formatter::html::write_html_lines(
+            &mut buffer,
             source,
             events,
-            |scope_index, language| self.span_attrs_from_index(scope_index, language),
-        );
-
-        for (i, line) in lines.iter().enumerate() {
-            let line_number = i + 1;
-            let line_with_newline = format!("{line}\n");
-            let (class_suffix, style) = self.get_line_attrs(line_number);
-            let wrapped = crate::formatter::html::wrap_line(
-                line_number,
-                &line_with_newline,
-                class_suffix.as_deref(),
-                style.as_deref(),
-            );
-            write!(&mut buffer, "{wrapped}")?;
-        }
+            &self.line_selection(),
+            &|scope_index, language| self.span_attrs_from_index(scope_index, language),
+            (class_suffix.as_deref(), style.as_deref()),
+        )?;
 
         crate::formatter::html::closing_tags(&mut buffer)?;
 
@@ -362,8 +373,9 @@ mod tests {
             None,
         );
         let mut output = Vec::new();
+        let events: [HighlightEvent<'_, ()>; 0] = [];
 
-        formatter.render("", &[], &mut output).unwrap();
+        formatter.render("", &events, &mut output).unwrap();
 
         let html = String::from_utf8(output).unwrap();
         let pre_tag = html.split_once('>').expect("missing pre tag").0;
@@ -415,7 +427,7 @@ mod tests {
         );
         let mut output = Vec::new();
 
-        formatter.render("one\ntwo", &[], &mut output).unwrap();
+        Formatter::<()>::render(&formatter, "one\ntwo", &[], &mut output).unwrap();
 
         let html = String::from_utf8(output).unwrap();
         let line_tag = html

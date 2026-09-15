@@ -1,3 +1,26 @@
+## [0.8.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.7.0...hex-lumis/v0.8.0) (2026-09-03)
+
+
+### Code Refactoring
+
+- keep one copy of each test parser - [#1288](https://github.com/leandrocp/lumis/pull/1288)
+
+
+### Documentation
+
+- showcase page - [#1141](https://github.com/leandrocp/lumis/pull/1141)
+- document Nix builds - [#1314](https://github.com/leandrocp/lumis/pull/1314)
+
+
+### Features
+
+- highlight code inside diff hunks - [#1284](https://github.com/leandrocp/lumis/pull/1284)
+- update generated themes - [#1293](https://github.com/leandrocp/lumis/pull/1293)
+- name the highlight options in every runtime - [#1289](https://github.com/leandrocp/lumis/pull/1289)
+- update generated themes - [#1307](https://github.com/leandrocp/lumis/pull/1307)
+- BREAKING: require Elixir 1.15 - [#1338](https://github.com/leandrocp/lumis/pull/1338)
+- update generated themes - [#1343](https://github.com/leandrocp/lumis/pull/1343)
+
 ## [0.7.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.6.3...hex-lumis/v0.7.0) (2026-08-13)
 
 ### Bug Fixes

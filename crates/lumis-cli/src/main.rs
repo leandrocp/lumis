@@ -8,7 +8,8 @@ use clap::{ArgAction, CommandFactory, Parser, Subcommand, ValueEnum};
 use formatter_options::{
     OPTSET_GLOBAL, OPTSET_HTML, OPTSET_MULTI_THEME, OPTSET_STYLED, OPTSET_TERMINAL,
 };
-use lumis_core::events::HighlightEvent;
+use lumis_core::events::HighlightEvent as CoreHighlightEvent;
+use lumis_core::formatter::ansi::hex_to_rgb;
 use lumis_core::formatter::Formatter as CoreFormatter;
 use lumis_core::formatter::TerminalBackground;
 use lumis_core::languages::Language;
@@ -23,6 +24,8 @@ use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
 use terminal_size::{terminal_size, Width};
 use tree_sitter::Node;
+
+type HighlightEvent = CoreHighlightEvent<'static>;
 
 #[derive(Parser)]
 #[command(
@@ -111,6 +114,10 @@ struct HighlightArgs {
     #[arg(long)]
     rainbow_brackets: bool,
 
+    /// Lines to highlight, e.g. "1,3-5,10"
+    #[arg(short = 'H', long)]
+    highlight_lines: Option<String>,
+
     #[command(flatten)]
     terminal: TerminalArgs,
 
@@ -134,6 +141,10 @@ struct TerminalArgs {
     /// Render width for background padding. Use a number or 'auto'.
     #[arg(short = 'w', long)]
     width: Option<String>,
+
+    /// Background for highlighted lines [default: the theme's `highlighted` background]
+    #[arg(long, requires = "highlight_lines")]
+    highlight_lines_background: Option<String>,
 }
 
 #[derive(clap::Args)]
@@ -150,10 +161,6 @@ struct HtmlArgs {
     /// Closing tag wrapped around the output, e.g. '</figure>'
     #[arg(long, requires = "header_open")]
     header_close: Option<String>,
-
-    /// Lines to highlight, e.g. "1,3-5,10"
-    #[arg(short = 'H', long)]
-    highlight_lines: Option<String>,
 
     /// CSS class added to highlighted lines
     #[arg(long, requires = "highlight_lines")]
@@ -227,10 +234,11 @@ impl HighlightArgs {
             "--theme" => self.theme.is_some(),
             "--background" => self.terminal.background.is_some(),
             "--width" => self.terminal.width.is_some(),
+            "--highlight-lines-background" => self.terminal.highlight_lines_background.is_some(),
             "--pre-class" => self.html.pre_class.is_some(),
             "--header-open" => self.html.header_open.is_some(),
             "--header-close" => self.html.header_close.is_some(),
-            "--highlight-lines" => self.html.highlight_lines.is_some(),
+            "--highlight-lines" => self.highlight_lines.is_some(),
             "--highlight-lines-class" => self.html.highlight_lines_class.is_some(),
             "--italic" => self.styled.italic,
             "--include-highlights" => self.styled.include_highlights,
@@ -833,24 +841,11 @@ fn guess_terminal_theme() -> Option<String> {
 fn closest_builtin_theme(background: (u8, u8, u8)) -> Option<String> {
     lumis_core::themes::available_themes()
         .filter_map(|theme| {
-            let theme_background = theme.bg().and_then(parse_hex_color)?;
+            let theme_background = theme.bg().and_then(hex_to_rgb)?;
             Some((color_distance(background, theme_background), &theme.name))
         })
         .min_by_key(|(distance, _)| *distance)
         .map(|(_, name)| name.clone())
-}
-
-fn parse_hex_color(color: &str) -> Option<(u8, u8, u8)> {
-    let color = color.strip_prefix('#')?;
-    if color.len() != 6 {
-        return None;
-    }
-
-    Some((
-        u8::from_str_radix(&color[0..2], 16).ok()?,
-        u8::from_str_radix(&color[2..4], 16).ok()?,
-        u8::from_str_radix(&color[4..6], 16).ok()?,
-    ))
 }
 
 // Redmean color distance weights RGB channels based on human perception.
@@ -983,6 +978,7 @@ fn dump_events(
                 SerializableHighlightEvent::Source { start, end }
             }
             HighlightEvent::End => SerializableHighlightEvent::End,
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect::<Vec<_>>();
 
@@ -1153,6 +1149,7 @@ fn tree_highlights(events: Vec<HighlightEvent>) -> Result<Vec<TreeHighlight>> {
                     });
                 }
             }
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         }
     }
 
@@ -1482,7 +1479,7 @@ fn inline_highlight_lines(
 ) -> Result<Option<lumis_core::formatter::html_inline::HighlightLines>> {
     use lumis_core::formatter::html_inline::{HighlightLines, HighlightLinesStyle};
 
-    let Some(lines) = args.html.highlight_lines.as_deref() else {
+    let Some(lines) = args.highlight_lines.as_deref() else {
         return Ok(None);
     };
 
@@ -1504,7 +1501,7 @@ fn linked_highlight_lines(
 ) -> Result<Option<lumis_core::formatter::html_linked::HighlightLines>> {
     use lumis_core::formatter::html_linked::HighlightLines;
 
-    let Some(lines) = args.html.highlight_lines.as_deref() else {
+    let Some(lines) = args.highlight_lines.as_deref() else {
         return Ok(None);
     };
 
@@ -1515,6 +1512,35 @@ fn linked_highlight_lines(
             .highlight_lines_class
             .clone()
             .unwrap_or_else(|| "l-highlighted".to_string()),
+    }))
+}
+
+fn terminal_highlight_lines(
+    args: &HighlightArgs,
+) -> Result<Option<lumis_core::formatter::terminal::HighlightLines>> {
+    use lumis_core::formatter::terminal::HighlightLines;
+
+    let Some(lines) = args.highlight_lines.as_deref() else {
+        return Ok(None);
+    };
+
+    Ok(Some(HighlightLines {
+        lines: parse_highlight_lines(lines)?,
+        background: args.terminal.highlight_lines_background.clone(),
+    }))
+}
+
+fn bbcode_highlight_lines(
+    args: &HighlightArgs,
+) -> Result<Option<lumis_core::formatter::bbcode::HighlightLines>> {
+    use lumis_core::formatter::bbcode::HighlightLines;
+
+    let Some(lines) = args.highlight_lines.as_deref() else {
+        return Ok(None);
+    };
+
+    Ok(Some(HighlightLines {
+        lines: parse_highlight_lines(lines)?,
     }))
 }
 
@@ -1610,10 +1636,12 @@ fn render_output(
     let chosen = args.formatter();
     let HighlightArgs {
         ref theme,
-        terminal: TerminalArgs {
-            ref background,
-            ref width,
-        },
+        terminal:
+            TerminalArgs {
+                ref background,
+                ref width,
+                ..
+            },
         html: HtmlArgs { ref pre_class, .. },
         styled:
             StyledArgs {
@@ -1695,7 +1723,8 @@ fn render_output(
                 .language(lang)
                 .theme(theme_obj)
                 .background(parse_terminal_background(background.as_deref()))
-                .width(resolve_terminal_width(width.as_deref())?);
+                .width(resolve_terminal_width(width.as_deref())?)
+                .highlight_lines(terminal_highlight_lines(&args)?);
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
@@ -1705,7 +1734,8 @@ fn render_output(
 
         Formatter::BbcodeScoped => {
             print_verbose_separator(verbose);
-            let fmt = lumis_core::formatter::BBCodeScoped::new(lang);
+            let fmt =
+                lumis_core::formatter::BBCodeScoped::new(lang, bbcode_highlight_lines(&args)?);
             let mut output = Vec::new();
             fmt.render(source, events, &mut output)?;
             print!("{}", String::from_utf8(output)?);
@@ -1958,13 +1988,6 @@ mod tests {
             closest_builtin_theme((0x22, 0x24, 0x36)).as_deref(),
             Some("tokyonight_moon")
         );
-    }
-
-    #[test]
-    fn parse_hex_color_rejects_invalid_values() {
-        assert_eq!(parse_hex_color("#282a36"), Some((0x28, 0x2a, 0x36)));
-        assert_eq!(parse_hex_color("282a36"), None);
-        assert_eq!(parse_hex_color("#fff"), None);
     }
 
     #[test]

@@ -35,4 +35,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      - name: Seed ignored Rust build output
+        run: |
+          fixture=packages/elixir/lumis/native/lumis_nif/target/lizard-regression.rs
+          mkdir -p "$(dirname "$fixture")"
+          cp crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs "$fixture"
+          git check-ignore -q "$fixture"
       - run: mise run lint-complexity-rust

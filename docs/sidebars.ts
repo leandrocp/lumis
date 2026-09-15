@@ -33,6 +33,7 @@ const sidebars: SidebarsConfig = {
         "usage/formatters/terminal",
         "usage/formatters/bbcode",
         "usage/custom-formatters",
+        "usage/annotations",
       ],
     },
     {

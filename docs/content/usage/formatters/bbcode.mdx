@@ -21,11 +21,14 @@ Scope-based BBCode tags for forum posts and BBCode-based platforms.
 
 | Runtime | Options |
 | --- | --- |
-| Rust | `language`, `rainbow_brackets` |
-| Elixir | `language`, `rainbow_brackets` |
-| JavaScript | `language`, `rainbowBrackets` |
+| Rust | `language`, `highlight_lines`, `rainbow_brackets` |
+| Elixir | `language`, `highlight_lines`, `rainbow_brackets` |
+| JavaScript | `language`, `highlightLines`, `rainbowBrackets` |
 | Java | `withLang()`, `withFormatter(Formatter.BBCODE)` |
-| CLI | `--rainbow-brackets` |
+| CLI | `--highlight-lines`, `--rainbow-brackets` |
+
+A highlighted line is wrapped in `[highlighted]...[/highlighted]`. See
+[Line Highlighting](/recipes/line-highlighting).
 
 ## Example
 
@@ -107,10 +110,10 @@ lumis highlight main.rs -f bbcode-scoped
 
 ## Output format
 
-Scope names from the syntax tree are converted to BBCode tags by replacing dots with hyphens:
+A tag is the scope name from the syntax tree and the language it was matched in, with the dots replaced by hyphens:
 
 ```
-[keyword-function]fn[/keyword-function] [function]main[/function]
+[keyword-function-rust]fn[/keyword-function-rust] [function-rust]main[/function-rust]
 ```
 
 `bbcodeScoped()` / `:bbcode_scoped` / `bbcode-scoped` emit highlight scope names as tags. They do not try to generate standard forum-style BBCode such as `[b]`, `[color]`, or `[code]`.

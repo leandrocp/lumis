@@ -196,6 +196,8 @@ HTML Multi-Themes keeps the same HTML structure, but each token carries CSS vari
 - `<pre class="lumis">` carries shared background and theme variables
 - `<code class="language-*">` identifies the language and keeps the block focusable
 - `<div class="l-line" data-line="N">` wraps each line
+- A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
+  final line gets no added newline
 - `<span style="--lumis-...">` carries per-theme token colors and font styles
 
 ## Good uses

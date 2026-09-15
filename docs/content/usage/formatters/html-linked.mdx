@@ -124,6 +124,8 @@ HTML Linked keeps the same block structure, but token styling moves to CSS class
 - `<pre class="lumis">` is the outer wrapper
 - `<code class="language-*">` identifies the language and keeps the block focusable
 - `<div class="l-line" data-line="N">` wraps each line
+- A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
+  final line gets no added newline
 - `<span class="...">` carries semantic highlight classes such as `l-keyword` or `l-string`
 
 ## When to use it

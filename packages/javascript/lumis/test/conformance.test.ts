@@ -110,8 +110,8 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
       htmlInline({
         language: getLanguage(fixture.language),
         theme: getTheme(fixture.theme),
-        rainbowBrackets: fixture.rainbowBrackets,
       }),
+      { rainbowBrackets: fixture.rainbowBrackets },
     );
     expect(output).toBe(fixture.htmlInline);
   });
@@ -121,8 +121,8 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
       fixture.source,
       htmlLinked({
         language: getLanguage(fixture.language),
-        rainbowBrackets: fixture.rainbowBrackets,
       }),
+      { rainbowBrackets: fixture.rainbowBrackets },
     );
     expect(output).toBe(fixture.htmlLinked);
   });
@@ -145,11 +145,11 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
         language: getLanguage(fixture.language),
         themes: formatterThemes,
         defaultTheme: config ? config.defaultTheme : "main",
-        rainbowBrackets: fixture.rainbowBrackets,
         highlightLines: config?.highlightLines?.length
           ? { lines: config.highlightLines, style: "theme" }
           : undefined,
       }),
+      { rainbowBrackets: fixture.rainbowBrackets },
     );
     expect(output).toBe(fixture.htmlMultiThemes);
   });
@@ -159,8 +159,8 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
       fixture.source,
       bbcodeScoped({
         language: getLanguage(fixture.language),
-        rainbowBrackets: fixture.rainbowBrackets,
       }),
+      { rainbowBrackets: fixture.rainbowBrackets },
     );
     expect(output).toBe(fixture.bbcode);
   });
@@ -171,8 +171,8 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
       terminal({
         language: getLanguage(fixture.language),
         theme: getTheme(fixture.theme),
-        rainbowBrackets: fixture.rainbowBrackets,
       }),
+      { rainbowBrackets: fixture.rainbowBrackets },
     );
     expect(output).toBe(fixture.terminal);
   });

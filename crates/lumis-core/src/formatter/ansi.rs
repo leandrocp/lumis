@@ -9,10 +9,15 @@ use crate::themes::{Style, UnderlineStyle};
 pub const ANSI_RESET: &str = "\u{1b}[0m";
 
 /// Convert a hex color string to RGB tuple.
+///
+/// A color is exactly six ASCII hex digits, optionally preceded by `#`, and
+/// anything else is `None`. The digit check is what makes that true:
+/// `u8::from_str_radix` accepts a leading sign, so component-wise parsing alone
+/// read `"ff+79c"` as `(255, 7, 156)`.
 pub fn hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
     let hex = hex.trim_start_matches('#');
 
-    if hex.len() != 6 {
+    if hex.len() != 6 || !hex.bytes().all(|byte| byte.is_ascii_hexdigit()) {
         return None;
     }
 
@@ -124,7 +129,14 @@ mod tests {
     fn test_hex_to_rgb_invalid() {
         assert_eq!(hex_to_rgb("invalid"), None);
         assert_eq!(hex_to_rgb("#fff"), None);
+        assert_eq!(hex_to_rgb("aéaaa"), None);
         assert_eq!(hex_to_rgb(""), None);
+    }
+
+    #[test]
+    fn test_hex_to_rgb_rejects_a_signed_component() {
+        assert_eq!(hex_to_rgb("ff+79c"), None);
+        assert_eq!(hex_to_rgb("+f+f+f"), None);
     }
 
     #[test]

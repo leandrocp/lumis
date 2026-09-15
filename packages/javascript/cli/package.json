@@ -1,6 +1,7 @@
 {
   "name": "@lumis-sh/cli",
   "version": "0.6.2",
+  "binaryVersion": "0.5.1",
   "description": "Command line syntax highlighter powered by Tree-sitter and Neovim themes",
   "author": "Leandro Pereira",
   "license": "MIT",

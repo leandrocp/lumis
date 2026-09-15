@@ -377,7 +377,12 @@ mix credo --strict
 [tasks.'lint-complexity-rust']
 description = "Enforce cyclomatic complexity in every Rust source file"
 tools = { "pipx:lizard" = "1.24.0" }
-run = "lizard -l rust -C 20 -L 100000 -a 100000 -i 0 -w -W .lizard-whitelist ."
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+git ls-files -z --cached --others --exclude-standard -- '*.rs' |
+    xargs -0 lizard -l rust -C 20 -L 100000 -a 100000 -i 0 -w -W .lizard-whitelist --
+'''
 
 [tasks.'lint-lua']
 description = "Lint every Lua file with selene"
@@ -452,7 +457,7 @@ mise run check-crate-deps
 '''
 
 [tasks.'check-cli-versions']
-description = "Check the CLI platform packages are versioned in lockstep with @lumis-sh/cli"
+description = "Check the npm CLI platform packages and binary version marker"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -925,7 +930,7 @@ npm-lumis|packages/javascript/lumis|crates/lumis|crates/lumis-core|crates/lumis-
 npm-markdown-it-lumis|packages/javascript/markdown-it-lumis
 npm-rehype-lumis|packages/javascript/rehype-lumis
 npm-react|packages/javascript/react
-npm-cli|packages/javascript/cli|crates/lumis-cli|crates/lumis-wasm-runtime
+npm-cli|packages/javascript/cli
 npm-wasm-bundle-web|packages/javascript/wasm-bundle-web
 npm-wasm-bundle-web-extra|packages/javascript/wasm-bundle-web-extra
 npm-wasm-bundle-system|packages/javascript/wasm-bundle-system
@@ -1026,6 +1031,16 @@ while IFS= read -r entry; do
     if [ "$current" != "${tag#*/v}" ]; then
         printf 'skipping %s: %s is already prepared and %s is still the latest tag\n' "$package" "$current" "$tag" >&2
         continue
+    fi
+
+    if [ "$package" = "npm-cli" ]; then
+        cargo_tag="$(git tag --list 'cargo-lumis-cli/v*' --sort=-version:refname | head -n1)"
+        cargo_version="$(mise run release-version cargo-lumis-cli)"
+        binary_version="$(jq -r .binaryVersion packages/javascript/cli/package.json)"
+        if [ -z "$cargo_tag" ] || [ "$cargo_version" != "${cargo_tag#*/v}" ] || [ "$binary_version" != "$cargo_version" ] || ! git diff --quiet "$cargo_tag"..HEAD -- crates/lumis-cli crates/lumis-core crates/lumis-wasm-runtime; then
+            printf 'skipping npm-cli: publish cargo-lumis-cli and merge align-npm-cli first\n' >&2
+            continue
+        fi
     fi
 
     include_args=()

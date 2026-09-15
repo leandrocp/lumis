@@ -27,7 +27,7 @@ describe("native event codec", () => {
 
     expect(decodeNativeEvents(encoded)).toEqual([
       { type: "start", scope: HIGHLIGHT_NAMES[0], language: "js" },
-      { type: "source", startByte: 1, endByte: 5 },
+      { type: "source", start: 1, end: 5 },
       { type: "end" },
     ]);
   });
@@ -36,7 +36,7 @@ describe("native event codec", () => {
     const wrapped = new Uint8Array([255, 0, 1, 0, 0, 0, 5, 0, 0, 0, 255]);
 
     expect(decodeNativeEvents(wrapped.subarray(1, -1))).toEqual([
-      { type: "source", startByte: 1, endByte: 5 },
+      { type: "source", start: 1, end: 5 },
     ]);
   });
 

@@ -1,12 +1,15 @@
 import type {
-  HighlightEvent,
+  Decoration,
   HighlightStyle,
   HighlightSpan,
+  HighlightEvent,
   HtmlElement,
   LineSpec,
   LanguageRef,
+  SyntaxHighlightEvent,
   Theme,
 } from "../types.js";
+import { LineSelection, composeLineDecorations } from "../decorations.js";
 import { HIGHLIGHT_NAMES } from "../highlights.js";
 import { sanitizeThemeName } from "../themes.js";
 
@@ -27,7 +30,17 @@ export function decodeSourceSlice(
   startByte: number,
   endByte: number,
 ): string {
-  return _decoder.decode(sourceBytes.subarray(startByte, endByte));
+  let start = Math.min(Math.max(startByte, 0), sourceBytes.length);
+  while (start < sourceBytes.length && isUtf8Continuation(sourceBytes[start])) start += 1;
+
+  let end = Math.min(Math.max(endByte, 0), sourceBytes.length);
+  while (end > 0 && isUtf8Continuation(sourceBytes[end])) end -= 1;
+
+  return _decoder.decode(sourceBytes.subarray(start, Math.max(start, end)));
+}
+
+function isUtf8Continuation(byte: number | undefined): boolean {
+  return byte !== undefined && (byte & 0xc0) === 0x80;
 }
 
 /** HTML attribute map. Values of `undefined`, `null`, or `false` are omitted. */
@@ -254,32 +267,14 @@ export function escapeAttr(value: string): string {
   return result;
 }
 
-/**
- * Join CSS class names, filtering out falsy values.
- *
- * ```ts
- * joinClasses('l-line', undefined, 'l-highlighted')  // "l-line l-highlighted"
- * joinClasses(undefined, false)                   // undefined
- * ```
- */
-export function joinClasses(
-  ...classes: Array<string | undefined | false | null>
-): string | undefined {
+function classList(...classes: Array<string | undefined | false | null>): string | undefined {
   const value = classes.filter(
     (className): className is string => !!className && className.length > 0,
   );
   return value.length > 0 ? value.join(" ") : undefined;
 }
 
-/**
- * Render an `HtmlAttrs` map to an HTML attribute string.
- *
- * ```ts
- * attrsToString({ class: 'foo', style: 'color: red', hidden: true })
- * // 'class="foo" style="color: red" hidden'
- * ```
- */
-export function attrsToString(attrs: HtmlAttrs): string {
+function renderAttrs(attrs: HtmlAttrs): string {
   const parts: string[] = [];
 
   for (const [name, value] of Object.entries(attrs)) {
@@ -295,6 +290,43 @@ export function attrsToString(attrs: HtmlAttrs): string {
   return parts.join(" ");
 }
 
+function tag(name: string, attrs: HtmlAttrs = {}): string {
+  const renderedAttrs = renderAttrs(attrs);
+  return renderedAttrs.length > 0 ? `<${name} ${renderedAttrs}>` : `<${name}>`;
+}
+
+/**
+ * Join CSS class names, filtering out falsy values.
+ *
+ * ```ts
+ * joinClasses('l-line', undefined, 'l-highlighted')  // "l-line l-highlighted"
+ * joinClasses(undefined, false)                   // undefined
+ * ```
+ *
+ * @deprecated Generic plumbing that Rust and Elixir do inline; it is not
+ * Lumis's to own. Removed in the next major.
+ */
+export function joinClasses(
+  ...classes: Array<string | undefined | false | null>
+): string | undefined {
+  return classList(...classes);
+}
+
+/**
+ * Render an `HtmlAttrs` map to an HTML attribute string.
+ *
+ * ```ts
+ * attrsToString({ class: 'foo', style: 'color: red', hidden: true })
+ * // 'class="foo" style="color: red" hidden'
+ * ```
+ *
+ * @deprecated Use {@link openSpanTag}, which renders the attributes it is
+ * given. Removed in the next major.
+ */
+export function attrsToString(attrs: HtmlAttrs): string {
+  return renderAttrs(attrs);
+}
+
 /**
  * Build an opening HTML tag with attributes.
  *
@@ -302,10 +334,12 @@ export function attrsToString(attrs: HtmlAttrs): string {
  * openTag('span', { class: 'keyword', style: 'color: red' })
  * // '<span class="keyword" style="color: red">'
  * ```
+ *
+ * @deprecated Use {@link openPreTag}, {@link openCodeTag} or
+ * {@link openSpanTag}. Removed in the next major.
  */
 export function openTag(name: string, attrs: HtmlAttrs = {}): string {
-  const renderedAttrs = attrsToString(attrs);
-  return renderedAttrs.length > 0 ? `<${name} ${renderedAttrs}>` : `<${name}>`;
+  return tag(name, attrs);
 }
 
 /**
@@ -314,6 +348,9 @@ export function openTag(name: string, attrs: HtmlAttrs = {}): string {
  * ```ts
  * closeTag('span')  // "</span>"
  * ```
+ *
+ * @deprecated Use {@link closePreTag}, {@link closeCodeTag} or
+ * {@link closingTags}. Removed in the next major.
  */
 export function closeTag(name: string): string {
   return `</${name}>`;
@@ -327,7 +364,7 @@ export function closeTag(name: string): string {
  * ```
  */
 export function openSpanTag(attrs: HtmlAttrs = {}): string {
-  return openSpan(attrsToString(attrs));
+  return openSpan(renderAttrs(attrs));
 }
 
 function openSpan(attrs: string): string {
@@ -357,10 +394,42 @@ export interface OpenPreTagOptions {
 export function openPreTag(options: OpenPreTagOptions = {}): string {
   const className = options.preClass ? `lumis ${options.preClass}` : "lumis";
   const style = styleToCss(getThemeStyle(options.theme, "normal"));
-  return openTag("pre", {
+  return tag("pre", {
     class: className,
     style: style.length > 0 ? style : undefined,
   });
+}
+
+/**
+ * Options for {@link openMultiThemesPreTag}.
+ */
+export interface OpenMultiThemesPreTagOptions {
+  preClass?: string;
+  themes: Record<string, Theme>;
+  defaultTheme?: string;
+  /** Defaults to `"--lumis"`. */
+  cssVariablePrefix?: string;
+}
+
+/**
+ * Open a `<pre>` tag carrying every theme's name as a class and its `normal`
+ * colours as CSS custom properties.
+ *
+ * The `<pre>` counterpart of {@link spanMultiThemesAttrs}: `defaultTheme` is
+ * written inline and every other theme becomes a variable, except for
+ * `"light-dark()"`, which writes both inline and contributes no variables.
+ *
+ * ```ts
+ * openMultiThemesPreTag({ themes: { light: githubLight, dark: githubDark }, defaultTheme: 'light' })
+ * // '<pre class="lumis lumis-themes dark light" style="color:#1f2328; ... --lumis-dark:#e6edf3; ...">'
+ * ```
+ */
+export function openMultiThemesPreTag(options: OpenMultiThemesPreTagOptions): string {
+  const classes =
+    classList("lumis", "lumis-themes", options.preClass, ...sortedThemeNames(options.themes)) ??
+    "lumis lumis-themes";
+
+  return tag("pre", { class: classes, style: multiThemesPreStyle(options) });
 }
 
 /**
@@ -372,7 +441,7 @@ export function openPreTag(options: OpenPreTagOptions = {}): string {
  */
 export function openCodeTag(language: LanguageRef | undefined): string {
   const id = language ? languageId(language) : "plaintext";
-  return openTag("code", {
+  return tag("code", {
     class: `language-${id}`,
     translate: "no",
     tabindex: 0,
@@ -387,7 +456,7 @@ export function openCodeTag(language: LanguageRef | undefined): string {
  * ```
  */
 export function closePreTag(): string {
-  return closeTag("pre");
+  return "</pre>";
 }
 
 /**
@@ -398,7 +467,7 @@ export function closePreTag(): string {
  * ```
  */
 export function closeCodeTag(): string {
-  return closeTag("code");
+  return "</code>";
 }
 
 /**
@@ -437,6 +506,9 @@ export function escapeBraces(text: string): string {
   return text.replaceAll("{", "&lbrace;").replaceAll("}", "&rbrace;");
 }
 
+/**
+ * @deprecated A pure alias of {@link escape}. Removed in the next major.
+ */
 export function escapeFragment(text: string): string {
   return escape(text);
 }
@@ -587,9 +659,9 @@ export function spanMultiThemesAttrs(options: SpanMultiThemesOptions): HtmlAttrs
     }
   } else if (defaultTheme) {
     applyDefaultMultiTheme(inlineStyles, cssVars, options);
-    appendThemeCssVars(cssVars, cssVariablePrefix, themes, scope, language, defaultTheme);
+    pushThemeCssVarsForAll(cssVars, cssVariablePrefix, themes, scope, language, defaultTheme);
   } else {
-    appendThemeCssVars(cssVars, cssVariablePrefix, themes, scope, language);
+    pushThemeCssVarsForAll(cssVars, cssVariablePrefix, themes, scope, language);
   }
 
   const styleParts = [...inlineStyles, ...cssVars].filter(Boolean);
@@ -736,7 +808,7 @@ export function sortedThemeNames(themes: Record<string, unknown>): string[] {
   });
 }
 
-export function appendThemeCssVars(
+function pushThemeCssVarsForAll(
   cssVars: string[],
   prefix: string,
   themes: Record<string, Theme | undefined>,
@@ -753,7 +825,23 @@ export function appendThemeCssVars(
   }
 }
 
-export function buildNormalThemeVars(
+/**
+ * @deprecated Internal multi-themes plumbing, exported by accident; Rust keeps
+ * its counterpart private. Use {@link spanMultiThemesAttrs}. Removed in the
+ * next major.
+ */
+export function appendThemeCssVars(
+  cssVars: string[],
+  prefix: string,
+  themes: Record<string, Theme | undefined>,
+  scope: string,
+  language: LanguageRef,
+  excludeTheme?: string,
+): void {
+  pushThemeCssVarsForAll(cssVars, prefix, themes, scope, language, excludeTheme);
+}
+
+function pushNormalThemeVars(
   styles: string[],
   prefix: string,
   themes: Record<string, Theme>,
@@ -769,6 +857,20 @@ export function buildNormalThemeVars(
     if (style?.fg) styles.push(`${prefix}-${sanitized}:${style.fg};`);
     if (style?.bg) styles.push(`${prefix}-${sanitized}-bg:${style.bg};`);
   }
+}
+
+/**
+ * @deprecated Internal multi-themes plumbing, exported by accident; Rust keeps
+ * its counterpart private. Use {@link openMultiThemesPreTag}. Removed in the
+ * next major.
+ */
+export function buildNormalThemeVars(
+  styles: string[],
+  prefix: string,
+  themes: Record<string, Theme>,
+  excludeTheme?: string,
+): void {
+  pushNormalThemeVars(styles, prefix, themes, excludeTheme);
 }
 
 // The `<pre>` colours for `light-dark()`, falling back to black on white and
@@ -787,7 +889,7 @@ function lightDarkPreStyles(themes: Record<string, Theme>): string[] {
   ];
 }
 
-export function buildPreThemeStyle(options: {
+function multiThemesPreStyle(options: {
   themes: Record<string, Theme>;
   defaultTheme?: string;
   cssVariablePrefix?: string;
@@ -801,14 +903,34 @@ export function buildPreThemeStyle(options: {
     const defaultStyle = getThemeStyle(options.themes[options.defaultTheme], "normal");
     if (defaultStyle?.fg) styles.push(`color:${defaultStyle.fg};`);
     if (defaultStyle?.bg) styles.push(`background-color:${defaultStyle.bg};`);
-    buildNormalThemeVars(styles, prefix, options.themes, options.defaultTheme);
+    pushNormalThemeVars(styles, prefix, options.themes, options.defaultTheme);
   } else {
-    buildNormalThemeVars(styles, prefix, options.themes);
+    pushNormalThemeVars(styles, prefix, options.themes);
   }
 
   return styles.length > 0 ? styles.join(" ") : undefined;
 }
 
+/**
+ * @deprecated Internal multi-themes plumbing, exported by accident; Rust keeps
+ * its counterpart private. Use {@link openMultiThemesPreTag}, which builds the
+ * whole tag. Removed in the next major.
+ */
+export function buildPreThemeStyle(options: {
+  themes: Record<string, Theme>;
+  defaultTheme?: string;
+  cssVariablePrefix?: string;
+}): string | undefined {
+  return multiThemesPreStyle(options);
+}
+
+/**
+ * @deprecated Composes {@link openPreTag}, {@link openCodeTag},
+ * {@link wrapLine} and {@link closingTags} in the one order the built-in
+ * formatters use, which is not a custom formatter's shape. Call them directly.
+ * Each `lines` entry must already contain its source terminator, if any.
+ * Removed in the next major.
+ */
 export function renderHtmlBlock(options: {
   lines: string[];
   language: LanguageRef | undefined;
@@ -826,9 +948,10 @@ export function renderHtmlBlock(options: {
 
 /**
  * Wrap a line of highlighted HTML in a `<div>` with line metadata.
+ * `content` is inserted verbatim, including any trailing newline.
  *
  * ```ts
- * wrapLine(1, '<span>const</span>', { className: 'l-highlighted' })
+ * wrapLine(1, '<span>const</span>\n', { className: 'l-highlighted' })
  * // '<div class="l-line l-highlighted" data-line="1"><span>const</span>\n</div>'
  * ```
  */
@@ -837,11 +960,11 @@ export function wrapLine(
   content: string,
   options: { className?: string; style?: string } = {},
 ): string {
-  return `${openTag("div", {
-    class: joinClasses("l-line", options.className),
+  return `${tag("div", {
+    class: classList("l-line", options.className),
     style: options.style,
     "data-line": lineNumber,
-  })}${content}\n${closeTag("div")}`;
+  })}${content}</div>`;
 }
 
 /**
@@ -907,156 +1030,229 @@ export function appendFragment(lines: string[], fragment: string): void {
   }
 }
 
-interface SpanStackEntry {
-  scope: string;
+/** What a formatter does with each step of a line-decorated stream. */
+interface LineRenderOptions {
+  formatText?: (text: string) => string;
+  openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  closeSpan?: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+}
+
+interface LineRenderState {
+  /** The current line's rendered content, without its terminator. */
+  line: string;
+  /** The exact source terminator held until every syntax span has closed. */
+  ending: string;
+  decoration: Decoration;
+  /** The document's language: the innermost scope's, once one has been open. */
   language: string;
-  emitted: boolean;
+  /** The close tag of each open scope, empty when the formatter omitted it. */
+  openScopes: Array<{ close: string; language: string }>;
+  /**
+   * A line boundary reopens every span still open, so resolving a scope's tags
+   * once is the difference between paying per scope and paying per scope per
+   * line.
+   */
+  tags: Map<string, { open: string; close: string }>;
 }
 
-function closeOpenSpans(
-  lines: string[],
-  stack: SpanStackEntry[],
-  closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-  theme: Theme | undefined,
-): void {
-  for (let i = stack.length - 1; i >= 0; i -= 1) {
-    const entry = stack[i]!;
-    if (!entry.emitted) continue;
-    const style = getSpanStyle(theme, entry.scope, entry.language);
-    appendFragment(lines, closeSpan(emptySpan(entry.scope, entry.language), style));
-  }
-}
-
-function reopenSpans(
-  lines: string[],
-  stack: SpanStackEntry[],
-  renderOpenSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-  theme: Theme | undefined,
-): void {
-  for (const entry of stack) {
-    if (!entry.emitted) continue;
-    const style = getSpanStyle(theme, entry.scope, entry.language);
-    appendFragment(lines, renderOpenSpan(emptySpan(entry.scope, entry.language), style));
-  }
-}
-
-function renderSourceEvent(
-  lines: string[],
-  text: string,
-  stack: SpanStackEntry[],
-  formatText: (text: string) => string,
-  renderOpenSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-  closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-  theme: Theme | undefined,
-): void {
-  let remaining = text;
-
-  while (true) {
-    const newlineIndex = remaining.indexOf("\n");
-    if (newlineIndex === -1) {
-      appendFragment(lines, formatText(remaining));
-      return;
-    }
-
-    appendFragment(lines, formatText(remaining.slice(0, newlineIndex)));
-    closeOpenSpans(lines, stack, closeSpan, theme);
-    lines.push("");
-    reopenSpans(lines, stack, renderOpenSpan, theme);
-    remaining = remaining.slice(newlineIndex + 1);
-  }
-}
-
-function resolveDocumentLanguage(language: string, stack: SpanStackEntry[]): string {
-  if (language && language !== "plaintext") return language;
-  return stack.at(-1)?.language ?? language;
+interface LineRenderContext {
+  sourceBytes: Uint8Array;
+  theme: Theme | undefined;
+  formatText: (text: string) => string;
+  openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  onLine: (content: string, decoration: Decoration) => void;
 }
 
 function openSpanEvent(
-  lines: string[],
-  stack: SpanStackEntry[],
+  state: LineRenderState,
+  context: LineRenderContext,
   event: { scope: string; language: string },
-  theme: Theme | undefined,
-  renderOpen: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
 ): void {
-  const style = getSpanStyle(theme, event.scope, event.language);
-  const open = renderOpen(emptySpan(event.scope, event.language), style);
-  appendFragment(lines, open);
-  stack.push({ scope: event.scope, language: event.language, emitted: open.length > 0 });
+  const key = `${event.language} ${event.scope}`;
+  let tags = state.tags.get(key);
+
+  if (tags === undefined) {
+    const span = emptySpan(event.scope, event.language);
+    const style = getSpanStyle(context.theme, event.scope, event.language);
+    const open = context.openSpan(span, style);
+    // An `openSpan` that returns nothing means the formatter is deliberately
+    // omitting the span, so nothing closes it either.
+    tags = { open, close: open.length > 0 ? context.closeSpan(span, style) : "" };
+    state.tags.set(key, tags);
+  }
+
+  state.line += tags.open;
+  state.openScopes.push({ close: tags.close, language: event.language });
 }
 
-function closeSpanEvent(
-  lines: string[],
-  stack: SpanStackEntry[],
-  theme: Theme | undefined,
-  renderClose: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
+function sourceEvent(
+  state: LineRenderState,
+  context: LineRenderContext,
+  event: { start: number; end: number },
 ): void {
-  const top = stack.pop();
-  if (!top?.emitted) return;
+  if (!state.language || state.language === "plaintext") {
+    state.language = state.openScopes.at(-1)?.language ?? state.language;
+  }
 
-  const style = getSpanStyle(theme, top.scope, top.language);
-  appendFragment(lines, renderClose(emptySpan(top.scope, top.language), style));
+  const text = decodeSourceSlice(context.sourceBytes, event.start, event.end);
+  const ending = text.endsWith("\r\n") ? "\r\n" : text.endsWith("\n") ? "\n" : "";
+  state.ending = ending;
+  state.line += context.formatText(ending ? text.slice(0, -ending.length) : text);
+}
+
+function applyLineEvent(
+  state: LineRenderState,
+  context: LineRenderContext,
+  event: HighlightEvent,
+): void {
+  switch (event.type) {
+    case "decorationStart":
+      state.decoration = event.decoration;
+      state.line = "";
+      state.ending = "";
+      break;
+    case "decorationEnd":
+      context.onLine(`${state.line}${state.ending}`, state.decoration);
+      break;
+    case "start":
+      openSpanEvent(state, context, event);
+      break;
+    case "end":
+      state.line += state.openScopes.pop()?.close ?? "";
+      break;
+    case "source":
+      sourceEvent(state, context, event);
+      break;
+    // Caller annotations carry data a built-in formatter has never seen.
+    default:
+      break;
+  }
+}
+
+/**
+ * Walk a line-decorated stream, handing each line's rendered content to `onLine`.
+ *
+ * Every span still open at a line boundary was closed and reopened by
+ * {@link composeLineDecorations}, so this only has to render what it is given.
+ *
+ * Returns the document's language.
+ */
+function renderDecoratedLines(
+  sourceBytes: Uint8Array,
+  composed: readonly HighlightEvent[],
+  theme: Theme | undefined,
+  language: string,
+  options: LineRenderOptions,
+  onLine: (content: string, decoration: Decoration) => void,
+): string {
+  const context: LineRenderContext = {
+    sourceBytes,
+    theme,
+    formatText: options.formatText ?? escape,
+    openSpan: options.openSpan,
+    closeSpan: options.closeSpan ?? (() => "</span>"),
+    onLine,
+  };
+  const state: LineRenderState = {
+    line: "",
+    ending: "",
+    decoration: { type: "line", number: 1, highlighted: false },
+    language,
+    openScopes: [],
+    tags: new Map(),
+  };
+
+  for (const event of composed) {
+    applyLineEvent(state, context, event);
+  }
+
+  return state.language;
 }
 
 /** @internal */
 export function formatHighlightIterLines(
   source: string,
-  events: HighlightEvent[],
+  events: readonly HighlightEvent[],
   languageRef: LanguageRef | undefined,
   theme: Theme | undefined,
-  options: {
-    formatText?: (text: string) => string;
-    openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-    closeSpan?: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-  },
+  options: LineRenderOptions,
 ): { lines: string[]; language: string } {
-  const formatText = options.formatText ?? escape;
-  const closeSpan = options.closeSpan ?? (() => closeTag("span"));
   const sourceBytes = encodeSource(source);
-  const lines = [""];
-  let language = languageRef ? languageId(languageRef) : "plaintext";
-  const stack: SpanStackEntry[] = [];
-
-  for (const event of events) {
-    if (event.type === "start") {
-      openSpanEvent(lines, stack, event, theme, options.openSpan);
-    } else if (event.type === "end") {
-      closeSpanEvent(lines, stack, theme, closeSpan);
-    } else {
-      // The document's language is the outermost span's, once one is open.
-      language = resolveDocumentLanguage(language, stack);
-      const text = decodeSourceSlice(sourceBytes, event.startByte, event.endByte);
-      renderSourceEvent(lines, text, stack, formatText, options.openSpan, closeSpan, theme);
-    }
-  }
-
-  closeRemainingSpans(lines, stack, closeSpan);
+  const lines: string[] = [];
+  const language = renderDecoratedLines(
+    sourceBytes,
+    composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
+    theme,
+    languageRef ? languageId(languageRef) : "plaintext",
+    options,
+    (content) => lines.push(content),
+  );
 
   return { lines, language };
 }
 
-function closeRemainingSpans(
-  lines: string[],
-  stack: SpanStackEntry[],
-  closeRemaining: (span: HighlightSpan, style: HighlightStyle | undefined) => string,
-): void {
-  for (let entry = stack.pop(); entry; entry = stack.pop()) {
-    if (entry.emitted) {
-      appendFragment(lines, closeRemaining(emptySpan("", ""), undefined));
-    }
-  }
+/**
+ * Render a line-decorated stream as the `<div class="l-line">` blocks every
+ * built-in HTML formatter emits.
+ *
+ * The three of them differ only in the attributes a span and a highlighted line
+ * carry, so those are the two inputs; the walk itself is shared. A highlighted
+ * line's attributes are resolved once rather than once per line.
+ * The line renderer supplies the source terminator after closing syntax spans;
+ * `wrapLine` places that content verbatim before `</div>`.
+ *
+ * @internal
+ */
+export function formatHtmlLines(
+  source: string,
+  events: readonly HighlightEvent[],
+  formatter: {
+    language: LanguageRef | undefined;
+    theme: Theme | undefined;
+    lines: readonly LineSpec[] | undefined;
+    highlightedAttrs: { className?: string; style?: string };
+    openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  },
+): string {
+  const sourceBytes = encodeSource(source);
+  const composed = composeLineDecorations(sourceBytes, events, new LineSelection(formatter.lines));
+  const parts: string[] = [];
+
+  renderDecoratedLines(
+    sourceBytes,
+    composed,
+    formatter.theme,
+    formatter.language ? languageId(formatter.language) : "plaintext",
+    { openSpan: formatter.openSpan },
+    (content, decoration) => {
+      parts.push(
+        wrapLine(
+          decoration.number,
+          content,
+          decoration.highlighted ? formatter.highlightedAttrs : {},
+        ),
+      );
+    },
+  );
+
+  return parts.join("");
 }
 
 /**
  * Render highlight events into escaped HTML lines, reopening active spans across newlines.
+ * Each line carries its exact source terminator after any closing span tags;
+ * an unterminated final line has none, so the results can go straight to
+ * {@link wrapLine}.
  *
  * ```ts
  * renderLinesFromEvents('a\nb', events, (scope) => `class="${scope}"`)
- * // ['<span class="...">a</span>', '<span class="...">b</span>']
+ * // ['<span class="...">a</span>\n', '<span class="...">b</span>']
  * ```
  */
 export function renderLinesFromEvents(
   source: string,
-  events: HighlightEvent[],
+  events: readonly HighlightEvent[],
   spanAttrs: (scope: string, language: string) => string,
 ): string[] {
   return formatHighlightIterLines(source, events, undefined, undefined, {
@@ -1081,9 +1277,14 @@ function escapeChar(char: string): string {
   return ESCAPED_CHARS[char] ?? char;
 }
 
+/**
+ * @deprecated Records line offsets without closing and reopening the spans that
+ * cross a line boundary, so slicing the buffer at them yields lines whose tags
+ * do not nest. Use {@link renderLinesFromEvents}. Removed in the next major.
+ */
 export function renderEvents(
   source: string,
-  events: HighlightEvent[],
+  events: SyntaxHighlightEvent[],
   attributeCallback: (scope: string, language: string, html: string[]) => void,
 ): [Uint8Array, number[]] {
   const sourceBytes = encodeSource(source);
@@ -1109,7 +1310,7 @@ export function renderEvents(
       continue;
     }
 
-    const text = decodeSourceSlice(sourceBytes, event.startByte, event.endByte);
+    const text = decodeSourceSlice(sourceBytes, event.start, event.end);
     for (let i = 0; i < text.length; i += 1) {
       const char = text[i]!;
       push(escapeChar(char));
@@ -1122,6 +1323,9 @@ export function renderEvents(
 
 /**
  * Slice rendered HTML back into lines using offsets from {@link renderEvents}.
+ *
+ * @deprecated Only useful for slicing what {@link renderEvents} returns. Use
+ * {@link renderLinesFromEvents}. Removed in the next major.
  */
 export function linesFromOffsets(html: Uint8Array, lineOffsets: number[]): string[] {
   const rendered = _decoder.decode(html);

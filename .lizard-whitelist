@@ -1,3 +1,3 @@
 # Vendored upstream tree-sitter iterator; keep its source diff minimal while
 # checking every other Rust function in this file and repository.
-./crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs:next
+crates/lumis-wasm-runtime/src/tree_sitter_highlight.rs:next

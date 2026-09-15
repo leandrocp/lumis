@@ -2,10 +2,16 @@
 //!
 //! These helpers work with language names as strings, making them independent of tree-sitter.
 
+use crate::decorations::{compose_line_decorations, Decoration, LineSelection};
+use crate::events::HighlightEvent;
 use crate::languages::Language;
 use crate::themes::{Style, TextDecoration, Theme, UnderlineStyle};
 use std::fmt::Write as _;
 use std::io::{self, Write};
+use std::ops::RangeInclusive;
+
+#[doc(hidden)]
+pub use crate::decorations::SteppedLineRange;
 
 /// Generate HTML attributes for a span with inline CSS styles.
 pub fn span_inline_attrs(
@@ -18,7 +24,7 @@ pub fn span_inline_attrs(
     let mut attrs = String::new();
 
     if include_highlights {
-        let _ = write!(attrs, "data-highlight=\"{scope}\"");
+        let _ = write!(attrs, "data-highlight=\"{}\"", escape_attr(scope));
     }
 
     if let Some(theme) = theme {
@@ -43,7 +49,7 @@ pub fn span_inline_attrs(
 
             let css = style.css(italic, " ");
             if !css.is_empty() {
-                let _ = write!(attrs, "style=\"{css}\"");
+                let _ = write!(attrs, "style=\"{}\"", escape_attr(&css));
             }
         }
     }
@@ -373,20 +379,21 @@ fn render_style_attrs(
 ) -> String {
     let mut attrs = String::new();
     if include_highlights {
-        let _ = write!(attrs, "data-highlight=\"{scope}\" ");
+        let _ = write!(attrs, "data-highlight=\"{}\" ", escape_attr(scope));
     }
 
-    attrs.push_str("style=\"");
+    let mut style = String::new();
     if !inline_styles.is_empty() {
-        attrs.push_str(&inline_styles.join(" "));
+        style.push_str(&inline_styles.join(" "));
     }
     if !css_vars.is_empty() {
         if !inline_styles.is_empty() {
-            attrs.push(' ');
+            style.push(' ');
         }
-        attrs.push_str(&css_vars.join(" "));
+        style.push_str(&css_vars.join(" "));
     }
-    attrs.push('"');
+
+    let _ = write!(attrs, "style=\"{}\"", escape_attr(&style));
 
     attrs
 }
@@ -418,6 +425,18 @@ pub fn span_multi_themes(
     format!("{}{}</span>", open_span(&attrs), escaped)
 }
 
+/// The HTML entity a byte has to be written as, if any.
+const fn html_entity(byte: u8) -> Option<&'static str> {
+    match byte {
+        b'&' => Some("&amp;"),
+        b'<' => Some("&lt;"),
+        b'>' => Some("&gt;"),
+        b'"' => Some("&quot;"),
+        b'\'' => Some("&#39;"),
+        _ => None,
+    }
+}
+
 /// Escape text for safe HTML output.
 pub fn escape(text: &str) -> String {
     let bytes = text.as_bytes();
@@ -425,13 +444,8 @@ pub fn escape(text: &str) -> String {
     let mut last = 0;
 
     for (i, &b) in bytes.iter().enumerate() {
-        let replacement = match b {
-            b'&' => "&amp;",
-            b'<' => "&lt;",
-            b'>' => "&gt;",
-            b'"' => "&quot;",
-            b'\'' => "&#39;",
-            _ => continue,
+        let Some(replacement) = html_entity(b) else {
+            continue;
         };
         buf.push_str(&text[last..i]);
         buf.push_str(replacement);
@@ -446,6 +460,42 @@ pub fn escape(text: &str) -> String {
     buf
 }
 
+/// Escape text straight into `output`, without building a `String` first.
+///
+/// [`escape`] allocates once per call, which on a highlighted document is once
+/// per token. The built-in formatters write to a buffer they already own, so
+/// they take this instead.
+pub(crate) fn write_escaped(output: &mut dyn Write, text: &str) -> io::Result<()> {
+    let mut last = 0;
+
+    for (index, &byte) in text.as_bytes().iter().enumerate() {
+        let Some(replacement) = html_entity(byte) else {
+            continue;
+        };
+        output.write_all(&text.as_bytes()[last..index])?;
+        output.write_all(replacement.as_bytes())?;
+        last = index + 1;
+    }
+
+    output.write_all(&text.as_bytes()[last..])
+}
+
+/// Escape a value for use inside a double-quoted HTML attribute.
+///
+/// Attribute values reach the formatters from two places outside the binary: a
+/// caller-supplied class or style (`pre_class`, `highlight_lines`), and a theme
+/// loaded with [`crate::themes::from_json`]. Neither is a generated constant, so
+/// both are escaped here rather than interpolated raw.
+///
+/// The escape set is the same as [`escape`], which is what `escapeAttr` in
+/// `packages/javascript/lumis/src/formatter/html.ts` covers, so the two runtimes
+/// answer the same for the same input. Escaping is safe for CSS in an attribute
+/// because the HTML parser decodes the entity before the CSS parser sees it, so
+/// `font-family: 'Fira Code'` survives the round trip.
+pub fn escape_attr(value: &str) -> String {
+    escape(value)
+}
+
 /// Escape braces for framework compatibility.
 pub fn escape_braces(text: &str) -> String {
     text.replace('{', "&lbrace;").replace('}', "&rbrace;")
@@ -458,16 +508,65 @@ pub fn wrap_line(
     class_suffix: Option<&str>,
     style: Option<&str>,
 ) -> String {
-    let class_attr = match class_suffix {
-        Some(suffix) => format!("l-line{suffix}"),
-        None => "l-line".to_string(),
-    };
+    let mut line = Vec::with_capacity(content.len() + 48);
+    let _ = LineTag::new(class_suffix, style).write(&mut line, line_number);
+    line.extend_from_slice(content.as_bytes());
+    line.extend_from_slice(b"</div>");
 
-    match style {
-        Some(s) => format!(
-            "<div class=\"{class_attr}\" style=\"{s}\" data-line=\"{line_number}\">{content}</div>"
-        ),
-        None => format!("<div class=\"{class_attr}\" data-line=\"{line_number}\">{content}</div>"),
+    String::from_utf8(line).expect("the tag and its content are both UTF-8")
+}
+
+/// Everything in a line's opening tag that does not change from line to line.
+///
+/// A document's lines differ only in their number and in whether they are
+/// highlighted, so the class and style attributes — which cost an escape each —
+/// are assembled once rather than once per line.
+struct LineTag(String);
+
+impl LineTag {
+    fn new(class_suffix: Option<&str>, style: Option<&str>) -> Self {
+        let mut tag = String::from("<div class=\"");
+        match class_suffix {
+            Some(suffix) => tag.push_str(&escape_attr(&format!("l-line{suffix}"))),
+            None => tag.push_str("l-line"),
+        }
+        tag.push('"');
+
+        if let Some(style) = style {
+            let _ = write!(tag, " style=\"{}\"", escape_attr(style));
+        }
+
+        tag.push_str(" data-line=\"");
+        Self(tag)
+    }
+
+    fn write(&self, output: &mut dyn Write, line_number: usize) -> io::Result<()> {
+        output.write_all(self.0.as_bytes())?;
+        write!(output, "{line_number}\">")
+    }
+}
+
+/// Whether `line_number` falls inside any of `lines`.
+///
+/// Lines are 1-based, matching the `data-line` attribute [`wrap_line`] writes.
+pub fn line_is_highlighted(lines: &[RangeInclusive<usize>], line_number: usize) -> bool {
+    lines.iter().any(|range| range.contains(&line_number))
+}
+
+/// The CSS class a highlighted line carries, or `None` when the line is not highlighted.
+///
+/// `class` wins over `default_class`, so a formatter can offer a caller-supplied
+/// class over its own.
+pub fn highlight_line_class<'a>(
+    lines: &[RangeInclusive<usize>],
+    line_number: usize,
+    class: Option<&'a str>,
+    default_class: Option<&'a str>,
+) -> Option<&'a str> {
+    if line_is_highlighted(lines, line_number) {
+        class.or(default_class)
+    } else {
+        None
     }
 }
 
@@ -486,10 +585,9 @@ pub fn open_pre_tag(
     pre_class: Option<&str>,
     theme: Option<&Theme>,
 ) -> io::Result<()> {
-    let class = if let Some(pre_class) = pre_class {
-        format!("lumis {pre_class}")
-    } else {
-        "lumis".to_string()
+    let class = match pre_class {
+        Some(pre_class) => escape_attr(&format!("lumis {pre_class}")),
+        None => "lumis".to_string(),
     };
 
     write!(
@@ -498,7 +596,7 @@ pub fn open_pre_tag(
         class,
         theme
             .and_then(|theme| theme.pre_style(" "))
-            .map(|pre_style| format!(" style=\"{pre_style}\""))
+            .map(|pre_style| format!(" style=\"{}\"", escape_attr(&pre_style)))
             .unwrap_or_default(),
     )
 }
@@ -511,12 +609,12 @@ pub fn open_multi_themes_pre_tag(
     default_theme: Option<&str>,
     css_variable_prefix: &str,
 ) -> io::Result<()> {
-    let classes = multi_themes_pre_classes(pre_class, themes);
+    let classes = escape_attr(&multi_themes_pre_classes(pre_class, themes));
     let style = multi_themes_pre_style(themes, default_theme, css_variable_prefix);
 
     write!(output, "<pre class=\"{classes}\"")?;
     if !style.is_empty() {
-        write!(output, " style=\"{style}\"")?;
+        write!(output, " style=\"{}\"", escape_attr(&style))?;
     }
     write!(output, ">")
 }
@@ -649,11 +747,16 @@ pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
 }
 
 /// Escape text for use in HTML span content.
+#[deprecated(note = "use `escape(...)` instead")]
 pub fn escape_fragment(text: &str) -> String {
     escape(text)
 }
 
-fn open_span(attrs: &str) -> String {
+/// Generate an opening `<span>` tag carrying `attrs`, or a bare one when empty.
+///
+/// A scope a theme styles in no way still opens a `<span>`, so every one pairs
+/// with the `</span>` an end event writes.
+pub fn open_span(attrs: &str) -> String {
     if attrs.is_empty() {
         "<span>".to_string()
     } else {
@@ -662,95 +765,208 @@ fn open_span(attrs: &str) -> String {
 }
 
 /// Render highlight events into HTML lines, reopening active spans at line boundaries.
-pub fn render_lines_from_events<F>(
+///
+/// Each line carries the exact `\n` or `\r\n` that ended it in `source`, after
+/// any closing span tags. An unterminated final line has no terminator.
+pub fn render_lines_from_events<T, F>(
     source: &str,
-    events: &[crate::events::HighlightEvent],
+    events: &[HighlightEvent<'_, T>],
     span_attrs: F,
 ) -> Vec<String>
 where
     F: Fn(usize, &str) -> String,
 {
-    let mut lines = vec![String::new()];
-    let mut stack: Vec<(usize, String)> = Vec::new();
+    let mut lines = Vec::new();
+    let mut line = String::new();
 
-    for event in events {
-        match event {
-            crate::events::HighlightEvent::Start {
-                scope_index,
-                language,
-            } => {
-                let attrs = span_attrs(*scope_index, language);
-                append_fragment(&mut lines, &open_span(&attrs));
-                stack.push((*scope_index, language.clone()));
+    write_line_events(
+        &compose_line_decorations(source, events, &LineSelection::default()),
+        source,
+        |fragment| match fragment {
+            LineFragment::Open(_) => {}
+            LineFragment::Close(ending) => {
+                line.push_str(ending);
+                lines.push(std::mem::take(&mut line));
             }
-            crate::events::HighlightEvent::End => {
-                if stack.pop().is_some() {
-                    append_fragment(&mut lines, "</span>");
-                }
+            LineFragment::Text(text) => line.push_str(&escape(text)),
+            LineFragment::SpanOpen(scope_index, language) => {
+                line.push_str(&open_span(&span_attrs(scope_index, language)));
             }
-            crate::events::HighlightEvent::Source { start, end } => {
-                let s = (*start).min(source.len());
-                let e = (*end).min(source.len()).max(s);
-                render_source_event(&mut lines, &source[s..e], &stack, &span_attrs);
-            }
-        }
-    }
-
-    while stack.pop().is_some() {
-        append_fragment(&mut lines, "</span>");
-    }
+            LineFragment::SpanClose => line.push_str("</span>"),
+        },
+    );
 
     lines
 }
 
-fn render_source_event<F>(
-    lines: &mut Vec<String>,
-    text: &str,
-    stack: &[(usize, String)],
-    span_attrs: &F,
-) where
-    F: Fn(usize, &str) -> String,
-{
-    let mut remaining = text;
+/// One step of a line-decorated event stream, with its text already sliced.
+pub(crate) enum LineFragment<'a> {
+    /// A line begins.
+    Open(Decoration),
+    /// The current line ends with the source terminator, when it had one.
+    Close(&'a str),
+    /// Unescaped source text, never spanning a line boundary.
+    Text(&'a str),
+    /// A syntax scope begins.
+    SpanOpen(usize, &'a str),
+    /// The innermost syntax scope ends.
+    SpanClose,
+}
 
-    loop {
-        if let Some(newline_index) = remaining.find('\n') {
-            let fragment = &remaining[..newline_index];
-            append_fragment(lines, &escape_fragment(fragment));
-            close_open_spans(lines, stack.len());
-            lines.push(String::new());
-            reopen_spans(lines, stack, span_attrs);
-            remaining = &remaining[newline_index + 1..];
-        } else {
-            append_fragment(lines, &escape_fragment(remaining));
-            break;
+/// Walk a line-decorated stream, handing each step to `on_fragment`.
+///
+/// A source line's `\n` or `\r\n` is held until
+/// [`Close`](LineFragment::Close), after all syntax spans have closed. This
+/// keeps the terminator outside syntax markup while preserving the source
+/// exactly. Caller annotations are skipped, which is what a built-in formatter
+/// does with data it has never seen.
+pub(crate) fn write_line_events<'a, T, F>(
+    events: &'a [HighlightEvent<'_, T>],
+    source: &'a str,
+    mut on_fragment: F,
+) where
+    F: FnMut(LineFragment<'a>),
+{
+    let mut ending = "";
+
+    for event in events {
+        match event {
+            HighlightEvent::DecorationStart { decoration } => {
+                ending = "";
+                on_fragment(LineFragment::Open(*decoration));
+            }
+            HighlightEvent::DecorationEnd => on_fragment(LineFragment::Close(ending)),
+            HighlightEvent::Start {
+                scope_index,
+                language,
+            } => on_fragment(LineFragment::SpanOpen(*scope_index, language)),
+            HighlightEvent::End => on_fragment(LineFragment::SpanClose),
+            HighlightEvent::Source { start, end } => {
+                let text = source_slice(source, *start, *end);
+                let (text, source_ending) = split_line_ending(text);
+                ending = source_ending;
+                on_fragment(LineFragment::Text(text));
+            }
+            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
         }
     }
 }
 
-fn close_open_spans(lines: &mut Vec<String>, len: usize) {
-    for _ in 0..len {
-        append_fragment(lines, "</span>");
+fn split_line_ending(text: &str) -> (&str, &str) {
+    let Some(content) = text.strip_suffix('\n') else {
+        return (text, "");
+    };
+
+    match content.strip_suffix('\r') {
+        Some(content) => (content, "\r\n"),
+        None => (content, "\n"),
     }
 }
 
-fn reopen_spans<F>(lines: &mut Vec<String>, stack: &[(usize, String)], span_attrs: &F)
-where
-    F: Fn(usize, &str) -> String,
-{
-    for (scope_index, language) in stack {
-        let attrs = span_attrs(*scope_index, language);
-        append_fragment(lines, &open_span(&attrs));
+/// Write a line-decorated stream as the `<div class="l-line">` blocks every
+/// built-in HTML formatter emits.
+///
+/// The three of them differ only in the attributes a span and a highlighted line
+/// carry, so those are the two inputs; the walk itself is shared.
+/// [`write_line_events`] supplies the source terminator with each closing line,
+/// and this writer places it immediately before `</div>` without inventing one.
+///
+/// Nothing here is recomputed per line. The two line tags are assembled once,
+/// and a scope's attributes are resolved the first time it is seen rather than
+/// again every time a line boundary reopens it — which on a long document is
+/// once per open scope per line.
+pub(crate) fn write_html_lines<T>(
+    output: &mut dyn Write,
+    source: &str,
+    events: &[HighlightEvent<'_, T>],
+    selection: &LineSelection,
+    span_attrs: &dyn Fn(usize, &str) -> String,
+    highlighted_line: (Option<&str>, Option<&str>),
+) -> io::Result<()> {
+    let plain_tag = LineTag::new(None, None);
+    let highlighted_tag = LineTag::new(highlighted_line.0, highlighted_line.1);
+    let composed = compose_line_decorations(source, events, selection);
+    let mut attrs: std::collections::HashMap<(usize, &str), String> =
+        std::collections::HashMap::new();
+    let mut result = Ok(());
+
+    write_line_events(&composed, source, |fragment| {
+        if result.is_err() {
+            return;
+        }
+        result = match fragment {
+            LineFragment::Open(Decoration::Line {
+                number,
+                highlighted,
+            }) => {
+                let tag = if highlighted {
+                    &highlighted_tag
+                } else {
+                    &plain_tag
+                };
+                tag.write(output, number)
+            }
+            LineFragment::Close(ending) => output
+                .write_all(ending.as_bytes())
+                .and_then(|()| output.write_all(b"</div>")),
+            LineFragment::Text(text) => write_escaped(output, text),
+            LineFragment::SpanOpen(scope_index, language) => {
+                let attrs = attrs
+                    .entry((scope_index, language))
+                    .or_insert_with(|| span_attrs(scope_index, language));
+                if attrs.is_empty() {
+                    output.write_all(b"<span>")
+                } else {
+                    write!(output, "<span {attrs}>")
+                }
+            }
+            LineFragment::SpanClose => output.write_all(b"</span>"),
+        };
+    });
+
+    result
+}
+
+/// The largest slice of `source` fully inside `start..end`.
+///
+/// A formatter can build its own events rather than replaying the ones Lumis
+/// handed it, so these offsets are caller data. Out of range is clamped, and an
+/// offset landing inside a multi-byte character moves to the boundary that keeps
+/// the slice smaller, because `&source[start..end]` would otherwise panic on a
+/// range that split one. Reversed offsets give an empty slice.
+fn source_slice(source: &str, start: usize, end: usize) -> &str {
+    let start = ceil_char_boundary(source, start.min(source.len()));
+    let end = floor_char_boundary(source, end.min(source.len())).max(start);
+
+    &source[start..end]
+}
+
+fn floor_char_boundary(source: &str, mut index: usize) -> usize {
+    while index > 0 && !source.is_char_boundary(index) {
+        index -= 1;
     }
+    index
+}
+
+fn ceil_char_boundary(source: &str, mut index: usize) -> usize {
+    while index < source.len() && !source.is_char_boundary(index) {
+        index += 1;
+    }
+    index
 }
 
 /// Render highlight events into HTML lines, calling `attribute_callback` for each highlight span.
 ///
 /// This is a simplified version of the vendored `HtmlRenderer` that works with
 /// pre-computed `HighlightEvent` slices instead of tree-sitter iterators.
-pub fn render_events<F>(
+///
+/// Deprecated: it records line offsets without closing and reopening the spans
+/// that cross a line boundary, so slicing the buffer at them yields lines whose
+/// tags do not nest. [`render_lines_from_events`] does the same job correctly.
+#[deprecated(note = "use `render_lines_from_events(...)` instead")]
+pub fn render_events<T, F>(
     source: &str,
-    events: &[crate::events::HighlightEvent],
+    events: &[crate::events::HighlightEvent<'_, T>],
     attribute_callback: &F,
 ) -> (Vec<u8>, Vec<u32>)
 where
@@ -807,6 +1023,10 @@ where
                     }
                 }
             }
+            crate::events::HighlightEvent::AnnotationStart { .. }
+            | crate::events::HighlightEvent::AnnotationEnd
+            | crate::events::HighlightEvent::DecorationStart { .. }
+            | crate::events::HighlightEvent::DecorationEnd => {}
         }
     }
 
@@ -814,6 +1034,9 @@ where
 }
 
 /// Iterator over rendered HTML lines.
+///
+/// Deprecated: only useful for slicing what [`render_events`] returns.
+#[deprecated(note = "use `render_lines_from_events(...)` instead")]
 pub fn lines_from_offsets<'a>(
     html: &'a [u8],
     line_offsets: &'a [u32],
@@ -856,6 +1079,98 @@ mod tests {
     #[test]
     fn test_escape_all_entities() {
         assert_eq!(escape("&<>\"'{}"), "&amp;&lt;&gt;&quot;&#39;{}");
+    }
+
+    /// A formatter can build its own events, so a `Source` range is caller data
+    /// and `&source[start..end]` used to panic on one that split a character.
+    #[test]
+    fn test_source_slice_never_panics_on_caller_offsets() {
+        let source = "éx";
+
+        assert_eq!(source_slice(source, 0, 1), "", "end splits 'é'");
+        assert_eq!(source_slice(source, 1, 2), "", "start splits 'é'");
+        assert_eq!(source_slice(source, 1, 3), "x", "start splits 'é'");
+        assert_eq!(source_slice(source, 0, 2), "é");
+        assert_eq!(source_slice(source, 0, 3), "éx");
+        assert_eq!(source_slice(source, 0, 99), "éx", "end past the source");
+        assert_eq!(source_slice(source, 99, 99), "", "start past the source");
+        assert_eq!(source_slice(source, 3, 0), "", "reversed");
+    }
+
+    #[test]
+    fn test_render_lines_from_events_survives_a_split_character() {
+        let events: [crate::events::HighlightEvent<'_>; 1] =
+            [crate::events::HighlightEvent::Source { start: 0, end: 1 }];
+
+        assert_eq!(
+            render_lines_from_events("é", &events, |_, _| String::new()),
+            [""]
+        );
+    }
+
+    /// Lines are the only thing the helper and the built-in formatters split on,
+    /// so both have to agree about where a line ends.
+    #[test]
+    fn render_lines_from_events_and_the_html_pass_split_alike() {
+        for source in ["", "one", "one\n", "one\ntwo", "one\r\ntwo", "one\rtwo"] {
+            let events = [HighlightEvent::<()>::Source {
+                start: 0,
+                end: source.len(),
+            }];
+
+            let lines = render_lines_from_events(source, &events, |_, _| String::new());
+            let mut html = Vec::new();
+            write_html_lines(
+                &mut html,
+                source,
+                &events,
+                &LineSelection::default(),
+                &|_, _| String::new(),
+                (None, None),
+            )
+            .unwrap();
+
+            assert_str_eq!(
+                String::from_utf8(html).unwrap(),
+                lines
+                    .iter()
+                    .enumerate()
+                    .map(|(index, line)| wrap_line(index + 1, line, None, None))
+                    .collect::<String>()
+            );
+        }
+    }
+
+    #[test]
+    fn html_lines_write_source_endings_after_the_syntax_spans() {
+        let source = "a\r\nb";
+        let events = [
+            HighlightEvent::<()>::Start {
+                scope_index: 0,
+                language: "text".to_string(),
+            },
+            HighlightEvent::Source {
+                start: 0,
+                end: source.len(),
+            },
+            HighlightEvent::End,
+        ];
+        let mut html = Vec::new();
+
+        write_html_lines(
+            &mut html,
+            source,
+            &events,
+            &LineSelection::default(),
+            &|_, _| "class=\"scope\"".to_string(),
+            (None, None),
+        )
+        .unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(html).unwrap(),
+            "<div class=\"l-line\" data-line=\"1\"><span class=\"scope\">a</span>\r\n</div><div class=\"l-line\" data-line=\"2\"><span class=\"scope\">b</span></div>"
+        );
     }
 
     #[test]
@@ -904,6 +1219,127 @@ mod tests {
     #[test]
     fn test_escape_braces_only() {
         assert_eq!(escape_braces("fn() {}"), "fn() &lbrace;&rbrace;");
+    }
+
+    /// A theme is data, so a colour can carry a quote out of a JSON file and
+    /// close the attribute it is written into.
+    fn quote_bearing_theme() -> Theme {
+        crate::themes::from_json(
+            r##"{
+              "name": "quote-bearing",
+              "appearance": "dark",
+              "revision": "test",
+              "highlights": {
+                "normal": { "fg": "red\" onmouseover=\"alert(1)", "bg": "#000000" },
+                "keyword": { "fg": "red\" onmouseover=\"alert(1)" }
+              }
+            }"##,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn test_escape_attr_matches_escape() {
+        assert_eq!(escape_attr("&<>\"'"), "&amp;&lt;&gt;&quot;&#39;");
+    }
+
+    #[test]
+    fn test_escape_attr_keeps_quoted_css_readable() {
+        assert_eq!(
+            escape_attr("font-family: 'Fira Code';"),
+            "font-family: &#39;Fira Code&#39;;"
+        );
+    }
+
+    #[test]
+    fn test_open_pre_tag_escapes_caller_class() {
+        let mut output = Vec::new();
+        open_pre_tag(&mut output, Some(r#"x"><script>"#), None).unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(output).unwrap(),
+            r#"<pre class="lumis x&quot;&gt;&lt;script&gt;">"#
+        );
+    }
+
+    #[test]
+    fn test_open_pre_tag_escapes_theme_colors() {
+        let mut output = Vec::new();
+        open_pre_tag(&mut output, None, Some(&quote_bearing_theme())).unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(output).unwrap(),
+            r#"<pre class="lumis" style="color: red&quot; onmouseover=&quot;alert(1); background-color: #000000;">"#
+        );
+    }
+
+    #[test]
+    fn test_open_multi_themes_pre_tag_escapes_caller_class() {
+        let mut themes = std::collections::HashMap::new();
+        themes.insert("dark".to_string(), quote_bearing_theme());
+
+        let mut output = Vec::new();
+        open_multi_themes_pre_tag(
+            &mut output,
+            Some(r#"x"><script>"#),
+            &themes,
+            Some("dark"),
+            "--lumis",
+        )
+        .unwrap();
+
+        let html = String::from_utf8(output).unwrap();
+
+        assert!(
+            html.starts_with(r#"<pre class="lumis lumis-themes x&quot;&gt;&lt;script&gt; dark""#),
+            "unescaped class in {html}"
+        );
+        assert!(!html.contains("<script>"), "unescaped markup in {html}");
+    }
+
+    #[test]
+    fn test_wrap_line_escapes_caller_class_and_style() {
+        let result = wrap_line(
+            1,
+            "content",
+            Some(r#" x"><script>"#),
+            Some(r#"color: red" onmouseover="alert(1)"#),
+        );
+
+        assert_str_eq!(
+            result,
+            r#"<div class="l-line x&quot;&gt;&lt;script&gt;" style="color: red&quot; onmouseover=&quot;alert(1)" data-line="1">content</div>"#
+        );
+    }
+
+    #[test]
+    fn test_span_inline_escapes_theme_colors() {
+        assert_str_eq!(
+            span_inline(
+                "fn",
+                None,
+                "keyword",
+                Some(&quote_bearing_theme()),
+                false,
+                false
+            ),
+            r#"<span style="color: red&quot; onmouseover=&quot;alert(1);">fn</span>"#
+        );
+    }
+
+    #[test]
+    fn test_span_multi_themes_escapes_theme_colors() {
+        let mut themes = std::collections::HashMap::new();
+        themes.insert("dark".to_string(), quote_bearing_theme());
+
+        let result = span_multi_themes(
+            "fn", "keyword", None, &themes, None, "--lumis", false, false,
+        );
+
+        assert_str_eq!(
+            result,
+            r#"<span style="--lumis-dark:red&quot; onmouseover=&quot;alert(1); --lumis-dark-font-style:normal; --lumis-dark-font-weight:normal; --lumis-dark-text-decoration:none;">fn</span>"#
+        );
     }
 
     #[test]

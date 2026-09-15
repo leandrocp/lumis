@@ -46,7 +46,6 @@ const htmlInline: Required<HtmlInlineOptions> = {
   preClass: "code",
   italic: true,
   includeHighlights: true,
-  rainbowBrackets: true,
   highlightLines: { lines: [1], style: "theme", class: "active" },
   header: { openTag: "<figure>", closeTag: "</figure>" },
 };
@@ -54,7 +53,6 @@ const htmlInline: Required<HtmlInlineOptions> = {
 const htmlLinked: Required<HtmlLinkedOptions> = {
   language: "rust",
   preClass: "code",
-  rainbowBrackets: true,
   highlightLines: { lines: [1], class: "active" },
   header: { openTag: "<figure>", closeTag: "</figure>" },
 };
@@ -67,7 +65,6 @@ const htmlMultiThemes: Required<HtmlMultiThemesOptions> = {
   preClass: "code",
   italic: true,
   includeHighlights: true,
-  rainbowBrackets: true,
   highlightLines: { lines: [1], style: "theme", class: "active" },
   header: { openTag: "<figure>", closeTag: "</figure>" },
 };
@@ -77,12 +74,12 @@ const terminal: Required<TerminalOptions> = {
   theme,
   background: "theme",
   width: 120,
-  rainbowBrackets: true,
+  highlightLines: { lines: [1], background: "#3a3a3a" },
 };
 
 const bbcodeScoped: Required<BBCodeScopedOptions> = {
   language: "rust",
-  rainbowBrackets: true,
+  highlightLines: { lines: [1] },
 };
 
 const exercised: Record<string, string[]> = {

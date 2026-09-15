@@ -32,6 +32,7 @@
 
 [
   "enum"
+  "group"
   "service"
   "message"
   "map"
@@ -42,10 +43,14 @@
 "returns" @keyword.return
 
 [
+  "export"
+  "local"
   "optional"
   "repeated"
   "required"
   "stream"
+  "weak"
+  "public"
 ] @keyword.modifier
 
 [
@@ -68,10 +73,10 @@
 
 (string) @string
 
-[
-  "\"proto3\""
-  "\"proto2\""
-] @string.special
+(reserved_identifier) @string
+
+(syntax
+  version: (string) @string.special)
 
 (escape_sequence) @string.escape
 
@@ -84,7 +89,7 @@
   (false)
 ] @boolean
 
-(comment) @comment @spell
+(comment) @comment 
 
 ((comment) @comment.documentation
   (#match? @comment.documentation "^/[*][*][^*][\\s\\S]*[*]/$"))

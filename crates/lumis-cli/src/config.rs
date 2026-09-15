@@ -50,20 +50,23 @@ impl Config {
 mod tests {
     use super::*;
 
-    /// `etcetera` owns the base directory; what is ours is choosing the config
-    /// one over the data one and naming the file under it.
+    /// `etcetera` owns the base directories; what is ours is choosing the config
+    /// directory, naming the file under it, and preserving its platform-specific
+    /// relationship with the data directory.
     #[test]
     fn default_path_is_lumis_config_toml_under_the_config_dir() {
         let strategy =
             etcetera::choose_base_strategy().expect("failed to determine home directory");
 
-        assert_eq!(
-            default_path().unwrap(),
-            strategy.config_dir().join("lumis").join("config.toml")
-        );
-        assert_ne!(
-            default_path().unwrap(),
-            strategy.data_dir().join("lumis").join("config.toml")
-        );
+        let config_path = strategy.config_dir().join("lumis").join("config.toml");
+        let data_path = strategy.data_dir().join("lumis").join("config.toml");
+
+        assert_eq!(default_path().unwrap(), config_path);
+
+        #[cfg(windows)]
+        assert_eq!(config_path, data_path, "Windows uses %APPDATA% for both");
+
+        #[cfg(not(windows))]
+        assert_ne!(config_path, data_path);
     }
 }

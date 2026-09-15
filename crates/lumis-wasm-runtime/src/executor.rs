@@ -44,7 +44,7 @@ enum Job {
         source: String,
         language: String,
         rainbow_brackets: bool,
-        reply: mpsc::SyncSender<Result<Vec<HighlightEvent>, RuntimeError>>,
+        reply: mpsc::SyncSender<Result<Vec<HighlightEvent<'static>>, RuntimeError>>,
     },
     Precompile {
         names: Vec<String>,
@@ -211,7 +211,7 @@ impl Executor {
         source: &str,
         language: &str,
         rainbow_brackets: bool,
-    ) -> Result<Vec<HighlightEvent>, RuntimeError> {
+    ) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
         let (reply, result) = mpsc::sync_channel(1);
         self.sender
             .send(Job::Highlight {

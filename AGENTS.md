@@ -29,6 +29,21 @@ Lumis should present one mental model everywhere. Public APIs across languages s
 
 The Rust implementation is the source of truth. When a cross-runtime API decision is unclear, follow Rust first and bring other runtimes into line with it instead of inventing runtime-specific behavior.
 
+### A shared surface needs a checked-in manifest, or it drifts silently
+
+"Keep the API aligned" is a rule nothing enforces. Two files do enforce it, each for one surface, and each read by a test in every runtime that has to offer it:
+
+- `fixtures/formatter-options.json` — what the built-in formatters **accept**.
+- `fixtures/formatter-helpers.json` — what a **custom** formatter can be built from.
+
+The second exists because the first was the only one. Options were pinned, helpers were not, and the three helper modules reached 46 names between them with 11 in all three ([#1381](https://github.com/leandrocp/lumis/issues/1381)): JavaScript had grown 20 helpers Rust never got, and a multi-theme formatter could not be written in Elixir at all. Nothing failed, because a helper another runtime lacks raises no error where it does exist.
+
+- **Add to the manifest first, then watch the runtimes go red.** That is the order that makes the gap visible instead of leaving it for an audit.
+- **Every runtime's test checks both directions.** A capability in the manifest that the runtime lacks fails, and a public helper the manifest does not account for fails too. Only the second one catches a helper added to one runtime and nowhere else, which is how this drifted.
+- **A capability is a thing a formatter can do, not a signature.** Runtimes keep their own argument shapes: Elixir returns a whole scope table where Rust takes a theme, because the NIF boundary is not free; JavaScript takes an attribute object where Rust takes a rendered string. Aligning the spelling of those would make the API worse.
+- **`runtime_only` is for a signature the boundary dictates, and it carries the reason.** Elixir's tables and JavaScript's `encodeSource`/`decodeSourceSlice` are there; generic tag plumbing exported by accident is not, that is `deprecated`.
+- **A new surface with the same shape gets the same treatment.** If a third module lands that every runtime must offer, it goes in a manifest before it goes in a second runtime.
+
 ### Reuse the Rust core instead of reimplementing it
 
 Shared behavior belongs in one Rust crate that every runtime consumes. A second implementation of the same logic in another language, or in another Rust crate, is a divergence that will drift.
@@ -338,6 +353,34 @@ the line apart. Better still, check whether the `cd` is needed at all: `node
 packages/javascript/lumis/test.mjs` runs from the repo root, because Node
 resolves imports from the file rather than the working directory.
 
+### Public docs describe the runtime, not what is under it
+
+Rust being the reference implementation is a rule for contributors, not a fact
+users need. Someone reading `Lumis.Formatter.ANSI` cannot act on "this calls into
+Rust", cannot see the crate, and would not do anything differently if the answer
+were Zig. Every sentence of it is bloat in a place with a low budget for it.
+
+- **A public doc says what the function does and what to do with it.** Not what
+  it delegates to, not which crate owns the logic, not that a table crosses a
+  boundary once instead of per token. `styles/1` returns the whole table because
+  a reader is told to build it once and read it per token, which is a fact about
+  their loop; whether that is Rust, a `:persistent_term` or a literal is not.
+- **Name the behaviour, not the implementation, when explaining a difference.**
+  "`Map.get(theme.highlights, scope)` misses the fallbacks `:terminal` applies"
+  is actionable. "Scope resolution belongs in Rust" is trivia that happens to
+  sit where the actionable sentence should have been.
+- **The Rust origin belongs where a contributor reads it**: this file, the
+  binding crate's own doc comments, a commit message. `html_span_attrs` in
+  `lumis_nif` explains the call-frequency split at length, correctly — that is a
+  contributor's file.
+- **Cross-runtime pointers are not this.** "The counterpart of `Language::guess`
+  in Rust and `guessLanguage()` in JavaScript" helps someone moving between the
+  packages Lumis publishes, and stays.
+
+This applies to every published surface: package docs, READMEs, `usage-rules.md`,
+and `docs/content/`. It came out of an ANSI helper module whose moduledoc opened
+by explaining that its functions call Rust, before saying what any of them did.
+
 ### READMEs stay small, detail lives in the docs site
 
 READMEs are entry points, not manuals. Keep them small, direct, and targeted: the minimal usage to get started, then a link to the relevant page under `docs/content/`.
@@ -363,6 +406,7 @@ Large parts of the repository are generated from shared inputs such as `language
 - Edit the source inputs, not generated outputs, unless the generated file is the intended source.
 - For query changes, treat `queries/upstream/` as fetched source material, `queries/override/` as full replacements, and `queries/append/` as additive local patches.
 - Regenerate checked-in artifacts with the documented `mise run` workflows.
+- When generated or vendored files are added, removed, moved, or reclassified, update `.gitattributes` in the same change. For content-only updates, verify that its existing patterns still cover every affected path.
 - Keep Rust, JavaScript, Elixir, docs, fixtures, and generated metadata in sync.
 
 ## Verification

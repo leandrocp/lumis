@@ -146,14 +146,24 @@ export function withWasmBundle(
 export type { CreateHighlighterOptions, Highlighter } from "./core/highlighter.js";
 export type { LoadLanguages } from "./core/load-languages.js";
 export type {
+  Annotation,
+  AnnotationRange,
+  Decoration,
+  Formatter,
   HighlightEvent,
   HighlightIterFn,
   HighlightOptions,
   HtmlElement,
   HighlightLinesInline,
   HighlightLinesLinked,
+  HighlightLinesTerminal,
+  HighlightLinesBBCode,
   LineSpec,
   HighlightRange,
+  OffsetAnnotationRange,
+  Position,
+  PositionAnnotationRange,
+  ResolvedAnnotation,
   HighlightStyle,
   Language,
   LanguageDefinition,
@@ -168,6 +178,7 @@ export type {
   WasmRef,
   RuntimeWasmInput,
   RuntimeWasmBundle,
+  SyntaxHighlightEvent,
   LanguageInfo,
   ThemeInfo,
 } from "./types.js";

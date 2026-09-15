@@ -1,7 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::{Parser, Subcommand};
 use lumis::events::HighlightEvent;
-use lumis::formatters::Formatter as _;
 use lumis::highlight::{highlight_events_with_options, HighlightOptions};
 use lumis::languages::Language;
 use lumis_wasm_runtime::{parser_filename, LanguagePackage, PackagedLanguage, ParserMetadata};
@@ -266,7 +265,7 @@ struct FixtureOutputs {
     bbcode: String,
 }
 
-fn serialize_events(events: Vec<HighlightEvent>) -> Vec<SerializableHighlightEvent> {
+fn serialize_events(events: Vec<HighlightEvent<'_>>) -> Vec<SerializableHighlightEvent> {
     events
         .into_iter()
         .map(|event| match event {
@@ -281,6 +280,7 @@ fn serialize_events(events: Vec<HighlightEvent>) -> Vec<SerializableHighlightEve
                 SerializableHighlightEvent::Source { start, end }
             }
             HighlightEvent::End => SerializableHighlightEvent::End,
+            _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect()
 }
@@ -351,10 +351,7 @@ fn render_html_multi_themes_fixture(
     }
 
     let mut builder = lumis::HtmlMultiThemesBuilder::new();
-    builder
-        .language(language)
-        .themes(theme_map)
-        .rainbow_brackets(rainbow_brackets);
+    builder.language(language).themes(theme_map);
 
     if let Some(default_theme) = default_theme {
         builder.default_theme(default_theme);
@@ -371,7 +368,12 @@ fn render_html_multi_themes_fixture(
     }
 
     let formatter = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
-    formatter.format(source, output)?;
+    lumis::write_highlight_with_options(
+        output,
+        source,
+        formatter,
+        lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+    )?;
     Ok(())
 }
 
@@ -395,18 +397,26 @@ fn render_formatter_output(
             let formatter = lumis::HtmlInlineBuilder::new()
                 .language(language)
                 .theme(Some(theme))
-                .rainbow_brackets(rainbow_brackets)
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
-            formatter.format(source, &mut output)?;
+            lumis::write_highlight_with_options(
+                &mut output,
+                source,
+                formatter,
+                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+            )?;
         }
         "html-linked" => {
             let formatter = lumis::HtmlLinkedBuilder::new()
                 .language(language)
-                .rainbow_brackets(rainbow_brackets)
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
-            formatter.format(source, &mut output)?;
+            lumis::write_highlight_with_options(
+                &mut output,
+                source,
+                formatter,
+                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+            )?;
         }
         "html-multi-themes" => {
             render_html_multi_themes_fixture(
@@ -425,18 +435,26 @@ fn render_formatter_output(
             let formatter = lumis::TerminalBuilder::new()
                 .language(language)
                 .theme(Some(theme))
-                .rainbow_brackets(rainbow_brackets)
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
-            formatter.format(source, &mut output)?;
+            lumis::write_highlight_with_options(
+                &mut output,
+                source,
+                formatter,
+                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+            )?;
         }
         "bbcode-scoped" => {
             let formatter = lumis::BBCodeScopedBuilder::new()
                 .language(language)
-                .rainbow_brackets(rainbow_brackets)
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
-            formatter.format(source, &mut output)?;
+            lumis::write_highlight_with_options(
+                &mut output,
+                source,
+                formatter,
+                lumis::HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+            )?;
         }
         other => bail!("unsupported formatter '{other}'"),
     }
@@ -452,8 +470,11 @@ fn fixture_outputs(
     rainbow_brackets: bool,
     html_multi_themes: Option<HtmlMultiThemesFixture>,
 ) -> Result<FixtureOutputs> {
-    let events =
-        highlight_events_with_options(source, language, HighlightOptions { rainbow_brackets })?;
+    let events = highlight_events_with_options(
+        source,
+        language,
+        HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+    )?;
     let (multi_themes, multi_default_theme, multi_highlight_lines) =
         html_multi_themes.as_ref().map_or_else(
             || {
@@ -4236,7 +4257,7 @@ mod tests {
     fn stub_tree_sitter(dir: &Path, code: i32) -> PathBuf {
         use std::os::unix::fs::PermissionsExt as _;
 
-        let path = dir.join("tree-sitter-stub");
+        let path = dir.join(format!("tree-sitter-stub-{code}"));
         fs::write(
             &path,
             format!("#!/bin/sh\necho 'stub compiler' >&2\nexit {code}\n"),
@@ -4244,6 +4265,36 @@ mod tests {
         .unwrap();
         fs::set_permissions(&path, fs::Permissions::from_mode(0o755)).unwrap();
         path
+    }
+
+    /// `execve` reports `ETXTBSY` for a file any process still holds open for
+    /// writing. Nothing here keeps a stub open, but `cargo test` runs the rest
+    /// of the suite on sibling threads, and a child one of them forks inherits
+    /// whatever descriptors are open at that instant — including the one
+    /// `stub_tree_sitter` writes through. `O_CLOEXEC` only closes it once that
+    /// child reaches its own `execve`, so the stub is unrunnable until then and
+    /// retrying is what clears it. Distinct stub paths do not: the race is in
+    /// writing a file and then executing it, not in reusing the name.
+    #[cfg(unix)]
+    fn build_with_stub(stub: &Path, dir: &Path, log: &Path) -> Result<()> {
+        for _ in 0..100 {
+            let result = build_repo_wasm_with(
+                stub.to_str().unwrap(),
+                dir.to_str().unwrap(),
+                &dir.join("out.wasm"),
+                log,
+            );
+            let busy = result
+                .as_ref()
+                .err()
+                .and_then(|error| error.downcast_ref::<std::io::Error>())
+                .is_some_and(|error| error.kind() == std::io::ErrorKind::ExecutableFileBusy);
+            if !busy {
+                return result;
+            }
+            thread::sleep(Duration::from_millis(10));
+        }
+        panic!("{} stayed busy for a second", stub.display());
     }
 
     // This used to pass through `sh -c ... | tee`, whose exit status is `tee`'s.
@@ -4255,28 +4306,26 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("lumis-build-status-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
         let log = dir.join("build.log");
+        let failed_stub = stub_tree_sitter(&dir, 1);
+        let succeeded_stub = stub_tree_sitter(&dir, 0);
 
-        let failed = build_repo_wasm_with(
-            stub_tree_sitter(&dir, 1).to_str().unwrap(),
-            dir.to_str().unwrap(),
-            &dir.join("out.wasm"),
-            &log,
+        let failed = build_with_stub(&failed_stub, &dir, &log);
+        assert!(
+            failed.is_err(),
+            "a nonzero exit status must be an error: {failed:?}"
         );
-        assert!(failed.is_err(), "a nonzero exit status must be an error");
         assert!(
             fs::read_to_string(&log).unwrap().contains("stub compiler"),
             "a failed build still has to leave its output in the log"
         );
 
-        let succeeded = build_repo_wasm_with(
-            stub_tree_sitter(&dir, 0).to_str().unwrap(),
-            dir.to_str().unwrap(),
-            &dir.join("out.wasm"),
-            &log,
-        );
+        let succeeded = build_with_stub(&succeeded_stub, &dir, &log);
 
         let _ = fs::remove_dir_all(&dir);
-        assert!(succeeded.is_ok(), "a zero exit status must succeed");
+        assert!(
+            succeeded.is_ok(),
+            "a zero exit status must succeed: {succeeded:?}"
+        );
     }
 
     #[test]

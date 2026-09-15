@@ -166,6 +166,7 @@ pub struct Runtime {
 }
 
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum RuntimeError {
     #[error("failed to initialize Wasmtime: {0}")]
     Wasmtime(#[from] wasmtime::Error),
@@ -607,7 +608,7 @@ impl Runtime {
         source: &str,
         name_or_alias: &str,
         rainbow_brackets: bool,
-    ) -> Result<Vec<HighlightEvent>, RuntimeError> {
+    ) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
         self.highlight_with(
             source,
             name_or_alias,
@@ -822,7 +823,7 @@ impl Default for HighlightOptions {
 /// The result of a highlight pass. `layers` is empty unless
 /// [`HighlightOptions::layers`] asked for them.
 pub struct HighlightOutput {
-    pub events: Vec<HighlightEvent>,
+    pub events: Vec<HighlightEvent<'static>>,
     pub layers: Vec<crate::tree_sitter_highlight::ParsedLayer>,
     /// Injected languages this walk found but could not load, so a caller that
     /// resolves parsers itself can tell what the store could not reach. Empty
@@ -892,10 +893,10 @@ fn rainbow_ranges(
 }
 
 fn apply_rainbow_brackets(
-    events: Vec<HighlightEvent>,
+    events: Vec<HighlightEvent<'static>>,
     ranges: Vec<RainbowRange>,
     language: &str,
-) -> Vec<HighlightEvent> {
+) -> Vec<HighlightEvent<'static>> {
     if ranges.is_empty() {
         return events;
     }

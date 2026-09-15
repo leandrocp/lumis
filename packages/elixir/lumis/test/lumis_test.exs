@@ -75,7 +75,7 @@ defmodule Lumis.LumisTest do
     test "inline_style option" do
       capture_io(:stderr, fn ->
         assert {:ok,
-                "<pre class=\"lumis\" style=\"color: #abb2bf; background-color: #282c34;\"><code class=\"language-elixir\" translate=\"no\" tabindex=\"0\"><div class=\"l-line\" data-line=\"1\"><span style=\"color: #e06c75;\">:test</span>\n</div></code></pre>"} =
+                "<pre class=\"lumis\" style=\"color: #abb2bf; background-color: #282c34;\"><code class=\"language-elixir\" translate=\"no\" tabindex=\"0\"><div class=\"l-line\" data-line=\"1\"><span style=\"color: #e06c75;\">:test</span></div></code></pre>"} =
                  Lumis.highlight(":test",
                    language: "elixir",
                    theme: "onedark",
@@ -186,7 +186,11 @@ defmodule Lumis.LumisTest do
   end
 
   test "default_options/0" do
-    assert [formatter: {:html_inline, formatter_opts}] =
+    assert [
+             formatter: {:html_inline, formatter_opts},
+             rainbow_brackets: false,
+             annotations: []
+           ] =
              Lumis.default_options()
 
     assert Keyword.equal?(
@@ -197,7 +201,6 @@ defmodule Lumis.LumisTest do
                theme: nil,
                pre_class: nil,
                include_highlights: false,
-               rainbow_brackets: false,
                highlight_lines: nil
              ],
              formatter_opts
@@ -215,7 +218,6 @@ defmodule Lumis.LumisTest do
                  theme: nil,
                  pre_class: nil,
                  include_highlights: false,
-                 rainbow_brackets: false,
                  highlight_lines: nil,
                  header: nil
                ],
@@ -232,7 +234,6 @@ defmodule Lumis.LumisTest do
                [
                  language: nil,
                  pre_class: nil,
-                 rainbow_brackets: false,
                  highlight_lines: nil,
                  header: nil
                ],
@@ -251,7 +252,7 @@ defmodule Lumis.LumisTest do
                  theme: nil,
                  background: nil,
                  width: nil,
-                 rainbow_brackets: false
+                 highlight_lines: nil
                ],
                formatter_opts
              )
@@ -260,8 +261,9 @@ defmodule Lumis.LumisTest do
 
   describe "formatter_type: :bbcode_scoped" do
     test "default opts" do
-      assert Lumis.formatter_type(:bbcode_scoped) ==
-               {:ok, {:bbcode_scoped, [language: nil, rainbow_brackets: false]}}
+      assert {:ok, {:bbcode_scoped, formatter_opts}} = Lumis.formatter_type(:bbcode_scoped)
+
+      assert Keyword.equal?([language: nil, highlight_lines: nil], formatter_opts)
     end
   end
 
@@ -294,6 +296,27 @@ defmodule Lumis.LumisTest do
                Lumis.highlight(":test", formatter: {:bbcode_scoped, language: "elixir"})
 
       assert result =~ "[string-special-symbol-elixir]"
+    end
+
+    test "terminal paints a highlighted line" do
+      assert {:ok, result} =
+               Lumis.highlight(":a\n:b",
+                 formatter:
+                   {:terminal,
+                    language: "elixir", highlight_lines: %{lines: [1], background: "#ff0000"}}
+               )
+
+      assert result =~ "\e[48;2;255;0;0m"
+    end
+
+    test "bbcode_scoped wraps a highlighted line" do
+      assert {:ok, result} =
+               Lumis.highlight(":a\n:b",
+                 formatter: {:bbcode_scoped, language: "elixir", highlight_lines: %{lines: [1]}}
+               )
+
+      assert result =~ "[highlighted]"
+      assert result =~ "[/highlighted]"
     end
 
     test "html_multi_themes with language" do
@@ -357,6 +380,26 @@ defmodule Lumis.LumisTest do
 
       assert Keyword.get(opts, :language) == "rust"
     end
+
+    test "formatter_type encodes highlight_lines for terminal" do
+      assert {:ok, {:terminal, opts}} =
+               Lumis.formatter_type(
+                 {:terminal, [highlight_lines: %{lines: [1, 3..5], background: "#3a3a3a"}]}
+               )
+
+      assert %Lumis.TerminalHighlightLines{background: "#3a3a3a", lines: lines} =
+               Keyword.get(opts, :highlight_lines)
+
+      assert lines == [{:single, 1}, {:range, %{start: 3, end: 5, step: 1}}]
+    end
+
+    test "formatter_type encodes highlight_lines for bbcode_scoped" do
+      assert {:ok, {:bbcode_scoped, opts}} =
+               Lumis.formatter_type({:bbcode_scoped, [highlight_lines: %{lines: [2..4//2]}]})
+
+      assert %Lumis.BBCodeHighlightLines{lines: lines} = Keyword.get(opts, :highlight_lines)
+      assert lines == [{:range, %{start: 2, end: 4, step: 2}}]
+    end
   end
 
   test "accept empty theme" do
@@ -399,8 +442,7 @@ defmodule Lumis.LumisTest do
         ~s"""
         <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #c678dd;">defmodule</span> <span style="color: #e5c07b;">Test</span> <span style="color: #c678dd;">do</span>
         </div><div class="l-line" data-line="2">  <span style="color: #56b6c2;"><span style="color: #d19a66;">@<span style="color: #61afef;"><span style="color: #d19a66;">lang <span style="color: #e06c75;">:elixir</span></span></span></span></span>
-        </div><div class="l-line" data-line="3"><span style="color: #c678dd;">end</span>
-        </div></code></pre>
+        </div><div class="l-line" data-line="3"><span style="color: #c678dd;">end</span></div></code></pre>
         """,
         formatter: {:html_inline, language: "elixir", theme: "onedark"}
       )
@@ -412,8 +454,7 @@ defmodule Lumis.LumisTest do
         ~s"""
         <pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #8be9fd;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #ff79c6;">do</span>
         </div><div class="l-line" data-line="2">  <span style="color: #ff79c6;"><span style="color: #bd93f9;">@<span style="color: #50fa7b;"><span style="color: #bd93f9;">lang <span style="color: #bd93f9;">:elixir</span></span></span></span></span>
-        </div><div class="l-line" data-line="3"><span style="color: #ff79c6;">end</span>
-        </div></code></pre>
+        </div><div class="l-line" data-line="3"><span style="color: #ff79c6;">end</span></div></code></pre>
         """,
         formatter: {:html_inline, language: "elixir", theme: "dracula"}
       )
@@ -425,8 +466,7 @@ defmodule Lumis.LumisTest do
         ~s"""
         <pre class="lumis" style="color: #f8f8f2; background-color: #282a36;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #8be9fd;">defmodule</span> <span style="color: #ffb86c;">Test</span> <span style="color: #ff79c6;">do</span>
         </div><div class="l-line" data-line="2">  <span style="color: #ff79c6;"><span style="color: #bd93f9;">@<span style="color: #50fa7b;"><span style="color: #bd93f9;">lang <span style="color: #bd93f9;">:elixir</span></span></span></span></span>
-        </div><div class="l-line" data-line="3"><span style="color: #ff79c6;">end</span>
-        </div></code></pre>
+        </div><div class="l-line" data-line="3"><span style="color: #ff79c6;">end</span></div></code></pre>
         """,
         formatter: {:html_inline, language: "elixir", theme: Lumis.Theme.get("dracula")}
       )
@@ -446,8 +486,7 @@ defmodule Lumis.LumisTest do
         ~s"""
         <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span data-highlight="keyword.function" style="color: #c678dd;">defmodule</span> <span data-highlight="module" style="color: #e5c07b;">Test</span> <span data-highlight="keyword" style="color: #c678dd;">do</span>
         </div><div class="l-line" data-line="2">  <span data-highlight="operator" style="color: #56b6c2;"><span data-highlight="constant" style="color: #d19a66;">@<span data-highlight="function.call" style="color: #61afef;"><span data-highlight="constant" style="color: #d19a66;">lang <span data-highlight="string.special.symbol" style="color: #e06c75;">:elixir</span></span></span></span></span>
-        </div><div class="l-line" data-line="3"><span data-highlight="keyword" style="color: #c678dd;">end</span>
-        </div></code></pre>
+        </div><div class="l-line" data-line="3"><span data-highlight="keyword" style="color: #c678dd;">end</span></div></code></pre>
         """,
         formatter: {:html_inline, language: "elixir", theme: "onedark", include_highlights: true}
       )
@@ -461,8 +500,7 @@ defmodule Lumis.LumisTest do
         ~s"""
         <pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-keyword-function">defmodule</span> <span class="l-module">Test</span> <span class="l-keyword">do</span>
         </div><div class="l-line" data-line="2">  <span class="l-operator"><span class="l-constant">@<span class="l-function-call"><span class="l-constant">lang <span class="l-string-special-symbol">:elixir</span></span></span></span></span>
-        </div><div class="l-line" data-line="3"><span class="l-keyword">end</span>
-        </div></code></pre>
+        </div><div class="l-line" data-line="3"><span class="l-keyword">end</span></div></code></pre>
         """,
         formatter: {:html_linked, language: "elixir"}
       )
@@ -525,8 +563,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "test code",
         ~s"""
-        <pre class="lumis lumis-themes main" style="--lumis-main:#abb2bf; --lumis-main-bg:#282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="--lumis-main:#61afef; --lumis-main-font-style:normal; --lumis-main-font-weight:normal; --lumis-main-text-decoration:none;">test</span> <span style="--lumis-main:#e06c75; --lumis-main-font-style:normal; --lumis-main-font-weight:normal; --lumis-main-text-decoration:none;">code</span>
-        </div></code></pre>
+        <pre class="lumis lumis-themes main" style="--lumis-main:#abb2bf; --lumis-main-bg:#282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="--lumis-main:#61afef; --lumis-main-font-style:normal; --lumis-main-font-weight:normal; --lumis-main-text-decoration:none;">test</span> <span style="--lumis-main:#e06c75; --lumis-main-font-style:normal; --lumis-main-font-weight:normal; --lumis-main-text-decoration:none;">code</span></div></code></pre>
         """,
         formatter: {:html_multi_themes, language: "elixir", themes: [main: "onedark"]}
       )
@@ -600,8 +637,7 @@ defmodule Lumis.LumisTest do
       assert_output(
         "test code",
         ~s"""
-        <pre class="lumis lumis-themes main" style="--lumis-main:#abb2bf; --lumis-main-bg:#282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="--lumis-main:#61afef; --lumis-main-font-style:normal; --lumis-main-font-weight:normal; --lumis-main-text-decoration:none;">test</span> <span style="--lumis-main:#e06c75; --lumis-main-font-style:normal; --lumis-main-font-weight:normal; --lumis-main-text-decoration:none;">code</span>
-        </div></code></pre>
+        <pre class="lumis lumis-themes main" style="--lumis-main:#abb2bf; --lumis-main-bg:#282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="--lumis-main:#61afef; --lumis-main-font-style:normal; --lumis-main-font-weight:normal; --lumis-main-text-decoration:none;">test</span> <span style="--lumis-main:#e06c75; --lumis-main-font-style:normal; --lumis-main-font-weight:normal; --lumis-main-text-decoration:none;">code</span></div></code></pre>
         """,
         formatter: {:html_multi_themes, language: "elixir", themes: [main: theme]}
       )
@@ -1057,7 +1093,11 @@ defmodule Lumis.LumisTest do
 
   describe "validate_options!/1" do
     test "validates valid options" do
-      assert [formatter: {:html_inline, formatter_opts}] =
+      assert [
+               formatter: {:html_inline, formatter_opts},
+               rainbow_brackets: false,
+               annotations: []
+             ] =
                Lumis.validate_options!(formatter: {:html_inline, language: "elixir"})
 
       assert Keyword.equal?(
@@ -1065,7 +1105,6 @@ defmodule Lumis.LumisTest do
                  header: nil,
                  highlight_lines: nil,
                  include_highlights: false,
-                 rainbow_brackets: false,
                  italic: false,
                  pre_class: nil,
                  theme: nil,
@@ -1076,7 +1115,11 @@ defmodule Lumis.LumisTest do
     end
 
     test "validates options with default values" do
-      assert [formatter: {:html_inline, formatter_opts}] =
+      assert [
+               formatter: {:html_inline, formatter_opts},
+               rainbow_brackets: false,
+               annotations: []
+             ] =
                Lumis.validate_options!([])
 
       assert Keyword.equal?(
@@ -1084,7 +1127,6 @@ defmodule Lumis.LumisTest do
                  header: nil,
                  highlight_lines: nil,
                  include_highlights: false,
-                 rainbow_brackets: false,
                  italic: false,
                  pre_class: nil,
                  theme: nil,
@@ -1095,7 +1137,11 @@ defmodule Lumis.LumisTest do
     end
 
     test "validates formatter options" do
-      assert [formatter: {:html_inline, formatter_opts}] =
+      assert [
+               formatter: {:html_inline, formatter_opts},
+               rainbow_brackets: false,
+               annotations: []
+             ] =
                Lumis.validate_options!(formatter: {:html_inline, theme: "dracula", italic: true})
 
       assert Keyword.equal?(
@@ -1104,7 +1150,6 @@ defmodule Lumis.LumisTest do
                  header: nil,
                  highlight_lines: nil,
                  include_highlights: false,
-                 rainbow_brackets: false,
                  pre_class: nil,
                  theme: "dracula",
                  italic: true
@@ -1120,7 +1165,6 @@ defmodule Lumis.LumisTest do
                    {:html_inline,
                     [
                       language: nil,
-                      rainbow_brackets: false,
                       header: nil,
                       highlight_lines: nil,
                       include_highlights: false,
@@ -1128,6 +1172,8 @@ defmodule Lumis.LumisTest do
                       pre_class: nil,
                       theme: nil
                     ]},
+                 rainbow_brackets: false,
+                 annotations: [],
                  theme: "dracula",
                  inline_style: true,
                  pre_class: "custom"
@@ -1141,7 +1187,12 @@ defmodule Lumis.LumisTest do
     end
 
     test "copies deprecated language into formatter language" do
-      assert [formatter: {:html_inline, formatter_opts}, language: "rust"] =
+      assert [
+               formatter: {:html_inline, formatter_opts},
+               rainbow_brackets: false,
+               annotations: [],
+               language: "rust"
+             ] =
                Lumis.validate_options!(language: "rust")
 
       assert Keyword.equal?(
@@ -1150,7 +1201,6 @@ defmodule Lumis.LumisTest do
                  header: nil,
                  highlight_lines: nil,
                  include_highlights: false,
-                 rainbow_brackets: false,
                  italic: false,
                  pre_class: nil,
                  theme: nil
@@ -1161,7 +1211,12 @@ defmodule Lumis.LumisTest do
 
     test "formatter language takes precedence over deprecated language" do
       capture_io(:stderr, fn ->
-        assert [formatter: {:html_inline, formatter_opts}, language: "elixir"] =
+        assert [
+                 formatter: {:html_inline, formatter_opts},
+                 rainbow_brackets: false,
+                 annotations: [],
+                 language: "elixir"
+               ] =
                  Lumis.validate_options!(
                    language: "elixir",
                    formatter: {:html_inline, language: "rust"}
@@ -1173,7 +1228,6 @@ defmodule Lumis.LumisTest do
                    header: nil,
                    highlight_lines: nil,
                    include_highlights: false,
-                   rainbow_brackets: false,
                    italic: false,
                    pre_class: nil,
                    theme: nil
@@ -1445,7 +1499,7 @@ defmodule Lumis.LumisTest do
                  {:html_inline,
                   %{
                     header: nil,
-                    highlight_lines: %Lumis.HtmlInlineHighlightLines{},
+                    highlight_lines: %Lumis.HTMLInlineHighlightLines{},
                     include_highlights: false,
                     italic: false,
                     pre_class: nil,
@@ -1462,7 +1516,7 @@ defmodule Lumis.LumisTest do
                formatter:
                  {:html_inline,
                   %{
-                    header: %Lumis.HtmlElement{open_tag: "<div>", close_tag: "</div>"},
+                    header: %Lumis.HTMLElement{open_tag: "<div>", close_tag: "</div>"},
                     highlight_lines: nil,
                     include_highlights: false,
                     italic: false,

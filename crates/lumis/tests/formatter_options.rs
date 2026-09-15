@@ -75,12 +75,16 @@ fn header() -> HtmlElement {
     }
 }
 
-/// Named fields of every struct declared under `src/formatter`, by struct name.
+/// Named fields of every struct declared under `lumis-core`'s `src/formatter`,
+/// by struct name.
 ///
-/// Discovered by scanning the directory rather than by listing files, so moving
-/// a formatter between modules does not also mean editing this test.
+/// The formatters live in `lumis-core` and `lumis` re-exports them, so that is
+/// the directory to read the field lists from. Discovered by scanning it rather
+/// than by listing files, so moving a formatter between modules does not also
+/// mean editing this test.
 fn formatter_struct_fields() -> BTreeMap<String, BTreeSet<String>> {
-    let formatter_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/formatter");
+    let formatter_dir =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../lumis-core/src/formatter");
     let mut structs = BTreeMap::new();
 
     let entries = fs::read_dir(&formatter_dir)
@@ -108,6 +112,7 @@ fn formatter_struct_fields() -> BTreeMap<String, BTreeSet<String>> {
                 fields
                     .named
                     .iter()
+                    .filter(|field| !builder_skips_setter(field))
                     .map(|field| field.ident.as_ref().expect("named field").to_string())
                     .collect(),
             );
@@ -121,6 +126,34 @@ fn formatter_struct_fields() -> BTreeMap<String, BTreeSet<String>> {
     );
 
     structs
+}
+
+/// A formatter may keep derived rendering state that is deliberately absent
+/// from its builder. Such a field is not a formatter option and must not enter
+/// the cross-runtime option manifest.
+fn builder_skips_setter(field: &syn::Field) -> bool {
+    let mut skips_setter = false;
+
+    for attr in &field.attrs {
+        if !attr.path().is_ident("builder") {
+            continue;
+        }
+
+        attr.parse_nested_meta(|meta| {
+            if meta.path.is_ident("setter") {
+                meta.parse_nested_meta(|setter| {
+                    if setter.path.is_ident("skip") {
+                        skips_setter = true;
+                    }
+                    Ok(())
+                })?;
+            }
+            Ok(())
+        })
+        .expect("parse builder attribute");
+    }
+
+    skips_setter
 }
 
 /// The struct behind each manifest formatter. `BBCodeScoped` does not
@@ -139,7 +172,7 @@ fn formatter_fields() -> BTreeMap<&'static str, BTreeSet<String>> {
     .map(|(formatter, struct_name)| {
         let fields = structs
             .get(struct_name)
-            .unwrap_or_else(|| panic!("no struct {struct_name} under src/formatter"))
+            .unwrap_or_else(|| panic!("no struct {struct_name} under lumis-core's src/formatter"))
             .clone();
 
         (formatter, fields)
@@ -160,7 +193,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .pre_class(Some("code".to_string()))
         .italic(true)
         .include_highlights(true)
-        .rainbow_brackets(true)
         .highlight_lines(Some(highlight_lines()))
         .header(Some(header()))
         .build()
@@ -173,7 +205,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "pre_class",
             "italic",
             "include_highlights",
-            "rainbow_brackets",
             "highlight_lines",
             "header",
         ]
@@ -183,7 +214,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
     HtmlLinkedBuilder::new()
         .language(Language::Rust)
         .pre_class(Some("code".to_string()))
-        .rainbow_brackets(true)
         .highlight_lines(Some(lumis::formatters::html_linked::HighlightLines {
             lines: vec![1..=1, 3..=4],
             class: "active".to_string(),
@@ -193,14 +223,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .expect("html_linked builds");
     exercised.insert(
         "html_linked",
-        [
-            "language",
-            "pre_class",
-            "rainbow_brackets",
-            "highlight_lines",
-            "header",
-        ]
-        .into(),
+        ["language", "pre_class", "highlight_lines", "header"].into(),
     );
 
     let mut themes_map = HashMap::new();
@@ -213,7 +236,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .pre_class(Some("code".to_string()))
         .italic(true)
         .include_highlights(true)
-        .rainbow_brackets(true)
         .highlight_lines(Some(highlight_lines()))
         .header(Some(header()))
         .build()
@@ -228,7 +250,6 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "pre_class",
             "italic",
             "include_highlights",
-            "rainbow_brackets",
             "highlight_lines",
             "header",
         ]
@@ -240,7 +261,10 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .theme(Some(theme()))
         .background(TerminalBackground::Theme)
         .width(Some(120))
-        .rainbow_brackets(true)
+        .highlight_lines(Some(lumis::formatters::terminal::HighlightLines {
+            lines: vec![1..=1, 3..=4],
+            background: Some("#3a3a3a".to_string()),
+        }))
         .build()
         .expect("terminal builds");
     exercised.insert(
@@ -250,17 +274,19 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "theme",
             "background",
             "width",
-            "rainbow_brackets",
+            "highlight_lines",
         ]
         .into(),
     );
 
     BBCodeScopedBuilder::new()
         .language(Language::Rust)
-        .rainbow_brackets(true)
+        .highlight_lines(Some(lumis::formatters::bbcode::HighlightLines {
+            lines: vec![1..=1, 3..=4],
+        }))
         .build()
         .expect("bbcode_scoped builds");
-    exercised.insert("bbcode_scoped", ["language", "rainbow_brackets"].into());
+    exercised.insert("bbcode_scoped", ["language", "highlight_lines"].into());
 
     exercised
 }

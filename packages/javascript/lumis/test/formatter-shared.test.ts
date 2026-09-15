@@ -10,6 +10,7 @@ import {
   escapeAttr,
   escapeBraces,
   escapeFragment,
+  formatHtmlLines,
   formatHighlightIterLines,
   getScopedThemeStyle,
   getThemeStyle,
@@ -155,7 +156,7 @@ describe("formatter shared helpers", () => {
 
   it("wraps lines with optional class and style", () => {
     expect(wrapLine(2, "code", { className: "highlighted", style: "color: red;" })).toBe(
-      '<div class="l-line highlighted" style="color: red;" data-line="2">code\n</div>',
+      '<div class="l-line highlighted" style="color: red;" data-line="2">code</div>',
     );
   });
 
@@ -164,11 +165,11 @@ describe("formatter shared helpers", () => {
       "a\nb",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 1 },
+        { type: "source", start: 0, end: 1 },
         { type: "end" },
-        { type: "source", startByte: 1, endByte: 2 },
+        { type: "source", start: 1, end: 2 },
         { type: "start", scope: "number", language: "json" },
-        { type: "source", startByte: 2, endByte: 3 },
+        { type: "source", start: 2, end: 3 },
         { type: "end" },
       ],
       jsonLang,
@@ -180,7 +181,7 @@ describe("formatter shared helpers", () => {
 
     expect(language).toBe("json");
     expect(lines).toEqual([
-      '<span data-scope="string">a</span>',
+      '<span data-scope="string">a</span>\n',
       '<span data-scope="number">b</span>',
     ]);
   });
@@ -190,7 +191,7 @@ describe("formatter shared helpers", () => {
       "ab\ncd",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 5 },
+        { type: "source", start: 0, end: 5 },
         { type: "end" },
       ],
       jsonLang,
@@ -201,9 +202,32 @@ describe("formatter shared helpers", () => {
     );
 
     expect(lines).toEqual([
-      '<span data-scope="string">ab</span>',
+      '<span data-scope="string">ab</span>\n',
       '<span data-scope="string">cd</span>',
     ]);
+  });
+
+  it("writes source endings after syntax spans in built-in HTML lines", () => {
+    expect(
+      formatHtmlLines(
+        "a\r\nb",
+        [
+          { type: "start", scope: "string", language: "json" },
+          { type: "source", start: 0, end: 4 },
+          { type: "end" },
+        ],
+        {
+          language: jsonLang,
+          theme: undefined,
+          lines: undefined,
+          highlightedAttrs: {},
+          openSpan: () => '<span class="scope">',
+        },
+      ),
+    ).toBe(
+      '<div class="l-line" data-line="1"><span class="scope">a</span>\r\n</div>' +
+        '<div class="l-line" data-line="2"><span class="scope">b</span></div>',
+    );
   });
 
   it("keeps a deliberately omitted custom span balanced", () => {
@@ -211,7 +235,7 @@ describe("formatter shared helpers", () => {
       "a\nb",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 3 },
+        { type: "source", start: 0, end: 3 },
         { type: "end" },
       ],
       jsonLang,
@@ -219,7 +243,7 @@ describe("formatter shared helpers", () => {
       { openSpan: () => "" },
     );
 
-    expect(lines).toEqual(["a", "b"]);
+    expect(lines).toEqual(["a\n", "b"]);
   });
 
   it("escapes braces only through the framework helper", () => {
@@ -233,13 +257,22 @@ describe("formatter shared helpers", () => {
       "a\nb",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 3 },
+        { type: "source", start: 0, end: 3 },
         { type: "end" },
       ],
       (scope) => `class="${scope}"`,
     );
 
-    expect(lines).toEqual(['<span class="string">a</span>', '<span class="string">b</span>']);
+    expect(lines).toEqual(['<span class="string">a</span>\n', '<span class="string">b</span>']);
+  });
+
+  it("shrinks source ranges that split a UTF-8 character", () => {
+    expect(renderLinesFromEvents("éx", [{ type: "source", start: 0, end: 1 }], () => "")).toEqual([
+      "",
+    ]);
+    expect(renderLinesFromEvents("éx", [{ type: "source", start: 1, end: 3 }], () => "")).toEqual([
+      "x",
+    ]);
   });
 
   it("opens a bare span for a scope whose attrs come out empty", () => {
@@ -247,9 +280,9 @@ describe("formatter shared helpers", () => {
       "ab",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 1 },
+        { type: "source", start: 0, end: 1 },
         { type: "start", scope: "unstyled", language: "json" },
-        { type: "source", startByte: 1, endByte: 2 },
+        { type: "source", start: 1, end: 2 },
         { type: "end" },
         { type: "end" },
       ],
@@ -264,13 +297,13 @@ describe("formatter shared helpers", () => {
       "a\nb",
       [
         { type: "start", scope: "unstyled", language: "json" },
-        { type: "source", startByte: 0, endByte: 3 },
+        { type: "source", start: 0, end: 3 },
         { type: "end" },
       ],
       () => "",
     );
 
-    expect(lines).toEqual(["<span>a</span>", "<span>b</span>"]);
+    expect(lines).toEqual(["<span>a</span>\n", "<span>b</span>"]);
   });
 
   it("opens a bare span in renderEvents when the callback writes nothing", () => {
@@ -278,7 +311,7 @@ describe("formatter shared helpers", () => {
       "ab",
       [
         { type: "start", scope: "unstyled", language: "json" },
-        { type: "source", startByte: 0, endByte: 2 },
+        { type: "source", start: 0, end: 2 },
         { type: "end" },
       ],
       () => {},
@@ -292,7 +325,7 @@ describe("formatter shared helpers", () => {
       "a\n<b>",
       [
         { type: "start", scope: "string", language: "json" },
-        { type: "source", startByte: 0, endByte: 5 },
+        { type: "source", start: 0, end: 5 },
         { type: "end" },
       ],
       (scope, _language, out) => {
@@ -312,6 +345,7 @@ describe("formatter shared helpers", () => {
     expect(sanitizeThemeName("one-dark")).toBe("one-dark");
     expect(sanitizeThemeName("my theme!")).toBe("my-theme-");
     expect(sanitizeThemeName("theme_v2")).toBe("theme_v2");
+    expect(sanitizeThemeName("Rosé Pine (Dawn)")).toBe("Rosé-Pine--Dawn-");
   });
 
   it("generates span inline attrs with theme styling", () => {

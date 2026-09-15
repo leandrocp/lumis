@@ -131,8 +131,10 @@
   },
   "overrides": [
     {
-      // 5 sites. These tests and the public re-export intentionally exercise
+      // 14 sites. These tests and the public re-export intentionally exercise
       // deprecated compatibility names; all other deprecations remain errors.
+      // `fixtures/formatter-helpers.json` is what keeps the list from growing
+      // quietly: every name deprecated there is checked to be deprecated here.
       "files": [
         "**/src/formatter/ansi.ts",
         "**/test/formatter-ansi.test.ts",

@@ -130,6 +130,7 @@ pub struct PackagedLanguage {
 }
 
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum LanguagePackageError {
     #[error("invalid language package JSON: {0}")]
     Json(#[from] serde_json::Error),

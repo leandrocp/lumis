@@ -4,6 +4,7 @@
 //! inline CSS styles for syntax highlighting, working from pre-computed highlight events.
 
 use super::{Formatter, HtmlElement};
+use crate::decorations::{LineSelection, SteppedLineRange};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
 use crate::themes::Theme;
@@ -57,6 +58,8 @@ pub struct HtmlInline {
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
+    #[builder(setter(skip), default)]
+    stepped_highlight_lines: Vec<SteppedLineRange>,
     header: Option<HtmlElement>,
 }
 
@@ -94,16 +97,27 @@ impl HtmlInline {
             italic,
             include_highlights,
             highlight_lines,
+            stepped_highlight_lines: Vec::new(),
             header,
         }
     }
 
-    fn get_line_attrs(&self, line_number: usize) -> (Option<String>, Option<String>) {
-        let is_highlighted = self
-            .highlight_lines
-            .as_ref()
-            .is_some_and(|hl| hl.lines.iter().any(|r| r.contains(&line_number)));
+    /// Supply compact stepped ranges from a language binding.
+    #[doc(hidden)]
+    pub fn set_stepped_highlight_lines(&mut self, lines: Vec<SteppedLineRange>) {
+        self.stepped_highlight_lines = lines;
+    }
 
+    fn line_selection(&self) -> LineSelection {
+        LineSelection::new(
+            self.highlight_lines
+                .as_ref()
+                .map_or(&[][..], |highlight| &highlight.lines),
+            &self.stepped_highlight_lines,
+        )
+    }
+
+    fn get_line_attrs(&self, is_highlighted: bool) -> (Option<String>, Option<String>) {
         if !is_highlighted {
             return (None, None);
         }
@@ -158,16 +172,21 @@ impl Default for HtmlInline {
             italic: false,
             include_highlights: false,
             highlight_lines: None,
+            stepped_highlight_lines: Vec::new(),
             header: None,
         }
     }
 }
 
-impl Formatter for HtmlInline {
+impl<T> Formatter<T> for HtmlInline {
+    fn language(&self) -> Language {
+        self.language
+    }
+
     fn render(
         &self,
         source: &str,
-        events: &[HighlightEvent],
+        events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
         let mut buffer = Vec::new();
@@ -183,24 +202,15 @@ impl Formatter for HtmlInline {
         )?;
         crate::formatter::html::open_code_tag(&mut buffer, &self.language)?;
 
-        let lines = crate::formatter::html::render_lines_from_events(
+        let (class_suffix, style) = self.get_line_attrs(true);
+        crate::formatter::html::write_html_lines(
+            &mut buffer,
             source,
             events,
-            |scope_index, language| self.span_attrs_from_index(scope_index, language),
-        );
-
-        for (i, line) in lines.iter().enumerate() {
-            let line_number = i + 1;
-            let line_with_newline = format!("{line}\n");
-            let (class_suffix, style) = self.get_line_attrs(line_number);
-            let wrapped = crate::formatter::html::wrap_line(
-                line_number,
-                &line_with_newline,
-                class_suffix.as_deref(),
-                style.as_deref(),
-            );
-            write!(&mut buffer, "{wrapped}")?;
-        }
+            &self.line_selection(),
+            &|scope_index, language| self.span_attrs_from_index(scope_index, language),
+            (class_suffix.as_deref(), style.as_deref()),
+        )?;
 
         crate::formatter::html::closing_tags(&mut buffer)?;
 
