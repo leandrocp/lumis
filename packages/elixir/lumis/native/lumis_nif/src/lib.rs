@@ -16,7 +16,7 @@ use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
 use lumis_wasm_runtime::{catalog, store, Executor, LoadFailure, RuntimeError};
 use parking_lot::RwLock;
-use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
+use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Resource, ResourceArc, Term};
 
 /// Lazy per-theme cache to eliminate repeated allocations.
 /// Themes are converted and cached on first access, amortizing the cost.
@@ -1084,4 +1084,194 @@ mod tests {
             "highlighting an Elixir module produced no events"
         );
     }
+}
+
+// ---------------------------------------------------------------------------
+// MDEx bridge
+//
+// `mdex_native` highlights code fences with Lumis but must not link a second
+// copy of the engine. It reaches this one through `enif_dynamic_resource_call`,
+// which carries only plain C types: neither NIF can see the other's Rust.
+//
+// Events are pushed to a sink the caller owns, so nothing allocated here is
+// freed there. `HighlightCall` and `EventC` are spelled identically on both
+// sides and versioned by `abi`; a mismatch is refused rather than decoded.
+// ---------------------------------------------------------------------------
+
+/// Bump on any change to `HighlightCall` or `EventC`.
+const BRIDGE_ABI: u32 = 1;
+
+const EVENT_START: u8 = 0;
+const EVENT_SOURCE: u8 = 1;
+const EVENT_END: u8 = 2;
+
+const STATUS_OK: i32 = 0;
+const STATUS_LANGUAGE_NOT_LOADED: i32 = 1;
+const STATUS_ERROR: i32 = 2;
+const STATUS_ABI_MISMATCH: i32 = 3;
+const STATUS_PANIC: i32 = 4;
+
+#[repr(C)]
+pub struct EventC {
+    pub kind: u8,
+    pub scope_index: u32,
+    pub start: usize,
+    pub end: usize,
+    /// Borrowed for the duration of the sink call.
+    pub language: *const u8,
+    pub language_len: usize,
+}
+
+#[repr(C)]
+pub struct HighlightCall {
+    pub abi: u32,
+    pub source: *const u8,
+    pub source_len: usize,
+    pub language: *const u8,
+    pub language_len: usize,
+    pub rainbow_brackets: bool,
+    pub sink: Option<unsafe extern "C" fn(*mut std::ffi::c_void, EventC)>,
+    pub sink_ctx: *mut std::ffi::c_void,
+    pub status: i32,
+    /// Borrowed until this thread's next bridge call. Copy it before then.
+    pub error: *const u8,
+    pub error_len: usize,
+}
+
+thread_local! {
+    /// Keeps the reason alive after `dyncall` returns, since the caller reads
+    /// it once `enif_dynamic_resource_call` has handed control back.
+    static LAST_ERROR: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+}
+
+pub struct HighlightBridge;
+
+#[rustler::resource_impl(name = "MDExBridgeV1")]
+impl Resource for HighlightBridge {
+    const IMPLEMENTS_DYNCALL: bool = true;
+
+    /// # Safety
+    /// `call_data` must point at a `HighlightCall` whose `abi` this build knows.
+    unsafe fn dyncall<'a>(&'a self, _env: Env<'a>, call_data: *mut std::ffi::c_void) {
+        // Unwinding across `extern "C"` is undefined behaviour, and rustler's
+        // dyncall shim does not catch for us.
+        let caught = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            bridge_highlight(call_data.cast::<HighlightCall>());
+        }));
+
+        if caught.is_err() {
+            let call = &mut *call_data.cast::<HighlightCall>();
+            call.status = STATUS_PANIC;
+            set_error(call, "Lumis panicked while highlighting");
+        }
+    }
+}
+
+unsafe fn bridge_highlight(call: *mut HighlightCall) {
+    let call = &mut *call;
+
+    if call.abi != BRIDGE_ABI {
+        call.status = STATUS_ABI_MISMATCH;
+        set_error(call, "mdex bridge ABI mismatch");
+        return;
+    }
+
+    let Some(sink) = call.sink else {
+        call.status = STATUS_ERROR;
+        set_error(call, "mdex bridge called without a sink");
+        return;
+    };
+
+    let Some(source) = borrowed_str(call.source, call.source_len) else {
+        call.status = STATUS_ERROR;
+        set_error(call, "mdex bridge source is not UTF-8");
+        return;
+    };
+    let Some(language) = borrowed_str(call.language, call.language_len) else {
+        call.status = STATUS_ERROR;
+        set_error(call, "mdex bridge language is not UTF-8");
+        return;
+    };
+    let executor = match executor() {
+        Ok(executor) => executor,
+        Err(reason) => {
+            call.status = STATUS_ERROR;
+            set_error(call, &format!("{reason:#}"));
+            return;
+        }
+    };
+
+    match executor.highlight(source, language, call.rainbow_brackets) {
+        Ok(events) => {
+            for event in &events {
+                sink(call.sink_ctx, event_to_c(event));
+            }
+            call.status = STATUS_OK;
+            call.error = std::ptr::null();
+            call.error_len = 0;
+        }
+        Err(RuntimeError::LanguageNotLoaded(language)) => {
+            call.status = STATUS_LANGUAGE_NOT_LOADED;
+            set_error(call, &language);
+        }
+        Err(runtime_error) => {
+            call.status = STATUS_ERROR;
+            set_error(call, &runtime_error.to_string());
+        }
+    }
+}
+
+fn event_to_c(event: &HighlightEvent<'_>) -> EventC {
+    let mut out = EventC {
+        kind: EVENT_END,
+        scope_index: 0,
+        start: 0,
+        end: 0,
+        language: std::ptr::null(),
+        language_len: 0,
+    };
+
+    match event {
+        HighlightEvent::Start {
+            scope_index,
+            language,
+        } => {
+            out.kind = EVENT_START;
+            out.scope_index = u32::try_from(*scope_index).unwrap_or(u32::MAX);
+            out.language = language.as_ptr();
+            out.language_len = language.len();
+        }
+        HighlightEvent::Source { start, end } => {
+            out.kind = EVENT_SOURCE;
+            out.start = *start;
+            out.end = *end;
+        }
+        // Everything else is formatter-side and never reaches a raw highlight.
+        _ => out.kind = EVENT_END,
+    }
+
+    out
+}
+
+unsafe fn borrowed_str<'a>(ptr: *const u8, len: usize) -> Option<&'a str> {
+    if ptr.is_null() {
+        return None;
+    }
+    std::str::from_utf8(std::slice::from_raw_parts(ptr, len)).ok()
+}
+
+fn set_error(call: &mut HighlightCall, reason: &str) {
+    LAST_ERROR.with(|last| {
+        let mut last = last.borrow_mut();
+        last.clear();
+        last.push_str(reason);
+        call.error = last.as_ptr();
+        call.error_len = last.len();
+    });
+}
+
+/// Hands `mdex_native` the resource it calls back through.
+#[rustler::nif]
+fn mdex_bridge_v1() -> ResourceArc<HighlightBridge> {
+    ResourceArc::new(HighlightBridge)
 }

@@ -53,7 +53,7 @@ defmodule Lumis.Native do
       "x86_64-unknown-freebsd" => other_variants
     },
     # We don't use any features of newer NIF versions, so 2.15 is enough.
-    nif_versions: ["2.15"],
+    nif_versions: ["2.16"],
     mode: mode,
     force_build: System.get_env("LUMIS_BUILD") in ["1", "true"]
 
@@ -133,4 +133,10 @@ defmodule Lumis.Native do
 
   def html_render_lines_from_events(_source, _events, _attrs),
     do: :erlang.nif_error(:nif_not_loaded)
+
+  @doc false
+  # The resource `:mdex_native` reaches this NIF's highlighter through, so it
+  # does not have to link a second copy of the engine. See `MDExBridgeV1` in
+  # `lumis_nif`; the call itself never returns to Elixir.
+  def mdex_bridge_v1, do: :erlang.nif_error(:nif_not_loaded)
 end
