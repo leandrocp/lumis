@@ -21,6 +21,9 @@ include = [
 [features]
 default = ["all-languages"]
 
+# Elixir-facing decoders for `lumis_nif` and `mdex_native_nif`.
+rustler = ["dep:rustler"]
+
 all-languages = [
     "lang-arduino",
     "lang-angular",
@@ -266,6 +269,7 @@ lang-zsh = []
 derive_builder = "0.20"
 glob = "0.3"
 regex = "1"
+rustler = { version = "0.38", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 typed-path = "0.12"

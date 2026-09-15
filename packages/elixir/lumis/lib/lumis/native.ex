@@ -52,8 +52,9 @@ defmodule Lumis.Native do
       "x86_64-pc-windows-gnu" => other_variants,
       "x86_64-unknown-freebsd" => other_variants
     },
-    # We don't use any features of newer NIF versions, so 2.15 is enough.
-    nif_versions: ["2.15"],
+    # 2.16 is the first with `enif_dynamic_resource_call`, which the MDEx
+    # bridge calls. It is OTP 24.0, and Elixir 1.15 already requires OTP 24.
+    nif_versions: ["2.16"],
     mode: mode,
     force_build: System.get_env("LUMIS_BUILD") in ["1", "true"]
 
@@ -66,6 +67,7 @@ defmodule Lumis.Native do
   def theme_css_from_name(_name, _options), do: :erlang.nif_error(:nif_not_loaded)
   def theme_css_from_theme(_theme, _options), do: :erlang.nif_error(:nif_not_loaded)
   def configure_store(_data_dir), do: :erlang.nif_error(:nif_not_loaded)
+  def data_dir, do: :erlang.nif_error(:nif_not_loaded)
   def language_package_refs, do: :erlang.nif_error(:nif_not_loaded)
   def language_bundles, do: :erlang.nif_error(:nif_not_loaded)
   def load_language_by_name(_name), do: :erlang.nif_error(:nif_not_loaded)
@@ -132,4 +134,10 @@ defmodule Lumis.Native do
 
   def html_render_lines_from_events(_source, _events, _attrs),
     do: :erlang.nif_error(:nif_not_loaded)
+
+  @doc false
+  # The resource `:mdex_native` reaches this NIF's highlighter through, so it
+  # does not have to link a second copy of the engine. See `MDExBridgeV1` in
+  # `lumis_nif`; the call itself never returns to Elixir.
+  def mdex_bridge_v1, do: :erlang.nif_error(:nif_not_loaded)
 end

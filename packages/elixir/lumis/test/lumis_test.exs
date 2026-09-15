@@ -1561,4 +1561,30 @@ defmodule Lumis.LumisTest do
       end
     end
   end
+
+  describe "data_dir/0" do
+    test "reports the directory Lumis.Application configured the store with" do
+      expected =
+        cond do
+          path = Application.get_env(:lumis, :data_dir) ->
+            Path.expand(path)
+
+          # `Lumis.Application` hands this case to the NIF rather than
+          # resolving it, and the NIF reads the variable as written: a relative
+          # path stays relative and an empty one counts as unset.
+          (env = System.get_env("LUMIS_DATA_DIR")) not in [nil, ""] ->
+            env
+
+          true ->
+            Path.join(List.to_string(:code.priv_dir(:lumis)), "lumis")
+        end
+
+      assert Lumis.data_dir() == expected
+    end
+
+    test "names the directory the store actually writes parsers into" do
+      assert :ok = Lumis.Languages.load("json")
+      assert File.dir?(Path.join(Lumis.data_dir(), "parsers"))
+    end
+  end
 end
