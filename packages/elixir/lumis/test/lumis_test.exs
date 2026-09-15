@@ -1566,9 +1566,17 @@ defmodule Lumis.LumisTest do
     test "reports the directory Lumis.Application configured the store with" do
       expected =
         cond do
-          path = Application.get_env(:lumis, :data_dir) -> Path.expand(path)
-          path = System.get_env("LUMIS_DATA_DIR") -> Path.expand(path)
-          true -> Path.join(List.to_string(:code.priv_dir(:lumis)), "lumis")
+          path = Application.get_env(:lumis, :data_dir) ->
+            Path.expand(path)
+
+          # `Lumis.Application` hands this case to the NIF rather than
+          # resolving it, and the NIF reads the variable as written: a relative
+          # path stays relative and an empty one counts as unset.
+          (env = System.get_env("LUMIS_DATA_DIR")) not in [nil, ""] ->
+            env
+
+          true ->
+            Path.join(List.to_string(:code.priv_dir(:lumis)), "lumis")
         end
 
       assert Lumis.data_dir() == expected

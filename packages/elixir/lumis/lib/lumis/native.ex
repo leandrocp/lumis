@@ -52,7 +52,8 @@ defmodule Lumis.Native do
       "x86_64-pc-windows-gnu" => other_variants,
       "x86_64-unknown-freebsd" => other_variants
     },
-    # We don't use any features of newer NIF versions, so 2.15 is enough.
+    # 2.16 is the first with `enif_dynamic_resource_call`, which the MDEx
+    # bridge calls. It is OTP 24.0, and Elixir 1.15 already requires OTP 24.
     nif_versions: ["2.16"],
     mode: mode,
     force_build: System.get_env("LUMIS_BUILD") in ["1", "true"]
