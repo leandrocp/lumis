@@ -1095,10 +1095,11 @@ mod tests {
 //
 // Events are pushed to a sink the caller owns, so nothing allocated here is
 // freed there. `HighlightCall` and `EventC` are spelled identically on both
-// sides and versioned by `abi`; a mismatch is refused rather than decoded.
+// sides. Their V1 layouts are permanent: a different layout gets a different
+// resource and function name rather than reusing `MDExBridgeV1`.
 // ---------------------------------------------------------------------------
 
-/// Bump on any change to `HighlightCall` or `EventC`.
+/// Identifies a valid V1 call; it does not negotiate a different struct layout.
 const BRIDGE_ABI: u32 = 1;
 
 const EVENT_START: u8 = 0;
@@ -1114,7 +1115,9 @@ const STATUS_PANIC: i32 = 4;
 #[repr(C)]
 pub struct EventC {
     pub kind: u8,
-    pub scope_index: u32,
+    /// Borrowed for the duration of the sink call.
+    pub scope: *const u8,
+    pub scope_len: usize,
     pub start: usize,
     pub end: usize,
     /// Borrowed for the duration of the sink call.
@@ -1151,7 +1154,8 @@ impl Resource for HighlightBridge {
     const IMPLEMENTS_DYNCALL: bool = true;
 
     /// # Safety
-    /// `call_data` must point at a `HighlightCall` whose `abi` this build knows.
+    /// `call_data` must point at the immutable V1 `HighlightCall` layout. Other
+    /// layouts must use a differently named dynamic resource.
     unsafe fn dyncall<'a>(&'a self, _env: Env<'a>, call_data: *mut std::ffi::c_void) {
         // Unwinding across `extern "C"` is undefined behaviour, and rustler's
         // dyncall shim does not catch for us.
@@ -1224,7 +1228,8 @@ unsafe fn bridge_highlight(call: *mut HighlightCall) {
 fn event_to_c(event: &HighlightEvent<'_>) -> EventC {
     let mut out = EventC {
         kind: EVENT_END,
-        scope_index: 0,
+        scope: std::ptr::null(),
+        scope_len: 0,
         start: 0,
         end: 0,
         language: std::ptr::null(),
@@ -1236,8 +1241,13 @@ fn event_to_c(event: &HighlightEvent<'_>) -> EventC {
             scope_index,
             language,
         } => {
+            let scope = lumis_core::highlights::HIGHLIGHT_NAMES
+                .get(*scope_index)
+                .copied()
+                .unwrap_or_default();
             out.kind = EVENT_START;
-            out.scope_index = u32::try_from(*scope_index).unwrap_or(u32::MAX);
+            out.scope = scope.as_ptr();
+            out.scope_len = scope.len();
             out.language = language.as_ptr();
             out.language_len = language.len();
         }
@@ -1274,4 +1284,82 @@ fn set_error(call: &mut HighlightCall, reason: &str) {
 #[rustler::nif]
 fn mdex_bridge_v1() -> ResourceArc<HighlightBridge> {
     ResourceArc::new(HighlightBridge)
+}
+
+#[cfg(test)]
+mod bridge_tests {
+    use super::{borrowed_str, event_to_c, EventC, HighlightCall, HighlightEvent, BRIDGE_ABI};
+    use std::mem::{offset_of, size_of};
+
+    #[test]
+    fn start_events_cross_the_bridge_by_scope_name() {
+        let scope_index = lumis_core::highlights::HIGHLIGHT_NAMES
+            .binary_search(&"function")
+            .unwrap();
+        let event = HighlightEvent::Start {
+            scope_index,
+            language: "elixir".to_string(),
+        };
+
+        let event = event_to_c(&event);
+        let scope = unsafe { borrowed_str(event.scope, event.scope_len) };
+        let language = unsafe { borrowed_str(event.language, event.language_len) };
+
+        assert_eq!(scope, Some("function"));
+        assert_eq!(language, Some("elixir"));
+    }
+
+    #[test]
+    fn v1_layout_is_frozen() {
+        assert_eq!(BRIDGE_ABI, 1);
+        assert_eq!(offset_of!(EventC, kind), 0);
+
+        #[cfg(target_pointer_width = "64")]
+        {
+            assert_eq!(size_of::<EventC>(), 56);
+            assert_eq!(offset_of!(EventC, scope), 8);
+            assert_eq!(offset_of!(EventC, scope_len), 16);
+            assert_eq!(offset_of!(EventC, start), 24);
+            assert_eq!(offset_of!(EventC, end), 32);
+            assert_eq!(offset_of!(EventC, language), 40);
+            assert_eq!(offset_of!(EventC, language_len), 48);
+
+            assert_eq!(size_of::<HighlightCall>(), 88);
+            assert_eq!(offset_of!(HighlightCall, abi), 0);
+            assert_eq!(offset_of!(HighlightCall, source), 8);
+            assert_eq!(offset_of!(HighlightCall, source_len), 16);
+            assert_eq!(offset_of!(HighlightCall, language), 24);
+            assert_eq!(offset_of!(HighlightCall, language_len), 32);
+            assert_eq!(offset_of!(HighlightCall, rainbow_brackets), 40);
+            assert_eq!(offset_of!(HighlightCall, sink), 48);
+            assert_eq!(offset_of!(HighlightCall, sink_ctx), 56);
+            assert_eq!(offset_of!(HighlightCall, status), 64);
+            assert_eq!(offset_of!(HighlightCall, error), 72);
+            assert_eq!(offset_of!(HighlightCall, error_len), 80);
+        }
+
+        #[cfg(target_pointer_width = "32")]
+        {
+            assert_eq!(size_of::<EventC>(), 28);
+            assert_eq!(offset_of!(EventC, scope), 4);
+            assert_eq!(offset_of!(EventC, scope_len), 8);
+            assert_eq!(offset_of!(EventC, start), 12);
+            assert_eq!(offset_of!(EventC, end), 16);
+            assert_eq!(offset_of!(EventC, language), 20);
+            assert_eq!(offset_of!(EventC, language_len), 24);
+
+            assert_eq!(size_of::<HighlightCall>(), 44);
+            assert_eq!(offset_of!(HighlightCall, abi), 0);
+            assert_eq!(offset_of!(HighlightCall, source), 4);
+            assert_eq!(offset_of!(HighlightCall, source_len), 8);
+            assert_eq!(offset_of!(HighlightCall, language), 12);
+            assert_eq!(offset_of!(HighlightCall, language_len), 16);
+            assert_eq!(offset_of!(HighlightCall, rainbow_brackets), 20);
+            assert_eq!(offset_of!(HighlightCall, sink), 24);
+            assert_eq!(offset_of!(HighlightCall, sink_ctx), 28);
+            assert_eq!(offset_of!(HighlightCall, status), 32);
+            assert_eq!(offset_of!(HighlightCall, error), 36);
+            assert_eq!(offset_of!(HighlightCall, error_len), 40);
+        }
+    }
 }
