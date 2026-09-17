@@ -1550,7 +1550,7 @@ dependencies = [
 [[package]]
 name = "lumis-core"
 version = "2.5.0"
-source = "git+https://github.com/leandrocp/lumis?rev=4f04d69ff4d9d87d58bb698919449bb55c9a26cb#4f04d69ff4d9d87d58bb698919449bb55c9a26cb"
+source = "git+https://github.com/leandrocp/lumis?rev=f1a621981e8e3b06127e25cd7febcded29c0a8af#f1a621981e8e3b06127e25cd7febcded29c0a8af"
 dependencies = [
  "derive_builder",
  "glob",
@@ -1606,11 +1606,10 @@ dependencies = [
 [[package]]
 name = "lumis-wasm-runtime"
 version = "0.2.1"
-source = "git+https://github.com/leandrocp/lumis?rev=4f04d69ff4d9d87d58bb698919449bb55c9a26cb#4f04d69ff4d9d87d58bb698919449bb55c9a26cb"
+source = "git+https://github.com/leandrocp/lumis?rev=f1a621981e8e3b06127e25cd7febcded29c0a8af#f1a621981e8e3b06127e25cd7febcded29c0a8af"
 dependencies = [
  "etcetera",
- "lumis-core 2.5.0 (git+https://github.com/leandrocp/lumis?rev=4f04d69ff4d9d87d58bb698919449bb55c9a26cb)",
- "rayon",
+ "lumis-core 2.5.0 (git+https://github.com/leandrocp/lumis?rev=f1a621981e8e3b06127e25cd7febcded29c0a8af)",
  "semver",
  "serde",
  "serde_json",
@@ -1630,8 +1629,8 @@ name = "lumis_nif"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "lumis-core 2.5.0 (git+https://github.com/leandrocp/lumis?rev=4f04d69ff4d9d87d58bb698919449bb55c9a26cb)",
- "lumis-wasm-runtime 0.2.1 (git+https://github.com/leandrocp/lumis?rev=4f04d69ff4d9d87d58bb698919449bb55c9a26cb)",
+ "lumis-core 2.5.0 (git+https://github.com/leandrocp/lumis?rev=f1a621981e8e3b06127e25cd7febcded29c0a8af)",
+ "lumis-wasm-runtime 0.2.1 (git+https://github.com/leandrocp/lumis?rev=f1a621981e8e3b06127e25cd7febcded29c0a8af)",
  "once_cell",
  "parking_lot",
  "rustler",
