@@ -1095,8 +1095,11 @@ mod tests {
 //
 // Events are pushed to a sink the caller owns, so nothing allocated here is
 // freed there. `HighlightCall` and `EventC` are spelled identically on both
-// sides. Their V1 layouts are permanent: a different layout gets a different
-// resource and function name rather than reusing `MDExBridgeV1`.
+// sides. Their V1 layouts are frozen from the first Lumis release that ships
+// this resource: after that, a different layout gets a different resource and
+// function name rather than reusing `MDExBridgeV1`. Until then, any change to
+// either struct also bumps `BRIDGE_ABI`, so a stale local build fails loudly
+// instead of misreading events.
 // ---------------------------------------------------------------------------
 
 /// Identifies a valid V1 call; it does not negotiate a different struct layout.
@@ -1132,7 +1135,9 @@ pub struct HighlightCall {
     pub source_len: usize,
     pub language: *const u8,
     pub language_len: usize,
-    pub rainbow_brackets: bool,
+    /// `0` or `1`. A `u8` rather than `bool` so that no byte the caller could
+    /// write is an invalid value on this side of the boundary.
+    pub rainbow_brackets: u8,
     pub sink: Option<unsafe extern "C" fn(*mut std::ffi::c_void, EventC)>,
     pub sink_ctx: *mut std::ffi::c_void,
     pub status: i32,
@@ -1154,8 +1159,9 @@ impl Resource for HighlightBridge {
     const IMPLEMENTS_DYNCALL: bool = true;
 
     /// # Safety
-    /// `call_data` must point at the immutable V1 `HighlightCall` layout. Other
-    /// layouts must use a differently named dynamic resource.
+    /// `call_data` must point at the V1 `HighlightCall` layout this build was
+    /// compiled against. Other layouts must use a differently named dynamic
+    /// resource.
     unsafe fn dyncall<'a>(&'a self, _env: Env<'a>, call_data: *mut std::ffi::c_void) {
         // Unwinding across `extern "C"` is undefined behaviour, and rustler's
         // dyncall shim does not catch for us.
@@ -1205,10 +1211,12 @@ unsafe fn bridge_highlight(call: *mut HighlightCall) {
         }
     };
 
-    match executor.highlight(source, language, call.rainbow_brackets) {
+    match executor.highlight(source, language, call.rainbow_brackets != 0) {
         Ok(events) => {
-            for event in &events {
-                sink(call.sink_ctx, event_to_c(event));
+            // Variants a code fence has no use for are skipped, not sent as a
+            // close: an unmatched `End` would unbalance the consumer's scopes.
+            for event in events.iter().filter_map(event_to_c) {
+                sink(call.sink_ctx, event);
             }
             call.status = STATUS_OK;
             call.error = std::ptr::null();
@@ -1225,7 +1233,9 @@ unsafe fn bridge_highlight(call: *mut HighlightCall) {
     }
 }
 
-fn event_to_c(event: &HighlightEvent<'_>) -> EventC {
+/// `None` for the variants a raw highlight never produces (annotations and
+/// decorations belong to formatters); the caller skips those.
+fn event_to_c(event: &HighlightEvent<'_>) -> Option<EventC> {
     let mut out = EventC {
         kind: EVENT_END,
         scope: std::ptr::null(),
@@ -1241,13 +1251,14 @@ fn event_to_c(event: &HighlightEvent<'_>) -> EventC {
             scope_index,
             language,
         } => {
-            let scope = lumis_core::highlights::HIGHLIGHT_NAMES
-                .get(*scope_index)
-                .copied()
-                .unwrap_or_default();
+            // An index this table does not have is sent as a null name, which
+            // the consumer treats as unknown. It is not sent as `""`, so the
+            // two cases stay distinguishable on the other side.
+            if let Some(scope) = lumis_core::highlights::HIGHLIGHT_NAMES.get(*scope_index) {
+                out.scope = scope.as_ptr();
+                out.scope_len = scope.len();
+            }
             out.kind = EVENT_START;
-            out.scope = scope.as_ptr();
-            out.scope_len = scope.len();
             out.language = language.as_ptr();
             out.language_len = language.len();
         }
@@ -1256,11 +1267,11 @@ fn event_to_c(event: &HighlightEvent<'_>) -> EventC {
             out.start = *start;
             out.end = *end;
         }
-        // Everything else is formatter-side and never reaches a raw highlight.
-        _ => out.kind = EVENT_END,
+        HighlightEvent::End => {}
+        _ => return None,
     }
 
-    out
+    Some(out)
 }
 
 unsafe fn borrowed_str<'a>(ptr: *const u8, len: usize) -> Option<&'a str> {
@@ -1270,13 +1281,20 @@ unsafe fn borrowed_str<'a>(ptr: *const u8, len: usize) -> Option<&'a str> {
     std::str::from_utf8(std::slice::from_raw_parts(ptr, len)).ok()
 }
 
+/// Runs on the panic path too, so it must not be able to panic itself: a
+/// borrow that is somehow already held leaves the reason unset rather than
+/// unwinding out of `dyncall`.
 fn set_error(call: &mut HighlightCall, reason: &str) {
+    call.error = std::ptr::null();
+    call.error_len = 0;
+
     LAST_ERROR.with(|last| {
-        let mut last = last.borrow_mut();
-        last.clear();
-        last.push_str(reason);
-        call.error = last.as_ptr();
-        call.error_len = last.len();
+        if let Ok(mut last) = last.try_borrow_mut() {
+            last.clear();
+            last.push_str(reason);
+            call.error = last.as_ptr();
+            call.error_len = last.len();
+        }
     });
 }
 
@@ -1301,12 +1319,30 @@ mod bridge_tests {
             language: "elixir".to_string(),
         };
 
-        let event = event_to_c(&event);
+        let event = event_to_c(&event).expect("a Start event crosses");
         let scope = unsafe { borrowed_str(event.scope, event.scope_len) };
         let language = unsafe { borrowed_str(event.language, event.language_len) };
 
         assert_eq!(scope, Some("function"));
         assert_eq!(language, Some("elixir"));
+    }
+
+    #[test]
+    fn an_index_outside_this_table_crosses_as_a_null_name() {
+        let event = HighlightEvent::Start {
+            scope_index: usize::MAX,
+            language: "elixir".to_string(),
+        };
+
+        let event = event_to_c(&event).expect("a Start event crosses");
+
+        assert!(event.scope.is_null());
+        assert_eq!(event.scope_len, 0);
+    }
+
+    #[test]
+    fn formatter_side_variants_do_not_cross() {
+        assert!(event_to_c(&HighlightEvent::AnnotationEnd).is_none());
     }
 
     #[test]

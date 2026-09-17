@@ -224,9 +224,11 @@ once per layer, and a BEAM dirty scheduler's stack overflows rather than
 erroring, taking the emulator with it. `lumis_wasm_runtime::Executor` owns a
 pool sized to the machine with 8 MiB stacks and answers load and highlight
 requests on it. Any host with a small calling stack wants that pool, so it is
-in the runtime crate rather than in one binding. The Elixir NIF owns that
-executor; `mdex_native` reaches it through the versioned dynamic-resource bridge
-instead of embedding a second runtime.
+in the runtime crate rather than in one binding, where the Elixir NIF, the
+Node addon and the CLI can each own one. `mdex_native` is the host that does not
+own one: it reaches the Elixir NIF's executor through the `MDExBridgeV1` dynamic
+resource instead of embedding a second runtime, and that resource's layout is
+frozen once released.
 
 Two more things follow the same rule. `runtime_with_catalog` builds a `Runtime`
 that knows every catalog language by id and alias, which the CLI, the Node

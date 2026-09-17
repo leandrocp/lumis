@@ -164,6 +164,29 @@ if [ -z "$workspace_version" ] || [ "$workspace_version" != "$nif_version" ]; th
     exit 1
 fi
 echo "wasmtime $workspace_version in both lockfiles"
+
+# While the lumis crates come from git, the packaged NIF and the workspace must
+# build the same revision of them. `[patch.crates-io]` cannot redirect a git
+# dependency, so nothing else would notice if the two pins drifted apart.
+locked_git_source() {
+    awk -v n="$2" '
+        /^\[\[package\]\]/ { inpkg = 0 }
+        $0 == "name = \"" n "\"" { inpkg = 1; next }
+        inpkg && /^source = "git\+/ { sub(/^source = "/, ""); sub(/"$/, ""); print; inpkg = 0 }
+    ' "$1" | sort -u
+}
+for crate in lumis-core lumis-wasm-runtime; do
+    nif_source="$(locked_git_source "$nif_dir/Cargo.lock" "$crate")"
+    workspace_source="$(locked_git_source Cargo.lock "$crate")"
+    if [ "$nif_source" != "$workspace_source" ]; then
+        echo "$crate resolves from different git revisions:" >&2
+        echo "  workspace:    ${workspace_source:-<crates.io>}" >&2
+        echo "  packaged NIF: ${nif_source:-<crates.io>}" >&2
+        echo "Pin both to one revision so the two NIFs agree on the crate they share." >&2
+        exit 1
+    fi
+done
+echo "lumis crates resolve identically in both lockfiles"
 '''
 
 [tasks.'stage-test-parsers']
