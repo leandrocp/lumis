@@ -15,17 +15,17 @@ anyhow = "1"
 once_cell = "1.21"
 parking_lot = "0.12"
 rustler = { version = "0.38", features = ["nif_version_2_16"] }
-# Temporary, until lumis-core 2.6 and lumis-wasm-runtime 0.2.2 publish with the
-# `rustler` feature and `Executor` this crate needs. `rustler_precompiled`
+# Temporary exact ref, until lumis-core 2.6 and lumis-wasm-runtime 0.2.2 publish
+# with the `rustler` feature and `Executor` this crate needs. `rustler_precompiled`
 # builds this NIF outside the workspace, so the root `[patch.crates-io]` never
 # reaches it and a crates.io requirement cannot resolve. Swap both back to
 # version requirements at release; `release-prepare` expects to find them.
-lumis-core = { git = "https://github.com/leandrocp/lumis", branch = "refactor/share-wasm-runtime", default-features = false, features = ["all-languages", "rustler"] }
-lumis-wasm-runtime = { git = "https://github.com/leandrocp/lumis", branch = "refactor/share-wasm-runtime" }
+lumis-core = { git = "https://github.com/leandrocp/lumis", rev = "f8e922cc0819ca4e78234ed5c868f38a6f848182", default-features = false, features = ["all-languages", "rustler"] }
+lumis-wasm-runtime = { git = "https://github.com/leandrocp/lumis", rev = "f8e922cc0819ca4e78234ed5c868f38a6f848182" }
 
 [features]
-default = ["nif_version_2_15"]
-nif_version_2_15 = ["rustler/nif_version_2_15"]
+default = ["nif_version_2_16"]
+nif_version_2_16 = ["rustler/nif_version_2_16"]
 
 [lints.rust]
 rust_2018_idioms = { level = "warn", priority = -1 }
