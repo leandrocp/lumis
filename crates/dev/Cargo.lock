@@ -758,7 +758,6 @@ version = "0.2.1"
 dependencies = [
  "etcetera",
  "lumis-core",
- "rayon",
  "semver",
  "serde",
  "serde_json",
