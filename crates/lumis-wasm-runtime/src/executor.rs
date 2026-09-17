@@ -7,10 +7,11 @@
 //! emulator with it. Both Lumis NIFs therefore hand work to these threads,
 //! which are sized for it.
 
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::Arc;
 use std::thread;
 
 use lumis_core::events::HighlightEvent;
+use rayon::{ThreadPool, ThreadPoolBuildError, ThreadPoolBuilder};
 
 use crate::catalog;
 use crate::runtime::{Runtime, RuntimeError};
@@ -35,24 +36,6 @@ pub fn runtime_with_catalog(store: LanguageStore, workers: usize) -> Result<Runt
     Ok(runtime)
 }
 
-enum Job {
-    LoadNamed {
-        name: String,
-        reply: mpsc::SyncSender<Result<(), RuntimeError>>,
-    },
-    Highlight {
-        source: String,
-        language: String,
-        rainbow_brackets: bool,
-        reply: mpsc::SyncSender<Result<Vec<HighlightEvent<'static>>, RuntimeError>>,
-    },
-    Precompile {
-        names: Vec<String>,
-        concurrency: usize,
-        reply: mpsc::SyncSender<Vec<Result<(), RuntimeError>>>,
-    },
-}
-
 /// Why a load failed, at the granularity a caller can act on.
 ///
 /// A caller decides between "I typed the name wrong" and "it could not be
@@ -65,27 +48,17 @@ pub enum LoadFailure {
 
 #[derive(Debug, thiserror::Error)]
 pub enum ExecutorError {
-    #[error("could not spawn the Lumis WASM runtime initializer: {0}")]
-    Spawn(#[from] std::io::Error),
+    #[error("could not start the Lumis WASM worker pool: {0}")]
+    Pool(#[from] ThreadPoolBuildError),
     #[error("Lumis WASM runtime initialization panicked")]
     InitPanicked,
     #[error(transparent)]
     Runtime(#[from] RuntimeError),
 }
 
-fn unavailable(count: usize) -> Vec<Result<(), RuntimeError>> {
-    (0..count)
-        .map(|_| {
-            Err(RuntimeError::Highlight(
-                "WASM executor is unavailable".into(),
-            ))
-        })
-        .collect()
-}
-
 pub struct Executor {
     runtime: Arc<Runtime>,
-    sender: mpsc::SyncSender<Job>,
+    pool: ThreadPool,
 }
 
 impl Executor {
@@ -99,54 +72,24 @@ impl Executor {
     pub fn with_workers(store: LanguageStore, workers: usize) -> Result<Self, ExecutorError> {
         let workers = workers.max(1);
 
-        // Built on a worker-sized stack too: loading the catalog's queries
-        // recurses as deeply as highlighting does.
-        let runtime = thread::Builder::new()
-            .name("lumis-wasm-init".into())
+        let pool = ThreadPoolBuilder::new()
+            .num_threads(workers)
             .stack_size(STACK_SIZE)
-            .spawn(move || runtime_with_catalog(store, workers))?
-            .join()
-            .map_err(|_| ExecutorError::InitPanicked)??;
+            .thread_name(|index| format!("lumis-wasm-{index}"))
+            .build()?;
 
-        let runtime = Arc::new(runtime);
-        let (sender, receiver) = mpsc::sync_channel::<Job>(workers * 2);
-        let receiver = Arc::new(Mutex::new(receiver));
+        // Built on a worker-sized stack too: loading the catalog's queries
+        // recurses as deeply as highlighting does. A panic in there resumes on
+        // this thread, so it is caught here rather than left to the host.
+        let runtime = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            pool.install(|| runtime_with_catalog(store, workers))
+        }))
+        .map_err(|_| ExecutorError::InitPanicked)??;
 
-        for index in 0..workers {
-            let runtime = Arc::clone(&runtime);
-            let receiver = Arc::clone(&receiver);
-            thread::Builder::new()
-                .name(format!("lumis-wasm-{index}"))
-                .stack_size(STACK_SIZE)
-                .spawn(move || loop {
-                    let Ok(job) = receiver.lock().expect("executor lock poisoned").recv() else {
-                        return;
-                    };
-                    match job {
-                        Job::LoadNamed { name, reply } => {
-                            let _ = reply.send(runtime.load_named_language(&name));
-                        }
-                        Job::Highlight {
-                            source,
-                            language,
-                            rainbow_brackets,
-                            reply,
-                        } => {
-                            let _ =
-                                reply.send(runtime.highlight(&source, &language, rainbow_brackets));
-                        }
-                        Job::Precompile {
-                            names,
-                            concurrency,
-                            reply,
-                        } => {
-                            let _ = reply.send(runtime.precompile_languages(&names, concurrency));
-                        }
-                    }
-                })?;
-        }
-
-        Ok(Self { runtime, sender })
+        Ok(Self {
+            runtime: Arc::new(runtime),
+            pool,
+        })
     }
 
     /// Whether a language is resolved and held in memory.
@@ -170,60 +113,30 @@ impl Executor {
         names: Vec<String>,
         concurrency: usize,
     ) -> Vec<Result<(), RuntimeError>> {
-        let count = names.len();
-        let (reply, result) = mpsc::sync_channel(1);
-
-        if self
-            .sender
-            .send(Job::Precompile {
-                names,
-                concurrency,
-                reply,
-            })
-            .is_err()
-        {
-            return unavailable(count);
-        }
-
-        result.recv().unwrap_or_else(|_| unavailable(count))
+        self.pool
+            .install(|| self.runtime.precompile_languages(&names, concurrency))
     }
 
     /// Resolving a language does a TLS handshake, which needs far more stack
     /// than a small host thread has; run it on the pool's own threads.
     pub fn load_named_language(&self, name: &str) -> Result<(), LoadFailure> {
-        let (reply, result) = mpsc::sync_channel(1);
-        self.sender
-            .send(Job::LoadNamed {
-                name: name.to_string(),
-                reply,
-            })
-            .map_err(|_| LoadFailure::Parser)?;
-
-        match result.recv().map_err(|_| LoadFailure::Parser)? {
+        match self.pool.install(|| self.runtime.load_named_language(name)) {
             Ok(()) => Ok(()),
             Err(RuntimeError::LanguageNotLoaded(_)) => Err(LoadFailure::UnknownLanguage),
             Err(_) => Err(LoadFailure::Parser),
         }
     }
 
+    /// Runs on a pool thread; the caller blocks until it is done. A panic in
+    /// the highlighter resumes on the caller's thread, where the NIF's own
+    /// guard catches it.
     pub fn highlight(
         &self,
         source: &str,
         language: &str,
         rainbow_brackets: bool,
     ) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
-        let (reply, result) = mpsc::sync_channel(1);
-        self.sender
-            .send(Job::Highlight {
-                source: source.to_string(),
-                language: language.to_string(),
-                rainbow_brackets,
-                reply,
-            })
-            .map_err(|_| RuntimeError::Highlight("WASM executor is unavailable".into()))?;
-
-        result.recv().map_err(|_| {
-            RuntimeError::Highlight("WASM executor stopped before highlighting".into())
-        })?
+        self.pool
+            .install(|| self.runtime.highlight(source, language, rainbow_brackets))
     }
 }

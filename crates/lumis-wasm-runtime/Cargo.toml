@@ -14,6 +14,7 @@ default = ["wasm"]
 wasm = ["dep:wasmtime", "dep:ureq", "dep:typed-arena", "tree-sitter/wasm"]
 
 [dependencies]
+rayon = "1"
 typed-arena = { version = "2", optional = true }
 ureq = { version = "3", optional = true }
 etcetera = "0.11"
