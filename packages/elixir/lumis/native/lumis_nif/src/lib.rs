@@ -1312,54 +1312,42 @@ mod bridge_tests {
     #[test]
     fn v1_layout_is_frozen() {
         assert_eq!(BRIDGE_ABI, 1);
-        assert_eq!(offset_of!(EventC, kind), 0);
+
+        let event_layout = [
+            size_of::<EventC>(),
+            offset_of!(EventC, kind),
+            offset_of!(EventC, scope),
+            offset_of!(EventC, scope_len),
+            offset_of!(EventC, start),
+            offset_of!(EventC, end),
+            offset_of!(EventC, language),
+            offset_of!(EventC, language_len),
+        ];
+        let call_layout = [
+            size_of::<HighlightCall>(),
+            offset_of!(HighlightCall, abi),
+            offset_of!(HighlightCall, source),
+            offset_of!(HighlightCall, source_len),
+            offset_of!(HighlightCall, language),
+            offset_of!(HighlightCall, language_len),
+            offset_of!(HighlightCall, rainbow_brackets),
+            offset_of!(HighlightCall, sink),
+            offset_of!(HighlightCall, sink_ctx),
+            offset_of!(HighlightCall, status),
+            offset_of!(HighlightCall, error),
+            offset_of!(HighlightCall, error_len),
+        ];
 
         #[cfg(target_pointer_width = "64")]
         {
-            assert_eq!(size_of::<EventC>(), 56);
-            assert_eq!(offset_of!(EventC, scope), 8);
-            assert_eq!(offset_of!(EventC, scope_len), 16);
-            assert_eq!(offset_of!(EventC, start), 24);
-            assert_eq!(offset_of!(EventC, end), 32);
-            assert_eq!(offset_of!(EventC, language), 40);
-            assert_eq!(offset_of!(EventC, language_len), 48);
-
-            assert_eq!(size_of::<HighlightCall>(), 88);
-            assert_eq!(offset_of!(HighlightCall, abi), 0);
-            assert_eq!(offset_of!(HighlightCall, source), 8);
-            assert_eq!(offset_of!(HighlightCall, source_len), 16);
-            assert_eq!(offset_of!(HighlightCall, language), 24);
-            assert_eq!(offset_of!(HighlightCall, language_len), 32);
-            assert_eq!(offset_of!(HighlightCall, rainbow_brackets), 40);
-            assert_eq!(offset_of!(HighlightCall, sink), 48);
-            assert_eq!(offset_of!(HighlightCall, sink_ctx), 56);
-            assert_eq!(offset_of!(HighlightCall, status), 64);
-            assert_eq!(offset_of!(HighlightCall, error), 72);
-            assert_eq!(offset_of!(HighlightCall, error_len), 80);
+            assert_eq!(event_layout, [56, 0, 8, 16, 24, 32, 40, 48]);
+            assert_eq!(call_layout, [88, 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80]);
         }
 
         #[cfg(target_pointer_width = "32")]
         {
-            assert_eq!(size_of::<EventC>(), 28);
-            assert_eq!(offset_of!(EventC, scope), 4);
-            assert_eq!(offset_of!(EventC, scope_len), 8);
-            assert_eq!(offset_of!(EventC, start), 12);
-            assert_eq!(offset_of!(EventC, end), 16);
-            assert_eq!(offset_of!(EventC, language), 20);
-            assert_eq!(offset_of!(EventC, language_len), 24);
-
-            assert_eq!(size_of::<HighlightCall>(), 44);
-            assert_eq!(offset_of!(HighlightCall, abi), 0);
-            assert_eq!(offset_of!(HighlightCall, source), 4);
-            assert_eq!(offset_of!(HighlightCall, source_len), 8);
-            assert_eq!(offset_of!(HighlightCall, language), 12);
-            assert_eq!(offset_of!(HighlightCall, language_len), 16);
-            assert_eq!(offset_of!(HighlightCall, rainbow_brackets), 20);
-            assert_eq!(offset_of!(HighlightCall, sink), 24);
-            assert_eq!(offset_of!(HighlightCall, sink_ctx), 28);
-            assert_eq!(offset_of!(HighlightCall, status), 32);
-            assert_eq!(offset_of!(HighlightCall, error), 36);
-            assert_eq!(offset_of!(HighlightCall, error_len), 40);
+            assert_eq!(event_layout, [28, 0, 4, 8, 12, 16, 20, 24]);
+            assert_eq!(call_layout, [44, 0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40]);
         }
     }
 }
