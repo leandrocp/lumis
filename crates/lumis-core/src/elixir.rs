@@ -80,15 +80,11 @@ pub enum ThemeOrString {
     String(String),
 }
 
-/// Also accepts a bare name, which is how `mdex_native` has always spelled a
-/// theme in `{:html_inline, theme: "onedark"}`. The tagged forms `{:string,
-/// name}` and `{:theme, theme}` keep working.
+/// `{:string, name}` or `{:theme, theme}`: the shape `Lumis.rust_options!/1`
+/// produces. Both NIFs send their options through that function, so this is
+/// the only spelling on the wire and the only one decoded here.
 impl<'a> rustler::Decoder<'a> for ThemeOrString {
     fn decode(term: rustler::Term<'a>) -> rustler::NifResult<Self> {
-        if let Ok(name) = String::decode(term) {
-            return Ok(Self::String(name));
-        }
-
         let (kind, value): (rustler::Atom, rustler::Term<'a>) = term.decode()?;
         let env = term.get_env();
 
