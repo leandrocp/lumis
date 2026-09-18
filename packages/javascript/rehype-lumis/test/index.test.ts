@@ -217,6 +217,31 @@ describe("rehype-lumis", () => {
       expect(code.properties.tabIndex).toBe(7);
       expect(code.properties.translate).toBe(true);
     });
+
+    it("preserves and normalizes string-valued classes", async () => {
+      let formattedLanguage: string | undefined;
+      const transform = rehypeLumis({
+        formatter: (language) => {
+          formattedLanguage = language;
+          return htmlInline({ language, theme: dracula });
+        },
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        codeProperties: { className: "language-javascript copy-target" },
+        preProperties: { className: "lumis overflow-auto" },
+      });
+
+      await transform(tree);
+
+      expect(formattedLanguage).toBe("javascript");
+
+      const pre = assertLumisPreElement(tree);
+      expect(classNames(pre)).toEqual(["lumis", "overflow-auto"]);
+
+      const code = findElements(tree, "code")[0];
+      expect(classNames(code)).toEqual(["language-javascript", "copy-target"]);
+    });
   });
 
   describe("htmlLinked formatter", () => {

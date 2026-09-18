@@ -30,6 +30,7 @@ npm install @lumis-sh/lumis @lumis-sh/themes
 import {defineConfig} from 'vite'
 import lumis from '@lumis-sh/vite-plugin-lumis'
 import {htmlMultiThemes} from '@lumis-sh/lumis/formatters'
+import html from '@lumis-sh/lumis/langs/html'
 import javascript from '@lumis-sh/lumis/langs/javascript'
 import githubDark from '@lumis-sh/themes/github_dark'
 import githubLight from '@lumis-sh/themes/github_light'
@@ -37,7 +38,7 @@ import githubLight from '@lumis-sh/themes/github_light'
 export default defineConfig({
   plugins: [
     lumis({
-      languages: [javascript],
+      languages: [html, javascript],
       formatter: (language) =>
         htmlMultiThemes({
           language,

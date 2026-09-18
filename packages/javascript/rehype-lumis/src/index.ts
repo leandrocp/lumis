@@ -25,13 +25,20 @@ function getPropertyString(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
-function getClassNames(node: Element): string[] {
-  const className = node.properties.className;
-  if (!Array.isArray(className)) {
+function propertyClassNames(value: unknown): string[] {
+  if (typeof value === "string") {
+    return value.split(/\s+/).filter(Boolean);
+  }
+
+  if (!Array.isArray(value)) {
     return [];
   }
 
-  return className.filter((value): value is string => typeof value === "string");
+  return value.filter((entry): entry is string => typeof entry === "string");
+}
+
+function getClassNames(node: Element): string[] {
+  return propertyClassNames(node.properties.className);
 }
 
 function getLanguageFromClassNames(node: Element): string | undefined {
@@ -69,14 +76,6 @@ function parseCodeBlock(node: Element): ParsedCodeBlock | undefined {
 
 function parseFragment(html: string): RootContent[] {
   return fromHtml(html, { fragment: true }).children;
-}
-
-function propertyClassNames(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.filter((entry): entry is string => typeof entry === "string");
 }
 
 function mergedStyle(generated: unknown, authored: unknown): string | undefined {
