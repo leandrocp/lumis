@@ -11,8 +11,6 @@
 // Current local deltas:
 // - `HighlightEvent::HighlightStart` carries `language: String`
 // - `String::from_utf8_lossy` is used where upstream uses newer tree-sitter helpers
-// - Query matches use Tree-sitter 0.27's public captures accessor while retaining this
-//   vendored file's local control-flow changes.
 // - Only exclude named children from injections like nvim (https://github.com/leandrocp/lumis/issues/429)
 // - `#offset!` is applied to injection ranges and highlight capture ranges, which upstream
 //   ignores entirely. nvim-treesitter queries rely on it to strip delimiters (backticks,
@@ -1207,7 +1205,7 @@ impl<'a> HighlightIterLayer<'a> {
         let next_start = self
             .captures
             .peek()
-            .map(|(m, i)| m.captures()[*i].node.start_byte());
+            .map(|(m, i)| m.captures[*i].node.start_byte());
         let next_end = self.highlight_end_stack.last().copied();
         match (next_start, next_end) {
             (Some(start), Some(end)) => {
@@ -1333,7 +1331,7 @@ where
             let range;
             let layer = &mut self.layers[0];
             if let Some((next_match, capture_index)) = layer.captures.peek() {
-                let next_capture = next_match.captures()[*capture_index];
+                let next_capture = next_match.captures[*capture_index];
                 // Neovim's highlighter resolves a capture's range through `get_range`, so
                 // `#offset!` narrows the highlighted span too, not just injections.
                 range = layer
@@ -1370,7 +1368,7 @@ where
             }
 
             let (mut match_, capture_index) = layer.captures.next().unwrap();
-            let mut capture = match_.captures()[capture_index];
+            let mut capture = match_.captures[capture_index];
 
             // If this capture represents an injection, then process the injection.
             if match_.pattern_index < layer.config.locals_pattern_index {
@@ -1468,7 +1466,7 @@ where
                     let scope = layer.scope_stack.last_mut().unwrap();
 
                     let mut value_range = 0..0;
-                    for capture in match_.captures() {
+                    for capture in match_.captures {
                         if Some(capture.index) == layer.config.local_def_value_capture_index {
                             value_range = capture.node.byte_range();
                         }
@@ -1511,7 +1509,7 @@ where
 
                 // Continue processing any additional matches for the same node.
                 if let Some((next_match, next_capture_index)) = layer.captures.peek() {
-                    let next_capture = next_match.captures()[*next_capture_index];
+                    let next_capture = next_match.captures[*next_capture_index];
                     if next_capture.node == capture.node {
                         capture = next_capture;
                         match_ = layer.captures.next().unwrap().0;
@@ -1539,7 +1537,7 @@ where
             // captures are guaranteed to be for highlighting, not injections or
             // local variables.
             while let Some((next_match, next_capture_index)) = layer.captures.peek() {
-                let next_capture = next_match.captures()[*next_capture_index];
+                let next_capture = next_match.captures[*next_capture_index];
                 if next_capture.node == capture.node {
                     let following_match = layer.captures.next().unwrap().0;
                     // If the current node was found to be a local variable, then ignore
@@ -1783,7 +1781,7 @@ fn injection_for_match<'a>(
     let mut filename_language: Option<&'static str> = None;
     let mut content_node = None;
 
-    for capture in query_match.captures() {
+    for capture in query_match.captures {
         let index = Some(capture.index);
         if index == language_capture_index {
             language_name = capture.node.utf8_text(source).ok();

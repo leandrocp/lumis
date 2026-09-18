@@ -1113,7 +1113,7 @@ mod tests {
     #[test]
     fn render_lines_from_events_and_the_html_pass_split_alike() {
         for source in ["", "one", "one\n", "one\ntwo", "one\r\ntwo", "one\rtwo"] {
-            let events = [HighlightEvent::<()>::Source {
+            let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source {
                 start: 0,
                 end: source.len(),
             }];
@@ -1144,8 +1144,8 @@ mod tests {
     #[test]
     fn html_lines_write_source_endings_after_the_syntax_spans() {
         let source = "a\r\nb";
-        let events = [
-            HighlightEvent::<()>::Start {
+        let events: [HighlightEvent<'_, ()>; 3] = [
+            HighlightEvent::Start {
                 scope_index: 0,
                 language: "text".to_string(),
             },

@@ -415,7 +415,7 @@ mod tests {
     #[test]
     fn a_trailing_newline_opens_one_more_line() {
         let source = "a\n";
-        let events = [HighlightEvent::<()>::Source { start: 0, end: 2 }];
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 2 }];
 
         let composed = compose_line_decorations(source, &events, &LineSelection::default());
 
@@ -426,7 +426,7 @@ mod tests {
     #[test]
     fn source_events_still_reproduce_the_source() {
         let source = "one\ntwo\nthree";
-        let events = [HighlightEvent::<()>::Source {
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source {
             start: 0,
             end: source.len(),
         }];
@@ -441,8 +441,8 @@ mod tests {
     #[test]
     fn a_scope_crossing_a_newline_is_closed_and_reopened() {
         let source = "a\nb";
-        let events = [
-            HighlightEvent::<()>::Start {
+        let events: [HighlightEvent<'_, ()>; 3] = [
+            HighlightEvent::Start {
                 scope_index: 1,
                 language: "rust".to_string(),
             },
@@ -509,7 +509,7 @@ mod tests {
 
     #[test]
     fn an_unbalanced_stream_still_closes_before_the_last_line_ends() {
-        let events = [HighlightEvent::<()>::Start {
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Start {
             scope_index: 1,
             language: "rust".to_string(),
         }];
@@ -530,7 +530,7 @@ mod tests {
     #[test]
     fn composing_twice_gives_the_same_stream() {
         let source = "a\nb\n";
-        let events = [HighlightEvent::<()>::Source { start: 0, end: 4 }];
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 4 }];
 
         let once = compose_line_decorations(source, &events, &selection(std::iter::once(1..=1)));
         let twice = compose_line_decorations(source, &once, &selection(std::iter::once(1..=1)));
