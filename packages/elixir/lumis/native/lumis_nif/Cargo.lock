@@ -724,8 +724,7 @@ checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 [[package]]
 name = "lumis-core"
 version = "2.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b86aa67672256aa5dc91681d78f98b52dd3af7daae28c631673e98db8440596d"
+source = "git+https://github.com/leandrocp/lumis?rev=f1a621981e8e3b06127e25cd7febcded29c0a8af#f1a621981e8e3b06127e25cd7febcded29c0a8af"
 dependencies = [
  "derive_builder",
  "glob",
@@ -733,6 +732,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "regex",
+ "rustler",
  "serde",
  "serde_json",
  "syn 3.0.3",
@@ -744,8 +744,7 @@ dependencies = [
 [[package]]
 name = "lumis-wasm-runtime"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b19dfdab518688ba8605277e74d210af62c67d59b515e678507cf74d21dfd82e"
+source = "git+https://github.com/leandrocp/lumis?rev=f1a621981e8e3b06127e25cd7febcded29c0a8af#f1a621981e8e3b06127e25cd7febcded29c0a8af"
 dependencies = [
  "etcetera",
  "lumis-core",

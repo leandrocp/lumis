@@ -35,12 +35,14 @@
 +--------------------------------------------------------------+
 | lumis-core (Rust crate)                                      |
 | language detection + theme/style logic + formatter behavior  |
+| `rustler` feature: Elixir option decoders both NIFs share    |
 +-----------------------------+--------------------------------+
                               |
                               v
 +--------------------------+   +---------------------------------------------------+
 | lumis (Rust crate)       |   | lumis-wasm-runtime                                |
 | native parser features   |   | resolve + verify + cache + one-pass highlighting  |
+|                          |   | + Executor: worker pool for small-stack hosts     |
 +--------------------------+   +----+-------------------+----------------------+---+
                                     |                   |                      |
                                     v                   v                      v
@@ -217,6 +219,23 @@ In Elixir it is cheaper still, because loading is global to the VM. One
 `Runtime` lives in the NIF, so the first process to need a language pays, and
 every process after it does not.
 
+That `Runtime` is not driven from the calling thread. Nested injections recurse
+once per layer, and a BEAM dirty scheduler's stack overflows rather than
+erroring, taking the emulator with it. `lumis_wasm_runtime::Executor` owns a
+pool sized to the machine with 8 MiB stacks and answers load and highlight
+requests on it. Any host with a small calling stack wants that pool, so it is
+in the runtime crate rather than in one binding, where the Elixir NIF, the
+Node addon and the CLI can each own one. `mdex_native` is the host that does not
+own one: it reaches the Elixir NIF's executor through the `MDExBridgeV1` dynamic
+resource instead of embedding a second runtime, and that resource's layout is
+frozen once released.
+
+Two more things follow the same rule. `runtime_with_catalog` builds a `Runtime`
+that knows every catalog language by id and alias, which the CLI, the Node
+addon and the NIF each used to spell out. And `lumis-core`'s `rustler` feature
+holds the `Ex*` decoders for the Elixir option surface, so the BEAM wire format
+has one definition instead of one per NIF.
+
 Browsers are the exception. `web-tree-sitter` loads asynchronously, so a parser
 cannot be fetched inside a synchronous walk; an injected language has to be
 loaded before the document mentioning it. Node runs the native addon
@@ -231,6 +250,12 @@ from its asynchronous fetch path, so its small TypeScript adapter consumes the
 same generated range and uses npm's `semver` package for the same check. The
 portable Node fallback uses that browser implementation. Cross-runtime package
 fixtures pin both implementations to the same manifest contract.
+
+`Lumis.Application` resolves the Elixir directory at boot and pushes it into
+the NIF, so it is not discoverable from the environment alone; `Lumis.data_dir/0`
+reads the resolved value back out. A library embedding Lumis alongside the
+Elixir package asks that function instead of re-deriving the path, which is what
+keeps both on one store rather than downloading every parser twice.
 
 Everything a runtime persists lives under one directory, named by
 `LUMIS_DATA_DIR`: `parsers/` for language packages and parser WASM, `themes/`

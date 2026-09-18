@@ -1,24 +1,22 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::io::Write;
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::Mutex;
 use std::thread;
 
-mod elixir;
-
 use anyhow::{anyhow, Context, Result};
-use elixir::{
+use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
+use lumis_core::elixir::{
     line_specs_contain, ExCssOptions, ExFormatterOption, ExLineSpec, ExStyle, ExTextDecoration,
     ExTheme,
 };
-use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
 use lumis_core::events::HighlightEvent;
 use lumis_core::formatter::Formatter;
 use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
-use lumis_wasm_runtime::{catalog, store, Runtime, RuntimeError};
+use lumis_wasm_runtime::{catalog, store, Executor, LoadFailure, RuntimeError};
 use parking_lot::RwLock;
-use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
+use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Resource, ResourceArc, Term};
 
 /// Lazy per-theme cache to eliminate repeated allocations.
 /// Themes are converted and cached on first access, amortizing the cost.
@@ -27,40 +25,20 @@ static THEME_CACHE: std::sync::LazyLock<RwLock<HashMap<String, ExTheme>>> =
 
 // `LazyLock::get`, which `configure_store` needs, is newer than the MSRV.
 #[allow(clippy::non_std_lazy_statics)]
-static EXECUTOR: Lazy<Result<WasmExecutor>> = Lazy::new(WasmExecutor::new);
+static EXECUTOR: Lazy<Result<Executor>> = Lazy::new(|| {
+    Executor::new(language_store(None)).context("could not start the Lumis WASM executor")
+});
 static CACHE_BATCH: std::sync::LazyLock<parking_lot::Mutex<()>> =
     std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
 static PRECOMPILE_BATCH: std::sync::LazyLock<parking_lot::Mutex<()>> =
     std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
 
-enum WasmJob {
-    LoadNamed {
-        name: String,
-        reply: mpsc::SyncSender<Result<(), RuntimeError>>,
-    },
-    Highlight {
-        source: String,
-        language: String,
-        rainbow_brackets: bool,
-        reply: mpsc::SyncSender<Result<Vec<HighlightEvent<'static>>, RuntimeError>>,
-    },
-}
-
-/// Why a load failed, at the granularity Elixir matches on.
-///
-/// A caller decides between "I typed the name wrong" and "it could not be
-/// obtained"; the detail behind the second is not something a `case` can act on.
-enum LoadFailure {
-    UnknownLanguage,
-    Parser,
-}
-
-impl Encoder for LoadFailure {
-    fn encode<'a>(&self, env: Env<'a>) -> Term<'a> {
-        match self {
-            Self::UnknownLanguage => unknown_language().encode(env),
-            Self::Parser => failed_to_load_parser().encode(env),
-        }
+/// `LoadFailure` belongs to the runtime crate, so the atom mapping lives at the
+/// boundary rather than as an orphan `Encoder`.
+fn load_failure_atom(failure: LoadFailure) -> rustler::Atom {
+    match failure {
+        LoadFailure::UnknownLanguage => unknown_language(),
+        LoadFailure::Parser => failed_to_load_parser(),
     }
 }
 
@@ -84,103 +62,6 @@ fn language_store(cache_dir: Option<std::path::PathBuf>) -> store::LanguageStore
         store::StoreConfig { cache_dir },
         Box::new(store::HttpFetcher),
     )
-}
-
-struct WasmExecutor {
-    runtime: Arc<Runtime>,
-    sender: mpsc::SyncSender<WasmJob>,
-}
-
-impl WasmExecutor {
-    fn new() -> Result<Self> {
-        // Sized to the machine, not capped. These threads exist for their 8 MiB
-        // stacks: nested injections recurse per layer and overflow the BEAM
-        // dirty-scheduler default, which crashes the VM rather than erroring.
-        let workers = thread::available_parallelism().map_or(1, usize::from);
-        let runtime = thread::Builder::new()
-            .name("lumis-wasm-init".into())
-            .stack_size(8 * 1024 * 1024)
-            .spawn(move || -> Result<Runtime, RuntimeError> {
-                let runtime = Runtime::with_worker_limit(workers)?.with_store(language_store(None));
-                for language in catalog::LANGUAGES {
-                    runtime.declare_language(language.id, language.aliases);
-                }
-                Ok(runtime)
-            })
-            .context("could not spawn the Lumis WASM runtime initializer")?
-            .join()
-            .map_err(|_| anyhow!("Lumis WASM runtime initialization panicked"))??;
-        let runtime = Arc::new(runtime);
-        let (sender, receiver) = mpsc::sync_channel::<WasmJob>(workers * 2);
-        let receiver = Arc::new(Mutex::new(receiver));
-
-        for index in 0..workers {
-            let runtime = Arc::clone(&runtime);
-            let receiver = Arc::clone(&receiver);
-            thread::Builder::new()
-                .name(format!("lumis-wasm-{index}"))
-                .stack_size(8 * 1024 * 1024)
-                .spawn(move || loop {
-                    let Ok(job) = receiver.lock().expect("executor lock poisoned").recv() else {
-                        return;
-                    };
-                    match job {
-                        WasmJob::LoadNamed { name, reply } => {
-                            let _ = reply.send(runtime.load_named_language(&name));
-                        }
-                        WasmJob::Highlight {
-                            source,
-                            language,
-                            rainbow_brackets,
-                            reply,
-                        } => {
-                            let _ =
-                                reply.send(runtime.highlight(&source, &language, rainbow_brackets));
-                        }
-                    }
-                })
-                .with_context(|| format!("could not spawn Lumis WASM worker {index}"))?;
-        }
-
-        Ok(Self { runtime, sender })
-    }
-
-    /// Resolving a language does a TLS handshake, which needs far more stack
-    /// than a BEAM dirty scheduler has; run it on the executor's own threads.
-    fn load_named_language(&self, name: &str) -> Result<(), LoadFailure> {
-        let (reply, result) = mpsc::sync_channel(1);
-        self.sender
-            .send(WasmJob::LoadNamed {
-                name: name.to_string(),
-                reply,
-            })
-            .map_err(|_| LoadFailure::Parser)?;
-        match result.recv().map_err(|_| LoadFailure::Parser)? {
-            Ok(()) => Ok(()),
-            Err(RuntimeError::LanguageNotLoaded(_)) => Err(LoadFailure::UnknownLanguage),
-            Err(_) => Err(LoadFailure::Parser),
-        }
-    }
-
-    fn highlight(
-        &self,
-        source: &str,
-        language: &str,
-        rainbow_brackets: bool,
-    ) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
-        let (reply, result) = mpsc::sync_channel(1);
-        self.sender
-            .send(WasmJob::Highlight {
-                source: source.to_string(),
-                language: language.to_string(),
-                rainbow_brackets,
-                reply,
-            })
-            .map_err(|_| RuntimeError::Highlight("WASM executor is unavailable".into()))?;
-        result.recv().map_err(|_| {
-            RuntimeError::Highlight("WASM executor stopped before highlighting".into())
-        })?
-    }
 }
 
 rustler::atoms! {
@@ -503,7 +384,7 @@ fn decode_position(term: Term<'_>) -> NifResult<Position> {
     Ok(Position::new(line, column))
 }
 
-fn executor() -> Result<&'static WasmExecutor> {
+fn executor() -> Result<&'static Executor> {
     EXECUTOR.as_ref().map_err(|error| anyhow!("{error:#}"))
 }
 
@@ -524,6 +405,18 @@ fn configure_store(data_dir: Option<String>) -> bool {
     true
 }
 
+/// The directory the store actually resolved to.
+///
+/// `Lumis.Application` decides this, and a second library embedding Lumis has
+/// to reach the same store or the same parser is downloaded and compiled twice.
+/// One resolve, readable by anyone who needs it.
+#[rustler::nif]
+fn data_dir() -> String {
+    store::resolve_data_dir(STORE_PATHS.read().data_dir.clone())
+        .to_string_lossy()
+        .into_owned()
+}
+
 /// Resolve, download, verify and load `name` through the shared store.
 ///
 /// Elixir no longer fetches anything: this is the same path the CLI takes, so
@@ -535,7 +428,7 @@ fn load_language_by_name<'a>(env: Env<'a>, name: &str) -> Term<'a> {
         .and_then(|runtime| runtime.load_named_language(name));
     match result {
         Ok(()) => ok().encode(env),
-        Err(failure) => (error(), failure).encode(env),
+        Err(failure) => (error(), load_failure_atom(failure)).encode(env),
     }
 }
 
@@ -602,16 +495,16 @@ fn cache_languages(env: Env<'_>, names: Vec<String>, force: bool) -> Term<'_> {
 /// order.
 #[rustler::nif(schedule = "DirtyCpu")]
 fn precompile_languages(env: Env<'_>, names: Vec<String>) -> Term<'_> {
+    let count = names.len();
     let executor = match executor() {
         Ok(executor) => executor,
-        Err(error) => return repeated_failure(env, &format!("{error:#}"), names.len()),
+        Err(error) => return repeated_failure(env, &format!("{error:#}"), count),
     };
 
     let results = on_deep_stack(|| {
         let _batch = PRECOMPILE_BATCH.lock();
         executor
-            .runtime
-            .precompile_languages(&names, lumis_wasm_runtime::compile_concurrency())
+            .precompile_languages(names, lumis_wasm_runtime::compile_concurrency())
             .into_iter()
             .map(|result| result.map_err(|failure| failure.to_string()))
             .collect::<Vec<_>>()
@@ -626,7 +519,7 @@ fn precompile_languages(env: Env<'_>, names: Vec<String>) -> Term<'_> {
             })
             .collect::<Vec<_>>()
             .encode(env),
-        Err(error) => repeated_failure(env, &format!("{error:#}"), names.len()),
+        Err(error) => repeated_failure(env, &format!("{error:#}"), count),
     }
 }
 
@@ -647,13 +540,13 @@ fn guess_language(name: Option<&str>, source: &str) -> &'static str {
 
 #[rustler::nif]
 fn has_language(name: &str) -> bool {
-    executor().is_ok_and(|executor| executor.runtime.has_language(name))
+    executor().is_ok_and(|executor| executor.has_language(name))
 }
 
 #[rustler::nif]
 fn loaded_languages() -> Vec<String> {
     executor()
-        .map(|executor| executor.runtime.loaded_languages())
+        .map(Executor::loaded_languages)
         .unwrap_or_default()
 }
 
@@ -1190,5 +1083,307 @@ mod tests {
             !events.is_empty(),
             "highlighting an Elixir module produced no events"
         );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// MDEx bridge
+//
+// `mdex_native` highlights code fences with Lumis but must not link a second
+// copy of the engine. It reaches this one through `enif_dynamic_resource_call`,
+// which carries only plain C types: neither NIF can see the other's Rust.
+//
+// Events are pushed to a sink the caller owns, so nothing allocated here is
+// freed there. `HighlightCall` and `EventC` are spelled identically on both
+// sides. Their V1 layouts are frozen from the first Lumis release that ships
+// this resource: after that, a different layout gets a different resource and
+// function name rather than reusing `MDExBridgeV1`. Until then, any change to
+// either struct also bumps `BRIDGE_ABI`, so a stale local build fails loudly
+// instead of misreading events.
+// ---------------------------------------------------------------------------
+
+/// Identifies a valid V1 call; it does not negotiate a different struct layout.
+const BRIDGE_ABI: u32 = 1;
+
+const EVENT_START: u8 = 0;
+const EVENT_SOURCE: u8 = 1;
+const EVENT_END: u8 = 2;
+
+const STATUS_OK: i32 = 0;
+const STATUS_LANGUAGE_NOT_LOADED: i32 = 1;
+const STATUS_ERROR: i32 = 2;
+const STATUS_ABI_MISMATCH: i32 = 3;
+const STATUS_PANIC: i32 = 4;
+
+#[repr(C)]
+pub struct EventC {
+    pub kind: u8,
+    /// Borrowed for the duration of the sink call.
+    pub scope: *const u8,
+    pub scope_len: usize,
+    pub start: usize,
+    pub end: usize,
+    /// Borrowed for the duration of the sink call.
+    pub language: *const u8,
+    pub language_len: usize,
+}
+
+#[repr(C)]
+pub struct HighlightCall {
+    pub abi: u32,
+    pub source: *const u8,
+    pub source_len: usize,
+    pub language: *const u8,
+    pub language_len: usize,
+    /// `0` or `1`. A `u8` rather than `bool` so that no byte the caller could
+    /// write is an invalid value on this side of the boundary.
+    pub rainbow_brackets: u8,
+    pub sink: Option<unsafe extern "C" fn(*mut std::ffi::c_void, EventC)>,
+    pub sink_ctx: *mut std::ffi::c_void,
+    pub status: i32,
+    /// Borrowed until this thread's next bridge call. Copy it before then.
+    pub error: *const u8,
+    pub error_len: usize,
+}
+
+thread_local! {
+    /// Keeps the reason alive after `dyncall` returns, since the caller reads
+    /// it once `enif_dynamic_resource_call` has handed control back.
+    static LAST_ERROR: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+}
+
+pub struct HighlightBridge;
+
+#[rustler::resource_impl(name = "MDExBridgeV1")]
+impl Resource for HighlightBridge {
+    const IMPLEMENTS_DYNCALL: bool = true;
+
+    /// # Safety
+    /// `call_data` must point at the V1 `HighlightCall` layout this build was
+    /// compiled against. Other layouts must use a differently named dynamic
+    /// resource.
+    unsafe fn dyncall<'a>(&'a self, _env: Env<'a>, call_data: *mut std::ffi::c_void) {
+        // Unwinding across `extern "C"` is undefined behaviour, and rustler's
+        // dyncall shim does not catch for us.
+        let caught = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            bridge_highlight(call_data.cast::<HighlightCall>());
+        }));
+
+        if caught.is_err() {
+            let call = &mut *call_data.cast::<HighlightCall>();
+            call.status = STATUS_PANIC;
+            set_error(call, "Lumis panicked while highlighting");
+        }
+    }
+}
+
+unsafe fn bridge_highlight(call: *mut HighlightCall) {
+    let call = &mut *call;
+
+    if call.abi != BRIDGE_ABI {
+        call.status = STATUS_ABI_MISMATCH;
+        set_error(call, "mdex bridge ABI mismatch");
+        return;
+    }
+
+    let Some(sink) = call.sink else {
+        call.status = STATUS_ERROR;
+        set_error(call, "mdex bridge called without a sink");
+        return;
+    };
+
+    let Some(source) = borrowed_str(call.source, call.source_len) else {
+        call.status = STATUS_ERROR;
+        set_error(call, "mdex bridge source is not UTF-8");
+        return;
+    };
+    let Some(language) = borrowed_str(call.language, call.language_len) else {
+        call.status = STATUS_ERROR;
+        set_error(call, "mdex bridge language is not UTF-8");
+        return;
+    };
+    let executor = match executor() {
+        Ok(executor) => executor,
+        Err(reason) => {
+            call.status = STATUS_ERROR;
+            set_error(call, &format!("{reason:#}"));
+            return;
+        }
+    };
+
+    match executor.highlight(source, language, call.rainbow_brackets != 0) {
+        Ok(events) => {
+            // Variants a code fence has no use for are skipped, not sent as a
+            // close: an unmatched `End` would unbalance the consumer's scopes.
+            for event in events.iter().filter_map(event_to_c) {
+                sink(call.sink_ctx, event);
+            }
+            call.status = STATUS_OK;
+            call.error = std::ptr::null();
+            call.error_len = 0;
+        }
+        Err(RuntimeError::LanguageNotLoaded(language)) => {
+            call.status = STATUS_LANGUAGE_NOT_LOADED;
+            set_error(call, &language);
+        }
+        Err(runtime_error) => {
+            call.status = STATUS_ERROR;
+            set_error(call, &runtime_error.to_string());
+        }
+    }
+}
+
+/// `None` for the variants a raw highlight never produces (annotations and
+/// decorations belong to formatters); the caller skips those.
+fn event_to_c(event: &HighlightEvent<'_>) -> Option<EventC> {
+    let mut out = EventC {
+        kind: EVENT_END,
+        scope: std::ptr::null(),
+        scope_len: 0,
+        start: 0,
+        end: 0,
+        language: std::ptr::null(),
+        language_len: 0,
+    };
+
+    match event {
+        HighlightEvent::Start {
+            scope_index,
+            language,
+        } => {
+            // An index this table does not have is sent as a null name, which
+            // the consumer treats as unknown. It is not sent as `""`, so the
+            // two cases stay distinguishable on the other side.
+            if let Some(scope) = lumis_core::highlights::HIGHLIGHT_NAMES.get(*scope_index) {
+                out.scope = scope.as_ptr();
+                out.scope_len = scope.len();
+            }
+            out.kind = EVENT_START;
+            out.language = language.as_ptr();
+            out.language_len = language.len();
+        }
+        HighlightEvent::Source { start, end } => {
+            out.kind = EVENT_SOURCE;
+            out.start = *start;
+            out.end = *end;
+        }
+        HighlightEvent::End => {}
+        _ => return None,
+    }
+
+    Some(out)
+}
+
+unsafe fn borrowed_str<'a>(ptr: *const u8, len: usize) -> Option<&'a str> {
+    if ptr.is_null() {
+        return None;
+    }
+    std::str::from_utf8(std::slice::from_raw_parts(ptr, len)).ok()
+}
+
+/// Runs on the panic path too, so it must not be able to panic itself: a
+/// borrow that is somehow already held leaves the reason unset rather than
+/// unwinding out of `dyncall`.
+fn set_error(call: &mut HighlightCall, reason: &str) {
+    call.error = std::ptr::null();
+    call.error_len = 0;
+
+    LAST_ERROR.with(|last| {
+        if let Ok(mut last) = last.try_borrow_mut() {
+            last.clear();
+            last.push_str(reason);
+            call.error = last.as_ptr();
+            call.error_len = last.len();
+        }
+    });
+}
+
+/// Hands `mdex_native` the resource it calls back through.
+#[rustler::nif]
+fn mdex_bridge_v1() -> ResourceArc<HighlightBridge> {
+    ResourceArc::new(HighlightBridge)
+}
+
+#[cfg(test)]
+mod bridge_tests {
+    use super::{borrowed_str, event_to_c, EventC, HighlightCall, HighlightEvent, BRIDGE_ABI};
+    use std::mem::{offset_of, size_of};
+
+    #[test]
+    fn start_events_cross_the_bridge_by_scope_name() {
+        let scope_index = lumis_core::highlights::HIGHLIGHT_NAMES
+            .binary_search(&"function")
+            .unwrap();
+        let event = HighlightEvent::Start {
+            scope_index,
+            language: "elixir".to_string(),
+        };
+
+        let event = event_to_c(&event).expect("a Start event crosses");
+        let scope = unsafe { borrowed_str(event.scope, event.scope_len) };
+        let language = unsafe { borrowed_str(event.language, event.language_len) };
+
+        assert_eq!(scope, Some("function"));
+        assert_eq!(language, Some("elixir"));
+    }
+
+    #[test]
+    fn an_index_outside_this_table_crosses_as_a_null_name() {
+        let event = HighlightEvent::Start {
+            scope_index: usize::MAX,
+            language: "elixir".to_string(),
+        };
+
+        let event = event_to_c(&event).expect("a Start event crosses");
+
+        assert!(event.scope.is_null());
+        assert_eq!(event.scope_len, 0);
+    }
+
+    #[test]
+    fn formatter_side_variants_do_not_cross() {
+        assert!(event_to_c(&HighlightEvent::AnnotationEnd).is_none());
+    }
+
+    #[test]
+    fn v1_layout_is_frozen() {
+        assert_eq!(BRIDGE_ABI, 1);
+
+        let event_layout = [
+            size_of::<EventC>(),
+            offset_of!(EventC, kind),
+            offset_of!(EventC, scope),
+            offset_of!(EventC, scope_len),
+            offset_of!(EventC, start),
+            offset_of!(EventC, end),
+            offset_of!(EventC, language),
+            offset_of!(EventC, language_len),
+        ];
+        let call_layout = [
+            size_of::<HighlightCall>(),
+            offset_of!(HighlightCall, abi),
+            offset_of!(HighlightCall, source),
+            offset_of!(HighlightCall, source_len),
+            offset_of!(HighlightCall, language),
+            offset_of!(HighlightCall, language_len),
+            offset_of!(HighlightCall, rainbow_brackets),
+            offset_of!(HighlightCall, sink),
+            offset_of!(HighlightCall, sink_ctx),
+            offset_of!(HighlightCall, status),
+            offset_of!(HighlightCall, error),
+            offset_of!(HighlightCall, error_len),
+        ];
+
+        #[cfg(target_pointer_width = "64")]
+        {
+            assert_eq!(event_layout, [56, 0, 8, 16, 24, 32, 40, 48]);
+            assert_eq!(call_layout, [88, 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80]);
+        }
+
+        #[cfg(target_pointer_width = "32")]
+        {
+            assert_eq!(event_layout, [28, 0, 4, 8, 12, 16, 20, 24]);
+            assert_eq!(call_layout, [44, 0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40]);
+        }
     }
 }

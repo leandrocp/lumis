@@ -1,9 +1,14 @@
-use lumis_core::formatter::{
+//! Elixir-facing decoders for the Lumis option surface.
+//!
+//! Both `lumis_nif` and `mdex_native_nif` decode the same option maps from the
+//! BEAM. One copy lives here so the wire format cannot drift between them.
+
+use crate::formatter::{
     bbcode, html::SteppedLineRange, html_inline, html_linked, terminal, BBCodeScopedBuilder,
     Formatter, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder,
     TerminalBackground, TerminalBuilder,
 };
-use lumis_core::{languages::Language, themes};
+use crate::{languages::Language, themes};
 use rustler::{NifMap, NifStruct, NifTaggedEnum, NifUnitEnum};
 use std::collections::HashMap;
 
@@ -14,7 +19,7 @@ pub enum ExAppearance {
     Dark,
 }
 
-#[derive(Debug, NifTaggedEnum)]
+#[derive(Clone, Debug, NifTaggedEnum)]
 pub enum ExFormatterOption {
     HtmlInline {
         theme: Option<ThemeOrString>,
@@ -50,7 +55,7 @@ pub enum ExFormatterOption {
     },
 }
 
-#[derive(Debug, NifTaggedEnum)]
+#[derive(Clone, Debug, NifTaggedEnum)]
 pub enum ExTerminalBackground {
     Theme,
     String(String),
@@ -69,10 +74,43 @@ impl Default for ExFormatterOption {
     }
 }
 
-#[derive(Debug, NifTaggedEnum)]
+#[derive(Clone, Debug)]
 pub enum ThemeOrString {
     Theme(ExTheme),
     String(String),
+}
+
+/// `{:string, name}` or `{:theme, theme}`: the shape `Lumis.rust_options!/1`
+/// produces. Both NIFs send their options through that function, so this is
+/// the only spelling on the wire and the only one decoded here.
+impl<'a> rustler::Decoder<'a> for ThemeOrString {
+    fn decode(term: rustler::Term<'a>) -> rustler::NifResult<Self> {
+        let (kind, value): (rustler::Atom, rustler::Term<'a>) = term.decode()?;
+        let env = term.get_env();
+
+        if kind == rustler::Atom::from_str(env, "string")? {
+            return Ok(Self::String(value.decode()?));
+        }
+
+        if kind == rustler::Atom::from_str(env, "theme")? {
+            return Ok(Self::Theme(value.decode()?));
+        }
+
+        Err(rustler::Error::BadArg)
+    }
+}
+
+impl rustler::Encoder for ThemeOrString {
+    fn encode<'a>(&self, env: rustler::Env<'a>) -> rustler::Term<'a> {
+        match self {
+            Self::Theme(theme) => {
+                (rustler::Atom::from_str(env, "theme").unwrap(), theme).encode(env)
+            }
+            Self::String(name) => {
+                (rustler::Atom::from_str(env, "string").unwrap(), name).encode(env)
+            }
+        }
+    }
 }
 
 impl Default for ThemeOrString {
@@ -119,7 +157,7 @@ fn convert_line_specs(
     (contiguous, stepped)
 }
 
-pub(crate) fn line_specs_contain(lines: &[ExLineSpec], line_number: usize) -> bool {
+pub fn line_specs_contain(lines: &[ExLineSpec], line_number: usize) -> bool {
     lines.iter().any(|line| {
         line.to_stepped_line_range()
             .is_some_and(|range| range.contains(line_number))
@@ -569,7 +607,7 @@ pub struct ExBBCodeHighlightLines {
 }
 
 #[derive(Clone, Debug, NifMap)]
-pub(crate) struct ExCssOptions {
+pub struct ExCssOptions {
     pub enable_italic: bool,
     pub scope: String,
     pub container_selector: String,
