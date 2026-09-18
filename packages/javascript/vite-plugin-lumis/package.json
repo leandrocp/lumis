@@ -44,7 +44,8 @@
     "@lumis-sh/rehype-lumis": "workspace:^",
     "hast-util-from-html": "^2.0.3",
     "hast-util-to-html": "^9.0.5",
-    "unified": "^11.0.5"
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@lumis-sh/lumis": "workspace:^",

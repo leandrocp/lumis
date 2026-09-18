@@ -90,10 +90,11 @@ Authored attributes on both `<pre>` and `<code>` survive highlighting. Classes a
 authored styles are appended to Lumis styles, and authored values win for attributes such as
 `id`, `role`, `aria-*`, `data-*`, `translate`, and `tabindex`.
 
-An HTML entry point with no `<pre>` element at all is returned byte for byte. Everything else is
-parsed and reserialized, which normalizes the markup the way a browser would: bare entry HTML
-gains `<html>`, `<head>` and `<body>`, attribute values gain quotes, and character references are
-rewritten.
+Everything outside a highlighted block is returned byte for byte. The plugin parses the document
+to locate the blocks, then splices the highlighted HTML into the original source at their offsets
+instead of reserializing the tree, the same way Vite applies its own HTML edits. So your doctype
+spelling, unquoted attributes, character references, and any `<%= … %>` left for a templating
+plugin to fill in all reach the next plugin untouched.
 
 ## Framework projects
 

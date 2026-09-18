@@ -103,10 +103,9 @@ describe("vite-plugin-lumis", () => {
     const html =
       '<!doctype html><pre>no code child</pre><main><code data-language="plaintext">inline</code></main>';
 
-    const result = await transformHtml(createPlugin(), html);
+    const result = await runTransform(createPlugin(), html);
 
-    expect(result).toContain('<main><code data-language="plaintext">inline</code></main>');
-    expect(result).not.toContain('class="lumis"');
+    expect(result).toBeUndefined();
   });
 
   it("returns a document with no pre element untouched", async () => {
@@ -115,5 +114,68 @@ describe("vite-plugin-lumis", () => {
     const result = await runTransform(createPlugin(), html);
 
     expect(result).toBeUndefined();
+  });
+
+  // Vite edits HTML by splicing into the source string, and a plugin that
+  // reserializes the document instead breaks the ones composed after it.
+  it("edits only the code block and leaves the rest of the source byte for byte", async () => {
+    const before = [
+      "<!DOCTYPE html>",
+      "<html lang=en>",
+      "<head>",
+      "<meta charset=UTF-8>",
+      "<title><%= title %> &amp; friends</title>",
+      "</head>",
+      "<body>",
+      "<p>5 < 6 and AT&T</p>",
+      '<img src="data:image/svg+xml,%3csvg xmlns=\'http://x\'/%3e" alt="logo">',
+      "",
+    ].join("\n");
+    const after = [
+      "",
+      '<script type="module" src="/index.html?html-proxy&index=0.js"></script>',
+      "</body>",
+      "</html>",
+      "",
+    ].join("\n");
+    const html = `${before}<pre data-language="plaintext"><code>highlight me</code></pre>${after}`;
+
+    const result = await transformHtml(createPlugin(), html);
+
+    expect(result.startsWith(before)).toBe(true);
+    expect(result.endsWith(after)).toBe(true);
+    expect(result).toContain('<pre class="lumis"');
+    expect(result).toContain("highlight me");
+  });
+
+  it("splices every code block and skips the ones rehype-lumis declines", async () => {
+    const html = [
+      "<!doctype html><body>",
+      '<pre data-language="plaintext"><code>first</code></pre>',
+      "<p>kept &amp; intact</p>",
+      "<pre>no code child</pre>",
+      '<pre data-language="plaintext"><code>second</code></pre>',
+      "</body>",
+    ].join("\n");
+
+    const result = await transformHtml(createPlugin(), html);
+
+    expect(result).toContain("<p>kept &amp; intact</p>");
+    expect(result).toContain("<pre>no code child</pre>");
+    expect(result.match(/<pre class="lumis"/g)).toHaveLength(2);
+    expect(result).toContain("first");
+    expect(result).toContain("second");
+  });
+
+  // `rehype-lumis` descends into a `pre` it declined, so this has to as well.
+  it("highlights a code block nested inside a declined pre", async () => {
+    const html = '<pre><pre data-language="plaintext"><code>inner</code></pre></pre>';
+
+    const result = await transformHtml(createPlugin(), html);
+
+    expect(result).toContain('<pre class="lumis"');
+    expect(result).toContain("inner");
+    expect(result.startsWith("<pre><pre class=")).toBe(true);
+    expect(result.endsWith("</pre></pre>")).toBe(true);
   });
 });
