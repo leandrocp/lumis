@@ -14,6 +14,7 @@ use lumis_core::languages::Language;
 use lumis_core::themes::{Appearance, Style, Theme};
 use lumis_wasm_runtime::{
     catalog, store, Fetcher as _, HighlightOptions, InjectionResolution, Runtime,
+    DEFAULT_MATCH_LIMIT,
 };
 use napi::bindgen_prelude::{AsyncTask, Buffer, FnArgs, Function};
 use napi::{Env, Error, Result, Status, Task};
@@ -137,6 +138,7 @@ struct BBCodeScopedOptions {
 #[napi(object)]
 pub struct NativeFormatter {
     pub rainbow_brackets: Option<bool>,
+    pub match_limit: Option<u32>,
     pub kind: String,
     pub options: serde_json::Value,
 }
@@ -474,6 +476,7 @@ fn render_formatter(
         &source,
         &runtime_language,
         formatter.rainbow_brackets.unwrap_or(false),
+        formatter.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
         &internal_ids,
     )?;
     publicize_event_languages(&mut events, &public_ids);
@@ -677,6 +680,7 @@ fn highlight_events(
     source: &str,
     language: &str,
     rainbow_brackets: bool,
+    match_limit: u32,
     internal_ids: &HashMap<String, String>,
 ) -> std::result::Result<
     (Vec<HighlightEvent<'static>>, Vec<String>),
@@ -697,6 +701,7 @@ fn highlight_events(
         language,
         &HighlightOptions {
             rainbow_brackets,
+            match_limit,
             ..HighlightOptions::default()
         },
         |injected| {
@@ -1171,12 +1176,14 @@ impl NativeRuntime {
     /// A configured JavaScript resolver is called from the walk before the
     /// shared catalog store. Failure leaves only that injected block plain.
     #[napi(js_name = "highlightEvents")]
+    #[allow(clippy::too_many_arguments)]
     pub fn highlight_events(
         &self,
         env: Env,
         source: String,
         language: String,
         rainbow_brackets: Option<bool>,
+        match_limit: Option<u32>,
         package_resolver: Option<PackageResolverFunction<'_>>,
         wasm_resolver: Option<WasmResolverFunction<'_>>,
     ) -> Result<NativeHighlight> {
@@ -1189,6 +1196,7 @@ impl NativeRuntime {
                 &language,
                 &HighlightOptions {
                     rainbow_brackets: rainbow_brackets.unwrap_or(false),
+                    match_limit: match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
                     ..HighlightOptions::default()
                 },
                 |injected| {
@@ -1243,6 +1251,7 @@ impl NativeRuntime {
                 &language,
                 &HighlightOptions {
                     rainbow_brackets: formatter.rainbow_brackets.unwrap_or(false),
+                    match_limit: formatter.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
                     ..HighlightOptions::default()
                 },
                 |injected| {

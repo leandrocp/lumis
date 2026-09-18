@@ -204,6 +204,7 @@ function runHighlightIter(
   const loaded = resolveLoadedLanguage(runtime, language);
   const events = runtime.highlightEvents(source, loaded, {
     rainbowBrackets: options.rainbowBrackets,
+    matchLimit: options.matchLimit,
   });
   const bytes = buildSourceIndex(source).sourceBytes;
   const scopeStack: Array<{ scope: string; language: string }> = [];
@@ -254,6 +255,7 @@ function runHighlightEvents<T>(
   const loaded = resolveLoadedLanguage(runtime, language);
   const events = runtime.highlightEvents(source, loaded, {
     rainbowBrackets: options.rainbowBrackets,
+    matchLimit: options.matchLimit,
   });
   const annotations = options.annotations ?? [];
   if (annotations.length === 0) return events;
@@ -308,7 +310,7 @@ export function highlightIter(
 export function highlightEvents(
   source: string,
   language: LanguageRef | undefined,
-  options?: { rainbowBrackets?: boolean },
+  options?: { rainbowBrackets?: boolean; matchLimit?: number },
 ): SyntaxHighlightEvent[];
 export function highlightEvents<T>(
   source: string,

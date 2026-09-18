@@ -72,6 +72,7 @@ use lumis_core::annotations::Annotation;
 use lumis_core::events::HighlightEvent as CoreHighlightEvent;
 use lumis_core::highlights::HIGHLIGHT_NAMES;
 use lumis_wasm_runtime::tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
+pub use lumis_wasm_runtime::tree_sitter_highlight::{DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT};
 use smol_str::format_smolstr;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -108,6 +109,7 @@ static DEFAULT_STYLE: LazyLock<Arc<Style>> = LazyLock::new(|| Arc::new(Style::de
 pub struct HighlightOptions<'a, T = ()> {
     annotations: &'a [Annotation<T>],
     rainbow_brackets: bool,
+    match_limit: u32,
 }
 
 impl<T> Copy for HighlightOptions<'_, T> {}
@@ -130,6 +132,7 @@ impl HighlightOptions<'static> {
         Self {
             annotations: &[],
             rainbow_brackets: false,
+            match_limit: DEFAULT_MATCH_LIMIT,
         }
     }
 
@@ -138,6 +141,7 @@ impl HighlightOptions<'static> {
         HighlightOptions {
             annotations,
             rainbow_brackets: self.rainbow_brackets,
+            match_limit: self.match_limit,
         }
     }
 }
@@ -153,8 +157,35 @@ impl<'a, T> HighlightOptions<'a, T> {
         self.annotations
     }
 
+    /// Bound the number of query matches tree-sitter keeps in progress at once,
+    /// for the highlight and bracket queries alike.
+    ///
+    /// Defaults to [`DEFAULT_MATCH_LIMIT`] and must be in `1..=`[`MAX_MATCH_LIMIT`];
+    /// highlighting with a value outside that range fails with
+    /// [`HighlightError::InvalidMatchLimit`]. Tree-sitter walks its whole pool of
+    /// in-progress matches before it emits each capture, so the bound is what
+    /// keeps highlighting linear on documents whose markup nests deeply enough to
+    /// keep many matches open at once. Raising it recovers matches that would
+    /// otherwise be dropped on such documents, at that cost.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use lumis::highlight::HighlightOptions;
+    ///
+    /// let options = HighlightOptions::new().match_limit(16_384);
+    /// ```
+    pub const fn match_limit(mut self, match_limit: u32) -> Self {
+        self.match_limit = match_limit;
+        self
+    }
+
     pub(crate) const fn rainbow_brackets_enabled(&self) -> bool {
         self.rainbow_brackets
+    }
+
+    pub(crate) const fn match_limit_value(&self) -> u32 {
+        self.match_limit
     }
 }
 
@@ -201,6 +232,10 @@ pub enum HighlightError {
     /// Failed to process a highlight event during parsing.
     #[error("failed to process highlight event: {0}")]
     EventProcessing(String),
+
+    /// The match limit was outside `1..=`[`MAX_MATCH_LIMIT`].
+    #[error("match limit {0} is outside 1..=65536")]
+    InvalidMatchLimit(u32),
 }
 
 /// High-level stateful highlighter for syntax highlighting.
@@ -630,6 +665,11 @@ fn highlight_events_with<T, F>(
 where
     F: Fn(&str) -> Option<Language>,
 {
+    let match_limit = options.match_limit_value();
+    ts_highlighter
+        .set_match_limit(match_limit)
+        .map_err(|_| HighlightError::InvalidMatchLimit(match_limit))?;
+
     let events = ts_highlighter
         .highlight(language.config(), source.as_bytes(), None, |injected| {
             injected_language(injected).map(|language| language.config())
@@ -657,7 +697,12 @@ where
         .collect::<Result<Vec<_>, _>>()?;
 
     if options.rainbow_brackets_enabled() {
-        Ok(apply_query_rainbow_brackets(source, core_events, language))
+        Ok(apply_query_rainbow_brackets(
+            source,
+            core_events,
+            language,
+            match_limit,
+        ))
     } else {
         Ok(core_events)
     }
@@ -667,8 +712,9 @@ fn apply_query_rainbow_brackets(
     source: &str,
     events: Vec<CoreHighlightEvent<'static>>,
     language: Language,
+    match_limit: u32,
 ) -> Vec<CoreHighlightEvent<'static>> {
-    let ranges = query_rainbow_ranges(source, language);
+    let ranges = query_rainbow_ranges(source, language, match_limit);
     if ranges.is_empty() {
         return events;
     }
@@ -676,7 +722,7 @@ fn apply_query_rainbow_brackets(
     overlay_rainbow_ranges(events, &ranges, language.id_name())
 }
 
-fn query_rainbow_ranges(source: &str, language: Language) -> Vec<RainbowRange> {
+fn query_rainbow_ranges(source: &str, language: Language, match_limit: u32) -> Vec<RainbowRange> {
     let config = language.config();
     let tree = RAINBOW_PARSER.with(|parser| {
         let mut parser = parser.borrow_mut();
@@ -695,6 +741,7 @@ fn query_rainbow_ranges(source: &str, language: Language) -> Vec<RainbowRange> {
         };
 
         let mut cursor = QueryCursor::new();
+        cursor.set_match_limit(match_limit);
         let mut matches =
             cursor.matches(&bracket_config.query, tree.root_node(), source.as_bytes());
         let mut pairs = Vec::new();
@@ -887,6 +934,95 @@ mod tests {
         assert!(options.rainbow_brackets_enabled());
         assert!(!HighlightOptions::default().rainbow_brackets_enabled());
         assert_eq!(HighlightOptions::default().annotation_items(), []);
+    }
+
+    #[test]
+    fn match_limit_defaults_and_overrides() {
+        assert_eq!(
+            HighlightOptions::default().match_limit_value(),
+            DEFAULT_MATCH_LIMIT
+        );
+        assert_eq!(
+            HighlightOptions::new().match_limit(64).match_limit_value(),
+            64
+        );
+    }
+
+    #[test]
+    fn match_limit_reaches_the_formatter_entry_point() {
+        // A document with enough matches open at once that starving the cursor
+        // changes what it captures, so this fails if the option stops short of
+        // the highlighter.
+        let source = std::fs::read_to_string(
+            std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../samples/heex.heex"),
+        )
+        .unwrap();
+        let language = Language::guess(Some("heex.heex"), &source);
+        let render = |limit: u32| {
+            crate::highlight_with_options(
+                &source,
+                crate::formatter::HtmlLinked::new(language, None, None, None),
+                HighlightOptions::new().match_limit(limit),
+            )
+        };
+
+        let reference = render(u32::from(u16::MAX));
+
+        assert_ne!(render(4), reference);
+        assert_eq!(render(DEFAULT_MATCH_LIMIT), reference);
+    }
+
+    #[test]
+    fn match_limit_outside_the_tree_sitter_range_is_rejected() {
+        let code = "fn main() {}\n";
+        for limit in [0, MAX_MATCH_LIMIT + 1] {
+            let result = highlight_events_with_options(
+                code,
+                Language::Rust,
+                HighlightOptions::new().match_limit(limit),
+            );
+            assert_eq!(result, Err(HighlightError::InvalidMatchLimit(limit)));
+        }
+        assert!(highlight_events_with_options(
+            code,
+            Language::Rust,
+            HighlightOptions::new().match_limit(MAX_MATCH_LIMIT),
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn match_limit_reaches_the_rainbow_bracket_query() {
+        // Every open bracket keeps a bracket-query match in progress until its
+        // close arrives, so starving the cursor drops pairs from deep nesting.
+        let code = format!("{}1{}\n", "(".repeat(8), ")".repeat(8));
+        let render = |limit: u32| {
+            highlight_events_with_options(
+                &code,
+                Language::Rust,
+                HighlightOptions::new()
+                    .rainbow_brackets(true)
+                    .match_limit(limit),
+            )
+            .unwrap()
+        };
+
+        assert_ne!(render(1), render(DEFAULT_MATCH_LIMIT));
+        assert_eq!(render(MAX_MATCH_LIMIT), render(DEFAULT_MATCH_LIMIT));
+    }
+
+    #[test]
+    fn match_limit_does_not_change_output_on_ordinary_source() {
+        let code = "fn main() { let xs = vec![1, 2, 3]; }\n";
+        let default = highlight_events(code, Language::Rust).unwrap();
+        let raised = highlight_events_with_options(
+            code,
+            Language::Rust,
+            HighlightOptions::new().match_limit(DEFAULT_MATCH_LIMIT * 4),
+        )
+        .unwrap();
+
+        assert_eq!(default, raised);
     }
 
     #[test]

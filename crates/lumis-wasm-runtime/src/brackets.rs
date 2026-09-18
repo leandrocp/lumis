@@ -78,12 +78,18 @@ pub fn capture_indices(query: &Query) -> Option<(u32, u32)> {
 
 /// Collect bracket pairs, skipping patterns that carry `(#set! rainbow.exclude)`.
 #[must_use]
-pub fn bracket_pairs(query: &Query, root: Node<'_>, source: &[u8]) -> Vec<BracketPair> {
+pub fn bracket_pairs(
+    query: &Query,
+    root: Node<'_>,
+    source: &[u8],
+    match_limit: u32,
+) -> Vec<BracketPair> {
     let Some((open_capture, close_capture)) = capture_indices(query) else {
         return Vec::new();
     };
 
     let mut cursor = QueryCursor::new();
+    cursor.set_match_limit(match_limit);
     let mut matches = cursor.matches(query, root, source);
     let mut pairs = Vec::new();
 

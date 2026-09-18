@@ -249,6 +249,7 @@ pub use store::{
     lowest_compatible_package_version, package_suffix, parser_filename, write_atomic,
     CacheLanguageOutcome, Fetcher, LanguageStore, NoNetwork, StoreConfig, StoreError,
 };
+pub use tree_sitter_highlight::{DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT};
 
 #[cfg(test)]
 mod parallel_map_tests {

@@ -337,6 +337,20 @@ defmodule Lumis do
       type: :boolean,
       default: false,
       doc: "Render nested brackets with rainbow bracket scopes."
+    ],
+    match_limit: [
+      type: {:or, [{:in, 1..65_536}, nil]},
+      default: nil,
+      doc: """
+      Bound on the query matches Tree-sitter keeps in progress at once, for the
+      highlight and bracket queries alike, or `nil` for the default.
+
+      Tree-sitter walks its whole pool of in-progress matches before it emits
+      each capture, so the bound is what keeps highlighting linear on documents
+      whose markup nests deeply enough to keep many matches open at once.
+      Raising it recovers matches that would otherwise be dropped on such
+      documents, at that cost.
+      """
     ]
   ]
 
@@ -1090,7 +1104,8 @@ defmodule Lumis do
         formatter,
         formatter_options,
         Keyword.fetch!(options, :annotations),
-        Keyword.fetch!(options, :rainbow_brackets)
+        Keyword.fetch!(options, :rainbow_brackets),
+        Keyword.fetch!(options, :match_limit)
       )
     end
   end
@@ -1183,12 +1198,14 @@ defmodule Lumis do
          formatter,
          formatter_options,
          annotations,
-         rainbow_brackets
+         rainbow_brackets,
+         match_limit
        ) do
     options = %{
       language: Keyword.get(formatter_options, :language),
       annotations: annotations,
-      rainbow_brackets: rainbow_brackets
+      rainbow_brackets: rainbow_brackets,
+      match_limit: match_limit
     }
 
     case Lumis.Native.highlight_events(source, options) do

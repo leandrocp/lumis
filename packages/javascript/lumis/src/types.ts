@@ -418,12 +418,38 @@ export interface ResolvedAnnotation<T = unknown> {
   data: T;
 }
 
+/**
+ * Default bound on the query matches tree-sitter keeps in progress at once.
+ *
+ * Mirrors `DEFAULT_MATCH_LIMIT` in the Rust crate, which is the reference
+ * implementation for every runtime.
+ */
+export const DEFAULT_MATCH_LIMIT = 4096;
+
+/**
+ * Largest match limit tree-sitter accepts; its query cursor documents
+ * `1..=65536`.
+ */
+export const MAX_MATCH_LIMIT = 65536;
+
 /** Options for one highlighting operation. */
 export interface HighlightOptions<T = unknown> {
   /** Caller-provided semantic ranges composed into the formatter event stream. */
   annotations?: readonly Annotation<T>[];
   /** Render nested brackets with rainbow bracket scopes. */
   rainbowBrackets?: boolean;
+  /**
+   * Bound on the query matches tree-sitter keeps in progress at once, for the
+   * highlight and bracket queries alike. An integer from 1 to
+   * {@link MAX_MATCH_LIMIT}; anything else throws.
+   *
+   * Tree-sitter walks its whole pool of in-progress matches before it emits
+   * each capture, so the bound is what keeps highlighting linear on documents
+   * whose markup nests deeply enough to keep many matches open at once. Raising
+   * it recovers matches that would otherwise be dropped on such documents, at
+   * that cost. Defaults to {@link DEFAULT_MATCH_LIMIT}.
+   */
+  matchLimit?: number;
 }
 
 /**

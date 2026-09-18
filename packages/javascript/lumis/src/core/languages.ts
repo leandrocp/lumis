@@ -145,7 +145,7 @@ export interface RuntimeLike {
   highlightEvents(
     source: string,
     language: LoadedLanguage,
-    options?: { rainbowBrackets?: boolean },
+    options?: { rainbowBrackets?: boolean; matchLimit?: number },
   ): SyntaxHighlightEvent[];
   format?(
     source: string,
@@ -1433,7 +1433,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     highlightEvents(
       source: string,
       language: LoadedLanguage,
-      options: { rainbowBrackets?: boolean } = {},
+      options: { rainbowBrackets?: boolean; matchLimit?: number } = {},
     ): SyntaxHighlightEvent[] {
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];

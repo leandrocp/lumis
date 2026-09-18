@@ -14,7 +14,7 @@ use lumis_core::formatter::Formatter as CoreFormatter;
 use lumis_core::formatter::TerminalBackground;
 use lumis_core::languages::Language;
 use lumis_wasm_runtime::tree_sitter_highlight::ParsedLayer;
-use lumis_wasm_runtime::{HighlightOptions, HighlightOutput};
+use lumis_wasm_runtime::{HighlightOptions, HighlightOutput, DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT};
 use serde::Serialize;
 use std::fmt::Display;
 use std::fmt::Write as _;
@@ -113,6 +113,14 @@ struct HighlightArgs {
     /// Render nested brackets using rainbow bracket scopes
     #[arg(long)]
     rainbow_brackets: bool,
+
+    /// Query matches tree-sitter keeps in progress at once, 1 to 65536
+    #[arg(
+        long,
+        default_value_t = DEFAULT_MATCH_LIMIT,
+        value_parser = clap::value_parser!(u32).range(1..=i64::from(MAX_MATCH_LIMIT))
+    )]
+    match_limit: u32,
 
     /// Lines to highlight, e.g. "1,3-5,10"
     #[arg(short = 'H', long)]
@@ -964,23 +972,27 @@ fn dump_events(
     language: Option<String>,
 ) -> Result<()> {
     let (source, lang) = read_source(path, language)?;
-    let events = highlight_to_events(reg, &source, dump_language(lang)?, false)?
-        .into_iter()
-        .map(|event| match event {
-            HighlightEvent::Start {
-                scope_index,
-                language,
-            } => SerializableHighlightEvent::Start {
-                scope: lumis_core::highlights::HIGHLIGHT_NAMES[scope_index].to_string(),
-                language,
-            },
-            HighlightEvent::Source { start, end } => {
-                SerializableHighlightEvent::Source { start, end }
-            }
-            HighlightEvent::End => SerializableHighlightEvent::End,
-            _ => unreachable!("syntax highlighting emits only scope and source events"),
-        })
-        .collect::<Vec<_>>();
+    let events = highlight_to_events(
+        reg,
+        &source,
+        dump_language(lang)?,
+        false,
+        DEFAULT_MATCH_LIMIT,
+    )?
+    .into_iter()
+    .map(|event| match event {
+        HighlightEvent::Start {
+            scope_index,
+            language,
+        } => SerializableHighlightEvent::Start {
+            scope: lumis_core::highlights::HIGHLIGHT_NAMES[scope_index].to_string(),
+            language,
+        },
+        HighlightEvent::Source { start, end } => SerializableHighlightEvent::Source { start, end },
+        HighlightEvent::End => SerializableHighlightEvent::End,
+        _ => unreachable!("syntax highlighting emits only scope and source events"),
+    })
+    .collect::<Vec<_>>();
 
     println!("{}", serde_json::to_string_pretty(&events)?);
     Ok(())
@@ -1467,7 +1479,13 @@ fn do_highlight(reg: &registry::Registry, args: HighlightArgs, verbose: bool) ->
     }
 
     let lang_name = lang.id_name();
-    let events = highlight_to_events(reg, &source, lang_name, args.rainbow_brackets)?;
+    let events = highlight_to_events(
+        reg,
+        &source,
+        lang_name,
+        args.rainbow_brackets,
+        args.match_limit,
+    )?;
 
     render_output(reg, &source, &events, lang, args, verbose)
 }
@@ -1916,6 +1934,7 @@ fn highlight_to_events(
     source: &str,
     lang_name: &str,
     rainbow_brackets: bool,
+    match_limit: u32,
 ) -> Result<Vec<HighlightEvent>> {
     Ok(reg
         .highlight(
@@ -1923,6 +1942,7 @@ fn highlight_to_events(
             lang_name,
             &HighlightOptions {
                 rainbow_brackets,
+                match_limit,
                 ..HighlightOptions::default()
             },
         )?
@@ -1974,7 +1994,7 @@ mod tests {
 </script>
 ";
 
-        let events = highlight_to_events(&reg, source, "html", false).unwrap();
+        let events = highlight_to_events(&reg, source, "html", false, DEFAULT_MATCH_LIMIT).unwrap();
 
         assert!(events.iter().any(|event| matches!(
             event,

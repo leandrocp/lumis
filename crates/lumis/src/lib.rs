@@ -496,7 +496,9 @@ where
     let syntax_events = crate::highlight::highlight_events_with_options(
         source,
         formatter.language(),
-        HighlightOptions::new().rainbow_brackets(options.rainbow_brackets_enabled()),
+        HighlightOptions::new()
+            .rainbow_brackets(options.rainbow_brackets_enabled())
+            .match_limit(options.match_limit_value()),
     )
     .map_err(io::Error::other)?;
     let events = compose_annotations(source, &syntax_events, options.annotation_items())
