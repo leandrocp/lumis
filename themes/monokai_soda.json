@@ -1,7 +1,7 @@
 {
   "name": "monokai_soda",
   "appearance": "dark",
-  "revision": "b8bd44d5796503173627d7a1fc51f77ec3a08a63",
+  "revision": "fca3943173f6026347f9ffc68baab39454446c3b",
   "highlights": {
     "attribute": {
       "fg": "#97e023"
@@ -155,6 +155,14 @@
     },
     "label": {
       "fg": "#f3005f"
+    },
+    "line_number": {
+      "fg": "#4d5154",
+      "bg": "#26292c"
+    },
+    "line_number.highlighted": {
+      "fg": "#fa8419",
+      "bg": "#26292c"
     },
     "markup": {
       "fg": "#f6f6ec"

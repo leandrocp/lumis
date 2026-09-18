@@ -290,6 +290,24 @@ impl HtmlMultiThemes {
             self.include_highlights,
         )
     }
+
+    fn line_number_attrs(&self, highlighted: bool) -> String {
+        let scope = if highlighted {
+            "line_number.highlighted"
+        } else {
+            "line_number"
+        };
+
+        crate::formatter::html::span_multi_themes_attrs(
+            scope,
+            None,
+            &self.themes,
+            self.default_theme_name(),
+            &self.css_variable_prefix,
+            self.italic,
+            false,
+        )
+    }
 }
 
 impl<T> Formatter<T> for HtmlMultiThemes {
@@ -313,6 +331,8 @@ impl<T> Formatter<T> for HtmlMultiThemes {
         crate::formatter::html::open_code_tag(&mut buffer, &self.language)?;
 
         let (class_suffix, style) = self.get_line_attrs(true);
+        let line_number_attrs = self.line_numbers.then(|| self.line_number_attrs(false));
+        let highlighted_line_number_attrs = self.line_numbers.then(|| self.line_number_attrs(true));
         crate::formatter::html::write_html_lines(
             &mut buffer,
             source,
@@ -320,6 +340,8 @@ impl<T> Formatter<T> for HtmlMultiThemes {
             &crate::formatter::html::HtmlLines {
                 selection: &self.line_selection(),
                 numbered: self.line_numbers,
+                line_number_attrs: line_number_attrs.as_deref(),
+                highlighted_line_number_attrs: highlighted_line_number_attrs.as_deref(),
                 highlighted_class: class_suffix.as_deref(),
                 highlighted_style: style.as_deref(),
             },

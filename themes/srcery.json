@@ -1,7 +1,7 @@
 {
   "name": "srcery",
   "appearance": "dark",
-  "revision": "aefde677e461f03f2cbd9ef432769fb76d075bb9",
+  "revision": "d4889a85c26702217838da941f921042c17b6397",
   "highlights": {
     "attribute": {
       "fg": "#ff8700"
@@ -136,6 +136,13 @@
     },
     "label": {
       "fg": "#c5b088"
+    },
+    "line_number": {
+      "fg": "#917e6b"
+    },
+    "line_number.highlighted": {
+      "fg": "#fbb829",
+      "bg": "#121110"
     },
     "markup": {
       "fg": "#2c78bf"

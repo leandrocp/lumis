@@ -140,6 +140,12 @@
     "label": {
       "fg": "#e45649"
     },
+    "line_number": {
+      "fg": "#a0a1a7"
+    },
+    "line_number.highlighted": {
+      "fg": "#383a42"
+    },
     "markup": {
       "fg": "#e45649"
     },

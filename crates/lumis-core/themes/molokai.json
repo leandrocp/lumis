@@ -150,6 +150,9 @@
     "label": {
       "fg": "#819aff"
     },
+    "line_number": {
+      "fg": "#808080"
+    },
     "markup": {
       "fg": "#819aff"
     },

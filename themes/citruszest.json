@@ -151,6 +151,12 @@
     "label.json": {
       "fg": "#1affa3"
     },
+    "line_number": {
+      "fg": "#767c77"
+    },
+    "line_number.highlighted": {
+      "fg": "#ffff00"
+    },
     "markup": {
       "fg": "#f9f9f9"
     },

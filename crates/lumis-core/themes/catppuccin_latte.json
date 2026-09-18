@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_latte",
   "appearance": "light",
-  "revision": "e068ab5f8261f23f6f71ffd8791ae40315b77b9c",
+  "revision": "edefef779ab08ce1a4a404713e3012b0d202bd35",
   "highlights": {
     "attribute": {
       "fg": "#fe640b"
@@ -176,6 +176,12 @@
     },
     "label.yaml": {
       "fg": "#df8e1d"
+    },
+    "line_number": {
+      "fg": "#bcc0cc"
+    },
+    "line_number.highlighted": {
+      "fg": "#7287fd"
     },
     "markup": {
       "fg": "#4c4f69"

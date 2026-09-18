@@ -1,5 +1,5 @@
 /* token_flint_light
- * revision: 11be57ef691359f7a5853281ba43a86b3a0b80c2
+ * revision: 1538e1eadcbc9eb465b33bab71eec48c8bed0b76
  */
 .lumis {
   color: #283039;
@@ -161,6 +161,14 @@
 }
 .l-label {
   color: #6b4600;
+  font-weight: bold;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #a7b2bb;
+  background-color: #eef1f3;
+}
+.l-line-number-highlighted {
+  color: #3b5600;
   font-weight: bold;
 }
 .l-markup {

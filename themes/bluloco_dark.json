@@ -1,7 +1,7 @@
 {
   "name": "bluloco_dark",
   "appearance": "dark",
-  "revision": "8973f4b595a96ceb45b3885d533f287182a73c20",
+  "revision": "caa4233dab772dad1db272c78025dd9682dca9e8",
   "highlights": {
     "attribute": {
       "fg": "#50adaf"
@@ -138,6 +138,12 @@
     },
     "label.json": {
       "fg": "#ce9888"
+    },
+    "line_number": {
+      "fg": "#636d83"
+    },
+    "line_number.highlighted": {
+      "fg": "#636d83"
     },
     "markup": {
       "fg": "#ff956b"

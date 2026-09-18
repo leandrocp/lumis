@@ -1,7 +1,7 @@
 {
   "name": "vscode_dark",
   "appearance": "dark",
-  "revision": "aa1102a7e15195c9cca22730b09224a7f7745ba8",
+  "revision": "6439ed89d0e10193f07e92268a321d7c6f6e93ee",
   "highlights": {
     "attribute": {
       "fg": "#dcdcaa"
@@ -142,6 +142,14 @@
     },
     "label": {
       "fg": "#9cdcfe"
+    },
+    "line_number": {
+      "fg": "#5a5a5a",
+      "bg": "#1f1f1f"
+    },
+    "line_number.highlighted": {
+      "fg": "#bbbbbb",
+      "bg": "#1f1f1f"
     },
     "markup": {
       "fg": "#d7ba7d"

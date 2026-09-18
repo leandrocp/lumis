@@ -955,7 +955,7 @@ fn highlight_source_html_inline_routes_parity_options() {
             "<figure><pre class=\"lumis custom\"",
         ))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number\" aria-hidden=\"true\">1</span>",
+            "<div class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number l-line-number-highlighted\" style=\"color: #f8f8f2; font-weight: bold;\" aria-hidden=\"true\">1</span>",
         ))
         .stdout(predicate::str::contains("data-highlight=\""))
         .stdout(predicate::str::contains("font-style: italic;"))
@@ -992,7 +992,7 @@ fn highlight_source_diff_html_linked() {
             "<figure><pre class=\"lumis custom\"",
         ))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number\" aria-hidden=\"true\">1</span>",
+            "<div class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number l-line-number-highlighted\" aria-hidden=\"true\">1</span>",
         ))
         .stdout(predicate::str::ends_with("</code></pre></figure>"));
 }
@@ -1072,7 +1072,7 @@ fn highlight_source_diff_html_multi_themes_with_all_options() {
         ))
         .stdout(predicate::str::contains("--demo-alt"))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"2\"><span class=\"l-line-number\" aria-hidden=\"true\">2</span>",
+            "<div class=\"l-line selected\" data-line=\"2\"><span class=\"l-line-number l-line-number-highlighted\" style=\"color:#f8f8f2; font-weight:bold;",
         ))
         .stdout(predicate::str::contains("data-highlight=\""))
         .stdout(predicate::str::contains("font-style:"))

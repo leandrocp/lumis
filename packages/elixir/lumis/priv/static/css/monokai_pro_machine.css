@@ -172,6 +172,14 @@
 .l-label {
   color: #78dce8;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #5b595c;
+}
+.l-line-number-highlighted {
+  color: #c1c0c0;
+  background-color: #2d2a2e;
+  font-weight: bold;
+}
 .l-markup {
   color: #fcfcfa;
 }
@@ -231,7 +239,7 @@
   color: #fcfcfa;
   font-style: italic;
 }
-.l-markup-italic-markdown_inline {
+.l-markup-italic-markdown-inline {
   font-style: italic;
 }
 .l-markup-link {
@@ -242,14 +250,14 @@
   color: #fc9867;
   text-decoration: underline;
 }
-.l-markup-link-label-markdown_inline {
+.l-markup-link-label-markdown-inline {
   color: #ff6188;
 }
 .l-markup-link-url {
   color: #fc9867;
   text-decoration: underline;
 }
-.l-markup-link-url-markdown_inline {
+.l-markup-link-url-markdown-inline {
   color: #a9dc76;
   text-decoration: underline;
 }
@@ -285,7 +293,7 @@
   color: #fcfcfa;
   font-weight: bold;
 }
-.l-markup-strong-markdown_inline {
+.l-markup-strong-markdown-inline {
   font-weight: bold;
 }
 .l-markup-underline {

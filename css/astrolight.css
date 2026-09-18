@@ -1,5 +1,5 @@
 /* astrolight
- * revision: 37afa2a78ce4d8d3d70827f84710c14b78c5d071
+ * revision: f6883da9b88ac810e6e5568db9a74ba6d6672d4b
  */
 .lumis {
   color: #4f4f4f;
@@ -153,6 +153,12 @@
 }
 .l-label {
   color: #00508a;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #b5b9bd;
+}
+.l-line-number-highlighted {
+  color: #424446;
 }
 .l-markup {
   color: #00508a;

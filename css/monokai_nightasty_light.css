@@ -1,5 +1,5 @@
 /* monokai_nightasty_light
- * revision: 1e9b92006782a1217d0a7a871b871768f1cbf5ed
+ * revision: 5731bc3c01e6c94a709021e5ee31070840e47584
  */
 .lumis {
   color: #333333;
@@ -149,6 +149,12 @@
 .l-label {
   color: #ff8f00;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #b2b2b2;
+}
+.l-line-number-highlighted {
+  color: #ff8f00;
+}
 .l-markup-environment {
   color: #ff004b;
 }
@@ -216,7 +222,7 @@
 .l-markup-raw-block {
   color: #7f7f7f;
 }
-.l-markup-raw-markdown_inline {
+.l-markup-raw-markdown-inline {
   color: #6054d0;
 }
 .l-markup-strikethrough {

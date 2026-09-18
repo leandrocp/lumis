@@ -167,6 +167,13 @@
   color: #505050;
   font-weight: bold;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #a8a8a8;
+}
+.l-line-number-highlighted {
+  color: #505050;
+  font-weight: bold;
+}
 .l-markup {
   color: #505050;
 }
@@ -248,7 +255,7 @@
 .l-markup-raw-block {
   color: #505050;
 }
-.l-markup-raw-markdown_inline {
+.l-markup-raw-markdown-inline {
   background-color: #acacac;
 }
 .l-markup-strikethrough {

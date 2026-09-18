@@ -94,15 +94,21 @@ The gutter is the first child of the line, inside `<code>`:
 
 ```html
 <div class="l-line" data-line="1">
-  <span class="l-line-number" aria-hidden="true">1</span>
+  <span class="l-line-number" style="color: #51576d;" aria-hidden="true">1</span>
   <span style="color: #ca9ee6;">fn</span>
 </div>
 ```
 
 It is a real element rather than `content: attr(data-line)` so the number is in
 the document a reader can inspect, and `aria-hidden` so a screen reader is not
-read a number before every line. Lumis ships no stylesheet for it — give it a
-column, and keep it out of a copied selection:
+read a number before every line. Its appearance comes from the theme's `LineNr`
+style. On a highlighted line it also has the `l-line-number-highlighted` class
+and uses `CursorLineNr`, falling back to `LineNr` when that style is absent.
+
+HTML Inline writes the style directly, HTML Multi-Themes writes the corresponding
+theme variables, and HTML Linked uses the `.l-line-number` and
+`.l-line-number-highlighted` rules in generated theme CSS. Theme CSS does not
+lay out the gutter, so give it a column and keep it out of a copied selection:
 
 ```css
 .l-line-number {
@@ -110,7 +116,6 @@ column, and keep it out of a copied selection:
   width: 3ch;
   margin-right: 1ch;
   text-align: right;
-  opacity: 0.5;
   user-select: none;
 }
 ```
@@ -129,10 +134,10 @@ aligned past line 9.
 
 Neovim draws the number column with `LineNr`, and with `CursorLineNr` on the
 cursor line, so `CursorLine` never reaches it. Lumis follows that: a highlighted
-line's background starts at its text, not at its gutter. Neither `LineNr` nor
-`CursorLineNr` is extracted into a theme yet, so until they are the gutter
-borrows the theme's `comment` colour, the one scope every theme styles as text
-meant to recede.
+line's background starts at its text, not at its gutter. The gutter uses every
+text attribute in the corresponding theme style, including foreground, bold,
+italic, and decorations. When a theme has no `CursorLineNr` style, a highlighted
+gutter falls back to its `LineNr` style.
 
 The number is written with the line's text, so the empty line a trailing newline
 opens carries none: a terminal writes nothing for that line, and a bare number

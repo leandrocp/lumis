@@ -163,6 +163,12 @@
     "label.ruby": {
       "fg": "#6cb6ff"
     },
+    "line_number": {
+      "fg": "#636e7b"
+    },
+    "line_number.highlighted": {
+      "fg": "#adbac7"
+    },
     "markup": {
       "fg": "#adbac7"
     },

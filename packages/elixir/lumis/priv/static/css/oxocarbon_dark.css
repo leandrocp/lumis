@@ -1,5 +1,5 @@
 /* oxocarbon_dark
- * revision: cf49e389c22dab56224e43ae16422ddcd5b61b28
+ * revision: cd6523a0836d6e8ee823d343149fd06c7b71fdde
  */
 .lumis {
   color: #d0d0d0;
@@ -144,6 +144,13 @@
 .l-label {
   color: #82cfff;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #525252;
+  background-color: #161616;
+}
+.l-line-number-highlighted {
+  color: #d0d0d0;
+}
 .l-markup-environment {
   color: #08bdba;
 }
@@ -198,7 +205,7 @@
 .l-markup-link-label {
   text-decoration: underline;
 }
-.l-markup-link-label-markdown_inline {
+.l-markup-link-label-markdown-inline {
   font-style: italic;
 }
 .l-markup-link-url {

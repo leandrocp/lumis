@@ -461,8 +461,10 @@ Lumis.highlight!(code, formatter: {:html_inline, language: "elixir", line_number
 ```
 
 HTML opens each line with `<span class="l-line-number" aria-hidden="true">N</span>`,
-which needs a stylesheet rule to become a column. The terminal writes the number
-right-aligned to the widest one, dimmed with the theme's `comment` colour.
+which uses the theme's `LineNr` style and needs a layout rule to become a column.
+A highlighted gutter also has `l-line-number-highlighted` and uses `CursorLineNr`,
+falling back to `LineNr`. The terminal uses the same styles and writes the number
+right-aligned to the widest one.
 
 ### Custom HTML Wrappers
 

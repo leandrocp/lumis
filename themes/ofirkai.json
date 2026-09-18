@@ -1,7 +1,7 @@
 {
   "name": "ofirkai",
   "appearance": "dark",
-  "revision": "261581c9f5828691b4dcae67c30c43e5aa37d70a",
+  "revision": "f51d56db89a36674b39395efce5dc431778ef343",
   "highlights": {
     "attribute": {
       "fg": "#f92672"
@@ -169,6 +169,13 @@
     },
     "label.json": {
       "fg": "#f92672"
+    },
+    "line_number": {
+      "fg": "#fd971f"
+    },
+    "line_number.highlighted": {
+      "fg": "#e6db74",
+      "bg": "#333227"
     },
     "markup": {
       "fg": "#f8f8f0"

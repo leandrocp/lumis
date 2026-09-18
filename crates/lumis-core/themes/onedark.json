@@ -1,7 +1,7 @@
 {
   "name": "onedark",
   "appearance": "dark",
-  "revision": "f5fddfd5122fe00421e199151ae4fe8571a02898",
+  "revision": "24c806cb85c1f84d9faaff457cf7aa87c685a070",
   "highlights": {
     "attribute": {
       "fg": "#c678dd"
@@ -186,6 +186,14 @@
     },
     "label.ruby": {
       "fg": "#e06c75"
+    },
+    "line_number": {
+      "fg": "#495162",
+      "bg": "#282c34"
+    },
+    "line_number.highlighted": {
+      "fg": "#c678dd",
+      "bg": "#282c34"
     },
     "markup": {
       "fg": "#61afef"

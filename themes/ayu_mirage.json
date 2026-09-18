@@ -135,6 +135,13 @@
     "label": {
       "fg": "#ffad66"
     },
+    "line_number": {
+      "fg": "#323843"
+    },
+    "line_number.highlighted": {
+      "fg": "#ffcc66",
+      "bg": "#171b24"
+    },
     "markup": {
       "fg": "#ffcc66"
     },

@@ -1,7 +1,7 @@
 {
   "name": "monokai_nightasty_dark",
   "appearance": "dark",
-  "revision": "1e9b92006782a1217d0a7a871b871768f1cbf5ed",
+  "revision": "5731bc3c01e6c94a709021e5ee31070840e47584",
   "highlights": {
     "attribute": {
       "fg": "#fc1a70"
@@ -145,6 +145,12 @@
       "fg": "#fc1a70"
     },
     "label": {
+      "fg": "#ffff87"
+    },
+    "line_number": {
+      "fg": "#4b4b4b"
+    },
+    "line_number.highlighted": {
       "fg": "#ffff87"
     },
     "markup.environment": {

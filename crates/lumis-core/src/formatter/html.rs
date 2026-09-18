@@ -509,7 +509,7 @@ pub fn wrap_line(
     style: Option<&str>,
 ) -> String {
     let mut line = Vec::with_capacity(content.len() + 48);
-    let _ = LineTag::new(class_suffix, style, false).write(&mut line, line_number);
+    let _ = LineTag::new(class_suffix, style, false, false, None).write(&mut line, line_number);
     line.extend_from_slice(content.as_bytes());
     line.extend_from_slice(b"</div>");
 
@@ -527,6 +527,7 @@ pub fn wrap_line(
 /// Private for the same reason `l-line` is: it is a class the built-in
 /// formatters write, not a helper a custom one is built from.
 const LINE_NUMBER_CLASS: &str = "l-line-number";
+const HIGHLIGHTED_LINE_NUMBER_CLASS: &str = "l-line-number-highlighted";
 
 /// Everything in a line's opening tag that does not change from line to line.
 ///
@@ -535,11 +536,17 @@ const LINE_NUMBER_CLASS: &str = "l-line-number";
 /// are assembled once rather than once per line.
 struct LineTag {
     open: String,
-    numbered: bool,
+    gutter_open: Option<String>,
 }
 
 impl LineTag {
-    fn new(class_suffix: Option<&str>, style: Option<&str>, numbered: bool) -> Self {
+    fn new(
+        class_suffix: Option<&str>,
+        style: Option<&str>,
+        numbered: bool,
+        highlighted: bool,
+        gutter_attrs: Option<&str>,
+    ) -> Self {
         let mut open = String::from("<div class=\"");
         match class_suffix {
             Some(suffix) => open.push_str(&escape_attr(&format!("l-line{suffix}"))),
@@ -552,18 +559,29 @@ impl LineTag {
         }
 
         open.push_str(" data-line=\"");
-        Self { open, numbered }
+        let gutter_open = numbered.then(|| {
+            let mut gutter = format!("<span class=\"{LINE_NUMBER_CLASS}");
+            if highlighted {
+                let _ = write!(gutter, " {HIGHLIGHTED_LINE_NUMBER_CLASS}");
+            }
+            gutter.push('"');
+            if let Some(attrs) = gutter_attrs.filter(|attrs| !attrs.is_empty()) {
+                gutter.push(' ');
+                gutter.push_str(attrs);
+            }
+            gutter.push_str(" aria-hidden=\"true\">");
+            gutter
+        });
+
+        Self { open, gutter_open }
     }
 
     fn write(&self, output: &mut dyn Write, line_number: usize) -> io::Result<()> {
         output.write_all(self.open.as_bytes())?;
         write!(output, "{line_number}\">")?;
 
-        if self.numbered {
-            write!(
-                output,
-                "<span class=\"{LINE_NUMBER_CLASS}\" aria-hidden=\"true\">{line_number}</span>"
-            )?;
+        if let Some(gutter_open) = &self.gutter_open {
+            write!(output, "{gutter_open}{line_number}</span>")?;
         }
 
         Ok(())
@@ -896,6 +914,10 @@ pub(crate) struct HtmlLines<'a> {
     pub selection: &'a LineSelection,
     /// Whether each line opens with a gutter carrying its number.
     pub numbered: bool,
+    /// Extra attributes carried by a regular line-number gutter.
+    pub line_number_attrs: Option<&'a str>,
+    /// Extra attributes carried by a highlighted line-number gutter.
+    pub highlighted_line_number_attrs: Option<&'a str>,
     /// The class suffix a highlighted line's `<div>` carries.
     pub highlighted_class: Option<&'a str>,
     /// The inline style a highlighted line's `<div>` carries.
@@ -919,11 +941,13 @@ pub(crate) fn write_html_lines<T>(
     lines: &HtmlLines<'_>,
     span_attrs: &dyn Fn(usize, &str) -> String,
 ) -> io::Result<()> {
-    let plain_tag = LineTag::new(None, None, lines.numbered);
+    let plain_tag = LineTag::new(None, None, lines.numbered, false, lines.line_number_attrs);
     let highlighted_tag = LineTag::new(
         lines.highlighted_class,
         lines.highlighted_style,
         lines.numbered,
+        true,
+        lines.highlighted_line_number_attrs,
     );
     let composed = compose_line_decorations(source, events, lines.selection);
     let mut attrs: std::collections::HashMap<(usize, &str), String> =
@@ -1127,6 +1151,8 @@ mod tests {
         let lines = HtmlLines {
             selection,
             numbered,
+            line_number_attrs: None,
+            highlighted_line_number_attrs: None,
             highlighted_class,
             highlighted_style: None,
         };
@@ -1214,6 +1240,8 @@ mod tests {
             &HtmlLines {
                 selection: &LineSelection::default(),
                 numbered: false,
+                line_number_attrs: None,
+                highlighted_line_number_attrs: None,
                 highlighted_class: None,
                 highlighted_style: None,
             },
@@ -1247,12 +1275,41 @@ mod tests {
                 r#"<span class="l-line-number" aria-hidden="true">1</span>one"#,
                 "\n</div>",
                 r#"<div class="l-line l-highlighted" data-line="2">"#,
-                r#"<span class="l-line-number" aria-hidden="true">2</span>two"#,
+                r#"<span class="l-line-number l-line-number-highlighted" aria-hidden="true">2</span>two"#,
                 // The last line is unterminated in the source, so it carries no
                 // terminator here either.
                 "</div>",
             )
         );
+    }
+
+    #[test]
+    fn gutters_carry_their_theme_attributes() {
+        let source = "one\ntwo";
+        let events = [HighlightEvent::<()>::Source {
+            start: 0,
+            end: source.len(),
+        }];
+        let selection = LineSelection::new(std::slice::from_ref(&(2..=2)), &[]);
+        let mut output = Vec::new();
+        let lines = HtmlLines {
+            selection: &selection,
+            numbered: true,
+            line_number_attrs: Some(r#"style="color:#111111;""#),
+            highlighted_line_number_attrs: Some(r#"style="color:#eeeeee;""#),
+            highlighted_class: None,
+            highlighted_style: None,
+        };
+
+        write_html_lines(&mut output, source, &events, &lines, &|_, _| String::new()).unwrap();
+
+        let html = String::from_utf8(output).unwrap();
+        assert!(html.contains(
+            r#"<span class="l-line-number" style="color:#111111;" aria-hidden="true">1</span>"#
+        ));
+        assert!(html.contains(
+            r#"<span class="l-line-number l-line-number-highlighted" style="color:#eeeeee;" aria-hidden="true">2</span>"#
+        ));
     }
 
     /// Without the option nothing is added, which is what keeps every existing

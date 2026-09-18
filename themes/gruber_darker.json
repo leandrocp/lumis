@@ -1,7 +1,7 @@
 {
   "name": "gruber_darker",
   "appearance": "dark",
-  "revision": "aba065c3a79b58cc3863d5c9db319255abd1258a",
+  "revision": "50fa4e583099729fcaaadc73a5afb74f7a91a625",
   "highlights": {
     "attribute": {
       "fg": "#95a99f"
@@ -156,6 +156,12 @@
     "label": {
       "fg": "#ffdd33",
       "bold": true
+    },
+    "line_number": {
+      "fg": "#52494e"
+    },
+    "line_number.highlighted": {
+      "fg": "#ffdd33"
     },
     "markup": {
       "fg": "#ffdd33"

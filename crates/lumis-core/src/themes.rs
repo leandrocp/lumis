@@ -693,10 +693,21 @@ impl Css<'_> {
             let style_css = style.css(self.enable_italic, "\n  ");
 
             if !style_css.is_empty() {
+                let class = scope.replace(['.', '_'], "-");
+                let selector = if scope == "line_number"
+                    && self
+                        .theme
+                        .highlights
+                        .contains_key("line_number.highlighted")
+                {
+                    format!(".l-{class}:not(.l-line-number-highlighted)")
+                } else {
+                    format!(".l-{class}")
+                };
                 rules.push(format!(
-                    "{}.l-{} {{\n  {}\n}}\n",
+                    "{}{} {{\n  {}\n}}\n",
                     self.scope_prefix(),
-                    scope.replace('.', "-"),
+                    selector,
                     style_css
                 ));
             }
@@ -911,7 +922,7 @@ mod tests {
 
     #[test]
     fn test_css_builder_default_stylesheet() {
-        let json = r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"normal": {"fg": "red", "bg": "green"}, "keyword": {"fg": "blue", "italic": true}, "tag.attribute": {"bg": "gray", "bold": true}}}"#;
+        let json = r#"{"name": "test", "appearance": "dark", "revision": "3e976b4", "highlights": {"normal": {"fg": "red", "bg": "green"}, "keyword": {"fg": "blue", "italic": true}, "line_number": {"fg": "silver"}, "line_number.highlighted": {"fg": "white", "bold": true}, "tag.attribute": {"bg": "gray", "bold": true}}}"#;
         let theme = from_json(json).unwrap();
 
         let expected = r"/* test
@@ -925,6 +936,13 @@ mod tests {
   color: blue;
   font-style: italic;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: silver;
+}
+.l-line-number-highlighted {
+  color: white;
+  font-weight: bold;
+}
 .l-tag-attribute {
   background-color: gray;
   font-weight: bold;
@@ -935,6 +953,17 @@ mod tests {
             CssBuilder::new(&theme).enable_italic(true).build(),
             expected
         );
+    }
+
+    #[test]
+    fn test_css_builder_line_number_falls_back_when_highlighted_style_is_absent() {
+        let json = r#"{"name": "test", "appearance": "dark", "revision": "abc", "highlights": {"line_number": {"fg": "silver"}}}"#;
+        let theme = from_json(json).unwrap();
+
+        let css = CssBuilder::new(&theme).build();
+
+        assert!(css.contains(".l-line-number {\n  color: silver;\n}"));
+        assert!(!css.contains(".l-line-number:not("));
     }
 
     #[test]

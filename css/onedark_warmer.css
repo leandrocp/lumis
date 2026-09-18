@@ -142,6 +142,12 @@
 .l-label {
   color: #de5d68;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #5a5b5e;
+}
+.l-line-number-highlighted {
+  color: #a7aab0;
+}
 .l-markup {
   color: #de5d68;
 }

@@ -165,6 +165,12 @@
 .l-label-ruby {
   color: #023b95;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #66707b;
+}
+.l-line-number-highlighted {
+  color: #010409;
+}
 .l-markup {
   color: #010409;
 }
@@ -266,7 +272,7 @@
 .l-module-builtin {
   color: #023b95;
 }
-.l-module-c_sharp {
+.l-module-c-sharp {
   color: #702c00;
 }
 .l-module-elixir {

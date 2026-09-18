@@ -1,5 +1,5 @@
 /* monokai_soda
- * revision: b8bd44d5796503173627d7a1fc51f77ec3a08a63
+ * revision: fca3943173f6026347f9ffc68baab39454446c3b
  */
 .lumis {
   color: #f6f6ec;
@@ -157,6 +157,14 @@
 }
 .l-label {
   color: #f3005f;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #4d5154;
+  background-color: #26292c;
+}
+.l-line-number-highlighted {
+  color: #fa8419;
+  background-color: #26292c;
 }
 .l-markup {
   color: #f6f6ec;

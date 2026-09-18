@@ -1,7 +1,7 @@
 {
   "name": "astrolight",
   "appearance": "light",
-  "revision": "37afa2a78ce4d8d3d70827f84710c14b78c5d071",
+  "revision": "f6883da9b88ac810e6e5568db9a74ba6d6672d4b",
   "highlights": {
     "attribute": {
       "fg": "#7300b8"
@@ -151,6 +151,12 @@
     },
     "label": {
       "fg": "#00508a"
+    },
+    "line_number": {
+      "fg": "#b5b9bd"
+    },
+    "line_number.highlighted": {
+      "fg": "#424446"
     },
     "markup": {
       "fg": "#00508a"

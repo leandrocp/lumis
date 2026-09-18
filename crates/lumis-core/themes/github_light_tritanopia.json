@@ -157,6 +157,12 @@
     "label": {
       "fg": "#0550ae"
     },
+    "line_number": {
+      "fg": "#6e7781"
+    },
+    "line_number.highlighted": {
+      "fg": "#1b1f24"
+    },
     "markup": {
       "fg": "#1b1f24"
     },

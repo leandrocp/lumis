@@ -1,5 +1,5 @@
 /* astrojupiter
- * revision: 37afa2a78ce4d8d3d70827f84710c14b78c5d071
+ * revision: f6883da9b88ac810e6e5568db9a74ba6d6672d4b
  */
 .lumis {
   color: #815654;
@@ -153,6 +153,12 @@
 }
 .l-label {
   color: #006e89;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #d0b6b6;
+}
+.l-line-number-highlighted {
+  color: #815654;
 }
 .l-markup {
   color: #006e89;

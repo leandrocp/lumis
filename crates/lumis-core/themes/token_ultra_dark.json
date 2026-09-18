@@ -1,7 +1,7 @@
 {
   "name": "token_ultra_dark",
   "appearance": "dark",
-  "revision": "11be57ef691359f7a5853281ba43a86b3a0b80c2",
+  "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
   "highlights": {
     "attribute": {
       "fg": "#a7a299"
@@ -159,6 +159,14 @@
     },
     "label": {
       "fg": "#f7c988",
+      "bold": true
+    },
+    "line_number": {
+      "fg": "#585855",
+      "bg": "#212120"
+    },
+    "line_number.highlighted": {
+      "fg": "#aab86d",
       "bold": true
     },
     "markup": {

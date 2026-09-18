@@ -1,5 +1,5 @@
 /* vague
- * revision: 49fe06ad33d8847b931ba4279197bda222374cd1
+ * revision: f9060fdaf7b20f68575d6f8214da6f1cf0c72825
  */
 .lumis {
   color: #cdcdcd;
@@ -146,6 +146,12 @@
 }
 .l-label {
   color: #6e94b2;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #606079;
+}
+.l-line-number-highlighted {
+  color: #cdcdcd;
 }
 .l-markup {
   color: #cdcdcd;

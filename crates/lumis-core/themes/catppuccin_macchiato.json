@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_macchiato",
   "appearance": "dark",
-  "revision": "e068ab5f8261f23f6f71ffd8791ae40315b77b9c",
+  "revision": "edefef779ab08ce1a4a404713e3012b0d202bd35",
   "highlights": {
     "attribute": {
       "fg": "#f5a97f"
@@ -176,6 +176,12 @@
     },
     "label.yaml": {
       "fg": "#eed49f"
+    },
+    "line_number": {
+      "fg": "#494d64"
+    },
+    "line_number.highlighted": {
+      "fg": "#b7bdf8"
     },
     "markup": {
       "fg": "#cad3f5"

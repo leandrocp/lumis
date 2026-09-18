@@ -1,7 +1,7 @@
 {
   "name": "onelight",
   "appearance": "light",
-  "revision": "f5fddfd5122fe00421e199151ae4fe8571a02898",
+  "revision": "24c806cb85c1f84d9faaff457cf7aa87c685a070",
   "highlights": {
     "attribute": {
       "fg": "#9a77cf"
@@ -186,6 +186,14 @@
     },
     "label.ruby": {
       "fg": "#e05661"
+    },
+    "line_number": {
+      "fg": "#cccccc",
+      "bg": "#fafafa"
+    },
+    "line_number.highlighted": {
+      "fg": "#9a77cf",
+      "bg": "#fafafa"
     },
     "markup": {
       "fg": "#118dc3"

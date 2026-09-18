@@ -1,7 +1,7 @@
 {
   "name": "token_light",
   "appearance": "light",
-  "revision": "11be57ef691359f7a5853281ba43a86b3a0b80c2",
+  "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
   "highlights": {
     "attribute": {
       "fg": "#573c72"
@@ -159,6 +159,14 @@
     },
     "label": {
       "fg": "#6d4717",
+      "bold": true
+    },
+    "line_number": {
+      "fg": "#b4b2ab",
+      "bg": "#f6f5f1"
+    },
+    "line_number.highlighted": {
+      "fg": "#465509",
       "bold": true
     },
     "markup": {

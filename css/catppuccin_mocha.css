@@ -1,5 +1,5 @@
 /* catppuccin_mocha
- * revision: e068ab5f8261f23f6f71ffd8791ae40315b77b9c
+ * revision: edefef779ab08ce1a4a404713e3012b0d202bd35
  */
 .lumis {
   color: #cdd6f4;
@@ -11,7 +11,7 @@
 .l-attribute-builtin {
   color: #f5c2e7;
 }
-.l-attribute-c_sharp {
+.l-attribute-c-sharp {
   color: #f9e2af;
 }
 .l-boolean {
@@ -178,6 +178,12 @@
 }
 .l-label-yaml {
   color: #f9e2af;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #45475a;
+}
+.l-line-number-highlighted {
+  color: #b4befe;
 }
 .l-markup {
   color: #cdd6f4;

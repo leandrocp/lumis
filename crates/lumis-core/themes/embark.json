@@ -1,7 +1,7 @@
 {
   "name": "embark",
   "appearance": "dark",
-  "revision": "7014644e25d5cebcb3e70a079804c44ec14d8e46",
+  "revision": "2331671b548abcade22b0197fde58e11744c99bb",
   "highlights": {
     "attribute": {
       "fg": "#a1efd3"
@@ -136,6 +136,14 @@
     },
     "label": {
       "fg": "#78a8ff"
+    },
+    "line_number": {
+      "fg": "#585273"
+    },
+    "line_number.highlighted": {
+      "fg": "#91ddff",
+      "bg": "#100e23",
+      "bold": true
     },
     "markup": {
       "fg": "#abf8f7"

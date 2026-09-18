@@ -1,5 +1,5 @@
 /* monokai_pro
- * revision: b8bd44d5796503173627d7a1fc51f77ec3a08a63
+ * revision: fca3943173f6026347f9ffc68baab39454446c3b
  */
 .lumis {
   color: #fff1f3;
@@ -157,6 +157,14 @@
 }
 .l-label {
   color: #ff6188;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #4d5154;
+  background-color: #26292c;
+}
+.l-line-number-highlighted {
+  color: #fc9867;
+  background-color: #26292c;
 }
 .l-markup {
   color: #fff1f3;

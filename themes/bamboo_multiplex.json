@@ -163,6 +163,12 @@
     "label.diff": {
       "fg": "#ceba49"
     },
+    "line_number": {
+      "fg": "#5a5e5a"
+    },
+    "line_number.highlighted": {
+      "fg": "#ece1c0"
+    },
     "markup": {
       "fg": "#dc4f62"
     },

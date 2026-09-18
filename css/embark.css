@@ -1,5 +1,5 @@
 /* embark
- * revision: 7014644e25d5cebcb3e70a079804c44ec14d8e46
+ * revision: 2331671b548abcade22b0197fde58e11744c99bb
  */
 .lumis {
   color: #cbe3e7;
@@ -138,6 +138,14 @@
 }
 .l-label {
   color: #78a8ff;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #585273;
+}
+.l-line-number-highlighted {
+  color: #91ddff;
+  background-color: #100e23;
+  font-weight: bold;
 }
 .l-markup {
   color: #abf8f7;

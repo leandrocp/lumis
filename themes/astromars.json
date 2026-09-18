@@ -1,7 +1,7 @@
 {
   "name": "astromars",
   "appearance": "dark",
-  "revision": "37afa2a78ce4d8d3d70827f84710c14b78c5d071",
+  "revision": "f6883da9b88ac810e6e5568db9a74ba6d6672d4b",
   "highlights": {
     "attribute": {
       "fg": "#c3963d"
@@ -151,6 +151,12 @@
     },
     "label": {
       "fg": "#4fa9c6"
+    },
+    "line_number": {
+      "fg": "#393337"
+    },
+    "line_number.highlighted": {
+      "fg": "#a5b2bc"
     },
     "markup": {
       "fg": "#4fa9c6"

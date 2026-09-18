@@ -137,8 +137,9 @@ const RAINBOW_BRACKET_FALLBACKS: Record<string, HighlightStyle> = {
 export function getScopedThemeStyle(
   theme: Theme | undefined,
   scope: string,
-  language: LanguageRef,
+  language: LanguageRef | undefined,
 ): HighlightStyle | undefined {
+  if (language === undefined) return getThemeStyle(theme, scope);
   return getThemeStyle(theme, `${scope}.${languageId(language)}`) ?? getThemeStyle(theme, scope);
 }
 
@@ -615,7 +616,8 @@ export function spanLinked(text: string, scope: string): string {
  * ```
  */
 export interface SpanMultiThemesOptions {
-  language: LanguageRef;
+  /** Omit for scopes, such as line-number gutters, that are not language-specific. */
+  language?: LanguageRef;
   scope: string;
   themes: Record<string, Theme | undefined>;
   defaultTheme?: string;
@@ -765,7 +767,7 @@ function pushThemeCssVars(
   prefix: string,
   themeName: string,
   scope: string,
-  language: LanguageRef,
+  language: LanguageRef | undefined,
   theme: Theme | undefined,
 ): void {
   const style = getScopedThemeStyle(theme, scope, language);
@@ -813,7 +815,7 @@ function pushThemeCssVarsForAll(
   prefix: string,
   themes: Record<string, Theme | undefined>,
   scope: string,
-  language: LanguageRef,
+  language: LanguageRef | undefined,
   excludeTheme?: string,
 ): void {
   for (const themeName of sortedThemeNames(themes)) {
@@ -980,9 +982,15 @@ export function wrapLine(
  * write, not a helper a custom one is built from.
  */
 const LINE_NUMBER_CLASS = "l-line-number";
+const HIGHLIGHTED_LINE_NUMBER_CLASS = "l-line-number-highlighted";
 
-function lineNumberGutter(lineNumber: number): string {
-  return `<span class="${LINE_NUMBER_CLASS}" aria-hidden="true">${lineNumber}</span>`;
+function lineNumberGutter(lineNumber: number, highlighted: boolean, attrs: HtmlAttrs): string {
+  const open = openSpanTag({
+    class: classList(LINE_NUMBER_CLASS, highlighted && HIGHLIGHTED_LINE_NUMBER_CLASS),
+    ...attrs,
+    "aria-hidden": "true",
+  });
+  return `${open}${lineNumber}</span>`;
 }
 
 /**
@@ -1230,6 +1238,7 @@ export function formatHtmlLines(
     theme: Theme | undefined;
     lines: readonly LineSpec[] | undefined;
     lineNumbers: boolean | undefined;
+    lineNumberAttrs: { regular: HtmlAttrs; highlighted: HtmlAttrs };
     highlightedAttrs: { className?: string; style?: string };
     openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
   },
@@ -1249,7 +1258,15 @@ export function formatHtmlLines(
       parts.push(
         wrapLine(
           decoration.number,
-          numbered ? `${lineNumberGutter(decoration.number)}${content}` : content,
+          numbered
+            ? `${lineNumberGutter(
+                decoration.number,
+                decoration.highlighted,
+                decoration.highlighted
+                  ? formatter.lineNumberAttrs.highlighted
+                  : formatter.lineNumberAttrs.regular,
+              )}${content}`
+            : content,
           decoration.highlighted ? formatter.highlightedAttrs : {},
         ),
       );

@@ -1,5 +1,5 @@
 /* bluloco_light
- * revision: 8973f4b595a96ceb45b3885d533f287182a73c20
+ * revision: caa4233dab772dad1db272c78025dd9682dca9e8
  */
 .lumis {
   color: #383a42;
@@ -140,6 +140,12 @@
 }
 .l-label-json {
   color: #9e5947;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #a0a1a7;
+}
+.l-line-number-highlighted {
+  color: #a0a1a7;
 }
 .l-markup {
   color: #de631b;

@@ -138,6 +138,13 @@
 .l-label {
   color: #67b0e8;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #232a2d;
+  background-color: #141b1e;
+}
+.l-line-number-highlighted {
+  color: #2c3333;
+}
 .l-markup {
   color: #6cbfbf;
 }

@@ -27,17 +27,9 @@ function highlightBackground(formatter: TerminalFormatter): string | undefined {
   return highlight.background ?? getThemeStyle(formatter.theme, "highlighted")?.bg;
 }
 
-/**
- * The colour the gutter is dimmed with.
- *
- * No theme scope names a gutter, and `comment` is the one scope every theme
- * styles as text meant to recede, so the gutter borrows its foreground — and
- * only its foreground, since whether a theme sets comments in italic says
- * nothing about a line number.
- */
-function gutterStyle(theme: Theme | undefined): HighlightStyle | undefined {
-  const fg = getThemeStyle(theme, "comment")?.fg;
-  return fg === undefined ? undefined : { fg };
+/** The Neovim number-column style for this line. */
+function gutterStyle(theme: Theme | undefined, highlighted: boolean): HighlightStyle | undefined {
+  return getThemeStyle(theme, highlighted ? "line_number.highlighted" : "line_number");
 }
 
 function paintWithBackground(
@@ -164,13 +156,14 @@ interface TerminalState {
    * source ending in a newline is one, and numbering it would leave a bare
    * number after the output.
    */
-  pendingNumber: number | undefined;
+  pendingNumber: { number: number; highlighted: boolean } | undefined;
 }
 
 /** How a line's number is written, once the widest one is known. */
 interface Gutter {
   width: number;
   style: HighlightStyle | undefined;
+  highlightedStyle: HighlightStyle | undefined;
 }
 
 /** Write one source event, opening the line with its number if it has not been. */
@@ -182,10 +175,12 @@ function writeSource(
   text: string,
 ): void {
   if (gutter && state.pendingNumber !== undefined && text !== "") {
-    const written = `${String(state.pendingNumber).padStart(gutter.width, " ")} `;
+    const pending = state.pendingNumber;
+    const written = `${String(pending.number).padStart(gutter.width, " ")} `;
     // Neovim draws the number column with `CursorLineNr` alone, so `CursorLine`
     // does not reach it: a highlighted line's background starts at its text.
-    state.output += paintWithBackground(written, gutter.style, fallbackBg);
+    const style = pending.highlighted ? gutter.highlightedStyle : gutter.style;
+    state.output += paintWithBackground(written, style, fallbackBg);
     state.lineWidth = written.length;
     state.pendingNumber = undefined;
   }
@@ -221,7 +216,9 @@ function applyTerminalEvent(
         ? (backgrounds.highlight ?? backgrounds.fallback)
         : backgrounds.fallback;
       state.lineWidth = 0;
-      state.pendingNumber = gutter ? event.decoration.number : undefined;
+      state.pendingNumber = gutter
+        ? { number: event.decoration.number, highlighted: event.decoration.highlighted }
+        : undefined;
       break;
     case "source":
       writeSource(
@@ -263,7 +260,11 @@ export function formatTerminal(
   // The gutter is padded to the widest number it will show, which is only known
   // once the lines are.
   const gutter: Gutter | undefined = numbered
-    ? { width: gutterWidth(lastLineNumber(decorated)), style: gutterStyle(formatter.theme) }
+    ? {
+        width: gutterWidth(lastLineNumber(decorated)),
+        style: gutterStyle(formatter.theme, false),
+        highlightedStyle: gutterStyle(formatter.theme, true),
+      }
     : undefined;
 
   const state: TerminalState = {

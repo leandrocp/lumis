@@ -41,6 +41,8 @@ local regular_groups = {
 	"Normal",
 	"Comment",
 	"CursorLine",
+	"LineNr",
+	"CursorLineNr",
 	"RainbowDelimiterRed",
 	"RainbowDelimiterYellow",
 	"RainbowDelimiterBlue",
@@ -50,6 +52,8 @@ local regular_groups = {
 }
 
 local group_key_map = {
+	LineNr = "line_number",
+	CursorLineNr = "line_number.highlighted",
 	RainbowDelimiterRed = "punctuation.bracket.rainbow.1",
 	RainbowDelimiterYellow = "punctuation.bracket.rainbow.2",
 	RainbowDelimiterBlue = "punctuation.bracket.rainbow.3",

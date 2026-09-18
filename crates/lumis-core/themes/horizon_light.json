@@ -127,6 +127,14 @@
     "keyword.type": {
       "fg": "#8a31b9"
     },
+    "line_number": {
+      "fg": "#e4d9d7"
+    },
+    "line_number.highlighted": {
+      "fg": "#827b7d",
+      "bg": "#fce5df",
+      "bold": true
+    },
     "markup": {
       "fg": "#f77d26"
     },

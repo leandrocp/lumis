@@ -73,7 +73,12 @@ function scopeRules(theme: ThemeData, scope: string, enableItalic: boolean): str
 
     const styleCss = renderStyle(style, enableItalic, "\n  ");
     if (styleCss !== "") {
-      rules.push(`${scopePrefix(scope)}.l-${scopeName.replaceAll(".", "-")} {\n  ${styleCss}\n}\n`);
+      const className = `l-${scopeName.replaceAll(/[._]/g, "-")}`;
+      const selector =
+        scopeName === "line_number" && theme.highlights["line_number.highlighted"] !== undefined
+          ? `.${className}:not(.l-line-number-highlighted)`
+          : `.${className}`;
+      rules.push(`${scopePrefix(scope)}${selector} {\n  ${styleCss}\n}\n`);
     }
   }
 

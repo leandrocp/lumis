@@ -159,6 +159,13 @@
   color: #795ccc;
   font-weight: bold;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #51587a;
+}
+.l-line-number-highlighted {
+  color: #ebefc0;
+  font-weight: bold;
+}
 .l-markup {
   color: #5dcd97;
 }

@@ -1,7 +1,7 @@
 {
   "name": "astrodark",
   "appearance": "dark",
-  "revision": "37afa2a78ce4d8d3d70827f84710c14b78c5d071",
+  "revision": "f6883da9b88ac810e6e5568db9a74ba6d6672d4b",
   "highlights": {
     "attribute": {
       "fg": "#dfab25"
@@ -151,6 +151,12 @@
     },
     "label": {
       "fg": "#5eb7ff"
+    },
+    "line_number": {
+      "fg": "#3a3e47"
+    },
+    "line_number.highlighted": {
+      "fg": "#adb0bb"
     },
     "markup": {
       "fg": "#5eb7ff"

@@ -159,6 +159,12 @@
 .l-label {
   color: #0550ae;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #6e7781;
+}
+.l-line-number-highlighted {
+  color: #1b1f24;
+}
 .l-markup {
   color: #1b1f24;
 }
@@ -260,7 +266,7 @@
 .l-module-builtin {
   color: #0550ae;
 }
-.l-module-c_sharp {
+.l-module-c-sharp {
   color: #a40e26;
 }
 .l-module-elixir {

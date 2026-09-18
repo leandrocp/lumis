@@ -1,7 +1,7 @@
 {
   "name": "token_temper_dark",
   "appearance": "dark",
-  "revision": "11be57ef691359f7a5853281ba43a86b3a0b80c2",
+  "revision": "1538e1eadcbc9eb465b33bab71eec48c8bed0b76",
   "highlights": {
     "attribute": {
       "fg": "#a2a9af"
@@ -159,6 +159,14 @@
     },
     "label": {
       "fg": "#e7cdff",
+      "bold": true
+    },
+    "line_number": {
+      "fg": "#535d68",
+      "bg": "#22272e"
+    },
+    "line_number.highlighted": {
+      "fg": "#62c7b9",
       "bold": true
     },
     "markup": {

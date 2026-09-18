@@ -164,6 +164,12 @@
 .l-label-vim {
   color: #a665d0;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #525252;
+}
+.l-line-number-highlighted {
+  color: #e0e0e0;
+}
 .l-markup {
   color: #ca7050;
 }

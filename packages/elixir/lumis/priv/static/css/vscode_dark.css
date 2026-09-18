@@ -1,5 +1,5 @@
 /* vscode_dark
- * revision: aa1102a7e15195c9cca22730b09224a7f7745ba8
+ * revision: 6439ed89d0e10193f07e92268a321d7c6f6e93ee
  */
 .lumis {
   color: #d4d4d4;
@@ -145,6 +145,14 @@
 .l-label {
   color: #9cdcfe;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #5a5a5a;
+  background-color: #1f1f1f;
+}
+.l-line-number-highlighted {
+  color: #bbbbbb;
+  background-color: #1f1f1f;
+}
 .l-markup {
   color: #d7ba7d;
 }
@@ -239,7 +247,7 @@
 .l-markup-raw-markdown {
   color: #ce9178;
 }
-.l-markup-raw-markdown_inline {
+.l-markup-raw-markdown-inline {
   color: #ce9178;
 }
 .l-markup-strikethrough {

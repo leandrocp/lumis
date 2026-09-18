@@ -1,5 +1,5 @@
 /* astromars
- * revision: 37afa2a78ce4d8d3d70827f84710c14b78c5d071
+ * revision: f6883da9b88ac810e6e5568db9a74ba6d6672d4b
  */
 .lumis {
   color: #a5b2bc;
@@ -153,6 +153,12 @@
 }
 .l-label {
   color: #4fa9c6;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #393337;
+}
+.l-line-number-highlighted {
+  color: #a5b2bc;
 }
 .l-markup {
   color: #4fa9c6;

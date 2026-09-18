@@ -1,5 +1,5 @@
 /* catppuccin_macchiato
- * revision: e068ab5f8261f23f6f71ffd8791ae40315b77b9c
+ * revision: edefef779ab08ce1a4a404713e3012b0d202bd35
  */
 .lumis {
   color: #cad3f5;
@@ -11,7 +11,7 @@
 .l-attribute-builtin {
   color: #f5bde6;
 }
-.l-attribute-c_sharp {
+.l-attribute-c-sharp {
   color: #eed49f;
 }
 .l-boolean {
@@ -178,6 +178,12 @@
 }
 .l-label-yaml {
   color: #eed49f;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #494d64;
+}
+.l-line-number-highlighted {
+  color: #b7bdf8;
 }
 .l-markup {
   color: #cad3f5;

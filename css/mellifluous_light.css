@@ -144,6 +144,14 @@
 .l-label-markdown {
   color: #969555;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #919191;
+  background-color: #e0e0e0;
+}
+.l-line-number-highlighted {
+  color: #919191;
+  background-color: #ebebeb;
+}
 .l-markup-environment {
   color: #a16927;
 }
@@ -200,7 +208,7 @@
   color: #863e7f;
   text-decoration: underline;
 }
-.l-markup-link-markdown_inline {
+.l-markup-link-markdown-inline {
   color: #863e7f;
 }
 .l-markup-link-url {

@@ -168,6 +168,12 @@
 .l-label {
   color: #b48ead;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #616e88;
+}
+.l-line-number-highlighted {
+  color: #d8dee9;
+}
 .l-markup {
   color: #d8dee9;
 }

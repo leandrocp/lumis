@@ -1,5 +1,5 @@
 /* cyberdream_light
- * revision: b9cc88378b776f33d3ea77164716f37c3f13ef72
+ * revision: 39e1fda12c0704e01029b286a4c7e77e33a0c5cd
  */
 .lumis {
   color: #16181a;
@@ -136,6 +136,12 @@
 .l-label {
   color: #d17c00;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #9d9d9d;
+}
+.l-line-number-highlighted {
+  color: #7b8496;
+}
 .l-markup {
   color: #f40064;
 }
@@ -182,10 +188,10 @@
 .l-markup-link-label {
   color: #d17c00;
 }
-.l-markup-link-label-markdown_inline {
+.l-markup-link-label-markdown-inline {
   color: #008c99;
 }
-.l-markup-link-markdown_inline {
+.l-markup-link-markdown-inline {
   color: #0057d1;
 }
 .l-markup-link-url {

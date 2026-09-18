@@ -79,7 +79,11 @@ If you want the block to be self-contained instead, use `htmlInline`.
 
 ## Token classes
 
-Token classes use the `l-` prefix. Dots in Tree-sitter highlight scopes become dashes, so `comment` becomes `.l-comment`, and `tag.attribute` becomes `.l-tag-attribute`.
+Theme classes use the `l-` prefix. Dots and underscores in highlight scopes
+become dashes, so `tag.attribute` becomes `.l-tag-attribute` and `line_number`
+becomes `.l-line-number`. A highlighted gutter also carries
+`.l-line-number-highlighted`; theme CSS applies `CursorLineNr` without merging
+in `LineNr`, while themes without `CursorLineNr` fall back to `LineNr`.
 
 The block and language classes stay bare: `.lumis` and `language-*`.
 

@@ -1,7 +1,7 @@
 {
   "name": "moonfly",
   "appearance": "dark",
-  "revision": "261664f92ed51cf0c077555b2d4b2530307eac17",
+  "revision": "2c883835f5b7b380a0a9e80695c420f7efebdfe4",
   "highlights": {
     "attribute": {
       "fg": "#74b2ff"
@@ -153,6 +153,14 @@
     },
     "label": {
       "fg": "#79dac8"
+    },
+    "line_number": {
+      "fg": "#626262",
+      "bg": "#080808"
+    },
+    "line_number.highlighted": {
+      "fg": "#80a0ff",
+      "bg": "#1c1c1c"
     },
     "markup": {
       "fg": "#e65e72"

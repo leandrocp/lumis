@@ -220,6 +220,12 @@
 .l-label {
   color: #7fdbca;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #4b6479;
+}
+.l-line-number-highlighted {
+  color: #c5e4fc;
+}
 .l-markup {
   color: #ffcb8b;
 }

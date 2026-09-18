@@ -157,6 +157,8 @@ impl<T> Formatter<T> for HtmlLinked {
             &crate::formatter::html::HtmlLines {
                 selection: &self.line_selection(),
                 numbered: self.line_numbers,
+                line_number_attrs: None,
+                highlighted_line_number_attrs: None,
                 highlighted_class: class_suffix.as_deref(),
                 highlighted_style: None,
             },

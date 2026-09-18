@@ -1,7 +1,7 @@
 {
   "name": "cyberdream_light",
   "appearance": "light",
-  "revision": "b9cc88378b776f33d3ea77164716f37c3f13ef72",
+  "revision": "39e1fda12c0704e01029b286a4c7e77e33a0c5cd",
   "highlights": {
     "attribute": {
       "fg": "#008c99"
@@ -133,6 +133,12 @@
     },
     "label": {
       "fg": "#d17c00"
+    },
+    "line_number": {
+      "fg": "#9d9d9d"
+    },
+    "line_number.highlighted": {
+      "fg": "#7b8496"
     },
     "markup": {
       "fg": "#f40064"

@@ -180,19 +180,15 @@ impl Terminal {
         self.theme.as_ref()?.get_style("highlighted")?.bg.as_deref()
     }
 
-    /// The colour the gutter is dimmed with.
-    ///
-    /// No theme scope names a gutter, and `comment` is the one scope every theme
-    /// styles as text meant to recede, so the gutter borrows its foreground —
-    /// and only its foreground, since whether a theme sets comments in italic
-    /// says nothing about a line number.
-    fn gutter_style(&self) -> Option<Style> {
-        let fg = self.theme.as_ref()?.get_style("comment")?.fg.clone()?;
+    /// The Neovim number-column style for this line.
+    fn gutter_style(&self, highlighted: bool) -> Option<&Style> {
+        let scope = if highlighted {
+            "line_number.highlighted"
+        } else {
+            "line_number"
+        };
 
-        Some(Style {
-            fg: Some(fg),
-            ..Default::default()
-        })
+        self.theme.as_ref()?.get_style(scope)
     }
 }
 
@@ -260,7 +256,7 @@ impl<T> Formatter<T> for Terminal {
         // known once the lines are.
         let gutter = self
             .line_numbers
-            .then(|| (gutter_width(last_line_number(events)), self.gutter_style()));
+            .then(|| gutter_width(last_line_number(events)));
         let mut line_bg = fallback_bg;
         // A line's number is written with its first text rather than when the
         // line opens, because a terminal writes nothing at all for a line with
@@ -273,12 +269,18 @@ impl<T> Formatter<T> for Terminal {
                 HighlightEvent::Source { start, end } => {
                     let text = source_text(source_bytes, *start, *end)?;
                     if !text.is_empty() {
-                        if let (Some(number), Some((width, style))) = (pending_number, &gutter) {
+                        if let (Some((number, highlighted)), Some(width)) = (pending_number, gutter)
+                        {
                             // Neovim draws the number column with `CursorLineNr`
                             // alone, so `CursorLine` does not reach it: a
                             // highlighted line's background starts at its text.
-                            line_width =
-                                write_gutter(output, number, *width, style.as_ref(), fallback_bg)?;
+                            line_width = write_gutter(
+                                output,
+                                number,
+                                width,
+                                self.gutter_style(highlighted),
+                                fallback_bg,
+                            )?;
                             pending_number = None;
                         }
                     }
@@ -305,7 +307,7 @@ impl<T> Formatter<T> for Terminal {
                         fallback_bg
                     };
                     line_width = 0;
-                    pending_number = gutter.is_some().then_some(*number);
+                    pending_number = gutter.is_some().then_some((*number, *highlighted));
                 }
                 // Caller annotations carry data this formatter has never seen.
                 HighlightEvent::AnnotationStart { .. }
@@ -714,12 +716,10 @@ mod tests {
         );
     }
 
-    /// No theme scope names a gutter yet, so it borrows the one scope every
-    /// theme styles as text meant to recede.
     #[test]
-    fn the_gutter_is_dimmed_with_the_comment_colour() {
+    fn the_gutter_uses_the_line_number_style() {
         let theme = theme_with_scope_style(
-            "comment",
+            "line_number",
             Style {
                 fg: Some("#6272a4".to_string()),
                 italic: true,
@@ -728,6 +728,82 @@ mod tests {
         );
 
         let rendered = render_lines(&numbered(Some(theme), None), "a");
+
+        assert_eq!(
+            rendered,
+            "\u{1b}[0m\u{1b}[38;2;98;114;164m\u{1b}[3m1 \u{1b}[0ma"
+        );
+    }
+
+    #[test]
+    fn a_highlighted_gutter_uses_the_cursor_line_number_style() {
+        let theme = Theme {
+            name: "test".to_string(),
+            highlights: BTreeMap::from([
+                (
+                    "line_number".to_string(),
+                    Style {
+                        fg: Some("#6272a4".to_string()),
+                        ..Default::default()
+                    },
+                ),
+                (
+                    "line_number.highlighted".to_string(),
+                    Style {
+                        fg: Some("#ff79c6".to_string()),
+                        bold: true,
+                        ..Default::default()
+                    },
+                ),
+            ]),
+            ..Default::default()
+        };
+        let formatter = Terminal::new(
+            Language::PlainText,
+            Some(theme),
+            Background::Inherit,
+            None,
+            Some(HighlightLines {
+                lines: std::iter::once(1..=1).collect(),
+                background: None,
+            }),
+            true,
+        );
+
+        let rendered = render_lines(&formatter, "a\nb");
+
+        assert!(
+            rendered.starts_with("\u{1b}[0m\u{1b}[38;2;255;121;198m\u{1b}[1m1 \u{1b}[0ma"),
+            "the highlighted gutter should use CursorLineNr: {rendered:?}"
+        );
+        assert!(
+            rendered.contains("\n\u{1b}[0m\u{1b}[38;2;98;114;164m2 \u{1b}[0mb"),
+            "the regular gutter should use LineNr: {rendered:?}"
+        );
+    }
+
+    #[test]
+    fn a_highlighted_gutter_falls_back_to_the_line_number_style() {
+        let theme = theme_with_scope_style(
+            "line_number",
+            Style {
+                fg: Some("#6272a4".to_string()),
+                ..Default::default()
+            },
+        );
+        let formatter = Terminal::new(
+            Language::PlainText,
+            Some(theme),
+            Background::Inherit,
+            None,
+            Some(HighlightLines {
+                lines: std::iter::once(1..=1).collect(),
+                background: None,
+            }),
+            true,
+        );
+
+        let rendered = render_lines(&formatter, "a");
 
         assert_eq!(rendered, "\u{1b}[0m\u{1b}[38;2;98;114;164m1 \u{1b}[0ma");
     }

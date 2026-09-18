@@ -1,7 +1,7 @@
 {
   "name": "oxocarbon_dark",
   "appearance": "dark",
-  "revision": "cf49e389c22dab56224e43ae16422ddcd5b61b28",
+  "revision": "cd6523a0836d6e8ee823d343149fd06c7b71fdde",
   "highlights": {
     "attribute": {
       "fg": "#82cfff"
@@ -141,6 +141,13 @@
     },
     "label": {
       "fg": "#82cfff"
+    },
+    "line_number": {
+      "fg": "#525252",
+      "bg": "#161616"
+    },
+    "line_number.highlighted": {
+      "fg": "#d0d0d0"
     },
     "markup.environment": {
       "fg": "#08bdba"

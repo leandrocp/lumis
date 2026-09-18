@@ -1,5 +1,5 @@
 /* onedark
- * revision: f5fddfd5122fe00421e199151ae4fe8571a02898
+ * revision: 24c806cb85c1f84d9faaff457cf7aa87c685a070
  */
 .lumis {
   color: #abb2bf;
@@ -189,6 +189,14 @@
 .l-label-ruby {
   color: #e06c75;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #495162;
+  background-color: #282c34;
+}
+.l-line-number-highlighted {
+  color: #c678dd;
+  background-color: #282c34;
+}
 .l-markup {
   color: #61afef;
 }
@@ -249,7 +257,7 @@
 .l-markup-italic {
   font-style: italic;
 }
-.l-markup-italic-markdown_inline {
+.l-markup-italic-markdown-inline {
   color: #c678dd;
   font-style: italic;
 }
@@ -299,7 +307,7 @@
   color: #e5c07b;
   font-weight: bold;
 }
-.l-markup-strong-markdown_inline {
+.l-markup-strong-markdown-inline {
   color: #d19a66;
   font-weight: bold;
 }
@@ -399,7 +407,7 @@
 .l-punctuation-delimiter {
   color: #abb2bf;
 }
-.l-punctuation-delimiter-markdown_inline {
+.l-punctuation-delimiter-markdown-inline {
   color: #d19a66;
 }
 .l-punctuation-special {

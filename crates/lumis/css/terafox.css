@@ -144,6 +144,13 @@
 .l-label-json {
   color: #73a3b7;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #587b7b;
+}
+.l-line-number-highlighted {
+  color: #fda47f;
+  font-weight: bold;
+}
 .l-markup {
   color: #e6eaea;
 }

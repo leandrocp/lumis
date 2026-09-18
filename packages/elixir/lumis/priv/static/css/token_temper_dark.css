@@ -1,5 +1,5 @@
 /* token_temper_dark
- * revision: 11be57ef691359f7a5853281ba43a86b3a0b80c2
+ * revision: 1538e1eadcbc9eb465b33bab71eec48c8bed0b76
  */
 .lumis {
   color: #c3c8cc;
@@ -161,6 +161,14 @@
 }
 .l-label {
   color: #e7cdff;
+  font-weight: bold;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #535d68;
+  background-color: #22272e;
+}
+.l-line-number-highlighted {
+  color: #62c7b9;
   font-weight: bold;
 }
 .l-markup {

@@ -1,7 +1,7 @@
 {
   "name": "astrojupiter",
   "appearance": "light",
-  "revision": "37afa2a78ce4d8d3d70827f84710c14b78c5d071",
+  "revision": "f6883da9b88ac810e6e5568db9a74ba6d6672d4b",
   "highlights": {
     "attribute": {
       "fg": "#805c00"
@@ -151,6 +151,12 @@
     },
     "label": {
       "fg": "#006e89"
+    },
+    "line_number": {
+      "fg": "#d0b6b6"
+    },
+    "line_number.highlighted": {
+      "fg": "#815654"
     },
     "markup": {
       "fg": "#006e89"

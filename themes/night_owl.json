@@ -218,6 +218,12 @@
     "label": {
       "fg": "#7fdbca"
     },
+    "line_number": {
+      "fg": "#4b6479"
+    },
+    "line_number.highlighted": {
+      "fg": "#c5e4fc"
+    },
     "markup": {
       "fg": "#ffcb8b"
     },

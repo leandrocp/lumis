@@ -1,5 +1,5 @@
 /* nightfly
- * revision: 66050453bf40ac7eddc7a84dd15291db85fefc43
+ * revision: 2c31d07ce05efa92bcb7f893f9c74a846226c898
  */
 .lumis {
   color: #c3ccdc;
@@ -155,6 +155,14 @@
 }
 .l-label {
   color: #7fdbca;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #4b6479;
+  background-color: #011627;
+}
+.l-line-number-highlighted {
+  color: #82aaff;
+  background-color: #092236;
 }
 .l-markup {
   color: #ff5874;

@@ -14,6 +14,8 @@ const sample: ThemeData = {
   highlights: {
     normal: { fg: "red", bg: "green" },
     keyword: { fg: "blue", italic: true },
+    line_number: { fg: "silver" },
+    "line_number.highlighted": { fg: "white", bold: true },
     "tag.attribute": { bg: "gray", bold: true },
   },
 };
@@ -30,6 +32,13 @@ describe("buildCss", () => {
 .l-keyword {
   color: blue;
   font-style: italic;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: silver;
+}
+.l-line-number-highlighted {
+  color: white;
+  font-weight: bold;
 }
 .l-tag-attribute {
   background-color: gray;
@@ -52,6 +61,13 @@ html[data-theme="dark"] .lumis {
 html[data-theme="dark"] .l-keyword {
   color: blue;
   font-style: italic;
+}
+html[data-theme="dark"] .l-line-number:not(.l-line-number-highlighted) {
+  color: silver;
+}
+html[data-theme="dark"] .l-line-number-highlighted {
+  color: white;
+  font-weight: bold;
 }
 html[data-theme="dark"] .l-tag-attribute {
   background-color: gray;
@@ -76,6 +92,19 @@ html[data-theme="dark"] .l-tag-attribute {
 
     expect(css).toContain(".l-keyword {\n  color: blue;\n}");
     expect(css).not.toContain("font-style: italic;");
+  });
+
+  it("uses the regular line-number rule as the highlighted fallback", () => {
+    const fallbackTheme: ThemeData = {
+      name: "fallback",
+      appearance: "dark",
+      highlights: { line_number: { fg: "silver" } },
+    };
+
+    const css = buildCss(fallbackTheme);
+
+    expect(css).toContain(".l-line-number {\n  color: silver;\n}");
+    expect(css).not.toContain(".l-line-number:not(");
   });
 
   it("matches the bundled stylesheet for the default config", () => {

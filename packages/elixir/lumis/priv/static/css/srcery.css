@@ -1,5 +1,5 @@
 /* srcery
- * revision: aefde677e461f03f2cbd9ef432769fb76d075bb9
+ * revision: d4889a85c26702217838da941f921042c17b6397
  */
 .lumis {
   color: #fce8c3;
@@ -138,6 +138,13 @@
 }
 .l-label {
   color: #c5b088;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #917e6b;
+}
+.l-line-number-highlighted {
+  color: #fbb829;
+  background-color: #121110;
 }
 .l-markup {
   color: #2c78bf;

@@ -220,6 +220,8 @@ describe("formatter shared helpers", () => {
           language: jsonLang,
           theme: undefined,
           lines: undefined,
+          lineNumbers: false,
+          lineNumberAttrs: { regular: {}, highlighted: {} },
           highlightedAttrs: {},
           openSpan: () => '<span class="scope">',
         },

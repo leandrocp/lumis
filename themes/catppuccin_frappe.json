@@ -1,7 +1,7 @@
 {
   "name": "catppuccin_frappe",
   "appearance": "dark",
-  "revision": "e068ab5f8261f23f6f71ffd8791ae40315b77b9c",
+  "revision": "edefef779ab08ce1a4a404713e3012b0d202bd35",
   "highlights": {
     "attribute": {
       "fg": "#ef9f76"
@@ -176,6 +176,12 @@
     },
     "label.yaml": {
       "fg": "#e5c890"
+    },
+    "line_number": {
+      "fg": "#51576d"
+    },
+    "line_number.highlighted": {
+      "fg": "#babbf1"
     },
     "markup": {
       "fg": "#c6d0f5"

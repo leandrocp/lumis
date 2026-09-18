@@ -138,6 +138,15 @@
     "label": {
       "fg": "#b4be82"
     },
+    "line_number": {
+      "fg": "#444b71",
+      "bg": "#1e2132"
+    },
+    "line_number.highlighted": {
+      "fg": "#cdd1e6",
+      "bg": "#2a3158",
+      "bold": true
+    },
     "markup": {
       "fg": "#b4be82"
     },

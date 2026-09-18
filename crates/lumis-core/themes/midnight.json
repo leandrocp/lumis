@@ -162,6 +162,12 @@
     "label.vim": {
       "fg": "#a665d0"
     },
+    "line_number": {
+      "fg": "#525252"
+    },
+    "line_number.highlighted": {
+      "fg": "#e0e0e0"
+    },
     "markup": {
       "fg": "#ca7050"
     },

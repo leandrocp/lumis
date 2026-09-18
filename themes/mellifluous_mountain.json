@@ -142,6 +142,14 @@
     "label.markdown": {
       "fg": "#575757"
     },
+    "line_number": {
+      "fg": "#5c5c5c",
+      "bg": "#080808"
+    },
+    "line_number.highlighted": {
+      "fg": "#5c5c5c",
+      "bg": "#131313"
+    },
     "markup.environment": {
       "fg": "#aca98a"
     },

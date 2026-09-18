@@ -140,6 +140,9 @@
 .l-label {
   color: #719e07;
 }
+.l-line-number {
+  color: #586e75;
+}
 .l-markup {
   color: #cb4b16;
 }

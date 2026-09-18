@@ -129,6 +129,14 @@
 .l-keyword-type {
   color: #8a31b9;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #e4d9d7;
+}
+.l-line-number-highlighted {
+  color: #827b7d;
+  background-color: #fce5df;
+  font-weight: bold;
+}
 .l-markup {
   color: #f77d26;
 }

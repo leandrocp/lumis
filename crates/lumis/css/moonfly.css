@@ -1,5 +1,5 @@
 /* moonfly
- * revision: 261664f92ed51cf0c077555b2d4b2530307eac17
+ * revision: 2c883835f5b7b380a0a9e80695c420f7efebdfe4
  */
 .lumis {
   color: #c6c6c6;
@@ -155,6 +155,14 @@
 }
 .l-label {
   color: #79dac8;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #626262;
+  background-color: #080808;
+}
+.l-line-number-highlighted {
+  color: #80a0ff;
+  background-color: #1c1c1c;
 }
 .l-markup {
   color: #e65e72;

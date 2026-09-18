@@ -140,6 +140,12 @@
 .l-label {
   color: #0997b3;
 }
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #676e95;
+}
+.l-line-number-highlighted {
+  color: #0997b3;
+}
 .l-markup {
   color: #2257a0;
   font-style: italic;

@@ -1,7 +1,7 @@
 {
   "name": "nightfly",
   "appearance": "dark",
-  "revision": "66050453bf40ac7eddc7a84dd15291db85fefc43",
+  "revision": "2c31d07ce05efa92bcb7f893f9c74a846226c898",
   "highlights": {
     "attribute": {
       "fg": "#82aaff"
@@ -153,6 +153,14 @@
     },
     "label": {
       "fg": "#7fdbca"
+    },
+    "line_number": {
+      "fg": "#4b6479",
+      "bg": "#011627"
+    },
+    "line_number.highlighted": {
+      "fg": "#82aaff",
+      "bg": "#092236"
     },
     "markup": {
       "fg": "#ff5874"

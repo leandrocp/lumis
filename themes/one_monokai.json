@@ -1,7 +1,7 @@
 {
   "name": "one_monokai",
   "appearance": "dark",
-  "revision": "26e95c14dd3dcd4bf5752d19a54a28817f7d8ea7",
+  "revision": "907cb55796037a9839d121b239237bbb9fe764e0",
   "highlights": {
     "attribute": {
       "fg": "#61afef"
@@ -135,6 +135,12 @@
     },
     "label": {
       "fg": "#e06c75"
+    },
+    "line_number": {
+      "fg": "#4b5261"
+    },
+    "line_number.highlighted": {
+      "fg": "#abb2bf"
     },
     "markup": {
       "fg": "#c678dd"

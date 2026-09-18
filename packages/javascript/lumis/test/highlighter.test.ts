@@ -34,6 +34,20 @@ const guessCases = JSON.parse(
 
 const theme: Theme = tokyonightMoon;
 const draculaTheme: Theme = dracula;
+const lineNumberTheme: Theme = {
+  name: "line-numbers",
+  appearance: "dark",
+  highlights: {
+    normal: { fg: "#eeeeee", bg: "#111111" },
+    highlighted: { bg: "#222222" },
+    line_number: { fg: "#123456" },
+    "line_number.highlighted": { fg: "#abcdef", bold: true },
+    // Gutters are not language-specific. These deliberately conflicting
+    // custom scopes must not affect any formatter.
+    "line_number.plaintext": { fg: "#badbad" },
+    "line_number.highlighted.plaintext": { fg: "#badbad" },
+  },
+};
 
 let hl: Highlighter;
 
@@ -827,10 +841,17 @@ describe("lineNumbers", () => {
   const threeLines = '{"a": 1}\n{"b": 2}\n{"c": 3}';
 
   it("htmlInline: each line carries a gutter element", () => {
-    const html = hl.highlight(threeLines, htmlInline({ language: json, theme, lineNumbers: true }));
+    const html = hl.highlight(
+      threeLines,
+      htmlInline({ language: json, theme: lineNumberTheme, lineNumbers: true }),
+    );
 
-    expect(html).toContain('<span class="l-line-number" aria-hidden="true">1</span>');
-    expect(html).toContain('<span class="l-line-number" aria-hidden="true">3</span>');
+    expect(html).toContain(
+      '<span class="l-line-number" style="color: #123456;" aria-hidden="true">1</span>',
+    );
+    expect(html).toContain(
+      '<span class="l-line-number" style="color: #123456;" aria-hidden="true">3</span>',
+    );
   });
 
   it("htmlInline: nothing is added without the option", () => {
@@ -846,13 +867,51 @@ describe("lineNumbers", () => {
     expect(html).toContain('data-line="3"><span class="l-line-number" aria-hidden="true">3</span>');
   });
 
+  it("HTML: a highlighted gutter uses the CursorLineNr class and style", () => {
+    const inline = hl.highlight(
+      threeLines,
+      htmlInline({
+        language: json,
+        theme: lineNumberTheme,
+        lineNumbers: true,
+        highlightLines: { lines: [[2, 2]] },
+      }),
+    );
+    const linked = hl.highlight(
+      threeLines,
+      htmlLinked({
+        language: json,
+        lineNumbers: true,
+        highlightLines: { lines: [[2, 2]] },
+      }),
+    );
+
+    expect(inline).toContain(
+      '<span class="l-line-number l-line-number-highlighted" style="color: #abcdef; font-weight: bold;" aria-hidden="true">2</span>',
+    );
+    expect(linked).toContain(
+      '<span class="l-line-number l-line-number-highlighted" aria-hidden="true">2</span>',
+    );
+  });
+
   it("htmlMultiThemes: each line carries a gutter element", () => {
     const html = hl.highlight(
       threeLines,
-      htmlMultiThemes({ language: json, themes: { dark: theme }, lineNumbers: true }),
+      htmlMultiThemes({
+        language: json,
+        themes: { dark: lineNumberTheme },
+        defaultTheme: "dark",
+        lineNumbers: true,
+        highlightLines: { lines: [[2, 2]] },
+      }),
     );
 
-    expect(html).toContain('<span class="l-line-number" aria-hidden="true">2</span>');
+    expect(html).toContain(
+      '<span class="l-line-number" style="color:#123456; --lumis-dark-font-style:normal; --lumis-dark-font-weight:normal; --lumis-dark-text-decoration:none;" aria-hidden="true">1</span>',
+    );
+    expect(html).toContain(
+      '<span class="l-line-number l-line-number-highlighted" style="color:#abcdef; font-weight:bold; --lumis-dark-font-style:normal; --lumis-dark-font-weight:bold; --lumis-dark-text-decoration:none;" aria-hidden="true">2</span>',
+    );
   });
 
   it("terminal: the gutter is padded to the widest number", () => {
@@ -861,6 +920,22 @@ describe("lineNumbers", () => {
 
     expect(output).toContain(" 1 ");
     expect(output).toContain("10 ");
+  });
+
+  it("terminal: regular and highlighted gutters use their Neovim styles", () => {
+    const output = hl.highlight(
+      '{"a": 1}\n{"b": 2}',
+      terminal({
+        language: json,
+        theme: lineNumberTheme,
+        lineNumbers: true,
+        highlightLines: { lines: [[2, 2]] },
+      }),
+    );
+
+    expect(output).toContain("38;2;18;52;86m1 ");
+    expect(output).toContain("38;2;171;205;239m");
+    expect(output).toContain("\u001B[1m2 ");
   });
 
   // Neovim draws the number column with `CursorLineNr` alone, so `CursorLine`

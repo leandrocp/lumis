@@ -1,5 +1,5 @@
 /* astrodark
- * revision: 37afa2a78ce4d8d3d70827f84710c14b78c5d071
+ * revision: f6883da9b88ac810e6e5568db9a74ba6d6672d4b
  */
 .lumis {
   color: #adb0bb;
@@ -153,6 +153,12 @@
 }
 .l-label {
   color: #5eb7ff;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #3a3e47;
+}
+.l-line-number-highlighted {
+  color: #adb0bb;
 }
 .l-markup {
   color: #5eb7ff;

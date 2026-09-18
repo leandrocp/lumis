@@ -1,7 +1,7 @@
 {
   "name": "oxocarbon_light",
   "appearance": "light",
-  "revision": "cf49e389c22dab56224e43ae16422ddcd5b61b28",
+  "revision": "cd6523a0836d6e8ee823d343149fd06c7b71fdde",
   "highlights": {
     "attribute": {
       "fg": "#ffab91"
@@ -141,6 +141,13 @@
     },
     "label": {
       "fg": "#ffab91"
+    },
+    "line_number": {
+      "fg": "#161616",
+      "bg": "#ffffff"
+    },
+    "line_number.highlighted": {
+      "fg": "#37474f"
     },
     "markup.environment": {
       "fg": "#08bdba"

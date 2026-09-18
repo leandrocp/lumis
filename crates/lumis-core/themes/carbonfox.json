@@ -142,6 +142,13 @@
     "label.json": {
       "fg": "#8cb6ff"
     },
+    "line_number": {
+      "fg": "#7b7c7e"
+    },
+    "line_number.highlighted": {
+      "fg": "#be95ff",
+      "bold": true
+    },
     "markup": {
       "fg": "#f2f4f8"
     },

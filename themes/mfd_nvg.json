@@ -165,6 +165,13 @@
       "fg": "#78b858",
       "bold": true
     },
+    "line_number": {
+      "fg": "#2e4822"
+    },
+    "line_number.highlighted": {
+      "fg": "#78b858",
+      "bold": true
+    },
     "markup": {
       "fg": "#78b858"
     },

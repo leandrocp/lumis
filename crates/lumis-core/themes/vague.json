@@ -1,7 +1,7 @@
 {
   "name": "vague",
   "appearance": "dark",
-  "revision": "49fe06ad33d8847b931ba4279197bda222374cd1",
+  "revision": "f9060fdaf7b20f68575d6f8214da6f1cf0c72825",
   "highlights": {
     "attribute": {
       "fg": "#6e94b2"
@@ -144,6 +144,12 @@
     },
     "label": {
       "fg": "#6e94b2"
+    },
+    "line_number": {
+      "fg": "#606079"
+    },
+    "line_number.highlighted": {
+      "fg": "#cdcdcd"
     },
     "markup": {
       "fg": "#cdcdcd"

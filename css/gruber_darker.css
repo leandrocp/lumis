@@ -1,5 +1,5 @@
 /* gruber_darker
- * revision: aba065c3a79b58cc3863d5c9db319255abd1258a
+ * revision: 50fa4e583099729fcaaadc73a5afb74f7a91a625
  */
 .lumis {
   color: #e4e4e4;
@@ -158,6 +158,12 @@
 .l-label {
   color: #ffdd33;
   font-weight: bold;
+}
+.l-line-number:not(.l-line-number-highlighted) {
+  color: #52494e;
+}
+.l-line-number-highlighted {
+  color: #ffdd33;
 }
 .l-markup {
   color: #ffdd33;

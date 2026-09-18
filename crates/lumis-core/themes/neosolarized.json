@@ -139,6 +139,9 @@
     "label": {
       "fg": "#719e07"
     },
+    "line_number": {
+      "fg": "#586e75"
+    },
     "markup": {
       "fg": "#cb4b16"
     },

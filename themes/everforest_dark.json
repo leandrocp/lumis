@@ -1,7 +1,7 @@
 {
   "name": "everforest_dark",
   "appearance": "dark",
-  "revision": "d235ca0aa6a29546e661a020e2618612acbbffbe",
+  "revision": "a0e9edc57379e8feafc6ba207c26dbb12fc1b6d8",
   "highlights": {
     "attribute": {
       "fg": "#d699b6"
@@ -175,6 +175,12 @@
     },
     "label.json": {
       "fg": "#a7c080"
+    },
+    "line_number": {
+      "fg": "#56635f"
+    },
+    "line_number.highlighted": {
+      "fg": "#859289"
     },
     "markup": {
       "fg": "#dbbc7f"
