@@ -3,6 +3,7 @@
 [rehype](https://github.com/rehypejs/rehype) plugin for [Lumis](https://lumis.sh) syntax highlighting.
 
 Finds `<pre><code class="language-*">` elements in the hast tree and replaces them with highlighted output.
+Authored classes, styles, ids, ARIA attributes, and data attributes on both elements are preserved.
 
 ## Install
 

@@ -1,4 +1,4 @@
-import type { Root, Element, RootContent } from "hast";
+import type { Element, Properties, Root, RootContent } from "hast";
 import type { Highlighter, LanguageInput } from "@lumis-sh/lumis";
 import type { Formatter } from "@lumis-sh/lumis/formatters";
 import type { Plugin } from "unified";
@@ -17,6 +17,8 @@ export interface RehypeLumisOptions {
 interface ParsedCodeBlock {
   code: string;
   language?: string;
+  preProperties: Properties;
+  codeProperties: Properties;
 }
 
 function getPropertyString(value: unknown): string | undefined {
@@ -60,11 +62,61 @@ function parseCodeBlock(node: Element): ParsedCodeBlock | undefined {
   return {
     code: toString(head),
     language,
+    preProperties: node.properties,
+    codeProperties: head.properties,
   };
 }
 
 function parseFragment(html: string): RootContent[] {
   return fromHtml(html, { fragment: true }).children;
+}
+
+function propertyClassNames(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === "string");
+}
+
+function mergedStyle(generated: unknown, authored: unknown): string | undefined {
+  const generatedStyle = typeof generated === "string" ? generated.trim() : "";
+  const authoredStyle = typeof authored === "string" ? authored.trim() : "";
+
+  if (generatedStyle.length === 0) return authoredStyle || undefined;
+  if (authoredStyle.length === 0) return generatedStyle;
+
+  return `${generatedStyle.replace(/;$/, "")}; ${authoredStyle}`;
+}
+
+function mergeProperties(generated: Properties, authored: Properties): Properties {
+  const merged = { ...generated, ...authored };
+  const className = [
+    ...new Set([
+      ...propertyClassNames(generated.className),
+      ...propertyClassNames(authored.className),
+    ]),
+  ];
+  const style = mergedStyle(generated.style, authored.style);
+
+  if (className.length > 0) merged.className = className;
+  if (style) merged.style = style;
+
+  return merged;
+}
+
+function mergeAuthoredProperties(replacement: RootContent[], parsed: ParsedCodeBlock): void {
+  const pre = replacement.find(
+    (node): node is Element => node.type === "element" && node.tagName === "pre",
+  );
+  if (!pre) return;
+
+  const code = pre.children.find(
+    (node): node is Element => node.type === "element" && node.tagName === "code",
+  );
+
+  pre.properties = mergeProperties(pre.properties, parsed.preProperties);
+  if (code) code.properties = mergeProperties(code.properties, parsed.codeProperties);
 }
 
 async function renderBlock(
@@ -120,7 +172,14 @@ const rehypeLumis: Plugin<[RehypeLumisOptions], Root> = function rehypeLumis(opt
     const replacements = await Promise.all(
       targets.map(async ({ parsed }) => {
         try {
-          return await renderBlock(highlighter, parsed.code, parsed.language, options.formatter);
+          const replacement = await renderBlock(
+            highlighter,
+            parsed.code,
+            parsed.language,
+            options.formatter,
+          );
+          mergeAuthoredProperties(replacement, parsed);
+          return replacement;
         } catch {
           return;
         }
