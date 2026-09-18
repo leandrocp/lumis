@@ -222,10 +222,10 @@
   color: #c4a7e7;
   text-decoration: underline;
 }
-.l-markup-link-label-markdown-inline {
+.l-markup-link-label-markdown_inline {
   color: #9ccfd8;
 }
-.l-markup-link-markdown-inline {
+.l-markup-link-markdown_inline {
   color: #908caa;
 }
 .l-markup-link-url {

@@ -4,6 +4,8 @@ import { sep } from "node:path";
 import { buildCss, type ThemeData } from "@lumis-sh/themes";
 import githubLight from "@lumis-sh/themes/github_light";
 import { describe, expect, it } from "vitest";
+import { scopeToClass } from "../src/formatter/html.js";
+import { HIGHLIGHT_NAMES } from "../src/highlights.js";
 
 const require = createRequire(import.meta.url);
 
@@ -111,6 +113,32 @@ html[data-theme="dark"] .l-tag-attribute {
     const bundled = readFileSync(require.resolve("@lumis-sh/themes/css/github_light"), "utf-8");
 
     expect(buildCss(githubLight)).toBe(bundled);
+  });
+
+  // `buildCss` spells a class from the scope; the HTML formatters read the
+  // generated `CLASSES` table. Two derivations of one name drift, and this is
+  // where they did: replacing `_` alongside `.` moved the nine scopes holding
+  // one — `attribute.c_sharp`, `module.c_sharp` and every `*.markdown_inline`
+  // scope — onto classes no element carries, with nothing to fail. This is the
+  // only file where both packages are in scope.
+  it("writes the classes the formatters write", () => {
+    const allScopes: ThemeData = {
+      name: "all-scopes",
+      appearance: "dark",
+      highlights: Object.fromEntries(HIGHLIGHT_NAMES.map((scope) => [scope, { fg: "red" }])),
+    };
+
+    const underscored = HIGHLIGHT_NAMES.filter((scope) => scope.includes("_"));
+    expect(underscored.length).toBeGreaterThanOrEqual(9);
+
+    const css = buildCss(allScopes);
+
+    for (const scope of HIGHLIGHT_NAMES) {
+      if (scope === "normal") continue;
+      expect(css, `${scope} has no rule for the class the formatters write`).toContain(
+        `\n.${scopeToClass(scope)} {\n`,
+      );
+    }
   });
 });
 

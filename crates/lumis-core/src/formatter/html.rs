@@ -524,10 +524,10 @@ pub fn wrap_line(
 /// can inspect. It is `aria-hidden`, so a screen reader is not read a number
 /// before every line.
 ///
-/// Private for the same reason `l-line` is: it is a class the built-in
-/// formatters write, not a helper a custom one is built from.
-const LINE_NUMBER_CLASS: &str = "l-line-number";
-const HIGHLIGHTED_LINE_NUMBER_CLASS: &str = "l-line-number-highlighted";
+/// Crate-visible rather than private so the CSS builder writes the same two
+/// names this module does, instead of deriving its own from the scope.
+pub(crate) const LINE_NUMBER_CLASS: &str = "l-line-number";
+pub(crate) const HIGHLIGHTED_LINE_NUMBER_CLASS: &str = "l-line-number-highlighted";
 
 /// Everything in a line's opening tag that does not change from line to line.
 ///

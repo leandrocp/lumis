@@ -4,6 +4,7 @@
 //! Themes define colors and styling for different syntax elements like keywords,
 //! strings, comments, etc.
 
+use crate::formatter::html::{HIGHLIGHTED_LINE_NUMBER_CLASS, LINE_NUMBER_CLASS};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fs, path::Path, str::FromStr};
 
@@ -693,27 +694,44 @@ impl Css<'_> {
             let style_css = style.css(self.enable_italic, "\n  ");
 
             if !style_css.is_empty() {
-                let class = scope.replace(['.', '_'], "-");
-                let selector = if scope == "line_number"
-                    && self
-                        .theme
-                        .highlights
-                        .contains_key("line_number.highlighted")
-                {
-                    format!(".l-{class}:not(.l-line-number-highlighted)")
-                } else {
-                    format!(".l-{class}")
-                };
                 rules.push(format!(
                     "{}{} {{\n  {}\n}}\n",
                     self.scope_prefix(),
-                    selector,
+                    self.selector(scope),
                     style_css
                 ));
             }
         }
 
         rules.join("")
+    }
+
+    /// The selector a scope's rule hangs off.
+    ///
+    /// A token scope becomes the class the HTML formatters write for it, which
+    /// replaces the dots and nothing else: `attribute.c_sharp` is
+    /// `.l-attribute-c_sharp` in both places, and replacing the underscore here
+    /// would leave nine scopes with a rule no element matches.
+    ///
+    /// The two gutter scopes are not token scopes, so they are not spelled from
+    /// the scope at all — they carry the classes the gutter is written with.
+    /// `LineNr` excludes a `CursorLineNr` gutter, so a theme carrying both
+    /// applies `CursorLineNr` alone, the way Neovim draws the number column; a
+    /// theme carrying only `LineNr` styles every gutter with it.
+    fn selector(&self, scope: &str) -> String {
+        match scope {
+            "line_number"
+                if self
+                    .theme
+                    .highlights
+                    .contains_key("line_number.highlighted") =>
+            {
+                format!(".{LINE_NUMBER_CLASS}:not(.{HIGHLIGHTED_LINE_NUMBER_CLASS})")
+            }
+            "line_number" => format!(".{LINE_NUMBER_CLASS}"),
+            "line_number.highlighted" => format!(".{HIGHLIGHTED_LINE_NUMBER_CLASS}"),
+            _ => format!(".l-{}", scope.replace('.', "-")),
+        }
     }
 
     fn scope_prefix(&self) -> String {
@@ -964,6 +982,55 @@ mod tests {
 
         assert!(css.contains(".l-line-number {\n  color: silver;\n}"));
         assert!(!css.contains(".l-line-number:not("));
+    }
+
+    /// The builder spells a class from the scope; the HTML formatters read the
+    /// generated `CLASSES` table. Two derivations of one name drift, and this
+    /// is where they did: replacing `_` alongside `.` moved the nine scopes
+    /// holding one — `attribute.c_sharp`, `module.c_sharp` and every
+    /// `*.markdown_inline` scope — onto classes no element carries, in every
+    /// bundled stylesheet, with nothing to fail.
+    #[test]
+    fn test_css_builder_writes_the_classes_the_formatters_write() {
+        let highlights = crate::highlights::HIGHLIGHT_NAMES
+            .iter()
+            .map(|scope| {
+                (
+                    (*scope).to_string(),
+                    Style {
+                        fg: Some("red".to_string()),
+                        ..Default::default()
+                    },
+                )
+            })
+            .collect();
+        let theme = Theme {
+            name: "test".to_string(),
+            highlights,
+            ..Default::default()
+        };
+
+        let css = CssBuilder::new(&theme).build();
+
+        let underscored = crate::highlights::HIGHLIGHT_NAMES
+            .iter()
+            .filter(|scope| scope.contains('_'))
+            .count();
+        assert!(
+            underscored >= 9,
+            "the scopes this pins are gone: {underscored} left"
+        );
+
+        for scope in crate::highlights::HIGHLIGHT_NAMES {
+            if scope == "normal" {
+                continue;
+            }
+            let class = crate::formatter::html::scope_to_class(scope);
+            assert!(
+                css.contains(&format!("\n.{class} {{\n")),
+                "{scope} has no rule for {class}, the class the formatters write"
+            );
+        }
     }
 
     #[test]

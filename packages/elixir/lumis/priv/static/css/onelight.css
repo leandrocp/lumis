@@ -257,7 +257,7 @@
 .l-markup-italic {
   font-style: italic;
 }
-.l-markup-italic-markdown-inline {
+.l-markup-italic-markdown_inline {
   color: #9a77cf;
   font-style: italic;
 }
@@ -307,7 +307,7 @@
   color: #eea825;
   font-weight: bold;
 }
-.l-markup-strong-markdown-inline {
+.l-markup-strong-markdown_inline {
   color: #ee9025;
   font-weight: bold;
 }
@@ -407,7 +407,7 @@
 .l-punctuation-delimiter {
   color: #6a6a6a;
 }
-.l-punctuation-delimiter-markdown-inline {
+.l-punctuation-delimiter-markdown_inline {
   color: #ee9025;
 }
 .l-punctuation-special {

@@ -73,16 +73,36 @@ function scopeRules(theme: ThemeData, scope: string, enableItalic: boolean): str
 
     const styleCss = renderStyle(style, enableItalic, "\n  ");
     if (styleCss !== "") {
-      const className = `l-${scopeName.replaceAll(/[._]/g, "-")}`;
-      const selector =
-        scopeName === "line_number" && theme.highlights["line_number.highlighted"] !== undefined
-          ? `.${className}:not(.l-line-number-highlighted)`
-          : `.${className}`;
-      rules.push(`${scopePrefix(scope)}${selector} {\n  ${styleCss}\n}\n`);
+      rules.push(`${scopePrefix(scope)}${selectorFor(theme, scopeName)} {\n  ${styleCss}\n}\n`);
     }
   }
 
   return rules;
+}
+
+// The classes `@lumis-sh/lumis` writes for the gutter. Kept in step with the
+// `LINE_NUMBER_CLASS` constants there by `theme-css.test.ts`, which is the only
+// place both packages are in scope.
+const LINE_NUMBER_CLASS = "l-line-number";
+const HIGHLIGHTED_LINE_NUMBER_CLASS = "l-line-number-highlighted";
+
+// A token scope becomes the class the HTML formatters write for it, which
+// replaces the dots and nothing else: `attribute.c_sharp` is
+// `.l-attribute-c_sharp` in both places, and replacing the underscore here would
+// leave 11 scopes with a rule no element matches.
+//
+// The two gutter scopes are not token scopes, so they are not spelled from the
+// scope at all. `LineNr` excludes a `CursorLineNr` gutter, so a theme carrying
+// both applies `CursorLineNr` alone, the way Neovim draws the number column; a
+// theme carrying only `LineNr` styles every gutter with it.
+function selectorFor(theme: ThemeData, scopeName: string): string {
+  if (scopeName === "line_number") {
+    return theme.highlights["line_number.highlighted"] === undefined
+      ? `.${LINE_NUMBER_CLASS}`
+      : `.${LINE_NUMBER_CLASS}:not(.${HIGHLIGHTED_LINE_NUMBER_CLASS})`;
+  }
+  if (scopeName === "line_number.highlighted") return `.${HIGHLIGHTED_LINE_NUMBER_CLASS}`;
+  return `.l-${scopeName.replaceAll(".", "-")}`;
 }
 
 function scopePrefix(scope: string): string {
