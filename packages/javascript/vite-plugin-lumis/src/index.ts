@@ -17,6 +17,10 @@ interface Block {
   pre: Pre;
 }
 
+// Most entry points hold no code at all, and parsing one costs ~75x what
+// looking for the tag does. Nothing here can match a document without a `pre`.
+const PRE_TAG = /<pre[\s/>]/i;
+
 function createProcessor(options: VitePluginLumisOptions) {
   return unified().use(rehypeLumis, options).freeze();
 }
@@ -69,6 +73,10 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
     buildStart: warmHighlighter,
     configureServer: warmHighlighter,
     async transformIndexHtml(html) {
+      if (!PRE_TAG.test(html)) {
+        return;
+      }
+
       const blocks = findBlocks(fromHtml(html));
       if (blocks.length === 0) {
         return;
