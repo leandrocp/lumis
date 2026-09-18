@@ -2169,7 +2169,7 @@ mod tests {
         let mut fields = Vec::new();
 
         while let Some(query_match) = matches.next() {
-            for capture in query_match.captures {
+            for capture in query_match.captures() {
                 if capture.index == field_capture {
                     fields.push(
                         capture

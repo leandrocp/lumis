@@ -706,7 +706,7 @@ fn query_rainbow_ranges(source: &str, language: Language) -> Vec<RainbowRange> {
 
             let mut opens = Vec::new();
             let mut closes = Vec::new();
-            for capture in query_match.captures {
+            for capture in query_match.captures() {
                 if capture.index == bracket_config.open_capture {
                     opens.push(capture.node.byte_range());
                 } else if capture.index == bracket_config.close_capture {
