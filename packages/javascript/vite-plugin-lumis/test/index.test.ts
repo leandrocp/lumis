@@ -9,14 +9,20 @@ import lumis from "../src/index.js";
 
 const plaintext = { id: "plaintext", aliases: ["text", "txt", "plain"] } as const;
 
-async function transformHtml(plugin: Plugin, html: string): Promise<string> {
+function runTransform(plugin: Plugin, html: string): Promise<unknown> {
   const hook = plugin.transformIndexHtml;
   if (typeof hook !== "function") throw new TypeError("transformIndexHtml hook is missing");
 
-  const result = await hook.call({} as never, html, {
-    path: "/index.html",
-    filename: "/project/index.html",
-  } as never);
+  return Promise.resolve(
+    hook.call({} as never, html, {
+      path: "/index.html",
+      filename: "/project/index.html",
+    } as never),
+  );
+}
+
+async function transformHtml(plugin: Plugin, html: string): Promise<string> {
+  const result = await runTransform(plugin, html);
   if (typeof result !== "string") throw new TypeError("transformIndexHtml did not return HTML");
 
   return result;
@@ -94,11 +100,20 @@ describe("vite-plugin-lumis", () => {
   });
 
   it("leaves unrelated markup alone", async () => {
-    const html = '<!doctype html><main><code data-language="plaintext">inline</code></main>';
+    const html =
+      '<!doctype html><pre>no code child</pre><main><code data-language="plaintext">inline</code></main>';
 
     const result = await transformHtml(createPlugin(), html);
 
     expect(result).toContain('<main><code data-language="plaintext">inline</code></main>');
     expect(result).not.toContain('class="lumis"');
+  });
+
+  it("returns a document with no pre element untouched", async () => {
+    const html = '<div id="app"></div>\n<script type="module" src="/main.js"></script>\n';
+
+    const result = await runTransform(createPlugin(), html);
+
+    expect(result).toBeUndefined();
   });
 });

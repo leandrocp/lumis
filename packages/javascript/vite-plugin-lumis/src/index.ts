@@ -7,6 +7,12 @@ import { unified } from "unified";
 
 export type VitePluginLumisOptions = RehypeLumisOptions;
 
+// Parsing and reserializing rewrites a document even when nothing was
+// highlighted: bare entry HTML gains `<html><head><body>`, `&amp;` comes back as
+// `&#x26;`, and unquoted attributes gain quotes. `rehype-lumis` only ever
+// replaces `pre` elements, so a document without one is returned untouched.
+const PRE_TAG = /<pre[\s/>]/i;
+
 function createProcessor(options: VitePluginLumisOptions) {
   return unified().use(rehypeLumis, options).freeze();
 }
@@ -33,11 +39,17 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
     buildStart: warmHighlighter,
     configureServer: warmHighlighter,
     async transformIndexHtml(html) {
+      if (!PRE_TAG.test(html)) {
+        return;
+      }
+
       await warmHighlighter();
       const tree = fromHtml(html);
       const transformed = await getProcessor().run(tree);
-      // @ts-expect-error -- the serializer resolves a newer patch of the same HAST types.
-      return toHtml(transformed);
+      // The parser and the serializer resolve separate patches of `@types/hast`,
+      // whose nodes are structurally identical but nominally distinct. Deriving
+      // the parameter keeps this correct whichever patch either one lands on.
+      return toHtml(transformed as Parameters<typeof toHtml>[0]);
     },
   };
 }
