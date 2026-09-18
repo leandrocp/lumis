@@ -821,6 +821,81 @@ describe("highlightLines", () => {
   });
 });
 
+// Whichever runtime formats — the native addon in Rust, or the Wasm runtime in
+// JavaScript — has to render the same gutter, so these run on both.
+describe("lineNumbers", () => {
+  const threeLines = '{"a": 1}\n{"b": 2}\n{"c": 3}';
+
+  it("htmlInline: each line carries a gutter element", () => {
+    const html = hl.highlight(threeLines, htmlInline({ language: json, theme, lineNumbers: true }));
+
+    expect(html).toContain('<span class="l-line-number" aria-hidden="true">1</span>');
+    expect(html).toContain('<span class="l-line-number" aria-hidden="true">3</span>');
+  });
+
+  it("htmlInline: nothing is added without the option", () => {
+    const html = hl.highlight(threeLines, htmlInline({ language: json, theme }));
+
+    expect(html).not.toContain("l-line-number");
+  });
+
+  it("htmlLinked: the gutter carries the number data-line does", () => {
+    const html = hl.highlight(threeLines, htmlLinked({ language: json, lineNumbers: true }));
+
+    expect(html).toContain('data-line="1"><span class="l-line-number" aria-hidden="true">1</span>');
+    expect(html).toContain('data-line="3"><span class="l-line-number" aria-hidden="true">3</span>');
+  });
+
+  it("htmlMultiThemes: each line carries a gutter element", () => {
+    const html = hl.highlight(
+      threeLines,
+      htmlMultiThemes({ language: json, themes: { dark: theme }, lineNumbers: true }),
+    );
+
+    expect(html).toContain('<span class="l-line-number" aria-hidden="true">2</span>');
+  });
+
+  it("terminal: the gutter is padded to the widest number", () => {
+    const tenLines = Array.from({ length: 10 }, (_, index) => `{"a": ${index}}`).join("\n");
+    const output = hl.highlight(tenLines, terminal({ language: json, lineNumbers: true }));
+
+    expect(output).toContain(" 1 ");
+    expect(output).toContain("10 ");
+  });
+
+  // Neovim draws the number column with `CursorLineNr` alone, so `CursorLine`
+  // does not reach it: a highlighted line's background starts at its text.
+  it("terminal: a highlighted line does not paint its gutter", () => {
+    const output = hl.highlight(
+      '{"a": 1}\n{"b": 2}',
+      terminal({
+        language: json,
+        lineNumbers: true,
+        highlightLines: { lines: [[1, 1]], background: "#ff0000" },
+      }),
+    );
+
+    expect(output.startsWith("1 ")).toBe(true);
+    expect(output).toContain("48;2;255;0;0");
+  });
+
+  it("terminal: nothing is added without the option", () => {
+    const output = hl.highlight(threeLines, terminal({ language: json }));
+
+    expect(output.startsWith("1 ")).toBe(false);
+  });
+
+  // A terminal writes nothing at all for the line a trailing newline opens, so
+  // numbering it would leave a bare number after the output.
+  it("terminal: the line a trailing newline opens carries no number", () => {
+    const output = hl.highlight('{"a": 1}\n', terminal({ language: json, lineNumbers: true }));
+
+    expect(output.startsWith("1 ")).toBe(true);
+    expect(output.endsWith("\n")).toBe(true);
+    expect(output).not.toContain("2 ");
+  });
+});
+
 describe("package exports", () => {
   it("does not expose defineFormatter on the formatter entrypoint", () => {
     expect("defineFormatter" in formatterApi).toBe(false);

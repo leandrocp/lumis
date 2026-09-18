@@ -57,6 +57,7 @@ export function formatHtmlInline(
     language: formatter.language,
     theme: formatter.theme,
     lines: formatter.highlightLines?.lines,
+    lineNumbers: formatter.lineNumbers,
     highlightedAttrs: {
       className: formatter.highlightLines?.class,
       style: highlightLineStyle(formatter),

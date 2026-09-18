@@ -353,7 +353,7 @@ pub mod annotations {
 /// use lumis::decorations::Decoration;
 /// use lumis::events::HighlightEvent;
 ///
-/// let event = HighlightEvent::<()>::DecorationStart {
+/// let event: HighlightEvent<'_, ()> = HighlightEvent::DecorationStart {
 ///     decoration: Decoration::Line { number: 3, highlighted: true },
 /// };
 ///

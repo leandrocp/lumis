@@ -21,11 +21,11 @@ One HTML block that supports multiple themes via CSS custom properties. Useful f
 
 | Runtime | Options |
 | --- | --- |
-| Rust | `language`, `themes`, `default_theme`, `css_variable_prefix`, `pre_class`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `header` |
-| Elixir | `language`, `themes`, `default_theme`, `css_variable_prefix`, `pre_class`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `header` |
-| JavaScript | `language`, `themes`, `defaultTheme`, `cssVariablePrefix`, `preClass`, `italic`, `includeHighlights`, `rainbowBrackets`, `highlightLines`, `header` |
+| Rust | `language`, `themes`, `default_theme`, `css_variable_prefix`, `pre_class`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| Elixir | `language`, `themes`, `default_theme`, `css_variable_prefix`, `pre_class`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| JavaScript | `language`, `themes`, `defaultTheme`, `cssVariablePrefix`, `preClass`, `italic`, `includeHighlights`, `rainbowBrackets`, `highlightLines`, `lineNumbers`, `header` |
 | Java | Not currently supported in `lumis4j` |
-| CLI | `--themes`, `--default-theme`, `--css-variable-prefix`, `--pre-class`, `--italic`, `--include-highlights`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--header-open`, `--header-close` |
+| CLI | `--themes`, `--default-theme`, `--css-variable-prefix`, `--pre-class`, `--italic`, `--include-highlights`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--line-numbers`, `--header-open`, `--header-close` |
 
 ## Basic example
 
@@ -196,6 +196,7 @@ HTML Multi-Themes keeps the same HTML structure, but each token carries CSS vari
 - `<pre class="lumis">` carries shared background and theme variables
 - `<code class="language-*">` identifies the language and keeps the block focusable
 - `<div class="l-line" data-line="N">` wraps each line
+- `<span class="l-line-number">` opens the line when `line_numbers` is on, see [Line Numbers](/recipes/line-numbers)
 - A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
   final line gets no added newline
 - `<span style="--lumis-...">` carries per-theme token colors and font styles

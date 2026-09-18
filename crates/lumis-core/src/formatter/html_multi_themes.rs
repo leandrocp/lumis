@@ -50,6 +50,7 @@ pub struct HtmlMultiThemes {
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
+    line_numbers: bool,
     header: Option<HtmlElement>,
 }
 
@@ -87,6 +88,7 @@ impl HtmlMultiThemesBuilder {
             include_highlights: self.include_highlights.take().unwrap_or(false),
             highlight_lines: self.highlight_lines.take().flatten(),
             stepped_highlight_lines: Vec::new(),
+            line_numbers: self.line_numbers.take().unwrap_or(false),
             header: self.header.take().flatten(),
         };
 
@@ -157,6 +159,7 @@ impl Default for HtmlMultiThemes {
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
+            line_numbers: false,
             header: None,
         }
     }
@@ -173,6 +176,7 @@ impl HtmlMultiThemes {
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
+        line_numbers: bool,
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
@@ -185,6 +189,7 @@ impl HtmlMultiThemes {
             include_highlights,
             highlight_lines,
             stepped_highlight_lines: Vec::new(),
+            line_numbers,
             header,
         }
     }
@@ -312,9 +317,13 @@ impl<T> Formatter<T> for HtmlMultiThemes {
             &mut buffer,
             source,
             events,
-            &self.line_selection(),
+            &crate::formatter::html::HtmlLines {
+                selection: &self.line_selection(),
+                numbered: self.line_numbers,
+                highlighted_class: class_suffix.as_deref(),
+                highlighted_style: style.as_deref(),
+            },
             &|scope_index, language| self.span_attrs_from_index(scope_index, language),
-            (class_suffix.as_deref(), style.as_deref()),
         )?;
 
         crate::formatter::html::closing_tags(&mut buffer)?;
@@ -370,6 +379,7 @@ mod tests {
             false,
             false,
             None,
+            false,
             None,
         );
         let mut output = Vec::new();
@@ -423,6 +433,7 @@ mod tests {
                 style: Some(HighlightLinesStyle::Theme),
                 class: None,
             }),
+            false,
             None,
         );
         let mut output = Vec::new();

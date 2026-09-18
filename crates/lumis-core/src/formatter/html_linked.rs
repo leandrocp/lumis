@@ -44,6 +44,7 @@ pub struct HtmlLinked {
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
+    line_numbers: bool,
     header: Option<HtmlElement>,
 }
 
@@ -68,6 +69,7 @@ impl HtmlLinked {
         language: Language,
         pre_class: Option<String>,
         highlight_lines: Option<HighlightLines>,
+        line_numbers: bool,
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
@@ -75,6 +77,7 @@ impl HtmlLinked {
             pre_class,
             highlight_lines,
             stepped_highlight_lines: Vec::new(),
+            line_numbers,
             header,
         }
     }
@@ -120,6 +123,7 @@ impl Default for HtmlLinked {
             pre_class: None,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
+            line_numbers: false,
             header: None,
         }
     }
@@ -150,9 +154,13 @@ impl<T> Formatter<T> for HtmlLinked {
             &mut buffer,
             source,
             events,
-            &self.line_selection(),
+            &crate::formatter::html::HtmlLines {
+                selection: &self.line_selection(),
+                numbered: self.line_numbers,
+                highlighted_class: class_suffix.as_deref(),
+                highlighted_style: None,
+            },
             &|scope_index, _language| Self::span_attrs_from_index(scope_index),
-            (class_suffix.as_deref(), None),
         )?;
 
         crate::formatter::html::closing_tags(&mut buffer)?;

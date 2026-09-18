@@ -534,6 +534,7 @@ export function createNativeLanguagesModule(
               italic: builtin.italic,
               includeHighlights: builtin.includeHighlights,
               highlightLines: builtin.highlightLines,
+              lineNumbers: builtin.lineNumbers,
               header: builtin.header,
             },
           };
@@ -544,6 +545,7 @@ export function createNativeLanguagesModule(
             options: {
               preClass: builtin.preClass,
               highlightLines: builtin.highlightLines,
+              lineNumbers: builtin.lineNumbers,
               header: builtin.header,
             },
           };
@@ -558,6 +560,7 @@ export function createNativeLanguagesModule(
               background: builtin.background,
               width: builtin.width,
               highlightLines: builtin.highlightLines,
+              lineNumbers: builtin.lineNumbers,
             },
           };
       }

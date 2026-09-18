@@ -555,9 +555,10 @@ arg "<path>"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
+target_dir="$(cargo metadata --format-version 1 --no-deps | jq -er .target_directory)"
 cargo build -p lumis-cli --release
 mkdir -p "${usage_path?}"
-cp target/release/lumis "${usage_path?}/lumis"
+cp "${target_dir}/release/lumis" "${usage_path?}/lumis"
 echo "Installed lumis to ${usage_path?}/lumis"
 '''
 

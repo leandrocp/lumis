@@ -561,6 +561,8 @@ export interface HtmlInlineOptions {
   /** Add `data-highlight` attributes with scope names. */
   includeHighlights?: boolean;
   highlightLines?: HighlightLinesInline;
+  /** Open each line with a `<span class="l-line-number">` gutter. */
+  lineNumbers?: boolean;
   header?: HtmlElement;
 }
 
@@ -577,6 +579,8 @@ export interface HtmlLinkedOptions {
   language?: LanguageRef;
   preClass?: string;
   highlightLines?: HighlightLinesLinked;
+  /** Open each line with a `<span class="l-line-number">` gutter. */
+  lineNumbers?: boolean;
   header?: HtmlElement;
 }
 
@@ -607,6 +611,8 @@ export interface HtmlMultiThemesOptions {
   italic?: boolean;
   includeHighlights?: boolean;
   highlightLines?: HighlightLinesInline;
+  /** Open each line with a `<span class="l-line-number">` gutter. */
+  lineNumbers?: boolean;
   header?: HtmlElement;
 }
 
@@ -651,6 +657,8 @@ export interface TerminalOptions {
    */
   width?: number;
   highlightLines?: HighlightLinesTerminal;
+  /** Open each line with a `<span class="l-line-number">` gutter. */
+  lineNumbers?: boolean;
 }
 
 export interface TerminalFormatter extends Formatter, TerminalOptions {}

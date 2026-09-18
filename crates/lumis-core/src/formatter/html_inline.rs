@@ -60,6 +60,7 @@ pub struct HtmlInline {
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
+    line_numbers: bool,
     header: Option<HtmlElement>,
 }
 
@@ -88,6 +89,7 @@ impl HtmlInline {
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<HighlightLines>,
+        line_numbers: bool,
         header: Option<HtmlElement>,
     ) -> Self {
         Self {
@@ -98,6 +100,7 @@ impl HtmlInline {
             include_highlights,
             highlight_lines,
             stepped_highlight_lines: Vec::new(),
+            line_numbers,
             header,
         }
     }
@@ -173,6 +176,7 @@ impl Default for HtmlInline {
             include_highlights: false,
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
+            line_numbers: false,
             header: None,
         }
     }
@@ -207,9 +211,13 @@ impl<T> Formatter<T> for HtmlInline {
             &mut buffer,
             source,
             events,
-            &self.line_selection(),
+            &crate::formatter::html::HtmlLines {
+                selection: &self.line_selection(),
+                numbered: self.line_numbers,
+                highlighted_class: class_suffix.as_deref(),
+                highlighted_style: style.as_deref(),
+            },
             &|scope_index, language| self.span_attrs_from_index(scope_index, language),
-            (class_suffix.as_deref(), style.as_deref()),
         )?;
 
         crate::formatter::html::closing_tags(&mut buffer)?;

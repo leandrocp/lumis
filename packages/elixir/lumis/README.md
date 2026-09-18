@@ -110,6 +110,7 @@ to use the mirror when GitHub is down, see
 - [Themes](https://lumis.sh/docs/themes) — the theme list, custom themes, CSS files
 - [Languages](https://lumis.sh/docs/reference/languages) — what is supported and how detection works
 - [Line highlighting](https://lumis.sh/docs/recipes/line-highlighting)
+- [Line numbers](https://lumis.sh/docs/recipes/line-numbers)
 - [Recipes](https://lumis.sh/docs/recipes) — LiveView rendering, light/dark, injected languages
 
 API reference: [hexdocs.pm/lumis](https://hexdocs.pm/lumis).

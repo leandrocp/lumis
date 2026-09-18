@@ -21,11 +21,11 @@ Self-contained HTML with inline styles on each token. No external CSS required.
 
 | Runtime | Options |
 | --- | --- |
-| Rust | `language`, `theme`, `pre_class`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `header` |
-| Elixir | `language`, `theme`, `pre_class`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `header` |
-| JavaScript | `language`, `theme`, `preClass`, `italic`, `includeHighlights`, `rainbowBrackets`, `highlightLines`, `header` |
+| Rust | `language`, `theme`, `pre_class`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| Elixir | `language`, `theme`, `pre_class`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| JavaScript | `language`, `theme`, `preClass`, `italic`, `includeHighlights`, `rainbowBrackets`, `highlightLines`, `lineNumbers`, `header` |
 | Java | `withLang()`, `withTheme()`, `withFormatter(Formatter.HTML_INLINE)` |
-| CLI | `--theme`, `--pre-class`, `--italic`, `--include-highlights`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--header-open`, `--header-close` |
+| CLI | `--theme`, `--pre-class`, `--italic`, `--include-highlights`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--line-numbers`, `--header-open`, `--header-close` |
 
 ## Basic example
 
@@ -235,6 +235,7 @@ HTML Inline emits the full block structure with inline styles on each token:
 - `<pre class="lumis">` is the outer wrapper and carries the block background
 - `<code class="language-*">` identifies the language and keeps the block focusable
 - `<div class="l-line" data-line="N">` wraps each line
+- `<span class="l-line-number">` opens the line when `line_numbers` is on, see [Line Numbers](/recipes/line-numbers)
 - A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
   final line gets no added newline
 - `<span style="...">` carries the token colors and font styles inline

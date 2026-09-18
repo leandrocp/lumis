@@ -46,7 +46,14 @@ mod tests {
     #[test]
     fn test_no_attrs() {
         let code = "@lang :rust";
-        let formatter = Terminal::new(Language::Elixir, None, Background::Inherit, None, None);
+        let formatter = Terminal::new(
+            Language::Elixir,
+            None,
+            Background::Inherit,
+            None,
+            None,
+            false,
+        );
         let result = crate::highlight(code, formatter);
 
         assert!(result.contains('@'));

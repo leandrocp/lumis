@@ -38,6 +38,30 @@ pub enum Decoration {
     },
 }
 
+/// The number of the last line of a composed stream.
+///
+/// A gutter is padded to the widest number it will show, and a formatter only
+/// knows that number once the lines are known. Composition numbered them
+/// already, so this reads the answer off the stream rather than counting the
+/// source a second time.
+pub(crate) fn last_line_number<T>(events: &[HighlightEvent<'_, T>]) -> usize {
+    events
+        .iter()
+        .rev()
+        .find_map(|event| match event {
+            HighlightEvent::DecorationStart {
+                decoration: Decoration::Line { number, .. },
+            } => Some(*number),
+            _ => None,
+        })
+        .unwrap_or(1)
+}
+
+/// Digits in the widest number a gutter showing up to `last` has to fit.
+pub(crate) fn gutter_width(last: usize) -> usize {
+    last.max(1).ilog10() as usize + 1
+}
+
 /// A finite arithmetic progression of 1-based line numbers.
 ///
 /// This is public only so language bindings can preserve a source runtime's
@@ -415,7 +439,7 @@ mod tests {
     #[test]
     fn a_trailing_newline_opens_one_more_line() {
         let source = "a\n";
-        let events = [HighlightEvent::<()>::Source { start: 0, end: 2 }];
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 2 }];
 
         let composed = compose_line_decorations(source, &events, &LineSelection::default());
 
@@ -426,7 +450,7 @@ mod tests {
     #[test]
     fn source_events_still_reproduce_the_source() {
         let source = "one\ntwo\nthree";
-        let events = [HighlightEvent::<()>::Source {
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source {
             start: 0,
             end: source.len(),
         }];
@@ -441,8 +465,8 @@ mod tests {
     #[test]
     fn a_scope_crossing_a_newline_is_closed_and_reopened() {
         let source = "a\nb";
-        let events = [
-            HighlightEvent::<()>::Start {
+        let events: [HighlightEvent<'_, ()>; 3] = [
+            HighlightEvent::Start {
                 scope_index: 1,
                 language: "rust".to_string(),
             },
@@ -509,7 +533,7 @@ mod tests {
 
     #[test]
     fn an_unbalanced_stream_still_closes_before_the_last_line_ends() {
-        let events = [HighlightEvent::<()>::Start {
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Start {
             scope_index: 1,
             language: "rust".to_string(),
         }];
@@ -530,7 +554,7 @@ mod tests {
     #[test]
     fn composing_twice_gives_the_same_stream() {
         let source = "a\nb\n";
-        let events = [HighlightEvent::<()>::Source { start: 0, end: 4 }];
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 4 }];
 
         let once = compose_line_decorations(source, &events, &selection(std::iter::once(1..=1)));
         let twice = compose_line_decorations(source, &once, &selection(std::iter::once(1..=1)));
