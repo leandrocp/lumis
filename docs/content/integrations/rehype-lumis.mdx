@@ -70,7 +70,7 @@ const file = await unified()
 
 ## Behavior
 
-- visits `pre > code` blocks in HAST
+- visits `pre` elements in HAST whose first child is a `code` element
 - reads languages from `language-*` classes on the `<code>` or `<pre>` node, or from `data-language` / `language` properties
 - replaces each block with Lumis HTML output
 - preserves authored properties on the `<pre>` and `<code>` elements, including classes, styles, ids, ARIA attributes, and data attributes
