@@ -890,6 +890,50 @@ mod tests {
     }
 
     #[test]
+    fn a_wrapper_element_keeping_thousands_of_matches_open_keeps_its_trailing_text() {
+        // Each html `(element (start_tag (tag_name) @_tag) (text) @markup.*)` pattern
+        // stays in progress from `<code>` until a `(text)` child arrives, so every
+        // capture inside the element finishes behind it. Streaming `captures()`
+        // buffers all of them until the capture list pool is exhausted and then
+        // evicts the `<code>` match itself, so its trailing text loses `markup.raw`.
+        use std::fmt::Write as _;
+
+        let mut source = String::from("<pre><code>");
+        for i in 0..4000 {
+            write!(source, "<span class=\"tok\">t{i}</span>").unwrap();
+        }
+        let trailing = "() {}";
+        let start = source.len();
+        source.push_str(trailing);
+        source.push_str("</code></pre>\n");
+        let end = start + trailing.len();
+
+        let events = highlight_events(&source, Language::HTML).unwrap();
+        let mut scopes = Vec::new();
+        let mut raw_over_trailing = false;
+        for event in &events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    scopes.push(HIGHLIGHT_NAMES[*scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    scopes.pop();
+                }
+                CoreHighlightEvent::Source { start: s, end: e }
+                    if *s < end && *e > start && scopes.contains(&"markup.raw") =>
+                {
+                    raw_over_trailing = true;
+                }
+                _ => {}
+            }
+        }
+        assert!(
+            raw_over_trailing,
+            "trailing text of <code> lost its markup.raw scope"
+        );
+    }
+
+    #[test]
     fn test_highlighter_without_theme() {
         let code = "fn main() {}";
         let highlighter = Highlighter::new(Language::Rust, None);
