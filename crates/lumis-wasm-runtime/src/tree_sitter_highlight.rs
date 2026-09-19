@@ -1275,7 +1275,13 @@ impl<'a> HighlightIterLayer<'a> {
                     config.highlights_pattern_index,
                     ranges
                         .iter()
-                        .map(|range| range.end_byte.saturating_sub(range.start_byte))
+                        .map(|range| {
+                            // A layer's last range runs to `usize::MAX` rather than to
+                            // the end of the document, so it has to be clamped before
+                            // it can stand in for a size.
+                            let end = range.end_byte.min(source.len());
+                            end.saturating_sub(range.start_byte.min(end))
+                        })
                         .sum(),
                 );
                 highlighter.cursors.push(cursor);
@@ -1595,13 +1601,16 @@ where
                     self.source,
                 );
 
-                // `captures()` yields a match as soon as its first capture is found,
-                // so the content capture may still be ahead of us. Removing the match
-                // now would take that capture with it and lose the injection: Rust's
-                // macro rule captures `@_macro_name` before `(token_tree)
-                // @injection.content`, and its `#not-any-of?` can be decided from the
-                // name alone, so the match arrives holding only the name. Leave it in
-                // the stream and act on it when the content capture shows up.
+                // A match carries its whole capture list by the time it is read here,
+                // because a layer's query results are collected before any of them is
+                // iterated. Upstream streams instead, so a match reaches this point as
+                // soon as its first capture is found and its content capture may still
+                // be ahead: Rust's macro rule captures `@_macro_name` before
+                // `(token_tree) @injection.content`, and its `#not-any-of?` can be
+                // decided from the name alone, so upstream sees the match holding only
+                // the name. Either way a match can arrive with no content capture at
+                // all, and removing it would take its remaining captures with it, so
+                // leave it in the stream.
                 if content_node.is_none() {
                     self.sort_layers();
                     continue 'main;
