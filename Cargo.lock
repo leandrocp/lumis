@@ -1506,7 +1506,7 @@ dependencies = [
 
 [[package]]
 name = "lumis-cli"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
