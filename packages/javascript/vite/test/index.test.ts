@@ -167,6 +167,25 @@ describe("@lumis-sh/vite", () => {
     expect(result).toContain("second");
   });
 
+  it("highlights code blocks inside template contents", async () => {
+    const html =
+      '<template id="source"><pre data-language="plaintext"><code>inside template</code></pre></template>';
+
+    const result = await transformHtml(createPlugin(), html);
+
+    expect(result).toContain('<template id="source"><pre class="lumis"');
+    expect(result).toContain("inside template");
+  });
+
+  it("preserves authored children after a code element", async () => {
+    const html = '<pre><code id="target"></code><span id="cursor">_</span></pre>';
+
+    const result = await transformHtml(createPlugin(), html);
+
+    expect(result).toContain('id="target"');
+    expect(result).toContain('<span id="cursor">_</span>');
+  });
+
   // `rehype-lumis` descends into a `pre` it declined, so this has to as well.
   it("highlights a code block nested inside a declined pre", async () => {
     const html = '<pre><pre data-language="plaintext"><code>inner</code></pre></pre>';

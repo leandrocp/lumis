@@ -230,6 +230,30 @@ describe("rehype-lumis", () => {
       );
     });
 
+    it("preserves authored children after code", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({ codeClassName: ["language-javascript"] });
+      const pre = tree.children[0] as Element;
+      pre.children.push({
+        type: "element",
+        tagName: "span",
+        properties: { id: "cursor" },
+        children: [{ type: "text", value: "_" }],
+      });
+
+      await transform(tree);
+
+      const transformedPre = assertLumisPreElement(tree);
+      expect(transformedPre.children[1]).toMatchObject({
+        type: "element",
+        tagName: "span",
+        properties: { id: "cursor" },
+      });
+    });
+
     it("deduplicates classes while letting authored properties override defaults", async () => {
       const transform = rehypeLumis({
         formatter: (language) => htmlInline({ language, theme: dracula }),

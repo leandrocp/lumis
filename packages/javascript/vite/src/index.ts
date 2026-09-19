@@ -10,6 +10,7 @@ export type VitePluginLumisOptions = RehypeLumisOptions;
 
 type Tree = ReturnType<typeof fromHtml>;
 type Pre = Extract<Tree["children"][number], { tagName: string }>;
+type Template = Pre & { content?: Tree };
 
 interface Block {
   start: number;
@@ -34,19 +35,29 @@ function createProcessor(options: VitePluginLumisOptions) {
 function findBlocks(tree: Tree): Block[] {
   const blocks: Block[] = [];
 
-  visit(tree, "element", (node) => {
-    if (node.tagName !== "pre") {
-      return;
-    }
+  function collect(root: Tree) {
+    visit(root, "element", (node) => {
+      if (node.tagName === "template") {
+        const content = (node as Template).content;
+        if (content?.type === "root") collect(content);
+      }
 
-    const start = node.position?.start.offset;
-    const end = node.position?.end.offset;
-    if (start === undefined || end === undefined) {
-      return;
-    }
+      if (node.tagName !== "pre") {
+        return;
+      }
 
-    blocks.push({ start, end, pre: node });
-  });
+      const start = node.position?.start.offset;
+      const end = node.position?.end.offset;
+      if (start === undefined || end === undefined) {
+        return;
+      }
+
+      blocks.push({ start, end, pre: node });
+    });
+  }
+
+  collect(tree);
+  blocks.sort((left, right) => left.start - right.start);
 
   return blocks;
 }

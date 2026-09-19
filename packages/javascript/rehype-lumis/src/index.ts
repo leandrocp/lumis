@@ -1,4 +1,4 @@
-import type { Element, Properties, Root, RootContent } from "hast";
+import type { Element, ElementContent, Properties, Root, RootContent } from "hast";
 import type { Highlighter, LanguageInput } from "@lumis-sh/lumis";
 import type { Formatter } from "@lumis-sh/lumis/formatters";
 import type { Plugin } from "unified";
@@ -19,6 +19,7 @@ interface ParsedCodeBlock {
   language?: string;
   preProperties: Properties;
   codeProperties: Properties;
+  trailingChildren: ElementContent[];
 }
 
 function getPropertyString(value: unknown): string | undefined {
@@ -71,6 +72,7 @@ function parseCodeBlock(node: Element): ParsedCodeBlock | undefined {
     language,
     preProperties: node.properties,
     codeProperties: head.properties,
+    trailingChildren: node.children.slice(1),
   };
 }
 
@@ -114,12 +116,17 @@ function mergeAuthoredProperties(replacement: RootContent[], parsed: ParsedCodeB
   });
   if (!pre) return;
 
-  const code = pre.children.find(
-    (node): node is Element => node.type === "element" && node.tagName === "code",
+  const codeIndex = pre.children.findIndex(
+    (node) => node.type === "element" && node.tagName === "code",
   );
+  const code = pre.children[codeIndex];
 
   pre.properties = mergeProperties(pre.properties, parsed.preProperties);
-  if (code) code.properties = mergeProperties(code.properties, parsed.codeProperties);
+  if (code?.type === "element") {
+    code.properties = mergeProperties(code.properties, parsed.codeProperties);
+  }
+  const trailingIndex = codeIndex === -1 ? pre.children.length : codeIndex + 1;
+  pre.children.splice(trailingIndex, 0, ...parsed.trailingChildren);
 }
 
 async function renderBlock(
