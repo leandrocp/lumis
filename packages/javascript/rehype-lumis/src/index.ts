@@ -105,9 +105,13 @@ function mergeProperties(generated: Properties, authored: Properties): Propertie
 }
 
 function mergeAuthoredProperties(replacement: RootContent[], parsed: ParsedCodeBlock): void {
-  const pre = replacement.find(
-    (node): node is Element => node.type === "element" && node.tagName === "pre",
-  );
+  let pre: Element | undefined;
+  visit({ type: "root", children: replacement }, "element", (node) => {
+    if (!pre && node.tagName === "pre") {
+      pre = node;
+      return "skip";
+    }
+  });
   if (!pre) return;
 
   const code = pre.children.find(

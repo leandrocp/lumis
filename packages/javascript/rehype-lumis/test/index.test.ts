@@ -196,6 +196,40 @@ describe("rehype-lumis", () => {
       expect(style(code)).toBe("font-weight: bold");
     });
 
+    it("preserves authored properties when the formatter wraps the block", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) =>
+          htmlInline({
+            language,
+            theme: dracula,
+            header: {
+              openTag: "<figure><figcaption>example.js</figcaption>",
+              closeTag: "</figure>",
+            },
+          }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        codeClassName: ["language-javascript", "copy-target"],
+        codeProperties: { id: "source" },
+        preProperties: { id: "panel", className: ["overflow-auto"] },
+      });
+
+      await transform(tree);
+
+      expect(findElements(tree, "figure")).toHaveLength(1);
+
+      const pre = assertLumisPreElement(tree);
+      expect(pre.properties.id).toBe("panel");
+      expect(classNames(pre)).toEqual(expect.arrayContaining(["lumis", "overflow-auto"]));
+
+      const code = findElements(tree, "code")[0];
+      expect(code.properties.id).toBe("source");
+      expect(classNames(code)).toEqual(
+        expect.arrayContaining(["language-javascript", "copy-target"]),
+      );
+    });
+
     it("deduplicates classes while letting authored properties override defaults", async () => {
       const transform = rehypeLumis({
         formatter: (language) => htmlInline({ language, theme: dracula }),
