@@ -8,15 +8,17 @@ mod elixir;
 
 use anyhow::{anyhow, Context, Result};
 use elixir::{
-    line_specs_contain, ExCssOptions, ExFormatterOption, ExLineSpec, ExStyle, ExTextDecoration,
-    ExTheme,
+    attr_values, ex_attr_values, line_specs_contain, ExAttrValue, ExCssOptions, ExFormatterOption,
+    ExLineSpec, ExStyle, ExTextDecoration, ExTheme,
 };
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
-use lumis_core::events::HighlightEvent;
+use lumis_core::events::{Decoration, HighlightEvent};
 use lumis_core::formatter::Formatter;
 use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
-use lumis_wasm_runtime::{catalog, store, Runtime, RuntimeError};
+use lumis_wasm_runtime::{
+    catalog, store, HighlightOptions, Runtime, RuntimeError, DEFAULT_MATCH_LIMIT,
+};
 use parking_lot::RwLock;
 use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
 
@@ -42,6 +44,7 @@ enum WasmJob {
         source: String,
         language: String,
         rainbow_brackets: bool,
+        match_limit: u32,
         reply: mpsc::SyncSender<Result<Vec<HighlightEvent<'static>>, RuntimeError>>,
     },
 }
@@ -132,10 +135,19 @@ impl WasmExecutor {
                             source,
                             language,
                             rainbow_brackets,
+                            match_limit,
                             reply,
                         } => {
-                            let _ =
-                                reply.send(runtime.highlight(&source, &language, rainbow_brackets));
+                            let options = HighlightOptions {
+                                rainbow_brackets,
+                                match_limit,
+                                ..HighlightOptions::default()
+                            };
+                            let _ = reply.send(
+                                runtime
+                                    .highlight_with(&source, &language, &options)
+                                    .map(|output| output.events),
+                            );
                         }
                     }
                 })
@@ -167,6 +179,7 @@ impl WasmExecutor {
         source: &str,
         language: &str,
         rainbow_brackets: bool,
+        match_limit: u32,
     ) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
         let (reply, result) = mpsc::sync_channel(1);
         self.sender
@@ -174,6 +187,7 @@ impl WasmExecutor {
                 source: source.to_string(),
                 language: language.to_string(),
                 rainbow_brackets,
+                match_limit,
                 reply,
             })
             .map_err(|_| RuntimeError::Highlight("WASM executor is unavailable".into()))?;
@@ -191,6 +205,8 @@ rustler::atoms! {
     event_end = "end",
     annotation_start,
     annotation_end,
+    decoration_start,
+    decoration_end,
     language_not_loaded,
     unknown_language,
     failed_to_load_parser,
@@ -204,13 +220,19 @@ pub struct ExOptions<'a> {
     pub formatter: ExFormatterOption,
     pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
+    pub match_limit: Option<u32>,
+}
+
+#[derive(Clone, Debug, NifMap)]
+struct ExAnnotationStart<'a> {
+    range: (usize, usize),
+    data: Term<'a>,
 }
 
 #[derive(Clone, Debug, NifStruct)]
-#[module = "Lumis.Annotation"]
-pub struct ExResolvedAnnotation<'a> {
-    pub range: (usize, usize),
-    pub data: Term<'a>,
+#[module = "Lumis.Decoration.RainbowBracket"]
+pub struct ExRainbowBracket {
+    pub depth: usize,
 }
 
 #[derive(Debug, NifMap)]
@@ -218,6 +240,7 @@ pub struct ExEventOptions<'a> {
     pub language: Option<&'a str>,
     pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
+    pub match_limit: Option<u32>,
 }
 
 #[derive(Debug, NifMap)]
@@ -236,8 +259,10 @@ enum CollectedEvent<'a> {
     Start { scope: String, language: String },
     Source { start: usize, end: usize },
     End,
-    AnnotationStart(ExResolvedAnnotation<'a>),
+    AnnotationStart(ExAnnotationStart<'a>),
     AnnotationEnd,
+    DecorationStart(ExRainbowBracket),
+    DecorationEnd,
 }
 
 impl<'a> CollectedEvent<'a> {
@@ -252,6 +277,8 @@ impl<'a> CollectedEvent<'a> {
             Self::End => event_end().encode(env),
             Self::AnnotationStart(annotation) => (annotation_start(), annotation).encode(env),
             Self::AnnotationEnd => annotation_end().encode(env),
+            Self::DecorationStart(decoration) => (decoration_start(), decoration).encode(env),
+            Self::DecorationEnd => decoration_end().encode(env),
         }
     }
 }
@@ -301,13 +328,17 @@ impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
                     end: *end,
                 },
                 HighlightEvent::End => CollectedEvent::End,
-                HighlightEvent::AnnotationStart { annotation } => {
-                    CollectedEvent::AnnotationStart(ExResolvedAnnotation {
-                        range: (annotation.range().start, annotation.range().end),
-                        data: *annotation.data(),
+                HighlightEvent::AnnotationStart { range, data } => {
+                    CollectedEvent::AnnotationStart(ExAnnotationStart {
+                        range: (range.start, range.end),
+                        data: **data,
                     })
                 }
                 HighlightEvent::AnnotationEnd => CollectedEvent::AnnotationEnd,
+                HighlightEvent::DecorationStart {
+                    decoration: Decoration::RainbowBracket { depth },
+                } => CollectedEvent::DecorationStart(ExRainbowBracket { depth: *depth }),
+                HighlightEvent::DecorationEnd => CollectedEvent::DecorationEnd,
                 // A kind this build predates: drop it rather than crossing the
                 // NIF boundary with a shape Elixir has no clause for.
                 _ => continue,
@@ -392,7 +423,13 @@ pub(crate) fn highlight<'a>(
         Err(message) => return Ok((error(), message).encode(env)),
     };
 
-    let events = match syntax_events(env, source, language, options.rainbow_brackets) {
+    let events = match syntax_events(
+        env,
+        source,
+        language,
+        options.rainbow_brackets,
+        options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+    ) {
         Ok(events) => events,
         Err(failure) => return Ok(failure),
     };
@@ -416,6 +453,7 @@ fn syntax_events<'a>(
     source: &str,
     language: Language,
     rainbow_brackets: bool,
+    match_limit: u32,
 ) -> Result<Vec<HighlightEvent<'static>>, Term<'a>> {
     if language == languages::Language::PlainText {
         return Ok(vec![HighlightEvent::Source {
@@ -426,7 +464,7 @@ fn syntax_events<'a>(
 
     let executor = executor().map_err(|reason| (error(), format!("{reason:#}")).encode(env))?;
     executor
-        .highlight(source, language.id_name(), rainbow_brackets)
+        .highlight(source, language.id_name(), rainbow_brackets, match_limit)
         .map_err(|runtime_error| match runtime_error {
             RuntimeError::LanguageNotLoaded(language) => {
                 (error(), (language_not_loaded(), language)).encode(env)
@@ -445,7 +483,13 @@ pub(crate) fn highlight_events<'a>(
     let annotations = decode_annotations(options.annotations)?;
     let formatter = EventFormatter::new(language);
 
-    let events = match syntax_events(env, source, language, options.rainbow_brackets) {
+    let events = match syntax_events(
+        env,
+        source,
+        language,
+        options.rainbow_brackets,
+        options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+    ) {
         Ok(events) => events,
         Err(failure) => return Ok(failure),
     };
@@ -877,21 +921,77 @@ fn html_span_attrs(
         .collect()
 }
 
-#[rustler::nif]
-fn html_open_pre_tag(pre_class: Option<String>, theme: Option<ExTheme>) -> NifResult<String> {
-    let theme = theme.map(themes::Theme::from);
+fn html_open_tag(name: &str, attrs: lumis_core::formatter::html::HtmlAttrs) -> NifResult<String> {
     let mut output = Vec::new();
-    lumis_core::formatter::html::open_pre_tag(&mut output, pre_class.as_deref(), theme.as_ref())
+    lumis_core::formatter::html::open_tag(&mut output, name, &attrs)
         .map_err(|error| Error::Term(Box::new(error.to_string())))?;
     html_utf8(output)
 }
 
+fn pre_attrs_impl(
+    pre_class: Option<String>,
+    theme: Option<ExTheme>,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> lumis_core::formatter::html::HtmlAttrs {
+    let theme = theme.map(themes::Theme::from);
+    lumis_core::formatter::html::pre_attrs(
+        pre_class.as_deref(),
+        theme.as_ref(),
+        &attr_values(attrs),
+    )
+}
+
 #[rustler::nif]
-fn html_open_code_tag(language: &str) -> NifResult<String> {
-    let mut output = Vec::new();
-    lumis_core::formatter::html::open_code_tag(&mut output, &Language::guess(Some(language), ""))
-        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
-    html_utf8(output)
+fn html_pre_attrs(
+    pre_class: Option<String>,
+    theme: Option<ExTheme>,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> Vec<(String, ExAttrValue)> {
+    ex_attr_values(pre_attrs_impl(pre_class, theme, attrs))
+}
+
+#[rustler::nif]
+fn html_open_pre_tag(
+    pre_class: Option<String>,
+    theme: Option<ExTheme>,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> NifResult<String> {
+    html_open_tag("pre", pre_attrs_impl(pre_class, theme, attrs))
+}
+
+fn code_attrs_impl(
+    language: &str,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> lumis_core::formatter::html::HtmlAttrs {
+    lumis_core::formatter::html::code_attrs(
+        &Language::guess(Some(language), ""),
+        &attr_values(attrs),
+    )
+}
+
+#[rustler::nif]
+fn html_code_attrs(
+    language: &str,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> Vec<(String, ExAttrValue)> {
+    ex_attr_values(code_attrs_impl(language, attrs))
+}
+
+#[rustler::nif]
+fn html_open_code_tag(language: &str, attrs: Vec<(String, ExAttrValue)>) -> NifResult<String> {
+    html_open_tag("code", code_attrs_impl(language, attrs))
+}
+
+/// Render any opening tag from attributes, so a custom Elixir formatter has the
+/// escaping renderer the `*_attrs` helpers are built for.
+#[rustler::nif]
+fn html_open_tag_from_attrs(name: &str, attrs: Vec<(String, ExAttrValue)>) -> NifResult<String> {
+    html_open_tag(name, attr_values(attrs))
+}
+
+#[rustler::nif]
+fn html_valid_attr_name(name: &str) -> bool {
+    lumis_core::formatter::html::is_valid_attr_name(name)
 }
 
 #[rustler::nif]
@@ -990,28 +1090,62 @@ fn html_multi_themes_span_attrs(
         .collect()
 }
 
+fn multi_themes_pre_attrs_impl(
+    pre_class: Option<String>,
+    themes_map: HashMap<String, ExTheme>,
+    default_theme: Option<String>,
+    css_variable_prefix: &str,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> lumis_core::formatter::html::HtmlAttrs {
+    let themes_map: HashMap<String, themes::Theme> = themes_map
+        .into_iter()
+        .map(|(name, theme)| (name, themes::Theme::from(theme)))
+        .collect();
+
+    lumis_core::formatter::html::multi_themes_pre_attrs(
+        pre_class.as_deref(),
+        &themes_map,
+        default_theme.as_deref(),
+        css_variable_prefix,
+        &attr_values(attrs),
+    )
+}
+
+#[rustler::nif]
+fn html_multi_themes_pre_attrs(
+    pre_class: Option<String>,
+    themes_map: HashMap<String, ExTheme>,
+    default_theme: Option<String>,
+    css_variable_prefix: &str,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> Vec<(String, ExAttrValue)> {
+    ex_attr_values(multi_themes_pre_attrs_impl(
+        pre_class,
+        themes_map,
+        default_theme,
+        css_variable_prefix,
+        attrs,
+    ))
+}
+
 #[rustler::nif]
 fn html_open_multi_themes_pre_tag(
     pre_class: Option<String>,
     themes_map: HashMap<String, ExTheme>,
     default_theme: Option<String>,
     css_variable_prefix: &str,
+    attrs: Vec<(String, ExAttrValue)>,
 ) -> NifResult<String> {
-    let themes_map: HashMap<String, themes::Theme> = themes_map
-        .into_iter()
-        .map(|(name, theme)| (name, themes::Theme::from(theme)))
-        .collect();
-
-    let mut output = Vec::new();
-    lumis_core::formatter::html::open_multi_themes_pre_tag(
-        &mut output,
-        pre_class.as_deref(),
-        &themes_map,
-        default_theme.as_deref(),
-        css_variable_prefix,
+    html_open_tag(
+        "pre",
+        multi_themes_pre_attrs_impl(
+            pre_class,
+            themes_map,
+            default_theme,
+            css_variable_prefix,
+            attrs,
+        ),
     )
-    .map_err(|error| Error::Term(Box::new(error.to_string())))?;
-    html_utf8(output)
 }
 
 #[rustler::nif]
@@ -1054,7 +1188,7 @@ fn html_render_lines_from_events(
         // kind this build predates, or one carrying caller data, is skipped
         // instead of failing the whole render.
         if let Ok(atom) = event.decode::<rustler::Atom>() {
-            if atom == event_end() {
+            if atom == event_end() || atom == decoration_end() {
                 decoded.push(HighlightEvent::End);
             }
             continue;
@@ -1086,6 +1220,22 @@ fn html_render_lines_from_events(
                     end: source_event.end,
                 });
             }
+        } else if tag == decoration_start() {
+            let Ok(decoration) = payload.decode::<ExRainbowBracket>() else {
+                continue;
+            };
+            let scope = lumis_core::decorations::rainbow_scope(decoration.depth).to_string();
+            let scope_index = scopes
+                .iter()
+                .position(|candidate| *candidate == scope)
+                .unwrap_or_else(|| {
+                    scopes.push(scope);
+                    scopes.len() - 1
+                });
+            decoded.push(HighlightEvent::Start {
+                scope_index,
+                language: String::new(),
+            });
         }
     }
 

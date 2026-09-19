@@ -45,6 +45,7 @@ blocking it, and the standalone CLI can prepare the directory ahead of time.
 | Runtime | Integration | Package | Reference |
 | --- | --- | --- | --- |
 | JavaScript | React | `@lumis-sh/react` | [npm](https://www.npmjs.com/package/@lumis-sh/react) |
+| JavaScript | Vite HTML | `@lumis-sh/vite` | [npm](https://www.npmjs.com/package/@lumis-sh/vite) |
 | JavaScript | markdown-it | `@lumis-sh/markdown-it-lumis` | [npm](https://www.npmjs.com/package/@lumis-sh/markdown-it-lumis) |
 | JavaScript | rehype | `@lumis-sh/rehype-lumis` | [npm](https://www.npmjs.com/package/@lumis-sh/rehype-lumis) |
 

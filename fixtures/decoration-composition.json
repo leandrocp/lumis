@@ -1,5 +1,5 @@
 {
-  "$comment": "Expected event streams for line-decoration composition. Rust is the reference; crates/lumis-core/tests/decoration_composition.rs asserts it produces these, packages/javascript/lumis/test/decoration-composition.test.ts asserts the TypeScript port produces the same. Notation: L+N/L+N* opens a line decoration (starred when highlighted), L- closes it, S:scope / E a syntax scope, T:start-end a source range, A+data@start-end / A- a caller annotation.",
+  "$comment": "Expected event streams for decoration composition. Rust is the reference; crates/lumis-core/tests/decoration_composition.rs asserts it produces these, packages/javascript/lumis/test/decoration-composition.test.ts asserts the TypeScript port produces the same. Notation: L+N/L+N* opens a line decoration (starred when highlighted), L- closes it, R+depth/R- wraps a rainbow bracket, S:scope / E a syntax scope, T:start-end a source range, A+data@start-end / A- a caller annotation.",
   "cases": [
     {
       "name": "empty/no-events",
@@ -124,6 +124,30 @@
       "annotations": [{ "start": 2, "end": 2, "data": "blank" }],
       "highlightLines": [2],
       "expected": "L+1 T:0-2 L- L+2* A+blank@2-2 A- T:2-3 L- L+3 T:3-4 L-"
+    },
+    {
+      "name": "rainbow/crosses-source-and-syntax-boundaries",
+      "source": "ab",
+      "events": [
+        { "type": "start", "scope": "string", "language": "json" },
+        { "type": "source", "start": 0, "end": 1 },
+        { "type": "end" },
+        { "type": "start", "scope": "number", "language": "json" },
+        { "type": "source", "start": 1, "end": 2 },
+        { "type": "end" }
+      ],
+      "rainbowRanges": [{ "start": 0, "end": 2, "depth": 7 }],
+      "highlightLines": [],
+      "expected": "L+1 S:string R+7 T:0-1 R- E S:number R+7 T:1-2 R- E L-"
+    },
+    {
+      "name": "rainbow/composes-with-annotations-and-lines",
+      "source": "a\nb",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "rainbowRanges": [{ "start": 2, "end": 3, "depth": 6 }],
+      "annotations": [{ "start": 1, "end": 3, "data": "x" }],
+      "highlightLines": [2],
+      "expected": "L+1 T:0-1 A+x@1-3 T:1-2 A- L- L+2* A+x@1-3 R+6 T:2-3 R- A- L-"
     },
     {
       "name": "utf8/multibyte-lines",

@@ -178,6 +178,7 @@ describe("native runtime", () => {
       '{"answer": 42}',
       internalId,
       false,
+      undefined,
       () => {},
       () => {},
     );
@@ -208,6 +209,7 @@ describe("native runtime", () => {
       source,
       "markdown",
       false,
+      undefined,
       localLanguagePackageResolver,
       wasmResolver,
     );
@@ -420,10 +422,10 @@ describe("native adapter routing", () => {
       .createRuntime({ wasmResolver: () => new URL("file:///unused") })
       .highlightEvents("{}", loaded);
 
-    expect(highlightEvents.mock.calls[0].slice(3)).toEqual([undefined, undefined]);
-    expect(highlightEvents.mock.calls[1][3]).toBeTypeOf("function");
+    expect(highlightEvents.mock.calls[0].slice(3)).toEqual([undefined, undefined, undefined]);
     expect(highlightEvents.mock.calls[1][4]).toBeTypeOf("function");
-    const packageResolver = highlightEvents.mock.calls[1][3] as (packageName: string) => string;
+    expect(highlightEvents.mock.calls[1][5]).toBeTypeOf("function");
+    const packageResolver = highlightEvents.mock.calls[1][4] as (packageName: string) => string;
     expect(packageResolver("@lumis-sh/wasm-json")).toContain(
       `@lumis-sh/wasm-json@${LANGUAGE_PACKAGE_VERSION_RANGE}/lumis.json`,
     );

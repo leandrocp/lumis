@@ -15,6 +15,7 @@ struct Change {
 struct Observation {
     saw_syntax: bool,
     saw_rainbow: bool,
+    rainbow_depths: Vec<usize>,
     annotations: Vec<(std::ops::Range<usize>, u64)>,
     annotation_starts: usize,
     annotation_ends: usize,
@@ -39,21 +40,23 @@ impl Formatter<Change> for TestFormatter {
 
         for event in events {
             match event {
-                HighlightEvent::Start { scope_index, .. } => {
+                HighlightEvent::Start { .. } => {
                     observation.saw_syntax = true;
-                    observation.saw_rainbow |= lumis::highlights::HIGHLIGHT_NAMES[*scope_index]
-                        .starts_with("punctuation.bracket.rainbow.");
                 }
-                HighlightEvent::End => {}
-                HighlightEvent::AnnotationStart { annotation } => {
+                HighlightEvent::End | HighlightEvent::DecorationEnd => {}
+                HighlightEvent::AnnotationStart { range, data } => {
                     observation.annotation_starts += 1;
-                    observation
-                        .annotations
-                        .push((annotation.range().clone(), annotation.data().id));
+                    observation.annotations.push((range.clone(), data.id));
                 }
                 HighlightEvent::AnnotationEnd => observation.annotation_ends += 1,
                 HighlightEvent::Source { start, end } => {
                     output.write_all(&source.as_bytes()[*start..*end])?;
+                }
+                HighlightEvent::DecorationStart {
+                    decoration: lumis::decorations::Decoration::RainbowBracket { depth },
+                } => {
+                    observation.saw_rainbow = true;
+                    observation.rainbow_depths.push(*depth);
                 }
                 event => panic!("this test observes every event kind, and missed {event:?}"),
             }
@@ -83,6 +86,7 @@ fn top_level_highlight_composes_typed_annotations_with_syntax_events() {
         Observation {
             saw_syntax: true,
             saw_rainbow: true,
+            rainbow_depths: vec![0, 0],
             annotations: vec![(start..start + 5, 7)],
             annotation_starts: 1,
             annotation_ends: 1,

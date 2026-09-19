@@ -1,9 +1,11 @@
 import { HIGHLIGHT_NAMES } from "../highlights.js";
-import type { SyntaxHighlightEvent } from "../types.js";
+import type { LumisHighlightEvent } from "../types.js";
 
 const SOURCE_EVENT = 0;
 const START_EVENT = 1;
 const END_EVENT = 2;
+const RAINBOW_START_EVENT = 3;
+const DECORATION_END_EVENT = 4;
 const SOURCE_EVENT_BYTES = 8;
 const START_EVENT_HEADER_BYTES = 4;
 const decoder = new TextDecoder("utf-8", { fatal: true });
@@ -21,10 +23,12 @@ function requireBytes(offset: number, count: number, length: number): void {
  * - source (0): start byte as u32 LE, end byte as u32 LE
  * - start  (1): scope index as u16 LE, language byte length as u16 LE, UTF-8 language
  * - end    (2): no payload
+ * - rainbow-bracket start (3): zero-based depth as u32 LE
+ * - decoration end       (4): no payload
  */
-export function decodeNativeEvents(data: Uint8Array): SyntaxHighlightEvent[] {
+export function decodeNativeEvents(data: Uint8Array): LumisHighlightEvent[] {
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
-  const events: SyntaxHighlightEvent[] = [];
+  const events: LumisHighlightEvent[] = [];
   let offset = 0;
 
   while (offset < data.byteLength) {
@@ -58,6 +62,17 @@ export function decodeNativeEvents(data: Uint8Array): SyntaxHighlightEvent[] {
       }
       case END_EVENT:
         events.push({ type: "end" });
+        break;
+      case RAINBOW_START_EVENT:
+        requireBytes(offset, 4, data.byteLength);
+        events.push({
+          type: "decorationStart",
+          decoration: { type: "rainbowBracket", depth: view.getUint32(offset, true) },
+        });
+        offset += 4;
+        break;
+      case DECORATION_END_EVENT:
+        events.push({ type: "decorationEnd" });
         break;
       default:
         throw new Error(`Unknown native Lumis event tag ${tag}`);

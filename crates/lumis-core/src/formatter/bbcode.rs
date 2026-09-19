@@ -8,7 +8,9 @@
 //! Works with pre-computed highlight events from any source.
 
 use super::{check_source_ranges, source_text, Formatter};
-use crate::decorations::{compose_line_decorations, Decoration, LineSelection, SteppedLineRange};
+use crate::decorations::{
+    compose_line_decorations, rainbow_scope_index, Decoration, LineSelection, SteppedLineRange,
+};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
 use derive_builder::Builder;
@@ -167,7 +169,7 @@ impl<T> Formatter<T> for BBCodeScoped {
             composed = compose_line_decorations(source, events, &selection);
             &composed
         };
-        let mut line_highlighted = false;
+        let mut decorations = Vec::new();
 
         for event in events {
             match event {
@@ -187,20 +189,31 @@ impl<T> Formatter<T> for BBCodeScoped {
                         write!(output, "[/{tag_name}]")?;
                     }
                 }
-                HighlightEvent::DecorationStart {
-                    decoration: Decoration::Line { highlighted, .. },
-                } => {
-                    line_highlighted = *highlighted;
-                    if line_highlighted {
-                        write!(output, "[{HIGHLIGHTED_TAG}]")?;
+                HighlightEvent::DecorationStart { decoration } => {
+                    decorations.push(*decoration);
+                    match decoration {
+                        Decoration::Line {
+                            highlighted: true, ..
+                        } => write!(output, "[{HIGHLIGHTED_TAG}]")?,
+                        Decoration::Line { .. } => {}
+                        Decoration::RainbowBracket { depth } => {
+                            let tag_name =
+                                tag_name(rainbow_scope_index(*depth), self.language.id_name());
+                            write!(output, "[{tag_name}]")?;
+                        }
                     }
                 }
-                HighlightEvent::DecorationEnd => {
-                    if line_highlighted {
-                        write!(output, "[/{HIGHLIGHTED_TAG}]")?;
-                        line_highlighted = false;
+                HighlightEvent::DecorationEnd => match decorations.pop() {
+                    Some(Decoration::Line {
+                        highlighted: true, ..
+                    }) => write!(output, "[/{HIGHLIGHTED_TAG}]")?,
+                    Some(Decoration::Line { .. }) | None => {}
+                    Some(Decoration::RainbowBracket { depth }) => {
+                        let tag_name =
+                            tag_name(rainbow_scope_index(depth), self.language.id_name());
+                        write!(output, "[/{tag_name}]")?;
                     }
-                }
+                },
                 // Caller annotations carry data this formatter has never seen.
                 HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
             }

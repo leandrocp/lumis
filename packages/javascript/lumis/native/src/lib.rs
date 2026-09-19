@@ -1,19 +1,20 @@
 use base64::Engine as _;
-use lumis_core::events::HighlightEvent;
+use lumis_core::events::{Decoration, HighlightEvent};
 use lumis_core::formatter::bbcode::{BBCodeScoped, HighlightLines as BBCodeHighlightLines};
+use lumis_core::formatter::html::AttrValue;
 use lumis_core::formatter::html_inline::{
     HighlightLines as InlineHighlightLines, HighlightLinesStyle as InlineHighlightLinesStyle,
-    HtmlInline,
 };
-use lumis_core::formatter::html_linked::{HighlightLines as LinkedHighlightLines, HtmlLinked};
+use lumis_core::formatter::html_linked::HighlightLines as LinkedHighlightLines;
 use lumis_core::formatter::terminal::{
     Background as TerminalBackground, HighlightLines as TerminalHighlightLines, Terminal,
 };
-use lumis_core::formatter::{Formatter as _, HtmlElement};
+use lumis_core::formatter::{Formatter as _, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder};
 use lumis_core::languages::Language;
 use lumis_core::themes::{Appearance, Style, Theme};
 use lumis_wasm_runtime::{
     catalog, store, Fetcher as _, HighlightOptions, InjectionResolution, Runtime,
+    DEFAULT_MATCH_LIMIT,
 };
 use napi::bindgen_prelude::{AsyncTask, Buffer, FnArgs, Function};
 use napi::{Env, Error, Result, Status, Task};
@@ -88,11 +89,38 @@ impl From<JsTheme> for Theme {
     }
 }
 
+/// An attribute value as JavaScript spells it, which is why `bool` is here:
+/// `true` writes the bare name and `false` removes one of Lumis's own.
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum JsAttrValue {
+    Flag(bool),
+    Value(String),
+}
+
+impl From<JsAttrValue> for AttrValue {
+    fn from(value: JsAttrValue) -> Self {
+        match value {
+            JsAttrValue::Flag(flag) => Self::from(flag),
+            JsAttrValue::Value(value) => Self::Value(value),
+        }
+    }
+}
+
+fn attr_values(attrs: Vec<(String, JsAttrValue)>) -> lumis_core::formatter::html::HtmlAttrs {
+    attrs
+        .into_iter()
+        .map(|(name, value)| (name, value.into()))
+        .collect()
+}
+
 #[derive(Default, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 struct HtmlInlineOptions {
     theme: Option<JsTheme>,
     pre_class: Option<String>,
+    pre_attrs: Vec<(String, JsAttrValue)>,
+    code_attrs: Vec<(String, JsAttrValue)>,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<JsHighlightLines>,
@@ -104,6 +132,8 @@ struct HtmlInlineOptions {
 #[serde(default, rename_all = "camelCase")]
 struct HtmlLinkedOptions {
     pre_class: Option<String>,
+    pre_attrs: Vec<(String, JsAttrValue)>,
+    code_attrs: Vec<(String, JsAttrValue)>,
     highlight_lines: Option<JsHighlightLines>,
     line_numbers: bool,
     header: Option<JsHtmlElement>,
@@ -140,6 +170,7 @@ struct BBCodeScopedOptions {
 #[napi(object)]
 pub struct NativeFormatter {
     pub rainbow_brackets: Option<bool>,
+    pub match_limit: Option<u32>,
     pub kind: String,
     pub options: serde_json::Value,
 }
@@ -448,6 +479,8 @@ fn read_resolved_source(source: &str) -> std::result::Result<Vec<u8>, String> {
 const SOURCE_EVENT: u8 = 0;
 const START_EVENT: u8 = 1;
 const END_EVENT: u8 = 2;
+const RAINBOW_START_EVENT: u8 = 3;
+const DECORATION_END_EVENT: u8 = 4;
 
 fn inline_highlight_lines(value: JsHighlightLines) -> InlineHighlightLines {
     InlineHighlightLines {
@@ -477,6 +510,7 @@ fn render_formatter(
         &source,
         &runtime_language,
         formatter.rainbow_brackets.unwrap_or(false),
+        formatter.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
         &internal_ids,
     )?;
     publicize_event_languages(&mut events, &public_ids);
@@ -510,31 +544,37 @@ fn render_events(
     match formatter.kind.as_str() {
         "html-inline" => {
             let options: HtmlInlineOptions = serde_json::from_value(formatter.options)?;
-            HtmlInline::new(
-                language,
-                options.theme.map(Theme::from),
-                options.pre_class,
-                options.italic,
-                options.include_highlights,
-                options.highlight_lines.map(inline_highlight_lines),
-                options.line_numbers,
-                options.header.map(HtmlElement::from),
-            )
-            .render(source, events, &mut output)?;
+            HtmlInlineBuilder::new()
+                .language(language)
+                .theme(options.theme.map(Theme::from))
+                .pre_class(options.pre_class)
+                .pre_attrs(attr_values(options.pre_attrs))
+                .code_attrs(attr_values(options.code_attrs))
+                .italic(options.italic)
+                .include_highlights(options.include_highlights)
+                .highlight_lines(options.highlight_lines.map(inline_highlight_lines))
+                .line_numbers(options.line_numbers)
+                .header(options.header.map(HtmlElement::from))
+                .build()
+                .map_err(|error| std::io::Error::other(error.to_string()))?
+                .render(source, events, &mut output)?;
         }
         "html-linked" => {
             let options: HtmlLinkedOptions = serde_json::from_value(formatter.options)?;
-            HtmlLinked::new(
-                language,
-                options.pre_class,
-                options.highlight_lines.map(|lines| LinkedHighlightLines {
+            HtmlLinkedBuilder::new()
+                .language(language)
+                .pre_class(options.pre_class)
+                .pre_attrs(attr_values(options.pre_attrs))
+                .code_attrs(attr_values(options.code_attrs))
+                .highlight_lines(options.highlight_lines.map(|lines| LinkedHighlightLines {
                     lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
                     class: lines.class.unwrap_or_else(|| "l-highlighted".to_string()),
-                }),
-                options.line_numbers,
-                options.header.map(HtmlElement::from),
-            )
-            .render(source, events, &mut output)?;
+                }))
+                .line_numbers(options.line_numbers)
+                .header(options.header.map(HtmlElement::from))
+                .build()
+                .map_err(|error| std::io::Error::other(error.to_string()))?
+                .render(source, events, &mut output)?;
         }
         "bbcode-scoped" => {
             let options: BBCodeScopedOptions = serde_json::from_value(formatter.options)?;
@@ -598,9 +638,17 @@ fn encode_events(events: &[HighlightEvent<'_>]) -> Result<Buffer> {
                 output.extend_from_slice(language.as_bytes());
             }
             HighlightEvent::End => output.push(END_EVENT),
+            HighlightEvent::DecorationStart {
+                decoration: Decoration::RainbowBracket { depth },
+            } => {
+                let depth = u32::try_from(*depth).map_err(native_error)?;
+                output.push(RAINBOW_START_EVENT);
+                output.extend_from_slice(&depth.to_le_bytes());
+            }
+            HighlightEvent::DecorationEnd => output.push(DECORATION_END_EVENT),
             _ => {
                 return Err(native_error(
-                    "the native event protocol only supports syntax events",
+                    "the native event protocol only supports syntax and rainbow-bracket events",
                 ));
             }
         }
@@ -683,6 +731,7 @@ fn highlight_events(
     source: &str,
     language: &str,
     rainbow_brackets: bool,
+    match_limit: u32,
     internal_ids: &HashMap<String, String>,
 ) -> std::result::Result<
     (Vec<HighlightEvent<'static>>, Vec<String>),
@@ -703,6 +752,7 @@ fn highlight_events(
         language,
         &HighlightOptions {
             rainbow_brackets,
+            match_limit,
             ..HighlightOptions::default()
         },
         |injected| {
@@ -1177,12 +1227,14 @@ impl NativeRuntime {
     /// A configured JavaScript resolver is called from the walk before the
     /// shared catalog store. Failure leaves only that injected block plain.
     #[napi(js_name = "highlightEvents")]
+    #[allow(clippy::too_many_arguments)]
     pub fn highlight_events(
         &self,
         env: Env,
         source: String,
         language: String,
         rainbow_brackets: Option<bool>,
+        match_limit: Option<u32>,
         package_resolver: Option<PackageResolverFunction<'_>>,
         wasm_resolver: Option<WasmResolverFunction<'_>>,
     ) -> Result<NativeHighlight> {
@@ -1195,6 +1247,7 @@ impl NativeRuntime {
                 &language,
                 &HighlightOptions {
                     rainbow_brackets: rainbow_brackets.unwrap_or(false),
+                    match_limit: match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
                     ..HighlightOptions::default()
                 },
                 |injected| {
@@ -1249,6 +1302,7 @@ impl NativeRuntime {
                 &language,
                 &HighlightOptions {
                     rainbow_brackets: formatter.rainbow_brackets.unwrap_or(false),
+                    match_limit: formatter.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
                     ..HighlightOptions::default()
                 },
                 |injected| {

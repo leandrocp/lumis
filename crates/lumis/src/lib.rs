@@ -334,20 +334,20 @@ pub mod themes;
 /// # Ok::<(), lumis::annotations::AnnotationError>(())
 /// ```
 pub mod annotations {
-    pub use lumis_core::annotations::{
-        Annotation, AnnotationError, AnnotationRange, Position, ResolvedAnnotation,
-    };
+    pub use lumis_core::annotations::{Annotation, AnnotationError, AnnotationRange, Position};
 }
 
 /// Lumis-owned overlays the built-in formatters render.
 ///
 /// An [`Annotation`] carries data only the caller understands, so the built-in
 /// formatters skip it. A [`Decoration`](decorations::Decoration) carries data
-/// Lumis owns, which is how line highlighting reaches the same event stream:
-/// each line arrives as a
+/// Lumis owns, which is how line highlighting and rainbow brackets reach the
+/// same event stream. Each line arrives as a
 /// [`DecorationStart`](events::HighlightEvent::DecorationStart) carrying its
 /// number and whether the caller asked for it to be highlighted, and the
 /// matching [`DecorationEnd`](events::HighlightEvent::DecorationEnd) closes it.
+/// A rainbow bracket instead carries its real zero-based nesting depth; the
+/// built-in formatters cycle that value through their six theme scopes.
 ///
 /// ```rust
 /// use lumis::decorations::Decoration;
@@ -496,7 +496,9 @@ where
     let syntax_events = crate::highlight::highlight_events_with_options(
         source,
         formatter.language(),
-        HighlightOptions::new().rainbow_brackets(options.rainbow_brackets_enabled()),
+        HighlightOptions::new()
+            .rainbow_brackets(options.rainbow_brackets_enabled())
+            .match_limit(options.match_limit_value()),
     )
     .map_err(io::Error::other)?;
     let events = compose_annotations(source, &syntax_events, options.annotation_items())

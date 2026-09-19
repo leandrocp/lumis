@@ -84,4 +84,4 @@ lumis-wasm-runtime shared Tree-sitter WASM engine, lazy registry, and bounded wo
 
 - The Elixir package (`packages/elixir/lumis`) uses a small Rustler NIF with a shared Wasmtime engine and loads parser WASM per language.
 - The JavaScript runtime package (`packages/javascript/lumis`) uses a native addon over that same Wasmtime runtime on Node, and `web-tree-sitter` in browsers, with the same per-language parser assets either way.
-- The integration packages (`packages/javascript/markdown-it-lumis` and `packages/javascript/rehype-lumis`) build on top of that JavaScript runtime for Markdown and HAST pipelines.
+- The integration packages (`packages/javascript/markdown-it-lumis` and `packages/javascript/rehype-lumis`) build on top of that JavaScript runtime for Markdown and HAST pipelines, and `packages/javascript/vite` drives the HAST one from Vite's HTML entry-point hook.

@@ -2,6 +2,7 @@ import type {
   BBCodeScopedFormatter,
   BBCodeScopedOptions,
   Formatter,
+  HtmlAttrs,
   HtmlInlineOptions,
   HtmlInlineFormatter,
   HtmlLinkedOptions,
@@ -11,7 +12,8 @@ import type {
   TerminalOptions,
   TerminalFormatter,
 } from "./types.js";
-import { markBuiltinFormatter } from "./core/builtin-formatter.js";
+import { builtinFormatterKind, markBuiltinFormatter } from "./core/builtin-formatter.js";
+import { layerAttrs } from "./core/attr-merge.js";
 import { formatBBCode } from "./formatter/bbcode.js";
 import { formatHtmlInline } from "./formatter/html-inline.js";
 import { formatHtmlLinked } from "./formatter/html-linked.js";
@@ -153,6 +155,75 @@ export function bbcodeScoped(options: BBCodeScopedOptions = {}): BBCodeScopedFor
   return markBuiltinFormatter(formatter, "bbcode-scoped");
 }
 
+/** Attributes {@link withAttrs} layers onto a formatter. */
+export interface FormatterAttrs {
+  /** Merged into the wrapping `<pre>` tag, over any `preAttrs` already set. */
+  preAttrs?: HtmlAttrs;
+  /** Merged into the nested `<code>` tag, over any `codeAttrs` already set. */
+  codeAttrs?: HtmlAttrs;
+}
+
+/**
+ * Derive a formatter that carries extra `<pre>` and `<code>` attributes.
+ *
+ * Rust spells this as a builder and Elixir as a keyword list, both of which can
+ * add an option before the formatter exists. A JavaScript formatter is already
+ * built by the time a caller holds one — `render` closes over the object, so
+ * spreading it produces something that still renders through the original — and
+ * this is the derive step those two get for free.
+ *
+ * It is what a renderer integration wants: `rehype-lumis` and
+ * `markdown-it-lumis` take a formatter from the user and have per-block
+ * attributes to add, without a say in how the formatter was constructed.
+ *
+ * The attributes merge the same way the formatters' own do: `class` unions,
+ * `style` appends, everything else replaces, and `false` removes.
+ *
+ * Returns the formatter untouched when it is not a built-in HTML one, since
+ * there is no attribute contract to honour on a custom `render`.
+ *
+ * @example
+ * ```ts
+ * import { htmlInline, withAttrs } from '@lumis-sh/lumis/formatters'
+ *
+ * const base = htmlInline({ language: javascript, theme: dracula })
+ * const block = withAttrs(base, { preAttrs: { id: 'example', class: 'card' } })
+ * // base is unchanged
+ * ```
+ */
+export function withAttrs<T extends Formatter>(formatter: T, attrs: FormatterAttrs): T {
+  const current = formatter as Formatter & FormatterAttrs;
+  const preAttrs = layerAttrs(current.preAttrs, attrs.preAttrs);
+  const codeAttrs = layerAttrs(current.codeAttrs, attrs.codeAttrs);
+
+  // `render` closes over the formatter it was built with, so the derived one
+  // has to come back through the factory rather than out of a spread. Each
+  // factory writes its own `render` after spreading what it is given, so the
+  // stale one carried in here is replaced rather than inherited.
+  switch (builtinFormatterKind(formatter)) {
+    case "html-inline":
+      return htmlInline({
+        ...(formatter as unknown as HtmlInlineOptions),
+        preAttrs,
+        codeAttrs,
+      }) as unknown as T;
+    case "html-linked":
+      return htmlLinked({
+        ...(formatter as unknown as HtmlLinkedOptions),
+        preAttrs,
+        codeAttrs,
+      }) as unknown as T;
+    case "html-multi-themes":
+      return htmlMultiThemes({
+        ...(formatter as unknown as HtmlMultiThemesOptions),
+        preAttrs,
+        codeAttrs,
+      }) as unknown as T;
+    default:
+      return formatter;
+  }
+}
+
 export type {
   BBCodeScopedFormatter,
   BBCodeScopedOptions,
@@ -165,6 +236,7 @@ export type {
   HighlightRange,
   HighlightSpan,
   HighlightStyle,
+  HtmlAttrs,
   HtmlInlineFormatter,
   HtmlInlineOptions,
   HtmlLinkedFormatter,

@@ -1,5 +1,5 @@
-import type { BBCodeScopedFormatter, HighlightEvent } from "../types.js";
-import { LineSelection, composeLineDecorations } from "../decorations.js";
+import type { BBCodeScopedFormatter, Decoration, HighlightEvent } from "../types.js";
+import { LineSelection, composeLineDecorations, rainbowBracketScope } from "../decorations.js";
 import { decodeSourceSlice, encodeSource } from "./html.js";
 
 /**
@@ -19,6 +19,21 @@ function scopeToTagName(scope: string, language: string): string {
   return `${scope}.${language}`.replaceAll(".", "-");
 }
 
+function formatterLanguage(formatter: BBCodeScopedFormatter | undefined): string {
+  if (typeof formatter?.language === "string") return formatter.language;
+  return formatter?.language?.id ?? "plaintext";
+}
+
+function formatterEvents(
+  sourceBytes: Uint8Array,
+  events: readonly HighlightEvent[],
+  formatter: BBCodeScopedFormatter | undefined,
+): readonly HighlightEvent[] {
+  const selection = new LineSelection(formatter?.highlightLines?.lines);
+  if (selection.isEmpty) return events;
+  return composeLineDecorations(sourceBytes, events, selection);
+}
+
 export function formatBBCode(
   source: string,
   events: readonly HighlightEvent[],
@@ -27,28 +42,57 @@ export function formatBBCode(
   const sourceBytes = encodeSource(source);
   const parts: string[] = [];
   const scopeStack: string[] = [];
+  const decorations: Decoration[] = [];
+  const documentLanguage = formatterLanguage(formatter);
 
   // BBCode carries no line structure of its own, so the line decorations are
   // only worth composing when there is a line to mark. Without them the stream,
   // and the output, are exactly what they were.
-  const selection = new LineSelection(formatter?.highlightLines?.lines);
-  const decorated = selection.isEmpty
-    ? events
-    : composeLineDecorations(sourceBytes, events, selection);
-  const state = { lineHighlighted: false };
-
+  const decorated = formatterEvents(sourceBytes, events, formatter);
   for (const event of decorated) {
-    appendEvent(parts, sourceBytes, scopeStack, state, event);
+    appendEvent(parts, sourceBytes, scopeStack, decorations, documentLanguage, event);
   }
 
   return parts.join("");
+}
+
+function appendDecorationStart(
+  parts: string[],
+  decorations: Decoration[],
+  documentLanguage: string,
+  decoration: Decoration,
+): void {
+  decorations.push(decoration);
+  if (decoration.type === "line") {
+    if (decoration.highlighted) parts.push(`[${HIGHLIGHTED_TAG}]`);
+    return;
+  }
+  const tagName = scopeToTagName(rainbowBracketScope(decoration.depth), documentLanguage);
+  parts.push(`[${tagName}]`);
+}
+
+function appendDecorationEnd(
+  parts: string[],
+  decorations: Decoration[],
+  documentLanguage: string,
+): void {
+  const decoration = decorations.pop();
+  if (decoration?.type === "line") {
+    if (decoration.highlighted) parts.push(`[/${HIGHLIGHTED_TAG}]`);
+    return;
+  }
+  if (decoration?.type === "rainbowBracket") {
+    const tagName = scopeToTagName(rainbowBracketScope(decoration.depth), documentLanguage);
+    parts.push(`[/${tagName}]`);
+  }
 }
 
 function appendEvent(
   parts: string[],
   sourceBytes: Uint8Array,
   scopeStack: string[],
-  state: { lineHighlighted: boolean },
+  decorations: Decoration[],
+  documentLanguage: string,
   event: HighlightEvent,
 ): void {
   switch (event.type) {
@@ -63,14 +107,14 @@ function appendEvent(
       if (tagName) parts.push(`[/${tagName}]`);
       break;
     }
-    case "decorationStart":
-      state.lineHighlighted = event.decoration.highlighted;
-      if (state.lineHighlighted) parts.push(`[${HIGHLIGHTED_TAG}]`);
+    case "decorationStart": {
+      appendDecorationStart(parts, decorations, documentLanguage, event.decoration);
       break;
-    case "decorationEnd":
-      if (state.lineHighlighted) parts.push(`[/${HIGHLIGHTED_TAG}]`);
-      state.lineHighlighted = false;
+    }
+    case "decorationEnd": {
+      appendDecorationEnd(parts, decorations, documentLanguage);
       break;
+    }
     case "source":
       parts.push(escapeBbcodeText(decodeSourceSlice(sourceBytes, event.start, event.end)));
       break;

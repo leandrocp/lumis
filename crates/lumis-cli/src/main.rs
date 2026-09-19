@@ -15,7 +15,7 @@ use lumis_core::formatter::Formatter as CoreFormatter;
 use lumis_core::formatter::TerminalBackground;
 use lumis_core::languages::Language;
 use lumis_wasm_runtime::tree_sitter_highlight::ParsedLayer;
-use lumis_wasm_runtime::{HighlightOptions, HighlightOutput};
+use lumis_wasm_runtime::{HighlightOptions, HighlightOutput, DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT};
 use serde::Serialize;
 use std::fmt::Display;
 use std::fmt::Write as _;
@@ -115,6 +115,14 @@ struct HighlightArgs {
     #[arg(long)]
     rainbow_brackets: bool,
 
+    /// Query matches tree-sitter keeps in progress at once, 1 to 65536
+    #[arg(
+        long,
+        default_value_t = DEFAULT_MATCH_LIMIT,
+        value_parser = clap::value_parser!(u32).range(1..=i64::from(MAX_MATCH_LIMIT))
+    )]
+    match_limit: u32,
+
     /// Lines to highlight, e.g. "1,3-5,10"
     #[arg(short = 'H', long)]
     highlight_lines: Option<String>,
@@ -166,6 +174,25 @@ struct HtmlArgs {
     #[arg(long)]
     pre_class: Option<String>,
 
+    /// Attribute for the wrapping <pre> tag, as name=value or a bare name for a
+    /// boolean attribute; can be repeated
+    #[arg(long = "pre-attr", value_name = "NAME[=VALUE]", value_parser = parse_html_attr)]
+    pre_attrs: Vec<HtmlAttr>,
+
+    /// Attribute to leave off the wrapping <pre> tag; can be repeated
+    #[arg(long = "no-pre-attr", value_name = "NAME", value_parser = parse_html_attr_name)]
+    no_pre_attrs: Vec<HtmlAttr>,
+
+    /// Attribute for the nested <code> tag, as name=value or a bare name for a
+    /// boolean attribute; can be repeated
+    #[arg(long = "code-attr", value_name = "NAME[=VALUE]", value_parser = parse_html_attr)]
+    code_attrs: Vec<HtmlAttr>,
+
+    /// Attribute to leave off the nested <code> tag, such as tabindex; can be
+    /// repeated
+    #[arg(long = "no-code-attr", value_name = "NAME", value_parser = parse_html_attr_name)]
+    no_code_attrs: Vec<HtmlAttr>,
+
     /// Opening tag wrapped around the output, e.g. '<figure>'
     #[arg(long, requires = "header_close")]
     header_open: Option<String>,
@@ -177,6 +204,54 @@ struct HtmlArgs {
     /// CSS class added to highlighted lines
     #[arg(long, requires = "highlight_lines")]
     highlight_lines_class: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+struct HtmlAttr {
+    name: String,
+    value: lumis_core::formatter::html::AttrValue,
+}
+
+fn parse_html_attr(argument: &str) -> std::result::Result<HtmlAttr, String> {
+    // `name` on its own is the valueless form HTML gives boolean attributes.
+    let (name, value) = match argument.split_once('=') {
+        Some((name, value)) => (name, lumis_core::formatter::html::AttrValue::from(value)),
+        None => (argument, lumis_core::formatter::html::AttrValue::Present),
+    };
+
+    if !lumis_core::formatter::html::is_valid_attr_name(name) {
+        return Err(format!(
+            "`{name}` is not a name HTML can carry on an attribute"
+        ));
+    }
+
+    Ok(HtmlAttr {
+        name: name.to_string(),
+        value,
+    })
+}
+
+fn parse_html_attr_name(argument: &str) -> std::result::Result<HtmlAttr, String> {
+    if !lumis_core::formatter::html::is_valid_attr_name(argument) {
+        return Err(format!(
+            "`{argument}` is not a name HTML can carry on an attribute"
+        ));
+    }
+
+    Ok(HtmlAttr {
+        name: argument.to_string(),
+        value: lumis_core::formatter::html::AttrValue::Absent,
+    })
+}
+
+/// Removals come last, so `--pre-attr class=x --no-pre-attr class` leaves the
+/// attribute off however the two flags were ordered on the command line.
+fn html_attrs(attrs: &[HtmlAttr], removed: &[HtmlAttr]) -> lumis_core::formatter::html::HtmlAttrs {
+    attrs
+        .iter()
+        .chain(removed)
+        .map(|attr| (attr.name.clone(), attr.value.clone()))
+        .collect()
 }
 
 #[derive(clap::Args)]
@@ -248,6 +323,10 @@ impl HighlightArgs {
             "--width" => self.terminal.width.is_some(),
             "--highlight-lines-background" => self.terminal.highlight_lines_background.is_some(),
             "--pre-class" => self.html.pre_class.is_some(),
+            "--pre-attr" => !self.html.pre_attrs.is_empty(),
+            "--no-pre-attr" => !self.html.no_pre_attrs.is_empty(),
+            "--code-attr" => !self.html.code_attrs.is_empty(),
+            "--no-code-attr" => !self.html.no_code_attrs.is_empty(),
             "--header-open" => self.html.header_open.is_some(),
             "--header-close" => self.html.header_close.is_some(),
             "--highlight-lines" => self.highlight_lines.is_some(),
@@ -977,23 +1056,27 @@ fn dump_events(
     language: Option<String>,
 ) -> Result<()> {
     let (source, lang) = read_source(path, language)?;
-    let events = highlight_to_events(reg, &source, dump_language(lang)?, false)?
-        .into_iter()
-        .map(|event| match event {
-            HighlightEvent::Start {
-                scope_index,
-                language,
-            } => SerializableHighlightEvent::Start {
-                scope: lumis_core::highlights::HIGHLIGHT_NAMES[scope_index].to_string(),
-                language,
-            },
-            HighlightEvent::Source { start, end } => {
-                SerializableHighlightEvent::Source { start, end }
-            }
-            HighlightEvent::End => SerializableHighlightEvent::End,
-            _ => unreachable!("syntax highlighting emits only scope and source events"),
-        })
-        .collect::<Vec<_>>();
+    let events = highlight_to_events(
+        reg,
+        &source,
+        dump_language(lang)?,
+        false,
+        DEFAULT_MATCH_LIMIT,
+    )?
+    .into_iter()
+    .map(|event| match event {
+        HighlightEvent::Start {
+            scope_index,
+            language,
+        } => SerializableHighlightEvent::Start {
+            scope: lumis_core::highlights::HIGHLIGHT_NAMES[scope_index].to_string(),
+            language,
+        },
+        HighlightEvent::Source { start, end } => SerializableHighlightEvent::Source { start, end },
+        HighlightEvent::End => SerializableHighlightEvent::End,
+        _ => unreachable!("syntax highlighting emits only scope and source events"),
+    })
+    .collect::<Vec<_>>();
 
     println!("{}", serde_json::to_string_pretty(&events)?);
     Ok(())
@@ -1480,7 +1563,13 @@ fn do_highlight(reg: &registry::Registry, args: HighlightArgs, verbose: bool) ->
             end: source.len(),
         }]
     } else {
-        highlight_to_events(reg, &source, lang.id_name(), args.rainbow_brackets)?
+        highlight_to_events(
+            reg,
+            &source,
+            lang.id_name(),
+            args.rainbow_brackets,
+            args.match_limit,
+        )?
     };
 
     render_output(reg, &source, &events, lang, args, verbose)
@@ -1587,6 +1676,8 @@ fn render_html_multi_themes(
     default_theme: Option<&str>,
     css_variable_prefix: Option<&str>,
     pre_class: Option<String>,
+    pre_attrs: lumis_core::formatter::html::HtmlAttrs,
+    code_attrs: lumis_core::formatter::html::HtmlAttrs,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<lumis_core::formatter::html_inline::HighlightLines>,
@@ -1626,6 +1717,8 @@ fn render_html_multi_themes(
                 .to_string(),
         )
         .pre_class(pre_class)
+        .pre_attrs(pre_attrs)
+        .code_attrs(code_attrs)
         .italic(italic)
         .include_highlights(include_highlights)
         .highlight_lines(highlight_lines)
@@ -1659,7 +1752,15 @@ fn render_output(
                 ref width,
                 ..
             },
-        html: HtmlArgs { ref pre_class, .. },
+        html:
+            HtmlArgs {
+                ref pre_class,
+                ref pre_attrs,
+                ref no_pre_attrs,
+                ref code_attrs,
+                ref no_code_attrs,
+                ..
+            },
         styled:
             StyledArgs {
                 italic,
@@ -1688,6 +1789,8 @@ fn render_output(
                 .language(lang)
                 .theme(theme_obj)
                 .pre_class(pre_class.clone())
+                .pre_attrs(html_attrs(pre_attrs, no_pre_attrs))
+                .code_attrs(html_attrs(code_attrs, no_code_attrs))
                 .italic(italic)
                 .include_highlights(include_highlights)
                 .highlight_lines(highlight_lines)
@@ -1710,6 +1813,8 @@ fn render_output(
                 default_theme.as_deref(),
                 css_variable_prefix.as_deref(),
                 pre_class.clone(),
+                html_attrs(pre_attrs, no_pre_attrs),
+                html_attrs(code_attrs, no_code_attrs),
                 italic,
                 include_highlights,
                 highlight_lines,
@@ -1726,6 +1831,8 @@ fn render_output(
             builder
                 .language(lang)
                 .pre_class(pre_class.clone())
+                .pre_attrs(html_attrs(pre_attrs, no_pre_attrs))
+                .code_attrs(html_attrs(code_attrs, no_code_attrs))
                 .highlight_lines(linked_highlight_lines(&args)?)
                 .line_numbers(line_numbers)
                 .header(header);
@@ -1938,6 +2045,7 @@ fn highlight_to_events(
     source: &str,
     lang_name: &str,
     rainbow_brackets: bool,
+    match_limit: u32,
 ) -> Result<Vec<HighlightEvent>> {
     Ok(reg
         .highlight(
@@ -1945,6 +2053,7 @@ fn highlight_to_events(
             lang_name,
             &HighlightOptions {
                 rainbow_brackets,
+                match_limit,
                 ..HighlightOptions::default()
             },
         )?
@@ -1996,7 +2105,7 @@ mod tests {
 </script>
 ";
 
-        let events = highlight_to_events(&reg, source, "html", false).unwrap();
+        let events = highlight_to_events(&reg, source, "html", false, DEFAULT_MATCH_LIMIT).unwrap();
 
         assert!(events.iter().any(|event| matches!(
             event,

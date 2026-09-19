@@ -4,17 +4,17 @@
 //! in a format that is independent of tree-sitter's C FFI types. Formatters in lumis-core consume
 //! these events to produce HTML, terminal output, etc.
 
-use crate::annotations::ResolvedAnnotation;
+use std::ops::Range;
 
-/// Re-exported so the one decoration a public event carries is nameable: the
-/// module it lives in is internal to this crate.
+/// Re-exported beside the event that carries it for convenient matching.
 pub use crate::decorations::Decoration;
 
 /// A single step in rendering syntax-highlighted source.
 ///
 /// This enum mirrors tree-sitter's `HighlightEvent` but uses plain Rust types,
 /// making it usable without any tree-sitter dependency. Lumis can enrich the
-/// stream with caller-provided events before a formatter consumes it.
+/// stream with caller-provided annotations and built-in decorations before a
+/// formatter consumes it.
 ///
 /// Lumis adds event kinds as it grows, so a formatter matches the ones it
 /// renders and ignores the rest. That is what the built-in formatters do with
@@ -38,8 +38,10 @@ pub enum HighlightEvent<'a, T = ()> {
     End,
     /// A caller-provided annotation begins.
     AnnotationStart {
-        /// The annotation resolved to the offset range consumed by formatters.
-        annotation: ResolvedAnnotation<'a, T>,
+        /// The resolved half-open offset range, measured in UTF-8 bytes.
+        range: Range<usize>,
+        /// The caller-owned data interpreted by the formatter.
+        data: &'a T,
     },
     /// The current caller-provided annotation ends.
     AnnotationEnd,
@@ -71,8 +73,9 @@ impl<T> Clone for HighlightEvent<'_, T> {
                 end: *end,
             },
             Self::End => Self::End,
-            Self::AnnotationStart { annotation } => Self::AnnotationStart {
-                annotation: annotation.clone(),
+            Self::AnnotationStart { range, data } => Self::AnnotationStart {
+                range: range.clone(),
+                data: *data,
             },
             Self::AnnotationEnd => Self::AnnotationEnd,
             Self::DecorationStart { decoration } => Self::DecorationStart {

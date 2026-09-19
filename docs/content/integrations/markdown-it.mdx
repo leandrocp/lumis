@@ -76,10 +76,46 @@ Use this when you want to reuse an existing highlighter.
 
 - `formatter` - required callback that receives the fence language and returns a Lumis formatter
 - `languages` - languages to register or load during setup before calling sync `md.render()`; accepts `Language` objects, bundles, and string refs when a bundle is also present
+- `fenceAttrsOnPre` - put a fence's attributes on `<pre>` rather than `<code>`. Defaults to `true`
 
 ## Behavior
 
 - overrides fenced code rendering
+- keeps the attributes a fence carries, which most highlighter plugins drop
 - loads any language refs passed in `languages` during async setup
 - renders synchronously after setup, so load the languages you expect to use
 - falls back to the default fence renderer if highlighting fails and no fallback succeeds
+
+## Fence attributes
+
+`markdown-it-attrs` and `@mdit/plugin-attrs` let a fence carry attributes:
+
+````md
+```js {#example .code-card data-panel="install"}
+const x = 1
+```
+````
+
+Those survive here, on the `<pre>`:
+
+```html
+<pre class="lumis code-card" style="color: #f8f8f2; background-color: #282a36;" id="example" data-panel="install"><code class="language-javascript" translate="no" tabindex="0">…
+```
+
+`class` unions with the classes Lumis generates, `style` is appended after the theme's declarations, and everything else replaces what Lumis would have written, `translate` and `tabindex` included. It is the same merge the formatters' own `preAttrs` and `codeAttrs` go through, because that is what the plugin hands them to.
+
+`<pre>` is the placement `markdown-it-attrs` 5 documents, under this same `fenceAttrsOnPre` name. markdown-it's own fence renderer puts them on `<code>` instead; pass `fenceAttrsOnPre: false` for that.
+
+```ts
+markdownItLumis({
+  formatter: (language) => htmlInline({language, theme: latte}),
+  fenceAttrsOnPre: false,
+})
+```
+
+Two things about `markdown-it-attrs` itself, neither of them Lumis':
+
+- Its `<pre>` placement only takes effect when it recognises markdown-it's default `fence` rule by reference, which it looks up through its own `require('markdown-it')`. Load markdown-it as ESM and that is a different module instance, so the check reads "custom renderer", the wrapper stands down, and the attributes land on `<code>`. Lumis installs a `fence` renderer of its own, so the wrapper stands down for it either way and the placement above is Lumis' rather than inherited.
+- It reads `{...}` after the language, which is also where several highlighters read their own metadata. Give it a `leftDelimiter`/`rightDelimiter` of its own if you hit that.
+
+Most highlighter plugins drop these attributes rather than place them. [`@shikijs/markdown-it` loses them outright](https://github.com/shikijs/shiki/issues/852), because it hooks `options.highlight` and returns a full `<pre>` block, and markdown-it's default fence renderer returns early on exactly that, never reaching the branch that renders a token's attributes.

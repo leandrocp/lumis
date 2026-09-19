@@ -127,6 +127,38 @@ defmodule Lumis.Formatter.HTMLTest do
   end
 
   describe "tags" do
+    test "pre_attrs/1 merges classes and appends authored styles" do
+      theme = Lumis.Theme.get("dracula")
+
+      assert HTML.pre_attrs(
+               class: "shorthand",
+               theme: theme,
+               attrs: [
+                 class: "shorthand authored",
+                 style: "outline: 1px solid red",
+                 id: ~s|pre"&|
+               ]
+             ) == [
+               class: "lumis shorthand authored",
+               style: "color: #f8f8f2; background-color: #282a36; outline: 1px solid red",
+               id: ~s|pre"&|
+             ]
+    end
+
+    test "code_attrs/2 merges classes and lets authored values override defaults" do
+      assert HTML.code_attrs("elixir",
+               class: "copyable language-elixir",
+               translate: "yes",
+               tabindex: "-1",
+               id: "sample"
+             ) == [
+               class: "language-elixir copyable",
+               translate: "yes",
+               tabindex: "-1",
+               id: "sample"
+             ]
+    end
+
     test "open_pre_tag/1 appends a class" do
       assert HTML.open_pre_tag() == ~s|<pre class="lumis">|
       assert HTML.open_pre_tag(class: "mine") == ~s|<pre class="lumis mine">|
@@ -560,7 +592,7 @@ defmodule Lumis.Formatter.HTMLTest do
 
     test "skips an event kind it has no markup for rather than raising" do
       events = [
-        {:annotation_start, %Lumis.Annotation{range: {0, 1}, data: %{anything: true}}},
+        {:annotation_start, %{range: {0, 1}, data: %{anything: true}}},
         {:source, %{start: 0, end: 1}},
         :annotation_end,
         {:something_a_newer_lumis_adds, %{}}

@@ -1,0 +1,66 @@
+{
+  "name": "@lumis-sh/vite",
+  "version": "0.1.0",
+  "description": "Vite plugin for highlighting static HTML with Lumis",
+  "keywords": [
+    "lumis-sh",
+    "syntax-highlighting",
+    "tree-sitter",
+    "vite",
+    "vite-plugin"
+  ],
+  "homepage": "https://lumis.sh",
+  "bugs": "https://github.com/leandrocp/lumis/issues",
+  "license": "MIT",
+  "author": "Leandro Pereira",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leandrocp/lumis.git",
+    "directory": "packages/javascript/vite"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "prelint": "pnpm --filter @lumis-sh/rehype-lumis run build",
+    "test": "vitest run",
+    "lint": "oxlint -c ../../../.oxlintrc.json --type-aware --deny-warnings --report-unused-disable-directives --ignore-pattern 'examples/**' .",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@lumis-sh/rehype-lumis": "workspace:^",
+    "hast-util-from-html": "^2.0.3",
+    "hast-util-to-html": "^9.0.5",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0"
+  },
+  "devDependencies": {
+    "@lumis-sh/lumis": "workspace:^",
+    "@lumis-sh/themes": "workspace:^",
+    "@microsoft/api-extractor": "^7.58.0",
+    "oxfmt": "^0.43.0",
+    "oxlint": "1.58.0",
+    "oxlint-tsgolint": "0.19.0",
+    "tsup": "^8.5.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
+  },
+  "peerDependencies": {
+    "vite": ">=6.0.0"
+  },
+  "packageManager": "pnpm@11.15.1"
+}

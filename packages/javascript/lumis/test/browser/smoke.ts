@@ -8,7 +8,7 @@ import {
   type Formatter,
 } from "../../src/formatters.ts";
 import { lowestCompatibleLanguagePackageVersion } from "../../src/core/languages.ts";
-import type { LanguageDefinition, Theme } from "../../src/types.ts";
+import type { LanguageDefinition, LumisHighlightEvent, Theme } from "../../src/types.ts";
 
 /**
  * The browser cannot load a parser during the walk that finds an injected
@@ -116,6 +116,7 @@ interface CustomFormatterResult {
   eventCount: number;
   eventLanguages: string[];
   eventScopes: string[];
+  rainbowDepths: number[];
   maxDepth: number;
   reconstructedSource: string;
   resolvedLanguage: string;
@@ -131,6 +132,78 @@ interface CustomFormatterResult {
     startByte: number;
     endByte: number;
   };
+}
+
+interface EventInspection {
+  balancedEvents: boolean;
+  eventLanguages: Set<string>;
+  eventScopes: Set<string>;
+  rainbowDepths: Set<number>;
+  maxDepth: number;
+  reconstructedSource: string;
+}
+
+interface EventInspectionState extends EventInspection {
+  depth: number;
+  rainbowLayers: boolean[];
+}
+
+function closeInspectedLayer(state: EventInspectionState): void {
+  state.depth -= 1;
+  state.balancedEvents &&= state.depth >= 0;
+}
+
+function inspectEvent(
+  state: EventInspectionState,
+  event: LumisHighlightEvent,
+  sourceBytes: Uint8Array,
+  decoder: TextDecoder,
+): void {
+  switch (event.type) {
+    case "start":
+      state.eventLanguages.add(event.language);
+      state.eventScopes.add(event.scope);
+      state.depth += 1;
+      state.maxDepth = Math.max(state.maxDepth, state.depth);
+      break;
+    case "end":
+      closeInspectedLayer(state);
+      break;
+    case "decorationStart": {
+      const rainbow = event.decoration.type === "rainbowBracket";
+      state.rainbowLayers.push(rainbow);
+      if (rainbow) {
+        state.rainbowDepths.add(event.decoration.depth);
+        state.depth += 1;
+        state.maxDepth = Math.max(state.maxDepth, state.depth);
+      }
+      break;
+    }
+    case "decorationEnd":
+      if (state.rainbowLayers.pop()) closeInspectedLayer(state);
+      break;
+    case "source":
+      state.reconstructedSource += decoder.decode(sourceBytes.subarray(event.start, event.end));
+      break;
+  }
+}
+
+function inspectEvents(source: string, events: readonly LumisHighlightEvent[]): EventInspection {
+  const sourceBytes = new TextEncoder().encode(source);
+  const decoder = new TextDecoder();
+  const state: EventInspectionState = {
+    balancedEvents: true,
+    eventLanguages: new Set(),
+    eventScopes: new Set(),
+    rainbowDepths: new Set(),
+    maxDepth: 0,
+    reconstructedSource: "",
+    depth: 0,
+    rainbowLayers: [],
+  };
+  for (const event of events) inspectEvent(state, event, sourceBytes, decoder);
+  state.balancedEvents &&= state.depth === 0;
+  return state;
 }
 
 export interface FixtureOutput {
@@ -296,29 +369,7 @@ async function run(): Promise<void> {
     language: "js",
     render(source: string): string {
       const events = highlightEvents(source, this.language, { rainbowBrackets: true });
-      const sourceBytes = new TextEncoder().encode(source);
-      const decoder = new TextDecoder();
-      const eventLanguages = new Set<string>();
-      const eventScopes = new Set<string>();
-      let depth = 0;
-      let maxDepth = 0;
-      let balancedEvents = true;
-      let reconstructedSource = "";
-
-      for (const event of events) {
-        if (event.type === "start") {
-          eventLanguages.add(event.language);
-          eventScopes.add(event.scope);
-          depth += 1;
-          maxDepth = Math.max(maxDepth, depth);
-        } else if (event.type === "end") {
-          depth -= 1;
-          balancedEvents &&= depth >= 0;
-        } else {
-          reconstructedSource += decoder.decode(sourceBytes.subarray(event.start, event.end));
-        }
-      }
-      balancedEvents &&= depth === 0;
+      const inspection = inspectEvents(source, events);
 
       const tokenLanguages = new Set<string>();
       const tokenScopes = new Set<string>();
@@ -348,12 +399,13 @@ async function run(): Promise<void> {
       );
 
       return JSON.stringify({
-        balancedEvents,
+        balancedEvents: inspection.balancedEvents,
         eventCount: events.length,
-        eventLanguages: [...eventLanguages].sort(),
-        eventScopes: [...eventScopes].sort(),
-        maxDepth,
-        reconstructedSource,
+        eventLanguages: [...inspection.eventLanguages].sort(),
+        eventScopes: [...inspection.eventScopes].sort(),
+        maxDepth: inspection.maxDepth,
+        rainbowDepths: [...inspection.rainbowDepths].sort((left, right) => left - right),
+        reconstructedSource: inspection.reconstructedSource,
         resolvedLanguage: languageId(this.language),
         styledTokenCount,
         tokenCount,

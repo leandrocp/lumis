@@ -260,13 +260,31 @@ defmodule Lumis.Formatter.HTML do
   end
 
   @doc """
-  The opening `<pre>` tag, carrying a theme's own colors when one is given.
+  Attributes for the `<pre>` tag used by inline and linked HTML.
 
   ## Options
 
     * `:theme` (`t:Lumis.Theme.t/0` or a theme name) — writes the theme's
       `normal` colors into a `style` attribute, the way `:html_inline` does
     * `:class` — appended to the `lumis` class every Lumis block carries
+    * `:attrs` — additional attribute keyword list. Classes are unioned, styles
+      are appended, and every other value wins.
+
+  """
+  @spec pre_attrs(keyword()) :: Lumis.html_attrs()
+  def pre_attrs(options \\ []) when is_list(options) do
+    Native.html_pre_attrs(
+      Keyword.get(options, :class),
+      resolve_theme(Keyword.get(options, :theme)),
+      encode_attrs(Keyword.get(options, :attrs, []))
+    )
+    |> decode_attrs()
+  end
+
+  @doc """
+  The opening `<pre>` tag, carrying a theme's own colors when one is given.
+
+  Accepts the same options as `pre_attrs/1`.
 
   ## Example
 
@@ -278,12 +296,13 @@ defmodule Lumis.Formatter.HTML do
   def open_pre_tag(options \\ []) when is_list(options) do
     Native.html_open_pre_tag(
       Keyword.get(options, :class),
-      resolve_theme(Keyword.get(options, :theme))
+      resolve_theme(Keyword.get(options, :theme)),
+      encode_attrs(Keyword.get(options, :attrs, []))
     )
   end
 
   @doc """
-  The opening `<pre>` tag for a multi-theme block.
+  Attributes for the `<pre>` tag used by a multi-theme block.
 
   Carries `lumis`, `lumis-themes` and one class per theme name, so a stylesheet
   can select the active theme, and the same `normal` colors
@@ -296,6 +315,25 @@ defmodule Lumis.Formatter.HTML do
       the `light` and `dark` themes into CSS `light-dark()` calls
     * `:css_variable_prefix` (default `"--lumis"`) — the custom property prefix
     * `:class` — appended to the classes above
+    * `:attrs` — additional attribute keyword list, merged after generated values
+
+  """
+  @spec multi_themes_pre_attrs(keyword()) :: Lumis.html_attrs()
+  def multi_themes_pre_attrs(options \\ []) when is_list(options) do
+    Native.html_multi_themes_pre_attrs(
+      Keyword.get(options, :class),
+      resolve_themes(Keyword.get(options, :themes, %{})),
+      Keyword.get(options, :default_theme),
+      css_variable_prefix(options),
+      encode_attrs(Keyword.get(options, :attrs, []))
+    )
+    |> decode_attrs()
+  end
+
+  @doc """
+  The opening `<pre>` tag for a multi-theme block.
+
+  Accepts the same options as `multi_themes_pre_attrs/1`.
 
   ## Example
 
@@ -309,7 +347,8 @@ defmodule Lumis.Formatter.HTML do
       Keyword.get(options, :class),
       resolve_themes(Keyword.get(options, :themes, %{})),
       Keyword.get(options, :default_theme),
-      css_variable_prefix(options)
+      css_variable_prefix(options),
+      encode_attrs(Keyword.get(options, :attrs, []))
     )
   end
 
@@ -321,6 +360,51 @@ defmodule Lumis.Formatter.HTML do
   end
 
   @doc """
+  Whether a name is one HTML can carry on an attribute.
+
+  A name with a space, a quote, `=`, `/` or `>` in it cannot be escaped into
+  safety, because a space alone splits it into two attributes and the second one
+  can be an event handler. `open_tag/2` rejects those rather than writing them.
+
+      iex> Lumis.Formatter.HTML.valid_attr_name?("data-copy")
+      true
+
+      iex> Lumis.Formatter.HTML.valid_attr_name?("x onclick=alert(1)")
+      false
+  """
+  @spec valid_attr_name?(String.t()) :: boolean()
+  def valid_attr_name?(name) when is_binary(name), do: Native.html_valid_attr_name(name)
+
+  @doc """
+  An opening tag built from an attribute keyword list, with every value escaped.
+
+  This is what `pre_attrs/1`, `multi_themes_pre_attrs/1` and `code_attrs/2` are
+  built for: merge their result with your own attributes, then render the whole
+  thing here instead of assembling the string yourself.
+
+      iex> Lumis.Formatter.HTML.open_tag("pre", class: "lumis", hidden: true)
+      ~s|<pre class="lumis" hidden>|
+
+  Raises `ArgumentError` for a name HTML cannot carry, per `valid_attr_name?/1`.
+  """
+  @spec open_tag(String.t(), Lumis.html_attrs()) :: String.t()
+  def open_tag(name, attrs \\ []) when is_binary(name) and is_list(attrs) do
+    Native.html_open_tag_from_attrs(name, encode_attrs(attrs))
+  end
+
+  @doc """
+  Attributes for the `<code>` tag for a language.
+
+  `attrs` is merged after the language class and the `translate` and `tabindex`
+  defaults. Classes are unioned; every other authored value wins.
+  """
+  @spec code_attrs(String.t() | nil, Lumis.html_attrs()) :: Lumis.html_attrs()
+  def code_attrs(language, attrs \\ []) when is_list(attrs) do
+    Native.html_code_attrs(language || "plaintext", encode_attrs(attrs))
+    |> decode_attrs()
+  end
+
+  @doc """
   The opening `<code>` tag for a language.
 
       iex> Lumis.Formatter.HTML.open_code_tag("elixir")
@@ -328,9 +412,14 @@ defmodule Lumis.Formatter.HTML do
 
   A formatter reads its language from the `:language` option `render/3` receives,
   which Lumis has already resolved by detection when the caller named none.
+
+  An optional second argument supplies the attribute keyword list accepted by
+  `code_attrs/2`.
   """
-  @spec open_code_tag(String.t() | nil) :: String.t()
-  def open_code_tag(language), do: Native.html_open_code_tag(language || "plaintext")
+  @spec open_code_tag(String.t() | nil, Lumis.html_attrs()) :: String.t()
+  def open_code_tag(language, attrs \\ []) when is_list(attrs) do
+    Native.html_open_code_tag(language || "plaintext", encode_attrs(attrs))
+  end
 
   @doc """
   Both closing tags, in the order `open_code_tag/1` and `open_pre_tag/1` opened them.
@@ -537,6 +626,23 @@ defmodule Lumis.Formatter.HTML do
   def render_lines_from_events(source, events, attrs)
       when is_binary(source) and is_list(events) and is_map(attrs) do
     Native.html_render_lines_from_events(source, events, attrs)
+  end
+
+  defp encode_attrs(attrs) do
+    case Lumis.html_attrs_type(attrs) do
+      {:ok, attrs} -> Enum.map(attrs, fn {name, value} -> {Atom.to_string(name), value} end)
+      {:error, message} -> raise ArgumentError, message
+    end
+  end
+
+  defp decode_attrs(attrs) do
+    Enum.map(attrs, fn
+      {"class", value} -> {:class, value}
+      {"style", value} -> {:style, value}
+      {"translate", value} -> {:translate, value}
+      {"tabindex", value} -> {:tabindex, value}
+      {name, value} -> {String.to_existing_atom(name), value}
+    end)
   end
 
   defp resolve_theme(nil), do: nil

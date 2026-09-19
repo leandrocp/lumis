@@ -75,7 +75,7 @@ Accepted by every formatter:
 | --- | --- | --- |
 | `--language <lang>` | `-l` | Language id (e.g., `rust`, `javascript`). Auto-detects from file if omitted. |
 | `--formatter <fmt>` | `-f` | Output format: `terminal` (default), `html-inline`, `html-linked`, `html-multi-themes`, `bbcode-scoped` |
-| `--rainbow-brackets` | | Render nested brackets using rainbow bracket scopes |
+| `--rainbow-brackets` | | Render matched brackets by nesting depth |
 | `--highlight-lines <lines>` | `-H` | Lines to highlight (e.g., `1,3-5,10`) |
 
 Accepted by `html-inline` and `terminal`:
@@ -104,6 +104,10 @@ Accepted by `html-inline`, `html-linked` and `html-multi-themes`:
 | Flag | Short | Description |
 | --- | --- | --- |
 | `--pre-class <class>` | | CSS class appended to the wrapping `<pre>` tag |
+| `--pre-attr <name[=value]>` | | Attribute for the wrapping `<pre>` tag; a bare name writes the boolean form. Repeat for more than one |
+| `--no-pre-attr <name>` | | Attribute to leave off the wrapping `<pre>` tag |
+| `--code-attr <name[=value]>` | | Attribute for the nested `<code>` tag; a bare name writes the boolean form. Repeat for more than one |
+| `--no-code-attr <name>` | | Attribute to leave off the nested `<code>` tag, such as `tabindex` |
 | `--header-open <tag>` | | Opening tag wrapped around the output (requires `--header-close`) |
 | `--header-close <tag>` | | Closing tag wrapped around the output (requires `--header-open`) |
 | `--highlight-lines-class <class>` | | CSS class added to highlighted lines |

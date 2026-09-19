@@ -69,17 +69,19 @@
 use crate::languages::{bracket_query_for_language, Language, LanguageConfig};
 use crate::themes::Theme;
 use lumis_core::annotations::Annotation;
-use lumis_core::events::HighlightEvent as CoreHighlightEvent;
+use lumis_core::decorations::{compose_rainbow_decorations, rainbow_scope};
+use lumis_core::events::{Decoration, HighlightEvent as CoreHighlightEvent};
 use lumis_core::highlights::HIGHLIGHT_NAMES;
+use lumis_wasm_runtime::brackets::{bracket_pairs, colorize_bracket_pairs, compile, RainbowRange};
 use lumis_wasm_runtime::tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
+pub use lumis_wasm_runtime::tree_sitter_highlight::{DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT};
 use smol_str::format_smolstr;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Range;
 use std::sync::{Arc, LazyLock};
-use streaming_iterator::StreamingIterator;
 use thiserror::Error;
-use tree_sitter::{Parser, Query, QueryCursor};
+use tree_sitter::{Parser, Query};
 
 pub use crate::themes::{Style, TextDecoration, UnderlineStyle};
 
@@ -108,6 +110,7 @@ static DEFAULT_STYLE: LazyLock<Arc<Style>> = LazyLock::new(|| Arc::new(Style::de
 pub struct HighlightOptions<'a, T = ()> {
     annotations: &'a [Annotation<T>],
     rainbow_brackets: bool,
+    match_limit: u32,
 }
 
 impl<T> Copy for HighlightOptions<'_, T> {}
@@ -130,6 +133,7 @@ impl HighlightOptions<'static> {
         Self {
             annotations: &[],
             rainbow_brackets: false,
+            match_limit: DEFAULT_MATCH_LIMIT,
         }
     }
 
@@ -138,12 +142,16 @@ impl HighlightOptions<'static> {
         HighlightOptions {
             annotations,
             rainbow_brackets: self.rainbow_brackets,
+            match_limit: self.match_limit,
         }
     }
 }
 
 impl<'a, T> HighlightOptions<'a, T> {
-    /// Emit `punctuation.bracket.rainbow.N` scopes around bracket pairs.
+    /// Emit [`Decoration::RainbowBracket`] events around matched brackets.
+    ///
+    /// Built-in formatters and the flat iterator render those events through
+    /// the six `punctuation.bracket.rainbow.N` theme scopes.
     pub const fn rainbow_brackets(mut self, enabled: bool) -> Self {
         self.rainbow_brackets = enabled;
         self
@@ -153,14 +161,41 @@ impl<'a, T> HighlightOptions<'a, T> {
         self.annotations
     }
 
+    /// Bound the number of query matches tree-sitter keeps in progress at once,
+    /// for the highlight and bracket queries alike.
+    ///
+    /// Defaults to [`DEFAULT_MATCH_LIMIT`] and must be in `1..=`[`MAX_MATCH_LIMIT`];
+    /// highlighting with a value outside that range fails with
+    /// [`HighlightError::InvalidMatchLimit`]. Tree-sitter walks its whole pool of
+    /// in-progress matches before it emits each capture, so the bound is what
+    /// keeps highlighting linear on documents whose markup nests deeply enough to
+    /// keep many matches open at once. Raising it recovers matches that would
+    /// otherwise be dropped on such documents, at that cost.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use lumis::highlight::HighlightOptions;
+    ///
+    /// let options = HighlightOptions::new().match_limit(16_384);
+    /// ```
+    pub const fn match_limit(mut self, match_limit: u32) -> Self {
+        self.match_limit = match_limit;
+        self
+    }
+
     pub(crate) const fn rainbow_brackets_enabled(&self) -> bool {
         self.rainbow_brackets
+    }
+
+    pub(crate) const fn match_limit_value(&self) -> u32 {
+        self.match_limit
     }
 }
 
 thread_local! {
     static DOCUMENT_TS_HIGHLIGHTER: RefCell<TSHighlighter> = RefCell::new(TSHighlighter::new());
-    static BRACKET_QUERY_CACHE: RefCell<HashMap<&'static str, Option<BracketQueryConfig>>> = RefCell::new(HashMap::new());
+    static BRACKET_QUERY_CACHE: RefCell<HashMap<&'static str, Option<Query>>> = RefCell::new(HashMap::new());
     static RAINBOW_PARSER: RefCell<Parser> = RefCell::new(Parser::new());
 }
 
@@ -201,6 +236,10 @@ pub enum HighlightError {
     /// Failed to process a highlight event during parsing.
     #[error("failed to process highlight event: {0}")]
     EventProcessing(String),
+
+    /// The match limit was outside `1..=`[`MAX_MATCH_LIMIT`].
+    #[error("match limit {0} is outside 1..=65536")]
+    InvalidMatchLimit(u32),
 }
 
 /// High-level stateful highlighter for syntax highlighting.
@@ -484,7 +523,7 @@ where
                     .map_err(|e| HighlightError::EventProcessing(e.to_string()))?;
                 }
             }
-            CoreHighlightEvent::End => {
+            CoreHighlightEvent::End | CoreHighlightEvent::DecorationEnd => {
                 if style_stack.len() > 1 {
                     style_stack.pop();
                 }
@@ -495,9 +534,22 @@ where
                     language_stack.pop();
                 }
             }
+            CoreHighlightEvent::DecorationStart {
+                decoration: Decoration::RainbowBracket { depth },
+            } => {
+                let scope = rainbow_scope(depth);
+                style_stack.push(resolve_style(theme.as_ref(), scope, language.id_name()));
+                scope_stack.push(scope);
+                language_stack.push(language);
+            }
             // The flat token stream has no place to surface anything but a
             // scope and its text. Formatters take the composed stream instead.
-            _ => {}
+            CoreHighlightEvent::AnnotationStart { .. }
+            | CoreHighlightEvent::AnnotationEnd
+            | CoreHighlightEvent::DecorationStart {
+                decoration: Decoration::Line { .. },
+            }
+            | _ => {}
         }
     }
 
@@ -540,7 +592,9 @@ pub fn highlight_events(
 
 /// Highlight `source` into nested open/close events, with options.
 ///
-/// See [`highlight_events`].
+/// See [`highlight_events`]. Rainbow brackets arrive as
+/// [`Decoration::RainbowBracket`] with their real zero-based depth; built-in
+/// formatters alone cycle that value through the six theme scopes.
 pub fn highlight_events_with_options<T>(
     source: &str,
     language: Language,
@@ -574,52 +628,6 @@ pub fn highlight_events_with_languages<T>(
     })
 }
 
-const RAINBOW_BRACKET_SCOPES: [&str; 6] = [
-    "punctuation.bracket.rainbow.1",
-    "punctuation.bracket.rainbow.2",
-    "punctuation.bracket.rainbow.3",
-    "punctuation.bracket.rainbow.4",
-    "punctuation.bracket.rainbow.5",
-    "punctuation.bracket.rainbow.6",
-];
-
-/// `HIGHLIGHT_NAMES` indices for the six rainbow bracket scopes, resolved once.
-///
-/// Each entry falls back to the generic `punctuation.bracket` scope (or `0`) if a
-/// rainbow scope is missing, so lookups during highlighting stay O(1).
-static RAINBOW_SCOPE_INDICES: LazyLock<[usize; 6]> = LazyLock::new(|| {
-    let fallback = HIGHLIGHT_NAMES
-        .iter()
-        .position(|candidate| *candidate == "punctuation.bracket")
-        .unwrap_or(0);
-    std::array::from_fn(|i| {
-        HIGHLIGHT_NAMES
-            .iter()
-            .position(|candidate| *candidate == RAINBOW_BRACKET_SCOPES[i])
-            .unwrap_or(fallback)
-    })
-});
-
-#[derive(Clone, Debug)]
-struct BracketPair {
-    open: Range<usize>,
-    close: Range<usize>,
-}
-
-#[derive(Clone, Debug)]
-struct RainbowRange {
-    start: usize,
-    end: usize,
-    scope_index: usize,
-}
-
-struct BracketQueryConfig {
-    query: Query,
-    open_capture: u32,
-    close_capture: u32,
-    rainbow_exclude_patterns: Vec<bool>,
-}
-
 fn highlight_events_with<T, F>(
     ts_highlighter: &mut TSHighlighter,
     source: &str,
@@ -630,6 +638,11 @@ fn highlight_events_with<T, F>(
 where
     F: Fn(&str) -> Option<Language>,
 {
+    let match_limit = options.match_limit_value();
+    ts_highlighter
+        .set_match_limit(match_limit)
+        .map_err(|_| HighlightError::InvalidMatchLimit(match_limit))?;
+
     let events = ts_highlighter
         .highlight(language.config(), source.as_bytes(), None, |injected| {
             injected_language(injected).map(|language| language.config())
@@ -657,7 +670,12 @@ where
         .collect::<Result<Vec<_>, _>>()?;
 
     if options.rainbow_brackets_enabled() {
-        Ok(apply_query_rainbow_brackets(source, core_events, language))
+        Ok(apply_query_rainbow_brackets(
+            source,
+            &core_events,
+            language,
+            match_limit,
+        ))
     } else {
         Ok(core_events)
     }
@@ -665,18 +683,15 @@ where
 
 fn apply_query_rainbow_brackets(
     source: &str,
-    events: Vec<CoreHighlightEvent<'static>>,
+    events: &[CoreHighlightEvent<'_, ()>],
     language: Language,
+    match_limit: u32,
 ) -> Vec<CoreHighlightEvent<'static>> {
-    let ranges = query_rainbow_ranges(source, language);
-    if ranges.is_empty() {
-        return events;
-    }
-
-    overlay_rainbow_ranges(events, &ranges, language.id_name())
+    let ranges = query_rainbow_ranges(source, language, match_limit);
+    compose_rainbow_decorations(source, events, &ranges)
 }
 
-fn query_rainbow_ranges(source: &str, language: Language) -> Vec<RainbowRange> {
+fn query_rainbow_ranges(source: &str, language: Language, match_limit: u32) -> Vec<RainbowRange> {
     let config = language.config();
     let tree = RAINBOW_PARSER.with(|parser| {
         let mut parser = parser.borrow_mut();
@@ -690,44 +705,22 @@ fn query_rainbow_ranges(source: &str, language: Language) -> Vec<RainbowRange> {
     };
 
     with_bracket_query_config(config, |bracket_config| {
-        let Some(bracket_config) = bracket_config else {
+        let Some(query) = bracket_config else {
             return Vec::new();
         };
 
-        let mut cursor = QueryCursor::new();
-        let mut matches =
-            cursor.matches(&bracket_config.query, tree.root_node(), source.as_bytes());
-        let mut pairs = Vec::new();
-
-        while let Some(query_match) = matches.next() {
-            if bracket_config.rainbow_exclude_patterns[query_match.pattern_index] {
-                continue;
-            }
-
-            let mut opens = Vec::new();
-            let mut closes = Vec::new();
-            for capture in query_match.captures {
-                if capture.index == bracket_config.open_capture {
-                    opens.push(capture.node.byte_range());
-                } else if capture.index == bracket_config.close_capture {
-                    closes.push(capture.node.byte_range());
-                }
-            }
-
-            for (open, close) in opens.into_iter().zip(closes) {
-                if open.start < close.end && (open.len() == 1 || close.len() == 1) {
-                    pairs.push(BracketPair { open, close });
-                }
-            }
-        }
-
-        colorize_bracket_pairs(pairs)
+        colorize_bracket_pairs(bracket_pairs(
+            query,
+            tree.root_node(),
+            source.as_bytes(),
+            match_limit,
+        ))
     })
 }
 
 fn with_bracket_query_config<R>(
     config: &'static lumis_wasm_runtime::tree_sitter_highlight::HighlightConfiguration,
-    f: impl FnOnce(Option<&BracketQueryConfig>) -> R,
+    f: impl FnOnce(Option<&Query>) -> R,
 ) -> R {
     BRACKET_QUERY_CACHE.with(|cache| {
         let mut cache = cache.borrow_mut();
@@ -739,139 +732,11 @@ fn with_bracket_query_config<R>(
                     return None;
                 }
 
-                let query = Query::new(&config.language, query_source).ok()?;
-                let open_capture = query
-                    .capture_names()
-                    .iter()
-                    .position(|name| *name == "open")
-                    .map(|index| index as u32)?;
-                let close_capture = query
-                    .capture_names()
-                    .iter()
-                    .position(|name| *name == "close")
-                    .map(|index| index as u32)?;
-                let rainbow_exclude_patterns = (0..query.pattern_count())
-                    .map(|pattern_index| {
-                        query
-                            .property_settings(pattern_index)
-                            .iter()
-                            .any(|property| property.key.as_ref() == "rainbow.exclude")
-                    })
-                    .collect();
-
-                Some(BracketQueryConfig {
-                    query,
-                    open_capture,
-                    close_capture,
-                    rainbow_exclude_patterns,
-                })
+                compile(&config.language, query_source)
             });
 
         f(entry.as_ref())
     })
-}
-
-fn colorize_bracket_pairs(pairs: Vec<BracketPair>) -> Vec<RainbowRange> {
-    let mut opens: Vec<_> = pairs.iter().map(|pair| pair.open.clone()).collect();
-    opens.sort_by_key(|range| (range.start, range.end));
-    opens.dedup_by(|a, b| a.start == b.start && a.end == b.end);
-
-    let mut color_pairs: Vec<_> = pairs.into_iter().collect();
-    color_pairs.sort_by_key(|pair| pair.close.end);
-
-    let mut open_stack: Vec<Range<usize>> = Vec::new();
-    let mut open_index = 0usize;
-    let mut ranges = Vec::new();
-
-    for pair in color_pairs {
-        while open_index < opens.len() && opens[open_index].start < pair.close.start {
-            open_stack.push(opens[open_index].clone());
-            open_index += 1;
-        }
-
-        if open_stack.last() == Some(&pair.open) {
-            let depth = open_stack.len() - 1;
-            let scope_index = rainbow_scope_index(depth);
-            ranges.push(RainbowRange {
-                start: pair.open.start,
-                end: pair.open.end,
-                scope_index,
-            });
-            ranges.push(RainbowRange {
-                start: pair.close.start,
-                end: pair.close.end,
-                scope_index,
-            });
-            open_stack.pop();
-        }
-    }
-
-    ranges.sort_by_key(|range| (range.start, range.end));
-    ranges
-}
-
-fn overlay_rainbow_ranges(
-    events: Vec<CoreHighlightEvent<'static>>,
-    ranges: &[RainbowRange],
-    language: &str,
-) -> Vec<CoreHighlightEvent<'static>> {
-    let mut output = Vec::with_capacity(events.len() + ranges.len() * 3);
-    let mut range_index = 0usize;
-
-    for event in events {
-        let CoreHighlightEvent::Source { start, end } = event else {
-            // Move start/end events through untouched.
-            output.push(event);
-            continue;
-        };
-
-        let mut cursor = start;
-
-        while range_index < ranges.len() && ranges[range_index].end <= start {
-            range_index += 1;
-        }
-
-        let mut next_index = range_index;
-        while next_index < ranges.len() {
-            let range = &ranges[next_index];
-            if range.start >= end {
-                break;
-            }
-            if range.start < start || range.end > end {
-                next_index += 1;
-                continue;
-            }
-
-            if cursor < range.start {
-                output.push(CoreHighlightEvent::Source {
-                    start: cursor,
-                    end: range.start,
-                });
-            }
-
-            output.push(CoreHighlightEvent::Start {
-                scope_index: range.scope_index,
-                language: language.to_string(),
-            });
-            output.push(CoreHighlightEvent::Source {
-                start: range.start,
-                end: range.end,
-            });
-            output.push(CoreHighlightEvent::End);
-            cursor = range.end;
-            next_index += 1;
-        }
-
-        if cursor < end {
-            output.push(CoreHighlightEvent::Source { start: cursor, end });
-        }
-    }
-
-    output
-}
-
-fn rainbow_scope_index(depth: usize) -> usize {
-    RAINBOW_SCOPE_INDICES[depth % RAINBOW_SCOPE_INDICES.len()]
 }
 
 #[cfg(test)]
@@ -985,6 +850,127 @@ mod tests {
         }
 
         assert_eq!(scope_of_com, Some(Some("module")));
+    }
+
+    #[test]
+    fn match_limit_defaults_and_overrides() {
+        assert_eq!(
+            HighlightOptions::default().match_limit_value(),
+            DEFAULT_MATCH_LIMIT
+        );
+        assert_eq!(
+            HighlightOptions::new().match_limit(64).match_limit_value(),
+            64
+        );
+    }
+
+    #[test]
+    fn match_limit_reaches_the_formatter_entry_point() {
+        // Elements nested deeply enough that every level holds an `html_tags`
+        // pattern open at once, so a cursor starved below that depth drops
+        // scopes and this fails if the option stops short of the highlighter.
+        // The document has to nest rather than merely be large: replaying a
+        // layer's captures from its finished matches leaves only the matches
+        // genuinely in progress in the pool, which is the nesting depth.
+        let depth = 400;
+        let source = format!(
+            "<html><body>{}{}</body></html>\n",
+            "<b>x".repeat(depth),
+            "y</b>".repeat(depth)
+        );
+        let render = |limit: u32| {
+            crate::highlight_with_options(
+                &source,
+                crate::formatter::HtmlLinked::new(Language::HTML, None, None, false, None),
+                HighlightOptions::new().match_limit(limit),
+            )
+        };
+
+        let reference = render(u32::from(u16::MAX));
+
+        assert_ne!(render(1024), reference);
+        assert_eq!(render(DEFAULT_MATCH_LIMIT), reference);
+    }
+
+    #[test]
+    fn a_lower_match_limit_binds_on_a_highlighter_that_already_ran_a_higher_one() {
+        // Highlighters are reused across documents, and a cursor's capture list
+        // pool never shrinks, so a lowered bound has to drop the pooled cursors
+        // or the first document's bound is the one every later document gets.
+        let depth = 400;
+        let source = format!(
+            "<html><body>{}{}</body></html>\n",
+            "<b>x".repeat(depth),
+            "y</b>".repeat(depth)
+        );
+        let render = |limit: u32| {
+            highlight_events_with_options(
+                &source,
+                Language::HTML,
+                HighlightOptions::new().match_limit(limit),
+            )
+            .unwrap()
+        };
+
+        let starved_first =
+            std::thread::scope(|scope| scope.spawn(|| render(1024)).join().unwrap());
+        let _ = render(MAX_MATCH_LIMIT);
+        let starved_after = render(1024);
+
+        assert_eq!(starved_after, starved_first);
+    }
+
+    #[test]
+    fn match_limit_outside_the_tree_sitter_range_is_rejected() {
+        let code = "fn main() {}\n";
+        for limit in [0, MAX_MATCH_LIMIT + 1] {
+            let result = highlight_events_with_options(
+                code,
+                Language::Rust,
+                HighlightOptions::new().match_limit(limit),
+            );
+            assert_eq!(result, Err(HighlightError::InvalidMatchLimit(limit)));
+        }
+        assert!(highlight_events_with_options(
+            code,
+            Language::Rust,
+            HighlightOptions::new().match_limit(MAX_MATCH_LIMIT),
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn match_limit_reaches_the_rainbow_bracket_query() {
+        // Every open bracket keeps a bracket-query match in progress until its
+        // close arrives, so starving the cursor drops pairs from deep nesting.
+        let code = format!("{}1{}\n", "(".repeat(8), ")".repeat(8));
+        let render = |limit: u32| {
+            highlight_events_with_options(
+                &code,
+                Language::Rust,
+                HighlightOptions::new()
+                    .rainbow_brackets(true)
+                    .match_limit(limit),
+            )
+            .unwrap()
+        };
+
+        assert_ne!(render(1), render(DEFAULT_MATCH_LIMIT));
+        assert_eq!(render(MAX_MATCH_LIMIT), render(DEFAULT_MATCH_LIMIT));
+    }
+
+    #[test]
+    fn match_limit_does_not_change_output_on_ordinary_source() {
+        let code = "fn main() { let xs = vec![1, 2, 3]; }\n";
+        let default = highlight_events(code, Language::Rust).unwrap();
+        let raised = highlight_events_with_options(
+            code,
+            Language::Rust,
+            HighlightOptions::new().match_limit(DEFAULT_MATCH_LIMIT * 4),
+        )
+        .unwrap();
+
+        assert_eq!(default, raised);
     }
 
     #[test]
@@ -1126,6 +1112,34 @@ mod tests {
         .unwrap();
 
         assert_eq!(text, code);
+    }
+
+    #[test]
+    fn highlight_events_keep_unwrapped_rainbow_depth() {
+        let code = "let x = [[[[[[[0]]]]]]];";
+        let events = highlight_events_with_options(
+            code,
+            Language::Rust,
+            HighlightOptions::new().rainbow_brackets(true),
+        )
+        .unwrap();
+        let depths = events
+            .iter()
+            .filter_map(|event| match event {
+                CoreHighlightEvent::DecorationStart {
+                    decoration: Decoration::RainbowBracket { depth },
+                } => Some(*depth),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+
+        assert!(depths.contains(&6));
+        assert_eq!(depths.iter().copied().max(), Some(6));
+        assert!(!events.iter().any(|event| {
+            event
+                .scope()
+                .is_some_and(|scope| scope.starts_with("punctuation.bracket.rainbow."))
+        }));
     }
 
     #[test]

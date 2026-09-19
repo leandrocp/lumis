@@ -1,0 +1,104 @@
+---
+sidebar_position: 12
+slug: /integrations/vite
+title: Vite
+description: Highlight code in static Vite HTML entry points with Lumis.
+keywords:
+  - vite lumis
+  - vite syntax highlighting
+  - static html syntax highlighting
+---
+
+# Vite
+
+[Full example on GitHub](https://github.com/leandrocp/lumis/tree/main/packages/javascript/vite/examples/vite)
+
+Use `@lumis-sh/vite` for HTML entry points that Vite processes directly. During
+`transformIndexHtml` the plugin parses the document to locate its code blocks, runs `rehype-lumis`
+over each one, and splices the result back into the source.
+
+## Install
+
+```bash
+npm install -D @lumis-sh/vite
+npm install @lumis-sh/lumis @lumis-sh/themes
+```
+
+## Configure Vite
+
+```js title="vite.config.js"
+import {defineConfig} from 'vite'
+import lumis from '@lumis-sh/vite'
+import {htmlMultiThemes} from '@lumis-sh/lumis/formatters'
+import html from '@lumis-sh/lumis/langs/html'
+import javascript from '@lumis-sh/lumis/langs/javascript'
+import githubDark from '@lumis-sh/themes/github_dark'
+import githubLight from '@lumis-sh/themes/github_light'
+
+export default defineConfig({
+  plugins: [
+    lumis({
+      languages: [html, javascript],
+      formatter: (language) =>
+        htmlMultiThemes({
+          language,
+          themes: {light: githubLight, dark: githubDark},
+          defaultTheme: 'light-dark()',
+        }),
+    }),
+  ],
+})
+```
+
+The plugin creates one highlighter per Vite plugin instance. It initializes that highlighter at
+build or dev-server startup and reuses it for every HTML transform. Put languages in `languages`
+to load their parsers during that startup. If a language injects another language and the build
+must stay off the network, include the injected language too.
+
+## Mark code in HTML
+
+Use the same conventions as `rehype-lumis`:
+
+```html
+<pre><code class="language-javascript">const answer = 42</code></pre>
+```
+
+Or put `data-language` on `<pre>`:
+
+```html
+<pre data-language="javascript"><code>const answer = 42</code></pre>
+```
+
+`<code>` has to be the first child of `<pre>`. The HTML parser drops a single newline directly
+after `<pre>`, so writing the `<code>` on the next line still matches, but indenting it does not:
+the indentation is a text node, and the block is left alone.
+
+```html
+<pre data-language="javascript">
+  <code>never highlighted</code>
+</pre>
+```
+
+Because the document is parsed as HTML before highlighting, entity-encoded source is decoded
+before Lumis sees it:
+
+```html
+<pre data-language="html"><code>&lt;button&gt;Save&lt;/button&gt;</code></pre>
+```
+
+Authored attributes on both `<pre>` and `<code>` survive highlighting. Classes are combined,
+authored styles are appended to Lumis styles, and authored values win for attributes such as
+`id`, `role`, `aria-*`, `data-*`, `translate`, and `tabindex`.
+
+Everything outside a highlighted block is returned byte for byte. The plugin parses the document
+to locate the blocks, then splices the highlighted HTML into the original source at their offsets
+instead of reserializing the tree, the same way Vite applies its own HTML edits. So your doctype
+spelling, unquoted attributes, character references, and any `<%= … %>` left for a templating
+plugin to fill in all reach the next plugin untouched.
+
+## Framework projects
+
+This package is for Vite's HTML entry-point pipeline. Frameworks that handle their own entry
+documents may not run `transformIndexHtml`; use the framework's Lumis integration instead, such
+as [Astro](/integrations/astro), [Nuxt](/integrations/nuxt), or
+[`rehype-lumis`](/integrations/rehype-lumis).

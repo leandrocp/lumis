@@ -23,6 +23,8 @@
         { "name": "language" },
         { "name": "theme" },
         { "name": "pre_class" },
+        { "name": "pre_attrs", "spelling": { "cli": ["pre-attr", "no-pre-attr"] } },
+        { "name": "code_attrs", "spelling": { "cli": ["code-attr", "no-code-attr"] } },
         { "name": "italic" },
         { "name": "include_highlights" },
         { "name": "highlight_lines" },
@@ -34,6 +36,8 @@
       "options": [
         { "name": "language" },
         { "name": "pre_class" },
+        { "name": "pre_attrs", "spelling": { "cli": ["pre-attr", "no-pre-attr"] } },
+        { "name": "code_attrs", "spelling": { "cli": ["code-attr", "no-code-attr"] } },
         { "name": "highlight_lines" },
         { "name": "line_numbers" },
         { "name": "header", "spelling": { "cli": ["header-open", "header-close"] } }
@@ -46,6 +50,8 @@
         { "name": "default_theme" },
         { "name": "css_variable_prefix" },
         { "name": "pre_class" },
+        { "name": "pre_attrs", "spelling": { "cli": ["pre-attr", "no-pre-attr"] } },
+        { "name": "code_attrs", "spelling": { "cli": ["code-attr", "no-code-attr"] } },
         { "name": "italic" },
         { "name": "include_highlights" },
         { "name": "highlight_lines" },

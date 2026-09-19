@@ -18,10 +18,12 @@ configureLocalWasmResolver(["javascript", "json"], {
 function codeBlockTree({
   code = "const answer = 42",
   codeClassName,
+  codeProperties = {},
   preProperties = {},
 }: {
   code?: string;
   codeClassName?: string[];
+  codeProperties?: Properties;
   preProperties?: Properties;
 } = {}): Root {
   return {
@@ -35,7 +37,10 @@ function codeBlockTree({
           {
             type: "element",
             tagName: "code",
-            properties: codeClassName ? { className: codeClassName } : {},
+            properties: {
+              ...codeProperties,
+              ...(codeClassName ? { className: codeClassName } : {}),
+            },
             children: [{ type: "text", value: code }],
           },
         ],
@@ -145,6 +150,181 @@ describe("rehype-lumis", () => {
 
       const pre = assertLumisPreElement(tree);
       expect(classNames(pre)).toContain("my-pre");
+    });
+
+    it("preserves authored pre and code properties", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        codeClassName: ["language-javascript", "copy-target"],
+        codeProperties: {
+          id: "source",
+          tabIndex: -1,
+          translate: true,
+          style: "font-weight: bold",
+        },
+        preProperties: {
+          id: "panel",
+          className: ["overflow-auto"],
+          dataPanel: "install",
+          role: "tabpanel",
+          ariaLabel: "Install",
+          style: "padding: 1rem",
+        },
+      });
+
+      await transform(tree);
+
+      const pre = assertLumisPreElement(tree);
+      expect(pre.properties).toMatchObject({
+        id: "panel",
+        dataPanel: "install",
+        role: "tabpanel",
+        ariaLabel: "Install",
+      });
+      expect(classNames(pre)).toEqual(expect.arrayContaining(["lumis", "overflow-auto"]));
+      expect(style(pre)).toContain("background-color");
+      expect(style(pre)).toContain("padding: 1rem");
+
+      const code = findElements(tree, "code")[0];
+      // `translate` is enumerated rather than boolean, so `true` is the bare
+      // attribute form and comes back from HTML as the empty value it means.
+      expect(code.properties).toMatchObject({ id: "source", tabIndex: -1, translate: "" });
+      expect(classNames(code)).toEqual(
+        expect.arrayContaining(["language-javascript", "copy-target"]),
+      );
+      expect(style(code)).toBe("font-weight: bold");
+    });
+
+    it("preserves authored properties when the formatter wraps the block", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) =>
+          htmlInline({
+            language,
+            theme: dracula,
+            header: {
+              openTag: "<figure><figcaption>example.js</figcaption>",
+              closeTag: "</figure>",
+            },
+          }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        codeClassName: ["language-javascript", "copy-target"],
+        codeProperties: { id: "source" },
+        preProperties: { id: "panel", className: ["overflow-auto"] },
+      });
+
+      await transform(tree);
+
+      expect(findElements(tree, "figure")).toHaveLength(1);
+
+      const pre = assertLumisPreElement(tree);
+      expect(pre.properties.id).toBe("panel");
+      expect(classNames(pre)).toEqual(expect.arrayContaining(["lumis", "overflow-auto"]));
+
+      const code = findElements(tree, "code")[0];
+      expect(code.properties.id).toBe("source");
+      expect(classNames(code)).toEqual(
+        expect.arrayContaining(["language-javascript", "copy-target"]),
+      );
+    });
+
+    it("preserves authored children after code", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({ codeClassName: ["language-javascript"] });
+      const pre = tree.children[0] as Element;
+      pre.children.push({
+        type: "element",
+        tagName: "span",
+        properties: { id: "cursor" },
+        children: [{ type: "text", value: "_" }],
+      });
+
+      await transform(tree);
+
+      const transformedPre = assertLumisPreElement(tree);
+      expect(transformedPre.children[1]).toMatchObject({
+        type: "element",
+        tagName: "span",
+        properties: { id: "cursor" },
+      });
+    });
+
+    it("deduplicates classes while letting authored properties override defaults", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        codeClassName: ["language-javascript", "language-javascript"],
+        codeProperties: { tabIndex: 7, translate: true },
+        preProperties: { className: ["lumis", "custom"] },
+      });
+
+      await transform(tree);
+
+      const pre = assertLumisPreElement(tree);
+      expect(classNames(pre)).toEqual(["lumis", "custom"]);
+
+      const code = findElements(tree, "code")[0];
+      expect(classNames(code)).toEqual(["language-javascript"]);
+      expect(code.properties.tabIndex).toBe(7);
+      expect(code.properties.translate).toBe("");
+    });
+
+    it("keeps a boolean attribute bare and treats a false one as absent", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        preProperties: { inert: true, hidden: false },
+        codeProperties: { tabIndex: false },
+      });
+
+      await transform(tree);
+
+      const pre = assertLumisPreElement(tree);
+      expect(pre.properties.inert).toBe(true);
+      expect(pre.properties).not.toHaveProperty("hidden");
+
+      // `false` is how hast spells an attribute the authored node did not
+      // carry, not a request to strip one Lumis generates, so `tabindex`
+      // stays. A formatter's own `codeAttrs: {tabindex: false}` still removes
+      // it, because there `false` is the caller asking.
+      const code = findElements(tree, "code")[0];
+      expect(code.properties.tabIndex).toBe(0);
+    });
+
+    it("preserves and normalizes string-valued classes", async () => {
+      let formattedLanguage: string | undefined;
+      const transform = rehypeLumis({
+        formatter: (language) => {
+          formattedLanguage = language;
+          return htmlInline({ language, theme: dracula });
+        },
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        codeProperties: { className: "language-javascript copy-target" },
+        preProperties: { className: "lumis overflow-auto" },
+      });
+
+      await transform(tree);
+
+      expect(formattedLanguage).toBe("javascript");
+
+      const pre = assertLumisPreElement(tree);
+      expect(classNames(pre)).toEqual(["lumis", "overflow-auto"]);
+
+      const code = findElements(tree, "code")[0];
+      expect(classNames(code)).toEqual(["language-javascript", "copy-target"]);
     });
   });
 

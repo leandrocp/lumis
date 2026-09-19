@@ -413,18 +413,38 @@ export interface Annotation<T = unknown> {
   data: T;
 }
 
-/** An annotation materialized to the offset range consumed by formatters. */
-export interface ResolvedAnnotation<T = unknown> {
-  range: HighlightRange;
-  data: T;
-}
+/**
+ * Default bound on the query matches tree-sitter keeps in progress at once.
+ *
+ * Mirrors `DEFAULT_MATCH_LIMIT` in the Rust crate, which is the reference
+ * implementation for every runtime.
+ */
+export const DEFAULT_MATCH_LIMIT = 16384;
+
+/**
+ * Largest match limit tree-sitter accepts; its query cursor documents
+ * `1..=65536`.
+ */
+export const MAX_MATCH_LIMIT = 65536;
 
 /** Options for one highlighting operation. */
 export interface HighlightOptions<T = unknown> {
   /** Caller-provided semantic ranges composed into the formatter event stream. */
   annotations?: readonly Annotation<T>[];
-  /** Render nested brackets with rainbow bracket scopes. */
+  /** Render nested brackets with rainbow-bracket decorations. */
   rainbowBrackets?: boolean;
+  /**
+   * Bound on the query matches tree-sitter keeps in progress at once, for the
+   * highlight and bracket queries alike. An integer from 1 to
+   * {@link MAX_MATCH_LIMIT}; anything else throws.
+   *
+   * Tree-sitter walks its whole pool of in-progress matches before it emits
+   * each capture, so the bound is what keeps highlighting linear on documents
+   * whose markup nests deeply enough to keep many matches open at once. Raising
+   * it recovers matches that would otherwise be dropped on such documents, at
+   * that cost. Defaults to {@link DEFAULT_MATCH_LIMIT}.
+   */
+  matchLimit?: number;
 }
 
 /**
@@ -450,21 +470,31 @@ export type SyntaxHighlightEvent =
  * A line decoration covers the line's text and the newline that ends it; the
  * last line of a source that does not end in one covers just the text.
  */
-export type Decoration = {
-  type: "line";
-  /** The 1-based line number. */
-  number: number;
-  /** Whether the caller asked for this line to be highlighted. */
-  highlighted: boolean;
-};
+export type Decoration =
+  | {
+      type: "line";
+      /** The 1-based line number. */
+      number: number;
+      /** Whether the caller asked for this line to be highlighted. */
+      highlighted: boolean;
+    }
+  | {
+      type: "rainbowBracket";
+      /** Zero-based nesting depth, before built-ins cycle through six theme scopes. */
+      depth: number;
+    };
+
+/** Syntax and Lumis-owned decoration events, before caller annotations are composed. */
+export type LumisHighlightEvent =
+  | SyntaxHighlightEvent
+  | { type: "decorationStart"; decoration: Decoration }
+  | { type: "decorationEnd" };
 
 /** A unified syntax, caller-annotation and Lumis-decoration event. */
 export type HighlightEvent<T = unknown> =
-  | SyntaxHighlightEvent
-  | { type: "annotationStart"; annotation: ResolvedAnnotation<T> }
-  | { type: "annotationEnd" }
-  | { type: "decorationStart"; decoration: Decoration }
-  | { type: "decorationEnd" };
+  | LumisHighlightEvent
+  | { type: "annotationStart"; range: HighlightRange; data: T }
+  | { type: "annotationEnd" };
 
 /**
  * Signature of the `highlightIter` free function and the `hl.highlightIter`
@@ -546,6 +576,9 @@ export type HighlightCallback = (
   style: HighlightStyle | undefined,
 ) => void;
 
+/** HTML attributes. Values of `undefined`, `null`, or `false` are omitted. */
+export type HtmlAttrs = Record<string, string | number | boolean | undefined | null>;
+
 /**
  * Options for {@link htmlInline}.
  *
@@ -557,6 +590,10 @@ export interface HtmlInlineOptions {
   language?: LanguageRef;
   theme?: Theme;
   preClass?: string;
+  /** Attributes merged into the wrapping `<pre>` tag. */
+  preAttrs?: HtmlAttrs;
+  /** Attributes merged into the nested `<code>` tag. */
+  codeAttrs?: HtmlAttrs;
   /** Use italic styles from the theme. */
   italic?: boolean;
   /** Add `data-highlight` attributes with scope names. */
@@ -579,6 +616,10 @@ export interface HtmlInlineFormatter extends Formatter, HtmlInlineOptions {}
 export interface HtmlLinkedOptions {
   language?: LanguageRef;
   preClass?: string;
+  /** Attributes merged into the wrapping `<pre>` tag. */
+  preAttrs?: HtmlAttrs;
+  /** Attributes merged into the nested `<code>` tag. */
+  codeAttrs?: HtmlAttrs;
   highlightLines?: HighlightLinesLinked;
   /** Open each line with a `<span class="l-line-number">` gutter. */
   lineNumbers?: boolean;
@@ -609,6 +650,10 @@ export interface HtmlMultiThemesOptions {
   /** Prefix for CSS custom properties. Defaults to `"--lumis"`. */
   cssVariablePrefix?: string;
   preClass?: string;
+  /** Attributes merged into the wrapping `<pre>` tag. */
+  preAttrs?: HtmlAttrs;
+  /** Attributes merged into the nested `<code>` tag. */
+  codeAttrs?: HtmlAttrs;
   italic?: boolean;
   includeHighlights?: boolean;
   highlightLines?: HighlightLinesInline;

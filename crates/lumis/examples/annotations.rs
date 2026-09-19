@@ -46,7 +46,7 @@ impl Formatter<Mark> for MarkFormatter {
                     write!(out, "<span {}>", html::span_linked_attrs(scope))?;
                 }
                 HighlightEvent::End => out.write_all(b"</span>")?,
-                HighlightEvent::AnnotationStart { annotation } => match annotation.data() {
+                HighlightEvent::AnnotationStart { data, .. } => match *data {
                     Mark::Line(kind) => {
                         write!(out, "<span class=\"line-{kind}\">")?;
                         open.push("span");

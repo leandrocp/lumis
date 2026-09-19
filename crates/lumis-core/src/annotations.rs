@@ -123,11 +123,10 @@ impl<T> Annotation<T> {
     }
 }
 
-/// An annotation materialized to the offset range consumed by formatters.
 #[derive(Debug, PartialEq, Eq, Hash)]
-pub struct ResolvedAnnotation<'a, T = ()> {
-    range: Range<usize>,
-    data: &'a T,
+pub(crate) struct ResolvedAnnotation<'a, T = ()> {
+    pub(crate) range: Range<usize>,
+    pub(crate) data: &'a T,
 }
 
 impl<T> Clone for ResolvedAnnotation<'_, T> {
@@ -136,18 +135,6 @@ impl<T> Clone for ResolvedAnnotation<'_, T> {
             range: self.range.clone(),
             data: self.data,
         }
-    }
-}
-
-impl<'a, T> ResolvedAnnotation<'a, T> {
-    /// Returns the resolved half-open offset range, measured in UTF-8 bytes.
-    pub fn range(&self) -> &Range<usize> {
-        &self.range
-    }
-
-    /// Returns the caller-owned data.
-    pub const fn data(&self) -> &'a T {
-        self.data
     }
 }
 
@@ -224,16 +211,45 @@ impl fmt::Display for AnnotationError {
 impl Error for AnnotationError {}
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-struct SyntaxLayer<'a> {
-    id: usize,
-    scope_index: usize,
-    language: &'a str,
+enum InputLayer<'a> {
+    Syntax {
+        id: usize,
+        scope_index: usize,
+        language: &'a str,
+    },
+    Decoration {
+        id: usize,
+        decoration: crate::decorations::Decoration,
+    },
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum ActiveLayer<'s> {
-    Syntax(SyntaxLayer<'s>),
+    Input(InputLayer<'s>),
     Annotation { index: usize },
+}
+
+impl InputLayer<'_> {
+    fn open_event<'a, T>(self) -> HighlightEvent<'a, T> {
+        match self {
+            Self::Syntax {
+                scope_index,
+                language,
+                ..
+            } => HighlightEvent::Start {
+                scope_index,
+                language: language.to_string(),
+            },
+            Self::Decoration { decoration, .. } => HighlightEvent::DecorationStart { decoration },
+        }
+    }
+
+    fn close_event<'a, T>(self) -> HighlightEvent<'a, T> {
+        match self {
+            Self::Syntax { .. } => HighlightEvent::End,
+            Self::Decoration { .. } => HighlightEvent::DecorationEnd,
+        }
+    }
 }
 
 #[derive(Default)]
@@ -257,6 +273,33 @@ pub fn compose_annotations<'a, T>(
     events: &[HighlightEvent<'_, ()>],
     annotations: &'a [Annotation<T>],
 ) -> Result<Vec<HighlightEvent<'a, T>>, AnnotationError> {
+    compose_annotations_with_placement(source, events, annotations, AnnotationPlacement::Outermost)
+}
+
+/// Compose intervals inside the input layers rather than around them.
+///
+/// Rainbow brackets use this so their theme scope wins over the generic
+/// punctuation scope while still sharing the annotation boundary walk.
+pub(crate) fn compose_annotations_innermost<'a, T>(
+    source: &str,
+    events: &[HighlightEvent<'_, ()>],
+    annotations: &'a [Annotation<T>],
+) -> Result<Vec<HighlightEvent<'a, T>>, AnnotationError> {
+    compose_annotations_with_placement(source, events, annotations, AnnotationPlacement::Innermost)
+}
+
+#[derive(Clone, Copy)]
+enum AnnotationPlacement {
+    Outermost,
+    Innermost,
+}
+
+fn compose_annotations_with_placement<'a, T>(
+    source: &str,
+    events: &[HighlightEvent<'_, ()>],
+    annotations: &'a [Annotation<T>],
+    placement: AnnotationPlacement,
+) -> Result<Vec<HighlightEvent<'a, T>>, AnnotationError> {
     if annotations.is_empty() {
         return Ok(copy_syntax_events(events));
     }
@@ -271,85 +314,73 @@ pub fn compose_annotations<'a, T>(
         .map(|(offset, _)| *offset)
         .collect();
     let mut active_annotations = BTreeSet::new();
-    let mut syntax_layers = Vec::new();
-    let mut next_syntax_id = 0usize;
+    let mut input_layers = Vec::new();
+    let mut next_input_id = 0usize;
     let mut active_layers = Vec::new();
     let mut desired_layers = Vec::new();
     let mut output = Vec::new();
 
     for event in events {
-        match event {
-            HighlightEvent::Start {
-                scope_index,
-                language,
-            } => {
-                syntax_layers.push(SyntaxLayer {
-                    id: next_syntax_id,
-                    scope_index: *scope_index,
-                    language,
+        let HighlightEvent::Source { start, end } = event else {
+            update_input_layers(event, &mut input_layers, &mut next_input_id);
+            continue;
+        };
+
+        while boundary_positions
+            .peek()
+            .is_some_and(|&&position| position <= *start)
+        {
+            let &position = boundary_positions
+                .next()
+                .expect("peeked annotation boundary exists");
+            apply_boundary(&boundaries[&position], &mut active_annotations);
+        }
+
+        let mut cursor = *start;
+        while cursor < *end {
+            let next = boundary_positions
+                .peek()
+                .map(|&&position| position)
+                .filter(|position| *position < *end)
+                .unwrap_or(*end);
+
+            set_desired_layers(
+                &active_annotations,
+                &input_layers,
+                placement,
+                &mut desired_layers,
+            );
+            transition_layers(
+                &mut output,
+                &mut active_layers,
+                &mut desired_layers,
+                &annotations,
+            );
+            emit_points(
+                &mut output,
+                &boundaries,
+                &annotations,
+                &mut pending_points,
+                cursor,
+            );
+
+            if cursor < next {
+                output.push(HighlightEvent::Source {
+                    start: cursor,
+                    end: next,
                 });
-                next_syntax_id += 1;
             }
-            HighlightEvent::End => {
-                syntax_layers.pop();
+            cursor = next;
+
+            while boundary_positions
+                .peek()
+                .is_some_and(|&&position| position == cursor)
+            {
+                let &position = boundary_positions
+                    .next()
+                    .expect("peeked annotation boundary exists");
+                apply_boundary(&boundaries[&position], &mut active_annotations);
             }
-            HighlightEvent::Source { start, end } => {
-                while boundary_positions
-                    .peek()
-                    .is_some_and(|&&position| position <= *start)
-                {
-                    let &position = boundary_positions
-                        .next()
-                        .expect("peeked annotation boundary exists");
-                    apply_boundary(&boundaries[&position], &mut active_annotations);
-                }
-
-                let mut cursor = *start;
-                while cursor < *end {
-                    let next = boundary_positions
-                        .peek()
-                        .map(|&&position| position)
-                        .filter(|position| *position < *end)
-                        .unwrap_or(*end);
-
-                    set_desired_layers(&active_annotations, &syntax_layers, &mut desired_layers);
-                    transition_layers(
-                        &mut output,
-                        &mut active_layers,
-                        &mut desired_layers,
-                        &annotations,
-                    );
-                    emit_points(
-                        &mut output,
-                        &boundaries,
-                        &annotations,
-                        &mut pending_points,
-                        cursor,
-                    );
-
-                    if cursor < next {
-                        output.push(HighlightEvent::Source {
-                            start: cursor,
-                            end: next,
-                        });
-                    }
-                    cursor = next;
-
-                    while boundary_positions
-                        .peek()
-                        .is_some_and(|&&position| position == cursor)
-                    {
-                        let &position = boundary_positions
-                            .next()
-                            .expect("peeked annotation boundary exists");
-                        apply_boundary(&boundaries[&position], &mut active_annotations);
-                    }
-                }
-            }
-            HighlightEvent::AnnotationStart { .. }
-            | HighlightEvent::AnnotationEnd
-            | HighlightEvent::DecorationStart { .. }
-            | HighlightEvent::DecorationEnd => {}
         }
     }
 
@@ -377,6 +408,46 @@ pub fn compose_annotations<'a, T>(
     Ok(output)
 }
 
+fn update_input_layers<'s>(
+    event: &'s HighlightEvent<'_, ()>,
+    layers: &mut Vec<InputLayer<'s>>,
+    next_id: &mut usize,
+) {
+    match event {
+        HighlightEvent::Start {
+            scope_index,
+            language,
+        } => {
+            layers.push(InputLayer::Syntax {
+                id: *next_id,
+                scope_index: *scope_index,
+                language,
+            });
+            *next_id += 1;
+        }
+        HighlightEvent::End if matches!(layers.last(), Some(InputLayer::Syntax { .. })) => {
+            layers.pop();
+        }
+        HighlightEvent::DecorationStart { decoration } => {
+            layers.push(InputLayer::Decoration {
+                id: *next_id,
+                decoration: *decoration,
+            });
+            *next_id += 1;
+        }
+        HighlightEvent::DecorationEnd
+            if matches!(layers.last(), Some(InputLayer::Decoration { .. })) =>
+        {
+            layers.pop();
+        }
+        HighlightEvent::Source { .. }
+        | HighlightEvent::End
+        | HighlightEvent::AnnotationStart { .. }
+        | HighlightEvent::AnnotationEnd
+        | HighlightEvent::DecorationEnd => {}
+    }
+}
+
 fn copy_syntax_events<'a, T>(events: &[HighlightEvent<'_, ()>]) -> Vec<HighlightEvent<'a, T>> {
     let mut output = Vec::with_capacity(events.len());
 
@@ -394,10 +465,11 @@ fn copy_syntax_events<'a, T>(events: &[HighlightEvent<'_, ()>]) -> Vec<Highlight
                 end: *end,
             },
             HighlightEvent::End => HighlightEvent::End,
-            HighlightEvent::AnnotationStart { .. }
-            | HighlightEvent::AnnotationEnd
-            | HighlightEvent::DecorationStart { .. }
-            | HighlightEvent::DecorationEnd => continue,
+            HighlightEvent::DecorationStart { decoration } => HighlightEvent::DecorationStart {
+                decoration: *decoration,
+            },
+            HighlightEvent::DecorationEnd => HighlightEvent::DecorationEnd,
+            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => continue,
         });
     }
 
@@ -531,8 +603,10 @@ fn emit_points<'a, T>(
         return;
     }
     for index in &boundaries[&offset].points {
+        let annotation = &annotations[*index];
         output.push(HighlightEvent::AnnotationStart {
-            annotation: annotations[*index].clone(),
+            range: annotation.range.clone(),
+            data: annotation.data,
         });
         output.push(HighlightEvent::AnnotationEnd);
     }
@@ -549,17 +623,33 @@ fn apply_boundary(boundary: &AnnotationBoundary, active: &mut BTreeSet<usize>) {
 
 fn set_desired_layers<'s>(
     active_annotations: &BTreeSet<usize>,
-    syntax_layers: &[SyntaxLayer<'s>],
+    input_layers: &[InputLayer<'s>],
+    placement: AnnotationPlacement,
     layers: &mut Vec<ActiveLayer<'s>>,
 ) {
     layers.clear();
-    layers.reserve(active_annotations.len() + syntax_layers.len());
+    layers.reserve(active_annotations.len() + input_layers.len());
 
-    for index in active_annotations {
-        layers.push(ActiveLayer::Annotation { index: *index });
-    }
-    for layer in syntax_layers {
-        layers.push(ActiveLayer::Syntax(*layer));
+    let push_annotations = |layers: &mut Vec<_>| {
+        for index in active_annotations {
+            layers.push(ActiveLayer::Annotation { index: *index });
+        }
+    };
+    let push_inputs = |layers: &mut Vec<_>| {
+        for layer in input_layers {
+            layers.push(ActiveLayer::Input(*layer));
+        }
+    };
+
+    match placement {
+        AnnotationPlacement::Outermost => {
+            push_annotations(layers);
+            push_inputs(layers);
+        }
+        AnnotationPlacement::Innermost => {
+            push_inputs(layers);
+            push_annotations(layers);
+        }
     }
 }
 
@@ -577,20 +667,21 @@ fn transition_layers<'s, 'a, T>(
 
     for layer in current[common..].iter().rev() {
         output.push(match layer {
-            ActiveLayer::Syntax(_) => HighlightEvent::End,
+            ActiveLayer::Input(layer) => layer.close_event(),
             ActiveLayer::Annotation { .. } => HighlightEvent::AnnotationEnd,
         });
     }
 
     for layer in &desired[common..] {
         output.push(match layer {
-            ActiveLayer::Syntax(layer) => HighlightEvent::Start {
-                scope_index: layer.scope_index,
-                language: layer.language.to_string(),
-            },
-            ActiveLayer::Annotation { index } => HighlightEvent::AnnotationStart {
-                annotation: annotations[*index].clone(),
-            },
+            ActiveLayer::Input(layer) => layer.open_event(),
+            ActiveLayer::Annotation { index } => {
+                let annotation = &annotations[*index];
+                HighlightEvent::AnnotationStart {
+                    range: annotation.range.clone(),
+                    data: annotation.data,
+                }
+            }
         });
     }
 
@@ -639,10 +730,8 @@ mod tests {
             vec![
                 HighlightEvent::Source { start: 0, end: 2 },
                 HighlightEvent::AnnotationStart {
-                    annotation: ResolvedAnnotation {
-                        range: 2..2,
-                        data: &"blank-line",
-                    },
+                    range: 2..2,
+                    data: &"blank-line",
                 },
                 HighlightEvent::AnnotationEnd,
                 HighlightEvent::Source { start: 2, end: 4 },
@@ -665,10 +754,8 @@ mod tests {
             vec![
                 HighlightEvent::Source { start: 0, end: 2 },
                 HighlightEvent::AnnotationStart {
-                    annotation: ResolvedAnnotation {
-                        range: 2..2,
-                        data: &"trailing",
-                    },
+                    range: 2..2,
+                    data: &"trailing",
                 },
                 HighlightEvent::AnnotationEnd,
             ]
@@ -714,7 +801,7 @@ mod tests {
         let order: Vec<&str> = events
             .iter()
             .filter_map(|event| match event {
-                HighlightEvent::AnnotationStart { annotation } => Some(*annotation.data()),
+                HighlightEvent::AnnotationStart { data, .. } => Some(**data),
                 _ => None,
             })
             .collect();
@@ -846,16 +933,16 @@ mod tests {
         let annotations = [Annotation::new(Position::new(1, 0)..Position::new(1, 5), 7).unwrap()];
 
         let events = compose_annotations(source, &syntax, &annotations).unwrap();
-        let resolved = events
+        let (range, data) = events
             .iter()
             .find_map(|event| match event {
-                HighlightEvent::AnnotationStart { annotation } => Some(annotation),
+                HighlightEvent::AnnotationStart { range, data } => Some((range, data)),
                 _ => None,
             })
             .unwrap();
 
-        assert_eq!(resolved.range(), &(4..9));
-        assert_eq!(*resolved.data(), 7);
+        assert_eq!(range, &(4..9));
+        assert_eq!(**data, 7);
     }
 
     #[test]

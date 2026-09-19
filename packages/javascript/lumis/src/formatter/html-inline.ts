@@ -78,8 +78,12 @@ export function formatHtmlInline(
     openSpan: (span) => openSpanTag(spanAttrs(span, formatter)),
   });
 
-  const pre = openPreTag({ preClass: formatter.preClass, theme: formatter.theme });
-  const code = openCodeTag(formatter.language);
+  const pre = openPreTag({
+    preClass: formatter.preClass,
+    theme: formatter.theme,
+    attrs: formatter.preAttrs,
+  });
+  const code = openCodeTag(formatter.language, formatter.codeAttrs);
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);
 }
