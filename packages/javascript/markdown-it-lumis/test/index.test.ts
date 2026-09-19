@@ -23,6 +23,27 @@ configureLocalWasmResolver(["javascript", "json"], {
   configureWasmResolver,
 });
 
+async function renderWithFenceAttrs(
+  attrs: Record<string, string>,
+  options: { fenceAttrsOnPre?: boolean } = {},
+): Promise<string> {
+  const plugin = await markdownItLumis({
+    formatter: (language) => htmlInline({ language, theme: dracula }),
+    languages: [javascript],
+    ...options,
+  });
+  const md = new MarkdownIt();
+  md.core.ruler.after("block", "test-fence-attributes", (state) => {
+    const fence = state.tokens.find((token) => token.type === "fence");
+    if (!fence) throw new Error("expected a fence token");
+    for (const [name, value] of Object.entries(attrs)) fence.attrSet(name, value);
+    return true;
+  });
+  md.use(plugin);
+
+  return md.render(JS_SOURCE);
+}
+
 describe("markdown-it-lumis", () => {
   describe("htmlInline formatter", () => {
     it("produces pre with lumis class, inline styles, and colored spans", async () => {
@@ -74,27 +95,42 @@ describe("markdown-it-lumis", () => {
       expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/);
     });
 
-    it("preserves attributes attached to the fence token", async () => {
-      const plugin = await markdownItLumis({
-        formatter: (language) => htmlInline({ language, theme: dracula }),
-        languages: [javascript],
+    it("puts a fence's attributes on pre, where markdown-it-attrs puts them", async () => {
+      const html = await renderWithFenceAttrs({
+        id: "example",
+        class: "authored-pre lumis",
+        style: "padding: 1rem;",
+        "data-panel": "javascript",
+        role: "tabpanel",
+        "aria-label": "JavaScript example",
+        title: "Example",
       });
-      const md = new MarkdownIt();
-      md.core.ruler.after("block", "test-fence-attributes", (state) => {
-        const fence = state.tokens.find((token) => token.type === "fence");
-        if (!fence) throw new Error("expected a fence token");
-        fence.attrSet("id", "example-code");
-        fence.attrSet("class", "authored-code language-javascript");
-        fence.attrSet("style", "font-variant-ligatures: none;");
-        fence.attrSet("data-panel", "javascript");
-        fence.attrSet("aria-label", "JavaScript example");
-        fence.attrSet("title", "Example");
-        fence.attrSet("translate", "yes");
-        fence.attrSet("tabindex", "-1");
-      });
-      md.use(plugin);
 
-      const html = md.render(JS_SOURCE);
+      expect(html).toMatch(/<pre class="lumis authored-pre"/);
+      expect(html.match(/lumis/g)).toHaveLength(1);
+      expect(html).toContain('id="example"');
+      expect(html).toMatch(
+        /style="color: #[0-9a-f]+; background-color: #[0-9a-f]+; padding: 1rem;"/,
+      );
+      expect(html).toContain('data-panel="javascript"');
+      expect(html).toContain('role="tabpanel"');
+      expect(html).toContain('aria-label="JavaScript example"');
+      expect(html).toContain('title="Example"');
+      // Untouched, because the attributes went to <pre>.
+      expect(html).toContain('<code class="language-javascript" translate="no" tabindex="0">');
+    });
+
+    it("puts them on code when fenceAttrsOnPre is false, as markdown-it core does", async () => {
+      const html = await renderWithFenceAttrs(
+        {
+          id: "example-code",
+          class: "authored-code language-javascript",
+          style: "font-variant-ligatures: none;",
+          translate: "yes",
+          tabindex: "-1",
+        },
+        { fenceAttrsOnPre: false },
+      );
 
       expect(html).toContain(
         '<code class="language-javascript authored-code" translate="yes" tabindex="-1"',
@@ -102,9 +138,21 @@ describe("markdown-it-lumis", () => {
       expect(html.match(/language-javascript/g)).toHaveLength(1);
       expect(html).toContain('id="example-code"');
       expect(html).toContain('style="font-variant-ligatures: none;"');
-      expect(html).toContain('data-panel="javascript"');
-      expect(html).toContain('aria-label="JavaScript example"');
-      expect(html).toContain('title="Example"');
+      expect(html).toMatch(/<pre class="lumis" style="color: #[0-9a-f]+; background-color/);
+    });
+
+    it("removes an attribute Lumis generates when the fence asks for it", async () => {
+      const html = await renderWithFenceAttrs({ tabindex: "" }, { fenceAttrsOnPre: false });
+
+      expect(html).toContain('tabindex=""');
+      expect(html).not.toContain('tabindex="0"');
+    });
+
+    it("leaves a fence without attributes exactly as the formatter wrote it", async () => {
+      const plain = await renderWithFenceAttrs({});
+
+      expect(plain).toMatch(/^<pre class="lumis" style="color: #[0-9a-f]+/);
+      expect(plain).not.toContain("id=");
     });
   });
 

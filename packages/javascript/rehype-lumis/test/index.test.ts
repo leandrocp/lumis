@@ -189,7 +189,9 @@ describe("rehype-lumis", () => {
       expect(style(pre)).toContain("padding: 1rem");
 
       const code = findElements(tree, "code")[0];
-      expect(code.properties).toMatchObject({ id: "source", tabIndex: -1, translate: true });
+      // `translate` is enumerated rather than boolean, so `true` is the bare
+      // attribute form and comes back from HTML as the empty value it means.
+      expect(code.properties).toMatchObject({ id: "source", tabIndex: -1, translate: "" });
       expect(classNames(code)).toEqual(
         expect.arrayContaining(["language-javascript", "copy-target"]),
       );
@@ -273,7 +275,31 @@ describe("rehype-lumis", () => {
       const code = findElements(tree, "code")[0];
       expect(classNames(code)).toEqual(["language-javascript"]);
       expect(code.properties.tabIndex).toBe(7);
-      expect(code.properties.translate).toBe(true);
+      expect(code.properties.translate).toBe("");
+    });
+
+    it("keeps a boolean attribute bare and treats a false one as absent", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        preProperties: { inert: true, hidden: false },
+        codeProperties: { tabIndex: false },
+      });
+
+      await transform(tree);
+
+      const pre = assertLumisPreElement(tree);
+      expect(pre.properties.inert).toBe(true);
+      expect(pre.properties).not.toHaveProperty("hidden");
+
+      // `false` is how hast spells an attribute the authored node did not
+      // carry, not a request to strip one Lumis generates, so `tabindex`
+      // stays. A formatter's own `codeAttrs: {tabindex: false}` still removes
+      // it, because there `false` is the caller asking.
+      const code = findElements(tree, "code")[0];
+      expect(code.properties.tabIndex).toBe(0);
     });
 
     it("preserves and normalizes string-valued classes", async () => {

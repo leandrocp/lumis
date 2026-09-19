@@ -44,6 +44,7 @@
     "@lumis-sh/lumis": "workspace:^",
     "hast-util-from-html": "^2.0.3",
     "hast-util-to-string": "^3.0.1",
+    "property-information": "^7.1.0",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0"
   },
