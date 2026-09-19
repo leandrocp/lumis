@@ -1559,7 +1559,7 @@ fn highlight_rejects_an_option_the_chosen_formatter_ignores() {
 }
 
 #[test]
-fn html_attributes_require_name_value_pairs() {
+fn a_bare_html_attribute_name_renders_the_boolean_form() {
     cmd()
         .args([
             "highlight",
@@ -1568,12 +1568,36 @@ fn html_attributes_require_name_value_pairs() {
             "-f",
             "html-linked",
             "--pre-attr",
-            "missing-equals",
+            "inert",
+            "--no-code-attr",
+            "translate",
+        ])
+        .write_stdin("text")
+        .assert()
+        .success()
+        .stdout(predicate::str::starts_with(
+            "<pre class=\"lumis\" inert><code class=\"language-plaintext\" tabindex=\"0\">",
+        ));
+}
+
+#[test]
+fn html_attributes_reject_a_name_that_would_break_out_of_the_tag() {
+    cmd()
+        .args([
+            "highlight",
+            "-l",
+            "plaintext",
+            "-f",
+            "html-linked",
+            "--pre-attr",
+            "x onclick=alert(1)",
         ])
         .write_stdin("text")
         .assert()
         .failure()
-        .stderr(predicate::str::contains("expected name=value"));
+        .stderr(predicate::str::contains(
+            "is not a name HTML can carry on an attribute",
+        ));
 }
 
 #[test]

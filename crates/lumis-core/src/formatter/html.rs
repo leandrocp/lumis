@@ -621,78 +621,177 @@ pub fn scope_to_class(scope: &str) -> String {
         .map_or_else(|| "l-text".to_string(), |class| format!("l-{class}"))
 }
 
+/// What an HTML attribute carries.
+///
+/// HTML writes an attribute two ways, `name="value"` and a bare `name` for the
+/// boolean ones such as `hidden` or `inert`, and both have to survive a merge.
+/// [`AttrValue::Absent`] is the third state that merging needs: it is how an
+/// authored attribute removes one Lumis generated, so `translate` can be taken
+/// off `<code>` rather than only overwritten.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AttrValue {
+    /// Rendered as `name="value"`, with the value escaped.
+    Value(String),
+    /// Rendered as a bare `name`.
+    Present,
+    /// Not rendered, and removes a generated attribute of the same name.
+    Absent,
+}
+
+impl AttrValue {
+    /// The string this renders as, or `None` when it renders bare or not at all.
+    #[must_use]
+    pub fn as_str(&self) -> Option<&str> {
+        match self {
+            Self::Value(value) => Some(value),
+            Self::Present | Self::Absent => None,
+        }
+    }
+}
+
+impl From<String> for AttrValue {
+    fn from(value: String) -> Self {
+        Self::Value(value)
+    }
+}
+
+impl From<&str> for AttrValue {
+    fn from(value: &str) -> Self {
+        Self::Value(value.to_string())
+    }
+}
+
+impl From<bool> for AttrValue {
+    fn from(value: bool) -> Self {
+        if value {
+            Self::Present
+        } else {
+            Self::Absent
+        }
+    }
+}
+
 /// Ordered HTML attribute name/value pairs.
 ///
 /// Values stay unescaped until the opening tag is rendered. Keeping the
 /// structured form lets callers merge attributes without parsing HTML and lets
 /// Lumis escape every value exactly once.
-pub type HtmlAttrs = Vec<(String, String)>;
+pub type HtmlAttrs = Vec<(String, AttrValue)>;
 
-fn append_classes(class: &mut String, additional: &str) {
-    let mut classes: Vec<String> = class.split_ascii_whitespace().map(str::to_string).collect();
+/// Whether `name` is a name HTML can carry, per the attribute-name production.
+///
+/// Escaping a name is not an option, which is why this exists: a space needs no
+/// escaping and splits one name into two attributes, so `x onclick=alert(1)`
+/// would render an event handler no matter how the value was treated.
+#[must_use]
+pub fn is_valid_attr_name(name: &str) -> bool {
+    !name.is_empty()
+        && !name.chars().any(|character| {
+            character.is_whitespace()
+                || character.is_control()
+                || matches!(character, '"' | '\'' | '>' | '/' | '=')
+        })
+}
 
-    for candidate in additional.split_ascii_whitespace() {
-        if !classes.iter().any(|class| class == candidate) {
-            classes.push(candidate.to_string());
+fn merge_classes(current: &str, additional: &str) -> String {
+    let mut classes: Vec<&str> = Vec::new();
+
+    for candidate in current
+        .split_ascii_whitespace()
+        .chain(additional.split_ascii_whitespace())
+    {
+        if !classes.contains(&candidate) {
+            classes.push(candidate);
         }
     }
 
-    *class = classes.join(" ");
+    classes.join(" ")
 }
 
-fn append_style(style: &mut String, additional: &str) {
-    let current = style.trim();
+fn append_style(current: &str, additional: &str) -> String {
+    let current = current.trim();
     let additional = additional.trim();
 
-    *style = match (current.is_empty(), additional.is_empty()) {
+    match (current.is_empty(), additional.is_empty()) {
         (true, true) => String::new(),
         (true, false) => additional.to_string(),
         (false, true) => current.to_string(),
         (false, false) if current.ends_with(';') => format!("{current} {additional}"),
         (false, false) => format!("{current}; {additional}"),
-    };
+    }
 }
 
-fn merge_attrs(mut generated: HtmlAttrs, authored: &[(String, String)]) -> HtmlAttrs {
+/// `class` unions, `style` appends, and every other name replaces.
+fn merged_value(name: &str, current: Option<&AttrValue>, authored: &AttrValue) -> AttrValue {
+    let Some(authored) = authored.as_str() else {
+        return AttrValue::Present;
+    };
+    let current = current.and_then(AttrValue::as_str).unwrap_or_default();
+
+    if name.eq_ignore_ascii_case("class") {
+        AttrValue::Value(merge_classes(current, authored))
+    } else if name.eq_ignore_ascii_case("style") {
+        AttrValue::Value(append_style(current, authored))
+    } else {
+        AttrValue::Value(authored.to_string())
+    }
+}
+
+fn merge_attrs(mut generated: HtmlAttrs, authored: &[(String, AttrValue)]) -> HtmlAttrs {
     for (name, value) in authored {
         let existing = generated
-            .iter_mut()
-            .find(|(candidate, _)| candidate.eq_ignore_ascii_case(name));
+            .iter()
+            .position(|(candidate, _)| candidate.eq_ignore_ascii_case(name));
 
-        match (name.as_str(), existing) {
-            (name, Some((_, current))) if name.eq_ignore_ascii_case("class") => {
-                append_classes(current, value);
+        if matches!(value, AttrValue::Absent) {
+            if let Some(index) = existing {
+                generated.remove(index);
             }
-            (name, Some((_, current))) if name.eq_ignore_ascii_case("style") => {
-                append_style(current, value);
-            }
-            (_, Some((_, current))) => current.clone_from(value),
-            (name, None) if name.eq_ignore_ascii_case("class") => {
-                let mut class = String::new();
-                append_classes(&mut class, value);
-                if !class.is_empty() {
-                    generated.push((name.to_string(), class));
-                }
-            }
-            (name, None) if name.eq_ignore_ascii_case("style") => {
-                let mut style = String::new();
-                append_style(&mut style, value);
-                if !style.is_empty() {
-                    generated.push((name.to_string(), style));
-                }
-            }
-            _ => generated.push((name.clone(), value.clone())),
+            continue;
+        }
+
+        let merged = merged_value(name, existing.map(|index| &generated[index].1), value);
+
+        match existing {
+            Some(index) => generated[index].1 = merged,
+            // An authored `class=""` on a tag that generated none adds nothing.
+            None if merged.as_str().is_some_and(str::is_empty) => {}
+            None => generated.push((name.clone(), merged)),
         }
     }
 
     generated
 }
 
-fn write_open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Result<()> {
+/// Generate an opening tag from attributes, escaping every value.
+///
+/// This is what the `*_attrs` helpers are built for: merge their result with
+/// your own attributes, then write the whole thing here rather than assembling
+/// the string and remembering to escape it.
+///
+/// # Errors
+///
+/// Returns [`io::ErrorKind::InvalidInput`] for an attribute name HTML cannot
+/// carry, because rendering one would let it break out of the tag, and the
+/// underlying error if `output` fails.
+pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Result<()> {
     write!(output, "<{name}")?;
+
     for (attr_name, value) in attrs {
-        write!(output, " {attr_name}=\"{}\"", escape_attr(value))?;
+        if !is_valid_attr_name(attr_name) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("invalid HTML attribute name: {attr_name:?}"),
+            ));
+        }
+
+        match value {
+            AttrValue::Value(value) => write!(output, " {attr_name}=\"{}\"", escape_attr(value))?,
+            AttrValue::Present => write!(output, " {attr_name}")?,
+            AttrValue::Absent => {}
+        }
     }
+
     output.write_all(b">")
 }
 
@@ -704,12 +803,12 @@ fn write_open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::
 pub fn pre_attrs(
     pre_class: Option<&str>,
     theme: Option<&Theme>,
-    attrs: &[(String, String)],
+    attrs: &[(String, AttrValue)],
 ) -> HtmlAttrs {
     let class = pre_class.map_or_else(|| "lumis".to_string(), |value| format!("lumis {value}"));
-    let mut generated = vec![("class".to_string(), class)];
+    let mut generated = vec![("class".to_string(), AttrValue::Value(class))];
     if let Some(style) = theme.and_then(|theme| theme.pre_style(" ")) {
-        generated.push(("style".to_string(), style));
+        generated.push(("style".to_string(), AttrValue::Value(style)));
     }
 
     merge_attrs(generated, attrs)
@@ -719,9 +818,9 @@ pub(crate) fn write_pre_tag(
     output: &mut dyn Write,
     pre_class: Option<&str>,
     theme: Option<&Theme>,
-    attrs: &[(String, String)],
+    attrs: &[(String, AttrValue)],
 ) -> io::Result<()> {
-    write_open_tag(output, "pre", &pre_attrs(pre_class, theme, attrs))
+    open_tag(output, "pre", &pre_attrs(pre_class, theme, attrs))
 }
 
 /// Generate an opening `<pre>` tag with optional class and theme styles.
@@ -739,15 +838,15 @@ pub fn multi_themes_pre_attrs(
     themes: &std::collections::HashMap<String, Theme>,
     default_theme: Option<&str>,
     css_variable_prefix: &str,
-    attrs: &[(String, String)],
+    attrs: &[(String, AttrValue)],
 ) -> HtmlAttrs {
     let mut generated = vec![(
         "class".to_string(),
-        multi_themes_pre_classes(pre_class, themes),
+        AttrValue::Value(multi_themes_pre_classes(pre_class, themes)),
     )];
     let style = multi_themes_pre_style(themes, default_theme, css_variable_prefix);
     if !style.is_empty() {
-        generated.push(("style".to_string(), style));
+        generated.push(("style".to_string(), AttrValue::Value(style)));
     }
 
     merge_attrs(generated, attrs)
@@ -759,9 +858,9 @@ pub(crate) fn write_multi_themes_pre_tag(
     themes: &std::collections::HashMap<String, Theme>,
     default_theme: Option<&str>,
     css_variable_prefix: &str,
-    attrs: &[(String, String)],
+    attrs: &[(String, AttrValue)],
 ) -> io::Result<()> {
-    write_open_tag(
+    open_tag(
         output,
         "pre",
         &multi_themes_pre_attrs(pre_class, themes, default_theme, css_variable_prefix, attrs),
@@ -798,7 +897,8 @@ fn multi_themes_pre_classes(
 
     classes.extend(sorted_theme_names(themes).into_iter().map(str::to_string));
 
-    classes.join(" ")
+    // A `pre_class` naming one of the themes would otherwise appear twice.
+    merge_classes(&classes.join(" "), "")
 }
 
 fn push_normal_theme_vars(
@@ -874,12 +974,15 @@ fn multi_themes_pre_style(
 }
 
 /// Build attributes for the `<code>` tag used by every HTML formatter.
-pub fn code_attrs(lang: &Language, attrs: &[(String, String)]) -> HtmlAttrs {
+pub fn code_attrs(lang: &Language, attrs: &[(String, AttrValue)]) -> HtmlAttrs {
     merge_attrs(
         vec![
-            ("class".to_string(), format!("language-{}", lang.id_name())),
-            ("translate".to_string(), "no".to_string()),
-            ("tabindex".to_string(), "0".to_string()),
+            (
+                "class".to_string(),
+                AttrValue::Value(format!("language-{}", lang.id_name())),
+            ),
+            ("translate".to_string(), AttrValue::Value("no".to_string())),
+            ("tabindex".to_string(), AttrValue::Value("0".to_string())),
         ],
         attrs,
     )
@@ -888,9 +991,9 @@ pub fn code_attrs(lang: &Language, attrs: &[(String, String)]) -> HtmlAttrs {
 pub(crate) fn write_code_tag(
     output: &mut dyn Write,
     lang: Language,
-    attrs: &[(String, String)],
+    attrs: &[(String, AttrValue)],
 ) -> io::Result<()> {
-    write_open_tag(output, "code", &code_attrs(&lang, attrs))
+    open_tag(output, "code", &code_attrs(&lang, attrs))
 }
 
 /// Generate an opening `<code>` tag with language class.
@@ -1568,12 +1671,9 @@ mod tests {
     fn pre_attributes_union_classes_append_styles_and_escape_values() {
         let theme = crate::themes::get("dracula").unwrap();
         let attrs = vec![
-            ("class".to_string(), "shorthand authored".to_string()),
-            ("style".to_string(), "outline: 1px solid red".to_string()),
-            (
-                "id".to_string(),
-                r#"sample" onmouseover="alert(1)"#.to_string(),
-            ),
+            ("class".to_string(), "shorthand authored".into()),
+            ("style".to_string(), "outline: 1px solid red".into()),
+            ("id".to_string(), r#"sample" onmouseover="alert(1)"#.into()),
         ];
         let mut output = Vec::new();
 
@@ -1592,13 +1692,10 @@ mod tests {
     #[test]
     fn code_attributes_union_classes_and_override_defaults() {
         let attrs = vec![
-            (
-                "class".to_string(),
-                "copyable language-plaintext".to_string(),
-            ),
-            ("translate".to_string(), "yes".to_string()),
-            ("tabindex".to_string(), "-1".to_string()),
-            ("data-copy".to_string(), "button".to_string()),
+            ("class".to_string(), "copyable language-plaintext".into()),
+            ("translate".to_string(), "yes".into()),
+            ("tabindex".to_string(), "-1".into()),
+            ("data-copy".to_string(), "button".into()),
         ];
         let mut output = Vec::new();
 
@@ -1610,6 +1707,55 @@ mod tests {
                 r#"<code class="language-plaintext copyable" "#,
                 r#"translate="yes" tabindex="-1" data-copy="button">"#,
             )
+        );
+    }
+
+    #[test]
+    fn boolean_attributes_render_bare_and_false_removes_a_default() {
+        let attrs = vec![
+            ("inert".to_string(), true.into()),
+            ("translate".to_string(), false.into()),
+        ];
+        let mut output = Vec::new();
+
+        write_code_tag(&mut output, Language::PlainText, &attrs).unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(output).unwrap(),
+            r#"<code class="language-plaintext" tabindex="0" inert>"#
+        );
+    }
+
+    #[test]
+    fn an_attribute_name_cannot_break_out_of_the_tag() {
+        for name in [
+            r#"x" onclick="alert(1)"#,
+            "x onclick=alert(1)",
+            "x=y",
+            "x/y",
+            "x>y",
+            "",
+        ] {
+            let attrs = vec![(name.to_string(), "y".into())];
+            let error = open_tag(&mut Vec::new(), "pre", &attrs).expect_err("the name is rejected");
+
+            assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
+        }
+
+        let valid = vec![("data-copy".to_string(), "y".into())];
+        assert!(open_tag(&mut Vec::new(), "pre", &valid).is_ok());
+    }
+
+    #[test]
+    fn a_pre_class_naming_a_theme_is_not_repeated() {
+        let mut themes = std::collections::HashMap::new();
+        themes.insert("dark".to_string(), crate::themes::get("dracula").unwrap());
+
+        let attrs = multi_themes_pre_attrs(Some("dark"), &themes, None, "--lumis", &[]);
+
+        assert_eq!(
+            attrs[0].1,
+            AttrValue::Value("lumis lumis-themes dark".to_string())
         );
     }
 

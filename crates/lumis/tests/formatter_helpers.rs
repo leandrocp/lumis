@@ -287,17 +287,7 @@ fn written(write: impl FnOnce(&mut Vec<u8>) -> std::io::Result<()>) -> String {
 }
 
 fn open_tag(name: &str, attrs: &html::HtmlAttrs) -> String {
-    let rendered = attrs
-        .iter()
-        .map(|(name, value)| format!(r#"{name}="{}""#, html::escape_attr(value)))
-        .collect::<Vec<_>>()
-        .join(" ");
-
-    if rendered.is_empty() {
-        format!("<{name}>")
-    } else {
-        format!("<{name} {rendered}>")
-    }
+    written(|output| html::open_tag(output, name, attrs))
 }
 
 /// Every helper in the manifest, called once. Adding a helper to the manifest
@@ -388,6 +378,23 @@ fn exercised_helpers(
                         false,
                         false,
                     ),
+                ),
+                (
+                    "open_tag",
+                    open_tag(
+                        "pre",
+                        &vec![
+                            (
+                                "class".to_string(),
+                                format!("lumis {}", input.pre_class).into(),
+                            ),
+                            ("hidden".to_string(), true.into()),
+                        ],
+                    ),
+                ),
+                (
+                    "is_valid_attr_name",
+                    html::is_valid_attr_name("x onclick=alert(1)").to_string(),
                 ),
                 ("pre_attrs", open_tag("pre", &pre_attrs)),
                 (

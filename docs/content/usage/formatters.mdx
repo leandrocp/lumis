@@ -296,7 +296,16 @@ Three rules decide what the tag ends up with:
 - everything else replaces the generated value, including `translate` and
   `tabindex` on `<code>`
 
-Values are escaped, so an attribute can hold quotes and angle brackets.
+A value is a string, or a boolean for the two things HTML spells without one:
+`true` writes the bare `name` that `hidden`, `inert` and `open` take, and
+`false` removes an attribute Lumis would otherwise generate, which is how
+`tabindex` comes off `<code>`.
+
+Values are escaped, so an attribute can hold quotes and angle brackets. Names
+are checked instead, because escaping cannot make one safe: a space needs no
+escaping and splits one name into two attributes, so `x onclick=alert(1)` would
+be an event handler however its value was treated. A name carrying a space, a
+quote, `=`, `/` or `>` is an error rather than markup.
 
 <Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
   <TabItem value="javascript" label="JavaScript">
@@ -306,7 +315,7 @@ htmlLinked({
   language: javascript,
   preClass: 'code-block',
   preAttrs: {id: 'example', 'data-panel': 'output', class: 'overflow-x-auto'},
-  codeAttrs: {id: 'example-code'}
+  codeAttrs: {id: 'example-code', tabindex: false}
 })
 ```
 
@@ -320,11 +329,14 @@ let formatter = HtmlLinkedBuilder::new()
     .language(Language::JavaScript)
     .pre_class(Some("code-block".to_string()))
     .pre_attrs(vec![
-        ("id".to_string(), "example".to_string()),
-        ("data-panel".to_string(), "output".to_string()),
-        ("class".to_string(), "overflow-x-auto".to_string()),
+        ("id".to_string(), "example".into()),
+        ("data-panel".to_string(), "output".into()),
+        ("class".to_string(), "overflow-x-auto".into()),
     ])
-    .code_attrs(vec![("id".to_string(), "example-code".to_string())])
+    .code_attrs(vec![
+        ("id".to_string(), "example-code".into()),
+        ("tabindex".to_string(), false.into()),
+    ])
     .build()?;
 ```
 
@@ -338,7 +350,7 @@ Lumis.highlight!(code,
      language: "javascript",
      pre_class: "code-block",
      pre_attrs: [id: "example", "data-panel": "output", class: "overflow-x-auto"],
-     code_attrs: [id: "example-code"]}
+     code_attrs: [id: "example-code", tabindex: false]}
 )
 ```
 
@@ -352,7 +364,8 @@ lumis highlight main.js \
   --pre-attr id=example \
   --pre-attr data-panel=output \
   --pre-attr class=overflow-x-auto \
-  --code-attr id=example-code
+  --code-attr id=example-code \
+  --no-code-attr tabindex
 ```
 
   </TabItem>

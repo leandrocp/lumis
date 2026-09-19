@@ -79,7 +79,9 @@ pub(crate) const OPTION_GROUPS: &[OptionGroup] = &[
         flags: &[
             "--pre-class",
             "--pre-attr",
+            "--no-pre-attr",
             "--code-attr",
+            "--no-code-attr",
             "--header-open",
             "--header-close",
             "--highlight-lines-class",

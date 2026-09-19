@@ -6,7 +6,8 @@ import type {
   TerminalOptions,
 } from "./types.js";
 
-type NativeHtmlAttrs = Array<[string, string]>;
+/** A string value, or `true`/`false` for the boolean form and for removal. */
+export type NativeHtmlAttrs = Array<[string, string | boolean]>;
 
 type NativeHtmlInlineOptions = Omit<
   Pick<

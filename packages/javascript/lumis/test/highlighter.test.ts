@@ -391,6 +391,48 @@ class User:
     }
   });
 
+  it("writes boolean attributes bare and drops a default set to false", () => {
+    const attrs = {
+      preAttrs: { inert: true },
+      codeAttrs: { translate: false },
+    };
+    const outputs = [
+      hl.highlight('{"a": 1}', htmlInline({ language: json, theme, ...attrs })),
+      hl.highlight('{"a": 1}', htmlLinked({ language: json, ...attrs })),
+      hl.highlight(
+        '{"a": 1}',
+        htmlMultiThemes({ language: json, themes: { dark: theme }, ...attrs }),
+      ),
+    ];
+
+    for (const html of outputs) {
+      const pre = html.match(/^<pre[^>]*>/)?.[0] ?? "";
+      const code = html.match(/<code[^>]*>/)?.[0] ?? "";
+
+      expect(pre).toContain(" inert>");
+      expect(code).not.toContain("translate");
+      expect(code).toContain('tabindex="0"');
+    }
+  });
+
+  it("refuses an attribute name that would break out of the tag", () => {
+    expect(() =>
+      hl.highlight(
+        '{"a": 1}',
+        htmlLinked({ language: json, preAttrs: { "x onclick=alert(1)": "y" } }),
+      ),
+    ).toThrow(/invalid HTML attribute name/);
+  });
+
+  it("does not repeat a preClass that names one of the themes", () => {
+    const html = hl.highlight(
+      '{"a": 1}',
+      htmlMultiThemes({ language: json, themes: { dark: theme }, preClass: "dark" }),
+    );
+
+    expect(html).toContain('class="lumis lumis-themes dark"');
+  });
+
   it("accepts italic option", () => {
     const html = hl.highlight('{"a": 1}', htmlInline({ language: json, theme, italic: true }));
     expect(html).toContain('class="language-json"');

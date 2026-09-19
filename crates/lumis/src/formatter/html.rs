@@ -17,6 +17,27 @@ use std::ops::RangeInclusive;
 /// built-in HTML formatters.
 pub type HtmlAttrs = lumis_core::formatter::html::HtmlAttrs;
 
+/// What an HTML attribute carries: a value, a bare name, or nothing.
+pub use lumis_core::formatter::html::AttrValue;
+
+/// Whether a name is one HTML can carry on an attribute.
+pub use lumis_core::formatter::html::is_valid_attr_name;
+
+/// Generate an opening tag from attributes, escaping every value.
+///
+/// This is what [`pre_attrs`], [`multi_themes_pre_attrs`] and [`code_attrs`]
+/// are built for: merge their result with your own attributes, then write the
+/// whole thing here rather than assembling the string and remembering to
+/// escape it.
+///
+/// # Errors
+///
+/// Returns [`std::io::ErrorKind::InvalidInput`] for an attribute name HTML
+/// cannot carry, and the underlying error if `output` fails.
+pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Result<()> {
+    lumis_core::formatter::html::open_tag(output, name, attrs)
+}
+
 /// Generate an HTML `<span>` element with inline CSS styles.
 ///
 /// This is useful for creating inline-styled HTML output similar to the
@@ -390,7 +411,7 @@ pub fn scope_to_class(scope: &str) -> String {
 pub fn pre_attrs(
     pre_class: Option<&str>,
     theme: Option<&Theme>,
-    attrs: &[(String, String)],
+    attrs: &[(String, AttrValue)],
 ) -> HtmlAttrs {
     lumis_core::formatter::html::pre_attrs(pre_class, theme, attrs)
 }
@@ -401,7 +422,7 @@ pub fn multi_themes_pre_attrs(
     themes: &std::collections::HashMap<String, Theme>,
     default_theme: Option<&str>,
     css_variable_prefix: &str,
-    attrs: &[(String, String)],
+    attrs: &[(String, AttrValue)],
 ) -> HtmlAttrs {
     lumis_core::formatter::html::multi_themes_pre_attrs(
         pre_class,
@@ -416,7 +437,7 @@ pub fn multi_themes_pre_attrs(
 ///
 /// An authored `translate` or `tabindex` replaces Lumis's default while an
 /// authored class is unioned with the language class.
-pub fn code_attrs(lang: &Language, attrs: &[(String, String)]) -> HtmlAttrs {
+pub fn code_attrs(lang: &Language, attrs: &[(String, AttrValue)]) -> HtmlAttrs {
     lumis_core::formatter::html::code_attrs(lang, attrs)
 }
 

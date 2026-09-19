@@ -8,8 +8,8 @@ mod elixir;
 
 use anyhow::{anyhow, Context, Result};
 use elixir::{
-    line_specs_contain, ExCssOptions, ExFormatterOption, ExLineSpec, ExStyle, ExTextDecoration,
-    ExTheme,
+    attr_values, ex_attr_values, line_specs_contain, ExAttrValue, ExCssOptions, ExFormatterOption,
+    ExLineSpec, ExStyle, ExTextDecoration, ExTheme,
 };
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
 use lumis_core::events::HighlightEvent;
@@ -877,59 +877,77 @@ fn html_span_attrs(
         .collect()
 }
 
-fn html_open_tag(name: &str, attrs: &[(String, String)]) -> String {
-    let mut tag = format!("<{name}");
-    for (attr_name, value) in attrs {
-        use std::fmt::Write as _;
-        let _ = write!(
-            tag,
-            " {attr_name}=\"{}\"",
-            lumis_core::formatter::html::escape_attr(value)
-        );
-    }
-    tag.push('>');
-    tag
+fn html_open_tag(name: &str, attrs: lumis_core::formatter::html::HtmlAttrs) -> NifResult<String> {
+    let mut output = Vec::new();
+    lumis_core::formatter::html::open_tag(&mut output, name, &attrs)
+        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
+    html_utf8(output)
 }
 
 fn pre_attrs_impl(
     pre_class: Option<String>,
     theme: Option<ExTheme>,
-    attrs: Vec<(String, String)>,
-) -> Vec<(String, String)> {
+    attrs: Vec<(String, ExAttrValue)>,
+) -> lumis_core::formatter::html::HtmlAttrs {
     let theme = theme.map(themes::Theme::from);
-    lumis_core::formatter::html::pre_attrs(pre_class.as_deref(), theme.as_ref(), &attrs)
+    lumis_core::formatter::html::pre_attrs(
+        pre_class.as_deref(),
+        theme.as_ref(),
+        &attr_values(attrs),
+    )
 }
 
 #[rustler::nif]
 fn html_pre_attrs(
     pre_class: Option<String>,
     theme: Option<ExTheme>,
-    attrs: Vec<(String, String)>,
-) -> Vec<(String, String)> {
-    pre_attrs_impl(pre_class, theme, attrs)
+    attrs: Vec<(String, ExAttrValue)>,
+) -> Vec<(String, ExAttrValue)> {
+    ex_attr_values(pre_attrs_impl(pre_class, theme, attrs))
 }
 
 #[rustler::nif]
 fn html_open_pre_tag(
     pre_class: Option<String>,
     theme: Option<ExTheme>,
-    attrs: Vec<(String, String)>,
-) -> String {
-    html_open_tag("pre", &pre_attrs_impl(pre_class, theme, attrs))
+    attrs: Vec<(String, ExAttrValue)>,
+) -> NifResult<String> {
+    html_open_tag("pre", pre_attrs_impl(pre_class, theme, attrs))
 }
 
-fn code_attrs_impl(language: &str, attrs: Vec<(String, String)>) -> Vec<(String, String)> {
-    lumis_core::formatter::html::code_attrs(&Language::guess(Some(language), ""), &attrs)
+fn code_attrs_impl(
+    language: &str,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> lumis_core::formatter::html::HtmlAttrs {
+    lumis_core::formatter::html::code_attrs(
+        &Language::guess(Some(language), ""),
+        &attr_values(attrs),
+    )
 }
 
 #[rustler::nif]
-fn html_code_attrs(language: &str, attrs: Vec<(String, String)>) -> Vec<(String, String)> {
-    code_attrs_impl(language, attrs)
+fn html_code_attrs(
+    language: &str,
+    attrs: Vec<(String, ExAttrValue)>,
+) -> Vec<(String, ExAttrValue)> {
+    ex_attr_values(code_attrs_impl(language, attrs))
 }
 
 #[rustler::nif]
-fn html_open_code_tag(language: &str, attrs: Vec<(String, String)>) -> String {
-    html_open_tag("code", &code_attrs_impl(language, attrs))
+fn html_open_code_tag(language: &str, attrs: Vec<(String, ExAttrValue)>) -> NifResult<String> {
+    html_open_tag("code", code_attrs_impl(language, attrs))
+}
+
+/// Render any opening tag from attributes, so a custom Elixir formatter has the
+/// escaping renderer the `*_attrs` helpers are built for.
+#[rustler::nif]
+fn html_open_tag_from_attrs(name: &str, attrs: Vec<(String, ExAttrValue)>) -> NifResult<String> {
+    html_open_tag(name, attr_values(attrs))
+}
+
+#[rustler::nif]
+fn html_valid_attr_name(name: &str) -> bool {
+    lumis_core::formatter::html::is_valid_attr_name(name)
 }
 
 #[rustler::nif]
@@ -1033,8 +1051,8 @@ fn multi_themes_pre_attrs_impl(
     themes_map: HashMap<String, ExTheme>,
     default_theme: Option<String>,
     css_variable_prefix: &str,
-    attrs: Vec<(String, String)>,
-) -> Vec<(String, String)> {
+    attrs: Vec<(String, ExAttrValue)>,
+) -> lumis_core::formatter::html::HtmlAttrs {
     let themes_map: HashMap<String, themes::Theme> = themes_map
         .into_iter()
         .map(|(name, theme)| (name, themes::Theme::from(theme)))
@@ -1045,7 +1063,7 @@ fn multi_themes_pre_attrs_impl(
         &themes_map,
         default_theme.as_deref(),
         css_variable_prefix,
-        &attrs,
+        &attr_values(attrs),
     )
 }
 
@@ -1055,15 +1073,15 @@ fn html_multi_themes_pre_attrs(
     themes_map: HashMap<String, ExTheme>,
     default_theme: Option<String>,
     css_variable_prefix: &str,
-    attrs: Vec<(String, String)>,
-) -> Vec<(String, String)> {
-    multi_themes_pre_attrs_impl(
+    attrs: Vec<(String, ExAttrValue)>,
+) -> Vec<(String, ExAttrValue)> {
+    ex_attr_values(multi_themes_pre_attrs_impl(
         pre_class,
         themes_map,
         default_theme,
         css_variable_prefix,
         attrs,
-    )
+    ))
 }
 
 #[rustler::nif]
@@ -1072,11 +1090,11 @@ fn html_open_multi_themes_pre_tag(
     themes_map: HashMap<String, ExTheme>,
     default_theme: Option<String>,
     css_variable_prefix: &str,
-    attrs: Vec<(String, String)>,
-) -> String {
+    attrs: Vec<(String, ExAttrValue)>,
+) -> NifResult<String> {
     html_open_tag(
         "pre",
-        &multi_themes_pre_attrs_impl(
+        multi_themes_pre_attrs_impl(
             pre_class,
             themes_map,
             default_theme,

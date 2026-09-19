@@ -352,11 +352,31 @@ function mergeAttrs(generated: HtmlAttrs, authored: HtmlAttrs | undefined): Html
   return merged;
 }
 
+/**
+ * Whether a name is one HTML can carry on an attribute.
+ *
+ * A name with a space, a quote, `=`, `/` or `>` in it cannot be escaped into
+ * safety: a space alone splits it into two attributes, and the second one can
+ * be an event handler.
+ *
+ * ```ts
+ * isValidAttrName('data-copy')          // true
+ * isValidAttrName('x onclick=alert(1)') // false
+ * ```
+ */
+export function isValidAttrName(name: string): boolean {
+  // eslint-disable-next-line no-control-regex
+  return name.length > 0 && !/[\s"'>/=\u0000-\u001F\u007F-\u009F]/.test(name);
+}
+
 function renderAttrs(attrs: HtmlAttrs): string {
   const parts: string[] = [];
 
   for (const [name, value] of Object.entries(attrs)) {
     if (value == null || value === false) continue;
+    if (!isValidAttrName(name)) {
+      throw new TypeError(`invalid HTML attribute name: ${JSON.stringify(name)}`);
+    }
     if (value === true) {
       parts.push(name);
       continue;
@@ -406,15 +426,21 @@ export function attrsToString(attrs: HtmlAttrs): string {
 }
 
 /**
- * Build an opening HTML tag with attributes.
+ * Build an opening HTML tag from attributes, escaping every value.
+ *
+ * This is what {@link preAttrs}, {@link multiThemesPreAttrs} and
+ * {@link codeAttrs} are built for: merge their result with your own attributes,
+ * then render the whole thing here rather than assembling the string and
+ * remembering to escape it.
  *
  * ```ts
  * openTag('span', { class: 'keyword', style: 'color: red' })
  * // '<span class="keyword" style="color: red">'
+ * openTag('pre', { class: 'lumis', hidden: true })
+ * // '<pre class="lumis" hidden>'
  * ```
  *
- * @deprecated Use {@link openPreTag}, {@link openCodeTag} or
- * {@link openSpanTag}. Removed in the next major.
+ * Throws for a name HTML cannot carry, per {@link isValidAttrName}.
  */
 export function openTag(name: string, attrs: HtmlAttrs = {}): string {
   return tag(name, attrs);
@@ -508,7 +534,11 @@ export function multiThemesPreAttrs(options: OpenMultiThemesPreTagOptions): Html
     classList("lumis", "lumis-themes", options.preClass, ...sortedThemeNames(options.themes)) ??
     "lumis lumis-themes";
 
-  return mergeAttrs({ class: classes, style: multiThemesPreStyle(options) }, options.attrs);
+  return mergeAttrs(
+    // A `preClass` naming one of the themes would otherwise appear twice.
+    { class: mergeClasses(classes, ""), style: multiThemesPreStyle(options) },
+    options.attrs,
+  );
 }
 
 /**

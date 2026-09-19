@@ -114,17 +114,7 @@ function fixtureTheme(name: string): Theme {
   return theme;
 }
 
-function openingTag(name: string, attrs: html.HtmlAttrs): string {
-  const rendered = Object.entries(attrs)
-    .flatMap(([attr, value]) => {
-      if (value == null || value === false) return [];
-      if (value === true) return [attr];
-      return [`${attr}="${html.escapeAttr(String(value))}"`];
-    })
-    .join(" ");
-
-  return rendered.length > 0 ? `<${name} ${rendered}>` : `<${name}>`;
-}
+const openingTag = html.openTag;
 
 function contractOutputs(): Record<string, Record<string, string>> {
   const input = manifest.contract;
@@ -172,6 +162,8 @@ function contractOutputs(): Record<string, Record<string, string>> {
         scope: htmlInput.scope,
         themes,
       }),
+      open_tag: html.openTag("pre", { class: `lumis ${htmlInput.preClass}`, hidden: true }),
+      valid_attr_name: String(html.isValidAttrName("x onclick=alert(1)")),
       pre_attrs: openingTag("pre", html.preAttrs({ preClass: htmlInput.preClass, theme })),
       multi_themes_pre_attrs: openingTag(
         "pre",

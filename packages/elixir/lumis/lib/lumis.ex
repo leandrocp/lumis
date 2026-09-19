@@ -7,6 +7,7 @@ defmodule Lumis do
              |> Enum.fetch!(1)
 
   require Logger
+  alias Lumis.Formatter.HTML
   alias Lumis.Theme
 
   @built_in_formatters [
@@ -89,8 +90,16 @@ defmodule Lumis do
           }
           | nil
 
-  @typedoc "HTML attributes represented as an ordered keyword list."
-  @type html_attrs :: keyword(String.t())
+  @typedoc """
+  HTML attributes represented as an ordered keyword list.
+
+  A string value writes `name="value"`. `true` writes the bare `name` HTML gives
+  boolean attributes such as `hidden`, and `false` removes an attribute Lumis
+  would otherwise generate.
+  """
+  @type html_attrs :: keyword(String.t() | boolean())
+
+  @html_attrs_error "HTML attributes must be a keyword list with string or boolean values"
 
   @typedoc """
   Options for HTML Multi-Themes formatter.
@@ -663,15 +672,26 @@ defmodule Lumis do
 
   @doc false
   def html_attrs_type(attrs) when is_list(attrs) do
-    if Keyword.keyword?(attrs) and Enum.all?(attrs, fn {_name, value} -> is_binary(value) end) do
-      {:ok, attrs}
-    else
-      {:error, "HTML attributes must be a keyword list with string values"}
+    cond do
+      not Keyword.keyword?(attrs) ->
+        {:error, @html_attrs_error}
+
+      not Enum.all?(attrs, fn {_name, value} -> is_binary(value) or is_boolean(value) end) ->
+        {:error, @html_attrs_error}
+
+      true ->
+        unnameable(attrs)
     end
   end
 
-  def html_attrs_type(_attrs),
-    do: {:error, "HTML attributes must be a keyword list with string values"}
+  def html_attrs_type(_attrs), do: {:error, @html_attrs_error}
+
+  defp unnameable(attrs) do
+    case Enum.find(attrs, &(not HTML.valid_attr_name?(Atom.to_string(elem(&1, 0))))) do
+      nil -> {:ok, attrs}
+      {name, _value} -> {:error, "`#{name}` is not a name HTML can carry on an attribute"}
+    end
+  end
 
   @position {:tuple, [:non_neg_integer, :non_neg_integer]}
 

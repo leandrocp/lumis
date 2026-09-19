@@ -157,8 +157,8 @@ Lumis.highlight!(code,
 Available options for `:html_inline`:
 - `:theme` - Theme name (string) or `Lumis.Theme` struct
 - `:pre_class` - CSS class to add to the `<pre>` tag
-- `:pre_attrs` - String-valued attributes merged into the `<pre>` tag
-- `:code_attrs` - String-valued attributes merged into the `<code>` tag
+- `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
+- `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (see Line Highlighting section)
@@ -195,8 +195,8 @@ Then in your template:
 
 Available options for `:html_linked`:
 - `:pre_class` - CSS class to add to the `<pre>` tag
-- `:pre_attrs` - String-valued attributes merged into the `<pre>` tag
-- `:code_attrs` - String-valued attributes merged into the `<code>` tag
+- `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
+- `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:highlight_lines` - Highlight specific lines with CSS class
 - `:line_numbers` - Open each line with a line number gutter (see Line Numbers section)
 - `:header` - Wrap with custom HTML tags
@@ -304,8 +304,8 @@ Available options for `:html_multi_themes`:
 - `:default_theme` - Controls inline color rendering: theme identifier, `"light-dark()"`, or `nil` (default: `nil`)
 - `:css_variable_prefix` - Custom CSS variable prefix (default: `"--lumis"`)
 - `:pre_class` - CSS class to add to the `<pre>` tag
-- `:pre_attrs` - String-valued attributes merged into the `<pre>` tag
-- `:code_attrs` - String-valued attributes merged into the `<code>` tag
+- `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
+- `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (same options as `:html_inline`)

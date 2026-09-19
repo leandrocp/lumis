@@ -130,6 +130,8 @@ defmodule Lumis.Native do
 
   def html_code_attrs(_language, _attrs), do: :erlang.nif_error(:nif_not_loaded)
   def html_open_code_tag(_language, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+  def html_open_tag_from_attrs(_name, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+  def html_valid_attr_name(_name), do: :erlang.nif_error(:nif_not_loaded)
   def html_close_pre_tag, do: :erlang.nif_error(:nif_not_loaded)
   def html_close_code_tag, do: :erlang.nif_error(:nif_not_loaded)
   def html_closing_tags, do: :erlang.nif_error(:nif_not_loaded)

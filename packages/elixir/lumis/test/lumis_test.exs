@@ -565,6 +565,48 @@ defmodule Lumis.LumisTest do
         assert code =~ ~s|id="code&quot;&amp;"|
       end
     end
+
+    test "true writes the bare boolean form and false drops a default" do
+      shared = [
+        language: "elixir",
+        pre_attrs: [inert: true],
+        code_attrs: [translate: false]
+      ]
+
+      for formatter <- [
+            {:html_inline, shared},
+            {:html_linked, shared},
+            {:html_multi_themes, [themes: [dark: "dracula"]] ++ shared}
+          ] do
+        html = Lumis.highlight!("value", formatter: formatter)
+        [pre] = Regex.run(~r/^<pre[^>]*>/, html)
+        [code] = Regex.run(~r/<code[^>]*>/, html)
+
+        assert pre =~ ~r/ inert>/
+        refute code =~ "translate"
+        assert code =~ ~s|tabindex="0"|
+      end
+    end
+
+    test "an attribute name that would break out of the tag is refused" do
+      assert_raise NimbleOptions.ValidationError,
+                   ~r/`x onclick=alert\(1\)` is not a name HTML can carry on an attribute/,
+                   fn ->
+                     Lumis.highlight("value",
+                       formatter: {:html_linked, pre_attrs: ["x onclick=alert(1)": "y"]}
+                     )
+                   end
+    end
+
+    test "a pre_class naming one of the themes is not repeated" do
+      html =
+        Lumis.highlight!("value",
+          formatter:
+            {:html_multi_themes, language: "elixir", themes: [dark: "dracula"], pre_class: "dark"}
+        )
+
+      assert html =~ ~s|class="lumis lumis-themes dark"|
+    end
   end
 
   describe "formatter: terminal" do

@@ -1,6 +1,7 @@
 use base64::Engine as _;
 use lumis_core::events::HighlightEvent;
 use lumis_core::formatter::bbcode::{BBCodeScoped, HighlightLines as BBCodeHighlightLines};
+use lumis_core::formatter::html::AttrValue;
 use lumis_core::formatter::html_inline::{
     HighlightLines as InlineHighlightLines, HighlightLinesStyle as InlineHighlightLinesStyle,
 };
@@ -87,13 +88,38 @@ impl From<JsTheme> for Theme {
     }
 }
 
+/// An attribute value as JavaScript spells it, which is why `bool` is here:
+/// `true` writes the bare name and `false` removes one of Lumis's own.
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum JsAttrValue {
+    Flag(bool),
+    Value(String),
+}
+
+impl From<JsAttrValue> for AttrValue {
+    fn from(value: JsAttrValue) -> Self {
+        match value {
+            JsAttrValue::Flag(flag) => Self::from(flag),
+            JsAttrValue::Value(value) => Self::Value(value),
+        }
+    }
+}
+
+fn attr_values(attrs: Vec<(String, JsAttrValue)>) -> lumis_core::formatter::html::HtmlAttrs {
+    attrs
+        .into_iter()
+        .map(|(name, value)| (name, value.into()))
+        .collect()
+}
+
 #[derive(Default, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 struct HtmlInlineOptions {
     theme: Option<JsTheme>,
     pre_class: Option<String>,
-    pre_attrs: Vec<(String, String)>,
-    code_attrs: Vec<(String, String)>,
+    pre_attrs: Vec<(String, JsAttrValue)>,
+    code_attrs: Vec<(String, JsAttrValue)>,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<JsHighlightLines>,
@@ -105,8 +131,8 @@ struct HtmlInlineOptions {
 #[serde(default, rename_all = "camelCase")]
 struct HtmlLinkedOptions {
     pre_class: Option<String>,
-    pre_attrs: Vec<(String, String)>,
-    code_attrs: Vec<(String, String)>,
+    pre_attrs: Vec<(String, JsAttrValue)>,
+    code_attrs: Vec<(String, JsAttrValue)>,
     highlight_lines: Option<JsHighlightLines>,
     line_numbers: bool,
     header: Option<JsHtmlElement>,
@@ -517,8 +543,8 @@ fn render_events(
                 .language(language)
                 .theme(options.theme.map(Theme::from))
                 .pre_class(options.pre_class)
-                .pre_attrs(options.pre_attrs)
-                .code_attrs(options.code_attrs)
+                .pre_attrs(attr_values(options.pre_attrs))
+                .code_attrs(attr_values(options.code_attrs))
                 .italic(options.italic)
                 .include_highlights(options.include_highlights)
                 .highlight_lines(options.highlight_lines.map(inline_highlight_lines))
@@ -533,8 +559,8 @@ fn render_events(
             HtmlLinkedBuilder::new()
                 .language(language)
                 .pre_class(options.pre_class)
-                .pre_attrs(options.pre_attrs)
-                .code_attrs(options.code_attrs)
+                .pre_attrs(attr_values(options.pre_attrs))
+                .code_attrs(attr_values(options.code_attrs))
                 .highlight_lines(options.highlight_lines.map(|lines| LinkedHighlightLines {
                     lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
                     class: lines.class.unwrap_or_else(|| "l-highlighted".to_string()),

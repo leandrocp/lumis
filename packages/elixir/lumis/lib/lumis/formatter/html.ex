@@ -271,7 +271,7 @@ defmodule Lumis.Formatter.HTML do
       are appended, and every other value wins.
 
   """
-  @spec pre_attrs(keyword()) :: keyword(String.t())
+  @spec pre_attrs(keyword()) :: Lumis.html_attrs()
   def pre_attrs(options \\ []) when is_list(options) do
     Native.html_pre_attrs(
       Keyword.get(options, :class),
@@ -318,7 +318,7 @@ defmodule Lumis.Formatter.HTML do
     * `:attrs` — additional attribute keyword list, merged after generated values
 
   """
-  @spec multi_themes_pre_attrs(keyword()) :: keyword(String.t())
+  @spec multi_themes_pre_attrs(keyword()) :: Lumis.html_attrs()
   def multi_themes_pre_attrs(options \\ []) when is_list(options) do
     Native.html_multi_themes_pre_attrs(
       Keyword.get(options, :class),
@@ -360,12 +360,45 @@ defmodule Lumis.Formatter.HTML do
   end
 
   @doc """
+  Whether a name is one HTML can carry on an attribute.
+
+  A name with a space, a quote, `=`, `/` or `>` in it cannot be escaped into
+  safety, because a space alone splits it into two attributes and the second one
+  can be an event handler. `open_tag/2` rejects those rather than writing them.
+
+      iex> Lumis.Formatter.HTML.valid_attr_name?("data-copy")
+      true
+
+      iex> Lumis.Formatter.HTML.valid_attr_name?("x onclick=alert(1)")
+      false
+  """
+  @spec valid_attr_name?(String.t()) :: boolean()
+  def valid_attr_name?(name) when is_binary(name), do: Native.html_valid_attr_name(name)
+
+  @doc """
+  An opening tag built from an attribute keyword list, with every value escaped.
+
+  This is what `pre_attrs/1`, `multi_themes_pre_attrs/1` and `code_attrs/2` are
+  built for: merge their result with your own attributes, then render the whole
+  thing here instead of assembling the string yourself.
+
+      iex> Lumis.Formatter.HTML.open_tag("pre", class: "lumis", hidden: true)
+      ~s|<pre class="lumis" hidden>|
+
+  Raises `ArgumentError` for a name HTML cannot carry, per `valid_attr_name?/1`.
+  """
+  @spec open_tag(String.t(), Lumis.html_attrs()) :: String.t()
+  def open_tag(name, attrs \\ []) when is_binary(name) and is_list(attrs) do
+    Native.html_open_tag_from_attrs(name, encode_attrs(attrs))
+  end
+
+  @doc """
   Attributes for the `<code>` tag for a language.
 
   `attrs` is merged after the language class and the `translate` and `tabindex`
   defaults. Classes are unioned; every other authored value wins.
   """
-  @spec code_attrs(String.t() | nil, keyword(String.t())) :: keyword(String.t())
+  @spec code_attrs(String.t() | nil, Lumis.html_attrs()) :: Lumis.html_attrs()
   def code_attrs(language, attrs \\ []) when is_list(attrs) do
     Native.html_code_attrs(language || "plaintext", encode_attrs(attrs))
     |> decode_attrs()
@@ -383,7 +416,7 @@ defmodule Lumis.Formatter.HTML do
   An optional second argument supplies the attribute keyword list accepted by
   `code_attrs/2`.
   """
-  @spec open_code_tag(String.t() | nil, keyword(String.t())) :: String.t()
+  @spec open_code_tag(String.t() | nil, Lumis.html_attrs()) :: String.t()
   def open_code_tag(language, attrs \\ []) when is_list(attrs) do
     Native.html_open_code_tag(language || "plaintext", encode_attrs(attrs))
   end
@@ -596,11 +629,10 @@ defmodule Lumis.Formatter.HTML do
   end
 
   defp encode_attrs(attrs) do
-    unless Keyword.keyword?(attrs) and Enum.all?(attrs, fn {_name, value} -> is_binary(value) end) do
-      raise ArgumentError, "HTML attributes must be a keyword list with string values"
+    case Lumis.html_attrs_type(attrs) do
+      {:ok, attrs} -> Enum.map(attrs, fn {name, value} -> {Atom.to_string(name), value} end)
+      {:error, message} -> raise ArgumentError, message
     end
-
-    Enum.map(attrs, fn {name, value} -> {Atom.to_string(name), value} end)
   end
 
   defp decode_attrs(attrs) do
