@@ -2,7 +2,9 @@
 //!
 //! These helpers work with language names as strings, making them independent of tree-sitter.
 
-use crate::decorations::{compose_line_decorations, Decoration, LineSelection};
+use crate::decorations::{
+    compose_line_decorations, rainbow_scope_index, Decoration, LineSelection,
+};
 use crate::events::HighlightEvent;
 use crate::languages::Language;
 use crate::themes::{Style, TextDecoration, Theme, UnderlineStyle};
@@ -1064,12 +1066,17 @@ where
 {
     let mut lines = Vec::new();
     let mut line = String::new();
+    let decoration_language = events
+        .iter()
+        .find_map(HighlightEvent::language)
+        .unwrap_or_default();
 
     write_line_events(
         &compose_line_decorations(source, events, &LineSelection::default()),
         source,
+        decoration_language,
         |fragment| match fragment {
-            LineFragment::Open(_) => {}
+            LineFragment::OpenLine { .. } => {}
             LineFragment::Close(ending) => {
                 line.push_str(ending);
                 lines.push(std::mem::take(&mut line));
@@ -1088,14 +1095,14 @@ where
 /// One step of a line-decorated event stream, with its text already sliced.
 pub(crate) enum LineFragment<'a> {
     /// A line begins.
-    Open(Decoration),
+    OpenLine { number: usize, highlighted: bool },
     /// The current line ends with the source terminator, when it had one.
     Close(&'a str),
     /// Unescaped source text, never spanning a line boundary.
     Text(&'a str),
-    /// A syntax scope begins.
+    /// A syntax or built-in decoration scope begins.
     SpanOpen(usize, &'a str),
-    /// The innermost syntax scope ends.
+    /// The innermost syntax or built-in decoration scope ends.
     SpanClose,
 }
 
@@ -1109,19 +1116,40 @@ pub(crate) enum LineFragment<'a> {
 pub(crate) fn write_line_events<'a, T, F>(
     events: &'a [HighlightEvent<'_, T>],
     source: &'a str,
+    decoration_language: &'a str,
     mut on_fragment: F,
 ) where
     F: FnMut(LineFragment<'a>),
 {
     let mut ending = "";
+    let mut decorations = Vec::new();
 
     for event in events {
         match event {
             HighlightEvent::DecorationStart { decoration } => {
-                ending = "";
-                on_fragment(LineFragment::Open(*decoration));
+                decorations.push(*decoration);
+                match decoration {
+                    Decoration::Line {
+                        number,
+                        highlighted,
+                    } => {
+                        ending = "";
+                        on_fragment(LineFragment::OpenLine {
+                            number: *number,
+                            highlighted: *highlighted,
+                        });
+                    }
+                    Decoration::RainbowBracket { depth } => on_fragment(LineFragment::SpanOpen(
+                        rainbow_scope_index(*depth),
+                        decoration_language,
+                    )),
+                }
             }
-            HighlightEvent::DecorationEnd => on_fragment(LineFragment::Close(ending)),
+            HighlightEvent::DecorationEnd => match decorations.pop() {
+                Some(Decoration::Line { .. }) => on_fragment(LineFragment::Close(ending)),
+                Some(Decoration::RainbowBracket { .. }) => on_fragment(LineFragment::SpanClose),
+                None => {}
+            },
             HighlightEvent::Start {
                 scope_index,
                 language,
@@ -1154,6 +1182,8 @@ fn split_line_ending(text: &str) -> (&str, &str) {
 /// The three HTML formatters differ only in what a highlighted line carries, so
 /// this is what they hand [`write_html_lines`] to make the walk itself shared.
 pub(crate) struct HtmlLines<'a> {
+    /// Root language used by Lumis-owned syntax-like decorations.
+    pub language: Language,
     /// Which lines the caller asked to highlight.
     pub selection: &'a LineSelection,
     /// Whether each line opens with a gutter carrying its number.
@@ -1198,15 +1228,15 @@ pub(crate) fn write_html_lines<T>(
         std::collections::HashMap::new();
     let mut result = Ok(());
 
-    write_line_events(&composed, source, |fragment| {
+    write_line_events(&composed, source, lines.language.id_name(), |fragment| {
         if result.is_err() {
             return;
         }
         result = match fragment {
-            LineFragment::Open(Decoration::Line {
+            LineFragment::OpenLine {
                 number,
                 highlighted,
-            }) => {
+            } => {
                 let tag = if highlighted {
                     &highlighted_tag
                 } else {
@@ -1393,6 +1423,7 @@ mod tests {
     ) -> String {
         let mut output = Vec::new();
         let lines = HtmlLines {
+            language: Language::PlainText,
             selection,
             numbered,
             line_number_attrs: None,
@@ -1482,6 +1513,7 @@ mod tests {
             source,
             &events,
             &HtmlLines {
+                language: Language::PlainText,
                 selection: &LineSelection::default(),
                 numbered: false,
                 line_number_attrs: None,
@@ -1537,6 +1569,7 @@ mod tests {
         let selection = LineSelection::new(std::slice::from_ref(&(2..=2)), &[]);
         let mut output = Vec::new();
         let lines = HtmlLines {
+            language: Language::PlainText,
             selection: &selection,
             numbered: true,
             line_number_attrs: Some(r#"style="color:#111111;""#),

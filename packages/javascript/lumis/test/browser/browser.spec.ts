@@ -113,7 +113,7 @@ test.describe("browser runtime", () => {
     expect(custom.eventCount).toBeGreaterThan(custom.tokenCount);
     expect(custom.tokenCount).toBeGreaterThan(20);
     expect(custom.styledTokenCount).toBeGreaterThan(20);
-    expect(custom.eventScopes).toContain("punctuation.bracket.rainbow.1");
+    expect(custom.rainbowDepths).toContain(0);
     expect(custom.tokenScopes).toContain("punctuation.bracket");
     expect(custom.unicodeToken).toMatchObject({
       text: '"😀"',

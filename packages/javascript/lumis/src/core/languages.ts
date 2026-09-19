@@ -16,8 +16,8 @@ import type {
   HighlightOptions,
   LanguageDefinition,
   LoadedLanguage,
+  LumisHighlightEvent,
   QueryCaptureOffset,
-  SyntaxHighlightEvent,
   WasmRef,
 } from "../types.js";
 import { PLAINTEXT_LANG_ID, type LanguageInfo } from "../types.js";
@@ -146,7 +146,7 @@ export interface RuntimeLike {
     source: string,
     language: LoadedLanguage,
     options?: { rainbowBrackets?: boolean },
-  ): SyntaxHighlightEvent[];
+  ): LumisHighlightEvent[];
   format?(
     source: string,
     language: LoadedLanguage,
@@ -1434,7 +1434,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       source: string,
       language: LoadedLanguage,
       options: { rainbowBrackets?: boolean } = {},
-    ): SyntaxHighlightEvent[] {
+    ): LumisHighlightEvent[] {
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
       }
@@ -1445,7 +1445,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
           language.brackets = compile();
         }
       }
-      return buildHighlightEvents(source, language, this, options) as SyntaxHighlightEvent[];
+      return buildHighlightEvents(source, language, this, options);
     }
   }
 

@@ -113,6 +113,7 @@ export type {
   LanguageBundle,
   LanguageInput,
   LanguageRef,
+  LumisHighlightEvent,
   LazyLanguage,
   Theme,
   WasmRef,

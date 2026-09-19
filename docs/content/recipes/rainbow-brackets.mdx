@@ -70,4 +70,12 @@ lumis highlight main.js --rainbow-brackets
 
 The shared default matches `()`, `[]`, and `{}`. A language's own `brackets.scm` usually keeps those and adds more; Rust, for example, also colors generics (`<>`). Pairs tagged with `(#set! rainbow.exclude)` are matched but stay uncolored, such as string and template delimiters or JSX angle brackets.
 
-Each depth maps to one of six theme scopes, `punctuation.bracket.rainbow.1` through `punctuation.bracket.rainbow.6`, and wraps back to `1` after the sixth level. A theme can define these scopes; when it doesn't, Lumis falls back to six built-in colors.
+Built-in formatters map each depth to one of six theme scopes,
+`punctuation.bracket.rainbow.1` through `punctuation.bracket.rainbow.6`, and wrap
+back to `1` after the sixth level. A theme can define these scopes; when it
+doesn't, Lumis falls back to six built-in colors.
+
+The nested event API does not discard that information. It emits a
+`rainbowBracket` decoration carrying the real zero-based `depth`, even at level
+six and beyond. Flat token iterators continue to report the six cycling scopes,
+so existing scope-based formatters keep their output.

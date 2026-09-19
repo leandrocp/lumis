@@ -40,6 +40,14 @@ enum SerializableHighlightEvent {
     Start { scope: String, language: String },
     Source { start: usize, end: usize },
     End,
+    DecorationStart { decoration: SerializableDecoration },
+    DecorationEnd,
+}
+
+#[derive(Debug, Deserialize, PartialEq, Eq)]
+#[serde(tag = "type", rename_all = "camelCase")]
+enum SerializableDecoration {
+    RainbowBracket { depth: usize },
 }
 
 struct Fixture {
@@ -109,6 +117,14 @@ fn check_events(fixture: &Fixture) {
                 SerializableHighlightEvent::Source { start, end }
             }
             lumis_core::events::HighlightEvent::End => SerializableHighlightEvent::End,
+            lumis_core::events::HighlightEvent::DecorationStart {
+                decoration: lumis_core::events::Decoration::RainbowBracket { depth },
+            } => SerializableHighlightEvent::DecorationStart {
+                decoration: SerializableDecoration::RainbowBracket { depth },
+            },
+            lumis_core::events::HighlightEvent::DecorationEnd => {
+                SerializableHighlightEvent::DecorationEnd
+            }
             _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect::<Vec<_>>();

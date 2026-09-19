@@ -1,7 +1,8 @@
 import type { Node, Point, QueryCapture, QueryMatch, Range } from "web-tree-sitter";
+import { composeRainbowDecorations, type RainbowRange } from "./decorations.js";
 import { LANGUAGES } from "./generated/languages-meta.js";
 import { languageIdForFilename } from "./guess-language.js";
-import type { LoadedLanguage, QueryCaptureOffset } from "./types.js";
+import type { LoadedLanguage, LumisHighlightEvent, QueryCaptureOffset } from "./types.js";
 
 interface RuntimeLookup {
   getLoadedLanguage(nameOrAlias: string): LoadedLanguage | undefined;
@@ -771,7 +772,7 @@ export function buildHighlightEventsWithSourceIndex(
   language: LoadedLanguage,
   runtime: RuntimeLookup,
   options: { rainbowBrackets?: boolean } = {},
-): { events: HighlightEvent[]; sourceIndex: SourceIndex } {
+): { events: LumisHighlightEvent[]; sourceIndex: SourceIndex } {
   const maps = buildSourceMaps(source);
   const layers = collectHighlightLayers(source, maps, runtime, language, 0);
   const events = buildNestedEvents(layers, maps);
@@ -786,18 +787,9 @@ export function buildHighlightEvents(
   language: LoadedLanguage,
   runtime: RuntimeLookup,
   options: { rainbowBrackets?: boolean } = {},
-): HighlightEvent[] {
+): LumisHighlightEvent[] {
   return buildHighlightEventsWithSourceIndex(source, language, runtime, options).events;
 }
-
-const RAINBOW_BRACKET_SCOPES = [
-  "punctuation.bracket.rainbow.1",
-  "punctuation.bracket.rainbow.2",
-  "punctuation.bracket.rainbow.3",
-  "punctuation.bracket.rainbow.4",
-  "punctuation.bracket.rainbow.5",
-  "punctuation.bracket.rainbow.6",
-];
 
 interface BracketPair {
   open: { startByte: number; endByte: number };
@@ -808,7 +800,7 @@ function queryRainbowBracketRanges(
   source: string,
   language: LoadedLanguage,
   maps: SourceMaps,
-): Array<{ startByte: number; endByte: number; scope: string }> {
+): RainbowRange[] {
   if (!language.brackets) return [];
 
   const tree = language.parser.parse(source);
@@ -873,9 +865,7 @@ function isBracketPair(
   );
 }
 
-function colorizeBracketPairs(
-  pairs: BracketPair[],
-): Array<{ startByte: number; endByte: number; scope: string }> {
+function colorizeBracketPairs(pairs: BracketPair[]): RainbowRange[] {
   const opens = pairs
     .map((pair) => pair.open)
     .sort((a, b) => a.startByte - b.startByte || a.endByte - b.endByte)
@@ -888,7 +878,7 @@ function colorizeBracketPairs(
 
   const colorPairs = pairs.slice().sort((a, b) => a.close.endByte - b.close.endByte);
   const openStack: Array<{ startByte: number; endByte: number }> = [];
-  const ranges: Array<{ startByte: number; endByte: number; scope: string }> = [];
+  const ranges: RainbowRange[] = [];
   let openIndex = 0;
 
   for (const pair of colorPairs) {
@@ -903,9 +893,9 @@ function colorizeBracketPairs(
       lastOpen.startByte === pair.open.startByte &&
       lastOpen.endByte === pair.open.endByte
     ) {
-      const scope = RAINBOW_BRACKET_SCOPES[(openStack.length - 1) % RAINBOW_BRACKET_SCOPES.length]!;
-      ranges.push({ startByte: pair.open.startByte, endByte: pair.open.endByte, scope });
-      ranges.push({ startByte: pair.close.startByte, endByte: pair.close.endByte, scope });
+      const depth = openStack.length - 1;
+      ranges.push({ startByte: pair.open.startByte, endByte: pair.open.endByte, depth });
+      ranges.push({ startByte: pair.close.startByte, endByte: pair.close.endByte, depth });
       openStack.pop();
     }
   }
@@ -918,60 +908,9 @@ function applyRainbowBrackets(
   events: HighlightEvent[],
   language: LoadedLanguage,
   maps: SourceMaps,
-): HighlightEvent[] {
+): LumisHighlightEvent[] {
   const ranges = queryRainbowBracketRanges(source, language, maps);
-  if (ranges.length === 0) return events;
-
-  const output: HighlightEvent[] = [];
-  let rangeIndex = 0;
-
-  for (const event of events) {
-    if (event.type !== "source") {
-      output.push(event);
-      continue;
-    }
-
-    while (rangeIndex < ranges.length && ranges[rangeIndex]!.endByte <= event.start) {
-      rangeIndex += 1;
-    }
-
-    output.push(...splitSourceEvent(event, ranges, rangeIndex, language.definition.id));
-  }
-
-  return output;
-}
-
-// One source event, with a start/source/end triple spliced in for every bracket
-// range it wholly contains. A range that straddles the event is left to the
-// event that does contain it.
-function splitSourceEvent(
-  event: { type: "source"; start: number; end: number },
-  ranges: Array<{ startByte: number; endByte: number; scope: string }>,
-  rangeIndex: number,
-  languageId: string,
-): HighlightEvent[] {
-  const output: HighlightEvent[] = [];
-  let cursor = event.start;
-
-  for (let index = rangeIndex; index < ranges.length; index += 1) {
-    const range = ranges[index]!;
-    if (range.startByte >= event.end) break;
-    if (range.startByte < event.start || range.endByte > event.end) continue;
-
-    if (cursor < range.startByte) {
-      output.push({ type: "source", start: cursor, end: range.startByte });
-    }
-    output.push({ type: "start", scope: range.scope, language: languageId });
-    output.push({ type: "source", start: range.startByte, end: range.endByte });
-    output.push({ type: "end" });
-    cursor = range.endByte;
-  }
-
-  if (cursor < event.end) {
-    output.push({ type: "source", start: cursor, end: event.end });
-  }
-
-  return output;
+  return composeRainbowDecorations(events, ranges, maps);
 }
 
 interface LayerState extends HighlightLayer {

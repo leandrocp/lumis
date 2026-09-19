@@ -77,9 +77,11 @@
       "language": "javascript"
     },
     {
-      "type": "start",
-      "scope": "punctuation.bracket.rainbow.1",
-      "language": "javascript"
+      "type": "decorationStart",
+      "decoration": {
+        "type": "rainbowBracket",
+        "depth": 0
+      }
     },
     {
       "type": "source",
@@ -87,7 +89,7 @@
       "end": 14
     },
     {
-      "type": "end"
+      "type": "decorationEnd"
     },
     {
       "type": "end"
@@ -111,9 +113,11 @@
       "language": "javascript"
     },
     {
-      "type": "start",
-      "scope": "punctuation.bracket.rainbow.2",
-      "language": "javascript"
+      "type": "decorationStart",
+      "decoration": {
+        "type": "rainbowBracket",
+        "depth": 1
+      }
     },
     {
       "type": "source",
@@ -121,7 +125,7 @@
       "end": 18
     },
     {
-      "type": "end"
+      "type": "decorationEnd"
     },
     {
       "type": "end"
@@ -132,9 +136,11 @@
       "language": "javascript"
     },
     {
-      "type": "start",
-      "scope": "punctuation.bracket.rainbow.3",
-      "language": "javascript"
+      "type": "decorationStart",
+      "decoration": {
+        "type": "rainbowBracket",
+        "depth": 2
+      }
     },
     {
       "type": "source",
@@ -142,7 +148,7 @@
       "end": 19
     },
     {
-      "type": "end"
+      "type": "decorationEnd"
     },
     {
       "type": "end"
@@ -197,9 +203,11 @@
       "language": "javascript"
     },
     {
-      "type": "start",
-      "scope": "punctuation.bracket.rainbow.3",
-      "language": "javascript"
+      "type": "decorationStart",
+      "decoration": {
+        "type": "rainbowBracket",
+        "depth": 2
+      }
     },
     {
       "type": "source",
@@ -207,7 +215,7 @@
       "end": 24
     },
     {
-      "type": "end"
+      "type": "decorationEnd"
     },
     {
       "type": "end"
@@ -236,9 +244,11 @@
       "language": "javascript"
     },
     {
-      "type": "start",
-      "scope": "punctuation.bracket.rainbow.3",
-      "language": "javascript"
+      "type": "decorationStart",
+      "decoration": {
+        "type": "rainbowBracket",
+        "depth": 2
+      }
     },
     {
       "type": "source",
@@ -246,7 +256,7 @@
       "end": 27
     },
     {
-      "type": "end"
+      "type": "decorationEnd"
     },
     {
       "type": "end"
@@ -301,9 +311,11 @@
       "language": "javascript"
     },
     {
-      "type": "start",
-      "scope": "punctuation.bracket.rainbow.3",
-      "language": "javascript"
+      "type": "decorationStart",
+      "decoration": {
+        "type": "rainbowBracket",
+        "depth": 2
+      }
     },
     {
       "type": "source",
@@ -311,7 +323,7 @@
       "end": 34
     },
     {
-      "type": "end"
+      "type": "decorationEnd"
     },
     {
       "type": "end"
@@ -322,9 +334,11 @@
       "language": "javascript"
     },
     {
-      "type": "start",
-      "scope": "punctuation.bracket.rainbow.2",
-      "language": "javascript"
+      "type": "decorationStart",
+      "decoration": {
+        "type": "rainbowBracket",
+        "depth": 1
+      }
     },
     {
       "type": "source",
@@ -332,7 +346,7 @@
       "end": 35
     },
     {
-      "type": "end"
+      "type": "decorationEnd"
     },
     {
       "type": "end"
@@ -343,9 +357,11 @@
       "language": "javascript"
     },
     {
-      "type": "start",
-      "scope": "punctuation.bracket.rainbow.1",
-      "language": "javascript"
+      "type": "decorationStart",
+      "decoration": {
+        "type": "rainbowBracket",
+        "depth": 0
+      }
     },
     {
       "type": "source",
@@ -353,7 +369,7 @@
       "end": 36
     },
     {
-      "type": "end"
+      "type": "decorationEnd"
     },
     {
       "type": "end"

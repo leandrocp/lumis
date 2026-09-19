@@ -6,14 +6,19 @@
  * produces it; this asserts the port does too. Rust is the reference, so a
  * difference here is a bug in this port.
  *
- * Each case runs the pipeline a formatter sees: caller annotations composed
- * first, then the line decorations over the top.
+ * Each case runs the pipeline a formatter sees: rainbow decorations, caller
+ * annotations, then line decorations over the top.
  */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { composeAnnotations } from "../src/annotations.js";
-import { LineSelection, composeLineDecorations } from "../src/decorations.js";
+import {
+  LineSelection,
+  composeLineDecorations,
+  composeRainbowDecorations,
+  type RainbowRange,
+} from "../src/decorations.js";
 import { buildSourceIndex } from "../src/events.js";
 import type { Annotation, HighlightEvent, LineSpec, SyntaxHighlightEvent } from "../src/types.js";
 
@@ -22,6 +27,7 @@ interface Case {
   source: string;
   events: SyntaxHighlightEvent[];
   annotations?: Array<{ start: number; end: number; data: string }>;
+  rainbowRanges?: Array<{ start: number; end: number; depth: number }>;
   highlightLines: LineSpec[];
   expected: string;
 }
@@ -38,11 +44,19 @@ function compose(testCase: Case): HighlightEvent<string>[] {
     range: { type: "offset", start: annotation.start, end: annotation.end },
     data: annotation.data,
   }));
-  const composed = composeAnnotations(
+  const sourceIndex = buildSourceIndex(testCase.source);
+  const decorated = composeRainbowDecorations(
     testCase.events,
-    annotations,
-    buildSourceIndex(testCase.source),
+    (testCase.rainbowRanges ?? []).map(
+      (range): RainbowRange => ({
+        startByte: range.start,
+        endByte: range.end,
+        depth: range.depth,
+      }),
+    ),
+    sourceIndex,
   );
+  const composed = composeAnnotations(decorated, annotations, sourceIndex);
 
   return composeLineDecorations(
     new TextEncoder().encode(testCase.source),
@@ -51,7 +65,16 @@ function compose(testCase: Case): HighlightEvent<string>[] {
   );
 }
 
-function notation(event: HighlightEvent<string>): string {
+function notation(events: readonly HighlightEvent<string>[]): string {
+  const decorations: Array<Extract<HighlightEvent, { type: "decorationStart" }>["decoration"]> = [];
+
+  return events.map((event) => eventNotation(event, decorations)).join(" ");
+}
+
+function eventNotation(
+  event: HighlightEvent<string>,
+  decorations: Array<Extract<HighlightEvent, { type: "decorationStart" }>["decoration"]>,
+): string {
   switch (event.type) {
     case "start":
       return `S:${event.scope}`;
@@ -63,11 +86,25 @@ function notation(event: HighlightEvent<string>): string {
       return `A+${event.annotation.data}@${event.annotation.range.start}-${event.annotation.range.end}`;
     case "annotationEnd":
       return "A-";
+    case "decorationStart":
+      decorations.push(event.decoration);
+      return decorationStartNotation(event.decoration);
     case "decorationEnd":
-      return "L-";
-    default:
-      return `L+${event.decoration.number}${event.decoration.highlighted ? "*" : ""}`;
+      return decorationEndNotation(decorations.pop());
   }
+}
+
+function decorationStartNotation(
+  decoration: Extract<HighlightEvent, { type: "decorationStart" }>["decoration"],
+): string {
+  if (decoration.type === "rainbowBracket") return `R+${decoration.depth}`;
+  return `L+${decoration.number}${decoration.highlighted ? "*" : ""}`;
+}
+
+function decorationEndNotation(
+  decoration: Extract<HighlightEvent, { type: "decorationStart" }>["decoration"] | undefined,
+): string {
+  return decoration?.type === "rainbowBracket" ? "R-" : "L-";
 }
 
 describe("line decoration composition parity", () => {
@@ -83,6 +120,8 @@ describe("line decoration composition parity", () => {
       "scope/closed-and-reopened-across-a-newline",
       "scope/unbalanced-start-closes-before-the-last-line-ends",
       "annotation/closed-and-reopened-across-a-newline",
+      "rainbow/crosses-source-and-syntax-boundaries",
+      "rainbow/composes-with-annotations-and-lines",
       "utf8/multibyte-lines",
       "highlight/overlapping-ranges-merge",
       "highlight/range-beyond-the-document",
@@ -94,12 +133,9 @@ describe("line decoration composition parity", () => {
 
   it("produces the same stream as Rust", () => {
     for (const testCase of manifest.cases) {
-      expect(
-        compose(testCase)
-          .map((event) => notation(event))
-          .join(" "),
-        `${testCase.name}: diverged from Rust`,
-      ).toBe(testCase.expected);
+      expect(notation(compose(testCase)), `${testCase.name}: diverged from Rust`).toBe(
+        testCase.expected,
+      );
     }
   });
 

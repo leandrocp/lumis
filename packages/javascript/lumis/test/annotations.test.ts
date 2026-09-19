@@ -1,13 +1,46 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
 import javascript from "../langs/javascript.ts";
-import { createHighlighter, type Annotation } from "../src/index.js";
+import { createHighlighter, type Annotation, type HighlightEvent } from "../src/index.js";
 import type { Formatter } from "../src/formatters.js";
 import { renderExample } from "../examples/annotations.ts";
 import { configureLocalWasmResolver } from "./wasm.js";
 
 interface Change {
   id: number;
+}
+
+function appendObservedEvent(
+  output: string[],
+  event: HighlightEvent<Change>,
+  bytes: Uint8Array,
+  decoder: TextDecoder,
+): void {
+  switch (event.type) {
+    case "start":
+      output.push(`<syntax:${event.scope}>`);
+      break;
+    case "end":
+      output.push("</syntax>");
+      break;
+    case "decorationStart":
+      if (event.decoration.type === "rainbowBracket") {
+        output.push(`<rainbow:${event.decoration.depth}>`);
+      }
+      break;
+    case "decorationEnd":
+      output.push("</rainbow>");
+      break;
+    case "annotationStart":
+      output.push(`<annotation:${event.annotation.data.id}>`);
+      break;
+    case "annotationEnd":
+      output.push("</annotation>");
+      break;
+    case "source":
+      output.push(decoder.decode(bytes.subarray(event.start, event.end)));
+      break;
+  }
 }
 
 describe("annotations", () => {
@@ -33,15 +66,7 @@ describe("annotations", () => {
         const output: string[] = [];
 
         for (const event of events) {
-          if (event.type === "start") output.push(`<syntax:${event.scope}>`);
-          if (event.type === "end") output.push("</syntax>");
-          if (event.type === "annotationStart") {
-            output.push(`<annotation:${event.annotation.data.id}>`);
-          }
-          if (event.type === "annotationEnd") output.push("</annotation>");
-          if (event.type === "source") {
-            output.push(decoder.decode(bytes.subarray(event.start, event.end)));
-          }
+          appendObservedEvent(output, event, bytes, decoder);
         }
 
         return output.join("");
@@ -55,7 +80,7 @@ describe("annotations", () => {
     });
 
     expect(output).toContain("<syntax:");
-    expect(output).toContain("<syntax:punctuation.bracket.rainbow.");
+    expect(output).toContain("<rainbow:0>");
     expect(output).toContain("<annotation:7>");
     expect(output).toContain("</annotation>");
     expect(output.replaceAll(/<[^>]+>/g, "")).toBe(source);

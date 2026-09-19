@@ -4,8 +4,8 @@
 
 use super::{ansi, check_source_ranges, source_text, Formatter};
 use crate::decorations::{
-    compose_line_decorations, gutter_width, last_line_number, Decoration, LineSelection,
-    SteppedLineRange,
+    compose_line_decorations, gutter_width, last_line_number, rainbow_scope_index, Decoration,
+    LineSelection, SteppedLineRange,
 };
 use crate::events::HighlightEvent;
 use crate::languages::Language;
@@ -208,6 +208,63 @@ fn write_gutter(
     Ok(columns)
 }
 
+struct RenderState<'a> {
+    scope_stack: Vec<(usize, String)>,
+    line_width: usize,
+    line_bg: Option<&'a str>,
+    pending_number: Option<(usize, bool)>,
+    decorations: Vec<Decoration>,
+}
+
+impl<'a> RenderState<'a> {
+    fn new(line_bg: Option<&'a str>) -> Self {
+        Self {
+            scope_stack: Vec::new(),
+            line_width: 0,
+            line_bg,
+            pending_number: None,
+            decorations: Vec::new(),
+        }
+    }
+
+    fn start_decoration(
+        &mut self,
+        decoration: Decoration,
+        fallback_bg: Option<&'a str>,
+        highlight_bg: Option<&'a str>,
+        gutter: Option<usize>,
+        language: Language,
+    ) {
+        self.decorations.push(decoration);
+        match decoration {
+            Decoration::Line {
+                number,
+                highlighted,
+            } => {
+                self.line_bg = if highlighted {
+                    highlight_bg.or(fallback_bg)
+                } else {
+                    fallback_bg
+                };
+                self.line_width = 0;
+                self.pending_number = gutter.is_some().then_some((number, highlighted));
+            }
+            Decoration::RainbowBracket { depth } => self
+                .scope_stack
+                .push((rainbow_scope_index(depth), language.id_name().to_string())),
+        }
+    }
+
+    fn end_decoration(&mut self) {
+        if matches!(
+            self.decorations.pop(),
+            Some(Decoration::RainbowBracket { .. })
+        ) {
+            self.scope_stack.pop();
+        }
+    }
+}
+
 impl Default for Terminal {
     fn default() -> Self {
         Self {
@@ -234,8 +291,6 @@ impl<T> Formatter<T> for Terminal {
         output: &mut dyn Write,
     ) -> io::Result<()> {
         let source_bytes = source.as_bytes();
-        let mut scope_stack: Vec<(usize, String)> = Vec::new();
-        let mut line_width = 0usize;
         let fallback_bg = self.fallback_bg();
         let highlight_bg = self.highlight_bg();
 
@@ -257,69 +312,79 @@ impl<T> Formatter<T> for Terminal {
         let gutter = self
             .line_numbers
             .then(|| gutter_width(last_line_number(events)));
-        let mut line_bg = fallback_bg;
-        // A line's number is written with its first text rather than when the
-        // line opens, because a terminal writes nothing at all for a line with
-        // no text. The last line of a source ending in a newline is one, and
-        // numbering it would leave a bare number after the output.
-        let mut pending_number = None;
+        let mut state = RenderState::new(fallback_bg);
 
         for event in events {
             match event {
                 HighlightEvent::Source { start, end } => {
-                    let text = source_text(source_bytes, *start, *end)?;
-                    if !text.is_empty() {
-                        if let (Some((number, highlighted)), Some(width)) = (pending_number, gutter)
-                        {
-                            // Neovim draws the number column with `CursorLineNr`
-                            // alone, so `CursorLine` does not reach it: a
-                            // highlighted line's background starts at its text.
-                            line_width = write_gutter(
-                                output,
-                                number,
-                                width,
-                                self.gutter_style(highlighted),
-                                fallback_bg,
-                            )?;
-                            pending_number = None;
-                        }
-                    }
-                    let styled = self.active_style(&scope_stack);
-                    line_width = self.write_source(output, text, styled, line_bg, line_width)?;
+                    self.write_event_source(
+                        output,
+                        source_bytes,
+                        (*start, *end),
+                        fallback_bg,
+                        gutter,
+                        &mut state,
+                    )?;
                 }
                 HighlightEvent::Start {
                     scope_index,
                     language,
-                } => scope_stack.push((*scope_index, language.clone())),
+                } => state.scope_stack.push((*scope_index, language.clone())),
                 HighlightEvent::End => {
-                    scope_stack.pop();
+                    state.scope_stack.pop();
                 }
-                HighlightEvent::DecorationStart {
-                    decoration:
-                        Decoration::Line {
-                            number,
-                            highlighted,
-                        },
-                } => {
-                    line_bg = if *highlighted {
-                        highlight_bg.or(fallback_bg)
-                    } else {
-                        fallback_bg
-                    };
-                    line_width = 0;
-                    pending_number = gutter.is_some().then_some((*number, *highlighted));
+                HighlightEvent::DecorationStart { decoration } => {
+                    state.start_decoration(
+                        *decoration,
+                        fallback_bg,
+                        highlight_bg,
+                        gutter,
+                        self.language,
+                    );
                 }
+                HighlightEvent::DecorationEnd => state.end_decoration(),
                 // Caller annotations carry data this formatter has never seen.
-                HighlightEvent::AnnotationStart { .. }
-                | HighlightEvent::AnnotationEnd
-                | HighlightEvent::DecorationEnd => {}
+                HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
             }
         }
 
         if !source.ends_with('\n') {
-            write_line_padding(output, line_bg, self.width, line_width)?;
+            write_line_padding(output, state.line_bg, self.width, state.line_width)?;
         }
 
+        Ok(())
+    }
+}
+
+impl Terminal {
+    fn write_event_source(
+        &self,
+        output: &mut dyn Write,
+        source: &[u8],
+        range: (usize, usize),
+        fallback_bg: Option<&str>,
+        gutter: Option<usize>,
+        state: &mut RenderState<'_>,
+    ) -> io::Result<()> {
+        let text = source_text(source, range.0, range.1)?;
+        if let (false, Some((number, highlighted)), Some(width)) =
+            (text.is_empty(), state.pending_number, gutter)
+        {
+            // Neovim draws the number column with `CursorLineNr` alone, so
+            // `CursorLine` does not reach it: a highlighted line's background
+            // starts at its text.
+            state.line_width = write_gutter(
+                output,
+                number,
+                width,
+                self.gutter_style(highlighted),
+                fallback_bg,
+            )?;
+            state.pending_number = None;
+        }
+        let styled = self.active_style(&state.scope_stack);
+        state.line_width =
+            self.write_source(output, text, styled, state.line_bg, state.line_width)?;
         Ok(())
     }
 }

@@ -1,9 +1,16 @@
-import type { HighlightEvent, HighlightStyle, TerminalFormatter, Theme } from "../types.js";
+import type {
+  Decoration,
+  HighlightEvent,
+  HighlightStyle,
+  TerminalFormatter,
+  Theme,
+} from "../types.js";
 import {
   LineSelection,
   composeLineDecorations,
   gutterWidth,
   lastLineNumber,
+  rainbowBracketScope,
 } from "../decorations.js";
 import { encodeSource, decodeSourceSlice, getScopedThemeStyle, getThemeStyle } from "./html.js";
 import { paint } from "./ansi-core.js";
@@ -146,6 +153,7 @@ function paintSource(
 interface TerminalState {
   output: string;
   scopeStack: Array<{ scope: string; language: string }>;
+  decorations: Decoration[];
   /** The background the current line is painted with. */
   lineBg: string | undefined;
   lineWidth: number;
@@ -196,6 +204,39 @@ function writeSource(
   state.lineWidth = painted.lineWidth;
 }
 
+function formatterLanguage(formatter: TerminalFormatter): string {
+  if (typeof formatter.language === "string") return formatter.language;
+  return formatter.language?.id ?? "plaintext";
+}
+
+function startTerminalDecoration(
+  state: TerminalState,
+  formatter: TerminalFormatter,
+  backgrounds: { fallback: string | undefined; highlight: string | undefined },
+  gutter: Gutter | undefined,
+  decoration: Decoration,
+): void {
+  state.decorations.push(decoration);
+  if (decoration.type === "line") {
+    state.lineBg = decoration.highlighted
+      ? (backgrounds.highlight ?? backgrounds.fallback)
+      : backgrounds.fallback;
+    state.lineWidth = 0;
+    state.pendingNumber = gutter
+      ? { number: decoration.number, highlighted: decoration.highlighted }
+      : undefined;
+    return;
+  }
+  state.scopeStack.push({
+    scope: rainbowBracketScope(decoration.depth),
+    language: formatterLanguage(formatter),
+  });
+}
+
+function endTerminalDecoration(state: TerminalState): void {
+  if (state.decorations.pop()?.type === "rainbowBracket") state.scopeStack.pop();
+}
+
 function applyTerminalEvent(
   state: TerminalState,
   formatter: TerminalFormatter,
@@ -212,13 +253,10 @@ function applyTerminalEvent(
       state.scopeStack.pop();
       break;
     case "decorationStart":
-      state.lineBg = event.decoration.highlighted
-        ? (backgrounds.highlight ?? backgrounds.fallback)
-        : backgrounds.fallback;
-      state.lineWidth = 0;
-      state.pendingNumber = gutter
-        ? { number: event.decoration.number, highlighted: event.decoration.highlighted }
-        : undefined;
+      startTerminalDecoration(state, formatter, backgrounds, gutter, event.decoration);
+      break;
+    case "decorationEnd":
+      endTerminalDecoration(state);
       break;
     case "source":
       writeSource(
@@ -270,6 +308,7 @@ export function formatTerminal(
   const state: TerminalState = {
     output: "",
     scopeStack: [],
+    decorations: [],
     lineBg: backgrounds.fallback,
     lineWidth: 0,
     pendingNumber: undefined,

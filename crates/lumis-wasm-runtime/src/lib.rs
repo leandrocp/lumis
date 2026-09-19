@@ -219,7 +219,6 @@ pub fn compile_concurrency() -> usize {
         .min(4)
 }
 
-#[cfg(feature = "wasm")]
 pub mod brackets;
 pub mod catalog;
 pub mod package;
@@ -229,7 +228,6 @@ pub mod tree_sitter_highlight;
 #[cfg(feature = "wasm")]
 mod runtime;
 
-#[cfg(feature = "wasm")]
 pub use brackets::{
     bracket_pairs, capture_indices, colorize_bracket_pairs, BracketPair, RainbowRange,
     RAINBOW_BRACKET_SCOPES, RAINBOW_SCOPE_INDICES,

@@ -12,7 +12,7 @@ use elixir::{
     ExLineSpec, ExStyle, ExTextDecoration, ExTheme,
 };
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
-use lumis_core::events::HighlightEvent;
+use lumis_core::events::{Decoration, HighlightEvent};
 use lumis_core::formatter::Formatter;
 use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
@@ -191,6 +191,8 @@ rustler::atoms! {
     event_end = "end",
     annotation_start,
     annotation_end,
+    decoration_start,
+    decoration_end,
     language_not_loaded,
     unknown_language,
     failed_to_load_parser,
@@ -211,6 +213,12 @@ pub struct ExOptions<'a> {
 pub struct ExResolvedAnnotation<'a> {
     pub range: (usize, usize),
     pub data: Term<'a>,
+}
+
+#[derive(Clone, Debug, NifStruct)]
+#[module = "Lumis.Decoration.RainbowBracket"]
+pub struct ExRainbowBracket {
+    pub depth: usize,
 }
 
 #[derive(Debug, NifMap)]
@@ -238,6 +246,8 @@ enum CollectedEvent<'a> {
     End,
     AnnotationStart(ExResolvedAnnotation<'a>),
     AnnotationEnd,
+    DecorationStart(ExRainbowBracket),
+    DecorationEnd,
 }
 
 impl<'a> CollectedEvent<'a> {
@@ -252,6 +262,8 @@ impl<'a> CollectedEvent<'a> {
             Self::End => event_end().encode(env),
             Self::AnnotationStart(annotation) => (annotation_start(), annotation).encode(env),
             Self::AnnotationEnd => annotation_end().encode(env),
+            Self::DecorationStart(decoration) => (decoration_start(), decoration).encode(env),
+            Self::DecorationEnd => decoration_end().encode(env),
         }
     }
 }
@@ -308,6 +320,10 @@ impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
                     })
                 }
                 HighlightEvent::AnnotationEnd => CollectedEvent::AnnotationEnd,
+                HighlightEvent::DecorationStart {
+                    decoration: Decoration::RainbowBracket { depth },
+                } => CollectedEvent::DecorationStart(ExRainbowBracket { depth: *depth }),
+                HighlightEvent::DecorationEnd => CollectedEvent::DecorationEnd,
                 // A kind this build predates: drop it rather than crossing the
                 // NIF boundary with a shape Elixir has no clause for.
                 _ => continue,
@@ -1144,7 +1160,7 @@ fn html_render_lines_from_events(
         // kind this build predates, or one carrying caller data, is skipped
         // instead of failing the whole render.
         if let Ok(atom) = event.decode::<rustler::Atom>() {
-            if atom == event_end() {
+            if atom == event_end() || atom == decoration_end() {
                 decoded.push(HighlightEvent::End);
             }
             continue;
@@ -1176,6 +1192,22 @@ fn html_render_lines_from_events(
                     end: source_event.end,
                 });
             }
+        } else if tag == decoration_start() {
+            let Ok(decoration) = payload.decode::<ExRainbowBracket>() else {
+                continue;
+            };
+            let scope = lumis_core::decorations::rainbow_scope(decoration.depth).to_string();
+            let scope_index = scopes
+                .iter()
+                .position(|candidate| *candidate == scope)
+                .unwrap_or_else(|| {
+                    scopes.push(scope);
+                    scopes.len() - 1
+                });
+            decoded.push(HighlightEvent::Start {
+                scope_index,
+                language: String::new(),
+            });
         }
     }
 

@@ -3,7 +3,12 @@ import { readdirSync, readFileSync } from "node:fs";
 export type SerializableHighlightEvent =
   | { type: "start"; scope: string; language: string }
   | { type: "source"; start: number; end: number }
-  | { type: "end" };
+  | { type: "end" }
+  | {
+      type: "decorationStart";
+      decoration: { type: "rainbowBracket"; depth: number };
+    }
+  | { type: "decorationEnd" };
 
 export interface ConformanceFixture {
   name: string;

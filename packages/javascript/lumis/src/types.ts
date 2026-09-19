@@ -422,7 +422,7 @@ export interface ResolvedAnnotation<T = unknown> {
 export interface HighlightOptions<T = unknown> {
   /** Caller-provided semantic ranges composed into the formatter event stream. */
   annotations?: readonly Annotation<T>[];
-  /** Render nested brackets with rainbow bracket scopes. */
+  /** Render nested brackets with rainbow-bracket decorations. */
   rainbowBrackets?: boolean;
 }
 
@@ -449,21 +449,31 @@ export type SyntaxHighlightEvent =
  * A line decoration covers the line's text and the newline that ends it; the
  * last line of a source that does not end in one covers just the text.
  */
-export type Decoration = {
-  type: "line";
-  /** The 1-based line number. */
-  number: number;
-  /** Whether the caller asked for this line to be highlighted. */
-  highlighted: boolean;
-};
+export type Decoration =
+  | {
+      type: "line";
+      /** The 1-based line number. */
+      number: number;
+      /** Whether the caller asked for this line to be highlighted. */
+      highlighted: boolean;
+    }
+  | {
+      type: "rainbowBracket";
+      /** Zero-based nesting depth, before built-ins cycle through six theme scopes. */
+      depth: number;
+    };
+
+/** Syntax and Lumis-owned decoration events, before caller annotations are composed. */
+export type LumisHighlightEvent =
+  | SyntaxHighlightEvent
+  | { type: "decorationStart"; decoration: Decoration }
+  | { type: "decorationEnd" };
 
 /** A unified syntax, caller-annotation and Lumis-decoration event. */
 export type HighlightEvent<T = unknown> =
-  | SyntaxHighlightEvent
+  | LumisHighlightEvent
   | { type: "annotationStart"; annotation: ResolvedAnnotation<T> }
-  | { type: "annotationEnd" }
-  | { type: "decorationStart"; decoration: Decoration }
-  | { type: "decorationEnd" };
+  | { type: "annotationEnd" };
 
 /**
  * Signature of the `highlightIter` free function and the `hl.highlightIter`

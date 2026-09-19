@@ -27,13 +27,15 @@ defmodule Lumis.Formatter do
       end
   """
 
-  @typedoc "A syntax or caller-provided annotation event."
+  @typedoc "A syntax, caller-provided annotation, or Lumis decoration event."
   @type event(data) ::
           {:start, %{scope: String.t(), language: String.t()}}
           | {:source, %{start: non_neg_integer(), end: non_neg_integer()}}
           | :end
           | {:annotation_start, Lumis.Annotation.t(data)}
           | :annotation_end
+          | {:decoration_start, Lumis.Decoration.RainbowBracket.t()}
+          | :decoration_end
 
   @doc "Renders a unified event stream for `source`."
   @callback render(
