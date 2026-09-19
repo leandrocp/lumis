@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/lumis-native-darwin-arm64",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Native Lumis runtime for macOS arm64",
   "license": "MIT",
   "repository": "github:leandrocp/lumis",
