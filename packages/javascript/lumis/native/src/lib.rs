@@ -1,5 +1,5 @@
 use base64::Engine as _;
-use lumis_core::events::HighlightEvent;
+use lumis_core::events::{Decoration, HighlightEvent};
 use lumis_core::formatter::bbcode::{BBCodeScoped, HighlightLines as BBCodeHighlightLines};
 use lumis_core::formatter::html::AttrValue;
 use lumis_core::formatter::html_inline::{
@@ -477,6 +477,8 @@ fn read_resolved_source(source: &str) -> std::result::Result<Vec<u8>, String> {
 const SOURCE_EVENT: u8 = 0;
 const START_EVENT: u8 = 1;
 const END_EVENT: u8 = 2;
+const RAINBOW_START_EVENT: u8 = 3;
+const DECORATION_END_EVENT: u8 = 4;
 
 fn inline_highlight_lines(value: JsHighlightLines) -> InlineHighlightLines {
     InlineHighlightLines {
@@ -633,9 +635,17 @@ fn encode_events(events: &[HighlightEvent<'_>]) -> Result<Buffer> {
                 output.extend_from_slice(language.as_bytes());
             }
             HighlightEvent::End => output.push(END_EVENT),
+            HighlightEvent::DecorationStart {
+                decoration: Decoration::RainbowBracket { depth },
+            } => {
+                let depth = u32::try_from(*depth).map_err(native_error)?;
+                output.push(RAINBOW_START_EVENT);
+                output.extend_from_slice(&depth.to_le_bytes());
+            }
+            HighlightEvent::DecorationEnd => output.push(DECORATION_END_EVENT),
             _ => {
                 return Err(native_error(
-                    "the native event protocol only supports syntax events",
+                    "the native event protocol only supports syntax and rainbow-bracket events",
                 ));
             }
         }

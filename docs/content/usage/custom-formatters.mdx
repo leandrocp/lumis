@@ -306,9 +306,10 @@ and hands the text back unchanged, so there is no branch to write for it.
 
 ## Highlight options
 
-The built-in formatters take options that change which scopes highlighting
-produces. Custom formatters take the same options, as a trailing argument to the
-token iterator.
+The built-in formatters take options that enrich highlighting. Custom
+formatters take the same options, as a trailing argument to the token iterator.
+The flat iterator presents rainbow brackets as the same six scopes the built-ins
+render for backward compatibility.
 
 <Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
   <TabItem value="javascript" label="JavaScript">
@@ -352,6 +353,9 @@ import {highlightEvents} from '@lumis-sh/lumis'
 
 for (const event of highlightEvents(source, rust, {rainbowBrackets: true})) {
   if (event.type === 'start') console.log(event.scope, event.language)
+  if (event.type === 'decorationStart' && event.decoration.type === 'rainbowBracket') {
+    console.log('real zero-based depth', event.decoration.depth)
+  }
 }
 ```
 
@@ -365,8 +369,13 @@ use lumis::languages::Language;
 
 let options = HighlightOptions::new().rainbow_brackets(true);
 for event in highlight_events_with_options(source, Language::Rust, options)? {
-    if let HighlightEvent::Start { .. } = event {
+    if let HighlightEvent::Start { .. } = &event {
         println!("{:?} {:?}", event.scope(), event.language());
+    }
+    if let HighlightEvent::DecorationStart {
+        decoration: lumis::decorations::Decoration::RainbowBracket { depth },
+    } = &event {
+        println!("real zero-based depth: {depth}");
     }
 }
 # Ok::<(), lumis::highlight::HighlightError>(())
@@ -374,7 +383,9 @@ for event in highlight_events_with_options(source, Language::Rust, options)? {
 
 Rust stores the scope as an index into `HIGHLIGHT_NAMES` because resolving it
 per event costs more than the formatters need. `event.scope()` returns the same
-name JavaScript's event carries directly.
+name JavaScript's event carries directly. Rainbow brackets are decoration
+events instead: their `depth` does not wrap, leaving a custom formatter free to
+use more than six colors or a non-color representation.
 
   </TabItem>
 </Tabs>

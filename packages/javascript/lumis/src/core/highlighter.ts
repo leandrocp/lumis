@@ -9,8 +9,8 @@ import type {
   LanguageInput,
   LanguageRef,
   LazyLanguage,
+  LumisHighlightEvent,
   Formatter,
-  SyntaxHighlightEvent,
   Theme,
 } from "../types.js";
 import { PLAINTEXT_LANG_ID } from "../types.js";
@@ -18,6 +18,7 @@ import type { LanguagePackageResolver, RuntimeLike, WasmResolver } from "./langu
 import { normalizeLanguageName } from "./languages.js";
 import { composeAnnotations } from "../annotations.js";
 import { buildSourceIndex } from "../events.js";
+import { rainbowBracketScope } from "../decorations.js";
 import { getScopedThemeStyle } from "../formatter/html.js";
 import { LANGUAGE_LOADERS } from "../generated/language-loaders.js";
 import { guessLanguage } from "../guess-language.js";
@@ -193,6 +194,34 @@ function resolveLoadedLanguage(runtime: RuntimeLike, ref?: LanguageRef) {
   return loaded;
 }
 
+type ScopeLayer = { scope: string; language: string };
+type IteratorDecoration = Extract<LumisHighlightEvent, { type: "decorationStart" }>["decoration"];
+
+function applyIteratorLayerEvent(
+  event: Exclude<LumisHighlightEvent, { type: "source" }>,
+  scopeStack: ScopeLayer[],
+  decorations: IteratorDecoration[],
+  language: string,
+): void {
+  switch (event.type) {
+    case "start":
+      scopeStack.push({ scope: event.scope, language: event.language });
+      break;
+    case "end":
+      scopeStack.pop();
+      break;
+    case "decorationStart":
+      decorations.push(event.decoration);
+      if (event.decoration.type === "rainbowBracket") {
+        scopeStack.push({ scope: rainbowBracketScope(event.decoration.depth), language });
+      }
+      break;
+    case "decorationEnd":
+      if (decorations.pop()?.type === "rainbowBracket") scopeStack.pop();
+      break;
+  }
+}
+
 function runHighlightIter(
   runtime: RuntimeLike,
   source: string,
@@ -206,19 +235,15 @@ function runHighlightIter(
     rainbowBrackets: options.rainbowBrackets,
   });
   const bytes = buildSourceIndex(source).sourceBytes;
-  const scopeStack: Array<{ scope: string; language: string }> = [];
+  const scopeStack: ScopeLayer[] = [];
+  const decorations: IteratorDecoration[] = [];
 
   for (const event of events) {
-    if (event.type === "start") {
-      scopeStack.push({ scope: event.scope, language: event.language });
-      continue;
+    if (event.type === "source") {
+      emitToken(event, scopeStack, bytes, theme, loaded.definition.id, onToken);
+    } else {
+      applyIteratorLayerEvent(event, scopeStack, decorations, loaded.definition.id);
     }
-    if (event.type === "end") {
-      scopeStack.pop();
-      continue;
-    }
-
-    emitToken(event, scopeStack, bytes, theme, loaded.definition.id, onToken);
   }
 }
 
@@ -309,7 +334,7 @@ export function highlightEvents(
   source: string,
   language: LanguageRef | undefined,
   options?: { rainbowBrackets?: boolean },
-): SyntaxHighlightEvent[];
+): LumisHighlightEvent[];
 export function highlightEvents<T>(
   source: string,
   language: LanguageRef | undefined,

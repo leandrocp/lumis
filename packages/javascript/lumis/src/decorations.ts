@@ -1,4 +1,63 @@
-import type { Decoration, HighlightEvent, LineSpec } from "./types.js";
+import { composeAnnotationsInnermost } from "./annotations.js";
+import type { SourceIndex } from "./events.js";
+import type {
+  Annotation,
+  Decoration,
+  HighlightEvent,
+  LineSpec,
+  LumisHighlightEvent,
+} from "./types.js";
+
+/** Scope names through which built-in formatters cycle rainbow-bracket depths. */
+export const RAINBOW_BRACKET_SCOPES = [
+  "punctuation.bracket.rainbow.1",
+  "punctuation.bracket.rainbow.2",
+  "punctuation.bracket.rainbow.3",
+  "punctuation.bracket.rainbow.4",
+  "punctuation.bracket.rainbow.5",
+  "punctuation.bracket.rainbow.6",
+] as const;
+
+/** The theme-compatible scope name for a zero-based rainbow-bracket depth. */
+export function rainbowBracketScope(depth: number): string {
+  const normalized = Number.isSafeInteger(depth) && depth >= 0 ? depth : 0;
+  return RAINBOW_BRACKET_SCOPES[normalized % RAINBOW_BRACKET_SCOPES.length]!;
+}
+
+/** One parsed bracket byte range before it is composed into the event stream. */
+export interface RainbowRange {
+  startByte: number;
+  endByte: number;
+  depth: number;
+}
+
+/** Compose real bracket depths into the stream as Lumis-owned decorations. */
+export function composeRainbowDecorations(
+  events: readonly LumisHighlightEvent[],
+  ranges: readonly RainbowRange[],
+  sourceIndex: SourceIndex,
+): LumisHighlightEvent[] {
+  if (ranges.length === 0) return [...events];
+
+  const annotations: Annotation<Decoration>[] = ranges.map((range) => ({
+    range: { type: "offset", start: range.startByte, end: range.endByte },
+    data: { type: "rainbowBracket", depth: range.depth },
+  }));
+  const composed = composeAnnotationsInnermost(events, annotations, sourceIndex);
+  const output: LumisHighlightEvent[] = [];
+
+  for (const event of composed) {
+    if (event.type === "annotationStart") {
+      output.push({ type: "decorationStart", decoration: event.annotation.data });
+    } else if (event.type === "annotationEnd") {
+      output.push({ type: "decorationEnd" });
+    } else {
+      output.push(event);
+    }
+  }
+
+  return output;
+}
 
 /**
  * The number of the last line of a composed stream.
@@ -13,7 +72,9 @@ import type { Decoration, HighlightEvent, LineSpec } from "./types.js";
 export function lastLineNumber<T>(events: readonly HighlightEvent<T>[]): number {
   for (let index = events.length - 1; index >= 0; index -= 1) {
     const event = events[index]!;
-    if (event.type === "decorationStart") return event.decoration.number;
+    if (event.type === "decorationStart" && event.decoration.type === "line") {
+      return event.decoration.number;
+    }
   }
 
   return 1;
@@ -90,7 +151,8 @@ function lineInterval(line: LineSpec): [number, number] | undefined {
 /** One layer held open across a line boundary. */
 type OpenLayer =
   | { type: "syntax"; event: HighlightEvent }
-  | { type: "annotation"; event: HighlightEvent };
+  | { type: "annotation"; event: HighlightEvent }
+  | { type: "decoration"; event: HighlightEvent };
 
 /**
  * Compose one line decoration per rendered line into `events`.
@@ -154,7 +216,14 @@ function applyEvent<T>(
       return closeLayer(output, layers, "annotation", event, line);
     case "source":
       return splitSource(output, sourceBytes, event, layers, line, selection);
-    // A stream that already carries lines is re-composed, not nested.
+    case "decorationStart":
+      // A stream that already carries lines is re-composed, not nested.
+      if (event.decoration.type === "line") return line;
+      output.push(event);
+      layers.push({ type: "decoration", event });
+      return line;
+    case "decorationEnd":
+      return closeLayer(output, layers, "decoration", event, line);
     default:
       return line;
   }
@@ -187,7 +256,14 @@ function lineStart<T>(line: number, selection: LineSelection): HighlightEvent<T>
 
 function closeLayers<T>(output: HighlightEvent<T>[], layers: readonly OpenLayer[]): void {
   for (let index = layers.length - 1; index >= 0; index -= 1) {
-    output.push(layers[index]!.type === "syntax" ? { type: "end" } : { type: "annotationEnd" });
+    const layer = layers[index]!;
+    output.push(
+      layer.type === "syntax"
+        ? { type: "end" }
+        : layer.type === "decoration"
+          ? { type: "decorationEnd" }
+          : { type: "annotationEnd" },
+    );
   }
 }
 

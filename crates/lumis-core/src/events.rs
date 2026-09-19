@@ -6,15 +6,15 @@
 
 use crate::annotations::ResolvedAnnotation;
 
-/// Re-exported so the one decoration a public event carries is nameable: the
-/// module it lives in is internal to this crate.
+/// Re-exported beside the event that carries it for convenient matching.
 pub use crate::decorations::Decoration;
 
 /// A single step in rendering syntax-highlighted source.
 ///
 /// This enum mirrors tree-sitter's `HighlightEvent` but uses plain Rust types,
 /// making it usable without any tree-sitter dependency. Lumis can enrich the
-/// stream with caller-provided events before a formatter consumes it.
+/// stream with caller-provided annotations and built-in decorations before a
+/// formatter consumes it.
 ///
 /// Lumis adds event kinds as it grows, so a formatter matches the ones it
 /// renders and ignores the rest. That is what the built-in formatters do with

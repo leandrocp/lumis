@@ -11,8 +11,8 @@ defmodule Lumis.AnnotationsTest do
     @impl true
     def render(source, events, _options) do
       Enum.map(events, fn
-        {:start, %{scope: "punctuation.bracket.rainbow." <> _level}} ->
-          send(self(), :saw_rainbow_bracket)
+        {:decoration_start, %Lumis.Decoration.RainbowBracket{depth: depth}} ->
+          send(self(), {:saw_rainbow_bracket, depth})
           []
 
         {:source, %{start: start, end: end_offset}} ->
@@ -47,7 +47,19 @@ defmodule Lumis.AnnotationsTest do
 
     assert output == "(<annotation:7>price + tax</annotation>)"
     assert_received {:resolved_range, 7, {1, 12}}
-    assert_received :saw_rainbow_bracket
+    assert_received {:saw_rainbow_bracket, 0}
+  end
+
+  test "rainbow decoration depth does not wrap after six theme colors" do
+    source = "[[[[[[[0]]]]]]]"
+
+    assert {:ok, ^source} =
+             Lumis.highlight(source,
+               formatter: {TestFormatter, language: "elixir"},
+               rainbow_brackets: true
+             )
+
+    assert_received {:saw_rainbow_bracket, 6}
   end
 
   test "invalid UTF-8 byte boundaries are rejected against the source" do

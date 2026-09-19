@@ -211,6 +211,14 @@ enum SerializableHighlightEvent {
     Start { scope: String, language: String },
     Source { start: usize, end: usize },
     End,
+    DecorationStart { decoration: SerializableDecoration },
+    DecorationEnd,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(tag = "type", rename_all = "camelCase")]
+enum SerializableDecoration {
+    RainbowBracket { depth: usize },
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq)]
@@ -280,6 +288,12 @@ fn serialize_events(events: Vec<HighlightEvent<'_>>) -> Vec<SerializableHighligh
                 SerializableHighlightEvent::Source { start, end }
             }
             HighlightEvent::End => SerializableHighlightEvent::End,
+            HighlightEvent::DecorationStart {
+                decoration: lumis::decorations::Decoration::RainbowBracket { depth },
+            } => SerializableHighlightEvent::DecorationStart {
+                decoration: SerializableDecoration::RainbowBracket { depth },
+            },
+            HighlightEvent::DecorationEnd => SerializableHighlightEvent::DecorationEnd,
             _ => unreachable!("syntax highlighting emits only scope and source events"),
         })
         .collect()

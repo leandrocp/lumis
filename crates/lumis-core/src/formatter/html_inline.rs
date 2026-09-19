@@ -237,6 +237,7 @@ impl<T> Formatter<T> for HtmlInline {
             source,
             events,
             &crate::formatter::html::HtmlLines {
+                language: self.language,
                 selection: &self.line_selection(),
                 numbered: self.line_numbers,
                 line_number_attrs: line_number_attrs.as_deref(),

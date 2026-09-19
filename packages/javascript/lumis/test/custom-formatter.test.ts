@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import dracula from "../../themes/dist/json/dracula.json";
 import diff from "../langs/diff.ts";
 import json from "../langs/json.ts";
-import { createHighlighter, highlightIter } from "../src/index.js";
+import { createHighlighter, highlightEvents, highlightIter } from "../src/index.js";
 import { type Formatter, htmlInline } from "../src/formatters.js";
 import {
   closingTags,
@@ -119,6 +119,35 @@ describe("custom formatter", () => {
 
     expect(text).toBe(source);
     expect(scopes).toContain("punctuation.bracket.rainbow.1");
+  }, 30_000);
+
+  it("keeps real rainbow depth in the nested event API", async () => {
+    const hl = await createHighlighter({ languages: [json] });
+    const source = "[[[[[[[0]]]]]]]";
+    let depths: number[] = [];
+    let syntaxSmuggledRainbow = false;
+    const formatter: Formatter = {
+      language: json,
+      render(rendered) {
+        const events = highlightEvents(rendered, this.language, { rainbowBrackets: true });
+        depths = events.flatMap((event) =>
+          event.type === "decorationStart" && event.decoration.type === "rainbowBracket"
+            ? [event.decoration.depth]
+            : [],
+        );
+        syntaxSmuggledRainbow = events.some(
+          (event) =>
+            event.type === "start" && event.scope.startsWith("punctuation.bracket.rainbow"),
+        );
+        return "";
+      },
+    };
+
+    hl.highlight(source, formatter);
+
+    expect(depths).toContain(6);
+    expect(Math.max(...depths)).toBe(6);
+    expect(syntaxSmuggledRainbow).toBe(false);
   }, 30_000);
 
   it("restores the outer runtime after nested formatter calls", async () => {

@@ -343,11 +343,13 @@ pub mod annotations {
 ///
 /// An [`Annotation`] carries data only the caller understands, so the built-in
 /// formatters skip it. A [`Decoration`](decorations::Decoration) carries data
-/// Lumis owns, which is how line highlighting reaches the same event stream:
-/// each line arrives as a
+/// Lumis owns, which is how line highlighting and rainbow brackets reach the
+/// same event stream. Each line arrives as a
 /// [`DecorationStart`](events::HighlightEvent::DecorationStart) carrying its
 /// number and whether the caller asked for it to be highlighted, and the
 /// matching [`DecorationEnd`](events::HighlightEvent::DecorationEnd) closes it.
+/// A rainbow bracket instead carries its real zero-based nesting depth; the
+/// built-in formatters cycle that value through their six theme scopes.
 ///
 /// ```rust
 /// use lumis::decorations::Decoration;

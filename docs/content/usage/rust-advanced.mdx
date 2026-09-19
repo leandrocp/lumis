@@ -88,7 +88,8 @@ highlight_iter(source, Language::Rust, themes::get("catppuccin_latte").ok(), |te
 
 This is also the base for advanced custom formatters.
 
-`highlight_iter_with_options()` takes the same callback plus a `HighlightOptions`, so a custom formatter can opt into the scopes the built-in formatters produce:
+`highlight_iter_with_options()` takes the same callback plus a `HighlightOptions`,
+so a custom formatter can opt into the scopes the built-in formatters produce:
 
 ```rust
 use lumis::{highlight::{highlight_iter_with_options, HighlightOptions}, languages::Language};
@@ -101,6 +102,11 @@ highlight_iter_with_options(source, Language::Rust, None, options, |text, _langu
     Ok::<_, std::io::Error>(())
 }).unwrap();
 ```
+
+The flat iterator cycles rainbow brackets through the six compatibility scopes.
+Use the nested `highlight_events_with_options()` API when you need
+`Decoration::RainbowBracket { depth }` with the real, unwrapped zero-based
+depth.
 
 ## [CSS generation from themes](https://docs.rs/lumis/latest/lumis/themes/struct.Theme.html)
 

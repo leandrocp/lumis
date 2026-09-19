@@ -6,14 +6,42 @@
 //! switch on, so it reaches the same event stream and is rendered rather than
 //! skipped.
 //!
-//! Line highlighting is the first of them. A highlighted line is a line range
-//! plus a payload — the same shape as an annotation — and it now travels as
-//! [`Decoration::Line`] rather than as a second pass over strings the
-//! formatters have already produced.
+//! Lines and rainbow brackets both travel this way. A highlighted line is a
+//! line range plus a payload; a rainbow bracket is a byte range plus its real
+//! nesting depth. Built-in formatters can render both without disguising either
+//! one as a syntax capture.
 
-use crate::annotations::ResolvedAnnotation;
+use crate::annotations::{compose_annotations_innermost, Annotation, ResolvedAnnotation};
 use crate::events::HighlightEvent;
+use crate::highlights::HIGHLIGHT_NAMES;
 use std::ops::RangeInclusive;
+use std::sync::LazyLock;
+
+/// Scope names used to render rainbow brackets in built-in formatters.
+pub const RAINBOW_BRACKET_SCOPES: [&str; 6] = [
+    "punctuation.bracket.rainbow.1",
+    "punctuation.bracket.rainbow.2",
+    "punctuation.bracket.rainbow.3",
+    "punctuation.bracket.rainbow.4",
+    "punctuation.bracket.rainbow.5",
+    "punctuation.bracket.rainbow.6",
+];
+
+/// Resolved scope indices for the six theme-compatible rainbow colors.
+#[doc(hidden)]
+pub static RAINBOW_SCOPE_INDICES: LazyLock<[usize; RAINBOW_BRACKET_SCOPES.len()]> =
+    LazyLock::new(|| {
+        let fallback = HIGHLIGHT_NAMES
+            .iter()
+            .position(|candidate| *candidate == "punctuation.bracket")
+            .unwrap_or(0);
+        std::array::from_fn(|index| {
+            HIGHLIGHT_NAMES
+                .iter()
+                .position(|candidate| *candidate == RAINBOW_BRACKET_SCOPES[index])
+                .unwrap_or(fallback)
+        })
+    });
 
 /// An overlay whose data Lumis owns and every built-in formatter understands.
 ///
@@ -36,6 +64,83 @@ pub enum Decoration {
         /// Whether the caller asked for this line to be highlighted.
         highlighted: bool,
     },
+    /// One bracket in a matched pair.
+    RainbowBracket {
+        /// The zero-based nesting depth, before built-in formatters cycle it
+        /// through their six theme scopes.
+        depth: usize,
+    },
+}
+
+/// A rainbow-bracket range before it is composed into the event stream.
+#[doc(hidden)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RainbowRange {
+    pub start: usize,
+    pub end: usize,
+    pub depth: usize,
+}
+
+/// The theme-compatible scope index for a rainbow-bracket depth.
+#[doc(hidden)]
+pub fn rainbow_scope_index(depth: usize) -> usize {
+    RAINBOW_SCOPE_INDICES[depth % RAINBOW_SCOPE_INDICES.len()]
+}
+
+/// The theme-compatible scope name for a rainbow-bracket depth.
+#[doc(hidden)]
+pub fn rainbow_scope(depth: usize) -> &'static str {
+    RAINBOW_BRACKET_SCOPES[depth % RAINBOW_BRACKET_SCOPES.len()]
+}
+
+/// Compose rainbow-bracket ranges into a syntax event stream.
+///
+/// The range walk is the annotation composer: it splits source events and
+/// closes and reopens any syntax layer a range crosses. The temporary
+/// annotation payload is immediately materialized as an owned decoration, so
+/// nothing in the returned stream borrows `ranges`.
+#[doc(hidden)]
+pub fn compose_rainbow_decorations(
+    source: &str,
+    events: &[HighlightEvent<'_, ()>],
+    ranges: &[RainbowRange],
+) -> Vec<HighlightEvent<'static, ()>> {
+    let annotations = ranges
+        .iter()
+        .map(|range| {
+            Annotation::new(
+                range.start..range.end,
+                Decoration::RainbowBracket { depth: range.depth },
+            )
+            .expect("rainbow ranges are ordered parser byte ranges")
+        })
+        .collect::<Vec<_>>();
+    let composed = compose_annotations_innermost(source, events, &annotations)
+        .expect("rainbow ranges come from this parsed source");
+
+    composed
+        .into_iter()
+        .map(|event| match event {
+            HighlightEvent::Start {
+                scope_index,
+                language,
+            } => HighlightEvent::Start {
+                scope_index,
+                language,
+            },
+            HighlightEvent::Source { start, end } => HighlightEvent::Source { start, end },
+            HighlightEvent::End => HighlightEvent::End,
+            HighlightEvent::AnnotationStart { annotation } => HighlightEvent::DecorationStart {
+                decoration: *annotation.data(),
+            },
+            HighlightEvent::AnnotationEnd | HighlightEvent::DecorationEnd => {
+                HighlightEvent::DecorationEnd
+            }
+            HighlightEvent::DecorationStart { decoration } => {
+                HighlightEvent::DecorationStart { decoration }
+            }
+        })
+        .collect()
 }
 
 /// The number of the last line of a composed stream.
@@ -216,6 +321,7 @@ enum OpenLayer<'a, T> {
         language: String,
     },
     Annotation(ResolvedAnnotation<'a, T>),
+    Decoration(Decoration),
 }
 
 impl<'a, T> OpenLayer<'a, T> {
@@ -231,6 +337,9 @@ impl<'a, T> OpenLayer<'a, T> {
             Self::Annotation(annotation) => HighlightEvent::AnnotationStart {
                 annotation: annotation.clone(),
             },
+            Self::Decoration(decoration) => HighlightEvent::DecorationStart {
+                decoration: *decoration,
+            },
         }
     }
 
@@ -238,6 +347,7 @@ impl<'a, T> OpenLayer<'a, T> {
         match self {
             Self::Syntax { .. } => HighlightEvent::End,
             Self::Annotation(_) => HighlightEvent::AnnotationEnd,
+            Self::Decoration(_) => HighlightEvent::DecorationEnd,
         }
     }
 }
@@ -310,8 +420,20 @@ pub(crate) fn compose_line_decorations<'a, T>(
                     &mut cursor,
                 );
             }
-            // A stream that already carries lines is re-composed, not nested.
-            HighlightEvent::DecorationStart { .. } | HighlightEvent::DecorationEnd => {}
+            HighlightEvent::DecorationStart { decoration } => match decoration {
+                Decoration::RainbowBracket { .. } => {
+                    output.push(event.clone());
+                    layers.push(OpenLayer::Decoration(*decoration));
+                }
+                // A stream that already carries lines is re-composed, not nested.
+                Decoration::Line { .. } => {}
+            },
+            HighlightEvent::DecorationEnd => {
+                if matches!(layers.last(), Some(OpenLayer::Decoration(_))) {
+                    layers.pop();
+                    output.push(HighlightEvent::DecorationEnd);
+                }
+            }
         }
     }
 

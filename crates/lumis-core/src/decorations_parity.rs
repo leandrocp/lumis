@@ -9,7 +9,9 @@
 //! Each case runs the pipeline a formatter sees: caller annotations composed
 //! first, then the line decorations over the top.
 
-use super::{compose_line_decorations, Decoration, LineSelection};
+use super::{
+    compose_line_decorations, compose_rainbow_decorations, Decoration, LineSelection, RainbowRange,
+};
 use crate::annotations::{compose_annotations, Annotation};
 use crate::events::HighlightEvent;
 use crate::highlights::HIGHLIGHT_NAMES;
@@ -31,6 +33,8 @@ struct Case {
     events: Vec<SyntaxEvent>,
     #[serde(default)]
     annotations: Vec<CaseAnnotation>,
+    #[serde(default)]
+    rainbow_ranges: Vec<CaseRainbowRange>,
     highlight_lines: Vec<LineSpec>,
     expected: String,
 }
@@ -48,6 +52,13 @@ struct CaseAnnotation {
     start: usize,
     end: usize,
     data: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CaseRainbowRange {
+    start: usize,
+    end: usize,
+    depth: usize,
 }
 
 /// A 1-based line, or an inclusive range of them, the way every runtime's
@@ -116,36 +127,59 @@ fn compose<'a>(
     case: &'a Case,
     annotations: &'a [Annotation<String>],
 ) -> Vec<HighlightEvent<'a, String>> {
-    let events = compose_annotations(&case.source, &syntax_events(case), annotations)
+    let ranges = case
+        .rainbow_ranges
+        .iter()
+        .map(|range| RainbowRange {
+            start: range.start,
+            end: range.end,
+            depth: range.depth,
+        })
+        .collect::<Vec<_>>();
+    let events = compose_rainbow_decorations(&case.source, &syntax_events(case), &ranges);
+    let events = compose_annotations(&case.source, &events, annotations)
         .expect("fixture annotations resolve");
 
     compose_line_decorations(&case.source, &events, &selection(&case.highlight_lines))
 }
 
 /// One line per case, so a failure diff points at the event that moved.
-fn notation<T: std::fmt::Display>(event: &HighlightEvent<'_, T>) -> String {
-    match event {
-        HighlightEvent::Start { scope_index, .. } => {
-            format!("S:{}", HIGHLIGHT_NAMES[*scope_index])
-        }
-        HighlightEvent::Source { start, end } => format!("T:{start}-{end}"),
-        HighlightEvent::End => "E".to_string(),
-        HighlightEvent::AnnotationStart { annotation } => format!(
-            "A+{}@{}-{}",
-            annotation.data(),
-            annotation.range().start,
-            annotation.range().end
-        ),
-        HighlightEvent::AnnotationEnd => "A-".to_string(),
-        HighlightEvent::DecorationStart {
-            decoration:
-                Decoration::Line {
-                    number,
-                    highlighted,
-                },
-        } => format!("L+{number}{}", if *highlighted { "*" } else { "" }),
-        HighlightEvent::DecorationEnd => "L-".to_string(),
-    }
+fn notation<T: std::fmt::Display>(events: &[HighlightEvent<'_, T>]) -> String {
+    let mut decorations = Vec::new();
+
+    events
+        .iter()
+        .map(|event| match event {
+            HighlightEvent::Start { scope_index, .. } => {
+                format!("S:{}", HIGHLIGHT_NAMES[*scope_index])
+            }
+            HighlightEvent::Source { start, end } => format!("T:{start}-{end}"),
+            HighlightEvent::End => "E".to_string(),
+            HighlightEvent::AnnotationStart { annotation } => format!(
+                "A+{}@{}-{}",
+                annotation.data(),
+                annotation.range().start,
+                annotation.range().end
+            ),
+            HighlightEvent::AnnotationEnd => "A-".to_string(),
+            HighlightEvent::DecorationStart { decoration } => {
+                decorations.push(*decoration);
+                match decoration {
+                    Decoration::Line {
+                        number,
+                        highlighted,
+                    } => format!("L+{number}{}", if *highlighted { "*" } else { "" }),
+                    Decoration::RainbowBracket { depth } => format!("R+{depth}"),
+                }
+            }
+            HighlightEvent::DecorationEnd => match decorations.pop() {
+                Some(Decoration::Line { .. }) => "L-".to_string(),
+                Some(Decoration::RainbowBracket { .. }) => "R-".to_string(),
+                None => "D-".to_string(),
+            },
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 #[test]
@@ -166,6 +200,8 @@ fn the_corpus_covers_the_shapes_composition_has_to_get_right() {
         "scope/closed-and-reopened-across-a-newline",
         "scope/unbalanced-start-closes-before-the-last-line-ends",
         "annotation/closed-and-reopened-across-a-newline",
+        "rainbow/crosses-source-and-syntax-boundaries",
+        "rainbow/composes-with-annotations-and-lines",
         "utf8/multibyte-lines",
         "highlight/overlapping-ranges-merge",
         "highlight/range-beyond-the-document",
@@ -182,11 +218,7 @@ fn the_corpus_covers_the_shapes_composition_has_to_get_right() {
 fn rust_produces_the_expected_stream() {
     for case in &manifest().cases {
         let annotations = annotations(case);
-        let rendered = compose(case, &annotations)
-            .iter()
-            .map(notation)
-            .collect::<Vec<_>>()
-            .join(" ");
+        let rendered = notation(&compose(case, &annotations));
 
         assert_eq!(
             rendered, case.expected,
@@ -230,16 +262,29 @@ fn every_line_is_balanced() {
         let annotations = annotations(case);
         let mut depth = 0usize;
         let mut lines = 0usize;
+        let mut decorations = Vec::new();
 
         for event in compose(case, &annotations) {
             match event {
-                HighlightEvent::DecorationStart { .. } => {
-                    assert_eq!(depth, 0, "{}: a line opened inside a scope", case.name);
-                    lines += 1;
+                HighlightEvent::DecorationStart { decoration } => {
+                    decorations.push(decoration);
+                    match decoration {
+                        Decoration::Line { .. } => {
+                            assert_eq!(depth, 0, "{}: a line opened inside a scope", case.name);
+                            lines += 1;
+                        }
+                        Decoration::RainbowBracket { .. } => depth += 1,
+                    }
                 }
-                HighlightEvent::DecorationEnd => {
-                    assert_eq!(depth, 0, "{}: a line closed inside a scope", case.name);
-                }
+                HighlightEvent::DecorationEnd => match decorations.pop() {
+                    Some(Decoration::Line { .. }) => {
+                        assert_eq!(depth, 0, "{}: a line closed inside a scope", case.name);
+                    }
+                    Some(Decoration::RainbowBracket { .. }) => {
+                        depth = depth.checked_sub(1).expect("unbalanced rainbow decoration");
+                    }
+                    None => panic!("{}: unmatched decoration end", case.name),
+                },
                 HighlightEvent::Start { .. } | HighlightEvent::AnnotationStart { .. } => depth += 1,
                 HighlightEvent::End | HighlightEvent::AnnotationEnd => {
                     depth = depth.checked_sub(1).expect("unbalanced closing event");

@@ -2,11 +2,12 @@ import type { SourceIndex } from "./events.js";
 import type {
   Annotation,
   AnnotationRange,
+  Decoration,
   HighlightEvent,
   HighlightRange,
+  LumisHighlightEvent,
   Position,
   ResolvedAnnotation,
-  SyntaxHighlightEvent,
 } from "./types.js";
 
 interface Boundary {
@@ -25,13 +26,22 @@ interface SyntaxLayer {
   language: string;
 }
 
+interface DecorationLayer {
+  type: "decoration";
+  id: number;
+  decoration: Decoration;
+}
+
+type InputLayer = SyntaxLayer | DecorationLayer;
+
 interface AnnotationLayer<T> {
   type: "annotation";
   index: number;
   annotation: ResolvedAnnotation<T>;
 }
 
-type ActiveLayer<T> = SyntaxLayer | AnnotationLayer<T>;
+type ActiveLayer<T> = InputLayer | AnnotationLayer<T>;
+type AnnotationPlacement = "outermost" | "innermost";
 
 function isUtf8Boundary(bytes: Uint8Array, offset: number): boolean {
   return (
@@ -197,21 +207,19 @@ function advanceBoundaries(
 }
 
 function sameLayer<T>(left: ActiveLayer<T>, right: ActiveLayer<T>): boolean {
-  if (left.type !== right.type) return false;
-
-  if (left.type === "syntax" && right.type === "syntax") {
-    return left.id === right.id && left.scope === right.scope && left.language === right.language;
+  if (left.type === "annotation") {
+    return right.type === "annotation" && left.index === right.index;
   }
-
-  return left.type === "annotation" && right.type === "annotation" && left.index === right.index;
+  return right.type !== "annotation" && left.id === right.id;
 }
 
 function desiredLayers<T>(
   activeAnnotations: Set<number>,
   annotations: readonly ResolvedAnnotation<T>[],
-  syntaxLayers: readonly SyntaxLayer[],
+  inputLayers: readonly InputLayer[],
+  placement: AnnotationPlacement,
 ): ActiveLayer<T>[] {
-  const layers: ActiveLayer<T>[] = [...activeAnnotations]
+  const annotationLayers: AnnotationLayer<T>[] = [...activeAnnotations]
     .sort((left, right) => left - right)
     .map((index) => ({
       type: "annotation",
@@ -219,8 +227,9 @@ function desiredLayers<T>(
       annotation: annotations[index]!,
     }));
 
-  layers.push(...syntaxLayers);
-  return layers;
+  return placement === "outermost"
+    ? [...annotationLayers, ...inputLayers]
+    : [...inputLayers, ...annotationLayers];
 }
 
 function transitionLayers<T>(
@@ -238,30 +247,33 @@ function transitionLayers<T>(
   }
 
   for (let index = current.length - 1; index >= common; index -= 1) {
-    output.push({
-      type: current[index]!.type === "syntax" ? "end" : "annotationEnd",
-    });
+    output.push(closeLayerEvent(current[index]!));
   }
 
   for (const layer of desired.slice(common)) {
-    if (layer.type === "syntax") {
-      output.push({
-        type: "start",
-        scope: layer.scope,
-        language: layer.language,
-      });
-    } else {
-      output.push({
-        type: "annotationStart",
-        annotation: layer.annotation,
-      });
-    }
+    output.push(openLayerEvent(layer));
   }
 
   return desired;
 }
 
-/** What the walk over the syntax events carries from one source event to the next. */
+function closeLayerEvent<T>(layer: ActiveLayer<T>): HighlightEvent<T> {
+  if (layer.type === "syntax") return { type: "end" };
+  if (layer.type === "decoration") return { type: "decorationEnd" };
+  return { type: "annotationEnd" };
+}
+
+function openLayerEvent<T>(layer: ActiveLayer<T>): HighlightEvent<T> {
+  if (layer.type === "syntax") {
+    return { type: "start", scope: layer.scope, language: layer.language };
+  }
+  if (layer.type === "decoration") {
+    return { type: "decorationStart", decoration: layer.decoration };
+  }
+  return { type: "annotationStart", annotation: layer.annotation };
+}
+
+/** What the walk over the input events carries from one source event to the next. */
 interface ComposeState<T> {
   boundaryIndex: number;
   activeLayers: ActiveLayer<T>[];
@@ -291,7 +303,7 @@ function emitPoints<T>(
 
 /**
  * Splits one source event at every annotation boundary inside it, reopening the
- * syntax layers around each piece so the emitted stream stays nested.
+ * input layers around each piece so the emitted stream stays nested.
  */
 function composeSourceEvent<T>(
   event: { start: number; end: number },
@@ -299,7 +311,8 @@ function composeSourceEvent<T>(
   boundaries: BoundaryTable,
   activeAnnotations: Set<number>,
   annotations: readonly ResolvedAnnotation<T>[],
-  syntaxLayers: readonly SyntaxLayer[],
+  inputLayers: readonly InputLayer[],
+  placement: AnnotationPlacement,
   output: HighlightEvent<T>[],
 ): void {
   state.boundaryIndex = advanceBoundaries(
@@ -317,7 +330,7 @@ function composeSourceEvent<T>(
     state.activeLayers = transitionLayers(
       output,
       state.activeLayers,
-      desiredLayers(activeAnnotations, annotations, syntaxLayers),
+      desiredLayers(activeAnnotations, annotations, inputLayers, placement),
     );
     emitPoints(output, boundaries, annotations, state.pendingPoints, cursor);
 
@@ -337,11 +350,29 @@ function composeSourceEvent<T>(
 
 /** @internal */
 export function composeAnnotations<T>(
-  syntaxEvents: readonly SyntaxHighlightEvent[],
+  events: readonly LumisHighlightEvent[],
   annotations: readonly Annotation<T>[],
   sourceIndex: SourceIndex,
 ): HighlightEvent<T>[] {
-  if (annotations.length === 0) return [...syntaxEvents];
+  return composeAnnotationsWithPlacement(events, annotations, sourceIndex, "outermost");
+}
+
+/** Compose annotations inside the input layers. @internal */
+export function composeAnnotationsInnermost<T>(
+  events: readonly LumisHighlightEvent[],
+  annotations: readonly Annotation<T>[],
+  sourceIndex: SourceIndex,
+): HighlightEvent<T>[] {
+  return composeAnnotationsWithPlacement(events, annotations, sourceIndex, "innermost");
+}
+
+function composeAnnotationsWithPlacement<T>(
+  events: readonly LumisHighlightEvent[],
+  annotations: readonly Annotation<T>[],
+  sourceIndex: SourceIndex,
+  placement: AnnotationPlacement,
+): HighlightEvent<T>[] {
+  if (annotations.length === 0) return [...events];
 
   const resolvedAnnotations = resolveAnnotations(sourceIndex, annotations);
 
@@ -351,7 +382,7 @@ export function composeAnnotations<T>(
     offsets: [...byOffset.keys()].sort((left, right) => left - right),
   };
   const activeAnnotations = new Set<number>();
-  const syntaxLayers: SyntaxLayer[] = [];
+  const inputLayers: InputLayer[] = [];
   const output: HighlightEvent<T>[] = [];
   const state: ComposeState<T> = {
     boundaryIndex: 0,
@@ -360,29 +391,22 @@ export function composeAnnotations<T>(
       [...byOffset].filter(([, boundary]) => boundary.points.length > 0).map(([offset]) => offset),
     ),
   };
-  let nextSyntaxId = 0;
+  let nextInputId = 0;
 
-  for (const event of syntaxEvents) {
-    if (event.type === "start") {
-      syntaxLayers.push({
-        type: "syntax",
-        id: nextSyntaxId,
-        scope: event.scope,
-        language: event.language,
-      });
-      nextSyntaxId += 1;
-    } else if (event.type === "end") {
-      syntaxLayers.pop();
-    } else {
+  for (const event of events) {
+    if (event.type === "source") {
       composeSourceEvent(
         event,
         state,
         boundaries,
         activeAnnotations,
         resolvedAnnotations,
-        syntaxLayers,
+        inputLayers,
+        placement,
         output,
       );
+    } else {
+      nextInputId = applyInputEvent(event, inputLayers, nextInputId);
     }
   }
 
@@ -396,4 +420,30 @@ export function composeAnnotations<T>(
   }
 
   return output;
+}
+
+function applyInputEvent(
+  event: Exclude<LumisHighlightEvent, { type: "source" }>,
+  layers: InputLayer[],
+  nextId: number,
+): number {
+  switch (event.type) {
+    case "start":
+      layers.push({
+        type: "syntax",
+        id: nextId,
+        scope: event.scope,
+        language: event.language,
+      });
+      return nextId + 1;
+    case "end":
+      if (layers.at(-1)?.type === "syntax") layers.pop();
+      return nextId;
+    case "decorationStart":
+      layers.push({ type: "decoration", id: nextId, decoration: event.decoration });
+      return nextId + 1;
+    case "decorationEnd":
+      if (layers.at(-1)?.type === "decoration") layers.pop();
+      return nextId;
+  }
 }

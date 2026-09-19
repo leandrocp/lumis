@@ -371,7 +371,7 @@ defmodule Lumis do
     rainbow_brackets: [
       type: :boolean,
       default: false,
-      doc: "Render nested brackets with rainbow bracket scopes."
+      doc: "Render nested brackets with rainbow bracket decorations."
     ]
   ]
 

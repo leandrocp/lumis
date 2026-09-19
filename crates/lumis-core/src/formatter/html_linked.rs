@@ -166,6 +166,7 @@ impl<T> Formatter<T> for HtmlLinked {
             source,
             events,
             &crate::formatter::html::HtmlLines {
+                language: self.language,
                 selection: &self.line_selection(),
                 numbered: self.line_numbers,
                 line_number_attrs: None,

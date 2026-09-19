@@ -4,7 +4,7 @@ import { decodeNativeEvents } from "../src/core/native-event-codec.js";
 import { HIGHLIGHT_NAMES } from "../src/highlights.js";
 
 describe("native event codec", () => {
-  it("decodes start, source, and end events", () => {
+  it("decodes syntax and rainbow-decoration events", () => {
     const encoded = new Uint8Array([
       1,
       0,
@@ -23,12 +23,20 @@ describe("native event codec", () => {
       0,
       0, // source: bytes 1..5
       2, // end
+      3,
+      7,
+      0,
+      0,
+      0, // rainbow bracket start: depth 7
+      4, // decoration end
     ]);
 
     expect(decodeNativeEvents(encoded)).toEqual([
       { type: "start", scope: HIGHLIGHT_NAMES[0], language: "js" },
       { type: "source", start: 1, end: 5 },
       { type: "end" },
+      { type: "decorationStart", decoration: { type: "rainbowBracket", depth: 7 } },
+      { type: "decorationEnd" },
     ]);
   });
 
@@ -48,8 +56,8 @@ describe("native event codec", () => {
   );
 
   it("rejects unknown event tags", () => {
-    expect(() => decodeNativeEvents(new Uint8Array([3]))).toThrow(
-      "Unknown native Lumis event tag 3",
+    expect(() => decodeNativeEvents(new Uint8Array([5]))).toThrow(
+      "Unknown native Lumis event tag 5",
     );
   });
 

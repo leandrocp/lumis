@@ -10,7 +10,7 @@ import type {
   SyntaxHighlightEvent,
   Theme,
 } from "../types.js";
-import { LineSelection, composeLineDecorations } from "../decorations.js";
+import { LineSelection, composeLineDecorations, rainbowBracketScope } from "../decorations.js";
 import { HIGHLIGHT_NAMES } from "../highlights.js";
 import { sanitizeThemeName } from "../themes.js";
 
@@ -1201,7 +1201,9 @@ interface LineRenderState {
   line: string;
   /** The exact source terminator held until every syntax span has closed. */
   ending: string;
-  decoration: Decoration;
+  decoration: Extract<Decoration, { type: "line" }>;
+  /** Lumis-owned layers, used to distinguish line ends from rainbow ends. */
+  decorations: Decoration[];
   /** The document's language: the innermost scope's, once one has been open. */
   language: string;
   /** The close tag of each open scope, empty when the formatter omitted it. */
@@ -1220,7 +1222,7 @@ interface LineRenderContext {
   formatText: (text: string) => string;
   openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
   closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-  onLine: (content: string, decoration: Decoration) => void;
+  onLine: (content: string, decoration: Extract<Decoration, { type: "line" }>) => void;
 }
 
 function openSpanEvent(
@@ -1260,6 +1262,33 @@ function sourceEvent(
   state.line += context.formatText(ending ? text.slice(0, -ending.length) : text);
 }
 
+function startLineDecoration(
+  state: LineRenderState,
+  context: LineRenderContext,
+  decoration: Decoration,
+): void {
+  state.decorations.push(decoration);
+  if (decoration.type === "line") {
+    state.decoration = decoration;
+    state.line = "";
+    state.ending = "";
+    return;
+  }
+  openSpanEvent(state, context, {
+    scope: rainbowBracketScope(decoration.depth),
+    language: state.language,
+  });
+}
+
+function endLineDecoration(state: LineRenderState, context: LineRenderContext): void {
+  const decoration = state.decorations.pop();
+  if (decoration?.type === "line") {
+    context.onLine(`${state.line}${state.ending}`, state.decoration);
+  } else if (decoration?.type === "rainbowBracket") {
+    state.line += state.openScopes.pop()?.close ?? "";
+  }
+}
+
 function applyLineEvent(
   state: LineRenderState,
   context: LineRenderContext,
@@ -1267,12 +1296,10 @@ function applyLineEvent(
 ): void {
   switch (event.type) {
     case "decorationStart":
-      state.decoration = event.decoration;
-      state.line = "";
-      state.ending = "";
+      startLineDecoration(state, context, event.decoration);
       break;
     case "decorationEnd":
-      context.onLine(`${state.line}${state.ending}`, state.decoration);
+      endLineDecoration(state, context);
       break;
     case "start":
       openSpanEvent(state, context, event);
@@ -1303,7 +1330,7 @@ function renderDecoratedLines(
   theme: Theme | undefined,
   language: string,
   options: LineRenderOptions,
-  onLine: (content: string, decoration: Decoration) => void,
+  onLine: (content: string, decoration: Extract<Decoration, { type: "line" }>) => void,
 ): string {
   const context: LineRenderContext = {
     sourceBytes,
@@ -1317,6 +1344,7 @@ function renderDecoratedLines(
     line: "",
     ending: "",
     decoration: { type: "line", number: 1, highlighted: false },
+    decorations: [],
     language,
     openScopes: [],
     tags: new Map(),
@@ -1339,11 +1367,12 @@ export function formatHighlightIterLines(
 ): { lines: string[]; language: string } {
   const sourceBytes = encodeSource(source);
   const lines: string[] = [];
+  const inferredLanguage = events.find((event) => event.type === "start");
   const language = renderDecoratedLines(
     sourceBytes,
     composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
     theme,
-    languageRef ? languageId(languageRef) : "plaintext",
+    languageRef ? languageId(languageRef) : (inferredLanguage?.language ?? "plaintext"),
     options,
     (content) => lines.push(content),
   );

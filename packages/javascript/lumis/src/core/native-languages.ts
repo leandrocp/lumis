@@ -17,7 +17,7 @@ import type {
   LanguageDefinition,
   LanguageInfo,
   LoadedLanguage,
-  SyntaxHighlightEvent,
+  LumisHighlightEvent,
   WasmRef,
 } from "../types.js";
 import { BUILTIN_FORMATTER, getBuiltinFormatter } from "./builtin-formatter.js";
@@ -499,7 +499,7 @@ export function createNativeLanguagesModule(
       source: string,
       language: LoadedLanguage,
       options: { rainbowBrackets?: boolean } = {},
-    ): SyntaxHighlightEvent[] {
+    ): LumisHighlightEvent[] {
       rejectReentrantHighlight();
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];

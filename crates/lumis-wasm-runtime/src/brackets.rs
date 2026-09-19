@@ -3,46 +3,10 @@
 //! Callers own the cache their compiled `Query` lives in; the compile rule
 //! itself is [`compile`].
 
+pub use lumis_core::decorations::{RainbowRange, RAINBOW_BRACKET_SCOPES, RAINBOW_SCOPE_INDICES};
 use std::ops::Range;
-use std::sync::LazyLock;
-
-use lumis_core::highlights::HIGHLIGHT_NAMES;
 use streaming_iterator::StreamingIterator;
 use tree_sitter::{Language, Node, Query, QueryCursor};
-
-/// Scope names cycled through by nesting depth.
-pub const RAINBOW_BRACKET_SCOPES: [&str; 6] = [
-    "punctuation.bracket.rainbow.1",
-    "punctuation.bracket.rainbow.2",
-    "punctuation.bracket.rainbow.3",
-    "punctuation.bracket.rainbow.4",
-    "punctuation.bracket.rainbow.5",
-    "punctuation.bracket.rainbow.6",
-];
-
-/// Resolved once, falling back to `punctuation.bracket` for themes without the
-/// rainbow scopes.
-pub static RAINBOW_SCOPE_INDICES: LazyLock<[usize; RAINBOW_BRACKET_SCOPES.len()]> =
-    LazyLock::new(|| {
-        let fallback = HIGHLIGHT_NAMES
-            .iter()
-            .position(|candidate| *candidate == "punctuation.bracket")
-            .unwrap_or(0);
-        std::array::from_fn(|index| {
-            HIGHLIGHT_NAMES
-                .iter()
-                .position(|candidate| *candidate == RAINBOW_BRACKET_SCOPES[index])
-                .unwrap_or(fallback)
-        })
-    });
-
-/// A bracket and the highlight index its nesting depth earned it.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct RainbowRange {
-    pub start: usize,
-    pub end: usize,
-    pub scope_index: usize,
-}
 
 /// A matched open/close bracket pair.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -116,7 +80,7 @@ pub fn bracket_pairs(query: &Query, root: Node<'_>, source: &[u8]) -> Vec<Bracke
     pairs
 }
 
-/// Assign a depth-derived scope to each pair, walking them in closing order.
+/// Assign the real nesting depth to each pair, walking them in closing order.
 #[must_use]
 pub fn colorize_bracket_pairs(pairs: Vec<BracketPair>) -> Vec<RainbowRange> {
     let mut opens: Vec<_> = pairs.iter().map(|pair| pair.open.clone()).collect();
@@ -136,17 +100,16 @@ pub fn colorize_bracket_pairs(pairs: Vec<BracketPair>) -> Vec<RainbowRange> {
         }
 
         if open_stack.last() == Some(&pair.open) {
-            let scope_index =
-                RAINBOW_SCOPE_INDICES[(open_stack.len() - 1) % RAINBOW_SCOPE_INDICES.len()];
+            let depth = open_stack.len() - 1;
             ranges.push(RainbowRange {
                 start: pair.open.start,
                 end: pair.open.end,
-                scope_index,
+                depth,
             });
             ranges.push(RainbowRange {
                 start: pair.close.start,
                 end: pair.close.end,
-                scope_index,
+                depth,
             });
             open_stack.pop();
         }
@@ -165,22 +128,24 @@ mod tests {
     }
 
     #[test]
-    fn nesting_depth_selects_the_scope() {
+    fn nesting_depth_is_preserved() {
         // ( [ ] )  -> outer depth 0, inner depth 1
         let ranges = colorize_bracket_pairs(vec![pair(0..1, 5..6), pair(2..3, 3..4)]);
         assert_eq!(ranges.len(), 4);
-        assert_eq!(ranges[0].scope_index, RAINBOW_SCOPE_INDICES[0]);
-        assert_eq!(ranges[1].scope_index, RAINBOW_SCOPE_INDICES[1]);
-        assert_eq!(ranges[3].scope_index, RAINBOW_SCOPE_INDICES[0]);
+        assert_eq!(ranges[0].depth, 0);
+        assert_eq!(ranges[1].depth, 1);
+        assert_eq!(ranges[3].depth, 0);
     }
 
     #[test]
-    fn depth_wraps_around_the_scope_list() {
-        // Seven nested pairs: the outermost and the seventh share a scope.
+    fn depth_does_not_wrap() {
+        // Seven nested pairs keep all seven depths; formatters alone cycle
+        // those values through the six compatibility scopes.
         let pairs: Vec<_> = (0..7).map(|i| pair(i..i + 1, 20 - i..21 - i)).collect();
         let ranges = colorize_bracket_pairs(pairs);
         let opens: Vec<_> = ranges.iter().filter(|r| r.start < 7).collect();
-        assert_eq!(opens[0].scope_index, opens[6].scope_index);
+        assert_eq!(opens[0].depth, 0);
+        assert_eq!(opens[6].depth, 6);
     }
 
     #[test]
