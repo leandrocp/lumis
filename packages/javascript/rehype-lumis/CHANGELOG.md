@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.2.0...npm-rehype-lumis/v0.2.1) (2026-09-19)
+
+
+### Features
+
+- add @lumis-sh/vite for Vite HTML entry points - [#1432](https://github.com/leandrocp/lumis/pull/1432)
+
 ## [0.2.0](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.1.3...npm-rehype-lumis/v0.2.0) (2026-08-13)
 
 
