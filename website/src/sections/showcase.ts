@@ -497,6 +497,11 @@ const CATALOG = [
     href: `${REPO}/packages/javascript/markdown-it-lumis/examples`,
   },
   {
+    title: "Vite",
+    detail: "A static HTML entry point highlighted during the Vite build.",
+    href: `${REPO}/packages/javascript/vite/examples`,
+  },
+  {
     title: "Elixir",
     detail:
       "Six Livebooks covering light and dark, rainbow brackets and scoped CSS, plus a NimblePublisher blog.",

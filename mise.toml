@@ -110,6 +110,7 @@ echo ""
 echo "Building the packages whose examples import them by name..."
 pnpm --filter @lumis-sh/markdown-it-lumis run build
 pnpm --filter @lumis-sh/rehype-lumis run build
+pnpm --filter @lumis-sh/vite run build
 echo ""
 
 echo "Fetching Elixir dependencies..."
@@ -436,6 +437,7 @@ mise run lint-js
 pnpm --filter @lumis-sh/lumis run lint
 pnpm --filter @lumis-sh/markdown-it-lumis run lint
 pnpm --filter @lumis-sh/rehype-lumis run lint
+pnpm --filter @lumis-sh/vite run lint
 pnpm --filter @lumis-sh/react run lint
 pnpm --filter @lumis-sh/themes run lint
 echo ""
@@ -930,6 +932,7 @@ npm-themes|packages/javascript/themes
 npm-lumis|packages/javascript/lumis|crates/lumis|crates/lumis-core|crates/lumis-wasm-runtime
 npm-markdown-it-lumis|packages/javascript/markdown-it-lumis
 npm-rehype-lumis|packages/javascript/rehype-lumis
+npm-vite|packages/javascript/vite
 npm-react|packages/javascript/react
 npm-cli|packages/javascript/cli
 npm-wasm-bundle-web|packages/javascript/wasm-bundle-web

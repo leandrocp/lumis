@@ -45,6 +45,8 @@ pub struct HtmlMultiThemes {
     #[builder(setter(into))]
     css_variable_prefix: String,
     pre_class: Option<String>,
+    pre_attrs: crate::formatter::html::HtmlAttrs,
+    code_attrs: crate::formatter::html::HtmlAttrs,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
@@ -84,6 +86,8 @@ impl HtmlMultiThemesBuilder {
                 .take()
                 .unwrap_or_else(|| "--lumis".to_string()),
             pre_class: self.pre_class.take().flatten(),
+            pre_attrs: self.pre_attrs.take().unwrap_or_default(),
+            code_attrs: self.code_attrs.take().unwrap_or_default(),
             italic: self.italic.take().unwrap_or(false),
             include_highlights: self.include_highlights.take().unwrap_or(false),
             highlight_lines: self.highlight_lines.take().flatten(),
@@ -155,6 +159,8 @@ impl Default for HtmlMultiThemes {
             default_theme: None,
             css_variable_prefix: "--lumis".to_string(),
             pre_class: None,
+            pre_attrs: Vec::new(),
+            code_attrs: Vec::new(),
             italic: false,
             include_highlights: false,
             highlight_lines: None,
@@ -185,6 +191,8 @@ impl HtmlMultiThemes {
             default_theme,
             css_variable_prefix,
             pre_class,
+            pre_attrs: Vec::new(),
+            code_attrs: Vec::new(),
             italic,
             include_highlights,
             highlight_lines,
@@ -210,12 +218,13 @@ impl HtmlMultiThemes {
     }
 
     fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()> {
-        crate::formatter::html::open_multi_themes_pre_tag(
+        crate::formatter::html::write_multi_themes_pre_tag(
             output,
             self.pre_class.as_deref(),
             &self.themes,
             self.default_theme_name(),
             &self.css_variable_prefix,
+            &self.pre_attrs,
         )
     }
 
@@ -328,7 +337,7 @@ impl<T> Formatter<T> for HtmlMultiThemes {
         }
 
         self.open_pre_tag(&mut buffer)?;
-        crate::formatter::html::open_code_tag(&mut buffer, &self.language)?;
+        crate::formatter::html::write_code_tag(&mut buffer, self.language, &self.code_attrs)?;
 
         let (class_suffix, style) = self.get_line_attrs(true);
         let line_number_attrs = self.line_numbers.then(|| self.line_number_attrs(false));

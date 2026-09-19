@@ -12,6 +12,7 @@ on:
       - "npm-lumis/v*"
       - "npm-markdown-it-lumis/v*"
       - "npm-rehype-lumis/v*"
+      - "npm-vite/v*"
       - "npm-react/v*"
       - "npm-cli/v*"
       - "npm-themes/v*"
@@ -254,6 +255,11 @@ jobs:
             set_output filter "@lumis-sh/rehype-lumis"
             build_filters="@lumis-sh/themes @lumis-sh/lumis"
             build_filters="$build_filters @lumis-sh/rehype-lumis"
+            set_output build_filters "$build_filters"
+          elif [ "$component" = "npm-vite" ]; then
+            set_output filter "@lumis-sh/vite"
+            build_filters="@lumis-sh/themes @lumis-sh/lumis"
+            build_filters="$build_filters @lumis-sh/rehype-lumis @lumis-sh/vite"
             set_output build_filters "$build_filters"
           elif [ "$component" = "npm-react" ]; then
             set_output filter "@lumis-sh/react"

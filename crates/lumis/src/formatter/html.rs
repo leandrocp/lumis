@@ -13,6 +13,31 @@ pub use lumis_core::formatter::HtmlElement;
 use std::io::{self, Write};
 use std::ops::RangeInclusive;
 
+/// Ordered HTML attribute name/value pairs used by the block-tag helpers and
+/// built-in HTML formatters.
+pub type HtmlAttrs = lumis_core::formatter::html::HtmlAttrs;
+
+/// What an HTML attribute carries: a value, a bare name, or nothing.
+pub use lumis_core::formatter::html::AttrValue;
+
+/// Whether a name is one HTML can carry on an attribute.
+pub use lumis_core::formatter::html::is_valid_attr_name;
+
+/// Generate an opening tag from attributes, escaping every value.
+///
+/// This is what [`pre_attrs`], [`multi_themes_pre_attrs`] and [`code_attrs`]
+/// are built for: merge their result with your own attributes, then write the
+/// whole thing here rather than assembling the string and remembering to
+/// escape it.
+///
+/// # Errors
+///
+/// Returns [`std::io::ErrorKind::InvalidInput`] for an attribute name HTML
+/// cannot carry, and the underlying error if `output` fails.
+pub fn open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Result<()> {
+    lumis_core::formatter::html::open_tag(output, name, attrs)
+}
+
 /// Generate an HTML `<span>` element with inline CSS styles.
 ///
 /// This is useful for creating inline-styled HTML output similar to the
@@ -377,6 +402,43 @@ pub fn wrap_line(
 /// ```
 pub fn scope_to_class(scope: &str) -> String {
     lumis_core::formatter::html::scope_to_class(scope)
+}
+
+/// Build the attributes the inline and linked formatters put on `<pre>`.
+///
+/// `attrs` are merged after Lumis's defaults. Classes are unioned, styles are
+/// appended, and every other authored value wins.
+pub fn pre_attrs(
+    pre_class: Option<&str>,
+    theme: Option<&Theme>,
+    attrs: &[(String, AttrValue)],
+) -> HtmlAttrs {
+    lumis_core::formatter::html::pre_attrs(pre_class, theme, attrs)
+}
+
+/// Build the attributes the multi-theme formatter puts on `<pre>`.
+pub fn multi_themes_pre_attrs(
+    pre_class: Option<&str>,
+    themes: &std::collections::HashMap<String, Theme>,
+    default_theme: Option<&str>,
+    css_variable_prefix: &str,
+    attrs: &[(String, AttrValue)],
+) -> HtmlAttrs {
+    lumis_core::formatter::html::multi_themes_pre_attrs(
+        pre_class,
+        themes,
+        default_theme,
+        css_variable_prefix,
+        attrs,
+    )
+}
+
+/// Build the attributes every HTML formatter puts on `<code>`.
+///
+/// An authored `translate` or `tabindex` replaces Lumis's default while an
+/// authored class is unioned with the language class.
+pub fn code_attrs(lang: &Language, attrs: &[(String, AttrValue)]) -> HtmlAttrs {
+    lumis_core::formatter::html::code_attrs(lang, attrs)
 }
 
 /// Generate an opening `<pre>` tag with optional class and theme styles.

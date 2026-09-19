@@ -158,49 +158,147 @@ describe("rehype-lumis", () => {
         languages: [javascript],
       });
       const tree = codeBlockTree({
-        preProperties: {
-          id: "example",
-          className: ["authored-pre", "lumis"],
-          style: "padding: 1rem;",
-          dataPanel: "javascript",
-          role: "tabpanel",
-          ariaLabel: "JavaScript example",
-          title: "Example",
-        },
+        codeClassName: ["language-javascript", "copy-target"],
         codeProperties: {
-          id: "example-code",
-          className: ["language-javascript", "authored-code"],
-          style: "font-variant-ligatures: none;",
-          dataLine: "7",
-          ariaLabel: "Example source",
-          translate: "yes",
+          id: "source",
           tabIndex: -1,
+          translate: true,
+          style: "font-weight: bold",
+        },
+        preProperties: {
+          id: "panel",
+          className: ["overflow-auto"],
+          dataPanel: "install",
+          role: "tabpanel",
+          ariaLabel: "Install",
+          style: "padding: 1rem",
         },
       });
 
       await transform(tree);
 
       const pre = assertLumisPreElement(tree);
-      expect(classNames(pre)).toEqual(["lumis", "authored-pre"]);
-      expect(style(pre)).toMatch(/background-color: #[0-9a-f]+; padding: 1rem;$/);
       expect(pre.properties).toMatchObject({
-        id: "example",
-        dataPanel: "javascript",
+        id: "panel",
+        dataPanel: "install",
         role: "tabpanel",
-        ariaLabel: "JavaScript example",
-        title: "Example",
+        ariaLabel: "Install",
       });
+      expect(classNames(pre)).toEqual(expect.arrayContaining(["lumis", "overflow-auto"]));
+      expect(style(pre)).toContain("background-color");
+      expect(style(pre)).toContain("padding: 1rem");
 
       const code = findElements(tree, "code")[0];
-      expect(classNames(code)).toEqual(["language-javascript", "authored-code"]);
-      expect(code.properties).toMatchObject({
-        id: "example-code",
-        style: "font-variant-ligatures: none;",
-        dataLine: "7",
-        ariaLabel: "Example source",
-        translate: "yes",
-        tabIndex: -1,
+      expect(code.properties).toMatchObject({ id: "source", tabIndex: -1, translate: true });
+      expect(classNames(code)).toEqual(
+        expect.arrayContaining(["language-javascript", "copy-target"]),
+      );
+      expect(style(code)).toBe("font-weight: bold");
+    });
+
+    it("preserves authored properties when the formatter wraps the block", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) =>
+          htmlInline({
+            language,
+            theme: dracula,
+            header: {
+              openTag: "<figure><figcaption>example.js</figcaption>",
+              closeTag: "</figure>",
+            },
+          }),
+        languages: [javascript],
       });
+      const tree = codeBlockTree({
+        codeClassName: ["language-javascript", "copy-target"],
+        codeProperties: { id: "source" },
+        preProperties: { id: "panel", className: ["overflow-auto"] },
+      });
+
+      await transform(tree);
+
+      expect(findElements(tree, "figure")).toHaveLength(1);
+
+      const pre = assertLumisPreElement(tree);
+      expect(pre.properties.id).toBe("panel");
+      expect(classNames(pre)).toEqual(expect.arrayContaining(["lumis", "overflow-auto"]));
+
+      const code = findElements(tree, "code")[0];
+      expect(code.properties.id).toBe("source");
+      expect(classNames(code)).toEqual(
+        expect.arrayContaining(["language-javascript", "copy-target"]),
+      );
+    });
+
+    it("preserves authored children after code", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({ codeClassName: ["language-javascript"] });
+      const pre = tree.children[0] as Element;
+      pre.children.push({
+        type: "element",
+        tagName: "span",
+        properties: { id: "cursor" },
+        children: [{ type: "text", value: "_" }],
+      });
+
+      await transform(tree);
+
+      const transformedPre = assertLumisPreElement(tree);
+      expect(transformedPre.children[1]).toMatchObject({
+        type: "element",
+        tagName: "span",
+        properties: { id: "cursor" },
+      });
+    });
+
+    it("deduplicates classes while letting authored properties override defaults", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        codeClassName: ["language-javascript", "language-javascript"],
+        codeProperties: { tabIndex: 7, translate: true },
+        preProperties: { className: ["lumis", "custom"] },
+      });
+
+      await transform(tree);
+
+      const pre = assertLumisPreElement(tree);
+      expect(classNames(pre)).toEqual(["lumis", "custom"]);
+
+      const code = findElements(tree, "code")[0];
+      expect(classNames(code)).toEqual(["language-javascript"]);
+      expect(code.properties.tabIndex).toBe(7);
+      expect(code.properties.translate).toBe(true);
+    });
+
+    it("preserves and normalizes string-valued classes", async () => {
+      let formattedLanguage: string | undefined;
+      const transform = rehypeLumis({
+        formatter: (language) => {
+          formattedLanguage = language;
+          return htmlInline({ language, theme: dracula });
+        },
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        codeProperties: { className: "language-javascript copy-target" },
+        preProperties: { className: "lumis overflow-auto" },
+      });
+
+      await transform(tree);
+
+      expect(formattedLanguage).toBe("javascript");
+
+      const pre = assertLumisPreElement(tree);
+      expect(classNames(pre)).toEqual(["lumis", "overflow-auto"]);
+
+      const code = findElements(tree, "code")[0];
+      expect(classNames(code)).toEqual(["language-javascript", "copy-target"]);
     });
   });
 

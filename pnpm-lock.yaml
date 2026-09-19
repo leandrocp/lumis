@@ -440,6 +440,55 @@ importers:
         specifier: ^6.0
         version: 6.0.2
 
+  packages/javascript/vite:
+    dependencies:
+      '@lumis-sh/rehype-lumis':
+        specifier: workspace:^
+        version: link:../rehype-lumis
+      hast-util-from-html:
+        specifier: ^2.0.3
+        version: 2.0.3
+      hast-util-to-html:
+        specifier: ^9.0.5
+        version: 9.0.5
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
+      unist-util-visit:
+        specifier: ^5.1.0
+        version: 5.1.0
+    devDependencies:
+      '@lumis-sh/lumis':
+        specifier: workspace:^
+        version: link:../lumis
+      '@lumis-sh/themes':
+        specifier: workspace:^
+        version: link:../themes
+      '@microsoft/api-extractor':
+        specifier: ^7.58.0
+        version: 7.59.1(@types/node@25.6.0)
+      oxfmt:
+        specifier: ^0.43.0
+        version: 0.43.0
+      oxlint:
+        specifier: 1.58.0
+        version: 1.58.0(oxlint-tsgolint@0.19.0)
+      oxlint-tsgolint:
+        specifier: 0.19.0
+        version: 0.19.0
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.1(@microsoft/api-extractor@7.59.1(@types/node@25.6.0))(jiti@2.6.1)(postcss@8.5.10)(supports-color@8.1.1)(tsx@4.23.13)(typescript@6.0.2)(yaml@2.8.3)
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.2
+      vite:
+        specifier: ^8.0.3
+        version: 8.0.8(@types/node@25.6.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.8.3)
+      vitest:
+        specifier: ^4.1.2
+        version: 4.1.4(@types/node@25.6.0)(jsdom@27.4.0(@noble/hashes@2.3.0)(supports-color@8.1.1))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.8.3))
+
   packages/javascript/wasm-bundle-backend:
     dependencies:
       '@lumis-sh/wasm-csharp':
@@ -6068,6 +6117,35 @@ snapshots:
       tree-kill: 1.2.2
     optionalDependencies:
       '@microsoft/api-extractor': 7.58.2(@types/node@25.6.0)
+      postcss: 8.5.10
+      typescript: 6.0.2
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - tsx
+      - yaml
+
+  tsup@8.5.1(@microsoft/api-extractor@7.59.1(@types/node@25.6.0))(jiti@2.6.1)(postcss@8.5.10)(supports-color@8.1.1)(tsx@4.23.13)(typescript@6.0.2)(yaml@2.8.3):
+    dependencies:
+      bundle-require: 5.1.0(esbuild@0.27.7)
+      cac: 6.7.14
+      chokidar: 4.0.3
+      consola: 3.4.2
+      debug: 4.4.3(supports-color@8.1.1)
+      esbuild: 0.27.7
+      fix-dts-default-cjs-exports: 1.0.1
+      joycon: 3.1.1
+      picocolors: 1.1.1
+      postcss-load-config: 6.0.1(jiti@2.6.1)(postcss@8.5.10)(tsx@4.23.13)(yaml@2.8.3)
+      resolve-from: 5.0.0
+      rollup: 4.60.1
+      source-map: 0.7.6
+      sucrase: 3.35.1
+      tinyexec: 0.3.2
+      tinyglobby: 0.2.16
+      tree-kill: 1.2.2
+    optionalDependencies:
+      '@microsoft/api-extractor': 7.59.1(@types/node@25.6.0)
       postcss: 8.5.10
       typescript: 6.0.2
     transitivePeerDependencies:

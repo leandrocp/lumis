@@ -6,20 +6,37 @@ import type {
   TerminalOptions,
 } from "./types.js";
 
-type NativeHtmlInlineOptions = Pick<
-  HtmlInlineOptions,
-  | "theme"
-  | "preClass"
-  | "italic"
-  | "includeHighlights"
-  | "highlightLines"
-  | "lineNumbers"
-  | "header"
->;
-type NativeHtmlLinkedOptions = Pick<
-  HtmlLinkedOptions,
-  "preClass" | "highlightLines" | "lineNumbers" | "header"
->;
+/** A string value, or `true`/`false` for the boolean form and for removal. */
+export type NativeHtmlAttrs = Array<[string, string | boolean]>;
+
+type NativeHtmlInlineOptions = Omit<
+  Pick<
+    HtmlInlineOptions,
+    | "theme"
+    | "preClass"
+    | "preAttrs"
+    | "codeAttrs"
+    | "italic"
+    | "includeHighlights"
+    | "highlightLines"
+    | "lineNumbers"
+    | "header"
+  >,
+  "preAttrs" | "codeAttrs"
+> & {
+  preAttrs: NativeHtmlAttrs;
+  codeAttrs: NativeHtmlAttrs;
+};
+type NativeHtmlLinkedOptions = Omit<
+  Pick<
+    HtmlLinkedOptions,
+    "preClass" | "preAttrs" | "codeAttrs" | "highlightLines" | "lineNumbers" | "header"
+  >,
+  "preAttrs" | "codeAttrs"
+> & {
+  preAttrs: NativeHtmlAttrs;
+  codeAttrs: NativeHtmlAttrs;
+};
 type NativeTerminalOptions = Pick<
   TerminalOptions,
   "theme" | "background" | "width" | "highlightLines" | "lineNumbers"

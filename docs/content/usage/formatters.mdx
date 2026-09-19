@@ -281,6 +281,100 @@ lumis highlight main.rs \
 
 Java does not support HTML Multi-Themes in `lumis4j` at the moment.
 
+## Tag attributes
+
+All three HTML formatters take `pre_attrs` and `code_attrs`, so a copy button, a
+tab panel or an analytics hook can carry its own `id`, `data-*` or ARIA
+attributes without rewriting the tags afterwards.
+
+Three rules decide what the tag ends up with:
+
+- `class` is unioned with the classes Lumis generates, which are `lumis`,
+  `pre_class`, the theme names on a multi-theme block, and `language-*` on
+  `<code>`
+- `style` is appended after the theme's own declarations
+- everything else replaces the generated value, including `translate` and
+  `tabindex` on `<code>`
+
+A value is a string, or a boolean for the two things HTML spells without one:
+`true` writes the bare `name` that `hidden`, `inert` and `open` take, and
+`false` removes an attribute Lumis would otherwise generate, which is how
+`tabindex` comes off `<code>`.
+
+Values are escaped, so an attribute can hold quotes and angle brackets. Names
+are checked instead, because escaping cannot make one safe: a space needs no
+escaping and splits one name into two attributes, so `x onclick=alert(1)` would
+be an event handler however its value was treated. A name carrying a space, a
+quote, `=`, `/` or `>` is an error rather than markup.
+
+<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
+  <TabItem value="javascript" label="JavaScript">
+
+```js
+htmlLinked({
+  language: javascript,
+  preClass: 'code-block',
+  preAttrs: {id: 'example', 'data-panel': 'output', class: 'overflow-x-auto'},
+  codeAttrs: {id: 'example-code', tabindex: false}
+})
+```
+
+  </TabItem>
+  <TabItem value="rust" label="Rust">
+
+```rust
+use lumis::{HtmlLinkedBuilder, languages::Language};
+
+let formatter = HtmlLinkedBuilder::new()
+    .language(Language::JavaScript)
+    .pre_class(Some("code-block".to_string()))
+    .pre_attrs(vec![
+        ("id".to_string(), "example".into()),
+        ("data-panel".to_string(), "output".into()),
+        ("class".to_string(), "overflow-x-auto".into()),
+    ])
+    .code_attrs(vec![
+        ("id".to_string(), "example-code".into()),
+        ("tabindex".to_string(), false.into()),
+    ])
+    .build()?;
+```
+
+  </TabItem>
+  <TabItem value="elixir" label="Elixir">
+
+```elixir
+Lumis.highlight!(code,
+  formatter:
+    {:html_linked,
+     language: "javascript",
+     pre_class: "code-block",
+     pre_attrs: [id: "example", "data-panel": "output", class: "overflow-x-auto"],
+     code_attrs: [id: "example-code", tabindex: false]}
+)
+```
+
+  </TabItem>
+  <TabItem value="cli" label="CLI">
+
+```bash
+lumis highlight main.js \
+  --formatter html-linked \
+  --pre-class code-block \
+  --pre-attr id=example \
+  --pre-attr data-panel=output \
+  --pre-attr class=overflow-x-auto \
+  --code-attr id=example-code \
+  --no-code-attr tabindex
+```
+
+  </TabItem>
+</Tabs>
+
+A custom formatter reaches the same values through `pre_attrs`,
+`multi_themes_pre_attrs` and `code_attrs`, described in
+[Custom Formatters](/formatters/custom).
+
 ## Terminal
 
 ANSI output for the terminal.

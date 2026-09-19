@@ -55,6 +55,8 @@ pub struct HtmlInline {
     language: Language,
     theme: Option<Theme>,
     pre_class: Option<String>,
+    pre_attrs: crate::formatter::html::HtmlAttrs,
+    code_attrs: crate::formatter::html::HtmlAttrs,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<HighlightLines>,
@@ -96,6 +98,8 @@ impl HtmlInline {
             language,
             theme,
             pre_class,
+            pre_attrs: Vec::new(),
+            code_attrs: Vec::new(),
             italic,
             include_highlights,
             highlight_lines,
@@ -188,6 +192,8 @@ impl Default for HtmlInline {
             language: Language::PlainText,
             theme: None,
             pre_class: None,
+            pre_attrs: Vec::new(),
+            code_attrs: Vec::new(),
             italic: false,
             include_highlights: false,
             highlight_lines: None,
@@ -215,12 +221,13 @@ impl<T> Formatter<T> for HtmlInline {
             write!(buffer, "{}", header.open_tag)?;
         }
 
-        crate::formatter::html::open_pre_tag(
+        crate::formatter::html::write_pre_tag(
             &mut buffer,
             self.pre_class.as_deref(),
             self.theme.as_ref(),
+            &self.pre_attrs,
         )?;
-        crate::formatter::html::open_code_tag(&mut buffer, &self.language)?;
+        crate::formatter::html::write_code_tag(&mut buffer, self.language, &self.code_attrs)?;
 
         let (class_suffix, style) = self.get_line_attrs(true);
         let line_number_attrs = self.line_numbers.then(|| self.line_number_attrs(false));

@@ -146,6 +146,8 @@ Lumis.highlight!(code,
     language: "elixir",
     theme: "github_light",
     pre_class: "my-code",
+    pre_attrs: [id: "example"],
+    code_attrs: [title: "Highlighted Elixir"],
     italic: true,
     include_highlights: false
   ]}
@@ -155,6 +157,8 @@ Lumis.highlight!(code,
 Available options for `:html_inline`:
 - `:theme` - Theme name (string) or `Lumis.Theme` struct
 - `:pre_class` - CSS class to add to the `<pre>` tag
+- `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
+- `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (see Line Highlighting section)
@@ -191,6 +195,8 @@ Then in your template:
 
 Available options for `:html_linked`:
 - `:pre_class` - CSS class to add to the `<pre>` tag
+- `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
+- `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:highlight_lines` - Highlight specific lines with CSS class
 - `:line_numbers` - Open each line with a line number gutter (see Line Numbers section)
 - `:header` - Wrap with custom HTML tags
@@ -298,6 +304,8 @@ Available options for `:html_multi_themes`:
 - `:default_theme` - Controls inline color rendering: theme identifier, `"light-dark()"`, or `nil` (default: `nil`)
 - `:css_variable_prefix` - Custom CSS variable prefix (default: `"--lumis"`)
 - `:pre_class` - CSS class to add to the `<pre>` tag
+- `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
+- `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:italic` - Enable italic styles (default: `false`)
 - `:include_highlights` - Add `data-highlight` attributes for debugging (default: `false`)
 - `:highlight_lines` - Highlight specific lines (same options as `:html_inline`)
@@ -865,6 +873,8 @@ opts = Lumis.default_options()
       language: "elixir" | ".ex" | "app.ex" | nil,
       theme: "onedark" | %Lumis.Theme{},
       pre_class: "my-class",
+      pre_attrs: [id: "example"],
+      code_attrs: [title: "Highlighted code"],
       italic: false,
       include_highlights: false,
       highlight_lines: %{
@@ -882,6 +892,8 @@ opts = Lumis.default_options()
     {:html_linked, [
       language: "elixir" | ".ex" | "app.ex" | nil,
       pre_class: "my-class",
+      pre_attrs: [id: "example"],
+      code_attrs: [title: "Highlighted code"],
       highlight_lines: %{
         lines: [1, 2..5],
         class: "l-highlighted"
@@ -911,6 +923,8 @@ opts = Lumis.default_options()
       default_theme: "light" | "light-dark()" | nil,
       css_variable_prefix: "--custom",
       pre_class: "my-class",
+      pre_attrs: [id: "example"],
+      code_attrs: [title: "Highlighted code"],
       italic: false,
       include_highlights: false,
       highlight_lines: %{

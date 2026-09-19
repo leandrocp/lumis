@@ -2,10 +2,18 @@ import { LANGUAGES } from "../generated/languages-meta.js";
 import { cloneLanguageInfo } from "../catalog-metadata.js";
 import { LANGUAGE_LOADERS } from "../generated/language-loaders.js";
 import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../generated/package-version-range.js";
-import type { NativeBinding, NativeFormatter, NativeRuntimeInstance } from "../native-binding.js";
+import type {
+  NativeBinding,
+  NativeFormatter,
+  NativeHtmlAttrs,
+  NativeRuntimeInstance,
+} from "../native-binding.js";
 import type {
   Formatter,
   HighlightOptions,
+  HtmlAttrs,
+  HtmlInlineFormatter,
+  HtmlLinkedFormatter,
   LanguageDefinition,
   LanguageInfo,
   LoadedLanguage,
@@ -36,6 +44,58 @@ import type {
 const PLAINTEXT_ALIASES = LANGUAGES.find(({ id }) => id === PLAINTEXT_LANG_ID)?.aliases ?? [];
 const CATALOG_LANGUAGE_IDS = new Set(LANGUAGES.map(({ id }) => normalizeLanguageName(id)));
 const encoder = new TextEncoder();
+
+/**
+ * Rust takes the same three states JavaScript writes: a string, `true` for the
+ * bare boolean form, and `false` to drop an attribute Lumis generated. `null`
+ * and `undefined` mean the caller left the field off, which is `false`.
+ */
+function nativeHtmlAttrs(attrs: HtmlAttrs | undefined): NativeHtmlAttrs {
+  if (!attrs) return [];
+
+  return Object.entries(attrs).map(([name, value]) =>
+    typeof value === "boolean" || value == null ? [name, value === true] : [name, String(value)],
+  );
+}
+
+function nativeHtmlInlineFormatter(
+  formatter: HtmlInlineFormatter,
+  rainbowBrackets: HighlightOptions["rainbowBrackets"],
+): NativeFormatter {
+  return {
+    rainbowBrackets,
+    kind: "html-inline",
+    options: {
+      theme: formatter.theme,
+      preClass: formatter.preClass,
+      preAttrs: nativeHtmlAttrs(formatter.preAttrs),
+      codeAttrs: nativeHtmlAttrs(formatter.codeAttrs),
+      italic: formatter.italic,
+      includeHighlights: formatter.includeHighlights,
+      highlightLines: formatter.highlightLines,
+      lineNumbers: formatter.lineNumbers,
+      header: formatter.header,
+    },
+  };
+}
+
+function nativeHtmlLinkedFormatter(
+  formatter: HtmlLinkedFormatter,
+  rainbowBrackets: HighlightOptions["rainbowBrackets"],
+): NativeFormatter {
+  return {
+    rainbowBrackets,
+    kind: "html-linked",
+    options: {
+      preClass: formatter.preClass,
+      preAttrs: nativeHtmlAttrs(formatter.preAttrs),
+      codeAttrs: nativeHtmlAttrs(formatter.codeAttrs),
+      highlightLines: formatter.highlightLines,
+      lineNumbers: formatter.lineNumbers,
+      header: formatter.header,
+    },
+  };
+}
 
 const WASM_REF_STRING_FIELDS = ["packageName", "name", "version", "sha256"] as const;
 
@@ -525,30 +585,9 @@ export function createNativeLanguagesModule(
 
       switch (kind) {
         case "html-inline":
-          return {
-            rainbowBrackets,
-            kind,
-            options: {
-              theme: builtin.theme,
-              preClass: builtin.preClass,
-              italic: builtin.italic,
-              includeHighlights: builtin.includeHighlights,
-              highlightLines: builtin.highlightLines,
-              lineNumbers: builtin.lineNumbers,
-              header: builtin.header,
-            },
-          };
+          return nativeHtmlInlineFormatter(builtin, rainbowBrackets);
         case "html-linked":
-          return {
-            rainbowBrackets,
-            kind,
-            options: {
-              preClass: builtin.preClass,
-              highlightLines: builtin.highlightLines,
-              lineNumbers: builtin.lineNumbers,
-              header: builtin.header,
-            },
-          };
+          return nativeHtmlLinkedFormatter(builtin, rainbowBrackets);
         case "bbcode-scoped":
           return { rainbowBrackets, kind, options: { highlightLines: builtin.highlightLines } };
         case "terminal":

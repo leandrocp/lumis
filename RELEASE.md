@@ -25,14 +25,15 @@ Not merged is not released.
  7. npm-lumis                    builds against 6
  8. npm-markdown-it-lumis        needs 7
  9. npm-rehype-lumis             needs 7
-10. npm-react                    needs 7
-11. npm-cli
-12. npm-wasm-bundle-web
-13. npm-wasm-bundle-web-extra
-14. npm-wasm-bundle-system       12-16 need the @lumis-sh/wasm-* parser packages
-15. npm-wasm-bundle-backend
-16. npm-wasm-bundle-full
-17. hex-lumis                    needs 1 and 3 published to crates.io
+10. npm-vite                     needs 9
+11. npm-react                    needs 7
+12. npm-cli
+13. npm-wasm-bundle-web
+14. npm-wasm-bundle-web-extra
+15. npm-wasm-bundle-system       13-17 need the @lumis-sh/wasm-* parser packages
+16. npm-wasm-bundle-backend
+17. npm-wasm-bundle-full
+18. hex-lumis                    needs 1 and 3 published to crates.io
 ```
 
 Merge order is publish order; nothing enforces it. This is every releasable package —

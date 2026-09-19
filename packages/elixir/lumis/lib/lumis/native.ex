@@ -6,6 +6,7 @@ defmodule Lumis.Native do
   mix_config = Mix.Project.config()
   version = mix_config[:version]
   mode = if Mix.env() in [:dev, :test], do: :debug, else: :release
+  force_build = System.get_env("LUMIS_BUILD") in ["1", "true"]
 
   use_legacy =
     Application.compile_env(
@@ -27,6 +28,49 @@ defmodule Lumis.Native do
   ]
 
   other_variants = [legacy_cpu: fn -> use_legacy end]
+
+  workspace_root = Path.expand("../../../../..", __DIR__)
+  workspace_crates_path = Path.join(workspace_root, "crates")
+
+  if force_build and File.dir?(workspace_crates_path) do
+    # Rustler ignores crates resolved locally through the workspace's [patch.crates-io].
+    patched_crate_globs =
+      Enum.map(~w[lumis-core lumis-wasm-runtime], fn crate ->
+        Path.join([workspace_crates_path, crate, "**/*"])
+      end)
+
+    patched_crate_resources =
+      patched_crate_globs
+      |> Enum.flat_map(&Path.wildcard/1)
+      |> Enum.filter(&File.regular?/1)
+
+    # lumis_nif is a workspace member, so the root manifest and lock resolve this
+    # build, not the ones beside it that Rustler tracks and a published build uses.
+    # `Path.wildcard` skips dot directories, so Rustler misses `.cargo/config.toml`,
+    # which carries the CFLAGS and rustflags the artifact is compiled with.
+    build_input_resources = [
+      Path.join(workspace_root, "Cargo.toml"),
+      Path.join(workspace_root, "Cargo.lock"),
+      Path.expand("../../native/lumis_nif/.cargo/config.toml", __DIR__)
+    ]
+
+    @patched_crate_globs patched_crate_globs
+    @patched_crate_resources_hash :erlang.md5(patched_crate_resources)
+
+    for resource <- patched_crate_resources ++ build_input_resources do
+      @external_resource resource
+    end
+
+    @doc false
+    def __mix_recompile__? do
+      resources =
+        @patched_crate_globs
+        |> Enum.flat_map(&Path.wildcard/1)
+        |> Enum.filter(&File.regular?/1)
+
+      :erlang.md5(resources) != @patched_crate_resources_hash
+    end
+  end
 
   use RustlerPrecompiled,
     otp_app: :lumis,
@@ -55,7 +99,7 @@ defmodule Lumis.Native do
     # We don't use any features of newer NIF versions, so 2.15 is enough.
     nif_versions: ["2.15"],
     mode: mode,
-    force_build: System.get_env("LUMIS_BUILD") in ["1", "true"]
+    force_build: force_build
 
   def available_languages, do: :erlang.nif_error(:nif_not_loaded)
   def language_info(_name), do: :erlang.nif_error(:nif_not_loaded)
@@ -107,17 +151,31 @@ defmodule Lumis.Native do
       ),
       do: :erlang.nif_error(:nif_not_loaded)
 
-  def html_open_pre_tag(_pre_class, _theme), do: :erlang.nif_error(:nif_not_loaded)
+  def html_pre_attrs(_pre_class, _theme, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+  def html_open_pre_tag(_pre_class, _theme, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_multi_themes_pre_attrs(
+        _pre_class,
+        _themes,
+        _default_theme,
+        _css_variable_prefix,
+        _attrs
+      ),
+      do: :erlang.nif_error(:nif_not_loaded)
 
   def html_open_multi_themes_pre_tag(
         _pre_class,
         _themes,
         _default_theme,
-        _css_variable_prefix
+        _css_variable_prefix,
+        _attrs
       ),
       do: :erlang.nif_error(:nif_not_loaded)
 
-  def html_open_code_tag(_language), do: :erlang.nif_error(:nif_not_loaded)
+  def html_code_attrs(_language, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+  def html_open_code_tag(_language, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+  def html_open_tag_from_attrs(_name, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+  def html_valid_attr_name(_name), do: :erlang.nif_error(:nif_not_loaded)
   def html_close_pre_tag, do: :erlang.nif_error(:nif_not_loaded)
   def html_close_code_tag, do: :erlang.nif_error(:nif_not_loaded)
   def html_closing_tags, do: :erlang.nif_error(:nif_not_loaded)

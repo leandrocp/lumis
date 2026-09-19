@@ -41,6 +41,8 @@ pub struct HtmlLinked {
     #[builder(setter(custom))]
     language: Language,
     pre_class: Option<String>,
+    pre_attrs: crate::formatter::html::HtmlAttrs,
+    code_attrs: crate::formatter::html::HtmlAttrs,
     highlight_lines: Option<HighlightLines>,
     #[builder(setter(skip), default)]
     stepped_highlight_lines: Vec<SteppedLineRange>,
@@ -75,6 +77,8 @@ impl HtmlLinked {
         Self {
             language,
             pre_class,
+            pre_attrs: Vec::new(),
+            code_attrs: Vec::new(),
             highlight_lines,
             stepped_highlight_lines: Vec::new(),
             line_numbers,
@@ -121,6 +125,8 @@ impl Default for HtmlLinked {
         Self {
             language: Language::PlainText,
             pre_class: None,
+            pre_attrs: Vec::new(),
+            code_attrs: Vec::new(),
             highlight_lines: None,
             stepped_highlight_lines: Vec::new(),
             line_numbers: false,
@@ -146,8 +152,13 @@ impl<T> Formatter<T> for HtmlLinked {
             write!(buffer, "{}", header.open_tag)?;
         }
 
-        crate::formatter::html::open_pre_tag(&mut buffer, self.pre_class.as_deref(), None)?;
-        crate::formatter::html::open_code_tag(&mut buffer, &self.language)?;
+        crate::formatter::html::write_pre_tag(
+            &mut buffer,
+            self.pre_class.as_deref(),
+            None,
+            &self.pre_attrs,
+        )?;
+        crate::formatter::html::write_code_tag(&mut buffer, self.language, &self.code_attrs)?;
 
         let class_suffix = self.get_line_class_suffix(true);
         crate::formatter::html::write_html_lines(

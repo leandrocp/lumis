@@ -191,6 +191,8 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .language(Language::Rust)
         .theme(Some(theme()))
         .pre_class(Some("code".to_string()))
+        .pre_attrs(vec![("id".to_string(), "sample".into())])
+        .code_attrs(vec![("data-copy".to_string(), "sample".into())])
         .italic(true)
         .include_highlights(true)
         .highlight_lines(Some(highlight_lines()))
@@ -204,6 +206,8 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "language",
             "theme",
             "pre_class",
+            "pre_attrs",
+            "code_attrs",
             "italic",
             "include_highlights",
             "highlight_lines",
@@ -216,6 +220,8 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
     HtmlLinkedBuilder::new()
         .language(Language::Rust)
         .pre_class(Some("code".to_string()))
+        .pre_attrs(vec![("id".to_string(), "sample".into())])
+        .code_attrs(vec![("data-copy".to_string(), "sample".into())])
         .highlight_lines(Some(lumis::formatters::html_linked::HighlightLines {
             lines: vec![1..=1, 3..=4],
             class: "active".to_string(),
@@ -229,6 +235,8 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         [
             "language",
             "pre_class",
+            "pre_attrs",
+            "code_attrs",
             "highlight_lines",
             "line_numbers",
             "header",
@@ -244,6 +252,8 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         .default_theme("light")
         .css_variable_prefix("--lumis")
         .pre_class(Some("code".to_string()))
+        .pre_attrs(vec![("id".to_string(), "sample".into())])
+        .code_attrs(vec![("data-copy".to_string(), "sample".into())])
         .italic(true)
         .include_highlights(true)
         .highlight_lines(Some(highlight_lines()))
@@ -259,6 +269,8 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
             "default_theme",
             "css_variable_prefix",
             "pre_class",
+            "pre_attrs",
+            "code_attrs",
             "italic",
             "include_highlights",
             "highlight_lines",

@@ -114,6 +114,8 @@ function fixtureTheme(name: string): Theme {
   return theme;
 }
 
+const openingTag = html.openTag;
+
 function contractOutputs(): Record<string, Record<string, string>> {
   const input = manifest.contract;
   const htmlInput = input.html;
@@ -160,6 +162,14 @@ function contractOutputs(): Record<string, Record<string, string>> {
         scope: htmlInput.scope,
         themes,
       }),
+      open_tag: html.openTag("pre", { class: `lumis ${htmlInput.preClass}`, hidden: true }),
+      valid_attr_name: String(html.isValidAttrName("x onclick=alert(1)")),
+      pre_attrs: openingTag("pre", html.preAttrs({ preClass: htmlInput.preClass, theme })),
+      multi_themes_pre_attrs: openingTag(
+        "pre",
+        html.multiThemesPreAttrs({ preClass: htmlInput.preClass, themes }),
+      ),
+      code_attrs: openingTag("code", html.codeAttrs(htmlInput.language)),
       open_pre_tag: html.openPreTag({ preClass: htmlInput.preClass, theme }),
       open_multi_themes_pre_tag: html.openMultiThemesPreTag({
         preClass: htmlInput.preClass,

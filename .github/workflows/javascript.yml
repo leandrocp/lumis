@@ -11,6 +11,7 @@ on:
       - "packages/javascript/lumis/**"
       - "packages/javascript/markdown-it-lumis/**"
       - "packages/javascript/rehype-lumis/**"
+      - "packages/javascript/vite/**"
       - "packages/javascript/react/**"
       - "packages/javascript/themes/**"
       - "packages/javascript/package.json"
@@ -32,6 +33,7 @@ on:
       - "packages/javascript/lumis/**"
       - "packages/javascript/markdown-it-lumis/**"
       - "packages/javascript/rehype-lumis/**"
+      - "packages/javascript/vite/**"
       - "packages/javascript/react/**"
       - "packages/javascript/themes/**"
       - "packages/javascript/package.json"
@@ -75,6 +77,7 @@ jobs:
       - run: pnpm --filter @lumis-sh/lumis run lint
       - run: pnpm --filter @lumis-sh/markdown-it-lumis run lint
       - run: pnpm --filter @lumis-sh/rehype-lumis run lint
+      - run: pnpm --filter @lumis-sh/vite run lint
       - run: pnpm --filter @lumis-sh/react run lint
       - run: pnpm --filter @lumis-sh/themes run lint
       # `mise run docs` is the only caller of this script, and a pnpm upgrade
@@ -112,6 +115,7 @@ jobs:
       - run: pnpm --filter @lumis-sh/lumis run build
       - run: pnpm --filter @lumis-sh/markdown-it-lumis run build
       - run: pnpm --filter @lumis-sh/rehype-lumis run build
+      - run: pnpm --filter @lumis-sh/vite run build
       - run: pnpm --filter @lumis-sh/react run build
       # The addon resolves parsers in Rust, so the downstream packages read the
       # store directly rather than the JavaScript resolvers the Wasm runtime uses.
@@ -119,6 +123,9 @@ jobs:
         env:
           LUMIS_DATA_DIR: ${{ github.workspace }}/target/test-parsers
       - run: pnpm --filter @lumis-sh/rehype-lumis run test
+        env:
+          LUMIS_DATA_DIR: ${{ github.workspace }}/target/test-parsers
+      - run: pnpm --filter @lumis-sh/vite run test
         env:
           LUMIS_DATA_DIR: ${{ github.workspace }}/target/test-parsers
       # Needs no parser store: it checks that the shim resolves the platform

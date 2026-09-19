@@ -57,6 +57,16 @@ const INTEGRATION_LINKS = [
     ],
   },
   {
+    name: "Vite",
+    links: [
+      { label: "Docs", href: "/docs/integrations/vite" },
+      {
+        label: "Package",
+        href: "https://www.npmjs.com/package/@lumis-sh/vite",
+      },
+    ],
+  },
+  {
     name: "VitePress",
     links: [
       { label: "Docs", href: "/docs/integrations/vitepress" },

@@ -80,6 +80,7 @@ Use this when you want to reuse an existing highlighter.
 ## Behavior
 
 - overrides fenced code rendering
+- preserves attributes set on the fence token by plugins such as `markdown-it-attrs`, merging them into the rendered `<code>` tag, the same element markdown-it's own fence renderer puts them on: `class` unions with Lumis' classes, `style` is appended after the theme's, and everything else replaces the generated value
 - loads any language refs passed in `languages` during async setup
 - renders synchronously after setup, so load the languages you expect to use
 - falls back to the default fence renderer if highlighting fails and no fallback succeeds

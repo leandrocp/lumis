@@ -404,6 +404,8 @@ JavaScript — and so do argument shapes.
 | Open a `<span>` for a scope | `open_span`, `span_inline_attrs`, `span_inline`, `span_linked_attrs`, `span_linked` |
 | Open one for a set of themes, as CSS custom properties | `span_multi_themes_attrs`, `span_multi_themes`, `sanitize_theme_name` |
 | Open and close the block | `open_pre_tag`, `open_multi_themes_pre_tag`, `open_code_tag`, `close_pre_tag`, `close_code_tag`, `closing_tags` |
+| Take the block attributes instead of the rendered tag, to merge your own | `pre_attrs`, `multi_themes_pre_attrs`, `code_attrs` |
+| Render a tag from attributes, escaping the values and checking the names | `open_tag`, `valid_attr_name` |
 | Wrap a line, and decide whether it is highlighted | `wrap_line`, `line_is_highlighted`, `highlight_line_class` |
 | Turn the whole event stream into lines, reopening spans across newlines | `render_lines_from_events` |
 
