@@ -89,6 +89,9 @@ defmodule Lumis do
           }
           | nil
 
+  @typedoc "HTML attributes represented as an ordered keyword list."
+  @type html_attrs :: keyword(String.t())
+
   @typedoc """
   Options for HTML Multi-Themes formatter.
 
@@ -101,6 +104,8 @@ defmodule Lumis do
             default_theme: String.t() | nil,
             css_variable_prefix: String.t() | nil,
             pre_class: String.t() | nil,
+            pre_attrs: html_attrs(),
+            code_attrs: html_attrs(),
             italic: boolean(),
             include_highlights: boolean(),
             highlight_lines: html_inline_highlight_lines() | nil,
@@ -141,6 +146,8 @@ defmodule Lumis do
       - `:language` (`t:language/0` - default: `nil`) - the language used by the formatter. When omitted, Lumis tries to auto-detect it from the source.
       - `:theme` (`t:theme/0` - default: `nil`) - the theme to apply styles on the highlighted source code.
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
+      - `:pre_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the wrapping `<pre>` tag.
+      - `:code_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the nested `<code>` tag.
       - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute. Useful for debugging.
       - `:highlight_lines` (`t:html_inline_highlight_lines/0` - default: `nil`) - highlight specific lines either using the theme `highlighted` style or with custom CSS styling.
@@ -151,6 +158,8 @@ defmodule Lumis do
 
       - `:language` (`t:language/0` - default: `nil`) - the language used by the formatter. When omitted, Lumis tries to auto-detect it from the source.
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
+      - `:pre_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the wrapping `<pre>` tag.
+      - `:code_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the nested `<code>` tag.
       - `:highlight_lines` (`t:html_linked_highlight_lines/0` - default: `nil`) - highlight specific lines either using the `l-highlighted` class from themes or with a custom CSS class.
       - `:line_numbers` (`t:boolean/0` - default: `false`) - open each line with a `<span class="l-line-number">` gutter carrying its number.
       - `:header` (`t:header/0` - default: `nil`) - wrap the highlighted code with custom open and close HTML tags.
@@ -162,6 +171,8 @@ defmodule Lumis do
       - `:default_theme` (`t:String.t/0` - default: `nil`) - controls inline color rendering: specify a theme identifier for inline colors, use `"light-dark()"` for CSS light-dark() function, or `nil` for CSS variables only.
       - `:css_variable_prefix` (`t:String.t/0` - default: `nil`) - CSS variable prefix (defaults to `"--lumis"` if nil). Generates variables like `--lumis-light` (color), `--lumis-light-bg` (background), `--lumis-light-font-style`, etc.
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
+      - `:pre_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the wrapping `<pre>` tag.
+      - `:code_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the nested `<code>` tag.
       - `:italic` (`t:boolean/0` - default: `false`) - enable italic style for the highlighted code.
       - `:include_highlights` (`t:boolean/0` - default: `false`) - include the highlight scope name in a `data-highlight` attribute.
       - `:highlight_lines` (`t:html_inline_highlight_lines/0` - default: `nil`) - highlight specific lines (same as html_inline).
@@ -278,6 +289,8 @@ defmodule Lumis do
                language: language(),
                theme: theme(),
                pre_class: String.t(),
+               pre_attrs: html_attrs(),
+               code_attrs: html_attrs(),
                italic: boolean(),
                include_highlights: boolean(),
                highlight_lines: html_inline_highlight_lines(),
@@ -289,6 +302,8 @@ defmodule Lumis do
              [
                language: language(),
                pre_class: String.t(),
+               pre_attrs: html_attrs(),
+               code_attrs: html_attrs(),
                highlight_lines: html_linked_highlight_lines(),
                line_numbers: boolean(),
                header: header()
@@ -301,6 +316,8 @@ defmodule Lumis do
                default_theme: String.t(),
                css_variable_prefix: String.t(),
                pre_class: String.t(),
+               pre_attrs: html_attrs(),
+               code_attrs: html_attrs(),
                italic: boolean(),
                include_highlights: boolean(),
                highlight_lines: html_inline_highlight_lines(),
@@ -357,6 +374,13 @@ defmodule Lumis do
     doc: "Formatter to apply on the highlighted source code. See the type doc for more info."
   ]
 
+  @html_attrs_schema [
+    type: {:custom, Lumis, :html_attrs_type, []},
+    type_spec: quote(do: Lumis.html_attrs()),
+    type_doc: "`t:Lumis.html_attrs/0`",
+    default: []
+  ]
+
   @options_schema [
                     language: [
                       type: {:or, [:string, nil]},
@@ -397,6 +421,8 @@ defmodule Lumis do
       language: [type: {:or, [:string, nil]}, default: nil],
       theme: [type: {:or, [{:struct, Lumis.Theme}, :string, nil]}, default: nil],
       pre_class: [type: {:or, [:string, nil]}, default: nil],
+      pre_attrs: @html_attrs_schema,
+      code_attrs: @html_attrs_schema,
       italic: [type: :boolean, default: false],
       include_highlights: [type: :boolean, default: false],
       highlight_lines: [
@@ -446,6 +472,8 @@ defmodule Lumis do
     schema = [
       language: [type: {:or, [:string, nil]}, default: nil],
       pre_class: [type: {:or, [:string, nil]}, default: nil],
+      pre_attrs: @html_attrs_schema,
+      code_attrs: @html_attrs_schema,
       highlight_lines: [
         type:
           {:or,
@@ -509,6 +537,8 @@ defmodule Lumis do
         doc: "CSS variable prefix (defaults to \"--lumis\" if nil)"
       ],
       pre_class: [type: {:or, [:string, nil]}, default: nil],
+      pre_attrs: @html_attrs_schema,
+      code_attrs: @html_attrs_schema,
       italic: [type: :boolean, default: false],
       include_highlights: [type: :boolean, default: false],
       highlight_lines: [
@@ -630,6 +660,18 @@ defmodule Lumis do
   def formatter_type(other) do
     {:error, "invalid formatter option: #{inspect(other)}"}
   end
+
+  @doc false
+  def html_attrs_type(attrs) when is_list(attrs) do
+    if Keyword.keyword?(attrs) and Enum.all?(attrs, fn {_name, value} -> is_binary(value) end) do
+      {:ok, attrs}
+    else
+      {:error, "HTML attributes must be a keyword list with string values"}
+    end
+  end
+
+  def html_attrs_type(_attrs),
+    do: {:error, "HTML attributes must be a keyword list with string values"}
 
   @position {:tuple, [:non_neg_integer, :non_neg_integer]}
 
@@ -1274,12 +1316,14 @@ defmodule Lumis do
   end
 
   defp convert_formatter_for_nif(:html_inline, opts) do
-    opts = convert_theme_for_nif(opts)
+    opts = opts |> convert_theme_for_nif() |> convert_attrs_for_nif()
 
     {:html_inline,
      Map.take(opts, [
        :theme,
        :pre_class,
+       :pre_attrs,
+       :code_attrs,
        :italic,
        :include_highlights,
        :highlight_lines,
@@ -1289,7 +1333,17 @@ defmodule Lumis do
   end
 
   defp convert_formatter_for_nif(:html_linked, opts) do
-    {:html_linked, Map.take(opts, [:pre_class, :highlight_lines, :line_numbers, :header])}
+    opts = convert_attrs_for_nif(opts)
+
+    {:html_linked,
+     Map.take(opts, [
+       :pre_class,
+       :pre_attrs,
+       :code_attrs,
+       :highlight_lines,
+       :line_numbers,
+       :header
+     ])}
   end
 
   defp convert_formatter_for_nif(:terminal, opts) do
@@ -1310,18 +1364,32 @@ defmodule Lumis do
   end
 
   defp convert_formatter_for_nif(:html_multi_themes, opts) do
+    opts = convert_attrs_for_nif(opts)
+
     {:html_multi_themes,
      Map.take(opts, [
        :themes,
        :default_theme,
        :css_variable_prefix,
        :pre_class,
+       :pre_attrs,
+       :code_attrs,
        :italic,
        :include_highlights,
        :highlight_lines,
        :line_numbers,
        :header
      ])}
+  end
+
+  defp convert_attrs_for_nif(opts) do
+    opts
+    |> Map.update(:pre_attrs, [], &encode_html_attrs/1)
+    |> Map.update(:code_attrs, [], &encode_html_attrs/1)
+  end
+
+  defp encode_html_attrs(attrs) do
+    Enum.map(attrs, fn {name, value} -> {Atom.to_string(name), value} end)
   end
 
   defp convert_theme_for_nif(opts) do

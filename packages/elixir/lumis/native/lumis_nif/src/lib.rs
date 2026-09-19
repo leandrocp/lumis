@@ -877,21 +877,59 @@ fn html_span_attrs(
         .collect()
 }
 
-#[rustler::nif]
-fn html_open_pre_tag(pre_class: Option<String>, theme: Option<ExTheme>) -> NifResult<String> {
+fn html_open_tag(name: &str, attrs: &[(String, String)]) -> String {
+    let mut tag = format!("<{name}");
+    for (attr_name, value) in attrs {
+        use std::fmt::Write as _;
+        let _ = write!(
+            tag,
+            " {attr_name}=\"{}\"",
+            lumis_core::formatter::html::escape_attr(value)
+        );
+    }
+    tag.push('>');
+    tag
+}
+
+fn pre_attrs_impl(
+    pre_class: Option<String>,
+    theme: Option<ExTheme>,
+    attrs: Vec<(String, String)>,
+) -> Vec<(String, String)> {
     let theme = theme.map(themes::Theme::from);
-    let mut output = Vec::new();
-    lumis_core::formatter::html::open_pre_tag(&mut output, pre_class.as_deref(), theme.as_ref())
-        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
-    html_utf8(output)
+    lumis_core::formatter::html::pre_attrs(pre_class.as_deref(), theme.as_ref(), &attrs)
 }
 
 #[rustler::nif]
-fn html_open_code_tag(language: &str) -> NifResult<String> {
-    let mut output = Vec::new();
-    lumis_core::formatter::html::open_code_tag(&mut output, &Language::guess(Some(language), ""))
-        .map_err(|error| Error::Term(Box::new(error.to_string())))?;
-    html_utf8(output)
+fn html_pre_attrs(
+    pre_class: Option<String>,
+    theme: Option<ExTheme>,
+    attrs: Vec<(String, String)>,
+) -> Vec<(String, String)> {
+    pre_attrs_impl(pre_class, theme, attrs)
+}
+
+#[rustler::nif]
+fn html_open_pre_tag(
+    pre_class: Option<String>,
+    theme: Option<ExTheme>,
+    attrs: Vec<(String, String)>,
+) -> String {
+    html_open_tag("pre", &pre_attrs_impl(pre_class, theme, attrs))
+}
+
+fn code_attrs_impl(language: &str, attrs: Vec<(String, String)>) -> Vec<(String, String)> {
+    lumis_core::formatter::html::code_attrs(&Language::guess(Some(language), ""), &attrs)
+}
+
+#[rustler::nif]
+fn html_code_attrs(language: &str, attrs: Vec<(String, String)>) -> Vec<(String, String)> {
+    code_attrs_impl(language, attrs)
+}
+
+#[rustler::nif]
+fn html_open_code_tag(language: &str, attrs: Vec<(String, String)>) -> String {
+    html_open_tag("code", &code_attrs_impl(language, attrs))
 }
 
 #[rustler::nif]
@@ -990,28 +1028,62 @@ fn html_multi_themes_span_attrs(
         .collect()
 }
 
+fn multi_themes_pre_attrs_impl(
+    pre_class: Option<String>,
+    themes_map: HashMap<String, ExTheme>,
+    default_theme: Option<String>,
+    css_variable_prefix: &str,
+    attrs: Vec<(String, String)>,
+) -> Vec<(String, String)> {
+    let themes_map: HashMap<String, themes::Theme> = themes_map
+        .into_iter()
+        .map(|(name, theme)| (name, themes::Theme::from(theme)))
+        .collect();
+
+    lumis_core::formatter::html::multi_themes_pre_attrs(
+        pre_class.as_deref(),
+        &themes_map,
+        default_theme.as_deref(),
+        css_variable_prefix,
+        &attrs,
+    )
+}
+
+#[rustler::nif]
+fn html_multi_themes_pre_attrs(
+    pre_class: Option<String>,
+    themes_map: HashMap<String, ExTheme>,
+    default_theme: Option<String>,
+    css_variable_prefix: &str,
+    attrs: Vec<(String, String)>,
+) -> Vec<(String, String)> {
+    multi_themes_pre_attrs_impl(
+        pre_class,
+        themes_map,
+        default_theme,
+        css_variable_prefix,
+        attrs,
+    )
+}
+
 #[rustler::nif]
 fn html_open_multi_themes_pre_tag(
     pre_class: Option<String>,
     themes_map: HashMap<String, ExTheme>,
     default_theme: Option<String>,
     css_variable_prefix: &str,
-) -> NifResult<String> {
-    let themes_map: HashMap<String, themes::Theme> = themes_map
-        .into_iter()
-        .map(|(name, theme)| (name, themes::Theme::from(theme)))
-        .collect();
-
-    let mut output = Vec::new();
-    lumis_core::formatter::html::open_multi_themes_pre_tag(
-        &mut output,
-        pre_class.as_deref(),
-        &themes_map,
-        default_theme.as_deref(),
-        css_variable_prefix,
+    attrs: Vec<(String, String)>,
+) -> String {
+    html_open_tag(
+        "pre",
+        &multi_themes_pre_attrs_impl(
+            pre_class,
+            themes_map,
+            default_theme,
+            css_variable_prefix,
+            attrs,
+        ),
     )
-    .map_err(|error| Error::Term(Box::new(error.to_string())))?;
-    html_utf8(output)
 }
 
 #[rustler::nif]

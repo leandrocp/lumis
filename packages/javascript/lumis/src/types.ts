@@ -545,6 +545,9 @@ export type HighlightCallback = (
   style: HighlightStyle | undefined,
 ) => void;
 
+/** HTML attributes. Values of `undefined`, `null`, or `false` are omitted. */
+export type HtmlAttrs = Record<string, string | number | boolean | undefined | null>;
+
 /**
  * Options for {@link htmlInline}.
  *
@@ -556,6 +559,10 @@ export interface HtmlInlineOptions {
   language?: LanguageRef;
   theme?: Theme;
   preClass?: string;
+  /** Attributes merged into the wrapping `<pre>` tag. */
+  preAttrs?: HtmlAttrs;
+  /** Attributes merged into the nested `<code>` tag. */
+  codeAttrs?: HtmlAttrs;
   /** Use italic styles from the theme. */
   italic?: boolean;
   /** Add `data-highlight` attributes with scope names. */
@@ -578,6 +585,10 @@ export interface HtmlInlineFormatter extends Formatter, HtmlInlineOptions {}
 export interface HtmlLinkedOptions {
   language?: LanguageRef;
   preClass?: string;
+  /** Attributes merged into the wrapping `<pre>` tag. */
+  preAttrs?: HtmlAttrs;
+  /** Attributes merged into the nested `<code>` tag. */
+  codeAttrs?: HtmlAttrs;
   highlightLines?: HighlightLinesLinked;
   /** Open each line with a `<span class="l-line-number">` gutter. */
   lineNumbers?: boolean;
@@ -608,6 +619,10 @@ export interface HtmlMultiThemesOptions {
   /** Prefix for CSS custom properties. Defaults to `"--lumis"`. */
   cssVariablePrefix?: string;
   preClass?: string;
+  /** Attributes merged into the wrapping `<pre>` tag. */
+  preAttrs?: HtmlAttrs;
+  /** Attributes merged into the nested `<code>` tag. */
+  codeAttrs?: HtmlAttrs;
   italic?: boolean;
   includeHighlights?: boolean;
   highlightLines?: HighlightLinesInline;

@@ -104,6 +104,15 @@ defmodule Lumis.FormatterHelpersTest do
   defp rgb_string(nil), do: ""
   defp rgb_string({red, green, blue}), do: Enum.join([red, green, blue], ",")
 
+  defp opening_tag(name, attrs) do
+    rendered =
+      Enum.map_join(attrs, " ", fn {attr, value} ->
+        ~s|#{attr}="#{HTML.escape_attr(value)}"|
+      end)
+
+    "<#{name} #{rendered}>"
+  end
+
   test "preserves the shared line-ending contract" do
     for %{"source" => source, "expected" => expected} <-
           manifest()["contract"]["html"]["lineEndingCases"] do
@@ -154,6 +163,13 @@ defmodule Lumis.FormatterHelpersTest do
         "span_multi_themes_attrs" => HTML.open_span(multi_theme_attrs, html["scope"]),
         "span_multi_themes" =>
           HTML.span_multi_themes(html["text"], multi_theme_attrs, html["scope"]),
+        "pre_attrs" => opening_tag("pre", HTML.pre_attrs(class: html["preClass"], theme: theme)),
+        "multi_themes_pre_attrs" =>
+          opening_tag(
+            "pre",
+            HTML.multi_themes_pre_attrs(class: html["preClass"], themes: themes)
+          ),
+        "code_attrs" => opening_tag("code", HTML.code_attrs(html["language"])),
         "open_pre_tag" => HTML.open_pre_tag(class: html["preClass"], theme: theme),
         "open_multi_themes_pre_tag" =>
           HTML.open_multi_themes_pre_tag(class: html["preClass"], themes: themes),

@@ -3,6 +3,7 @@ import type {
   HighlightStyle,
   HighlightSpan,
   HighlightEvent,
+  HtmlAttrs,
   HtmlElement,
   LineSpec,
   LanguageRef,
@@ -15,6 +16,7 @@ import { sanitizeThemeName } from "../themes.js";
 
 // Rust exposes this from `lumis::formatters::html`, so the helper modules line up.
 export { sanitizeThemeName } from "../themes.js";
+export type { HtmlAttrs } from "../types.js";
 
 const _encoder = new TextEncoder();
 const _decoder = new TextDecoder();
@@ -42,9 +44,6 @@ export function decodeSourceSlice(
 function isUtf8Continuation(byte: number | undefined): boolean {
   return byte !== undefined && (byte & 0xc0) === 0x80;
 }
-
-/** HTML attribute map. Values of `undefined`, `null`, or `false` are omitted. */
-export type HtmlAttrs = Record<string, string | number | boolean | undefined | null>;
 
 function languageId(language: LanguageRef): string {
   return typeof language === "string" ? language : language.id;
@@ -275,6 +274,84 @@ function classList(...classes: Array<string | undefined | false | null>): string
   return value.length > 0 ? value.join(" ") : undefined;
 }
 
+function mergeClasses(generated: HtmlAttrs[string], authored: HtmlAttrs[string]): string {
+  const classes = [generated, authored]
+    .flatMap((value) =>
+      typeof value === "string" || typeof value === "number"
+        ? String(value)
+            .split(/[\t\n\f\r ]+/)
+            .filter(Boolean)
+        : [],
+    )
+    .filter((value, index, all) => all.indexOf(value) === index);
+
+  return classes.join(" ");
+}
+
+function appendStyles(generated: HtmlAttrs[string], authored: HtmlAttrs[string]): string {
+  const generatedStyle =
+    typeof generated === "string" || typeof generated === "number" ? String(generated).trim() : "";
+  const authoredStyle =
+    typeof authored === "string" || typeof authored === "number" ? String(authored).trim() : "";
+
+  if (generatedStyle.length === 0) return authoredStyle;
+  if (authoredStyle.length === 0) return generatedStyle;
+  return `${generatedStyle.replace(/;?$/, ";")} ${authoredStyle}`;
+}
+
+function matchingAttrName(attrs: HtmlAttrs, name: string): string | undefined {
+  return Object.keys(attrs).find((candidate) => candidate.toLowerCase() === name.toLowerCase());
+}
+
+function replaceMergedAttr(
+  merged: HtmlAttrs,
+  existingName: string | undefined,
+  targetName: string,
+  value: HtmlAttrs[string],
+): void {
+  if (value == null || value === false) {
+    if (existingName) delete merged[existingName];
+    return;
+  }
+
+  merged[targetName] = value;
+}
+
+function mergeAuthoredAttr(
+  merged: HtmlAttrs,
+  authoredName: string,
+  value: HtmlAttrs[string],
+): void {
+  const existingName = matchingAttrName(merged, authoredName);
+  const targetName = existingName ?? authoredName;
+
+  switch (authoredName.toLowerCase()) {
+    case "class": {
+      const className = mergeClasses(merged[targetName], value);
+      if (className.length > 0) merged[targetName] = className;
+      return;
+    }
+    case "style": {
+      const style = appendStyles(merged[targetName], value);
+      if (style.length > 0) merged[targetName] = style;
+      return;
+    }
+    default:
+      replaceMergedAttr(merged, existingName, targetName, value);
+  }
+}
+
+function mergeAttrs(generated: HtmlAttrs, authored: HtmlAttrs | undefined): HtmlAttrs {
+  const merged = { ...generated };
+  if (!authored) return merged;
+
+  for (const [authoredName, value] of Object.entries(authored)) {
+    mergeAuthoredAttr(merged, authoredName, value);
+  }
+
+  return merged;
+}
+
 function renderAttrs(attrs: HtmlAttrs): string {
   const parts: string[] = [];
 
@@ -382,6 +459,22 @@ function openSpan(attrs: string): string {
 export interface OpenPreTagOptions {
   preClass?: string;
   theme?: Theme;
+  /** Additional attributes to merge after Lumis's generated values. */
+  attrs?: HtmlAttrs;
+}
+
+/** Build the attributes used by inline and linked `<pre>` tags. */
+export function preAttrs(options: OpenPreTagOptions = {}): HtmlAttrs {
+  const className = options.preClass ? `lumis ${options.preClass}` : "lumis";
+  const style = styleToCss(getThemeStyle(options.theme, "normal"));
+
+  return mergeAttrs(
+    {
+      class: className,
+      style: style.length > 0 ? style : undefined,
+    },
+    options.attrs,
+  );
 }
 
 /**
@@ -393,12 +486,7 @@ export interface OpenPreTagOptions {
  * ```
  */
 export function openPreTag(options: OpenPreTagOptions = {}): string {
-  const className = options.preClass ? `lumis ${options.preClass}` : "lumis";
-  const style = styleToCss(getThemeStyle(options.theme, "normal"));
-  return tag("pre", {
-    class: className,
-    style: style.length > 0 ? style : undefined,
-  });
+  return tag("pre", preAttrs(options));
 }
 
 /**
@@ -410,6 +498,17 @@ export interface OpenMultiThemesPreTagOptions {
   defaultTheme?: string;
   /** Defaults to `"--lumis"`. */
   cssVariablePrefix?: string;
+  /** Additional attributes to merge after Lumis's generated values. */
+  attrs?: HtmlAttrs;
+}
+
+/** Build the attributes used by a multi-theme `<pre>` tag. */
+export function multiThemesPreAttrs(options: OpenMultiThemesPreTagOptions): HtmlAttrs {
+  const classes =
+    classList("lumis", "lumis-themes", options.preClass, ...sortedThemeNames(options.themes)) ??
+    "lumis lumis-themes";
+
+  return mergeAttrs({ class: classes, style: multiThemesPreStyle(options) }, options.attrs);
 }
 
 /**
@@ -426,11 +525,20 @@ export interface OpenMultiThemesPreTagOptions {
  * ```
  */
 export function openMultiThemesPreTag(options: OpenMultiThemesPreTagOptions): string {
-  const classes =
-    classList("lumis", "lumis-themes", options.preClass, ...sortedThemeNames(options.themes)) ??
-    "lumis lumis-themes";
+  return tag("pre", multiThemesPreAttrs(options));
+}
 
-  return tag("pre", { class: classes, style: multiThemesPreStyle(options) });
+/** Build the attributes used by every HTML formatter's `<code>` tag. */
+export function codeAttrs(language: LanguageRef | undefined, attrs: HtmlAttrs = {}): HtmlAttrs {
+  const id = language ? languageId(language) : "plaintext";
+  return mergeAttrs(
+    {
+      class: `language-${id}`,
+      translate: "no",
+      tabindex: 0,
+    },
+    attrs,
+  );
 }
 
 /**
@@ -440,13 +548,8 @@ export function openMultiThemesPreTag(options: OpenMultiThemesPreTagOptions): st
  * openCodeTag(javascript)  // '<code class="language-javascript" translate="no" tabindex="0">'
  * ```
  */
-export function openCodeTag(language: LanguageRef | undefined): string {
-  const id = language ? languageId(language) : "plaintext";
-  return tag("code", {
-    class: `language-${id}`,
-    translate: "no",
-    tabindex: 0,
-  });
+export function openCodeTag(language: LanguageRef | undefined, attrs: HtmlAttrs = {}): string {
+  return tag("code", codeAttrs(language, attrs));
 }
 
 /**

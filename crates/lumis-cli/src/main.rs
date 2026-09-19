@@ -166,6 +166,14 @@ struct HtmlArgs {
     #[arg(long)]
     pre_class: Option<String>,
 
+    /// Attribute for the wrapping <pre> tag as name=value; can be repeated
+    #[arg(long = "pre-attr", value_name = "NAME=VALUE", value_parser = parse_html_attr)]
+    pre_attrs: Vec<HtmlAttr>,
+
+    /// Attribute for the nested <code> tag as name=value; can be repeated
+    #[arg(long = "code-attr", value_name = "NAME=VALUE", value_parser = parse_html_attr)]
+    code_attrs: Vec<HtmlAttr>,
+
     /// Opening tag wrapped around the output, e.g. '<figure>'
     #[arg(long, requires = "header_close")]
     header_open: Option<String>,
@@ -177,6 +185,33 @@ struct HtmlArgs {
     /// CSS class added to highlighted lines
     #[arg(long, requires = "highlight_lines")]
     highlight_lines_class: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+struct HtmlAttr {
+    name: String,
+    value: String,
+}
+
+fn parse_html_attr(value: &str) -> std::result::Result<HtmlAttr, String> {
+    let Some((name, value)) = value.split_once('=') else {
+        return Err("expected name=value".to_string());
+    };
+    if name.is_empty() {
+        return Err("attribute name cannot be empty".to_string());
+    }
+
+    Ok(HtmlAttr {
+        name: name.to_string(),
+        value: value.to_string(),
+    })
+}
+
+fn html_attrs(attrs: &[HtmlAttr]) -> Vec<(String, String)> {
+    attrs
+        .iter()
+        .map(|attr| (attr.name.clone(), attr.value.clone()))
+        .collect()
 }
 
 #[derive(clap::Args)]
@@ -248,6 +283,8 @@ impl HighlightArgs {
             "--width" => self.terminal.width.is_some(),
             "--highlight-lines-background" => self.terminal.highlight_lines_background.is_some(),
             "--pre-class" => self.html.pre_class.is_some(),
+            "--pre-attr" => !self.html.pre_attrs.is_empty(),
+            "--code-attr" => !self.html.code_attrs.is_empty(),
             "--header-open" => self.html.header_open.is_some(),
             "--header-close" => self.html.header_close.is_some(),
             "--highlight-lines" => self.highlight_lines.is_some(),
@@ -1587,6 +1624,8 @@ fn render_html_multi_themes(
     default_theme: Option<&str>,
     css_variable_prefix: Option<&str>,
     pre_class: Option<String>,
+    pre_attrs: Vec<(String, String)>,
+    code_attrs: Vec<(String, String)>,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<lumis_core::formatter::html_inline::HighlightLines>,
@@ -1626,6 +1665,8 @@ fn render_html_multi_themes(
                 .to_string(),
         )
         .pre_class(pre_class)
+        .pre_attrs(pre_attrs)
+        .code_attrs(code_attrs)
         .italic(italic)
         .include_highlights(include_highlights)
         .highlight_lines(highlight_lines)
@@ -1659,7 +1700,13 @@ fn render_output(
                 ref width,
                 ..
             },
-        html: HtmlArgs { ref pre_class, .. },
+        html:
+            HtmlArgs {
+                ref pre_class,
+                ref pre_attrs,
+                ref code_attrs,
+                ..
+            },
         styled:
             StyledArgs {
                 italic,
@@ -1688,6 +1735,8 @@ fn render_output(
                 .language(lang)
                 .theme(theme_obj)
                 .pre_class(pre_class.clone())
+                .pre_attrs(html_attrs(pre_attrs))
+                .code_attrs(html_attrs(code_attrs))
                 .italic(italic)
                 .include_highlights(include_highlights)
                 .highlight_lines(highlight_lines)
@@ -1710,6 +1759,8 @@ fn render_output(
                 default_theme.as_deref(),
                 css_variable_prefix.as_deref(),
                 pre_class.clone(),
+                html_attrs(pre_attrs),
+                html_attrs(code_attrs),
                 italic,
                 include_highlights,
                 highlight_lines,
@@ -1726,6 +1777,8 @@ fn render_output(
             builder
                 .language(lang)
                 .pre_class(pre_class.clone())
+                .pre_attrs(html_attrs(pre_attrs))
+                .code_attrs(html_attrs(code_attrs))
                 .highlight_lines(linked_highlight_lines(&args)?)
                 .line_numbers(line_numbers)
                 .header(header);

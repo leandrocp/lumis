@@ -19,6 +19,8 @@ pub enum ExFormatterOption {
     HtmlInline {
         theme: Option<ThemeOrString>,
         pre_class: Option<String>,
+        pre_attrs: Vec<(String, String)>,
+        code_attrs: Vec<(String, String)>,
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<ExHtmlInlineHighlightLines>,
@@ -27,6 +29,8 @@ pub enum ExFormatterOption {
     },
     HtmlLinked {
         pre_class: Option<String>,
+        pre_attrs: Vec<(String, String)>,
+        code_attrs: Vec<(String, String)>,
         highlight_lines: Option<ExHtmlLinkedHighlightLines>,
         line_numbers: bool,
         header: Option<ExHtmlElement>,
@@ -36,6 +40,8 @@ pub enum ExFormatterOption {
         default_theme: Option<String>,
         css_variable_prefix: Option<String>,
         pre_class: Option<String>,
+        pre_attrs: Vec<(String, String)>,
+        code_attrs: Vec<(String, String)>,
         italic: bool,
         include_highlights: bool,
         highlight_lines: Option<ExHtmlInlineHighlightLines>,
@@ -65,6 +71,8 @@ impl Default for ExFormatterOption {
         Self::HtmlInline {
             theme: None,
             pre_class: None,
+            pre_attrs: Vec::new(),
+            code_attrs: Vec::new(),
             italic: false,
             include_highlights: false,
             highlight_lines: None,
@@ -198,6 +206,8 @@ impl ExFormatterOption {
             ExFormatterOption::HtmlInline {
                 theme,
                 pre_class,
+                pre_attrs,
+                code_attrs,
                 italic,
                 include_highlights,
                 highlight_lines,
@@ -218,6 +228,8 @@ impl ExFormatterOption {
                     .language(language)
                     .theme(theme)
                     .pre_class(pre_class)
+                    .pre_attrs(pre_attrs)
+                    .code_attrs(code_attrs)
                     .italic(italic)
                     .include_highlights(include_highlights)
                     .highlight_lines(highlight_lines)
@@ -231,6 +243,8 @@ impl ExFormatterOption {
             }
             ExFormatterOption::HtmlLinked {
                 pre_class,
+                pre_attrs,
+                code_attrs,
                 highlight_lines,
                 line_numbers,
                 header,
@@ -246,6 +260,8 @@ impl ExFormatterOption {
                 let mut formatter = HtmlLinkedBuilder::new()
                     .language(language)
                     .pre_class(pre_class)
+                    .pre_attrs(pre_attrs)
+                    .code_attrs(code_attrs)
                     .highlight_lines(highlight_lines)
                     .line_numbers(line_numbers)
                     .header(header)
@@ -260,6 +276,8 @@ impl ExFormatterOption {
                 default_theme,
                 css_variable_prefix,
                 pre_class,
+                pre_attrs,
+                code_attrs,
                 italic,
                 include_highlights,
                 highlight_lines,
@@ -283,6 +301,8 @@ impl ExFormatterOption {
                     .themes(themes_map)
                     .css_variable_prefix(css_variable_prefix.as_deref().unwrap_or("--lumis"))
                     .pre_class(pre_class)
+                    .pre_attrs(pre_attrs)
+                    .code_attrs(code_attrs)
                     .italic(italic)
                     .include_highlights(include_highlights)
                     .highlight_lines(highlight_lines)

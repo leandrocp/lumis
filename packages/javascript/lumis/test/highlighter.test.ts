@@ -352,6 +352,45 @@ class User:
     expect(html).toContain('class="lumis code-block"');
   });
 
+  it("merges preAttrs and codeAttrs in every HTML formatter", () => {
+    const attrs = {
+      preClass: "shorthand",
+      preAttrs: {
+        class: "shorthand authored",
+        style: "outline: 1px solid red",
+        id: 'pre"&',
+      },
+      codeAttrs: {
+        class: "copyable language-json",
+        translate: "yes",
+        tabindex: -1,
+        id: 'code"&',
+      },
+    };
+    const outputs = [
+      hl.highlight('{"a": 1}', htmlInline({ language: json, theme, ...attrs })),
+      hl.highlight('{"a": 1}', htmlLinked({ language: json, ...attrs })),
+      hl.highlight(
+        '{"a": 1}',
+        htmlMultiThemes({ language: json, themes: { dark: theme }, ...attrs }),
+      ),
+    ];
+
+    for (const html of outputs) {
+      const pre = html.match(/^<pre[^>]*>/)?.[0] ?? "";
+      const code = html.match(/<code[^>]*>/)?.[0] ?? "";
+
+      expect(pre).toContain('id="pre&quot;&amp;"');
+      expect(pre).toContain("outline: 1px solid red");
+      expect(pre.match(/\bshorthand\b/g)).toHaveLength(1);
+      expect(pre.match(/\bauthored\b/g)).toHaveLength(1);
+      expect(code).toContain('class="language-json copyable"');
+      expect(code).toContain('translate="yes"');
+      expect(code).toContain('tabindex="-1"');
+      expect(code).toContain('id="code&quot;&amp;"');
+    }
+  });
+
   it("accepts italic option", () => {
     const html = hl.highlight('{"a": 1}', htmlInline({ language: json, theme, italic: true }));
     expect(html).toContain('class="language-json"');

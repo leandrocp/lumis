@@ -286,6 +286,20 @@ fn written(write: impl FnOnce(&mut Vec<u8>) -> std::io::Result<()>) -> String {
     String::from_utf8(output).expect("formatter helpers emit UTF-8")
 }
 
+fn open_tag(name: &str, attrs: &html::HtmlAttrs) -> String {
+    let rendered = attrs
+        .iter()
+        .map(|(name, value)| format!(r#"{name}="{}""#, html::escape_attr(value)))
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    if rendered.is_empty() {
+        format!("<{name}>")
+    } else {
+        format!("<{name} {rendered}>")
+    }
+}
+
 /// Every helper in the manifest, called once. Adding a helper to the manifest
 /// without adding it here fails `manifest_matches_the_helpers_exercised_here`;
 /// adding it here without a Rust function fails to compile.
@@ -311,6 +325,10 @@ fn exercised_helpers(
         false,
         false,
     );
+    let pre_attrs = html::pre_attrs(Some(&input.pre_class), Some(&theme), &[]);
+    let multi_themes_pre_attrs =
+        html::multi_themes_pre_attrs(Some(&input.pre_class), &themes, None, "--lumis", &[]);
+    let code_attrs = html::code_attrs(&language, &[]);
     let [red, green, blue] = contract.ansi.rgb;
 
     [
@@ -371,6 +389,12 @@ fn exercised_helpers(
                         false,
                     ),
                 ),
+                ("pre_attrs", open_tag("pre", &pre_attrs)),
+                (
+                    "multi_themes_pre_attrs",
+                    open_tag("pre", &multi_themes_pre_attrs),
+                ),
+                ("code_attrs", open_tag("code", &code_attrs)),
                 (
                     "open_pre_tag",
                     written(|output| {

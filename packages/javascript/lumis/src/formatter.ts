@@ -165,6 +165,7 @@ export type {
   HighlightRange,
   HighlightSpan,
   HighlightStyle,
+  HtmlAttrs,
   HtmlInlineFormatter,
   HtmlInlineOptions,
   HtmlLinkedFormatter,

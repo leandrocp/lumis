@@ -114,6 +114,18 @@ function fixtureTheme(name: string): Theme {
   return theme;
 }
 
+function openingTag(name: string, attrs: html.HtmlAttrs): string {
+  const rendered = Object.entries(attrs)
+    .flatMap(([attr, value]) => {
+      if (value == null || value === false) return [];
+      if (value === true) return [attr];
+      return [`${attr}="${html.escapeAttr(String(value))}"`];
+    })
+    .join(" ");
+
+  return rendered.length > 0 ? `<${name} ${rendered}>` : `<${name}>`;
+}
+
 function contractOutputs(): Record<string, Record<string, string>> {
   const input = manifest.contract;
   const htmlInput = input.html;
@@ -160,6 +172,12 @@ function contractOutputs(): Record<string, Record<string, string>> {
         scope: htmlInput.scope,
         themes,
       }),
+      pre_attrs: openingTag("pre", html.preAttrs({ preClass: htmlInput.preClass, theme })),
+      multi_themes_pre_attrs: openingTag(
+        "pre",
+        html.multiThemesPreAttrs({ preClass: htmlInput.preClass, themes }),
+      ),
+      code_attrs: openingTag("code", html.codeAttrs(htmlInput.language)),
       open_pre_tag: html.openPreTag({ preClass: htmlInput.preClass, theme }),
       open_multi_themes_pre_tag: html.openMultiThemesPreTag({
         preClass: htmlInput.preClass,

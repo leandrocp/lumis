@@ -89,8 +89,9 @@ export function formatHtmlMultiThemes(
     themes: formatter.themes,
     defaultTheme: formatter.defaultTheme,
     cssVariablePrefix: formatter.cssVariablePrefix,
+    attrs: formatter.preAttrs,
   });
-  const code = openCodeTag(formatter.language);
+  const code = openCodeTag(formatter.language, formatter.codeAttrs);
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);
 }

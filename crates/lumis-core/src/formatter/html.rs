@@ -621,25 +621,150 @@ pub fn scope_to_class(scope: &str) -> String {
         .map_or_else(|| "l-text".to_string(), |class| format!("l-{class}"))
 }
 
+/// Ordered HTML attribute name/value pairs.
+///
+/// Values stay unescaped until the opening tag is rendered. Keeping the
+/// structured form lets callers merge attributes without parsing HTML and lets
+/// Lumis escape every value exactly once.
+pub type HtmlAttrs = Vec<(String, String)>;
+
+fn append_classes(class: &mut String, additional: &str) {
+    let mut classes: Vec<String> = class.split_ascii_whitespace().map(str::to_string).collect();
+
+    for candidate in additional.split_ascii_whitespace() {
+        if !classes.iter().any(|class| class == candidate) {
+            classes.push(candidate.to_string());
+        }
+    }
+
+    *class = classes.join(" ");
+}
+
+fn append_style(style: &mut String, additional: &str) {
+    let current = style.trim();
+    let additional = additional.trim();
+
+    *style = match (current.is_empty(), additional.is_empty()) {
+        (true, true) => String::new(),
+        (true, false) => additional.to_string(),
+        (false, true) => current.to_string(),
+        (false, false) if current.ends_with(';') => format!("{current} {additional}"),
+        (false, false) => format!("{current}; {additional}"),
+    };
+}
+
+fn merge_attrs(mut generated: HtmlAttrs, authored: &[(String, String)]) -> HtmlAttrs {
+    for (name, value) in authored {
+        let existing = generated
+            .iter_mut()
+            .find(|(candidate, _)| candidate.eq_ignore_ascii_case(name));
+
+        match (name.as_str(), existing) {
+            (name, Some((_, current))) if name.eq_ignore_ascii_case("class") => {
+                append_classes(current, value);
+            }
+            (name, Some((_, current))) if name.eq_ignore_ascii_case("style") => {
+                append_style(current, value);
+            }
+            (_, Some((_, current))) => current.clone_from(value),
+            (name, None) if name.eq_ignore_ascii_case("class") => {
+                let mut class = String::new();
+                append_classes(&mut class, value);
+                if !class.is_empty() {
+                    generated.push((name.to_string(), class));
+                }
+            }
+            (name, None) if name.eq_ignore_ascii_case("style") => {
+                let mut style = String::new();
+                append_style(&mut style, value);
+                if !style.is_empty() {
+                    generated.push((name.to_string(), style));
+                }
+            }
+            _ => generated.push((name.clone(), value.clone())),
+        }
+    }
+
+    generated
+}
+
+fn write_open_tag(output: &mut dyn Write, name: &str, attrs: &HtmlAttrs) -> io::Result<()> {
+    write!(output, "<{name}")?;
+    for (attr_name, value) in attrs {
+        write!(output, " {attr_name}=\"{}\"", escape_attr(value))?;
+    }
+    output.write_all(b">")
+}
+
+/// Build attributes for the `<pre>` tag used by inline and linked HTML.
+///
+/// Generated values come first. Authored `class` values are unioned with the
+/// `lumis` and `pre_class` classes, authored `style` is appended to the theme
+/// style, and every other authored value replaces a generated default.
+pub fn pre_attrs(
+    pre_class: Option<&str>,
+    theme: Option<&Theme>,
+    attrs: &[(String, String)],
+) -> HtmlAttrs {
+    let class = pre_class.map_or_else(|| "lumis".to_string(), |value| format!("lumis {value}"));
+    let mut generated = vec![("class".to_string(), class)];
+    if let Some(style) = theme.and_then(|theme| theme.pre_style(" ")) {
+        generated.push(("style".to_string(), style));
+    }
+
+    merge_attrs(generated, attrs)
+}
+
+pub(crate) fn write_pre_tag(
+    output: &mut dyn Write,
+    pre_class: Option<&str>,
+    theme: Option<&Theme>,
+    attrs: &[(String, String)],
+) -> io::Result<()> {
+    write_open_tag(output, "pre", &pre_attrs(pre_class, theme, attrs))
+}
+
 /// Generate an opening `<pre>` tag with optional class and theme styles.
 pub fn open_pre_tag(
     output: &mut dyn Write,
     pre_class: Option<&str>,
     theme: Option<&Theme>,
 ) -> io::Result<()> {
-    let class = match pre_class {
-        Some(pre_class) => escape_attr(&format!("lumis {pre_class}")),
-        None => "lumis".to_string(),
-    };
+    write_pre_tag(output, pre_class, theme, &[])
+}
 
-    write!(
+/// Build attributes for the multi-theme `<pre>` tag.
+pub fn multi_themes_pre_attrs(
+    pre_class: Option<&str>,
+    themes: &std::collections::HashMap<String, Theme>,
+    default_theme: Option<&str>,
+    css_variable_prefix: &str,
+    attrs: &[(String, String)],
+) -> HtmlAttrs {
+    let mut generated = vec![(
+        "class".to_string(),
+        multi_themes_pre_classes(pre_class, themes),
+    )];
+    let style = multi_themes_pre_style(themes, default_theme, css_variable_prefix);
+    if !style.is_empty() {
+        generated.push(("style".to_string(), style));
+    }
+
+    merge_attrs(generated, attrs)
+}
+
+pub(crate) fn write_multi_themes_pre_tag(
+    output: &mut dyn Write,
+    pre_class: Option<&str>,
+    themes: &std::collections::HashMap<String, Theme>,
+    default_theme: Option<&str>,
+    css_variable_prefix: &str,
+    attrs: &[(String, String)],
+) -> io::Result<()> {
+    write_open_tag(
         output,
-        "<pre class=\"{}\"{}>",
-        class,
-        theme
-            .and_then(|theme| theme.pre_style(" "))
-            .map(|pre_style| format!(" style=\"{}\"", escape_attr(&pre_style)))
-            .unwrap_or_default(),
+        "pre",
+        &multi_themes_pre_attrs(pre_class, themes, default_theme, css_variable_prefix, attrs),
     )
 }
 
@@ -651,14 +776,14 @@ pub fn open_multi_themes_pre_tag(
     default_theme: Option<&str>,
     css_variable_prefix: &str,
 ) -> io::Result<()> {
-    let classes = escape_attr(&multi_themes_pre_classes(pre_class, themes));
-    let style = multi_themes_pre_style(themes, default_theme, css_variable_prefix);
-
-    write!(output, "<pre class=\"{classes}\"")?;
-    if !style.is_empty() {
-        write!(output, " style=\"{}\"", escape_attr(&style))?;
-    }
-    write!(output, ">")
+    write_multi_themes_pre_tag(
+        output,
+        pre_class,
+        themes,
+        default_theme,
+        css_variable_prefix,
+        &[],
+    )
 }
 
 fn multi_themes_pre_classes(
@@ -748,13 +873,29 @@ fn multi_themes_pre_style(
     styles.join(" ")
 }
 
+/// Build attributes for the `<code>` tag used by every HTML formatter.
+pub fn code_attrs(lang: &Language, attrs: &[(String, String)]) -> HtmlAttrs {
+    merge_attrs(
+        vec![
+            ("class".to_string(), format!("language-{}", lang.id_name())),
+            ("translate".to_string(), "no".to_string()),
+            ("tabindex".to_string(), "0".to_string()),
+        ],
+        attrs,
+    )
+}
+
+pub(crate) fn write_code_tag(
+    output: &mut dyn Write,
+    lang: Language,
+    attrs: &[(String, String)],
+) -> io::Result<()> {
+    write_open_tag(output, "code", &code_attrs(&lang, attrs))
+}
+
 /// Generate an opening `<code>` tag with language class.
 pub fn open_code_tag(output: &mut dyn Write, lang: &Language) -> io::Result<()> {
-    write!(
-        output,
-        "<code class=\"language-{}\" translate=\"no\" tabindex=\"0\">",
-        lang.id_name()
-    )
+    write_code_tag(output, *lang, &[])
 }
 
 /// Generate closing `</code>` tag.
@@ -1420,6 +1561,55 @@ mod tests {
         assert_str_eq!(
             String::from_utf8(output).unwrap(),
             r#"<pre class="lumis" style="color: red&quot; onmouseover=&quot;alert(1); background-color: #000000;">"#
+        );
+    }
+
+    #[test]
+    fn pre_attributes_union_classes_append_styles_and_escape_values() {
+        let theme = crate::themes::get("dracula").unwrap();
+        let attrs = vec![
+            ("class".to_string(), "shorthand authored".to_string()),
+            ("style".to_string(), "outline: 1px solid red".to_string()),
+            (
+                "id".to_string(),
+                r#"sample" onmouseover="alert(1)"#.to_string(),
+            ),
+        ];
+        let mut output = Vec::new();
+
+        write_pre_tag(&mut output, Some("shorthand"), Some(&theme), &attrs).unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(output).unwrap(),
+            concat!(
+                r#"<pre class="lumis shorthand authored" "#,
+                r#"style="color: #f8f8f2; background-color: #282a36; outline: 1px solid red" "#,
+                r#"id="sample&quot; onmouseover=&quot;alert(1)">"#,
+            )
+        );
+    }
+
+    #[test]
+    fn code_attributes_union_classes_and_override_defaults() {
+        let attrs = vec![
+            (
+                "class".to_string(),
+                "copyable language-plaintext".to_string(),
+            ),
+            ("translate".to_string(), "yes".to_string()),
+            ("tabindex".to_string(), "-1".to_string()),
+            ("data-copy".to_string(), "button".to_string()),
+        ];
+        let mut output = Vec::new();
+
+        write_code_tag(&mut output, Language::PlainText, &attrs).unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(output).unwrap(),
+            concat!(
+                r#"<code class="language-plaintext copyable" "#,
+                r#"translate="yes" tabindex="-1" data-copy="button">"#,
+            )
         );
     }
 

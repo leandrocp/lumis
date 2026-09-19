@@ -107,17 +107,29 @@ defmodule Lumis.Native do
       ),
       do: :erlang.nif_error(:nif_not_loaded)
 
-  def html_open_pre_tag(_pre_class, _theme), do: :erlang.nif_error(:nif_not_loaded)
+  def html_pre_attrs(_pre_class, _theme, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+  def html_open_pre_tag(_pre_class, _theme, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+
+  def html_multi_themes_pre_attrs(
+        _pre_class,
+        _themes,
+        _default_theme,
+        _css_variable_prefix,
+        _attrs
+      ),
+      do: :erlang.nif_error(:nif_not_loaded)
 
   def html_open_multi_themes_pre_tag(
         _pre_class,
         _themes,
         _default_theme,
-        _css_variable_prefix
+        _css_variable_prefix,
+        _attrs
       ),
       do: :erlang.nif_error(:nif_not_loaded)
 
-  def html_open_code_tag(_language), do: :erlang.nif_error(:nif_not_loaded)
+  def html_code_attrs(_language, _attrs), do: :erlang.nif_error(:nif_not_loaded)
+  def html_open_code_tag(_language, _attrs), do: :erlang.nif_error(:nif_not_loaded)
   def html_close_pre_tag, do: :erlang.nif_error(:nif_not_loaded)
   def html_close_code_tag, do: :erlang.nif_error(:nif_not_loaded)
   def html_closing_tags, do: :erlang.nif_error(:nif_not_loaded)

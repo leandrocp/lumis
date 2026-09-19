@@ -6,6 +6,9 @@ import type { NativeBinding, NativeFormatter, NativeRuntimeInstance } from "../n
 import type {
   Formatter,
   HighlightOptions,
+  HtmlAttrs,
+  HtmlInlineFormatter,
+  HtmlLinkedFormatter,
   LanguageDefinition,
   LanguageInfo,
   LoadedLanguage,
@@ -36,6 +39,70 @@ import type {
 const PLAINTEXT_ALIASES = LANGUAGES.find(({ id }) => id === PLAINTEXT_LANG_ID)?.aliases ?? [];
 const CATALOG_LANGUAGE_IDS = new Set(LANGUAGES.map(({ id }) => normalizeLanguageName(id)));
 const encoder = new TextEncoder();
+
+function nativeHtmlAttrs(attrs: HtmlAttrs | undefined): Array<[string, string]> | false {
+  if (!attrs) return [];
+
+  const pairs: Array<[string, string]> = [];
+  for (const [name, value] of Object.entries(attrs)) {
+    if (typeof value !== "string" && typeof value !== "number") return false;
+    pairs.push([name, String(value)]);
+  }
+  return pairs;
+}
+
+function nativeHtmlTagAttrs(
+  preAttrs: HtmlAttrs | undefined,
+  codeAttrs: HtmlAttrs | undefined,
+): { preAttrs: Array<[string, string]>; codeAttrs: Array<[string, string]> } | undefined {
+  const nativePreAttrs = nativeHtmlAttrs(preAttrs);
+  const nativeCodeAttrs = nativeHtmlAttrs(codeAttrs);
+  if (nativePreAttrs === false || nativeCodeAttrs === false) return undefined;
+  return { preAttrs: nativePreAttrs, codeAttrs: nativeCodeAttrs };
+}
+
+function nativeHtmlInlineFormatter(
+  formatter: HtmlInlineFormatter,
+  rainbowBrackets: HighlightOptions["rainbowBrackets"],
+): NativeFormatter | undefined {
+  const attrs = nativeHtmlTagAttrs(formatter.preAttrs, formatter.codeAttrs);
+  if (!attrs) return undefined;
+
+  return {
+    rainbowBrackets,
+    kind: "html-inline",
+    options: {
+      theme: formatter.theme,
+      preClass: formatter.preClass,
+      ...attrs,
+      italic: formatter.italic,
+      includeHighlights: formatter.includeHighlights,
+      highlightLines: formatter.highlightLines,
+      lineNumbers: formatter.lineNumbers,
+      header: formatter.header,
+    },
+  };
+}
+
+function nativeHtmlLinkedFormatter(
+  formatter: HtmlLinkedFormatter,
+  rainbowBrackets: HighlightOptions["rainbowBrackets"],
+): NativeFormatter | undefined {
+  const attrs = nativeHtmlTagAttrs(formatter.preAttrs, formatter.codeAttrs);
+  if (!attrs) return undefined;
+
+  return {
+    rainbowBrackets,
+    kind: "html-linked",
+    options: {
+      preClass: formatter.preClass,
+      ...attrs,
+      highlightLines: formatter.highlightLines,
+      lineNumbers: formatter.lineNumbers,
+      header: formatter.header,
+    },
+  };
+}
 
 const WASM_REF_STRING_FIELDS = ["packageName", "name", "version", "sha256"] as const;
 
@@ -525,30 +592,9 @@ export function createNativeLanguagesModule(
 
       switch (kind) {
         case "html-inline":
-          return {
-            rainbowBrackets,
-            kind,
-            options: {
-              theme: builtin.theme,
-              preClass: builtin.preClass,
-              italic: builtin.italic,
-              includeHighlights: builtin.includeHighlights,
-              highlightLines: builtin.highlightLines,
-              lineNumbers: builtin.lineNumbers,
-              header: builtin.header,
-            },
-          };
+          return nativeHtmlInlineFormatter(builtin, rainbowBrackets);
         case "html-linked":
-          return {
-            rainbowBrackets,
-            kind,
-            options: {
-              preClass: builtin.preClass,
-              highlightLines: builtin.highlightLines,
-              lineNumbers: builtin.lineNumbers,
-              header: builtin.header,
-            },
-          };
+          return nativeHtmlLinkedFormatter(builtin, rainbowBrackets);
         case "bbcode-scoped":
           return { rainbowBrackets, kind, options: { highlightLines: builtin.highlightLines } };
         case "terminal":

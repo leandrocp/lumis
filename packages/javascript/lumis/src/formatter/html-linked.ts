@@ -24,8 +24,8 @@ export function formatHtmlLinked(
     openSpan: (span) => openSpanTag({ class: scopeToClass(span.scope) }),
   });
 
-  const pre = openPreTag({ preClass: formatter.preClass });
-  const code = openCodeTag(formatter.language);
+  const pre = openPreTag({ preClass: formatter.preClass, attrs: formatter.preAttrs });
+  const code = openCodeTag(formatter.language, formatter.codeAttrs);
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);
 }

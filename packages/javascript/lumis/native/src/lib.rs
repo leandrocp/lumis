@@ -3,13 +3,12 @@ use lumis_core::events::HighlightEvent;
 use lumis_core::formatter::bbcode::{BBCodeScoped, HighlightLines as BBCodeHighlightLines};
 use lumis_core::formatter::html_inline::{
     HighlightLines as InlineHighlightLines, HighlightLinesStyle as InlineHighlightLinesStyle,
-    HtmlInline,
 };
-use lumis_core::formatter::html_linked::{HighlightLines as LinkedHighlightLines, HtmlLinked};
+use lumis_core::formatter::html_linked::HighlightLines as LinkedHighlightLines;
 use lumis_core::formatter::terminal::{
     Background as TerminalBackground, HighlightLines as TerminalHighlightLines, Terminal,
 };
-use lumis_core::formatter::{Formatter as _, HtmlElement};
+use lumis_core::formatter::{Formatter as _, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder};
 use lumis_core::languages::Language;
 use lumis_core::themes::{Appearance, Style, Theme};
 use lumis_wasm_runtime::{
@@ -93,6 +92,8 @@ impl From<JsTheme> for Theme {
 struct HtmlInlineOptions {
     theme: Option<JsTheme>,
     pre_class: Option<String>,
+    pre_attrs: Vec<(String, String)>,
+    code_attrs: Vec<(String, String)>,
     italic: bool,
     include_highlights: bool,
     highlight_lines: Option<JsHighlightLines>,
@@ -104,6 +105,8 @@ struct HtmlInlineOptions {
 #[serde(default, rename_all = "camelCase")]
 struct HtmlLinkedOptions {
     pre_class: Option<String>,
+    pre_attrs: Vec<(String, String)>,
+    code_attrs: Vec<(String, String)>,
     highlight_lines: Option<JsHighlightLines>,
     line_numbers: bool,
     header: Option<JsHtmlElement>,
@@ -510,31 +513,37 @@ fn render_events(
     match formatter.kind.as_str() {
         "html-inline" => {
             let options: HtmlInlineOptions = serde_json::from_value(formatter.options)?;
-            HtmlInline::new(
-                language,
-                options.theme.map(Theme::from),
-                options.pre_class,
-                options.italic,
-                options.include_highlights,
-                options.highlight_lines.map(inline_highlight_lines),
-                options.line_numbers,
-                options.header.map(HtmlElement::from),
-            )
-            .render(source, events, &mut output)?;
+            HtmlInlineBuilder::new()
+                .language(language)
+                .theme(options.theme.map(Theme::from))
+                .pre_class(options.pre_class)
+                .pre_attrs(options.pre_attrs)
+                .code_attrs(options.code_attrs)
+                .italic(options.italic)
+                .include_highlights(options.include_highlights)
+                .highlight_lines(options.highlight_lines.map(inline_highlight_lines))
+                .line_numbers(options.line_numbers)
+                .header(options.header.map(HtmlElement::from))
+                .build()
+                .map_err(|error| std::io::Error::other(error.to_string()))?
+                .render(source, events, &mut output)?;
         }
         "html-linked" => {
             let options: HtmlLinkedOptions = serde_json::from_value(formatter.options)?;
-            HtmlLinked::new(
-                language,
-                options.pre_class,
-                options.highlight_lines.map(|lines| LinkedHighlightLines {
+            HtmlLinkedBuilder::new()
+                .language(language)
+                .pre_class(options.pre_class)
+                .pre_attrs(options.pre_attrs)
+                .code_attrs(options.code_attrs)
+                .highlight_lines(options.highlight_lines.map(|lines| LinkedHighlightLines {
                     lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
                     class: lines.class.unwrap_or_else(|| "l-highlighted".to_string()),
-                }),
-                options.line_numbers,
-                options.header.map(HtmlElement::from),
-            )
-            .render(source, events, &mut output)?;
+                }))
+                .line_numbers(options.line_numbers)
+                .header(options.header.map(HtmlElement::from))
+                .build()
+                .map_err(|error| std::io::Error::other(error.to_string()))?
+                .render(source, events, &mut output)?;
         }
         "bbcode-scoped" => {
             let options: BBCodeScopedOptions = serde_json::from_value(formatter.options)?;

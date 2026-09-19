@@ -133,6 +133,18 @@
           "expected": "<span style=\"--lumis-dark:#ff79c6; --lumis-dark-font-style:normal; --lumis-dark-font-weight:normal; --lumis-dark-text-decoration:none;\">a &amp; b</span>"
         },
         {
+          "name": "pre_attrs",
+          "expected": "<pre class=\"lumis sample\" style=\"color: #f8f8f2; background-color: #282a36;\">"
+        },
+        {
+          "name": "multi_themes_pre_attrs",
+          "expected": "<pre class=\"lumis lumis-themes sample dark\" style=\"--lumis-dark:#f8f8f2; --lumis-dark-bg:#282a36;\">"
+        },
+        {
+          "name": "code_attrs",
+          "expected": "<code class=\"language-rust\" translate=\"no\" tabindex=\"0\">"
+        },
+        {
           "name": "open_pre_tag",
           "expected": "<pre class=\"lumis sample\" style=\"color: #f8f8f2; background-color: #282a36;\">"
         },
