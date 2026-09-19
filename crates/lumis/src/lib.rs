@@ -334,9 +334,7 @@ pub mod themes;
 /// # Ok::<(), lumis::annotations::AnnotationError>(())
 /// ```
 pub mod annotations {
-    pub use lumis_core::annotations::{
-        Annotation, AnnotationError, AnnotationRange, Position, ResolvedAnnotation,
-    };
+    pub use lumis_core::annotations::{Annotation, AnnotationError, AnnotationRange, Position};
 }
 
 /// Lumis-owned overlays the built-in formatters render.

@@ -208,11 +208,10 @@ pub struct ExOptions<'a> {
     pub rainbow_brackets: bool,
 }
 
-#[derive(Clone, Debug, NifStruct)]
-#[module = "Lumis.Annotation"]
-pub struct ExResolvedAnnotation<'a> {
-    pub range: (usize, usize),
-    pub data: Term<'a>,
+#[derive(Clone, Debug, NifMap)]
+struct ExAnnotationStart<'a> {
+    range: (usize, usize),
+    data: Term<'a>,
 }
 
 #[derive(Clone, Debug, NifStruct)]
@@ -244,7 +243,7 @@ enum CollectedEvent<'a> {
     Start { scope: String, language: String },
     Source { start: usize, end: usize },
     End,
-    AnnotationStart(ExResolvedAnnotation<'a>),
+    AnnotationStart(ExAnnotationStart<'a>),
     AnnotationEnd,
     DecorationStart(ExRainbowBracket),
     DecorationEnd,
@@ -313,10 +312,10 @@ impl<'a> Formatter<Term<'a>> for EventFormatter<'a> {
                     end: *end,
                 },
                 HighlightEvent::End => CollectedEvent::End,
-                HighlightEvent::AnnotationStart { annotation } => {
-                    CollectedEvent::AnnotationStart(ExResolvedAnnotation {
-                        range: (annotation.range().start, annotation.range().end),
-                        data: *annotation.data(),
+                HighlightEvent::AnnotationStart { range, data } => {
+                    CollectedEvent::AnnotationStart(ExAnnotationStart {
+                        range: (range.start, range.end),
+                        data: **data,
                     })
                 }
                 HighlightEvent::AnnotationEnd => CollectedEvent::AnnotationEnd,

@@ -412,12 +412,6 @@ export interface Annotation<T = unknown> {
   data: T;
 }
 
-/** An annotation materialized to the offset range consumed by formatters. */
-export interface ResolvedAnnotation<T = unknown> {
-  range: HighlightRange;
-  data: T;
-}
-
 /** Options for one highlighting operation. */
 export interface HighlightOptions<T = unknown> {
   /** Caller-provided semantic ranges composed into the formatter event stream. */
@@ -472,7 +466,7 @@ export type LumisHighlightEvent =
 /** A unified syntax, caller-annotation and Lumis-decoration event. */
 export type HighlightEvent<T = unknown> =
   | LumisHighlightEvent
-  | { type: "annotationStart"; annotation: ResolvedAnnotation<T> }
+  | { type: "annotationStart"; range: HighlightRange; data: T }
   | { type: "annotationEnd" };
 
 /**

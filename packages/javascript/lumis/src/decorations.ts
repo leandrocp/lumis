@@ -48,7 +48,7 @@ export function composeRainbowDecorations(
 
   for (const event of composed) {
     if (event.type === "annotationStart") {
-      output.push({ type: "decorationStart", decoration: event.annotation.data });
+      output.push({ type: "decorationStart", decoration: event.data });
     } else if (event.type === "annotationEnd") {
       output.push({ type: "decorationEnd" });
     } else {

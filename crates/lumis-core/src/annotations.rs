@@ -123,11 +123,10 @@ impl<T> Annotation<T> {
     }
 }
 
-/// An annotation materialized to the offset range consumed by formatters.
 #[derive(Debug, PartialEq, Eq, Hash)]
-pub struct ResolvedAnnotation<'a, T = ()> {
-    range: Range<usize>,
-    data: &'a T,
+pub(crate) struct ResolvedAnnotation<'a, T = ()> {
+    pub(crate) range: Range<usize>,
+    pub(crate) data: &'a T,
 }
 
 impl<T> Clone for ResolvedAnnotation<'_, T> {
@@ -136,18 +135,6 @@ impl<T> Clone for ResolvedAnnotation<'_, T> {
             range: self.range.clone(),
             data: self.data,
         }
-    }
-}
-
-impl<'a, T> ResolvedAnnotation<'a, T> {
-    /// Returns the resolved half-open offset range, measured in UTF-8 bytes.
-    pub fn range(&self) -> &Range<usize> {
-        &self.range
-    }
-
-    /// Returns the caller-owned data.
-    pub const fn data(&self) -> &'a T {
-        self.data
     }
 }
 
@@ -616,8 +603,10 @@ fn emit_points<'a, T>(
         return;
     }
     for index in &boundaries[&offset].points {
+        let annotation = &annotations[*index];
         output.push(HighlightEvent::AnnotationStart {
-            annotation: annotations[*index].clone(),
+            range: annotation.range.clone(),
+            data: annotation.data,
         });
         output.push(HighlightEvent::AnnotationEnd);
     }
@@ -686,9 +675,13 @@ fn transition_layers<'s, 'a, T>(
     for layer in &desired[common..] {
         output.push(match layer {
             ActiveLayer::Input(layer) => layer.open_event(),
-            ActiveLayer::Annotation { index } => HighlightEvent::AnnotationStart {
-                annotation: annotations[*index].clone(),
-            },
+            ActiveLayer::Annotation { index } => {
+                let annotation = &annotations[*index];
+                HighlightEvent::AnnotationStart {
+                    range: annotation.range.clone(),
+                    data: annotation.data,
+                }
+            }
         });
     }
 
@@ -737,10 +730,8 @@ mod tests {
             vec![
                 HighlightEvent::Source { start: 0, end: 2 },
                 HighlightEvent::AnnotationStart {
-                    annotation: ResolvedAnnotation {
-                        range: 2..2,
-                        data: &"blank-line",
-                    },
+                    range: 2..2,
+                    data: &"blank-line",
                 },
                 HighlightEvent::AnnotationEnd,
                 HighlightEvent::Source { start: 2, end: 4 },
@@ -763,10 +754,8 @@ mod tests {
             vec![
                 HighlightEvent::Source { start: 0, end: 2 },
                 HighlightEvent::AnnotationStart {
-                    annotation: ResolvedAnnotation {
-                        range: 2..2,
-                        data: &"trailing",
-                    },
+                    range: 2..2,
+                    data: &"trailing",
                 },
                 HighlightEvent::AnnotationEnd,
             ]
@@ -812,7 +801,7 @@ mod tests {
         let order: Vec<&str> = events
             .iter()
             .filter_map(|event| match event {
-                HighlightEvent::AnnotationStart { annotation } => Some(*annotation.data()),
+                HighlightEvent::AnnotationStart { data, .. } => Some(**data),
                 _ => None,
             })
             .collect();
@@ -944,16 +933,16 @@ mod tests {
         let annotations = [Annotation::new(Position::new(1, 0)..Position::new(1, 5), 7).unwrap()];
 
         let events = compose_annotations(source, &syntax, &annotations).unwrap();
-        let resolved = events
+        let (range, data) = events
             .iter()
             .find_map(|event| match event {
-                HighlightEvent::AnnotationStart { annotation } => Some(annotation),
+                HighlightEvent::AnnotationStart { range, data } => Some((range, data)),
                 _ => None,
             })
             .unwrap();
 
-        assert_eq!(resolved.range(), &(4..9));
-        assert_eq!(*resolved.data(), 7);
+        assert_eq!(range, &(4..9));
+        assert_eq!(**data, 7);
     }
 
     #[test]

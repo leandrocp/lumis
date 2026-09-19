@@ -7,8 +7,12 @@ import type {
   HighlightRange,
   LumisHighlightEvent,
   Position,
-  ResolvedAnnotation,
 } from "./types.js";
+
+interface ResolvedAnnotation<T> {
+  range: HighlightRange;
+  data: T;
+}
 
 interface Boundary {
   starts: number[];
@@ -270,7 +274,11 @@ function openLayerEvent<T>(layer: ActiveLayer<T>): HighlightEvent<T> {
   if (layer.type === "decoration") {
     return { type: "decorationStart", decoration: layer.decoration };
   }
-  return { type: "annotationStart", annotation: layer.annotation };
+  return {
+    type: "annotationStart",
+    range: layer.annotation.range,
+    data: layer.annotation.data,
+  };
 }
 
 /** What the walk over the input events carries from one source event to the next. */
@@ -296,7 +304,8 @@ function emitPoints<T>(
 ): void {
   if (!pending.delete(offset)) return;
   for (const index of boundaries.byOffset.get(offset)!.points) {
-    output.push({ type: "annotationStart", annotation: annotations[index]! });
+    const annotation = annotations[index]!;
+    output.push({ type: "annotationStart", range: annotation.range, data: annotation.data });
     output.push({ type: "annotationEnd" });
   }
 }

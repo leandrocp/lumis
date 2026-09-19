@@ -32,7 +32,7 @@ defmodule Lumis.Formatter do
           {:start, %{scope: String.t(), language: String.t()}}
           | {:source, %{start: non_neg_integer(), end: non_neg_integer()}}
           | :end
-          | {:annotation_start, Lumis.Annotation.t(data)}
+          | {:annotation_start, %{range: {non_neg_integer(), non_neg_integer()}, data: data}}
           | :annotation_end
           | {:decoration_start, Lumis.Decoration.RainbowBracket.t()}
           | :decoration_end

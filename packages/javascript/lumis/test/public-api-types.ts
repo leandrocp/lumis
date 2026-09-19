@@ -70,7 +70,7 @@ export const annotationFormatter: Formatter<{ id: number }> = {
   render(source: string, events: readonly HighlightEvent<{ id: number }>[]): string {
     const annotated: number[] = [];
     for (const event of events) {
-      if (event.type === "annotationStart") annotated.push(event.annotation.data.id);
+      if (event.type === "annotationStart") annotated.push(event.data.id);
     }
     return `${source.length}:${annotated.join(",")}`;
   },

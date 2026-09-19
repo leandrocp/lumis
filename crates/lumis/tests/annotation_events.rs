@@ -44,11 +44,9 @@ impl Formatter<Change> for TestFormatter {
                     observation.saw_syntax = true;
                 }
                 HighlightEvent::End | HighlightEvent::DecorationEnd => {}
-                HighlightEvent::AnnotationStart { annotation } => {
+                HighlightEvent::AnnotationStart { range, data } => {
                     observation.annotation_starts += 1;
-                    observation
-                        .annotations
-                        .push((annotation.range().clone(), annotation.data().id));
+                    observation.annotations.push((range.clone(), data.id));
                 }
                 HighlightEvent::AnnotationEnd => observation.annotation_ends += 1,
                 HighlightEvent::Source { start, end } => {

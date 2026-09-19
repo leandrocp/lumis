@@ -83,7 +83,7 @@ function eventNotation(
     case "end":
       return "E";
     case "annotationStart":
-      return `A+${event.annotation.data}@${event.annotation.range.start}-${event.annotation.range.end}`;
+      return `A+${event.data}@${event.range.start}-${event.range.end}`;
     case "annotationEnd":
       return "A-";
     case "decorationStart":

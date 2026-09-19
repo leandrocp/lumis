@@ -155,12 +155,9 @@ fn notation<T: std::fmt::Display>(events: &[HighlightEvent<'_, T>]) -> String {
             }
             HighlightEvent::Source { start, end } => format!("T:{start}-{end}"),
             HighlightEvent::End => "E".to_string(),
-            HighlightEvent::AnnotationStart { annotation } => format!(
-                "A+{}@{}-{}",
-                annotation.data(),
-                annotation.range().start,
-                annotation.range().end
-            ),
+            HighlightEvent::AnnotationStart { range, data } => {
+                format!("A+{}@{}-{}", data, range.start, range.end)
+            }
             HighlightEvent::AnnotationEnd => "A-".to_string(),
             HighlightEvent::DecorationStart { decoration } => {
                 decorations.push(*decoration);

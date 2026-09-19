@@ -3,8 +3,6 @@ defmodule Lumis.AnnotationsTest do
 
   import ExUnit.CaptureIO
 
-  alias Lumis.Annotation
-
   defmodule TestFormatter do
     @behaviour Lumis.Formatter
 
@@ -18,8 +16,8 @@ defmodule Lumis.AnnotationsTest do
         {:source, %{start: start, end: end_offset}} ->
           binary_part(source, start, end_offset - start)
 
-        {:annotation_start, %Annotation{range: range, data: %{id: id}}} ->
-          send(self(), {:resolved_range, id, range})
+        {:annotation_start, %{data: %{id: id}} = annotation} ->
+          send(self(), {:resolved_annotation, id, annotation})
           ["<annotation:", Integer.to_string(id), ">"]
 
         :annotation_end ->
@@ -46,7 +44,9 @@ defmodule Lumis.AnnotationsTest do
              )
 
     assert output == "(<annotation:7>price + tax</annotation>)"
-    assert_received {:resolved_range, 7, {1, 12}}
+    assert_received {:resolved_annotation, 7, %{range: {1, 12}, data: %{id: 7}} = annotation}
+
+    refute is_struct(annotation)
     assert_received {:saw_rainbow_bracket, 0}
   end
 
@@ -89,7 +89,7 @@ defmodule Lumis.AnnotationsTest do
              )
 
     assert output == "π\n<annotation:8>café</annotation>"
-    assert_received {:resolved_range, 8, {3, 8}}
+    assert_received {:resolved_annotation, 8, %{range: {3, 8}}}
   end
 
   test "position columns must be UTF-8 byte boundaries" do
@@ -172,7 +172,7 @@ defmodule Lumis.AnnotationsTest do
 
       @impl true
       def render(_source, events, _options) do
-        for {:annotation_start, annotation} <- events, do: inspect(annotation.data)
+        for {:annotation_start, %{data: data}} <- events, do: inspect(data)
       end
     end
 
@@ -195,7 +195,7 @@ defmodule Lumis.AnnotationsTest do
              )
 
     assert output == "a\n<annotation:3></annotation>\nb"
-    assert_received {:resolved_range, 3, {2, 2}}
+    assert_received {:resolved_annotation, 3, %{range: {2, 2}}}
   end
 
   test "the example renders every annotation shape" do

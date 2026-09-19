@@ -364,8 +364,9 @@ defmodule Lumis do
             [position: {{1, 10}, {1, 21}}, data: %{change: :removed}]
           ]
 
-      A formatter receives them as `t:Lumis.Annotation.t/1`, resolved to byte
-      offsets. An empty range is a point.
+      A formatter receives each opening event as
+      `{:annotation_start, %{range: {start, end}, data: data}}`, with the range
+      resolved to byte offsets. An empty range is a point.
       """
     ],
     rainbow_brackets: [

@@ -103,7 +103,6 @@ export type {
   OffsetAnnotationRange,
   Position,
   PositionAnnotationRange,
-  ResolvedAnnotation,
   HighlightStyle,
   Language,
   LanguageDefinition,

@@ -130,9 +130,9 @@ pub fn compose_rainbow_decorations(
             },
             HighlightEvent::Source { start, end } => HighlightEvent::Source { start, end },
             HighlightEvent::End => HighlightEvent::End,
-            HighlightEvent::AnnotationStart { annotation } => HighlightEvent::DecorationStart {
-                decoration: *annotation.data(),
-            },
+            HighlightEvent::AnnotationStart { data, .. } => {
+                HighlightEvent::DecorationStart { decoration: *data }
+            }
             HighlightEvent::AnnotationEnd | HighlightEvent::DecorationEnd => {
                 HighlightEvent::DecorationEnd
             }
@@ -335,7 +335,8 @@ impl<'a, T> OpenLayer<'a, T> {
                 language: language.clone(),
             },
             Self::Annotation(annotation) => HighlightEvent::AnnotationStart {
-                annotation: annotation.clone(),
+                range: annotation.range.clone(),
+                data: annotation.data,
             },
             Self::Decoration(decoration) => HighlightEvent::DecorationStart {
                 decoration: *decoration,
@@ -399,9 +400,12 @@ pub(crate) fn compose_line_decorations<'a, T>(
                     output.push(HighlightEvent::End);
                 }
             }
-            HighlightEvent::AnnotationStart { annotation } => {
+            HighlightEvent::AnnotationStart { range, data } => {
                 output.push(event.clone());
-                layers.push(OpenLayer::Annotation(annotation.clone()));
+                layers.push(OpenLayer::Annotation(ResolvedAnnotation {
+                    range: range.clone(),
+                    data: *data,
+                }));
             }
             HighlightEvent::AnnotationEnd => {
                 if matches!(layers.last(), Some(OpenLayer::Annotation(_))) {

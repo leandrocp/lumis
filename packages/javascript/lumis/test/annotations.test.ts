@@ -32,7 +32,7 @@ function appendObservedEvent(
       output.push("</rainbow>");
       break;
     case "annotationStart":
-      output.push(`<annotation:${event.annotation.data.id}>`);
+      output.push(`<annotation:${event.data.id}>`);
       break;
     case "annotationEnd":
       output.push("</annotation>");
@@ -129,7 +129,7 @@ describe("annotations", () => {
         return events
           .map((event) => {
             if (event.type === "annotationStart") {
-              resolvedRange = event.annotation.range;
+              resolvedRange = event.range;
             }
             if (event.type === "source") {
               return decoder.decode(sourceBytes.subarray(event.start, event.end));
@@ -191,7 +191,7 @@ describe("annotations", () => {
         const decoder = new TextDecoder();
         const parts: string[] = [];
         for (const event of events) {
-          if (event.type === "annotationStart") parts.push(`<mark:${event.annotation.data.id}>`);
+          if (event.type === "annotationStart") parts.push(`<mark:${event.data.id}>`);
           else if (event.type === "annotationEnd") parts.push("</mark>");
           else if (event.type === "source") {
             parts.push(decoder.decode(bytes.subarray(event.start, event.end)));

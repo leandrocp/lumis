@@ -46,7 +46,7 @@ function render(testCase: Case): string {
           case "annotationEnd":
             return "A-";
           default:
-            return `A+${event.annotation.data}@${event.annotation.range.start}-${event.annotation.range.end}`;
+            return `A+${event.data}@${event.range.start}-${event.range.end}`;
         }
       })
       .join(" ");

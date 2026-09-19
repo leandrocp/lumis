@@ -592,7 +592,7 @@ defmodule Lumis.Formatter.HTMLTest do
 
     test "skips an event kind it has no markup for rather than raising" do
       events = [
-        {:annotation_start, %Lumis.Annotation{range: {0, 1}, data: %{anything: true}}},
+        {:annotation_start, %{range: {0, 1}, data: %{anything: true}}},
         {:source, %{start: 0, end: 1}},
         :annotation_end,
         {:something_a_newer_lumis_adds, %{}}

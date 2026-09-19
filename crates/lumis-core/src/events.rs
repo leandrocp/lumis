@@ -4,7 +4,7 @@
 //! in a format that is independent of tree-sitter's C FFI types. Formatters in lumis-core consume
 //! these events to produce HTML, terminal output, etc.
 
-use crate::annotations::ResolvedAnnotation;
+use std::ops::Range;
 
 /// Re-exported beside the event that carries it for convenient matching.
 pub use crate::decorations::Decoration;
@@ -38,8 +38,10 @@ pub enum HighlightEvent<'a, T = ()> {
     End,
     /// A caller-provided annotation begins.
     AnnotationStart {
-        /// The annotation resolved to the offset range consumed by formatters.
-        annotation: ResolvedAnnotation<'a, T>,
+        /// The resolved half-open offset range, measured in UTF-8 bytes.
+        range: Range<usize>,
+        /// The caller-owned data interpreted by the formatter.
+        data: &'a T,
     },
     /// The current caller-provided annotation ends.
     AnnotationEnd,
@@ -71,8 +73,9 @@ impl<T> Clone for HighlightEvent<'_, T> {
                 end: *end,
             },
             Self::End => Self::End,
-            Self::AnnotationStart { annotation } => Self::AnnotationStart {
-                annotation: annotation.clone(),
+            Self::AnnotationStart { range, data } => Self::AnnotationStart {
+                range: range.clone(),
+                data: *data,
             },
             Self::AnnotationEnd => Self::AnnotationEnd,
             Self::DecorationStart { decoration } => Self::DecorationStart {

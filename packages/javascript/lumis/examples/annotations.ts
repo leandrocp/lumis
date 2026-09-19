@@ -38,7 +38,7 @@ const formatter: Formatter<Mark> = {
       } else if (event.type === "end") {
         out.push("</span>");
       } else if (event.type === "annotationStart") {
-        const mark = event.annotation.data;
+        const mark = event.data;
         if (mark.type === "line") {
           out.push(`<span class="line-${mark.kind}">`);
           open.push("span");

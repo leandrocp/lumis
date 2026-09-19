@@ -163,7 +163,6 @@ export type {
   OffsetAnnotationRange,
   Position,
   PositionAnnotationRange,
-  ResolvedAnnotation,
   HighlightStyle,
   HtmlAttrs,
   Language,

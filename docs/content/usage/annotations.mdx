@@ -140,7 +140,7 @@ const formatter: Formatter<Change> = {
 
     for (const event of events) {
       if (event.type === 'annotationStart') {
-        const tag = event.annotation.data.change === 'added' ? 'ins' : 'del'
+        const tag = event.data.change === 'added' ? 'ins' : 'del'
         out.push(`<${tag}>`)
         open.push(tag)
       } else if (event.type === 'annotationEnd') {
@@ -180,8 +180,8 @@ impl Formatter<Change> for DiffFormatter {
 
         for event in events {
             match event {
-                HighlightEvent::AnnotationStart { annotation } => {
-                    let tag = match annotation.data() {
+                HighlightEvent::AnnotationStart { data, .. } => {
+                    let tag = match *data {
                         Change::Added => "ins",
                         Change::Removed => "del",
                     };
@@ -215,7 +215,7 @@ defmodule DiffFormatter do
   def render(source, events, _options) do
     {output, []} =
       Enum.map_reduce(events, [], fn
-        {:annotation_start, %Lumis.Annotation{data: %{change: change}}}, open ->
+        {:annotation_start, %{data: %{change: change}}}, open ->
           tag = if change == :added, do: "ins", else: "del"
           {["<", tag, ">"], [tag | open]}
 
