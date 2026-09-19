@@ -21,7 +21,7 @@ import type {
   WasmRef,
 } from "../types.js";
 import { BUILTIN_FORMATTER, getBuiltinFormatter } from "./builtin-formatter.js";
-import { warnUnresolvedInjection } from "../events.js";
+import { assertMatchLimit, warnUnresolvedInjection } from "../events.js";
 import { decodeNativeEvents } from "./native-event-codec.js";
 import { PLAINTEXT_LANG_ID } from "../types.js";
 import {
@@ -498,9 +498,10 @@ export function createNativeLanguagesModule(
     highlightEvents(
       source: string,
       language: LoadedLanguage,
-      options: { rainbowBrackets?: boolean } = {},
+      options: { rainbowBrackets?: boolean; matchLimit?: number } = {},
     ): LumisHighlightEvent[] {
       rejectReentrantHighlight();
+      assertMatchLimit(options.matchLimit);
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
       }
@@ -509,6 +510,7 @@ export function createNativeLanguagesModule(
         source,
         this.addonIdFor(language),
         options.rainbowBrackets ?? false,
+        options.matchLimit,
         hasResolvers ? this.packageResolverCallback : undefined,
         hasResolvers ? this.wasmResolverCallback : undefined,
       );
@@ -582,17 +584,25 @@ export function createNativeLanguagesModule(
       if (!this.canFormatNatively(language, canCallResolver)) return undefined;
 
       const rainbowBrackets = highlightOptions.rainbowBrackets;
+      const matchLimit = highlightOptions.matchLimit;
+      assertMatchLimit(matchLimit);
 
       switch (kind) {
         case "html-inline":
-          return nativeHtmlInlineFormatter(builtin, rainbowBrackets);
+          return { ...nativeHtmlInlineFormatter(builtin, rainbowBrackets), matchLimit };
         case "html-linked":
-          return nativeHtmlLinkedFormatter(builtin, rainbowBrackets);
+          return { ...nativeHtmlLinkedFormatter(builtin, rainbowBrackets), matchLimit };
         case "bbcode-scoped":
-          return { rainbowBrackets, kind, options: { highlightLines: builtin.highlightLines } };
+          return {
+            rainbowBrackets,
+            matchLimit,
+            kind,
+            options: { highlightLines: builtin.highlightLines },
+          };
         case "terminal":
           return {
             rainbowBrackets,
+            matchLimit,
             kind,
             options: {
               theme: builtin.theme,

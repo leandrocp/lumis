@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
+import { Query } from "web-tree-sitter";
 import { createHighlighter, highlight } from "../src/index.js";
 import {
   bbcodeScoped,
@@ -508,6 +509,66 @@ class User:
     const html = hl.highlight("plain text", htmlInline({ theme }));
     expect(html).toContain('class="language-plaintext"');
   });
+
+  it("accepts a match limit without changing output on ordinary source", () => {
+    const source = '{"a": 1, "b": [2, 3]}';
+    const formatter = htmlInline({ language: json, theme });
+
+    expect(hl.highlight(source, formatter, { matchLimit: 16_384 })).toBe(
+      hl.highlight(source, formatter),
+    );
+  });
+
+  it("rejects a match limit tree-sitter would not accept", () => {
+    const formatter = htmlInline({ language: json, theme });
+
+    const render = (matchLimit: number) => () => hl.highlight("[]", formatter, { matchLimit });
+
+    for (const matchLimit of [0, 65_537, 1.5, Number.NaN]) {
+      expect(render(matchLimit)).toThrow(
+        `matchLimit must be an integer from 1 to 65536, got ${matchLimit}`,
+      );
+    }
+    expect(render(65_536)).not.toThrow();
+  });
+
+  // A limit below the bracket depth starves the bracket query of capture lists,
+  // so pairs drop out of the output. Only the addon runs a fresh cursor per
+  // query; web-tree-sitter reuses one whose pool earlier tests have already
+  // grown past any small limit, so there the call itself is what can be checked.
+  it.runIf(process.env.LUMIS_TEST_RUNTIME === "native")(
+    "applies the match limit to the rainbow bracket query",
+    () => {
+      const source = `${"[".repeat(8)}1${"]".repeat(8)}`;
+      const formatter = htmlInline({ language: json, theme });
+      const render = (matchLimit: number) =>
+        hl.highlight(source, formatter, { rainbowBrackets: true, matchLimit });
+
+      expect(render(1)).not.toBe(render(4096));
+      expect(render(65_536)).toBe(render(4096));
+    },
+  );
+
+  it.runIf(process.env.LUMIS_TEST_RUNTIME === "wasm")(
+    "passes the match limit to the rainbow bracket query",
+    () => {
+      const source = `${"[".repeat(8)}1${"]".repeat(8)}`;
+      const formatter = htmlInline({ language: json, theme });
+      const matches = vi.spyOn(Query.prototype, "matches");
+      try {
+        hl.highlight(source, formatter, { rainbowBrackets: true, matchLimit: 1 });
+        const withBrackets = matches.mock.calls.length;
+        for (const [, options] of matches.mock.calls) {
+          expect(options).toMatchObject({ matchLimit: 1 });
+        }
+        matches.mockClear();
+        hl.highlight(source, formatter, { matchLimit: 1 });
+        expect(withBrackets).toBeGreaterThan(matches.mock.calls.length);
+      } finally {
+        matches.mockRestore();
+      }
+    },
+  );
 });
 
 describe("plaintext", () => {

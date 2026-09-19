@@ -188,6 +188,7 @@ defmodule Lumis.LumisTest do
   test "default_options/0" do
     assert [
              formatter: {:html_inline, formatter_opts},
+             match_limit: nil,
              rainbow_brackets: false,
              annotations: []
            ] =
@@ -1232,9 +1233,26 @@ defmodule Lumis.LumisTest do
   end
 
   describe "validate_options!/1" do
+    test "match_limit is validated and reaches the highlighter" do
+      options = Lumis.validate_options!(match_limit: 16_384)
+      assert Keyword.fetch!(options, :match_limit) == 16_384
+
+      for limit <- [0, 65_537] do
+        assert_raise NimbleOptions.ValidationError, fn ->
+          Lumis.validate_options!(match_limit: limit)
+        end
+      end
+
+      source = "defmodule A do\n  def b, do: :c\nend\n"
+
+      assert Lumis.highlight(source, language: "elixir", match_limit: 16_384) ==
+               Lumis.highlight(source, language: "elixir")
+    end
+
     test "validates valid options" do
       assert [
                formatter: {:html_inline, formatter_opts},
+               match_limit: nil,
                rainbow_brackets: false,
                annotations: []
              ] =
@@ -1260,6 +1278,7 @@ defmodule Lumis.LumisTest do
     test "validates options with default values" do
       assert [
                formatter: {:html_inline, formatter_opts},
+               match_limit: nil,
                rainbow_brackets: false,
                annotations: []
              ] =
@@ -1285,6 +1304,7 @@ defmodule Lumis.LumisTest do
     test "validates formatter options" do
       assert [
                formatter: {:html_inline, formatter_opts},
+               match_limit: nil,
                rainbow_brackets: false,
                annotations: []
              ] =
@@ -1324,6 +1344,7 @@ defmodule Lumis.LumisTest do
                       pre_class: nil,
                       theme: nil
                     ]},
+                 match_limit: nil,
                  rainbow_brackets: false,
                  annotations: [],
                  theme: "dracula",
@@ -1341,6 +1362,7 @@ defmodule Lumis.LumisTest do
     test "copies deprecated language into formatter language" do
       assert [
                formatter: {:html_inline, formatter_opts},
+               match_limit: nil,
                rainbow_brackets: false,
                annotations: [],
                language: "rust"
@@ -1368,6 +1390,7 @@ defmodule Lumis.LumisTest do
       capture_io(:stderr, fn ->
         assert [
                  formatter: {:html_inline, formatter_opts},
+                 match_limit: nil,
                  rainbow_brackets: false,
                  annotations: [],
                  language: "elixir"

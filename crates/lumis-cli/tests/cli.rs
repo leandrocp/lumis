@@ -283,6 +283,18 @@ fn highlight_nonexistent_file() {
 }
 
 #[test]
+fn highlight_rejects_a_match_limit_outside_the_tree_sitter_range() {
+    for limit in ["0", "65537"] {
+        cmd()
+            .args(["highlight", "-l", "javascript", "--match-limit", limit])
+            .write_stdin("const answer = 42;\n")
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains("is not in 1..=65536"));
+    }
+}
+
+#[test]
 fn dump_tree_from_stdin() {
     cmd()
         .arg("--data-dir")

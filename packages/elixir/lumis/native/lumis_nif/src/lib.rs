@@ -16,7 +16,9 @@ use lumis_core::events::{Decoration, HighlightEvent};
 use lumis_core::formatter::Formatter;
 use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
-use lumis_wasm_runtime::{catalog, store, Runtime, RuntimeError};
+use lumis_wasm_runtime::{
+    catalog, store, HighlightOptions, Runtime, RuntimeError, DEFAULT_MATCH_LIMIT,
+};
 use parking_lot::RwLock;
 use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
 
@@ -42,6 +44,7 @@ enum WasmJob {
         source: String,
         language: String,
         rainbow_brackets: bool,
+        match_limit: u32,
         reply: mpsc::SyncSender<Result<Vec<HighlightEvent<'static>>, RuntimeError>>,
     },
 }
@@ -132,10 +135,19 @@ impl WasmExecutor {
                             source,
                             language,
                             rainbow_brackets,
+                            match_limit,
                             reply,
                         } => {
-                            let _ =
-                                reply.send(runtime.highlight(&source, &language, rainbow_brackets));
+                            let options = HighlightOptions {
+                                rainbow_brackets,
+                                match_limit,
+                                ..HighlightOptions::default()
+                            };
+                            let _ = reply.send(
+                                runtime
+                                    .highlight_with(&source, &language, &options)
+                                    .map(|output| output.events),
+                            );
                         }
                     }
                 })
@@ -167,6 +179,7 @@ impl WasmExecutor {
         source: &str,
         language: &str,
         rainbow_brackets: bool,
+        match_limit: u32,
     ) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
         let (reply, result) = mpsc::sync_channel(1);
         self.sender
@@ -174,6 +187,7 @@ impl WasmExecutor {
                 source: source.to_string(),
                 language: language.to_string(),
                 rainbow_brackets,
+                match_limit,
                 reply,
             })
             .map_err(|_| RuntimeError::Highlight("WASM executor is unavailable".into()))?;
@@ -206,6 +220,7 @@ pub struct ExOptions<'a> {
     pub formatter: ExFormatterOption,
     pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
+    pub match_limit: Option<u32>,
 }
 
 #[derive(Clone, Debug, NifMap)]
@@ -225,6 +240,7 @@ pub struct ExEventOptions<'a> {
     pub language: Option<&'a str>,
     pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
+    pub match_limit: Option<u32>,
 }
 
 #[derive(Debug, NifMap)]
@@ -407,7 +423,13 @@ pub(crate) fn highlight<'a>(
         Err(message) => return Ok((error(), message).encode(env)),
     };
 
-    let events = match syntax_events(env, source, language, options.rainbow_brackets) {
+    let events = match syntax_events(
+        env,
+        source,
+        language,
+        options.rainbow_brackets,
+        options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+    ) {
         Ok(events) => events,
         Err(failure) => return Ok(failure),
     };
@@ -431,6 +453,7 @@ fn syntax_events<'a>(
     source: &str,
     language: Language,
     rainbow_brackets: bool,
+    match_limit: u32,
 ) -> Result<Vec<HighlightEvent<'static>>, Term<'a>> {
     if language == languages::Language::PlainText {
         return Ok(vec![HighlightEvent::Source {
@@ -441,7 +464,7 @@ fn syntax_events<'a>(
 
     let executor = executor().map_err(|reason| (error(), format!("{reason:#}")).encode(env))?;
     executor
-        .highlight(source, language.id_name(), rainbow_brackets)
+        .highlight(source, language.id_name(), rainbow_brackets, match_limit)
         .map_err(|runtime_error| match runtime_error {
             RuntimeError::LanguageNotLoaded(language) => {
                 (error(), (language_not_loaded(), language)).encode(env)
@@ -460,7 +483,13 @@ pub(crate) fn highlight_events<'a>(
     let annotations = decode_annotations(options.annotations)?;
     let formatter = EventFormatter::new(language);
 
-    let events = match syntax_events(env, source, language, options.rainbow_brackets) {
+    let events = match syntax_events(
+        env,
+        source,
+        language,
+        options.rainbow_brackets,
+        options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+    ) {
         Ok(events) => events,
         Err(failure) => return Ok(failure),
     };

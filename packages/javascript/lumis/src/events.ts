@@ -2,6 +2,7 @@ import type { Node, Point, QueryCapture, QueryMatch, Range } from "web-tree-sitt
 import { composeRainbowDecorations, type RainbowRange } from "./decorations.js";
 import { LANGUAGES } from "./generated/languages-meta.js";
 import { languageIdForFilename } from "./guess-language.js";
+import { DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT } from "./types.js";
 import type { LoadedLanguage, LumisHighlightEvent, QueryCaptureOffset } from "./types.js";
 
 interface RuntimeLookup {
@@ -395,6 +396,7 @@ function collectHighlightLayers(
   runtime: RuntimeLookup,
   language: LoadedLanguage,
   depth: number,
+  matchLimit: number,
   includedRanges?: Range[],
   parentLanguageName?: string,
 ): HighlightLayer[] {
@@ -403,8 +405,8 @@ function collectHighlightLayers(
 
   try {
     const rootNode = tree.rootNode;
-    const queryMatches = language.config.query.matches(rootNode);
-    const queryCaptures = language.config.query.captures(rootNode);
+    const queryMatches = language.config.query.matches(rootNode, { matchLimit });
+    const queryCaptures = language.config.query.captures(rootNode, { matchLimit });
     const snapshot = snapshotCapturesWithMatches(
       queryCaptures,
       queryMatches,
@@ -440,6 +442,7 @@ function collectHighlightLayers(
         runtime,
         language,
         depth,
+        matchLimit,
         parentLanguageName,
       ),
     );
@@ -462,13 +465,16 @@ function collectInjectedLayers(
   runtime: RuntimeLookup,
   language: LoadedLanguage,
   depth: number,
+  matchLimit: number,
   parentLanguageName?: string,
 ): HighlightLayer[] {
   const layers: HighlightLayer[] = [];
   const combined = new Map<number, { languageName: string; ranges: Range[] }>();
 
   const inject = (languageName: string, ranges: Range[]) => {
-    layers.push(...injectedLayers(languageName, ranges, source, maps, runtime, language, depth));
+    layers.push(
+      ...injectedLayers(languageName, ranges, source, maps, runtime, language, depth, matchLimit),
+    );
   };
 
   for (const match of queryMatches) {
@@ -503,6 +509,7 @@ function injectedLayers(
   runtime: RuntimeLookup,
   language: LoadedLanguage,
   depth: number,
+  matchLimit: number,
 ): HighlightLayer[] {
   const injectedLanguage = runtime.getLoadedLanguage(languageName);
   if (!injectedLanguage) {
@@ -516,6 +523,7 @@ function injectedLayers(
     runtime,
     injectedLanguage,
     depth + 1,
+    matchLimit,
     ranges,
     language.definition.id,
   );
@@ -766,18 +774,35 @@ function makeRange(
   return { startIndex, endIndex, startPosition, endPosition };
 }
 
+/**
+ * Reject a `matchLimit` tree-sitter would not accept, before any query runs.
+ * @internal
+ */
+export function assertMatchLimit(matchLimit: number | undefined): void {
+  if (matchLimit === undefined) return;
+  if (!Number.isInteger(matchLimit) || matchLimit < 1 || matchLimit > MAX_MATCH_LIMIT) {
+    throw new Error(
+      `matchLimit must be an integer from 1 to ${MAX_MATCH_LIMIT}, got ${matchLimit}`,
+    );
+  }
+}
+
 /** @internal */
 export function buildHighlightEventsWithSourceIndex(
   source: string,
   language: LoadedLanguage,
   runtime: RuntimeLookup,
-  options: { rainbowBrackets?: boolean } = {},
+  options: { rainbowBrackets?: boolean; matchLimit?: number } = {},
 ): { events: LumisHighlightEvent[]; sourceIndex: SourceIndex } {
+  assertMatchLimit(options.matchLimit);
+  const matchLimit = options.matchLimit ?? DEFAULT_MATCH_LIMIT;
   const maps = buildSourceMaps(source);
-  const layers = collectHighlightLayers(source, maps, runtime, language, 0);
+  const layers = collectHighlightLayers(source, maps, runtime, language, 0, matchLimit);
   const events = buildNestedEvents(layers, maps);
   return {
-    events: options.rainbowBrackets ? applyRainbowBrackets(source, events, language, maps) : events,
+    events: options.rainbowBrackets
+      ? applyRainbowBrackets(source, events, language, maps, matchLimit)
+      : events,
     sourceIndex: maps,
   };
 }
@@ -786,7 +811,7 @@ export function buildHighlightEvents(
   source: string,
   language: LoadedLanguage,
   runtime: RuntimeLookup,
-  options: { rainbowBrackets?: boolean } = {},
+  options: { rainbowBrackets?: boolean; matchLimit?: number } = {},
 ): LumisHighlightEvent[] {
   return buildHighlightEventsWithSourceIndex(source, language, runtime, options).events;
 }
@@ -800,6 +825,7 @@ function queryRainbowBracketRanges(
   source: string,
   language: LoadedLanguage,
   maps: SourceMaps,
+  matchLimit: number,
 ): RainbowRange[] {
   if (!language.brackets) return [];
 
@@ -808,7 +834,7 @@ function queryRainbowBracketRanges(
 
   try {
     const pairs: BracketPair[] = [];
-    for (const match of language.brackets.query.matches(tree.rootNode)) {
+    for (const match of language.brackets.query.matches(tree.rootNode, { matchLimit })) {
       if (language.brackets.rainbowExcludePatterns[match.patternIndex]) continue;
       pairs.push(...matchBracketPairs(match, language.brackets.captureMetadata, maps));
     }
@@ -908,8 +934,9 @@ function applyRainbowBrackets(
   events: HighlightEvent[],
   language: LoadedLanguage,
   maps: SourceMaps,
+  matchLimit: number,
 ): LumisHighlightEvent[] {
-  const ranges = queryRainbowBracketRanges(source, language, maps);
+  const ranges = queryRainbowBracketRanges(source, language, maps, matchLimit);
   return composeRainbowDecorations(events, ranges, maps);
 }
 
