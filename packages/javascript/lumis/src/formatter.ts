@@ -197,20 +197,28 @@ export function withAttrs<T extends Formatter>(formatter: T, attrs: FormatterAtt
   const codeAttrs = layerAttrs(current.codeAttrs, attrs.codeAttrs);
 
   // `render` closes over the formatter it was built with, so the derived one
-  // has to come back through the factory rather than out of a spread.
+  // has to come back through the factory rather than out of a spread. Each
+  // factory writes its own `render` after spreading what it is given, so the
+  // stale one carried in here is replaced rather than inherited.
   switch (builtinFormatterKind(formatter)) {
-    case "html-inline": {
-      const { render: _render, ...options } = formatter as unknown as HtmlInlineFormatter;
-      return htmlInline({ ...options, preAttrs, codeAttrs }) as unknown as T;
-    }
-    case "html-linked": {
-      const { render: _render, ...options } = formatter as unknown as HtmlLinkedFormatter;
-      return htmlLinked({ ...options, preAttrs, codeAttrs }) as unknown as T;
-    }
-    case "html-multi-themes": {
-      const { render: _render, ...options } = formatter as unknown as HtmlMultiThemesFormatter;
-      return htmlMultiThemes({ ...options, preAttrs, codeAttrs }) as unknown as T;
-    }
+    case "html-inline":
+      return htmlInline({
+        ...(formatter as unknown as HtmlInlineOptions),
+        preAttrs,
+        codeAttrs,
+      }) as unknown as T;
+    case "html-linked":
+      return htmlLinked({
+        ...(formatter as unknown as HtmlLinkedOptions),
+        preAttrs,
+        codeAttrs,
+      }) as unknown as T;
+    case "html-multi-themes":
+      return htmlMultiThemes({
+        ...(formatter as unknown as HtmlMultiThemesOptions),
+        preAttrs,
+        codeAttrs,
+      }) as unknown as T;
     default:
       return formatter;
   }
