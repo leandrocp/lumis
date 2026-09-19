@@ -29,7 +29,8 @@ defmodule Lumis.Native do
 
   other_variants = [legacy_cpu: fn -> use_legacy end]
 
-  workspace_crates_path = Path.expand("../../../../../crates", __DIR__)
+  workspace_root = Path.expand("../../../../..", __DIR__)
+  workspace_crates_path = Path.join(workspace_root, "crates")
 
   if force_build and File.dir?(workspace_crates_path) do
     # Rustler ignores crates resolved locally through the workspace's [patch.crates-io].
@@ -43,10 +44,20 @@ defmodule Lumis.Native do
       |> Enum.flat_map(&Path.wildcard/1)
       |> Enum.filter(&File.regular?/1)
 
+    # lumis_nif is a workspace member, so the root manifest and lock resolve this
+    # build, not the ones beside it that Rustler tracks and a published build uses.
+    # `Path.wildcard` skips dot directories, so Rustler misses `.cargo/config.toml`,
+    # which carries the CFLAGS and rustflags the artifact is compiled with.
+    build_input_resources = [
+      Path.join(workspace_root, "Cargo.toml"),
+      Path.join(workspace_root, "Cargo.lock"),
+      Path.expand("../../native/lumis_nif/.cargo/config.toml", __DIR__)
+    ]
+
     @patched_crate_globs patched_crate_globs
     @patched_crate_resources_hash :erlang.md5(patched_crate_resources)
 
-    for resource <- patched_crate_resources do
+    for resource <- patched_crate_resources ++ build_input_resources do
       @external_resource resource
     end
 

@@ -27,7 +27,14 @@ defmodule Lumis.Native.BuildTrackingTest do
       Path.join(@repo_root, "crates/lumis-wasm-runtime/src/runtime.rs")
     ]
 
+    build_inputs = [
+      Path.join(@repo_root, "Cargo.toml"),
+      Path.join(@repo_root, "Cargo.lock"),
+      Path.join(@repo_root, "packages/elixir/lumis/native/lumis_nif/.cargo/config.toml")
+    ]
+
     assert Enum.all?(tracked_resources, &(&1 in ctx.resources)) == ctx.source_build?
+    assert Enum.all?(build_inputs, &(&1 in ctx.resources)) == ctx.source_build?
     assert function_exported?(Lumis.Native, :__mix_recompile__?, 0) == ctx.source_build?
     refute Path.join(@repo_root, "crates/lumis-cli/src/main.rs") in ctx.resources
 
