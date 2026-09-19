@@ -73,7 +73,8 @@ const file = await unified()
 - visits `pre` elements in HAST whose first child is a `code` element
 - reads languages from `language-*` classes on the `<code>` or `<pre>` node, or from `data-language` / `language` properties
 - replaces each block with Lumis HTML output
-- preserves authored properties on the `<pre>` and `<code>` elements, including classes, styles, ids, ARIA attributes, and data attributes
+- preserves authored properties on the `<pre>` and `<code>` elements, including classes, styles, ids, ARIA attributes, and data attributes, by handing them to the formatter as `preAttrs` and `codeAttrs` so `class` unions and `style` appends exactly once
+- keeps anything the authored `<pre>` held after its `<code>`, such as a copy button another plugin added
 - loads whatever language a fence names, the same as every other runtime, so `languages` is a prefetch list rather than an allow-list
 - a fence naming a language that cannot be loaded leaves that block unhighlighted; the rest of the document still renders
 

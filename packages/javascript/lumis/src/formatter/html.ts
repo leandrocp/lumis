@@ -13,6 +13,7 @@ import type {
 import { LineSelection, composeLineDecorations } from "../decorations.js";
 import { HIGHLIGHT_NAMES } from "../highlights.js";
 import { sanitizeThemeName } from "../themes.js";
+import { mergeAttrs, mergeClasses } from "../core/attr-merge.js";
 
 // Rust exposes this from `lumis::formatters::html`, so the helper modules line up.
 export { sanitizeThemeName } from "../themes.js";
@@ -272,84 +273,6 @@ function classList(...classes: Array<string | undefined | false | null>): string
     (className): className is string => !!className && className.length > 0,
   );
   return value.length > 0 ? value.join(" ") : undefined;
-}
-
-function mergeClasses(generated: HtmlAttrs[string], authored: HtmlAttrs[string]): string {
-  const classes = [generated, authored]
-    .flatMap((value) =>
-      typeof value === "string" || typeof value === "number"
-        ? String(value)
-            .split(/[\t\n\f\r ]+/)
-            .filter(Boolean)
-        : [],
-    )
-    .filter((value, index, all) => all.indexOf(value) === index);
-
-  return classes.join(" ");
-}
-
-function appendStyles(generated: HtmlAttrs[string], authored: HtmlAttrs[string]): string {
-  const generatedStyle =
-    typeof generated === "string" || typeof generated === "number" ? String(generated).trim() : "";
-  const authoredStyle =
-    typeof authored === "string" || typeof authored === "number" ? String(authored).trim() : "";
-
-  if (generatedStyle.length === 0) return authoredStyle;
-  if (authoredStyle.length === 0) return generatedStyle;
-  return `${generatedStyle.replace(/;?$/, ";")} ${authoredStyle}`;
-}
-
-function matchingAttrName(attrs: HtmlAttrs, name: string): string | undefined {
-  return Object.keys(attrs).find((candidate) => candidate.toLowerCase() === name.toLowerCase());
-}
-
-function replaceMergedAttr(
-  merged: HtmlAttrs,
-  existingName: string | undefined,
-  targetName: string,
-  value: HtmlAttrs[string],
-): void {
-  if (value == null || value === false) {
-    if (existingName) delete merged[existingName];
-    return;
-  }
-
-  merged[targetName] = value;
-}
-
-function mergeAuthoredAttr(
-  merged: HtmlAttrs,
-  authoredName: string,
-  value: HtmlAttrs[string],
-): void {
-  const existingName = matchingAttrName(merged, authoredName);
-  const targetName = existingName ?? authoredName;
-
-  switch (authoredName.toLowerCase()) {
-    case "class": {
-      const className = mergeClasses(merged[targetName], value);
-      if (className.length > 0) merged[targetName] = className;
-      return;
-    }
-    case "style": {
-      const style = appendStyles(merged[targetName], value);
-      if (style.length > 0) merged[targetName] = style;
-      return;
-    }
-    default:
-      replaceMergedAttr(merged, existingName, targetName, value);
-  }
-}
-
-function mergeAttrs(generated: HtmlAttrs, authored: HtmlAttrs | undefined): HtmlAttrs {
-  const merged = { ...generated };
-  if (!authored) return merged;
-
-  for (const [authoredName, value] of Object.entries(authored)) {
-    mergeAuthoredAttr(merged, authoredName, value);
-  }
-
-  return merged;
 }
 
 /**

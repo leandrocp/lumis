@@ -375,6 +375,34 @@ A custom formatter reaches the same values through `pre_attrs`,
 `multi_themes_pre_attrs` and `code_attrs`, described in
 [Custom Formatters](/formatters/custom).
 
+### Adding attributes to a formatter you were handed
+
+The options above are set when a formatter is built. Code that receives one
+already built — a renderer integration highlighting many blocks, each with its
+own attributes — uses `withAttrs` in JavaScript, which returns a new formatter
+and leaves the original alone:
+
+```ts
+import {htmlInline, withAttrs} from '@lumis-sh/lumis/formatters'
+
+const base = htmlInline({language: javascript, theme: dracula})
+const block = withAttrs(base, {preAttrs: {id: 'example', class: 'card'}})
+```
+
+The attributes layer over any the formatter already carried, by the same rules,
+and a `false` still removes one Lumis generates. A formatter that is not a
+built-in HTML one comes back untouched, since a custom `render` has no
+attribute contract to honour.
+
+Rust and Elixir have no counterpart because they do not need one: a Rust
+builder takes `pre_attrs` before `build()`, and an Elixir formatter is a
+keyword list the caller can add to. Only a JavaScript formatter is already
+closed over its own options by the time you hold it.
+
+`rehype-lumis` and `markdown-it-lumis` are both built on this, which is how a
+`<pre>` carrying an `id`, a `data-panel` and Tailwind classes survives being
+highlighted.
+
 ## Terminal
 
 ANSI output for the terminal.
