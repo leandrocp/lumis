@@ -21,6 +21,13 @@
 //   A same-row offset may reach its own newline, which `(#offset! @c 0 1 0 1)` in the diff
 //   injection queries needs to keep joined hunk lines apart, and no further, so the byte and
 //   the point keep describing one place. Neovim clamps to neither.
+// - Queries inheriting `html_tags` run to completion through `matches` and replay their captures
+//   (`CaptureStream`) instead of streaming `captures`, which keeps every finished match buffered
+//   behind an element whose `(element … (text))` pattern is still open, makes a capture pass
+//   quadratic in that element's size, and under a match limit evicts that element's own match.
+//   Other queries retain `next_capture` order, which cannot be reconstructed from finished
+//   matches in general. Eager collection removes upstream's `_QueryCaptures` transmute of the
+//   streaming cursor in both cases.
 // - `@injection.filename` resolves an injected language from a path, as Neovim's
 //   `LanguageTree:_get_injection` does through `vim.filetype.match`. It sits beside the
 //   `injection.language` capture it is an alternative to, and is the only reason this file
@@ -38,13 +45,9 @@
 // https://github.com/tree-sitter/tree-sitter/blob/master/crates/highlight/src/highlight.rs
 #![allow(clippy::all, clippy::pedantic, dead_code, elided_lifetimes_in_paths)]
 
-use core::slice;
 use std::{
     collections::{HashMap, HashSet},
-    iter,
-    marker::PhantomData,
-    mem::{self, MaybeUninit},
-    ops, str,
+    mem, ops, str,
     sync::{
         atomic::{AtomicUsize, Ordering},
         LazyLock,
@@ -54,8 +57,8 @@ use std::{
 use streaming_iterator::StreamingIterator;
 use thiserror::Error;
 use tree_sitter::{
-    ffi, Language, Node, ParseOptions, Parser, Point, Query, QueryCapture, QueryCaptures,
-    QueryCursor, QueryError, QueryMatch, QueryPredicateArg, Range, TextProvider, Tree,
+    Language, Node, ParseOptions, Parser, Point, Query, QueryCapture, QueryCursor, QueryError,
+    QueryPredicateArg, Range, Tree,
 };
 
 const CANCELLATION_CHECK_INTERVAL: usize = 100;
@@ -177,6 +180,7 @@ pub struct HighlightConfiguration {
     local_def_capture_index: Option<u32>,
     local_def_value_capture_index: Option<u32>,
     local_ref_capture_index: Option<u32>,
+    replay_captures_from_matches: bool,
     /// `(#offset! @capture start_row start_col end_row end_col)` per pattern and capture.
     offsets: HashMap<(usize, u32), [i64; 4]>,
 }
@@ -589,8 +593,7 @@ where
 
 struct HighlightIterLayer<'a> {
     _tree: Tree,
-    cursor: QueryCursor,
-    captures: iter::Peekable<_QueryCaptures<'a, 'a, &'a [u8], &'a [u8]>>,
+    captures: CaptureStream<'a>,
     config: &'a HighlightConfiguration,
     highlight_end_stack: Vec<usize>,
     scope_stack: Vec<LocalScope<'a>>,
@@ -598,75 +601,225 @@ struct HighlightIterLayer<'a> {
     depth: usize,
 }
 
-pub struct _QueryCaptures<'query, 'tree, T: TextProvider<I>, I: AsRef<[u8]>> {
-    ptr: *mut ffi::TSQueryCursor,
-    query: &'query Query,
-    text_provider: T,
-    buffer1: Vec<u8>,
-    buffer2: Vec<u8>,
-    _current_match: Option<(QueryMatch<'query, 'tree>, usize)>,
-    _options: Option<*mut ffi::TSQueryCursorOptions>,
-    _phantom: PhantomData<(&'tree (), I)>,
+/// A layer's query results, detached from the cursor so it can be reused.
+///
+/// Queries with the long-running `html_tags` element patterns collect finished
+/// matches and replay their captures. Other queries collect `next_capture`
+/// directly because its ordering cannot be reconstructed from finished matches
+/// in general.
+///
+/// One entry in `order` is one capture the stream produced, holding the slot of
+/// the match it came from and where its capture sits in `entries`. A match's
+/// whole capture list is kept only when something reads it, which is the
+/// injection and locals patterns; for a highlight pattern the emitted capture is
+/// all `next` ever looks at, and on a large document those patterns are nearly
+/// all of the stream.
+struct CaptureStream<'a> {
+    patterns: Vec<u32>,
+    list_starts: Vec<u32>,
+    list_ends: Vec<u32>,
+    entries: Vec<QueryCapture<'a>>,
+    removed: Vec<bool>,
+    order: Vec<(u32, u32)>,
+    position: usize,
 }
 
-struct _QueryMatch<'cursor, 'tree> {
-    pub _pattern_index: usize,
-    pub _captures: &'cursor [QueryCapture<'tree>],
-    _id: u32,
-    _cursor: *mut ffi::TSQueryCursor,
-}
+/// A match whose capture list nothing reads.
+const NO_LIST: u32 = u32::MAX;
 
-impl<'tree> _QueryMatch<'_, 'tree> {
-    fn new(m: &ffi::TSQueryMatch, cursor: *mut ffi::TSQueryCursor) -> Self {
-        _QueryMatch {
-            _cursor: cursor,
-            _id: m.id,
-            _pattern_index: m.pattern_index as usize,
-            _captures: (m.capture_count > 0)
-                .then(|| unsafe {
-                    slice::from_raw_parts(
-                        m.captures.cast::<QueryCapture<'tree>>(),
-                        m.capture_count as usize,
-                    )
-                })
-                .unwrap_or_default(),
+impl<'a> CaptureStream<'a> {
+    fn collect(
+        cursor: &mut QueryCursor,
+        query: &'a Query,
+        root: Node<'a>,
+        source: &'a [u8],
+        replay_from_matches: bool,
+        highlights_pattern_index: usize,
+        covered_bytes: usize,
+    ) -> Self {
+        if !replay_from_matches {
+            return Self::collect_captures(
+                cursor,
+                query,
+                root,
+                source,
+                highlights_pattern_index,
+                covered_bytes,
+            );
         }
+
+        Self::collect_matches(cursor, query, root, source)
     }
-}
 
-impl<'query, 'tree: 'query, T: TextProvider<I>, I: AsRef<[u8]>> Iterator
-    for _QueryCaptures<'query, 'tree, T, I>
-{
-    type Item = (QueryMatch<'query, 'tree>, usize);
+    fn collect_matches(
+        cursor: &mut QueryCursor,
+        query: &'a Query,
+        root: Node<'a>,
+        source: &'a [u8],
+    ) -> Self {
+        let mut patterns = Vec::new();
+        let mut list_starts = Vec::new();
+        let mut list_ends = Vec::new();
+        let mut entries: Vec<QueryCapture<'a>> = Vec::new();
+        let mut matches = cursor.matches(query, root, source);
+        while let Some(m) = matches.next() {
+            let start = entries.len() as u32;
+            entries.extend_from_slice(m.captures);
+            patterns.push(m.pattern_index as u32);
+            list_starts.push(start);
+            list_ends.push(entries.len() as u32);
+        }
 
-    fn next(&mut self) -> Option<Self::Item> {
-        unsafe {
-            loop {
-                let mut capture_index = 0u32;
-                let mut m = MaybeUninit::<ffi::TSQueryMatch>::uninit();
-                if ffi::ts_query_cursor_next_capture(
-                    self.ptr,
-                    m.as_mut_ptr(),
-                    core::ptr::addr_of_mut!(capture_index),
-                ) {
-                    let result = std::mem::transmute::<_QueryMatch, QueryMatch>(_QueryMatch::new(
-                        &m.assume_init(),
-                        self.ptr,
-                    ));
-                    if result.satisfies_text_predicates(
-                        self.query,
-                        &mut self.buffer1,
-                        &mut self.buffer2,
-                        &mut self.text_provider,
-                    ) {
-                        return Some((result, capture_index as usize));
-                    }
-                    result.remove();
-                } else {
-                    return None;
-                }
+        // `next_capture` returns the capture with the earliest start byte, breaking
+        // ties by pattern index and then by the order the matches finished, and a
+        // match's own captures in list order. The keys are computed once up front:
+        // `start_byte` is a call into the C library.
+        let mut keyed: Vec<(usize, u32, u32, u32)> = Vec::with_capacity(entries.len());
+        for slot in 0..patterns.len() {
+            for entry in list_starts[slot]..list_ends[slot] {
+                keyed.push((
+                    entries[entry as usize].node.start_byte(),
+                    patterns[slot],
+                    slot as u32,
+                    entry,
+                ));
             }
         }
+        keyed.sort_unstable();
+        let order = keyed
+            .into_iter()
+            .map(|(_, _, slot, entry)| (slot, entry))
+            .collect();
+
+        let removed = vec![false; patterns.len()];
+        Self {
+            patterns,
+            list_starts,
+            list_ends,
+            entries,
+            removed,
+            order,
+            position: 0,
+        }
+    }
+
+    fn collect_captures(
+        cursor: &mut QueryCursor,
+        query: &'a Query,
+        root: Node<'a>,
+        source: &'a [u8],
+        highlights_pattern_index: usize,
+        covered_bytes: usize,
+    ) -> Self {
+        let mut patterns: Vec<u32> = Vec::new();
+        let mut list_starts: Vec<u32> = Vec::new();
+        let mut list_ends: Vec<u32> = Vec::new();
+        let mut entries: Vec<QueryCapture<'a>> = Vec::new();
+        let mut order: Vec<(u32, u32)> = Vec::new();
+        // Growing these by doubling would hold the old buffer alongside the new one
+        // at every step, and on a large document the captures outweigh everything
+        // else here. Start near the size the bytes this layer covers imply, which
+        // is the injected span rather than the whole document for an injection.
+        let expected = (covered_bytes / 4).min(1 << 22);
+        entries.reserve(expected);
+        order.reserve(expected);
+        // The cursor numbers its matches from zero and upwards, so the slot each id
+        // maps to is a lookup rather than a hash of one entry per match.
+        let mut slot_of_id: Vec<u32> = Vec::new();
+        let mut query_captures = cursor.captures(query, root, source);
+
+        while let Some((query_match, capture_index)) = query_captures.next() {
+            let pattern = query_match.pattern_index as u32;
+            let id = query_match.id() as usize;
+            if id >= slot_of_id.len() {
+                slot_of_id.resize(id + 1, NO_LIST);
+            }
+            // The cursor reuses a state id only while it describes the same pattern.
+            let slot = match slot_of_id[id] {
+                slot if slot != NO_LIST && patterns[slot as usize] == pattern => slot,
+                _ => {
+                    let slot = patterns.len() as u32;
+                    slot_of_id[id] = slot;
+                    patterns.push(pattern);
+                    list_starts.push(NO_LIST);
+                    list_ends.push(NO_LIST);
+                    slot
+                }
+            };
+
+            if query_match.pattern_index < highlights_pattern_index {
+                // `next` reads the whole match for injection content and
+                // local-definition values, and the cursor rewrites that list as it
+                // finds more of it, so keep the newest. Nothing in `order` points
+                // into a stored list, so one of the same length is rewritten where
+                // it lies rather than appended again.
+                let stored = list_starts[slot as usize];
+                let same_length = stored != NO_LIST
+                    && (list_ends[slot as usize] - stored) as usize == query_match.captures.len();
+                if same_length {
+                    let at = stored as usize;
+                    entries[at..at + query_match.captures.len()]
+                        .copy_from_slice(query_match.captures);
+                } else {
+                    let start = entries.len() as u32;
+                    entries.extend_from_slice(query_match.captures);
+                    list_starts[slot as usize] = start;
+                    list_ends[slot as usize] = entries.len() as u32;
+                }
+            }
+
+            let entry = entries.len() as u32;
+            entries.push(query_match.captures[*capture_index]);
+            order.push((slot, entry));
+        }
+
+        let removed = vec![false; patterns.len()];
+        Self {
+            patterns,
+            list_starts,
+            list_ends,
+            entries,
+            removed,
+            order,
+            position: 0,
+        }
+    }
+
+    /// The next capture and the slot of its match, skipping removed matches.
+    fn peek(&mut self) -> Option<(usize, QueryCapture<'a>)> {
+        while let Some(&(slot, entry)) = self.order.get(self.position) {
+            if self.removed[slot as usize] {
+                self.position += 1;
+                continue;
+            }
+            return Some((slot as usize, self.entries[entry as usize]));
+        }
+        None
+    }
+
+    fn pop(&mut self) -> Option<(usize, QueryCapture<'a>)> {
+        let next = self.peek()?;
+        self.position += 1;
+        Some(next)
+    }
+
+    fn pattern_index(&self, slot: usize) -> usize {
+        self.patterns[slot] as usize
+    }
+
+    /// The match's captures, for the injection and locals patterns that read them.
+    fn captures_of(&self, slot: usize) -> &[QueryCapture<'a>] {
+        let start = self.list_starts[slot];
+        if start == NO_LIST {
+            return &[];
+        }
+        &self.entries[start as usize..self.list_ends[slot] as usize]
+    }
+
+    /// Drop the match's remaining captures from the stream, as
+    /// `QueryMatch::remove` does for a streaming cursor.
+    fn remove(&mut self, slot: usize) {
+        self.removed[slot] = true;
     }
 }
 
@@ -763,6 +916,11 @@ impl HighlightConfiguration {
         injection_query: &str,
         locals_query: &str,
     ) -> Result<Self, QueryError> {
+        // These inherited patterns can remain open across an entire wrapper element.
+        // Restrict match replay to that query family: completed matches do not contain
+        // enough information to reproduce `next_capture` ordering for arbitrary queries.
+        let replay_captures_from_matches = highlights_query.contains("inherits: html_tags");
+
         // Concatenate the query strings, keeping track of the start offset of each section.
         let mut query_source = String::with_capacity(
             injection_query.len() + locals_query.len() + highlights_query.len(),
@@ -885,6 +1043,7 @@ impl HighlightConfiguration {
             local_def_value_capture_index,
             local_ref_capture_index,
             local_scope_capture_index,
+            replay_captures_from_matches,
         })
     }
 
@@ -1020,7 +1179,8 @@ impl<'a> HighlightIterLayer<'a> {
                             config,
                             parent_name,
                             combined_injections_query,
-                            mat,
+                            mat.pattern_index,
+                            mat.captures,
                             source,
                         );
                         if language_name.is_some() {
@@ -1048,19 +1208,22 @@ impl<'a> HighlightIterLayer<'a> {
                     }
                 }
 
-                // The `captures` iterator borrows the `Tree` and the `QueryCursor`, which
-                // prevents them from being moved. But both of these values are really just
-                // pointers, so it's actually ok to move them.
+                // The captures borrow the `Tree`, which prevents it from being moved. But
+                // it is really just a pointer, so it's actually ok to move it.
                 let tree_ref = unsafe { mem::transmute::<&Tree, &'static Tree>(&tree) };
-                let cursor_ref = unsafe {
-                    mem::transmute::<&mut QueryCursor, &'static mut QueryCursor>(&mut cursor)
-                };
-                let captures = unsafe {
-                    std::mem::transmute::<QueryCaptures<_, _>, _QueryCaptures<_, _>>(
-                        cursor_ref.captures(&config.query, tree_ref.root_node(), source),
-                    )
-                }
-                .peekable();
+                let captures = CaptureStream::collect(
+                    &mut cursor,
+                    &config.query,
+                    tree_ref.root_node(),
+                    source,
+                    config.replay_captures_from_matches,
+                    config.highlights_pattern_index,
+                    ranges
+                        .iter()
+                        .map(|range| range.end_byte.saturating_sub(range.start_byte))
+                        .sum(),
+                );
+                highlighter.cursors.push(cursor);
 
                 if highlighter.record_parsed_layers {
                     highlighter.parsed_layers.push(ParsedLayer {
@@ -1078,7 +1241,6 @@ impl<'a> HighlightIterLayer<'a> {
                         range: 0..usize::MAX,
                         local_defs: Vec::new(),
                     }],
-                    cursor,
                     depth,
                     _tree: tree,
                     captures,
@@ -1205,7 +1367,7 @@ impl<'a> HighlightIterLayer<'a> {
         let next_start = self
             .captures
             .peek()
-            .map(|(m, i)| m.captures[*i].node.start_byte());
+            .map(|(_, capture)| capture.node.start_byte());
         let next_end = self.highlight_end_stack.last().copied();
         match (next_start, next_end) {
             (Some(start), Some(end)) => {
@@ -1264,8 +1426,7 @@ where
                 }
                 break;
             }
-            let layer = self.layers.remove(0);
-            self.highlighter.cursors.push(layer.cursor);
+            self.layers.remove(0);
         }
     }
 
@@ -1330,14 +1491,13 @@ where
             // Get the next capture from whichever layer has the earliest highlight boundary.
             let range;
             let layer = &mut self.layers[0];
-            if let Some((next_match, capture_index)) = layer.captures.peek() {
-                let next_capture = next_match.captures[*capture_index];
+            if let Some((next_match, next_capture)) = layer.captures.peek() {
                 // Neovim's highlighter resolves a capture's range through `get_range`, so
                 // `#offset!` narrows the highlighted span too, not just injections.
                 range = layer
                     .config
                     .offsets
-                    .get(&(next_match.pattern_index, next_capture.index))
+                    .get(&(layer.captures.pattern_index(next_match), next_capture.index))
                     .map_or_else(
                         || next_capture.node.byte_range(),
                         |offset| {
@@ -1367,16 +1527,16 @@ where
                 return self.emit_event(self.source.len(), None);
             }
 
-            let (mut match_, capture_index) = layer.captures.next().unwrap();
-            let mut capture = match_.captures[capture_index];
+            let (mut match_, mut capture) = layer.captures.pop().unwrap();
 
             // If this capture represents an injection, then process the injection.
-            if match_.pattern_index < layer.config.locals_pattern_index {
+            if layer.captures.pattern_index(match_) < layer.config.locals_pattern_index {
                 let (language_name, content_node, include_children) = injection_for_match(
                     layer.config,
                     Some(self.language_name),
                     &layer.config.query,
-                    &match_,
+                    layer.captures.pattern_index(match_),
+                    layer.captures.captures_of(match_),
                     self.source,
                 );
 
@@ -1394,7 +1554,7 @@ where
 
                 // Explicitly remove this match so that none of its other captures will remain
                 // in the stream of captures.
-                match_.remove();
+                layer.captures.remove(match_);
 
                 // If a language is found with the given name, then add a new language layer
                 // to the highlighted document.
@@ -1440,7 +1600,7 @@ where
             // local variable info.
             let mut reference_highlight = None;
             let mut definition_highlight = None;
-            while match_.pattern_index < layer.config.highlights_pattern_index {
+            while layer.captures.pattern_index(match_) < layer.config.highlights_pattern_index {
                 // If the node represents a local scope, push a new local scope onto
                 // the scope stack.
                 if Some(capture.index) == layer.config.local_scope_capture_index {
@@ -1450,7 +1610,11 @@ where
                         range: range.clone(),
                         local_defs: Vec::new(),
                     };
-                    for prop in layer.config.query.property_settings(match_.pattern_index) {
+                    for prop in layer
+                        .config
+                        .query
+                        .property_settings(layer.captures.pattern_index(match_))
+                    {
                         if prop.key.as_ref() == "local.scope-inherits" {
                             scope.inherits =
                                 prop.value.as_ref().is_none_or(|r| r.as_ref() == "true");
@@ -1463,14 +1627,13 @@ where
                 else if Some(capture.index) == layer.config.local_def_capture_index {
                     reference_highlight = None;
                     definition_highlight = None;
-                    let scope = layer.scope_stack.last_mut().unwrap();
-
                     let mut value_range = 0..0;
-                    for capture in match_.captures {
+                    for capture in layer.captures.captures_of(match_) {
                         if Some(capture.index) == layer.config.local_def_value_capture_index {
                             value_range = capture.node.byte_range();
                         }
                     }
+                    let scope = layer.scope_stack.last_mut().unwrap();
 
                     if let Ok(name) = str::from_utf8(&self.source[range.clone()]) {
                         scope.local_defs.push(LocalDef {
@@ -1508,11 +1671,10 @@ where
                 }
 
                 // Continue processing any additional matches for the same node.
-                if let Some((next_match, next_capture_index)) = layer.captures.peek() {
-                    let next_capture = next_match.captures[*next_capture_index];
+                if let Some((_, next_capture)) = layer.captures.peek() {
                     if next_capture.node == capture.node {
                         capture = next_capture;
-                        match_ = layer.captures.next().unwrap().0;
+                        match_ = layer.captures.pop().unwrap().0;
                         continue;
                     }
                 }
@@ -1536,15 +1698,15 @@ where
             // Captures for a given node are ordered by pattern index, so these subsequent
             // captures are guaranteed to be for highlighting, not injections or
             // local variables.
-            while let Some((next_match, next_capture_index)) = layer.captures.peek() {
-                let next_capture = next_match.captures[*next_capture_index];
+            while let Some((_, next_capture)) = layer.captures.peek() {
                 if next_capture.node == capture.node {
-                    let following_match = layer.captures.next().unwrap().0;
+                    let following_match = layer.captures.pop().unwrap().0;
                     // If the current node was found to be a local variable, then ignore
                     // the following match if it's a highlighting pattern that is disabled
                     // for local variables.
                     if (definition_highlight.is_some() || reference_highlight.is_some())
-                        && layer.config.non_local_variable_patterns[following_match.pattern_index]
+                        && layer.config.non_local_variable_patterns
+                            [layer.captures.pattern_index(following_match)]
                     {
                         continue;
                     }
@@ -1556,7 +1718,7 @@ where
                     if layer.config.highlight_indices[next_capture.index as usize].is_none() {
                         continue;
                     }
-                    match_.remove();
+                    layer.captures.remove(match_);
                     capture = next_capture;
                     match_ = following_match;
                 } else {
@@ -1770,7 +1932,8 @@ fn injection_for_match<'a>(
     config: &'a HighlightConfiguration,
     parent_name: Option<&'a str>,
     query: &'a Query,
-    query_match: &QueryMatch<'a, 'a>,
+    pattern_index: usize,
+    captures: &[QueryCapture<'a>],
     source: &'a [u8],
 ) -> (Option<&'a str>, Option<InjectionContent<'a>>, bool) {
     let content_capture_index = config.injection_content_capture_index;
@@ -1781,7 +1944,7 @@ fn injection_for_match<'a>(
     let mut filename_language: Option<&'static str> = None;
     let mut content_node = None;
 
-    for capture in query_match.captures {
+    for capture in captures {
         let index = Some(capture.index);
         if index == language_capture_index {
             language_name = capture.node.utf8_text(source).ok();
@@ -1790,7 +1953,7 @@ fn injection_for_match<'a>(
             // reads the text as a path rather than a language name.
             let range = config
                 .offsets
-                .get(&(query_match.pattern_index, capture.index))
+                .get(&(pattern_index, capture.index))
                 .map_or_else(
                     || capture.node.range(),
                     |offset| apply_range_offset(capture.node, *offset, source),
@@ -1804,7 +1967,7 @@ fn injection_for_match<'a>(
             // delimiters such as backticks or `${`/`}` never reach the injected grammar.
             let range = config
                 .offsets
-                .get(&(query_match.pattern_index, capture.index))
+                .get(&(pattern_index, capture.index))
                 .map_or_else(
                     || capture.node.range(),
                     |offset| apply_range_offset(capture.node, *offset, source),
@@ -1821,7 +1984,7 @@ fn injection_for_match<'a>(
     let mut language_name = language_name.or(filename_language);
 
     let mut include_children = false;
-    for prop in query.property_settings(query_match.pattern_index) {
+    for prop in query.property_settings(pattern_index) {
         match prop.key.as_ref() {
             // In addition to specifying the language name via the text of a
             // captured node, it can also be hard-coded via a `#set!` predicate

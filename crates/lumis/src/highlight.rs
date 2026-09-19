@@ -890,6 +890,104 @@ mod tests {
     }
 
     #[test]
+    fn a_wrapper_element_keeping_thousands_of_matches_open_keeps_its_trailing_text() {
+        // Each html `(element (start_tag (tag_name) @_tag) (text) @markup.*)` pattern
+        // stays in progress from `<code>` until a `(text)` child arrives, so every
+        // capture inside the element finishes behind it. Streaming `captures()`
+        // buffers all of them until the capture list pool is exhausted and then
+        // evicts the `<code>` match itself, so its trailing text loses `markup.raw`.
+        use std::fmt::Write as _;
+
+        let mut source = String::from("<pre><code>");
+        for i in 0..4000 {
+            write!(source, "<span class=\"tok\">t{i}</span>").unwrap();
+        }
+        let trailing = "() {}";
+        let start = source.len();
+        source.push_str(trailing);
+        source.push_str("</code></pre>\n");
+        let end = start + trailing.len();
+
+        let events = highlight_events(&source, Language::HTML).unwrap();
+        let mut scopes = Vec::new();
+        let mut raw_over_trailing = false;
+        for event in &events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    scopes.push(HIGHLIGHT_NAMES[*scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    scopes.pop();
+                }
+                CoreHighlightEvent::Source { start: s, end: e }
+                    if *s < end && *e > start && scopes.contains(&"markup.raw") =>
+                {
+                    raw_over_trailing = true;
+                }
+                _ => {}
+            }
+        }
+        assert!(
+            raw_over_trailing,
+            "trailing text of <code> lost its markup.raw scope"
+        );
+    }
+
+    #[test]
+    fn capture_stream_preserves_tree_sitter_tie_order_for_other_queries() {
+        let events = highlight_events("* { }", Language::CSS).unwrap();
+        let mut active_scopes = Vec::new();
+
+        for event in events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    active_scopes.push(HIGHLIGHT_NAMES[scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    active_scopes.pop();
+                }
+                CoreHighlightEvent::Source { start: 0, end } if end > 0 => {
+                    assert_eq!(active_scopes, ["character.special", "operator"]);
+                    return;
+                }
+                _ => {}
+            }
+        }
+
+        panic!("CSS wildcard did not produce a source event");
+    }
+
+    #[test]
+    fn capture_stream_survives_a_rewritten_match_capture_list() {
+        // The cursor reuses a match's capture list and rewrites it in place, so the
+        // same match id can come back holding different captures. A position recorded
+        // against the earlier contents then resolves to the wrong capture, which
+        // displaces later captures out of document order. Kotlin's package
+        // declaration is where that surfaces: each segment stays a module.
+        let source = "package com.learnxinyminutes.kotlin\n";
+        let events = highlight_events(source, Language::Kotlin).unwrap();
+        let mut open_scopes: Vec<&str> = Vec::new();
+        let mut scope_of_com = None;
+
+        for event in events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    open_scopes.push(HIGHLIGHT_NAMES[scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    open_scopes.pop();
+                }
+                CoreHighlightEvent::Source { start, end } if &source[start..end] == "com" => {
+                    scope_of_com = Some(open_scopes.last().copied());
+                }
+                _ => {}
+            }
+        }
+
+        assert_eq!(scope_of_com, Some(Some("module")));
+    }
+
+    #[test]
     fn test_highlighter_without_theme() {
         let code = "fn main() {}";
         let highlighter = Highlighter::new(Language::Rust, None);

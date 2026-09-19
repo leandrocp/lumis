@@ -273,11 +273,71 @@ function buildCaptureMatchQueues(
   return queues;
 }
 
+// Query.captures() has to return captures in document order, so tree-sitter keeps
+// every finished match buffered behind any earlier match that is still in progress,
+// and an element whose `(element … (text))` pattern stays open across a large
+// subtree makes a capture pass quadratic in that subtree. Query.matches() releases
+// each match the moment it finishes. The html_tags query family uses this bounded
+// replay; other queries keep captures() because this sort is not generally equivalent
+// to Tree-sitter's online capture order.
+function snapshotCapturesFromMatches(
+  matches: QueryMatch[],
+  maps: SourceMaps,
+  firstHighlightPattern: number,
+  captureOffsets: Array<Record<string, QueryCaptureOffset> | undefined>,
+): CaptureSnapshot {
+  const entries: Array<{
+    capture: QueryCapture;
+    match: QueryMatch;
+    matchIndex: number;
+    position: number;
+    startByte: number;
+  }> = [];
+
+  for (const [matchIndex, match] of matches.entries()) {
+    if (match.patternIndex < firstHighlightPattern) continue;
+
+    for (const [position, capture] of match.captures.entries()) {
+      entries.push({
+        capture,
+        match,
+        matchIndex,
+        position,
+        startByte: nodeStartByte(capture.node, maps),
+      });
+    }
+  }
+
+  // Tree-sitter's `next_capture` order: earliest start byte, then lowest pattern
+  // index, then the order the matches finished, then a match's own capture order.
+  entries.sort(
+    (a, b) =>
+      a.startByte - b.startByte ||
+      a.capture.patternIndex - b.capture.patternIndex ||
+      a.matchIndex - b.matchIndex ||
+      a.position - b.position,
+  );
+
+  return {
+    captures: entries.map((entry) =>
+      snapshotCapture(
+        entry.capture,
+        entry.matchIndex,
+        maps,
+        captureOffsets,
+        entry.match.setProperties,
+      ),
+    ),
+    matchCount: matches.length,
+  };
+}
+
 function snapshotCapture(
   capture: QueryCapture,
   matchIndex: number,
   maps: SourceMaps,
   captureOffsets: Array<Record<string, QueryCaptureOffset> | undefined>,
+  setProperties: QueryMatch["setProperties"] = capture.setProperties,
 ): LayerQueryCapture {
   // Neovim resolves a highlight capture's range through `get_range`, so `#offset!`
   // narrows the highlighted span as well as injection ranges.
@@ -296,7 +356,7 @@ function snapshotCapture(
       ? (maps.utf8Offsets[adjusted.endIndex] ?? nodeEndByte(capture.node, maps))
       : nodeEndByte(capture.node, maps),
     isMissing: capture.node.isMissing,
-    setProperties: capture.setProperties,
+    setProperties,
   };
 }
 
@@ -403,14 +463,20 @@ function collectHighlightLayers(
   try {
     const rootNode = tree.rootNode;
     const queryMatches = language.config.query.matches(rootNode);
-    const queryCaptures = language.config.query.captures(rootNode);
-    const snapshot = snapshotCapturesWithMatches(
-      queryCaptures,
-      queryMatches,
-      maps,
-      language.config.injectionPatternEnd,
-      language.config.captureOffsets,
-    );
+    const snapshot = language.config.replayCapturesFromMatches
+      ? snapshotCapturesFromMatches(
+          queryMatches,
+          maps,
+          language.config.injectionPatternEnd,
+          language.config.captureOffsets,
+        )
+      : snapshotCapturesWithMatches(
+          language.config.query.captures(rootNode),
+          queryMatches,
+          maps,
+          language.config.injectionPatternEnd,
+          language.config.captureOffsets,
+        );
     const localDefinitionValueEnds = collectLocalDefinitionValueEnds(
       queryMatches,
       language,
