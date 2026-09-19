@@ -671,20 +671,31 @@ impl<'a> CaptureStream<'a> {
         source: &'a [u8],
     ) -> Self {
         let mut matches: Vec<(usize, Vec<QueryCapture<'a>>)> = Vec::new();
-        let mut match_indices = HashMap::new();
+        let mut match_indices: HashMap<_, usize> = HashMap::new();
         let mut order = Vec::new();
         let mut query_captures = cursor.captures(query, root, source);
 
         while let Some((query_match, capture_index)) = query_captures.next() {
-            let match_index = match_indices
-                .get(&query_match.id())
-                .copied()
-                .unwrap_or_else(|| {
+            // A capture list belongs to the cursor, which reuses and rewrites it: the
+            // same match id can come back with different captures, not just more of
+            // them. Recorded indexes point into the list as it stood when they were
+            // recorded, so a rewrite starts a new entry rather than overwriting the
+            // one earlier positions still refer to.
+            let reusable = match match_indices.get(&query_match.id()).copied() {
+                Some(index) if Self::extends(&matches[index].1, query_match.captures) => {
+                    Some(index)
+                }
+                _ => None,
+            };
+            let match_index = match reusable {
+                Some(index) => index,
+                None => {
                     let index = matches.len();
                     match_indices.insert(query_match.id(), index);
                     matches.push((query_match.pattern_index, Vec::new()));
                     index
-                });
+                }
+            };
             let captures = &mut matches[match_index].1;
             captures.clear();
             captures.extend_from_slice(query_match.captures);
@@ -712,6 +723,16 @@ impl<'a> CaptureStream<'a> {
             removed,
             order: order.into_iter().peekable(),
         }
+    }
+
+    /// Whether `incoming` still holds `stored` as a prefix, so indexes already
+    /// recorded against `stored` keep pointing at the same captures.
+    fn extends(stored: &[QueryCapture<'a>], incoming: &[QueryCapture<'a>]) -> bool {
+        incoming.len() >= stored.len()
+            && stored
+                .iter()
+                .zip(incoming)
+                .all(|(a, b)| a.index == b.index && a.node == b.node)
     }
 
     /// The next capture and the index of its match, skipping removed matches.

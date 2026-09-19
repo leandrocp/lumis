@@ -958,6 +958,36 @@ mod tests {
     }
 
     #[test]
+    fn capture_stream_survives_a_rewritten_match_capture_list() {
+        // The cursor reuses a match's capture list and rewrites it in place, so the
+        // same match id can come back holding different captures. A position recorded
+        // against the earlier contents then resolves to the wrong capture, which
+        // displaces later captures out of document order. Kotlin's package
+        // declaration is where that surfaces: each segment stays a module.
+        let source = "package com.learnxinyminutes.kotlin\n";
+        let events = highlight_events(source, Language::Kotlin).unwrap();
+        let mut open_scopes: Vec<&str> = Vec::new();
+        let mut scope_of_com = None;
+
+        for event in events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    open_scopes.push(HIGHLIGHT_NAMES[scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    open_scopes.pop();
+                }
+                CoreHighlightEvent::Source { start, end } if &source[start..end] == "com" => {
+                    scope_of_com = Some(open_scopes.last().copied());
+                }
+                _ => {}
+            }
+        }
+
+        assert_eq!(scope_of_com, Some(Some("module")));
+    }
+
+    #[test]
     fn test_highlighter_without_theme() {
         let code = "fn main() {}";
         let highlighter = Highlighter::new(Language::Rust, None);
