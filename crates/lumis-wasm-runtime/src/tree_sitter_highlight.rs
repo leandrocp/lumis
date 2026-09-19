@@ -67,26 +67,27 @@ const CANCELLATION_CHECK_INTERVAL: usize = 100;
 const BUFFER_HTML_RESERVE_CAPACITY: usize = 10 * 1024;
 const BUFFER_LINES_RESERVE_CAPACITY: usize = 1000;
 
-/// Default bound on the number of in-progress query matches, for two reasons.
+/// Default bound on the number of in-progress query matches.
 ///
-/// The capture list pool has to stay within tree-sitter's 16-bit capture-list id
-/// space, which overflowed and corrupted memory on very large inputs before
-/// tree-sitter 0.26.9.
+/// `capture_list_pool_acquire` walks the whole pool looking for a free capture
+/// list, and the pool grows up to this bound, so a pattern that stays in
+/// progress across a large subtree makes every capture cost as much as there
+/// are matches open. Queries that replay a layer's captures from its finished
+/// matches do not reach that state, because the pool then holds only the
+/// matches genuinely in progress; every other query relies on this bound to
+/// stay linear. Reported upstream as
+/// <https://github.com/tree-sitter/tree-sitter/issues/5951>.
 ///
-/// `capture_list_pool_acquire` also walks the whole pool looking for a free
-/// capture list, and the pool grows up to this limit, so patterns that stay in
-/// progress across a large subtree make every capture cost as much as there are
-/// matches open. The html queries hit this:
-/// `(element (start_tag (tag_name) @_tag) (text) @markup.*)` stays open for as
-/// long as its element does, so a document whose markup sits inside one wrapper
-/// element pays it on every capture underneath.
-///
-/// Raising it recovers matches that tree-sitter would otherwise drop on documents
-/// with more simultaneous in-progress matches than this, at that cost.
+/// The bound also decides when tree-sitter starts discarding matches, which it
+/// does silently. On the replay path that is one match per pattern per level of
+/// nesting, so 16384 leaves room for roughly a thousand levels where documents
+/// in the wild nest tens. Raising it recovers matches on a document that nests
+/// deeper still, at the cost above.
 pub const DEFAULT_MATCH_LIMIT: u32 = 16_384;
 
-/// Largest match limit tree-sitter accepts; its `QueryCursor::set_match_limit`
-/// is documented for `1..=65536`.
+/// Largest match limit accepted here. tree-sitter takes any `u32` and its Rust
+/// binding documents `1..=65536`, though nothing in the C library enforces
+/// either bound; this keeps callers inside the documented range.
 pub const MAX_MATCH_LIMIT: u32 = 65536;
 
 static STANDARD_CAPTURE_NAMES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
