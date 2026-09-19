@@ -976,3 +976,21 @@ describe("package exports", () => {
     expect("defineFormatter" in formatterApi).toBe(false);
   });
 });
+
+describe("elements that keep many matches open", () => {
+  it("keeps the trailing text scope of an element wrapping thousands of nodes", async () => {
+    // Each html `(element (start_tag (tag_name) @_tag) (text) @markup.*)` pattern
+    // stays in progress from `<code>` until a direct `(text)` child arrives, so
+    // every capture inside the element finishes behind it. Replaying captures
+    // from matches() keeps the capture list pool at the matches genuinely in
+    // progress, so the `<code>` match is never evicted and its trailing text
+    // keeps `markup.raw`.
+    const spans = Array.from({ length: 4000 }, (_, i) => `<span class="tok">t${i}</span>`).join("");
+    const source = `<pre><code>${spans}() {}</code></pre>\n`;
+    const htmlHighlighter = await createHighlighter({ languages: [htmlLanguage] });
+
+    const output = htmlHighlighter.highlight(source, bbcodeScoped({ language: htmlLanguage }));
+
+    expect(output).toContain("[markup-raw-html]() {}[/markup-raw-html]");
+  });
+});
