@@ -195,13 +195,91 @@ function nodeEndByte(node: Node, maps: SourceMaps): number {
   return maps.utf8Offsets[node.endIndex] ?? 0;
 }
 
+interface MatchQueue {
+  indexes: number[];
+  cursor: number;
+}
+
+type CaptureMatchQueues = Map<number, Map<number, Map<string, MatchQueue>>>;
+
+// Query.captures() preserves Tree-sitter's stream order but omits match identity.
+// Query.matches() preserves match identity but not that order. Join both views so
+// whole matches can be discarded exactly when the native highlighter discards them.
+function snapshotCapturesWithMatches(
+  captures: QueryCapture[],
+  matches: QueryMatch[],
+  maps: SourceMaps,
+  firstHighlightPattern: number,
+  captureOffsets: Array<Record<string, QueryCaptureOffset> | undefined>,
+): CaptureSnapshot {
+  const queues = buildCaptureMatchQueues(matches, firstHighlightPattern);
+
+  const result: LayerQueryCapture[] = [];
+  let nextMatchIndex = matches.length;
+
+  for (const capture of captures) {
+    if (capture.patternIndex < firstHighlightPattern) continue;
+
+    const queue = queues.get(capture.patternIndex)?.get(capture.node.id)?.get(capture.name);
+    let matchIndex = queue?.indexes[queue.cursor];
+    if (queue && matchIndex != null) {
+      queue.cursor += 1;
+    } else {
+      // web-tree-sitter can omit valid captures from matches(). Give each
+      // unmatched capture its own identity while preserving captures() order.
+      matchIndex = nextMatchIndex;
+      nextMatchIndex += 1;
+    }
+
+    result.push(snapshotCapture(capture, matchIndex, maps, captureOffsets));
+  }
+
+  return { captures: result, matchCount: nextMatchIndex };
+}
+
+// The match indexes each (pattern, node, capture name) was seen at, in order,
+// so a capture from `captures()` can be paired with its match from `matches()`.
+function buildCaptureMatchQueues(
+  matches: QueryMatch[],
+  firstHighlightPattern: number,
+): CaptureMatchQueues {
+  const queues: CaptureMatchQueues = new Map();
+
+  for (const [matchIndex, match] of matches.entries()) {
+    if (match.patternIndex < firstHighlightPattern) continue;
+
+    for (const capture of match.captures) {
+      let nodes = queues.get(capture.patternIndex);
+      if (!nodes) {
+        nodes = new Map();
+        queues.set(capture.patternIndex, nodes);
+      }
+
+      let names = nodes.get(capture.node.id);
+      if (!names) {
+        names = new Map();
+        nodes.set(capture.node.id, names);
+      }
+
+      const queue = names.get(capture.name);
+      if (queue) {
+        queue.indexes.push(matchIndex);
+      } else {
+        names.set(capture.name, { indexes: [matchIndex], cursor: 0 });
+      }
+    }
+  }
+
+  return queues;
+}
+
 // Query.captures() has to return captures in document order, so tree-sitter keeps
 // every finished match buffered behind any earlier match that is still in progress,
 // and an element whose `(element … (text))` pattern stays open across a large
 // subtree makes a capture pass quadratic in that subtree. Query.matches() releases
-// each match the moment it finishes. Take the captures from the matches and replay
-// them in the order captures() would have produced them, as the Rust highlighter
-// does, which also gives every capture its match identity for free.
+// each match the moment it finishes. The html_tags query family uses this bounded
+// replay; other queries keep captures() because this sort is not generally equivalent
+// to Tree-sitter's online capture order.
 function snapshotCapturesFromMatches(
   matches: QueryMatch[],
   maps: SourceMaps,
@@ -259,7 +337,7 @@ function snapshotCapture(
   matchIndex: number,
   maps: SourceMaps,
   captureOffsets: Array<Record<string, QueryCaptureOffset> | undefined>,
-  setProperties: QueryMatch["setProperties"],
+  setProperties: QueryMatch["setProperties"] = capture.setProperties,
 ): LayerQueryCapture {
   // Neovim resolves a highlight capture's range through `get_range`, so `#offset!`
   // narrows the highlighted span as well as injection ranges.
@@ -385,12 +463,20 @@ function collectHighlightLayers(
   try {
     const rootNode = tree.rootNode;
     const queryMatches = language.config.query.matches(rootNode);
-    const snapshot = snapshotCapturesFromMatches(
-      queryMatches,
-      maps,
-      language.config.injectionPatternEnd,
-      language.config.captureOffsets,
-    );
+    const snapshot = language.config.replayCapturesFromMatches
+      ? snapshotCapturesFromMatches(
+          queryMatches,
+          maps,
+          language.config.injectionPatternEnd,
+          language.config.captureOffsets,
+        )
+      : snapshotCapturesWithMatches(
+          language.config.query.captures(rootNode),
+          queryMatches,
+          maps,
+          language.config.injectionPatternEnd,
+          language.config.captureOffsets,
+        );
     const localDefinitionValueEnds = collectLocalDefinitionValueEnds(
       queryMatches,
       language,

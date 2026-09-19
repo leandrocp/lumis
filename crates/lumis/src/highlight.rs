@@ -934,6 +934,30 @@ mod tests {
     }
 
     #[test]
+    fn capture_stream_preserves_tree_sitter_tie_order_for_other_queries() {
+        let events = highlight_events("* { }", Language::CSS).unwrap();
+        let mut active_scopes = Vec::new();
+
+        for event in events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    active_scopes.push(HIGHLIGHT_NAMES[scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    active_scopes.pop();
+                }
+                CoreHighlightEvent::Source { start: 0, end } if end > 0 => {
+                    assert_eq!(active_scopes, ["character.special", "operator"]);
+                    return;
+                }
+                _ => {}
+            }
+        }
+
+        panic!("CSS wildcard did not produce a source event");
+    }
+
+    #[test]
     fn test_highlighter_without_theme() {
         let code = "fn main() {}";
         let highlighter = Highlighter::new(Language::Rust, None);

@@ -21,12 +21,13 @@
 //   A same-row offset may reach its own newline, which `(#offset! @c 0 1 0 1)` in the diff
 //   injection queries needs to keep joined hunk lines apart, and no further, so the byte and
 //   the point keep describing one place. Neovim clamps to neither.
-// - Each layer runs its query to completion through `matches` and replays the captures in
-//   `next_capture` order (`CaptureStream`) instead of streaming `captures`, which keeps every
-//   finished match buffered behind an element whose `(element … (text))` pattern is still
-//   open, makes a capture pass quadratic in that element's size, and under a match limit
-//   evicts that element's own match. This also removes upstream's `_QueryCaptures`
-//   transmute of the streaming cursor.
+// - Queries inheriting `html_tags` run to completion through `matches` and replay their captures
+//   (`CaptureStream`) instead of streaming `captures`, which keeps every finished match buffered
+//   behind an element whose `(element … (text))` pattern is still open, makes a capture pass
+//   quadratic in that element's size, and under a match limit evicts that element's own match.
+//   Other queries retain `next_capture` order, which cannot be reconstructed from finished
+//   matches in general. Eager collection removes upstream's `_QueryCaptures` transmute of the
+//   streaming cursor in both cases.
 // - `@injection.filename` resolves an injected language from a path, as Neovim's
 //   `LanguageTree:_get_injection` does through `vim.filetype.match`. It sits beside the
 //   `injection.language` capture it is an alternative to, and is the only reason this file
@@ -179,6 +180,7 @@ pub struct HighlightConfiguration {
     local_def_capture_index: Option<u32>,
     local_def_value_capture_index: Option<u32>,
     local_ref_capture_index: Option<u32>,
+    replay_captures_from_matches: bool,
     /// `(#offset! @capture start_row start_col end_row end_col)` per pattern and capture.
     offsets: HashMap<(usize, u32), [i64; 4]>,
 }
@@ -599,18 +601,12 @@ struct HighlightIterLayer<'a> {
     depth: usize,
 }
 
-/// A layer's query results: every finished match, and its captures in the order
-/// `ts_query_cursor_next_capture` would have returned them.
+/// A layer's query results, detached from the cursor so it can be reused.
 ///
-/// MODIFICATION: the layer runs its query to completion through `matches` instead
-/// of streaming `captures`. `next_capture` has to return captures in document
-/// order, so it keeps every finished match buffered behind any earlier match that
-/// is still in progress, and acquiring each new capture list scans that whole
-/// buffer. An element whose `(element … (text))` patterns stay open across a large
-/// subtree makes a capture pass quadratic, and bounding the buffer with a match
-/// limit then evicts that element's own match. `next_match` releases a match the
-/// moment it finishes, so the pool only ever holds matches that are genuinely in
-/// progress, and the captures are replayed here in `next_capture`'s order.
+/// Queries with the long-running `html_tags` element patterns collect finished
+/// matches and replay their captures. Other queries collect `next_capture`
+/// directly because its ordering cannot be reconstructed from finished matches
+/// in general.
 struct CaptureStream<'a> {
     patterns: Vec<usize>,
     spans: Vec<(usize, usize)>,
@@ -621,6 +617,20 @@ struct CaptureStream<'a> {
 
 impl<'a> CaptureStream<'a> {
     fn collect(
+        cursor: &mut QueryCursor,
+        query: &'a Query,
+        root: Node<'a>,
+        source: &'a [u8],
+        replay_from_matches: bool,
+    ) -> Self {
+        if !replay_from_matches {
+            return Self::collect_captures(cursor, query, root, source);
+        }
+
+        Self::collect_matches(cursor, query, root, source)
+    }
+
+    fn collect_matches(
         cursor: &mut QueryCursor,
         query: &'a Query,
         root: Node<'a>,
@@ -644,6 +654,56 @@ impl<'a> CaptureStream<'a> {
             order.extend((start..end).map(|i| (m, i)));
         }
         order.sort_unstable_by_key(|&(m, i)| (captures[i].node.start_byte(), patterns[m], m, i));
+        let removed = vec![false; spans.len()];
+        Self {
+            patterns,
+            spans,
+            captures,
+            removed,
+            order: order.into_iter().peekable(),
+        }
+    }
+
+    fn collect_captures(
+        cursor: &mut QueryCursor,
+        query: &'a Query,
+        root: Node<'a>,
+        source: &'a [u8],
+    ) -> Self {
+        let mut matches: Vec<(usize, Vec<QueryCapture<'a>>)> = Vec::new();
+        let mut match_indices = HashMap::new();
+        let mut order = Vec::new();
+        let mut query_captures = cursor.captures(query, root, source);
+
+        while let Some((query_match, capture_index)) = query_captures.next() {
+            let match_index = match_indices
+                .get(&query_match.id())
+                .copied()
+                .unwrap_or_else(|| {
+                    let index = matches.len();
+                    match_indices.insert(query_match.id(), index);
+                    matches.push((query_match.pattern_index, Vec::new()));
+                    index
+                });
+            let captures = &mut matches[match_index].1;
+            captures.clear();
+            captures.extend_from_slice(query_match.captures);
+            order.push((match_index, *capture_index));
+        }
+
+        let mut patterns = Vec::with_capacity(matches.len());
+        let mut spans = Vec::with_capacity(matches.len());
+        let mut captures = Vec::new();
+        for (pattern, match_captures) in matches {
+            let start = captures.len();
+            patterns.push(pattern);
+            captures.extend(match_captures);
+            spans.push((start, captures.len()));
+        }
+        for (match_index, capture_index) in &mut order {
+            *capture_index += spans[*match_index].0;
+        }
+
         let removed = vec![false; spans.len()];
         Self {
             patterns,
@@ -781,6 +841,11 @@ impl HighlightConfiguration {
         injection_query: &str,
         locals_query: &str,
     ) -> Result<Self, QueryError> {
+        // These inherited patterns can remain open across an entire wrapper element.
+        // Restrict match replay to that query family: completed matches do not contain
+        // enough information to reproduce `next_capture` ordering for arbitrary queries.
+        let replay_captures_from_matches = highlights_query.contains("inherits: html_tags");
+
         // Concatenate the query strings, keeping track of the start offset of each section.
         let mut query_source = String::with_capacity(
             injection_query.len() + locals_query.len() + highlights_query.len(),
@@ -903,6 +968,7 @@ impl HighlightConfiguration {
             local_def_value_capture_index,
             local_ref_capture_index,
             local_scope_capture_index,
+            replay_captures_from_matches,
         })
     }
 
@@ -1075,6 +1141,7 @@ impl<'a> HighlightIterLayer<'a> {
                     &config.query,
                     tree_ref.root_node(),
                     source,
+                    config.replay_captures_from_matches,
                 );
                 highlighter.cursors.push(cursor);
 

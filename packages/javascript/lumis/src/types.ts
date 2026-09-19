@@ -275,6 +275,7 @@ export interface CompiledHighlightConfig {
   query: Query;
   injectionPatternEnd: number;
   localsPatternEnd: number;
+  replayCapturesFromMatches: boolean;
   captureMetadata: Record<string, CaptureMetadata>;
   nonLocalVariablePatterns: boolean[];
   /** Per pattern index, the `#offset!` deltas keyed by capture name. */

@@ -15,6 +15,7 @@ import htmlLanguage from "../langs/html.ts";
 import plaintext from "../langs/plaintext.ts";
 import javascript from "../langs/javascript.ts";
 import python from "../langs/python.ts";
+import css from "../langs/css.ts";
 import { bundledLanguages } from "../bundles/web.ts";
 import { configureLocalWasmResolver } from "./wasm.js";
 
@@ -58,6 +59,7 @@ beforeAll(async () => {
     "javascript",
     "bash",
     "dockerfile",
+    "css",
     "elixir",
     "html",
     "python",
@@ -978,6 +980,18 @@ describe("package exports", () => {
 });
 
 describe("elements that keep many matches open", () => {
+  it("preserves Tree-sitter capture precedence for other query families", async () => {
+    const cssHighlighter = await createHighlighter({ languages: [css] });
+
+    const output = cssHighlighter.highlight("* { }", bbcodeScoped({ language: css }));
+
+    expect(output).toBe(
+      "[character-special-css][operator-css]*[/operator-css][/character-special-css] " +
+        "[punctuation-bracket-css]{[/punctuation-bracket-css] " +
+        "[punctuation-bracket-css]}[/punctuation-bracket-css]",
+    );
+  });
+
   it("keeps the trailing text scope of an element wrapping thousands of nodes", async () => {
     // Each html `(element (start_tag (tag_name) @_tag) (text) @markup.*)` pattern
     // stays in progress from `<code>` until a direct `(text)` child arrives, so
