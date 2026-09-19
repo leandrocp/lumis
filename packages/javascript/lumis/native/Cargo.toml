@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 base64 = "0.23"
-lumis-core = { path = "../../../../crates/lumis-core", version = "2.5.0", features = ["all-languages"] }
+lumis-core = { path = "../../../../crates/lumis-core", version = "3.0.0", features = ["all-languages"] }
 lumis-wasm-runtime = { path = "../../../../crates/lumis-wasm-runtime", version = "0.2.1" }
 napi = { version = "3", default-features = false, features = ["napi8", "serde-json"] }
 napi-derive = "3"
