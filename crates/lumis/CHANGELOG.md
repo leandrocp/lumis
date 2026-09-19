@@ -1,3 +1,37 @@
+## [0.14.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.13.1...cargo-lumis/v0.14.0) (2026-09-19)
+
+
+### Bug Fixes
+
+- escape attribute values in the Rust formatters - [#1385](https://github.com/leandrocp/lumis/pull/1385)
+- reject a hex colour that is only partly hex - [#1394](https://github.com/leandrocp/lumis/pull/1394)
+- BREAKING: make public error enums non-exhaustive - [#1395](https://github.com/leandrocp/lumis/pull/1395)
+- BREAKING: preserve source line endings across runtimes - [#1410](https://github.com/leandrocp/lumis/pull/1410)
+
+
+### Code Refactoring
+
+- BREAKING: re-export lumis-core's formatters from lumis - [#1387](https://github.com/leandrocp/lumis/pull/1387)
+
+
+### Features
+
+- update generated themes - [#1358](https://github.com/leandrocp/lumis/pull/1358)
+- update lang perl - [#1357](https://github.com/leandrocp/lumis/pull/1357)
+- add Token themes - [#1365](https://github.com/leandrocp/lumis/pull/1365)
+- update lang protobuf - [#1356](https://github.com/leandrocp/lumis/pull/1356)
+- BREAKING: introduce annotations - [#1100](https://github.com/leandrocp/lumis/pull/1100)
+- ANSI formatter helpers - [#1388](https://github.com/leandrocp/lumis/pull/1388)
+- export the same helpers across runtimes - [#1396](https://github.com/leandrocp/lumis/pull/1396)
+- BREAKING: render line highlighting as built-in decoration events - [#1398](https://github.com/leandrocp/lumis/pull/1398)
+- update lang ocaml - [#1416](https://github.com/leandrocp/lumis/pull/1416)
+- update lang cmake - [#1414](https://github.com/leandrocp/lumis/pull/1414)
+- update lang fsharp - [#1412](https://github.com/leandrocp/lumis/pull/1412)
+- update lang kdl - [#1415](https://github.com/leandrocp/lumis/pull/1415)
+- BREAKING: render line numbers from the line decoration - [#1411](https://github.com/leandrocp/lumis/pull/1411)
+- theme line number gutters - [#1431](https://github.com/leandrocp/lumis/pull/1431)
+- support HTML tag attributes - [#1436](https://github.com/leandrocp/lumis/pull/1436)
+
 ## [0.13.1](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.13.0...cargo-lumis/v0.13.1) (2026-09-03)
 
 
