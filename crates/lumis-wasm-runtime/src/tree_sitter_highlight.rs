@@ -47,7 +47,7 @@
 
 use std::{
     collections::{HashMap, HashSet},
-    iter, mem, ops, str,
+    mem, ops, str,
     sync::{
         atomic::{AtomicUsize, Ordering},
         LazyLock,
@@ -607,13 +607,25 @@ struct HighlightIterLayer<'a> {
 /// matches and replay their captures. Other queries collect `next_capture`
 /// directly because its ordering cannot be reconstructed from finished matches
 /// in general.
+///
+/// One entry in `order` is one capture the stream produced, holding the slot of
+/// the match it came from and where its capture sits in `entries`. A match's
+/// whole capture list is kept only when something reads it, which is the
+/// injection and locals patterns; for a highlight pattern the emitted capture is
+/// all `next` ever looks at, and on a large document those patterns are nearly
+/// all of the stream.
 struct CaptureStream<'a> {
-    patterns: Vec<usize>,
-    spans: Vec<(usize, usize)>,
-    captures: Vec<QueryCapture<'a>>,
+    patterns: Vec<u32>,
+    list_starts: Vec<u32>,
+    list_ends: Vec<u32>,
+    entries: Vec<QueryCapture<'a>>,
     removed: Vec<bool>,
-    order: iter::Peekable<std::vec::IntoIter<(usize, usize)>>,
+    order: Vec<(u32, u32)>,
+    position: usize,
 }
+
+/// A match whose capture list nothing reads.
+const NO_LIST: u32 = u32::MAX;
 
 impl<'a> CaptureStream<'a> {
     fn collect(
@@ -622,9 +634,18 @@ impl<'a> CaptureStream<'a> {
         root: Node<'a>,
         source: &'a [u8],
         replay_from_matches: bool,
+        highlights_pattern_index: usize,
+        covered_bytes: usize,
     ) -> Self {
         if !replay_from_matches {
-            return Self::collect_captures(cursor, query, root, source);
+            return Self::collect_captures(
+                cursor,
+                query,
+                root,
+                source,
+                highlights_pattern_index,
+                covered_bytes,
+            );
         }
 
         Self::collect_matches(cursor, query, root, source)
@@ -637,30 +658,48 @@ impl<'a> CaptureStream<'a> {
         source: &'a [u8],
     ) -> Self {
         let mut patterns = Vec::new();
-        let mut spans = Vec::new();
-        let mut captures: Vec<QueryCapture<'a>> = Vec::new();
+        let mut list_starts = Vec::new();
+        let mut list_ends = Vec::new();
+        let mut entries: Vec<QueryCapture<'a>> = Vec::new();
         let mut matches = cursor.matches(query, root, source);
         while let Some(m) = matches.next() {
-            let start = captures.len();
-            captures.extend_from_slice(m.captures);
-            patterns.push(m.pattern_index);
-            spans.push((start, captures.len()));
+            let start = entries.len() as u32;
+            entries.extend_from_slice(m.captures);
+            patterns.push(m.pattern_index as u32);
+            list_starts.push(start);
+            list_ends.push(entries.len() as u32);
         }
+
         // `next_capture` returns the capture with the earliest start byte, breaking
         // ties by pattern index and then by the order the matches finished, and a
-        // match's own captures in list order.
-        let mut order: Vec<(usize, usize)> = Vec::with_capacity(captures.len());
-        for (m, &(start, end)) in spans.iter().enumerate() {
-            order.extend((start..end).map(|i| (m, i)));
+        // match's own captures in list order. The keys are computed once up front:
+        // `start_byte` is a call into the C library.
+        let mut keyed: Vec<(usize, u32, u32, u32)> = Vec::with_capacity(entries.len());
+        for slot in 0..patterns.len() {
+            for entry in list_starts[slot]..list_ends[slot] {
+                keyed.push((
+                    entries[entry as usize].node.start_byte(),
+                    patterns[slot],
+                    slot as u32,
+                    entry,
+                ));
+            }
         }
-        order.sort_unstable_by_key(|&(m, i)| (captures[i].node.start_byte(), patterns[m], m, i));
-        let removed = vec![false; spans.len()];
+        keyed.sort_unstable();
+        let order = keyed
+            .into_iter()
+            .map(|(_, _, slot, entry)| (slot, entry))
+            .collect();
+
+        let removed = vec![false; patterns.len()];
         Self {
             patterns,
-            spans,
-            captures,
+            list_starts,
+            list_ends,
+            entries,
             removed,
-            order: order.into_iter().peekable(),
+            order,
+            position: 0,
         }
     }
 
@@ -669,103 +708,118 @@ impl<'a> CaptureStream<'a> {
         query: &'a Query,
         root: Node<'a>,
         source: &'a [u8],
+        highlights_pattern_index: usize,
+        covered_bytes: usize,
     ) -> Self {
-        let mut matches: Vec<(usize, Vec<QueryCapture<'a>>)> = Vec::new();
-        let mut match_indices: HashMap<_, usize> = HashMap::new();
-        let mut order = Vec::new();
+        let mut patterns: Vec<u32> = Vec::new();
+        let mut list_starts: Vec<u32> = Vec::new();
+        let mut list_ends: Vec<u32> = Vec::new();
+        let mut entries: Vec<QueryCapture<'a>> = Vec::new();
+        let mut order: Vec<(u32, u32)> = Vec::new();
+        // Growing these by doubling would hold the old buffer alongside the new one
+        // at every step, and on a large document the captures outweigh everything
+        // else here. Start near the size the bytes this layer covers imply, which
+        // is the injected span rather than the whole document for an injection.
+        let expected = (covered_bytes / 4).min(1 << 22);
+        entries.reserve(expected);
+        order.reserve(expected);
+        // The cursor numbers its matches from zero and upwards, so the slot each id
+        // maps to is a lookup rather than a hash of one entry per match.
+        let mut slot_of_id: Vec<u32> = Vec::new();
         let mut query_captures = cursor.captures(query, root, source);
 
         while let Some((query_match, capture_index)) = query_captures.next() {
-            // A capture list belongs to the cursor, which reuses and rewrites it: the
-            // same match id can come back with different captures, not just more of
-            // them. Recorded indexes point into the list as it stood when they were
-            // recorded, so a rewrite starts a new entry rather than overwriting the
-            // one earlier positions still refer to.
-            let reusable = match match_indices.get(&query_match.id()).copied() {
-                Some(index) if Self::extends(&matches[index].1, query_match.captures) => {
-                    Some(index)
-                }
-                _ => None,
-            };
-            let match_index = match reusable {
-                Some(index) => index,
-                None => {
-                    let index = matches.len();
-                    match_indices.insert(query_match.id(), index);
-                    matches.push((query_match.pattern_index, Vec::new()));
-                    index
+            let pattern = query_match.pattern_index as u32;
+            let id = query_match.id() as usize;
+            if id >= slot_of_id.len() {
+                slot_of_id.resize(id + 1, NO_LIST);
+            }
+            // The cursor reuses a state id only while it describes the same pattern.
+            let slot = match slot_of_id[id] {
+                slot if slot != NO_LIST && patterns[slot as usize] == pattern => slot,
+                _ => {
+                    let slot = patterns.len() as u32;
+                    slot_of_id[id] = slot;
+                    patterns.push(pattern);
+                    list_starts.push(NO_LIST);
+                    list_ends.push(NO_LIST);
+                    slot
                 }
             };
-            let captures = &mut matches[match_index].1;
-            captures.clear();
-            captures.extend_from_slice(query_match.captures);
-            order.push((match_index, *capture_index));
+
+            if query_match.pattern_index < highlights_pattern_index {
+                // `next` reads the whole match for injection content and
+                // local-definition values, and the cursor rewrites that list as it
+                // finds more of it, so keep the newest. Nothing in `order` points
+                // into a stored list, so one of the same length is rewritten where
+                // it lies rather than appended again.
+                let stored = list_starts[slot as usize];
+                let same_length = stored != NO_LIST
+                    && (list_ends[slot as usize] - stored) as usize == query_match.captures.len();
+                if same_length {
+                    let at = stored as usize;
+                    entries[at..at + query_match.captures.len()]
+                        .copy_from_slice(query_match.captures);
+                } else {
+                    let start = entries.len() as u32;
+                    entries.extend_from_slice(query_match.captures);
+                    list_starts[slot as usize] = start;
+                    list_ends[slot as usize] = entries.len() as u32;
+                }
+            }
+
+            let entry = entries.len() as u32;
+            entries.push(query_match.captures[*capture_index]);
+            order.push((slot, entry));
         }
 
-        let mut patterns = Vec::with_capacity(matches.len());
-        let mut spans = Vec::with_capacity(matches.len());
-        let mut captures = Vec::new();
-        for (pattern, match_captures) in matches {
-            let start = captures.len();
-            patterns.push(pattern);
-            captures.extend(match_captures);
-            spans.push((start, captures.len()));
-        }
-        for (match_index, capture_index) in &mut order {
-            *capture_index += spans[*match_index].0;
-        }
-
-        let removed = vec![false; spans.len()];
+        let removed = vec![false; patterns.len()];
         Self {
             patterns,
-            spans,
-            captures,
+            list_starts,
+            list_ends,
+            entries,
             removed,
-            order: order.into_iter().peekable(),
+            order,
+            position: 0,
         }
     }
 
-    /// Whether `incoming` still holds `stored` as a prefix, so indexes already
-    /// recorded against `stored` keep pointing at the same captures.
-    fn extends(stored: &[QueryCapture<'a>], incoming: &[QueryCapture<'a>]) -> bool {
-        incoming.len() >= stored.len()
-            && stored
-                .iter()
-                .zip(incoming)
-                .all(|(a, b)| a.index == b.index && a.node == b.node)
-    }
-
-    /// The next capture and the index of its match, skipping removed matches.
+    /// The next capture and the slot of its match, skipping removed matches.
     fn peek(&mut self) -> Option<(usize, QueryCapture<'a>)> {
-        loop {
-            let &(m, i) = self.order.peek()?;
-            if self.removed[m] {
-                self.order.next();
+        while let Some(&(slot, entry)) = self.order.get(self.position) {
+            if self.removed[slot as usize] {
+                self.position += 1;
                 continue;
             }
-            return Some((m, self.captures[i]));
+            return Some((slot as usize, self.entries[entry as usize]));
         }
+        None
     }
 
     fn pop(&mut self) -> Option<(usize, QueryCapture<'a>)> {
         let next = self.peek()?;
-        self.order.next();
+        self.position += 1;
         Some(next)
     }
 
-    fn pattern_index(&self, m: usize) -> usize {
-        self.patterns[m]
+    fn pattern_index(&self, slot: usize) -> usize {
+        self.patterns[slot] as usize
     }
 
-    fn captures_of(&self, m: usize) -> &[QueryCapture<'a>] {
-        let (start, end) = self.spans[m];
-        &self.captures[start..end]
+    /// The match's captures, for the injection and locals patterns that read them.
+    fn captures_of(&self, slot: usize) -> &[QueryCapture<'a>] {
+        let start = self.list_starts[slot];
+        if start == NO_LIST {
+            return &[];
+        }
+        &self.entries[start as usize..self.list_ends[slot] as usize]
     }
 
     /// Drop the match's remaining captures from the stream, as
     /// `QueryMatch::remove` does for a streaming cursor.
-    fn remove(&mut self, m: usize) {
-        self.removed[m] = true;
+    fn remove(&mut self, slot: usize) {
+        self.removed[slot] = true;
     }
 }
 
@@ -1163,6 +1217,11 @@ impl<'a> HighlightIterLayer<'a> {
                     tree_ref.root_node(),
                     source,
                     config.replay_captures_from_matches,
+                    config.highlights_pattern_index,
+                    ranges
+                        .iter()
+                        .map(|range| range.end_byte.saturating_sub(range.start_byte))
+                        .sum(),
                 );
                 highlighter.cursors.push(cursor);
 
