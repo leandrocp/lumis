@@ -46,7 +46,8 @@
 #![allow(clippy::all, clippy::pedantic, dead_code, elided_lifetimes_in_paths)]
 
 use std::{
-    collections::{HashMap, HashSet},
+    cmp::Reverse,
+    collections::{BinaryHeap, HashMap, HashSet},
     mem, ops, str,
     sync::{
         atomic::{AtomicUsize, Ordering},
@@ -670,26 +671,38 @@ impl<'a> CaptureStream<'a> {
             list_ends.push(entries.len() as u32);
         }
 
-        // `next_capture` returns the capture with the earliest start byte, breaking
-        // ties by pattern index and then by the order the matches finished, and a
-        // match's own captures in list order. The keys are computed once up front:
-        // `start_byte` is a call into the C library.
-        let mut keyed: Vec<(usize, u32, u32, u32)> = Vec::with_capacity(entries.len());
+        // `next_capture` hands back whichever match has the earliest next capture,
+        // breaking ties by pattern index and then by the order the matches
+        // finished, and takes that match's captures in list order rather than in
+        // byte order. Merging the finished matches reproduces that; sorting the
+        // captures flat would not, because it would also reorder a match's own
+        // captures among themselves.
+        let mut heap: BinaryHeap<Reverse<(usize, u32, u32, u32)>> =
+            BinaryHeap::with_capacity(patterns.len());
         for slot in 0..patterns.len() {
-            for entry in list_starts[slot]..list_ends[slot] {
-                keyed.push((
-                    entries[entry as usize].node.start_byte(),
+            let head = list_starts[slot];
+            if head < list_ends[slot] {
+                heap.push(Reverse((
+                    entries[head as usize].node.start_byte(),
                     patterns[slot],
                     slot as u32,
-                    entry,
-                ));
+                    head,
+                )));
             }
         }
-        keyed.sort_unstable();
-        let order = keyed
-            .into_iter()
-            .map(|(_, _, slot, entry)| (slot, entry))
-            .collect();
+        let mut order = Vec::with_capacity(entries.len());
+        while let Some(Reverse((_, pattern, slot, entry))) = heap.pop() {
+            order.push((slot, entry));
+            let next = entry + 1;
+            if next < list_ends[slot as usize] {
+                heap.push(Reverse((
+                    entries[next as usize].node.start_byte(),
+                    pattern,
+                    slot,
+                    next,
+                )));
+            }
+        }
 
         let removed = vec![false; patterns.len()];
         Self {
