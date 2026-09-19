@@ -284,7 +284,7 @@ lang-zsh = ["dep:tree-sitter-zsh", "lumis-core/lang-zsh"]
 
 [dependencies]
 lumis-core = { path = "../lumis-core", version = "2.5.0", default-features = false }
-lumis-wasm-runtime = { path = "../lumis-wasm-runtime", version = "0.2.1", default-features = false }
+lumis-wasm-runtime = { path = "../lumis-wasm-runtime", version = "0.3.0", default-features = false }
 anyhow = "1.0"
 derive_builder = "0.20"
 glob = "0.3"
