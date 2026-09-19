@@ -35,9 +35,9 @@ function createPlugin(): Plugin {
   });
 }
 
-describe("vite-plugin-lumis", () => {
+describe("@lumis-sh/vite", () => {
   it("runs through Vite's HTML build pipeline", async () => {
-    const root = await mkdtemp(join(process.cwd(), ".tmp-vite-plugin-lumis-"));
+    const root = await mkdtemp(join(process.cwd(), ".tmp-lumis-vite-"));
     try {
       await writeFile(
         join(root, "index.html"),

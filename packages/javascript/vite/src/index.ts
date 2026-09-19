@@ -69,7 +69,7 @@ export default function lumis(options: VitePluginLumisOptions): Plugin {
   }
 
   return {
-    name: "@lumis-sh/vite-plugin-lumis",
+    name: "@lumis-sh/vite",
     buildStart: warmHighlighter,
     configureServer: warmHighlighter,
     async transformIndexHtml(html) {

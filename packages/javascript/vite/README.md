@@ -1,4 +1,4 @@
-# @lumis-sh/vite-plugin-lumis
+# @lumis-sh/vite
 
 Highlights code in Vite HTML entry points with Lumis. The plugin uses Vite's
 `transformIndexHtml` hook, so it is specifically for Vite rather than a generic
@@ -7,7 +7,7 @@ Rollup plugin.
 ## Install
 
 ```sh
-npm install -D @lumis-sh/vite-plugin-lumis
+npm install -D @lumis-sh/vite
 npm install @lumis-sh/lumis @lumis-sh/themes
 ```
 
@@ -15,7 +15,7 @@ npm install @lumis-sh/lumis @lumis-sh/themes
 
 ```js
 import {defineConfig} from 'vite'
-import lumis from '@lumis-sh/vite-plugin-lumis'
+import lumis from '@lumis-sh/vite'
 import {htmlMultiThemes} from '@lumis-sh/lumis/formatters'
 import javascript from '@lumis-sh/lumis/langs/javascript'
 import githubDark from '@lumis-sh/themes/github_dark'

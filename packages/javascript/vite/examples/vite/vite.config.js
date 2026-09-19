@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import lumis from "@lumis-sh/vite-plugin-lumis";
+import lumis from "@lumis-sh/vite";
 import { htmlMultiThemes } from "@lumis-sh/lumis/formatters";
 import javascript from "@lumis-sh/lumis/langs/javascript";
 import githubDark from "@lumis-sh/themes/github_dark";

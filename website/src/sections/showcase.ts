@@ -499,7 +499,7 @@ const CATALOG = [
   {
     title: "Vite",
     detail: "A static HTML entry point highlighted during the Vite build.",
-    href: `${REPO}/packages/javascript/vite-plugin-lumis/examples`,
+    href: `${REPO}/packages/javascript/vite/examples`,
   },
   {
     title: "Elixir",

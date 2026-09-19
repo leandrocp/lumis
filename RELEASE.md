@@ -25,7 +25,7 @@ Not merged is not released.
  7. npm-lumis                    builds against 6
  8. npm-markdown-it-lumis        needs 7
  9. npm-rehype-lumis             needs 7
-10. npm-vite-plugin-lumis        needs 9
+10. npm-vite                     needs 9
 11. npm-react                    needs 7
 12. npm-cli
 13. npm-wasm-bundle-web

@@ -11,16 +11,16 @@ keywords:
 
 # Vite
 
-[Full example on GitHub](https://github.com/leandrocp/lumis/tree/main/packages/javascript/vite-plugin-lumis/examples/vite)
+[Full example on GitHub](https://github.com/leandrocp/lumis/tree/main/packages/javascript/vite/examples/vite)
 
-Use `@lumis-sh/vite-plugin-lumis` for HTML entry points that Vite processes directly. The
-plugin parses the document as HTML, runs `rehype-lumis` over its HAST tree, and serializes the
-result during `transformIndexHtml`.
+Use `@lumis-sh/vite` for HTML entry points that Vite processes directly. During
+`transformIndexHtml` the plugin parses the document to locate its code blocks, runs `rehype-lumis`
+over each one, and splices the result back into the source.
 
 ## Install
 
 ```bash
-npm install -D @lumis-sh/vite-plugin-lumis
+npm install -D @lumis-sh/vite
 npm install @lumis-sh/lumis @lumis-sh/themes
 ```
 
@@ -28,7 +28,7 @@ npm install @lumis-sh/lumis @lumis-sh/themes
 
 ```js title="vite.config.js"
 import {defineConfig} from 'vite'
-import lumis from '@lumis-sh/vite-plugin-lumis'
+import lumis from '@lumis-sh/vite'
 import {htmlMultiThemes} from '@lumis-sh/lumis/formatters'
 import html from '@lumis-sh/lumis/langs/html'
 import javascript from '@lumis-sh/lumis/langs/javascript'

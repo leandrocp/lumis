@@ -62,7 +62,7 @@ const INTEGRATION_LINKS = [
       { label: "Docs", href: "/docs/integrations/vite" },
       {
         label: "Package",
-        href: "https://www.npmjs.com/package/@lumis-sh/vite-plugin-lumis",
+        href: "https://www.npmjs.com/package/@lumis-sh/vite",
       },
     ],
   },

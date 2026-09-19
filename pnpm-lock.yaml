@@ -431,7 +431,7 @@ importers:
         specifier: ^6.0
         version: 6.0.2
 
-  packages/javascript/vite-plugin-lumis:
+  packages/javascript/vite:
     dependencies:
       '@lumis-sh/rehype-lumis':
         specifier: workspace:^
