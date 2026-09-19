@@ -73,6 +73,39 @@ describe("markdown-it-lumis", () => {
       expect(html).toContain('class="language-javascript"');
       expect(html).toMatch(/<span style="color: #[0-9a-f]+;">const<\/span>/);
     });
+
+    it("preserves attributes attached to the fence token", async () => {
+      const plugin = await markdownItLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const md = new MarkdownIt();
+      md.core.ruler.after("block", "test-fence-attributes", (state) => {
+        const fence = state.tokens.find((token) => token.type === "fence");
+        if (!fence) throw new Error("expected a fence token");
+        fence.attrSet("id", "example-code");
+        fence.attrSet("class", "authored-code language-javascript");
+        fence.attrSet("style", "font-variant-ligatures: none;");
+        fence.attrSet("data-panel", "javascript");
+        fence.attrSet("aria-label", "JavaScript example");
+        fence.attrSet("title", "Example");
+        fence.attrSet("translate", "yes");
+        fence.attrSet("tabindex", "-1");
+      });
+      md.use(plugin);
+
+      const html = md.render(JS_SOURCE);
+
+      expect(html).toContain(
+        '<code class="language-javascript authored-code" translate="yes" tabindex="-1"',
+      );
+      expect(html.match(/language-javascript/g)).toHaveLength(1);
+      expect(html).toContain('id="example-code"');
+      expect(html).toContain('style="font-variant-ligatures: none;"');
+      expect(html).toContain('data-panel="javascript"');
+      expect(html).toContain('aria-label="JavaScript example"');
+      expect(html).toContain('title="Example"');
+    });
   });
 
   describe("htmlLinked formatter", () => {

@@ -18,10 +18,12 @@ configureLocalWasmResolver(["javascript", "json"], {
 function codeBlockTree({
   code = "const answer = 42",
   codeClassName,
+  codeProperties = {},
   preProperties = {},
 }: {
   code?: string;
   codeClassName?: string[];
+  codeProperties?: Properties;
   preProperties?: Properties;
 } = {}): Root {
   return {
@@ -35,7 +37,10 @@ function codeBlockTree({
           {
             type: "element",
             tagName: "code",
-            properties: codeClassName ? { className: codeClassName } : {},
+            properties: {
+              ...codeProperties,
+              ...(codeClassName ? { className: codeClassName } : {}),
+            },
             children: [{ type: "text", value: code }],
           },
         ],
@@ -145,6 +150,57 @@ describe("rehype-lumis", () => {
 
       const pre = assertLumisPreElement(tree);
       expect(classNames(pre)).toContain("my-pre");
+    });
+
+    it("preserves authored pre and code properties", async () => {
+      const transform = rehypeLumis({
+        formatter: (language) => htmlInline({ language, theme: dracula }),
+        languages: [javascript],
+      });
+      const tree = codeBlockTree({
+        preProperties: {
+          id: "example",
+          className: ["authored-pre", "lumis"],
+          style: "padding: 1rem;",
+          dataPanel: "javascript",
+          role: "tabpanel",
+          ariaLabel: "JavaScript example",
+          title: "Example",
+        },
+        codeProperties: {
+          id: "example-code",
+          className: ["language-javascript", "authored-code"],
+          style: "font-variant-ligatures: none;",
+          dataLine: "7",
+          ariaLabel: "Example source",
+          translate: "yes",
+          tabIndex: -1,
+        },
+      });
+
+      await transform(tree);
+
+      const pre = assertLumisPreElement(tree);
+      expect(classNames(pre)).toEqual(["lumis", "authored-pre"]);
+      expect(style(pre)).toMatch(/background-color: #[0-9a-f]+; padding: 1rem;$/);
+      expect(pre.properties).toMatchObject({
+        id: "example",
+        dataPanel: "javascript",
+        role: "tabpanel",
+        ariaLabel: "JavaScript example",
+        title: "Example",
+      });
+
+      const code = findElements(tree, "code")[0];
+      expect(classNames(code)).toEqual(["language-javascript", "authored-code"]);
+      expect(code.properties).toMatchObject({
+        id: "example-code",
+        style: "font-variant-ligatures: none;",
+        dataLine: "7",
+        ariaLabel: "Example source",
+        translate: "yes",
+        tabIndex: -1,
+      });
     });
   });
 
