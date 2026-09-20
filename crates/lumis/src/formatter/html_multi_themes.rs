@@ -107,11 +107,41 @@
 //! This generates HTML using the native `light-dark()` CSS function:
 //!
 //! ```html
-//! <span style="color: light-dark(#d73a49, #ff7b72);">keyword</span>
+//! <span style="color: light-dark(#d73a49, #ff7b72); font-weight: bold;">keyword</span>
+//! <span style="color: light-dark(#6a737d, #8b949e); --lumis-dark-font-style:normal; --lumis-light-font-style:italic;">comment</span>
 //! ```
 //!
-//! The browser automatically selects the appropriate color based on `color-scheme` or
-//! `prefers-color-scheme` without any additional CSS required.
+//! The browser selects the color based on `color-scheme` or `prefers-color-scheme`,
+//! with no additional CSS required.
+//!
+//! That covers `color` and `background-color`, the only properties `light-dark()` is
+//! defined over. `font-weight`, `font-style` and `text-decoration` follow a value the
+//! two themes share as an ordinary declaration, which needs no stylesheet and no
+//! switching. A value they disagree on is a `--lumis-light-*` and a `--lumis-dark-*`
+//! variable instead, and nothing inline, since only a rule of your own can switch it:
+//!
+//! ```css
+//! .lumis span {
+//!   font-style: var(--lumis-light-font-style);
+//!   font-weight: var(--lumis-light-font-weight);
+//!   text-decoration: var(--lumis-light-text-decoration);
+//! }
+//!
+//! @media (prefers-color-scheme: dark) {
+//!   .lumis span {
+//!     font-style: var(--lumis-dark-font-style);
+//!     font-weight: var(--lumis-dark-font-weight);
+//!     text-decoration: var(--lumis-dark-text-decoration);
+//!   }
+//! }
+//! ```
+//!
+//! No `!important`, and none is wanted: a disputed property is left out of the style
+//! attribute, so these rules have nothing inline to outrank, and they stay where your
+//! own `print` or `forced-colors` rules can still beat them. On a token whose themes
+//! agreed, the inline declaration outranks them and the shared value stands. On one
+//! neither theme styled, the variable was never set, the declaration drops out, and
+//! whatever your page says is what renders.
 //!
 //! **Note**: Requires themes named exactly "light" and "dark". Only works in browsers
 //! supporting the CSS `light-dark()` function (Chrome 123+, Safari 17.5+, Firefox 120+).
@@ -205,61 +235,52 @@ mod tests {
         assert!(html.contains("--lumis-dark-text-decoration:"));
     }
 
-    #[test]
-    fn test_lightdark_mode_includes_text_decoration() {
+    fn lightdark_html(light: &str, dark: &str, source: &str, italic: bool) -> String {
         let mut themes = HashMap::new();
-        themes.insert(
-            "light".to_string(),
-            crate::themes::get("github_light").unwrap(),
-        );
-        themes.insert(
-            "dark".to_string(),
-            crate::themes::get("github_dark").unwrap(),
-        );
+        themes.insert("light".to_string(), crate::themes::get(light).unwrap());
+        themes.insert("dark".to_string(), crate::themes::get(dark).unwrap());
 
         let formatter = HtmlMultiThemesBuilder::new()
             .language(Language::Rust)
             .themes(themes)
             .default_theme("light-dark()")
-            .italic(true)
+            .italic(italic)
             .build()
             .unwrap();
 
-        let source = "fn main() {}";
         let mut output = Vec::new();
         crate::write_highlight(&mut output, source, formatter).unwrap();
-        let html = String::from_utf8(output).unwrap();
-
-        assert!(html.contains("font-weight: light-dark("));
-        assert!(html.contains("font-style: light-dark("));
-        assert!(html.contains("text-decoration: light-dark("));
+        String::from_utf8(output).unwrap()
     }
 
     #[test]
-    fn test_lightdark_mode_always_outputs_font_weight() {
-        let mut themes = HashMap::new();
-        themes.insert(
-            "light".to_string(),
-            crate::themes::get("github_light").unwrap(),
+    fn test_lightdark_mode_keeps_light_dark_to_the_colors() {
+        // `\n` is a `string.escape`, which both GitHub themes render bold.
+        let html = lightdark_html("github_light", "github_dark", r#"let s = "a\nb";"#, true);
+
+        assert!(html.contains("color: light-dark("));
+        assert!(html.contains("font-weight: bold;"));
+        assert!(
+            !html.contains("font-weight: light-dark("),
+            "font-weight is not a color: {html}"
         );
-        themes.insert(
-            "dark".to_string(),
-            crate::themes::get("github_dark").unwrap(),
+        assert!(
+            !html.contains("font-style: light-dark("),
+            "font-style is not a color: {html}"
         );
+        assert!(
+            !html.contains("text-decoration: light-dark("),
+            "text-decoration is not a color: {html}"
+        );
+    }
 
-        let formatter = HtmlMultiThemesBuilder::new()
-            .language(Language::Rust)
-            .themes(themes)
-            .default_theme("light-dark()")
-            .build()
-            .unwrap();
+    #[test]
+    fn test_lightdark_mode_omits_font_properties_neither_theme_sets() {
+        let html = lightdark_html("github_light", "github_dark", "// comment", true);
 
-        let source = "// comment";
-        let mut output = Vec::new();
-        crate::write_highlight(&mut output, source, formatter).unwrap();
-        let html = String::from_utf8(output).unwrap();
-
-        assert!(html.contains("font-weight: light-dark(normal, normal)"));
+        assert!(!html.contains("font-weight"), "{html}");
+        assert!(!html.contains("font-style"), "{html}");
+        assert!(!html.contains("text-decoration"), "{html}");
     }
 
     #[test]
@@ -336,43 +357,13 @@ mod tests {
 
     #[test]
     fn test_italic_flag_respects_lightdark_mode() {
-        let mut themes = HashMap::new();
-        themes.insert(
-            "light".to_string(),
-            crate::themes::get("github_light").unwrap(),
-        );
-        themes.insert(
-            "dark".to_string(),
-            crate::themes::get("github_dark").unwrap(),
-        );
-
-        let formatter = HtmlMultiThemesBuilder::new()
-            .language(Language::Rust)
-            .themes(themes.clone())
-            .default_theme("light-dark()")
-            .italic(false)
-            .build()
-            .unwrap();
-
+        // Both Catppuccin themes italicise comments.
         let source = "// comment";
-        let mut output = Vec::new();
-        crate::write_highlight(&mut output, source, formatter).unwrap();
-        let html = String::from_utf8(output).unwrap();
 
-        assert!(!html.contains("font-style: light-dark("));
+        let html = lightdark_html("catppuccin_latte", "catppuccin_mocha", source, false);
+        assert!(!html.contains("font-style"), "{html}");
 
-        let formatter = HtmlMultiThemesBuilder::new()
-            .language(Language::Rust)
-            .themes(themes)
-            .default_theme("light-dark()")
-            .italic(true)
-            .build()
-            .unwrap();
-
-        let mut output = Vec::new();
-        crate::write_highlight(&mut output, source, formatter).unwrap();
-        let html = String::from_utf8(output).unwrap();
-
-        assert!(html.contains("font-style: light-dark("));
+        let html = lightdark_html("catppuccin_latte", "catppuccin_mocha", source, true);
+        assert!(html.contains("font-style: italic;"), "{html}");
     }
 }
