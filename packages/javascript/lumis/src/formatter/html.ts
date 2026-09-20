@@ -713,7 +713,14 @@ export function spanMultiThemesAttrs(options: SpanMultiThemesOptions): HtmlAttrs
     const darkStyle = getScopedThemeStyle(themes.dark, scope, language);
 
     if (lightStyle && darkStyle) {
-      appendLightDarkStyles(inlineStyles, lightStyle, darkStyle, italic);
+      appendLightDarkStyles(
+        inlineStyles,
+        cssVars,
+        cssVariablePrefix,
+        lightStyle,
+        darkStyle,
+        italic,
+      );
     }
   } else if (defaultTheme) {
     applyDefaultMultiTheme(inlineStyles, cssVars, options);
@@ -742,8 +749,69 @@ function appendDefaultThemeCssVars(
   cssVars.push(`${prefix}-${sanitized}-text-decoration:${textDecoration(style)};`);
 }
 
+/**
+ * The non-color properties of a `light-dark()` span, in the order they are
+ * emitted as custom properties: the CSS property, the value each theme gives
+ * it, and the value the property already has without a declaration.
+ */
+interface LightDarkProperty {
+  property: string;
+  light: string;
+  dark: string;
+  initial: string;
+}
+
+function lightDarkProperties(
+  lightStyle: HighlightStyle,
+  darkStyle: HighlightStyle,
+  italic?: boolean,
+): LightDarkProperty[] {
+  const properties: LightDarkProperty[] = [
+    {
+      property: "font-weight",
+      light: lightStyle.bold ? "bold" : "normal",
+      dark: darkStyle.bold ? "bold" : "normal",
+      initial: "normal",
+    },
+  ];
+
+  if (italic) {
+    properties.push({
+      property: "font-style",
+      light: lightStyle.italic ? "italic" : "normal",
+      dark: darkStyle.italic ? "italic" : "normal",
+      initial: "normal",
+    });
+  }
+
+  properties.push({
+    property: "text-decoration",
+    light: textDecoration(lightStyle),
+    dark: textDecoration(darkStyle),
+    initial: "none",
+  });
+
+  return properties;
+}
+
+/**
+ * [CSS Color 5](https://drafts.csswg.org/css-color-5/#light-dark) defines
+ * `light-dark()` over colors, so only `color` and `background-color` can use
+ * it; browsers drop `font-weight: light-dark(...)` and its siblings as invalid.
+ *
+ * The other properties split by whether the two themes agree. A value they
+ * share is an ordinary declaration, correct in both color schemes with no
+ * stylesheet to help it. A value they disagree on is one custom property per
+ * theme and nothing inline, because only a rule the page supplies can switch
+ * it, and an inline declaration is exactly what would force that rule to be
+ * `!important`. Left out of the style attribute, the page's rule is an ordinary
+ * one: it stays in the caller's cascade, where a print or `forced-colors` rule
+ * can still beat it, and it cannot touch the agreed values next to it.
+ */
 function appendLightDarkStyles(
   inlineStyles: string[],
+  cssVars: string[],
+  cssVariablePrefix: string,
   lightStyle: HighlightStyle,
   darkStyle: HighlightStyle,
   italic?: boolean,
@@ -755,27 +823,31 @@ function appendLightDarkStyles(
     inlineStyles.push(`background-color: light-dark(${lightStyle.bg}, ${darkStyle.bg});`);
   }
 
-  inlineStyles.push(lightDarkWeight(lightStyle, darkStyle));
+  const properties = lightDarkProperties(lightStyle, darkStyle, italic);
 
-  if (italic) {
-    inlineStyles.push(lightDarkStyle(lightStyle, darkStyle));
+  for (const { property, light, dark, initial } of properties) {
+    if (light === dark && light !== initial) {
+      inlineStyles.push(`${property}: ${light};`);
+    }
   }
 
-  const lightDecoration = textDecoration(lightStyle) ?? "none";
-  const darkDecoration = textDecoration(darkStyle);
-  inlineStyles.push(`text-decoration: light-dark(${lightDecoration}, ${darkDecoration});`);
+  appendLightDarkVars(cssVars, cssVariablePrefix, properties);
 }
 
-function lightDarkWeight(lightStyle: HighlightStyle, darkStyle: HighlightStyle): string {
-  const light = lightStyle.bold ? "bold" : "normal";
-  const dark = darkStyle.bold ? "bold" : "normal";
-  return `font-weight: light-dark(${light}, ${dark});`;
-}
+function appendLightDarkVars(
+  cssVars: string[],
+  cssVariablePrefix: string,
+  properties: LightDarkProperty[],
+): void {
+  const disputed = properties.filter(({ light, dark }) => light !== dark);
 
-function lightDarkStyle(lightStyle: HighlightStyle, darkStyle: HighlightStyle): string {
-  const light = lightStyle.italic ? "italic" : "normal";
-  const dark = darkStyle.italic ? "italic" : "normal";
-  return `font-style: light-dark(${light}, ${dark});`;
+  for (const themeName of ["dark", "light"] as const) {
+    for (const { property, light, dark } of disputed) {
+      cssVars.push(
+        `${cssVariablePrefix}-${themeName}-${property}:${themeName === "dark" ? dark : light};`,
+      );
+    }
+  }
 }
 
 function applyDefaultMultiTheme(

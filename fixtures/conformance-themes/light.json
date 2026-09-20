@@ -12,13 +12,16 @@
       "bg": "#e9ebf1"
     },
     "number": {
-      "fg": "#555555"
+      "fg": "#555555",
+      "italic": true
     },
     "property": {
-      "fg": "#333333"
+      "fg": "#333333",
+      "underline": true
     },
     "punctuation.bracket": {
-      "fg": "#222222"
+      "fg": "#222222",
+      "bold": true
     },
     "punctuation.delimiter": {
       "fg": "#444444"

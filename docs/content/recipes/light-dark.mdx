@@ -20,7 +20,7 @@ The multi-themes formatter renders one HTML block with CSS variables for each th
 
 ## 1. CSS `light-dark()` function
 
-The simplest option. The browser switches automatically based on the OS theme. Requires `color-scheme: light dark` on the root element.
+The simplest option. The browser switches colors automatically based on the OS theme. Requires `color-scheme: light dark` on the root element.
 
 Required CSS for the rendered HTML output:
 
@@ -30,7 +30,34 @@ html {
 }
 ```
 
-That's it for runtimes that support HTML Multi-Themes output. No JavaScript or media queries are needed. `lumis4j` does not support this formatter, and the CLI only generates the HTML; your app or page still needs to provide the CSS.
+That switches `color` and `background-color` with no JavaScript and no media query, on every runtime that supports HTML Multi-Themes output. `lumis4j` does not support this formatter, and the CLI only generates the HTML; your app or page still needs to provide the CSS.
+
+`light-dark()` is a [color function](https://drafts.csswg.org/css-color-5/#light-dark), so those two properties are all it covers. `font-weight`, `font-style` and `text-decoration` are handled by whether your two themes agree:
+
+- **They agree** — the shared value is written as an ordinary declaration. It is right in both schemes, and there is nothing to switch. Most theme pairs are entirely in this case, which is why the CSS above is usually all you need.
+- **They disagree** — the light theme italicises comments and the dark one does not, say. Nothing in CSS can switch a font style off the color scheme, so the formatter writes no declaration at all and emits `--lumis-light-font-style` and `--lumis-dark-font-style` instead. Add these rules to use them:
+
+```css
+.lumis span {
+  font-style: var(--lumis-light-font-style);
+  font-weight: var(--lumis-light-font-weight);
+  text-decoration: var(--lumis-light-text-decoration);
+}
+
+@media (prefers-color-scheme: dark) {
+  .lumis span {
+    font-style: var(--lumis-dark-font-style);
+    font-weight: var(--lumis-dark-font-weight);
+    text-decoration: var(--lumis-dark-text-decoration);
+  }
+}
+```
+
+If your app sets `color-scheme` independently of the OS preference, replace this media query with selectors that follow the app's theme setting so these properties switch with the colors.
+
+No `!important`, and you should not add one. A disputed property is deliberately left out of the style attribute, so these rules have nothing inline to outrank, and they stay in your cascade where a `print` or `forced-colors` rule of yours can still win. They are safe to apply to every span: on a token whose themes agreed, the inline declaration outranks them and the shared value stands; on a token neither theme styled, the variable was never set, so the declaration drops out and your own styling of the block is what renders.
+
+The trade-off is that a disputed property renders in neither scheme until you add those rules. That is the same choice [Shiki](https://shiki.style/guide/dual-themes) makes, and it is the only one that keeps the generated HTML from dictating your cascade.
 
 <Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
   <TabItem value="javascript" label="JavaScript">
@@ -127,6 +154,8 @@ Required CSS for the rendered HTML output:
 ```
 
 For runtimes that support HTML Multi-Themes, `default_theme: "light"` makes the light theme's colors render as inline styles. The media query then swaps to the dark theme's CSS variables when the OS is in dark mode. `lumis4j` does not support this formatter, and the CLI only generates the HTML.
+
+The `!important` is unavoidable here: a declaration in your stylesheet cannot outrank one in a `style` attribute without it. If you would rather keep control of the cascade, drop `default_theme` entirely. Every theme is then a variable, nothing is inline, and the same rules work without `!important` — at the cost of a block that renders unstyled until your CSS loads.
 
 <Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
   <TabItem value="javascript" label="JavaScript">
@@ -313,6 +342,6 @@ lumis highlight index.js \
 
 | Approach | When to use |
 | --- | --- |
-| `light-dark()` | Simplest. OS-driven. No extra CSS or JS needed. |
+| `light-dark()` | Simplest. OS-driven. No JS, and no CSS beyond `color-scheme` unless your two themes disagree on font weight, font style or text decoration. |
 | `@media prefers-color-scheme` | OS-driven but you need the CSS override pattern (wider browser support). |
 | Manual switching | User-controlled toggle independent of OS setting. |

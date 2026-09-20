@@ -179,6 +179,10 @@ Controls what color values appear inline (not just as CSS variables):
 | `"light"` | Inline colors from the `light` theme, CSS variables for all themes |
 | `"light-dark()"` | Uses CSS `light-dark()` function for automatic OS-level switching |
 
+### What `light-dark()` covers
+
+[CSS `light-dark()`](https://drafts.csswg.org/css-color-5/#light-dark) is a color function, so only `color` and `background-color` use it. For `font-weight`, `font-style` and `text-decoration`, a value both themes share is written as an ordinary declaration; a value they disagree on is written as `--lumis-light-*` and `--lumis-dark-*` variables with no declaration, since only a rule of your own can switch it. Leaving it out of the style attribute is what keeps that rule from needing `!important`, see [Light/Dark Mode](/recipes/light-dark).
+
 ## Output format
 
 HTML Multi-Themes keeps the same HTML structure, but each token carries CSS variables for one or more themes:
@@ -187,7 +191,7 @@ HTML Multi-Themes keeps the same HTML structure, but each token carries CSS vari
 <pre class="lumis" style="--lumis-light-bg:#eff1f5; --lumis-dark-bg:#303446;">
   <code class="language-javascript" translate="no" tabindex="0">
     <div class="l-line" data-line="1">
-      <span style="--lumis-light:#8839ef; --lumis-dark:#ca9ee6; color: light-dark(var(--lumis-light), var(--lumis-dark));">const</span>
+      <span style="--lumis-dark:#ca9ee6; --lumis-light:#8839ef;">const</span>
     </div>
   </code>
 </pre>
