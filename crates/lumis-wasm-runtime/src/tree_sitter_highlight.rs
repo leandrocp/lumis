@@ -79,11 +79,12 @@ const BUFFER_LINES_RESERVE_CAPACITY: usize = 1000;
 /// <https://github.com/tree-sitter/tree-sitter/issues/5951>.
 ///
 /// The bound also decides when tree-sitter starts discarding matches, which it
-/// does silently. On the replay path that is one match per pattern per level of
-/// nesting, so 16384 leaves room for roughly a thousand levels where documents
-/// in the wild nest tens. Raising it recovers matches on a document that nests
-/// deeper still, at the cost above.
-pub const DEFAULT_MATCH_LIMIT: u32 = 16_384;
+/// does silently. What fills the pool on the replay path is one match per
+/// pattern per level of nesting, not document length, so this leaves room for
+/// several hundred levels where documents in the wild nest tens. A 9 MB source
+/// highlights identically at this bound and at 65536; a document nested eight
+/// hundred levels deep does not. Raise it for one of those, at the cost above.
+pub const DEFAULT_MATCH_LIMIT: u32 = 8192;
 
 /// Largest match limit accepted here. tree-sitter takes any `u32` and its Rust
 /// binding documents `1..=65536`, though nothing in the C library enforces

@@ -419,7 +419,7 @@ export interface Annotation<T = unknown> {
  * Mirrors `DEFAULT_MATCH_LIMIT` in the Rust crate, which is the reference
  * implementation for every runtime.
  */
-export const DEFAULT_MATCH_LIMIT = 16384;
+export const DEFAULT_MATCH_LIMIT = 8192;
 
 /**
  * Largest match limit tree-sitter accepts; its query cursor documents
