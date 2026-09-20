@@ -194,6 +194,10 @@ async function renderCase(
 }
 
 test("runs the generated stress corpus in a browser", async ({ page }) => {
+  test.skip(
+    !process.env.LUMIS_STRESS_MANIFEST || !process.env.LUMIS_STRESS_OUTPUT,
+    "the browser stress corpus is opt-in",
+  );
   test.setTimeout(45 * 60 * 1_000);
   const { manifestPath, outputPath, options } = environmentOptions();
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Manifest;

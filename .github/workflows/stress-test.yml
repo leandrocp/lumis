@@ -5,19 +5,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
-    paths:
-      - "fixtures/stress-test/**"
-      - "crates/**"
-      - "packages/elixir/lumis/**"
-      - "packages/javascript/lumis/**"
-      - "queries/**"
-      - "Cargo.lock"
-      - "Cargo.toml"
-      - "languages.toml"
-      - "pnpm-lock.yaml"
-      - "mise.toml"
-      - ".github/workflows/stress-test.yml"
   workflow_dispatch:
 
 permissions:
