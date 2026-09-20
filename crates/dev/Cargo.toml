@@ -18,6 +18,16 @@ path = "src/main.rs"
 [features]
 default = []
 lumis-all-languages = ["lumis/all-languages"]
+lumis-stress-languages = [
+    "lumis/lang-cpp",
+    "lumis/lang-css",
+    "lumis/lang-csv",
+    "lumis/lang-elixir",
+    "lumis/lang-erlang",
+    "lumis/lang-gleam",
+    "lumis/lang-javascript",
+    "lumis/lang-json",
+]
 
 [dependencies]
 lumis = { path = "../lumis", default-features = false }

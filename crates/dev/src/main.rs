@@ -17,6 +17,8 @@ use std::thread;
 use std::time::{Duration, Instant};
 use xz2::write::XzEncoder;
 
+mod stress;
+
 #[derive(Parser)]
 #[command(version)]
 struct Cli {
@@ -125,6 +127,21 @@ enum Commands {
         #[arg(default_value = "")]
         name: String,
     },
+    /// Run the generated stress-test corpus through the native Rust API.
+    Stress {
+        #[arg(long, default_value = "target/stress-test/corpus/manifest.json")]
+        manifest: String,
+        #[arg(long, default_value = "target/stress-test/rust.json")]
+        output: String,
+        #[arg(long, default_value_t = 1)]
+        iterations: usize,
+        #[arg(long, default_value_t = 30_000)]
+        max_case_ms: u128,
+        #[arg(long, default_value_t = 32.0)]
+        max_output_amplification: f64,
+        #[arg(long)]
+        characterize: bool,
+    },
 }
 
 fn main() -> Result<()> {
@@ -175,6 +192,21 @@ fn main() -> Result<()> {
         Commands::DumpEvents { source, language } => dump_events(&source, &language),
         Commands::VerifyConformance { name } => verify_conformance(&name),
         Commands::RegenConformance { name } => regen_conformance(&name),
+        Commands::Stress {
+            manifest,
+            output,
+            iterations,
+            max_case_ms,
+            max_output_amplification,
+            characterize,
+        } => stress::run(stress::Options {
+            manifest: PathBuf::from(manifest),
+            output: PathBuf::from(output),
+            iterations,
+            max_case_ms,
+            max_output_amplification,
+            characterize,
+        }),
     }
 }
 
