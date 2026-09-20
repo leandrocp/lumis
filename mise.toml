@@ -194,6 +194,10 @@ dir = "{{config_root}}/packages/elixir/lumis"
 env = { LUMIS_BUILD = "1" }
 run = "mix test"
 
+[tasks.stress]
+description = "Run the generated Lumis stress-test corpus across runtime boundaries"
+run = "node stress-test/run.mjs"
+
 [tasks.'test-javascript']
 description = "Run the JavaScript test suites on both the native and Wasm runtimes"
 depends = ["stage-test-parsers"]

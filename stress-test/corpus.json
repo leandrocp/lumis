@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "discovery": {
+    "source": "hex.pm package releases",
+    "date": "2026-09-20",
+    "packagesScanned": 22289
+  },
+  "cases": [
+    {
+      "id": "deep-json",
+      "profile": "adversarial",
+      "language": "json",
+      "extension": "json",
+      "generator": { "kind": "deep", "byte": "[" },
+      "target": { "bytes": 100000, "lines": 1, "maxLineBytes": 100000, "structuralDepth": 100000 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "jiffy",
+          "version": "2.0.2",
+          "path": "test/cases/json_test_suite/n_structure_100000_opening_arrays.json",
+          "sha256": "13f86ea1e7edd116d18d4ba6c6fa114cd3c927516182d24259623874955d21d1",
+          "metrics": { "bytes": 100000, "lines": 1, "maxLineBytes": 100000, "structuralDepth": 100000 }
+        }
+      ]
+    },
+    {
+      "id": "large-cpp",
+      "profile": "generated",
+      "language": "cpp",
+      "extension": "cpp",
+      "generator": { "kind": "shaped", "depth": 487 },
+      "target": { "bytes": 22928995, "lines": 583486, "maxLineBytes": 2730, "structuralDepth": 487 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "educkdb",
+          "version": "0.11.0",
+          "path": "c_src/duckdb/duckdb.cpp",
+          "sha256": "25c867bf9cf2d343b0f70b3966f70ad724fa6498f3b78ccb28f99b79ef941bf9",
+          "metrics": { "bytes": 22928995, "lines": 583486, "maxLineBytes": 2730, "structuralDepth": 487 }
+        },
+        {
+          "source": "hex_package",
+          "package": "pg_query_ex",
+          "version": "0.10.0",
+          "path": "c_src/libpg_query/protobuf/pg_query.pb.h",
+          "sha256": "937a24e7077c3431a01d4379fc30dcacce96aa289a1a3138441fc3235ede83f1",
+          "metrics": { "bytes": 6442734, "lines": 168619, "maxLineBytes": 227, "structuralDepth": 7 }
+        }
+      ]
+    },
+    {
+      "id": "large-csv",
+      "profile": "generated",
+      "language": "csv",
+      "extension": "csv",
+      "generator": { "kind": "shaped", "depth": 0 },
+      "target": { "bytes": 28563365, "lines": 606440, "maxLineBytes": 80, "structuralDepth": 0 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "ip2country",
+          "version": "1.1.0",
+          "path": "lib/db/dbip-country.csv",
+          "sha256": "a13d9f437e91690f81908e26345a6a3013048df00b8adae204ab3ce4b5a7017e",
+          "metrics": { "bytes": 28563365, "lines": 606440, "maxLineBytes": 80, "structuralDepth": 0 }
+        },
+        {
+          "source": "hex_package",
+          "package": "yubin_bango",
+          "version": "0.1.7",
+          "path": "priv/datasets/yubin_bango.csv",
+          "sha256": "fa826a227f793fe3d4b5a0644507d9b9df23b846aad9b84ef523ab8cc3619f1b",
+          "metrics": { "bytes": 19093799, "lines": 127511, "maxLineBytes": 331, "structuralDepth": 1 }
+        }
+      ]
+    },
+    {
+      "id": "large-elixir",
+      "profile": "generated",
+      "language": "elixir",
+      "extension": "ex",
+      "generator": { "kind": "shaped", "depth": 9 },
+      "target": { "bytes": 26016170, "lines": 633399, "maxLineBytes": 1862, "structuralDepth": 9 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "exoapi_stripe",
+          "version": "0.1.4",
+          "path": "lib/sdk/exoapi_stripe_sdk_spec.ex",
+          "sha256": "742512239546ee1dbded88d1b88e27e3c99e9a9302a07e0c5d0395ee17512962",
+          "metrics": { "bytes": 26016170, "lines": 633399, "maxLineBytes": 1862, "structuralDepth": 9 }
+        }
+      ]
+    },
+    {
+      "id": "large-erlang",
+      "profile": "generated",
+      "language": "erlang",
+      "extension": "erl",
+      "generator": { "kind": "shaped", "depth": 7 },
+      "target": { "bytes": 21971479, "lines": 783097, "maxLineBytes": 195268, "structuralDepth": 7 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "wp_tables",
+          "version": "1.0.0",
+          "path": "src/npc_data.erl",
+          "sha256": "2258fff9e2101024e18ccbaae0ce96798214703b2a542fe4fd941a887b520544",
+          "metrics": { "bytes": 21971479, "lines": 783097, "maxLineBytes": 92, "structuralDepth": 4 }
+        },
+        {
+          "source": "hex_package",
+          "package": "temporal_sdk",
+          "version": "0.2.20",
+          "path": "src/proto/temporal_sdk_proto_service_workflow_binaries.erl",
+          "sha256": "7d60440bca8882a2b11205183f93e83b0a81c7e901148c9bd519b6aba5373f09",
+          "metrics": { "bytes": 19342179, "lines": 596698, "maxLineBytes": 190, "structuralDepth": 6 }
+        },
+        {
+          "source": "hex_package",
+          "package": "temporal_sdk",
+          "version": "0.2.20",
+          "path": "src/proto/temporal_sdk_proto_service_workflow_strings.erl",
+          "sha256": "4f04d7774b903004db8d63684c41667c0a4f4b01fea4cbc8be46d5b395af92cb",
+          "metrics": { "bytes": 19335618, "lines": 595731, "maxLineBytes": 190, "structuralDepth": 6 }
+        },
+        {
+          "source": "hex_package",
+          "package": "phosphor_lustre",
+          "version": "1.0.1",
+          "path": "src/phosphor.erl",
+          "sha256": "34b13f8e906c8139f45b3b2edbb3c6ace521f676cf9578b588eaf8f9d2f8ec84",
+          "metrics": { "bytes": 16109842, "lines": 341791, "maxLineBytes": 195268, "structuralDepth": 7 }
+        },
+        {
+          "source": "hex_package",
+          "package": "wp_tables",
+          "version": "1.0.0",
+          "path": "src/gear_enhancement_grade_data.erl",
+          "sha256": "8b51a9f2d761030d40738bddf11188865b4abc82ce91fa942e86e6d5d9fc4db7",
+          "metrics": { "bytes": 10858630, "lines": 356860, "maxLineBytes": 125, "structuralDepth": 4 }
+        },
+        {
+          "source": "hex_package",
+          "package": "wp_tables",
+          "version": "1.0.0",
+          "path": "src/quest_mission_data.erl",
+          "sha256": "1a901dc4b5e1bd47e73a226750feba40ed2fe13eae72f25677fa87c4ce065493",
+          "metrics": { "bytes": 7593553, "lines": 260094, "maxLineBytes": 97, "structuralDepth": 4 }
+        },
+        {
+          "source": "hex_package",
+          "package": "wp_tables",
+          "version": "1.0.0",
+          "path": "src/event_action_data.erl",
+          "sha256": "9c904648195c8a8e165eeb6e2a45a8276f2030abd0a43642a4fbfcb83fd9b639",
+          "metrics": { "bytes": 6995950, "lines": 195307, "maxLineBytes": 93, "structuralDepth": 4 }
+        },
+        {
+          "source": "hex_package",
+          "package": "wp_tables",
+          "version": "1.0.0",
+          "path": "src/collection_slot_item_data.erl",
+          "sha256": "8898e948462b774c4e9c41708390b85e344bf05b12e4982c849d042a4aed8467",
+          "metrics": { "bytes": 7012997, "lines": 232427, "maxLineBytes": 87, "structuralDepth": 4 }
+        }
+      ]
+    },
+    {
+      "id": "large-gleam",
+      "profile": "generated",
+      "language": "gleam",
+      "extension": "gleam",
+      "generator": { "kind": "shaped", "depth": 5 },
+      "target": { "bytes": 12011557, "lines": 780036, "maxLineBytes": 2642, "structuralDepth": 5 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "wp_tables",
+          "version": "1.0.0",
+          "path": "src/npc_data.gleam",
+          "sha256": "0253afefb32de47ba6bb623f437ff39c1f48b121b28842fb0dfe864847bd3c3b",
+          "metrics": { "bytes": 12011557, "lines": 780036, "maxLineBytes": 81, "structuralDepth": 5 }
+        },
+        {
+          "source": "hex_package",
+          "package": "phosphor_lustre",
+          "version": "1.0.1",
+          "path": "src/phosphor.gleam",
+          "sha256": "8762100e21ec66ec39918e3a74780748d4e456096e0a5812181b5ff5840589f0",
+          "metrics": { "bytes": 8750614, "lines": 154228, "maxLineBytes": 2642, "structuralDepth": 5 }
+        },
+        {
+          "source": "hex_package",
+          "package": "wp_tables",
+          "version": "1.0.0",
+          "path": "src/gear_enhancement_grade_data.gleam",
+          "sha256": "ee8bc5389becd9a49139acee55c950b68a9a58de72cdaf66d624cfd2e5b610de",
+          "metrics": { "bytes": 7116354, "lines": 356859, "maxLineBytes": 69, "structuralDepth": 3 }
+        }
+      ]
+    },
+    {
+      "id": "bundled-javascript",
+      "profile": "giant-lines",
+      "language": "javascript",
+      "extension": "js",
+      "generator": { "kind": "shaped", "depth": 551 },
+      "target": { "bytes": 11166197, "lines": 2821, "maxLineBytes": 4477252, "structuralDepth": 551 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "phoenix_diagrams",
+          "version": "0.3.0",
+          "path": "priv/static/phoenix_diagrams/build/bundle.js",
+          "sha256": "9bdf8fae711de4d4e0d2cbe4a5eceb7527db2c76b0a44b69dbf3d2f404b58b59",
+          "metrics": { "bytes": 11166197, "lines": 2821, "maxLineBytes": 4477252, "structuralDepth": 551 }
+        },
+        {
+          "source": "hex_package",
+          "package": "phoenix_test_jsdom",
+          "version": "0.1.2",
+          "path": "priv/dist/server.bundle.js",
+          "sha256": "86a5cbe21b879eb21039431c863c0577a9663201bc01881c16c286644514a6ff",
+          "metrics": { "bytes": 10378104, "lines": 257175, "maxLineBytes": 155226, "structuralDepth": 56 }
+        }
+      ]
+    },
+    {
+      "id": "one-line-json",
+      "profile": "giant-lines",
+      "language": "json",
+      "extension": "json",
+      "generator": { "kind": "shaped", "depth": 31 },
+      "target": { "bytes": 9095868, "lines": 1, "maxLineBytes": 9095868, "structuralDepth": 31 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "llm_db",
+          "version": "2026.9.4",
+          "path": "priv/llm_db/snapshot.json",
+          "sha256": "a8543bf26799db0aa88d7f58821bfe2bcab4208f9ab074047131c5636b80900b",
+          "metrics": { "bytes": 9095868, "lines": 1, "maxLineBytes": 9095868, "structuralDepth": 11 }
+        },
+        {
+          "source": "hex_package",
+          "package": "cloudflare_api",
+          "version": "0.6.0",
+          "path": "priv/cloudflare_api/openapi.json",
+          "sha256": "bbab20ad57ed6ec5dcb5e99eca2fc6e3412d0ccda52b6efa1abe5158a1f811d4",
+          "metrics": { "bytes": 8062167, "lines": 1, "maxLineBytes": 8062167, "structuralDepth": 31 }
+        }
+      ]
+    },
+    {
+      "id": "one-line-elixir",
+      "profile": "giant-lines",
+      "language": "elixir",
+      "extension": "ex",
+      "generator": { "kind": "shaped", "depth": 5 },
+      "target": { "bytes": 5468082, "lines": 3, "maxLineBytes": 5468022, "structuralDepth": 5 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "phosphor_live_view",
+          "version": "2.1.0",
+          "path": "lib/phosphor/generated/manifest_data.exs",
+          "sha256": "2dc248d3198e123499d2ead4e223942499c9efea3c5840681e497f9b16048455",
+          "metrics": { "bytes": 5468082, "lines": 3, "maxLineBytes": 5468022, "structuralDepth": 5 }
+        }
+      ]
+    },
+    {
+      "id": "one-line-css",
+      "profile": "giant-lines",
+      "language": "css",
+      "extension": "css",
+      "generator": { "kind": "shaped", "depth": 4 },
+      "target": { "bytes": 3315631, "lines": 6, "maxLineBytes": 3314465, "structuralDepth": 4 },
+      "origins": [
+        {
+          "source": "hex_package",
+          "package": "backdoor",
+          "version": "0.1.0",
+          "path": "priv/static/css/app.css",
+          "sha256": "51f6b00ceeb00ae63cc3d23f2e0f3aa75168ae28c94896685503354a7c4a0060",
+          "metrics": { "bytes": 3315631, "lines": 6, "maxLineBytes": 3314465, "structuralDepth": 4 }
+        }
+      ]
+    }
+  ]
+}
