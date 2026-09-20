@@ -1,14 +1,10 @@
 ---
-sidebar_position: 14
-slug: /recipes/list-languages-and-themes
 title: List languages and themes
 description: Inspect available languages and themes across Lumis runtimes.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# List languages and themes
 
 A language is the same record everywhere, sorted by id: `id`, `name`,
 `aliases`, `extensions`, `globs`, `emacsModes` and `shebangs`.
@@ -19,8 +15,8 @@ JavaScript return `name` and `appearance`, because sending every theme's
 highlights across the NIF or the wire would cost far more than the call is
 worth. Reach for one in full with `themes::get` or `Lumis.Theme.get/2`.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {availableLanguages, availableThemes} from '@lumis-sh/lumis'
@@ -34,8 +30,8 @@ for (const theme of availableThemes()) {
 }
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{languages::available_languages, themes};
@@ -49,8 +45,8 @@ for theme in themes::available_themes() {
 }
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 for language <- Lumis.available_languages() do
@@ -62,15 +58,15 @@ for theme <- Lumis.available_themes() do
 end
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis languages list
 lumis themes list
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Look one up by name
@@ -81,8 +77,8 @@ How an unknown name is reported follows each host's convention: JavaScript
 returns `undefined` and Elixir returns `nil`, both without raising, while Rust
 returns a `Result` and the CLI exits non-zero.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {getLanguage} from '@lumis-sh/lumis'
@@ -97,8 +93,8 @@ Themes are separate modules, so import the one you want:
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{languages::Language, themes};
@@ -110,8 +106,8 @@ let theme = themes::get("catppuccin_frappe")?;
 println!("{} {}", theme.name, theme.appearance);
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.Languages.get("js")
@@ -124,15 +120,15 @@ Lumis.Theme.get("catppuccin_frappe")
 # %Lumis.Theme{name: "catppuccin_frappe", appearance: "dark", ...}
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis languages show js
 lumis themes show catppuccin_frappe
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## What is loaded right now
@@ -144,8 +140,8 @@ turns out to need.
 Themes have no equivalent: every theme is compiled in, so there is nothing to
 load and nothing that could be missing.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {loadedLanguages} from '@lumis-sh/lumis'
@@ -153,14 +149,14 @@ import {loadedLanguages} from '@lumis-sh/lumis'
 loadedLanguages() // ['json', 'rust']
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 Languages are compiled in behind `lang-*` features, so everything in
 `available_languages()` is ready to use.
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.Languages.load("elixir")
@@ -170,8 +166,8 @@ Lumis.loaded_languages()
 
 Loading is global to the VM, so this is the same list in every process.
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 There is nothing to list. Each invocation is a fresh process that loads what
 the document needs and exits, so nothing stays loaded between runs.
@@ -183,5 +179,5 @@ fills so later runs skip the download:
 lumis languages cache rust javascript
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>

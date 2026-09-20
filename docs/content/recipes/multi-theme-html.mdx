@@ -1,17 +1,13 @@
 ---
-sidebar_position: 5
-slug: /recipes/multi-theme-html
 title: Multi-theme HTML
 description: Render HTML that carries multiple themes for light and dark mode.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Multi-theme HTML
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -30,8 +26,8 @@ const html = await highlight(
 )
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight index.js \
@@ -41,7 +37,7 @@ lumis highlight index.js \
   --default-theme "light-dark()"
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 See [HTML Multi-Themes](/formatters/html-multi-themes) for the full option set.

@@ -1,0 +1,244 @@
+---
+title: JavaScript
+description: Lumis JavaScript API including highlighters, bundles, lazy loading, auto-detection, injected languages, and runtime metadata.
+keywords:
+  - lumis javascript
+  - createHighlighter
+  - bundles
+  - loadLanguage
+  - injected languages
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+
+## For one-off highlighting
+
+Use [`highlight()`](https://www.npmjs.com/package/@lumis-sh/lumis) when you just need one async highlight call and do not need to keep a highlighter instance around.
+
+```ts
+import { highlight } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import javascript from "@lumis-sh/lumis/langs/javascript";
+import frappe from "@lumis-sh/themes/catppuccin_frappe";
+
+const html = await highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+```
+
+`highlight()` uses a shared default runtime, so loaded languages and global WASM resolver changes are process-wide.
+
+## For reusable highlighters
+
+Use [`createHighlighter()`](https://www.npmjs.com/package/@lumis-sh/lumis) when you want instance isolation, explicit setup, lazy loading, or repeated synchronous `hl.highlight()` calls after initialization.
+
+```ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import javascript from "@lumis-sh/lumis/langs/javascript";
+import frappe from "@lumis-sh/themes/catppuccin_frappe";
+
+const hl = await createHighlighter({ languages: [javascript] });
+
+const html = hl.highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+```
+
+This creates an isolated highlighter unless you intentionally rely on the global resolver.
+
+## Bundles
+
+Bundles register many languages lazily.
+
+| Bundle                              | Purpose                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------- |
+| `@lumis-sh/lumis/bundles/web`       | HTML, CSS, JS, TS, JSON, Markdown, SQL, Svelte, Vue, Astro, and other web-focused languages |
+| `@lumis-sh/lumis/bundles/web-extra` | framework and template languages that complement the web bundle                             |
+| `@lumis-sh/lumis/bundles/system`    | C, C++, Rust, Go, Zig, LLVM, Make, CMake, and related system languages                      |
+| `@lumis-sh/lumis/bundles/backend`   | popular backend languages plus common API, config, and infra formats                        |
+| `@lumis-sh/lumis/bundles/full`      | all supported languages                                                                     |
+
+```ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+
+const hl = await createHighlighter({ languages: [bundledLanguages] });
+
+hl.registeredLanguages; // registered, including lazy entries
+hl.languages; // loaded right now, usually just plaintext at first
+```
+
+## Lazy loading
+
+You can register a language now and load it only when needed.
+
+```ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import frappe from "@lumis-sh/themes/catppuccin_frappe";
+
+const hl = await createHighlighter({ languages: [bundledLanguages] });
+
+await hl.loadLanguage(bundledLanguages.javascript);
+
+const html = hl.highlight(
+  "const x = 1",
+  htmlInline({ language: bundledLanguages.javascript, theme: frappe }),
+);
+```
+
+`createHighlighter({ languages })` accepts:
+
+- eager `Language` objects
+- a bundle object
+- dynamic import promises
+- lazy import functions
+
+## Repeated highlighting
+
+Load languages once with `createHighlighter()`, then call `hl.highlight()` synchronously for repeated work.
+
+```ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import javascript from "@lumis-sh/lumis/langs/javascript";
+import frappe from "@lumis-sh/themes/catppuccin_frappe";
+
+const hl = await createHighlighter({ languages: [javascript] });
+
+const html = hl.highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+```
+
+## Language references
+
+These are equivalent at highlight time:
+
+```ts
+htmlInline({ language: json, theme });
+htmlInline({ language: bundledLanguages.json, theme });
+htmlInline({ language: "json", theme });
+```
+
+## Auto-detection and plaintext fallback
+
+If you omit `language`, Lumis tries to detect it and falls back to plaintext when it can't.
+
+Detection methods:
+
+- file extensions (`.rs`, `.js`, `.ex`)
+- filenames (`Makefile`, `Dockerfile`)
+- shebangs (`#!/usr/bin/env python`)
+- Emacs mode lines
+
+```ts
+const html = await highlight(source, htmlInline({ theme: frappe }));
+```
+
+Useful when rendering user-provided content or pasted snippets.
+
+## Metadata APIs
+
+Useful for dropdowns, config validation, and docs tooling:
+
+- [`availableLanguages()`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/index.ts)
+- [`getLanguage()`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/index.ts) — one language by id or alias, or `undefined`
+- [`loadedLanguages()`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/index.ts) — ids ready to highlight without a download
+- [`availableThemes()`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/index.ts)
+- [`sanitizeThemeName()`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/index.ts)
+
+## Runtime notes
+
+- every runtime loads the same per-language parser WASM; what differs is the engine that runs it
+- on Node, `@lumis-sh/lumis` runs those parsers and the highlighting walk under Wasmtime in the same Rust code as the Lumis CLI and Elixir bindings; built-in formatters normally render there too, while custom formatters assemble events in JavaScript and an async call that may need a JavaScript resolver stays on the main thread
+- browsers, and any platform with no prebuilt addon, run them under the host's own WebAssembly through `web-tree-sitter`, and walk and format in JavaScript
+- the addon is prebuilt for macOS arm64 and x64, Linux arm64 and x64 against both glibc and musl, and Windows arm64 and x64; npm installs the one matching the host, so Alpine and other musl images get the same runtime as a glibc host
+- `runtimeKind()` returns `'native'` or `'wasm'` if you need to confirm which one an install resolved
+- the addon carries no parsers and downloads each on first use, so it costs about 4.7 MB of download on top of the Wasm runtime rather than one binary per language
+- the package uses conditional exports so Node and web-standard runtimes get the right entry point automatically
+- every language package contains matching queries plus an exact parser version, size, and SHA-256 digest
+- Node caches language-package metadata and verified parser WASM in the platform user cache directory; `LUMIS_DATA_DIR` overrides it
+- browsers persist package metadata and verified parser bytes in CacheStorage with an IndexedDB fallback
+- Node can also auto-load installed parser packages such as `@lumis-sh/wasm-elixir` or bundle packages such as `@lumis-sh/wasm-bundle-web`
+- ordinary Node highlighters share one Wasmtime runtime; a highlighter that supplies parser bytes, queries, or resolver callbacks gets an isolated Tree-sitter Wasm store so its definitions are released with that highlighter, while the Wasmtime engine and persistent caches remain shared
+- non-Node usage usually relies on remote parser assets unless you override the resolver, use `withWasm()` with a single npm parser package such as `@lumis-sh/wasm-json`, or use `withWasmBundle()` with a bundle package such as `@lumis-sh/wasm-bundle-web`
+- Bun and Deno are also supported
+
+## Injected languages
+
+On Node, highlighting loads a language injected inside a document during the
+same pass that finds it, so a Markdown file with a fenced Rust block highlights
+that block without Rust being named anywhere in your code. A language that
+cannot be fetched leaves its own block plain rather than failing the document,
+and Lumis warns once naming it.
+
+Configured [`configureLanguagePackageResolver()` and
+`configureWasmResolver()`](/advanced/wasm-and-cdn#override-the-resolver) callbacks
+participate in that same Node native path. They apply to a language first
+discovered mid-document as well as to the root language, without a preload or
+second pass.
+
+The native walk has to read a newly discovered resolver result synchronously.
+Local paths plus `file:`, `data:`, `http:`, and `https:` URLs work there. A URL
+owned by JavaScript itself, such as a `blob:` URL, cannot be opened from Rust;
+include that language in `createHighlighter({languages: [...]})` or call
+`loadLanguage()` first so JavaScript resolves it before the synchronous walk.
+
+In a browser, one-pass loading does not happen: loading is asynchronous there
+and cannot run inside a synchronous walk, so load every participating language
+yourself, or use a bundle such as `@lumis-sh/wasm-bundle-web`:
+
+```ts
+const hl = await createHighlighter({ languages: [html, css, javascript] });
+
+const htmlOutput = hl.highlight(source, htmlInline({ language: html, theme: frappe }));
+```
+
+See [Highlighting loads what a document needs](/advanced/wasm-and-cdn#highlighting-loads-what-a-document-needs).
+
+## Warm parsers during application startup
+
+Lumis uses two verbs everywhere: **cache** puts a language on disk, **load**
+caches it *and* keeps it in this runtime. Load is the superset, so a serving
+process wants it. See [Warm up parsers](/operations/warm-up).
+
+Start serving, then load in the background:
+
+```ts title="bootstrap.ts"
+import { loadLanguages } from "@lumis-sh/lumis";
+
+await startServer();
+
+// Not awaited, so a slow CDN delays no request. The `.catch()` is required:
+// an unhandled rejection terminates the process.
+loadLanguages(["javascript", "html", "css"]).catch((error) => {
+  logger.warn({ error }, "Lumis warm-up failed; languages load on demand");
+});
+```
+
+`loadLanguages()` warms the same default runtime `highlight()` uses, so nothing
+has to be threaded through the application. `createHighlighter({languages})` is
+the same load into an instance you keep yourself.
+
+Awaiting a warm-up before `startServer()` puts the CDN on the boot path, so an
+unreachable one keeps the process from ever accepting a request.
+
+The API accepts `bundle-*` names such as `bundle-web`, covering the same
+languages as the matching `@lumis-sh/wasm-bundle-*` package. It resolves the
+runtime's compatible package range, caches the exact manifest, and verifies the
+parser size plus SHA-256 before writing. Pass `force: true` to resolve the range
+again and adopt a newer compatible package.
+
+When the native Node addon is available, the API also validates each parser and
+its queries and persists the compiled Wasmtime module in the same directory.
+The portable fallback caches the verified parser bytes, but
+`web-tree-sitter` cannot persist its compilation across processes.
+
+`cacheLanguages()` is the caching half on its own — it writes the store and
+holds nothing — for a build or prestart step preparing a directory the serving
+process will read. Await that one; failing is the point. `lumis languages cache`
+does the same from the CLI.
+
+:::note Edge is not supported yet
+The portable JavaScript runtime uses `web-tree-sitter`, but Edge runtimes are not supported yet because of an upstream Tree-sitter limitation: [tree-sitter/tree-sitter#2160](https://github.com/tree-sitter/tree-sitter/issues/2160).
+:::
+
+For parser asset details, continue with [WASM and CDN](/advanced/wasm-and-cdn).

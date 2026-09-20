@@ -386,8 +386,8 @@ by explaining that its functions call Rust, before saying what any of them did.
 READMEs are entry points, not manuals. Keep them small, direct, and targeted: the minimal usage to get started, then a link to the relevant page under `docs/content/`.
 
 - Put detailed guides, option references, multi-runtime examples, and edge cases in `docs/content/`, not in READMEs.
-- When a feature spans runtimes, document it once in `docs/content/` using runtime `Tabs` (`<Tabs groupId="runtime" ...>` with JavaScript, Rust, Elixir, Java, CLI), instead of repeating it in each package README.
-- A README mention of a new capability should be one or two lines plus a link to the docs page (use the published `https://lumis.sh/docs/<slug>` URL).
+- When a feature spans runtimes, document it once in `docs/content/` using Fumadocs runtime `Tabs` (`<Tabs groupId="runtime" persist ...>` with JavaScript, Rust, Elixir, Java, CLI), instead of repeating it in each package README. Keep every runtime example in the source so the Markdown and MCP routes expose all of them.
+- A README mention of a new capability should be one or two lines plus a link to the docs page (use the published `https://docs.lumis.sh/<slug>` URL).
 - Internal docs cross-links use slug form, e.g. `/themes/css-files#build-custom-css`.
 
 ## Website and docs site
@@ -395,7 +395,7 @@ READMEs are entry points, not manuals. Keep them small, direct, and targeted: th
 This repo ships two documentation surfaces:
 
 - `website/` for the main site and demos
-- `docs/` for the Docusaurus docs app published under `/docs`
+- `docs/` for the Fumadocs app published at `docs.lumis.sh` on Vercel
 
 Code changes that affect user-facing behavior often need updates in one or both places. Do not treat the website and docs site as downstream afterthoughts.
 

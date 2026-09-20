@@ -1,0 +1,17 @@
+{
+  "title": "Lumis",
+  "pages": [
+    "index",
+    "installation",
+    "architecture",
+    "operations",
+    "usage",
+    "formatters",
+    "themes",
+    "integrations",
+    "recipes",
+    "cli",
+    "advanced",
+    "reference"
+  ]
+}

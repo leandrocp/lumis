@@ -1,6 +1,4 @@
 ---
-sidebar_position: 1
-slug: /operations/warm-up
 title: Warm up parsers
 description: Move Lumis parser downloads and compilation into application startup or a deployment step across every runtime.
 keywords:
@@ -10,10 +8,8 @@ keywords:
   - LUMIS_DATA_DIR
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Warm up parsers
 
 Warm-up moves parser setup ahead of the first request.
 
@@ -60,8 +56,8 @@ or fail one, and every example below is written to keep both true.
 
 ## Runtime APIs and commands
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Elixir', 'CLI', 'Browsers / CDN', 'Rust', 'Java']}>
+  <Tab value="JavaScript">
 
 Start serving, then load in the background:
 
@@ -104,8 +100,8 @@ persists the compiled Wasmtime module. Bun and Deno, or a Node installation
 without the addon, can use the same API, but the portable `web-tree-sitter`
 fallback cannot persist compiled modules across processes.
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 Call `Lumis.Languages.async_load/1` from your application's `start/2`:
 
@@ -132,8 +128,8 @@ Use `Lumis.Languages.load/1` when the caller does want the result and can wait
 For release and container details, see the standalone
 [Elixir deployment guide](https://lumis.hexdocs.pm/deployment.html).
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 Use the CLI when cache preparation belongs outside the application lifecycle:
 an image build, a release task, or an operations step. It fills the store for a
@@ -175,8 +171,8 @@ serves. Keep the startup warm-up as well: a prepared directory removes the
 download and the compile, and the warm-up still has to move the parsers into
 the runtime, which needs no network once that directory is there.
 
-  </TabItem>
-  <TabItem value="browser" label="Browsers / CDN">
+  </Tab>
+  <Tab value="Browsers / CDN">
 
 `loadLanguages()` works here too, warming the runtime the module-level
 `highlight()` uses. When you keep a highlighter instead, load into it and retain
@@ -204,8 +200,8 @@ WebKit. WebAssembly compilation belongs to the browser process and cannot be
 persisted in Lumis's server-side compiled-module cache. Browsers do not use
 `LUMIS_DATA_DIR`.
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 The Rust crate has no parser download or runtime compilation step. Select the
 languages at build time with Cargo features; their parser code is compiled into
@@ -219,8 +215,8 @@ lumis = { version = "0.1", default-features = false, features = ["bundle-web", "
 There is no warm-up command, parser data-directory environment variable, or
 runtime parser-cache configuration for the Rust crate.
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+  </Tab>
+  <Tab value="Java">
 
 `lumis4j` ships its Lumis WebAssembly module and languages with the Java
 artifact. Construct the `Lumis` instance during application startup and retain
@@ -239,7 +235,7 @@ startServer(lumis);
 There is no parser cache command, `LUMIS_DATA_DIR`, or parser-store
 configuration in `lumis4j`.
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Store directory and precedence

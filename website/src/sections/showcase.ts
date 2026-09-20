@@ -173,7 +173,7 @@ const html = hl.highlight(source, htmlMultiThemes({
     blurb:
       "A HEEx template in a sigil and Markdown in a doc string, each parsed by its own grammar.",
     tags: ["Elixir", "HEEx", "Markdown"],
-    source: "/docs/recipes/injected-languages-html-css-js",
+    source: "https://docs.lumis.sh/recipes/injected-languages-html-css-js",
     code: `import elixir from '@lumis-sh/lumis/langs/elixir'
 import heex from '@lumis-sh/lumis/langs/heex'
 import markdown from '@lumis-sh/lumis/langs/markdown'
@@ -272,7 +272,7 @@ const output = hl.highlight(template, htmlMultiThemes({
     blurb:
       "Bracket pairs coloured by depth, taken from each language's brackets query rather than a fixed list.",
     tags: ["rainbowBrackets", "JavaScript"],
-    source: "/docs/recipes/rainbow-brackets",
+    source: "https://docs.lumis.sh/recipes/rainbow-brackets",
     code: `const html = hl.highlight(source, htmlMultiThemes({
   language: javascript,
   themes: { light: latte, dark: frappe },
@@ -333,7 +333,7 @@ for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
     blurb:
       "Tokens get scope class names, and the colours come from a stylesheet the browser can cache.",
     tags: ["htmlLinked", "CSS"],
-    source: "/docs/themes/css-files",
+    source: "https://docs.lumis.sh/themes/css-files",
     codeLanguage: "html",
     code: `<link rel="stylesheet" media="(prefers-color-scheme: light)"
       href="https://cdn.jsdelivr.net/npm/@lumis-sh/themes/dist/css/catppuccin_latte.css">

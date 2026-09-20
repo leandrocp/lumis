@@ -61,7 +61,7 @@ Formatters decide the output: `:html_inline`, `:html_linked`,
 
 For your own, implement `Lumis.Formatter` and build the output with
 `Lumis.Formatter.HTML` or `Lumis.Formatter.ANSI`, which hold the same pieces the
-built-in formatters use. See [custom formatters](https://lumis.sh/docs/formatters/custom).
+built-in formatters use. See [custom formatters](https://docs.lumis.sh/formatters/custom).
 
 ## Parsers
 
@@ -99,19 +99,19 @@ without the newer instruction sets.
 It downloads from GitHub Releases, mirrored to Cloudflare R2. Set
 `config :lumis, artifact_source: :cloudflare` or `LUMIS_ARTIFACT_SOURCE=cloudflare`
 to use the mirror when GitHub is down, see
-[where the precompiled NIF comes from](https://lumis.sh/docs/usage/elixir#where-the-precompiled-nif-comes-from).
+[where the precompiled NIF comes from](https://docs.lumis.sh/usage/elixir#where-the-precompiled-nif-comes-from).
 
 ## Documentation
 
-- [Elixir integration](https://lumis.sh/docs/usage/elixir) — configuration, releases, Phoenix
-- [Formatters](https://lumis.sh/docs/formatters) — every formatter and its options
-- [Custom formatters](https://lumis.sh/docs/formatters/custom) — render the event stream yourself
-- [Annotations](https://lumis.sh/docs/formatters/annotations) — compose your own ranges into the event stream
-- [Themes](https://lumis.sh/docs/themes) — the theme list, custom themes, CSS files
-- [Languages](https://lumis.sh/docs/reference/languages) — what is supported and how detection works
-- [Line highlighting](https://lumis.sh/docs/recipes/line-highlighting)
-- [Line numbers](https://lumis.sh/docs/recipes/line-numbers)
-- [Recipes](https://lumis.sh/docs/recipes) — LiveView rendering, light/dark, injected languages
+- [Elixir integration](https://docs.lumis.sh/usage/elixir) — configuration, releases, Phoenix
+- [Formatters](https://docs.lumis.sh/formatters) — every formatter and its options
+- [Custom formatters](https://docs.lumis.sh/formatters/custom) — render the event stream yourself
+- [Annotations](https://docs.lumis.sh/formatters/annotations) — compose your own ranges into the event stream
+- [Themes](https://docs.lumis.sh/themes) — the theme list, custom themes, CSS files
+- [Languages](https://docs.lumis.sh/reference/languages) — what is supported and how detection works
+- [Line highlighting](https://docs.lumis.sh/recipes/line-highlighting)
+- [Line numbers](https://docs.lumis.sh/recipes/line-numbers)
+- [Recipes](https://docs.lumis.sh/recipes) — LiveView rendering, light/dark, injected languages
 
 API reference: [hexdocs.pm/lumis](https://hexdocs.pm/lumis).
 

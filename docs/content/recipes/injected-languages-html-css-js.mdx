@@ -1,17 +1,13 @@
 ---
-sidebar_position: 10
-slug: /recipes/injected-languages-html-css-js
 title: Injected languages (HTML + CSS + JS)
 description: Highlight HTML with nested CSS and JavaScript regions.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Injected languages (HTML + CSS + JS)
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript">
 
 ```js
 import html from '@lumis-sh/lumis/langs/html'
@@ -22,8 +18,8 @@ const hl = await createHighlighter({languages: [html, css, javascript]})
 const output = hl.highlight(source, htmlInline({language: html, theme: frappe}))
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 let html = highlight(source, HtmlInlineBuilder::new()
@@ -33,14 +29,14 @@ let html = highlight(source, HtmlInlineBuilder::new()
     .unwrap());
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!(source, formatter: {:html_inline, language: "html", theme: "catppuccin_frappe"})
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 Load every participating language in JavaScript, not just the outer one.

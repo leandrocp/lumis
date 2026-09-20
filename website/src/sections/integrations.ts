@@ -2,21 +2,21 @@ const INTEGRATION_LINKS = [
   {
     name: "React",
     links: [
-      { label: "Docs", href: "/docs/integrations/react" },
+      { label: "Docs", href: "https://docs.lumis.sh/integrations/react" },
       { label: "Package", href: "https://www.npmjs.com/package/@lumis-sh/react" },
     ],
   },
   {
     name: "react-markdown",
     links: [
-      { label: "Docs", href: "/docs/integrations/react-markdown" },
+      { label: "Docs", href: "https://docs.lumis.sh/integrations/react-markdown" },
       { label: "Package", href: "https://www.npmjs.com/package/@lumis-sh/rehype-lumis" },
     ],
   },
   {
     name: "markdown-it",
     links: [
-      { label: "Docs", href: "/docs/integrations/markdown-it" },
+      { label: "Docs", href: "https://docs.lumis.sh/integrations/markdown-it" },
       {
         label: "Package",
         href: "https://www.npmjs.com/package/@lumis-sh/markdown-it-lumis",
@@ -26,40 +26,40 @@ const INTEGRATION_LINKS = [
   {
     name: "Astro",
     links: [
-      { label: "Docs", href: "/docs/integrations/astro" },
+      { label: "Docs", href: "https://docs.lumis.sh/integrations/astro" },
       { label: "Package", href: "https://www.npmjs.com/package/@lumis-sh/rehype-lumis" },
     ],
   },
   {
     name: "Nuxt",
     links: [
-      { label: "Docs", href: "/docs/integrations/nuxt" },
+      { label: "Docs", href: "https://docs.lumis.sh/integrations/nuxt" },
       { label: "Package", href: "https://www.npmjs.com/package/@lumis-sh/rehype-lumis" },
     ],
   },
   {
     name: "Ratatui",
-    links: [{ label: "Docs", href: "/docs/integrations/ratatui" }],
+    links: [{ label: "Docs", href: "https://docs.lumis.sh/integrations/ratatui" }],
   },
   {
     name: "Nimble Publisher",
-    links: [{ label: "Docs", href: "/docs/integrations/nimble-publisher" }],
+    links: [{ label: "Docs", href: "https://docs.lumis.sh/integrations/nimble-publisher" }],
   },
   {
     name: "Tableau",
-    links: [{ label: "Docs", href: "/docs/integrations/tableau" }],
+    links: [{ label: "Docs", href: "https://docs.lumis.sh/integrations/tableau" }],
   },
   {
     name: "Docusaurus",
     links: [
-      { label: "Docs", href: "/docs/integrations/docusaurus" },
+      { label: "Docs", href: "https://docs.lumis.sh/integrations/docusaurus" },
       { label: "Package", href: "https://www.npmjs.com/package/@lumis-sh/rehype-lumis" },
     ],
   },
   {
     name: "Vite",
     links: [
-      { label: "Docs", href: "/docs/integrations/vite" },
+      { label: "Docs", href: "https://docs.lumis.sh/integrations/vite" },
       {
         label: "Package",
         href: "https://www.npmjs.com/package/@lumis-sh/vite",
@@ -69,7 +69,7 @@ const INTEGRATION_LINKS = [
   {
     name: "VitePress",
     links: [
-      { label: "Docs", href: "/docs/integrations/vitepress" },
+      { label: "Docs", href: "https://docs.lumis.sh/integrations/vitepress" },
       {
         label: "Package",
         href: "https://www.npmjs.com/package/@lumis-sh/markdown-it-lumis",
@@ -78,7 +78,7 @@ const INTEGRATION_LINKS = [
   },
   {
     name: "Build your own",
-    links: [{ label: "Docs", href: "/docs/formatters/custom" }],
+    links: [{ label: "Docs", href: "https://docs.lumis.sh/formatters/custom" }],
   },
 ] as const;
 

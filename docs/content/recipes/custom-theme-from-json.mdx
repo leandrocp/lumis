@@ -1,25 +1,21 @@
 ---
-sidebar_position: 9
-slug: /recipes/custom-theme-from-json
 title: Custom theme from JSON
 description: Load a custom Lumis theme from JSON and use it for highlighting.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Custom theme from JSON
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript">
 
 ```js
 const theme = await fetch('/my_theme.json').then(r => r.json())
 const html = await highlight('const x = 1', htmlInline({language: javascript, theme}))
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::themes;
@@ -27,8 +23,8 @@ use lumis::themes;
 let theme = themes::from_file("my_theme.json").unwrap();
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 theme_json = ~s({"name":"my_theme","appearance":"dark","highlights":{"comment":{"fg":"#808080"}}})
@@ -37,5 +33,5 @@ theme_json = ~s({"name":"my_theme","appearance":"dark","highlights":{"comment":{
 Lumis.highlight!(source, formatter: {:html_inline, language: "elixir", theme: theme})
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>

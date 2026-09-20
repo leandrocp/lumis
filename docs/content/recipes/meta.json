@@ -1,0 +1,29 @@
+{
+  "title": "Recipes",
+  "pages": [
+    "index",
+    "minimal-html",
+    "auto-detect-language",
+    "linked-html-css-theme-file",
+    "multi-theme-html",
+    "terminal-output",
+    "wrap-output-with-custom-html",
+    "custom-theme-from-json",
+    "injected-languages-html-css-js",
+    "phoenix-liveview-rendering",
+    "stream-output-to-a-file-rust",
+    "generate-css-from-a-theme-rust",
+    "list-languages-and-themes",
+    "generate-theme-from-neovim-colorscheme",
+    "repeated-highlighting-javascript",
+    "browser-cdn",
+    "local-wasm-bundle",
+    "light-dark",
+    "file-title-copy",
+    "line-highlighting",
+    "line-numbers",
+    "cache-parsers-cli",
+    "highlight-diffs",
+    "rainbow-brackets"
+  ]
+}

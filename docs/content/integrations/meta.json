@@ -1,0 +1,20 @@
+{
+  "title": "Integrations",
+  "pages": [
+    "react",
+    "rehype-lumis",
+    "vite",
+    "markdown-it",
+    "vitepress",
+    "mdx",
+    "nextjs",
+    "astro",
+    "unified-rehype",
+    "react-markdown",
+    "ratatui",
+    "nimble-publisher",
+    "tableau",
+    "docusaurus",
+    "nuxt"
+  ]
+}

@@ -1,0 +1,78 @@
+---
+title: CLI
+description: Highlight files and stdin with the Lumis CLI.
+keywords:
+  - lumis cli highlight
+  - lumis highlight command
+  - lumis stdin
+  - lumis formatter
+---
+
+
+
+Use `lumis highlight` when you want highlighted output from a file or stdin.
+
+## Basic examples
+
+```bash
+lumis highlight main.rs
+lumis highlight index.js --theme catppuccin_frappe
+lumis highlight index.js --formatter html-inline --theme catppuccin_frappe
+```
+
+Terminal output is the default formatter, so `--formatter terminal` is optional. When `--theme` is omitted, Lumis uses the configured theme or automatically matches the terminal background; if detection fails, it renders without a theme.
+
+## From stdin
+
+```bash
+cat main.rs | lumis highlight --language rust
+echo 'const x = 1' | lumis highlight --language javascript --formatter html-inline --theme catppuccin_frappe
+```
+
+Use `--language` when piping content with no filename hint.
+
+## Language selection
+
+- provide `--language` when you already know the language
+- omit it when file extension, filename, or source content should drive detection
+- if detection fails, Lumis falls back to plaintext
+
+```bash
+lumis highlight main.rs
+lumis highlight main.txt --language rust
+```
+
+## Formatter selection
+
+```bash
+lumis highlight main.rs --theme catppuccin_frappe
+lumis highlight main.rs --formatter html-inline --theme catppuccin_frappe
+lumis highlight main.rs --formatter html-linked
+lumis highlight main.rs --formatter html-multi-themes --themes light:catppuccin_latte --themes dark:catppuccin_frappe
+lumis highlight main.rs --formatter bbcode-scoped
+```
+
+## Parser availability
+
+Highlighting downloads a missing compatible language package and parser on
+demand. `lumis languages cache` moves that download and compilation ahead of the
+first highlight, storing exact-version parser WASM under content-addressed,
+integrity-checked names in the data directory.
+
+- a missing root language is downloaded or returns an error if it cannot be fetched
+- `lumis languages cache ...` persists selected parsers, `--all` takes every one
+- `lumis languages cache ... --force` resolves the compatible package range again
+  and replaces valid cached parsers
+- a missing injected language is downloaded during the highlighting walk; if it
+  cannot be fetched, only that block stays plain
+
+```bash
+lumis languages cache rust javascript elixir
+lumis languages cache rust --force
+```
+
+## Related pages
+
+- [CLI Commands](/cli/commands)
+- [CLI Behavior](/cli/behavior)
+- [Formatters](/formatters)

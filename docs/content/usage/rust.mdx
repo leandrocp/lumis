@@ -1,0 +1,168 @@
+---
+title: Rust
+description: Rust-specific Lumis APIs including write_highlight, auto-detection, streaming token iteration, custom themes, CSS generation, and feature flags.
+keywords:
+  - lumis rust
+  - write_highlight
+  - highlight_iter
+  - Highlighter
+  - cargo features
+---
+
+
+
+## When you want a `String`
+
+Use [`highlight()`](https://docs.rs/lumis/latest/lumis/fn.highlight.html) when you want the rendered output in memory as a `String`.
+
+```rust
+use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+
+let formatter = HtmlInlineBuilder::new()
+    .language(Language::Rust)
+    .theme(Some(themes::get("onedark").unwrap()))
+    .build()
+    .unwrap();
+
+let html = highlight("fn main() {}", formatter);
+```
+
+## When you want to write directly to a stream
+
+Use [`write_highlight()`](https://docs.rs/lumis/latest/lumis/fn.write_highlight.html) when you want to stream into a file, socket, or other writer without building a large intermediate string.
+
+```rust
+use lumis::{write_highlight, HtmlInlineBuilder, languages::Language, themes};
+use std::fs::File;
+
+let formatter = HtmlInlineBuilder::new()
+    .language(Language::Rust)
+    .theme(Some(themes::get("onedark").unwrap()))
+    .build()
+    .unwrap();
+
+let mut file = File::create("output.html").unwrap();
+write_highlight(&mut file, "fn main() {}", formatter).unwrap();
+```
+
+## Language auto-detection
+
+```rust
+use lumis::languages::Language;
+
+let lang = Language::guess(Some("main.rs"), source);
+```
+
+See [`Language::guess`](https://docs.rs/lumis/latest/lumis/languages/enum.Language.html).
+
+Detection can use file name hints and shebang/content heuristics.
+
+## Token-level APIs
+
+### [`Highlighter`](https://docs.rs/lumis/latest/lumis/highlight/struct.Highlighter.html)
+
+Use `Highlighter` when you want styled segments for custom processing.
+
+```rust
+use lumis::{highlight::Highlighter, languages::Language, themes};
+
+let highlighter = Highlighter::new(Language::SQL, themes::get("catppuccin_mocha").ok());
+let segments = highlighter.highlight(source).unwrap();
+```
+
+### [`highlight_iter()`](https://docs.rs/lumis/latest/lumis/highlight/fn.highlight_iter.html)
+
+Use this when you need byte ranges, scopes, and per-token callbacks.
+
+```rust
+use lumis::{highlight::highlight_iter, languages::Language, themes};
+
+highlight_iter(source, Language::Rust, themes::get("catppuccin_latte").ok(), |text, language, range, scope, style| {
+    println!("{:?} {:?} {} {:?}", text, language, scope, range);
+    println!("fg={:?} bold={} italic={}", style.fg, style.bold, style.italic);
+    Ok::<_, std::io::Error>(())
+}).unwrap();
+```
+
+This is also the base for advanced custom formatters.
+
+`highlight_iter_with_options()` takes the same callback plus a `HighlightOptions`,
+so a custom formatter can opt into the scopes the built-in formatters produce:
+
+```rust
+use lumis::{highlight::{highlight_iter_with_options, HighlightOptions}, languages::Language};
+
+let options = HighlightOptions::new().rainbow_brackets(true);
+
+highlight_iter_with_options(source, Language::Rust, None, options, |text, _language, _range, scope, _style| {
+    // scope is punctuation.bracket.rainbow.1 .. .6 on bracket pairs
+    println!("{scope}: {text}");
+    Ok::<_, std::io::Error>(())
+}).unwrap();
+```
+
+The flat iterator cycles rainbow brackets through the six compatibility scopes.
+Use the nested `highlight_events_with_options()` API when you need
+`Decoration::RainbowBracket { depth }` with the real, unwrapped zero-based
+depth.
+
+## [CSS generation from themes](https://docs.rs/lumis/latest/lumis/themes/struct.Theme.html)
+
+Rust can generate linked CSS directly.
+
+```rust
+use lumis::themes;
+
+let theme = themes::get("catppuccin_latte").unwrap();
+let css = theme.css(true);
+```
+
+Useful when serving CSS from Rust without the JS themes package.
+
+## [Custom themes](https://docs.rs/lumis/latest/lumis/themes/index.html)
+
+Load from JSON, parse from a string name, or build programmatically:
+
+```rust
+use lumis::themes;
+
+let theme = themes::from_file("my_theme.json").unwrap();
+let theme = themes::from_json(json).unwrap();
+
+// parse a built-in theme by name
+let theme: themes::Theme = "catppuccin_mocha".parse().unwrap();
+```
+
+## [Theme discovery](https://docs.rs/lumis/latest/lumis/themes/index.html)
+
+```rust
+use lumis::themes::{self, Appearance};
+
+for theme in themes::available_themes() {
+    println!("{} {:?}", theme.name, theme.appearance);
+}
+
+let dark_themes: Vec<_> = themes::available_themes()
+    .filter(|theme| theme.appearance == Appearance::Dark)
+    .collect();
+```
+
+## Cargo feature flags
+
+Reduce compile time and binary size by enabling only the languages you need:
+
+```toml
+[dependencies]
+lumis = { version = "0.1", default-features = false, features = ["bundle-web", "lang-rust"] }
+```
+
+This lets you mix bundle features with individual language features. In this example, `bundle-web` covers the usual web stack and `lang-rust` adds Rust on top.
+
+To re-enable everything:
+
+```toml
+[dependencies]
+lumis = { version = "0.1", features = ["all-languages"] }
+```
+
+Available features follow the patterns `bundle-<name>` and `lang-<name>` (e.g., `bundle-web`, `bundle-system`, `lang-python`, `lang-html`, `lang-elixir`). See the crate `Cargo.toml` for the full list.

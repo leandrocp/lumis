@@ -1,6 +1,4 @@
 ---
-sidebar_position: 1
-slug: /reference/languages
 title: Languages
 description: Supported Lumis languages, parser sources, query sources, and WASM package mappings.
 keywords:
@@ -9,7 +7,7 @@ keywords:
   - wasm packages
 ---
 
-# Languages
+
 
 Source: [`LANGUAGES.md`](https://github.com/leandrocp/lumis/blob/main/LANGUAGES.md).
 

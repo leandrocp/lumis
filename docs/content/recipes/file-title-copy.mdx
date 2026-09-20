@@ -1,6 +1,4 @@
 ---
-sidebar_position: 2
-slug: /recipes/file-title-copy
 title: Filename Title and Copy Button
 description: Build a code block header with a filename label and copy button using Lumis header tags, plain CSS, and browser JavaScript.
 keywords:
@@ -10,10 +8,8 @@ keywords:
   - filename code block
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Filename Title and Copy Button
 
 Use the HTML formatter `header` option to wrap the `<pre>` with your own markup. This keeps the whole pattern as plain HTML, CSS, and browser JavaScript. No custom component.
 
@@ -41,8 +37,8 @@ Resulting shape for runtimes that support custom header wrappers:
 </div>
 ```
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -72,8 +68,8 @@ const html = await highlight(
 )
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlInlineBuilder, formatters::html::HtmlElement, languages::Language, themes};
@@ -103,8 +99,8 @@ let formatter = HtmlInlineBuilder::new()
 let html = highlight(source, formatter);
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 source = ~S(console.log("hello"))
@@ -131,13 +127,13 @@ html = Lumis.highlight!(
 )
 ```
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+  </Tab>
+  <Tab value="Java">
 
 Custom header wrappers are not currently exposed by `lumis4j`.
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight app.js -f html-inline \
@@ -145,7 +141,7 @@ lumis highlight app.js -f html-inline \
   --header-close '</figure>'
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## 2. Style the title row

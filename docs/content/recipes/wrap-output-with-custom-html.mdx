@@ -1,17 +1,13 @@
 ---
-sidebar_position: 8
-slug: /recipes/wrap-output-with-custom-html
 title: Wrap output with custom HTML
 description: Wrap highlighted output with custom header and container HTML.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Wrap output with custom HTML
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript">
 
 ```js
 const html = await highlight(
@@ -24,8 +20,8 @@ const html = await highlight(
 )
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlInlineBuilder, formatters::html::HtmlElement, languages::Language, themes};
@@ -44,8 +40,8 @@ let html = highlight(
 );
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!(
@@ -58,7 +54,7 @@ Lumis.highlight!(
 )
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 See [Build a code block header with copy button](/recipes/file-title-copy) for a fuller pattern.

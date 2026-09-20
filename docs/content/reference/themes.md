@@ -1,6 +1,4 @@
 ---
-sidebar_position: 2
-slug: /reference/themes
 title: Themes
 description: Built-in Lumis themes and their upstream repositories.
 keywords:
@@ -9,7 +7,7 @@ keywords:
   - neovim themes
 ---
 
-# Themes
+
 
 Source: [`THEMES.md`](https://github.com/leandrocp/lumis/blob/main/THEMES.md).
 
