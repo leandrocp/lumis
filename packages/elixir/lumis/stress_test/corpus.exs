@@ -27,6 +27,7 @@ defmodule Lumis.Stress.CorpusRunner do
     preload = timed(fn -> Lumis.Languages.load(languages) end)
 
     report = %{
+      schema_version: 1,
       status: "running",
       generated_at: timestamp(),
       completed_at: nil,
@@ -283,8 +284,6 @@ defmodule Lumis.Stress.CorpusRunner do
         end)
       )
 
-    Supervisor.stop(supervisor)
-
     storm = %{
       callers: callers,
       caller_timeout_ms: options[:caller_timeout_ms],
@@ -298,6 +297,9 @@ defmodule Lumis.Stress.CorpusRunner do
 
     updated = %{report | generated_at: timestamp(), running_case: nil, timeout_storm: storm}
     write_report!(output_path, updated)
+    # The ignored callers are still under this supervisor and still inside the
+    # NIF, so stopping it waits for them. The probe is already on disk by then.
+    Supervisor.stop(supervisor)
     updated
   end
 
@@ -434,17 +436,20 @@ defmodule Lumis.Stress.CorpusRunner do
 
   defp sample_memory(caller, peak) do
     receive do
+      # Sampling here too, because a render finishing inside the first interval
+      # would otherwise report the baseline as its peak.
       {:stop, ^caller} ->
-        send(caller, {:memory_peak, self(), peak})
+        send(caller, {:memory_peak, self(), merge_peak(peak, memory_snapshot())})
     after
-      50 ->
-        current = memory_snapshot()
-
-        sample_memory(caller, %{
-          beam_bytes: max(peak.beam_bytes, current.beam_bytes),
-          rss_kb: max_optional(peak.rss_kb, current.rss_kb)
-        })
+      50 -> sample_memory(caller, merge_peak(peak, memory_snapshot()))
     end
+  end
+
+  defp merge_peak(peak, current) do
+    %{
+      beam_bytes: max(peak.beam_bytes, current.beam_bytes),
+      rss_kb: max_optional(peak.rss_kb, current.rss_kb)
+    }
   end
 
   defp memory_snapshot do

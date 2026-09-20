@@ -148,6 +148,11 @@ pub(crate) fn run(options: Options) -> Result<()> {
     if options.iterations == 0 {
         bail!("--iterations must be at least one");
     }
+    // A NaN budget makes every `>` comparison false, so the run would report
+    // "ok" having checked nothing.
+    if !options.max_output_amplification.is_finite() || options.max_output_amplification < 0.0 {
+        bail!("--max-output-amplification must be a finite non-negative number");
+    }
 
     let manifest: CorpusManifest = serde_json::from_slice(
         &fs::read(&options.manifest)

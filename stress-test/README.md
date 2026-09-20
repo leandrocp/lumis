@@ -87,8 +87,8 @@ One release-mode iteration of the 100,000-opening-bracket JSON case was measured
 locally on Apple Silicon against the same Lumis core revision. Native Rust took
 9.26 seconds, the CLI took 8.18 seconds, Node native took 8.18 seconds, Node
 Wasm took 26.79 seconds, Chromium took 20.57 seconds, and the Elixir NIF took
-8.19 seconds. Every lane produced the same 4,400,128-byte output with the same
-SHA-256: 44.00128 times the 100,000-byte input.
+8.19 seconds. Every lane produced the same 4,400,128-byte output under the same
+SHA-256, which is 44.00128 times the 100,000-byte input.
 
 This establishes an end-to-end problem below any single host binding while the
 runtime spread also shows that the cost is not identical at every layer. These
