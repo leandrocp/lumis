@@ -901,6 +901,10 @@ export function compileHighlightConfig(
   injectionsQuery = "",
   localsQuery = "",
 ): CompiledHighlightConfig {
+  // These inherited patterns can remain open across an entire wrapper element.
+  // Restrict match replay to that query family: completed matches do not contain
+  // enough information to reproduce captures() ordering for arbitrary queries.
+  const replayCapturesFromMatches = highlightsQuery.includes("inherits: html_tags");
   const querySource = `${injectionsQuery}${localsQuery}${highlightsQuery}`;
   const localsQueryOffset = injectionsQuery.length;
   const highlightsQueryOffset = injectionsQuery.length + localsQuery.length;
@@ -997,6 +1001,7 @@ export function compileHighlightConfig(
     query,
     injectionPatternEnd,
     localsPatternEnd,
+    replayCapturesFromMatches,
     captureMetadata,
     nonLocalVariablePatterns,
     captureOffsets,

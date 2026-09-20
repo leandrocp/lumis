@@ -275,6 +275,7 @@ export interface CompiledHighlightConfig {
   query: Query;
   injectionPatternEnd: number;
   localsPatternEnd: number;
+  replayCapturesFromMatches: boolean;
   captureMetadata: Record<string, CaptureMetadata>;
   nonLocalVariablePatterns: boolean[];
   /** Per pattern index, the `#offset!` deltas keyed by capture name. */
@@ -418,7 +419,7 @@ export interface Annotation<T = unknown> {
  * Mirrors `DEFAULT_MATCH_LIMIT` in the Rust crate, which is the reference
  * implementation for every runtime.
  */
-export const DEFAULT_MATCH_LIMIT = 4096;
+export const DEFAULT_MATCH_LIMIT = 8192;
 
 /**
  * Largest match limit tree-sitter accepts; its query cursor documents

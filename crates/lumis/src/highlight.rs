@@ -755,6 +755,104 @@ mod tests {
     }
 
     #[test]
+    fn a_wrapper_element_keeping_thousands_of_matches_open_keeps_its_trailing_text() {
+        // Each html `(element (start_tag (tag_name) @_tag) (text) @markup.*)` pattern
+        // stays in progress from `<code>` until a `(text)` child arrives, so every
+        // capture inside the element finishes behind it. Streaming `captures()`
+        // buffers all of them until the capture list pool is exhausted and then
+        // evicts the `<code>` match itself, so its trailing text loses `markup.raw`.
+        use std::fmt::Write as _;
+
+        let mut source = String::from("<pre><code>");
+        for i in 0..4000 {
+            write!(source, "<span class=\"tok\">t{i}</span>").unwrap();
+        }
+        let trailing = "() {}";
+        let start = source.len();
+        source.push_str(trailing);
+        source.push_str("</code></pre>\n");
+        let end = start + trailing.len();
+
+        let events = highlight_events(&source, Language::HTML).unwrap();
+        let mut scopes = Vec::new();
+        let mut raw_over_trailing = false;
+        for event in &events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    scopes.push(HIGHLIGHT_NAMES[*scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    scopes.pop();
+                }
+                CoreHighlightEvent::Source { start: s, end: e }
+                    if *s < end && *e > start && scopes.contains(&"markup.raw") =>
+                {
+                    raw_over_trailing = true;
+                }
+                _ => {}
+            }
+        }
+        assert!(
+            raw_over_trailing,
+            "trailing text of <code> lost its markup.raw scope"
+        );
+    }
+
+    #[test]
+    fn capture_stream_preserves_tree_sitter_tie_order_for_other_queries() {
+        let events = highlight_events("* { }", Language::CSS).unwrap();
+        let mut active_scopes = Vec::new();
+
+        for event in events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    active_scopes.push(HIGHLIGHT_NAMES[scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    active_scopes.pop();
+                }
+                CoreHighlightEvent::Source { start: 0, end } if end > 0 => {
+                    assert_eq!(active_scopes, ["character.special", "operator"]);
+                    return;
+                }
+                _ => {}
+            }
+        }
+
+        panic!("CSS wildcard did not produce a source event");
+    }
+
+    #[test]
+    fn capture_stream_survives_a_rewritten_match_capture_list() {
+        // The cursor reuses a match's capture list and rewrites it in place, so the
+        // same match id can come back holding different captures. A position recorded
+        // against the earlier contents then resolves to the wrong capture, which
+        // displaces later captures out of document order. Kotlin's package
+        // declaration is where that surfaces: each segment stays a module.
+        let source = "package com.learnxinyminutes.kotlin\n";
+        let events = highlight_events(source, Language::Kotlin).unwrap();
+        let mut open_scopes: Vec<&str> = Vec::new();
+        let mut scope_of_com = None;
+
+        for event in events {
+            match event {
+                CoreHighlightEvent::Start { scope_index, .. } => {
+                    open_scopes.push(HIGHLIGHT_NAMES[scope_index]);
+                }
+                CoreHighlightEvent::End => {
+                    open_scopes.pop();
+                }
+                CoreHighlightEvent::Source { start, end } if &source[start..end] == "com" => {
+                    scope_of_com = Some(open_scopes.last().copied());
+                }
+                _ => {}
+            }
+        }
+
+        assert_eq!(scope_of_com, Some(Some("module")));
+    }
+
+    #[test]
     fn match_limit_defaults_and_overrides() {
         assert_eq!(
             HighlightOptions::default().match_limit_value(),
@@ -768,26 +866,58 @@ mod tests {
 
     #[test]
     fn match_limit_reaches_the_formatter_entry_point() {
-        // A document with enough matches open at once that starving the cursor
-        // changes what it captures, so this fails if the option stops short of
-        // the highlighter.
-        let source = std::fs::read_to_string(
-            std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../samples/heex.heex"),
-        )
-        .unwrap();
-        let language = Language::guess(Some("heex.heex"), &source);
+        // Elements nested deeply enough that every level holds an `html_tags`
+        // pattern open at once, so a cursor starved below that depth drops
+        // scopes and this fails if the option stops short of the highlighter.
+        // The document has to nest rather than merely be large: replaying a
+        // layer's captures from its finished matches leaves only the matches
+        // genuinely in progress in the pool, which is the nesting depth.
+        let depth = 400;
+        let source = format!(
+            "<html><body>{}{}</body></html>\n",
+            "<b>x".repeat(depth),
+            "y</b>".repeat(depth)
+        );
         let render = |limit: u32| {
             crate::highlight_with_options(
                 &source,
-                crate::formatter::HtmlLinked::new(language, None, None, false, None),
+                crate::formatter::HtmlLinked::new(Language::HTML, None, None, false, None),
                 HighlightOptions::new().match_limit(limit),
             )
         };
 
         let reference = render(u32::from(u16::MAX));
 
-        assert_ne!(render(4), reference);
+        assert_ne!(render(1024), reference);
         assert_eq!(render(DEFAULT_MATCH_LIMIT), reference);
+    }
+
+    #[test]
+    fn a_lower_match_limit_binds_on_a_highlighter_that_already_ran_a_higher_one() {
+        // Highlighters are reused across documents, and a cursor's capture list
+        // pool never shrinks, so a lowered bound has to drop the pooled cursors
+        // or the first document's bound is the one every later document gets.
+        let depth = 400;
+        let source = format!(
+            "<html><body>{}{}</body></html>\n",
+            "<b>x".repeat(depth),
+            "y</b>".repeat(depth)
+        );
+        let render = |limit: u32| {
+            highlight_events_with_options(
+                &source,
+                Language::HTML,
+                HighlightOptions::new().match_limit(limit),
+            )
+            .unwrap()
+        };
+
+        let starved_first =
+            std::thread::scope(|scope| scope.spawn(|| render(1024)).join().unwrap());
+        let _ = render(MAX_MATCH_LIMIT);
+        let starved_after = render(1024);
+
+        assert_eq!(starved_after, starved_first);
     }
 
     #[test]
