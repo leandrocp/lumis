@@ -552,6 +552,6 @@ lumis highlight main.rs --formatter bbcode-scoped
 Rust and the npm package expose lower-level formatter APIs so you can render tokens however you want.
 
 - Rust: implement the [`Formatter`](https://docs.rs/lumis/latest/lumis/formatters/trait.Formatter.html) trait
-- JavaScript / TypeScript: pass a formatter object with `language` and `format(source)`, then call the sync free functions `highlightIter()` or `highlightEvents()` inside `format()` — see [source](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/formatter.ts)
+- JavaScript / TypeScript: pass a formatter object with `render(source, events)` and an optional `language`. Lumis supplies the highlighted events; use the sync `highlightIter()` or `highlightEvents()` helpers inside `render()` only if you need to highlight more source — see the [Formatter interface](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/types.ts)
 
 For deeper formatter-specific options, use the dedicated pages above. For theme data and formatter helpers, continue with [Themes](/themes).
