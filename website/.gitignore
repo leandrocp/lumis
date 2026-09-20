@@ -1,3 +1,5 @@
 node_modules/
 dist/
+.vercel/
 public/wasm/
+.env.local
