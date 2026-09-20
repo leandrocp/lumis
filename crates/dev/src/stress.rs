@@ -61,8 +61,20 @@ struct Report {
     running_case: Option<String>,
     options: ReportOptions,
     corpus: CorpusSummary,
+    preload: Option<Preload>,
     results: Vec<CaseResult>,
     violations: Vec<String>,
+}
+
+/// Every other lane records query compilation separately. Without this the
+/// first iteration of each language pays for forcing its `LazyLock`
+/// `HighlightConfiguration` and the rest do not, which makes the per-lane
+/// timing comparison this suite exists for a cold number against warm ones.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Preload {
+    languages: Vec<String>,
+    wall_ms: u128,
 }
 
 #[derive(Serialize)]
@@ -102,7 +114,7 @@ struct CaseResult {
     generated: GeneratedMetrics,
     source_sha256: String,
     origins: Vec<Value>,
-    deterministic: bool,
+    deterministic: Option<bool>,
     output_bytes: usize,
     output_amplification: f64,
     iterations: Vec<Iteration>,
@@ -142,6 +154,9 @@ pub(crate) fn run(options: Options) -> Result<()> {
             .with_context(|| format!("read {}", options.manifest.display()))?,
     )?;
     let mut report = initial_report(&manifest, &options);
+    write_report(&options.output, &report)?;
+
+    report.preload = Some(preload(&manifest)?);
     write_report(&options.output, &report)?;
 
     for test_case in &manifest.cases {
@@ -212,9 +227,40 @@ fn initial_report(manifest: &CorpusManifest, options: &Options) -> Report {
             discovery: manifest.discovery.clone(),
             cases: manifest.cases.clone(),
         },
+        preload: None,
         results: Vec::new(),
         violations: Vec::new(),
     }
+}
+
+/// Highlighting one byte per language forces that language's `LazyLock`
+/// `HighlightConfiguration`, the same work `lumis languages cache`,
+/// `Lumis.Languages.load/1` and `createHighlighter` are timed for elsewhere.
+fn preload(manifest: &CorpusManifest) -> Result<Preload> {
+    let mut languages: Vec<String> = manifest
+        .cases
+        .iter()
+        .map(|test_case| test_case.language.clone())
+        .collect();
+    languages.sort_unstable();
+    languages.dedup();
+
+    let started = Instant::now();
+    for name in &languages {
+        let language = name
+            .parse::<Language>()
+            .map_err(|_| anyhow::anyhow!("invalid language '{name}'"))?;
+        let formatter = HtmlLinkedBuilder::new()
+            .language(language)
+            .build()
+            .map_err(|error| anyhow::anyhow!("{error}"))?;
+        highlight("", formatter);
+    }
+
+    Ok(Preload {
+        languages,
+        wall_ms: started.elapsed().as_millis(),
+    })
 }
 
 fn run_case(test_case: &StressCase, iterations: usize) -> Result<CaseResult> {
@@ -243,9 +289,11 @@ fn run_case(test_case: &StressCase, iterations: usize) -> Result<CaseResult> {
         .map(|measurement| measurement.output_bytes)
         .max()
         .unwrap_or_default();
-    let deterministic = measurements
-        .windows(2)
-        .all(|pair| pair[0].output_sha256 == pair[1].output_sha256);
+    let deterministic = (measurements.len() > 1).then(|| {
+        measurements
+            .windows(2)
+            .all(|pair| pair[0].output_sha256 == pair[1].output_sha256)
+    });
 
     Ok(CaseResult {
         id: test_case.id.clone(),
@@ -331,7 +379,7 @@ fn rss_kb() -> Option<u64> {
 fn violations(results: &[CaseResult], options: &Options) -> Vec<String> {
     let mut violations = Vec::new();
     for result in results {
-        if !result.deterministic {
+        if result.deterministic == Some(false) {
             violations.push(format!("{}: output was nondeterministic", result.id));
         }
         for iteration in &result.iterations {

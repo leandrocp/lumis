@@ -5,12 +5,13 @@ import { htmlLinked } from "../dist/formatters.js";
 import {
   checkpoint,
   createReport,
+  determinism,
   finish,
   gitRevision,
   loadManifest,
   parseRunnerArguments,
   sha256,
-} from "../../../../fixtures/stress-test/report.mjs";
+} from "../../../../stress-test/report.mjs";
 
 function memorySnapshot() {
   const memory = process.memoryUsage();
@@ -26,7 +27,18 @@ function memorySnapshot() {
 function measure(iteration, render) {
   const before = memorySnapshot();
   const started = process.hrtime.bigint();
-  const output = render();
+  let output;
+  try {
+    output = render();
+  } catch (error) {
+    return {
+      iteration,
+      status: "error",
+      error: String(error),
+      wallMs: Number((process.hrtime.bigint() - started) / 1_000_000n),
+      memory: { before, after: memorySnapshot() },
+    };
+  }
   const wallMs = Number((process.hrtime.bigint() - started) / 1_000_000n);
   const after = memorySnapshot();
   return {
@@ -93,23 +105,24 @@ for (const testCase of manifest.cases) {
       measure(iteration, () => highlighter.highlight(source, htmlLinked({ language }))),
     );
   }
-  const outputBytes = Math.max(...iterations.map((result) => result.outputBytes));
+  const successes = iterations.filter(({ status }) => status === "ok");
+  const outputBytes = Math.max(0, ...successes.map((result) => result.outputBytes));
   const result = {
     id: testCase.id,
     profile: testCase.profile,
     language: testCase.language,
-    status: "ok",
+    status: successes.length === iterations.length ? "ok" : "error",
     generated: testCase.generated,
     sourceSha256: testCase.sourceSha256,
     origins: testCase.origins,
-    deterministic: new Set(iterations.map(({ outputSha256 }) => outputSha256)).size <= 1,
+    deterministic: determinism(successes.map(({ outputSha256 }) => outputSha256)),
     outputBytes,
     outputAmplification: outputBytes / Math.max(Buffer.byteLength(source), 1),
     iterations,
   };
   report.results.push(result);
   process.stdout.write(
-    `${result.id}: ${Math.max(...iterations.map(({ wallMs }) => wallMs))} ms, ` +
+    `${result.id}: ${result.status}, ${Math.max(...iterations.map(({ wallMs }) => wallMs))} ms, ` +
       `${testCase.generated.bytes} source bytes, ${outputBytes} output bytes\n`,
   );
   await checkpoint(options, report, undefined);

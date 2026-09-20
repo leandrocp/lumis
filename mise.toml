@@ -196,7 +196,7 @@ run = "mix test"
 
 [tasks.stress]
 description = "Run the generated Lumis stress-test corpus across runtime boundaries"
-run = "node fixtures/stress-test/run.mjs"
+run = "node stress-test/run.mjs"
 
 [tasks.'test-javascript']
 description = "Run the JavaScript test suites on both the native and Wasm runtimes"

@@ -2,9 +2,17 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { numberArgument, pathArgument, stringArgument } from "./report.mjs";
 
-const repoDir = fileURLToPath(new URL("../../", import.meta.url));
+const repoDir = fileURLToPath(new URL("../", import.meta.url));
 const corpusPath = fileURLToPath(new URL("corpus.json", import.meta.url));
+
+const VALUES = new Map([
+  ["--case", (options, raw) => options.cases.push(stringArgument("--case", raw))],
+  ["--output", (options, raw) => (options.output = pathArgument("--output", raw))],
+  ["--profile", (options, raw) => (options.profile = stringArgument("--profile", raw))],
+  ["--scale", (options, raw) => (options.scale = numberArgument("--scale", raw, Number.MIN_VALUE))],
+]);
 
 function parseArguments(argv) {
   const options = {
@@ -16,16 +24,12 @@ function parseArguments(argv) {
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
-    if (argument === "--case") options.cases.push(argv[++index]);
-    else if (argument === "--output") options.output = resolve(argv[++index]);
-    else if (argument === "--profile") options.profile = argv[++index];
-    else if (argument === "--scale") options.scale = Number(argv[++index]);
-    else throw new Error(`unknown argument: ${argument}`);
+    const withValue = VALUES.get(argument);
+    if (!withValue) throw new Error(`unknown argument: ${argument}`);
+    withValue(options, argv[++index]);
   }
 
-  if (!(options.scale > 0 && options.scale <= 1)) {
-    throw new Error("--scale must be greater than zero and at most one");
-  }
+  if (options.scale > 1) throw new Error("--scale must be greater than zero and at most one");
   return options;
 }
 
@@ -94,24 +98,64 @@ function generateSource(testCase, scale) {
   throw new Error(`unknown generator for ${testCase.id}: ${testCase.generator.kind}`);
 }
 
-function metrics(source) {
+function metrics(source, language) {
+  const [open, close] = delimiters(language);
+  const openCode = open.charCodeAt(0);
+  const closeCode = close.charCodeAt(0);
   let lines = 1;
   let lineBytes = 0;
   let maxLineBytes = 0;
+  let depth = 0;
+  let structuralDepth = 0;
+
   for (let index = 0; index < source.length; index += 1) {
-    if (source.charCodeAt(index) === 10) {
+    const code = source.charCodeAt(index);
+    if (code === 10) {
       lines += 1;
       maxLineBytes = Math.max(maxLineBytes, lineBytes);
       lineBytes = 0;
-    } else {
-      lineBytes += 1;
+      continue;
+    }
+    lineBytes += 1;
+    if (code === openCode) {
+      depth += 1;
+      structuralDepth = Math.max(structuralDepth, depth);
+    } else if (code === closeCode) {
+      depth = Math.max(0, depth - 1);
     }
   }
+
   return {
     bytes: Buffer.byteLength(source),
     lines,
     maxLineBytes: Math.max(maxLineBytes, lineBytes),
+    structuralDepth,
   };
+}
+
+/**
+ * A case whose generated shape drifts from its target still hashes consistently,
+ * so every runtime would verify it and report green on an input that no longer
+ * exercises the regression. Only a full-size corpus can be checked against the
+ * recorded targets; `--scale` deliberately produces a smaller shape.
+ */
+function verifyGenerated(testCase, generated, scale) {
+  if (scale !== 1) return;
+
+  for (const field of ["bytes", "lines", "maxLineBytes"]) {
+    if (generated[field] !== testCase.target[field]) {
+      throw new Error(
+        `${testCase.id}: generated ${field} ${generated[field]} does not match ` +
+          `target ${testCase.target[field]}`,
+      );
+    }
+  }
+  if (generated.structuralDepth < testCase.target.structuralDepth) {
+    throw new Error(
+      `${testCase.id}: generated structural depth ${generated.structuralDepth} is below ` +
+        `target ${testCase.target.structuralDepth}`,
+    );
+  }
 }
 
 function selectCases(corpus, options) {
@@ -130,6 +174,83 @@ function selectCases(corpus, options) {
   return selected;
 }
 
+function validateLanguage(testCase) {
+  if (!pattern(testCase.language)) {
+    throw new Error(`unknown corpus language for ${testCase.id}: ${testCase.language}`);
+  }
+  if (typeof testCase.extension !== "string" || testCase.extension === "") {
+    throw new Error(`missing extension for ${testCase.id}`);
+  }
+}
+
+function validateTarget(testCase) {
+  for (const field of ["bytes", "lines", "maxLineBytes"]) {
+    if (!(testCase.target?.[field] > 0)) {
+      throw new Error(`invalid ${field} target for ${testCase.id}`);
+    }
+  }
+  if (!(testCase.target?.structuralDepth >= 0)) {
+    throw new Error(`invalid structuralDepth target for ${testCase.id}`);
+  }
+}
+
+function validateDeepGenerator(generator, id) {
+  if (typeof generator.byte !== "string" || generator.byte.length === 0) {
+    throw new Error(`invalid generator byte for ${id}`);
+  }
+}
+
+function validateGenerator(testCase) {
+  const { generator, id } = testCase;
+  const kind = generator?.kind;
+  if (kind === "deep") {
+    validateDeepGenerator(generator, id);
+    return;
+  }
+  if (kind !== "shaped") throw new Error(`invalid generator for ${id}`);
+  if (!Number.isInteger(generator.depth) || generator.depth < 0) {
+    throw new Error(`invalid generator depth for ${id}`);
+  }
+  if (generator.depth !== testCase.target.structuralDepth) {
+    throw new Error(
+      `${id}: generator depth ${generator.depth} disagrees with structuralDepth ` +
+        `target ${testCase.target.structuralDepth}`,
+    );
+  }
+}
+
+function validOriginMetrics(measured) {
+  if (!measured) return false;
+  return (
+    measured.bytes > 0 &&
+    measured.lines > 0 &&
+    measured.maxLineBytes > 0 &&
+    measured.structuralDepth >= 0
+  );
+}
+
+function validProvenance(origin) {
+  return (
+    origin.source === "hex_package" &&
+    /^[0-9a-f]{64}$/u.test(origin.sha256) &&
+    validOriginMetrics(origin.metrics)
+  );
+}
+
+function validateOrigins(testCase, seen) {
+  if (!Array.isArray(testCase.origins) || testCase.origins.length === 0) {
+    throw new Error(`missing origins for ${testCase.id}`);
+  }
+  for (const origin of testCase.origins) {
+    const key = `${origin.source}\0${origin.package}\0${origin.version}\0${origin.path}`;
+    if (seen.has(key)) throw new Error(`duplicate corpus origin: ${origin.path}`);
+    seen.add(key);
+    if (!validProvenance(origin)) {
+      throw new Error(`invalid provenance for ${testCase.id}: ${origin.path}`);
+    }
+  }
+}
+
 function validateCorpus(corpus) {
   if (corpus.schemaVersion !== 1 || !Array.isArray(corpus.cases) || corpus.cases.length === 0) {
     throw new Error("corpus.json must use schema version 1 and contain cases");
@@ -140,35 +261,10 @@ function validateCorpus(corpus) {
   for (const testCase of corpus.cases) {
     if (caseIds.has(testCase.id)) throw new Error(`duplicate corpus case: ${testCase.id}`);
     caseIds.add(testCase.id);
-    if (!["deep", "shaped"].includes(testCase.generator?.kind)) {
-      throw new Error(`invalid generator for ${testCase.id}`);
-    }
-    for (const field of ["bytes", "lines", "maxLineBytes"]) {
-      if (!(testCase.target?.[field] > 0)) {
-        throw new Error(`invalid ${field} target for ${testCase.id}`);
-      }
-    }
-    if (!(testCase.target?.structuralDepth >= 0)) {
-      throw new Error(`invalid structuralDepth target for ${testCase.id}`);
-    }
-    if (!Array.isArray(testCase.origins) || testCase.origins.length === 0) {
-      throw new Error(`missing origins for ${testCase.id}`);
-    }
-    for (const origin of testCase.origins) {
-      const key = `${origin.source}\0${origin.package}\0${origin.version}\0${origin.path}`;
-      if (origins.has(key)) throw new Error(`duplicate corpus origin: ${origin.path}`);
-      origins.add(key);
-      if (
-        origin.source !== "hex_package" ||
-        !/^[0-9a-f]{64}$/.test(origin.sha256) ||
-        !(origin.metrics?.bytes > 0) ||
-        !(origin.metrics?.lines > 0) ||
-        !(origin.metrics?.maxLineBytes > 0) ||
-        !(origin.metrics?.structuralDepth >= 0)
-      ) {
-        throw new Error(`invalid provenance for ${testCase.id}: ${origin.path}`);
-      }
-    }
+    validateLanguage(testCase);
+    validateTarget(testCase);
+    validateGenerator(testCase);
+    validateOrigins(testCase, origins);
   }
 }
 
@@ -187,7 +283,8 @@ await mkdir(options.output, { recursive: true });
 const cases = [];
 for (const testCase of selected) {
   const source = generateSource(testCase, options.scale);
-  const generated = metrics(source);
+  const generated = metrics(source, testCase.language);
+  verifyGenerated(testCase, generated, options.scale);
   const sourcePath = resolve(options.output, `${testCase.id}.${testCase.extension}`);
   await writeFile(sourcePath, source);
   cases.push({

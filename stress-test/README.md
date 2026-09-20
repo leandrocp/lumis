@@ -43,7 +43,10 @@ mise run stress -- --runtime elixir --profile adversarial --timeout-storm
 
 The available runtime ids are `rust`, `cli`, `javascript-native`,
 `javascript-wasm`, `browser`, and `elixir`. Java is maintained in the separate
-`lumis4j` repository, so it cannot be exercised by this repository's CI.
+`lumis4j` repository, so this suite cannot exercise it at all.
+
+The `Stress test` workflow runs the same command on `workflow_dispatch` only,
+because a full run is 18 jobs that are expected to exceed their budgets.
 
 The lanes are deliberately redundant because the defect has not been localized:
 
@@ -73,6 +76,10 @@ full run fails when a render takes more than 30 seconds, output exceeds 32 times
 the input, or a tiny probe waits more than five seconds after timed-out callers
 have returned. `--characterize` records the same violations without making the
 command fail.
+
+Output determinism needs something to compare against, so `deterministic` is
+`null` at the default `--iterations 1` and only `false` is a violation. Pass
+`--iterations 2` to check it, as the workflow does.
 
 ## Baseline finding
 

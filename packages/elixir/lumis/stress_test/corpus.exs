@@ -204,7 +204,7 @@ defmodule Lumis.Stress.CorpusRunner do
       source_sha256: test_case.source_sha256,
       origins: test_case.origins,
       status: if(length(successes) == length(iterations), do: "ok", else: "error"),
-      deterministic: length(Enum.uniq(output_hashes)) <= 1,
+      deterministic: determinism(output_hashes),
       output_bytes: output_bytes,
       output_amplification:
         if(output_bytes, do: output_bytes / max(byte_size(source), 1), else: nil),
@@ -231,6 +231,11 @@ defmodule Lumis.Stress.CorpusRunner do
         origins: test_case.origins
       }
   end
+
+  # `nil` when fewer than two renders were compared, so a report never claims a
+  # determinism it did not check. Only `false` is a violation.
+  defp determinism(hashes) when length(hashes) < 2, do: nil
+  defp determinism(hashes), do: length(Enum.uniq(hashes)) == 1
 
   defp compact_measurement(iteration, %{value: {:ok, output}} = measurement) do
     measurement
@@ -286,6 +291,7 @@ defmodule Lumis.Stress.CorpusRunner do
       caller_wall_ms: caller_batch.wall_ms,
       timed_out_callers: Enum.count(caller_batch.value, &(&1 == :timeout)),
       completed_callers: Enum.count(caller_batch.value, &match?({:ok, _}, &1)),
+      failed_callers: Enum.count(caller_batch.value, &match?({:error, _}, &1)),
       memory: caller_batch.memory,
       immediate_probe: probe
     }
@@ -303,7 +309,10 @@ defmodule Lumis.Stress.CorpusRunner do
       ordered: false,
       timeout: :infinity
     )
-    |> Enum.map(fn {:ok, result} -> result end)
+    |> Enum.map(fn
+      {:ok, result} -> result
+      {:exit, reason} -> {:error, reason}
+    end)
   end
 
   defp timed_call(supervisor, source, timeout_ms) do
@@ -316,8 +325,15 @@ defmodule Lumis.Stress.CorpusRunner do
       {:ok, result} ->
         {:ok, result}
 
+      {:exit, reason} ->
+        {:error, reason}
+
       nil ->
-        Task.shutdown(task, :brutal_kill)
+        # `Task.shutdown/2` waits for the `:DOWN`, and a process inside a DirtyCpu
+        # NIF cannot be killed until the NIF returns. Waiting here is exactly the
+        # symptom this probe measures, so the caller gives up and leaves the native
+        # work occupying its scheduler.
+        Task.ignore(task)
         :timeout
     end
   end
@@ -330,16 +346,19 @@ defmodule Lumis.Stress.CorpusRunner do
   defp case_violations(%{status: status, id: id}, _options) when status != "ok",
     do: ["#{id}: render failed"]
 
-  defp case_violations(%{deterministic: false, id: id}, _options),
-    do: ["#{id}: output was nondeterministic"]
-
   defp case_violations(result, options) do
+    nondeterministic =
+      if result.deterministic == false,
+        do: ["#{result.id}: output was nondeterministic"],
+        else: []
+
     slow =
       result.iterations
       |> Enum.filter(&(&1.wall_ms > options[:max_case_ms]))
       |> Enum.map(&slow_violation(result.id, &1, options[:max_case_ms]))
 
-    slow ++ amplification_violation(result, options[:max_output_amplification])
+    nondeterministic ++
+      slow ++ amplification_violation(result, options[:max_output_amplification])
   end
 
   defp slow_violation(id, measurement, budget) do
@@ -372,13 +391,25 @@ defmodule Lumis.Stress.CorpusRunner do
   end
 
   defp measure(fun) do
-    caller = self()
     baseline = memory_snapshot()
+    caller = self()
     sampler = spawn_link(fn -> sample_memory(caller, baseline) end)
     started = System.monotonic_time()
 
-    value = fun.()
-    wall_ms = elapsed_ms(started)
+    try do
+      value = fun.()
+      collect_measurement(sampler, baseline, elapsed_ms(started), value)
+    catch
+      kind, reason ->
+        stacktrace = __STACKTRACE__
+        # `run_case/2` rescues in this process, so the link never fires and the
+        # sampler would recurse forever on its own timeout.
+        collect_measurement(sampler, baseline, elapsed_ms(started), nil)
+        :erlang.raise(kind, reason, stacktrace)
+    end
+  end
+
+  defp collect_measurement(sampler, baseline, wall_ms, value) do
     send(sampler, {:stop, self()})
 
     peak =
@@ -388,15 +419,13 @@ defmodule Lumis.Stress.CorpusRunner do
         1_000 -> memory_snapshot()
       end
 
-    after_snapshot = memory_snapshot()
-
     %{
       value: value,
       wall_ms: wall_ms,
       memory: %{
         before: baseline,
         peak: peak,
-        after: after_snapshot,
+        after: memory_snapshot(),
         beam_peak_delta_bytes: peak.beam_bytes - baseline.beam_bytes,
         rss_peak_delta_kb: subtract(peak.rss_kb, baseline.rss_kb)
       }

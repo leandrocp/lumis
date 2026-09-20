@@ -72,8 +72,8 @@ same bytes as Rust.
 
 ### Stress test
 
-The generated corpus under [`fixtures/stress-test`](fixtures/stress-test) keeps
-large and structurally adversarial inputs out of the standard test suite. The
+The generated corpus under [`stress-test`](stress-test) keeps large and
+structurally adversarial inputs out of the standard test suite. The
 source files behind its first cases were extracted from Hex.pm package releases,
 but the stress test is source-agnostic and should grow with problematic inputs
 from any Lumis integration. Full-size runs are intentionally resource-heavy and
@@ -83,12 +83,14 @@ may fail their budgets:
 mise run stress
 ```
 
-`fixtures/stress-test/corpus.json` is the shared contract. One generator writes
+`stress-test/corpus.json` is the shared contract. One generator writes
 identical files for Rust, CLI, JavaScript native, JavaScript Wasm, browser, and
 Elixir runners; do not add a runtime-specific copy of a case. Use `--runtime`,
-`--scale`, and `--characterize` for a focused local check. CI runs every runtime
-and full profile separately and uploads each checkpoint report even when a
-profile fails, times out, or exhausts a runner. The dirty-scheduler timeout
+`--scale`, and `--characterize` for a focused local check. The `Stress test`
+workflow is opt-in: it runs only on `workflow_dispatch`, because a full run is
+18 jobs that are expected to exceed their budgets. Dispatched, it runs every
+runtime and full profile separately and uploads each checkpoint report even when
+a profile fails, times out, or exhausts a runner. The dirty-scheduler timeout
 probe is intentionally Elixir-only; the ordinary corpus is not.
 
 ### The formatter option manifest

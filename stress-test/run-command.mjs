@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 import {
   checkpoint,
   createReport,
+  determinism,
   finish,
   gitRevision,
   loadManifest,
@@ -34,10 +35,10 @@ function parseArguments(argv) {
 function rssKb(pid) {
   try {
     const status = readFileSync(`/proc/${pid}/status`, "utf8");
-    const match = /^VmRSS:\s+(\d+)\s+kB$/m.exec(status);
+    const match = /^VmRSS:\s+(\d+)\s+kB$/mu.exec(status);
     return match ? Number(match[1]) : undefined;
   } catch {
-    return undefined;
+    return;
   }
 }
 
@@ -54,6 +55,22 @@ function runProcess(binary, args, environment) {
       if (current !== undefined) peakRssKb = Math.max(peakRssKb ?? 0, current);
     }, 50);
 
+    // A failed spawn emits `error` and may still emit `close`, so the first
+    // event decides the result and the second is ignored.
+    let settled = false;
+    const settle = (result) => {
+      if (settled) return;
+      settled = true;
+      clearInterval(sampler);
+      // oxlint-disable-next-line promise/no-multiple-resolved -- `settled` makes this the only resolve.
+      resolveRun({
+        wallMs: Number((process.hrtime.bigint() - started) / 1_000_000n),
+        outputBytes,
+        memory: { peakRssKb },
+        ...result,
+      });
+    };
+
     child.stdout.on("data", (chunk) => {
       outputBytes += chunk.length;
       hash.update(chunk);
@@ -61,24 +78,16 @@ function runProcess(binary, args, environment) {
     child.stderr.on("data", (chunk) => {
       if (stderr.length < 131_072) stderr += chunk.toString();
     });
-    child.on("error", (error) => {
-      clearInterval(sampler);
-      resolveRun({ status: "error", error: String(error), outputBytes, peakRssKb });
-    });
-    child.on("close", (code, signal) => {
-      clearInterval(sampler);
-      const wallMs = Number((process.hrtime.bigint() - started) / 1_000_000n);
-      resolveRun({
+    child.on("error", (error) => settle({ status: "error", error: String(error) }));
+    child.on("close", (code, signal) =>
+      settle({
         status: code === 0 ? "ok" : "error",
         code,
         signal,
         stderr: stderr.trim() || undefined,
-        wallMs,
-        outputBytes,
         outputSha256: hash.digest("hex"),
-        memory: { peakRssKb },
-      });
-    });
+      }),
+    );
   });
 }
 
@@ -119,14 +128,20 @@ for (const testCase of manifest.cases) {
   for (let iteration = 1; iteration <= options.iterations; iteration += 1) {
     const measured = await runProcess(
       adapter.binary,
-      ["highlight", testCase.generatedPath, "--language", testCase.language, "--formatter", "html-linked"],
+      [
+        "highlight",
+        testCase.generatedPath,
+        "--language",
+        testCase.language,
+        "--formatter",
+        "html-linked",
+      ],
       environment,
     );
     iterations.push({ iteration, ...measured });
   }
   const successes = iterations.filter(({ status }) => status === "ok");
   const outputBytes = Math.max(0, ...successes.map((result) => result.outputBytes));
-  const hashes = new Set(successes.map(({ outputSha256 }) => outputSha256));
   const result = {
     id: testCase.id,
     profile: testCase.profile,
@@ -135,7 +150,7 @@ for (const testCase of manifest.cases) {
     generated: testCase.generated,
     sourceSha256: testCase.sourceSha256,
     origins: testCase.origins,
-    deterministic: hashes.size <= 1,
+    deterministic: determinism(successes.map(({ outputSha256 }) => outputSha256)),
     outputBytes,
     outputAmplification: outputBytes / Math.max(source.length, 1),
     iterations,

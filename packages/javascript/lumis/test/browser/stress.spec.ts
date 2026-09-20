@@ -2,6 +2,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test, type Page } from "@playwright/test";
+import { dataDir } from "../../src/runtime/node-cache.js";
 
 const repoDir = fileURLToPath(new URL("../../../../../", import.meta.url));
 
@@ -22,7 +23,7 @@ interface Manifest {
 
 interface BrowserIteration {
   iteration: number;
-  status: "ok";
+  status: "ok" | "error";
   wallMs: number;
   outputBytes: number;
   outputSha256: string;
@@ -88,7 +89,8 @@ function findViolations(
   const violations: string[] = [];
   for (const result of results) {
     const id = String(result.id);
-    const iterations = result.iterations as BrowserIteration[];
+    if (result.status !== "ok") violations.push(`${id}: render failed`);
+    const iterations = (result.iterations ?? []) as BrowserIteration[];
     for (const iteration of iterations) {
       if (iteration.wallMs > maxCaseMs) {
         violations.push(
@@ -109,6 +111,16 @@ function findViolations(
   return violations;
 }
 
+function numberVariable(name: string, fallback: number, minimum: number): number {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < minimum) {
+    throw new Error(`${name} must be a finite number of at least ${minimum}, got ${raw}`);
+  }
+  return value;
+}
+
 function environmentOptions(): {
   manifestPath: string;
   outputPath: string;
@@ -118,13 +130,18 @@ function environmentOptions(): {
   const outputPath = process.env.LUMIS_STRESS_OUTPUT;
   if (!manifestPath || !outputPath) throw new Error("stress manifest and output are required");
 
+  const iterations = numberVariable("LUMIS_STRESS_ITERATIONS", 1, 1);
+  if (!Number.isInteger(iterations)) {
+    throw new TypeError(`LUMIS_STRESS_ITERATIONS must be a whole number, got ${iterations}`);
+  }
+
   return {
     manifestPath,
     outputPath,
     options: {
-      iterations: Number(process.env.LUMIS_STRESS_ITERATIONS ?? "1"),
-      maxCaseMs: Number(process.env.LUMIS_STRESS_MAX_CASE_MS ?? "30000"),
-      maxOutputAmplification: Number(process.env.LUMIS_STRESS_MAX_OUTPUT_AMPLIFICATION ?? "32"),
+      iterations,
+      maxCaseMs: numberVariable("LUMIS_STRESS_MAX_CASE_MS", 30_000, 0),
+      maxOutputAmplification: numberVariable("LUMIS_STRESS_MAX_OUTPUT_AMPLIFICATION", 32, 0),
       characterize: process.env.LUMIS_STRESS_CHARACTERIZE === "1",
     },
   };
@@ -148,9 +165,10 @@ async function loadRuntimeAssets(
 ): Promise<{ packages: Record<string, string>; wasms: Record<string, string> }> {
   const packages: Record<string, string> = {};
   const wasms: Record<string, string> = {};
+  const parsersDir = resolve(await dataDir(), "parsers");
   const languageIds = new Set(manifest.cases.map((testCase) => testCase.language));
   for (const languageId of languageIds) {
-    const metadataPath = resolve(repoDir, `tmp/wasm/local/parsers/${languageId}.lumis.json`);
+    const metadataPath = resolve(parsersDir, `${languageId}.lumis.json`);
     const metadataSource = await readFile(metadataPath, "utf8");
     const metadata = JSON.parse(metadataSource) as {
       packageName: string;
@@ -158,9 +176,8 @@ async function loadRuntimeAssets(
       parser: { name: string; sha256: string };
     };
     const filename = `${metadata.parser.name}-${metadata.version}-${metadata.parser.sha256}.wasm`;
-    const parserPath = resolve(repoDir, "tmp/wasm/local/parsers", filename);
     packages[metadata.packageName] = metadataSource;
-    wasms[languageId] = (await readFile(parserPath)).toString("base64");
+    wasms[languageId] = (await readFile(resolve(parsersDir, filename))).toString("base64");
   }
   return { packages, wasms };
 }
@@ -171,22 +188,33 @@ async function renderCase(
   iterations: number,
 ): Promise<Record<string, unknown>> {
   const source = await readFile(resolve(repoDir, testCase.generatedPath), "utf8");
-  const measured = await page.evaluate(
-    (input) => (window as unknown as StressWindow).__lumisStressApi.render(input),
-    { iterations, language: testCase.language, source },
-  );
-  expect(measured.sourceBytes, testCase.id).toBe(testCase.generated.bytes);
-  expect(measured.sourceSha256, testCase.id).toBe(testCase.sourceSha256);
-  const outputBytes = Math.max(...measured.iterations.map((iteration) => iteration.outputBytes));
-  return {
+  const common = {
     id: testCase.id,
     profile: testCase.profile,
     language: testCase.language,
-    status: "ok",
     generated: testCase.generated,
     sourceSha256: testCase.sourceSha256,
     origins: testCase.origins,
-    deterministic: new Set(measured.iterations.map(({ outputSha256 }) => outputSha256)).size <= 1,
+  };
+
+  let measured: BrowserCaseResult;
+  try {
+    measured = await page.evaluate(
+      (input) => (window as unknown as StressWindow).__lumisStressApi.render(input),
+      { iterations, language: testCase.language, source },
+    );
+  } catch (error) {
+    return { ...common, status: "error", error: String(error), iterations: [] };
+  }
+
+  expect(measured.sourceBytes, testCase.id).toBe(testCase.generated.bytes);
+  expect(measured.sourceSha256, testCase.id).toBe(testCase.sourceSha256);
+  const outputBytes = Math.max(0, ...measured.iterations.map((iteration) => iteration.outputBytes));
+  const hashes = measured.iterations.map(({ outputSha256 }) => outputSha256);
+  return {
+    ...common,
+    status: measured.iterations.length === iterations ? "ok" : "error",
+    deterministic: hashes.length < 2 ? null : new Set(hashes).size === 1,
     outputBytes,
     outputAmplification: outputBytes / Math.max(measured.sourceBytes, 1),
     iterations: measured.iterations,
@@ -194,11 +222,6 @@ async function renderCase(
 }
 
 test("runs the generated stress corpus in a browser", async ({ page }) => {
-  test.skip(
-    !process.env.LUMIS_STRESS_MANIFEST || !process.env.LUMIS_STRESS_OUTPUT,
-    "the browser stress corpus is opt-in",
-  );
-  test.setTimeout(45 * 60 * 1_000);
   const { manifestPath, outputPath, options } = environmentOptions();
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Manifest;
   const report = createReport(manifest, options);
