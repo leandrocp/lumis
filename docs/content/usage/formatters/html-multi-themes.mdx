@@ -181,7 +181,7 @@ Controls what color values appear inline (not just as CSS variables):
 
 ### What `light-dark()` covers
 
-[CSS `light-dark()`](https://drafts.csswg.org/css-color-5/#light-dark) is a color function, so only `color` and `background-color` use it. `font-weight`, `font-style` and `text-decoration` are written as ordinary declarations holding the `light` theme's value, and every one of them either theme sets is also emitted as `--lumis-light-*` and `--lumis-dark-*` variables. Switching those three needs a rule of your own, see [Light/Dark Mode](/recipes/light-dark).
+[CSS `light-dark()`](https://drafts.csswg.org/css-color-5/#light-dark) is a color function, so only `color` and `background-color` use it. For `font-weight`, `font-style` and `text-decoration`, a value both themes share is written as an ordinary declaration; a value they disagree on is written as `--lumis-light-*` and `--lumis-dark-*` variables with no declaration, since only a rule of your own can switch it. Leaving it out of the style attribute is what keeps that rule from needing `!important`, see [Light/Dark Mode](/recipes/light-dark).
 
 ## Output format
 

@@ -108,34 +108,40 @@
 //!
 //! ```html
 //! <span style="color: light-dark(#d73a49, #ff7b72); font-weight: bold;">keyword</span>
+//! <span style="color: light-dark(#6a737d, #8b949e); --lumis-dark-font-style:normal; --lumis-light-font-style:italic;">comment</span>
 //! ```
 //!
 //! The browser selects the color based on `color-scheme` or `prefers-color-scheme`,
 //! with no additional CSS required.
 //!
 //! That covers `color` and `background-color`, the only properties `light-dark()` is
-//! defined over. `font-weight`, `font-style` and `text-decoration` are written as
-//! ordinary declarations holding the light theme's value, and every one of them either
-//! theme sets is also emitted as a `--lumis-light-*` and a `--lumis-dark-*` variable.
-//! Nothing switches those three on its own, so themes that disagree on one need a rule
-//! of your own:
+//! defined over. `font-weight`, `font-style` and `text-decoration` follow a value the
+//! two themes share as an ordinary declaration, which needs no stylesheet and no
+//! switching. A value they disagree on is a `--lumis-light-*` and a `--lumis-dark-*`
+//! variable instead, and nothing inline, since only a rule of your own can switch it:
 //!
 //! ```css
+//! .lumis span {
+//!   font-style: var(--lumis-light-font-style);
+//!   font-weight: var(--lumis-light-font-weight);
+//!   text-decoration: var(--lumis-light-text-decoration);
+//! }
+//!
 //! @media (prefers-color-scheme: dark) {
 //!   .lumis span {
-//!     font-style: var(--lumis-dark-font-style, revert) !important;
-//!     font-weight: var(--lumis-dark-font-weight, revert) !important;
-//!     text-decoration: var(--lumis-dark-text-decoration, revert) !important;
+//!     font-style: var(--lumis-dark-font-style);
+//!     font-weight: var(--lumis-dark-font-weight);
+//!     text-decoration: var(--lumis-dark-text-decoration);
 //!   }
 //! }
 //! ```
 //!
-//! The `!important` is what lets the rule beat the inline declaration. A span carries
-//! the variable whenever it carries the declaration, so the fallback is reached only
-//! where neither theme set the property, and `revert` leaves those spans to whatever
-//! the page itself says. An initial value there — `normal`, `none` — would instead
-//! flatten them in the dark scheme while the light scheme, which this rule does not
-//! touch, kept the page's own styling.
+//! No `!important`, and none is wanted: a disputed property is left out of the style
+//! attribute, so these rules have nothing inline to outrank, and they stay where your
+//! own `print` or `forced-colors` rules can still beat them. On a token whose themes
+//! agreed, the inline declaration outranks them and the shared value stands. On one
+//! neither theme styled, the variable was never set, the declaration drops out, and
+//! whatever your page says is what renders.
 //!
 //! **Note**: Requires themes named exactly "light" and "dark". Only works in browsers
 //! supporting the CSS `light-dark()` function (Chrome 123+, Safari 17.5+, Firefox 120+).

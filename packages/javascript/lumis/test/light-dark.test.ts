@@ -104,10 +104,11 @@ describe("light-dark() spans", () => {
     }
   });
 
+  // A shared value needs no variables: nothing has to switch it, so nothing has
+  // to override the declaration, so no rule has to be `!important`.
   it("writes a shared non-color property as a plain declaration", () => {
     expect(lightDarkStyle("keyword", true)).toBe(
-      "color: light-dark(#d73a49, #ff7b72); font-weight: bold; " +
-        "--lumis-dark-font-weight:bold; --lumis-light-font-weight:bold;",
+      "color: light-dark(#d73a49, #ff7b72); font-weight: bold;",
     );
   });
 
@@ -117,13 +118,16 @@ describe("light-dark() spans", () => {
     );
   });
 
-  it("switches a disputed non-color property through variables", () => {
+  // A disputed value is variables and nothing inline. The light theme's value
+  // inline would render in the dark scheme too, and a page correcting that would
+  // need `!important` to get past it.
+  it("leaves a disputed non-color property to variables alone", () => {
     expect(lightDarkStyle("comment", true)).toBe(
-      "color: light-dark(#6a737d, #8b949e); font-style: italic; " +
+      "color: light-dark(#6a737d, #8b949e); " +
         "--lumis-dark-font-style:normal; --lumis-light-font-style:italic;",
     );
     expect(lightDarkStyle("string", true)).toBe(
-      "color: light-dark(#032f62, #a5d6ff); text-decoration: underline; " +
+      "color: light-dark(#032f62, #a5d6ff); " +
         "--lumis-dark-text-decoration:line-through; --lumis-light-text-decoration:underline;",
     );
   });

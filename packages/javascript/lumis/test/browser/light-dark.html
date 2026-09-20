@@ -9,19 +9,27 @@
         color-scheme: light dark;
       }
 
-      /* A page of its own, styling the block the way a caller might. The
-         fallbacks below have to leave this alone. */
+      /* A page of its own, styling the block the way a caller might. The rules
+         below have to leave this alone on tokens neither theme styles. */
       .lumis {
         font-weight: 600;
       }
 
-      /* The rule the docs hand to anyone whose two themes disagree on a
-         non-color property. `light-dark()` cannot express that switch. */
+      /* The rules the docs hand to anyone whose two themes disagree on a
+         non-color property, which `light-dark()` cannot express. No
+         `!important`: the formatter leaves a disputed property out of the style
+         attribute, so there is nothing inline to outrank. */
+      .lumis span {
+        font-style: var(--lumis-light-font-style);
+        font-weight: var(--lumis-light-font-weight);
+        text-decoration: var(--lumis-light-text-decoration);
+      }
+
       @media (prefers-color-scheme: dark) {
         .lumis span {
-          font-style: var(--lumis-dark-font-style, revert) !important;
-          font-weight: var(--lumis-dark-font-weight, revert) !important;
-          text-decoration: var(--lumis-dark-text-decoration, revert) !important;
+          font-style: var(--lumis-dark-font-style);
+          font-weight: var(--lumis-dark-font-weight);
+          text-decoration: var(--lumis-dark-text-decoration);
         }
       }
     </style>

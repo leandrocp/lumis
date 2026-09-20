@@ -243,13 +243,14 @@ fn light_dark_properties<'a>(
 /// `background-color` can use it; browsers drop `font-weight: light-dark(...)`
 /// and its siblings as invalid.
 ///
-/// The other properties take the light theme's value, the one `light-dark()`
-/// itself falls back to, as an ordinary declaration. Switching them needs a rule
-/// the page supplies, keyed on `prefers-color-scheme` or on a class, so every
-/// property either theme sets also goes out as one custom property per theme.
-/// That rule has to be `!important` to beat the inline declaration, which is why
-/// the variables are there even when the two themes agree: without them the rule
-/// would strip the emphasis both themes asked for.
+/// The other properties split by whether the two themes agree. A value they
+/// share is an ordinary declaration, correct in both color schemes with no
+/// stylesheet to help it. A value they disagree on is one custom property per
+/// theme and nothing inline, because only a rule the page supplies can switch
+/// it, and an inline declaration is exactly what would force that rule to be
+/// `!important`. Left out of the style attribute, the page's rule is an ordinary
+/// one: it stays in the caller's cascade, where a print or `forced-colors` rule
+/// can still beat it, and it cannot touch the agreed values next to it.
 ///
 /// [spec]: https://drafts.csswg.org/css-color-5/#light-dark
 fn push_light_dark_inline_styles(
@@ -272,18 +273,18 @@ fn push_light_dark_inline_styles(
     let properties = light_dark_properties(light_style, dark_style, italic);
 
     for property in &properties {
-        if property.light != property.initial {
+        if property.light == property.dark && property.light != property.initial {
             inline_styles.push(format!("{}: {};", property.property, property.light));
         }
     }
 
-    let in_play: Vec<&LightDarkProperty<'_>> = properties
+    let disputed: Vec<&LightDarkProperty<'_>> = properties
         .iter()
-        .filter(|property| property.light != property.initial || property.dark != property.initial)
+        .filter(|property| property.light != property.dark)
         .collect();
 
     for theme_name in ["dark", "light"] {
-        for property in &in_play {
+        for property in &disputed {
             let value = if theme_name == "dark" {
                 property.dark
             } else {
@@ -394,8 +395,8 @@ pub fn span_multi_themes_attrs(
 }
 
 /// `light-dark()` takes its inline styles from the two themes named `light` and
-/// `dark`, and contributes CSS variables only for the non-color properties one
-/// of them sets.
+/// `dark`, and contributes CSS variables only for the non-color properties the
+/// two disagree on.
 fn push_light_dark_styles(
     inline_styles: &mut Vec<String>,
     css_vars: &mut Vec<String>,
@@ -2058,12 +2059,13 @@ mod tests {
         }
     }
 
+    /// A shared value needs no variables: nothing has to switch it, so nothing
+    /// has to override the declaration, so no rule has to be `!important`.
     #[test]
     fn light_dark_writes_a_shared_non_color_property_as_a_plain_declaration() {
         assert_str_eq!(
             light_dark_style("keyword", true),
-            "color: light-dark(#d73a49, #ff7b72); font-weight: bold; \
-             --lumis-dark-font-weight:bold; --lumis-light-font-weight:bold;"
+            "color: light-dark(#d73a49, #ff7b72); font-weight: bold;"
         );
     }
 
@@ -2075,16 +2077,19 @@ mod tests {
         );
     }
 
+    /// A disputed value is variables and nothing inline. The light theme's value
+    /// inline would render in the dark scheme too, and a page correcting that
+    /// would need `!important` to get past it.
     #[test]
-    fn light_dark_switches_a_disputed_non_color_property_through_variables() {
+    fn light_dark_leaves_a_disputed_non_color_property_to_variables_alone() {
         assert_str_eq!(
             light_dark_style("comment", true),
-            "color: light-dark(#6a737d, #8b949e); font-style: italic; \
+            "color: light-dark(#6a737d, #8b949e); \
              --lumis-dark-font-style:normal; --lumis-light-font-style:italic;"
         );
         assert_str_eq!(
             light_dark_style("string", true),
-            "color: light-dark(#032f62, #a5d6ff); text-decoration: underline; \
+            "color: light-dark(#032f62, #a5d6ff); \
              --lumis-dark-text-decoration:line-through; --lumis-light-text-decoration:underline;"
         );
     }

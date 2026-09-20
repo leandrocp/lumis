@@ -645,9 +645,10 @@ export interface HtmlMultiThemesOptions {
   /**
    * Theme whose colors are inlined as defaults.
    * Pass `"light-dark()"` to use the CSS `light-dark()` function instead. It is
-   * a color function, so font weight, font style and text decoration follow the
-   * `light` theme inline, with one variable per theme for each of them either
-   * theme sets.
+   * a color function, so for font weight, font style and text decoration a
+   * value both themes share is an ordinary declaration, and a value they
+   * disagree on is one variable per theme with nothing inline, for a rule of
+   * your own to switch.
    */
   defaultTheme?: string;
   /** Prefix for CSS custom properties. Defaults to `"--lumis"`. */

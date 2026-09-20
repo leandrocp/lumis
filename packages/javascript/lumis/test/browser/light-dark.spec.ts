@@ -6,8 +6,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
 interface Computed {
-  /** Empty where the browser refused the inline declaration. */
+  /** Empty where the browser refused the inline declaration, or there was none. */
   inlineFontWeight: string;
+  inlineFontStyle: string;
   color: string;
   fontStyle: string;
   fontWeight: string;
@@ -19,6 +20,7 @@ async function computed(page: Page, scope: string): Promise<Computed> {
     const style = getComputedStyle(element);
     return {
       inlineFontWeight: (element as HTMLElement).style.fontWeight,
+      inlineFontStyle: (element as HTMLElement).style.fontStyle,
       color: style.color,
       fontStyle: style.fontStyle,
       fontWeight: style.fontWeight,
@@ -28,6 +30,11 @@ async function computed(page: Page, scope: string): Promise<Computed> {
 }
 
 test.describe("light-dark() spans", () => {
+  /**
+   * The page's own switching rules run over this span too, and lose: the shared
+   * value is inline, and an inline declaration outranks an ordinary rule. That
+   * is what lets the documented CSS go without `!important`.
+   */
   test("keep the emphasis both themes ask for in either color scheme", async ({ page }) => {
     await page.goto("/light-dark.html");
 
@@ -47,7 +54,9 @@ test.describe("light-dark() spans", () => {
     await page.goto("/light-dark.html");
 
     await page.emulateMedia({ colorScheme: "light" });
-    expect((await computed(page, "comment")).fontStyle).toBe("italic");
+    const light = await computed(page, "comment");
+    expect(light.inlineFontStyle).toBe("");
+    expect(light.fontStyle).toBe("italic");
     expect((await computed(page, "string")).textDecorationLine).toBe("underline");
 
     await page.emulateMedia({ colorScheme: "dark" });
@@ -57,9 +66,10 @@ test.describe("light-dark() spans", () => {
 
   /**
    * The page bolds the block, and neither theme styles `variable`, so the
-   * override rule reaches its fallback there. `revert` has to leave the page's
-   * own 600 alone; an initial value would flatten it in the dark scheme only,
-   * which is the scheme-dependent rendering this whole fix is about.
+   * switching rules resolve a variable that was never set. The declaration drops
+   * out and the page's own 600 stands, in both schemes. Naming a value there
+   * instead would flatten the token in the dark scheme alone, which is the
+   * scheme-dependent rendering this whole fix is about.
    */
   test("leave a scope neither theme emphasises to the page", async ({ page }) => {
     await page.goto("/light-dark.html");

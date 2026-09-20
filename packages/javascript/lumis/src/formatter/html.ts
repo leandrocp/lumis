@@ -799,13 +799,14 @@ function lightDarkProperties(
  * `light-dark()` over colors, so only `color` and `background-color` can use
  * it; browsers drop `font-weight: light-dark(...)` and its siblings as invalid.
  *
- * The other properties take the light theme's value, the one `light-dark()`
- * itself falls back to, as an ordinary declaration. Switching them needs a rule
- * the page supplies, keyed on `prefers-color-scheme` or on a class, so every
- * property either theme sets also goes out as one custom property per theme.
- * That rule has to be `!important` to beat the inline declaration, which is why
- * the variables are there even when the two themes agree: without them the rule
- * would strip the emphasis both themes asked for.
+ * The other properties split by whether the two themes agree. A value they
+ * share is an ordinary declaration, correct in both color schemes with no
+ * stylesheet to help it. A value they disagree on is one custom property per
+ * theme and nothing inline, because only a rule the page supplies can switch
+ * it, and an inline declaration is exactly what would force that rule to be
+ * `!important`. Left out of the style attribute, the page's rule is an ordinary
+ * one: it stays in the caller's cascade, where a print or `forced-colors` rule
+ * can still beat it, and it cannot touch the agreed values next to it.
  */
 function appendLightDarkStyles(
   inlineStyles: string[],
@@ -824,8 +825,8 @@ function appendLightDarkStyles(
 
   const properties = lightDarkProperties(lightStyle, darkStyle, italic);
 
-  for (const { property, light, initial } of properties) {
-    if (light !== initial) {
+  for (const { property, light, dark, initial } of properties) {
+    if (light === dark && light !== initial) {
       inlineStyles.push(`${property}: ${light};`);
     }
   }
@@ -838,12 +839,10 @@ function appendLightDarkVars(
   cssVariablePrefix: string,
   properties: LightDarkProperty[],
 ): void {
-  const inPlay = properties.filter(
-    ({ light, dark, initial }) => light !== initial || dark !== initial,
-  );
+  const disputed = properties.filter(({ light, dark }) => light !== dark);
 
   for (const themeName of ["dark", "light"] as const) {
-    for (const { property, light, dark } of inPlay) {
+    for (const { property, light, dark } of disputed) {
       cssVars.push(
         `${cssVariablePrefix}-${themeName}-${property}:${themeName === "dark" ? dark : light};`,
       );

@@ -268,7 +268,7 @@ Lumis.highlight!(code,
   - `nil` (default): Only CSS variables, no inline colors
   - A theme identifier (e.g., `"light"`): Renders inline colors for that theme plus CSS variables for all themes
   - `"light-dark()"`: Uses CSS light-dark() function for automatic theme switching
-- `light-dark()` is a color function, so it switches `color` and `background-color` only. `font-weight`, `font-style` and `text-decoration` render as ordinary declarations holding the `light` theme's value, plus `--lumis-light-*` and `--lumis-dark-*` variables for every one of them either theme sets. Two themes that disagree on one of those three need the override rule below; nothing switches them on its own
+- `light-dark()` is a color function, so it switches `color` and `background-color` only. For `font-weight`, `font-style` and `text-decoration`, a value both themes share is an ordinary declaration, and a value they disagree on is `--lumis-light-*` and `--lumis-dark-*` variables with nothing inline. Switching a disputed one needs the rules below; leaving it out of the style attribute is what keeps them from needing `!important`
 
 **CSS Integration Examples:**
 
@@ -300,14 +300,19 @@ Lumis.highlight!(code,
 }
 
 /* With default_theme: "light-dark()", only for themes that disagree on one of
-   these three. The !important is what beats the inline declaration; the revert
-   fallback, reached only on tokens neither theme styles, leaves those to your
-   own CSS instead of flattening them in dark mode alone. */
+   these three. No !important: a disputed property is left out of the style
+   attribute, so there is nothing inline to outrank. */
+.lumis span {
+  font-style: var(--lumis-light-font-style);
+  font-weight: var(--lumis-light-font-weight);
+  text-decoration: var(--lumis-light-text-decoration);
+}
+
 @media (prefers-color-scheme: dark) {
   .lumis span {
-    font-style: var(--lumis-dark-font-style, revert) !important;
-    font-weight: var(--lumis-dark-font-weight, revert) !important;
-    text-decoration: var(--lumis-dark-text-decoration, revert) !important;
+    font-style: var(--lumis-dark-font-style);
+    font-weight: var(--lumis-dark-font-weight);
+    text-decoration: var(--lumis-dark-text-decoration);
   }
 }
 ```
