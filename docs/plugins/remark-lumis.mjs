@@ -135,7 +135,7 @@ function remarkLumis() {
         // This is the MDX-compatible way to emit raw HTML from a remark plugin.
         parent.children[index] = {
           type: "mdxFlowExpression",
-          value: `<div dangerouslySetInnerHTML={{__html: ${JSON.stringify(output)}}} />`,
+          value: `<div className="not-prose" dangerouslySetInnerHTML={{__html: ${JSON.stringify(output)}}} />`,
           data: {
             estree: {
               type: "Program",
@@ -149,6 +149,11 @@ function remarkLumis() {
                       type: "JSXOpeningElement",
                       name: { type: "JSXIdentifier", name: "div" },
                       attributes: [
+                        {
+                          type: "JSXAttribute",
+                          name: { type: "JSXIdentifier", name: "className" },
+                          value: { type: "Literal", value: "not-prose" },
+                        },
                         {
                           type: "JSXAttribute",
                           name: { type: "JSXIdentifier", name: "dangerouslySetInnerHTML" },
