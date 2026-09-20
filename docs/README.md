@@ -25,6 +25,8 @@ Import `leandrocp/lumis` as a new Vercel project with these settings:
 - **Node.js Version:** 24.x
 - **Install and Build Commands:** set by `docs/vercel.json` to use pnpm 12.4.1
 
+The ignored build step in `docs/vercel.json` cancels docs builds when a commit does not change this directory. Set the same command in the Vercel project's Ignored Build Step so branches that predate this file are covered too. Docs changes get automatic previews through the Vercel PR check. Vercel bot PR comments are disabled for this project to avoid comments on unrelated PRs.
+
 After the docs PR is merged, set the production domain to `docs.lumis.sh`, then create the DNS record Vercel requests in Cloudflare. Keep `lumis.sh` on GitHub Pages; `.github/workflows/website.yml` builds only the website.
 
 The app exposes `/api/search`, `/llms.txt`, `/llms-full.txt`, per-page Markdown (for example `/installation.md`), and `/api/mcp`. The MCP endpoint provides page listing, page reading, and search. For a remote MCP client, use `https://docs.lumis.sh/api/mcp`.
