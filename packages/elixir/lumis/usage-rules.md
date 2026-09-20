@@ -268,7 +268,7 @@ Lumis.highlight!(code,
   - `nil` (default): Only CSS variables, no inline colors
   - A theme identifier (e.g., `"light"`): Renders inline colors for that theme plus CSS variables for all themes
   - `"light-dark()"`: Uses CSS light-dark() function for automatic theme switching
-- `light-dark()` is a color function, so it covers `color` and `background-color` only. `font-weight`, `font-style` and `text-decoration` render as ordinary declarations holding the `light` theme's value, plus `--lumis-light-*` and `--lumis-dark-*` variables for every one of them either theme sets
+- `light-dark()` is a color function, so it switches `color` and `background-color` only. `font-weight`, `font-style` and `text-decoration` render as ordinary declarations holding the `light` theme's value, plus `--lumis-light-*` and `--lumis-dark-*` variables for every one of them either theme sets. Two themes that disagree on one of those three need the override rule below; nothing switches them on its own
 
 **CSS Integration Examples:**
 
@@ -297,6 +297,18 @@ Lumis.highlight!(code,
 [data-theme="dark"] .lumis-themes {
   color: var(--lumis-dark);
   background-color: var(--lumis-dark-bg);
+}
+
+/* With default_theme: "light-dark()", only for themes that disagree on one of
+   these three. The !important is what beats the inline declaration; the revert
+   fallback, reached only on tokens neither theme styles, leaves those to your
+   own CSS instead of flattening them in dark mode alone. */
+@media (prefers-color-scheme: dark) {
+  .lumis span {
+    font-style: var(--lumis-dark-font-style, revert) !important;
+    font-weight: var(--lumis-dark-font-weight, revert) !important;
+    text-decoration: var(--lumis-dark-text-decoration, revert) !important;
+  }
 }
 ```
 

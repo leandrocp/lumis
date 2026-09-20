@@ -20,7 +20,7 @@ The multi-themes formatter renders one HTML block with CSS variables for each th
 
 ## 1. CSS `light-dark()` function
 
-The simplest option. The browser switches automatically based on the OS theme. Requires `color-scheme: light dark` on the root element.
+The simplest option. The browser switches colors automatically based on the OS theme. Requires `color-scheme: light dark` on the root element.
 
 Required CSS for the rendered HTML output:
 
@@ -30,21 +30,25 @@ html {
 }
 ```
 
-That's it for runtimes that support HTML Multi-Themes output. No JavaScript or media queries are needed. `lumis4j` does not support this formatter, and the CLI only generates the HTML; your app or page still needs to provide the CSS.
+That switches `color` and `background-color` with no JavaScript and no media query, on every runtime that supports HTML Multi-Themes output. `lumis4j` does not support this formatter, and the CLI only generates the HTML; your app or page still needs to provide the CSS.
 
-`light-dark()` is a [color function](https://drafts.csswg.org/css-color-5/#light-dark), so only `color` and `background-color` use it. `font-weight`, `font-style` and `text-decoration` render as ordinary declarations holding the light theme's value, which is the same value `light-dark()` itself falls back to. Where the two themes disagree on one of them — the light theme italicises comments and the dark one does not, say — CSS has no way to switch it, so add this rule:
+`light-dark()` is a [color function](https://drafts.csswg.org/css-color-5/#light-dark), so those two properties are all it covers. `font-weight`, `font-style` and `text-decoration` render as ordinary declarations holding the light theme's value, which is the same value `light-dark()` itself falls back to. Nothing switches them on its own, so where the two themes disagree on one — the light theme italicises comments and the dark one does not, say — add this rule too:
 
 ```css
 @media (prefers-color-scheme: dark) {
   .lumis span {
-    font-style: var(--lumis-dark-font-style, normal) !important;
-    font-weight: var(--lumis-dark-font-weight, normal) !important;
-    text-decoration: var(--lumis-dark-text-decoration, none) !important;
+    font-style: var(--lumis-dark-font-style, revert) !important;
+    font-weight: var(--lumis-dark-font-weight, revert) !important;
+    text-decoration: var(--lumis-dark-text-decoration, revert) !important;
   }
 }
 ```
 
-Every one of those three properties that either theme sets is emitted as a `--lumis-light-*` and a `--lumis-dark-*` variable, so the rule reads the dark theme's value where there is one and falls back to the property's initial value where neither theme asked for anything. Skip the rule if your themes agree on font weight, font style and text decoration, which most pairs do.
+Every one of those three properties that either theme sets is emitted as a `--lumis-light-*` and a `--lumis-dark-*` variable, so the rule reads the dark theme's value wherever there is one.
+
+Two details are load-bearing. The `!important` is what lets the rule beat the inline declaration — without it the light theme's value would win in both schemes. And the fallback is `revert` rather than `normal` or `none`: a span carries the variable whenever it carries the declaration, so the fallback is only ever reached on tokens neither theme styles, and `revert` leaves those to whatever your own CSS says. An initial value there would flatten them in dark mode while light mode, which this rule does not touch, kept your styling — so a page that sets `font-weight: 600` on the block would see its code render at 600 in light and 400 in dark.
+
+Skip the rule if your themes agree on font weight, font style and text decoration, which most pairs do.
 
 <Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
   <TabItem value="javascript" label="JavaScript">
@@ -327,6 +331,6 @@ lumis highlight index.js \
 
 | Approach | When to use |
 | --- | --- |
-| `light-dark()` | Simplest. OS-driven. No extra CSS or JS needed. |
+| `light-dark()` | Simplest. OS-driven. No JS, and no CSS beyond `color-scheme` unless your themes disagree on font weight, font style or text decoration. |
 | `@media prefers-color-scheme` | OS-driven but you need the CSS override pattern (wider browser support). |
 | Manual switching | User-controlled toggle independent of OS setting. |

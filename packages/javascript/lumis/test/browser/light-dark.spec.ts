@@ -55,14 +55,21 @@ test.describe("light-dark() spans", () => {
     expect((await computed(page, "string")).textDecorationLine).toBe("line-through");
   });
 
-  test("leave a scope neither theme emphasises unstyled", async ({ page }) => {
+  /**
+   * The page bolds the block, and neither theme styles `variable`, so the
+   * override rule reaches its fallback there. `revert` has to leave the page's
+   * own 600 alone; an initial value would flatten it in the dark scheme only,
+   * which is the scheme-dependent rendering this whole fix is about.
+   */
+  test("leave a scope neither theme emphasises to the page", async ({ page }) => {
     await page.goto("/light-dark.html");
 
     for (const colorScheme of ["light", "dark"] as const) {
       await page.emulateMedia({ colorScheme });
       const variable = await computed(page, "variable");
 
-      expect(variable.fontWeight).toBe("400");
+      expect(variable.inlineFontWeight).toBe("");
+      expect(variable.fontWeight).toBe("600");
       expect(variable.fontStyle).toBe("normal");
       expect(variable.textDecorationLine).toBe("none");
     }

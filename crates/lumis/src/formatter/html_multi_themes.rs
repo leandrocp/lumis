@@ -110,14 +110,15 @@
 //! <span style="color: light-dark(#d73a49, #ff7b72); font-weight: bold;">keyword</span>
 //! ```
 //!
-//! The browser automatically selects the appropriate color based on `color-scheme` or
-//! `prefers-color-scheme` without any additional CSS required.
+//! The browser selects the color based on `color-scheme` or `prefers-color-scheme`,
+//! with no additional CSS required.
 //!
-//! `light-dark()` is a color function, so only `color` and `background-color` use it.
-//! `font-weight`, `font-style` and `text-decoration` are written as ordinary
-//! declarations holding the light theme's value. Where the two themes disagree on one
-//! of them, that property's value in each theme is also emitted as a custom property,
-//! and switching it needs a rule of your own:
+//! That covers `color` and `background-color`, the only properties `light-dark()` is
+//! defined over. `font-weight`, `font-style` and `text-decoration` are written as
+//! ordinary declarations holding the light theme's value, and every one of them either
+//! theme sets is also emitted as a `--lumis-light-*` and a `--lumis-dark-*` variable.
+//! Nothing switches those three on its own, so themes that disagree on one need a rule
+//! of your own:
 //!
 //! ```css
 //! @media (prefers-color-scheme: dark) {
@@ -128,6 +129,13 @@
 //!   }
 //! }
 //! ```
+//!
+//! The `!important` is what lets the rule beat the inline declaration. A span carries
+//! the variable whenever it carries the declaration, so the fallback is reached only
+//! where neither theme set the property, and `revert` leaves those spans to whatever
+//! the page itself says. An initial value there — `normal`, `none` — would instead
+//! flatten them in the dark scheme while the light scheme, which this rule does not
+//! touch, kept the page's own styling.
 //!
 //! **Note**: Requires themes named exactly "light" and "dark". Only works in browsers
 //! supporting the CSS `light-dark()` function (Chrome 123+, Safari 17.5+, Firefox 120+).
