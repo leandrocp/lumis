@@ -11,12 +11,13 @@ A language is the same record everywhere, sorted by id: `id`, `name`,
 
 Themes differ by what each runtime can return cheaply. Rust hands back the whole
 `Theme`, colours included, because they are already in the binary. Elixir and
-JavaScript return `name` and `appearance`, because sending every theme's
-highlights across the NIF or the wire would cost far more than the call is
-worth. Reach for one in full with `themes::get` or `Lumis.Theme.get/2`.
+the JavaScript / TypeScript package return `name` and `appearance`, because
+sending every theme's highlights across the NIF or the wire would cost far more
+than the call is worth. Reach for one in full with `themes::get` or
+`Lumis.Theme.get/2`.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {availableLanguages, availableThemes} from '@lumis-sh/lumis'
@@ -73,12 +74,12 @@ lumis themes list
 
 Aliases resolve the way highlighting resolves them, so `js` finds JavaScript.
 
-How an unknown name is reported follows each host's convention: JavaScript
+How an unknown name is reported follows each host's convention: JavaScript / TypeScript
 returns `undefined` and Elixir returns `nil`, both without raising, while Rust
 returns a `Result` and the CLI exits non-zero.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {getLanguage} from '@lumis-sh/lumis'
@@ -140,8 +141,8 @@ turns out to need.
 Themes have no equivalent: every theme is compiled in, so there is nothing to
 load and nothing that could be missing.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {loadedLanguages} from '@lumis-sh/lumis'

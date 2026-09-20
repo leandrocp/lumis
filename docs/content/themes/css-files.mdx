@@ -1,6 +1,6 @@
 ---
 title: CSS Theme Files
-description: Use Lumis CSS theme files with htmlLinked output in JavaScript, Elixir, and CDN workflows.
+description: Use Lumis CSS theme files with htmlLinked output in JavaScript / TypeScript, Elixir, and CDN workflows.
 keywords:
   - lumis css themes
   - html linked
@@ -13,7 +13,9 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 The `htmlLinked` formatter emits CSS class names instead of inline styles. You provide a theme stylesheet.
 
-## JavaScript package
+<span id="javascript-package" />
+
+## JavaScript / TypeScript package
 
 Import a stylesheet from `@lumis-sh/themes/css/<theme>.css`.
 
@@ -62,7 +64,7 @@ Inside this repo, CSS theme files are generated into multiple targets:
 - `packages/elixir/lumis/priv/static/css/`
 - `packages/javascript/themes/dist/css/`
 
-That is why the same theme can be consumed from Rust assets, Elixir static files, and the JavaScript themes package.
+That is why the same theme can be consumed from Rust assets, Elixir static files, and the npm themes package.
 
 ## When to use CSS theme files
 

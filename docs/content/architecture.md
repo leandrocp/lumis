@@ -41,7 +41,7 @@ formatter (tokens + styles -> HTML / ANSI / BBCode Scoped / custom output)
 
 110+ Tree-sitter grammars. Each language has:
 
-- a parser (compiled to native code for Rust, WASM for JavaScript, Elixir, and the CLI)
+- a parser (compiled to native code for Rust, WASM for the JavaScript / TypeScript package, Elixir, and the CLI)
 - highlight queries (mostly from [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter))
 - injections for nested languages (e.g., CSS and JavaScript inside HTML)
 
@@ -81,5 +81,5 @@ lumis-wasm-runtime shared Tree-sitter WASM engine, lazy registry, and bounded wo
 ## Package layers
 
 - The Elixir package (`packages/elixir/lumis`) uses a small Rustler NIF with a shared Wasmtime engine and loads parser WASM per language.
-- The JavaScript runtime package (`packages/javascript/lumis`) uses a native addon over that same Wasmtime runtime on Node, and `web-tree-sitter` in browsers, with the same per-language parser assets either way.
-- The integration packages (`packages/javascript/markdown-it-lumis` and `packages/javascript/rehype-lumis`) build on top of that JavaScript runtime for Markdown and HAST pipelines, and `packages/javascript/vite` drives the HAST one from Vite's HTML entry-point hook.
+- The JavaScript / TypeScript package (`packages/javascript/lumis`) uses a native addon over that same Wasmtime runtime on Node, and `web-tree-sitter` in browsers, with the same per-language parser assets either way.
+- The integration packages (`packages/javascript/markdown-it-lumis` and `packages/javascript/rehype-lumis`) build on top of that package for Markdown and HAST pipelines, and `packages/javascript/vite` drives the HAST one from Vite's HTML entry-point hook.

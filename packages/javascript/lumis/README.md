@@ -2,7 +2,7 @@
 
 Syntax Highlighter powered by Tree-sitter and Neovim themes.
 
-JavaScript/TypeScript package for [Lumis](https://lumis.sh). Works in Node.js, Bun, Deno, and browsers.
+JavaScript / TypeScript package for [Lumis](https://lumis.sh). Works in Node.js, Bun, Deno, and browsers, with TypeScript declarations included.
 
 ## Features
 
@@ -30,7 +30,7 @@ import { htmlInline } from '@lumis-sh/lumis/formatters'
 import javascript from '@lumis-sh/lumis/langs/javascript'
 import dracula from '@lumis-sh/themes/dracula'
 
-const html = await highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
+const html: string = await highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
 ```
 
 `highlight()` shares one process-wide runtime, which is what you want for a
@@ -79,7 +79,7 @@ that from the CLI. On native Node both also persist compiled Wasmtime modules.
 
 ## Documentation
 
-- [JavaScript runtime](https://docs.lumis.sh/usage/javascript) — runtimes, bundles, language handles
+- [JavaScript / TypeScript](https://docs.lumis.sh/usage/javascript) — runtimes, bundles, language handles
 - [WASM and CDN](https://docs.lumis.sh/advanced/wasm-and-cdn) — resolution, caching, custom resolvers
 - [Formatters](https://docs.lumis.sh/formatters) — every formatter and its options
 - [Custom formatters](https://docs.lumis.sh/formatters/custom)

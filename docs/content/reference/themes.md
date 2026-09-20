@@ -13,7 +13,7 @@ Source: [`THEMES.md`](https://github.com/leandrocp/lumis/blob/main/THEMES.md).
 
 Theme names in this list are the IDs you use across Lumis:
 
-- JavaScript modules: `@lumis-sh/themes/<theme>`
+- JavaScript / TypeScript modules: `@lumis-sh/themes/<theme>`
 - CSS files: `@lumis-sh/themes/css/<theme>.css`
 - JSON on CDN: `https://unpkg.com/@lumis-sh/themes/dist/json/<theme>.json`
 

@@ -15,6 +15,8 @@
     "syntax-highlighting",
     "code-highlighting",
     "highlighter",
+    "javascript",
+    "typescript",
     "tree-sitter",
     "neovim",
     "wasm"

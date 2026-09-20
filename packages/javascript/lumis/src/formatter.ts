@@ -167,10 +167,10 @@ export interface FormatterAttrs {
  * Derive a formatter that carries extra `<pre>` and `<code>` attributes.
  *
  * Rust spells this as a builder and Elixir as a keyword list, both of which can
- * add an option before the formatter exists. A JavaScript formatter is already
- * built by the time a caller holds one — `render` closes over the object, so
- * spreading it produces something that still renders through the original — and
- * this is the derive step those two get for free.
+ * add an option before the formatter exists. In JavaScript and TypeScript, the
+ * formatter is already built by the time a caller holds one. `render` closes
+ * over the object, so spreading it produces something that still renders
+ * through the original. This is the derive step those two get for free.
  *
  * It is what a renderer integration wants: `rehype-lumis` and
  * `markdown-it-lumis` take a formatter from the user and have per-block

@@ -44,8 +44,8 @@ A `position` column counts bytes within the line, and a CRLF line keeps its
 `\r`, so measure the line before splitting the terminator off or the last
 character falls outside the range.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```ts
 const annotations = [
@@ -120,8 +120,8 @@ resolved to byte offsets whichever form you built it from.
 The closing event carries **no payload**, so a formatter that renders more than
 one kind of annotation keeps a stack of what it opened.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```ts
 import type {Formatter, HighlightEvent} from '@lumis-sh/lumis/formatters'
@@ -273,7 +273,7 @@ without nesting. All three print the same output.
 
 | Runtime | Example |
 | --- | --- |
-| JavaScript | [`examples/annotations.ts`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/examples/annotations.ts) |
+| JavaScript / TypeScript | [`examples/annotations.ts`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/examples/annotations.ts) |
 | Rust | [`examples/annotations.rs`](https://github.com/leandrocp/lumis/blob/main/crates/lumis/examples/annotations.rs) |
 | Elixir | [`examples/annotations.exs`](https://github.com/leandrocp/lumis/blob/main/packages/elixir/lumis/examples/annotations.exs) |
 

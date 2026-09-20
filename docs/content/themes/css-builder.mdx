@@ -1,6 +1,6 @@
 ---
 title: CSS Builder
-description: Build a theme stylesheet at runtime in Rust, JavaScript, and Elixir.
+description: Build a theme stylesheet at runtime in Rust, JavaScript / TypeScript, and Elixir.
 keywords:
   - lumis css builder
   - buildCss
@@ -18,7 +18,7 @@ The builder works with the same theme data as the bundled files. With no options
 
 ## Options
 
-JavaScript uses camelCase. Rust and Elixir use snake_case.
+The npm API uses camelCase. Rust and Elixir use snake_case.
 
 | Option | Default | Use it for |
 | --- | --- | --- |
@@ -33,8 +33,8 @@ Token selectors are fixed as `l-*` classes, matching the built-in `htmlLinked` f
 
 ## Use all options together
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {buildCss} from '@lumis-sh/themes'
@@ -111,8 +111,8 @@ The output starts like this:
 
 ## Default output
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {buildCss} from '@lumis-sh/themes'
@@ -163,8 +163,8 @@ The output starts with the theme name and revision, then the container `.lumis` 
 
 Use `scope` when the same page needs more than one theme, or when a code block should inherit theme styles only inside part of your app. Do not include a trailing space; Lumis inserts the descendant combinator for you.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {buildCss} from '@lumis-sh/themes'
@@ -234,8 +234,8 @@ html[data-theme="dark"] .l-keyword {
 
 The container rule uses `.lumis` by default. Change it when your rendered HTML uses a different wrapper class.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 const css = buildCss(frappe, {
