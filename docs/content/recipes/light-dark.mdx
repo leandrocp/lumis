@@ -32,6 +32,20 @@ html {
 
 That's it for runtimes that support HTML Multi-Themes output. No JavaScript or media queries are needed. `lumis4j` does not support this formatter, and the CLI only generates the HTML; your app or page still needs to provide the CSS.
 
+`light-dark()` is a [color function](https://drafts.csswg.org/css-color-5/#light-dark), so only `color` and `background-color` use it. `font-weight`, `font-style` and `text-decoration` render as ordinary declarations holding the light theme's value, which is the same value `light-dark()` itself falls back to. Where the two themes disagree on one of them — the light theme italicises comments and the dark one does not, say — CSS has no way to switch it, so add this rule:
+
+```css
+@media (prefers-color-scheme: dark) {
+  .lumis span {
+    font-style: var(--lumis-dark-font-style, normal) !important;
+    font-weight: var(--lumis-dark-font-weight, normal) !important;
+    text-decoration: var(--lumis-dark-text-decoration, none) !important;
+  }
+}
+```
+
+Every one of those three properties that either theme sets is emitted as a `--lumis-light-*` and a `--lumis-dark-*` variable, so the rule reads the dark theme's value where there is one and falls back to the property's initial value where neither theme asked for anything. Skip the rule if your themes agree on font weight, font style and text decoration, which most pairs do.
+
 <Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
   <TabItem value="javascript" label="JavaScript">
 

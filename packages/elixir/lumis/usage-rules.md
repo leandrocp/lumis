@@ -268,6 +268,7 @@ Lumis.highlight!(code,
   - `nil` (default): Only CSS variables, no inline colors
   - A theme identifier (e.g., `"light"`): Renders inline colors for that theme plus CSS variables for all themes
   - `"light-dark()"`: Uses CSS light-dark() function for automatic theme switching
+- `light-dark()` is a color function, so it covers `color` and `background-color` only. `font-weight`, `font-style` and `text-decoration` render as ordinary declarations holding the `light` theme's value, plus `--lumis-light-*` and `--lumis-dark-*` variables for every one of them either theme sets
 
 **CSS Integration Examples:**
 

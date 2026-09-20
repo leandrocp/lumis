@@ -713,7 +713,14 @@ export function spanMultiThemesAttrs(options: SpanMultiThemesOptions): HtmlAttrs
     const darkStyle = getScopedThemeStyle(themes.dark, scope, language);
 
     if (lightStyle && darkStyle) {
-      appendLightDarkStyles(inlineStyles, lightStyle, darkStyle, italic);
+      appendLightDarkStyles(
+        inlineStyles,
+        cssVars,
+        cssVariablePrefix,
+        lightStyle,
+        darkStyle,
+        italic,
+      );
     }
   } else if (defaultTheme) {
     applyDefaultMultiTheme(inlineStyles, cssVars, options);
@@ -742,8 +749,68 @@ function appendDefaultThemeCssVars(
   cssVars.push(`${prefix}-${sanitized}-text-decoration:${textDecoration(style)};`);
 }
 
+/**
+ * The non-color properties of a `light-dark()` span, in the order they are
+ * emitted as custom properties: the CSS property, the value each theme gives
+ * it, and the value the property already has without a declaration.
+ */
+interface LightDarkProperty {
+  property: string;
+  light: string;
+  dark: string;
+  initial: string;
+}
+
+function lightDarkProperties(
+  lightStyle: HighlightStyle,
+  darkStyle: HighlightStyle,
+  italic?: boolean,
+): LightDarkProperty[] {
+  const properties: LightDarkProperty[] = [
+    {
+      property: "font-weight",
+      light: lightStyle.bold ? "bold" : "normal",
+      dark: darkStyle.bold ? "bold" : "normal",
+      initial: "normal",
+    },
+  ];
+
+  if (italic) {
+    properties.push({
+      property: "font-style",
+      light: lightStyle.italic ? "italic" : "normal",
+      dark: darkStyle.italic ? "italic" : "normal",
+      initial: "normal",
+    });
+  }
+
+  properties.push({
+    property: "text-decoration",
+    light: textDecoration(lightStyle),
+    dark: textDecoration(darkStyle),
+    initial: "none",
+  });
+
+  return properties;
+}
+
+/**
+ * [CSS Color 5](https://drafts.csswg.org/css-color-5/#light-dark) defines
+ * `light-dark()` over colors, so only `color` and `background-color` can use
+ * it; browsers drop `font-weight: light-dark(...)` and its siblings as invalid.
+ *
+ * The other properties take the light theme's value, the one `light-dark()`
+ * itself falls back to, as an ordinary declaration. Switching them needs a rule
+ * the page supplies, keyed on `prefers-color-scheme` or on a class, so every
+ * property either theme sets also goes out as one custom property per theme.
+ * That rule has to be `!important` to beat the inline declaration, which is why
+ * the variables are there even when the two themes agree: without them the rule
+ * would strip the emphasis both themes asked for.
+ */
 function appendLightDarkStyles(
   inlineStyles: string[],
+  cssVars: string[],
+  cssVariablePrefix: string,
   lightStyle: HighlightStyle,
   darkStyle: HighlightStyle,
   italic?: boolean,
@@ -755,27 +822,33 @@ function appendLightDarkStyles(
     inlineStyles.push(`background-color: light-dark(${lightStyle.bg}, ${darkStyle.bg});`);
   }
 
-  inlineStyles.push(lightDarkWeight(lightStyle, darkStyle));
+  const properties = lightDarkProperties(lightStyle, darkStyle, italic);
 
-  if (italic) {
-    inlineStyles.push(lightDarkStyle(lightStyle, darkStyle));
+  for (const { property, light, initial } of properties) {
+    if (light !== initial) {
+      inlineStyles.push(`${property}: ${light};`);
+    }
   }
 
-  const lightDecoration = textDecoration(lightStyle) ?? "none";
-  const darkDecoration = textDecoration(darkStyle);
-  inlineStyles.push(`text-decoration: light-dark(${lightDecoration}, ${darkDecoration});`);
+  appendLightDarkVars(cssVars, cssVariablePrefix, properties);
 }
 
-function lightDarkWeight(lightStyle: HighlightStyle, darkStyle: HighlightStyle): string {
-  const light = lightStyle.bold ? "bold" : "normal";
-  const dark = darkStyle.bold ? "bold" : "normal";
-  return `font-weight: light-dark(${light}, ${dark});`;
-}
+function appendLightDarkVars(
+  cssVars: string[],
+  cssVariablePrefix: string,
+  properties: LightDarkProperty[],
+): void {
+  const inPlay = properties.filter(
+    ({ light, dark, initial }) => light !== initial || dark !== initial,
+  );
 
-function lightDarkStyle(lightStyle: HighlightStyle, darkStyle: HighlightStyle): string {
-  const light = lightStyle.italic ? "italic" : "normal";
-  const dark = darkStyle.italic ? "italic" : "normal";
-  return `font-style: light-dark(${light}, ${dark});`;
+  for (const themeName of ["dark", "light"] as const) {
+    for (const { property, light, dark } of inPlay) {
+      cssVars.push(
+        `${cssVariablePrefix}-${themeName}-${property}:${themeName === "dark" ? dark : light};`,
+      );
+    }
+  }
 }
 
 function applyDefaultMultiTheme(

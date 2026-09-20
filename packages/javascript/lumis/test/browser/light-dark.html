@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumis light-dark() test</title>
+    <style>
+      html {
+        color-scheme: light dark;
+      }
+
+      /* The rule the docs hand to anyone whose two themes disagree on a
+         non-color property. `light-dark()` cannot express that switch. */
+      @media (prefers-color-scheme: dark) {
+        .lumis span {
+          font-style: var(--lumis-dark-font-style, normal) !important;
+          font-weight: var(--lumis-dark-font-weight, normal) !important;
+          text-decoration: var(--lumis-dark-text-decoration, none) !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="./light-dark.ts"></script>
+  </body>
+</html>

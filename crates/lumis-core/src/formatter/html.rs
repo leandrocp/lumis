@@ -190,8 +190,72 @@ fn push_theme_css_vars(
     ));
 }
 
+/// The non-color properties of a `light-dark()` span, in the order they are
+/// emitted as custom properties: the CSS property, the value each theme gives
+/// it, and the value the property already has without a declaration.
+struct LightDarkProperty<'a> {
+    property: &'a str,
+    light: &'a str,
+    dark: &'a str,
+    initial: &'a str,
+}
+
+fn light_dark_properties<'a>(
+    light_style: &'a Style,
+    dark_style: &'a Style,
+    italic: bool,
+) -> Vec<LightDarkProperty<'a>> {
+    let mut properties = vec![LightDarkProperty {
+        property: "font-weight",
+        light: if light_style.bold { "bold" } else { "normal" },
+        dark: if dark_style.bold { "bold" } else { "normal" },
+        initial: "normal",
+    }];
+
+    if italic {
+        properties.push(LightDarkProperty {
+            property: "font-style",
+            light: if light_style.italic {
+                "italic"
+            } else {
+                "normal"
+            },
+            dark: if dark_style.italic {
+                "italic"
+            } else {
+                "normal"
+            },
+            initial: "normal",
+        });
+    }
+
+    properties.push(LightDarkProperty {
+        property: "text-decoration",
+        light: text_decoration(&light_style.text_decoration),
+        dark: text_decoration(&dark_style.text_decoration),
+        initial: "none",
+    });
+
+    properties
+}
+
+/// [CSS Color 5][spec] defines `light-dark()` over colors, so only `color` and
+/// `background-color` can use it; browsers drop `font-weight: light-dark(...)`
+/// and its siblings as invalid.
+///
+/// The other properties take the light theme's value, the one `light-dark()`
+/// itself falls back to, as an ordinary declaration. Switching them needs a rule
+/// the page supplies, keyed on `prefers-color-scheme` or on a class, so every
+/// property either theme sets also goes out as one custom property per theme.
+/// That rule has to be `!important` to beat the inline declaration, which is why
+/// the variables are there even when the two themes agree: without them the rule
+/// would strip the emphasis both themes asked for.
+///
+/// [spec]: https://drafts.csswg.org/css-color-5/#light-dark
 fn push_light_dark_inline_styles(
     inline_styles: &mut Vec<String>,
+    css_vars: &mut Vec<String>,
+    css_variable_prefix: &str,
     light_style: &Style,
     dark_style: &Style,
     italic: bool,
@@ -205,33 +269,32 @@ fn push_light_dark_inline_styles(
         ));
     }
 
-    let light_weight = if light_style.bold { "bold" } else { "normal" };
-    let dark_weight = if dark_style.bold { "bold" } else { "normal" };
-    inline_styles.push(format!(
-        "font-weight: light-dark({light_weight}, {dark_weight});"
-    ));
+    let properties = light_dark_properties(light_style, dark_style, italic);
 
-    if italic {
-        let light_value = if light_style.italic {
-            "italic"
-        } else {
-            "normal"
-        };
-        let dark_value = if dark_style.italic {
-            "italic"
-        } else {
-            "normal"
-        };
-        inline_styles.push(format!(
-            "font-style: light-dark({light_value}, {dark_value});"
-        ));
+    for property in &properties {
+        if property.light != property.initial {
+            inline_styles.push(format!("{}: {};", property.property, property.light));
+        }
     }
 
-    let light_decoration = text_decoration(&light_style.text_decoration);
-    let dark_decoration = text_decoration(&dark_style.text_decoration);
-    inline_styles.push(format!(
-        "text-decoration: light-dark({light_decoration}, {dark_decoration});"
-    ));
+    let in_play: Vec<&LightDarkProperty<'_>> = properties
+        .iter()
+        .filter(|property| property.light != property.initial || property.dark != property.initial)
+        .collect();
+
+    for theme_name in ["dark", "light"] {
+        for property in &in_play {
+            let value = if theme_name == "dark" {
+                property.dark
+            } else {
+                property.light
+            };
+            css_vars.push(format!(
+                "{css_variable_prefix}-{theme_name}-{}:{value};",
+                property.property
+            ));
+        }
+    }
 }
 
 fn push_default_inline_styles(inline_styles: &mut Vec<String>, style: &Style, italic: bool) {
@@ -296,7 +359,14 @@ pub fn span_multi_themes_attrs(
 
     match default_theme {
         Some("light-dark()") => {
-            push_light_dark_styles(&mut inline_styles, themes, &specialized_scope, italic);
+            push_light_dark_styles(
+                &mut inline_styles,
+                &mut css_vars,
+                themes,
+                &specialized_scope,
+                css_variable_prefix,
+                italic,
+            );
         }
         Some(default_name) => push_named_default_styles(
             &mut inline_styles,
@@ -324,11 +394,14 @@ pub fn span_multi_themes_attrs(
 }
 
 /// `light-dark()` takes its inline styles from the two themes named `light` and
-/// `dark`, and contributes no CSS variables.
+/// `dark`, and contributes CSS variables only for the non-color properties one
+/// of them sets.
 fn push_light_dark_styles(
     inline_styles: &mut Vec<String>,
+    css_vars: &mut Vec<String>,
     themes: &std::collections::HashMap<String, Theme>,
     specialized_scope: &str,
+    css_variable_prefix: &str,
     italic: bool,
 ) {
     let (Some(light_theme), Some(dark_theme)) = (themes.get("light"), themes.get("dark")) else {
@@ -341,7 +414,14 @@ fn push_light_dark_styles(
         return;
     };
 
-    push_light_dark_inline_styles(inline_styles, light_style, dark_style, italic);
+    push_light_dark_inline_styles(
+        inline_styles,
+        css_vars,
+        css_variable_prefix,
+        light_style,
+        dark_style,
+        italic,
+    );
 }
 
 /// A named default theme is written inline, and every other theme becomes a CSS
@@ -1872,6 +1952,149 @@ mod tests {
     #[test]
     fn test_scope_to_class_unknown_scope() {
         assert_eq!(scope_to_class("unknown.scope.name"), "l-text");
+    }
+
+    /// Two themes that agree on one scope's non-color properties and disagree on
+    /// the others, so both halves of the `light-dark()` rule are covered.
+    fn light_dark_themes() -> std::collections::HashMap<String, Theme> {
+        let light = crate::themes::from_json(
+            r##"{
+              "name": "light",
+              "appearance": "light",
+              "revision": "test",
+              "highlights": {
+                "normal": { "fg": "#111111", "bg": "#ffffff" },
+                "keyword": { "fg": "#d73a49", "bold": true },
+                "comment": { "fg": "#6a737d", "italic": true },
+                "string": { "fg": "#032f62", "underline": true }
+              }
+            }"##,
+        )
+        .unwrap();
+        let dark = crate::themes::from_json(
+            r##"{
+              "name": "dark",
+              "appearance": "dark",
+              "revision": "test",
+              "highlights": {
+                "normal": { "fg": "#eeeeee", "bg": "#000000" },
+                "keyword": { "fg": "#ff7b72", "bold": true },
+                "comment": { "fg": "#8b949e" },
+                "string": { "fg": "#a5d6ff", "strikethrough": true }
+              }
+            }"##,
+        )
+        .unwrap();
+
+        std::collections::HashMap::from([("light".to_string(), light), ("dark".to_string(), dark)])
+    }
+
+    fn light_dark_style(scope: &str, italic: bool) -> String {
+        let attrs = span_multi_themes_attrs(
+            scope,
+            None,
+            &light_dark_themes(),
+            Some("light-dark()"),
+            "--lumis",
+            italic,
+            false,
+        );
+
+        attr_value(&attrs, "style").to_string()
+    }
+
+    /// Split a style attribute back into the declarations a browser would parse
+    /// out of it.
+    fn css_declarations(style: &str) -> Vec<(&str, &str)> {
+        style
+            .split(';')
+            .map(str::trim)
+            .filter(|declaration| !declaration.is_empty())
+            .map(|declaration| {
+                let (property, value) = declaration
+                    .split_once(':')
+                    .unwrap_or_else(|| panic!("`{declaration}` is not a declaration"));
+                (property.trim(), value.trim())
+            })
+            .collect()
+    }
+
+    fn is_color(value: &str) -> bool {
+        value.starts_with('#') && value[1..].chars().all(|c| c.is_ascii_hexdigit())
+    }
+
+    /// `light-dark()` is a color function, so a declaration using it is valid
+    /// only where a color is, and only over two colors.
+    fn assert_valid_declaration(property: &str, value: &str) {
+        let valid = match property {
+            _ if property.starts_with("--") => true,
+            "color" | "background-color" => {
+                is_color(value)
+                    || value
+                        .strip_prefix("light-dark(")
+                        .and_then(|rest| rest.strip_suffix(')'))
+                        .is_some_and(|colors| colors.split(", ").all(is_color))
+            }
+            "font-weight" => matches!(value, "normal" | "bold"),
+            "font-style" => matches!(value, "normal" | "italic"),
+            "text-decoration" => value.split(' ').all(|keyword| {
+                matches!(
+                    keyword,
+                    "underline" | "line-through" | "wavy" | "double" | "dotted" | "dashed"
+                )
+            }),
+            _ => false,
+        };
+
+        assert!(valid, "browsers discard `{property}: {value};`");
+    }
+
+    #[test]
+    fn light_dark_emits_only_declarations_a_browser_keeps() {
+        for scope in ["normal", "keyword", "comment", "string"] {
+            for (property, value) in css_declarations(&light_dark_style(scope, true)) {
+                assert_valid_declaration(property, value);
+            }
+        }
+    }
+
+    #[test]
+    fn light_dark_writes_a_shared_non_color_property_as_a_plain_declaration() {
+        assert_str_eq!(
+            light_dark_style("keyword", true),
+            "color: light-dark(#d73a49, #ff7b72); font-weight: bold; \
+             --lumis-dark-font-weight:bold; --lumis-light-font-weight:bold;"
+        );
+    }
+
+    #[test]
+    fn light_dark_drops_a_non_color_property_both_themes_leave_at_its_initial_value() {
+        assert_str_eq!(
+            light_dark_style("normal", true),
+            "color: light-dark(#111111, #eeeeee); background-color: light-dark(#ffffff, #000000);"
+        );
+    }
+
+    #[test]
+    fn light_dark_switches_a_disputed_non_color_property_through_variables() {
+        assert_str_eq!(
+            light_dark_style("comment", true),
+            "color: light-dark(#6a737d, #8b949e); font-style: italic; \
+             --lumis-dark-font-style:normal; --lumis-light-font-style:italic;"
+        );
+        assert_str_eq!(
+            light_dark_style("string", true),
+            "color: light-dark(#032f62, #a5d6ff); text-decoration: underline; \
+             --lumis-dark-text-decoration:line-through; --lumis-light-text-decoration:underline;"
+        );
+    }
+
+    #[test]
+    fn light_dark_leaves_font_style_alone_when_italics_are_off() {
+        assert_str_eq!(
+            light_dark_style("comment", false),
+            "color: light-dark(#6a737d, #8b949e);"
+        );
     }
 
     #[test]

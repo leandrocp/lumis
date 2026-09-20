@@ -226,8 +226,11 @@ defmodule Lumis.Formatter.HTML do
       variable suffixes and the `<pre>` classes `open_multi_themes_pre_tag/1`
       writes.
     * `:default_theme` — the theme written inline. `"light-dark()"` writes the
-      themes named `light` and `dark` into CSS `light-dark()` calls and emits no
-      variables. Without one every theme is a variable and nothing is inline.
+      colors of the themes named `light` and `dark` into CSS `light-dark()`
+      calls; font weight, font style and text decoration follow the `light`
+      theme as ordinary declarations, with one variable per theme for each of
+      them either theme sets. Without one every theme is a variable and nothing
+      is inline.
     * `:css_variable_prefix` (default `"--lumis"`) — the custom property prefix
     * `:language` — the language whose specialized scopes to prefer, e.g.
       `comment.elixir` over `comment`. Defaults to `"plaintext"`.
