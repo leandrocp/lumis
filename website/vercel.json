@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npx --yes pnpm@11.15.1 install --frozen-lockfile",
+  "buildCommand": "npx --yes pnpm@11.15.1 build",
+  "outputDirectory": "dist",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
+  "redirects": [
+    {
+      "source": "/docs",
+      "destination": "https://docs.lumis.sh/",
+      "statusCode": 301
+    },
+    {
+      "source": "/docs/",
+      "destination": "https://docs.lumis.sh/",
+      "statusCode": 301
+    }
+  ]
+}
