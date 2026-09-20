@@ -21,8 +21,8 @@ Line highlighting lets you emphasize key lines without changing the rest of the 
 
 ## Examples
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis';
@@ -101,8 +101,8 @@ lumis highlight main.rs --formatter html-inline --highlight-lines 1,3-5,10
 
 ## Custom style example
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis';
@@ -174,8 +174,8 @@ Omitting the style uses the theme's `highlighted` style. To highlight by class
 alone, so a stylesheet or a utility framework owns the appearance, opt out of
 the inline style explicitly:
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 htmlInline({
@@ -217,7 +217,7 @@ lumis highlight -f html-inline -h 2 --highlight-lines-style none --highlight-lin
 
 ## What changes between formatters
 
-In Rust, JavaScript, Elixir and the CLI, every formatter takes the same
+In Rust, the npm package, Elixir and the CLI, every formatter takes the same
 `lines`. What differs is how it marks them, because each output format has a
 different thing to mark a line with. `lumis4j` does not expose line
 highlighting.

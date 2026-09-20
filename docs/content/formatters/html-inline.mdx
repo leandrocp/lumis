@@ -19,14 +19,14 @@ Self-contained HTML with inline styles on each token. No external CSS required.
 | --- | --- |
 | Rust | `language`, `theme`, `pre_class`, `pre_attrs`, `code_attrs`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
 | Elixir | `language`, `theme`, `pre_class`, `pre_attrs`, `code_attrs`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
-| JavaScript | `language`, `theme`, `preClass`, `preAttrs`, `codeAttrs`, `italic`, `includeHighlights`, `rainbowBrackets`, `highlightLines`, `lineNumbers`, `header` |
+| JavaScript / TypeScript | `language`, `theme`, `preClass`, `preAttrs`, `codeAttrs`, `italic`, `includeHighlights`, `rainbowBrackets`, `highlightLines`, `lineNumbers`, `header` |
 | Java | `withLang()`, `withTheme()`, `withFormatter(Formatter.HTML_INLINE)` |
 | CLI | `--theme`, `--pre-class`, `--pre-attr`, `--no-pre-attr`, `--code-attr`, `--no-code-attr`, `--italic`, `--include-highlights`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--line-numbers`, `--header-open`, `--header-close` |
 
 ## Basic example
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -97,8 +97,8 @@ lumis highlight main.rs --formatter html-inline --theme catppuccin_frappe
 
 ## Add classes and metadata
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 const html = await highlight(
@@ -149,8 +149,8 @@ lumis highlight app.js -f html-inline -t catppuccin_frappe --pre-class my-code -
 
 ## Wrap with custom HTML
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 const html = await highlight(

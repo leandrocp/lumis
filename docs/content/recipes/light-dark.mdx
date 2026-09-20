@@ -55,8 +55,8 @@ No `!important`, and you should not add one. A disputed property is deliberately
 
 The trade-off is that a disputed property renders in neither scheme until you add those rules. That is the same choice [Shiki](https://shiki.style/guide/dual-themes) makes, and it is the only one that keeps the generated HTML from dictating your cascade.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -153,8 +153,8 @@ For runtimes that support HTML Multi-Themes, `default_theme: "light"` makes the 
 
 The `!important` is unavoidable here: a declaration in your stylesheet cannot outrank one in a `style` attribute without it. If you would rather keep control of the cascade, drop `default_theme` entirely. Every theme is then a variable, nothing is inline, and the same rules work without `!important` — at the cost of a block that renders unstyled until your CSS loads.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -259,8 +259,8 @@ function setTheme(theme) {
 
 This pattern works anywhere you render the generated HTML. In Phoenix LiveView, you'd wire the button to a `phx-click` event that toggles a class via a JS command. `lumis4j` does not support HTML Multi-Themes, and the CLI only generates the HTML for another renderer to display.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'

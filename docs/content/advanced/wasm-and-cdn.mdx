@@ -53,8 +53,8 @@ A cold parser costs a download and then a Wasmtime compile. The compile is the
 larger half, so warm at startup rather than letting a first request pay for
 either — beside the boot, not in front of it:
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js title="bootstrap.mjs"
 import { loadLanguages } from "@lumis-sh/lumis";
@@ -133,7 +133,7 @@ not match the package it claims to be is rejected.
 
 :::note
 Supplying your own parser and queries for a grammar Lumis does not publish is a
-planned feature, not a supported one. It previously existed in JavaScript only
+planned feature, not a supported one. It previously existed in the npm package only
 and was removed rather than shipped half-designed; it will return as a
 cross-runtime capability with a package-shaped input.
 :::
@@ -202,7 +202,9 @@ Bytes are checked against the size and SHA-256 their package declares before
 use, wherever they came from, and anything that fails is discarded rather than
 trusted — so a corrupted directory repairs itself.
 
-## Default JavaScript behavior
+<span id="default-javascript-behavior" />
+
+## Default JavaScript / TypeScript behavior
 
 Lumis first resolves a compatible `lumis.json` for a language package. This
 manifest is generated while staging the package and published with it:
@@ -361,8 +363,8 @@ Use this when you want local, bundler-managed parser assets for a whole preset i
 
 Override [`configureLanguagePackageResolver()` and `configureWasmResolver()`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/index.ts) to serve language-package metadata and parsers from your own CDN or from local files.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js title="Global resolver"
 import { configureLanguagePackageResolver, configureWasmResolver } from "@lumis-sh/lumis";
@@ -450,6 +452,6 @@ preset bundles.
 ## Related docs
 
 - full language and WASM package list: [Languages](/reference/languages)
-- JavaScript runtime overview: [JavaScript Runtime](/usage/javascript)
+- JavaScript / TypeScript usage: [JavaScript / TypeScript](/usage/javascript)
 - CLI parser commands: [CLI Commands](/cli/commands)
 - runtime and package overview: [Runtimes](/reference/runtimes)

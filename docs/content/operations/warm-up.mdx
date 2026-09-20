@@ -37,7 +37,7 @@ makes a load.
 | Runtime | cache | load |
 | --- | --- | --- |
 | Elixir | `Lumis.Languages.cache/2` | `Lumis.Languages.async_load/1`, `load/1` |
-| Server-side JavaScript | `cacheLanguages()` | `loadLanguages()` |
+| Server-side JavaScript / TypeScript | `cacheLanguages()` | `loadLanguages()` |
 | Browsers / CDN | automatic, verified parser bytes only | `loadLanguages()`, or `createHighlighter({languages})` |
 | CLI | `lumis languages cache` | — the process exits, so there is no later to hold for |
 | Rust | — parsers are selected with Cargo features and compiled into the binary | — |
@@ -56,8 +56,8 @@ or fail one, and every example below is written to keep both true.
 
 ## Runtime APIs and commands
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Elixir', 'CLI', 'Browsers / CDN', 'Rust', 'Java']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Elixir', 'CLI', 'Browsers / CDN', 'Rust', 'Java']}>
+  <Tab value="JavaScript / TypeScript">
 
 Start serving, then load in the background:
 
@@ -166,7 +166,7 @@ instead — see [Installation](/installation) — if you would rather not reach 
 network during a build.
 
 `Lumis.Languages.cache/2` and `cacheLanguages()` do the same preparation from
-Elixir and JavaScript, for a release task that runs before the process that
+Elixir and the npm package, for a release task that runs before the process that
 serves. Keep the startup warm-up as well: a prepared directory removes the
 download and the compile, and the warm-up still has to move the parsers into
 the runtime, which needs no network once that directory is there.
@@ -254,10 +254,10 @@ $LUMIS_DATA_DIR/
 | Host | Explicit setting | Environment fallback | Default |
 | --- | --- | --- | --- |
 | CLI | `--data-dir /app/lumis` | `LUMIS_DATA_DIR` | platform user data directory |
-| JavaScript cache API | `{directory: "/app/lumis"}` | `LUMIS_DATA_DIR` | platform user data directory |
+| JavaScript / TypeScript cache API | `{directory: "/app/lumis"}` | `LUMIS_DATA_DIR` | platform user data directory |
 | Elixir | `config :lumis, data_dir: "/app/lumis"` | `LUMIS_DATA_DIR` | the Lumis application `priv/lumis` directory |
 
-Elixir configuration takes precedence over the environment. The JavaScript
+Elixir configuration takes precedence over the environment. The npm
 `directory` option controls where `cacheLanguages()` writes; also set
 `LUMIS_DATA_DIR` for the deployed highlighter when it must read that explicit
 directory.

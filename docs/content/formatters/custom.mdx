@@ -1,6 +1,6 @@
 ---
 title: Custom Formatters
-description: Build your own output format on top of Lumis tokens in Rust, JavaScript and Elixir.
+description: Build your own output format on top of Lumis tokens in Rust, JavaScript, TypeScript, and Elixir.
 keywords:
   - lumis custom formatters
   - formatter trait
@@ -98,7 +98,9 @@ impl Formatter for MinimalHtmlFormatter {
 }
 ```
 
-## JavaScript
+<span id="javascript" />
+
+## JavaScript / TypeScript
 
 Pass an object with `language` and `render(source, events)`. Lumis highlights the source and hands you the event stream; the synchronous free functions `highlightIter()` and `highlightEvents()` from `@lumis-sh/lumis` remain available if you need to highlight something else from inside `render()`.
 
@@ -307,8 +309,8 @@ formatters take the same options, as a trailing argument to the token iterator.
 The flat iterator presents rainbow brackets as the same six scopes the built-ins
 render for backward compatibility.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```ts
 highlightIter(source, this.language, frappe, (text, language, _range, scope) => {
@@ -341,8 +343,8 @@ nesting matters — a `string` scope wrapping injected `tag` scopes inside a
 template literal — take the events instead. A `start` opens a scope, `source`
 events carry byte ranges, and `end` closes it.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```ts
 import {highlightEvents} from '@lumis-sh/lumis'
@@ -379,7 +381,7 @@ for event in highlight_events_with_options(source, Language::Rust, options)? {
 
 Rust stores the scope as an index into `HIGHLIGHT_NAMES` because resolving it
 per event costs more than the formatters need. `event.scope()` returns the same
-name JavaScript's event carries directly. Rainbow brackets are decoration
+name the npm package's event carries directly. Rainbow brackets are decoration
 events instead: their `depth` does not wrap, leaving a custom formatter free to
 use more than six colors or a non-color representation.
 
@@ -390,13 +392,13 @@ use more than six colors or a non-color representation.
 
 Every runtime offers the same set, so a formatter written against one can be
 ported to another without reimplementing a piece of it. Names follow each
-language's convention — `scope_to_class` in Rust and Elixir, `scopeToClass` in
-JavaScript — and so do argument shapes.
+host's convention — `scope_to_class` in Rust and Elixir, `scopeToClass` in
+the npm package — and so do argument shapes.
 
 | Runtime | Module | Reference |
 | --- | --- | --- |
-| JavaScript | `@lumis-sh/lumis/formatters/html` | [source](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/formatter/html.ts) |
-| JavaScript | `@lumis-sh/lumis/formatters/ansi` | [source](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/formatter/ansi.ts) |
+| JavaScript / TypeScript | `@lumis-sh/lumis/formatters/html` | [source](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/formatter/html.ts) |
+| JavaScript / TypeScript | `@lumis-sh/lumis/formatters/ansi` | [source](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/formatter/ansi.ts) |
 | Rust | `lumis::formatters::html` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/html/index.html) |
 | Rust | `lumis::formatters::ansi` | [docs.rs](https://docs.rs/lumis/latest/lumis/formatters/ansi/index.html) |
 | Elixir | `Lumis.Formatter.HTML` | [hexdocs](https://hexdocs.pm/lumis/Lumis.Formatter.HTML.html) |
@@ -430,7 +432,7 @@ syntax spans. The unterminated final line carries none, so pass each result to
 A few helpers are one runtime's alone, because the boundary dictates the
 signature rather than taste. Elixir returns whole scope tables from `classes/0`,
 `span_attrs/1` and `ANSI.styles/1`, because crossing into Rust once per token to
-read a constant costs more than the highlighting; JavaScript exports
+read a constant costs more than the highlighting; the npm package exports
 `encodeSource` and `decodeSourceSlice`, because its strings are UTF-16 and the
 event offsets are UTF-8 byte offsets. `fixtures/formatter-helpers.json` records
 the set, the exceptions, and why each one is one.

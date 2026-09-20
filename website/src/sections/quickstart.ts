@@ -34,7 +34,7 @@ let html = highlight("const x = 1", formatter);`,
   },
   {
     id: "javascript",
-    label: "JavaScript",
+    label: "JavaScript / TypeScript",
     install: { language: "bash", code: `npm install @lumis-sh/lumis @lumis-sh/themes` },
     usage: {
       language: "javascript",
@@ -149,7 +149,7 @@ export function renderQuickstart() {
               }
               ${
                 tab.id === "javascript"
-                  ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">This install loads exact parser WASM per language and persists verified bytes, so restarts do not repeat downloads.</p>`
+                  ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">The same package works in JavaScript and TypeScript, with types included. It loads exact parser WASM per language and persists verified bytes.</p>`
                   : ""
               }
               <div class="border border-zinc-200 dark:border-zinc-800">

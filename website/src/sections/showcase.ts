@@ -101,7 +101,7 @@ ${FENCE}rust
 let html = lumis::highlight(source, formatter)?;
 ${FENCE}
 
-The same call in **JavaScript**:
+The same call in **JavaScript / TypeScript**:
 
 ${FENCE}js
 const html = await highlight(source, htmlInline({ language, theme }))

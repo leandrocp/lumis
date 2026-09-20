@@ -1,10 +1,11 @@
 ---
 title: Installation
-description: Install Lumis for CLI, Rust, Elixir, JavaScript, Browsers / CDN, and Java.
+description: Install Lumis for CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and Java.
 keywords:
   - lumis installation
   - cargo
   - npm
+  - typescript
   - hex
   - maven
 ---
@@ -14,8 +15,8 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 Pick the runtime you want to use first. The highlighting concepts stay the same across all of them.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```bash
 npm install @lumis-sh/lumis @lumis-sh/themes
@@ -23,7 +24,8 @@ npm install @lumis-sh/lumis @lumis-sh/themes
 
 Use `@lumis-sh/lumis` for the per-language WASM runtime and
 `@lumis-sh/themes` for bundled themes. Node.js, Bun, Deno, and browsers use the
-same runtime model.
+same runtime model. The package includes TypeScript declarations; JavaScript and
+TypeScript apps use the same imports.
 
   </Tab>
   <Tab value="Rust">
@@ -95,5 +97,5 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
 
 - Highlighting loads the parsers a document needs, including languages injected inside it, and caches the verified bytes. See [WASM and CDN](/advanced/wasm-and-cdn).
 - [Warm up parsers](/operations/warm-up) at startup without blocking it, or use the CLI when a build or operations step owns the cache.
-- For local JavaScript parser assets from npm, install per-language packages such as `@lumis-sh/wasm-rust` or bundle packages such as `@lumis-sh/wasm-bundle-web`.
+- For local parser assets in JavaScript or TypeScript apps, install per-language packages such as `@lumis-sh/wasm-rust` or bundle packages such as `@lumis-sh/wasm-bundle-web`.
 - The CLI stores verified, content-addressed parsers and custom themes in a local data directory.

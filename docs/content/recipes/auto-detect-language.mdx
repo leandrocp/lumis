@@ -6,8 +6,8 @@ description: Let Lumis infer the language from content, filename, or shebang.
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 const html = await highlight('#!/usr/bin/env bash\necho "hello"', htmlInline({theme: frappe}))
@@ -45,8 +45,8 @@ Highlighting detects the language for you. To ask what a snippet is before
 deciding what to do with it, call the detector directly. It returns the same id
 highlighting would have used, falling back to `plaintext`.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {guessLanguage} from '@lumis-sh/lumis'

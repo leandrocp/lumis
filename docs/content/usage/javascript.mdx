@@ -1,8 +1,9 @@
 ---
-title: JavaScript
-description: Lumis JavaScript API including highlighters, bundles, lazy loading, auto-detection, injected languages, and runtime metadata.
+title: JavaScript / TypeScript
+description: Lumis JavaScript and TypeScript API including highlighters, bundles, lazy loading, auto-detection, injected languages, and runtime metadata.
 keywords:
   - lumis javascript
+  - lumis typescript
   - createHighlighter
   - bundles
   - loadLanguage
@@ -10,6 +11,13 @@ keywords:
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+Use the same `@lumis-sh/lumis` package in JavaScript and TypeScript projects.
+Its exports include TypeScript declarations; both use the same runtime on each host.
+
+To highlight TypeScript source, import `@lumis-sh/lumis/langs/typescript` or
+`@lumis-sh/lumis/langs/tsx`. The language you highlight is independent of
+whether your app uses JavaScript or TypeScript.
 
 
 ## For one-off highlighting
@@ -22,7 +30,7 @@ import { htmlInline } from "@lumis-sh/lumis/formatters";
 import javascript from "@lumis-sh/lumis/langs/javascript";
 import frappe from "@lumis-sh/themes/catppuccin_frappe";
 
-const html = await highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+const html: string = await highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
 ```
 
 `highlight()` uses a shared default runtime, so loaded languages and global WASM resolver changes are process-wide.

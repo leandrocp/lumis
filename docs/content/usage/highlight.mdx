@@ -1,6 +1,6 @@
 ---
 title: Highlight
-description: Highlight code with one Lumis workflow across CLI, Rust, Elixir, JavaScript, and Java.
+description: Highlight code with one Lumis workflow across CLI, Rust, Elixir, JavaScript / TypeScript, and Java.
 keywords:
   - lumis
   - highlight
@@ -8,6 +8,7 @@ keywords:
   - rust
   - elixir
   - javascript
+  - typescript
   - java
 ---
 
@@ -18,8 +19,8 @@ This is the core Lumis workflow: choose a language, choose a formatter, then ren
 
 ## Simple example
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis';
@@ -92,7 +93,7 @@ lumis highlight index.js \
 
 ## Options by runtime
 
-| Need | CLI | Rust | Elixir | JavaScript | Java |
+| Need | CLI | Rust | Elixir | JavaScript / TypeScript | Java |
 | --- | --- | --- | --- | --- | --- |
 | Set language | `--language` | `.language(...)` | `language: "..."` | `language: ...` | `withLang(...)` |
 | Set theme | `--theme` | `.theme(...)` | `theme: "..."` | `theme: ...` | `withTheme(...)` |
@@ -116,8 +117,8 @@ Tree-sitter walks its whole pool of in-progress matches before it emits each cap
 
 Raise it when a document is large enough that tree-sitter drops matches and scopes go missing, and accept the extra time. Tree-sitter accepts 1 to 65536; every runtime rejects anything else.
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 const html = await highlight(source, htmlInline({language: html_, theme: frappe}), {

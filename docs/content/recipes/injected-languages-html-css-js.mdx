@@ -6,8 +6,8 @@ description: Highlight HTML with nested CSS and JavaScript regions.
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 
-<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir']}>
-  <Tab value="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
 
 ```js
 import html from '@lumis-sh/lumis/langs/html'
@@ -39,4 +39,4 @@ Lumis.highlight!(source, formatter: {:html_inline, language: "html", theme: "cat
   </Tab>
 </Tabs>
 
-Load every participating language in JavaScript, not just the outer one.
+Load every participating language with the JavaScript / TypeScript API, not just the outer one.
