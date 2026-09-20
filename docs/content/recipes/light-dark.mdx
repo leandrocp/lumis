@@ -53,6 +53,8 @@ That switches `color` and `background-color` with no JavaScript and no media que
 }
 ```
 
+If your app sets `color-scheme` independently of the OS preference, replace this media query with selectors that follow the app's theme setting so these properties switch with the colors.
+
 No `!important`, and you should not add one. A disputed property is deliberately left out of the style attribute, so these rules have nothing inline to outrank, and they stay in your cascade where a `print` or `forced-colors` rule of yours can still win. They are safe to apply to every span: on a token whose themes agreed, the inline declaration outranks them and the shared value stands; on a token neither theme styled, the variable was never set, so the declaration drops out and your own styling of the block is what renders.
 
 The trade-off is that a disputed property renders in neither scheme until you add those rules. That is the same choice [Shiki](https://shiki.style/guide/dual-themes) makes, and it is the only one that keeps the generated HTML from dictating your cascade.
