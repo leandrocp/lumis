@@ -1,17 +1,13 @@
 ---
-sidebar_position: 2
-slug: /recipes/minimal-html
 title: Minimal HTML
 description: Render a minimal highlighted HTML snippet with Lumis.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Minimal HTML
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -22,8 +18,8 @@ import frappe from '@lumis-sh/themes/catppuccin_frappe'
 const html = await highlight('const x = 1', htmlInline({language: javascript, theme: frappe}))
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
@@ -38,15 +34,15 @@ let html = highlight(
 );
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 html = Lumis.highlight!("const x = 1", formatter: {:html_inline, language: "javascript", theme: "catppuccin_frappe"})
 ```
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+  </Tab>
+  <Tab value="Java">
 
 ```java
 import io.roastedroot.lumis4j.core.Lang;
@@ -63,12 +59,12 @@ var highlighter = lumis.highlighter()
 var html = highlighter.highlight("const x = 1").string();
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight index.js --formatter html-inline --theme catppuccin_frappe
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>

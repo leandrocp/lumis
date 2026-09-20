@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
+  "installCommand": "npx --yes pnpm@12.4.1 install --frozen-lockfile",
+  "buildCommand": "npx --yes pnpm@12.4.1 build"
+}

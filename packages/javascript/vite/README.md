@@ -39,5 +39,5 @@ export default defineConfig({
 Write blocks as `<pre><code class="language-javascript">...</code></pre>`, or set
 `data-language` on `<pre>`. Authored attributes on both elements are preserved.
 
-See the [Vite integration guide](https://lumis.sh/docs/integrations/vite) for behavior,
+See the [Vite integration guide](https://docs.lumis.sh/integrations/vite) for behavior,
 language preloading, and a complete example.

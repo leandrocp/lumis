@@ -2,7 +2,7 @@
 
 React integration for [Lumis](https://lumis.sh) syntax highlighting.
 
-Docs: [https://lumis.sh/docs](https://lumis.sh/docs)
+Docs: [https://docs.lumis.sh](https://docs.lumis.sh)
 
 Examples:
 

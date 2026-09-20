@@ -1,6 +1,4 @@
 ---
-sidebar_position: 1
-slug: /usage/highlight
 title: Highlight
 description: Highlight code with one Lumis workflow across CLI, Rust, Elixir, JavaScript, and Java.
 keywords:
@@ -13,17 +11,15 @@ keywords:
   - java
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Highlight
 
 This is the core Lumis workflow: choose a language, choose a formatter, then render output.
 
 ## Simple example
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis';
@@ -37,8 +33,8 @@ const html = await highlight(
 );
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
@@ -54,8 +50,8 @@ let formatter = HtmlInlineBuilder::new()
 let html = highlight("const x = 1", formatter);
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!(
@@ -64,8 +60,8 @@ Lumis.highlight!(
 )
 ```
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+  </Tab>
+  <Tab value="Java">
 
 ```java
 import io.roastedroot.lumis4j.core.Lang;
@@ -82,8 +78,8 @@ var highlighter = lumis.highlighter()
 var html = highlighter.highlight("const x = 1").string();
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight index.js \
@@ -91,7 +87,7 @@ lumis highlight index.js \
   --theme catppuccin_frappe
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Options by runtime
@@ -120,8 +116,8 @@ Tree-sitter walks its whole pool of in-progress matches before it emits each cap
 
 Raise it when a document is large enough that tree-sitter drops matches and scopes go missing, and accept the extra time. Tree-sitter accepts 1 to 65536; every runtime rejects anything else.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 const html = await highlight(source, htmlInline({language: html_, theme: frappe}), {
@@ -129,8 +125,8 @@ const html = await highlight(source, htmlInline({language: html_, theme: frappe}
 });
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::highlight::HighlightOptions;
@@ -138,21 +134,21 @@ use lumis::highlight::HighlightOptions;
 let options = HighlightOptions::new().match_limit(16_384);
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight(source, match_limit: 16_384)
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight index.html --match-limit 16384
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Incomplete code

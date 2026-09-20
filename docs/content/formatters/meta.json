@@ -1,0 +1,13 @@
+{
+  "title": "Formatters",
+  "pages": [
+    "index",
+    "html-inline",
+    "html-linked",
+    "html-multi-themes",
+    "terminal",
+    "bbcode",
+    "custom",
+    "annotations"
+  ]
+}

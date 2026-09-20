@@ -1,17 +1,13 @@
 ---
-sidebar_position: 4
-slug: /recipes/linked-html-css-theme-file
 title: Linked HTML with CSS theme file
 description: Render HTML linked output and style it with a theme CSS file.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Linked HTML with CSS theme file
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import '@lumis-sh/themes/css/catppuccin_frappe.css'
@@ -22,8 +18,8 @@ import javascript from '@lumis-sh/lumis/langs/javascript'
 const html = await highlight('const x = 1', htmlLinked({language: javascript, preClass: 'demo'}))
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlLinkedBuilder, languages::Language};
@@ -38,21 +34,21 @@ let html = highlight(
 );
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!("const x = 1", formatter: {:html_linked, language: "javascript", pre_class: "demo"})
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight index.js --formatter html-linked
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 See [CSS Theme Files](/themes/css-files) for stylesheet mounting details.

@@ -1,0 +1,208 @@
+---
+title: HTML Multi-Themes Formatter
+description: Options and examples for Lumis multi-theme HTML output using CSS custom properties.
+keywords:
+  - lumis multi themes
+  - css variables
+  - defaultTheme
+  - cssVariablePrefix
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+
+One HTML block that supports multiple themes via CSS custom properties. Useful for light/dark mode.
+
+## Options
+
+| Runtime | Options |
+| --- | --- |
+| Rust | `language`, `themes`, `default_theme`, `css_variable_prefix`, `pre_class`, `pre_attrs`, `code_attrs`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| Elixir | `language`, `themes`, `default_theme`, `css_variable_prefix`, `pre_class`, `pre_attrs`, `code_attrs`, `italic`, `include_highlights`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| JavaScript | `language`, `themes`, `defaultTheme`, `cssVariablePrefix`, `preClass`, `preAttrs`, `codeAttrs`, `italic`, `includeHighlights`, `rainbowBrackets`, `highlightLines`, `lineNumbers`, `header` |
+| Java | Not currently supported in `lumis4j` |
+| CLI | `--themes`, `--default-theme`, `--css-variable-prefix`, `--pre-class`, `--pre-attr`, `--no-pre-attr`, `--code-attr`, `--no-code-attr`, `--italic`, `--include-highlights`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--line-numbers`, `--header-open`, `--header-close` |
+
+## Basic example
+
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
+
+```js
+import {highlight} from '@lumis-sh/lumis'
+import {htmlMultiThemes} from '@lumis-sh/lumis/formatters'
+import javascript from '@lumis-sh/lumis/langs/javascript'
+import latte from '@lumis-sh/themes/catppuccin_latte'
+import frappe from '@lumis-sh/themes/catppuccin_frappe'
+
+const html = await highlight(
+  'const x = 1',
+  htmlMultiThemes({
+    language: javascript,
+    themes: {light: latte, dark: frappe},
+    defaultTheme: 'light-dark()',
+  })
+)
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::{highlight, HtmlMultiThemesBuilder, languages::Language, themes};
+use std::collections::HashMap;
+
+let mut theme_map = HashMap::new();
+theme_map.insert("light".to_string(), themes::get("catppuccin_latte").unwrap());
+theme_map.insert("dark".to_string(), themes::get("catppuccin_frappe").unwrap());
+
+let html = highlight(
+    "const x = 1",
+    HtmlMultiThemesBuilder::new()
+        .language(Language::Javascript)
+        .themes(theme_map)
+        .default_theme("light-dark()")
+        .build()
+        .unwrap(),
+);
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+Lumis.highlight!(
+  "const x = 1",
+  formatter: {:html_multi_themes,
+    language: "javascript",
+    themes: [light: "catppuccin_latte", dark: "catppuccin_frappe"],
+    default_theme: "light-dark()"
+  }
+)
+```
+
+  </Tab>
+  <Tab value="Java">
+
+HTML Multi-Themes is not currently supported in `lumis4j`.
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight main.rs \
+  --formatter html-multi-themes \
+  --themes light:catppuccin_latte \
+  --themes dark:catppuccin_frappe \
+  --default-theme light-dark()
+```
+
+  </Tab>
+</Tabs>
+
+## `cssVariablePrefix`
+
+By default, CSS variables are prefixed with `--lumis` (e.g., `--lumis-light`, `--lumis-dark-bg`). Override the prefix if it conflicts with your CSS. Produces variables like `--code-light`, `--code-dark-bg`, etc.
+
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
+
+```js
+const html = await highlight(
+  'const x = 1',
+  htmlMultiThemes({
+    language: javascript,
+    themes: {light: latte, dark: frappe},
+    cssVariablePrefix: '--code',
+  })
+)
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+let formatter = HtmlMultiThemesBuilder::new()
+    .language(Language::Javascript)
+    .themes(theme_map)
+    .css_variable_prefix("--code")
+    .build()
+    .unwrap();
+
+let html = highlight("const x = 1", formatter);
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+Lumis.highlight!(
+  "const x = 1",
+  formatter: {:html_multi_themes,
+    language: "javascript",
+    themes: [light: "catppuccin_latte", dark: "catppuccin_frappe"],
+    css_variable_prefix: "--code"
+  }
+)
+```
+
+  </Tab>
+  <Tab value="Java">
+
+HTML Multi-Themes is not currently supported in `lumis4j`.
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight index.js \
+  --formatter html-multi-themes \
+  --themes light:catppuccin_latte \
+  --themes dark:catppuccin_frappe \
+  --css-variable-prefix "--code"
+```
+
+  </Tab>
+</Tabs>
+
+## `defaultTheme`
+
+Controls what color values appear inline (not just as CSS variables):
+
+| Value | Behavior |
+| --- | --- |
+| omitted / `null` | CSS variables only, no inline colors |
+| `"light"` | Inline colors from the `light` theme, CSS variables for all themes |
+| `"light-dark()"` | Uses CSS `light-dark()` function for automatic OS-level switching |
+
+### What `light-dark()` covers
+
+[CSS `light-dark()`](https://drafts.csswg.org/css-color-5/#light-dark) is a color function, so only `color` and `background-color` use it. For `font-weight`, `font-style` and `text-decoration`, a value both themes share is written as an ordinary declaration; a value they disagree on is written as `--lumis-light-*` and `--lumis-dark-*` variables with no declaration, since only a rule of your own can switch it. Leaving it out of the style attribute is what keeps that rule from needing `!important`, see [Light/Dark Mode](/recipes/light-dark).
+
+## Output format
+
+HTML Multi-Themes keeps the same HTML structure, but each token carries CSS variables for one or more themes:
+
+```html
+<pre class="lumis" style="--lumis-light-bg:#eff1f5; --lumis-dark-bg:#303446;">
+  <code class="language-javascript" translate="no" tabindex="0">
+    <div class="l-line" data-line="1">
+      <span style="--lumis-dark:#ca9ee6; --lumis-light:#8839ef;">const</span>
+    </div>
+  </code>
+</pre>
+```
+
+- `<pre class="lumis">` carries shared background and theme variables
+- `<code class="language-*">` identifies the language and keeps the block focusable
+- `<div class="l-line" data-line="N">` wraps each line
+- `<span class="l-line-number">` opens the line when `line_numbers` is on, see [Line Numbers](/recipes/line-numbers)
+- A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
+  final line gets no added newline
+- `<span style="--lumis-...">` carries per-theme token colors and font styles
+
+## Good uses
+
+- light/dark mode
+- user-selectable theme switching
+- one HTML block shared across themes

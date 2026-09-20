@@ -1,0 +1,455 @@
+---
+title: WASM and CDN
+description: Understand Lumis parser WASM files, default CDN resolution, npm WASM packages, local cache behavior, and custom resolvers.
+keywords:
+  - lumis wasm
+  - parser wasm
+  - jsdelivr
+  - withWasm
+  - configureLanguagePackageResolver
+  - configureWasmResolver
+  - cdn
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+
+Lumis uses two terms consistently, in every runtime:
+
+- **cache** persists verified parser bytes, and their compiled form, so later
+  starts skip both
+- **load** caches the language *and* keeps it in the current runtime
+
+Load is cache plus keeping it, so a process that will serve wants a load, and
+caching is for preparing a directory some *other* process will read. See
+[Warm up parsers](/operations/warm-up).
+
+## Highlighting loads what a document needs
+
+Highlighting resolves, downloads, verifies and loads whatever a document turns
+out to name, and caches it for every later request. That includes languages
+**injected inside** another one: a Markdown file with a fenced Rust block
+highlights that block, and an HTML page highlights its `<style>` and `<script>`
+contents, without any of them being mentioned in your code.
+
+It happens in one pass. Lumis loads an injected language during the walk that
+found it, so the walk then descends into that language and finds whatever _it_
+injects, however deep the nesting goes. The document is never parsed twice.
+
+A language that cannot be fetched costs its own block, not the document. A
+thousand-line file with ten languages still highlights when one fenced block
+names something unpublished; that block stays plain.
+
+Browsers are the one exception, because loading is asynchronous there and cannot
+happen inside a synchronous walk. In a browser, load an injected language before
+highlighting the document that mentions it, or use a bundle. Node does not have
+this limit: it highlights through a native addon, including when configured
+`configureLanguagePackageResolver()` and `configureWasmResolver()` callbacks
+supply the injected language.
+
+### Warming during application startup
+
+A cold parser costs a download and then a Wasmtime compile. The compile is the
+larger half, so warm at startup rather than letting a first request pay for
+either — beside the boot, not in front of it:
+
+<Tabs groupId="runtime" persist items={['JavaScript', 'Elixir']}>
+  <Tab value="JavaScript">
+
+```js title="bootstrap.mjs"
+import { loadLanguages } from "@lumis-sh/lumis";
+
+await startServer();
+
+loadLanguages(["rust", "javascript", "elixir"]).catch((error) => {
+  logger.warn({ error }, "Lumis warm-up failed; languages load on demand");
+});
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir title="lib/my_app/application.ex"
+def start(_type, _args) do
+  Lumis.Languages.async_load(~w(elixir html javascript css))
+  Supervisor.start_link(children(), strategy: :one_for_one, name: MyApp.Supervisor)
+end
+```
+
+  </Tab>
+</Tabs>
+
+Neither blocks the boot, and neither can fail one: warm-up is an optimization,
+so a CDN that is slow or down costs the first request rather than the process.
+Both are idempotent and reuse verified parser bytes on later starts. Native
+hosts also reuse their compiled modules.
+
+Both **load**: they write the store and keep the languages in the runtime. To
+**cache** without keeping — a build or operations step preparing a directory the
+serving process reads — await `cacheLanguages()` or call `Lumis.Languages.cache/2`,
+where failing is the point. See [Warm up parsers](/operations/warm-up).
+
+### Filling the store at build time
+
+```bash
+lumis --data-dir ./wasm-cache languages cache rust javascript elixir
+```
+
+Use the standalone CLI when preparation belongs outside the application
+lifecycle. It writes the same self-sufficient directory as the host APIs —
+parser bytes, metadata, and validated compiled modules — so any native runtime
+can consume it. Pass `--all` to take the whole catalog or `--force` to refresh
+compatible parser packages.
+
+## What ships where
+
+- `@lumis-sh/lumis` ships the JS API and embedded `web-tree-sitter` runtime WASM
+- dynamic languages are separate npm packages such as `@lumis-sh/wasm-rust`
+- each package contains its parser WASM, matching queries, aliases, and integrity metadata
+- runtime packages keep a stable language-to-package catalog and one compatible
+  range for the supported Tree-sitter series
+
+## Where a language comes from
+
+A language import is a package handle: `packageName` selects its `lumis.json`,
+and that package supplies the parser metadata and the queries as one unit.
+
+Queries are not something a caller supplies. A parser and the queries written
+against it are released together and tested together, so pairing a parser with
+queries it was never released with is not expressible:
+
+```ts title="A language is a package handle"
+import { createHighlighter, withWasm } from "@lumis-sh/lumis";
+import json from "@lumis-sh/lumis/langs/json";
+import jsonParser from "@lumis-sh/wasm-json";
+
+// Where the parser bytes come from is yours to choose.
+const hl = await createHighlighter({ languages: [withWasm(json, jsonParser)] });
+```
+
+`withWasm()` changes only where the bytes come from. Lumis still checks their
+size and SHA-256 against the package before loading them, so a parser that does
+not match the package it claims to be is rejected.
+
+:::note
+Supplying your own parser and queries for a grammar Lumis does not publish is a
+planned feature, not a supported one. It previously existed in JavaScript only
+and was removed rather than shipped half-designed; it will return as a
+cross-runtime capability with a package-shaped input.
+:::
+
+## The store directory
+
+Everything Lumis downloads lives in one directory, and everything it needs it
+looks for there first. There is no second location to configure.
+
+```
+$LUMIS_DATA_DIR/
+  parsers/
+    elixir.lumis.json                        # package metadata
+    tree-sitter-elixir-0.26.2-<sha256>.wasm  # the parser
+  compiled/                                  # wasmtime's compiled modules
+  themes/
+```
+
+It defaults to your platform's data directory — `~/.local/share/lumis` on Linux
+and macOS, `%LOCALAPPDATA%\lumis` on Windows — and `LUMIS_DATA_DIR` points it
+somewhere else. In Elixir, `config :lumis, data_dir: "/app/lumis"` does the same
+and takes precedence. The CLI takes `--data-dir`. Every runtime that runs
+natively — the CLI, the Elixir NIF and the Node addon — shares it, so a parser
+downloaded by one is already there for the others.
+
+### Compatible ranges resolve to an exact cache
+
+Each dynamic Lumis runtime carries one npm range matching its supported
+Tree-sitter ABI series, such as `0.26`. On a cold cache, npm's CDN resolves
+`@lumis-sh/wasm-rust@0.26` to the newest compatible package. Lumis validates
+that exact version and stores its manifest.
+
+A compatible manifest already in the directory is an exact lock and is never
+revalidated during highlighting. This gives deployments two useful modes:
+
+- stage the cache during a build to make every instance use identical parser
+  and query bytes without request-time network access
+- call a host cache API with `force: true`, or run the CLI with `--force`, to
+  resolve the range again and adopt a newer compatible language release without
+  upgrading Lumis
+
+Different caches refreshed at different times can hold different compatible
+patch releases. Reproducibility therefore belongs to the prepared cache, while
+the range removes the need to release every runtime after a WASM package. A new
+Tree-sitter minor series changes the compatibility range and still requires a
+runtime release.
+
+### Warming it at build time
+
+Because the runtime only reads this one directory, filling it during a build is
+all that pre-warming requires:
+
+```dockerfile
+FROM node:22-bookworm-slim AS parsers
+RUN npx --yes @lumis-sh/cli --data-dir /app/lumis languages cache elixir heex markdown json
+
+FROM debian:bookworm-slim
+COPY --from=parsers --chown=nobody:root /app/lumis /app/lumis
+ENV LUMIS_DATA_DIR=/app/lumis
+```
+
+There is one directory and one way to name it, so a directory written this way
+is self-sufficient: parser bytes plus the metadata naming them.
+
+Bytes are checked against the size and SHA-256 their package declares before
+use, wherever they came from, and anything that fails is discarded rather than
+trusted — so a corrupted directory repairs itself.
+
+## Default JavaScript behavior
+
+Lumis first resolves a compatible `lumis.json` for a language package. This
+manifest is generated while staging the package and published with it:
+
+```text title="Language package metadata"
+https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<name>@0.26/lumis.json
+```
+
+That metadata names an exact package version, parser filename, byte length, and
+SHA-256. Lumis then resolves the immutable parser:
+
+```text title="Default resolver pattern"
+https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<parser-name-without-tree-sitter-prefix>@<exact-version>/<parser>.wasm
+```
+
+Equivalent URLs also work on other CDNs such as unpkg:
+
+```text title="Alternative CDN pattern"
+https://unpkg.com/@lumis-sh/wasm-<parser-name-without-tree-sitter-prefix>@<tree-sitter-version>/<parser>.wasm
+```
+
+Lumis rejects bytes whose size or SHA-256 digest differs from its package
+metadata. Parser and queries are one atomic package release, so updating either
+does not require a Lumis runtime release. Resolution follows a persistent
+hierarchy:
+
+```text
+installed or deployment-local language package
+  -> persistent package-metadata cache
+  -> compatible-range package metadata
+  -> installed or deployment-local parser
+  -> persistent verified parser cache
+  -> exact-version parser fallback
+```
+
+`LUMIS_DATA_DIR` is the one directory Lumis persists anything under, in every
+runtime. Language packages and parser WASM go in `parsers/`, the CLI's custom
+themes in `themes/`, and Wasmtime's compiled modules in `compiled/`, so the CLI,
+Elixir and Node can share a single prepared directory.
+
+If a matching npm parser package is installed, such as `@lumis-sh/wasm-elixir`, Node can load that package directly before falling back to the resolver URL.
+
+## NPM language packages
+
+Lumis supports two good npm-based workflows:
+
+- Node: install the language package and use the normal language import
+- non-Node runtimes with bundled assets: import its parser explicitly and apply it with `withWasm()`
+
+For multiple languages, install a bundle package such as `@lumis-sh/wasm-bundle-web` and pair it with the matching Lumis bundle.
+
+<Tabs groupId="npm-wasm" persist items={['Node', 'Node bundle', 'Bundlers', 'Bundle']}>
+  <Tab value="Node">
+
+```js title="Installed package autoload"
+import { createHighlighter } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import elixir from "@lumis-sh/lumis/langs/elixir";
+import latte from "@lumis-sh/themes/catppuccin_latte";
+import "@lumis-sh/wasm-elixir";
+
+const hl = await createHighlighter({
+  languages: [elixir],
+});
+
+const html = hl.highlight(
+  "defmodule Demo do\nend",
+  htmlInline({ language: elixir, theme: latte }),
+);
+```
+
+This is the optimized Node DX. Once `@lumis-sh/wasm-elixir` is installed, Lumis can load it automatically.
+
+See [`packages/javascript/lumis/examples/npm-wasm-node`](https://github.com/leandrocp/lumis/tree/main/packages/javascript/lumis/examples/npm-wasm-node).
+
+  </Tab>
+  <Tab value="Node bundle">
+
+```js title="Installed bundle autoload"
+import { createHighlighter } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import latte from "@lumis-sh/themes/catppuccin_latte";
+import "@lumis-sh/wasm-bundle-web";
+
+const hl = await createHighlighter({
+  languages: [bundledLanguages],
+});
+
+await hl.loadLanguage(bundledLanguages.javascript);
+
+const html = hl.highlight(
+  'const theme = "catppuccin-latte"',
+  htmlInline({ language: bundledLanguages.javascript, theme: latte }),
+);
+```
+
+Use this when you want one package in `package.json` to cover a whole preset. Lumis still imports only `@lumis-sh/lumis/bundles/web`; Node resolves the installed parser packages automatically.
+
+  </Tab>
+  <Tab value="Bundlers">
+
+```js title="withWasm helper"
+import { createHighlighter, withWasm } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import elixir from "@lumis-sh/lumis/langs/elixir";
+import latte from "@lumis-sh/themes/catppuccin_latte";
+import elixirWasm from "@lumis-sh/wasm-elixir";
+
+const elixirFromNpm = withWasm(elixir, elixirWasm);
+
+const hl = await createHighlighter({
+  languages: [elixirFromNpm],
+});
+
+const html = hl.highlight(
+  "defmodule Demo do\nend",
+  htmlInline({ language: elixirFromNpm, theme: latte }),
+);
+```
+
+Use this when you want bundler-managed parser assets instead of a CDN fetch in browsers or similar non-Node environments.
+
+See [`packages/javascript/lumis/examples/npm-wasm-browser`](https://github.com/leandrocp/lumis/tree/main/packages/javascript/lumis/examples/npm-wasm-browser).
+
+  </Tab>
+  <Tab value="Bundle">
+
+```js title="withWasmBundle helper"
+import { createHighlighter, withWasmBundle } from "@lumis-sh/lumis";
+import { htmlInline } from "@lumis-sh/lumis/formatters";
+import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import { bundledWasms } from "@lumis-sh/wasm-bundle-web";
+import latte from "@lumis-sh/themes/catppuccin_latte";
+
+const languages = withWasmBundle(bundledLanguages, bundledWasms);
+
+const hl = await createHighlighter({
+  languages: [languages],
+});
+
+await hl.loadLanguage(languages.javascript);
+
+const html = hl.highlight(
+  'const theme = "catppuccin-latte"',
+  htmlInline({ language: languages.javascript, theme: latte }),
+);
+```
+
+Use this when you want local, bundler-managed parser assets for a whole preset in browsers or similar non-Node environments instead of wiring each language one by one.
+
+  </Tab>
+</Tabs>
+
+## Override the resolver
+
+Override [`configureLanguagePackageResolver()` and `configureWasmResolver()`](https://github.com/leandrocp/lumis/blob/main/packages/javascript/lumis/src/index.ts) to serve language-package metadata and parsers from your own CDN or from local files.
+
+<Tabs groupId="runtime" persist items={['JavaScript', 'CLI']}>
+  <Tab value="JavaScript">
+
+```js title="Global resolver"
+import { configureLanguagePackageResolver, configureWasmResolver } from "@lumis-sh/lumis";
+
+configureLanguagePackageResolver(
+  (packageName, versionRange) =>
+    `https://unpkg.com/${packageName}@${versionRange}/lumis.json`,
+);
+
+configureWasmResolver(
+  (_language, wasm) => `https://unpkg.com/${wasm.packageName}@${wasm.version}/${wasm.name}.wasm`,
+);
+```
+
+```js title="Per-highlighter resolver"
+import { createHighlighter } from "@lumis-sh/lumis";
+import rust from "@lumis-sh/lumis/langs/rust";
+
+const hl = await createHighlighter({
+  languages: [rust],
+  languagePackageResolver: (packageName, _versionRange) =>
+    `/wasm/${encodeURIComponent(packageName)}/lumis.json`,
+  wasmResolver: (_language, wasm) => `/wasm/${wasm.name}.wasm`,
+});
+```
+
+On Node, configured `configureLanguagePackageResolver()` and
+`configureWasmResolver()` callbacks also apply to languages first discovered
+inside the document. Lumis resolves and loads each one during the same walk.
+Browser runtimes still require those languages to be loaded before highlighting.
+
+Node highlighters using the catalog and canonical installed packages share one
+Wasmtime runtime. Supplying parser bytes, a different package, or a resolver
+callback isolates that highlighter's Tree-sitter Wasm store. The shared Wasmtime
+engine and persistent caches still avoid repeated downloads and compilation,
+while caller-resolved definitions are released with the highlighter.
+
+That same-walk Node path can read local paths and `file:`, `data:`, `http:`, or
+`https:` URLs synchronously. Preload a language before highlighting when its
+resolver returns a JavaScript-owned URL such as `blob:`; the asynchronous setup
+can read it, while the native walk cannot access JavaScript's blob registry.
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash title="Cache parsers"
+lumis languages cache rust javascript elixir
+```
+
+```bash title="Cache all parsers"
+lumis languages cache --all
+```
+
+```bash title="Replace cached parsers"
+lumis languages cache rust --force
+```
+
+The CLI does not expose a custom WASM resolver hook. Use `lumis languages cache`
+and `--data-dir` when you need local control over parser files.
+
+  </Tab>
+</Tabs>
+
+## Browsers / CDN usage
+
+This works well when your app can fetch parser WASM files from the default CDN.
+Verified bytes are stored in persistent browser storage and reused across page
+reloads and browser restarts when the browser permits it. Lumis uses
+CacheStorage with an IndexedDB fallback for WebKit. If you need a different host
+or local assets, set a custom resolver first. For bundler-managed parser assets
+from npm, prefer `withWasm()` for single languages or `withWasmBundle()` for
+preset bundles.
+
+```html title="ESM CDN"
+<script type="module">
+  import { highlight } from "https://esm.sh/@lumis-sh/lumis";
+  import { htmlInline } from "https://esm.sh/@lumis-sh/lumis/formatters";
+  import javascript from "https://esm.sh/@lumis-sh/lumis/langs/javascript";
+  import frappe from "https://esm.sh/@lumis-sh/themes/catppuccin_frappe";
+
+  const html = await highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+</script>
+```
+
+## Related docs
+
+- full language and WASM package list: [Languages](/reference/languages)
+- JavaScript runtime overview: [JavaScript Runtime](/usage/javascript)
+- CLI parser commands: [CLI Commands](/cli/commands)
+- runtime and package overview: [Runtimes](/reference/runtimes)

@@ -79,11 +79,11 @@ that from the CLI. On native Node both also persist compiled Wasmtime modules.
 
 ## Documentation
 
-- [JavaScript runtime](https://lumis.sh/docs/usage/javascript) — runtimes, bundles, language handles
-- [WASM and CDN](https://lumis.sh/docs/advanced/wasm-and-cdn) — resolution, caching, custom resolvers
-- [Formatters](https://lumis.sh/docs/formatters) — every formatter and its options
-- [Custom formatters](https://lumis.sh/docs/formatters/custom)
-- [Annotations](https://lumis.sh/docs/formatters/annotations) — compose your own ranges into the event stream
-- [Themes](https://lumis.sh/docs/themes) and [CSS theme files](https://lumis.sh/docs/themes/css-files)
-- [Integrations](https://lumis.sh/docs/integrations/react) — React, Next.js, Astro, Nuxt, VitePress, rehype, markdown-it
-- [Recipes](https://lumis.sh/docs/recipes)
+- [JavaScript runtime](https://docs.lumis.sh/usage/javascript) — runtimes, bundles, language handles
+- [WASM and CDN](https://docs.lumis.sh/advanced/wasm-and-cdn) — resolution, caching, custom resolvers
+- [Formatters](https://docs.lumis.sh/formatters) — every formatter and its options
+- [Custom formatters](https://docs.lumis.sh/formatters/custom)
+- [Annotations](https://docs.lumis.sh/formatters/annotations) — compose your own ranges into the event stream
+- [Themes](https://docs.lumis.sh/themes) and [CSS theme files](https://docs.lumis.sh/themes/css-files)
+- [Integrations](https://docs.lumis.sh/integrations/react) — React, Next.js, Astro, Nuxt, VitePress, rehype, markdown-it
+- [Recipes](https://docs.lumis.sh/recipes)

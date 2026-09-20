@@ -68,15 +68,15 @@ Formatters decide the output: `HtmlInline`, `HtmlLinked`, `HtmlMultiThemes`,
 
 ## Documentation
 
-- [Highlighting](https://lumis.sh/docs/usage/highlight) and [Rust advanced usage](https://lumis.sh/docs/usage/rust)
-- [Formatters](https://lumis.sh/docs/formatters) — every formatter and its options
-- [Custom formatters](https://lumis.sh/docs/formatters/custom)
-- [Annotations](https://lumis.sh/docs/formatters/annotations) — compose your own ranges into the event stream
-- [Themes](https://lumis.sh/docs/themes) and [CSS theme files](https://lumis.sh/docs/themes/css-files)
-- [Languages](https://lumis.sh/docs/reference/languages) — the full list and how detection works
-- [Line highlighting](https://lumis.sh/docs/recipes/line-highlighting)
-- [Line numbers](https://lumis.sh/docs/recipes/line-numbers)
-- [Recipes](https://lumis.sh/docs/recipes)
+- [Highlighting](https://docs.lumis.sh/usage/highlight) and [Rust advanced usage](https://docs.lumis.sh/usage/rust)
+- [Formatters](https://docs.lumis.sh/formatters) — every formatter and its options
+- [Custom formatters](https://docs.lumis.sh/formatters/custom)
+- [Annotations](https://docs.lumis.sh/formatters/annotations) — compose your own ranges into the event stream
+- [Themes](https://docs.lumis.sh/themes) and [CSS theme files](https://docs.lumis.sh/themes/css-files)
+- [Languages](https://docs.lumis.sh/reference/languages) — the full list and how detection works
+- [Line highlighting](https://docs.lumis.sh/recipes/line-highlighting)
+- [Line numbers](https://docs.lumis.sh/recipes/line-numbers)
+- [Recipes](https://docs.lumis.sh/recipes)
 
 API reference: [docs.rs/lumis](https://docs.rs/lumis).
 

@@ -1,17 +1,13 @@
 ---
-sidebar_position: 6
-slug: /recipes/terminal-output
 title: Terminal output
 description: Highlight code for terminal output with ANSI colors.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Terminal output
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -23,8 +19,8 @@ const ansi = await highlight('fn main() {}', terminal({language: rust, theme: fr
 console.log(ansi)
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, TerminalBuilder, languages::Language, themes};
@@ -41,12 +37,12 @@ let ansi = highlight(
 println!("{}", ansi);
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight main.rs --theme catppuccin_frappe
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>

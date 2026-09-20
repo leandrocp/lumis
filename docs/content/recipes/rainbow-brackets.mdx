@@ -1,21 +1,17 @@
 ---
-sidebar_position: 20
-slug: /recipes/rainbow-brackets
 title: Rainbow brackets
 description: Color nested brackets by depth in any Lumis formatter.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Rainbow brackets
 
 Rainbow brackets color a language's bracket pairs by nesting depth. The pairs aren't a fixed set: they come from each language's Tree-sitter `brackets.scm` query, or a shared default when a language doesn't define one. Rainbow brackets are a formatter option, so they work with every built-in formatter: the HTML and terminal formatters color the brackets, and BBCode scoped emits them as tags.
 
 Turn it on when you build the formatter:
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -29,8 +25,8 @@ const html = await highlight(
 )
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
@@ -46,8 +42,8 @@ let html = highlight(
 );
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!(
@@ -56,14 +52,14 @@ Lumis.highlight!(
 )
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight main.js --rainbow-brackets
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## How depth maps to color

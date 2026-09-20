@@ -60,7 +60,7 @@ directory, so a cache prepared here also starts Elixir and Node warm.
 
 ## Documentation
 
-- [CLI commands](https://lumis.sh/docs/cli/commands) — every command, flag and default
-- [CLI highlighting](https://lumis.sh/docs/usage/cli-highlight) and [behavior](https://lumis.sh/docs/usage/cli-behavior)
-- [Themes](https://lumis.sh/docs/usage/themes) — the theme list and custom themes
-- [Caching parsers](https://lumis.sh/docs/recipes/cache-parsers-cli)
+- [CLI commands](https://docs.lumis.sh/cli/commands) — every command, flag and default
+- [CLI highlighting](https://docs.lumis.sh/usage/cli-highlight) and [behavior](https://docs.lumis.sh/usage/cli-behavior)
+- [Themes](https://docs.lumis.sh/usage/themes) — the theme list and custom themes
+- [Caching parsers](https://docs.lumis.sh/recipes/cache-parsers-cli)

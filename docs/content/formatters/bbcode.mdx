@@ -1,0 +1,121 @@
+---
+title: BBCode Scoped Formatter
+description: Options and examples for Lumis BBCode scoped output with highlight-scope tags.
+keywords:
+  - lumis bbcode
+  - bbcode formatter
+  - bbcode scoped
+  - forum syntax highlighting
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+
+Scope-based BBCode tags for forum posts and BBCode-based platforms.
+
+## Options
+
+| Runtime | Options |
+| --- | --- |
+| Rust | `language`, `highlight_lines`, `rainbow_brackets` |
+| Elixir | `language`, `highlight_lines`, `rainbow_brackets` |
+| JavaScript | `language`, `highlightLines`, `rainbowBrackets` |
+| Java | `withLang()`, `withFormatter(Formatter.BBCODE)` |
+| CLI | `--highlight-lines`, `--rainbow-brackets` |
+
+A highlighted line is wrapped in `[highlighted]...[/highlighted]`. See
+[Line Highlighting](/recipes/line-highlighting).
+
+## Example
+
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
+
+```js
+import {highlight} from '@lumis-sh/lumis'
+import {bbcodeScoped} from '@lumis-sh/lumis/formatters'
+import javascript from '@lumis-sh/lumis/langs/javascript'
+
+const output = await highlight(
+  'const x = "[url=x]"',
+  bbcodeScoped({language: javascript})
+)
+
+console.log(output)
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::{highlight, BBCodeScopedBuilder, languages::Language};
+
+let bbcode = highlight(
+    "fn main() {}",
+    BBCodeScopedBuilder::new()
+        .language(Language::Rust)
+        .build()
+        .unwrap(),
+);
+
+println!("{}", bbcode);
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+bbcode = Lumis.highlight!(
+  ~s(const x = "[url=x]"),
+  formatter: {:bbcode_scoped, language: "javascript"}
+)
+
+IO.puts(bbcode)
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+import io.roastedroot.lumis4j.core.Formatter;
+import io.roastedroot.lumis4j.core.Lang;
+import io.roastedroot.lumis4j.core.Lumis;
+
+var lumis = Lumis.builder().build();
+
+var highlighter = lumis.highlighter()
+    .withLang(Lang.JAVASCRIPT)
+    .withFormatter(Formatter.BBCODE)
+    .build();
+
+var output = highlighter.highlight("const x = \"[url=x]\"").string();
+System.out.println(output);
+
+lumis.close();
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight main.rs -f bbcode-scoped
+```
+
+  </Tab>
+</Tabs>
+
+## Output format
+
+A tag is the scope name from the syntax tree and the language it was matched in, with the dots replaced by hyphens:
+
+```
+[keyword-function-rust]fn[/keyword-function-rust] [function-rust]main[/function-rust]
+```
+
+`bbcodeScoped()` / `:bbcode_scoped` / `bbcode-scoped` emit highlight scope names as tags. They do not try to generate standard forum-style BBCode such as `[b]`, `[color]`, or `[code]`.
+
+## When to use it
+
+- Forum posts and BBCode-based platforms
+- Custom rendering pipelines that consume scope-tagged text
+- Lightweight markup without HTML overhead

@@ -110,7 +110,7 @@ export function renderQuickstart() {
           Install, import, highlight.
         </h2>
         <div class="mt-6 flex flex-wrap items-center gap-3">
-          <a href="/docs"
+          <a href="https://docs.lumis.sh"
              class="inline-flex items-center gap-2 border border-zinc-200 px-4 py-2 font-mono text-xs tracking-wider text-zinc-700 uppercase transition-colors hover:border-zinc-900 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-white dark:hover:text-white">
             docs
             <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>

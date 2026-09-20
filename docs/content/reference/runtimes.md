@@ -1,6 +1,4 @@
 ---
-sidebar_position: 1
-slug: /reference/runtimes
 title: Runtimes
 description: Package and API references for Lumis across CLI, Rust, Elixir, JavaScript, Browsers / CDN, and Java.
 keywords:
@@ -11,7 +9,7 @@ keywords:
   - java
 ---
 
-# Runtimes
+
 
 ## Main packages
 

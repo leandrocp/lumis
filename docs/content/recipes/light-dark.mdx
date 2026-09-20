@@ -1,6 +1,4 @@
 ---
-sidebar_position: 1
-slug: /recipes/light-dark
 title: Light/Dark Mode
 description: Three ways to add light/dark theme switching to syntax-highlighted code with Lumis.
 keywords:
@@ -11,10 +9,8 @@ keywords:
   - theme switching
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Light/Dark Mode
 
 The multi-themes formatter renders one HTML block with CSS variables for each theme. You control which theme is active with CSS. There are three approaches, from simplest to most flexible.
 
@@ -59,8 +55,8 @@ No `!important`, and you should not add one. A disputed property is deliberately
 
 The trade-off is that a disputed property renders in neither scheme until you add those rules. That is the same choice [Shiki](https://shiki.style/guide/dual-themes) makes, and it is the only one that keeps the generated HTML from dictating your cascade.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -79,8 +75,8 @@ const html = await highlight(
 )
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlMultiThemesBuilder, languages::Language, themes};
@@ -101,8 +97,8 @@ let html = highlight(
 );
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!(
@@ -115,13 +111,13 @@ Lumis.highlight!(
 )
 ```
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+  </Tab>
+  <Tab value="Java">
 
 HTML Multi-Themes is not currently supported in `lumis4j`.
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight index.js \
@@ -131,7 +127,7 @@ lumis highlight index.js \
   --default-theme "light-dark()"
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## 2. `@media (prefers-color-scheme)` with CSS variables
@@ -157,8 +153,8 @@ For runtimes that support HTML Multi-Themes, `default_theme: "light"` makes the 
 
 The `!important` is unavoidable here: a declaration in your stylesheet cannot outrank one in a `style` attribute without it. If you would rather keep control of the cascade, drop `default_theme` entirely. Every theme is then a variable, nothing is inline, and the same rules work without `!important` — at the cost of a block that renders unstyled until your CSS loads.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -177,8 +173,8 @@ const html = await highlight(
 )
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlMultiThemesBuilder, languages::Language, themes};
@@ -199,8 +195,8 @@ let html = highlight(
 );
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!(
@@ -213,13 +209,13 @@ Lumis.highlight!(
 )
 ```
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+  </Tab>
+  <Tab value="Java">
 
 HTML Multi-Themes is not currently supported in `lumis4j`.
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight index.js \
@@ -229,7 +225,7 @@ lumis highlight index.js \
   --default-theme light
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## 3. Manual switching with JavaScript
@@ -263,8 +259,8 @@ function setTheme(theme) {
 
 This pattern works anywhere you render the generated HTML. In Phoenix LiveView, you'd wire the button to a `phx-click` event that toggles a class via a JS command. `lumis4j` does not support HTML Multi-Themes, and the CLI only generates the HTML for another renderer to display.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import {highlight} from '@lumis-sh/lumis'
@@ -283,8 +279,8 @@ const html = await highlight(
 )
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 use lumis::{highlight, HtmlMultiThemesBuilder, languages::Language, themes};
@@ -305,8 +301,8 @@ let html = highlight(
 );
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!(
@@ -319,13 +315,13 @@ Lumis.highlight!(
 )
 ```
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+  </Tab>
+  <Tab value="Java">
 
 HTML Multi-Themes is not currently supported in `lumis4j`.
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 lumis highlight index.js \
@@ -335,7 +331,7 @@ lumis highlight index.js \
   --default-theme light
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Which approach to use

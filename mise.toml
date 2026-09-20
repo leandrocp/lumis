@@ -582,7 +582,7 @@ description = "Start docs site dev server"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-(cd docs && pnpm start)
+(cd docs && pnpm dev)
 '''
 
 [tasks.'css-gen']

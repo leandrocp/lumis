@@ -1,0 +1,137 @@
+---
+title: CLI Behavior
+description: Understand Lumis CLI input handling, auto-detection, parser caching, data directories, and theme discovery.
+keywords:
+  - lumis cli behavior
+  - stdin
+  - parser cache
+  - data dir
+  - auto detect
+---
+
+
+
+## Input sources
+
+- if a path is provided, Lumis reads that file
+- if no path is provided, Lumis reads from stdin
+- you can pipe content directly into `lumis highlight` or any `lumis dump`
+  command
+- terminal output is the default highlight formatter unless you pass
+  `--formatter`
+
+```bash
+cat main.rs | lumis highlight -l rust
+echo 'fn main() {}' | lumis highlight -l rust
+```
+
+## When to set `--language`
+
+Pass `--language` when you already know the correct parser and do not want detection to depend on the filename or input content.
+
+```bash
+lumis highlight main.txt --language rust
+```
+
+## When to rely on auto-detection
+
+Omit `--language` when the path, shebang, or source content should drive detection.
+
+```bash
+lumis highlight main.rs
+```
+
+If no language can be inferred, plaintext is the safe fallback for highlighting.
+Dump commands instead ask you to pass `--language`, because they need a parser.
+
+## Parser and query debugging
+
+Use `lumis dump tree` to inspect named syntax nodes as branch lines with
+language and range metadata. `--text`, `--highlights`, and `--injections` add
+source text, resolved highlight-query results, and injected syntax trees. Text
+uses an 80-character middle preview by default; use `--text=<limit>` or
+`--text=full` to change it. Syntax nodes use `[name]`; resolved highlights use
+`@name`. Use `lumis dump
+events` when you need the raw highlight event stream.
+
+```bash
+lumis dump tree component.svelte
+lumis dump tree component.svelte --injections --text --highlights
+lumis dump tree component.svelte --format sexp
+echo 'function increment() { count++; }' | lumis dump events -l svelte
+```
+
+Both commands use the same path, stdin, language detection, parser download,
+and cache behavior as `lumis highlight`. See the
+[CLI command reference](/cli/commands#lumis-dump-tree) for output details.
+
+## Theme selection
+
+When `--theme` is omitted, Lumis uses `[highlight].theme` from its config file. On macOS and Linux, the default path is `${XDG_CONFIG_HOME:-~/.config}/lumis/config.toml`; on Windows it is `%XDG_CONFIG_HOME%/lumis/config.toml`, or `%APPDATA%/lumis/config.toml` when XDG is unset. The default value, `auto`, queries the terminal background and chooses the built-in theme with the closest background color.
+
+```toml
+[highlight]
+theme = "auto"
+```
+
+If terminal color detection is unavailable, Lumis renders without a theme. An explicit `--theme` takes precedence. Set `XDG_CONFIG_HOME`, `LUMIS_CONFIG`, or `--config` to use a different config location.
+
+## Parser cache lifecycle
+
+Highlighting downloads, verifies and loads whatever a file turns out to need,
+including languages injected inside it, and caches them for every later run. A
+Markdown file with a fenced Rust block highlights that block; a language that
+cannot be fetched leaves its own block plain rather than failing the file.
+
+The CLI stores language-package metadata and integrity-verified parser WASM
+files under the data directory. A cold cache resolves the runtime's compatible
+package range, then loads the exact parser version and matching queries named
+there. Parser filenames contain the package version and SHA-256 digest.
+
+- first use of a language downloads its parser
+- `lumis languages cache ...` persists selected parsers ahead of time, so no run
+  pays for a download and the Wasmtime compile that follows it
+- `lumis languages cache ... --force` resolves the package range again and
+  replaces valid cached parsers
+
+```bash
+lumis languages cache rust javascript elixir
+lumis languages cache rust --force
+```
+
+Parsers you build or vendor yourself go in the same `parsers/` directory as
+downloaded ones; `lumis --data-dir <dir> languages cache ...` writes that layout.
+
+## Data directory
+
+Default location depends on the OS. Override it with:
+
+- `--data-dir`
+- `LUMIS_DATA_DIR`
+
+The data dir stores:
+
+- language-package metadata, as `parsers/<name>.lumis.json`
+- parser WASM files, in the same `parsers/` directory
+- custom theme JSON files
+
+The metadata names the exact parser version, queries, and integrity digest, so a
+directory holding both is self-sufficient offline.
+
+## Local custom themes
+
+Themes placed in the data directory can be discovered by `lumis themes list` and used by name.
+
+That is useful when you generate themes with `lumis themes generate` and want to keep using them locally.
+
+See [CLI Commands](/cli/commands#lumis-themes-generate) for theme generation flags and [CLI](/usage/cli) for highlight workflow examples.
+
+## Nested languages and parser availability
+
+Some formats depend on nested parsers. If embedded languages are missing from the cache, those nested regions cannot be fully highlighted.
+
+If you work with mixed-language content, cache all relevant parsers.
+
+## Verbose mode
+
+Use `--verbose` to inspect cache hits, parser paths, and downloads.

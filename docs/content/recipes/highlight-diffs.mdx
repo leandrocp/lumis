@@ -1,22 +1,18 @@
 ---
-sidebar_position: 11
-slug: /recipes/highlight-diffs
 title: Highlight diffs
 description: Render a unified diff with the code inside each hunk highlighted as its own language.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Highlight diffs
 
 The `diff` language colours added, removed and context lines, and highlights the
 code inside each hunk as whatever language the diff header names. Nothing has to
 be configured: the `+++` path decides, and Lumis loads that language during the
 same pass.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript">
 
 ```js
 import diff from '@lumis-sh/lumis/langs/diff'
@@ -26,8 +22,8 @@ const hl = await createHighlighter({languages: [diff, elixir]})
 const output = hl.highlight(source, htmlInline({language: diff, theme: frappe}))
 ```
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```rust
 let html = highlight(source, HtmlInlineBuilder::new()
@@ -37,21 +33,21 @@ let html = highlight(source, HtmlInlineBuilder::new()
     .unwrap());
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 Lumis.highlight!(source, formatter: {:html_inline, language: "diff", theme: "catppuccin_frappe"})
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```sh
 git diff | lumis highlight -l diff
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 Given this input:

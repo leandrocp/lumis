@@ -1,6 +1,4 @@
 ---
-sidebar_position: 3
-slug: /architecture
 title: Architecture
 description: How Lumis processes source code into highlighted output.
 keywords:
@@ -10,7 +8,7 @@ keywords:
   - crates
 ---
 
-# Architecture
+
 
 Lumis has three core components: languages, themes, and formatters. Source code flows through a pipeline that turns it into styled output.
 

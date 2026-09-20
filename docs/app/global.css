@@ -1,0 +1,47 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+/* A single Lumis block carries colors for both themes. */
+.dark .lumis,
+.dark .lumis span {
+  color: var(--lumis-dark) !important;
+  background-color: var(--lumis-dark-bg) !important;
+  font-style: var(--lumis-dark-font-style) !important;
+  font-weight: var(--lumis-dark-font-weight) !important;
+  text-decoration: var(--lumis-dark-text-decoration) !important;
+}
+
+.lumis {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.lumis code {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.codeBlockContainer_lumis {
+  overflow: hidden;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+.codeBlockContainer_lumis .lumis { border-radius: 0; }
+.codeBlockTitle_lumis {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--color-fd-border);
+  background: var(--color-fd-muted);
+  font: 600 0.875rem ui-monospace, monospace;
+}

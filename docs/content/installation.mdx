@@ -1,6 +1,4 @@
 ---
-sidebar_position: 2
-slug: /installation
 title: Installation
 description: Install Lumis for CLI, Rust, Elixir, JavaScript, Browsers / CDN, and Java.
 keywords:
@@ -11,15 +9,13 @@ keywords:
   - maven
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-# Installation
 
 Pick the runtime you want to use first. The highlighting concepts stay the same across all of them.
 
-<Tabs groupId="runtime" queryString="lang" defaultValue="javascript">
-  <TabItem value="javascript" label="JavaScript">
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+  <Tab value="JavaScript">
 
 ```bash
 npm install @lumis-sh/lumis @lumis-sh/themes
@@ -29,15 +25,15 @@ Use `@lumis-sh/lumis` for the per-language WASM runtime and
 `@lumis-sh/themes` for bundled themes. Node.js, Bun, Deno, and browsers use the
 same runtime model.
 
-  </TabItem>
-  <TabItem value="rust" label="Rust">
+  </Tab>
+  <Tab value="Rust">
 
 ```bash
 cargo add lumis
 ```
 
-  </TabItem>
-  <TabItem value="elixir" label="Elixir">
+  </Tab>
+  <Tab value="Elixir">
 
 ```elixir
 def deps do
@@ -47,8 +43,8 @@ def deps do
 end
 ```
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+  </Tab>
+  <Tab value="Java">
 
 ```xml
 <dependency>
@@ -58,8 +54,8 @@ end
 </dependency>
 ```
 
-  </TabItem>
-  <TabItem value="cli" label="CLI">
+  </Tab>
+  <Tab value="CLI">
 
 ```bash
 npx @lumis-sh/cli --help
@@ -73,8 +69,8 @@ npm install -g @lumis-sh/cli
 
 The installed binary is `lumis`. npm resolves it from a platform package, so the install runs no scripts and downloads nothing beyond the registry. Alpine and other musl hosts are covered, and the binary there is statically linked. Rust users can also install from crates.io with `cargo install lumis-cli`.
 
-  </TabItem>
-  <TabItem value="browser" label="Browsers / CDN">
+  </Tab>
+  <Tab value="Browsers / CDN">
 
 ```html
 <script type="module">
@@ -92,7 +88,7 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
 </script>
 ```
 
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Notes

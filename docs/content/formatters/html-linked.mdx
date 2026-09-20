@@ -1,0 +1,133 @@
+---
+title: HTML Linked Formatter
+description: Options and examples for Lumis HTML linked output with CSS theme files.
+keywords:
+  - lumis html linked
+  - css theme files
+  - preClass
+  - header
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+
+Class-based HTML that pairs with a CSS theme file. Smaller output than inline styles.
+
+## Options
+
+| Runtime | Options |
+| --- | --- |
+| Rust | `language`, `pre_class`, `pre_attrs`, `code_attrs`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| Elixir | `language`, `pre_class`, `pre_attrs`, `code_attrs`, `rainbow_brackets`, `highlight_lines`, `line_numbers`, `header` |
+| JavaScript | `language`, `preClass`, `preAttrs`, `codeAttrs`, `rainbowBrackets`, `highlightLines`, `lineNumbers`, `header` |
+| Java | `withLang()`, `withFormatter(Formatter.HTML_LINKED)` |
+| CLI | `--pre-class`, `--pre-attr`, `--no-pre-attr`, `--code-attr`, `--no-code-attr`, `--rainbow-brackets`, `--highlight-lines`, `--highlight-lines-class`, `--line-numbers`, `--header-open`, `--header-close` |
+
+## Basic example
+
+<Tabs groupId="runtime" persist items={['JavaScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
+  <Tab value="JavaScript">
+
+```js
+import '@lumis-sh/themes/css/catppuccin_frappe.css'
+import {highlight} from '@lumis-sh/lumis'
+import {htmlLinked} from '@lumis-sh/lumis/formatters'
+import javascript from '@lumis-sh/lumis/langs/javascript'
+
+const html = await highlight('const x = 1', htmlLinked({language: javascript}))
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::{highlight, HtmlLinkedBuilder, languages::Language};
+
+let html = highlight(
+    "const x = 1",
+    HtmlLinkedBuilder::new()
+        .language(Language::Javascript)
+        .pre_class(Some("demo".to_string()))
+        .build()
+        .unwrap(),
+);
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+Lumis.highlight!(
+  "const x = 1",
+  formatter: {:html_linked, language: "javascript", pre_class: "demo"}
+)
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+import io.roastedroot.lumis4j.core.Formatter;
+import io.roastedroot.lumis4j.core.Lang;
+import io.roastedroot.lumis4j.core.Lumis;
+
+var lumis = Lumis.builder().build();
+
+var highlighter = lumis.highlighter()
+    .withLang(Lang.JAVASCRIPT)
+    .withFormatter(Formatter.HTML_LINKED)
+    .build();
+
+var html = highlighter.highlight("const x = 1").string();
+lumis.close();
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight index.js --formatter html-linked
+```
+
+  </Tab>
+</Tabs>
+
+## Theme files
+
+Use CSS theme files from:
+
+- `@lumis-sh/themes/css/<theme>.css`
+- `https://unpkg.com/@lumis-sh/themes/dist/css/<theme>.css`
+- `priv/static/css/` in Elixir
+
+See [CSS Theme Files](/themes/css-files) for the full setup.
+
+## Output format
+
+HTML Linked keeps the same block structure, but token styling moves to CSS classes instead of inline styles:
+
+```html
+<pre class="lumis">
+  <code class="language-javascript" translate="no" tabindex="0">
+    <div class="l-line" data-line="1">
+      <span class="l-keyword">const</span>
+      <span class="l-variable">x</span>
+    </div>
+  </code>
+</pre>
+```
+
+- `<pre class="lumis">` is the outer wrapper
+- `<code class="language-*">` identifies the language and keeps the block focusable
+- `<div class="l-line" data-line="N">` wraps each line
+- `<span class="l-line-number">` opens the line when `line_numbers` is on, see [Line Numbers](/recipes/line-numbers)
+- A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
+  final line gets no added newline
+- `<span class="...">` carries semantic highlight classes such as `l-keyword` or `l-string`
+
+## When to use it
+
+- many code blocks
+- shared stylesheet pipeline
+- cacheable theme CSS
+- smaller HTML output
