@@ -1,5 +1,6 @@
 import { RootProvider } from "fumadocs-ui/provider/next";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import { Analytics } from "@vercel/analytics/next";
 import { source } from "@/lib/source";
 import { baseOptions } from "@/lib/layout.shared";
 import type { Metadata } from "next";
@@ -22,6 +23,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
             {children}
           </DocsLayout>
         </RootProvider>
+        <Analytics />
       </body>
     </html>
   );

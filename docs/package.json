@@ -9,6 +9,10 @@
     "types:check": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@lumis-sh/lumis": "latest",
+    "@lumis-sh/themes": "latest",
+    "@modelcontextprotocol/server": "latest",
+    "@vercel/analytics": "^2.0.1",
     "cn": "^0.2.6",
     "fumadocs-core": "16.15.11",
     "fumadocs-mdx": "15.4.1",
@@ -17,11 +21,8 @@
     "next": "16.3.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "@lumis-sh/lumis": "latest",
-    "@lumis-sh/themes": "latest",
-    "@modelcontextprotocol/server": "latest",
-    "zod": "latest",
-    "unist-util-visit": "latest"
+    "unist-util-visit": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

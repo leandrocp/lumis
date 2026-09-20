@@ -2,3 +2,5 @@ allowBuilds:
   core-js: true
   core-js-pure: true
   esbuild: true
+# pnpm 12 otherwise prepends a second YAML document that Vercel cannot parse.
+pmOnFail: ignore

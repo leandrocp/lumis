@@ -23,10 +23,9 @@ Import `leandrocp/lumis` as a new Vercel project with these settings:
 - **Root Directory:** `docs`
 - **Framework Preset:** Next.js
 - **Node.js Version:** 24.x
-- **Environment variable:** `ENABLE_EXPERIMENTAL_COREPACK=1` (uses `packageManager` from `docs/package.json`)
-- **Build Command:** `pnpm build` (default package script)
+- **Install and Build Commands:** set by `docs/vercel.json` to use pnpm 12.4.1
 
-Set the production domain to `docs.lumis.sh`, then create the DNS record Vercel requests in Cloudflare. Keep `lumis.sh` on GitHub Pages; `.github/workflows/website.yml` builds only the website.
+After the docs PR is merged, set the production domain to `docs.lumis.sh`, then create the DNS record Vercel requests in Cloudflare. Keep `lumis.sh` on GitHub Pages; `.github/workflows/website.yml` builds only the website.
 
 The app exposes `/api/search`, `/llms.txt`, `/llms-full.txt`, per-page Markdown (for example `/installation.md`), and `/api/mcp`. The MCP endpoint provides page listing, page reading, and search. For a remote MCP client, use `https://docs.lumis.sh/api/mcp`.
 
