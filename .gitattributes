@@ -34,6 +34,7 @@ fixtures/conformance/**/html-multi-themes.html linguist-generated
 fixtures/conformance/**/terminal.txt linguist-generated
 fixtures/parsers/*.wasm linguist-generated
 fixtures/test-parsers/*.wasm linguist-generated
+stress-test/** linguist-generated=true
 website/public/benchmark-data/** linguist-generated
 website/public/comparison-data/** linguist-generated
 
