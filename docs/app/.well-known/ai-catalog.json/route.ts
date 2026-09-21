@@ -8,7 +8,7 @@ const catalog = {
     {
       identifier: "urn:air:docs.lumis.sh:mcp:documentation",
       displayName: "Lumis Documentation MCP Server",
-      type: "application/json",
+      type: "application/mcp-server-card+json",
       url: "https://docs.lumis.sh/.well-known/mcp/server-card.json",
       representativeQueries: [
         "How do I install Lumis for JavaScript?",

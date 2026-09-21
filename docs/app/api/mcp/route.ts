@@ -5,7 +5,7 @@ import { docsLlms, source } from "@/lib/source";
 
 const handler = createMcpHandler(() => {
   const mcp = new McpServer({
-    name: "docs",
+    name: "sh.lumis/docs",
     version: "1.0.0",
   });
 

@@ -1,6 +1,6 @@
 const body = `User-agent: *
 Allow: /
-Content-Signal: ai-train=no, search=yes, ai-input=no
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 Sitemap: https://docs.lumis.sh/sitemap.xml
 Agentmap: https://docs.lumis.sh/.well-known/ai-catalog.json

@@ -5,7 +5,7 @@ const apiCatalog = {
       "service-desc": [
         {
           href: "https://docs.lumis.sh/.well-known/mcp/server-card.json",
-          type: "application/json",
+          type: "application/mcp-server-card+json",
         },
       ],
       "service-doc": [
