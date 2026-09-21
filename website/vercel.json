@@ -5,6 +5,78 @@
   "buildCommand": "npx --yes pnpm@11.15.1 build",
   "outputDirectory": "dist",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
+  "headers": [
+    {
+      "source": "/",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
+    },
+    {
+      "source": "/comparison",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
+    },
+    {
+      "source": "/comparison/",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
+    },
+    {
+      "source": "/showcase",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
+    },
+    {
+      "source": "/showcase/",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
+    }
+  ],
+  "routes": [
+    {
+      "src": "^/$",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": "(.*)text/markdown(.*)"
+        }
+      ],
+      "headers": {
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept",
+        "x-markdown-tokens": "898"
+      },
+      "dest": "/index.md"
+    },
+    {
+      "src": "^/comparison/?$",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": "(.*)text/markdown(.*)"
+        }
+      ],
+      "headers": {
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept",
+        "x-markdown-tokens": "389"
+      },
+      "dest": "/comparison/index.md"
+    },
+    {
+      "src": "^/showcase/?$",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": "(.*)text/markdown(.*)"
+        }
+      ],
+      "headers": {
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept",
+        "x-markdown-tokens": "559"
+      },
+      "dest": "/showcase/index.md"
+    }
+  ],
   "redirects": [
     {
       "source": "/docs",
