@@ -1289,7 +1289,7 @@ mod tests {
 
         let events = highlight_events_with_options("{\"a\": 1}", Language::JSON, options).unwrap();
 
-        assert!(!events.is_empty());
+        assert_ne!(events.len(), 0);
     }
 
     #[test]

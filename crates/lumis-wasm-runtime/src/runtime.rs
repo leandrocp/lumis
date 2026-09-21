@@ -1,7 +1,7 @@
 //! Wasmtime-backed Tree-sitter highlighting runtime.
 
 use lumis_core::decorations::compose_rainbow_decorations;
-use lumis_core::events::HighlightEvent;
+use lumis_core::events::{Coalescing, HighlightEvent};
 use lumis_core::highlights::HIGHLIGHT_NAMES;
 use std::collections::HashMap;
 use std::sync::{Arc, Condvar, Mutex, OnceLock, RwLock};
@@ -759,24 +759,22 @@ impl Runtime {
             })
             .map_err(|error| RuntimeError::Highlight(error.to_string()))?;
 
-        let mut collected = Vec::new();
+        // The same collector `lumis::highlight` uses, so a host reaching
+        // tree-sitter through this store sees the stream the Rust API does.
+        let mut collector = Coalescing::new();
         for event in events {
             match event.map_err(|error| RuntimeError::Highlight(error.to_string()))? {
                 crate::tree_sitter_highlight::HighlightEvent::Source { start, end } => {
-                    collected.push(HighlightEvent::Source { start, end });
+                    collector.source(start, end);
                 }
                 crate::tree_sitter_highlight::HighlightEvent::HighlightStart {
                     highlight,
                     language,
-                } => collected.push(HighlightEvent::Start {
-                    scope_index: highlight.0,
-                    language,
-                }),
-                crate::tree_sitter_highlight::HighlightEvent::HighlightEnd => {
-                    collected.push(HighlightEvent::End);
-                }
+                } => collector.start(highlight.0, language),
+                crate::tree_sitter_highlight::HighlightEvent::HighlightEnd => collector.end(),
             }
         }
+        let mut collected = collector.finish();
 
         if options.rainbow_brackets {
             let ranges = rainbow_ranges(
