@@ -1,31 +1,41 @@
 User-agent: GPTBot
 Allow: /
+Disallow: /_vercel/
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /_vercel/
 
 User-agent: Claude-Web
 Allow: /
+Disallow: /_vercel/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /_vercel/
 
 User-agent: Amazonbot
 Allow: /
+Disallow: /_vercel/
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /_vercel/
 
 User-agent: Bytespider
 Allow: /
+Disallow: /_vercel/
 
 User-agent: CCBot
 Allow: /
+Disallow: /_vercel/
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /_vercel/
 
 User-agent: *
 Allow: /
+Disallow: /_vercel/
 
 Sitemap: https://lumis.sh/sitemap.xml
