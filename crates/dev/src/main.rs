@@ -1213,6 +1213,53 @@ fn apply_parser_patch(clone_dir: &str, parser_name: &str, info: &ParserInfo) -> 
     .with_context(|| format!("{patch} does not apply to {parser_name} at its pinned revision"))
 }
 
+/// Install what a grammar needs before `tree-sitter generate` will run.
+///
+/// `npm ci` refuses to run when a grammar repository ships a
+/// `package-lock.json` that has drifted from its `package.json`, which several
+/// upstream grammars do. Falling back to `npm install` keeps the parser
+/// buildable instead of silently generating without dependencies.
+fn install_grammar_dependencies(repo_dir: &str, metadata_dir: &str, has_package_lock: bool) {
+    let install_dir = if Path::new(repo_dir).join("package.json").exists() {
+        repo_dir
+    } else {
+        metadata_dir
+    };
+    println!("* installing npm dependencies in {install_dir}");
+
+    let ci_failed = has_package_lock
+        && run_cmd_ok(&format!("cd {install_dir} && npm ci --ignore-scripts")).is_err();
+    if ci_failed {
+        println!("  npm ci failed, retrying with npm install");
+    }
+    if ci_failed || !has_package_lock {
+        let _ = run_cmd_ok(&format!("cd {install_dir} && npm install --ignore-scripts"));
+    }
+}
+
+/// Put a parser's pinned revision, patched, in a fresh shallow clone.
+///
+/// The clone and the checkout are best-effort because a revision a shallow
+/// clone already holds makes the fetch redundant rather than failed; the build
+/// that follows is what reports a checkout that produced nothing usable.
+/// Applying the patch is not best-effort: a patch that does not apply means the
+/// artifact would silently be upstream's.
+fn checkout_parser_revision(
+    clone_dir: &str,
+    parser_name: &str,
+    info: &ParserInfo,
+    git: &str,
+    rev: &str,
+) -> Result<()> {
+    println!("* cloning {git}");
+    let _ = run_cmd_ok(&format!("git clone --depth 1 {git} {clone_dir}"));
+    println!("* checking out {rev}");
+    let _ = run_cmd_ok(&format!(
+        "cd {clone_dir} && git fetch --depth 1 origin {rev} && git checkout {rev}"
+    ));
+    apply_parser_patch(clone_dir, parser_name, info)
+}
+
 /// What a parser's patch contributes to a WASM build id.
 ///
 /// Editing the patch has to rebuild the artifact, and the revision alone
@@ -2831,13 +2878,7 @@ fn build_parser_wasm(
 
     let clone_dir = format!("{}/tree-sitter-{parser_name}", context.tmp);
     println!("-> Building WASM for {parser_name} ...");
-    println!("* cloning {git}");
-    let _ = run_cmd_ok(&format!("git clone --depth 1 {git} {clone_dir}"));
-    println!("* checking out {rev}");
-    let _ = run_cmd_ok(&format!(
-        "cd {clone_dir} && git fetch --depth 1 origin {rev} && git checkout {rev}"
-    ));
-    apply_parser_patch(&clone_dir, parser_name, info)?;
+    checkout_parser_revision(&clone_dir, parser_name, info, git, rev)?;
 
     let repo_dir = if let Some(ref location) = info.location {
         format!("{clone_dir}/{location}")
@@ -2859,24 +2900,7 @@ fn build_parser_wasm(
     }
     if has_grammar_source || info.generate.unwrap_or(false) {
         if has_package_json {
-            let install_dir = if Path::new(&repo_dir).join("package.json").exists() {
-                &repo_dir
-            } else {
-                &metadata_dir
-            };
-            println!("* installing npm dependencies in {install_dir}");
-            // `npm ci` refuses to run when a grammar repository ships a
-            // `package-lock.json` that has drifted from its `package.json`, which
-            // several upstream grammars do. Fall back to `npm install` so the parser
-            // stays buildable instead of silently generating without dependencies.
-            let ci_failed = has_package_lock
-                && run_cmd_ok(&format!("cd {install_dir} && npm ci --ignore-scripts")).is_err();
-            if ci_failed {
-                println!("  npm ci failed, retrying with npm install");
-            }
-            if ci_failed || !has_package_lock {
-                let _ = run_cmd_ok(&format!("cd {install_dir} && npm install --ignore-scripts"));
-            }
+            install_grammar_dependencies(&repo_dir, &metadata_dir, has_package_lock);
         }
         println!("* generating parser sources in {repo_dir}");
         let _ = run_cmd_ok(&format!("cd {repo_dir} && tree-sitter generate"));
