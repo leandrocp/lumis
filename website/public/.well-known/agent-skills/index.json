@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "lumis",
+      "type": "skill-md",
+      "description": "Add Lumis syntax highlighting to Rust, Elixir, JavaScript, TypeScript, browser, Java, or CLI projects. Use when choosing a Lumis runtime, formatter, theme, language-loading strategy, or integration.",
+      "url": "/.well-known/agent-skills/lumis/SKILL.md",
+      "digest": "sha256:bb3980b474ce9a72aec93dd80d580fbaff2c521c002d04683120051a40376f19"
+    }
+  ]
+}

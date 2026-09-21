@@ -1,41 +1,52 @@
 User-agent: GPTBot
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: OAI-SearchBot
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: Claude-Web
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: Google-Extended
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: Amazonbot
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: anthropic-ai
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: Bytespider
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: CCBot
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: Applebot-Extended
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 User-agent: *
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /_vercel/
 
 Sitemap: https://lumis.sh/sitemap.xml
+Agentmap: https://lumis.sh/.well-known/ai-catalog.json

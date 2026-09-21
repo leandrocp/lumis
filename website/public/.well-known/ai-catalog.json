@@ -1,0 +1,32 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Lumis",
+    "identifier": "https://lumis.sh",
+    "documentationUrl": "https://docs.lumis.sh/"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:lumis.sh:mcp:docs",
+      "displayName": "Lumis Docs MCP Server",
+      "type": "application/mcp-server-card+json",
+      "url": "https://lumis.sh/.well-known/mcp/server-card.json",
+      "representativeQueries": [
+        "search the Lumis documentation for browser setup",
+        "show me how to highlight code with Lumis in Elixir",
+        "find the available Lumis formatters"
+      ]
+    },
+    {
+      "identifier": "urn:air:lumis.sh:skill:syntax-highlighting",
+      "displayName": "Use Lumis",
+      "type": "application/agent-skills+md",
+      "url": "https://lumis.sh/.well-known/agent-skills/lumis/SKILL.md",
+      "representativeQueries": [
+        "add syntax highlighting to my application with Lumis",
+        "integrate Lumis into a Rust, Elixir, JavaScript, browser, Java, or CLI project",
+        "choose a Lumis formatter and theme for highlighted code"
+      ]
+    }
+  ]
+}
