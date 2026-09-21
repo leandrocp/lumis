@@ -8,7 +8,13 @@
   "headers": [
     {
       "source": "/",
-      "headers": [{ "key": "Vary", "value": "Accept" }]
+      "headers": [
+        { "key": "Vary", "value": "Accept" },
+        {
+          "key": "Link",
+          "value": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\""
+        }
+      ]
     },
     {
       "source": "/comparison",
@@ -39,6 +45,7 @@
       ],
       "headers": {
         "Content-Type": "text/markdown; charset=utf-8",
+        "Link": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\"",
         "Vary": "Accept",
         "x-markdown-tokens": "898"
       },
