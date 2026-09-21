@@ -11,7 +11,9 @@ const { rewrite: rewriteSuffix } = rewritePath(
 export default function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   if (
-    ["/api/", "/llms", "/og/", "/img/", "/_next/"].some((prefix) => path.startsWith(prefix)) ||
+    ["/.well-known/", "/api/", "/llms", "/og/", "/img/", "/_next/"].some((prefix) =>
+      path.startsWith(prefix),
+    ) ||
     ["/robots.txt", "/sitemap.xml", "/favicon.ico"].includes(path)
   )
     return NextResponse.next();

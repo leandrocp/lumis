@@ -31,6 +31,8 @@ Cloudflare DNS points `docs.lumis.sh` to this Vercel project with proxying disab
 
 The app exposes `/api/search`, `/llms.txt`, `/llms-full.txt`, per-page Markdown (for example `/installation.md`), and `/api/mcp`. The MCP endpoint provides page listing, page reading, and search. For a remote MCP client, use `https://docs.lumis.sh/api/mcp`.
 
+Machine-readable discovery lives under `/.well-known/`: an RFC 9727 API catalog, an MCP server card, an ARD catalog, and an Agent Skills index. The homepage advertises the stable resources with HTTP `Link` headers and registers the read-only docs search through WebMCP where the browser implements it. Keep those documents aligned with the live endpoints when a capability changes.
+
 ## Editing content
 
 Pages are rooted at `content/`: `content/index.md` is `/`, and `content/usage/rust.mdx` is `/usage/rust`. Add or reorder pages in the nearest `meta.json`. Use Fumadocs `<Tabs groupId="runtime" persist ...>` for shared runtime examples. The value of each `<Tab>` must match one entry in `items`. The Markdown and MCP routes read source MDX and expand tabs into labeled sections so all examples are available to agents.
