@@ -1,7 +1,10 @@
 import "./styles.css";
+import { inject } from "@vercel/analytics";
 import { renderNav, setupNav } from "./sections/nav";
 import { renderFooter } from "./sections/footer";
 import { renderComparison, setupComparison } from "./sections/comparison";
+
+inject();
 
 const root = document.querySelector<HTMLDivElement>("#app")!;
 

@@ -1,8 +1,11 @@
 import "./styles.css";
+import { inject } from "@vercel/analytics";
 import { renderNav, setupNav } from "./sections/nav";
 import { renderFooter } from "./sections/footer";
 import { renderShowcase, setupShowcase } from "./sections/showcase";
 import { setupCopyButtons } from "./lib/utils";
+
+inject();
 
 const root = document.querySelector<HTMLDivElement>("#app")!;
 
