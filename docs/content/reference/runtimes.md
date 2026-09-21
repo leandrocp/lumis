@@ -31,7 +31,7 @@ identical input produces identical output; browsers use `web-tree-sitter`.
 Every dynamic runtime loads exact, integrity-checked parser WASM per language
 rather than shipping an all-language binary, downloading what a document turns
 out to need and persisting verified assets across process restarts. A host
-application can [warm the parser store](/operations/warm-up) at startup without
+application can [preload the languages it needs](/languages) at startup without
 blocking it, and the standalone CLI can prepare the directory ahead of time.
 
 ## Themes

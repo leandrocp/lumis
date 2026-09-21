@@ -202,11 +202,11 @@ const htmlOutput = hl.highlight(source, htmlInline({ language: html, theme: frap
 
 See [Highlighting loads what a document needs](/advanced/wasm-and-cdn#highlighting-loads-what-a-document-needs).
 
-## Warm parsers during application startup
+## Preload languages during application startup
 
 Lumis uses two verbs everywhere: **cache** puts a language on disk, **load**
 caches it *and* keeps it in this runtime. Load is the superset, so a serving
-process wants it. See [Warm up parsers](/operations/warm-up).
+process wants it. See [Languages](/languages).
 
 Start serving, then load in the background:
 
@@ -218,7 +218,7 @@ await startServer();
 // Not awaited, so a slow CDN delays no request. The `.catch()` is required:
 // an unhandled rejection terminates the process.
 loadLanguages(["javascript", "html", "css"]).catch((error) => {
-  logger.warn({ error }, "Lumis warm-up failed; languages load on demand");
+  logger.warn({ error }, "Lumis preload failed; languages load on demand");
 });
 ```
 
@@ -226,7 +226,7 @@ loadLanguages(["javascript", "html", "css"]).catch((error) => {
 has to be threaded through the application. `createHighlighter({languages})` is
 the same load into an instance you keep yourself.
 
-Awaiting a warm-up before `startServer()` puts the CDN on the boot path, so an
+Awaiting a preload before `startServer()` puts the CDN on the boot path, so an
 unreachable one keeps the process from ever accepting a request.
 
 The API accepts `bundle-*` names such as `bundle-web`, covering the same

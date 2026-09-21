@@ -22,7 +22,7 @@ Lumis uses two terms consistently, in every runtime:
 
 Load is cache plus keeping it, so a process that will serve wants a load, and
 caching is for preparing a directory some *other* process will read. See
-[Warm up parsers](/operations/warm-up).
+[Languages](/languages).
 
 ## Highlighting loads what a document needs
 
@@ -47,59 +47,16 @@ this limit: it highlights through a native addon, including when configured
 `configureLanguagePackageResolver()` and `configureWasmResolver()` callbacks
 supply the injected language.
 
-### Warming during application startup
+### Preloading instead
 
-A cold parser costs a download and then a Wasmtime compile. The compile is the
-larger half, so warm at startup rather than letting a first request pay for
-either — beside the boot, not in front of it:
+A cold parser costs a download and then a Wasmtime compile, and the compile is
+the larger half. Preload beside the boot in the process that serves, or fill the
+store from a build step with `lumis languages cache`, which writes the same
+self-sufficient directory the host APIs do. Both are idempotent and reuse
+verified parser bytes on later starts; native hosts also reuse their compiled
+modules.
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Elixir']}>
-  <Tab value="JavaScript / TypeScript">
-
-```js title="bootstrap.mjs"
-import { loadLanguages } from "@lumis-sh/lumis";
-
-await startServer();
-
-loadLanguages(["rust", "javascript", "elixir"]).catch((error) => {
-  logger.warn({ error }, "Lumis warm-up failed; languages load on demand");
-});
-```
-
-  </Tab>
-  <Tab value="Elixir">
-
-```elixir title="lib/my_app/application.ex"
-def start(_type, _args) do
-  Lumis.Languages.async_load(~w(elixir html javascript css))
-  Supervisor.start_link(children(), strategy: :one_for_one, name: MyApp.Supervisor)
-end
-```
-
-  </Tab>
-</Tabs>
-
-Neither blocks the boot, and neither can fail one: warm-up is an optimization,
-so a CDN that is slow or down costs the first request rather than the process.
-Both are idempotent and reuse verified parser bytes on later starts. Native
-hosts also reuse their compiled modules.
-
-Both **load**: they write the store and keep the languages in the runtime. To
-**cache** without keeping — a build or operations step preparing a directory the
-serving process reads — await `cacheLanguages()` or call `Lumis.Languages.cache/2`,
-where failing is the point. See [Warm up parsers](/operations/warm-up).
-
-### Filling the store at build time
-
-```bash
-lumis --data-dir ./wasm-cache languages cache rust javascript elixir
-```
-
-Use the standalone CLI when preparation belongs outside the application
-lifecycle. It writes the same self-sufficient directory as the host APIs —
-parser bytes, metadata, and validated compiled modules — so any native runtime
-can consume it. Pass `--all` to take the whole catalog or `--force` to refresh
-compatible parser packages.
+[Languages](/languages) has the call each runtime uses.
 
 ## What ships where
 
@@ -181,22 +138,12 @@ the range removes the need to release every runtime after a WASM package. A new
 Tree-sitter minor series changes the compatibility range and still requires a
 runtime release.
 
-### Warming it at build time
+### Filling it at build time
 
 Because the runtime only reads this one directory, filling it during a build is
-all that pre-warming requires:
-
-```dockerfile
-FROM node:22-bookworm-slim AS parsers
-RUN npx --yes @lumis-sh/cli --data-dir /app/lumis languages cache elixir heex markdown json
-
-FROM debian:bookworm-slim
-COPY --from=parsers --chown=nobody:root /app/lumis /app/lumis
-ENV LUMIS_DATA_DIR=/app/lumis
-```
-
-There is one directory and one way to name it, so a directory written this way
-is self-sufficient: parser bytes plus the metadata naming them.
+all that preloading requires — [Languages](/languages) has the Dockerfile. There
+is one directory and one way to name it, so a directory written that way is
+self-sufficient: parser bytes plus the metadata naming them.
 
 Bytes are checked against the size and SHA-256 their package declares before
 use, wherever they came from, and anything that fails is discarded rather than
