@@ -31,7 +31,7 @@ path = "queries"
 
 [queries.nu]
 git = "https://github.com/nushell/tree-sitter-nu.git"
-rev = "64613ef22f4116862d7997939c8d1794ceb1f856"
+rev = "4f577aaa735154f934594b598a69ed7b1b707cf6"
 path = "queries"
 
 [queries.python]
@@ -490,7 +490,7 @@ emacs = ["nix"]
 
 [parsers.nushell]
 git = "https://github.com/nushell/tree-sitter-nu.git"
-rev = "64613ef22f4116862d7997939c8d1794ceb1f856"
+rev = "4f577aaa735154f934594b598a69ed7b1b707cf6"
 version = "0.0.1"
 aliases = ["nu"]
 query_name = "nu"
