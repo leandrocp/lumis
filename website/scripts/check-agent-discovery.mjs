@@ -77,18 +77,22 @@ assert(
   `${skillPath} description does not match ${indexPath}`,
 );
 
-assert(card.serverInfo?.name === "docs", `${cardPath} has the wrong server name`);
-assert(card.serverInfo?.version === "1.0.0", `${cardPath} has the wrong server version`);
-assert(card.protocolVersion === "2025-06-18", `${cardPath} has the wrong protocol version`);
 assert(
-  card.transport?.type === "streamable-http" &&
-    card.transport?.endpoint === "https://docs.lumis.sh/api/mcp",
-  `${cardPath} does not advertise the deployed Streamable HTTP endpoint`,
+  card.$schema === "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+  `${cardPath} has the wrong schema`,
 );
+assert(card.name === "sh.lumis/docs", `${cardPath} has the wrong server name`);
+assert(card.version === "1.0.0", `${cardPath} has the wrong server version`);
 assert(
-  card.capabilities?.tools?.listChanged === true,
-  `${cardPath} does not match the deployed tool capability`,
+  card.remotes?.some(
+    ({ type, url, supportedProtocolVersions }) =>
+      type === "streamable-http" &&
+      url === "https://docs.lumis.sh/api/mcp" &&
+      supportedProtocolVersions?.includes("2025-06-18"),
+  ),
+  `${cardPath} does not advertise the deployed Streamable HTTP endpoint and protocol`,
 );
+assert(!("capabilities" in card), `${cardPath} must leave capabilities to MCP negotiation`);
 
 assert(catalog.specVersion === "1.0", `${catalogPath} has the wrong specVersion`);
 assert(catalog.host?.displayName === "Lumis", `${catalogPath} has no Lumis host`);
