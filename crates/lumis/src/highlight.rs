@@ -115,9 +115,15 @@ pub struct HighlightOptions<'a, T = ()> {
     cancellation: Option<&'a AtomicUsize>,
 }
 
-impl<T> PartialEq for HighlightOptions<'_, T> {
+/// Written out rather than derived only because of the cancellation flag:
+/// `AtomicUsize` has no equality, and comparing what two flags hold would
+/// answer a different question than the one asked, because a flag's value is
+/// whatever the caller last stored and can change between the two loads. Two
+/// options carry the same cancellation when they point at the same flag.
+/// Everything else compares by value, annotations included.
+impl<T: PartialEq> PartialEq for HighlightOptions<'_, T> {
     fn eq(&self, other: &Self) -> bool {
-        std::ptr::eq(self.annotations, other.annotations)
+        self.annotations == other.annotations
             && self.rainbow_brackets == other.rainbow_brackets
             && self.match_limit == other.match_limit
             && match (self.cancellation, other.cancellation) {
@@ -128,7 +134,7 @@ impl<T> PartialEq for HighlightOptions<'_, T> {
     }
 }
 
-impl<T> Eq for HighlightOptions<'_, T> {}
+impl<T: Eq> Eq for HighlightOptions<'_, T> {}
 
 impl<T> Copy for HighlightOptions<'_, T> {}
 
@@ -1259,6 +1265,43 @@ mod tests {
 
         assert!(!first.is_empty(), "the first call produced no events");
         assert!(!second.is_empty(), "the second call produced no events");
+    }
+
+    #[test]
+    fn options_compare_annotations_by_value_and_cancellation_by_identity() {
+        use lumis_core::annotations::AnnotationRange;
+
+        let annotation = || [Annotation::new(AnnotationRange::Offset(0..1), ()).unwrap()];
+        // Separately allocated, equal contents: callers build these per render.
+        let left = annotation();
+        let right = annotation();
+        assert_eq!(
+            HighlightOptions::new().annotations(&left),
+            HighlightOptions::new().annotations(&right)
+        );
+
+        let other = [Annotation::new(AnnotationRange::Offset(0..2), ()).unwrap()];
+        assert_ne!(
+            HighlightOptions::new().annotations(&left),
+            HighlightOptions::new().annotations(&other)
+        );
+
+        // A flag is the caller's, and what it holds changes under them, so two
+        // options share one only by pointing at it.
+        let flag = AtomicUsize::new(0);
+        let same = AtomicUsize::new(0);
+        assert_eq!(
+            HighlightOptions::new().cancellation(&flag),
+            HighlightOptions::new().cancellation(&flag)
+        );
+        assert_ne!(
+            HighlightOptions::new().cancellation(&flag),
+            HighlightOptions::new().cancellation(&same)
+        );
+        assert_ne!(
+            HighlightOptions::new().cancellation(&flag),
+            HighlightOptions::new()
+        );
     }
 
     #[test]
