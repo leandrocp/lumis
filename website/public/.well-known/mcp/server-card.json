@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+  "name": "sh.lumis/docs",
+  "title": "Lumis Docs",
+  "description": "Search, list, and read the Lumis documentation.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.lumis.sh/",
+  "repository": {
+    "source": "github",
+    "url": "https://github.com/leandrocp/lumis",
+    "subfolder": "docs"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://docs.lumis.sh/api/mcp",
+      "supportedProtocolVersions": ["2025-06-18"]
+    }
+  ]
+}

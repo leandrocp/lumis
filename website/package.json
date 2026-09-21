@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-markdown-negotiation.mjs && vite build",
+    "build": "node scripts/check-agent-discovery.mjs && node scripts/check-markdown-negotiation.mjs && vite build",
+    "check:discovery": "node scripts/check-agent-discovery.mjs",
     "check:markdown": "node scripts/check-markdown-negotiation.mjs",
     "fmt": "oxfmt -c .oxfmtrc.jsonc .",
     "preview": "vite preview"
