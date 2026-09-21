@@ -271,12 +271,9 @@ globs = ["*.fs", "*.fsx", "*.fsi"]
 emacs = ["fsharp"]
 
 [parsers.gleam]
-git = "https://github.com/gleam-lang/tree-sitter-gleam.git"
-# Tag v1.1.0. Upstream still declares 1.0.0 in its Cargo.toml there, which is what
-# crates.io serves as tree-sitter-gleam 1.0.0, so `version` stays put: this only
-# moves the git pin up to the grammar the published crate was actually built from.
-rev = "dae1551a9911b24f41d876c23f2ab05ece0a9d4c"
-crate = "tree-sitter-gleam"
+# https://github.com/leandrocp/tree-sitter-gleam/tree/fix/error-recovery-sentinel
+git = "https://github.com/leandrocp/tree-sitter-gleam.git"
+rev = "b573f8dca6b7bd6584e7d2a1454f85f4df88c370"
 version = "1.0.0"
 globs = ["*.gleam"]
 emacs = ["gleam"]
