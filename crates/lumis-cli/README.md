@@ -18,13 +18,17 @@ The installed binary is `lumis`.
 ## Install
 
 ```sh
-npx @lumis-sh/cli --help
-npm install -g @lumis-sh/cli
+curl -LsSf https://lumis.sh/install.sh | sh
 ```
 
-From crates.io:
+Other installation methods, including PowerShell, Homebrew, `cargo-binstall`,
+npm, and Cargo, are listed in the [installation guide](https://docs.lumis.sh/cli/install).
+
+From npm or crates.io:
 
 ```sh
+npx @lumis-sh/cli --help
+npm install -g @lumis-sh/cli
 cargo install lumis-cli
 ```
 

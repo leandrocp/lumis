@@ -19,6 +19,14 @@ include = [
   "/LICENSE",
 ]
 
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/cargo-lumis-cli/v{ version }/lumis-{ target }{ archive-suffix }"
+bin-dir = "lumis{ binary-ext }"
+pkg-fmt = "tgz"
+
+[package.metadata.binstall.overrides.'cfg(windows)']
+pkg-fmt = "zip"
+
 [[bin]]
 name = "lumis"
 path = "src/main.rs"

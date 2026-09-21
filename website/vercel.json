@@ -75,6 +75,24 @@
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Cache-Control", "value": "public, max-age=3600" }
       ]
+    },
+    {
+      "source": "/install.sh",
+      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
+    },
+    {
+      "source": "/install.ps1",
+      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/:version/install.sh",
+      "destination": "/api/versioned-installer?format=sh&version=:version"
+    },
+    {
+      "source": "/:version/install.ps1",
+      "destination": "/api/versioned-installer?format=ps1&version=:version"
     }
   ],
   "routes": [
@@ -91,7 +109,7 @@
         "Content-Type": "text/markdown; charset=utf-8",
         "Link": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\"",
         "Vary": "Accept",
-        "x-markdown-tokens": "898"
+        "x-markdown-tokens": "904"
       },
       "dest": "/index.md"
     },

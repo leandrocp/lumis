@@ -1,0 +1,68 @@
+---
+title: Install the CLI
+description: Install the Lumis CLI without requiring Node.js or a Rust toolchain.
+keywords:
+  - install lumis
+  - lumis cli
+  - homebrew
+  - cargo binstall
+---
+
+## Shell installer
+
+On macOS and Linux:
+
+```sh
+curl -LsSf https://lumis.sh/install.sh | sh
+```
+
+On Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://lumis.sh/install.ps1 | iex"
+```
+
+The installers download the matching archive from GitHub Releases and verify its
+published SHA-256 checksum before unpacking it. The default install directory is
+`~/.local/bin`.
+
+Pin a CLI version by putting it in the URL:
+
+```sh
+curl -LsSf https://lumis.sh/0.5.1/install.sh | sh
+```
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://lumis.sh/0.5.1/install.ps1 | iex"
+```
+
+Set `LUMIS_INSTALL_DIR` to choose another directory. Set
+`LUMIS_NO_MODIFY_PATH=1` to install without changing `PATH`.
+
+## Package managers
+
+Homebrew:
+
+```sh
+brew install leandrocp/tap/lumis
+```
+
+Download a release binary through Cargo without compiling Lumis:
+
+```sh
+cargo binstall lumis-cli
+```
+
+Use the GitHub release through mise's GitHub backend. The options select only
+CLI releases and their platform archives from this multi-package repository:
+
+```sh
+mise use 'github:leandrocp/lumis[version_prefix=cargo-lumis-cli/v,matching_regex=^lumis-(aarch64|x86_64)-]@0.5'
+```
+
+Node.js and Cargo source installs remain available:
+
+```sh
+npm install -g @lumis-sh/cli
+cargo install lumis-cli
+```

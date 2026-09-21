@@ -38,9 +38,15 @@ jobs:
           - target: x86_64-apple-darwin
             os: macos-15-intel
           - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
+            os: ubuntu-24.04-arm
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-24.04-arm
+            musl: true
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            musl: true
           - target: aarch64-pc-windows-msvc
             os: windows-latest
           - target: x86_64-pc-windows-msvc
@@ -52,6 +58,7 @@ jobs:
           ref: ${{ inputs.tag || github.ref_name }}
 
       - uses: taiki-e/upload-rust-binary-action@f0d45ae91ee7b8ee928de7a9d04d893a08bcbec6 # v1
+        if: ${{ !matrix.musl }}
         id: upload
         with:
           bin: lumis
@@ -59,15 +66,58 @@ jobs:
           target: ${{ matrix.target }}
           archive: lumis-${{ matrix.target }}
           checksum: sha256
-          tar: all
-          zip: none
+          tar: unix
+          zip: windows
           locked: true
           ref: refs/tags/${{ inputs.tag || github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - name: Build CLI (musl)
+        if: matrix.musl
+        run: >-
+          docker run --rm --volume "$PWD:/lumis" --workdir /lumis
+          rust:1-alpine3.22
+          sh -c
+          'apk add --no-cache cmake make g++ musl-dev &&
+          cargo build --locked --release --target ${{ matrix.target }} -p lumis-cli'
+
+      - name: Package CLI (musl)
+        if: matrix.musl
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          archive="lumis-${TARGET}.tar.gz"
+          tar -C "target/${TARGET}/release" -czf "$archive" lumis
+          sha256sum "$archive" > "lumis-${TARGET}.sha256"
+
+      - name: Upload CLI (musl)
+        if: matrix.musl
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          files: |
+            lumis-${{ matrix.target }}.tar.gz
+            lumis-${{ matrix.target }}.sha256
+
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
+        if: ${{ !matrix.musl && runner.os != 'Windows' }}
         with:
           subject-path: |
             ${{ steps.upload.outputs.tar }}
             ${{ steps.upload.outputs.sha256 }}
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          subject-path: |
+            ${{ steps.upload.outputs.zip }}
+            ${{ steps.upload.outputs.sha256 }}
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
+        if: matrix.musl
+        with:
+          subject-path: |
+            lumis-${{ matrix.target }}.tar.gz
+            lumis-${{ matrix.target }}.sha256

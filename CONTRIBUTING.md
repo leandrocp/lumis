@@ -234,6 +234,9 @@ drift.
 | --- | --- | --- |
 | `LUMIS_DATA_DIR` | every runtime | Directory for parsers, themes, and compiled modules |
 | `LUMIS_CONFIG` | CLI | Config file path, same as `--config` |
+| `LUMIS_VERSION` | CLI installers | Release version to install; the version-pinned URL sets it |
+| `LUMIS_INSTALL_DIR` | CLI installers | Directory for the installed `lumis` binary |
+| `LUMIS_NO_MODIFY_PATH` | CLI installers | Set to `1` to leave the user's `PATH` unchanged |
 | `LUMIS_BUILD` | Elixir | Build the NIF from source instead of downloading a precompiled one |
 | `LUMIS_USE_LEGACY_ARTIFACTS` | Elixir | Select the legacy-CPU NIF variant |
 | `LUMIS_ARTIFACT_SOURCE` | Elixir | `github` or `cloudflare`; where to download the precompiled NIF from |
