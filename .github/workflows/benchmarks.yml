@@ -10,6 +10,24 @@ permissions:
 on:
   push:
     branches: [main]
+    paths:
+      - ".cargo/**"
+      - ".github/workflows/benchmarks.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "benchmarks/**"
+      - "crates/**"
+      - "fixtures/**"
+      - "highlights.toml"
+      - "languages.toml"
+      - "mise.toml"
+      - "packages/elixir/lumis/**"
+      - "packages/javascript/lumis/**"
+      - "packages/javascript/package.json"
+      - "packages/javascript/themes/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "queries/**"
 
 jobs:
   benchmark:
