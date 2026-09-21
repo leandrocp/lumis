@@ -1,0 +1,43 @@
+diff --git a/grammar.js b/grammar.js
+index ba7e740..c75165d 100644
+--- a/grammar.js
++++ b/grammar.js
+@@ -2,7 +2,7 @@ const NEWLINE = /\r?\n/;
+ 
+ module.exports = grammar({
+   name: "gleam",
+-  externals: ($) => [$.quoted_content, $.doc_comment_content],
++  externals: ($) => [$.quoted_content, $.doc_comment_content, $.error_sentinel],
+   extras: ($) => [
+     NEWLINE,
+     /\s/,
+diff --git a/src/scanner.c b/src/scanner.c
+index da291c1..0fb86ec 100644
+--- a/src/scanner.c
++++ b/src/scanner.c
+@@ -3,6 +3,7 @@
+ enum TokenType {
+   QUOTED_CONTENT,
+   DOC_COMMENT_CONTENT,
++  ERROR_SENTINEL,
+ };
+ 
+ void * tree_sitter_gleam_external_scanner_create() {return NULL;}
+@@ -11,6 +12,17 @@ unsigned tree_sitter_gleam_external_scanner_serialize(void * payload, char * buf
+ void tree_sitter_gleam_external_scanner_deserialize(void * payload, const char * buffer, unsigned length) {}
+ 
+ bool tree_sitter_gleam_external_scanner_scan(void * payload, TSLexer *lexer, const bool * valid_symbols) {
++  // Tree-sitter marks every external token valid while it recovers from an
++  // error, so without this both loops below run from wherever the parser gave
++  // up to the next delimiter, and to the end of the file when the rest of it
++  // holds none. Each call is then O(remaining file) and the calls are linear in
++  // file size, which is why a 12 MB Gleam file with one unterminated bracket
++  // takes hours. `error_sentinel` is never returned by this scanner, so it is
++  // valid only in that recovery state.
++  if (valid_symbols[ERROR_SENTINEL]) {
++    return false;
++  }
++
+   if (valid_symbols[QUOTED_CONTENT]) {
+     bool has_content = false;
+ 

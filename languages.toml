@@ -272,11 +272,14 @@ emacs = ["fsharp"]
 
 [parsers.gleam]
 git = "https://github.com/gleam-lang/tree-sitter-gleam.git"
-# Tag v1.1.0. Upstream still declares 1.0.0 in its Cargo.toml there, which is what
-# crates.io serves as tree-sitter-gleam 1.0.0, so `version` stays put: this only
-# moves the git pin up to the grammar the published crate was actually built from.
+# Tag v1.1.0. Vendored rather than taken from crates.io: the published
+# tree-sitter-gleam 1.0.0 is an older grammar than this revision, declaring one
+# external token where this one declares two, so the crate and the WASM artifact
+# built from this revision were different grammars. Vendoring also carries
+# `patch`, which the crate cannot.
 rev = "dae1551a9911b24f41d876c23f2ab05ece0a9d4c"
-crate = "tree-sitter-gleam"
+generate = true
+patch = "patches/tree-sitter-gleam-error-sentinel.patch"
 version = "1.0.0"
 globs = ["*.gleam"]
 emacs = ["gleam"]

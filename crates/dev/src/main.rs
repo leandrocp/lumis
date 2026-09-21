@@ -1044,6 +1044,12 @@ struct ParserInfo {
     location: Option<String>,
     query_name: Option<String>,
     generate: Option<bool>,
+    /// A change this repository carries on top of the pinned revision.
+    ///
+    /// Read from the repository root and applied to a fresh checkout before the
+    /// grammar is generated, so the vendored C sources and the WASM artifact
+    /// come from the same corrected grammar rather than only one of them.
+    patch: Option<String>,
     wasm_name: Option<String>,
     feature: Option<String>,
     #[allow(dead_code)]
@@ -1183,6 +1189,38 @@ fn run_cmd_ok(cmd: &str) -> Result<()> {
         bail!("command failed: {cmd}");
     }
     Ok(())
+}
+
+/// Apply the parser's `patch`, if it declares one, to a fresh checkout.
+///
+/// A parser is pinned to an upstream revision, so a fix Lumis needs before
+/// upstream releases it has to be reapplied every time that revision is
+/// checked out. Keeping it as a patch rather than as edits to the vendored
+/// output means the next revision bump conflicts loudly instead of silently
+/// dropping the fix.
+fn apply_parser_patch(clone_dir: &str, parser_name: &str, info: &ParserInfo) -> Result<()> {
+    let Some(ref patch) = info.patch else {
+        return Ok(());
+    };
+
+    let path = fs::canonicalize(patch)
+        .with_context(|| format!("patch for {parser_name} is missing at {patch}"))?;
+    println!("* applying {patch}");
+    run_cmd_ok(&format!(
+        "cd {clone_dir} && git apply --whitespace=nowarn {}",
+        path.display()
+    ))
+    .with_context(|| format!("{patch} does not apply to {parser_name} at its pinned revision"))
+}
+
+/// What a parser's patch contributes to a WASM build id.
+///
+/// Editing the patch has to rebuild the artifact, and the revision alone
+/// cannot say that it changed.
+fn parser_patch_id(info: &ParserInfo) -> String {
+    info.patch.as_ref().map_or_else(String::new, |patch| {
+        fs::read(patch).map_or_else(|_| patch.clone(), |bytes| sha256_hex(&bytes))
+    })
 }
 
 fn git_ls_remote(url: &str) -> Result<String> {
@@ -1519,6 +1557,7 @@ fn fetch_parser(tmp: &str, parser_name: &str, info: &ParserInfo, git: &str) -> R
     println!("Fetching {parser_name} from {git} at {rev}");
     run_cmd_ok(&format!("git clone {git} {clone_dir} 2>/dev/null"))?;
     run_cmd_ok(&format!("cd {clone_dir} && git checkout {rev} 2>/dev/null"))?;
+    apply_parser_patch(&clone_dir, parser_name, info)?;
 
     let dest = format!("crates/lumis/vendored_parsers/{parser_dir}");
     if info.generate.unwrap_or(false) {
@@ -2774,6 +2813,7 @@ fn build_parser_wasm(
         info.location.as_deref(),
         info.generate.unwrap_or(false),
         context.toolchain,
+        &parser_patch_id(info),
     );
 
     if !context.rebuild && cached_parser_is_current(&wasm_file, &build_id_file, &build_id) {
@@ -2797,6 +2837,7 @@ fn build_parser_wasm(
     let _ = run_cmd_ok(&format!(
         "cd {clone_dir} && git fetch --depth 1 origin {rev} && git checkout {rev}"
     ));
+    apply_parser_patch(&clone_dir, parser_name, info)?;
 
     let repo_dir = if let Some(ref location) = info.location {
         format!("{clone_dir}/{location}")
@@ -2920,9 +2961,10 @@ fn wasm_build_id(
     location: Option<&str>,
     generate: bool,
     toolchain: &str,
+    patch: &str,
 ) -> String {
     format!(
-        "{git}\n{rev}\n{}\n{generate}\n{toolchain}\n",
+        "{git}\n{rev}\n{}\n{generate}\n{toolchain}\n{patch}\n",
         location.unwrap_or("")
     )
 }
@@ -4154,28 +4196,32 @@ mod tests {
 
     #[test]
     fn every_build_input_changes_the_build_id() {
-        let baseline = wasm_build_id("git://g", "rev1", Some("sub"), false, "ts\nem");
+        let baseline = wasm_build_id("git://g", "rev1", Some("sub"), false, "ts\nem", "p1");
 
         for (label, other) in [
             (
                 "git",
-                wasm_build_id("git://other", "rev1", Some("sub"), false, "ts\nem"),
+                wasm_build_id("git://other", "rev1", Some("sub"), false, "ts\nem", "p1"),
             ),
             (
                 "rev",
-                wasm_build_id("git://g", "rev2", Some("sub"), false, "ts\nem"),
+                wasm_build_id("git://g", "rev2", Some("sub"), false, "ts\nem", "p1"),
             ),
             (
                 "location",
-                wasm_build_id("git://g", "rev1", None, false, "ts\nem"),
+                wasm_build_id("git://g", "rev1", None, false, "ts\nem", "p1"),
             ),
             (
                 "generate",
-                wasm_build_id("git://g", "rev1", Some("sub"), true, "ts\nem"),
+                wasm_build_id("git://g", "rev1", Some("sub"), true, "ts\nem", "p1"),
             ),
             (
                 "toolchain",
-                wasm_build_id("git://g", "rev1", Some("sub"), false, "ts\nem2"),
+                wasm_build_id("git://g", "rev1", Some("sub"), false, "ts\nem2", "p1"),
+            ),
+            (
+                "patch",
+                wasm_build_id("git://g", "rev1", Some("sub"), false, "ts\nem", "p2"),
             ),
         ] {
             assert_ne!(baseline, other, "{label} must invalidate a cached parser");
@@ -4183,7 +4229,7 @@ mod tests {
 
         assert_eq!(
             baseline,
-            wasm_build_id("git://g", "rev1", Some("sub"), false, "ts\nem"),
+            wasm_build_id("git://g", "rev1", Some("sub"), false, "ts\nem", "p1"),
             "the same inputs must reuse a cached parser"
         );
     }
