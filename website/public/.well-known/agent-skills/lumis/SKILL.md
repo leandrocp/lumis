@@ -1,10 +1,7 @@
 ---
 name: lumis
 description: Add Lumis syntax highlighting to Rust, Elixir, JavaScript, TypeScript, browser, Java, or CLI projects. Use when choosing a Lumis runtime, formatter, theme, language-loading strategy, or integration.
-license: MIT OR Apache-2.0
-metadata:
-  author: leandrocp
-  version: "1.0"
+license: MIT
 ---
 
 # Use Lumis
