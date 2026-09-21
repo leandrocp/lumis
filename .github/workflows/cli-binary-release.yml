@@ -78,11 +78,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      # The image is pinned to the multi-platform manifest digest, the same way
+      # every action here is pinned to a commit: the tag is mutable, and this
+      # container compiles the binaries the next step publishes. Dependabot does
+      # not track `docker run` references, so bump the digest by hand.
       - name: Build CLI (musl)
         if: matrix.musl
         run: >-
           docker run --rm --volume "$PWD:/lumis" --workdir /lumis
-          rust:1-alpine3.22
+          rust:1-alpine3.22@sha256:a1796ca6fa216d6727b5f61c69e4c665b120b1a4dcb969639e2f25f1ed309456
           sh -c
           'apk add --no-cache cmake make g++ musl-dev &&
           cargo build --locked --release --target ${{ matrix.target }} -p lumis-cli'
