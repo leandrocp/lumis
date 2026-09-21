@@ -117,14 +117,19 @@ for (const entry of catalog.entries) {
 }
 
 assert(
-  homepage.includes('<link rel="ai-catalog" href="/.well-known/ai-catalog.json"'),
+  homepage.includes('rel="ai-catalog"') &&
+    homepage.includes('href="/.well-known/ai-catalog.json"') &&
+    homepage.includes('type="application/ai-catalog+json"'),
   "index.html does not advertise the AI Catalog",
 );
 
 const expectedHeaders = new Map([
   [
     "/.well-known/ai-catalog.json",
-    { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*" },
+    {
+      "content-type": "application/ai-catalog+json; charset=utf-8",
+      "access-control-allow-origin": "*",
+    },
   ],
   [
     "/.well-known/mcp/server-card.json",
