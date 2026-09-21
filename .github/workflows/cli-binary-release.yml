@@ -37,10 +37,21 @@ jobs:
             os: macos-latest
           - target: x86_64-apple-darwin
             os: macos-15-intel
+          # Built on an x86_64 runner on purpose: the host and the target
+          # differ, so the action reaches for `cross`, whose container links
+          # against glibc 2.18. A native arm64 runner would link against the
+          # runner image's glibc instead and drop every aarch64 distro older
+          # than Ubuntu 24.04, with no musl fallback for them to land on.
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-24.04-arm
+            musl: true
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            musl: true
           - target: aarch64-pc-windows-msvc
             os: windows-latest
           - target: x86_64-pc-windows-msvc
@@ -52,6 +63,7 @@ jobs:
           ref: ${{ inputs.tag || github.ref_name }}
 
       - uses: taiki-e/upload-rust-binary-action@f0d45ae91ee7b8ee928de7a9d04d893a08bcbec6 # v1
+        if: ${{ !matrix.musl }}
         id: upload
         with:
           bin: lumis
@@ -59,15 +71,62 @@ jobs:
           target: ${{ matrix.target }}
           archive: lumis-${{ matrix.target }}
           checksum: sha256
-          tar: all
-          zip: none
+          tar: unix
+          zip: windows
           locked: true
           ref: refs/tags/${{ inputs.tag || github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      # The image is pinned to the multi-platform manifest digest, the same way
+      # every action here is pinned to a commit: the tag is mutable, and this
+      # container compiles the binaries the next step publishes. Dependabot does
+      # not track `docker run` references, so bump the digest by hand.
+      - name: Build CLI (musl)
+        if: matrix.musl
+        run: >-
+          docker run --rm --volume "$PWD:/lumis" --workdir /lumis
+          rust:1-alpine3.22@sha256:a1796ca6fa216d6727b5f61c69e4c665b120b1a4dcb969639e2f25f1ed309456
+          sh -c
+          'apk add --no-cache cmake make g++ musl-dev &&
+          cargo build --locked --release --target ${{ matrix.target }} -p lumis-cli'
+
+      - name: Package CLI (musl)
+        if: matrix.musl
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          archive="lumis-${TARGET}.tar.gz"
+          tar -C "target/${TARGET}/release" -czf "$archive" lumis
+          sha256sum "$archive" > "lumis-${TARGET}.sha256"
+
+      - name: Upload CLI (musl)
+        if: matrix.musl
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          files: |
+            lumis-${{ matrix.target }}.tar.gz
+            lumis-${{ matrix.target }}.sha256
+
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
+        if: ${{ !matrix.musl && runner.os != 'Windows' }}
         with:
           subject-path: |
             ${{ steps.upload.outputs.tar }}
             ${{ steps.upload.outputs.sha256 }}
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          subject-path: |
+            ${{ steps.upload.outputs.zip }}
+            ${{ steps.upload.outputs.sha256 }}
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
+        if: matrix.musl
+        with:
+          subject-path: |
+            lumis-${{ matrix.target }}.tar.gz
+            lumis-${{ matrix.target }}.sha256

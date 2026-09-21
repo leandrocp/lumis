@@ -18,6 +18,15 @@ The installed binary is `lumis`.
 ## Install
 
 ```sh
+curl -LsSf https://lumis.sh/install.sh | sh
+```
+
+Other installation methods, including PowerShell, Homebrew, `cargo-binstall`,
+npm, and Cargo, are listed in the [installation guide](https://docs.lumis.sh/cli/install).
+
+From npm:
+
+```sh
 npx @lumis-sh/cli --help
 npm install -g @lumis-sh/cli
 ```

@@ -111,6 +111,16 @@ Nothing built here resolves these requirements except `crates/autumnus`, so
 then `release-prepare.yml` opens the normal `npm-cli` release pull request. npm-only
 changes continue through the normal flow without a Cargo release.
 
+## CLI binaries
+
+`cli-binary-release.yml` publishes macOS, glibc Linux, musl Linux, and Windows
+archives to the `cargo-lumis-cli/v*` GitHub Release. Unix archives use `.tar.gz`;
+Windows uses `.zip`. Every archive has a matching SHA-256 file and build
+provenance attestation. The shell and PowerShell installers, Homebrew,
+`cargo-binstall`, and mise's GitHub backend all consume those GitHub Release
+assets. GitHub is the canonical binary host; the CLI artifacts are not mirrored
+to R2.
+
 ## Elixir package
 
 `packages/elixir/lumis/native/lumis_nif/Cargo.lock` resolves `lumis-core` and

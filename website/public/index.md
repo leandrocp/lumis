@@ -21,7 +21,7 @@ Lumis is a syntax highlighter powered by Tree-sitter. It provides one model for 
 
 | Runtime | Command or dependency |
 | --- | --- |
-| CLI | `cargo install lumis-cli` |
+| CLI | `curl -LsSf https://lumis.sh/install.sh \| sh` |
 | Rust | `cargo add lumis` |
 | JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes` |
 | Browsers / CDN | `https://esm.sh/@lumis-sh/lumis` |

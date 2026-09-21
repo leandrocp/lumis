@@ -42,10 +42,11 @@
 
 ## Quick Start
 
-### [CLI](https://www.npmjs.com/package/@lumis-sh/cli)
+### [CLI](https://docs.lumis.sh/cli/install)
 
 ```bash
-npx @lumis-sh/cli highlight app.js
+curl -LsSf https://lumis.sh/install.sh | sh
+lumis highlight app.js
 ```
 
 For a global install:
@@ -137,7 +138,7 @@ System.out.println(result.string());
 
 | Runtime | Install | Package | Docs |
 |----------|---------| ------- | -----|
-| **CLI** | `npx @lumis-sh/cli` | [npmjs.com/@lumis-sh/cli](https://www.npmjs.com/package/@lumis-sh/cli) | [README.md](packages/javascript/cli/README.md) |
+| **CLI** | `curl -LsSf https://lumis.sh/install.sh \| sh` | [GitHub Releases](https://github.com/leandrocp/lumis/releases) | [Install](https://docs.lumis.sh/cli/install) |
 | **Rust** | `cargo add lumis` | [crates.io/lumis](https://crates.io/crates/lumis) | [README.md](crates/lumis/README.md) &bull; [docs.rs](https://docs.rs/lumis) |
 | **Elixir** | `{:lumis, "~> 0.7"}` | [hex.pm/lumis](https://hex.pm/packages/lumis) | [README.md](packages/elixir/lumis/README.md) &bull; [hexdocs](https://hexdocs.pm/lumis) |
 | **JavaScript / TypeScript** | `npm install @lumis-sh/lumis` | [npmjs.com/@lumis-sh/lumis](https://www.npmjs.com/package/@lumis-sh/lumis) | [README.md](packages/javascript/lumis/README.md) |

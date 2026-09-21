@@ -34,8 +34,8 @@ export function renderHero() {
           </div>
           <div class="border-x border-b border-zinc-200 dark:border-zinc-800">
             <div data-install-panel="cli" id="install-panel-cli" role="tabpanel" class="flex items-center justify-between gap-2 px-4 py-3">
-              <code class="min-w-0 truncate font-mono text-sm text-zinc-700 dark:text-zinc-300"><span class="mr-2 text-zinc-400 select-none">&gt;</span>npm install -g @lumis-sh/cli</code>
-              <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="npm install -g @lumis-sh/cli">${COPY_SVG}</button>
+              <code class="min-w-0 truncate font-mono text-sm text-zinc-700 dark:text-zinc-300"><span class="mr-2 text-zinc-400 select-none">&gt;</span>curl -LsSf https://lumis.sh/install.sh | sh</code>
+              <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="curl -LsSf https://lumis.sh/install.sh | sh">${COPY_SVG}</button>
             </div>
             <div data-install-panel="rust" id="install-panel-rust" role="tabpanel" class="hidden">
               <div class="flex items-center justify-between gap-2 px-4 py-3">
