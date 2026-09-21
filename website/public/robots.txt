@@ -27,3 +27,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://lumis.sh/sitemap.xml
