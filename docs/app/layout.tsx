@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
 import { source } from "@/lib/source";
 import { baseOptions } from "@/lib/layout.shared";
+import { WebMcp } from "@/components/webmcp";
 import type { Metadata } from "next";
 import "./global.css";
 
@@ -19,6 +20,10 @@ export const metadata: Metadata = {
 export default function Layout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="api-catalog" href="/.well-known/api-catalog" />
+        <link rel="ai-catalog" href="/.well-known/ai-catalog.json" />
+      </head>
       <body className="flex flex-col min-h-screen">
         <Script id="migrate-runtime-tab" strategy="beforeInteractive">
           {`try {
@@ -31,6 +36,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
             }
           } catch {}`}
         </Script>
+        <WebMcp />
         <RootProvider>
           <DocsLayout tree={source.getPageTree()} {...baseOptions()}>
             {children}
