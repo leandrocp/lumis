@@ -17,7 +17,6 @@ on:
       - "Cargo.toml"
       - "benchmarks/**"
       - "crates/**"
-      - "css/**"
       - "fixtures/**"
       - "highlights.toml"
       - "languages.toml"
@@ -29,8 +28,6 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "queries/**"
-      - "themes/**"
-      - "website/public/comparison-data/**"
 
 jobs:
   benchmark:
