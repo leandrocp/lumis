@@ -1,6 +1,6 @@
 ---
-title: Languages
-description: Supported Lumis languages, parser sources, query sources, and WASM package mappings.
+title: Language catalog
+description: Every language Lumis supports, with its parser source, query source, and WASM package.
 keywords:
   - lumis languages
   - tree-sitter parsers
@@ -8,6 +8,9 @@ keywords:
 ---
 
 
+
+Every name in this table is a name you can highlight with, or hand to a preload
+call — see [Languages](/languages) for when to do which.
 
 Source: [`LANGUAGES.md`](https://github.com/leandrocp/lumis/blob/main/LANGUAGES.md).
 

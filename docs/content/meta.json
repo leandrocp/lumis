@@ -3,8 +3,8 @@
   "pages": [
     "index",
     "installation",
+    "languages",
     "architecture",
-    "operations",
     "usage",
     "formatters",
     "themes",
