@@ -493,12 +493,17 @@ pub fn write_highlight_with_options<T, F>(
 where
     F: Formatter<T>,
 {
+    let syntax_options = HighlightOptions::new()
+        .rainbow_brackets(options.rainbow_brackets_enabled())
+        .match_limit(options.match_limit_value());
+    let syntax_options = match options.cancellation_flag() {
+        Some(flag) => syntax_options.cancellation(flag),
+        None => syntax_options,
+    };
     let syntax_events = crate::highlight::highlight_events_with_options(
         source,
         formatter.language(),
-        HighlightOptions::new()
-            .rainbow_brackets(options.rainbow_brackets_enabled())
-            .match_limit(options.match_limit_value()),
+        syntax_options,
     )
     .map_err(io::Error::other)?;
     let events = compose_annotations(source, &syntax_events, options.annotation_items())
@@ -576,7 +581,7 @@ end
 "#;
 
         let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #ca9ee7;">defmodule</span> <span style="color: #e5c891;">Foo</span> <span style="color: #ca9ee7;">do</span>
-</div><div class="l-line" data-line="2">  <span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">@</span><span style="color: #949cbc;">moduledoc</span> <span style="color: #949cbc;">&quot;&quot;&quot;</span></span></span>
+</div><div class="l-line" data-line="2">  <span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">@moduledoc</span> <span style="color: #949cbc;">&quot;&quot;&quot;</span></span></span>
 </div><div class="l-line" data-line="3"><span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">  Test Module</span></span></span>
 </div><div class="l-line" data-line="4"><span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">  &quot;&quot;&quot;</span></span></span>
 </div><div class="l-line" data-line="5">
@@ -651,7 +656,7 @@ end
 "#;
 
         let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-keyword-function">defmodule</span> <span class="l-module">Foo</span> <span class="l-keyword">do</span>
-</div><div class="l-line" data-line="2">  <span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">@</span><span class="l-comment">moduledoc</span> <span class="l-comment">&quot;&quot;&quot;</span></span></span>
+</div><div class="l-line" data-line="2">  <span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">@moduledoc</span> <span class="l-comment">&quot;&quot;&quot;</span></span></span>
 </div><div class="l-line" data-line="3"><span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">  Test Module</span></span></span>
 </div><div class="l-line" data-line="4"><span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">  &quot;&quot;&quot;</span></span></span>
 </div><div class="l-line" data-line="5">
@@ -759,7 +764,7 @@ end
 
         let ansi = highlight(code, formatter);
 
-        assert!(ansi.contains("[38;2;241;250;140mHello from Ruby!"));
+        assert!(ansi.contains("[38;2;241;250;140m'Hello from Ruby!'"));
     }
 
     #[test]

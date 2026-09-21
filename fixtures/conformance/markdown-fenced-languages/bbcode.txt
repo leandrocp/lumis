@@ -8,7 +8,7 @@ Inline [markup-raw-markdown_inline]`code`[/markup-raw-markdown_inline] and [mark
 [markup-raw-block-markdown][punctuation-special-markdown][/punctuation-special-markdown]```[/markup-raw-block-markdown]
 [/markup-raw-block-markdown]
 [markup-raw-block-markdown][markup-raw-block-markdown]```[/markup-raw-block-markdown][label-markdown][label-markdown]json[/label-markdown][/label-markdown]
-[punctuation-bracket-json][punctuation-special-markdown][/punctuation-special-markdown]{[/punctuation-bracket-json][property-json]"rows"[/property-json][punctuation-delimiter-json]:[/punctuation-delimiter-json] [punctuation-bracket-json]&#91;[/punctuation-bracket-json][punctuation-bracket-json]{[/punctuation-bracket-json][property-json]"n"[/property-json][punctuation-delimiter-json]:[/punctuation-delimiter-json] [number-json]1[/number-json][punctuation-bracket-json]}[/punctuation-bracket-json][punctuation-bracket-json]&#93;[/punctuation-bracket-json][punctuation-bracket-json]}[/punctuation-bracket-json]
+[punctuation-bracket-json][punctuation-special-markdown][/punctuation-special-markdown]{[/punctuation-bracket-json][property-json]"rows"[/property-json][punctuation-delimiter-json]:[/punctuation-delimiter-json] [punctuation-bracket-json]&#91;{[/punctuation-bracket-json][property-json]"n"[/property-json][punctuation-delimiter-json]:[/punctuation-delimiter-json] [number-json]1[/number-json][punctuation-bracket-json]}&#93;}[/punctuation-bracket-json]
 [markup-raw-block-markdown][punctuation-special-markdown][/punctuation-special-markdown]```[/markup-raw-block-markdown]
 [/markup-raw-block-markdown]
 [markup-raw-block-markdown][markup-raw-block-markdown]```[/markup-raw-block-markdown][label-markdown][label-markdown]css[/label-markdown][/label-markdown]

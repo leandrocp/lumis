@@ -99,19 +99,6 @@
     {
       "type": "source",
       "start": 13,
-      "end": 14
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.special",
-      "language": "javascript"
-    },
-    {
-      "type": "source",
-      "start": 14,
       "end": 16
     },
     {

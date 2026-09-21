@@ -330,20 +330,18 @@ impl<T> Formatter<T> for HtmlMultiThemes {
         events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
-        let mut buffer = Vec::new();
-
         if let Some(ref header) = self.header {
-            write!(buffer, "{}", header.open_tag)?;
+            write!(output, "{}", header.open_tag)?;
         }
 
-        self.open_pre_tag(&mut buffer)?;
-        crate::formatter::html::write_code_tag(&mut buffer, self.language, &self.code_attrs)?;
+        self.open_pre_tag(output)?;
+        crate::formatter::html::write_code_tag(output, self.language, &self.code_attrs)?;
 
         let (class_suffix, style) = self.get_line_attrs(true);
         let line_number_attrs = self.line_numbers.then(|| self.line_number_attrs(false));
         let highlighted_line_number_attrs = self.line_numbers.then(|| self.line_number_attrs(true));
         crate::formatter::html::write_html_lines(
-            &mut buffer,
+            output,
             source,
             events,
             &crate::formatter::html::HtmlLines {
@@ -358,13 +356,12 @@ impl<T> Formatter<T> for HtmlMultiThemes {
             &|scope_index, language| self.span_attrs_from_index(scope_index, language),
         )?;
 
-        crate::formatter::html::closing_tags(&mut buffer)?;
+        crate::formatter::html::closing_tags(output)?;
 
         if let Some(ref header) = self.header {
-            write!(buffer, "{}", header.close_tag)?;
+            write!(output, "{}", header.close_tag)?;
         }
 
-        output.write_all(&buffer)?;
         Ok(())
     }
 }

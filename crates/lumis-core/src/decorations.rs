@@ -376,6 +376,22 @@ pub(crate) fn compose_line_decorations<'a, T>(
     // One decoration pair per line, plus a close and reopen of every layer that
     // crosses one. The syntax events themselves pass through.
     let mut output = Vec::with_capacity(events.len() + 2);
+    compose_line_decorations_into(source, events, selection, &mut |event| output.push(event));
+    output
+}
+
+/// [`compose_line_decorations`] without the vector.
+///
+/// The composed stream is the same size as the input, so a formatter that
+/// materializes it holds the whole document's events twice. Handing each event
+/// to `emit` as it is composed is what lets one be written and dropped.
+pub(crate) fn compose_line_decorations_into<'a, T>(
+    source: &str,
+    events: &[HighlightEvent<'a, T>],
+    selection: &LineSelection,
+    emit: &mut dyn FnMut(HighlightEvent<'a, T>),
+) {
+    let output = &mut Emit(emit);
     let mut layers: Vec<OpenLayer<'a, T>> = Vec::new();
     let mut cursor = selection.cursor();
     let mut line = 1usize;
@@ -415,7 +431,7 @@ pub(crate) fn compose_line_decorations<'a, T>(
             }
             HighlightEvent::Source { start, end } => {
                 split_source(
-                    &mut output,
+                    output,
                     source,
                     *start,
                     *end,
@@ -443,10 +459,17 @@ pub(crate) fn compose_line_decorations<'a, T>(
 
     // An unbalanced input stream would otherwise leave a scope open past the
     // last line, which no formatter can close.
-    close_layers(&mut output, &layers);
+    close_layers(output, &layers);
     output.push(HighlightEvent::DecorationEnd);
+}
 
-    output
+/// A sink the composer pushes to, so one walk serves both entry points.
+struct Emit<'e, 'a, T>(&'e mut dyn FnMut(HighlightEvent<'a, T>));
+
+impl<'a, T> Emit<'_, 'a, T> {
+    fn push(&mut self, event: HighlightEvent<'a, T>) {
+        (self.0)(event);
+    }
 }
 
 fn line_start<'a, T>(line: usize, cursor: &mut LineCursor<'_>) -> HighlightEvent<'a, T> {
@@ -458,13 +481,13 @@ fn line_start<'a, T>(line: usize, cursor: &mut LineCursor<'_>) -> HighlightEvent
     }
 }
 
-fn close_layers<'a, T>(output: &mut Vec<HighlightEvent<'a, T>>, layers: &[OpenLayer<'a, T>]) {
+fn close_layers<'a, T>(output: &mut Emit<'_, 'a, T>, layers: &[OpenLayer<'a, T>]) {
     for layer in layers.iter().rev() {
         output.push(layer.close_event());
     }
 }
 
-fn reopen_layers<'a, T>(output: &mut Vec<HighlightEvent<'a, T>>, layers: &[OpenLayer<'a, T>]) {
+fn reopen_layers<'a, T>(output: &mut Emit<'_, 'a, T>, layers: &[OpenLayer<'a, T>]) {
     for layer in layers {
         output.push(layer.open_event());
     }
@@ -475,7 +498,7 @@ fn reopen_layers<'a, T>(output: &mut Vec<HighlightEvent<'a, T>>, layers: &[OpenL
 /// The newline stays inside the line it ends, so concatenating the `Source`
 /// events of the composed stream still reproduces the source exactly.
 fn split_source<'a, T>(
-    output: &mut Vec<HighlightEvent<'a, T>>,
+    output: &mut Emit<'_, 'a, T>,
     source: &str,
     start: usize,
     end: usize,

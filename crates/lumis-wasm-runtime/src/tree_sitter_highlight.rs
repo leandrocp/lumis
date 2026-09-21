@@ -29,6 +29,11 @@
 //   matches in general. Eager collection removes upstream's `_QueryCaptures` transmute of the
 //   streaming cursor in both cases.
 // - `Highlighter` carries a query match limit, settable per highlighter
+// - The cancellation flag reaches the query cursor, not just the parser and the event loop.
+//   A layer collects every capture before it can yield one event, so upstream's
+//   per-event check is unreachable until that finishes, and a caller that timed out
+//   still waits for it. That is nearly the whole render on a document where query work
+//   dominates: 100,000 unclosed `[` spend 8.2s of 8.2s inside `next_capture`.
 // - `@injection.filename` resolves an injected language from a path, as Neovim's
 //   `LanguageTree:_get_injection` does through `vim.filetype.match`. It sits beside the
 //   `injection.language` capture it is an alternative to, and is the only reason this file
@@ -59,8 +64,8 @@ use std::{
 use streaming_iterator::StreamingIterator;
 use thiserror::Error;
 use tree_sitter::{
-    Language, Node, ParseOptions, Parser, Point, Query, QueryCapture, QueryCursor, QueryError,
-    QueryPredicateArg, Range, Tree,
+    Language, Node, ParseOptions, Parser, Point, Query, QueryCapture, QueryCursor,
+    QueryCursorOptions, QueryError, QueryPredicateArg, Range, Tree,
 };
 
 const CANCELLATION_CHECK_INTERVAL: usize = 100;
@@ -651,6 +656,39 @@ struct CaptureStream<'a> {
 /// A match whose capture list nothing reads.
 const NO_LIST: u32 = u32::MAX;
 
+/// Whether the caller has abandoned this highlight.
+fn is_cancelled(cancellation_flag: Option<&AtomicUsize>) -> bool {
+    cancellation_flag.is_some_and(|flag| flag.load(Ordering::Relaxed) != 0)
+}
+
+/// `Err(Cancelled)` once the caller has abandoned this highlight.
+fn cancelled(cancellation_flag: Option<&AtomicUsize>) -> Result<(), Error> {
+    if is_cancelled(cancellation_flag) {
+        return Err(Error::Cancelled);
+    }
+    Ok(())
+}
+
+/// Stop a query cursor when the caller has abandoned the highlight.
+///
+/// A layer collects every capture before it can produce one event, and the
+/// event loop is the only place the cancellation flag was read, so a caller
+/// that gave up waited for the whole query. That is nearly the whole render on
+/// a document whose query work dominates it. The cursor reports its abort by
+/// ending the stream, so what it collected is discarded by the check that
+/// follows the walk rather than returned as a short document.
+fn progress(
+    cancellation_flag: Option<&AtomicUsize>,
+) -> impl FnMut(&tree_sitter::QueryCursorState) -> ops::ControlFlow<()> + '_ {
+    move |_| {
+        if is_cancelled(cancellation_flag) {
+            ops::ControlFlow::Break(())
+        } else {
+            ops::ControlFlow::Continue(())
+        }
+    }
+}
+
 impl<'a> CaptureStream<'a> {
     fn collect(
         cursor: &mut QueryCursor,
@@ -660,7 +698,8 @@ impl<'a> CaptureStream<'a> {
         replay_from_matches: bool,
         highlights_pattern_index: usize,
         covered_bytes: usize,
-    ) -> Self {
+        cancellation_flag: Option<&AtomicUsize>,
+    ) -> Result<Self, Error> {
         if !replay_from_matches {
             return Self::collect_captures(
                 cursor,
@@ -669,10 +708,11 @@ impl<'a> CaptureStream<'a> {
                 source,
                 highlights_pattern_index,
                 covered_bytes,
+                cancellation_flag,
             );
         }
 
-        Self::collect_matches(cursor, query, root, source)
+        Self::collect_matches(cursor, query, root, source, cancellation_flag)
     }
 
     fn collect_matches(
@@ -680,12 +720,19 @@ impl<'a> CaptureStream<'a> {
         query: &'a Query,
         root: Node<'a>,
         source: &'a [u8],
-    ) -> Self {
+        cancellation_flag: Option<&AtomicUsize>,
+    ) -> Result<Self, Error> {
         let mut patterns = Vec::new();
         let mut list_starts = Vec::new();
         let mut list_ends = Vec::new();
         let mut entries: Vec<QueryCapture<'a>> = Vec::new();
-        let mut matches = cursor.matches(query, root, source);
+        let mut abandoned = progress(cancellation_flag);
+        let mut matches = cursor.matches_with_options(
+            query,
+            root,
+            source,
+            QueryCursorOptions::new().progress_callback(&mut abandoned),
+        );
         while let Some(m) = matches.next() {
             let start = entries.len() as u32;
             entries.extend_from_slice(m.captures);
@@ -728,7 +775,8 @@ impl<'a> CaptureStream<'a> {
         }
 
         let removed = vec![false; patterns.len()];
-        Self {
+        cancelled(cancellation_flag)?;
+        Ok(Self {
             patterns,
             list_starts,
             list_ends,
@@ -736,7 +784,7 @@ impl<'a> CaptureStream<'a> {
             removed,
             order,
             position: 0,
-        }
+        })
     }
 
     fn collect_captures(
@@ -746,7 +794,8 @@ impl<'a> CaptureStream<'a> {
         source: &'a [u8],
         highlights_pattern_index: usize,
         covered_bytes: usize,
-    ) -> Self {
+        cancellation_flag: Option<&AtomicUsize>,
+    ) -> Result<Self, Error> {
         let mut patterns: Vec<u32> = Vec::new();
         let mut list_starts: Vec<u32> = Vec::new();
         let mut list_ends: Vec<u32> = Vec::new();
@@ -762,7 +811,13 @@ impl<'a> CaptureStream<'a> {
         // The cursor numbers its matches from zero and upwards, so the slot each id
         // maps to is a lookup rather than a hash of one entry per match.
         let mut slot_of_id: Vec<u32> = Vec::new();
-        let mut query_captures = cursor.captures(query, root, source);
+        let mut abandoned = progress(cancellation_flag);
+        let mut query_captures = cursor.captures_with_options(
+            query,
+            root,
+            source,
+            QueryCursorOptions::new().progress_callback(&mut abandoned),
+        );
 
         while let Some((query_match, capture_index)) = query_captures.next() {
             let pattern = query_match.pattern_index as u32;
@@ -810,7 +865,8 @@ impl<'a> CaptureStream<'a> {
         }
 
         let removed = vec![false; patterns.len()];
-        Self {
+        cancelled(cancellation_flag)?;
+        Ok(Self {
             patterns,
             list_starts,
             list_ends,
@@ -818,7 +874,7 @@ impl<'a> CaptureStream<'a> {
             removed,
             order,
             position: 0,
-        }
+        })
     }
 
     /// The next capture and the slot of its match, skipping removed matches.
@@ -1284,8 +1340,10 @@ impl<'a> HighlightIterLayer<'a> {
                             end.saturating_sub(range.start_byte.min(end))
                         })
                         .sum(),
+                    cancellation_flag,
                 );
                 highlighter.cursors.push(cursor);
+                let captures = captures?;
 
                 if highlighter.record_parsed_layers {
                     highlighter.parsed_layers.push(ParsedLayer {

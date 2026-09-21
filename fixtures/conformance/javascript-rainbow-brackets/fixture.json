@@ -128,14 +128,6 @@
       "type": "decorationEnd"
     },
     {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "javascript"
-    },
-    {
       "type": "decorationStart",
       "decoration": {
         "type": "rainbowBracket",
@@ -326,14 +318,6 @@
       "type": "decorationEnd"
     },
     {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "javascript"
-    },
-    {
       "type": "decorationStart",
       "decoration": {
         "type": "rainbowBracket",
@@ -347,14 +331,6 @@
     },
     {
       "type": "decorationEnd"
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "javascript"
     },
     {
       "type": "decorationStart",

@@ -446,19 +446,6 @@
     {
       "type": "source",
       "start": 95,
-      "end": 96
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "tag.delimiter",
-      "language": "html"
-    },
-    {
-      "type": "source",
-      "start": 96,
       "end": 98
     },
     {

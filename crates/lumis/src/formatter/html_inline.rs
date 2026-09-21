@@ -324,8 +324,8 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<pre class="lumis"><code class="language-rust" translate="no" tabindex="0"><div class="l-line custom-highlight" data-line="1"><span>fn</span> <span>main</span><span>(</span><span>)</span> <span>{</span>
-</div><div class="l-line" data-line="2">    <span>println</span><span>!</span><span>(</span><span>&quot;Hello, world!&quot;</span><span>)</span><span>;</span>
+        let expected = r#"<pre class="lumis"><code class="language-rust" translate="no" tabindex="0"><div class="l-line custom-highlight" data-line="1"><span>fn</span> <span>main</span><span>()</span> <span>{</span>
+</div><div class="l-line" data-line="2">    <span>println!</span><span>(</span><span>&quot;Hello, world!&quot;</span><span>)</span><span>;</span>
 </div><div class="l-line custom-highlight" data-line="3">    <span>let</span> <span>x</span> <span>=</span> <span>42</span><span>;</span>
 </div><div class="l-line" data-line="4"><span>}</span></div></code></pre>"#;
         assert_str_eq!(result, expected);
@@ -376,7 +376,7 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<section class="highlight" data-lang="rust"><pre class="lumis custom-class"><code class="language-rust" translate="no" tabindex="0"><div class="l-line" data-line="1"><span>fn</span> <span>main</span><span>(</span><span>)</span> <span>{</span> <span>}</span></div></code></pre></section>"#;
+        let expected = r#"<section class="highlight" data-lang="rust"><pre class="lumis custom-class"><code class="language-rust" translate="no" tabindex="0"><div class="l-line" data-line="1"><span>fn</span> <span>main</span><span>()</span> <span>{</span> <span>}</span></div></code></pre></section>"#;
         assert_str_eq!(result, expected);
     }
 }

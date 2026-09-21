@@ -458,19 +458,6 @@
     {
       "type": "source",
       "start": 130,
-      "end": 131
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "json"
-    },
-    {
-      "type": "source",
-      "start": 131,
       "end": 132
     },
     {
@@ -528,32 +515,6 @@
     {
       "type": "source",
       "start": 138,
-      "end": 139
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "json"
-    },
-    {
-      "type": "source",
-      "start": 139,
-      "end": 140
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "json"
-    },
-    {
-      "type": "source",
-      "start": 140,
       "end": 141
     },
     {
