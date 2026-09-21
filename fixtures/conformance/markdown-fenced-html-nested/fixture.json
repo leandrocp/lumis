@@ -107,19 +107,6 @@
     {
       "type": "source",
       "start": 24,
-      "end": 25
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "tag.delimiter",
-      "language": "html"
-    },
-    {
-      "type": "source",
-      "start": 25,
       "end": 26
     },
     {
@@ -296,19 +283,6 @@
     {
       "type": "source",
       "start": 57,
-      "end": 58
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "tag.delimiter",
-      "language": "html"
-    },
-    {
-      "type": "source",
-      "start": 58,
       "end": 59
     },
     {
@@ -441,19 +415,6 @@
     {
       "type": "source",
       "start": 85,
-      "end": 86
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "tag.delimiter",
-      "language": "html"
-    },
-    {
-      "type": "source",
-      "start": 86,
       "end": 88
     },
     {

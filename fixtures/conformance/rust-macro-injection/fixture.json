@@ -184,19 +184,6 @@
     {
       "type": "source",
       "start": 42,
-      "end": 48
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "keyword.exception",
-      "language": "rust"
-    },
-    {
-      "type": "source",
-      "start": 48,
       "end": 49
     },
     {
@@ -293,19 +280,6 @@
     {
       "type": "source",
       "start": 71,
-      "end": 77
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "keyword.exception",
-      "language": "rust"
-    },
-    {
-      "type": "source",
-      "start": 77,
       "end": 78
     },
     {

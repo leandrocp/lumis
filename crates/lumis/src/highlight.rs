@@ -79,6 +79,7 @@ use smol_str::format_smolstr;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Range;
+use std::sync::atomic::AtomicUsize;
 use std::sync::{Arc, LazyLock};
 use thiserror::Error;
 use tree_sitter::{Parser, Query};
@@ -105,13 +106,35 @@ static DEFAULT_STYLE: LazyLock<Arc<Style>> = LazyLock::new(|| Arc::new(Style::de
 ///
 /// let options = HighlightOptions::new().rainbow_brackets(true);
 /// ```
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 #[must_use]
 pub struct HighlightOptions<'a, T = ()> {
     annotations: &'a [Annotation<T>],
     rainbow_brackets: bool,
     match_limit: u32,
+    cancellation: Option<&'a AtomicUsize>,
 }
+
+/// Written out rather than derived only because of the cancellation flag:
+/// `AtomicUsize` has no equality, and comparing what two flags hold would
+/// answer a different question than the one asked, because a flag's value is
+/// whatever the caller last stored and can change between the two loads. Two
+/// options carry the same cancellation when they point at the same flag.
+/// Everything else compares by value, annotations included.
+impl<T: PartialEq> PartialEq for HighlightOptions<'_, T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.annotations == other.annotations
+            && self.rainbow_brackets == other.rainbow_brackets
+            && self.match_limit == other.match_limit
+            && match (self.cancellation, other.cancellation) {
+                (Some(left), Some(right)) => std::ptr::eq(left, right),
+                (None, None) => true,
+                _ => false,
+            }
+    }
+}
+
+impl<T: Eq> Eq for HighlightOptions<'_, T> {}
 
 impl<T> Copy for HighlightOptions<'_, T> {}
 
@@ -134,6 +157,7 @@ impl HighlightOptions<'static> {
             annotations: &[],
             rainbow_brackets: false,
             match_limit: DEFAULT_MATCH_LIMIT,
+            cancellation: None,
         }
     }
 
@@ -143,6 +167,7 @@ impl HighlightOptions<'static> {
             annotations,
             rainbow_brackets: self.rainbow_brackets,
             match_limit: self.match_limit,
+            cancellation: self.cancellation,
         }
     }
 }
@@ -190,6 +215,38 @@ impl<'a, T> HighlightOptions<'a, T> {
 
     pub(crate) const fn match_limit_value(&self) -> u32 {
         self.match_limit
+    }
+
+    /// Abandon this render as soon as `flag` holds anything but zero.
+    ///
+    /// Parsing, query matching and event generation each read the flag, so a
+    /// caller that has stopped waiting stops paying for the work: without it a
+    /// host that timed out keeps a core busy until the render finishes on its
+    /// own, which on a pathological document is minutes, and the next small
+    /// render queues behind it. The render fails with
+    /// [`HighlightError::Cancelled`] rather than returning a truncated
+    /// document, because a partial highlight is indistinguishable from a
+    /// complete one.
+    ///
+    /// The flag is the caller's to set: from a watchdog thread, a signal
+    /// handler, or a host's own timeout. Lumis never writes to it.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use lumis::highlight::HighlightOptions;
+    /// use std::sync::atomic::AtomicUsize;
+    ///
+    /// let abandoned = AtomicUsize::new(0);
+    /// let options = HighlightOptions::new().cancellation(&abandoned);
+    /// ```
+    pub const fn cancellation(mut self, flag: &'a AtomicUsize) -> Self {
+        self.cancellation = Some(flag);
+        self
+    }
+
+    pub(crate) const fn cancellation_flag(&self) -> Option<&'a AtomicUsize> {
+        self.cancellation
     }
 }
 
@@ -240,6 +297,11 @@ pub enum HighlightError {
     /// The match limit was outside `1..=`[`MAX_MATCH_LIMIT`].
     #[error("match limit {0} is outside 1..=65536")]
     InvalidMatchLimit(u32),
+
+    /// The caller's [`cancellation`](HighlightOptions::cancellation) flag was
+    /// set before the render finished.
+    #[error("highlighting was cancelled")]
+    Cancelled,
 }
 
 /// High-level stateful highlighter for syntax highlighting.
@@ -643,31 +705,28 @@ where
         .set_match_limit(match_limit)
         .map_err(|_| HighlightError::InvalidMatchLimit(match_limit))?;
 
+    let cancellation = options.cancellation_flag();
     let events = ts_highlighter
-        .highlight(language.config(), source.as_bytes(), None, |injected| {
-            injected_language(injected).map(|language| language.config())
-        })
-        .map_err(|e| HighlightError::HighlighterInit(format!("{e:?}")))?;
+        .highlight(
+            language.config(),
+            source.as_bytes(),
+            cancellation,
+            |injected| injected_language(injected).map(|language| language.config()),
+        )
+        .map_err(highlight_error)?;
 
-    let core_events = events
-        .map(|event| {
-            event
-                .map_err(|e| HighlightError::EventProcessing(format!("{e:?}")))
-                .map(|event| match event {
-                    HighlightEvent::HighlightStart {
-                        highlight,
-                        language,
-                    } => CoreHighlightEvent::Start {
-                        scope_index: highlight.0,
-                        language,
-                    },
-                    HighlightEvent::Source { start, end } => {
-                        CoreHighlightEvent::Source { start, end }
-                    }
-                    HighlightEvent::HighlightEnd => CoreHighlightEvent::End,
-                })
-        })
-        .collect::<Result<Vec<_>, _>>()?;
+    let mut collector = lumis_core::events::Coalescing::new();
+    for event in events {
+        match event.map_err(highlight_error)? {
+            HighlightEvent::HighlightStart {
+                highlight,
+                language,
+            } => collector.start(highlight.0, language),
+            HighlightEvent::Source { start, end } => collector.source(start, end),
+            HighlightEvent::HighlightEnd => collector.end(),
+        }
+    }
+    let core_events = collector.finish();
 
     if options.rainbow_brackets_enabled() {
         Ok(apply_query_rainbow_brackets(
@@ -678,6 +737,14 @@ where
         ))
     } else {
         Ok(core_events)
+    }
+}
+
+/// Keep the cancelled case out of the opaque message the others share.
+fn highlight_error(error: lumis_wasm_runtime::tree_sitter_highlight::Error) -> HighlightError {
+    match error {
+        lumis_wasm_runtime::tree_sitter_highlight::Error::Cancelled => HighlightError::Cancelled,
+        other => HighlightError::EventProcessing(format!("{other:?}")),
     }
 }
 
@@ -1198,6 +1265,74 @@ mod tests {
 
         assert!(!first.is_empty(), "the first call produced no events");
         assert!(!second.is_empty(), "the second call produced no events");
+    }
+
+    #[test]
+    fn options_compare_annotations_by_value_and_cancellation_by_identity() {
+        use lumis_core::annotations::AnnotationRange;
+
+        let annotation = || [Annotation::new(AnnotationRange::Offset(0..1), ()).unwrap()];
+        // Separately allocated, equal contents: callers build these per render.
+        let left = annotation();
+        let right = annotation();
+        assert_eq!(
+            HighlightOptions::new().annotations(&left),
+            HighlightOptions::new().annotations(&right)
+        );
+
+        let other = [Annotation::new(AnnotationRange::Offset(0..2), ()).unwrap()];
+        assert_ne!(
+            HighlightOptions::new().annotations(&left),
+            HighlightOptions::new().annotations(&other)
+        );
+
+        // A flag is the caller's, and what it holds changes under them, so two
+        // options share one only by pointing at it.
+        let flag = AtomicUsize::new(0);
+        let same = AtomicUsize::new(0);
+        assert_eq!(
+            HighlightOptions::new().cancellation(&flag),
+            HighlightOptions::new().cancellation(&flag)
+        );
+        assert_ne!(
+            HighlightOptions::new().cancellation(&flag),
+            HighlightOptions::new().cancellation(&same)
+        );
+        assert_ne!(
+            HighlightOptions::new().cancellation(&flag),
+            HighlightOptions::new()
+        );
+    }
+
+    #[test]
+    fn a_run_of_one_scope_renders_as_one_span() {
+        let events = highlight_events(&"[".repeat(64), Language::JSON).unwrap();
+
+        // 64 unclosed brackets are 64 `punctuation.bracket` captures in a row.
+        assert_eq!(events.len(), 3, "{events:?}");
+        assert_eq!(events[0].scope(), Some("punctuation.bracket"));
+        assert_eq!(events[1], CoreHighlightEvent::Source { start: 0, end: 64 });
+        assert_eq!(events[2], CoreHighlightEvent::End);
+    }
+
+    #[test]
+    fn a_cancelled_render_fails_instead_of_returning_a_short_document() {
+        let flag = AtomicUsize::new(1);
+        let options = HighlightOptions::new().cancellation(&flag);
+
+        let result = highlight_events_with_options(&"[".repeat(64), Language::JSON, options);
+
+        assert_eq!(result, Err(HighlightError::Cancelled));
+    }
+
+    #[test]
+    fn a_render_nobody_cancels_still_completes() {
+        let flag = AtomicUsize::new(0);
+        let options = HighlightOptions::new().cancellation(&flag);
+
+        let events = highlight_events_with_options("{\"a\": 1}", Language::JSON, options).unwrap();
+
+        assert_ne!(events.len(), 0);
     }
 
     #[test]

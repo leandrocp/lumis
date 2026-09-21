@@ -569,19 +569,6 @@
     {
       "type": "source",
       "start": 211,
-      "end": 212
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "elixir"
-    },
-    {
-      "type": "source",
-      "start": 212,
       "end": 213
     },
     {
@@ -774,19 +761,6 @@
     {
       "type": "source",
       "start": 254,
-      "end": 255
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "elixir"
-    },
-    {
-      "type": "source",
-      "start": 255,
       "end": 256
     },
     {

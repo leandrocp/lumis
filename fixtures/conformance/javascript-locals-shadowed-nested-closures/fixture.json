@@ -158,19 +158,6 @@
     {
       "type": "source",
       "start": 41,
-      "end": 42
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "javascript"
-    },
-    {
-      "type": "source",
-      "start": 42,
       "end": 43
     },
     {
@@ -385,19 +372,6 @@
     {
       "type": "source",
       "start": 100,
-      "end": 101
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "javascript"
-    },
-    {
-      "type": "source",
-      "start": 101,
       "end": 102
     },
     {
@@ -532,19 +506,6 @@
     {
       "type": "source",
       "start": 134,
-      "end": 135
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "javascript"
-    },
-    {
-      "type": "source",
-      "start": 135,
       "end": 136
     },
     {
@@ -661,19 +622,6 @@
     {
       "type": "source",
       "start": 166,
-      "end": 167
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "javascript"
-    },
-    {
-      "type": "source",
-      "start": 167,
       "end": 168
     },
     {

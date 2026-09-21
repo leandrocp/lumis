@@ -1284,8 +1284,62 @@ function nextLayerBoundary(
   return layer && boundary ? { layer, boundary } : undefined;
 }
 
+/**
+ * Collects a highlight event stream that carries no scope it is about to
+ * reopen and no source range it is about to continue.
+ *
+ * The port of `Coalescing` in `crates/lumis-core/src/events.rs`, which is the
+ * reference implementation. Tree-sitter emits one start/source/end triple per
+ * capture, so a run of neighbouring tokens sharing a scope arrives as that
+ * triple repeated and every formatter writes one element per token. Closing a
+ * scope only to reopen the identical one renders the same way as leaving it
+ * open, so the pair is dropped and the token text merges into the run already
+ * inside it.
+ */
+class Coalescing {
+  private readonly events: HighlightEvent[] = [];
+  private readonly open: number[] = [];
+  private reopenable: number | undefined;
+
+  start(scope: string, language: string): void {
+    const index = this.reopenable;
+    this.reopenable = undefined;
+    if (index !== undefined) {
+      const event = this.events[index];
+      if (event?.type === "start" && event.scope === scope && event.language === language) {
+        this.events.pop();
+        this.open.push(index);
+        return;
+      }
+    }
+
+    this.open.push(this.events.length);
+    this.events.push({ type: "start", scope, language });
+  }
+
+  end(): void {
+    this.reopenable = this.open.pop();
+    this.events.push({ type: "end" });
+  }
+
+  source(start: number, end: number): void {
+    this.reopenable = undefined;
+    const previous = this.events.at(-1);
+    if (previous?.type === "source" && previous.end === start) {
+      previous.end = end;
+      return;
+    }
+
+    this.events.push({ type: "source", start, end });
+  }
+
+  finish(): HighlightEvent[] {
+    return this.events;
+  }
+}
+
 function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): HighlightEvent[] {
-  const events: HighlightEvent[] = [];
+  const events = new Coalescing();
 
   const layers: LayerState[] = inputLayers.map((layer) => ({
     ...layer,
@@ -1305,7 +1359,7 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
 
   function emitSource(endByte: number): void {
     if (endByte > cursor) {
-      events.push({ type: "source", start: cursor, end: endByte });
+      events.source(cursor, endByte);
       cursor = endByte;
     }
   }
@@ -1318,7 +1372,7 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
     if (!boundary.isStart) {
       layer.highlightEndStack.pop();
       emitSource(boundary.offset);
-      events.push({ type: "end" });
+      events.end();
       continue;
     }
 
@@ -1326,11 +1380,7 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
     if (!capture) continue;
 
     emitSource(capture.startByte);
-    events.push({
-      type: "start",
-      scope: capture.scope,
-      language: capture.language,
-    });
+    events.start(capture.scope, capture.language);
     layer.highlightEndStack.push(capture.endByte);
     lastHighlightRange = {
       startByte: capture.startByte,
@@ -1341,5 +1391,5 @@ function buildNestedEvents(inputLayers: HighlightLayer[], maps: SourceMaps): Hig
 
   emitSource(maps.sourceUtf8ByteLength);
 
-  return events;
+  return events.finish();
 }

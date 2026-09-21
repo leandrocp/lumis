@@ -3,7 +3,8 @@
 //! These helpers work with language names as strings, making them independent of tree-sitter.
 
 use crate::decorations::{
-    compose_line_decorations, rainbow_scope_index, Decoration, LineSelection,
+    compose_line_decorations, compose_line_decorations_into, rainbow_scope_index, Decoration,
+    LineSelection,
 };
 use crate::events::HighlightEvent;
 use crate::languages::Language;
@@ -1194,18 +1195,49 @@ pub(crate) enum LineFragment<'a> {
 /// keeps the terminator outside syntax markup while preserving the source
 /// exactly. Caller annotations are skipped, which is what a built-in formatter
 /// does with data it has never seen.
-pub(crate) fn write_line_events<'a, T, F>(
-    events: &'a [HighlightEvent<'_, T>],
-    source: &'a str,
-    decoration_language: &'a str,
+pub(crate) fn write_line_events<T, F>(
+    events: &[HighlightEvent<'_, T>],
+    source: &str,
+    decoration_language: &str,
     mut on_fragment: F,
 ) where
-    F: FnMut(LineFragment<'a>),
+    F: FnMut(LineFragment<'_>),
 {
-    let mut ending = "";
-    let mut decorations = Vec::new();
-
+    let mut walk = LineEventWalk::new();
     for event in events {
+        walk.push(event, source, decoration_language, &mut on_fragment);
+    }
+}
+
+/// [`write_line_events`] one event at a time.
+///
+/// The state a walk carries between events is the pending line terminator and
+/// the decorations still open, so a formatter composing its stream lazily keeps
+/// this and feeds it whatever the composer just produced.
+pub(crate) struct LineEventWalk {
+    ending: &'static str,
+    decorations: Vec<Decoration>,
+}
+
+impl LineEventWalk {
+    pub(crate) const fn new() -> Self {
+        Self {
+            ending: "",
+            decorations: Vec::new(),
+        }
+    }
+
+    pub(crate) fn push<T, F>(
+        &mut self,
+        event: &HighlightEvent<'_, T>,
+        source: &str,
+        decoration_language: &str,
+        on_fragment: &mut F,
+    ) where
+        F: FnMut(LineFragment<'_>),
+    {
+        let ending = &mut self.ending;
+        let decorations = &mut self.decorations;
         match event {
             HighlightEvent::DecorationStart { decoration } => {
                 decorations.push(*decoration);
@@ -1214,7 +1246,7 @@ pub(crate) fn write_line_events<'a, T, F>(
                         number,
                         highlighted,
                     } => {
-                        ending = "";
+                        *ending = "";
                         on_fragment(LineFragment::OpenLine {
                             number: *number,
                             highlighted: *highlighted,
@@ -1239,7 +1271,7 @@ pub(crate) fn write_line_events<'a, T, F>(
             HighlightEvent::Source { start, end } => {
                 let text = source_slice(source, *start, *end);
                 let (text, source_ending) = split_line_ending(text);
-                ending = source_ending;
+                *ending = source_ending;
                 on_fragment(LineFragment::Text(text));
             }
             HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
@@ -1247,7 +1279,7 @@ pub(crate) fn write_line_events<'a, T, F>(
     }
 }
 
-fn split_line_ending(text: &str) -> (&str, &str) {
+fn split_line_ending(text: &str) -> (&str, &'static str) {
     let Some(content) = text.strip_suffix('\n') else {
         return (text, "");
     };
@@ -1304,12 +1336,12 @@ pub(crate) fn write_html_lines<T>(
         true,
         lines.highlighted_line_number_attrs,
     );
-    let composed = compose_line_decorations(source, events, lines.selection);
-    let mut attrs: std::collections::HashMap<(usize, &str), String> =
-        std::collections::HashMap::new();
+    let mut attrs = SpanAttrCache::default();
     let mut result = Ok(());
+    let mut walk = LineEventWalk::new();
+    let decoration_language = lines.language.id_name();
 
-    write_line_events(&composed, source, lines.language.id_name(), |fragment| {
+    let mut on_fragment = |fragment: LineFragment<'_>| {
         if result.is_err() {
             return;
         }
@@ -1330,9 +1362,7 @@ pub(crate) fn write_html_lines<T>(
                 .and_then(|()| output.write_all(b"</div>")),
             LineFragment::Text(text) => write_escaped(output, text),
             LineFragment::SpanOpen(scope_index, language) => {
-                let attrs = attrs
-                    .entry((scope_index, language))
-                    .or_insert_with(|| span_attrs(scope_index, language));
+                let attrs = attrs.get_or_insert(scope_index, language, span_attrs);
                 if attrs.is_empty() {
                     output.write_all(b"<span>")
                 } else {
@@ -1341,9 +1371,46 @@ pub(crate) fn write_html_lines<T>(
             }
             LineFragment::SpanClose => output.write_all(b"</span>"),
         };
+    };
+
+    compose_line_decorations_into(source, events, lines.selection, &mut |event| {
+        walk.push(&event, source, decoration_language, &mut on_fragment);
     });
 
     result
+}
+
+/// The rendered attributes of every scope this document has opened.
+///
+/// A document reopens the same scope on every line it crosses and once per
+/// token besides, so resolving a scope's attributes is worth doing once. The
+/// key is owned because the composed events are written and dropped rather than
+/// held, and a scope carries few languages, so the language match is a scan of
+/// that short list rather than a second hash of a string this never stores
+/// twice.
+#[derive(Default)]
+struct SpanAttrCache {
+    entries: std::collections::HashMap<usize, Vec<(String, String)>>,
+}
+
+impl SpanAttrCache {
+    fn get_or_insert(
+        &mut self,
+        scope_index: usize,
+        language: &str,
+        span_attrs: &dyn Fn(usize, &str) -> String,
+    ) -> &str {
+        let languages = self.entries.entry(scope_index).or_default();
+        let found = languages
+            .iter()
+            .position(|(known, _)| known == language)
+            .unwrap_or_else(|| {
+                languages.push((language.to_string(), span_attrs(scope_index, language)));
+                languages.len() - 1
+            });
+
+        &languages[found].1
+    }
 }
 
 /// The largest slice of `source` fully inside `start..end`.

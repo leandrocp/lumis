@@ -1288,19 +1288,6 @@
     {
       "type": "source",
       "start": 999,
-      "end": 1000
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 1000,
       "end": 1001
     },
     {
@@ -3973,19 +3960,6 @@
     {
       "type": "source",
       "start": 2280,
-      "end": 2281
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 2281,
       "end": 2282
     },
     {
@@ -4087,19 +4061,6 @@
     {
       "type": "source",
       "start": 2302,
-      "end": 2303
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 2303,
       "end": 2304
     },
     {
@@ -6579,19 +6540,6 @@
     {
       "type": "source",
       "start": 3689,
-      "end": 3690
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "constructor",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 3690,
       "end": 3691
     },
     {
@@ -6899,19 +6847,6 @@
     {
       "type": "source",
       "start": 3848,
-      "end": 3849
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "constructor",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 3849,
       "end": 3850
     },
     {
@@ -7150,19 +7085,6 @@
     {
       "type": "source",
       "start": 3888,
-      "end": 3889
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 3889,
       "end": 3890
     },
     {
@@ -7408,19 +7330,6 @@
     {
       "type": "source",
       "start": 4043,
-      "end": 4044
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "constructor",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 4044,
       "end": 4045
     },
     {
@@ -8725,19 +8634,6 @@
     {
       "type": "source",
       "start": 4755,
-      "end": 4756
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 4756,
       "end": 4757
     },
     {
@@ -9392,19 +9288,6 @@
     {
       "type": "source",
       "start": 5322,
-      "end": 5323
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "constructor",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 5323,
       "end": 5324
     },
     {
@@ -9591,19 +9474,6 @@
     {
       "type": "source",
       "start": 5369,
-      "end": 5370
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "constructor",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 5370,
       "end": 5371
     },
     {
@@ -11633,19 +11503,6 @@
     {
       "type": "source",
       "start": 7383,
-      "end": 7384
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "constructor",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 7384,
       "end": 7385
     },
     {
@@ -11739,19 +11596,6 @@
     {
       "type": "source",
       "start": 7443,
-      "end": 7444
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 7444,
       "end": 7445
     },
     {
@@ -12219,19 +12063,6 @@
     {
       "type": "source",
       "start": 7650,
-      "end": 7651
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 7651,
       "end": 7652
     },
     {
@@ -12480,19 +12311,6 @@
     {
       "type": "source",
       "start": 7729,
-      "end": 7730
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 7730,
       "end": 7731
     },
     {
@@ -12568,19 +12386,6 @@
     {
       "type": "source",
       "start": 7778,
-      "end": 7779
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 7779,
       "end": 7780
     },
     {
@@ -12998,19 +12803,6 @@
     {
       "type": "source",
       "start": 8652,
-      "end": 8653
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 8653,
       "end": 8654
     },
     {
@@ -13104,19 +12896,6 @@
     {
       "type": "source",
       "start": 8714,
-      "end": 8715
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 8715,
       "end": 8716
     },
     {
@@ -13491,19 +13270,6 @@
     {
       "type": "source",
       "start": 8816,
-      "end": 8817
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 8817,
       "end": 8818
     },
     {
@@ -13579,19 +13345,6 @@
     {
       "type": "source",
       "start": 8864,
-      "end": 8865
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 8865,
       "end": 8866
     },
     {
@@ -13901,19 +13654,6 @@
     {
       "type": "source",
       "start": 9529,
-      "end": 9530
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 9530,
       "end": 9531
     },
     {
@@ -13968,19 +13708,6 @@
     {
       "type": "source",
       "start": 9543,
-      "end": 9544
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "constructor",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 9544,
       "end": 9545
     },
     {
@@ -14347,19 +14074,6 @@
     {
       "type": "source",
       "start": 9805,
-      "end": 9806
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "constructor",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 9806,
       "end": 9807
     },
     {
@@ -14427,19 +14141,6 @@
     {
       "type": "source",
       "start": 9833,
-      "end": 9834
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 9834,
       "end": 9835
     },
     {
@@ -14590,19 +14291,6 @@
     {
       "type": "source",
       "start": 9880,
-      "end": 9881
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 9881,
       "end": 9882
     },
     {
@@ -14691,19 +14379,6 @@
     {
       "type": "source",
       "start": 9921,
-      "end": 9922
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 9922,
       "end": 9923
     },
     {
@@ -15044,19 +14719,6 @@
     {
       "type": "source",
       "start": 10168,
-      "end": 10169
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 10169,
       "end": 10170
     },
     {
@@ -15168,32 +14830,6 @@
     {
       "type": "source",
       "start": 10198,
-      "end": 10199
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 10199,
-      "end": 10200
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 10200,
       "end": 10201
     },
     {
@@ -15305,19 +14941,6 @@
     {
       "type": "source",
       "start": 10362,
-      "end": 10363
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 10363,
       "end": 10364
     },
     {
@@ -15411,19 +15034,6 @@
     {
       "type": "source",
       "start": 10467,
-      "end": 10468
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 10468,
       "end": 10469
     },
     {
@@ -16229,19 +15839,6 @@
     {
       "type": "source",
       "start": 11071,
-      "end": 11072
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "lua"
-    },
-    {
-      "type": "source",
-      "start": 11072,
       "end": 11073
     },
     {

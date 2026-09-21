@@ -590,19 +590,6 @@
     {
       "type": "source",
       "start": 185,
-      "end": 186
-    },
-    {
-      "type": "end"
-    },
-    {
-      "type": "start",
-      "scope": "punctuation.bracket",
-      "language": "javascript"
-    },
-    {
-      "type": "source",
-      "start": 186,
       "end": 187
     },
     {
