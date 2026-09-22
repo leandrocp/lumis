@@ -381,15 +381,9 @@ defmodule Lumis do
       How long one render may take, in milliseconds, `0` for no bound, or `nil`
       for the default of 5000.
 
-      A render that runs out comes back as the whole file in plain text rather
-      than as an error, because a render stopped part way has no tree left to
-      highlight from, and the HTML formatters mark it
-      `data-lumis-budget="time"` so a caller can tell that document apart from
-      a file with no syntax to highlight.
-
-      The clock starts after the language's queries are compiled, which on a
-      first render costs more than a small document does. `Lumis.Languages`
-      moves that work to startup.
+      A render that runs out returns the whole file as plain text rather than
+      an error, and HTML formatters mark it `data-lumis-budget="time"`.
+      Loading a language is not counted against it.
       """
     ],
     match_limit: [

@@ -231,16 +231,10 @@ impl<'a, T> HighlightOptions<'a, T> {
     /// Bound how long this render may take, in milliseconds, or `None` to let
     /// it run as long as it needs.
     ///
-    /// Defaults to [`DEFAULT_TIME_LIMIT`]. A render that runs out comes back as
-    /// the whole file in plain text rather than as an error, because a render
-    /// stopped part way has no tree left to salvage, and the HTML formatters
-    /// mark it `data-lumis-budget="time"` so a caller can tell that document
-    /// apart from a file that has no syntax to highlight.
-    ///
-    /// The clock starts after the language's queries are compiled, which on a
-    /// first render costs more than a small document does. See
-    /// [`Lumis.Languages`](https://docs.lumis.sh/operations/warm-up) for moving
-    /// that work to startup.
+    /// Defaults to [`DEFAULT_TIME_LIMIT`]. A render that runs out returns the
+    /// whole file as plain text rather than an error, and the HTML formatters
+    /// mark it `data-lumis-budget="time"`. Compiling a language's queries is
+    /// not counted against it.
     ///
     /// # Examples
     ///
