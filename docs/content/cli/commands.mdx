@@ -36,10 +36,6 @@ These flags work with any subcommand:
 | `lumis languages list` | List supported languages and file patterns |
 | `lumis languages show` | Print what the catalog knows about one language |
 | `lumis languages cache` | Download and compile parsers so later runs skip both |
-| `lumis languages add` | Record languages in `lumis-lock.toml` and cache them |
-| `lumis languages remove` | Stop recording languages in `lumis-lock.toml` |
-| `lumis languages update` | Re-resolve locked packages and move `lumis-lock.toml` |
-| `lumis languages install` | Cache exactly what `lumis-lock.toml` names |
 | `lumis themes list` | List built-in and local themes |
 | `lumis themes show` | Print one theme's appearance and colors |
 | `lumis themes generate` | Generate a theme from a Neovim colorscheme repo |
@@ -315,78 +311,15 @@ lumis languages cache rust javascript --force
 
 ## `lumis-lock.toml`
 
-Without a lock, whichever compatible version a machine downloads first is the
-one it keeps, so two machines can render the same document differently and
-nothing records which parser produced which output.
+The CLI does not read or write a project's lock. It is its own runtime with its
+own store, so `lumis highlight` resolves freely and `lumis languages cache`
+fills the store — a viewer is not the application whose output a lock governs,
+and a highlighter whose behaviour changed with the working directory would be
+worse than one that does not.
 
-The lock is for runtimes that fetch parsers at runtime: Elixir, the CLI, and any
-future binding. A Rust project already declares its languages as `Cargo.toml`
-features, and a JavaScript project that installs `@lumis-sh/wasm-*` already
-declares them in `package.json` — neither needs a lock, and no project should
-have two declarations.
-
-`lumis highlight` and `lumis dump` **never read a project's lock.** They resolve
-freely against the CLI's own store, because a viewer is not the application
-whose output a lock governs. `lumis languages install` is what consumes one.
-
-`lumis-lock.toml` pins an exact version and its digests. Commit it, and every
-machine and CI run resolves the same parsers.
-
-```bash title="Record a language"
-lumis languages add rust
-```
-
-The lock is created at the repository root the first time, whichever directory
-you run from:
-
-```toml title="lumis-lock.toml"
-version = 1
-range = "0.26"
-
-[[package]]
-name = "@lumis-sh/wasm-rust"
-version = "0.26.4"
-languages = ["rust"]
-manifest_sha256 = "..."
-parser_sha256 = "..."
-definition_hash = "..."
-```
-
-`manifest_sha256` covers the package metadata itself, not only the parser it
-describes, so a registry cannot serve different bytes than the ones recorded.
-
-Commit it. Concurrent `lumis languages add` runs take an advisory lock on the
-file itself, so neither overwrites the other's entries, and there is no extra
-file to ignore.
-
-Rows are keyed on the package because one package can back several languages —
-`ejs` and `erb` are both `@lumis-sh/wasm-embedded-template`. `languages` lists
-what you added, so a lock can pin `ejs` without also allowing `erb`.
-
-```bash title="Materialize the lock, resolving nothing"
-lumis languages install
-```
-
-Use this in CI and in a Dockerfile, the way you would `npm ci`. It downloads
-exactly what the lock names and fails if the store holds a different version,
-so a stale machine cache cannot quietly win.
-
-```bash title="Move a version deliberately"
-lumis languages update rust
-lumis languages update --all
-```
-
-`update` is the only command that changes a pinned version. It resolves
-everything before writing anything, so a registry that is down for one package
-leaves the lock untouched rather than moving the rest.
-
-```bash title="Stop pinning a language"
-lumis languages remove rust
-```
-
-A bundle is shorthand when you add it, and its members are what get recorded.
-Re-run `lumis languages add bundle-web` to pick up a language the bundle gained,
-so widening what a project allows stays a visible diff.
+A lock belongs to a project, and the runtime that owns that project manages it:
+`mix lumis.*` in Elixir, `package.json` in JavaScript, `Cargo.toml` features in
+Rust. See [Architecture](/architecture) for which runtimes need one and why.
 
 ## `lumis themes list`
 

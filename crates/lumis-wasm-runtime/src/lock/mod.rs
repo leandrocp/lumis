@@ -11,6 +11,8 @@
 //! whole ecosystem to upgrade in lockstep, which is the failure pnpm and cargo
 //! both ship.
 
+pub mod manage;
+
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 

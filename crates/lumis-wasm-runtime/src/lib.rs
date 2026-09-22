@@ -233,6 +233,7 @@ pub use brackets::{
     bracket_pairs, capture_indices, colorize_bracket_pairs, BracketPair, RainbowRange,
     RAINBOW_BRACKET_SCOPES, RAINBOW_SCOPE_INDICES,
 };
+pub use lock::manage::{Change, ManageError};
 pub use lock::{Lock, LockError, LockFile, LockedPackage, LOCK_FILE_NAME, LOCK_FORMAT_VERSION};
 pub use package::{
     grammar_name, sha256_hex, LanguagePackage, LanguagePackageError, PackagedLanguage,

@@ -2,6 +2,7 @@
 use anyhow::Context;
 use anyhow::Result;
 use lumis_wasm_runtime::catalog;
+#[cfg(test)]
 use lumis_wasm_runtime::LanguagePackage;
 use lumis_wasm_runtime::{
     HighlightOptions, HighlightOutput, HttpFetcher, LanguageStore, Runtime, StoreConfig,
@@ -26,7 +27,9 @@ impl Registry {
     /// A registry whose store resolves only what `lock` pins.
     ///
     /// `None` keeps the long-standing behaviour: resolve the compatible range
-    /// and treat the store directory as authoritative.
+    /// and treat the store directory as authoritative. The CLI always passes
+    /// `None` — it has no lock of its own — but the constructor is what the
+    /// Elixir NIF and any future binding build their store through.
     pub(crate) fn with_lock(
         data_dir: PathBuf,
         lock: Option<std::sync::Arc<lumis_wasm_runtime::Lock>>,
@@ -115,11 +118,6 @@ impl Registry {
     #[cfg(test)]
     pub(crate) fn parser_download_url(&self, language: &str) -> Result<String> {
         Ok(LanguageStore::parser_url(self.package(language)?.as_ref())?)
-    }
-
-    /// Resolve the compatible range and report what a lock entry would record.
-    pub(crate) fn resolve_for_lock(&self, package_name: &str) -> Result<(LanguagePackage, String)> {
-        Ok(self.store().resolve_for_lock(package_name)?)
     }
 
     fn store(&self) -> &LanguageStore {

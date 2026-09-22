@@ -167,11 +167,11 @@ CDN for a language it has not installed, so its set is open even when
 `package.json` looks closed. Closing it is an enforcement change rather than a
 file, and applies to whichever mechanism declared the set.
 
-**The CLI is its own runtime.** It has its own store, its own config, and its
-own lock. `lumis highlight` and `lumis dump` never read a project's
-`lumis-lock.toml` — they resolve freely, because a viewer is not the application
-whose output a lock governs. `lumis languages install` is what consumes a lock,
-and the runtimes reading the directory it prepares are what enforce one.
+**The CLI is its own runtime, and has no lock.** It is a viewer and a store
+filler: `lumis highlight` and `lumis dump` resolve freely, and `lumis languages
+cache` fills the store. Reaching up to a project's `lumis-lock.toml` would make
+the CLI a second writer of a file the project's own runtime manages, and would
+make a highlighter behave differently depending on the directory it ran in.
 
 ### Highlighting loads what a document needs, in one pass
 
@@ -300,12 +300,11 @@ Two verbs, the same in every runtime: **cache** puts a language on disk,
 process that will serve wants a load; caching is for filling a directory some
 other process will read.
 
-Those two are the *runtime* verbs and stay that way. The CLI has more, because
-it is the only thing that writes `lumis-lock.toml`: `add`, `remove`, `update`
-and `install` manage the lock, while `cache` still means what it means
-everywhere else. Concentrating lock writes in one binary is what keeps a Mix
-task and an npx wrapper wrappers rather than second implementations, so no
-runtime grows a resolution path of its own.
+Those two verbs are the whole store surface, including the CLI's. Editing a lock
+is not a third one: `lumis_wasm_runtime::lock::manage` implements what `add`,
+`remove` and `update` *mean*, and each runtime spells them in its own tooling —
+`mix lumis.*` in Elixir. Keeping the meaning in one place is what stops a second
+implementation of the format drifting from the first.
 
 An application loads at startup without waiting for it. Elixir runs the load
 under a `:temporary` child of Lumis's supervisor; JavaScript leaves the promise

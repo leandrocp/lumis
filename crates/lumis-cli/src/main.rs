@@ -1,7 +1,6 @@
 mod config;
 mod formatter_options;
 mod gen_theme;
-mod lock_commands;
 mod registry;
 
 use anyhow::Result;
@@ -417,45 +416,6 @@ enum LanguagesCommands {
         #[arg(long)]
         force: bool,
     },
-
-    /// Record languages in lumis-lock.toml and cache them
-    #[command(
-        after_help = "Examples:\n  lumis languages add rust\n  lumis languages add bundle-web\n\nCreates lumis-lock.toml at the repository root when there is none."
-    )]
-    Add {
-        /// Language names, or a bundle such as bundle-web
-        languages: Vec<String>,
-    },
-
-    /// Stop recording languages in lumis-lock.toml
-    #[command(after_help = "Examples:\n  lumis languages remove rust")]
-    Remove {
-        /// Language names, or a bundle such as bundle-web
-        languages: Vec<String>,
-    },
-
-    /// Re-resolve locked packages and move lumis-lock.toml
-    #[command(
-        after_help = "Examples:\n  lumis languages update rust\n  lumis languages update --all"
-    )]
-    Update {
-        /// Language names, or a bundle such as bundle-web
-        languages: Vec<String>,
-
-        /// Re-resolve every locked package
-        #[arg(long)]
-        all: bool,
-    },
-
-    /// Cache exactly what lumis-lock.toml names
-    #[command(
-        after_help = "Examples:\n  lumis languages install\n  lumis --data-dir ./priv/lumis languages install\n\nTakes no language names; use `lumis languages add` to record one."
-    )]
-    Install {
-        /// Rejected: `install` materializes the lock and never changes it
-        #[arg(hide = true)]
-        languages: Vec<String>,
-    },
 }
 
 #[derive(Subcommand)]
@@ -870,43 +830,6 @@ fn run_languages(
         } => {
             let reg = registry::Registry::new(data_dir)?;
             cache_languages(&reg, &languages, all, force, verbose)
-        }
-        // `add` and `update` choose a version, so their registry resolves
-        // the range; `install` must resolve only what is already pinned.
-        LanguagesCommands::Add { languages } => {
-            let cwd = std::env::current_dir()?;
-            let reg = registry::Registry::new(data_dir.clone())?;
-            lock_commands::add(&reg, &data_dir, &cwd, &languages)
-        }
-        LanguagesCommands::Remove { languages } => {
-            lock_commands::remove(&std::env::current_dir()?, &languages)
-        }
-        LanguagesCommands::Update { languages, all } => {
-            let cwd = std::env::current_dir()?;
-            let reg = registry::Registry::new(data_dir)?;
-            lock_commands::update(&reg, &cwd, &languages, all)
-        }
-        LanguagesCommands::Install { languages } => {
-            // `npm install` both adds and materializes, which is why `npm
-            // ci` had to be invented. Keep the two apart by name.
-            if let Some(name) = languages.first() {
-                return Err(anyhow::anyhow!(
-                        "`install` takes no language names\n  to record {name}, run: lumis languages add {name}"
-                    ));
-            }
-            let cwd = std::env::current_dir()?;
-            let located = lock_commands::load(&cwd)?.ok_or_else(|| {
-                anyhow::anyhow!(
-                    "no {} found above {}\n  lumis languages add <language>",
-                    lumis_wasm_runtime::LOCK_FILE_NAME,
-                    cwd.display()
-                )
-            })?;
-            let reg = registry::Registry::with_lock(
-                data_dir,
-                Some(std::sync::Arc::new(located.lock.clone())),
-            )?;
-            lock_commands::install(&reg, &located)
         }
     }
 }
