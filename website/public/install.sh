@@ -101,7 +101,7 @@ trap 'rm -rf "$temp_dir"' EXIT HUP INT TERM
 archive_path="$temp_dir/$archive"
 checksum_file="$temp_dir/lumis-${target}.sha256"
 
-printf 'Downloading lumis %s for %s...\n' "$version" "$target"
+printf 'Downloading lumis %s for %s\n' "$version" "$target"
 curl --proto '=https' --tlsv1.2 -LsSf -o "$archive_path" "$download_base/$archive"
 curl --proto '=https' --tlsv1.2 -LsSf -o "$checksum_file" "$download_base/lumis-${target}.sha256"
 verify_checksum
@@ -110,7 +110,7 @@ tar -xzf "$archive_path" -C "$temp_dir"
 mkdir -p "$install_dir"
 install -m 755 "$temp_dir/lumis" "$install_dir/lumis"
 
-printf 'Installed lumis %s to %s/lumis.\n' "$version" "$install_dir"
+printf 'Installed lumis %s to %s/lumis\n' "$version" "$install_dir"
 if [ "${LUMIS_NO_MODIFY_PATH:-0}" = "1" ]; then
   case ":${PATH:-}:" in
     *:"$install_dir":*) ;;
