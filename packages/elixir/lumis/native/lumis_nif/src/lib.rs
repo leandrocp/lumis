@@ -29,7 +29,26 @@ static THEME_CACHE: std::sync::LazyLock<RwLock<HashMap<String, ExTheme>>> =
 
 // `LazyLock::get`, which `configure_store` needs, is newer than the MSRV.
 #[allow(clippy::non_std_lazy_statics)]
-static EXECUTOR: Lazy<Result<WasmExecutor>> = Lazy::new(WasmExecutor::new);
+static EXECUTOR: Lazy<Result<WasmExecutor>> = Lazy::new(|| {
+    let _building = STORE_SETTLED.lock();
+    WasmExecutor::new()
+});
+
+/// Held while the executor is being built, and while anything replaces the
+/// paths it will be built from.
+///
+/// `Lazy::get` only reports initialization that has *finished*, so on its own it
+/// is a check against a state a concurrent caller may be halfway into: a thread
+/// inside `WasmExecutor::new` has already cloned `STORE_PATHS.lock` while
+/// `lock_refresh` still sees `None` and replaces it. The executor would then
+/// resolve against the old lock while every later store used the new one —
+/// downloads honouring one and compiles the other.
+///
+/// Taking this around both sides makes the two orderings the only ones
+/// possible: either the replacement lands first and the executor is built from
+/// it, or the executor is built first and the replacement is refused.
+static STORE_SETTLED: std::sync::LazyLock<parking_lot::Mutex<()>> =
+    std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
 static CACHE_BATCH: std::sync::LazyLock<parking_lot::Mutex<()>> =
     std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
 static PRECOMPILE_BATCH: std::sync::LazyLock<parking_lot::Mutex<()>> =
@@ -588,6 +607,7 @@ fn executor() -> Result<&'static WasmExecutor> {
 /// was added to remove.
 #[rustler::nif]
 fn configure_store(data_dir: Option<String>, lock_path: Option<String>) -> Result<bool, String> {
+    let _settled = STORE_SETTLED.lock();
     if Lazy::get(&EXECUTOR).is_some() {
         return Ok(false);
     }
@@ -632,8 +652,12 @@ fn lock_in_force() -> bool {
 /// not the compile — half the operation honouring the new lock and half the old.
 /// A Mix task never touches the executor before this runs, since it is built
 /// lazily on first use; anything that did gets an error rather than that split.
+///
+/// The check and the replacement happen under [`STORE_SETTLED`], so an executor
+/// being built concurrently cannot read the paths between them.
 #[rustler::nif(schedule = "DirtyIo")]
 fn lock_refresh(path: String) -> Result<bool, String> {
+    let _settled = STORE_SETTLED.lock();
     if Lazy::get(&EXECUTOR).is_some() {
         return Err(
             "the Lumis runtime is already started, so the lock it resolves against cannot be \
