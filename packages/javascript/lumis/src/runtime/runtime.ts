@@ -14,19 +14,23 @@ export interface RuntimeEnvironment {
   readStagedAsset?(filename: string): Promise<Uint8Array | undefined>;
   readResolvedWasmFromDisk(source: string | URL): Promise<Uint8Array | undefined>;
   /**
-   * Whether this project declares the languages it uses, by depending on
-   * `@lumis-sh/wasm-*` packages.
+   * Whether this runtime's parsers come from packages installed in a project.
    *
-   * When it does, that declaration is the whole set — the same way
-   * `Cargo.toml` features are in Rust and `lumis-lock.toml` is in Elixir — and
-   * a language outside it is not fetched. Absent, nothing is declared and
-   * everything resolves on demand, which is what makes the zero-configuration
-   * case work.
+   * True on Node: the `@lumis-sh/wasm-*` packages a project depends on are the
+   * whole set, the same way `Cargo.toml` features are in Rust and `mix.exs`
+   * dependencies are in Elixir. A language outside it is not fetched.
    *
-   * Unimplemented where there is no project to read, such as the browser: a
-   * bundle declares by what it imported, and there is no manifest to consult.
+   * Absent where there is no project to read, such as the browser: a bundle
+   * declares by what it imported, and there is no manifest to consult.
    */
-  declaresLanguages?(): Promise<boolean>;
+  declaresLanguages?: boolean;
+  /**
+   * Where an installed `@lumis-sh/wasm-*` package keeps its `lumis.json`.
+   *
+   * Node resolves it through the package's export map. Absent in the browser,
+   * which has no module resolution to ask.
+   */
+  resolveInstalledManifest?(packageName: string): Promise<URL | undefined>;
   parserInitOptions?(): Promise<ParserInitOptions>;
 }
 

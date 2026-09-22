@@ -1,7 +1,6 @@
 /**
  * The declaration enforced end to end, in its own file because it changes the
- * working directory before importing Lumis: `declaresLanguages` is read once per
- * process, so a suite that imports first would memoize the wrong answer.
+ * working directory before importing Lumis.
  *
  * Both runtimes have to agree. Node resolves through the addon, which fetches in
  * Rust without coming back to JavaScript, so a check only the TypeScript side
@@ -12,12 +11,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-// A project that declares one parser it does not have on disk, so resolving it
-// is refused rather than fetched.
+// A project with no parser installed. Nothing is declared, and under the rule
+// every runtime now shares, nothing is what it gets.
 const root = mkdtempSync(join(tmpdir(), "lumis-declared-project-"));
 writeFileSync(
   join(root, "package.json"),
-  JSON.stringify({ name: "declared", dependencies: { "@lumis-sh/wasm-json": "^0.26" } }),
+  JSON.stringify({ name: "declared", dependencies: {} }),
 );
 process.chdir(root);
 process.env.LUMIS_DATA_DIR = mkdtempSync(join(tmpdir(), "lumis-declared-store-"));
@@ -32,13 +31,12 @@ function reasons(error: unknown, found: string[] = []): string[] {
   return found;
 }
 
-describe("a project that declares its languages", () => {
-  it("is the declaration that closes the set, not the feature existing", async () => {
-    const { declaresLanguages } = await import("../src/runtime/node-cache.js");
-    await expect(declaresLanguages()).resolves.toBe(true);
-  });
-
-  it("refuses one it did not declare", async () => {
+describe("a project that installed no parser", () => {
+  // The rule this file exists for: installing no parser is not "declared
+  // nothing, so allow everything". It is "declared nothing, so load nothing" —
+  // the same answer Rust gives for a language you did not compile in and Elixir
+  // gives for one you did not depend on.
+  it("refuses a language when the project installed none", async () => {
     const error = await loadLanguages(["elixir"]).then(
       () => undefined,
       (reason: unknown) => reason,

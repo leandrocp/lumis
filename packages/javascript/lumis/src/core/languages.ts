@@ -1036,9 +1036,6 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
   let configuredDefaultResolver: WasmResolver = DEFAULT_RESOLVER;
   let configuredLanguagePackageResolver: LanguagePackageResolver =
     DEFAULT_LANGUAGE_PACKAGE_RESOLVER;
-  // Resolved once, on first use: `declaresLanguages` reads a manifest, and a
-  // project's dependency list does not change while the process runs.
-  let declaredLanguages: Promise<boolean> | undefined;
   const moduleCache = createSharedRuntimeCache();
   const parserModules = new Map<string, CachedParserModule>();
 
@@ -1094,18 +1091,19 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     }
 
     /**
-     * Whether a language this project did not declare may still be fetched.
+     * Whether a language this project did not install may still be fetched.
      *
-     * A project that depends on `@lumis-sh/wasm-*` packages has said which
-     * languages it uses, and that list is the whole set — as `Cargo.toml`
-     * features are in Rust and `lumis-lock.toml` is in Elixir. One that depends
-     * on none has declared nothing, so everything resolves on demand and
-     * highlighting works with no configuration at all.
+     * Only where there is no project to read. On Node the `@lumis-sh/wasm-*`
+     * packages a project depends on are the whole set — as `Cargo.toml`
+     * features are in Rust and `mix.exs` dependencies are in Elixir — and a
+     * language outside it is not fetched, whether the project installed one
+     * parser or none. Installing nothing declares nothing, and nothing is what
+     * you get.
+     *
+     * The browser has no manifest: a bundle declares by what it imported.
      */
-    private async mayDownload(): Promise<boolean> {
-      if (!runtime.declaresLanguages) return true;
-      declaredLanguages ??= runtime.declaresLanguages();
-      return !(await declaredLanguages);
+    private mayDownload(): boolean {
+      return !runtime.declaresLanguages;
     }
 
     private acceptsPackage(packageMetadata: LanguagePackage): boolean {
@@ -1124,24 +1122,23 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       }
     }
 
+    /**
+     * The manifest an installed `@lumis-sh/wasm-*` package ships, if one is.
+     *
+     * Resolved through the package's `./lumis.json` export rather than read off
+     * its default export: in Node that entry point *is* the parser bytes, so
+     * there was never a URL there to derive a path from. The export map is what
+     * the package actually publishes the manifest under.
+     */
     private async loadInstalledLanguagePackage(
       packageName: string,
     ): Promise<LanguagePackage | undefined> {
+      const resolved = await runtime.resolveInstalledManifest?.(packageName);
+      if (!resolved) return undefined;
+      const bytes = await runtime.readResolvedWasmFromDisk(resolved);
+      if (!bytes) return undefined;
       try {
-        const mod = await import(
-          /* webpackIgnore: true */
-          /* turbopackIgnore: true */
-          /* @vite-ignore */
-          packageName
-        );
-        const base: unknown = mod.default;
-        if (!(base instanceof URL) && typeof base !== "string") return undefined;
-        const source = new URL("./lumis.json", base instanceof URL ? base : new URL(base));
-        const disk = await runtime.readResolvedWasmFromDisk(source);
-        if (disk) return parseLanguagePackage(disk, packageName);
-        const response = await fetch(source);
-        if (!response.ok) return undefined;
-        return parseLanguagePackage(new Uint8Array(await response.arrayBuffer()), packageName);
+        return parseLanguagePackage(bytes, packageName);
       } catch {
         return undefined;
       }
@@ -1156,7 +1153,12 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
         if (this.acceptsPackage(packageMetadata)) return packageMetadata;
         throw incompatiblePackageVersion(packageMetadata);
       }
-      if (!(await this.mayDownload())) throw notDeclared(packageName, packageName);
+      // Only the default resolver is governed by what the project installed.
+      // A caller that supplied its own said where parsers come from, which is a
+      // declaration in itself — the same reason Elixir's `:parser_dirs` is one.
+      if (resolver === DEFAULT_LANGUAGE_PACKAGE_RESOLVER && !this.mayDownload()) {
+        throw notDeclared(packageName, packageName);
+      }
       const href = typeof source === "string" ? source : source.href;
       const response = await fetchFromCdns(
         href,
@@ -1270,7 +1272,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const url = this.resolver(language, ref);
       const diskData = await runtime.readResolvedWasmFromDisk(url);
       if (diskData) return diskData;
-      if (!(await this.mayDownload())) {
+      if (!this.mayDownload()) {
         throw notDeclared(`${ref.name}@${ref.version}`, ref.packageName);
       }
       const href = typeof url === "string" ? url : url.href;

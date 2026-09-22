@@ -80,9 +80,9 @@ npm install @lumis-sh/wasm-rust @lumis-sh/wasm-json
 Rust and JSON now highlight. A Markdown file with a Haskell block renders that
 block as plain text — Lumis will not go and fetch `haskell`.
 
-Install nothing and the opposite holds: every language downloads the first time
-a document names it. That is the default, and why highlighting works with no
-setup.
+Install nothing and nothing highlights. There is no fallback that fetches a
+language the project did not install, the same way Rust cannot use a language
+that was not compiled in. Install `@lumis-sh/wasm-bundle-full` to get them all.
 
 A bundle installs a set in one package:
 
@@ -90,9 +90,12 @@ A bundle installs a set in one package:
 npm install @lumis-sh/wasm-bundle-web
 ```
 
-Only `dependencies` count. Parsers in `devDependencies` or
-`optionalDependencies` do not close the set, so a library that tests against one
-still downloads everything at runtime.
+Parsers are read out of `node_modules` — the manifest through each package's
+`./lumis.json` export — so nothing is fetched at runtime.
+
+Supplying your own resolver is a declaration too, and takes precedence: a
+caller that said where parsers come from has answered the question the
+dependency list otherwise answers.
 
   </Tab>
   <Tab value="Rust">

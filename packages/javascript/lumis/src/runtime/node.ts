@@ -5,7 +5,6 @@ import { createNativeLanguagesModule } from "../core/native-languages.js";
 import { loadNativeBinding } from "../native-binding.js";
 import treeSitterWasmBinary from "../tree-sitter-wasm.js";
 import {
-  declaresLanguages,
   isUrlString,
   readCachedWasm,
   wasmCacheFilename,
@@ -105,7 +104,25 @@ export const nodeRuntime: RuntimeEnvironment = {
     };
   },
 
-  declaresLanguages,
+  declaresLanguages: true,
+
+  async resolveInstalledManifest(packageName: string): Promise<URL | undefined> {
+    // From the application's directory, not Lumis's own: resolving relative to
+    // this package would find whatever parser version Lumis itself happens to
+    // carry, which is not what the project declared.
+    const { createRequire } = await import("node:module");
+    const { pathToFileURL } = await import("node:url");
+    const { join } = await import("node:path");
+    const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
+
+    try {
+      return pathToFileURL(resolveFromProject.resolve(`${packageName}/lumis.json`));
+    } catch {
+      // Not installed, or published before the manifest was part of the
+      // package. Either way there is nothing here to read.
+      return;
+    }
+  },
 };
 
 export { wasmCacheFilename };
@@ -134,7 +151,7 @@ const binding = loadNativeBinding();
 const wasmRuntime = createLanguagesModule(nodeRuntime);
 
 const runtime: LanguagesModule = binding
-  ? createNativeLanguagesModule(binding, wasmRuntime, declaresLanguages)
+  ? createNativeLanguagesModule(binding, wasmRuntime, true)
   : wasmRuntime;
 
 /**
