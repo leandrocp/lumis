@@ -1,6 +1,7 @@
 {
   "title": "Advanced",
   "pages": [
-    "wasm-and-cdn"
+    "wasm-and-cdn",
+    "lock"
   ]
 }

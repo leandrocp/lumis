@@ -1,0 +1,153 @@
+---
+title: Pinning parsers
+description: How lumis-lock.toml pins parser versions, which runtimes need one, and how each project declares the languages it may load.
+keywords:
+  - lumis-lock.toml
+  - lock file
+  - pin parsers
+  - mix lumis.add
+  - reproducible
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+Highlighting resolves a parser the first time a document names one, then keeps
+what it found. Whichever compatible version a machine downloaded first is the
+one it uses from then on, so two machines can render the same document
+differently and nothing records which parser produced which output.
+
+Pinning fixes that. It also closes a quieter gap: the parser is verified against
+a digest the package metadata declares, and that metadata arrives over the
+network — so without a pin, a wrong response on first fetch is trusted forever.
+
+## One rule, three declarations
+
+Every runtime already honours the same rule: **a language outside the set it can
+use renders plain.** What differs is how the set is declared, and a project gets
+exactly one of these.
+
+| Runtime | Declares its set in | Needs `lumis-lock.toml` |
+| --- | --- | --- |
+| Rust | `Cargo.toml` features | no |
+| JavaScript / TypeScript | `package.json` | no |
+| Elixir | `lumis-lock.toml` | **yes** |
+| CLI | nothing | no |
+
+Rust links parsers statically, so a language you did not build in does not exist
+and there is nothing to fetch. JavaScript installs `@lumis-sh/wasm-*` packages,
+which your package manager's lockfile already pins. Elixir fetches parsers at
+runtime and has no manifest of its own — that is the gap the lock fills.
+
+The CLI is its own runtime with its own store. `lumis highlight` resolves
+freely, because a viewer is not the application whose output a lock governs, and
+a highlighter that behaved differently depending on the directory you ran it in
+would be worse than one that does not.
+
+<Tabs groupId="runtime" persist items={['Elixir', 'JavaScript / TypeScript', 'Rust']}>
+  <Tab value="Elixir">
+
+```bash title="Record a language and cache it"
+mix lumis.add rust
+```
+
+```bash title="A bundle"
+mix lumis.add bundle-web
+```
+
+```bash title="Move a pinned version"
+mix lumis.update rust
+mix lumis.update --all
+```
+
+```bash title="Stop pinning"
+mix lumis.remove rust
+```
+
+```bash title="Cache exactly what the lock names — the release step"
+mix lumis.install
+```
+
+  </Tab>
+  <Tab value="JavaScript / TypeScript">
+
+Install the parsers you want and your lockfile pins them. There is no separate
+Lumis lock.
+
+```bash
+pnpm add @lumis-sh/wasm-rust
+```
+
+A bundle covers a set in one package:
+
+```bash
+pnpm add @lumis-sh/wasm-bundle-web
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+Parsers are Cargo features, so `Cargo.lock` and the `lumis` version pin them.
+Nothing is fetched at runtime.
+
+```toml title="Cargo.toml"
+lumis = { version = "0.13", default-features = false, features = ["lang-rust", "lang-elixir"] }
+```
+
+  </Tab>
+</Tabs>
+
+## What the file holds
+
+```toml title="lumis-lock.toml"
+version = 1
+range = "0.26"
+
+[[package]]
+name = "@lumis-sh/wasm-rust"
+version = "0.26.4"
+languages = ["rust"]
+manifest_sha256 = "..."
+parser_sha256 = "..."
+definition_hash = "..."
+```
+
+Commit it. `range` records the Tree-sitter series it was resolved against, so
+upgrading Lumis across series tells you to re-resolve rather than silently
+ignoring every entry.
+
+Rows are keyed on the package because that is what gets published and versioned,
+and one package can back several languages — `ejs` and `erb` are both
+`@lumis-sh/wasm-embedded-template`. `languages` records what you **added**, so a
+lock can pin `ejs` without also allowing `erb`.
+
+A bundle is shorthand when you add it: its members are recorded and the bundle
+name is not. Re-run `mix lumis.add bundle-web` to pick up a language the bundle
+gained, so widening what a project may load stays a visible diff.
+
+## What a lock changes at runtime
+
+Naming a language explicitly is your decision, so it is an error when the lock
+does not pin it:
+
+```elixir
+Lumis.Languages.load("haskell")
+#=> {:error, :not_locked}
+```
+
+A language an *injection* names is content rather than a decision — a fenced
+block in a README, say — so that block renders plain and the document is fine.
+This is the same rule Lumis already follows for a language that fails to
+download: a failure costs one block, not the page.
+
+## Releases
+
+A release ships `priv/` but not your project directory, so `mix lumis.add` and
+`mix lumis.install` keep a copy of the lock in the data directory and Lumis
+reads it from there at boot. Running `mix lumis.install` as a build step is
+enough; point `config :lumis, :data_dir` at a writable directory if the default
+does not suit.
+
+`config :lumis, :lock` names the lock explicitly when neither default applies. A
+path that does not exist is an error rather than "no lock", since booting
+without the pins you checked in would restore exactly the behaviour the lock
+removes.
