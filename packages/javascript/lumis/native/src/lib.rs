@@ -286,7 +286,7 @@ fn reject_reentrant_highlight(env: &Env) -> Result<()> {
 /// Read once, when the runtime is built.
 static STORE_PATHS: Mutex<StorePaths> = Mutex::new(StorePaths {
     data_dir: None,
-    declared_set: false,
+    installed_packages: None,
     consumed: false,
 });
 
@@ -301,7 +301,14 @@ struct StorePaths {
     ///
     /// Unlike `data_dir` this is read per *request*, by `SwitchableFetcher`, so
     /// it does not have to be known before the runtime is built.
-    declared_set: bool,
+    /// The `@lumis-sh/wasm-*` packages this project installed, or `None` where
+    /// there is no project to read — the browser.
+    ///
+    /// A set rather than a flag: whether a package may be fetched depends on
+    /// whether the project installed *it*, not on whether the project installed
+    /// anything. A package that ships no manifest of its own is still declared,
+    /// and still has to be reachable.
+    installed_packages: Option<std::collections::HashSet<String>>,
     /// Set when the runtime read them, which it does exactly once.
     consumed: bool,
 }
@@ -353,12 +360,12 @@ pub fn configure_store(data_dir: Option<String>) -> bool {
 ///
 /// Unlike [`configure_store`] this does not have to be set before the runtime
 /// exists, because `SwitchableFetcher` reads it per request.
-#[napi(js_name = "setDeclaredSet")]
-pub fn set_declared_set(declared: bool) {
+#[napi(js_name = "setInstalledPackages")]
+pub fn set_installed_packages(packages: Vec<String>) {
     STORE_PATHS
         .lock()
         .expect("store path lock poisoned")
-        .declared_set = declared;
+        .installed_packages = Some(packages.into_iter().collect());
 }
 
 /// The directory the store uses when nothing names one, so Node can defer to the
@@ -391,15 +398,19 @@ impl store::Fetcher for SwitchableFetcher {
     fn get(&self, url: &str) -> std::result::Result<Vec<u8>, String> {
         // Read and release. Holding the lock across the request would serialize
         // every concurrent download behind it.
-        let declared = STORE_PATHS
+        let installed = STORE_PATHS
             .lock()
             .expect("store path lock poisoned")
-            .declared_set;
-        if declared {
-            return Err(
-                "this project declares the languages it uses, and this is not one of them"
-                    .to_string(),
-            );
+            .installed_packages
+            .clone();
+
+        if let Some(installed) = installed {
+            if !installed.iter().any(|name| url.contains(name.as_str())) {
+                return Err(
+                    "this project loads only the parsers it installed, and this is not one of them"
+                        .to_string(),
+                );
+            }
         }
         store::HttpFetcher.get(url)
     }

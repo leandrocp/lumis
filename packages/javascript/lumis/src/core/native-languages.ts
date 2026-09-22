@@ -178,7 +178,7 @@ const resolverSource = (source: string | URL): string =>
 export function createNativeLanguagesModule(
   binding: NativeBinding,
   resolvers: LanguagesModule,
-  declaresLanguages?: () => Promise<boolean>,
+  installedPackages?: () => Promise<string[]>,
 ): LanguagesModule {
   let globalWasmResolver: WasmResolver | undefined;
   let globalLanguagePackageResolver: LanguagePackageResolver | undefined;
@@ -206,9 +206,18 @@ export function createNativeLanguagesModule(
    */
   let declarationTold: Promise<void> | undefined;
 
+  /**
+   * Hand the addon the packages this project installed, once.
+   *
+   * The addon resolves injected languages itself, inside a native walk, without
+   * coming back to JavaScript — so the TypeScript check cannot see them. Both
+   * sides have to know, or an injection would be fetched on Node and refused in
+   * the browser.
+   */
   function tellAddon(): Promise<void> {
     declarationTold ??= (async () => {
-      binding.setDeclaredSet((await declaresLanguages?.()) ?? false);
+      if (!installedPackages) return;
+      binding.setInstalledPackages(await installedPackages());
     })();
     return declarationTold;
   }
@@ -458,19 +467,17 @@ export function createNativeLanguagesModule(
       const id = opts.definition.id;
       if (!packageName) return undefined;
       try {
-        const module = await import(
-          /* webpackIgnore: true */
-          /* turbopackIgnore: true */
-          /* @vite-ignore */
-          packageName
-        );
-        const base: unknown = module.default;
-        if (!(base instanceof URL) && typeof base !== "string") return undefined;
-
-        const root = base instanceof URL ? base : new URL(base);
+        // Through the package's export map, not its default export: in Node
+        // that entry point *is* the parser bytes, so there was never a URL
+        // there to resolve the manifest against.
+        const { createRequire } = await import("node:module");
+        const { pathToFileURL } = await import("node:url");
+        const { join } = await import("node:path");
+        const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
+        const manifestUrl = pathToFileURL(resolveFromProject.resolve(`${packageName}/lumis.json`));
         const { readFile } = await import("node:fs/promises");
         const { fileURLToPath } = await import("node:url");
-        const read = async (name: string) => readFile(fileURLToPath(new URL(name, root)));
+        const read = async (name: string) => readFile(fileURLToPath(new URL(name, manifestUrl)));
 
         const manifest = await read("lumis.json");
         const packageJson = manifest.toString("utf8");

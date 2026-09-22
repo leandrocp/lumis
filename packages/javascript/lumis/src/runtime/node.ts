@@ -1,11 +1,11 @@
 import type { RuntimeEnvironment } from "./runtime.js";
 import { createLanguagesModule } from "../core/languages.js";
+import { LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
 import type { LanguagePackageResolver, LanguagesModule, WasmResolver } from "../core/languages.js";
 import { createNativeLanguagesModule } from "../core/native-languages.js";
 import { loadNativeBinding } from "../native-binding.js";
 import treeSitterWasmBinary from "../tree-sitter-wasm.js";
 import {
-  declaresLanguages,
   isUrlString,
   readCachedWasm,
   wasmCacheFilename,
@@ -105,7 +105,27 @@ export const nodeRuntime: RuntimeEnvironment = {
     };
   },
 
-  declaresLanguages,
+  declaresLanguages: true,
+
+  installedPackages,
+
+  async resolveInstalledManifest(packageName: string): Promise<URL | undefined> {
+    // From the application's directory, not Lumis's own: resolving relative to
+    // this package would find whatever parser version Lumis itself happens to
+    // carry, which is not what the project declared.
+    const { createRequire } = await import("node:module");
+    const { pathToFileURL } = await import("node:url");
+    const { join } = await import("node:path");
+    const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
+
+    try {
+      return pathToFileURL(resolveFromProject.resolve(`${packageName}/lumis.json`));
+    } catch {
+      // Not installed, or published before the manifest was part of the
+      // package. Either way there is nothing here to read.
+      return;
+    }
+  },
 };
 
 export { wasmCacheFilename };
@@ -131,10 +151,38 @@ const binding = loadNativeBinding();
  * it, so an injected language has to be loaded before the document mentioning
  * it is highlighted.
  */
+/**
+ * Which of `candidates` this project installed.
+ *
+ * Resolved one by one rather than by listing `node_modules/@lumis-sh`: pnpm
+ * links direct dependencies there and leaves everything a bundle pulled in
+ * under `.pnpm`, so a directory listing would miss most of a bundle.
+ *
+ * From the application's directory, not Lumis's own — resolving relative to
+ * this package would answer for whatever parsers Lumis itself carries.
+ */
+async function installedPackages(candidates: string[]): Promise<string[]> {
+  const { createRequire } = await import("node:module");
+  const { pathToFileURL } = await import("node:url");
+  const { join } = await import("node:path");
+  const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
+
+  return candidates.filter((name) => {
+    try {
+      resolveFromProject.resolve(name);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+}
+
 const wasmRuntime = createLanguagesModule(nodeRuntime);
 
 const runtime: LanguagesModule = binding
-  ? createNativeLanguagesModule(binding, wasmRuntime, declaresLanguages)
+  ? createNativeLanguagesModule(binding, wasmRuntime, () =>
+      installedPackages(LANGUAGE_PACKAGE_NAMES),
+    )
   : wasmRuntime;
 
 /**

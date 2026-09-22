@@ -23,9 +23,9 @@ have.
 
 ## One rule, one place to look
 
-Every runtime honours the same rule: **a language you did not add is a language
-you do not have.** A parser is a dependency, declared where that runtime's
-dependencies already live.
+Every runtime resolves parsers the same way: **only the ones the project
+installed**, with no fallback that fetches anything else. A parser is a
+dependency, declared where that runtime's dependencies already live.
 
 | Runtime | Declares its parsers in | Pinned by |
 | --- | --- | --- |
@@ -38,11 +38,6 @@ Rust links parsers statically. JavaScript installs `@lumis-sh/wasm-*`. Elixir
 depends on `lumis_wasm_*`, whose `priv/parsers` holds the bytes — so they travel
 into a release like any other dependency's assets, with no data directory to
 prepare and nothing to copy.
-
-One difference remains, and it is being closed rather than kept: a JavaScript
-project that installs *no* parser still downloads on demand, while an Elixir
-project that depends on none highlights nothing. Elixir took the stricter rule
-first because it had no declaration at all before this.
 
 The CLI is the exception, deliberately. It has no project and downloads what it
 needs, because a viewer is not the application whose output a declaration
@@ -99,9 +94,9 @@ npm install @lumis-sh/wasm-rust @lumis-sh/wasm-json
 Rust and JSON now highlight. A Markdown file with a Haskell block renders that
 block as plain text — Lumis will not go and fetch `haskell`.
 
-Install nothing and the opposite still holds here: every language downloads the
-first time a document names it. That is why highlighting works with no setup,
-and it is the one place a runtime still resolves something you did not ask for.
+Install nothing and nothing highlights. There is no fallback that fetches a
+language the project did not install, the same way Rust cannot use a language
+that was not compiled in. Install `@lumis-sh/wasm-bundle-full` to get them all.
 
 A bundle installs a set in one package:
 
@@ -109,9 +104,12 @@ A bundle installs a set in one package:
 npm install @lumis-sh/wasm-bundle-web
 ```
 
-Only `dependencies` count. Parsers in `devDependencies` or
-`optionalDependencies` do not close the set, so a library that tests against one
-still downloads everything at runtime.
+Parsers are read out of `node_modules` — the manifest through each package's
+`./lumis.json` export — so nothing is fetched at runtime.
+
+Supplying your own resolver is a declaration too, and takes precedence: a
+caller that said where parsers come from has answered the question the
+dependency list otherwise answers.
 
   </Tab>
   <Tab value="Rust">
