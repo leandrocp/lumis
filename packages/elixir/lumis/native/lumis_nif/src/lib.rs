@@ -92,7 +92,7 @@ struct Highlighted {
 /// obtained"; the detail behind the second is not something a `case` can act on.
 enum LoadFailure {
     UnknownLanguage,
-    NotLocked,
+    NotInstalled,
     Parser,
 }
 
@@ -100,7 +100,7 @@ impl Encoder for LoadFailure {
     fn encode<'a>(&self, env: Env<'a>) -> Term<'a> {
         match self {
             Self::UnknownLanguage => unknown_language().encode(env),
-            Self::NotLocked => not_locked().encode(env),
+            Self::NotInstalled => not_installed().encode(env),
             Self::Parser => failed_to_load_parser().encode(env),
         }
     }
@@ -112,12 +112,16 @@ impl Encoder for LoadFailure {
 #[derive(Default)]
 struct StorePaths {
     data_dir: Option<std::path::PathBuf>,
-    /// The lock governing this application, already read.
+    /// `priv/parsers` of every installed `lumis_wasm_*` application.
     ///
-    /// Elixir hands it over at boot rather than the NIF discovering it: a
-    /// release has no project root to search upward from, so the lock is read
-    /// from the data directory the Mix tasks keep it in.
-    lock: Option<Arc<lumis_wasm_runtime::Lock>>,
+    /// Elixir hands these over at boot for the same reason it hands over the
+    /// lock: only the BEAM knows which applications are loaded, and a release
+    /// has no project directory to infer them from.
+    ///
+    /// Empty is a real answer — this project depends on no parsers, so it may
+    /// load none. It is never `None`, because an Elixir application always
+    /// declares; only the CLI resolves without one.
+    installed_dirs: Vec<std::path::PathBuf>,
 }
 
 static STORE_PATHS: std::sync::LazyLock<RwLock<StorePaths>> =
@@ -128,25 +132,11 @@ static STORE_PATHS: std::sync::LazyLock<RwLock<StorePaths>> =
 fn language_store(cache_dir: Option<std::path::PathBuf>) -> store::LanguageStore {
     let paths = STORE_PATHS.read();
     let cache_dir = store::resolve_data_dir(cache_dir.or_else(|| paths.data_dir.clone()));
-    let store = store::LanguageStore::new(
-        store::StoreConfig { cache_dir },
-        Box::new(store::HttpFetcher),
-    );
-    match paths.lock.clone() {
-        Some(lock) => store.with_lock(lock),
-        None => store,
-    }
-}
-
-/// A store that resolves the compatible range regardless of any lock.
-///
-/// `add` and `update` are the operations that *choose* a version, so a store
-/// constrained to what is already pinned would make them no-ops.
-fn resolving_store() -> store::LanguageStore {
-    let paths = STORE_PATHS.read();
-    let cache_dir = store::resolve_data_dir(paths.data_dir.clone());
     store::LanguageStore::new(
-        store::StoreConfig { cache_dir },
+        store::StoreConfig {
+            cache_dir,
+            installed_dirs: Some(paths.installed_dirs.clone()),
+        },
         Box::new(store::HttpFetcher),
     )
 }
@@ -278,7 +268,7 @@ rustler::atoms! {
     decoration_end,
     language_not_loaded,
     unknown_language,
-    not_locked,
+    not_installed,
     failed_to_load_parser,
 }
 
@@ -642,88 +632,46 @@ fn executor() -> Result<&'static WasmExecutor> {
 ///
 /// Returns false once the store exists, since the paths are read when it is
 /// built. `Lumis.Application` calls this before anything can use it.
-///
-/// A lock that cannot be read is reported rather than ignored: booting without
-/// the pins a project checked in would silently restore the behaviour the lock
-/// was added to remove.
 #[rustler::nif]
-fn configure_store(data_dir: Option<String>, lock_path: Option<String>) -> Result<bool, String> {
+fn configure_store(data_dir: Option<String>, installed_dirs: Vec<String>) -> bool {
     let _settled = STORE_SETTLED.lock();
     if Lazy::get(&EXECUTOR).is_some() {
-        return Ok(false);
+        return false;
     }
-    // A path was supplied, so a missing file is a misconfiguration rather than
-    // "no lock": continuing would boot without the pins a project checked in,
-    // which is the behaviour the lock was added to remove. Only `None` — no
-    // lock anywhere — leaves the store unconstrained.
-    let lock = match lock_path {
-        Some(path) => Some(Arc::new(
-            lumis_wasm_runtime::Lock::read(std::path::Path::new(&path))
-                .map_err(|error| error.to_string())?
-                .ok_or_else(|| format!("no lock at {path}"))?,
-        )),
-        None => None,
-    };
-
     let mut paths = STORE_PATHS.write();
     paths.data_dir = data_dir.map(std::path::PathBuf::from);
-    paths.lock = lock;
+    paths.installed_dirs = installed_dirs
+        .into_iter()
+        .map(std::path::PathBuf::from)
+        .collect();
 
     let compile_cache = store::resolve_data_dir(paths.data_dir.clone());
     lumis_wasm_runtime::set_compile_cache_dir(compile_cache);
-    Ok(true)
+    true
 }
 
-/// Whether a lock is in force, for `Lumis.Languages` to phrase its errors.
-#[rustler::nif]
-fn lock_in_force() -> bool {
-    STORE_PATHS.read().lock.is_some()
-}
-
-/// Re-read the lock at `path` into the store, replacing whatever boot applied.
+/// Whether `name` is a language this project never added.
 ///
-/// A `mix lumis.*` task edits the lock and then caches what it just recorded,
-/// but the store took its copy at boot: without this, `mix lumis.add ejs` writes
-/// the entry and is then refused by a store still holding the lock from before
-/// it existed.
+/// Checked here rather than read out of the store's error, for the same reason
+/// `refused_by_lock` is: the alternative is matching on a message.
 ///
-/// Refuses once the executor exists, exactly as [`configure_store`] does. Stores
-/// are built per call from `STORE_PATHS`, but the executor keeps the one it was
-/// constructed with, so a refresh after that point would reach the download and
-/// not the compile — half the operation honouring the new lock and half the old.
-/// A Mix task never touches the executor before this runs, since it is built
-/// lazily on first use; anything that did gets an error rather than that split.
-///
-/// The check and the replacement happen under [`STORE_SETTLED`], so an executor
-/// being built concurrently cannot read the paths between them.
-#[rustler::nif(schedule = "DirtyIo")]
-fn lock_refresh(path: String) -> Result<bool, String> {
-    let _settled = STORE_SETTLED.lock();
-    if Lazy::get(&EXECUTOR).is_some() {
-        return Err(
-            "the Lumis runtime is already started, so the lock it resolves against cannot be \
-             replaced; run this before highlighting or loading anything"
-                .to_string(),
-        );
-    }
-    let lock = lumis_wasm_runtime::Lock::read(std::path::Path::new(&path))
-        .map_err(|error| error.to_string())?;
-    let found = lock.is_some();
-    STORE_PATHS.write().lock = lock.map(Arc::new);
-    Ok(found)
-}
-
-/// Whether a lock is in force and does not pin `name`.
-///
-/// Checked here rather than read out of the store's error, which would mean
-/// matching on a message. A language the catalog does not know is not this
-/// runtime's answer to give — `load` already reports that separately.
-fn refused_by_lock(name: &str) -> bool {
+/// A parser is a dependency. Not having added one is not a failure to fetch, it
+/// is an answer — the same answer JavaScript gives for an `@lumis-sh/wasm-*`
+/// package that is not in `package.json`.
+fn never_added(name: &str) -> bool {
     let paths = STORE_PATHS.read();
-    let Some(lock) = paths.lock.as_ref() else {
+    let Some(entry) = catalog::find(name) else {
         return false;
     };
-    catalog::find(name).is_some_and(|entry| lock.language(entry.id).is_none())
+    let Some(suffix) = store::package_suffix(entry.package_name) else {
+        return false;
+    };
+    let file = format!("{suffix}.lumis.json");
+
+    !paths
+        .installed_dirs
+        .iter()
+        .any(|dir| dir.join(&file).is_file())
 }
 
 /// Resolve, download, verify and load `name` through the shared store.
@@ -737,8 +685,8 @@ fn refused_by_lock(name: &str) -> bool {
 /// costs one block, not the document".
 #[rustler::nif(schedule = "DirtyCpu")]
 fn load_language_by_name<'a>(env: Env<'a>, name: &str) -> Term<'a> {
-    if refused_by_lock(name) {
-        return (error(), LoadFailure::NotLocked).encode(env);
+    if never_added(name) {
+        return (error(), LoadFailure::NotInstalled).encode(env);
     }
     let result = executor()
         .map_err(|_| LoadFailure::Parser)
@@ -771,119 +719,6 @@ fn on_deep_stack<Output: Send>(work: impl FnOnce() -> Output + Send) -> Result<O
             .join()
             .map_err(|_| anyhow!("the Lumis batch thread panicked"))
     })
-}
-
-/// One package a lock operation touched, for `mix lumis.*` to print.
-#[derive(Debug, NifMap)]
-struct ExLockChange {
-    package: String,
-    previous_version: Option<String>,
-    version: String,
-    moved: bool,
-}
-
-impl From<lumis_wasm_runtime::Change> for ExLockChange {
-    fn from(change: lumis_wasm_runtime::Change) -> Self {
-        Self {
-            moved: change.moved(),
-            package: change.package_name,
-            previous_version: change.previous_version,
-            version: change.version,
-        }
-    }
-}
-
-/// Take the lock at `path`, apply `edit`, and write it back.
-///
-/// The handle is held across read, edit and write, so two `mix lumis.add` runs
-/// cannot each observe the earlier state and then overwrite the other's entry.
-fn with_lock_file<T>(
-    path: &str,
-    create: bool,
-    edit: impl FnOnce(&mut lumis_wasm_runtime::Lock) -> Result<T, String>,
-) -> Result<T, String> {
-    use lumis_wasm_runtime::{Lock, LockFile};
-
-    let path = std::path::Path::new(path);
-    let file = LockFile::open(path, create).map_err(|error| error.to_string())?;
-    let mut lock = file
-        .read()
-        .map_err(|error| error.to_string())?
-        .unwrap_or_else(|| Lock::new(catalog::LANGUAGE_PACKAGE_VERSION_RANGE));
-    lock.require_range(catalog::LANGUAGE_PACKAGE_VERSION_RANGE, path)
-        .map_err(|error| error.to_string())?;
-
-    let outcome = edit(&mut lock)?;
-    file.write(&lock).map_err(|error| error.to_string())?;
-    Ok(outcome)
-}
-
-/// Record `languages` in the lock at `path`, creating it when absent.
-#[rustler::nif(schedule = "DirtyIo")]
-fn lock_add(path: String, languages: Vec<String>) -> Result<Vec<ExLockChange>, String> {
-    let store = resolving_store();
-    with_lock_file(&path, true, |lock| {
-        lumis_wasm_runtime::lock::manage::add(&store, lock, &languages)
-            .map(|changes| changes.into_iter().map(ExLockChange::from).collect())
-            .map_err(|error| error.to_string())
-    })
-}
-
-/// Stop pinning `languages`, reporting what was removed and what was not there.
-///
-/// Both lists are expanded names. Reporting against the raw arguments instead
-/// would say `bundle-web is not in lumis-lock.toml` after successfully removing
-/// every one of its members, since a bundle name is never itself recorded.
-#[rustler::nif(schedule = "DirtyIo")]
-fn lock_remove(path: String, languages: Vec<String>) -> Result<(Vec<String>, Vec<String>), String> {
-    use lumis_wasm_runtime::lock::manage;
-
-    with_lock_file(&path, false, |lock| {
-        let requested = manage::expand(&languages).map_err(|error| error.to_string())?;
-        let removed = manage::remove(lock, &languages).map_err(|error| error.to_string())?;
-        let missing = requested
-            .into_iter()
-            .filter(|name| !removed.contains(name))
-            .collect();
-        Ok((removed, missing))
-    })
-}
-
-/// Re-resolve pinned packages and move the lock to what the registry serves.
-#[rustler::nif(schedule = "DirtyIo")]
-fn lock_update(
-    path: String,
-    languages: Vec<String>,
-    all: bool,
-) -> Result<Vec<ExLockChange>, String> {
-    let store = resolving_store();
-    with_lock_file(&path, false, |lock| {
-        lumis_wasm_runtime::lock::manage::update(&store, lock, &languages, all)
-            .map(|changes| changes.into_iter().map(ExLockChange::from).collect())
-            .map_err(|error| error.to_string())
-    })
-}
-
-/// Every language the lock at `path` pins, for `mix lumis.install`.
-///
-/// `{:ok, :none}` when there is no lock there, so the caller can tell "no lock"
-/// from "a lock that pins nothing" — the second is a project that removed its
-/// last language, and materializing it is a no-op rather than an error.
-#[rustler::nif(schedule = "DirtyIo")]
-fn lock_languages(env: Env<'_>, path: String) -> Term<'_> {
-    let path = std::path::Path::new(&path);
-    match lumis_wasm_runtime::Lock::read(path) {
-        Ok(Some(lock)) => match lock.require_range(catalog::LANGUAGE_PACKAGE_VERSION_RANGE, path) {
-            Ok(()) => (
-                ok(),
-                lumis_wasm_runtime::lock::manage::locked_languages(&lock),
-            )
-                .encode(env),
-            Err(error) => (self::error(), error.to_string()).encode(env),
-        },
-        Ok(None) => (ok(), rustler::types::atom::nil()).encode(env),
-        Err(error) => (self::error(), error.to_string()).encode(env),
-    }
 }
 
 /// Download and compile `names` concurrently for `Lumis.Languages.download/2`.
@@ -1619,92 +1454,5 @@ mod tests {
             !events.is_empty(),
             "highlighting an Elixir module produced no events"
         );
-    }
-}
-
-#[cfg(test)]
-mod lock_tests {
-    use super::*;
-    use lumis_wasm_runtime::{Lock, LockedPackage};
-
-    fn pin(languages: &[&str]) -> Lock {
-        let mut lock = Lock::new(catalog::LANGUAGE_PACKAGE_VERSION_RANGE);
-        for language in languages {
-            let entry = catalog::find(language).expect("a catalog language");
-            lock.insert(LockedPackage {
-                name: entry.package_name.to_string(),
-                version: "0.26.1".into(),
-                languages: vec![entry.id.to_string()],
-                manifest_sha256: "a".repeat(64),
-                parser_sha256: "b".repeat(64),
-                definition_hash: None,
-            });
-        }
-        lock
-    }
-
-    /// `STORE_PATHS` is global and the test harness runs in parallel, so setup,
-    /// body and cleanup have to be one critical section or two tests read each
-    /// other's lock.
-    static SERIALIZED: std::sync::Mutex<()> = std::sync::Mutex::new(());
-
-    fn with_lock<T>(lock: Option<Lock>, body: impl FnOnce() -> T) -> T {
-        let guard = SERIALIZED
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        STORE_PATHS.write().lock = lock.map(Arc::new);
-        let outcome = body();
-        STORE_PATHS.write().lock = None;
-        drop(guard);
-        outcome
-    }
-
-    #[test]
-    fn nothing_is_refused_without_a_lock() {
-        with_lock(None, || {
-            assert!(!refused_by_lock("json"));
-            assert!(!refused_by_lock("haskell"));
-        });
-    }
-
-    #[test]
-    fn a_locked_language_is_allowed_and_an_unlocked_one_is_not() {
-        with_lock(Some(pin(&["json"])), || {
-            assert!(!refused_by_lock("json"));
-            assert!(refused_by_lock("haskell"));
-        });
-    }
-
-    /// The lock records stable ids, so a caller naming an alias has to reach the
-    /// same answer — otherwise `load("js")` would bypass a lock pinning
-    /// `javascript`.
-    #[test]
-    fn an_alias_resolves_to_the_same_answer_as_its_id() {
-        with_lock(Some(pin(&["javascript"])), || {
-            assert!(!refused_by_lock("javascript"));
-            assert!(!refused_by_lock("js"));
-        });
-    }
-
-    /// `ejs` and `erb` share a package, and the lock pins languages rather than
-    /// packages, so pinning one must not admit the other.
-    #[test]
-    fn a_sibling_language_in_the_same_package_is_still_refused() {
-        with_lock(Some(pin(&["ejs"])), || {
-            assert!(!refused_by_lock("ejs"));
-            assert!(
-                refused_by_lock("erb"),
-                "erb shares @lumis-sh/wasm-embedded-template but was never added"
-            );
-        });
-    }
-
-    /// An unknown name is not this check's to answer: `load` already reports it
-    /// separately, and claiming "not locked" would be a worse message.
-    #[test]
-    fn an_unknown_language_is_left_to_the_loader() {
-        with_lock(Some(pin(&["json"])), || {
-            assert!(!refused_by_lock("nope"));
-        });
     }
 }

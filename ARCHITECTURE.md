@@ -146,7 +146,7 @@ declared, and a runtime gets exactly one of these:
 | --- | --- | --- |
 | Rust `lumis` crate | `Cargo.toml` features | linked statically: 65 crates.io parsers, 47 vendored sources |
 | JavaScript with installed packages | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
-| Elixir, any future FFI binding | `lumis-lock.toml` | fetched and verified at runtime |
+| Elixir, any future FFI binding | `mix.exs` dependencies | `lumis_wasm_*` in each dependency's `priv/parsers` |
 | The CLI | nothing — it declares no set | fetched on demand into its own store |
 
 The Rust crate depends on `lumis-wasm-runtime` with `default-features = false`,
@@ -155,10 +155,12 @@ does not exist, and there is nothing to fetch. That is the boundary talking, the
 same way the NIF boundary shapes Elixir's formatter signatures. It is not a
 divergence to paper over.
 
-Elixir has no manifest of its own, which is the gap `lumis-lock.toml` fills.
-Without it, an Elixir application can load *anything* while Rust cannot — so the
-lock is what makes those runtimes converge on Rust's behaviour rather than what
-makes them differ.
+Elixir declares in `mix.exs` and pins in `mix.lock`, the files it already has. A
+parser package is an ordinary OTP application whose `priv/parsers` holds the
+manifest and the WASM it describes, so a release carries it like any
+dependency's assets and nothing is fetched at runtime. `config :lumis,
+:parser_dirs` names directories directly for a project that vendors them
+instead.
 
 The CLI is the one row with no declaration, and that is deliberate rather than a
 gap: see below.
@@ -166,16 +168,16 @@ gap: see below.
 Nobody gets two declarations. A JavaScript project that installs its parsers
 does not also write a lock; `package.json` already is one.
 
-One divergence remains and is deliberate for now: JavaScript falls back to the
-CDN for a language it has not installed, so its set is open even when
-`package.json` looks closed. Closing it is an enforcement change rather than a
-file, and applies to whichever mechanism declared the set.
+One divergence remains: a JavaScript project that installs *no* parser still
+falls back to the CDN, where an Elixir project that depends on none highlights
+nothing. Elixir took the stricter rule first because it had no declaration at
+all before; closing the JavaScript side is its own change.
 
-**The CLI is its own runtime, and has no lock.** It is a viewer and a store
+**The CLI is its own runtime, and declares nothing.** It is a viewer and a store
 filler: `lumis highlight` and `lumis dump` resolve freely, and `lumis languages
-cache` fills the store. Reaching up to a project's `lumis-lock.toml` would make
-the CLI a second writer of a file the project's own runtime manages, and would
-make a highlighter behave differently depending on the directory it ran in.
+download` fills the store. Reading a project's dependencies would make a
+highlighter behave differently depending on the directory it ran in, which is
+worse than one that does not.
 
 ### Highlighting loads what a document needs, in one pass
 
@@ -312,17 +314,15 @@ layout instead of the thing it was being asked to do. The old spellings still
 work: `lumis languages cache`, `Lumis.Languages.cache/2` and `cacheLanguages()`
 are deprecated aliases.
 
-Those two verbs are the whole store surface, including the CLI's. Editing a lock
-is not a third one: `lumis_wasm_runtime::lock::manage` implements what `add`,
-`remove` and `update` *mean*, and each runtime spells them in its own tooling.
-Elixir spells them `mix lumis.add`, `mix lumis.remove`, `mix lumis.update` and
-`mix lumis.install`, which parse arguments and print; the meaning stays in Rust,
-so a second implementation of the format cannot drift from the first.
+Those two verbs are the whole store surface, including the CLI's. Adding and
+removing a language is not a third: that is a dependency edit, and every runtime
+already has tooling for it — `cargo add`, `npm install`, `mix deps.get`. Lumis
+does not reimplement any of them.
 
-A release has no project directory to find a lock in, so `mix lumis.*` keeps a
-copy in the data directory and `Lumis.Application` reads it at boot. That is
-also how a future Go or PHP binding would enforce a lock without reimplementing
-anything: point the store at a directory that has one.
+That is also how a future Go or PHP binding would work without reimplementing
+anything: point the store at directories holding parsers, laid out the way
+`priv/parsers` is, and the declaration is whatever that ecosystem's manifest
+says.
 
 An application loads at startup without waiting for it. Elixir runs the load
 under a `:temporary` child of Lumis's supervisor; JavaScript leaves the promise

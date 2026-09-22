@@ -54,10 +54,17 @@ defmodule Lumis.Languages do
       :ok = Lumis.Languages.load(["elixir", :html])
       :ok = Lumis.Languages.load(:bundle_web)
 
-  A `:bundle_*` atom names the same set of languages as the `@lumis-sh/wasm-bundle-*`
+  A `:bundle_*` atom names the same set of languages as the `lumis_wasm_bundle_*`
   package of that name, so every runtime means the same thing by it. `:bundle_full`
   is every language in the catalog, which is rarely what a deployment wants; prefer
   a narrower bundle, or name the languages a document can contain.
+
+  Loading only ever reaches parsers this project depends on. A parser is an
+  ordinary dependency, so a language you did not add is a language you do not
+  have:
+
+      # mix.exs
+      {:lumis_wasm_elixir, "~> 0.26"}
 
   ## Failures
 
@@ -68,13 +75,19 @@ defmodule Lumis.Languages do
       {:error, %{"css" => :failed_to_load_parser}} = Lumis.Languages.load(["elixir", "css"])
 
     * `:unknown_language` — the name is not in the catalog
-    * `:failed_to_load_parser` — it is, but its parser could not be obtained or verified
+    * `:not_installed` — it is, but this project does not depend on its parser
+    * `:failed_to_load_parser` — the parser could not be read or verified
     * `:unknown_bundle` — no bundle by that name
 
+  A single name answers with the reason itself; a list answers with a map from
+  name to reason, so one failure never hides the others.
+
   """
-  @type failure() :: :unknown_language | :failed_to_load_parser
+  @type failure() :: :unknown_language | :not_installed | :failed_to_load_parser
   @spec load(bundle() | String.t() | atom() | [String.t() | atom()]) ::
-          :ok | {:error, :unknown_bundle | %{String.t() => failure()}}
+          :ok
+          | {:error, :unknown_bundle | failure()}
+          | {:error, %{String.t() => :unknown_bundle | failure()}}
   def load(names) when is_list(names) do
     failures =
       Enum.reduce(names, %{}, fn name, failures ->
@@ -137,9 +150,14 @@ defmodule Lumis.Languages do
           :ok
 
         {:error, reason} ->
+          # Deliberately not "highlighting will load these on demand": a parser
+          # this project never added is not going to arrive later, so saying so
+          # would send someone looking for a slow first request instead of a
+          # missing dependency.
           Logger.warning(
             "Lumis could not warm #{inspect(names)}: #{inspect(reason)}. " <>
-              "Highlighting will load these on demand."
+              "A :not_installed language needs its parser added to mix.exs; " <>
+              "anything else is retried when a document asks for it."
           )
       end
     end)

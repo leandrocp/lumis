@@ -1246,6 +1246,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.path().to_path_buf(),
+                installed_dirs: None,
             },
             Box::new(crate::NoNetwork),
         );
@@ -1294,6 +1295,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.path().to_path_buf(),
+                installed_dirs: None,
             },
             Box::new(crate::NoNetwork),
         );
@@ -1316,6 +1318,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.path().to_path_buf(),
+                installed_dirs: None,
             },
             Box::new(crate::NoNetwork),
         );
@@ -1390,6 +1393,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.path().to_path_buf(),
+                installed_dirs: None,
             },
             Box::new(crate::store::NoNetwork),
         );
@@ -1439,6 +1443,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.path().to_path_buf(),
+                installed_dirs: None,
             },
             Box::new(crate::store::NoNetwork),
         );
@@ -1483,6 +1488,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.path().to_path_buf(),
+                installed_dirs: None,
             },
             Box::new(crate::store::NoNetwork),
         );
@@ -1553,6 +1559,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.path().to_path_buf(),
+                installed_dirs: None,
             },
             Box::new(CountingFetcher {
                 wasm: JSON_WASM.to_vec(),

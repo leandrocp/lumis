@@ -1,9 +1,42 @@
 # Deployment
 
-Lumis downloads and compiles a parser the first time it is used. Warm the
-languages your application needs at startup so no request pays that cost.
+Parsers are dependencies. Add the languages your application highlights to
+`mix.exs`, and `mix release` carries them the way it carries any dependency's
+assets:
 
-Call `Lumis.Languages.async_load/1` from your application's `start/2`:
+```elixir
+defp deps do
+  [
+    {:lumis, "~> 0.8"},
+    {:lumis_wasm_bundle_web, "~> 0.26"},
+    {:lumis_wasm_elixir, "~> 0.26"},
+    {:lumis_wasm_markdown, "~> 0.26"}
+  ]
+end
+```
+
+There is nothing to prepare and nothing to copy. No image stage that downloads
+parsers, no directory to stage, and no network at boot or at render — the bytes
+are inside the release, under
+`lib/lumis_wasm_elixir-0.26.3/priv/parsers/`.
+
+A language you did not add is one the application cannot load:
+
+```elixir
+Lumis.Languages.load("haskell")
+#=> {:error, :not_installed}
+```
+
+Include the languages a document can *inject*, not only the ones it names.
+Markdown fences reach whatever language they label, HTML reaches `css` and
+`javascript`, and Elixir reaches `comment`. A language you missed costs that
+block its highlighting and nothing else — the page still renders.
+
+## Warm-up
+
+Loading a parser still costs a WASM compile the first time. Move it off the
+first request with `Lumis.Languages.async_load/1` from your application's
+`start/2`:
 
 ```elixir
 def start(_type, _args) do
@@ -13,94 +46,38 @@ def start(_type, _args) do
 end
 ```
 
-It returns immediately, so the boot never waits on the network, and the result
-is deliberately not matched on: a warm-up must not be able to stop an
-application from starting. Failures are logged, and highlighting still loads on
-demand, so the worst case is the cost this moves off the first request coming
-back rather than an outage.
-
-Include the root languages and any injected languages, such as the languages in
-Markdown code fences. The API accepts language names or bundles such as
-`:bundle_web` and `:bundle_system`. Downloads run concurrently, and every
-failure is reported instead of stopping at the first.
+It returns immediately and the result is deliberately not matched on: a warm-up
+must not be able to stop an application from starting. Failures are logged, and
+highlighting still loads on demand, so the worst case is that the cost this
+moves comes back.
 
 Use `Lumis.Languages.load/1` instead when you do want to wait — a release task,
-or a smoke test that should fail if a parser is unreachable.
+or a smoke test that should fail if a parser is missing.
 
-By default, Lumis writes parser metadata, verified WASM, and compiled modules to
-its `priv/lumis` directory. For a release, configure an absolute writable or
-persistent directory such as `config :lumis, data_dir: "/app/lumis"`.
+## The compiled-module cache
 
-If cache preparation belongs in an image build instead of application startup,
-use the standalone CLI and copy the resulting directory into the runtime image:
-
-```dockerfile
-FROM node:22-bookworm-slim AS parsers
-RUN npx --yes @lumis-sh/cli --data-dir /app/lumis languages download markdown elixir javascript rust css html comment
-
-FROM debian:bookworm-20250428-slim
-COPY --from=parsers --chown=nobody:root /app/lumis /app/lumis
-```
-
-`npx` is the shortest way to get the CLI for one command; the Node image is
-only that stage's, and nothing from it lands in the runtime image.
-
-Point the release at that directory with `config :lumis, data_dir: "/app/lumis"`
-or `LUMIS_DATA_DIR=/app/lumis`. Keep the `async_load/1` call: against a prepared
-directory it needs no network and only moves the parsers into the VM, which is
-the half a prepared directory cannot do for you.
-
-`Lumis.Languages.download/2` does the same preparation from Elixir rather than the
-CLI, for a release task or a migration step that runs before the VM that serves.
-Inside a running application prefer `async_load/1`, which keeps what it loads
-instead of compiling and discarding it.
-
-## Deploying with a lock
-
-If your project has a `lumis-lock.toml`, one step changes and one trap opens.
-
-The step: run `mix lumis.install` in the build. It downloads exactly what the
-lock names and leaves a copy of the lock in the data directory.
-
-The trap: a release ships `priv/` but not your project directory, so a released
-node cannot find `lumis-lock.toml` by walking up from wherever it happens to
-start. That copy in the data directory is the only lock it can see. Miss it and
-the application boots with no lock and loads whatever a document names — the
-behaviour the lock was added to remove, restored silently in production only.
-
-So `data_dir` has to be the same absolute path in the build and at runtime:
+`config :lumis, :data_dir` no longer decides where parsers come from. What it
+still decides is where wasmtime keeps compiled modules:
 
 ```elixir
-# config/runtime.exs
-config :lumis, data_dir: System.get_env("LUMIS_DATA_DIR") || "/app/lumis"
+config :lumis, data_dir: "/app/lumis"   # or LUMIS_DATA_DIR
 ```
 
-```dockerfile
-# Build: after config/runtime.exs, which is where data_dir is set.
-ENV LUMIS_DATA_DIR="/app/lumis"
-COPY lumis-lock.toml ./
-RUN mix lumis.install
+Point it somewhere writable and persistent and a restart skips recompiling.
+Lose it and the first render of each language is slower; nothing else changes,
+and no request fails. On a read-only filesystem it is simply never written.
 
-# Runtime: the parsers and the lock copy the build prepared.
-ENV LUMIS_DATA_DIR="/app/lumis"
-COPY --from=builder --chown=nobody:root /app/lumis /app/lumis
+## Vendoring instead of depending
+
+A build that cannot reach Hex can ship the parser directories itself. Same
+layout, same verification; only how they got there differs.
+
+```elixir
+config :lumis, parser_dirs: ["priv/parsers"]
 ```
 
-To check you got it right, run the image with no network at all. Highlighting
-should work from the prepared directory, and a language the lock does not pin
-should be refused rather than fetched:
-
-```
-$ docker run --network none ... bin/my_app rpc 'IO.inspect Lumis.Languages.load("haskell")'
-{:error, :not_locked}
-```
-
-The CLI stage above is a different tool with a different store, and it has no
-lock — `lumis languages download` fills a directory, it does not consult
-`lumis-lock.toml` or check what it downloaded against it. Using both means the
-set you download and the set your application may load are declared in two
-places that nothing keeps in agreement. Prefer `mix lumis.install`, which reads
-the one file that decides.
+Each directory holds the `*.lumis.json` manifests and the `.wasm` files they
+describe, exactly as a parser package's `priv/parsers` does.
 
 ## Build with Nix
 
@@ -160,6 +137,6 @@ Building the NIF from source is also possible with
 then provide Rustler, a Rust toolchain, and an offline Cargo dependency source.
 Prefetching the released NIF is usually simpler.
 
-This NIF build cache is separate from the parser data directory described
-above. The release contains the NIF; parsers still need an absolute writable
-`data_dir` at runtime.
+This NIF build cache is separate from the compiled-module cache described above,
+and from parsers entirely: the release contains the NIF, and parsers are
+dependencies inside it. Neither needs the network at runtime.
