@@ -196,14 +196,17 @@ export const DEFAULT_LANGUAGE_PACKAGE_RESOLVER: LanguagePackageResolver = (
 /**
  * Raised for a language outside the set this project declared.
  *
- * Names the package rather than the URL, because the fix is to install it: the
+ * Names the package rather than the URL, because the fix is to add it: the
  * declaration for a JavaScript project is what `package.json` holds, and this is
  * the language that was not in it.
+ *
+ * No install command, because there is no way to know which package manager the
+ * project uses, and printing the wrong one is worse than printing none.
  */
 function notDeclared(what: string, install: string): Error {
   return new Error(
     `${what} is not one of the @lumis-sh/wasm-* packages this project depends on` +
-      `\n  install it: npm i ${install}`,
+      `\n  add ${install} to its dependencies`,
   );
 }
 

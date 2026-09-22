@@ -70,28 +70,29 @@ mix lumis.install
   </Tab>
   <Tab value="JavaScript / TypeScript">
 
-Install the parsers you want and your lockfile pins them. There is no separate
-Lumis lock.
+Install the parsers you want. Your package manager's lockfile pins them, so
+there is no separate Lumis lock.
 
 ```bash
-pnpm add @lumis-sh/wasm-rust
+pnpm add @lumis-sh/wasm-rust @lumis-sh/wasm-json
 ```
 
-A bundle covers a set in one package:
+Rust and JSON now highlight. A Markdown file with a Haskell block renders that
+block as plain text — Lumis will not go and fetch `haskell`.
+
+Install nothing and the opposite holds: every language downloads the first time
+a document names it. That is the default, and why highlighting works with no
+setup.
+
+A bundle installs a set in one package:
 
 ```bash
 pnpm add @lumis-sh/wasm-bundle-web
 ```
 
-Depending on a parser is the declaration, and it is the whole set: a language
-outside it is not fetched, the same way one that was not compiled in does not
-exist in Rust. There is nothing to switch on.
-
-A project that depends on no parser has declared nothing, so everything resolves
-on demand — which is what makes highlighting work with no setup at all.
-
-Only runtime dependencies count. `devDependencies` are not shipped, so a library
-that tests against a parser has not told its consumers what they may load.
+Only `dependencies` and `optionalDependencies` count. Parsers in
+`devDependencies` do not close the set, so a library that tests against one
+still downloads everything at runtime.
 
   </Tab>
   <Tab value="Rust">
