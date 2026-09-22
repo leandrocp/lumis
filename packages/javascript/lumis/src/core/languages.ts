@@ -129,6 +129,7 @@ export interface HighlighterRuntimeOptions {
 export interface RuntimeLike {
   configureWasmResolver(fn: WasmResolver): void;
   configureLanguagePackageResolver(fn: LanguagePackageResolver): void;
+  configureDownloads(enabled: boolean): void;
   initParser(): Promise<void>;
   registerLanguage(def: LanguageDefinition): void;
   resolveLanguageId(nameOrAlias: string): string;
@@ -165,6 +166,7 @@ export interface LanguagesModule {
   createRuntime(options?: HighlighterRuntimeOptions): RuntimeLike;
   configureWasmResolver(fn: WasmResolver): void;
   configureLanguagePackageResolver(fn: LanguagePackageResolver): void;
+  configureDownloads(enabled: boolean): void;
   initParser(): Promise<void>;
   registerLanguage(def: LanguageDefinition): void;
   resolveLanguageId(nameOrAlias: string): string;
@@ -193,6 +195,17 @@ export const DEFAULT_LANGUAGE_PACKAGE_RESOLVER: LanguagePackageResolver = (
 ) => `${CDNS[0]}/${packageName}@${versionRange}/lumis.json`;
 
 /** Only used with the default resolver; a custom resolver names one location. */
+/// Raised where a language would have been downloaded but downloads are off.
+///
+/// Names the package rather than the URL, because the fix is to install it: the
+/// declared set for a JavaScript project is what `package.json` holds, and this
+/// is the language that was outside it.
+function notDeclared(what: string, install: string): Error {
+  return new Error(
+    `${what} is not installed and downloads are disabled\n  install it: npm i ${install}`,
+  );
+}
+
 async function fetchFromCdns(primary: string, isDefault: boolean): Promise<Response> {
   const urls = isDefault ? CDNS.map((base) => primary.replace(CDNS[0], base)) : [primary];
   const failures: string[] = [];
@@ -1012,6 +1025,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
   let configuredDefaultResolver: WasmResolver = DEFAULT_RESOLVER;
   let configuredLanguagePackageResolver: LanguagePackageResolver =
     DEFAULT_LANGUAGE_PACKAGE_RESOLVER;
+  let configuredDownloads = true;
   const moduleCache = createSharedRuntimeCache();
   const parserModules = new Map<string, CachedParserModule>();
 
@@ -1066,6 +1080,14 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       return this.explicitLanguagePackageResolver ?? configuredLanguagePackageResolver;
     }
 
+    // Deliberately not a per-runtime override. The Node addon keeps one store
+    // for the process, so a per-highlighter switch would be honoured by the
+    // web-tree-sitter path and silently ignored by the native one — an option
+    // that does nothing on the runtime most callers are on is worse than none.
+    private get downloads(): boolean {
+      return configuredDownloads;
+    }
+
     private acceptsPackage(packageMetadata: LanguagePackage): boolean {
       return isCompatibleLanguagePackageVersion(packageMetadata.version);
     }
@@ -1114,6 +1136,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
         if (this.acceptsPackage(packageMetadata)) return packageMetadata;
         throw incompatiblePackageVersion(packageMetadata);
       }
+      if (!this.downloads) throw notDeclared(packageName, packageName);
       const href = typeof source === "string" ? source : source.href;
       const response = await fetchFromCdns(
         href,
@@ -1227,6 +1250,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const url = this.resolver(language, ref);
       const diskData = await runtime.readResolvedWasmFromDisk(url);
       if (diskData) return diskData;
+      if (!this.downloads) throw notDeclared(`${ref.name}@${ref.version}`, ref.packageName);
       const href = typeof url === "string" ? url : url.href;
       const response = await fetchFromCdns(href, this.resolver === DEFAULT_RESOLVER).catch(
         (error: Error) => {
@@ -1337,6 +1361,10 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
 
     configureLanguagePackageResolver(fn: LanguagePackageResolver): void {
       this.explicitLanguagePackageResolver = fn;
+    }
+
+    configureDownloads(enabled: boolean): void {
+      configuredDownloads = enabled;
     }
 
     async resolveLanguagePackage(
@@ -1467,6 +1495,10 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     configureLanguagePackageResolver(fn) {
       configuredLanguagePackageResolver = fn;
       defaultRuntime.configureLanguagePackageResolver(fn);
+    },
+    configureDownloads(enabled) {
+      configuredDownloads = enabled;
+      defaultRuntime.configureDownloads(enabled);
     },
     initParser() {
       return defaultRuntime.initParser();

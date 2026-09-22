@@ -285,6 +285,15 @@ export function createNativeLanguagesModule(
       this.resolver.configureLanguagePackageResolver(fn);
     }
 
+    // Both halves have to hear it. The addon resolves most loads itself, in
+    // Rust, and the JavaScript resolver handles the caller-resolved ones; a
+    // switch only one of them honoured would leave the answer depending on
+    // which path a particular language happened to take.
+    configureDownloads(enabled: boolean): void {
+      binding.configureDownloads(enabled);
+      this.resolver.configureDownloads(enabled);
+    }
+
     resolveLanguagePackage(
       language: LanguageDefinition,
       packageName: string,
@@ -632,6 +641,10 @@ export function createNativeLanguagesModule(
     },
     // Applies to the default runtime and to every runtime created afterwards,
     // matching the web-tree-sitter module this delegates to.
+    configureDownloads(enabled) {
+      resolvers.configureDownloads(enabled);
+      defaultRuntime.configureDownloads(enabled);
+    },
     configureWasmResolver(fn) {
       globalWasmResolver = fn;
       resolvers.configureWasmResolver(fn);

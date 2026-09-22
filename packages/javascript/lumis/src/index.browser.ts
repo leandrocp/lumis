@@ -5,6 +5,7 @@ import { createHighlighterModule } from "./core/highlighter.js";
 import { createLoadLanguages } from "./core/load-languages.js";
 import {
   availableLanguages,
+  configureDownloads,
   configureLanguagePackageResolver,
   configureWasmResolver,
   createRuntime,
@@ -124,6 +125,7 @@ export type {
 } from "./types.js";
 export {
   availableLanguages,
+  configureDownloads,
   configureLanguagePackageResolver,
   configureWasmResolver,
   loadedLanguages,

@@ -29,7 +29,7 @@ exactly one of these.
 | Runtime | Declares its set in | Needs `lumis-lock.toml` |
 | --- | --- | --- |
 | Rust | `Cargo.toml` features | no |
-| JavaScript / TypeScript | `package.json` | no |
+| JavaScript / TypeScript | `package.json`, plus `configureDownloads(false)` | no |
 | Elixir | `lumis-lock.toml` | **yes** |
 | CLI | nothing | no |
 
@@ -82,6 +82,21 @@ A bundle covers a set in one package:
 ```bash
 pnpm add @lumis-sh/wasm-bundle-web
 ```
+
+Installing pins the versions, but it does not by itself close the set: a
+language an injection names and you did not install is still fetched on demand.
+`configureDownloads(false)` closes it, so the languages this project can use are
+the ones it declared.
+
+```js title="Closing the set"
+import { configureDownloads } from "@lumis-sh/lumis";
+
+configureDownloads(false);
+```
+
+Anything outside it then renders plain, the same way a language that fails to
+download does. Call it once during setup: it applies to the whole process,
+because the Node addon keeps one parser store for it.
 
   </Tab>
   <Tab value="Rust">

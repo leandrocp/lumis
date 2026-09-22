@@ -5,6 +5,7 @@ import { createLoadLanguages } from "./core/load-languages.js";
 import { mapBundle } from "./bundle-helpers.js";
 import {
   availableLanguages,
+  configureDownloads,
   configureLanguagePackageResolver,
   configureWasmResolver,
   createRuntime,
@@ -185,6 +186,7 @@ export type {
 } from "./types.js";
 export {
   availableLanguages,
+  configureDownloads,
   configureLanguagePackageResolver,
   configureWasmResolver,
   loadedLanguages,

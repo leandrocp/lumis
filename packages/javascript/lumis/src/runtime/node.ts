@@ -170,6 +170,28 @@ export function configureWasmResolver(fn: WasmResolver) {
 export function configureLanguagePackageResolver(fn: LanguagePackageResolver) {
   runtime.configureLanguagePackageResolver(fn);
 }
+/**
+ * Whether a language that is not installed may be downloaded. Applies globally.
+ *
+ * On by default, which is what makes highlighting work with nothing configured:
+ * a document names a language and Lumis fetches it. That also means the set of
+ * languages a project can use is open, even when `package.json` looks like it
+ * closed it — an injection naming something you never installed still reaches a
+ * CDN.
+ *
+ * Turn it off and the set is what the project declared: the `@lumis-sh/wasm-*`
+ * packages it installed, plus anything staged or already cached. A language
+ * outside that renders plain, the same way one that fails to download does.
+ *
+ * ```ts
+ * import { configureDownloads } from '@lumis-sh/lumis'
+ *
+ * configureDownloads(false)
+ * ```
+ */
+export function configureDownloads(enabled: boolean) {
+  runtime.configureDownloads(enabled);
+}
 export function initParser(...args: Parameters<LanguagesModule["initParser"]>) {
   return runtime.initParser(...args);
 }
