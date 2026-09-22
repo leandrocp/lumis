@@ -818,19 +818,19 @@ where
 
     // Rainbow brackets parse and query the document a second time, so this is
     // inside the budget too — a render that bounded its highlight and then ran
-    // an unbounded second pass is not bounded at all.
-    let rainbow = apply_query_rainbow_brackets(
-        source,
-        &core_events,
-        language,
-        match_limit,
-        deadline.as_ref(),
-    );
-    if deadline.as_ref().is_some_and(Deadline::passed) {
-        return Err(HighlightError::TimeLimit);
+    // an unbounded second pass is not bounded at all. It takes the whole
+    // `Interrupt` rather than the deadline alone, so a caller that cancels
+    // during this pass is answered here as it is anywhere else.
+    let (rainbow, rainbow_exceeded) =
+        apply_query_rainbow_brackets(source, &core_events, language, match_limit, interrupt);
+    if let Some(error) = interrupt.stopped() {
+        return Err(highlight_error(error));
     }
 
-    Ok((rainbow, exceeded))
+    // The bracket cursor drops matches like any other. Reporting the highlight
+    // query's exhaustion and not this one's would call a document complete that
+    // lost brackets here.
+    Ok((rainbow, exceeded || rainbow_exceeded))
 }
 
 /// Highlight for a formatter, reporting whether the match limit bound it.
@@ -862,18 +862,21 @@ fn apply_query_rainbow_brackets(
     events: &[CoreHighlightEvent<'_, ()>],
     language: Language,
     match_limit: u32,
-    deadline: Option<&Deadline>,
-) -> Vec<CoreHighlightEvent<'static>> {
-    let ranges = query_rainbow_ranges(source, language, match_limit, deadline);
-    compose_rainbow_decorations(source, events, &ranges)
+    interrupt: Interrupt<'_>,
+) -> (Vec<CoreHighlightEvent<'static>>, bool) {
+    let (ranges, exceeded) = query_rainbow_ranges(source, language, match_limit, interrupt);
+    (
+        compose_rainbow_decorations(source, events, &ranges),
+        exceeded,
+    )
 }
 
 fn query_rainbow_ranges(
     source: &str,
     language: Language,
     match_limit: u32,
-    deadline: Option<&Deadline>,
-) -> Vec<RainbowRange> {
+    interrupt: Interrupt<'_>,
+) -> (Vec<RainbowRange>, bool) {
     let config = language.config();
     let tree = RAINBOW_PARSER.with(|parser| {
         let mut parser = parser.borrow_mut();
@@ -890,7 +893,7 @@ fn query_rainbow_ranges(
             },
             None,
             Some(ParseOptions::new().progress_callback(&mut |_| {
-                if deadline.is_some_and(Deadline::passed) {
+                if interrupt.stopped().is_some() {
                     ControlFlow::Break(())
                 } else {
                     ControlFlow::Continue(())
@@ -906,21 +909,25 @@ fn query_rainbow_ranges(
         tree
     });
     let Some(tree) = tree else {
-        return Vec::new();
+        return (Vec::new(), false);
     };
 
     with_bracket_query_config(config, |bracket_config| {
         let Some(query) = bracket_config else {
-            return Vec::new();
+            return (Vec::new(), false);
         };
 
-        colorize_bracket_pairs(bracket_pairs_within(
+        let found = bracket_pairs_within(
             query,
             tree.root_node(),
             source.as_bytes(),
             match_limit,
-            deadline,
-        ))
+            interrupt,
+        );
+        (
+            colorize_bracket_pairs(found.pairs),
+            found.exceeded_match_limit,
+        )
     })
 }
 

@@ -766,7 +766,8 @@ impl<'a> Interrupt<'a> {
     }
 
     /// Whether this highlight should stop, and why.
-    fn stopped(&self) -> Option<Error> {
+    #[must_use]
+    pub fn stopped(&self) -> Option<Error> {
         if self
             .flag
             .is_some_and(|flag| flag.load(Ordering::Relaxed) != 0)

@@ -803,29 +803,16 @@ impl Runtime {
             collector.finish()
         };
 
-        // Rainbow brackets parse and query the document a second time, so this
-        // is inside the budget too — a render that bounded its highlight and
-        // then ran an unbounded second pass is not bounded. Once the clock is
-        // spent there is nothing left to decorate, and running it anyway would
-        // put rainbow spans on a document that is supposed to be plain.
         if options.rainbow_brackets && budget != Some(BudgetExhausted::Time) {
-            let ranges = rainbow_ranges(
+            collected = decorate_with_rainbow(
                 worker.highlighter.parser(),
                 &root,
                 source,
                 options.match_limit,
-                deadline.as_ref(),
+                interrupt,
+                collected,
+                &mut budget,
             )?;
-
-            if deadline.as_ref().is_some_and(Deadline::passed) {
-                budget = Some(BudgetExhausted::Time);
-                collected = vec![HighlightEvent::Source {
-                    start: 0,
-                    end: source.len(),
-                }];
-            } else {
-                collected = compose_rainbow_decorations(source, &collected, &ranges);
-            }
         }
 
         Ok(HighlightOutput {
@@ -885,6 +872,44 @@ fn collect_into_coalescing(
     }
 
     Ok((collector, None))
+}
+
+/// Decorate `collected` with rainbow brackets, inside the same budget.
+///
+/// Rainbow brackets parse and query the document a second time, so this is
+/// inside the budget too — a render that bounded its highlight and then ran an
+/// unbounded second pass is not bounded. When this pass is the one that runs
+/// out, the document goes back plain like any other exhausted render; running
+/// the decoration anyway would put rainbow spans on a document that is supposed
+/// to have none.
+fn decorate_with_rainbow(
+    parser: &mut Parser,
+    language: &LoadedLanguage,
+    source: &str,
+    match_limit: u32,
+    interrupt: Interrupt<'_>,
+    collected: Vec<HighlightEvent<'static>>,
+    budget: &mut Option<BudgetExhausted>,
+) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
+    let (ranges, exceeded_match_limit) =
+        rainbow_ranges(parser, language, source, match_limit, interrupt)?;
+
+    if interrupt.stopped().is_some() {
+        *budget = Some(BudgetExhausted::Time);
+        return Ok(vec![HighlightEvent::Source {
+            start: 0,
+            end: source.len(),
+        }]);
+    }
+
+    // The bracket cursor drops matches like any other. Reporting the highlight
+    // query's exhaustion and not this one's would call a document complete that
+    // lost brackets here.
+    if exceeded_match_limit {
+        *budget = Some(BudgetExhausted::Matches);
+    }
+
+    Ok(compose_rainbow_decorations(source, &collected, &ranges))
 }
 
 /// How a host handled a language named by an injection query.
@@ -988,13 +1013,13 @@ fn rainbow_ranges(
     language: &LoadedLanguage,
     source: &str,
     match_limit: u32,
-    deadline: Option<&Deadline>,
-) -> Result<Vec<RainbowRange>, RuntimeError> {
+    interrupt: Interrupt<'_>,
+) -> Result<(Vec<RainbowRange>, bool), RuntimeError> {
     let query = language.brackets.get_or_init(|| {
         crate::brackets::compile(&language.highlight.language, &language.brackets_source)
     });
     let Some(query) = query else {
-        return Ok(Vec::new());
+        return Ok((Vec::new(), false));
     };
 
     parser
@@ -1010,7 +1035,7 @@ fn rainbow_ranges(
         },
         None,
         Some(ParseOptions::new().progress_callback(&mut |_| {
-            if deadline.is_some_and(Deadline::passed) {
+            if interrupt.stopped().is_some() {
                 ControlFlow::Break(())
             } else {
                 ControlFlow::Continue(())
@@ -1022,17 +1047,20 @@ fn rainbow_ranges(
         // tree-sitter resumes it on the next call unless it is reset. This
         // parser is the pooled highlighter's.
         parser.reset();
-        return Ok(Vec::new());
+        return Ok((Vec::new(), false));
     };
 
-    let pairs = bracket_pairs_within(
+    let found = bracket_pairs_within(
         query,
         tree.root_node(),
         source.as_bytes(),
         match_limit,
-        deadline,
+        interrupt,
     );
-    Ok(colorize_bracket_pairs(pairs))
+    Ok((
+        colorize_bracket_pairs(found.pairs),
+        found.exceeded_match_limit,
+    ))
 }
 
 // A table-driven test's branches are its coverage; splitting one to satisfy the
