@@ -306,9 +306,15 @@ other process will read.
 
 Those two verbs are the whole store surface, including the CLI's. Editing a lock
 is not a third one: `lumis_wasm_runtime::lock::manage` implements what `add`,
-`remove` and `update` *mean*, and each runtime spells them in its own tooling —
-`mix lumis.*` in Elixir. Keeping the meaning in one place is what stops a second
-implementation of the format drifting from the first.
+`remove` and `update` *mean*, and each runtime spells them in its own tooling.
+Elixir spells them `mix lumis.add`, `mix lumis.remove`, `mix lumis.update` and
+`mix lumis.install`, which parse arguments and print; the meaning stays in Rust,
+so a second implementation of the format cannot drift from the first.
+
+A release has no project directory to find a lock in, so `mix lumis.*` keeps a
+copy in the data directory and `Lumis.Application` reads it at boot. That is
+also how a future Go or PHP binding would enforce a lock without reimplementing
+anything: point the store at a directory that has one.
 
 An application loads at startup without waiting for it. Elixir runs the load
 under a `:temporary` child of Lumis's supervisor; JavaScript leaves the promise

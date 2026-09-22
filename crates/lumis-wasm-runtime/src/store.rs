@@ -610,10 +610,11 @@ impl LanguageStore {
         &self,
         package_name: &str,
     ) -> Result<(LanguagePackage, String), StoreError> {
-        let (package, bytes) = self
+        let (package, _) = self
             .resolve_package(package_name, None)
             .map_err(|error| self.unavailable(package_name, error))?;
-        Ok((package, crate::package::sha256_hex(&bytes)))
+        let digest = manifest_sha256(&package)?;
+        Ok((package, digest))
     }
 
     fn fetch_package(
@@ -642,11 +643,9 @@ impl LanguageStore {
             &format!("{package_name}@{selector}/lumis.json"),
             &format!("language package {package_name}@{selector}"),
         )?;
-        if let Some(locked) = locked {
-            verify_manifest(&bytes, locked)?;
-        }
         let package = parse_package(&bytes, package_name)?;
         if let Some(locked) = locked {
+            verify_manifest(&package, locked)?;
             require_locked_version(&package, locked)?;
         }
         require_compatible_package_version(&package)?;
@@ -725,24 +724,44 @@ fn read_local_package(
     locked: Option<&LockedPackage>,
 ) -> Option<LanguagePackage> {
     let bytes = std::fs::read(path).ok()?;
-    if let Some(locked) = locked {
-        verify_manifest(&bytes, locked).ok()?;
-    }
     let package = parse_package(&bytes, package_name).ok()?;
     match locked {
-        Some(locked) => require_locked_version(&package, locked).ok()?,
+        Some(locked) => {
+            verify_manifest(&package, locked).ok()?;
+            require_locked_version(&package, locked).ok()?;
+        }
         None => require_compatible_package_version(&package).ok()?,
     }
     Some(package)
 }
 
-/// Fail unless `bytes` are the manifest the lock recorded.
+/// The digest a lock records for `package`.
 ///
-/// This is the anchor the format was missing. `parser.sha256` is only
+/// Taken over the canonical serialization rather than the bytes that arrived,
+/// for two reasons. The store fails over between two CDNs, and nothing promises
+/// they serve byte-identical JSON — whitespace or key order differing would
+/// otherwise make a failover look like tampering. And the store itself persists
+/// a re-serialized copy, so a wire-byte digest could never match what is on
+/// disk.
+///
+/// It still anchors what the digest exists to anchor: every field Lumis reads,
+/// `parser.sha256` above all, survives the round trip. `parser.sha256` is only
 /// trustworthy because the manifest declared it, and the manifest arrives over
 /// the network, so without this a wrong first response is trusted permanently.
-fn verify_manifest(bytes: &[u8], locked: &LockedPackage) -> Result<(), StoreError> {
-    let actual = crate::package::sha256_hex(bytes);
+///
+/// # Errors
+/// Fails when the package cannot be serialized.
+pub fn manifest_sha256(package: &LanguagePackage) -> Result<String, StoreError> {
+    let bytes = serde_json::to_vec(package).map_err(|error| StoreError::Io {
+        context: format!("could not serialize {}", package.package_name),
+        source: std::io::Error::other(error),
+    })?;
+    Ok(crate::package::sha256_hex(&bytes))
+}
+
+/// Fail unless `package` is the manifest the lock recorded.
+fn verify_manifest(package: &LanguagePackage, locked: &LockedPackage) -> Result<(), StoreError> {
+    let actual = manifest_sha256(package)?;
     if actual == locked.manifest_sha256 {
         return Ok(());
     }
@@ -1817,6 +1836,38 @@ mod tests {
             assert!(
                 matches!(error, StoreError::ManifestMismatch { .. }),
                 "expected a manifest digest mismatch, got {error}"
+            );
+        }
+
+        /// The store persists a re-serialized manifest, and fails over between
+        /// two CDNs that need not agree byte for byte. A digest over the wire
+        /// bytes would therefore never match what lands on disk, which is how a
+        /// locked language came back "not cached" after a successful download.
+        #[test]
+        fn the_digest_survives_a_round_trip_through_the_store() {
+            let dir = tempdir();
+            let pinned = package();
+            let (bytes, lock) = locked_to(&pinned, &["json"]);
+
+            // Re-serialized with different whitespace, as another CDN might.
+            let reformatted = serde_json::to_vec_pretty(
+                &serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+            )
+            .unwrap();
+            assert_ne!(reformatted, bytes, "the fixture must actually differ");
+
+            std::fs::create_dir_all(dir.path().join("parsers")).unwrap();
+            std::fs::write(
+                dir.path().join("parsers").join("json.lumis.json"),
+                &reformatted,
+            )
+            .unwrap();
+
+            let store = store_with(dir.path(), Box::new(NoNetwork), lock);
+            assert_eq!(
+                store.package("@lumis-sh/wasm-json").unwrap().version,
+                PACKAGE_VERSION,
+                "equivalent JSON is the same manifest"
             );
         }
 
