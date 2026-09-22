@@ -109,7 +109,10 @@ defmodule Lumis.Native do
   def build_theme_from_json_string(_json_string), do: :erlang.nif_error(:nif_not_loaded)
   def theme_css_from_name(_name, _options), do: :erlang.nif_error(:nif_not_loaded)
   def theme_css_from_theme(_theme, _options), do: :erlang.nif_error(:nif_not_loaded)
-  def configure_store(_data_dir, _lock_path), do: :erlang.nif_error(:nif_not_loaded)
+
+  def configure_store(_data_dir, _lock_path, _installed_dirs),
+    do: :erlang.nif_error(:nif_not_loaded)
+
   def lock_in_force, do: :erlang.nif_error(:nif_not_loaded)
   def lock_refresh(_path), do: :erlang.nif_error(:nif_not_loaded)
   def lock_add(_path, _languages), do: :erlang.nif_error(:nif_not_loaded)

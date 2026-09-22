@@ -93,6 +93,7 @@ struct Highlighted {
 enum LoadFailure {
     UnknownLanguage,
     NotLocked,
+    NotInstalled,
     Parser,
 }
 
@@ -101,6 +102,7 @@ impl Encoder for LoadFailure {
         match self {
             Self::UnknownLanguage => unknown_language().encode(env),
             Self::NotLocked => not_locked().encode(env),
+            Self::NotInstalled => not_installed().encode(env),
             Self::Parser => failed_to_load_parser().encode(env),
         }
     }
@@ -118,6 +120,16 @@ struct StorePaths {
     /// release has no project root to search upward from, so the lock is read
     /// from the data directory the Mix tasks keep it in.
     lock: Option<Arc<lumis_wasm_runtime::Lock>>,
+    /// `priv/parsers` of every installed `lumis_wasm_*` application.
+    ///
+    /// Elixir hands these over at boot for the same reason it hands over the
+    /// lock: only the BEAM knows which applications are loaded, and a release
+    /// has no project directory to infer them from.
+    ///
+    /// Empty is a real answer — this project depends on no parsers, so it may
+    /// load none. It is never `None`, because an Elixir application always
+    /// declares; only the CLI resolves without one.
+    installed_dirs: Vec<std::path::PathBuf>,
 }
 
 static STORE_PATHS: std::sync::LazyLock<RwLock<StorePaths>> =
@@ -129,7 +141,10 @@ fn language_store(cache_dir: Option<std::path::PathBuf>) -> store::LanguageStore
     let paths = STORE_PATHS.read();
     let cache_dir = store::resolve_data_dir(cache_dir.or_else(|| paths.data_dir.clone()));
     let store = store::LanguageStore::new(
-        store::StoreConfig { cache_dir },
+        store::StoreConfig {
+            cache_dir,
+            installed_dirs: Some(paths.installed_dirs.clone()),
+        },
         Box::new(store::HttpFetcher),
     );
     match paths.lock.clone() {
@@ -146,7 +161,10 @@ fn resolving_store() -> store::LanguageStore {
     let paths = STORE_PATHS.read();
     let cache_dir = store::resolve_data_dir(paths.data_dir.clone());
     store::LanguageStore::new(
-        store::StoreConfig { cache_dir },
+        store::StoreConfig {
+            cache_dir,
+            installed_dirs: None,
+        },
         Box::new(store::HttpFetcher),
     )
 }
@@ -279,6 +297,7 @@ rustler::atoms! {
     language_not_loaded,
     unknown_language,
     not_locked,
+    not_installed,
     failed_to_load_parser,
 }
 
@@ -647,7 +666,11 @@ fn executor() -> Result<&'static WasmExecutor> {
 /// the pins a project checked in would silently restore the behaviour the lock
 /// was added to remove.
 #[rustler::nif]
-fn configure_store(data_dir: Option<String>, lock_path: Option<String>) -> Result<bool, String> {
+fn configure_store(
+    data_dir: Option<String>,
+    lock_path: Option<String>,
+    installed_dirs: Vec<String>,
+) -> Result<bool, String> {
     let _settled = STORE_SETTLED.lock();
     if Lazy::get(&EXECUTOR).is_some() {
         return Ok(false);
@@ -668,6 +691,10 @@ fn configure_store(data_dir: Option<String>, lock_path: Option<String>) -> Resul
     let mut paths = STORE_PATHS.write();
     paths.data_dir = data_dir.map(std::path::PathBuf::from);
     paths.lock = lock;
+    paths.installed_dirs = installed_dirs
+        .into_iter()
+        .map(std::path::PathBuf::from)
+        .collect();
 
     let compile_cache = store::resolve_data_dir(paths.data_dir.clone());
     lumis_wasm_runtime::set_compile_cache_dir(compile_cache);
@@ -726,6 +753,30 @@ fn refused_by_lock(name: &str) -> bool {
     catalog::find(name).is_some_and(|entry| lock.language(entry.id).is_none())
 }
 
+/// Whether `name` is a language this project never added.
+///
+/// Checked here rather than read out of the store's error, for the same reason
+/// `refused_by_lock` is: the alternative is matching on a message.
+///
+/// A parser is a dependency. Not having added one is not a failure to fetch, it
+/// is an answer — the same answer JavaScript gives for an `@lumis-sh/wasm-*`
+/// package that is not in `package.json`.
+fn never_added(name: &str) -> bool {
+    let paths = STORE_PATHS.read();
+    let Some(entry) = catalog::find(name) else {
+        return false;
+    };
+    let Some(suffix) = store::package_suffix(entry.package_name) else {
+        return false;
+    };
+    let file = format!("{suffix}.lumis.json");
+
+    !paths
+        .installed_dirs
+        .iter()
+        .any(|dir| dir.join(&file).is_file())
+}
+
 /// Resolve, download, verify and load `name` through the shared store.
 ///
 /// Elixir no longer fetches anything: this is the same path the CLI takes, so
@@ -739,6 +790,9 @@ fn refused_by_lock(name: &str) -> bool {
 fn load_language_by_name<'a>(env: Env<'a>, name: &str) -> Term<'a> {
     if refused_by_lock(name) {
         return (error(), LoadFailure::NotLocked).encode(env);
+    }
+    if never_added(name) {
+        return (error(), LoadFailure::NotInstalled).encode(env);
     }
     let result = executor()
         .map_err(|_| LoadFailure::Parser)

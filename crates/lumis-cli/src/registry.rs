@@ -39,6 +39,7 @@ impl Registry {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: data_dir.clone(),
+                installed_dirs: None,
             },
             Box::new(HttpFetcher),
         );

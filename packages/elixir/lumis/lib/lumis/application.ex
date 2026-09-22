@@ -8,7 +8,11 @@ defmodule Lumis.Application do
     # A lock that cannot be read stops the boot rather than being skipped:
     # starting without the pins a project checked in would quietly restore the
     # behaviour the lock was added to remove.
-    case Lumis.Native.configure_store(data_dir(), Lumis.Lock.path()) do
+    case Lumis.Native.configure_store(
+           data_dir(),
+           Lumis.Lock.path(),
+           Lumis.Packages.installed_dirs()
+         ) do
       {:ok, _} -> :ok
       {:error, reason} -> raise "Lumis could not read #{Lumis.Lock.file_name()}: #{reason}"
     end

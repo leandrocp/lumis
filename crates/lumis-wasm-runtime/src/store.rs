@@ -71,6 +71,11 @@ pub enum StoreError {
     )]
     NotLocked { package_name: String },
     #[error(
+        "{package_name} is not installed\n  \
+         add it to your dependencies, then fetch them again"
+    )]
+    NotInstalled { package_name: String },
+    #[error(
         "{package_name}@{version} does not match {lock}\n  \
          expected manifest sha256 {expected}\n  \
          received                 {actual}\n  \
@@ -211,6 +216,25 @@ pub struct StoreConfig {
     /// Directory holding `lumis.json` and parser files, both the ones this
     /// store downloads and any staged into it ahead of time.
     pub cache_dir: PathBuf,
+    /// Read-only directories holding parsers that arrived through a package
+    /// manager, laid out exactly like `cache_dir/parsers`.
+    ///
+    /// Non-empty means the project has *declared* its languages: these
+    /// directories are the whole set, nothing is downloaded, and a package that
+    /// is not here is [`StoreError::NotInstalled`]. That is the same rule
+    /// JavaScript follows for `@lumis-sh/wasm-*` in `package.json`, expressed
+    /// in whatever package manager the host runtime uses.
+    ///
+    /// `None` leaves the store as it was: resolve anything, from the cache
+    /// directory or the network. That is what the CLI wants — a viewer is not
+    /// the application whose output a declaration governs.
+    ///
+    /// Deliberately an `Option` rather than an empty list standing for "no
+    /// declaration": a host that declares *nothing* and a host that does not
+    /// declare are opposite answers, and inferring them from the same value is
+    /// how an application ends up silently downloading whatever a document
+    /// names.
+    pub installed_dirs: Option<Vec<PathBuf>>,
 }
 
 /// Resolves language packages and parser bytes, caching both on disk.
@@ -282,6 +306,20 @@ impl LanguageStore {
         }
 
         let locked = self.locked(package_name)?;
+
+        // Installed packages come first and, when there are any, they are the
+        // whole set: the project said what it may load by depending on it, so
+        // reaching past that to the network would make the declaration
+        // advisory.
+        if let Some(dirs) = self.config.installed_dirs.as_deref() {
+            return match Self::installed_package(dirs, package_name, locked)? {
+                Some(package) => Ok(self.remember(package_name, package)),
+                None => Err(StoreError::NotInstalled {
+                    package_name: package_name.to_string(),
+                }),
+            };
+        }
+
         let path = self.package_path(package_name)?;
         if let Some(package) = read_local_package(&path, package_name, locked) {
             return Ok(self.remember(package_name, package));
@@ -334,11 +372,49 @@ impl LanguageStore {
     /// Fails when the parser cannot be obtained, or its bytes do not match the
     /// size and digest the package declares.
     pub fn parser(&self, package: &LanguagePackage) -> Result<Vec<u8>, StoreError> {
+        if let Some(dirs) = self.config.installed_dirs.as_deref() {
+            return Self::installed_parser(dirs, package).ok_or_else(|| {
+                StoreError::NotInstalled {
+                    package_name: package.package_name.clone(),
+                }
+            });
+        }
+
         let path = self.parser_path(package)?;
         if let Some(bytes) = self.local_parser(package) {
             return Ok(bytes);
         }
         self.fetch_parser(package, &path)
+    }
+
+    /// The package as an installed dependency supplies it, if one does.
+    ///
+    /// Verified exactly as a downloaded package is. Bytes that arrived through
+    /// a package manager have a checksum behind them already, but this store
+    /// cannot see that checksum and should not take it on trust.
+    fn installed_package(
+        dirs: &[PathBuf],
+        package_name: &str,
+        locked: Option<&LockedPackage>,
+    ) -> Result<Option<LanguagePackage>, StoreError> {
+        let suffix = package_suffix(package_name)
+            .ok_or_else(|| StoreError::InvalidPackageName(package_name.to_string()))?;
+        let file = format!("{suffix}.lumis.json");
+
+        Ok(dirs
+            .iter()
+            .find_map(|dir| read_local_package(&dir.join(&file), package_name, locked)))
+    }
+
+    /// Parser bytes from an installed dependency, verified against the manifest
+    /// that came with it.
+    fn installed_parser(dirs: &[PathBuf], package: &LanguagePackage) -> Option<Vec<u8>> {
+        let file = parser_filename(package);
+        dirs.iter().find_map(|dir| {
+            let bytes = std::fs::read(dir.join(&file)).ok()?;
+            package.verify_wasm(&bytes).ok()?;
+            Some(bytes)
+        })
     }
 
     /// Verified parser bytes from the store directory, never the network. A file
@@ -982,6 +1058,7 @@ mod tests {
         LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.to_path_buf(),
+                installed_dirs: None,
             },
             fetcher,
         )
@@ -1015,6 +1092,114 @@ mod tests {
             1,
             "one shared reason must be stated once: {error}"
         );
+    }
+
+    /// A directory laid out the way an installed parser dependency's
+    /// `priv/parsers` is: the manifest and the WASM it describes.
+    fn install(dir: &Path) -> PathBuf {
+        let installed = dir.join("installed");
+        std::fs::create_dir_all(&installed).unwrap();
+        let package = package();
+        std::fs::write(
+            installed.join("json.lumis.json"),
+            serde_json::to_vec(&package).unwrap(),
+        )
+        .unwrap();
+        std::fs::write(installed.join(parser_filename(&package)), WASM).unwrap();
+        installed
+    }
+
+    fn declaring(dir: &Path, installed: Vec<PathBuf>) -> LanguageStore {
+        LanguageStore::new(
+            StoreConfig {
+                cache_dir: dir.join("cache"),
+                installed_dirs: Some(installed),
+            },
+            Box::new(NoNetwork),
+        )
+    }
+
+    /// The point of the whole mechanism: a parser that arrived as a dependency
+    /// resolves with no network and no cache directory behind it.
+    #[test]
+    fn an_installed_parser_resolves_without_the_network() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        let store = declaring(dir.path(), vec![installed]);
+
+        let package = store.package("@lumis-sh/wasm-json").unwrap();
+        assert_eq!(package.version, PACKAGE_VERSION);
+        assert_eq!(store.parser(&package).unwrap(), WASM);
+    }
+
+    /// Depending on a parser is the declaration, so something not depended on
+    /// is refused rather than fetched. Without this the declaration would be
+    /// advisory and the CDN would still decide.
+    #[test]
+    fn a_package_that_is_not_installed_is_refused_rather_than_fetched() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        let store = declaring(dir.path(), vec![installed]);
+
+        let error = store.package("@lumis-sh/wasm-rust").unwrap_err();
+        assert!(
+            matches!(error, StoreError::NotInstalled { .. }),
+            "expected NotInstalled, got {error}"
+        );
+        assert!(error.to_string().contains("dependencies"), "{error}");
+    }
+
+    /// Declaring nothing and declaring an empty set are opposite answers.
+    /// `None` is the CLI, which resolves freely; `Some(vec![])` is a host that
+    /// said "these and no others" and named none.
+    #[test]
+    fn declaring_nothing_differs_from_declaring_an_empty_set() {
+        let dir = tempdir();
+        std::fs::create_dir_all(dir.path().join("cache")).unwrap();
+
+        let declared = declaring(dir.path(), Vec::new());
+        assert!(matches!(
+            declared.package("@lumis-sh/wasm-json").unwrap_err(),
+            StoreError::NotInstalled { .. }
+        ));
+
+        // The same store with no declaration reaches for the network instead,
+        // which `NoNetwork` reports as a fetch failure rather than a refusal.
+        let undeclared = make(&dir.path().join("cache"), Box::new(NoNetwork));
+        assert!(!matches!(
+            undeclared.package("@lumis-sh/wasm-json").unwrap_err(),
+            StoreError::NotInstalled { .. }
+        ));
+    }
+
+    /// Bytes that came through a package manager have a checksum behind them,
+    /// but this store cannot see it. A corrupt file in an installed directory
+    /// must fail rather than reach the runtime.
+    #[test]
+    fn installed_parser_bytes_are_still_verified() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        std::fs::write(installed.join(parser_filename(&package())), b"corrupt").unwrap();
+        let store = declaring(dir.path(), vec![installed]);
+
+        let package = store.package("@lumis-sh/wasm-json").unwrap();
+        assert!(
+            store.parser(&package).is_err(),
+            "corrupt installed bytes must not be handed to the runtime"
+        );
+    }
+
+    /// Several dependencies each bring their own directory, so resolution has
+    /// to search all of them rather than only the first.
+    #[test]
+    fn a_later_directory_still_answers() {
+        let dir = tempdir();
+        let empty = dir.path().join("empty");
+        std::fs::create_dir_all(&empty).unwrap();
+        let installed = install(dir.path());
+        let store = declaring(dir.path(), vec![empty, installed]);
+
+        assert!(store.package("@lumis-sh/wasm-json").is_ok());
     }
 
     #[test]
@@ -1209,6 +1394,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: root.path().join("cache"),
+                installed_dirs: None,
             },
             Box::new(NoNetwork),
         );

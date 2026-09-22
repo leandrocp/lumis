@@ -1,70 +1,89 @@
 ---
-title: Pinning parsers
-description: How lumis-lock.toml pins parser versions, which runtimes need one, and how each project declares the languages it may load.
+title: Declaring parsers
+description: Parsers are dependencies. How each runtime declares the languages it may load, and why nothing is fetched at runtime.
 keywords:
-  - lumis-lock.toml
-  - lock file
-  - pin parsers
-  - mix lumis.add
+  - parsers
+  - dependencies
+  - lumis_wasm
   - reproducible
+  - offline
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
-Highlighting resolves a parser the first time a document names one, then keeps
-what it found. Whichever compatible version a machine downloaded first is the
-one it uses from then on, so two machines can render the same document
-differently and nothing records which parser produced which output.
+A parser is a dependency. You add it, your package manager pins it, and it is
+there — or you did not add it, and it is not.
 
-Pinning fixes that. It also closes a quieter gap: the parser is verified against
-a digest the package metadata declares, and that metadata arrives over the
-network — so without a pin, a wrong response on first fetch is trusted forever.
+That is worth saying because it used to be otherwise. Highlighting resolved
+parsers on demand and kept whichever compatible version a machine downloaded
+first, so two machines could render the same document differently and nothing
+recorded which parser produced which output. Declaring them removes the
+question: the set is in a file you already review, pinned by a lock you already
+have.
 
-## One rule, three declarations
+## One rule, one place to look
 
-Every runtime already honours the same rule: **a language outside the set it can
-use renders plain.** What differs is how the set is declared, and a project gets
-exactly one of these.
+Every runtime honours the same rule: **a language you did not add is a language
+you do not have.** A parser is a dependency, declared where that runtime's
+dependencies already live.
 
-| Runtime | Declares its set in | Needs `lumis-lock.toml` |
+| Runtime | Declares its parsers in | Pinned by |
 | --- | --- | --- |
-| Rust | `Cargo.toml` features | no |
-| JavaScript / TypeScript | `package.json` dependencies | no |
-| Elixir | `lumis-lock.toml` | **yes** |
-| CLI | nothing | no |
+| Rust | `Cargo.toml` features | `Cargo.lock` |
+| JavaScript / TypeScript | `package.json` dependencies | your package manager's lockfile |
+| Elixir | `mix.exs` dependencies | `mix.lock` |
+| CLI | nothing | — |
 
-Rust links parsers statically, so a language you did not build in does not exist
-and there is nothing to fetch. JavaScript installs `@lumis-sh/wasm-*` packages,
-which your package manager's lockfile already pins. Elixir fetches parsers at
-runtime and has no manifest of its own — that is the gap the lock fills.
+Rust links parsers statically. JavaScript installs `@lumis-sh/wasm-*`. Elixir
+depends on `lumis_wasm_*`, whose `priv/parsers` holds the bytes — so they travel
+into a release like any other dependency's assets, with no data directory to
+prepare and nothing to copy.
 
-The CLI is its own runtime with its own store. `lumis highlight` resolves
-freely, because a viewer is not the application whose output a lock governs, and
-a highlighter that behaved differently depending on the directory you ran it in
-would be worse than one that does not.
+One difference remains, and it is being closed rather than kept: a JavaScript
+project that installs *no* parser still downloads on demand, while an Elixir
+project that depends on none highlights nothing. Elixir took the stricter rule
+first because it had no declaration at all before this.
+
+The CLI is the exception, deliberately. It has no project and downloads what it
+needs, because a viewer is not the application whose output a declaration
+governs, and a highlighter that behaved differently depending on the directory
+you ran it in would be worse than one that does not.
 
 <Tabs groupId="runtime" persist items={['Elixir', 'JavaScript / TypeScript', 'Rust']}>
   <Tab value="Elixir">
 
-```bash title="Record a language and cache it"
-mix lumis.add rust
+Add the parsers you want to `mix.exs`. There are no Lumis-specific commands:
+`mix deps.get`, `mix deps.update` and `mix.lock` already are them.
+
+```elixir title="mix.exs"
+defp deps do
+  [
+    {:lumis, "~> 0.8"},
+    {:lumis_wasm_rust, "~> 0.26"},
+    {:lumis_wasm_bundle_web, "~> 0.26"}
+  ]
+end
 ```
 
-```bash title="A bundle"
-mix lumis.add bundle-web
-```
+A bundle is a package whose dependencies are its members, so it widens when it
+gains a language and `mix deps.update` picks that up — a visible `mix.lock`
+diff, not a silent change.
 
 ```bash title="Move a pinned version"
-mix lumis.update rust
-mix lumis.update --all
+mix deps.update lumis_wasm_rust
 ```
 
-```bash title="Stop pinning"
-mix lumis.remove rust
+```bash title="Stop using it"
+# remove the line from mix.exs, then
+mix deps.unlock --unused
 ```
 
-```bash title="Cache exactly what the lock names — the release step"
-mix lumis.install
+A project that vendors parsers rather than depending on them can point at the
+directories instead. Same layout, same verification; only how they got there
+differs.
+
+```elixir title="config/config.exs"
+config :lumis, parser_dirs: ["priv/parsers"]
 ```
 
   </Tab>
@@ -80,9 +99,9 @@ npm install @lumis-sh/wasm-rust @lumis-sh/wasm-json
 Rust and JSON now highlight. A Markdown file with a Haskell block renders that
 block as plain text — Lumis will not go and fetch `haskell`.
 
-Install nothing and the opposite holds: every language downloads the first time
-a document names it. That is the default, and why highlighting works with no
-setup.
+Install nothing and the opposite still holds here: every language downloads the
+first time a document names it. That is why highlighting works with no setup,
+and it is the one place a runtime still resolves something you did not ask for.
 
 A bundle installs a set in one package:
 
@@ -107,58 +126,43 @@ lumis = { version = "0.13", default-features = false, features = ["lang-rust", "
   </Tab>
 </Tabs>
 
-## What the file holds
+## What a language you did not add does
 
-```toml title="lumis-lock.toml"
-version = 1
-range = "0.26"
-
-[[package]]
-name = "@lumis-sh/wasm-rust"
-version = "0.26.4"
-languages = ["rust"]
-manifest_sha256 = "..."
-parser_sha256 = "..."
-definition_hash = "..."
-```
-
-Commit it. `range` records the Tree-sitter series it was resolved against, so
-upgrading Lumis across series tells you to re-resolve rather than silently
-ignoring every entry.
-
-Rows are keyed on the package because that is what gets published and versioned,
-and one package can back several languages — `ejs` and `erb` are both
-`@lumis-sh/wasm-embedded-template`. `languages` records what you **added**, so a
-lock can pin `ejs` without also allowing `erb`.
-
-A bundle is shorthand when you add it: its members are recorded and the bundle
-name is not. Re-run `mix lumis.add bundle-web` to pick up a language the bundle
-gained, so widening what a project may load stays a visible diff.
-
-## What a lock changes at runtime
-
-Naming a language explicitly is your decision, so it is an error when the lock
-does not pin it:
+Naming a language explicitly is your decision, so one you never depended on is
+an error rather than a silent download:
 
 ```elixir
 Lumis.Languages.load("haskell")
-#=> {:error, :not_locked}
+#=> {:error, :not_installed}
 ```
 
 A language an *injection* names is content rather than a decision — a fenced
 block in a README, say — so that block renders plain and the document is fine.
-This is the same rule Lumis already follows for a language that fails to
-download: a failure costs one block, not the page.
+A missing parser costs one block, not the page.
 
 ## Releases
 
-A release ships `priv/` but not your project directory, so `mix lumis.add` and
-`mix lumis.install` keep a copy of the lock in the data directory and Lumis
-reads it from there at boot. Running `mix lumis.install` as a build step is
-enough; point `config :lumis, :data_dir` at a writable directory if the default
-does not suit.
+Nothing to prepare. Parsers are dependencies, so `mix release` carries them the
+way it carries any dependency's `priv/`:
 
-`config :lumis, :lock` names the lock explicitly when neither default applies. A
-path that does not exist is an error rather than "no lock", since booting
-without the pins you checked in would restore exactly the behaviour the lock
-removes.
+```
+_build/prod/rel/my_app/lib/lumis_wasm_elixir-0.26.3/priv/parsers/
+  elixir.lumis.json
+  tree-sitter-elixir-0.26.3-....wasm
+```
+
+The released node reads them from there. There is no data directory to stage, no
+copy step, and no network at boot or at render time.
+
+`config :lumis, :data_dir` still has a job, a smaller one: it holds the compiled
+WASM module cache, which is a speed-up rather than a source. Point it somewhere
+writable and persistent and a restart skips recompiling; lose it and the first
+render of each language is slower and nothing else changes.
+
+## Verification
+
+Bytes that arrive through a package manager have a checksum behind them already,
+and Lumis checks them again anyway. Each parser is verified against the
+`lumis.json` shipped beside it, and a package outside the Tree-sitter series
+this Lumis speaks is refused rather than loaded. A corrupt file in a dependency
+fails at load instead of reaching the runtime.

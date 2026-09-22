@@ -411,7 +411,10 @@ fn language_store(cache_dir: Option<PathBuf>) -> store::LanguageStore {
     let cache_dir = store::resolve_data_dir(cache_dir.or_else(|| configured.data_dir.clone()));
     drop(configured);
     store::LanguageStore::new(
-        store::StoreConfig { cache_dir },
+        store::StoreConfig {
+            cache_dir,
+            installed_dirs: None,
+        },
         Box::new(SwitchableFetcher),
     )
 }
@@ -761,6 +764,7 @@ impl Task for PrecompileLanguagesTask {
         let language_store = store::LanguageStore::new(
             store::StoreConfig {
                 cache_dir: data_dir.clone(),
+                installed_dirs: None,
             },
             Box::new(store::NoNetwork),
         );
