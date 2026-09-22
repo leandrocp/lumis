@@ -590,18 +590,7 @@ fn main() -> Result<()> {
                 DumpCommands::Events { path, language } => dump_events(&reg, path, language),
             }
         }
-        Commands::Languages { command } => match command {
-            LanguagesCommands::List => list_languages(),
-            LanguagesCommands::Show { language } => show_language(&language),
-            LanguagesCommands::Cache {
-                languages,
-                all,
-                force,
-            } => {
-                let reg = registry::Registry::new(data_dir)?;
-                cache_languages(&reg, &languages, all, force, verbose)
-            }
-        },
+        Commands::Languages { command } => run_languages(command, data_dir, verbose),
         Commands::Themes { command } => match command {
             ThemesCommands::List => list_themes(&data_dir),
             ThemesCommands::Show { theme } => show_theme(&theme, &data_dir),
@@ -824,8 +813,29 @@ fn cache_languages(
     Ok(())
 }
 
+/// The `languages` subcommands, split out of `main` so the dispatch there stays
+/// one arm per top-level command.
+fn run_languages(
+    command: LanguagesCommands,
+    data_dir: std::path::PathBuf,
+    verbose: bool,
+) -> Result<()> {
+    match command {
+        LanguagesCommands::List => list_languages(),
+        LanguagesCommands::Show { language } => show_language(&language),
+        LanguagesCommands::Cache {
+            languages,
+            all,
+            force,
+        } => {
+            let reg = registry::Registry::new(data_dir)?;
+            cache_languages(&reg, &languages, all, force, verbose)
+        }
+    }
+}
+
 /// Resolve a user-provided language name to its stable package language ID.
-fn resolve_language_id(name: &str) -> &str {
+pub(crate) fn resolve_language_id(name: &str) -> &str {
     name.parse::<Language>()
         .map_or(name, |language| language.id_name())
 }

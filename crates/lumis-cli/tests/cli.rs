@@ -1251,16 +1251,19 @@ fn themes_generate_supports_output_setup_and_appearance_options() {
 /// "fetch" or "update" would fail the assertions below on the paths rather than
 /// on the wording, so both are cleared.
 #[test]
-fn languages_help_uses_cache_terminology() {
+fn languages_help_uses_one_word_per_verb() {
     cmd()
         .env("LUMIS_DATA_DIR", "")
         .env("LUMIS_CONFIG", "")
         .args(["languages", "--help"])
         .assert()
         .success()
+        // `cache` is the store verb, as ARCHITECTURE.md defines it. The lock
+        // commands add verbs of their own -- `add`, `remove`, `update`,
+        // `install` -- but a *synonym* for caching is what this has always
+        // guarded against, and still is.
         .stdout(predicate::str::contains("cache"))
-        .stdout(predicate::str::contains("fetch").not())
-        .stdout(predicate::str::contains("update").not());
+        .stdout(predicate::str::contains("fetch").not());
 }
 
 #[test]

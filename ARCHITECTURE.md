@@ -136,6 +136,47 @@ installed/local parser -> persistent verified parser cache -> exact-version CDN 
                                   +-> persistent Wasmtime compiled cache
 ```
 
+### One rule, three declarations
+
+Every runtime has a set of languages it can use, and renders anything outside it
+plain. That rule is the same everywhere; what differs is how the set is
+declared, and a runtime gets exactly one of these:
+
+| Runtime | Declares its set in | How parsers arrive |
+| --- | --- | --- |
+| Rust `lumis` crate | `Cargo.toml` features | linked statically: 65 crates.io parsers, 47 vendored sources |
+| JavaScript with installed packages | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
+| Elixir, any future FFI binding | `lumis-lock.toml` | fetched and verified at runtime |
+| The CLI | nothing — it declares no set | fetched on demand into its own store |
+
+The Rust crate depends on `lumis-wasm-runtime` with `default-features = false`,
+so it has no wasmtime and no HTTP client: a language that was not compiled in
+does not exist, and there is nothing to fetch. That is the boundary talking, the
+same way the NIF boundary shapes Elixir's formatter signatures. It is not a
+divergence to paper over.
+
+Elixir has no manifest of its own, which is the gap `lumis-lock.toml` fills.
+Without it, an Elixir application can load *anything* while Rust cannot — so the
+lock is what makes those runtimes converge on Rust's behaviour rather than what
+makes them differ.
+
+The CLI is the one row with no declaration, and that is deliberate rather than a
+gap: see below.
+
+Nobody gets two declarations. A JavaScript project that installs its parsers
+does not also write a lock; `package.json` already is one.
+
+One divergence remains and is deliberate for now: JavaScript falls back to the
+CDN for a language it has not installed, so its set is open even when
+`package.json` looks closed. Closing it is an enforcement change rather than a
+file, and applies to whichever mechanism declared the set.
+
+**The CLI is its own runtime, and has no lock.** It is a viewer and a store
+filler: `lumis highlight` and `lumis dump` resolve freely, and `lumis languages
+cache` fills the store. Reaching up to a project's `lumis-lock.toml` would make
+the CLI a second writer of a file the project's own runtime manages, and would
+make a highlighter behave differently depending on the directory it ran in.
+
 ### Highlighting loads what a document needs, in one pass
 
 Highlighting a document resolves, downloads, verifies and loads whatever it
@@ -262,6 +303,12 @@ Two verbs, the same in every runtime: **cache** puts a language on disk,
 **load** caches it and keeps it in this runtime. Load is the superset, so a
 process that will serve wants a load; caching is for filling a directory some
 other process will read.
+
+Those two verbs are the whole store surface, including the CLI's. Editing a lock
+is not a third one: `lumis_wasm_runtime::lock::manage` implements what `add`,
+`remove` and `update` *mean*, and each runtime spells them in its own tooling —
+`mix lumis.*` in Elixir. Keeping the meaning in one place is what stops a second
+implementation of the format drifting from the first.
 
 An application loads at startup without waiting for it. Elixir runs the load
 under a `:temporary` child of Lumis's supervisor; JavaScript leaves the promise

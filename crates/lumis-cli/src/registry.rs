@@ -21,6 +21,19 @@ pub(crate) struct Registry {
 
 impl Registry {
     pub(crate) fn new(data_dir: PathBuf) -> Result<Self> {
+        Self::with_lock(data_dir, None)
+    }
+
+    /// A registry whose store resolves only what `lock` pins.
+    ///
+    /// `None` keeps the long-standing behaviour: resolve the compatible range
+    /// and treat the store directory as authoritative. The CLI always passes
+    /// `None` — it has no lock of its own — but the constructor is what the
+    /// Elixir NIF and any future binding build their store through.
+    pub(crate) fn with_lock(
+        data_dir: PathBuf,
+        lock: Option<std::sync::Arc<lumis_wasm_runtime::Lock>>,
+    ) -> Result<Self> {
         std::fs::create_dir_all(data_dir.join("parsers"))?;
         std::fs::create_dir_all(data_dir.join("themes"))?;
         let store = LanguageStore::new(
@@ -29,6 +42,10 @@ impl Registry {
             },
             Box::new(HttpFetcher),
         );
+        let store = match lock {
+            Some(lock) => store.with_lock(lock),
+            None => store,
+        };
 
         let runtime = Runtime::with_worker_limit(1)?.with_store(store);
         for language in catalog::LANGUAGES {

@@ -764,6 +764,7 @@ dependencies = [
  "streaming-iterator",
  "tempfile",
  "thiserror",
+ "toml",
  "tree-sitter",
  "wasmparser",
 ]
