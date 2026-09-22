@@ -272,20 +272,22 @@ fn reject_reentrant_highlight(env: &Env) -> Result<()> {
 /// Read once, when the runtime is built.
 static STORE_PATHS: Mutex<StorePaths> = Mutex::new(StorePaths {
     data_dir: None,
-    downloads: true,
+    declared_set: false,
     consumed: false,
 });
 
 struct StorePaths {
     data_dir: Option<PathBuf>,
-    /// Whether a language this project did not install may be downloaded.
+    /// Whether the project declared the languages it uses.
     ///
-    /// On by default. Off means the set of languages is the set the project
-    /// declared — installed packages, plus whatever is staged or already
-    /// cached — so an injection naming something else renders plain rather than
-    /// reaching a CDN. Unlike `data_dir` this is read per *request*, by
-    /// `SwitchableFetcher`, so it stays adjustable after the runtime exists.
-    downloads: bool,
+    /// False by default, which is the zero-configuration case: nothing was
+    /// declared, so anything a document names resolves on demand. True means
+    /// the project depends on `@lumis-sh/wasm-*` packages, and that list is the
+    /// whole set — a language outside it is not fetched.
+    ///
+    /// Unlike `data_dir` this is read per *request*, by `SwitchableFetcher`, so
+    /// it does not have to be known before the runtime is built.
+    declared_set: bool,
     /// Set when the runtime read them, which it does exactly once.
     consumed: bool,
 }
@@ -329,17 +331,20 @@ pub fn configure_store(data_dir: Option<String>) -> bool {
     true
 }
 
-/// Whether a language this project did not install may be downloaded.
+/// Record whether the project declared the languages it uses.
 ///
-/// Unlike [`configure_store`] this stays adjustable after the runtime exists,
-/// because stores are built per operation: the switch reaches the next one
-/// rather than needing to have been set before the first.
-#[napi(js_name = "configureDownloads")]
-pub fn configure_downloads(enabled: bool) {
+/// Internal: JavaScript works this out by reading the nearest `package.json`,
+/// and the addon has to know because it resolves injected languages itself,
+/// during a native walk, without returning to JavaScript.
+///
+/// Unlike [`configure_store`] this does not have to be set before the runtime
+/// exists, because `SwitchableFetcher` reads it per request.
+#[napi(js_name = "setDeclaredSet")]
+pub fn set_declared_set(declared: bool) {
     STORE_PATHS
         .lock()
         .expect("store path lock poisoned")
-        .downloads = enabled;
+        .declared_set = declared;
 }
 
 /// The directory the store uses when nothing names one, so Node can defer to the
@@ -360,24 +365,27 @@ pub fn precompile_languages(
 }
 
 /// The same resolve, verify and cache path the CLI and the Elixir NIF use.
-/// An HTTP fetcher that asks, per request, whether downloading is still allowed.
+/// An HTTP fetcher that asks, per request, whether the project declared its set.
 ///
 /// Choosing between `HttpFetcher` and `NoNetwork` when the store is built would
-/// not work: the shared runtime builds its store once, so the answer would be
-/// frozen at whatever the flag said the first time anything loaded — and
-/// switching downloads back on afterwards would do nothing.
+/// not work: the shared runtime builds its store once, and JavaScript learns the
+/// answer by reading a manifest, so the decision would be frozen at whatever was
+/// known the first time anything loaded.
 struct SwitchableFetcher;
 
 impl store::Fetcher for SwitchableFetcher {
     fn get(&self, url: &str) -> std::result::Result<Vec<u8>, String> {
         // Read and release. Holding the lock across the request would serialize
         // every concurrent download behind it.
-        let allowed = STORE_PATHS
+        let declared = STORE_PATHS
             .lock()
             .expect("store path lock poisoned")
-            .downloads;
-        if !allowed {
-            return Err("network access is disabled".to_string());
+            .declared_set;
+        if declared {
+            return Err(
+                "this project declares the languages it uses, and this is not one of them"
+                    .to_string(),
+            );
         }
         store::HttpFetcher.get(url)
     }

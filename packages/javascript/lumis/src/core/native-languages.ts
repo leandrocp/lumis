@@ -207,7 +207,7 @@ export function createNativeLanguagesModule(
 
   function tellAddon(): Promise<void> {
     declarationTold ??= (async () => {
-      binding.configureDownloads(!(await declaresLanguages?.()));
+      binding.setDeclaredSet((await declaresLanguages?.()) ?? false);
     })();
     return declarationTold;
   }

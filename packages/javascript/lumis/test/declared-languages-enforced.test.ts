@@ -47,11 +47,9 @@ describe("a project that declares its languages", () => {
     );
 
     expect(error, "expected the load to be refused").toBeDefined();
-    // The TypeScript path names the package; the addon's store says the network
-    // is disabled. Either proves the declaration was enforced rather than the
-    // download merely failing.
-    expect(reasons(error).join(" | ")).toMatch(
-      /this project depends on|network access is disabled/,
-    );
+    // The TypeScript path names the package; the addon says it is not one the
+    // project declared. Either proves the declaration was enforced, rather than
+    // the download merely failing for some other reason.
+    expect(reasons(error).join(" | ")).toMatch(/this project (depends on|declares)/);
   });
 });
