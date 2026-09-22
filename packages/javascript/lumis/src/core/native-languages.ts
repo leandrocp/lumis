@@ -177,6 +177,7 @@ const resolverSource = (source: string | URL): string =>
 export function createNativeLanguagesModule(
   binding: NativeBinding,
   resolvers: LanguagesModule,
+  declaresLanguages?: () => Promise<boolean>,
 ): LanguagesModule {
   let globalWasmResolver: WasmResolver | undefined;
   let globalLanguagePackageResolver: LanguagePackageResolver | undefined;
@@ -192,6 +193,23 @@ export function createNativeLanguagesModule(
   function newNativeRuntime(): NativeRuntimeInstance {
     binding.configureStore(process.env.LUMIS_DATA_DIR);
     return new binding.NativeRuntime();
+  }
+
+  /**
+   * Tell the addon whether this project declared its languages, once.
+   *
+   * The addon resolves injected languages itself, inside a native walk, without
+   * coming back to JavaScript — so the TypeScript check above cannot see them.
+   * Both sides have to know, or an injection would be fetched on Node and
+   * refused in the browser.
+   */
+  let declarationTold: Promise<void> | undefined;
+
+  function tellAddon(): Promise<void> {
+    declarationTold ??= (async () => {
+      binding.configureDownloads(!(await declaresLanguages?.()));
+    })();
+    return declarationTold;
   }
 
   function hasResolverOverride(state: NativeResolverState): boolean {
@@ -285,15 +303,6 @@ export function createNativeLanguagesModule(
       this.resolver.configureLanguagePackageResolver(fn);
     }
 
-    // Both halves have to hear it. The addon resolves most loads itself, in
-    // Rust, and the JavaScript resolver handles the caller-resolved ones; a
-    // switch only one of them honoured would leave the answer depending on
-    // which path a particular language happened to take.
-    configureDownloads(enabled: boolean): void {
-      binding.configureDownloads(enabled);
-      this.resolver.configureDownloads(enabled);
-    }
-
     resolveLanguagePackage(
       language: LanguageDefinition,
       packageName: string,
@@ -371,6 +380,7 @@ export function createNativeLanguagesModule(
       if (!(await this.isCallerResolved(opts))) {
         const installed = await this.loadInstalled(opts);
         if (installed) return installed;
+        await tellAddon();
         this.native.loadLanguage(opts.definition.id);
         return { addonId: opts.definition.id, definition: opts.definition };
       }
@@ -641,10 +651,6 @@ export function createNativeLanguagesModule(
     },
     // Applies to the default runtime and to every runtime created afterwards,
     // matching the web-tree-sitter module this delegates to.
-    configureDownloads(enabled) {
-      resolvers.configureDownloads(enabled);
-      defaultRuntime.configureDownloads(enabled);
-    },
     configureWasmResolver(fn) {
       globalWasmResolver = fn;
       resolvers.configureWasmResolver(fn);

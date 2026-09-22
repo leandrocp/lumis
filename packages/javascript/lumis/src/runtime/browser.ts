@@ -188,13 +188,6 @@ const runtime = createLanguagesModule(browserRuntime);
 export function createRuntime(...args: Parameters<typeof runtime.createRuntime>) {
   return runtime.createRuntime(...args);
 }
-/** {@inheritDoc node.configureDownloads} */
-export function configureDownloads(
-  ...args: Parameters<typeof runtime.configureDownloads>
-): ReturnType<typeof runtime.configureDownloads> {
-  return runtime.configureDownloads(...args);
-}
-
 /** {@inheritDoc node.configureWasmResolver} */
 export function configureWasmResolver(
   ...args: Parameters<typeof runtime.configureWasmResolver>
