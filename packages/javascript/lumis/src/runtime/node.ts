@@ -1,5 +1,6 @@
 import type { RuntimeEnvironment } from "./runtime.js";
 import { createLanguagesModule } from "../core/languages.js";
+import { LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
 import type { LanguagePackageResolver, LanguagesModule, WasmResolver } from "../core/languages.js";
 import { createNativeLanguagesModule } from "../core/native-languages.js";
 import { loadNativeBinding } from "../native-binding.js";
@@ -106,6 +107,25 @@ export const nodeRuntime: RuntimeEnvironment = {
 
   declaresLanguages: true,
 
+  async installedPackages(candidates: string[]): Promise<string[]> {
+    // Resolved one by one rather than by listing `node_modules/@lumis-sh`: pnpm
+    // links direct dependencies there and leaves everything a bundle pulled in
+    // under `.pnpm`, so a directory listing would miss most of a bundle.
+    const { createRequire } = await import("node:module");
+    const { pathToFileURL } = await import("node:url");
+    const { join } = await import("node:path");
+    const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
+
+    return candidates.filter((name) => {
+      try {
+        resolveFromProject.resolve(name);
+        return true;
+      } catch {
+        return false;
+      }
+    });
+  },
+
   async resolveInstalledManifest(packageName: string): Promise<URL | undefined> {
     // From the application's directory, not Lumis's own: resolving relative to
     // this package would find whatever parser version Lumis itself happens to
@@ -151,7 +171,9 @@ const binding = loadNativeBinding();
 const wasmRuntime = createLanguagesModule(nodeRuntime);
 
 const runtime: LanguagesModule = binding
-  ? createNativeLanguagesModule(binding, wasmRuntime, true)
+  ? createNativeLanguagesModule(binding, wasmRuntime, () =>
+      nodeRuntime.installedPackages(LANGUAGE_PACKAGE_NAMES),
+    )
   : wasmRuntime;
 
 /**

@@ -178,7 +178,7 @@ const resolverSource = (source: string | URL): string =>
 export function createNativeLanguagesModule(
   binding: NativeBinding,
   resolvers: LanguagesModule,
-  declaresLanguages?: boolean,
+  installedPackages?: () => Promise<string[]>,
 ): LanguagesModule {
   let globalWasmResolver: WasmResolver | undefined;
   let globalLanguagePackageResolver: LanguagePackageResolver | undefined;
@@ -204,12 +204,22 @@ export function createNativeLanguagesModule(
    * Both sides have to know, or an injection would be fetched on Node and
    * refused in the browser.
    */
-  let declarationTold = false;
+  let declarationTold: Promise<void> | undefined;
 
-  function tellAddon(): void {
-    if (declarationTold) return;
-    declarationTold = true;
-    binding.setDeclaredSet(declaresLanguages ?? false);
+  /**
+   * Hand the addon the packages this project installed, once.
+   *
+   * The addon resolves injected languages itself, inside a native walk, without
+   * coming back to JavaScript — so the TypeScript check cannot see them. Both
+   * sides have to know, or an injection would be fetched on Node and refused in
+   * the browser.
+   */
+  function tellAddon(): Promise<void> {
+    declarationTold ??= (async () => {
+      if (!installedPackages) return;
+      binding.setInstalledPackages(await installedPackages());
+    })();
+    return declarationTold;
   }
 
   function hasResolverOverride(state: NativeResolverState): boolean {
@@ -382,7 +392,7 @@ export function createNativeLanguagesModule(
       // resolves *injected* languages in Rust — so a project whose parsers are
       // all installed would otherwise leave the addon thinking nothing was
       // declared, and fetch an injected language it never declared.
-      tellAddon();
+      await tellAddon();
 
       if (!(await this.isCallerResolved(opts))) {
         const installed = await this.loadInstalled(opts);

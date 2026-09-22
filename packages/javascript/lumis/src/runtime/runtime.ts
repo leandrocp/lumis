@@ -31,6 +31,14 @@ export interface RuntimeEnvironment {
    * which has no module resolution to ask.
    */
   resolveInstalledManifest?(packageName: string): Promise<URL | undefined>;
+  /**
+   * Which of `candidates` this project installed.
+   *
+   * Installing a package is the declaration, whether or not it ships a
+   * manifest of its own — one published before manifests were part of a parser
+   * package is still declared, and still has to be reachable.
+   */
+  installedPackages?(candidates: string[]): Promise<string[]>;
   parserInitOptions?(): Promise<ParserInitOptions>;
 }
 

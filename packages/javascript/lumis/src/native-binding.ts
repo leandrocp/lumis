@@ -130,7 +130,7 @@ export interface NativeBinding {
    * Unlike `configureStore` this need not be set before the runtime exists,
    * since the addon reads it per request.
    */
-  setDeclaredSet(declared: boolean): void;
+  setInstalledPackages(packages: string[]): void;
   /** Where the store lives when `LUMIS_DATA_DIR` names nothing. */
   defaultDataDir(): string;
 }

@@ -3,6 +3,7 @@ import satisfies from "semver/functions/satisfies.js";
 import minVersion from "semver/ranges/min-version.js";
 import { buildHighlightEventsWithSourceIndex } from "../events.js";
 import { LANGUAGES } from "../generated/languages-meta.js";
+import { LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
 import { cloneLanguageInfo, normalizeLanguageName } from "../catalog-metadata.js";
 import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../generated/package-version-range.js";
 import { sha256 } from "@noble/hashes/sha2.js";
@@ -1036,6 +1037,8 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
   let configuredDefaultResolver: WasmResolver = DEFAULT_RESOLVER;
   let configuredLanguagePackageResolver: LanguagePackageResolver =
     DEFAULT_LANGUAGE_PACKAGE_RESOLVER;
+  // Asked once: a project's installed packages do not change while it runs.
+  let installedPackageNames: Promise<string[]> | undefined;
   const moduleCache = createSharedRuntimeCache();
   const parserModules = new Map<string, CachedParserModule>();
 
@@ -1091,19 +1094,21 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     }
 
     /**
-     * Whether a language this project did not install may still be fetched.
+     * Whether `packageName` may be fetched.
      *
-     * Only where there is no project to read. On Node the `@lumis-sh/wasm-*`
-     * packages a project depends on are the whole set — as `Cargo.toml`
-     * features are in Rust and `mix.exs` dependencies are in Elixir — and a
-     * language outside it is not fetched, whether the project installed one
-     * parser or none. Installing nothing declares nothing, and nothing is what
-     * you get.
+     * Installing the package is the declaration, and that is the whole test —
+     * not whether the package ships a manifest of its own. A parser published
+     * before manifests were part of a package is still one this project chose,
+     * so it still resolves, from the CDN if that is the only place its
+     * `lumis.json` exists.
      *
-     * The browser has no manifest: a bundle declares by what it imported.
+     * The browser has no project to read: a bundle declares by what it
+     * imported, so nothing here constrains it.
      */
-    private mayDownload(): boolean {
-      return !runtime.declaresLanguages;
+    private async mayDownload(packageName: string): Promise<boolean> {
+      if (!runtime.declaresLanguages || !runtime.installedPackages) return true;
+      installedPackageNames ??= runtime.installedPackages(LANGUAGE_PACKAGE_NAMES);
+      return (await installedPackageNames).includes(packageName);
     }
 
     private acceptsPackage(packageMetadata: LanguagePackage): boolean {
@@ -1156,7 +1161,10 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       // Only the default resolver is governed by what the project installed.
       // A caller that supplied its own said where parsers come from, which is a
       // declaration in itself — the same reason Elixir's `:parser_dirs` is one.
-      if (resolver === DEFAULT_LANGUAGE_PACKAGE_RESOLVER && !this.mayDownload()) {
+      if (
+        resolver === DEFAULT_LANGUAGE_PACKAGE_RESOLVER &&
+        !(await this.mayDownload(packageName))
+      ) {
         throw notDeclared(packageName, packageName);
       }
       const href = typeof source === "string" ? source : source.href;
@@ -1272,7 +1280,10 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const url = this.resolver(language, ref);
       const diskData = await runtime.readResolvedWasmFromDisk(url);
       if (diskData) return diskData;
-      if (!this.mayDownload()) {
+      // Keyed on the default resolver for the same reason the package path is:
+      // a caller that supplied a resolver said where parsers come from, and a
+      // remote one of their own must not be refused on this project's behalf.
+      if (this.resolver === DEFAULT_RESOLVER && !(await this.mayDownload(ref.packageName))) {
         throw notDeclared(`${ref.name}@${ref.version}`, ref.packageName);
       }
       const href = typeof url === "string" ? url : url.href;

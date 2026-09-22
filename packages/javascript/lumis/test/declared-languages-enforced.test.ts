@@ -16,6 +16,14 @@ import { describe, expect, it } from "vitest";
 const root = mkdtempSync(join(tmpdir(), "lumis-declared-project-"));
 writeFileSync(join(root, "package.json"), JSON.stringify({ name: "declared", dependencies: {} }));
 process.chdir(root);
+
+// Vitest points NODE_PATH at the pnpm virtual store, which makes every package
+// in the workspace resolvable from anywhere — including from a project that
+// installed none. No real project has that, and leaving it set would make this
+// file assert the opposite of what it is for.
+delete process.env.NODE_PATH;
+const { _initPaths } = await import("node:module");
+(_initPaths as () => void)();
 process.env.LUMIS_DATA_DIR = mkdtempSync(join(tmpdir(), "lumis-declared-store-"));
 
 const { loadLanguages } = await import("../src/index.js");

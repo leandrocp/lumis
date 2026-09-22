@@ -1,17 +1,18 @@
 defmodule Lumis.Languages do
   @moduledoc """
-  Downloads, caches and loads Tree-sitter parsers.
+  Loads Tree-sitter parsers this project depends on.
 
-  A language is a parser WASM plus the queries that drive highlighting, released
-  together as a `@lumis-sh/wasm-*` package with its size and SHA-256. Nothing
-  here needs calling for normal use: `Lumis.highlight/2` fetches and loads what a
-  document turns out to need, including languages injected inside it.
+  A language is a parser WASM plus the queries that drive highlighting, shipped
+  together as a `lumis_wasm_*` dependency with its size and SHA-256. Nothing
+  here needs calling for normal use: `Lumis.highlight/2` loads what a document
+  turns out to need, including languages injected inside it — as long as the
+  project depends on them. One it does not answers `:not_installed`.
 
   Reach for it in two situations.
 
-  Load ahead of the first request, so a download does not land on a user. From
-  an application's `start/2`, use `async_load/1`, which returns before the
-  network work rather than holding up the boot:
+  Load ahead of the first request, so the compile does not land on a user. From
+  an application's `start/2`, use `async_load/1`, which returns without holding
+  up the boot:
 
       Lumis.Languages.async_load(["elixir", "html"])
       :ok = Lumis.Languages.load(["elixir", "html"])
@@ -23,10 +24,12 @@ defmodule Lumis.Languages do
 
   ## Where parsers come from
 
-  Each is taken from `$LUMIS_DATA_DIR/parsers` if it is there, and the CDN
-  otherwise. Bytes are checked against the size and digest their package
-  declares before use, and anything that fails is discarded rather than trusted,
-  so a corrupted store repairs itself.
+  From the `priv/parsers` of each installed `lumis_wasm_*` dependency, or a
+  directory named by `config :lumis, :parser_dirs`. A language no dependency
+  supplies is not fetched — it answers `:not_installed`.
+
+  Bytes are checked against the size and digest their manifest declares before
+  use, and anything that fails is discarded rather than trusted.
 
   Concurrent requests for the same uncached language wait for the first rather
   than each downloading it, and loading is global to the VM: the process that
