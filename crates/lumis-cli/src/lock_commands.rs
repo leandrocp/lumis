@@ -51,7 +51,7 @@ fn hold(cwd: &Path, create: bool) -> Result<Held> {
         None => bail!("no {LOCK_FILE_NAME} found above {}", cwd.display()),
     };
 
-    let file = LockFile::open(&path)?;
+    let file = LockFile::open(&path, create)?;
     let existing = file.read()?;
     let existed = existing.is_some();
     let lock = existing.unwrap_or_else(|| Lock::new(range()));

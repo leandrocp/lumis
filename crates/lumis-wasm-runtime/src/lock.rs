@@ -12,7 +12,6 @@
 //! both ship.
 
 use std::collections::BTreeSet;
-use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -41,6 +40,8 @@ pub enum LockError {
     },
     #[error("could not serialize the lock: {0}")]
     Serialize(#[from] toml::ser::Error),
+    #[error("no {name} at {path}", name = LOCK_FILE_NAME, path = path.display())]
+    Missing { path: PathBuf },
     #[error(
         "{path} was resolved against tree-sitter {locked}, this build requires {required}\n  \
          every entry needs re-resolving: lumis languages update --all",
@@ -265,61 +266,11 @@ impl Lock {
     }
 }
 
-/// Exclusive access to one lock file, held across read, mutate and write.
-///
-/// The parser store deliberately has no file lock: writes rename a uniquely
-/// named temporary into place and parser bytes are verified first, so concurrent
-/// writers converge on identical content. A lock file cannot use that trick — it
-/// is one mutable document with many keys, so two `add` runs would each write
-/// the entry they knew about and the later rename would win outright, silently
-/// dropping the other.
-///
-/// Guarding only the write would not help, because both runs read the same
-/// earlier state before either wrote. The guard has to span the whole
-/// read-modify-write, which is why taking it is a step of its own.
-pub struct LockFile {
-    path: PathBuf,
-    _guard: LockGuard,
-}
-
-impl LockFile {
-    /// Take exclusive access to the lock at `path`, blocking until it is free.
-    ///
-    /// # Errors
-    /// Fails when the sidecar cannot be created or locked.
-    pub fn open(path: &Path) -> Result<Self, LockError> {
-        Ok(Self {
-            _guard: LockGuard::acquire(path)?,
-            path: path.to_path_buf(),
-        })
-    }
-
-    #[must_use]
-    pub fn path(&self) -> &Path {
-        &self.path
-    }
-
-    /// The lock as it stands, or `None` when the file does not exist yet.
-    ///
-    /// # Errors
-    /// Fails when the file exists but cannot be read or parsed.
-    pub fn read(&self) -> Result<Option<Lock>, LockError> {
-        Lock::read(&self.path)
-    }
-
-    /// Replace the file's contents.
-    ///
-    /// # Errors
-    /// Fails when the lock cannot be serialized or the file cannot be replaced.
-    pub fn write(&self, lock: &Lock) -> Result<(), LockError> {
-        lock.write(&self.path)
-    }
-}
-
 /// Where the lock for `start` lives, searching upward.
 ///
 /// An existing lock wins wherever it sits, so a nested package in a monorepo
 /// extends the repository's lock rather than starting a second one.
+#[must_use]
 pub fn find(start: &Path) -> Option<PathBuf> {
     start
         .ancestors()
@@ -333,6 +284,7 @@ pub fn find(start: &Path) -> Option<PathBuf> {
 /// `mix.exs`, `package.json` or `Cargo.toml` — a monorepo has many of those and
 /// nothing says which one is right, which is the same reason there is one lock
 /// rather than one per project.
+#[must_use]
 pub fn default_path(start: &Path) -> Option<PathBuf> {
     start
         .ancestors()
@@ -341,33 +293,51 @@ pub fn default_path(start: &Path) -> Option<PathBuf> {
 }
 
 /// The lock to use for `start`: an existing one, else where one would go.
+#[must_use]
 pub fn resolve_path(start: &Path) -> Option<PathBuf> {
     find(start).or_else(|| default_path(start))
 }
 
-/// Where the advisory sidecar for `target` lives.
+/// Exclusive access to one lock file, held across read, mutate and write.
 ///
-/// A dotfile beside the lock rather than a visible one, because it stays on disk
-/// (see [`LockGuard`]'s `Drop`) and should not look like something to commit.
-/// It is also not put in the data directory: two projects can share one, and
-/// locking project A's file must not block project B.
-#[must_use]
-pub fn sidecar_path(target: &Path) -> PathBuf {
-    let name = target.file_name().map_or_else(
-        || LOCK_FILE_NAME.to_string(),
-        |name| name.to_string_lossy().into_owned(),
-    );
-    target.with_file_name(format!(".{name}.lock"))
-}
-
-/// Held for the duration of a lock-file write.
-struct LockGuard {
+/// The parser store deliberately has no file lock: writes rename a uniquely
+/// named temporary into place and parser bytes are verified first, so concurrent
+/// writers converge on identical content. A lock file cannot use that trick — it
+/// is one mutable document with many keys, so two `add` runs would each write
+/// the entry they knew about and the later rename would win outright, silently
+/// dropping the other.
+///
+/// Guarding only the write would not help, because both runs read the same
+/// earlier state before either wrote. The guard has to span the whole
+/// read-modify-write, which is why taking it is a step of its own.
+///
+/// The advisory lock is taken on `lumis-lock.toml` itself, and the file is
+/// rewritten in place rather than renamed over. Renaming would replace the inode
+/// the lock is held on, so a third process arriving after the rename would lock
+/// the *new* file and exclude nobody. Writing in place keeps one inode and needs
+/// no second file sitting in the project. The cost is that a crash mid-write can
+/// leave a truncated lock; it is a small, generated, committed file, so `git
+/// checkout` or re-running `add` restores it.
+pub struct LockFile {
+    path: PathBuf,
     file: std::fs::File,
 }
 
-impl LockGuard {
-    fn acquire(target: &Path) -> Result<Self, LockError> {
-        let path = sidecar_path(target);
+impl LockFile {
+    /// Take exclusive access to the lock at `path`, blocking until it is free.
+    ///
+    /// `create` decides whether a missing file is an error: `add` creates one,
+    /// `remove` and `update` require one to already exist.
+    ///
+    /// # Errors
+    /// Fails when the file is missing and `create` is false, or cannot be opened
+    /// or locked.
+    pub fn open(path: &Path, create: bool) -> Result<Self, LockError> {
+        if !create && !path.exists() {
+            return Err(LockError::Missing {
+                path: path.to_path_buf(),
+            });
+        }
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|error| {
                 LockError::io(format!("could not create {}", parent.display()), error)
@@ -375,23 +345,69 @@ impl LockGuard {
         }
         let file = std::fs::OpenOptions::new()
             .create(true)
-            .truncate(false)
+            .read(true)
             .write(true)
-            .open(&path)
+            .truncate(false)
+            .open(path)
             .map_err(|error| LockError::io(format!("could not open {}", path.display()), error))?;
         file.lock()
             .map_err(|error| LockError::io(format!("could not lock {}", path.display()), error))?;
-        Ok(Self { file })
+        Ok(Self {
+            path: path.to_path_buf(),
+            file,
+        })
+    }
+
+    #[must_use]
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    /// The lock as it stands, or `None` when the file is empty because this
+    /// call is what created it.
+    ///
+    /// # Errors
+    /// Fails when the contents cannot be read or parsed.
+    pub fn read(&self) -> Result<Option<Lock>, LockError> {
+        use std::io::{Read, Seek, SeekFrom};
+
+        let mut file = &self.file;
+        file.seek(SeekFrom::Start(0)).map_err(|error| {
+            LockError::io(format!("could not read {}", self.path.display()), error)
+        })?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|error| {
+            LockError::io(format!("could not read {}", self.path.display()), error)
+        })?;
+        if contents.trim().is_empty() {
+            return Ok(None);
+        }
+        Lock::parse(&contents, &self.path).map(Some)
+    }
+
+    /// Replace the file's contents in place.
+    ///
+    /// # Errors
+    /// Fails when the lock cannot be serialized or the file cannot be written.
+    pub fn write(&self, lock: &Lock) -> Result<(), LockError> {
+        use std::io::{Seek, SeekFrom, Write};
+
+        let contents = lock.to_toml()?;
+        let context = || format!("could not write {}", self.path.display());
+        let mut file = &self.file;
+        file.seek(SeekFrom::Start(0))
+            .map_err(|error| LockError::io(context(), error))?;
+        file.set_len(0)
+            .map_err(|error| LockError::io(context(), error))?;
+        file.write_all(contents.as_bytes())
+            .map_err(|error| LockError::io(context(), error))?;
+        file.flush()
+            .map_err(|error| LockError::io(context(), error))
     }
 }
 
-// The sidecar is deliberately left on disk. Removing it would unlink a file
-// another process has already opened and is blocked on, so that process would
-// end up holding a lock on an inode with no name while a third created a fresh
-// file and took a second "exclusive" lock on the same target.
-impl Drop for LockGuard {
+impl Drop for LockFile {
     fn drop(&mut self) {
-        let _ = self.file.flush();
         let _ = self.file.unlock();
     }
 }
@@ -563,7 +579,7 @@ future_row_field = 7
             for language in ["rust", "elixir"] {
                 let path = path.clone();
                 scope.spawn(move || {
-                    let file = LockFile::open(&path).unwrap();
+                    let file = LockFile::open(&path, false).unwrap();
                     let mut lock = file.read().unwrap().unwrap();
                     // Widen the window the guard has to cover.
                     std::thread::sleep(std::time::Duration::from_millis(50));
