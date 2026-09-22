@@ -24,6 +24,8 @@ pub enum ManageError {
     NoLanguages,
     #[error(transparent)]
     UnknownBundle(#[from] crate::UnknownBundle),
+    #[error(transparent)]
+    Package(#[from] crate::package::LanguagePackageError),
     #[error("unknown language '{0}'")]
     UnknownLanguage(String),
     #[error(
@@ -96,19 +98,30 @@ fn by_package(languages: &[String]) -> Result<BTreeMap<&'static str, Vec<String>
     Ok(grouped)
 }
 
+/// The row to record, once the resolved package is known to provide every
+/// language being pinned.
+///
+/// The catalog maps a language to a package name and ships with the *runtime*,
+/// while the package is whatever the registry serves now. The two can disagree —
+/// a package that drops or moves a language leaves the catalog pointing at it —
+/// and without this check the lock would record membership the package does not
+/// have, turning a clear failure here into a confusing one at materialization.
 fn entry(
     package: &LanguagePackage,
     manifest_sha256: String,
     languages: Vec<String>,
-) -> LockedPackage {
-    LockedPackage {
+) -> Result<LockedPackage, ManageError> {
+    for language in &languages {
+        package.require_language(language)?;
+    }
+    Ok(LockedPackage {
         name: package.package_name.clone(),
         version: package.version.clone(),
         languages,
         manifest_sha256,
         parser_sha256: package.parser.sha256.clone(),
         definition_hash: Some(package.definition_hash.clone()),
-    }
+    })
 }
 
 /// Record `languages` in `lock`, resolving each package's current version.
@@ -137,7 +150,7 @@ pub fn add(
             previous_version,
             version: package.version.clone(),
         });
-        lock.insert(entry(&package, manifest_sha256, languages));
+        lock.insert(entry(&package, manifest_sha256, languages)?);
     }
     Ok(changes)
 }
@@ -175,12 +188,19 @@ pub fn update(
     let targets: Vec<LockedPackage> = if all {
         lock.packages.clone()
     } else {
+        // `ejs` and `erb` share a package, so naming both would otherwise
+        // resolve it twice and report it twice.
+        let mut seen = HashSet::new();
         expand(languages)?
             .into_iter()
             .map(|name| {
                 lock.language(&name)
                     .cloned()
                     .ok_or(ManageError::NotLocked { language: name })
+            })
+            .filter(|row| match row {
+                Ok(row) => seen.insert(row.name.clone()),
+                Err(_) => true,
             })
             .collect::<Result<_, _>>()?
     };
@@ -204,7 +224,7 @@ pub fn update(
             previous_version: Some(previous.version),
             version: package.version.clone(),
         });
-        lock.insert(entry(&package, manifest_sha256, previous.languages));
+        lock.insert(entry(&package, manifest_sha256, previous.languages)?);
     }
     Ok(changes)
 }
@@ -286,6 +306,59 @@ mod tests {
         let removed = remove(&mut lock, &["rust".to_string(), "haskell".to_string()]).unwrap();
         assert_eq!(removed, ["rust"]);
         assert!(lock.is_empty());
+    }
+
+    /// The catalog ships with the runtime and the package comes from the
+    /// registry, so they can disagree. Recording membership a package does not
+    /// have turns a clear failure here into a confusing one at materialization.
+    #[test]
+    fn a_package_that_does_not_provide_the_language_is_refused() {
+        use crate::package::{LanguagePackage, PackagedLanguage, ParserMetadata};
+        use std::collections::BTreeMap;
+
+        let package = LanguagePackage {
+            package_name: "@lumis-sh/wasm-rust".into(),
+            version: "0.26.1".into(),
+            definition_hash: "hash".into(),
+            parser: ParserMetadata {
+                name: "tree-sitter-rust".into(),
+                grammar_name: "rust".into(),
+                upstream_version: None,
+                revision: None,
+                sha256: "a".repeat(64),
+                size: 1,
+            },
+            // The package no longer carries the language the catalog maps here.
+            languages: BTreeMap::from([("ron".into(), PackagedLanguage::default())]),
+        };
+
+        let error = entry(&package, "b".repeat(64), vec!["rust".into()]).unwrap_err();
+        assert!(error.to_string().contains("rust"), "{error}");
+    }
+
+    #[test]
+    fn a_package_providing_the_language_is_recorded() {
+        use crate::package::{LanguagePackage, PackagedLanguage, ParserMetadata};
+        use std::collections::BTreeMap;
+
+        let package = LanguagePackage {
+            package_name: "@lumis-sh/wasm-rust".into(),
+            version: "0.26.1".into(),
+            definition_hash: "hash".into(),
+            parser: ParserMetadata {
+                name: "tree-sitter-rust".into(),
+                grammar_name: "rust".into(),
+                upstream_version: None,
+                revision: None,
+                sha256: "a".repeat(64),
+                size: 1,
+            },
+            languages: BTreeMap::from([("rust".into(), PackagedLanguage::default())]),
+        };
+
+        let row = entry(&package, "b".repeat(64), vec!["rust".into()]).unwrap();
+        assert_eq!(row.languages, ["rust"]);
+        assert_eq!(row.version, "0.26.1");
     }
 
     #[test]

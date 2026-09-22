@@ -146,7 +146,8 @@ declared, and a runtime gets exactly one of these:
 | --- | --- | --- |
 | Rust `lumis` crate | `Cargo.toml` features | linked statically: 65 crates.io parsers, 47 vendored sources |
 | JavaScript with installed packages | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
-| Elixir, the CLI, any future FFI runtime | `lumis-lock.toml` | fetched and verified at runtime |
+| Elixir, any future FFI binding | `lumis-lock.toml` | fetched and verified at runtime |
+| The CLI | nothing — it declares no set | fetched on demand into its own store |
 
 The Rust crate depends on `lumis-wasm-runtime` with `default-features = false`,
 so it has no wasmtime and no HTTP client: a language that was not compiled in
@@ -154,10 +155,13 @@ does not exist, and there is nothing to fetch. That is the boundary talking, the
 same way the NIF boundary shapes Elixir's formatter signatures. It is not a
 divergence to paper over.
 
-Elixir and the CLI have no manifest of their own, which is the gap
-`lumis-lock.toml` fills. Without it they can load *anything*, while Rust cannot
-— so the lock is what makes those runtimes converge on Rust's behaviour rather
-than what makes them differ.
+Elixir has no manifest of its own, which is the gap `lumis-lock.toml` fills.
+Without it, an Elixir application can load *anything* while Rust cannot — so the
+lock is what makes those runtimes converge on Rust's behaviour rather than what
+makes them differ.
+
+The CLI is the one row with no declaration, and that is deliberate rather than a
+gap: see below.
 
 Nobody gets two declarations. A JavaScript project that installs its parsers
 does not also write a lock; `package.json` already is one.

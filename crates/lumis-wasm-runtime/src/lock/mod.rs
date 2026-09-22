@@ -45,6 +45,17 @@ pub enum LockError {
     #[error("no {name} at {path}", name = LOCK_FILE_NAME, path = path.display())]
     Missing { path: PathBuf },
     #[error(
+        "{path} is format {found}, and this build writes {known}\n  \
+         rewriting it here would drop whatever a newer Lumis recorded\n  \
+         upgrade Lumis, or edit the lock with the version that wrote it",
+        path = path.display()
+    )]
+    WouldDowngrade {
+        path: PathBuf,
+        found: u32,
+        known: u32,
+    },
+    #[error(
         "{path} was resolved against tree-sitter {locked}, this build requires {required}\n  \
          every entry needs re-resolving: lumis languages update --all",
         path = path.display()
@@ -233,7 +244,26 @@ impl Lock {
     }
 
     /// Read the lock at `path`, or `None` when there is no file there.
+    ///
+    /// Takes a shared advisory lock for the read, so a concurrent [`LockFile`]
+    /// writer — which holds the exclusive one — can never be observed between
+    /// truncating the file and finishing the new contents.
     pub fn read(path: &Path) -> Result<Option<Self>, LockError> {
+        let _shared = match std::fs::File::open(path) {
+            Ok(file) => {
+                file.lock_shared().map_err(|error| {
+                    LockError::io(format!("could not read {}", path.display()), error)
+                })?;
+                Some(file)
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+            Err(error) => {
+                return Err(LockError::io(
+                    format!("could not read {}", path.display()),
+                    error,
+                ))
+            }
+        };
         let contents = match std::fs::read_to_string(path) {
             Ok(contents) => contents,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
@@ -389,11 +419,24 @@ impl LockFile {
 
     /// Replace the file's contents in place.
     ///
+    /// Refuses a lock in a newer format. Parsing one is deliberately lenient so
+    /// an older build can still read and enforce it, but serializing drops every
+    /// field this build does not know while keeping the newer version number —
+    /// which would leave a file claiming to hold data it no longer does.
+    ///
     /// # Errors
-    /// Fails when the lock cannot be serialized or the file cannot be written.
+    /// Fails when the lock is in a newer format, cannot be serialized, or the
+    /// file cannot be written.
     pub fn write(&self, lock: &Lock) -> Result<(), LockError> {
         use std::io::{Seek, SeekFrom, Write};
 
+        if lock.is_newer_format() {
+            return Err(LockError::WouldDowngrade {
+                path: self.path.clone(),
+                found: lock.version,
+                known: LOCK_FORMAT_VERSION,
+            });
+        }
         let contents = lock.to_toml()?;
         let context = || format!("could not write {}", self.path.display());
         let mut file = &self.file;
@@ -601,6 +644,84 @@ future_row_field = 7
             2,
             "both entries survive: {final_lock:?}"
         );
+    }
+
+    /// Leniency on read must not become data loss on write: serializing keeps
+    /// the newer version number while dropping every field this build does not
+    /// know, so the file would claim to hold data it no longer does.
+    #[test]
+    fn a_newer_format_is_read_but_never_rewritten() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(LOCK_FILE_NAME);
+        std::fs::write(
+            &path,
+            "version = 99\nrange = \"0.26\"\nfuture_key = \"keep me\"\n",
+        )
+        .unwrap();
+
+        let file = LockFile::open(&path, false).unwrap();
+        let lock = file.read().unwrap().unwrap();
+        assert!(lock.is_newer_format(), "reading stays lenient");
+
+        let error = file.write(&lock).unwrap_err();
+        assert!(
+            matches!(error, LockError::WouldDowngrade { .. }),
+            "expected a refusal to rewrite, got {error}"
+        );
+        assert!(
+            std::fs::read_to_string(&path)
+                .unwrap()
+                .contains("future_key"),
+            "the field a newer Lumis wrote survives"
+        );
+    }
+
+    /// A reader takes the shared lock, so it cannot observe the window between
+    /// truncation and the new contents landing.
+    ///
+    /// Asserted as "the read blocks while a writer holds the file" rather than
+    /// by racing a writer: the write is a few hundred bytes, and a racing test
+    /// measured the unguarded read finishing in 67 microseconds, so it passed
+    /// whether or not the lock was taken — which is no test at all.
+    #[test]
+    fn a_read_waits_for_a_writer_to_finish() {
+        use std::sync::mpsc;
+        use std::time::{Duration, Instant};
+
+        const HELD: Duration = Duration::from_millis(300);
+
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(LOCK_FILE_NAME);
+        let mut seeded = Lock::new("0.26");
+        seeded.insert(package("@lumis-sh/wasm-rust", "0.26.1", &["rust"]));
+        seeded.write(&path).unwrap();
+
+        let (holding, held) = mpsc::channel();
+        std::thread::scope(|scope| {
+            let writer_path = path.clone();
+            scope.spawn(move || {
+                let file = LockFile::open(&writer_path, false).unwrap();
+                let mut lock = file.read().unwrap().unwrap();
+                holding.send(()).unwrap();
+                std::thread::sleep(HELD);
+                lock.insert(package("@lumis-sh/wasm-rust", "0.26.2", &["rust"]));
+                file.write(&lock).unwrap();
+            });
+
+            held.recv().unwrap();
+            let started = Instant::now();
+            let seen = Lock::read(&path).unwrap().unwrap();
+            let waited = started.elapsed();
+
+            assert!(
+                waited >= HELD / 2,
+                "the read returned in {waited:?} without waiting for the writer"
+            );
+            assert_eq!(
+                seen.packages[0].version, "0.26.2",
+                "and it sees the finished write, not the state before it"
+            );
+        });
     }
 
     #[test]
