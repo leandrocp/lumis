@@ -62,9 +62,13 @@ config :tableau, :config,
   markdown: [
     mdex: [
       syntax_highlight: [
-        formatter: {:html_multi_themes,
-          themes: [light: "catppuccin_latte", dark: "catppuccin_frappe"],
-          default_theme: "light-dark()"}
+        formatter:
+          {:html_multi_themes,
+           themes: [
+             light: "catppuccin_latte",
+             dark: "catppuccin_frappe"
+           ],
+           default_theme: "light-dark()"}
       ]
     ]
   ]

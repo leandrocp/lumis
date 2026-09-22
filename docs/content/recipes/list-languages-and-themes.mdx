@@ -20,10 +20,14 @@ than the call is worth. Reach for one in full with `themes::get` or
   <Tab value="JavaScript / TypeScript">
 
 ```js
-import {availableLanguages, availableThemes} from '@lumis-sh/lumis'
+import {
+  availableLanguages,
+  availableThemes,
+} from '@lumis-sh/lumis'
 
 for (const language of availableLanguages()) {
-  console.log(language.id, language.name, language.extensions)
+  const {id, name, extensions} = language
+  console.log(id, name, extensions)
 }
 
 for (const theme of availableThemes()) {
@@ -38,7 +42,10 @@ for (const theme of availableThemes()) {
 use lumis::{languages::available_languages, themes};
 
 for language in available_languages() {
-    println!("{} {} {:?}", language.id, language.name, language.extensions);
+    println!(
+        "{} {} {:?}",
+        language.id, language.name, language.extensions
+    );
 }
 
 for theme in themes::available_themes() {
@@ -51,7 +58,9 @@ for theme in themes::available_themes() {
 
 ```elixir
 for language <- Lumis.available_languages() do
-  IO.inspect({language.id, language.name, language.extensions})
+  IO.inspect(
+    {language.id, language.name, language.extensions}
+  )
 end
 
 for theme <- Lumis.available_themes() do
@@ -84,7 +93,8 @@ returns a `Result` and the CLI exits non-zero.
 ```js
 import {getLanguage} from '@lumis-sh/lumis'
 
-getLanguage('js')    // { id: 'javascript', name: 'JavaScript', ... }
+// { id: 'javascript', name: 'JavaScript', ... }
+getLanguage('js')
 getLanguage('nope')  // undefined
 ```
 
@@ -118,7 +128,9 @@ Lumis.Languages.get("nope")
 # nil
 
 Lumis.Theme.get("catppuccin_frappe")
-# %Lumis.Theme{name: "catppuccin_frappe", appearance: "dark", ...}
+
+# %Lumis.Theme{name: "catppuccin_frappe",
+#   appearance: "dark", ...}
 ```
 
   </Tab>

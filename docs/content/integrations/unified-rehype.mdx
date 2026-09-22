@@ -19,8 +19,10 @@ If your system already uses `unified`, use `@lumis-sh/rehype-lumis` directly.
 ## Install
 
 ```bash
-npm install unified remark-parse remark-rehype rehype-stringify
-npm install @lumis-sh/rehype-lumis @lumis-sh/lumis @lumis-sh/themes
+npm install unified remark-parse \
+  remark-rehype rehype-stringify
+npm install @lumis-sh/rehype-lumis \
+  @lumis-sh/lumis @lumis-sh/themes
 ```
 
 ## Example
@@ -41,7 +43,8 @@ const file = await unified()
   .use(remarkParse)
   .use(remarkRehype)
   .use(rehypeLumis, {
-    formatter: (language) => htmlInline({language, theme: latte}),
+    formatter: (language) =>
+      htmlInline({language, theme: latte}),
     languages: [javascript, rust, plaintext],
   })
   .use(rehypeStringify)

@@ -34,14 +34,19 @@ import {highlight} from '@lumis-sh/lumis'
 import {htmlLinked} from '@lumis-sh/lumis/formatters'
 import javascript from '@lumis-sh/lumis/langs/javascript'
 
-const html = await highlight('const x = 1', htmlLinked({language: javascript}))
+const html = await highlight(
+  'const x = 1',
+  htmlLinked({language: javascript}),
+)
 ```
 
   </Tab>
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlLinkedBuilder, languages::Language};
+use lumis::{
+    highlight, languages::Language, HtmlLinkedBuilder,
+};
 
 let html = highlight(
     "const x = 1",
@@ -59,7 +64,9 @@ let html = highlight(
 ```elixir
 Lumis.highlight!(
   "const x = 1",
-  formatter: {:html_linked, language: "javascript", pre_class: "demo"}
+  formatter:
+    {:html_linked,
+     language: "javascript", pre_class: "demo"}
 )
 ```
 

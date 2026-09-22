@@ -8,11 +8,14 @@ description: Highlight code directly in Browsers with ESM CDN imports.
 ```html
 <script type="module">
   import {highlight} from 'https://esm.sh/@lumis-sh/lumis'
-  import {htmlInline} from 'https://esm.sh/@lumis-sh/lumis/formatters'
+  import {
+    htmlInline,
+  } from 'https://esm.sh/@lumis-sh/lumis/formatters'
   import javascript from 'https://esm.sh/@lumis-sh/lumis/langs/javascript'
   import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe'
 
-  document.getElementById('output').innerHTML = await highlight(
+  const output = document.getElementById('output')
+  output.innerHTML = await highlight(
     'const x = 1',
     htmlInline({language: javascript, theme: frappe})
   )

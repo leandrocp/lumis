@@ -15,7 +15,10 @@ const html = await highlight(
   htmlInline({
     language: javascript,
     theme: frappe,
-    header: {openTag: '<figure><figcaption>index.js</figcaption>', closeTag: '</figure>'},
+    header: {
+      openTag: '<figure><figcaption>index.js</figcaption>',
+      closeTag: '</figure>',
+    },
   })
 )
 ```
@@ -24,15 +27,22 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, formatters::html::HtmlElement, languages::Language, themes};
+use lumis::{
+    formatters::html::HtmlElement, highlight,
+    languages::Language, themes, HtmlInlineBuilder,
+};
 
 let html = highlight(
     "fn main() {}",
     HtmlInlineBuilder::new()
         .language(Language::Rust)
-        .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+        .theme(Some(
+            themes::get("catppuccin_frappe").unwrap(),
+        ))
         .header(Some(HtmlElement {
-            open_tag: "<figure><figcaption>main.rs</figcaption>".to_string(),
+            open_tag:
+                "<figure><figcaption>main.rs</figcaption>"
+                    .to_string(),
             close_tag: "</figure>".to_string(),
         }))
         .build()
@@ -46,11 +56,15 @@ let html = highlight(
 ```elixir
 Lumis.highlight!(
   "const x = 1",
-  formatter: {:html_inline,
-    language: "javascript",
-    theme: "catppuccin_frappe",
-    header: %{open_tag: "<figure><figcaption>index.js</figcaption>", close_tag: "</figure>"}
-  }
+  formatter:
+    {:html_inline,
+     language: "javascript",
+     theme: "catppuccin_frappe",
+     header: %{
+       open_tag:
+         "<figure><figcaption>index.js</figcaption>",
+       close_tag: "</figure>"
+     }}
 )
 ```
 

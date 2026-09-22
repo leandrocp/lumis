@@ -48,7 +48,10 @@ lumis highlight main.rs --theme catppuccin_frappe
 
 ```bash title="Pipe from stdin"
 cat main.rs | lumis highlight -l rust
-echo 'const x = 1' | lumis highlight -l javascript --formatter html-inline --theme catppuccin_frappe
+echo 'const x = 1' | lumis highlight \
+  -l javascript \
+  --formatter html-inline \
+  --theme catppuccin_frappe
 ```
 
 ### Options
@@ -214,7 +217,8 @@ Limits from 1 to 3 show leading characters only. Larger truncated previews use
 `--text component.svelte` still treats the final argument as the input path.
 
 ```bash title="Show a mixed-language annotated tree"
-lumis dump tree component.svelte --injections --text --highlights
+lumis dump tree component.svelte \
+  --injections --text --highlights
 ```
 
 ```bash title="Use the canonical parser representation"
@@ -252,7 +256,8 @@ lumis dump events src/main.js
 ```
 
 ```bash title="Debug a partial mixed-language snippet"
-echo 'function increment() { count++; }' | lumis dump events -l svelte
+echo 'function increment() { count++; }' \
+  | lumis dump events -l svelte
 ```
 
 All dump commands accept an optional path and `--language` / `-l`. They read

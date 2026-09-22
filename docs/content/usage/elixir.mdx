@@ -16,7 +16,11 @@ keywords:
 Use [`highlight/2`](https://hexdocs.pm/lumis/Lumis.html#highlight/2) when invalid user input, formatter options, or language detection should stay in the normal control flow.
 
 ```elixir
-case Lumis.highlight(source, formatter: {:html_inline, language: "elixir", theme: "catppuccin_latte"}) do
+case Lumis.highlight(source,
+       formatter:
+         {:html_inline,
+          language: "elixir", theme: "catppuccin_latte"}
+     ) do
   {:ok, html} -> html
   {:error, reason} -> handle_error(reason)
 end
@@ -32,7 +36,12 @@ uncolored output.
 Use [`highlight!/2`](https://hexdocs.pm/lumis/Lumis.html#highlight!/2) when failures should raise immediately, such as in scripts, trusted internal code, or examples.
 
 ```elixir
-html = Lumis.highlight!(source, formatter: {:html_inline, language: "elixir", theme: "catppuccin_latte"})
+html =
+  Lumis.highlight!(source,
+    formatter:
+      {:html_inline,
+       language: "elixir", theme: "catppuccin_latte"}
+  )
 ```
 
 `highlight!/2` returns the highlighted output or raises.
@@ -42,9 +51,18 @@ html = Lumis.highlight!(source, formatter: {:html_inline, language: "elixir", th
 Elixir accepts several forms:
 
 ```elixir
-Lumis.highlight!(code, formatter: {:html_inline, language: "elixir"})
-Lumis.highlight!(code, formatter: {:html_inline, language: ".ex"})
-Lumis.highlight!(code, formatter: {:html_inline, language: "lib/my_app.ex"})
+Lumis.highlight!(code,
+  formatter: {:html_inline, language: "elixir"}
+)
+
+Lumis.highlight!(code,
+  formatter: {:html_inline, language: ".ex"}
+)
+
+Lumis.highlight!(code,
+  formatter: {:html_inline, language: "lib/my_app.ex"}
+)
+
 Lumis.highlight!(code)
 ```
 
@@ -57,7 +75,8 @@ to name, including languages injected inside it, and caches them for every later
 request. Nothing has to be declared up front:
 
 ````elixir
-# Loads markdown, then elixir for the fenced block, in one pass.
+# Loads markdown, then elixir for the fenced
+# block, in one pass.
 Lumis.highlight!("""
 # Title
 
@@ -65,7 +84,12 @@ Lumis.highlight!("""
 defmodule Demo do
 end
 ```
-""", formatter: {:html_inline, language: "markdown", theme: "catppuccin_latte"})
+""",
+  formatter:
+    {:html_inline,
+     language: "markdown",
+     theme: "catppuccin_latte"}
+)
 ````
 
 A language that cannot be fetched leaves its own block plain rather than failing
@@ -83,7 +107,10 @@ so a request never pays either:
 ```elixir title="lib/my_app/application.ex"
 def start(_type, _args) do
   Lumis.Languages.async_load(["markdown", "elixir", "json"])
-  Supervisor.start_link(children(), strategy: :one_for_one, name: MyApp.Supervisor)
+  Supervisor.start_link(children(),
+    strategy: :one_for_one,
+    name: MyApp.Supervisor
+  )
 end
 ```
 
@@ -202,7 +229,12 @@ See [`Lumis`](https://hexdocs.pm/lumis/Lumis.html), [`Lumis.Languages`](https://
 Highlighted HTML must be rendered as raw HTML in templates.
 
 ```elixir
-code = Lumis.highlight!(source, formatter: {:html_inline, language: "elixir", theme: "catppuccin_latte"})
+code =
+  Lumis.highlight!(source,
+    formatter:
+      {:html_inline,
+       language: "elixir", theme: "catppuccin_latte"}
+  )
 ```
 
 ```heex
@@ -228,7 +260,11 @@ Then pass the resulting theme struct into the formatter options.
 
 ```elixir
 # validate options before passing to highlight
-Lumis.validate_options!(formatter: {:html_inline, language: "elixir", theme: "catppuccin_frappe"})
+Lumis.validate_options!(
+  formatter:
+    {:html_inline,
+     language: "elixir", theme: "catppuccin_frappe"}
+)
 
 # inspect defaults
 Lumis.default_options()

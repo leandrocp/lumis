@@ -79,12 +79,21 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlMultiThemesBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlMultiThemesBuilder,
+};
 use std::collections::HashMap;
 
 let mut theme_map = HashMap::new();
-theme_map.insert("light".to_string(), themes::get("catppuccin_latte").unwrap());
-theme_map.insert("dark".to_string(), themes::get("catppuccin_frappe").unwrap());
+theme_map.insert(
+    "light".to_string(),
+    themes::get("catppuccin_latte").unwrap(),
+);
+theme_map.insert(
+    "dark".to_string(),
+    themes::get("catppuccin_frappe").unwrap(),
+);
 
 let html = highlight(
     "const x = 1",
@@ -103,11 +112,14 @@ let html = highlight(
 ```elixir
 Lumis.highlight!(
   "const x = 1",
-  formatter: {:html_multi_themes,
-    language: "javascript",
-    themes: [light: "catppuccin_latte", dark: "catppuccin_frappe"],
-    default_theme: "light-dark()"
-  }
+  formatter:
+    {:html_multi_themes,
+     language: "javascript",
+     themes: [
+       light: "catppuccin_latte",
+       dark: "catppuccin_frappe"
+     ],
+     default_theme: "light-dark()"}
 )
 ```
 
@@ -177,12 +189,21 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlMultiThemesBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlMultiThemesBuilder,
+};
 use std::collections::HashMap;
 
 let mut theme_map = HashMap::new();
-theme_map.insert("light".to_string(), themes::get("catppuccin_latte").unwrap());
-theme_map.insert("dark".to_string(), themes::get("catppuccin_frappe").unwrap());
+theme_map.insert(
+    "light".to_string(),
+    themes::get("catppuccin_latte").unwrap(),
+);
+theme_map.insert(
+    "dark".to_string(),
+    themes::get("catppuccin_frappe").unwrap(),
+);
 
 let html = highlight(
     code,
@@ -201,11 +222,14 @@ let html = highlight(
 ```elixir
 Lumis.highlight!(
   code,
-  formatter: {:html_multi_themes,
-    language: "elixir",
-    themes: [light: "catppuccin_latte", dark: "catppuccin_frappe"],
-    default_theme: "light"
-  }
+  formatter:
+    {:html_multi_themes,
+     language: "elixir",
+     themes: [
+       light: "catppuccin_latte",
+       dark: "catppuccin_frappe"
+     ],
+     default_theme: "light"}
 )
 ```
 
@@ -283,12 +307,21 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlMultiThemesBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlMultiThemesBuilder,
+};
 use std::collections::HashMap;
 
 let mut theme_map = HashMap::new();
-theme_map.insert("light".to_string(), themes::get("catppuccin_latte").unwrap());
-theme_map.insert("dark".to_string(), themes::get("catppuccin_frappe").unwrap());
+theme_map.insert(
+    "light".to_string(),
+    themes::get("catppuccin_latte").unwrap(),
+);
+theme_map.insert(
+    "dark".to_string(),
+    themes::get("catppuccin_frappe").unwrap(),
+);
 
 let html = highlight(
     code,
@@ -307,11 +340,14 @@ let html = highlight(
 ```elixir
 Lumis.highlight!(
   code,
-  formatter: {:html_multi_themes,
-    language: "elixir",
-    themes: [light: "catppuccin_latte", dark: "catppuccin_frappe"],
-    default_theme: "light"
-  }
+  formatter:
+    {:html_multi_themes,
+     language: "elixir",
+     themes: [
+       light: "catppuccin_latte",
+       dark: "catppuccin_frappe"
+     ],
+     default_theme: "light"}
 )
 ```
 

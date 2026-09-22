@@ -47,7 +47,11 @@ import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
 const html = await highlight(
   'const x = 1',
-  htmlInline({language: javascript, theme: frappe, preClass: 'code-block'})
+  htmlInline({
+    language: javascript,
+    theme: frappe,
+    preClass: 'code-block',
+  })
 );
 ```
 
@@ -55,7 +59,10 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
 
 let formatter = HtmlInlineBuilder::new()
     .language(Language::Rust)
@@ -73,7 +80,11 @@ let html = highlight("fn main() {}", formatter);
 ```elixir
 Lumis.highlight!(
   "fn main() {}",
-  formatter: {:html_inline, language: "rust", theme: "catppuccin_frappe", pre_class: "code-block"}
+  formatter:
+    {:html_inline,
+     language: "rust",
+     theme: "catppuccin_frappe",
+     pre_class: "code-block"}
 )
 ```
 
@@ -102,7 +113,9 @@ lumis.close();
   <Tab value="CLI">
 
 ```bash
-lumis highlight main.rs --formatter html-inline --theme catppuccin_frappe
+lumis highlight main.rs \
+  --formatter html-inline \
+  --theme catppuccin_frappe
 ```
 
   </Tab>
@@ -131,7 +144,9 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlLinkedBuilder, languages::Language};
+use lumis::{
+    highlight, languages::Language, HtmlLinkedBuilder,
+};
 
 let formatter = HtmlLinkedBuilder::new()
     .language(Language::Rust)
@@ -148,7 +163,9 @@ let html = highlight("fn main() {}", formatter);
 ```elixir
 Lumis.highlight!(
   "fn main() {}",
-  formatter: {:html_linked, language: "rust", pre_class: "code-block"}
+  formatter:
+    {:html_linked,
+     language: "rust", pre_class: "code-block"}
 )
 ```
 
@@ -209,12 +226,21 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlMultiThemesBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlMultiThemesBuilder,
+};
 use std::collections::HashMap;
 
 let mut theme_map = HashMap::new();
-theme_map.insert("light".to_string(), themes::get("catppuccin_latte").unwrap());
-theme_map.insert("dark".to_string(), themes::get("catppuccin_frappe").unwrap());
+theme_map.insert(
+    "light".to_string(),
+    themes::get("catppuccin_latte").unwrap(),
+);
+theme_map.insert(
+    "dark".to_string(),
+    themes::get("catppuccin_frappe").unwrap(),
+);
 
 let formatter = HtmlMultiThemesBuilder::new()
     .language(Language::Javascript)
@@ -232,11 +258,14 @@ let html = highlight("const x = 1", formatter);
 ```elixir
 Lumis.highlight!(
   "const x = 1",
-  formatter: {:html_multi_themes,
-    language: "javascript",
-    themes: [light: "catppuccin_latte", dark: "catppuccin_frappe"],
-    default_theme: "light-dark()"
-  }
+  formatter:
+    {:html_multi_themes,
+     language: "javascript",
+     themes: [
+       light: "catppuccin_latte",
+       dark: "catppuccin_frappe"
+     ],
+     default_theme: "light-dark()"}
 )
 ```
 
@@ -310,7 +339,11 @@ quote, `=`, `/` or `>` is an error rather than markup.
 htmlLinked({
   language: javascript,
   preClass: 'code-block',
-  preAttrs: {id: 'example', 'data-panel': 'output', class: 'overflow-x-auto'},
+  preAttrs: {
+    id: 'example',
+    'data-panel': 'output',
+    class: 'overflow-x-auto',
+  },
   codeAttrs: {id: 'example-code', tabindex: false}
 })
 ```
@@ -345,7 +378,11 @@ Lumis.highlight!(code,
     {:html_linked,
      language: "javascript",
      pre_class: "code-block",
-     pre_attrs: [id: "example", "data-panel": "output", class: "overflow-x-auto"],
+     pre_attrs: [
+       id: "example",
+       "data-panel": "output",
+       class: "overflow-x-auto"
+     ],
      code_attrs: [id: "example-code", tabindex: false]}
 )
 ```
@@ -379,10 +416,18 @@ own attributes — uses `withAttrs` in the npm package, which returns a new form
 and leaves the original alone:
 
 ```ts
-import {htmlInline, withAttrs} from '@lumis-sh/lumis/formatters'
+import {
+  htmlInline,
+  withAttrs,
+} from '@lumis-sh/lumis/formatters'
 
-const base = htmlInline({language: javascript, theme: dracula})
-const block = withAttrs(base, {preAttrs: {id: 'example', class: 'card'}})
+const base = htmlInline({
+  language: javascript,
+  theme: dracula,
+})
+const block = withAttrs(base, {
+  preAttrs: {id: 'example', class: 'card'},
+})
 ```
 
 The attributes layer over any the formatter already carried, by the same rules,
@@ -422,7 +467,9 @@ const ansi = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, TerminalBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes, TerminalBuilder,
+};
 
 let formatter = TerminalBuilder::new()
     .language(Language::Rust)
@@ -440,7 +487,9 @@ println!("{}", ansi);
 ```elixir
 Lumis.highlight!(
   "fn main() {}",
-  formatter: {:terminal, language: "rust", theme: "catppuccin_frappe"}
+  formatter:
+    {:terminal,
+     language: "rust", theme: "catppuccin_frappe"}
 )
 ```
 
@@ -497,7 +546,9 @@ const output = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, BBCodeScopedBuilder, languages::Language};
+use lumis::{
+    highlight, languages::Language, BBCodeScopedBuilder,
+};
 
 let output = highlight(
     "fn main() {}",
@@ -533,7 +584,8 @@ var highlighter = lumis.highlighter()
     .withFormatter(Formatter.BBCODE)
     .build();
 
-var output = highlighter.highlight("const x = \"[url=x]\"").string();
+var output =
+    highlighter.highlight("const x = \"[url=x]\"").string();
 lumis.close();
 ```
 

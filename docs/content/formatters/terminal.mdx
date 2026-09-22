@@ -39,7 +39,12 @@ import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
 const ansi = await highlight(
   'const x = 1',
-  terminal({language: javascript, theme: frappe, background: 'theme', width: 120}),
+  terminal({
+    language: javascript,
+    theme: frappe,
+    background: 'theme',
+    width: 120,
+  }),
 )
 console.log(ansi)
 ```
@@ -48,13 +53,18 @@ console.log(ansi)
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, TerminalBackground, TerminalBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    TerminalBackground, TerminalBuilder,
+};
 
 let ansi = highlight(
     "fn main() {}",
     TerminalBuilder::new()
         .language(Language::Rust)
-        .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+        .theme(Some(
+            themes::get("catppuccin_frappe").unwrap(),
+        ))
         .background(TerminalBackground::Theme)
         .width(Some(120))
         .build()
@@ -70,7 +80,12 @@ println!("{}", ansi);
 ```elixir
 Lumis.highlight!(
   "fn main() {}",
-  formatter: {:terminal, language: "rust", theme: "catppuccin_frappe", background: :theme, width: 120}
+  formatter:
+    {:terminal,
+     language: "rust",
+     theme: "catppuccin_frappe",
+     background: :theme,
+     width: 120}
 )
 ```
 
@@ -102,8 +117,13 @@ lumis.close();
 
 ```bash
 lumis highlight main.rs --theme catppuccin_frappe
-# same as: lumis highlight main.rs --formatter terminal --theme catppuccin_frappe
-lumis highlight main.rs --theme catppuccin_frappe --background theme
+# same as:
+#   lumis highlight main.rs \
+#     --formatter terminal \
+#     --theme catppuccin_frappe
+lumis highlight main.rs \
+  --theme catppuccin_frappe \
+  --background theme
 lumis highlight main.rs -b '#303446' -w 120
 ```
 

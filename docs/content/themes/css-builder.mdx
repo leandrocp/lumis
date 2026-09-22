@@ -256,7 +256,10 @@ let css = themes::CssBuilder::new(&theme)
   <Tab value="Elixir">
 
 ```elixir
-css = Lumis.Theme.build_css!("catppuccin_frappe", container_selector: ".code-block")
+css =
+  Lumis.Theme.build_css!("catppuccin_frappe",
+    container_selector: ".code-block"
+  )
 ```
 
   </Tab>

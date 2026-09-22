@@ -29,7 +29,8 @@ import plaintext from '@lumis-sh/lumis/langs/plaintext'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 processor.use(rehypeLumis, {
-  formatter: (language) => htmlInline({language, theme: latte}),
+  formatter: (language) =>
+    htmlInline({language, theme: latte}),
   languages: [javascript, plaintext],
 })
 ```
@@ -54,7 +55,8 @@ const file = await unified()
   .use(remarkParse)
   .use(remarkRehype)
   .use(rehypeLumis, {
-    formatter: (language) => htmlInline({language, theme: latte}),
+    formatter: (language) =>
+      htmlInline({language, theme: latte}),
     languages: [javascript, rust, plaintext],
   })
   .use(rehypeStringify)

@@ -29,7 +29,11 @@ Resulting shape for runtimes that support custom header wrappers:
 <div class="snippet-frame">
   <div class="snippet-bar">
     <span class="snippet-name">app.js</span>
-    <button type="button" class="snippet-copy" data-copy-snippet>
+    <button
+      type="button"
+      class="snippet-copy"
+      data-copy-snippet
+    >
       Copy
     </button>
   </div>
@@ -58,7 +62,11 @@ const html = await highlight(
       openTag: `<div class="snippet-frame">
   <div class="snippet-bar">
     <span class="snippet-name">${filename}</span>
-    <button type="button" class="snippet-copy" data-copy-snippet>
+    <button
+      type="button"
+      class="snippet-copy"
+      data-copy-snippet
+    >
       Copy
     </button>
   </div>`,
@@ -72,7 +80,10 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, formatters::html::HtmlElement, languages::Language, themes};
+use lumis::{
+    formatters::html::HtmlElement, highlight,
+    languages::Language, themes, HtmlInlineBuilder,
+};
 
 let source = "console.log(\"hello\")";
 let filename = "app.js";
@@ -85,7 +96,11 @@ let formatter = HtmlInlineBuilder::new()
             r#"<div class="snippet-frame">
   <div class="snippet-bar">
     <span class="snippet-name">{}</span>
-    <button type="button" class="snippet-copy" data-copy-snippet>
+    <button
+      type="button"
+      class="snippet-copy"
+      data-copy-snippet
+    >
       Copy
     </button>
   </div>"#,
@@ -103,7 +118,7 @@ let html = highlight(source, formatter);
   <Tab value="Elixir">
 
 ```elixir
-source = ~S(console.log("hello"))
+source = ~S|console.log("hello")|
 filename = "app.js"
 
 html = Lumis.highlight!(
@@ -116,7 +131,11 @@ html = Lumis.highlight!(
       <div class="snippet-frame">
         <div class="snippet-bar">
           <span class="snippet-name">#{filename}</span>
-          <button type="button" class="snippet-copy" data-copy-snippet>
+          <button
+            type="button"
+            class="snippet-copy"
+            data-copy-snippet
+          >
             Copy
           </button>
         </div>
@@ -136,8 +155,11 @@ Custom header wrappers are not currently exposed by `lumis4j`.
   <Tab value="CLI">
 
 ```bash
+header='<figure class="snippet-frame">'
+header="$header"'<figcaption>app.js</figcaption>'
+
 lumis highlight app.js -f html-inline \
-  --header-open '<figure class="snippet-frame"><figcaption>app.js</figcaption>' \
+  --header-open "$header" \
   --header-close '</figure>'
 ```
 
@@ -203,10 +225,15 @@ document.addEventListener('click', async event => {
   if (!button) return
 
   const container = button.closest('.snippet-frame')
-  const lines = container?.querySelectorAll('.lumis [data-line]')
+  const lines = container?.querySelectorAll(
+    '.lumis [data-line]',
+  )
   if (!lines?.length) return
 
-  const text = Array.from(lines, line => line.textContent ?? '').join('\n')
+  const text = Array.from(
+    lines,
+    line => line.textContent ?? '',
+  ).join('\n')
   await navigator.clipboard.writeText(text)
 
   const originalLabel = button.textContent

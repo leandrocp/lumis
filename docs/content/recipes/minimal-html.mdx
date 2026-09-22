@@ -15,20 +15,28 @@ import {htmlInline} from '@lumis-sh/lumis/formatters'
 import javascript from '@lumis-sh/lumis/langs/javascript'
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
-const html = await highlight('const x = 1', htmlInline({language: javascript, theme: frappe}))
+const html = await highlight(
+  'const x = 1',
+  htmlInline({language: javascript, theme: frappe}),
+)
 ```
 
   </Tab>
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
 
 let html = highlight(
     "const x = 1",
     HtmlInlineBuilder::new()
         .language(Language::Javascript)
-        .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+        .theme(Some(
+            themes::get("catppuccin_frappe").unwrap(),
+        ))
         .build()
         .unwrap(),
 );
@@ -38,7 +46,12 @@ let html = highlight(
   <Tab value="Elixir">
 
 ```elixir
-html = Lumis.highlight!("const x = 1", formatter: {:html_inline, language: "javascript", theme: "catppuccin_frappe"})
+html =
+  Lumis.highlight!("const x = 1",
+    formatter:
+      {:html_inline,
+       language: "javascript", theme: "catppuccin_frappe"}
+  )
 ```
 
   </Tab>
@@ -63,7 +76,9 @@ var html = highlighter.highlight("const x = 1").string();
   <Tab value="CLI">
 
 ```bash
-lumis highlight index.js --formatter html-inline --theme catppuccin_frappe
+lumis highlight index.js \
+  --formatter html-inline \
+  --theme catppuccin_frappe
 ```
 
   </Tab>

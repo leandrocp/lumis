@@ -38,7 +38,10 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
 
 let theme = themes::get("catppuccin_frappe").unwrap();
 
@@ -57,7 +60,9 @@ let html = highlight("const x = 1", formatter);
 ```elixir
 Lumis.highlight!(
   "const x = 1",
-  formatter: {:html_inline, language: "javascript", theme: "catppuccin_frappe"}
+  formatter:
+    {:html_inline,
+     language: "javascript", theme: "catppuccin_frappe"}
 )
 ```
 
@@ -121,9 +126,11 @@ Raise it when a document is large enough that tree-sitter drops matches and scop
   <Tab value="JavaScript / TypeScript">
 
 ```js
-const html = await highlight(source, htmlInline({language: html_, theme: frappe}), {
-  matchLimit: 16384,
-});
+const html = await highlight(
+  source,
+  htmlInline({language: html_, theme: frappe}),
+  {matchLimit: 16384},
+);
 ```
 
   </Tab>

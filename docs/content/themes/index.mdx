@@ -83,7 +83,10 @@ let theme = themes::from_file("my_theme.json").unwrap();
 ```elixir
 {:ok, theme} = Lumis.Theme.from_file("/path/to/theme.json")
 
-Lumis.highlight!("const x = 1", formatter: {:html_inline, language: "javascript", theme: theme})
+Lumis.highlight!("const x = 1",
+  formatter:
+    {:html_inline, language: "javascript", theme: theme}
+)
 ```
 
   </Tab>
@@ -101,7 +104,8 @@ lumis themes generate \
   --colorscheme catppuccin-mocha \
   --output catppuccin-mocha.json
 
-# move it into the Lumis data dir so `lumis themes list` can discover it
+# move it into the Lumis data dir so
+# `lumis themes list` can discover it
 mkdir -p ~/.local/share/lumis/themes
 cp catppuccin-mocha.json ~/.local/share/lumis/themes/
 
@@ -110,7 +114,8 @@ lumis highlight index.js --theme my-custom-theme
 ```
 
 ```text
-Replace `my-custom-theme` with the JSON theme's `name` field.
+Replace `my-custom-theme` with the JSON theme's
+`name` field.
 ```
 
 See [CLI Commands](/cli/commands#lumis-themes-generate) for the full `lumis themes generate` options.

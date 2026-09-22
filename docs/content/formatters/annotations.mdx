@@ -81,7 +81,10 @@ enum Change {
 
 let annotations = [
     Annotation::new(12..23, Change::Added)?,
-    Annotation::new(Position::new(1, 10)..Position::new(1, 21), Change::Removed)?,
+    Annotation::new(
+        Position::new(1, 10)..Position::new(1, 21),
+        Change::Removed,
+    )?,
 ];
 
 let html = highlight_with_options(
@@ -124,7 +127,10 @@ one kind of annotation keeps a stack of what it opened.
   <Tab value="JavaScript / TypeScript">
 
 ```ts
-import type {Formatter, HighlightEvent} from '@lumis-sh/lumis/formatters'
+import type {
+  Formatter,
+  HighlightEvent,
+} from '@lumis-sh/lumis/formatters'
 
 const formatter: Formatter<Change> = {
   language: javascript,
@@ -136,13 +142,15 @@ const formatter: Formatter<Change> = {
 
     for (const event of events) {
       if (event.type === 'annotationStart') {
-        const tag = event.data.change === 'added' ? 'ins' : 'del'
+        const tag =
+          event.data.change === 'added' ? 'ins' : 'del'
         out.push(`<${tag}>`)
         open.push(tag)
       } else if (event.type === 'annotationEnd') {
         out.push(`</${open.pop()}>`)
       } else if (event.type === 'source') {
-        out.push(decoder.decode(bytes.subarray(event.start, event.end)))
+        const slice = bytes.subarray(event.start, event.end)
+        out.push(decoder.decode(slice))
       }
       // 'start' and 'end' carry the syntax scopes
     }
@@ -176,7 +184,10 @@ impl Formatter<Change> for DiffFormatter {
 
         for event in events {
             match event {
-                HighlightEvent::AnnotationStart { data, .. } => {
+                HighlightEvent::AnnotationStart {
+                    data,
+                    ..
+                } => {
                     let tag = match *data {
                         Change::Added => "ins",
                         Change::Removed => "del",
@@ -185,10 +196,17 @@ impl Formatter<Change> for DiffFormatter {
                     open.push(tag);
                 }
                 HighlightEvent::AnnotationEnd => {
-                    write!(out, "</{}>", open.pop().expect("events are balanced"))?;
+                    write!(
+                        out,
+                        "</{}>",
+                        open.pop()
+                            .expect("events are balanced")
+                    )?;
                 }
                 HighlightEvent::Source { start, end } => {
-                    out.write_all(&source.as_bytes()[*start..*end])?;
+                    out.write_all(
+                        &source.as_bytes()[*start..*end],
+                    )?;
                 }
                 // Start and End carry the syntax scopes
                 _ => {}
@@ -211,7 +229,8 @@ defmodule DiffFormatter do
   def render(source, events, _options) do
     {output, []} =
       Enum.map_reduce(events, [], fn
-        {:annotation_start, %{data: %{change: change}}}, open ->
+        {:annotation_start, %{data: %{change: change}}},
+        open ->
           tag = if change == :added, do: "ins", else: "del"
           {["<", tag, ">"], [tag | open]}
 
@@ -219,7 +238,8 @@ defmodule DiffFormatter do
           {["</", tag, ">"], rest}
 
         {:source, %{start: start, end: end_offset}}, open ->
-          {binary_part(source, start, end_offset - start), open}
+          {binary_part(source, start, end_offset - start),
+           open}
 
         # {:start, _} and :end carry the syntax scopes
         _syntax_event, open ->

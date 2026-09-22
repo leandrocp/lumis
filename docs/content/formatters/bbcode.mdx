@@ -48,7 +48,9 @@ console.log(output)
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, BBCodeScopedBuilder, languages::Language};
+use lumis::{
+    highlight, languages::Language, BBCodeScopedBuilder,
+};
 
 let bbcode = highlight(
     "fn main() {}",
@@ -88,7 +90,8 @@ var highlighter = lumis.highlighter()
     .withFormatter(Formatter.BBCODE)
     .build();
 
-var output = highlighter.highlight("const x = \"[url=x]\"").string();
+var output =
+    highlighter.highlight("const x = \"[url=x]\"").string();
 System.out.println(output);
 
 lumis.close();

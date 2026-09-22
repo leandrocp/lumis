@@ -36,8 +36,11 @@ with an event stream you already have.
 ```rust
 use lumis::{
     events::HighlightEvent,
+    formatters::html::{
+        closing_tags, open_code_tag, open_pre_tag,
+        span_inline,
+    },
     formatters::Formatter,
-    formatters::html::{open_pre_tag, open_code_tag, closing_tags, span_inline},
     languages::Language,
     themes,
 };
@@ -67,14 +70,19 @@ impl Formatter for MinimalHtmlFormatter {
         for event in events {
             match event {
                 HighlightEvent::Start { .. } => {
-                    scopes.push(event.scope().unwrap_or_default());
+                    scopes.push(
+                        event.scope().unwrap_or_default(),
+                    );
                 }
                 HighlightEvent::End => {
                     scopes.pop();
                 }
                 HighlightEvent::Source { start, end } => {
                     let text = &source[*start..*end];
-                    let scope = scopes.last().copied().unwrap_or_default();
+                    let scope = scopes
+                        .last()
+                        .copied()
+                        .unwrap_or_default();
                     write!(
                         output,
                         "{}",
@@ -107,7 +115,12 @@ Pass an object with `language` and `render(source, events)`. Lumis highlights th
 ```ts
 import {createHighlighter} from '@lumis-sh/lumis'
 import type {Formatter} from '@lumis-sh/lumis/formatters'
-import {openPreTag, openCodeTag, closingTags, spanInline} from '@lumis-sh/lumis/formatters/html'
+import {
+  openPreTag,
+  openCodeTag,
+  closingTags,
+  spanInline,
+} from '@lumis-sh/lumis/formatters/html'
 import rust from '@lumis-sh/lumis/langs/rust'
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
@@ -121,7 +134,9 @@ const formatter: Formatter = {
     const scopes: string[] = []
     const parts: string[] = []
 
-    parts.push(openPreTag({preClass: 'docs-demo', theme: frappe}))
+    parts.push(
+      openPreTag({preClass: 'docs-demo', theme: frappe}),
+    )
     parts.push(openCodeTag(this.language))
 
     for (const event of events) {
@@ -130,9 +145,18 @@ const formatter: Formatter = {
       } else if (event.type === 'end') {
         scopes.pop()
       } else if (event.type === 'source') {
-        const text = decoder.decode(bytes.subarray(event.start, event.end))
+        const slice = bytes.subarray(event.start, event.end)
+        const text = decoder.decode(slice)
         const scope = scopes[scopes.length - 1]
-        parts.push(scope ? spanInline(text, {language: 'rust', scope, theme: frappe}) : text)
+        parts.push(
+          scope
+            ? spanInline(text, {
+                language: 'rust',
+                scope,
+                theme: frappe,
+              })
+            : text,
+        )
       }
     }
 
@@ -165,9 +189,11 @@ defmodule MinimalHtmlFormatter do
     language = Keyword.fetch!(options, :language)
     theme = Keyword.get(options, :theme)
 
-    # Resolving a scope against a theme is a table lookup, so build the table
-    # once here rather than crossing into Rust once per token.
-    attrs = HTML.span_attrs(theme: theme, language: language)
+    # Resolving a scope against a theme is a table
+    # lookup, so build the table once here rather
+    # than crossing into Rust once per token.
+    attrs =
+      HTML.span_attrs(theme: theme, language: language)
 
     body =
       Enum.map(events, fn
@@ -178,10 +204,12 @@ defmodule MinimalHtmlFormatter do
           "</span>"
 
         {:source, %{start: start, end: stop}} ->
-          HTML.escape(binary_part(source, start, stop - start))
+          len = stop - start
+          HTML.escape(binary_part(source, start, len))
 
-        # Lumis adds event kinds as it grows. Render the ones you know and skip
-        # the rest, or a newer Lumis raises FunctionClauseError here.
+        # Lumis adds event kinds as it grows. Render
+        # the ones you know and skip the rest, or a
+        # newer Lumis raises FunctionClauseError here.
         _event ->
           []
       end)
@@ -196,7 +224,9 @@ defmodule MinimalHtmlFormatter do
 end
 
 Lumis.highlight!("defmodule App do\nend",
-  formatter: {MinimalHtmlFormatter, language: "elixir", theme: "github_light"}
+  formatter:
+    {MinimalHtmlFormatter,
+     language: "elixir", theme: "github_light"}
 )
 ```
 
@@ -220,16 +250,27 @@ defmodule MultiThemeFormatter do
   @impl true
   def render(source, events, options) do
     language = Keyword.fetch!(options, :language)
-    attrs = HTML.span_multi_themes_attrs(themes: @themes, default_theme: "light-dark()", language: language)
+
+    attrs =
+      HTML.span_multi_themes_attrs(
+        themes: @themes,
+        default_theme: "light-dark()",
+        language: language
+      )
 
     body =
       source
       |> HTML.render_lines_from_events(events, attrs)
       |> Enum.with_index(1)
-      |> Enum.map(fn {line, number} -> HTML.wrap_line(number, line) end)
+      |> Enum.map(fn {line, number} ->
+        HTML.wrap_line(number, line)
+      end)
 
     [
-      HTML.open_multi_themes_pre_tag(themes: @themes, default_theme: "light-dark()"),
+      HTML.open_multi_themes_pre_tag(
+        themes: @themes,
+        default_theme: "light-dark()"
+      ),
       HTML.open_code_tag(language),
       body,
       HTML.closing_tags()
@@ -260,13 +301,15 @@ defmodule MinimalTerminalFormatter do
 
     {output, _scopes, _tables} =
       Enum.reduce(events, {[], [], %{}}, fn
-        {:start, %{scope: scope, language: language}}, {output, scopes, tables} ->
+        {:start, %{scope: scope, language: language}},
+        {output, scopes, tables} ->
           {output, [{scope, language} | scopes], tables}
 
         :end, {output, [_scope | scopes], tables} ->
           {output, scopes, tables}
 
-        {:source, %{start: start, end: stop}}, {output, scopes, tables} ->
+        {:source, %{start: start, end: stop}},
+        {output, scopes, tables} ->
           text = binary_part(source, start, stop - start)
 
           case scopes do
@@ -274,18 +317,26 @@ defmodule MinimalTerminalFormatter do
               {[text | output], scopes, tables}
 
             [{scope, language} | _rest] ->
-              # One table per language, built once and read per token.
+              # One table per language, built once
+              # and read per token.
               tables =
                 Map.put_new_lazy(tables, language, fn ->
-                  ANSI.styles(theme: theme, language: language)
+                  ANSI.styles(
+                    theme: theme,
+                    language: language
+                  )
                 end)
 
-              painted = ANSI.paint(text, ANSI.style_for(tables[language], scope))
+              style =
+                ANSI.style_for(tables[language], scope)
+
+              painted = ANSI.paint(text, style)
               {[painted | output], scopes, tables}
           end
 
-        # Lumis adds event kinds as it grows. Render the ones you know and skip
-        # the rest, or a newer Lumis raises FunctionClauseError here.
+        # Lumis adds event kinds as it grows. Render
+        # the ones you know and skip the rest, or a
+        # newer Lumis raises FunctionClauseError here.
         _event, state ->
           state
       end)
@@ -295,7 +346,9 @@ defmodule MinimalTerminalFormatter do
 end
 
 Lumis.highlight!("defmodule App do\nend",
-  formatter: {MinimalTerminalFormatter, language: "elixir", theme: "dracula"}
+  formatter:
+    {MinimalTerminalFormatter,
+     language: "elixir", theme: "dracula"}
 )
 ```
 
@@ -313,23 +366,51 @@ render for backward compatibility.
   <Tab value="JavaScript / TypeScript">
 
 ```ts
-highlightIter(source, this.language, frappe, (text, language, _range, scope) => {
-  // scope is punctuation.bracket.rainbow.1 .. .6 on bracket pairs
-}, {rainbowBrackets: true})
+highlightIter(
+  source,
+  this.language,
+  frappe,
+  (text, language, _range, scope) => {
+    // scope is punctuation.bracket.rainbow.1
+    // through .6 on bracket pairs
+  },
+  {rainbowBrackets: true},
+)
 ```
 
   </Tab>
   <Tab value="Rust">
 
 ```rust
-use lumis::highlight::{highlight_iter_with_options, HighlightOptions};
+use lumis::highlight::{
+    highlight_iter_with_options, HighlightOptions,
+};
 
-let options = HighlightOptions::new().rainbow_brackets(true);
+let options =
+    HighlightOptions::new().rainbow_brackets(true);
 
-highlight_iter_with_options(source, self.language, self.theme.clone(), options, |text, language, _range, scope, _style| {
-    // scope is punctuation.bracket.rainbow.1 .. .6 on bracket pairs
-    write!(output, "{}", span_inline(text, Some(language), scope, self.theme.as_ref(), false, false))
-})
+highlight_iter_with_options(
+    source,
+    self.language,
+    self.theme.clone(),
+    options,
+    |text, language, _range, scope, _style| {
+        // scope is punctuation.bracket.rainbow.1
+        // through .6 on bracket pairs
+        write!(
+            output,
+            "{}",
+            span_inline(
+                text,
+                Some(language),
+                scope,
+                self.theme.as_ref(),
+                false,
+                false
+            )
+        )
+    },
+)
 .map_err(io::Error::other)?;
 ```
 
@@ -349,10 +430,21 @@ events carry byte ranges, and `end` closes it.
 ```ts
 import {highlightEvents} from '@lumis-sh/lumis'
 
-for (const event of highlightEvents(source, rust, {rainbowBrackets: true})) {
-  if (event.type === 'start') console.log(event.scope, event.language)
-  if (event.type === 'decorationStart' && event.decoration.type === 'rainbowBracket') {
-    console.log('real zero-based depth', event.decoration.depth)
+const options = {rainbowBrackets: true}
+const events = highlightEvents(source, rust, options)
+
+for (const event of events) {
+  if (event.type === 'start') {
+    console.log(event.scope, event.language)
+  }
+  if (
+    event.type === 'decorationStart' &&
+    event.decoration.type === 'rainbowBracket'
+  ) {
+    console.log(
+      'real zero-based depth',
+      event.decoration.depth,
+    )
   }
 }
 ```
@@ -361,18 +453,34 @@ for (const event of highlightEvents(source, rust, {rainbowBrackets: true})) {
   <Tab value="Rust">
 
 ```rust
+use lumis::decorations::Decoration;
 use lumis::events::HighlightEvent;
-use lumis::highlight::{highlight_events_with_options, HighlightOptions};
+use lumis::highlight::{
+    highlight_events_with_options, HighlightOptions,
+};
 use lumis::languages::Language;
 
-let options = HighlightOptions::new().rainbow_brackets(true);
-for event in highlight_events_with_options(source, Language::Rust, options)? {
+let options =
+    HighlightOptions::new().rainbow_brackets(true);
+
+let events = highlight_events_with_options(
+    source,
+    Language::Rust,
+    options,
+)?;
+
+for event in events {
     if let HighlightEvent::Start { .. } = &event {
-        println!("{:?} {:?}", event.scope(), event.language());
+        println!(
+            "{:?} {:?}",
+            event.scope(),
+            event.language()
+        );
     }
     if let HighlightEvent::DecorationStart {
-        decoration: lumis::decorations::Decoration::RainbowBracket { depth },
-    } = &event {
+        decoration: Decoration::RainbowBracket { depth },
+    } = &event
+    {
         println!("real zero-based depth: {depth}");
     }
 }
