@@ -1,5 +1,6 @@
-import type { HighlightEvent, HtmlLinkedFormatter } from "../types.js";
+import type { BudgetExhausted, HighlightEvent, HtmlLinkedFormatter } from "../types.js";
 import {
+  budgetAttrs,
   closingTags,
   formatHtmlLines,
   openCodeTag,
@@ -13,6 +14,7 @@ export function formatHtmlLinked(
   source: string,
   events: readonly HighlightEvent[],
   formatter: HtmlLinkedFormatter,
+  budget?: BudgetExhausted,
 ): string {
   const body = formatHtmlLines(source, events, {
     language: formatter.language,
@@ -24,7 +26,10 @@ export function formatHtmlLinked(
     openSpan: (span) => openSpanTag({ class: scopeToClass(span.scope) }),
   });
 
-  const pre = openPreTag({ preClass: formatter.preClass, attrs: formatter.preAttrs });
+  const pre = openPreTag({
+    preClass: formatter.preClass,
+    attrs: budgetAttrs(formatter.preAttrs, budget),
+  });
   const code = openCodeTag(formatter.language, formatter.codeAttrs);
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);

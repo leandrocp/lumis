@@ -1,5 +1,11 @@
-import type { HighlightEvent, HighlightSpan, HtmlMultiThemesFormatter } from "../types.js";
+import type {
+  BudgetExhausted,
+  HighlightEvent,
+  HighlightSpan,
+  HtmlMultiThemesFormatter,
+} from "../types.js";
 import {
+  budgetAttrs,
   type HtmlAttrs,
   closingTags,
   formatHtmlLines,
@@ -67,6 +73,7 @@ export function formatHtmlMultiThemes(
   source: string,
   events: readonly HighlightEvent[],
   formatter: HtmlMultiThemesFormatter,
+  budget?: BudgetExhausted,
 ): string {
   const body = formatHtmlLines(source, events, {
     language: formatter.language,
@@ -89,7 +96,7 @@ export function formatHtmlMultiThemes(
     themes: formatter.themes,
     defaultTheme: formatter.defaultTheme,
     cssVariablePrefix: formatter.cssVariablePrefix,
-    attrs: formatter.preAttrs,
+    attrs: budgetAttrs(formatter.preAttrs, budget),
   });
   const code = openCodeTag(formatter.language, formatter.codeAttrs);
 

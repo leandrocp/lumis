@@ -1,5 +1,11 @@
-import type { HighlightEvent, HighlightSpan, HtmlInlineFormatter } from "../types.js";
+import type {
+  BudgetExhausted,
+  HighlightEvent,
+  HighlightSpan,
+  HtmlInlineFormatter,
+} from "../types.js";
 import {
+  budgetAttrs,
   closingTags,
   formatHtmlLines,
   getScopedThemeStyle,
@@ -61,6 +67,7 @@ export function formatHtmlInline(
   source: string,
   events: readonly HighlightEvent[],
   formatter: HtmlInlineFormatter,
+  budget?: BudgetExhausted,
 ): string {
   const body = formatHtmlLines(source, events, {
     language: formatter.language,
@@ -81,7 +88,7 @@ export function formatHtmlInline(
   const pre = openPreTag({
     preClass: formatter.preClass,
     theme: formatter.theme,
-    attrs: formatter.preAttrs,
+    attrs: budgetAttrs(formatter.preAttrs, budget),
   });
   const code = openCodeTag(formatter.language, formatter.codeAttrs);
 

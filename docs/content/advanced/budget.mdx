@@ -1,0 +1,182 @@
+---
+title: Budget
+description: Bound the work one Lumis render may do with a match limit and a time limit, and read the marker that says a bound was reached.
+keywords:
+  - lumis budget
+  - time limit
+  - match limit
+  - data-lumis-budget
+  - pathological input
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+A budget is the work one render is allowed to do. Lumis bounds two dimensions of
+it, and says so in the output when either one runs out.
+
+## Why a render needs a bound
+
+Highlighting cost is not a function of input size. A parse can retry, a query
+pattern can stay open across a large subtree, and a malformed document can drive
+either far past what its byte count suggests. A 40 KB file that is mostly one
+unterminated construct can cost more than a 4 MB file that parses cleanly, so
+"reject anything over N bytes" does not bound anything. Time does.
+
+## The two dimensions
+
+| Dimension | Option | Default | Bounds |
+| --- | --- | --- | --- |
+| Query matches | `match_limit` | 8192 | in-progress query matches tree-sitter keeps, for the highlight and bracket queries alike |
+| Wall clock | `time_limit` | 5000 ms | the whole render — parse and query walk together |
+
+`time_limit` is **milliseconds in every runtime**, including Rust.
+
+It does not count language loading. Not the root language, which is ready
+before the clock starts, and not the languages an injection names — those load
+in the middle of the walk, and the time they take is given back. A parser
+download and compile costs hundreds of milliseconds against a render measured in
+single digits, so charging it would mean the first document to use a language
+came back plain and the next one did not, with nothing about either document to
+explain the difference. [Load languages ahead of time](/languages) if a first
+request should not pay the latency either.
+
+## Exhaustion returns plain text
+
+When either bound is reached Lumis returns **the whole document, unhighlighted**,
+in the formatter you asked for. No exception, no error tuple, no truncation, and
+no partially coloured output — the source is complete, it just has no scopes.
+
+A page that renders a code block slowly and correctly stays a page. One that
+raises turns a large paste into a 500.
+
+Partial highlighting is deliberately not offered. Stopping a query walk halfway
+produces output that is coloured down to an arbitrary byte and bare after it,
+which reads as a rendering bug rather than as a limit.
+
+## The marker
+
+Every HTML formatter marks the `<pre>` when a budget was exhausted:
+
+```html
+<pre class="lumis" data-lumis-budget="time"><code class="language-json">...
+```
+
+| Value | Meaning |
+| --- | --- |
+| `time` | the time limit was reached |
+| `matches` | tree-sitter dropped matches at the match limit |
+
+`matches` is the one case where the output is not plain: tree-sitter drops
+in-progress matches and keeps going, so the document is highlighted with scopes
+missing. The attribute is how you find out that happened, because nothing else
+distinguishes it from a document that genuinely had few captures.
+
+Style it, log it, count it, or ignore it. Lumis attaches no behaviour to it.
+
+```css
+pre.lumis[data-lumis-budget] { border-left: 2px solid var(--warn); }
+```
+
+The terminal and BBCode formatters have no attribute channel, so they report
+nothing; their output is plain and that is all the caller learns. Event-stream
+APIs return events only, so they carry no marker either — the rendering entry
+points are where it appears.
+
+## Setting the limits
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Elixir', 'Rust', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
+
+```ts
+import { highlight, htmlInline } from "@lumis-sh/lumis";
+
+const html = await highlight(source, htmlInline({language, theme}), {
+  timeLimit: 2000, // milliseconds
+  matchLimit: 16384,
+});
+```
+
+`timeLimit: 0` removes the time limit. Both options apply to the native addon
+and to the portable `web-tree-sitter` runtime, including in browsers.
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+Lumis.highlight(source,
+  # milliseconds
+  time_limit: 2_000,
+  match_limit: 16_384
+)
+```
+
+`time_limit: 0` removes the time limit; omitting it uses the 5000 ms default.
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::highlight::HighlightOptions;
+
+// milliseconds
+let options = HighlightOptions::new().time_limit(Some(2_000)).match_limit(16_384);
+
+// No time limit.
+let unbounded = HighlightOptions::new().time_limit(None);
+```
+
+The unit is milliseconds here too, rather than a `Duration`, so that one number
+means the same thing in every runtime.
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight big.json --time-limit 2000 --match-limit 16384
+```
+
+`--time-limit 0` removes the time limit.
+
+  </Tab>
+</Tabs>
+
+`lumis4j` does not expose these options; it is maintained in a separate
+repository.
+
+## The limit is a bound, not a stopwatch
+
+`time_limit` is checked where tree-sitter offers to be interrupted, during the
+parse and during the query walk. Those points are frequent on ordinary content
+and the render stops within a few milliseconds of its limit. They are not
+uniform: on a document built to be pathological, a single step between two
+checks can run long, and the render overshoots. The portable
+`web-tree-sitter` runtime overshoots furthest, because its query walk offers
+fewer of them.
+
+So treat the limit as a ceiling on the order of magnitude, not a deadline you
+can schedule against. If a render must return within a hard wall-clock bound,
+enforce that where you can cancel the work — a worker with a timeout, a request
+deadline — and use `time_limit` to keep the common case cheap.
+
+## Choosing a value
+
+The default is 5000 ms because it is far above what real content costs and far
+below what a browser or a proxy will wait. Across Lumis's own corpus the 99th
+percentile render is about 13 ms; content that legitimately takes seconds is
+megabytes long.
+
+Lumis deliberately publishes no bytes-per-second rule of thumb. Throughput
+varies by more than two orders of magnitude between languages and between
+well-formed and malformed documents of the same language, so any such number
+would be wrong in the cases that matter. Measure your own content, then leave
+headroom.
+
+Lower it when a render happens on a request path and a slow one is worse than a
+plain one. Raise it for a batch job rendering documents you know are large and
+valid. Remove it only where nothing is waiting on the result.
+
+## Related
+
+- [Match limit](/usage/highlight#match-limit) — what the match bound does inside
+  tree-sitter, and when scopes go missing
+- [Languages](/languages) — load languages ahead of the first render

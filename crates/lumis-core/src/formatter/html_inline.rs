@@ -215,6 +215,28 @@ impl<T> Formatter<T> for HtmlInline {
         events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
+        self.write(source, events, output, None)
+    }
+
+    fn render_budgeted(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+        exhausted: super::BudgetExhausted,
+    ) -> io::Result<()> {
+        self.write(source, events, output, Some(exhausted))
+    }
+}
+
+impl HtmlInline {
+    fn write<T>(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+        exhausted: Option<super::BudgetExhausted>,
+    ) -> io::Result<()> {
         if let Some(ref header) = self.header {
             write!(output, "{}", header.open_tag)?;
         }
@@ -223,7 +245,7 @@ impl<T> Formatter<T> for HtmlInline {
             output,
             self.pre_class.as_deref(),
             self.theme.as_ref(),
-            &self.pre_attrs,
+            &crate::formatter::html::budget_attrs(&self.pre_attrs, exhausted),
         )?;
         crate::formatter::html::write_code_tag(output, self.language, &self.code_attrs)?;
 

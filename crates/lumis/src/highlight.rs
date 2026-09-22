@@ -73,14 +73,19 @@ use lumis_core::decorations::{compose_rainbow_decorations, rainbow_scope};
 use lumis_core::events::{Decoration, HighlightEvent as CoreHighlightEvent};
 use lumis_core::highlights::HIGHLIGHT_NAMES;
 use lumis_wasm_runtime::brackets::{bracket_pairs, colorize_bracket_pairs, compile, RainbowRange};
-use lumis_wasm_runtime::tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
-pub use lumis_wasm_runtime::tree_sitter_highlight::{DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT};
+use lumis_wasm_runtime::tree_sitter_highlight::{
+    Deadline, HighlightEvent, Highlighter as TSHighlighter, Interrupt,
+};
+pub use lumis_wasm_runtime::tree_sitter_highlight::{
+    DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT,
+};
 use smol_str::format_smolstr;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Range;
 use std::sync::atomic::AtomicUsize;
 use std::sync::{Arc, LazyLock};
+use std::time::Instant;
 use thiserror::Error;
 use tree_sitter::{Parser, Query};
 
@@ -112,6 +117,7 @@ pub struct HighlightOptions<'a, T = ()> {
     annotations: &'a [Annotation<T>],
     rainbow_brackets: bool,
     match_limit: u32,
+    time_limit: Option<u64>,
     cancellation: Option<&'a AtomicUsize>,
 }
 
@@ -126,6 +132,7 @@ impl<T: PartialEq> PartialEq for HighlightOptions<'_, T> {
         self.annotations == other.annotations
             && self.rainbow_brackets == other.rainbow_brackets
             && self.match_limit == other.match_limit
+            && self.time_limit == other.time_limit
             && match (self.cancellation, other.cancellation) {
                 (Some(left), Some(right)) => std::ptr::eq(left, right),
                 (None, None) => true,
@@ -157,6 +164,7 @@ impl HighlightOptions<'static> {
             annotations: &[],
             rainbow_brackets: false,
             match_limit: DEFAULT_MATCH_LIMIT,
+            time_limit: Some(DEFAULT_TIME_LIMIT),
             cancellation: None,
         }
     }
@@ -167,6 +175,7 @@ impl HighlightOptions<'static> {
             annotations,
             rainbow_brackets: self.rainbow_brackets,
             match_limit: self.match_limit,
+            time_limit: self.time_limit,
             cancellation: self.cancellation,
         }
     }
@@ -215,6 +224,37 @@ impl<'a, T> HighlightOptions<'a, T> {
 
     pub(crate) const fn match_limit_value(&self) -> u32 {
         self.match_limit
+    }
+
+    /// Bound how long this render may take, in milliseconds, or `None` to let
+    /// it run as long as it needs.
+    ///
+    /// Defaults to [`DEFAULT_TIME_LIMIT`]. A render that runs out comes back as
+    /// the whole file in plain text rather than as an error, because a render
+    /// stopped part way has no tree left to salvage, and the HTML formatters
+    /// mark it `data-lumis-budget="time"` so a caller can tell that document
+    /// apart from a file that has no syntax to highlight.
+    ///
+    /// The clock starts after the language's queries are compiled, which on a
+    /// first render costs more than a small document does. See
+    /// [`Lumis.Languages`](https://docs.lumis.sh/operations/warm-up) for moving
+    /// that work to startup.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use lumis::highlight::HighlightOptions;
+    ///
+    /// let options = HighlightOptions::new().time_limit(Some(250));
+    /// let unbounded = HighlightOptions::new().time_limit(None);
+    /// ```
+    pub const fn time_limit(mut self, time_limit: Option<u64>) -> Self {
+        self.time_limit = time_limit;
+        self
+    }
+
+    pub(crate) const fn time_limit_value(&self) -> Option<u64> {
+        self.time_limit
     }
 
     /// Abandon this render as soon as `flag` holds anything but zero.
@@ -302,6 +342,15 @@ pub enum HighlightError {
     /// set before the render finished.
     #[error("highlighting was cancelled")]
     Cancelled,
+
+    /// The [`time_limit`](HighlightOptions::time_limit) ran out.
+    ///
+    /// The entry points that return a document turn this into plain text
+    /// rather than surfacing it; it reaches a caller only through
+    /// [`highlight_events`] and its siblings, which have no document to
+    /// degrade.
+    #[error("highlighting ran out of its time limit")]
+    TimeLimit,
 }
 
 /// High-level stateful highlighter for syntax highlighting.
@@ -400,7 +449,7 @@ impl Highlighter {
             .highlight(
                 self.language.config(),
                 source.as_bytes(),
-                None,
+                Interrupt::none(),
                 |injected| Some(Language::guess(Some(injected), "").config()),
             )
             .map_err(|e| HighlightError::HighlighterInit(format!("{e:?}")))?;
@@ -700,19 +749,57 @@ fn highlight_events_with<T, F>(
 where
     F: Fn(&str) -> Option<Language>,
 {
+    highlight_events_reporting(ts_highlighter, source, language, options, injected_language)
+        .map(|(events, _)| events)
+}
+
+/// [`highlight_events_with`], and whether the match limit bound the query.
+///
+/// Separate because the entry points that produce a document mark it, and the
+/// ones that produce events have nowhere to put it.
+fn highlight_events_reporting<T, F>(
+    ts_highlighter: &mut TSHighlighter,
+    source: &str,
+    language: Language,
+    options: HighlightOptions<'_, T>,
+    injected_language: F,
+) -> Result<(Vec<CoreHighlightEvent<'static>>, bool), HighlightError>
+where
+    F: Fn(&str) -> Option<Language>,
+{
     let match_limit = options.match_limit_value();
     ts_highlighter
         .set_match_limit(match_limit)
         .map_err(|_| HighlightError::InvalidMatchLimit(match_limit))?;
 
-    let cancellation = options.cancellation_flag();
+    // Forced before the clock starts, deliberately. A language's `LazyLock`
+    // compiles its queries, which on a first render costs orders of magnitude
+    // more than a small document does; charging it would make the first render
+    // of a language behave differently from every one after it.
+    let config = language.config();
+
+    let deadline = options.time_limit_value().map(Deadline::in_ms);
+    let mut interrupt = Interrupt::none();
+    if let Some(flag) = options.cancellation_flag() {
+        interrupt = interrupt.cancellation(flag);
+    }
+    if let Some(at) = deadline.as_ref() {
+        interrupt = interrupt.deadline(at);
+    }
+
     let events = ts_highlighter
-        .highlight(
-            language.config(),
-            source.as_bytes(),
-            cancellation,
-            |injected| injected_language(injected).map(|language| language.config()),
-        )
+        .highlight(config, source.as_bytes(), interrupt, |injected| {
+            // An injected language forces its own `LazyLock` here, in the
+            // middle of the walk. Same reasoning, same exemption: what the
+            // document contains should not decide whether it fits its
+            // budget.
+            let started = Instant::now();
+            let config = injected_language(injected).map(|language| language.config());
+            if let Some(at) = deadline.as_ref() {
+                at.extend(started.elapsed());
+            }
+            config
+        })
         .map_err(highlight_error)?;
 
     let mut collector = lumis_core::events::Coalescing::new();
@@ -728,22 +815,37 @@ where
     }
     let core_events = collector.finish();
 
+    let exceeded = ts_highlighter.exceeded_match_limit();
     if options.rainbow_brackets_enabled() {
-        Ok(apply_query_rainbow_brackets(
-            source,
-            &core_events,
-            language,
-            match_limit,
+        Ok((
+            apply_query_rainbow_brackets(source, &core_events, language, match_limit),
+            exceeded,
         ))
     } else {
-        Ok(core_events)
+        Ok((core_events, exceeded))
     }
+}
+
+/// Highlight for a formatter, reporting whether the match limit bound it.
+#[doc(hidden)]
+pub fn highlight_events_for_render<T>(
+    source: &str,
+    language: Language,
+    options: HighlightOptions<'_, T>,
+) -> Result<(Vec<CoreHighlightEvent<'static>>, bool), HighlightError> {
+    DOCUMENT_TS_HIGHLIGHTER.with(|ts_highlighter| {
+        let mut ts_highlighter = ts_highlighter.borrow_mut();
+        highlight_events_reporting(&mut ts_highlighter, source, language, options, |injected| {
+            Some(Language::guess(Some(injected), ""))
+        })
+    })
 }
 
 /// Keep the cancelled case out of the opaque message the others share.
 fn highlight_error(error: lumis_wasm_runtime::tree_sitter_highlight::Error) -> HighlightError {
     match error {
         lumis_wasm_runtime::tree_sitter_highlight::Error::Cancelled => HighlightError::Cancelled,
+        lumis_wasm_runtime::tree_sitter_highlight::Error::TimeLimit => HighlightError::TimeLimit,
         other => HighlightError::EventProcessing(format!("{other:?}")),
     }
 }

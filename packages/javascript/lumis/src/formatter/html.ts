@@ -1,4 +1,5 @@
 import type {
+  BudgetExhausted,
   Decoration,
   HighlightStyle,
   HighlightSpan,
@@ -434,6 +435,20 @@ export function preAttrs(options: OpenPreTagOptions = {}): HtmlAttrs {
  * // '<pre class="lumis" style="color: #f8f8f2; background-color: #282a36;">'
  * ```
  */
+/**
+ * The `<pre>` attributes for a render, plus the marker when a limit bound it.
+ *
+ * A plain document and a file with no syntax to highlight are the same bytes
+ * otherwise, so without this a caller cannot tell one from the other.
+ */
+export function budgetAttrs(
+  attrs: HtmlAttrs | undefined,
+  budget: BudgetExhausted | undefined,
+): HtmlAttrs | undefined {
+  if (!budget) return attrs;
+  return { ...attrs, "data-lumis-budget": budget };
+}
+
 export function openPreTag(options: OpenPreTagOptions = {}): string {
   return tag("pre", preAttrs(options));
 }

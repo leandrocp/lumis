@@ -427,6 +427,22 @@ export const DEFAULT_MATCH_LIMIT = 8192;
  */
 export const MAX_MATCH_LIMIT = 65536;
 
+/**
+ * Default bound on how long one render may take, in milliseconds.
+ *
+ * Mirrors `DEFAULT_TIME_LIMIT` in the Rust crate, which is the reference
+ * implementation for every runtime.
+ */
+export const DEFAULT_TIME_LIMIT = 5000;
+
+/**
+ * Which limit bound a render.
+ *
+ * `"time"` means the text is there and none of it is highlighted; `"matches"`
+ * means it is highlighted and some scopes are missing.
+ */
+export type BudgetExhausted = "time" | "matches";
+
 /** Options for one highlighting operation. */
 export interface HighlightOptions<T = unknown> {
   /** Caller-provided semantic ranges composed into the formatter event stream. */
@@ -445,6 +461,22 @@ export interface HighlightOptions<T = unknown> {
    * that cost. Defaults to {@link DEFAULT_MATCH_LIMIT}.
    */
   matchLimit?: number;
+  /**
+   * How long this render may take, in milliseconds, or `0` for no bound. A
+   * whole number of milliseconds; anything else throws.
+   *
+   * A render that runs out comes back as the whole file in plain text rather
+   * than as an error, because a render stopped part way has no tree left to
+   * highlight from, and the HTML formatters mark it
+   * `data-lumis-budget="time"` so a caller can tell that document apart from a
+   * file with no syntax to highlight. Defaults to {@link DEFAULT_TIME_LIMIT}.
+   *
+   * The clock starts after the language's queries are compiled, which on a
+   * first render costs more than a small document does. See
+   * {@link https://docs.lumis.sh/operations/warm-up} for moving that work to
+   * startup.
+   */
+  timeLimit?: number;
 }
 
 /**
@@ -556,7 +588,14 @@ export type HighlightIterFn = (
  */
 export interface Formatter<T = unknown> {
   language?: LanguageRef;
-  render(source: string, events: readonly HighlightEvent<T>[]): string;
+  /**
+   * Render the events into a document.
+   *
+   * `budget` names the limit that bound the render, when one did. The built-in
+   * HTML formatters mark the `<pre>` with it; a formatter with nowhere to put
+   * the fact ignores it, which is what the argument being optional is for.
+   */
+  render(source: string, events: readonly HighlightEvent<T>[], budget?: BudgetExhausted): string;
 }
 
 /**

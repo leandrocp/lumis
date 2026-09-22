@@ -146,7 +146,79 @@ pub trait Formatter<T = ()>: Send + Sync {
         events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()>;
+
+    /// Format source code that ran out of budget.
+    ///
+    /// Lumis calls this instead of [`render`](Self::render) when a limit bound
+    /// the work, and hands it whatever events survived: nothing but the source
+    /// text for [`BudgetExhausted::Time`], because a render stopped part way
+    /// has no tree to salvage, and the ordinary stream for
+    /// [`BudgetExhausted::Matches`], because that limit costs scopes rather
+    /// than the whole highlight.
+    ///
+    /// The default renders them and says nothing, which is what a formatter
+    /// with nowhere to put the fact should do. The HTML formatters override it
+    /// to mark the `<pre>`, so a caller can tell a plain document apart from a
+    /// file that genuinely has no syntax.
+    fn render_budgeted(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+        exhausted: BudgetExhausted,
+    ) -> io::Result<()> {
+        let _ = exhausted;
+        self.render(source, events, output)
+    }
+
+    /// [`render`](Self::render), or [`render_budgeted`](Self::render_budgeted)
+    /// when a limit bound the work.
+    ///
+    /// Every host reaching a formatter has the same `Option` to unwrap, so the
+    /// unwrapping lives here rather than four times over.
+    fn render_budgeted_or(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+        exhausted: Option<BudgetExhausted>,
+    ) -> io::Result<()> {
+        match exhausted {
+            Some(exhausted) => self.render_budgeted(source, events, output, exhausted),
+            None => self.render(source, events, output),
+        }
+    }
 }
+
+/// Which limit bound a render.
+///
+/// The two degrade differently, and a caller reading the output needs to know
+/// which happened: `Time` means the text is there and none of it is
+/// highlighted, `Matches` means it is highlighted and some scopes are missing.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BudgetExhausted {
+    /// The time limit ran out, so the document is plain text.
+    Time,
+    /// The match limit bound the query, so some scopes may be missing.
+    Matches,
+}
+
+impl BudgetExhausted {
+    /// The value this carries in `data-lumis-budget`.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Time => "time",
+            Self::Matches => "matches",
+        }
+    }
+}
+
+// Both forwarding impls have to forward `render_budgeted` as well. The default
+// would otherwise call *this* `render`, which reaches the inner formatter's
+// `render` and never its override, so a boxed or borrowed HTML formatter would
+// drop the marker while a bare one kept it. The Elixir NIF holds a
+// `Box<dyn Formatter<T>>` and did exactly that.
 
 impl<T> Formatter<T> for Box<dyn Formatter<T>> {
     fn language(&self) -> Language {
@@ -160,6 +232,16 @@ impl<T> Formatter<T> for Box<dyn Formatter<T>> {
         output: &mut dyn Write,
     ) -> io::Result<()> {
         (**self).render(source, events, output)
+    }
+
+    fn render_budgeted(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+        exhausted: BudgetExhausted,
+    ) -> io::Result<()> {
+        (**self).render_budgeted(source, events, output, exhausted)
     }
 }
 
@@ -178,5 +260,15 @@ where
         output: &mut dyn Write,
     ) -> io::Result<()> {
         (**self).render(source, events, output)
+    }
+
+    fn render_budgeted(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+        exhausted: BudgetExhausted,
+    ) -> io::Result<()> {
+        (**self).render_budgeted(source, events, output, exhausted)
     }
 }

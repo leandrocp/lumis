@@ -9,6 +9,7 @@ use lumis_core::formatter::html_linked::HighlightLines as LinkedHighlightLines;
 use lumis_core::formatter::terminal::{
     Background as TerminalBackground, HighlightLines as TerminalHighlightLines, Terminal,
 };
+use lumis_core::formatter::BudgetExhausted;
 use lumis_core::formatter::{Formatter as _, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder};
 use lumis_core::languages::Language;
 use lumis_core::themes::{Appearance, Style, Theme};
@@ -171,6 +172,7 @@ struct BBCodeScopedOptions {
 pub struct NativeFormatter {
     pub rainbow_brackets: Option<bool>,
     pub match_limit: Option<u32>,
+    pub time_limit: Option<i64>,
     pub kind: String,
     pub options: serde_json::Value,
 }
@@ -187,6 +189,18 @@ pub struct NativeFormatted {
 pub struct NativeHighlight {
     pub events: Buffer,
     pub unresolved: Vec<String>,
+    /// Which limit bound the render, `"time"` or `"matches"`, when one did.
+    pub budget: Option<String>,
+}
+
+/// The addon takes milliseconds as a signed integer because that is what
+/// JavaScript numbers cross the boundary as; zero or less means no bound.
+fn time_limit_ms(time_limit: Option<i64>) -> Option<u64> {
+    match time_limit {
+        Some(ms) if ms > 0 => Some(ms.unsigned_abs()),
+        Some(_) => None,
+        None => Some(lumis_wasm_runtime::DEFAULT_TIME_LIMIT),
+    }
 }
 
 /// A resolved language package, flattened for the addon boundary.
@@ -505,16 +519,17 @@ fn render_formatter(
         public_ids,
         formatter,
     } = request;
-    let (mut events, unresolved) = highlight_events(
+    let (mut events, unresolved, budget) = highlight_events(
         &runtime,
         &source,
         &runtime_language,
         formatter.rainbow_brackets.unwrap_or(false),
         formatter.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+        time_limit_ms(formatter.time_limit),
         &internal_ids,
     )?;
     publicize_event_languages(&mut events, &public_ids);
-    let output = render_events(&source, &display_language, formatter, &events)?;
+    let output = render_events(&source, &display_language, formatter, &events, budget)?;
     Ok((output, unresolved))
 }
 
@@ -533,6 +548,7 @@ fn render_events(
     display_language: &str,
     formatter: NativeFormatter,
     events: &[HighlightEvent<'_>],
+    budget: Option<BudgetExhausted>,
 ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let language = if display_language == "plaintext" {
         Language::PlainText
@@ -557,7 +573,7 @@ fn render_events(
                 .header(options.header.map(HtmlElement::from))
                 .build()
                 .map_err(|error| std::io::Error::other(error.to_string()))?
-                .render(source, events, &mut output)?;
+                .render_budgeted_or(source, events, &mut output, budget)?;
         }
         "html-linked" => {
             let options: HtmlLinkedOptions = serde_json::from_value(formatter.options)?;
@@ -574,7 +590,7 @@ fn render_events(
                 .header(options.header.map(HtmlElement::from))
                 .build()
                 .map_err(|error| std::io::Error::other(error.to_string()))?
-                .render(source, events, &mut output)?;
+                .render_budgeted_or(source, events, &mut output, budget)?;
         }
         "bbcode-scoped" => {
             let options: BBCodeScopedOptions = serde_json::from_value(formatter.options)?;
@@ -584,7 +600,7 @@ fn render_events(
                     lines: lines.lines.into_iter().map(LineSpec::into_range).collect(),
                 }),
             )
-            .render(source, events, &mut output)?;
+            .render_budgeted_or(source, events, &mut output, budget)?;
         }
         "terminal" => {
             let options: TerminalOptions = serde_json::from_value(formatter.options)?;
@@ -603,7 +619,7 @@ fn render_events(
                 }),
                 options.line_numbers,
             )
-            .render(source, events, &mut output)?;
+            .render_budgeted_or(source, events, &mut output, budget)?;
         }
         _ => {
             return Err(format!("unsupported native formatter '{}'", formatter.kind).into());
@@ -722,6 +738,14 @@ impl Task for PrecompileLanguagesTask {
     }
 }
 
+/// What one highlight pass produces: the events, the injected language names it
+/// could not resolve, and which limit bound it, if one did.
+type HighlightedEvents = (
+    Vec<HighlightEvent<'static>>,
+    Vec<String>,
+    Option<BudgetExhausted>,
+);
+
 /// Resolve, download, verify and load `language`, then highlight in one pass.
 ///
 /// Languages injected inside the document are loaded during the same walk, so
@@ -732,11 +756,9 @@ fn highlight_events(
     language: &str,
     rainbow_brackets: bool,
     match_limit: u32,
+    time_limit: Option<u64>,
     internal_ids: &HashMap<String, String>,
-) -> std::result::Result<
-    (Vec<HighlightEvent<'static>>, Vec<String>),
-    Box<dyn std::error::Error + Send + Sync>,
-> {
+) -> std::result::Result<HighlightedEvents, Box<dyn std::error::Error + Send + Sync>> {
     if language == "plaintext" {
         return Ok((
             vec![HighlightEvent::Source {
@@ -744,6 +766,7 @@ fn highlight_events(
                 end: source.len(),
             }],
             Vec::new(),
+            None,
         ));
     }
 
@@ -753,6 +776,7 @@ fn highlight_events(
         &HighlightOptions {
             rainbow_brackets,
             match_limit,
+            time_limit_ms: time_limit,
             ..HighlightOptions::default()
         },
         |injected| {
@@ -762,7 +786,7 @@ fn highlight_events(
                 .map_or(InjectionResolution::Fallback, InjectionResolution::Loaded)
         },
     )?;
-    Ok((output.events, output.unresolved))
+    Ok((output.events, output.unresolved, output.budget))
 }
 
 /// Highlighting over the shared Wasmtime runtime, promoted to an isolated
@@ -1235,6 +1259,7 @@ impl NativeRuntime {
         language: String,
         rainbow_brackets: Option<bool>,
         match_limit: Option<u32>,
+        time_limit: Option<i64>,
         package_resolver: Option<PackageResolverFunction<'_>>,
         wasm_resolver: Option<WasmResolverFunction<'_>>,
     ) -> Result<NativeHighlight> {
@@ -1248,6 +1273,7 @@ impl NativeRuntime {
                 &HighlightOptions {
                     rainbow_brackets: rainbow_brackets.unwrap_or(false),
                     match_limit: match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+                    time_limit_ms: time_limit_ms(time_limit),
                     ..HighlightOptions::default()
                 },
                 |injected| {
@@ -1265,6 +1291,9 @@ impl NativeRuntime {
         Ok(NativeHighlight {
             events: encode_events(&output.events)?,
             unresolved: output.unresolved,
+            budget: output
+                .budget
+                .map(|exhausted| exhausted.as_str().to_string()),
         })
     }
 
@@ -1303,6 +1332,7 @@ impl NativeRuntime {
                 &HighlightOptions {
                     rainbow_brackets: formatter.rainbow_brackets.unwrap_or(false),
                     match_limit: formatter.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+                    time_limit_ms: time_limit_ms(formatter.time_limit),
                     ..HighlightOptions::default()
                 },
                 |injected| {
@@ -1322,6 +1352,7 @@ impl NativeRuntime {
             &self.public_id(&language),
             formatter,
             &highlighted.events,
+            highlighted.budget,
         )
         .map_err(native_error)?;
         Ok(NativeFormatted {

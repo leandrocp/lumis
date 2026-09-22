@@ -1997,7 +1997,7 @@ static ZSH_CONFIG: LazyLock<HighlightConfiguration> = LazyLock::new(|| {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use lumis_wasm_runtime::tree_sitter_highlight::Highlighter;
+    use lumis_wasm_runtime::tree_sitter_highlight::{Highlighter, Interrupt};
     use serde::Deserialize;
     use std::{fs, path::PathBuf};
 
@@ -2075,7 +2075,7 @@ mod tests {
 
         let mut highlighter = Highlighter::new();
         let events = highlighter
-            .highlight(config, source.as_bytes(), None, |injected| {
+            .highlight(config, source.as_bytes(), Interrupt::none(), |injected| {
                 injected
                     .parse::<Language>()
                     .ok()

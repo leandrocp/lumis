@@ -374,6 +374,24 @@ defmodule Lumis do
       default: false,
       doc: "Render nested brackets with rainbow bracket decorations."
     ],
+    time_limit: [
+      type: {:or, [:non_neg_integer, nil]},
+      default: nil,
+      doc: """
+      How long one render may take, in milliseconds, `0` for no bound, or `nil`
+      for the default of 5000.
+
+      A render that runs out comes back as the whole file in plain text rather
+      than as an error, because a render stopped part way has no tree left to
+      highlight from, and the HTML formatters mark it
+      `data-lumis-budget="time"` so a caller can tell that document apart from
+      a file with no syntax to highlight.
+
+      The clock starts after the language's queries are compiled, which on a
+      first render costs more than a small document does. `Lumis.Languages`
+      moves that work to startup.
+      """
+    ],
     match_limit: [
       type: {:or, [{:in, 1..65_536}, nil]},
       default: nil,
@@ -1181,7 +1199,8 @@ defmodule Lumis do
         formatter_options,
         Keyword.fetch!(options, :annotations),
         Keyword.fetch!(options, :rainbow_brackets),
-        Keyword.fetch!(options, :match_limit)
+        Keyword.fetch!(options, :match_limit),
+        Keyword.fetch!(options, :time_limit)
       )
     end
   end
@@ -1275,13 +1294,15 @@ defmodule Lumis do
          formatter_options,
          annotations,
          rainbow_brackets,
-         match_limit
+         match_limit,
+         time_limit
        ) do
     options = %{
       language: Keyword.get(formatter_options, :language),
       annotations: annotations,
       rainbow_brackets: rainbow_brackets,
-      match_limit: match_limit
+      match_limit: match_limit,
+      time_limit: time_limit
     }
 
     case Lumis.Native.highlight_events(source, options) do

@@ -13,6 +13,7 @@ use elixir::{
 };
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
 use lumis_core::events::{Decoration, HighlightEvent};
+use lumis_core::formatter::BudgetExhausted;
 use lumis_core::formatter::Formatter;
 use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
@@ -64,8 +65,25 @@ enum WasmJob {
         language: String,
         rainbow_brackets: bool,
         match_limit: u32,
-        reply: mpsc::SyncSender<Result<Vec<HighlightEvent<'static>>, RuntimeError>>,
+        time_limit_ms: Option<u64>,
+        reply: mpsc::SyncSender<Result<Highlighted, RuntimeError>>,
     },
+}
+
+/// Milliseconds a render may take: `nil` takes the default, `0` removes the
+/// bound. `match_limit` spells the first of those the same way.
+fn time_limit_ms(value: Option<u64>) -> Option<u64> {
+    match value {
+        Some(0) => None,
+        Some(ms) => Some(ms),
+        None => Some(lumis_wasm_runtime::DEFAULT_TIME_LIMIT),
+    }
+}
+
+/// A highlight plus which limit bound it, if one did.
+struct Highlighted {
+    events: Vec<HighlightEvent<'static>>,
+    budget: Option<BudgetExhausted>,
 }
 
 /// Why a load failed, at the granularity Elixir matches on.
@@ -180,17 +198,22 @@ impl WasmExecutor {
                             language,
                             rainbow_brackets,
                             match_limit,
+                            time_limit_ms,
                             reply,
                         } => {
                             let options = HighlightOptions {
                                 rainbow_brackets,
                                 match_limit,
+                                time_limit_ms,
                                 ..HighlightOptions::default()
                             };
                             let _ = reply.send(
-                                runtime
-                                    .highlight_with(&source, &language, &options)
-                                    .map(|output| output.events),
+                                runtime.highlight_with(&source, &language, &options).map(
+                                    |output| Highlighted {
+                                        events: output.events,
+                                        budget: output.budget,
+                                    },
+                                ),
                             );
                         }
                     }
@@ -224,7 +247,8 @@ impl WasmExecutor {
         language: &str,
         rainbow_brackets: bool,
         match_limit: u32,
-    ) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
+        time_limit_ms: Option<u64>,
+    ) -> Result<Highlighted, RuntimeError> {
         let (reply, result) = mpsc::sync_channel(1);
         self.sender
             .send(WasmJob::Highlight {
@@ -232,6 +256,7 @@ impl WasmExecutor {
                 language: language.to_string(),
                 rainbow_brackets,
                 match_limit,
+                time_limit_ms,
                 reply,
             })
             .map_err(|_| RuntimeError::Highlight("WASM executor is unavailable".into()))?;
@@ -266,6 +291,7 @@ pub struct ExOptions<'a> {
     pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
     pub match_limit: Option<u32>,
+    pub time_limit: Option<u64>,
 }
 
 #[derive(Clone, Debug, NifMap)]
@@ -286,6 +312,7 @@ pub struct ExEventOptions<'a> {
     pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
     pub match_limit: Option<u32>,
+    pub time_limit: Option<u64>,
 }
 
 #[derive(Debug, NifMap)]
@@ -468,14 +495,15 @@ pub(crate) fn highlight<'a>(
         Err(message) => return Ok((error(), message).encode(env)),
     };
 
-    let events = match syntax_events(
+    let Highlighted { events, budget } = match syntax_events(
         env,
         source,
         language,
         options.rainbow_brackets,
         options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+        time_limit_ms(options.time_limit),
     ) {
-        Ok(events) => events,
+        Ok(highlighted) => highlighted,
         Err(failure) => return Ok(failure),
     };
     let events = match compose_annotations(source, &events, &annotations) {
@@ -484,7 +512,7 @@ pub(crate) fn highlight<'a>(
     };
 
     let mut output = Vec::new();
-    if let Err(render_error) = formatter.render(source, &events, &mut output) {
+    if let Err(render_error) = formatter.render_budgeted_or(source, &events, &mut output, budget) {
         return Ok((error(), render_error.to_string()).encode(env));
     }
     let output = String::from_utf8(output)
@@ -499,17 +527,27 @@ fn syntax_events<'a>(
     language: Language,
     rainbow_brackets: bool,
     match_limit: u32,
-) -> Result<Vec<HighlightEvent<'static>>, Term<'a>> {
+    time_limit: Option<u64>,
+) -> Result<Highlighted, Term<'a>> {
     if language == languages::Language::PlainText {
-        return Ok(vec![HighlightEvent::Source {
-            start: 0,
-            end: source.len(),
-        }]);
+        return Ok(Highlighted {
+            events: vec![HighlightEvent::Source {
+                start: 0,
+                end: source.len(),
+            }],
+            budget: None,
+        });
     }
 
     let executor = executor().map_err(|reason| (error(), format!("{reason:#}")).encode(env))?;
     executor
-        .highlight(source, language.id_name(), rainbow_brackets, match_limit)
+        .highlight(
+            source,
+            language.id_name(),
+            rainbow_brackets,
+            match_limit,
+            time_limit,
+        )
         .map_err(|runtime_error| match runtime_error {
             RuntimeError::LanguageNotLoaded(language) => {
                 (error(), (language_not_loaded(), language)).encode(env)
@@ -528,14 +566,17 @@ pub(crate) fn highlight_events<'a>(
     let annotations = decode_annotations(options.annotations)?;
     let formatter = EventFormatter::new(language);
 
+    // An event stream has nowhere to carry the budget, so it is dropped here
+    // and only the rendering entry point above reports it.
     let events = match syntax_events(
         env,
         source,
         language,
         options.rainbow_brackets,
         options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
+        time_limit_ms(options.time_limit),
     ) {
-        Ok(events) => events,
+        Ok(highlighted) => highlighted.events,
         Err(failure) => return Ok(failure),
     };
     let events = match compose_annotations(source, &events, &annotations) {

@@ -573,6 +573,110 @@ class User:
   );
 });
 
+describe("budget", () => {
+  let budgetHl: Highlighter;
+
+  // 20k unclosed brackets is the shape a budget exists for: the byte count
+  // predicts nothing, and error recovery does far more work than it suggests.
+  // 50 ms is not enough for it under either runtime, so these do not depend on
+  // how fast the machine running them is. It is deliberately not larger: the
+  // query pass is interruptible only where tree-sitter calls back, and on this
+  // input shape web-tree-sitter goes minutes between callbacks once the
+  // document is big enough, which would bound the render far past its limit
+  // and make the suite crawl.
+  const pathological = "[".repeat(20_000);
+  const ordinary = '{"a": 1, "b": [2, 3]}';
+  // The json highlight query keeps too little in progress for any document to
+  // reach a match limit of 1; javascript's nests enough to.
+  const nested = "const value = (1 + (2 * (3 - 4)));";
+
+  beforeAll(async () => {
+    budgetHl = await createHighlighter({ languages: [json, javascript] });
+  });
+
+  it("returns the whole document as plain text when the time budget is spent", () => {
+    const html = budgetHl.highlight(pathological, htmlLinked({ language: json }), {
+      timeLimit: 50,
+    });
+
+    expect(html).toContain('data-lumis-budget="time"');
+    expect(html).not.toContain("<span");
+    expect(html).toContain(pathological);
+  });
+
+  it("marks the pre on every html formatter", () => {
+    for (const formatter of [
+      htmlLinked({ language: json }),
+      htmlInline({ language: json, theme }),
+      htmlMultiThemes({ language: json, themes: { main: theme }, defaultTheme: "main" }),
+    ]) {
+      const html = budgetHl.highlight(pathological, formatter, { timeLimit: 50 });
+      expect(html).toContain('data-lumis-budget="time"');
+    }
+  });
+
+  it("leaves a render inside its budget unmarked", () => {
+    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }));
+
+    expect(html).toContain("<span");
+    expect(html).not.toContain("data-lumis-budget");
+  });
+
+  // Only the addon runs a fresh cursor per query. web-tree-sitter reuses one
+  // whose match pool earlier tests may already have grown past any small limit,
+  // so whether the limit binds there depends on what ran before it — the same
+  // reason the rainbow bracket match-limit test above is addon-only.
+  it.runIf(process.env.LUMIS_TEST_RUNTIME !== "wasm")(
+    "marks the pre and keeps highlighting when the match budget is spent",
+    () => {
+      const html = budgetHl.highlight(nested, htmlLinked({ language: javascript }), {
+        matchLimit: 1,
+      });
+
+      expect(html).toContain('data-lumis-budget="matches"');
+      expect(html).toContain("<span");
+    },
+  );
+
+  it("leaves an ordinary document well inside a small budget", () => {
+    // The parser is already loaded by `beforeAll`, so this is not the
+    // parser-load exclusion test — the CLI and Elixir suites own that, because
+    // their processes do the loading. What it pins is that a small budget is
+    // still a working budget, not one everything degrades under.
+    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), { timeLimit: 50 });
+
+    expect(html).toContain("<span");
+    expect(html).not.toContain("data-lumis-budget");
+  });
+
+  it("treats timeLimit 0 as no limit", () => {
+    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), { timeLimit: 0 });
+
+    expect(html).toContain("<span");
+    expect(html).not.toContain("data-lumis-budget");
+  });
+
+  it("degrades under a formatter with nowhere to put the marker", () => {
+    const text = budgetHl.highlight(pathological, terminal({ language: json, theme }), {
+      timeLimit: 50,
+    });
+
+    expect(text).toBe(pathological);
+  });
+
+  it("rejects a time limit that is not a whole number of milliseconds", () => {
+    const formatter = htmlLinked({ language: json });
+    const render = (timeLimit: number) => () => budgetHl.highlight("[]", formatter, { timeLimit });
+
+    for (const timeLimit of [-1, 1.5, Number.NaN]) {
+      expect(render(timeLimit)).toThrow(
+        `timeLimit must be a whole number of milliseconds, got ${timeLimit}`,
+      );
+    }
+    expect(render(0)).not.toThrow();
+  });
+});
+
 describe("plaintext", () => {
   let plaintextHl: Highlighter;
 
