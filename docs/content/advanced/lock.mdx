@@ -74,7 +74,7 @@ Install the parsers you want. Your package manager's lockfile pins them, so
 there is no separate Lumis lock.
 
 ```bash
-pnpm add @lumis-sh/wasm-rust @lumis-sh/wasm-json
+npm install @lumis-sh/wasm-rust @lumis-sh/wasm-json
 ```
 
 Rust and JSON now highlight. A Markdown file with a Haskell block renders that
@@ -87,11 +87,11 @@ setup.
 A bundle installs a set in one package:
 
 ```bash
-pnpm add @lumis-sh/wasm-bundle-web
+npm install @lumis-sh/wasm-bundle-web
 ```
 
-Only `dependencies` and `optionalDependencies` count. Parsers in
-`devDependencies` do not close the set, so a library that tests against one
+Only `dependencies` count. Parsers in `devDependencies` or
+`optionalDependencies` do not close the set, so a library that tests against one
 still downloads everything at runtime.
 
   </Tab>

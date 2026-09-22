@@ -377,10 +377,16 @@ export function createNativeLanguagesModule(
     }
 
     private async loadThroughAddon(opts: LoadLanguageOptions): Promise<AddonLanguage> {
+      // Before anything else. Loading an installed parser returns without ever
+      // reaching the addon's own resolution, but the walk that follows still
+      // resolves *injected* languages in Rust — so a project whose parsers are
+      // all installed would otherwise leave the addon thinking nothing was
+      // declared, and fetch an injected language it never declared.
+      await tellAddon();
+
       if (!(await this.isCallerResolved(opts))) {
         const installed = await this.loadInstalled(opts);
         if (installed) return installed;
-        await tellAddon();
         this.native.loadLanguage(opts.definition.id);
         return { addonId: opts.definition.id, definition: opts.definition };
       }

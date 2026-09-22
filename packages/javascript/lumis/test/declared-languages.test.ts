@@ -64,10 +64,12 @@ describe("declaresLanguages", () => {
     await expect(declaresLanguages()).resolves.toBe(true);
   });
 
-  it("counts optionalDependencies, which are shipped", async () => {
+  // They fail to install silently, by design, so a parser listed there that did
+  // not install would close the set and then be refused itself.
+  it("ignores optionalDependencies, which may not be there", async () => {
     inDirectory(project({ optionalDependencies: { "@lumis-sh/wasm-css": "^0.26" } }));
 
-    await expect(declaresLanguages()).resolves.toBe(true);
+    await expect(declaresLanguages()).resolves.toBe(false);
   });
 
   // A library that tests against a parser has not told its consumers anything

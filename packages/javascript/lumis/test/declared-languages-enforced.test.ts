@@ -33,8 +33,6 @@ function reasons(error: unknown, found: string[] = []): string[] {
 }
 
 describe("a project that declares its languages", () => {
-  // The complement, and the reason this is safe to turn on by default: a
-  // project that declared nothing still resolves whatever a document names.
   it("is the declaration that closes the set, not the feature existing", async () => {
     const { declaresLanguages } = await import("../src/runtime/node-cache.js");
     await expect(declaresLanguages()).resolves.toBe(true);

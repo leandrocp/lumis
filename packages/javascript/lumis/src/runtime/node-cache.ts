@@ -271,20 +271,21 @@ async function detectDeclaredLanguages(): Promise<boolean> {
 }
 
 /**
- * Runtime dependencies only.
+ * `dependencies` only.
  *
- * `devDependencies` are not shipped, so they are not a statement about what an
+ * `devDependencies` are not shipped, so they say nothing about what an
  * application may load — they are what its own tests and build need. Counting
  * them would close the set for any library that tests against a parser,
  * including this package, whose `devDependencies` list two.
+ *
+ * `optionalDependencies` are excluded for a different reason: they fail to
+ * install silently, by design. A parser listed there that did not install would
+ * still close the set and then be refused itself, which is a worse outcome than
+ * downloading it.
  */
 function dependsOnParser(manifest: unknown): boolean {
   if (typeof manifest !== "object" || manifest === null) return false;
-  const fields = ["dependencies", "optionalDependencies"] as const;
-
-  return fields.some((field) => {
-    const dependencies = (manifest as Record<string, unknown>)[field];
-    if (typeof dependencies !== "object" || dependencies === null) return false;
-    return Object.keys(dependencies).some((name) => name.startsWith("@lumis-sh/wasm-"));
-  });
+  const dependencies = (manifest as Record<string, unknown>).dependencies;
+  if (typeof dependencies !== "object" || dependencies === null) return false;
+  return Object.keys(dependencies).some((name) => name.startsWith("@lumis-sh/wasm-"));
 }
