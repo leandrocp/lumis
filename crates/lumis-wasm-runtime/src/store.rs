@@ -17,7 +17,6 @@ use std::time::{Duration, Instant};
 use semver::{Version, VersionReq};
 use thiserror::Error;
 
-use crate::lock::{Lock, LockedPackage};
 use crate::package::{
     is_safe_path_segment, is_valid_package_name, LanguagePackage, LanguagePackageError,
 };
@@ -66,35 +65,10 @@ pub enum StoreError {
         source: Box<StoreError>,
     },
     #[error(
-        "{package_name} is not in {lock}\n  run: lumis languages add <language>",
-        lock = crate::lock::LOCK_FILE_NAME
+        "{package_name} is not installed\n  \
+         add it to your dependencies, then fetch them again"
     )]
-    NotLocked { package_name: String },
-    #[error(
-        "{package_name}@{version} does not match {lock}\n  \
-         expected manifest sha256 {expected}\n  \
-         received                 {actual}\n  \
-         the registry or CDN served different bytes than were locked",
-        lock = crate::lock::LOCK_FILE_NAME
-    )]
-    ManifestMismatch {
-        package_name: String,
-        version: String,
-        expected: String,
-        actual: String,
-    },
-    #[error(
-        "{package_name} version mismatch\n  \
-         {lock} names {expected}\n  \
-         the registry served {actual}\n  \
-         run `lumis languages update` to move the lock",
-        lock = crate::lock::LOCK_FILE_NAME
-    )]
-    LockedVersionMismatch {
-        package_name: String,
-        expected: String,
-        actual: String,
-    },
+    NotInstalled { package_name: String },
     #[error(transparent)]
     Package(#[from] LanguagePackageError),
 }
@@ -211,6 +185,25 @@ pub struct StoreConfig {
     /// Directory holding `lumis.json` and parser files, both the ones this
     /// store downloads and any staged into it ahead of time.
     pub cache_dir: PathBuf,
+    /// Read-only directories holding parsers that arrived through a package
+    /// manager, laid out exactly like `cache_dir/parsers`.
+    ///
+    /// Non-empty means the project has *declared* its languages: these
+    /// directories are the whole set, nothing is downloaded, and a package that
+    /// is not here is [`StoreError::NotInstalled`]. That is the same rule
+    /// JavaScript follows for `@lumis-sh/wasm-*` in `package.json`, expressed
+    /// in whatever package manager the host runtime uses.
+    ///
+    /// `None` leaves the store as it was: resolve anything, from the cache
+    /// directory or the network. That is what the CLI wants — a viewer is not
+    /// the application whose output a declaration governs.
+    ///
+    /// Deliberately an `Option` rather than an empty list standing for "no
+    /// declaration": a host that declares *nothing* and a host that does not
+    /// declare are opposite answers, and inferring them from the same value is
+    /// how an application ends up silently downloading whatever a document
+    /// names.
+    pub installed_dirs: Option<Vec<PathBuf>>,
 }
 
 /// Resolves language packages and parser bytes, caching both on disk.
@@ -218,7 +211,6 @@ pub struct LanguageStore {
     config: StoreConfig,
     fetcher: Box<dyn Fetcher>,
     packages: Mutex<HashMap<String, Arc<LanguagePackage>>>,
-    lock: Option<Arc<Lock>>,
 }
 
 impl LanguageStore {
@@ -228,20 +220,7 @@ impl LanguageStore {
             config,
             fetcher,
             packages: Mutex::new(HashMap::new()),
-            lock: None,
         }
-    }
-
-    /// Resolve only what `lock` pins, at the versions and digests it names.
-    ///
-    /// Without one the store behaves as it always has: resolve the compatible
-    /// range and treat whatever lands in the directory as authoritative. With
-    /// one the lock outranks the directory, which is the whole point — a lock a
-    /// stale on-disk manifest can override is not a lock.
-    #[must_use]
-    pub fn with_lock(mut self, lock: Arc<Lock>) -> Self {
-        self.lock = Some(lock);
-        self
     }
 
     #[must_use]
@@ -249,46 +228,43 @@ impl LanguageStore {
         &self.config.cache_dir
     }
 
-    /// What the lock says about `package_name`, or an error naming the command
-    /// that would pin it. `Ok(None)` when there is no lock at all.
-    fn locked(&self, package_name: &str) -> Result<Option<&LockedPackage>, StoreError> {
-        let Some(lock) = self.lock.as_ref() else {
-            return Ok(None);
-        };
-        lock.package(package_name)
-            .map(Some)
-            .ok_or_else(|| StoreError::NotLocked {
-                package_name: package_name.to_string(),
-            })
-    }
-
-    /// The package for `package_name`, from memory, the store directory, or the CDN.
+    /// The package for `package_name`: from memory, an installed dependency,
+    /// the store directory, or the CDN.
     ///
-    /// Without a lock, a compatible package already in the directory is
-    /// authoritative and is never revalidated, so a request never waits on the
-    /// network for something already on disk. A forced cache refresh resolves
-    /// the range again.
-    ///
-    /// With a lock, the directory is authoritative only when it holds the exact
-    /// version the lock names and its bytes match the recorded digest. Anything
-    /// else is refetched at the locked version.
+    /// When the host declared its parsers, the installed directories are the
+    /// whole set and nothing else is consulted. Otherwise a compatible package
+    /// already in the directory is authoritative and is never revalidated, so a
+    /// request never waits on the network for something already on disk; a
+    /// forced cache refresh resolves the range again.
     ///
     /// # Errors
-    /// Fails when the package cannot be obtained from any source, is invalid, or
-    /// is not in the lock.
+    /// Fails when the package cannot be obtained from any source, is invalid,
+    /// or was not declared.
     pub fn package(&self, package_name: &str) -> Result<Arc<LanguagePackage>, StoreError> {
         if let Some(package) = self.memo(package_name) {
             return Ok(package);
         }
 
-        let locked = self.locked(package_name)?;
+        // Installed packages come first and, when there are any, they are the
+        // whole set: the project said what it may load by depending on it, so
+        // reaching past that to the network would make the declaration
+        // advisory.
+        if let Some(dirs) = self.config.installed_dirs.as_deref() {
+            return match Self::installed_package(dirs, package_name)? {
+                Some(package) => Ok(self.remember(package_name, package)),
+                None => Err(StoreError::NotInstalled {
+                    package_name: package_name.to_string(),
+                }),
+            };
+        }
+
         let path = self.package_path(package_name)?;
-        if let Some(package) = read_local_package(&path, package_name, locked) {
+        if let Some(package) = read_local_package(&path, package_name) {
             return Ok(self.remember(package_name, package));
         }
 
         let package = self
-            .fetch_package(package_name, &path, locked)
+            .fetch_package(package_name, &path)
             .map_err(|error| self.unavailable(package_name, error))?;
 
         Ok(self.remember(package_name, package))
@@ -312,19 +288,14 @@ impl LanguageStore {
     /// The package from memory or the store directory, never the network, so a
     /// caller can tell what is available without one.
     ///
-    /// Under a lock this answers for the locked version specifically. A
-    /// directory holding some *other* compatible version reports nothing
-    /// available, because what is there is not what was pinned.
     #[must_use]
     pub fn local_package(&self, package_name: &str) -> Option<Arc<LanguagePackage>> {
         if let Some(package) = self.memo(package_name) {
             return Some(package);
         }
-        // `Err` is "the lock does not pin this", which is nothing available
         // rather than a failure to report from an infallible signature.
-        let locked = self.locked(package_name).ok()?;
         let path = self.package_path(package_name).ok()?;
-        let package = read_local_package(&path, package_name, locked)?;
+        let package = read_local_package(&path, package_name)?;
         Some(self.remember(package_name, package))
     }
 
@@ -334,11 +305,53 @@ impl LanguageStore {
     /// Fails when the parser cannot be obtained, or its bytes do not match the
     /// size and digest the package declares.
     pub fn parser(&self, package: &LanguagePackage) -> Result<Vec<u8>, StoreError> {
+        // Before any path is built from `package.parser.name`. `parser_path`
+        // validates on the cache path below, and the installed path reaches
+        // `parser_filename` without it — `LanguagePackage` has public fields, so
+        // a caller can hand over a name with traversal in it and select a file
+        // outside the installed directory, all before `verify_wasm` ever runs.
+        package.validate()?;
+
+        if let Some(dirs) = self.config.installed_dirs.as_deref() {
+            return Self::installed_parser(dirs, package).ok_or_else(|| StoreError::NotInstalled {
+                package_name: package.package_name.clone(),
+            });
+        }
+
         let path = self.parser_path(package)?;
         if let Some(bytes) = self.local_parser(package) {
             return Ok(bytes);
         }
         self.fetch_parser(package, &path)
+    }
+
+    /// The package as an installed dependency supplies it, if one does.
+    ///
+    /// Verified exactly as a downloaded package is. Bytes that arrived through
+    /// a package manager have a checksum behind them already, but this store
+    /// cannot see that checksum and should not take it on trust.
+    fn installed_package(
+        dirs: &[PathBuf],
+        package_name: &str,
+    ) -> Result<Option<LanguagePackage>, StoreError> {
+        let suffix = package_suffix(package_name)
+            .ok_or_else(|| StoreError::InvalidPackageName(package_name.to_string()))?;
+        let file = format!("{suffix}.lumis.json");
+
+        Ok(dirs
+            .iter()
+            .find_map(|dir| read_local_package(&dir.join(&file), package_name)))
+    }
+
+    /// Parser bytes from an installed dependency, verified against the manifest
+    /// that came with it.
+    fn installed_parser(dirs: &[PathBuf], package: &LanguagePackage) -> Option<Vec<u8>> {
+        let file = parser_filename(package);
+        dirs.iter().find_map(|dir| {
+            let bytes = std::fs::read(dir.join(&file)).ok()?;
+            package.verify_wasm(&bytes).ok()?;
+            Some(bytes)
+        })
     }
 
     /// Verified parser bytes from the store directory, never the network. A file
@@ -402,13 +415,9 @@ impl LanguageStore {
         let location =
             crate::catalog::find(name).ok_or_else(|| StoreError::UnknownLanguage(name.into()))?;
 
-        // Forcing means "download and verify again", not "take whatever is
-        // newest": under a lock it refetches the pinned version, and moving a
-        // version stays `lumis languages update`.
-        let locked = self.locked(location.package_name)?;
         let (path, download_url) = if force {
             let (package, bytes) = self
-                .resolve_package(location.package_name, locked)
+                .resolve_package(location.package_name)
                 .map_err(|error| self.unavailable(location.package_name, error))?;
             let path = self.parser_path(&package)?;
             let download_url = Self::parser_url(&package)?;
@@ -597,33 +606,12 @@ impl LanguageStore {
         package
     }
 
-    /// Resolve the compatible range and report what a lock entry would record:
-    /// the package, and the SHA-256 of the manifest bytes it was parsed from.
-    ///
-    /// Deliberately ignores any lock this store already carries. `add` and
-    /// `update` are the commands that *choose* a version, so constraining them
-    /// to the one already pinned would make them no-ops.
-    ///
-    /// # Errors
-    /// Fails when the package cannot be resolved, or falls outside the range.
-    pub fn resolve_for_lock(
-        &self,
-        package_name: &str,
-    ) -> Result<(LanguagePackage, String), StoreError> {
-        let (package, _) = self
-            .resolve_package(package_name, None)
-            .map_err(|error| self.unavailable(package_name, error))?;
-        let digest = manifest_sha256(&package)?;
-        Ok((package, digest))
-    }
-
     fn fetch_package(
         &self,
         package_name: &str,
         path: &Path,
-        locked: Option<&LockedPackage>,
     ) -> Result<LanguagePackage, StoreError> {
-        let (package, bytes) = self.resolve_package(package_name, locked)?;
+        let (package, bytes) = self.resolve_package(package_name)?;
         write_atomic(path, &bytes)?;
         Ok(package)
     }
@@ -634,20 +622,13 @@ impl LanguageStore {
     fn resolve_package(
         &self,
         package_name: &str,
-        locked: Option<&LockedPackage>,
     ) -> Result<(LanguagePackage, Vec<u8>), StoreError> {
-        let selector = locked.map_or(crate::catalog::LANGUAGE_PACKAGE_VERSION_RANGE, |locked| {
-            locked.version.as_str()
-        });
+        let selector = crate::catalog::LANGUAGE_PACKAGE_VERSION_RANGE;
         let bytes = self.fetch_from_cdn(
             &format!("{package_name}@{selector}/lumis.json"),
             &format!("language package {package_name}@{selector}"),
         )?;
         let package = parse_package(&bytes, package_name)?;
-        if let Some(locked) = locked {
-            verify_manifest(&package, locked)?;
-            require_locked_version(&package, locked)?;
-        }
         require_compatible_package_version(&package)?;
         Ok((package, bytes))
     }
@@ -718,20 +699,10 @@ fn parse_package(bytes: &[u8], package_name: &str) -> Result<LanguagePackage, St
 /// the lock. A file that fails either check is ignored rather than deleted,
 /// because the refetch below replaces it anyway and a shared store may hold it
 /// for a different project.
-fn read_local_package(
-    path: &Path,
-    package_name: &str,
-    locked: Option<&LockedPackage>,
-) -> Option<LanguagePackage> {
+fn read_local_package(path: &Path, package_name: &str) -> Option<LanguagePackage> {
     let bytes = std::fs::read(path).ok()?;
     let package = parse_package(&bytes, package_name).ok()?;
-    match locked {
-        Some(locked) => {
-            verify_manifest(&package, locked).ok()?;
-            require_locked_version(&package, locked).ok()?;
-        }
-        None => require_compatible_package_version(&package).ok()?,
-    }
+    require_compatible_package_version(&package).ok()?;
     Some(package)
 }
 
@@ -757,34 +728,6 @@ pub fn manifest_sha256(package: &LanguagePackage) -> Result<String, StoreError> 
         source: std::io::Error::other(error),
     })?;
     Ok(crate::package::sha256_hex(&bytes))
-}
-
-/// Fail unless `package` is the manifest the lock recorded.
-fn verify_manifest(package: &LanguagePackage, locked: &LockedPackage) -> Result<(), StoreError> {
-    let actual = manifest_sha256(package)?;
-    if actual == locked.manifest_sha256 {
-        return Ok(());
-    }
-    Err(StoreError::ManifestMismatch {
-        package_name: locked.name.clone(),
-        version: locked.version.clone(),
-        expected: locked.manifest_sha256.clone(),
-        actual,
-    })
-}
-
-fn require_locked_version(
-    package: &LanguagePackage,
-    locked: &LockedPackage,
-) -> Result<(), StoreError> {
-    if package.version == locked.version {
-        return Ok(());
-    }
-    Err(StoreError::LockedVersionMismatch {
-        package_name: locked.name.clone(),
-        expected: locked.version.clone(),
-        actual: package.version.clone(),
-    })
 }
 
 fn requirement() -> &'static VersionReq {
@@ -982,6 +925,7 @@ mod tests {
         LanguageStore::new(
             StoreConfig {
                 cache_dir: dir.to_path_buf(),
+                installed_dirs: None,
             },
             fetcher,
         )
@@ -1015,6 +959,148 @@ mod tests {
             1,
             "one shared reason must be stated once: {error}"
         );
+    }
+
+    /// A directory laid out the way an installed parser dependency's
+    /// `priv/parsers` is: the manifest and the WASM it describes.
+    fn install(dir: &Path) -> PathBuf {
+        let installed = dir.join("installed");
+        std::fs::create_dir_all(&installed).unwrap();
+        let package = package();
+        std::fs::write(
+            installed.join("json.lumis.json"),
+            serde_json::to_vec(&package).unwrap(),
+        )
+        .unwrap();
+        std::fs::write(installed.join(parser_filename(&package)), WASM).unwrap();
+        installed
+    }
+
+    fn declaring(dir: &Path, installed: Vec<PathBuf>) -> LanguageStore {
+        LanguageStore::new(
+            StoreConfig {
+                cache_dir: dir.join("cache"),
+                installed_dirs: Some(installed),
+            },
+            Box::new(NoNetwork),
+        )
+    }
+
+    /// The point of the whole mechanism: a parser that arrived as a dependency
+    /// resolves with no network and no cache directory behind it.
+    #[test]
+    fn an_installed_parser_resolves_without_the_network() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        let store = declaring(dir.path(), vec![installed]);
+
+        let package = store.package("@lumis-sh/wasm-json").unwrap();
+        assert_eq!(package.version, PACKAGE_VERSION);
+        assert_eq!(store.parser(&package).unwrap(), WASM);
+    }
+
+    /// Depending on a parser is the declaration, so something not depended on
+    /// is refused rather than fetched. Without this the declaration would be
+    /// advisory and the CDN would still decide.
+    #[test]
+    fn a_package_that_is_not_installed_is_refused_rather_than_fetched() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        let store = declaring(dir.path(), vec![installed]);
+
+        let error = store.package("@lumis-sh/wasm-rust").unwrap_err();
+        assert!(
+            matches!(error, StoreError::NotInstalled { .. }),
+            "expected NotInstalled, got {error}"
+        );
+        assert!(error.to_string().contains("dependencies"), "{error}");
+    }
+
+    /// Declaring nothing and declaring an empty set are opposite answers.
+    /// `None` is the CLI, which resolves freely; `Some(vec![])` is a host that
+    /// said "these and no others" and named none.
+    #[test]
+    fn declaring_nothing_differs_from_declaring_an_empty_set() {
+        let dir = tempdir();
+        std::fs::create_dir_all(dir.path().join("cache")).unwrap();
+
+        let declared = declaring(dir.path(), Vec::new());
+        assert!(matches!(
+            declared.package("@lumis-sh/wasm-json").unwrap_err(),
+            StoreError::NotInstalled { .. }
+        ));
+
+        // The same store with no declaration reaches for the network instead,
+        // which `NoNetwork` reports as a fetch failure rather than a refusal.
+        let undeclared = make(&dir.path().join("cache"), Box::new(NoNetwork));
+        assert!(!matches!(
+            undeclared.package("@lumis-sh/wasm-json").unwrap_err(),
+            StoreError::NotInstalled { .. }
+        ));
+    }
+
+    /// Bytes that came through a package manager have a checksum behind them,
+    /// but this store cannot see it. A corrupt file in an installed directory
+    /// must fail rather than reach the runtime.
+    #[test]
+    fn installed_parser_bytes_are_still_verified() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        std::fs::write(installed.join(parser_filename(&package())), b"corrupt").unwrap();
+        let store = declaring(dir.path(), vec![installed]);
+
+        let package = store.package("@lumis-sh/wasm-json").unwrap();
+        assert!(
+            store.parser(&package).is_err(),
+            "corrupt installed bytes must not be handed to the runtime"
+        );
+    }
+
+    /// `LanguagePackage` has public fields and `parser` is public, so a caller
+    /// can hand over a parser name with traversal in it. The installed path
+    /// builds a filename from that name, and does it before `verify_wasm` could
+    /// object, so validation has to come first or the digest check never runs
+    /// on the file that was actually opened.
+    #[test]
+    fn a_parser_name_cannot_escape_the_installed_directory() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        let store = declaring(dir.path(), vec![installed]);
+
+        let mut escaping = package();
+        escaping.parser.name = "../outside".into();
+
+        // The decoy sits exactly where the escaped name resolves, holding bytes
+        // that would pass verification. Without `validate` the read succeeds and
+        // hands back a file from outside the installed directory.
+        let decoy = dir
+            .path()
+            .join("installed")
+            .join(parser_filename(&escaping));
+        std::fs::create_dir_all(decoy.parent().unwrap()).unwrap();
+        std::fs::write(&decoy, WASM).unwrap();
+        assert!(
+            decoy.canonicalize().unwrap().parent() != Some(&dir.path().join("installed")),
+            "the decoy has to land outside the installed directory or this proves nothing"
+        );
+
+        assert!(
+            store.parser(&escaping).is_err(),
+            "a traversing parser name must not select a file outside the directory"
+        );
+    }
+
+    /// Several dependencies each bring their own directory, so resolution has
+    /// to search all of them rather than only the first.
+    #[test]
+    fn a_later_directory_still_answers() {
+        let dir = tempdir();
+        let empty = dir.path().join("empty");
+        std::fs::create_dir_all(&empty).unwrap();
+        let installed = install(dir.path());
+        let store = declaring(dir.path(), vec![empty, installed]);
+
+        assert!(store.package("@lumis-sh/wasm-json").is_ok());
     }
 
     #[test]
@@ -1209,6 +1295,7 @@ mod tests {
         let store = LanguageStore::new(
             StoreConfig {
                 cache_dir: root.path().join("cache"),
+                installed_dirs: None,
             },
             Box::new(NoNetwork),
         );
@@ -1709,282 +1796,5 @@ mod tests {
 
     fn tempdir() -> tempfile::TempDir {
         tempfile::tempdir().unwrap()
-    }
-
-    // The lock outranking the store directory. Everything above covers the
-    // unlocked path, which these must leave untouched.
-    mod locked {
-        use super::*;
-        use crate::lock::{Lock, LockedPackage};
-
-        /// Serialize `package` the way the CDN would, and lock exactly those bytes.
-        fn locked_to(package: &LanguagePackage, languages: &[&str]) -> (Vec<u8>, Arc<Lock>) {
-            let bytes = serde_json::to_vec(package).unwrap();
-            let mut lock = Lock::new(crate::catalog::LANGUAGE_PACKAGE_VERSION_RANGE);
-            lock.insert(LockedPackage {
-                name: package.package_name.clone(),
-                version: package.version.clone(),
-                languages: languages.iter().map(|s| (*s).to_string()).collect(),
-                manifest_sha256: sha256_hex(&bytes),
-                parser_sha256: package.parser.sha256.clone(),
-                definition_hash: Some(package.definition_hash.clone()),
-            });
-            (bytes, Arc::new(lock))
-        }
-
-        fn store_with(dir: &Path, fetcher: Box<dyn Fetcher>, lock: Arc<Lock>) -> LanguageStore {
-            make(dir, fetcher).with_lock(lock)
-        }
-
-        /// The defect this whole feature exists to fix. `local_package` used to
-        /// accept any on-disk manifest whose version fell inside the compatible
-        /// range, so a file another project left in a shared store silently
-        /// outranked the lock and the pinned version was never fetched.
-        #[test]
-        fn a_stale_manifest_in_the_directory_does_not_outrank_the_lock() {
-            let dir = tempdir();
-            let mut pinned = package();
-            pinned.version = "0.26.9".into();
-            let (pinned_bytes, lock) = locked_to(&pinned, &["json"]);
-
-            // Someone else's older, still range-compatible manifest.
-            let mut stale = package();
-            stale.version = "0.26.1".into();
-            std::fs::create_dir_all(dir.path().join("parsers")).unwrap();
-            std::fs::write(
-                dir.path().join("parsers").join("json.lumis.json"),
-                serde_json::to_vec(&stale).unwrap(),
-            )
-            .unwrap();
-
-            let store = store_with(
-                dir.path(),
-                Box::new(Canned(pinned_bytes.clone())),
-                Arc::clone(&lock),
-            );
-
-            assert_eq!(
-                store.package("@lumis-sh/wasm-json").unwrap().version,
-                "0.26.9",
-                "the lock names 0.26.9; the stale 0.26.1 on disk must not win"
-            );
-            assert_eq!(
-                std::fs::read(dir.path().join("parsers").join("json.lumis.json")).unwrap(),
-                pinned_bytes,
-                "the pinned manifest replaces the stale one on disk"
-            );
-        }
-
-        /// `local_package` answers for the locked version specifically, so an
-        /// offline caller is told nothing is available rather than handed the
-        /// wrong version.
-        #[test]
-        fn a_stale_manifest_reports_nothing_available_offline() {
-            let dir = tempdir();
-            let mut pinned = package();
-            pinned.version = "0.26.9".into();
-            let (_, lock) = locked_to(&pinned, &["json"]);
-
-            let mut stale = package();
-            stale.version = "0.26.1".into();
-            std::fs::create_dir_all(dir.path().join("parsers")).unwrap();
-            std::fs::write(
-                dir.path().join("parsers").join("json.lumis.json"),
-                serde_json::to_vec(&stale).unwrap(),
-            )
-            .unwrap();
-
-            let store = store_with(dir.path(), Box::new(NoNetwork), lock);
-            assert!(store.local_package("@lumis-sh/wasm-json").is_none());
-        }
-
-        #[test]
-        fn a_locked_manifest_on_disk_is_served_without_the_network() {
-            let dir = tempdir();
-            let pinned = package();
-            let (bytes, lock) = locked_to(&pinned, &["json"]);
-            std::fs::create_dir_all(dir.path().join("parsers")).unwrap();
-            std::fs::write(dir.path().join("parsers").join("json.lumis.json"), &bytes).unwrap();
-
-            let store = store_with(dir.path(), Box::new(NoNetwork), lock);
-            assert_eq!(
-                store.package("@lumis-sh/wasm-json").unwrap().version,
-                PACKAGE_VERSION
-            );
-        }
-
-        /// The anchor the format was missing: the parser digest is only
-        /// trustworthy because the manifest declared it, so the manifest itself
-        /// has to be pinned.
-        #[test]
-        fn a_manifest_whose_bytes_changed_is_rejected() {
-            let dir = tempdir();
-            let pinned = package();
-            let (_, lock) = locked_to(&pinned, &["json"]);
-
-            // Same version, different bytes: a parser digest swapped in transit.
-            let mut tampered = package();
-            tampered.parser.sha256 = "0".repeat(64);
-
-            let store = store_with(
-                dir.path(),
-                Box::new(Canned(serde_json::to_vec(&tampered).unwrap())),
-                lock,
-            );
-
-            let error = store.package("@lumis-sh/wasm-json").unwrap_err();
-            assert!(
-                matches!(error, StoreError::ManifestMismatch { .. }),
-                "expected a manifest digest mismatch, got {error}"
-            );
-        }
-
-        /// The store persists a re-serialized manifest, and fails over between
-        /// two CDNs that need not agree byte for byte. A digest over the wire
-        /// bytes would therefore never match what lands on disk, which is how a
-        /// locked language came back "not cached" after a successful download.
-        #[test]
-        fn the_digest_survives_a_round_trip_through_the_store() {
-            let dir = tempdir();
-            let pinned = package();
-            let (bytes, lock) = locked_to(&pinned, &["json"]);
-
-            // Re-serialized with different whitespace, as another CDN might.
-            let reformatted = serde_json::to_vec_pretty(
-                &serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
-            )
-            .unwrap();
-            assert_ne!(reformatted, bytes, "the fixture must actually differ");
-
-            std::fs::create_dir_all(dir.path().join("parsers")).unwrap();
-            std::fs::write(
-                dir.path().join("parsers").join("json.lumis.json"),
-                &reformatted,
-            )
-            .unwrap();
-
-            let store = store_with(dir.path(), Box::new(NoNetwork), lock);
-            assert_eq!(
-                store.package("@lumis-sh/wasm-json").unwrap().version,
-                PACKAGE_VERSION,
-                "equivalent JSON is the same manifest"
-            );
-        }
-
-        #[test]
-        fn a_package_the_lock_does_not_name_is_refused() {
-            let dir = tempdir();
-            let pinned = package();
-            let (bytes, _) = locked_to(&pinned, &["json"]);
-            let lock = Arc::new(Lock::new(crate::catalog::LANGUAGE_PACKAGE_VERSION_RANGE));
-
-            let store = store_with(dir.path(), Box::new(Canned(bytes)), lock);
-            let error = store.package("@lumis-sh/wasm-json").unwrap_err();
-
-            assert!(
-                matches!(error, StoreError::NotLocked { .. }),
-                "expected the package to be refused, got {error}"
-            );
-            let message = error.to_string();
-            assert!(message.contains("lumis-lock.toml"), "{message}");
-            assert!(message.contains("languages add"), "{message}");
-        }
-
-        /// A registry that answers an exact-version request with something else
-        /// is a resolution Lumis must not accept silently.
-        #[test]
-        fn a_served_version_that_is_not_the_locked_one_is_refused() {
-            let dir = tempdir();
-            let mut pinned = package();
-            pinned.version = "0.26.9".into();
-            let (_, lock) = locked_to(&pinned, &["json"]);
-
-            let mut other = package();
-            other.version = "0.26.1".into();
-            let bytes = serde_json::to_vec(&other).unwrap();
-            let mut lock_for_other = Lock::new(crate::catalog::LANGUAGE_PACKAGE_VERSION_RANGE);
-            lock_for_other.insert(LockedPackage {
-                name: other.package_name.clone(),
-                version: "0.26.9".into(),
-                languages: vec!["json".into()],
-                // Pin the digest of what is actually served, so the version
-                // check is what fails rather than the manifest hash.
-                manifest_sha256: sha256_hex(&bytes),
-                parser_sha256: other.parser.sha256.clone(),
-                definition_hash: None,
-            });
-            let _ = lock;
-
-            let store = store_with(
-                dir.path(),
-                Box::new(Canned(bytes)),
-                Arc::new(lock_for_other),
-            );
-            let error = store.package("@lumis-sh/wasm-json").unwrap_err();
-            assert!(
-                matches!(error, StoreError::LockedVersionMismatch { .. }),
-                "expected a locked version mismatch, got {error}"
-            );
-        }
-
-        /// The lock names a version, so the request has to name it too: asking
-        /// the CDN for the range again would let it choose.
-        #[test]
-        fn resolution_requests_the_exact_locked_version() {
-            struct RecordingFetcher {
-                bytes: Vec<u8>,
-                urls: Arc<Mutex<Vec<String>>>,
-            }
-            impl Fetcher for RecordingFetcher {
-                fn get(&self, url: &str) -> Result<Vec<u8>, String> {
-                    self.urls.lock().unwrap().push(url.to_string());
-                    Ok(self.bytes.clone())
-                }
-            }
-
-            let dir = tempdir();
-            let pinned = package();
-            let (bytes, lock) = locked_to(&pinned, &["json"]);
-            let urls = Arc::new(Mutex::new(Vec::new()));
-            let fetcher = Box::new(RecordingFetcher {
-                bytes,
-                urls: Arc::clone(&urls),
-            });
-
-            let store = store_with(dir.path(), fetcher, lock);
-            store.package("@lumis-sh/wasm-json").unwrap();
-
-            let manifest_url = urls
-                .lock()
-                .unwrap()
-                .iter()
-                .find(|url| url.ends_with("/lumis.json"))
-                .cloned()
-                .expect("the manifest was requested");
-            // The trailing slash is what makes this unambiguous: the range is a
-            // prefix of the version it resolves to, so `contains("0.26")` would
-            // pass either way.
-            assert!(
-                manifest_url
-                    .ends_with(&format!("@lumis-sh/wasm-json@{PACKAGE_VERSION}/lumis.json")),
-                "the exact locked version must be requested, not the range: {manifest_url}"
-            );
-        }
-
-        /// A lock with no rows means nothing is allowed, not that everything is.
-        #[test]
-        fn an_empty_lock_allows_nothing() {
-            let dir = tempdir();
-            let (bytes, _) = locked_to(&package(), &["json"]);
-            let store = store_with(
-                dir.path(),
-                Box::new(Canned(bytes)),
-                Arc::new(Lock::new(crate::catalog::LANGUAGE_PACKAGE_VERSION_RANGE)),
-            );
-            assert!(matches!(
-                store.package("@lumis-sh/wasm-json"),
-                Err(StoreError::NotLocked { .. })
-            ));
-        }
     }
 }

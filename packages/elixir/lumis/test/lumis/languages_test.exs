@@ -259,13 +259,16 @@ defmodule Lumis.LanguagesTest do
       :ok
     end
 
+    # `c` is staged and nothing else in the suite reaches it, by name or by
+    # injection, so it is only in memory if this call put it there. Verified by
+    # dumping `loaded_languages/0` after a full run rather than assumed.
     test "loads in the background" do
-      refute Lumis.Native.has_language("erlang")
+      refute Lumis.Native.has_language("c")
 
-      assert {:ok, pid} = Lumis.Languages.async_load(["erlang"])
+      assert {:ok, pid} = Lumis.Languages.async_load(["c"])
       await_warm_up(pid)
 
-      assert Lumis.Native.has_language("erlang")
+      assert Lumis.Native.has_language("c")
     end
 
     test "returns before the load finishes" do
@@ -289,7 +292,7 @@ defmodule Lumis.LanguagesTest do
       # A crashed task would report the exception instead of this.
       assert log =~ "could not warm"
       assert log =~ "not-a-language"
-      assert log =~ "load these on demand"
+      assert log =~ "retried when a document asks for it"
     end
 
     test "leaves the caller and the supervisor alive after a failure" do

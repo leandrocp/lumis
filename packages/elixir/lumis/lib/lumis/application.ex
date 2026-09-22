@@ -5,13 +5,10 @@ defmodule Lumis.Application do
 
   @impl true
   def start(_type, _args) do
-    # A lock that cannot be read stops the boot rather than being skipped:
-    # starting without the pins a project checked in would quietly restore the
-    # behaviour the lock was added to remove.
-    case Lumis.Native.configure_store(data_dir(), Lumis.Lock.path()) do
-      {:ok, _} -> :ok
-      {:error, reason} -> raise "Lumis could not read #{Lumis.Lock.file_name()}: #{reason}"
-    end
+    # The parsers this project depends on, and where compiled modules go. Both
+    # are read when the store is built, so this has to run before anything can
+    # use it; `false` back means something already did.
+    Lumis.Native.configure_store(data_dir(), Lumis.Packages.installed_dirs())
 
     opts = [strategy: :one_for_one, name: Lumis.Supervisor]
     Supervisor.start_link([{Task.Supervisor, name: Lumis.TaskSupervisor}], opts)
@@ -31,8 +28,8 @@ defmodule Lumis.Application do
 
   @doc false
   # The directory Lumis will actually use, which `data_dir/0` deliberately does
-  # not answer: it returns `nil` where the NIF decides. `Lumis.Lock` needs the
-  # path itself, to find the copy of the lock a release reads.
+  # not answer: it returns `nil` where the NIF decides. Callers that need the
+  # directory itself — the compiled-module cache lives there — need the answer.
   #
   # `nil` only when the platform default is what applies, which Elixir cannot
   # compute — the NIF asks `etcetera` for it.
