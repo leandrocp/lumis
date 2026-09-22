@@ -55,6 +55,53 @@ CLI, for a release task or a migration step that runs before the VM that serves.
 Inside a running application prefer `async_load/1`, which keeps what it loads
 instead of compiling and discarding it.
 
+## Deploying with a lock
+
+If your project has a `lumis-lock.toml`, one step changes and one trap opens.
+
+The step: run `mix lumis.install` in the build. It downloads exactly what the
+lock names and leaves a copy of the lock in the data directory.
+
+The trap: a release ships `priv/` but not your project directory, so a released
+node cannot find `lumis-lock.toml` by walking up from wherever it happens to
+start. That copy in the data directory is the only lock it can see. Miss it and
+the application boots with no lock and loads whatever a document names — the
+behaviour the lock was added to remove, restored silently in production only.
+
+So `data_dir` has to be the same absolute path in the build and at runtime:
+
+```elixir
+# config/runtime.exs
+config :lumis, data_dir: System.get_env("LUMIS_DATA_DIR") || "/app/lumis"
+```
+
+```dockerfile
+# Build: after config/runtime.exs, which is where data_dir is set.
+ENV LUMIS_DATA_DIR="/app/lumis"
+COPY lumis-lock.toml ./
+RUN mix lumis.install
+
+# Runtime: the parsers and the lock copy the build prepared.
+ENV LUMIS_DATA_DIR="/app/lumis"
+COPY --from=builder --chown=nobody:root /app/lumis /app/lumis
+```
+
+To check you got it right, run the image with no network at all. Highlighting
+should work from the prepared directory, and a language the lock does not pin
+should be refused rather than fetched:
+
+```
+$ docker run --network none ... bin/my_app rpc 'IO.inspect Lumis.Languages.load("haskell")'
+{:error, :not_locked}
+```
+
+The CLI stage above is a different tool with a different store, and it has no
+lock — `lumis languages download` fills a directory, it does not consult
+`lumis-lock.toml` or check what it downloaded against it. Using both means the
+set you download and the set your application may load are declared in two
+places that nothing keeps in agreement. Prefer `mix lumis.install`, which reads
+the one file that decides.
+
 ## Build with Nix
 
 A sandboxed Nix build cannot download the precompiled Lumis NIF while
