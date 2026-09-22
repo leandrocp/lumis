@@ -63,7 +63,7 @@ try {
     $ArchivePath = Join-Path $TempDir $Archive
     $ChecksumPath = Join-Path $TempDir "lumis-$Target.sha256"
 
-    Write-Host "Downloading lumis $Version for $Target..."
+    Write-Host "Downloading lumis $Version for $Target"
     Invoke-WebRequest -Uri "$DownloadBase/$Archive" -OutFile $ArchivePath
     Invoke-WebRequest -Uri "$DownloadBase/lumis-$Target.sha256" -OutFile $ChecksumPath
 
@@ -84,7 +84,7 @@ try {
     New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
     Copy-Item -Force (Join-Path $TempDir "lumis.exe") (Join-Path $InstallDir "lumis.exe")
 
-    Write-Host "Installed lumis $Version to $InstallDir\lumis.exe."
+    Write-Host "Installed lumis $Version to $InstallDir\lumis.exe"
     if ($env:LUMIS_NO_MODIFY_PATH -eq "1") {
         Write-Host "Add $InstallDir to PATH to use lumis."
     } else {
