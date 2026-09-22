@@ -464,13 +464,10 @@ export function createNativeLanguagesModule(
         const { pathToFileURL } = await import("node:url");
         const { join } = await import("node:path");
         const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
-        const manifestUrl = pathToFileURL(
-          resolveFromProject.resolve(`${packageName}/lumis.json`),
-        );
+        const manifestUrl = pathToFileURL(resolveFromProject.resolve(`${packageName}/lumis.json`));
         const { readFile } = await import("node:fs/promises");
         const { fileURLToPath } = await import("node:url");
-        const read = async (name: string) =>
-          readFile(fileURLToPath(new URL(name, manifestUrl)));
+        const read = async (name: string) => readFile(fileURLToPath(new URL(name, manifestUrl)));
 
         const manifest = await read("lumis.json");
         const packageJson = manifest.toString("utf8");

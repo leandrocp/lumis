@@ -14,10 +14,7 @@ import { describe, expect, it } from "vitest";
 // A project with no parser installed. Nothing is declared, and under the rule
 // every runtime now shares, nothing is what it gets.
 const root = mkdtempSync(join(tmpdir(), "lumis-declared-project-"));
-writeFileSync(
-  join(root, "package.json"),
-  JSON.stringify({ name: "declared", dependencies: {} }),
-);
+writeFileSync(join(root, "package.json"), JSON.stringify({ name: "declared", dependencies: {} }));
 process.chdir(root);
 process.env.LUMIS_DATA_DIR = mkdtempSync(join(tmpdir(), "lumis-declared-store-"));
 

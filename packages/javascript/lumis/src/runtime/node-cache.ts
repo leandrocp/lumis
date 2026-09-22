@@ -238,4 +238,3 @@ export async function withWasmCacheLock<T>(
  * Read once. A dependency list does not change while a process runs, and asking
  * the filesystem on every resolution would put a stat in the highlight path.
  */
-
