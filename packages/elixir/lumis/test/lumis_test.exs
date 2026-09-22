@@ -1495,15 +1495,20 @@ defmodule Lumis.LumisTest do
       assert html =~ "<span"
     end
 
-    test "loading a parser is not charged against the budget" do
-      # A parser load costs hundreds of milliseconds and this document costs
-      # microseconds, so highlighting under `time_limit: 50` is the whole claim:
-      # the clock starts once the language is ready. The limit is not tighter
-      # because this suite runs async and a microsecond render still waits on a
-      # loaded machine.
+    test "leaves an ordinary document well inside its budget" do
+      # Parsers are global to the VM and this suite is async, so whether
+      # "elixir" is cold here depends on what else has run. The cold-start
+      # claim — that loading a parser is not charged to the render — belongs to
+      # the CLI suite, where every case is a fresh process that does the
+      # loading itself.
+      #
+      # What this pins is that an explicit budget is still a working budget:
+      # 1 s against a render measured in microseconds, with the headroom
+      # deliberately large because the assertion is that it was not hit and a
+      # loaded machine can stall a process for longer than a tight limit allows.
       assert {:ok, html} =
                Lumis.highlight(@ordinary,
-                 time_limit: 50,
+                 time_limit: 1_000,
                  formatter: {:html_linked, language: "elixir"}
                )
 
