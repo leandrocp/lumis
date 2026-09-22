@@ -2,7 +2,6 @@
 use anyhow::Context;
 use anyhow::Result;
 use lumis_wasm_runtime::catalog;
-#[cfg(test)]
 use lumis_wasm_runtime::LanguagePackage;
 use lumis_wasm_runtime::{
     HighlightOptions, HighlightOutput, HttpFetcher, LanguageStore, Runtime, StoreConfig,
@@ -21,6 +20,17 @@ pub(crate) struct Registry {
 
 impl Registry {
     pub(crate) fn new(data_dir: PathBuf) -> Result<Self> {
+        Self::with_lock(data_dir, None)
+    }
+
+    /// A registry whose store resolves only what `lock` pins.
+    ///
+    /// `None` keeps the long-standing behaviour: resolve the compatible range
+    /// and treat the store directory as authoritative.
+    pub(crate) fn with_lock(
+        data_dir: PathBuf,
+        lock: Option<std::sync::Arc<lumis_wasm_runtime::Lock>>,
+    ) -> Result<Self> {
         std::fs::create_dir_all(data_dir.join("parsers"))?;
         std::fs::create_dir_all(data_dir.join("themes"))?;
         let store = LanguageStore::new(
@@ -29,6 +39,10 @@ impl Registry {
             },
             Box::new(HttpFetcher),
         );
+        let store = match lock {
+            Some(lock) => store.with_lock(lock),
+            None => store,
+        };
 
         let runtime = Runtime::with_worker_limit(1)?.with_store(store);
         for language in catalog::LANGUAGES {
@@ -101,6 +115,11 @@ impl Registry {
     #[cfg(test)]
     pub(crate) fn parser_download_url(&self, language: &str) -> Result<String> {
         Ok(LanguageStore::parser_url(self.package(language)?.as_ref())?)
+    }
+
+    /// Resolve the compatible range and report what a lock entry would record.
+    pub(crate) fn resolve_for_lock(&self, package_name: &str) -> Result<(LanguagePackage, String)> {
+        Ok(self.store().resolve_for_lock(package_name)?)
     }
 
     fn store(&self) -> &LanguageStore {

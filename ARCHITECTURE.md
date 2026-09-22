@@ -263,6 +263,13 @@ Two verbs, the same in every runtime: **cache** puts a language on disk,
 process that will serve wants a load; caching is for filling a directory some
 other process will read.
 
+Those two are the *runtime* verbs and stay that way. The CLI has more, because
+it is the only thing that writes `lumis-lock.toml`: `add`, `remove`, `update`
+and `install` manage the lock, while `cache` still means what it means
+everywhere else. Concentrating lock writes in one binary is what keeps a Mix
+task and an npx wrapper wrappers rather than second implementations, so no
+runtime grows a resolution path of its own.
+
 An application loads at startup without waiting for it. Elixir runs the load
 under a `:temporary` child of Lumis's supervisor; JavaScript leaves the promise
 unawaited. Neither can delay a boot or fail one, which matters because warm-up

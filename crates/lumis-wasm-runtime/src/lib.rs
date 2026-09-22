@@ -221,6 +221,7 @@ pub fn compile_concurrency() -> usize {
 
 pub mod brackets;
 pub mod catalog;
+pub mod lock;
 pub mod package;
 pub mod store;
 pub mod tree_sitter_highlight;
@@ -232,6 +233,7 @@ pub use brackets::{
     bracket_pairs, capture_indices, colorize_bracket_pairs, BracketPair, RainbowRange,
     RAINBOW_BRACKET_SCOPES, RAINBOW_SCOPE_INDICES,
 };
+pub use lock::{Lock, LockError, LockedPackage, LOCK_FILE_NAME, LOCK_FORMAT_VERSION};
 pub use package::{
     grammar_name, sha256_hex, LanguagePackage, LanguagePackageError, PackagedLanguage,
     ParserMetadata,

@@ -36,6 +36,10 @@ These flags work with any subcommand:
 | `lumis languages list` | List supported languages and file patterns |
 | `lumis languages show` | Print what the catalog knows about one language |
 | `lumis languages cache` | Download and compile parsers so later runs skip both |
+| `lumis languages add` | Record languages in `lumis-lock.toml` and cache them |
+| `lumis languages remove` | Stop recording languages in `lumis-lock.toml` |
+| `lumis languages update` | Re-resolve locked packages and move `lumis-lock.toml` |
+| `lumis languages install` | Cache exactly what `lumis-lock.toml` names |
 | `lumis themes list` | List built-in and local themes |
 | `lumis themes show` | Print one theme's appearance and colors |
 | `lumis themes generate` | Generate a theme from a Neovim colorscheme repo |
@@ -308,6 +312,67 @@ lumis languages cache --all
 ```bash title="Replace valid cached parsers"
 lumis languages cache rust javascript --force
 ```
+
+## `lumis-lock.toml`
+
+Without a lock, whichever compatible version a machine downloads first is the
+one it keeps, so two machines can render the same document differently and
+nothing records which parser produced which output.
+
+`lumis-lock.toml` pins an exact version and its digests. Commit it, and every
+machine and CI run resolves the same parsers.
+
+```bash title="Record a language"
+lumis languages add rust
+```
+
+The lock is created at the repository root the first time, whichever directory
+you run from:
+
+```toml title="lumis-lock.toml"
+version = 1
+range = "0.26"
+
+[[package]]
+name = "@lumis-sh/wasm-rust"
+version = "0.26.4"
+languages = ["rust"]
+manifest_sha256 = "..."
+parser_sha256 = "..."
+definition_hash = "..."
+```
+
+`manifest_sha256` covers the package metadata itself, not only the parser it
+describes, so a registry cannot serve different bytes than the ones recorded.
+
+Rows are keyed on the package because one package can back several languages —
+`ejs` and `erb` are both `@lumis-sh/wasm-embedded-template`. `languages` lists
+what you added, so a lock can pin `ejs` without also allowing `erb`.
+
+```bash title="Materialize the lock, resolving nothing"
+lumis languages install
+```
+
+Use this in CI and in a Dockerfile, the way you would `npm ci`. It downloads
+exactly what the lock names and fails if the store holds a different version,
+so a stale machine cache cannot quietly win.
+
+```bash title="Move a version deliberately"
+lumis languages update rust
+lumis languages update --all
+```
+
+`update` is the only command that changes a pinned version. It resolves
+everything before writing anything, so a registry that is down for one package
+leaves the lock untouched rather than moving the rest.
+
+```bash title="Stop pinning a language"
+lumis languages remove rust
+```
+
+A bundle is shorthand when you add it, and its members are what get recorded.
+Re-run `lumis languages add bundle-web` to pick up a language the bundle gained,
+so widening what a project allows stays a visible diff.
 
 ## `lumis themes list`
 

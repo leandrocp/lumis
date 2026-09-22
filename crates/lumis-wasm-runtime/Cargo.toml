@@ -27,6 +27,7 @@ serde_json = "1"
 semver = "1"
 sha2 = "0.11"
 tempfile = "3"
+toml = "1.1"
 wasmparser = "0.258"
 
 [dev-dependencies]
