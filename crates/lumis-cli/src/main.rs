@@ -410,17 +410,27 @@ enum LanguagesCommands {
 
     /// Download and compile parsers so later runs skip both
     #[command(
-        after_help = "Examples:\n  lumis languages cache rust javascript\n  lumis languages cache bundle-web\n  lumis languages cache --all\n  lumis languages cache rust --force\n  lumis --data-dir /app/lumis languages cache rust"
+        after_help = "Examples:\n  lumis languages download rust javascript\n  lumis languages download bundle-web\n  lumis languages download --all\n  lumis languages download rust --force\n  lumis --data-dir /app/lumis languages download rust"
     )]
-    Cache {
+    Download {
         /// Language names, or a bundle such as bundle-web (e.g. rust javascript elixir)
         languages: Vec<String>,
 
-        /// Cache every language in the catalog
+        /// Download every language in the catalog
         #[arg(long)]
         all: bool,
 
-        /// Resolve compatible packages again and replace valid cached parsers
+        /// Resolve compatible packages again and replace valid parser files
+        #[arg(long)]
+        force: bool,
+    },
+
+    /// Former name of `download`. Still works, and warns.
+    #[command(hide = true)]
+    Cache {
+        languages: Vec<String>,
+        #[arg(long)]
+        all: bool,
         #[arg(long)]
         force: bool,
     },
@@ -737,7 +747,7 @@ fn show_theme(name: &str, data_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-fn cache_languages(
+fn download_languages(
     reg: &registry::Registry,
     languages: &[String],
     all: bool,
@@ -831,13 +841,25 @@ fn run_languages(
     match command {
         LanguagesCommands::List => list_languages(),
         LanguagesCommands::Show { language } => show_language(&language),
-        LanguagesCommands::Cache {
+        LanguagesCommands::Download {
             languages,
             all,
             force,
         } => {
             let reg = registry::Registry::new(data_dir)?;
-            cache_languages(&reg, &languages, all, force, verbose)
+            download_languages(&reg, &languages, all, force, verbose)
+        }
+        LanguagesCommands::Cache {
+            languages,
+            all,
+            force,
+        } => {
+            eprintln!(
+                "warning: `lumis languages cache` is now `lumis languages download`; \
+                 the old name still works and will be removed in the next major release"
+            );
+            let reg = registry::Registry::new(data_dir)?;
+            download_languages(&reg, &languages, all, force, verbose)
         }
     }
 }

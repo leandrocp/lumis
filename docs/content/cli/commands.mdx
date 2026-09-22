@@ -35,7 +35,7 @@ These flags work with any subcommand:
 | `lumis formatters show` | List the options one formatter accepts |
 | `lumis languages list` | List supported languages and file patterns |
 | `lumis languages show` | Print what the catalog knows about one language |
-| `lumis languages cache` | Download and compile parsers so later runs skip both |
+| `lumis languages download` | Download and compile parsers so later runs skip both |
 | `lumis themes list` | List built-in and local themes |
 | `lumis themes show` | Print one theme's appearance and colors |
 | `lumis themes generate` | Generate a theme from a Neovim colorscheme repo |
@@ -284,7 +284,7 @@ Prints one language's id, name, aliases, extensions, globs, Emacs modes and
 shebangs. Aliases resolve the way highlighting resolves them, so `js` finds
 JavaScript. Exits non-zero on an unknown name.
 
-## `lumis languages cache`
+## `lumis languages download`
 
 Download exact, integrity-checked parser WASM files ahead of time, and compile
 them. Highlighting does both anyway; this moves them off the first run.
@@ -294,24 +294,24 @@ the larger half. See [Filling the store at build time](/advanced/wasm-and-cdn#fi
 for how the CLI prepares the cache shared by every native runtime.
 
 ```bash title="Selected parsers"
-lumis languages cache rust javascript elixir
+lumis languages download rust javascript elixir
 ```
 
 ```bash title="A bundle"
-lumis languages cache bundle-web
+lumis languages download bundle-web
 ```
 
 The `bundle-*` names cover the same languages as the matching
 `@lumis-sh/wasm-bundle-*` package. `Lumis.Languages.async_load/1`,
-`Lumis.Languages.cache/2` and the JavaScript / TypeScript `cacheLanguages()` accept the same
+`Lumis.Languages.download/2` and the JavaScript / TypeScript `downloadLanguages()` accept the same
 names in application code.
 
 ```bash title="All parsers"
-lumis languages cache --all
+lumis languages download --all
 ```
 
 ```bash title="Replace valid cached parsers"
-lumis languages cache rust javascript --force
+lumis languages download rust javascript --force
 ```
 
 ## Pinning parsers

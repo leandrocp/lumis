@@ -7,7 +7,7 @@
 //! parts that would otherwise be reimplemented per binding and drift.
 //!
 //! The CLI has no lock of its own — it is a viewer and a store filler, so
-//! `lumis languages cache` is its whole store surface. A lock belongs to a
+//! `lumis languages download` is its whole store surface. A lock belongs to a
 //! project, and the runtime that owns the project is what manages it.
 
 use std::collections::{BTreeMap, HashSet};

@@ -52,6 +52,13 @@
       "require": "./dist/cache.cjs",
       "default": "./dist/cache.js"
     },
+    "./download": {
+      "types": "./dist/cache.d.ts",
+      "node": "./dist/cache.js",
+      "import": "./dist/cache.js",
+      "require": "./dist/cache.cjs",
+      "default": "./dist/cache.js"
+    },
     "./formatters": {
       "types": "./dist/formatters.d.ts",
       "import": "./dist/formatters.js",

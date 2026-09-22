@@ -185,11 +185,11 @@ Loading is global to the VM, so this is the same list in every process.
 There is nothing to list. Each invocation is a fresh process that loads what
 the document needs and exits, so nothing stays loaded between runs.
 
-What does persist is the parser cache on disk, which `lumis languages cache`
+What does persist is the parser cache on disk, which `lumis languages download`
 fills so later runs skip the download:
 
 ```bash
-lumis languages cache rust javascript
+lumis languages download rust javascript
 ```
 
   </Tab>

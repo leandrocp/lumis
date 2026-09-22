@@ -19,7 +19,7 @@ defmodule Lumis.Languages do
   Or prepare a directory a *different* process will read, validating parsers and
   persisting their compiled modules without retaining any language in memory:
 
-      {:ok, _paths} = Lumis.Languages.cache(["elixir", "html"])
+      {:ok, _paths} = Lumis.Languages.download(["elixir", "html"])
 
   ## Where parsers come from
 
@@ -280,18 +280,18 @@ defmodule Lumis.Languages do
   bundle reports each language it could not prepare rather than stopping at the
   first, the same way `load/1` does.
 
-      {:ok, paths} = Lumis.Languages.cache(["elixir", "html"])
-      {:error, %{"css" => reason}} = Lumis.Languages.cache(["elixir", "css"])
+      {:ok, paths} = Lumis.Languages.download(["elixir", "html"])
+      {:error, %{"css" => reason}} = Lumis.Languages.download(["elixir", "css"])
 
   ## Options
 
     * `:force` — resolve the compatible package range again and replace a
       verified parser
   """
-  @spec cache([String.t() | atom()], keyword()) ::
+  @spec download([String.t() | atom()], keyword()) ::
           {:ok, [String.t()]}
           | {:error, String.t() | {:unknown_bundle, String.t()} | %{String.t() => String.t()}}
-  def cache(names, options \\ []) when is_list(names) and is_list(options) do
+  def download(names, options \\ []) when is_list(names) and is_list(options) do
     force? = Keyword.get(options, :force, false)
 
     with {:ok, expanded} <- expand_bundles(names) do
@@ -303,6 +303,15 @@ defmodule Lumis.Languages do
       end
     end
   end
+
+  @doc """
+  Former name of `download/2`. Still works, and warns at compile time.
+  """
+  @deprecated "Use Lumis.Languages.download/2 instead"
+  @spec cache([String.t() | atom()], keyword()) ::
+          {:ok, [String.t()]}
+          | {:error, String.t() | {:unknown_bundle, String.t()} | %{String.t() => String.t()}}
+  def cache(names, options \\ []), do: download(names, options)
 
   defp do_cache([], _force?), do: {:ok, []}
 

@@ -73,8 +73,8 @@ loadLanguages(['javascript', 'html', 'css']).catch((error) => {
 ```
 
 `loadLanguages()` warms the runtime `highlight()` uses and keeps the languages
-there. `cacheLanguages()` writes the same files but holds nothing, for a build
-step preparing a directory another process reads; `lumis languages cache` does
+there. `downloadLanguages()` writes the same files but holds nothing, for a build
+step preparing a directory another process reads; `lumis languages download` does
 that from the CLI. On native Node both also persist compiled Wasmtime modules.
 
 ## Documentation
