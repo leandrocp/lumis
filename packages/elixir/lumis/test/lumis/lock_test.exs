@@ -44,20 +44,20 @@ defmodule Lumis.LockTest do
 
     test "removing one language keeps a package the other still needs", %{lock: lock} do
       assert {:ok, _} = Lumis.Native.lock_add(lock, ["ejs", "erb"])
-      assert {:ok, ["erb"]} = Lumis.Native.lock_remove(lock, ["erb"])
+      assert {:ok, {["erb"], []}} = Lumis.Native.lock_remove(lock, ["erb"])
 
       assert {:ok, ["ejs"]} = Lumis.Native.lock_languages(lock)
     end
 
     test "removing the last language drops the package", %{lock: lock} do
       assert {:ok, _} = Lumis.Native.lock_add(lock, ["json"])
-      assert {:ok, ["json"]} = Lumis.Native.lock_remove(lock, ["json"])
+      assert {:ok, {["json"], []}} = Lumis.Native.lock_remove(lock, ["json"])
       assert {:ok, []} = Lumis.Native.lock_languages(lock)
     end
 
     test "removing something that was never pinned reports nothing removed", %{lock: lock} do
       assert {:ok, _} = Lumis.Native.lock_add(lock, ["json"])
-      assert {:ok, []} = Lumis.Native.lock_remove(lock, ["haskell"])
+      assert {:ok, {[], ["haskell"]}} = Lumis.Native.lock_remove(lock, ["haskell"])
       assert {:ok, ["json"]} = Lumis.Native.lock_languages(lock)
     end
 
@@ -81,6 +81,17 @@ defmodule Lumis.LockTest do
       assert {:ok, _} = Lumis.Native.lock_add(lock, ["json"])
       assert {:ok, changes} = Lumis.Native.lock_update(lock, [], true)
       assert Enum.all?(changes, &(not &1.moved))
+    end
+
+    # Removing a bundle removes its members; the bundle name is never recorded,
+    # so reporting against the raw argument would call a success a miss.
+    test "removing a bundle reports its members, not the bundle name", %{lock: lock} do
+      assert {:ok, _} = Lumis.Native.lock_add(lock, ["bundle-web"])
+      assert {:ok, {removed, missing}} = Lumis.Native.lock_remove(lock, ["bundle-web"])
+
+      assert "css" in removed
+      assert missing == [], "every member was pinned, so nothing is missing"
+      refute "bundle-web" in missing
     end
 
     test "remove requires an existing lock", %{lock: lock} do

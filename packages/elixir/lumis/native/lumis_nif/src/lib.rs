@@ -591,10 +591,16 @@ fn configure_store(data_dir: Option<String>, lock_path: Option<String>) -> Resul
     if Lazy::get(&EXECUTOR).is_some() {
         return Ok(false);
     }
+    // A path was supplied, so a missing file is a misconfiguration rather than
+    // "no lock": continuing would boot without the pins a project checked in,
+    // which is the behaviour the lock was added to remove. Only `None` — no
+    // lock anywhere — leaves the store unconstrained.
     let lock = match lock_path {
-        Some(path) => lumis_wasm_runtime::Lock::read(std::path::Path::new(&path))
-            .map_err(|error| error.to_string())?
-            .map(Arc::new),
+        Some(path) => Some(Arc::new(
+            lumis_wasm_runtime::Lock::read(std::path::Path::new(&path))
+                .map_err(|error| error.to_string())?
+                .ok_or_else(|| format!("no lock at {path}"))?,
+        )),
         None => None,
     };
 
@@ -618,10 +624,23 @@ fn lock_in_force() -> bool {
 /// A `mix lumis.*` task edits the lock and then caches what it just recorded,
 /// but the store took its copy at boot: without this, `mix lumis.add ejs` writes
 /// the entry and is then refused by a store still holding the lock from before
-/// it existed. Stores are built per call from `STORE_PATHS`, so this reaches
-/// every later one.
+/// it existed.
+///
+/// Refuses once the executor exists, exactly as [`configure_store`] does. Stores
+/// are built per call from `STORE_PATHS`, but the executor keeps the one it was
+/// constructed with, so a refresh after that point would reach the download and
+/// not the compile — half the operation honouring the new lock and half the old.
+/// A Mix task never touches the executor before this runs, since it is built
+/// lazily on first use; anything that did gets an error rather than that split.
 #[rustler::nif(schedule = "DirtyIo")]
 fn lock_refresh(path: String) -> Result<bool, String> {
+    if Lazy::get(&EXECUTOR).is_some() {
+        return Err(
+            "the Lumis runtime is already started, so the lock it resolves against cannot be \
+             replaced; run this before highlighting or loading anything"
+                .to_string(),
+        );
+    }
     let lock = lumis_wasm_runtime::Lock::read(std::path::Path::new(&path))
         .map_err(|error| error.to_string())?;
     let found = lock.is_some();
@@ -745,12 +764,23 @@ fn lock_add(path: String, languages: Vec<String>) -> Result<Vec<ExLockChange>, S
     })
 }
 
-/// Stop pinning `languages`, reporting the ones that were actually pinned.
+/// Stop pinning `languages`, reporting what was removed and what was not there.
+///
+/// Both lists are expanded names. Reporting against the raw arguments instead
+/// would say `bundle-web is not in lumis-lock.toml` after successfully removing
+/// every one of its members, since a bundle name is never itself recorded.
 #[rustler::nif(schedule = "DirtyIo")]
-fn lock_remove(path: String, languages: Vec<String>) -> Result<Vec<String>, String> {
+fn lock_remove(path: String, languages: Vec<String>) -> Result<(Vec<String>, Vec<String>), String> {
+    use lumis_wasm_runtime::lock::manage;
+
     with_lock_file(&path, false, |lock| {
-        lumis_wasm_runtime::lock::manage::remove(lock, &languages)
-            .map_err(|error| error.to_string())
+        let requested = manage::expand(&languages).map_err(|error| error.to_string())?;
+        let removed = manage::remove(lock, &languages).map_err(|error| error.to_string())?;
+        let missing = requested
+            .into_iter()
+            .filter(|name| !removed.contains(name))
+            .collect();
+        Ok((removed, missing))
     })
 }
 
@@ -1548,10 +1578,19 @@ mod lock_tests {
         lock
     }
 
+    /// `STORE_PATHS` is global and the test harness runs in parallel, so setup,
+    /// body and cleanup have to be one critical section or two tests read each
+    /// other's lock.
+    static SERIALIZED: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
     fn with_lock<T>(lock: Option<Lock>, body: impl FnOnce() -> T) -> T {
+        let guard = SERIALIZED
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         STORE_PATHS.write().lock = lock.map(Arc::new);
         let outcome = body();
         STORE_PATHS.write().lock = None;
+        drop(guard);
         outcome
     }
 

@@ -19,9 +19,12 @@ defmodule Mix.Tasks.Lumis.Remove do
     Helpers.start!()
 
     path = Helpers.lock_path!(false)
-    removed = Helpers.unwrap!(Lumis.Native.lock_remove(path, languages))
+    {removed, missing} = Helpers.unwrap!(Lumis.Native.lock_remove(path, languages))
 
-    Enum.each(languages -- removed, fn name ->
+    # Both lists come back expanded. Subtracting from the raw arguments instead
+    # would announce `bundle-web is not in lumis-lock.toml` right after removing
+    # every one of its members, since a bundle name is never itself recorded.
+    Enum.each(missing, fn name ->
       Mix.shell().info("#{name} is not in #{Lumis.Lock.file_name()}")
     end)
 
