@@ -18,6 +18,10 @@ export { runtimeKind } from "./runtime/browser.js";
 export { highlightIter, highlightEvents } from "./core/highlighter.js";
 export { guessLanguage } from "./guess-language.js";
 
+// The same switch every runtime has, so silencing it here silences the same
+// thing `config :lumis, :report_unresolved` and `--no-report-unresolved` do.
+export { setReportUnresolved } from "./events.js";
+
 /**
  * Load languages into the runtime `highlight()` uses, by name.
  *

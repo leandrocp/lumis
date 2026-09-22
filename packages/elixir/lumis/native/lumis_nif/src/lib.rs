@@ -66,6 +66,7 @@ enum WasmJob {
         rainbow_brackets: bool,
         match_limit: u32,
         time_limit_ms: Option<u64>,
+        report_unresolved: bool,
         reply: mpsc::SyncSender<Result<Highlighted, RuntimeError>>,
     },
 }
@@ -84,6 +85,9 @@ fn time_limit_ms(value: Option<u64>) -> Option<u64> {
 struct Highlighted {
     events: Vec<HighlightEvent<'static>>,
     budget: Option<BudgetExhausted>,
+    /// Injected languages this document named that could not be loaded. Empty
+    /// unless `report_unresolved` asked for them.
+    unresolved: Vec<String>,
 }
 
 /// Why a load failed, at the granularity Elixir matches on.
@@ -199,12 +203,14 @@ impl WasmExecutor {
                             rainbow_brackets,
                             match_limit,
                             time_limit_ms,
+                            report_unresolved,
                             reply,
                         } => {
                             let options = HighlightOptions {
                                 rainbow_brackets,
                                 match_limit,
                                 time_limit_ms,
+                                report_unresolved,
                                 ..HighlightOptions::default()
                             };
                             let _ = reply.send(
@@ -212,6 +218,7 @@ impl WasmExecutor {
                                     |output| Highlighted {
                                         events: output.events,
                                         budget: output.budget,
+                                        unresolved: output.unresolved,
                                     },
                                 ),
                             );
@@ -248,6 +255,7 @@ impl WasmExecutor {
         rainbow_brackets: bool,
         match_limit: u32,
         time_limit_ms: Option<u64>,
+        report_unresolved: bool,
     ) -> Result<Highlighted, RuntimeError> {
         let (reply, result) = mpsc::sync_channel(1);
         self.sender
@@ -257,6 +265,7 @@ impl WasmExecutor {
                 rainbow_brackets,
                 match_limit,
                 time_limit_ms,
+                report_unresolved,
                 reply,
             })
             .map_err(|_| RuntimeError::Highlight("WASM executor is unavailable".into()))?;
@@ -292,6 +301,7 @@ pub struct ExOptions<'a> {
     pub rainbow_brackets: bool,
     pub match_limit: Option<u32>,
     pub time_limit: Option<u64>,
+    pub report_unresolved: bool,
 }
 
 #[derive(Clone, Debug, NifMap)]
@@ -313,6 +323,7 @@ pub struct ExEventOptions<'a> {
     pub rainbow_brackets: bool,
     pub match_limit: Option<u32>,
     pub time_limit: Option<u64>,
+    pub report_unresolved: bool,
 }
 
 #[derive(Debug, NifMap)]
@@ -495,13 +506,18 @@ pub(crate) fn highlight<'a>(
         Err(message) => return Ok((error(), message).encode(env)),
     };
 
-    let Highlighted { events, budget } = match syntax_events(
+    let Highlighted {
+        events,
+        budget,
+        unresolved,
+    } = match syntax_events(
         env,
         source,
         language,
         options.rainbow_brackets,
         options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
         time_limit_ms(options.time_limit),
+        options.report_unresolved,
     ) {
         Ok(highlighted) => highlighted,
         Err(failure) => return Ok(failure),
@@ -517,7 +533,10 @@ pub(crate) fn highlight<'a>(
     }
     let output = String::from_utf8(output)
         .map_err(|error| Error::Term(Box::new(format!("invalid formatter output: {error}"))))?;
-    Ok((ok(), output).encode(env))
+    // Three elements rather than two: Elixir reports the skipped languages and
+    // then hands the caller the `{:ok, html}` it has always received, so the
+    // diagnostic rides along without becoming part of the public shape.
+    Ok((ok(), output, unresolved).encode(env))
 }
 
 /// Syntax events for `source`, or the error term Elixir should receive.
@@ -528,6 +547,7 @@ fn syntax_events<'a>(
     rainbow_brackets: bool,
     match_limit: u32,
     time_limit: Option<u64>,
+    report_unresolved: bool,
 ) -> Result<Highlighted, Term<'a>> {
     if language == languages::Language::PlainText {
         return Ok(Highlighted {
@@ -536,6 +556,7 @@ fn syntax_events<'a>(
                 end: source.len(),
             }],
             budget: None,
+            unresolved: Vec::new(),
         });
     }
 
@@ -547,6 +568,7 @@ fn syntax_events<'a>(
             rainbow_brackets,
             match_limit,
             time_limit,
+            report_unresolved,
         )
         .map_err(|runtime_error| match runtime_error {
             RuntimeError::LanguageNotLoaded(language) => {
@@ -568,15 +590,16 @@ pub(crate) fn highlight_events<'a>(
 
     // An event stream has nowhere to carry the budget, so it is dropped here
     // and only the rendering entry point above reports it.
-    let events = match syntax_events(
+    let (events, unresolved) = match syntax_events(
         env,
         source,
         language,
         options.rainbow_brackets,
         options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
         time_limit_ms(options.time_limit),
+        options.report_unresolved,
     ) {
-        Ok(highlighted) => highlighted.events,
+        Ok(highlighted) => (highlighted.events, highlighted.unresolved),
         Err(failure) => return Ok(failure),
     };
     let events = match compose_annotations(source, &events, &annotations) {
@@ -597,8 +620,11 @@ pub(crate) fn highlight_events<'a>(
     // The resolved language rides along because detection happened here. A
     // formatter needs it to label its output, and asking Elixir to guess again
     // would run detection over the whole source a second time to reach an answer
-    // this call already has.
-    Ok((ok(), language.id_name(), events).encode(env))
+    // this call already has. The skipped languages ride along for the same
+    // reason: a custom formatter must report them exactly as a built-in one
+    // does, or which formatter you chose would decide whether you hear about a
+    // block that lost its colours.
+    Ok((ok(), language.id_name(), events, unresolved).encode(env))
 }
 
 /// Reads the tagged tuples `Lumis.annotations_type/1` normalizes to:

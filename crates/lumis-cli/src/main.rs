@@ -55,6 +55,13 @@ struct Cli {
     #[arg(short = 'v', long, global = true, help_heading = OPTSET_GLOBAL)]
     verbose: bool,
 
+    /// Stay quiet about injected languages that could not be loaded
+    ///
+    /// Those blocks come back without highlighting either way; this only
+    /// decides whether the reason reaches stderr.
+    #[arg(long, env("LUMIS_NO_REPORT_UNRESOLVED"), global = true, help_heading = OPTSET_GLOBAL)]
+    no_report_unresolved: bool,
+
     /// Print help
     #[arg(short = 'h', long, global = true, action = ArgAction::Help, help = "Print help", help_heading = OPTSET_GLOBAL)]
     help: Option<bool>,
@@ -579,6 +586,7 @@ fn main() -> Result<()> {
         None => config::default_path()?,
     };
     let verbose = cli.verbose;
+    let report_unresolved = !cli.no_report_unresolved;
 
     match cli.command {
         Commands::Highlight(mut args) => {
@@ -588,7 +596,7 @@ fn main() -> Result<()> {
             reject_unaccepted_options(&args);
             let reg = registry::Registry::new(data_dir)?;
             args.theme = args.theme.or(config.highlight.theme);
-            do_highlight(&reg, *args, verbose)
+            do_highlight(&reg, *args, verbose, report_unresolved)
         }
         Commands::Formatters { command } => match command {
             FormattersCommands::List => list_formatters(),
@@ -605,7 +613,9 @@ fn main() -> Result<()> {
                     highlights,
                     injections,
                 } => dump_tree(&reg, path, language, format, text, highlights, injections),
-                DumpCommands::Events { path, language } => dump_events(&reg, path, language),
+                DumpCommands::Events { path, language } => {
+                    dump_events(&reg, path, language, report_unresolved)
+                }
             }
         }
         Commands::Languages { command } => run_languages(command, data_dir, verbose),
@@ -1094,6 +1104,7 @@ fn dump_events(
     reg: &registry::Registry,
     path: Option<String>,
     language: Option<String>,
+    report_unresolved: bool,
 ) -> Result<()> {
     let (source, lang) = read_source(path, language)?;
     let events = highlight_to_events(
@@ -1103,6 +1114,7 @@ fn dump_events(
         false,
         DEFAULT_MATCH_LIMIT,
         DEFAULT_TIME_LIMIT,
+        report_unresolved,
     )?
     .0
     .into_iter()
@@ -1589,7 +1601,12 @@ fn dump_tree_lines(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn do_highlight(reg: &registry::Registry, args: HighlightArgs, verbose: bool) -> Result<()> {
+fn do_highlight(
+    reg: &registry::Registry,
+    args: HighlightArgs,
+    verbose: bool,
+    report_unresolved: bool,
+) -> Result<()> {
     let (source, lang) = read_source(args.path.clone(), args.language.clone())?;
 
     if verbose {
@@ -1616,6 +1633,7 @@ fn do_highlight(reg: &registry::Registry, args: HighlightArgs, verbose: bool) ->
             args.rainbow_brackets,
             args.match_limit,
             args.time_limit,
+            report_unresolved,
         )?
     };
 
@@ -2097,6 +2115,7 @@ fn highlight_to_events(
     rainbow_brackets: bool,
     match_limit: u32,
     time_limit: u64,
+    report_unresolved: bool,
 ) -> Result<(Vec<HighlightEvent>, Option<BudgetExhausted>)> {
     let output = reg.highlight(
         source,
@@ -2105,10 +2124,35 @@ fn highlight_to_events(
             rainbow_brackets,
             match_limit,
             time_limit_ms: (time_limit > 0).then_some(time_limit),
+            report_unresolved,
             ..HighlightOptions::default()
         },
     )?;
+    report_unresolved_languages(&output.unresolved);
     Ok((output.events, output.budget))
+}
+
+/// Say which injected languages came back without highlighting.
+///
+/// stderr, never stdout: the highlighted document is what a pipeline consumes,
+/// and a note about a fenced block it could not colour must not end up inside
+/// it. One line for the lot rather than one each, because a README that fences
+/// five uninstalled languages is one thing to fix.
+fn report_unresolved_languages(unresolved: &[String]) {
+    if unresolved.is_empty() {
+        return;
+    }
+
+    eprintln!(
+        "lumis: could not load {}, injected inside the document; {} rendered without highlighting",
+        unresolved.join(", "),
+        if unresolved.len() == 1 {
+            "that block"
+        } else {
+            "those blocks"
+        }
+    );
+    eprintln!("lumis: run `lumis languages download {}`, or pass --no-report-unresolved to stop saying so", unresolved.join(" "));
 }
 
 #[cfg(test)]
@@ -2163,6 +2207,7 @@ mod tests {
             false,
             DEFAULT_MATCH_LIMIT,
             DEFAULT_TIME_LIMIT,
+            true,
         )
         .unwrap();
 

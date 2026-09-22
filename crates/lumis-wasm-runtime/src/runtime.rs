@@ -707,6 +707,9 @@ impl Runtime {
         // same block. Those blocks do highlight, so reporting the discarded
         // name would warn about output that is correct.
         let record_unresolved = |name: &str| {
+            if !options.report_unresolved {
+                return;
+            }
             if crate::catalog::find(name).is_none() {
                 return;
             }
@@ -939,6 +942,16 @@ pub struct HighlightOptions {
     /// How long this highlight may run, in milliseconds, or `None` for no
     /// bound. The clock starts here, after the caller's languages are loaded.
     pub time_limit_ms: Option<u64>,
+    /// Collect the injected languages this walk could not load into
+    /// [`HighlightOutput::unresolved`].
+    ///
+    /// Reporting only. A language loads, or does not, for the same reasons
+    /// either way — turning this off empties the list, it does not widen or
+    /// narrow what a document may use. That separation is the point: what a
+    /// project may load is declared once, in `lumis-lock.toml` or the package
+    /// manifest, and a diagnostics switch that could also change it would
+    /// quietly become a second place to look.
+    pub report_unresolved: bool,
 }
 
 impl Default for HighlightOptions {
@@ -949,6 +962,7 @@ impl Default for HighlightOptions {
             layers: false,
             match_limit: DEFAULT_MATCH_LIMIT,
             time_limit_ms: None,
+            report_unresolved: true,
         }
     }
 }
@@ -1472,6 +1486,57 @@ mod tests {
             vec!["rust".to_string()],
             "a catalog language that could not be fetched is worth reporting; \
              a name that is not a language at all is not"
+        );
+    }
+
+    /// Reporting is the only thing the switch touches. The same document, the
+    /// same store and the same failure to load: only the list changes, and the
+    /// events do not, which is what keeps this a diagnostics setting rather
+    /// than a second place that decides what a project may load.
+    #[test]
+    fn report_unresolved_off_empties_the_list_and_nothing_else() {
+        let render = |report_unresolved: bool| {
+            let dir = tempfile::tempdir().unwrap();
+            let store = LanguageStore::new(
+                StoreConfig {
+                    cache_dir: dir.path().to_path_buf(),
+                },
+                Box::new(crate::store::NoNetwork),
+            );
+            let runtime = Runtime::with_worker_limit(1).unwrap().with_store(store);
+            install_json(
+                &runtime,
+                r"(pair
+                     key: (string (string_content) @injection.language)
+                     value: (string (string_content) @injection.content))",
+            );
+
+            runtime
+                .highlight_with(
+                    r#"{"rust":"c"}"#,
+                    "json",
+                    &HighlightOptions {
+                        injections: true,
+                        report_unresolved,
+                        ..HighlightOptions::default()
+                    },
+                )
+                .unwrap()
+        };
+
+        let reported = render(true);
+        let silent = render(false);
+
+        assert_eq!(
+            reported.unresolved,
+            vec!["rust".to_string()],
+            "the default still reports, or this test proves nothing"
+        );
+        assert!(silent.unresolved.is_empty(), "the switch empties the list");
+        assert_eq!(
+            silent.events.len(),
+            reported.events.len(),
+            "the document highlights identically either way"
         );
     }
 

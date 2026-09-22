@@ -127,6 +127,29 @@ function buildUtf8OffsetMap(source: string): number[] {
 const warnedUnresolved = new Set<string>();
 
 /**
+ * Whether a language highlighting skipped is reported at all.
+ *
+ * Reporting only. What a project may load is decided by the `@lumis-sh/wasm-*`
+ * packages it depends on, and by nothing else; this says whether you hear about
+ * the ones a document asked for and did not get. Every runtime has the same
+ * switch — `config :lumis, :report_unresolved` in Elixir,
+ * `--no-report-unresolved` on the CLI — so a project that silences one has
+ * silenced the same thing everywhere.
+ */
+let reportUnresolved = true;
+
+/** Set whether unresolved injected languages are reported. */
+export function setReportUnresolved(enabled: boolean): void {
+  reportUnresolved = enabled;
+}
+
+/** Test support: forget which languages have already been reported. */
+export function resetUnresolvedReports(): void {
+  warnedUnresolved.clear();
+  reportUnresolved = true;
+}
+
+/**
  * Mirrors `catalog::find` in `lumis-wasm-runtime`, which gates the same warning
  * on the Rust side.
  */
@@ -148,6 +171,7 @@ const catalogNames = new Set(
  * do highlight, so naming the discarded value would warn about correct output.
  */
 export function warnUnresolvedInjection(id: string): void {
+  if (!reportUnresolved) return;
   if (!catalogNames.has(id.toLowerCase())) return;
   if (warnedUnresolved.has(id)) return;
   warnedUnresolved.add(id);

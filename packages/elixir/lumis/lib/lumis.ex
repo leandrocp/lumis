@@ -1185,6 +1185,7 @@ defmodule Lumis do
     if formatter in @built_in_formatters do
       source
       |> Lumis.Native.highlight(rust_options!(options))
+      |> report_unresolved()
       |> describe_highlight_error()
     else
       render_with_custom_formatter(
@@ -1212,6 +1213,17 @@ defmodule Lumis do
   end
 
   defp describe_highlight_error(other), do: other
+
+  # The NIF answers with the languages it skipped alongside the output. They are
+  # reported here and dropped, so callers keep receiving the `{:ok, html}` they
+  # always have: a block losing its colours is worth saying out loud, but it is
+  # not a different kind of result.
+  defp report_unresolved({:ok, output, unresolved}) do
+    Lumis.Diagnostics.report(unresolved)
+    {:ok, output}
+  end
+
+  defp report_unresolved(other), do: other
 
   @doc """
   Validates the given options against the options schema.
@@ -1279,6 +1291,7 @@ defmodule Lumis do
     options
     |> Keyword.put(:language, language)
     |> Keyword.put(:formatter, rust_formatter)
+    |> Keyword.put(:report_unresolved, Lumis.Diagnostics.report_unresolved?())
     |> Map.new()
   end
 
@@ -1296,14 +1309,17 @@ defmodule Lumis do
       annotations: annotations,
       rainbow_brackets: rainbow_brackets,
       match_limit: match_limit,
-      time_limit: time_limit
+      time_limit: time_limit,
+      report_unresolved: Lumis.Diagnostics.report_unresolved?()
     }
 
     case Lumis.Native.highlight_events(source, options) do
       {:error, _reason} = error ->
         describe_highlight_error(error)
 
-      {:ok, language, events} ->
+      {:ok, language, events, unresolved} ->
+        Lumis.Diagnostics.report(unresolved)
+
         # `:language` is whatever the caller named, which is nothing when they
         # let Lumis detect it. A formatter has to label its output, so it is
         # handed the language highlighting actually used.

@@ -150,6 +150,52 @@ block in a README, say — so that block renders plain and the document is fine.
 This is the same rule Lumis already follows for a language that fails to
 download: a failure costs one block, not the page.
 
+## Hearing about a block that came back plain
+
+Rendering plain is quiet by design, which is right for the document and wrong
+for you. Lumis says which language it skipped — once per language for the life
+of the process, not once per document, because a README with ten fenced blocks
+in one uninstalled language is still one thing to fix:
+
+```
+Lumis skipped "haskell", injected inside the document being highlighted, so
+that block rendered without highlighting.
+```
+
+Every runtime has the same switch, and it controls **reporting only**, never
+whether a language loads. What a project may load is decided by
+`lumis-lock.toml` or by the `@lumis-sh/wasm-*` packages it depends on; having
+one place to look is the point.
+
+<Tabs groupId="runtime" persist items={['Elixir', 'JavaScript / TypeScript', 'CLI']}>
+  <Tab value="Elixir">
+
+```elixir title="config/config.exs"
+config :lumis, report_unresolved: false
+```
+
+  </Tab>
+  <Tab value="JavaScript / TypeScript">
+
+```javascript
+import { setReportUnresolved } from "@lumis-sh/lumis";
+
+setReportUnresolved(false);
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight --no-report-unresolved README.md
+```
+
+It goes to stderr, so a pipeline reading stdout gets the document and nothing
+else either way.
+
+  </Tab>
+</Tabs>
+
 ## Releases
 
 A release ships `priv/` but not your project directory, so `mix lumis.add` and
