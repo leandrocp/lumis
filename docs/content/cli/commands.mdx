@@ -319,6 +319,16 @@ Without a lock, whichever compatible version a machine downloads first is the
 one it keeps, so two machines can render the same document differently and
 nothing records which parser produced which output.
 
+The lock is for runtimes that fetch parsers at runtime: Elixir, the CLI, and any
+future binding. A Rust project already declares its languages as `Cargo.toml`
+features, and a JavaScript project that installs `@lumis-sh/wasm-*` already
+declares them in `package.json` — neither needs a lock, and no project should
+have two declarations.
+
+`lumis highlight` and `lumis dump` **never read a project's lock.** They resolve
+freely against the CLI's own store, because a viewer is not the application
+whose output a lock governs. `lumis languages install` is what consumes one.
+
 `lumis-lock.toml` pins an exact version and its digests. Commit it, and every
 machine and CI run resolves the same parsers.
 

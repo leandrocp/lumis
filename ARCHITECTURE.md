@@ -136,6 +136,43 @@ installed/local parser -> persistent verified parser cache -> exact-version CDN 
                                   +-> persistent Wasmtime compiled cache
 ```
 
+### One rule, three declarations
+
+Every runtime has a set of languages it can use, and renders anything outside it
+plain. That rule is the same everywhere; what differs is how the set is
+declared, and a runtime gets exactly one of these:
+
+| Runtime | Declares its set in | How parsers arrive |
+| --- | --- | --- |
+| Rust `lumis` crate | `Cargo.toml` features | linked statically: 65 crates.io parsers, 47 vendored sources |
+| JavaScript with installed packages | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
+| Elixir, the CLI, any future FFI runtime | `lumis-lock.toml` | fetched and verified at runtime |
+
+The Rust crate depends on `lumis-wasm-runtime` with `default-features = false`,
+so it has no wasmtime and no HTTP client: a language that was not compiled in
+does not exist, and there is nothing to fetch. That is the boundary talking, the
+same way the NIF boundary shapes Elixir's formatter signatures. It is not a
+divergence to paper over.
+
+Elixir and the CLI have no manifest of their own, which is the gap
+`lumis-lock.toml` fills. Without it they can load *anything*, while Rust cannot
+— so the lock is what makes those runtimes converge on Rust's behaviour rather
+than what makes them differ.
+
+Nobody gets two declarations. A JavaScript project that installs its parsers
+does not also write a lock; `package.json` already is one.
+
+One divergence remains and is deliberate for now: JavaScript falls back to the
+CDN for a language it has not installed, so its set is open even when
+`package.json` looks closed. Closing it is an enforcement change rather than a
+file, and applies to whichever mechanism declared the set.
+
+**The CLI is its own runtime.** It has its own store, its own config, and its
+own lock. `lumis highlight` and `lumis dump` never read a project's
+`lumis-lock.toml` — they resolve freely, because a viewer is not the application
+whose output a lock governs. `lumis languages install` is what consumes a lock,
+and the runtimes reading the directory it prepares are what enforce one.
+
 ### Highlighting loads what a document needs, in one pass
 
 Highlighting a document resolves, downloads, verifies and loads whatever it
