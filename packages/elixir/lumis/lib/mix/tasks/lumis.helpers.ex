@@ -80,7 +80,7 @@ defmodule Mix.Tasks.Lumis.Helpers do
     # against that copy would refuse the entry just written.
     lock_path!(false) |> Lumis.Native.lock_refresh() |> unwrap!()
 
-    case Lumis.Languages.cache(names) do
+    case Lumis.Languages.download(names) do
       {:ok, _paths} ->
         :ok
 

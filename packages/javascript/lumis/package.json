@@ -29,9 +29,9 @@
     ".": {
       "types": "./dist/index.d.ts",
       "browser": "./dist/index.browser.js",
+      "require": "./dist/index.cjs",
       "node": "./dist/index.js",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "default": "./dist/index.browser.js"
     },
     "./client": {
@@ -47,9 +47,16 @@
     },
     "./cache": {
       "types": "./dist/cache.d.ts",
+      "require": "./dist/cache.cjs",
       "node": "./dist/cache.js",
       "import": "./dist/cache.js",
+      "default": "./dist/cache.js"
+    },
+    "./download": {
+      "types": "./dist/cache.d.ts",
       "require": "./dist/cache.cjs",
+      "node": "./dist/cache.js",
+      "import": "./dist/cache.js",
       "default": "./dist/cache.js"
     },
     "./formatters": {

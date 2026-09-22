@@ -133,8 +133,8 @@ same persistent directory reuses them.
 
 ### Preparing a directory for a process that has not started
 
-`Lumis.Languages.cache/2` downloads, validates and compiles without loading
-anything, and `lumis languages cache` does the same from the CLI. Both are for
+`Lumis.Languages.download/2` downloads, validates and compiles without loading
+anything, and `lumis languages download` does the same from the CLI. Both are for
 filling a directory another process will read — an image build, a release task,
 a migration step. Pass `force: true` or `--force` to resolve the compatible
 package range again and replace files that already verify.

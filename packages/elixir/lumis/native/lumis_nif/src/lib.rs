@@ -886,7 +886,7 @@ fn lock_languages(env: Env<'_>, path: String) -> Term<'_> {
     }
 }
 
-/// Download and cache `names` concurrently for `Lumis.Languages.cache/2`.
+/// Download and compile `names` concurrently for `Lumis.Languages.download/2`.
 ///
 /// One result per name, in order, so the caller reports every language that
 /// could not be obtained instead of stopping at the first. Caching a bundle one

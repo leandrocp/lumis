@@ -1350,7 +1350,7 @@ fn themes_generate_supports_output_setup_and_appearance_options() {
     assert!(themes_lua.contains("vim.g.test_setup = true"));
 }
 
-// -- languages cache --
+// -- languages download --
 
 /// clap prints each env-backed option's current value, so `$LUMIS_DATA_DIR` and
 /// `$LUMIS_CONFIG` land in this output. A checkout under a path containing
@@ -1364,18 +1364,48 @@ fn languages_help_uses_one_word_per_verb() {
         .args(["languages", "--help"])
         .assert()
         .success()
-        // `cache` is the store verb, as ARCHITECTURE.md defines it. The lock
-        // commands add verbs of their own -- `add`, `remove`, `update`,
-        // `install` -- but a *synonym* for caching is what this has always
-        // guarded against, and still is.
-        .stdout(predicate::str::contains("cache"))
-        .stdout(predicate::str::contains("fetch").not());
+        // `download` is the store verb, as ARCHITECTURE.md defines it. What
+        // this has always guarded against is a *synonym* creeping in beside it,
+        // so `fetch` stays out -- and now `cache`, the former name, which still
+        // works but is hidden so nobody new is offered two words for one thing.
+        //
+        // Scoped to the command list: `cache` legitimately appears further down
+        // in `--verbose`'s own help, which reports cache hits.
+        .stdout(predicate::str::contains("download"))
+        .stdout(predicate::str::contains("fetch").not())
+        .stdout(predicate::function(|help: &str| {
+            !commands_section(help).contains("cache")
+        }));
+}
+
+/// Everything between the `Commands:` heading and the next blank-line block.
+fn commands_section(help: &str) -> String {
+    help.split("Commands:")
+        .nth(1)
+        .unwrap_or_default()
+        .split("\n\n")
+        .next()
+        .unwrap_or_default()
+        .to_string()
+}
+
+/// The old spelling keeps working, and says what to use instead. Renaming a
+/// published verb without this is what turns an upgrade into a broken script.
+#[test]
+fn languages_cache_still_works_and_names_its_replacement() {
+    cmd()
+        .args(["languages", "cache", "json"])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("lumis languages download").and(
+            predicate::str::contains("removed in the next major release"),
+        ));
 }
 
 #[test]
-fn cache_languages_no_args_fails() {
+fn download_languages_no_args_fails() {
     cmd()
-        .args(["languages", "cache"])
+        .args(["languages", "download"])
         .assert()
         .failure()
         .stderr(predicate::str::contains(
@@ -1384,9 +1414,9 @@ fn cache_languages_no_args_fails() {
 }
 
 #[test]
-fn cache_languages_rejects_an_unknown_bundle() {
+fn download_languages_rejects_an_unknown_bundle() {
     cmd()
-        .args(["languages", "cache", "bundle-nope"])
+        .args(["languages", "download", "bundle-nope"])
         .assert()
         .failure()
         .stderr(predicate::str::contains("unknown bundle 'bundle-nope'"));
@@ -1395,7 +1425,7 @@ fn cache_languages_rejects_an_unknown_bundle() {
 #[test]
 fn cache_languages_rejects_languages_with_all() {
     cmd()
-        .args(["languages", "cache", "rust", "--all"])
+        .args(["languages", "download", "rust", "--all"])
         .assert()
         .failure()
         .stderr(predicate::str::contains(
@@ -1409,7 +1439,7 @@ fn cache_languages_already_cached() {
     cmd()
         .arg("--data-dir")
         .arg(fixtures_dir())
-        .args(["languages", "cache", "diff"])
+        .args(["languages", "download", "diff"])
         .assert()
         .success()
         .stdout("")
@@ -1422,7 +1452,7 @@ fn cache_languages_already_cached_verbose() {
         .arg("--data-dir")
         .arg(fixtures_dir())
         .arg("-v")
-        .args(["languages", "cache", "diff"])
+        .args(["languages", "download", "diff"])
         .assert()
         .success()
         .stderr(predicate::str::contains("--> diff"))
@@ -1440,7 +1470,7 @@ fn cache_languages_skips_plaintext_aliases() {
         .arg("--data-dir")
         .arg(tmp.path())
         .arg("-v")
-        .args(["languages", "cache", "plaintext", "text", "txt", "plain"])
+        .args(["languages", "download", "plaintext", "text", "txt", "plain"])
         .assert()
         .success()
         .stdout("")
@@ -1476,7 +1506,7 @@ fn cache_languages_compiles_what_it_downloads() {
     cmd()
         .arg("--data-dir")
         .arg(one.path())
-        .args(["languages", "cache", "json"])
+        .args(["languages", "download", "json"])
         .assert()
         .success();
 
@@ -1484,7 +1514,7 @@ fn cache_languages_compiles_what_it_downloads() {
     cmd()
         .arg("--data-dir")
         .arg(two.path())
-        .args(["languages", "cache", "json", "css"])
+        .args(["languages", "download", "json", "css"])
         .assert()
         .success();
 
@@ -1496,7 +1526,7 @@ fn cache_languages_compiles_what_it_downloads() {
     );
 }
 
-/// A store directory holding the committed fixtures, so `languages cache` can be
+/// A store directory holding the committed fixtures, so `languages download` can be
 /// exercised without a download. Caching into an empty directory needs the
 /// network by construction; there is no second directory to copy from.
 fn seeded_store() -> tempfile::TempDir {
@@ -1518,7 +1548,7 @@ fn cache_languages_to_temp_dir() {
     cmd()
         .arg("--data-dir")
         .arg(tmp.path())
-        .args(["languages", "cache", "json"])
+        .args(["languages", "download", "json"])
         .assert()
         .success();
 
@@ -1539,7 +1569,7 @@ fn cache_languages_to_temp_dir_verbose() {
         .arg("-v")
         .arg("--data-dir")
         .arg(tmp.path())
-        .args(["languages", "cache", "json"])
+        .args(["languages", "download", "json"])
         .assert()
         .success()
         .stderr(predicate::str::contains("tree-sitter-json-"));
@@ -1561,7 +1591,7 @@ fn cache_languages_reuses_an_existing_file() {
     cmd()
         .arg("--data-dir")
         .arg(tmp.path())
-        .args(["languages", "cache", "json"])
+        .args(["languages", "download", "json"])
         .assert()
         .success();
 
@@ -1570,7 +1600,7 @@ fn cache_languages_reuses_an_existing_file() {
         .arg("-v")
         .arg("--data-dir")
         .arg(tmp.path())
-        .args(["languages", "cache", "json"])
+        .args(["languages", "download", "json"])
         .assert()
         .success()
         .stderr(predicate::str::contains("tree-sitter-json-"));
@@ -1584,7 +1614,7 @@ fn cache_languages_then_highlight() {
     cmd()
         .arg("--data-dir")
         .arg(tmp.path())
-        .args(["languages", "cache", "json"])
+        .args(["languages", "download", "json"])
         .assert()
         .success();
 
@@ -1601,7 +1631,7 @@ fn cache_languages_then_highlight() {
 
 /// Highlighting an HTML document loads JavaScript for its `<script>` block
 /// during the same pass, from a data directory that has never held either
-/// parser. Before this, the block stayed plain until `languages cache javascript`
+/// parser. Before this, the block stayed plain until `languages download javascript`
 /// had been run.
 /// One pass: nothing names javascript, so the walk had to discover the `<script>`
 /// injection and load it mid-walk. Whether the parser was already on disk is a

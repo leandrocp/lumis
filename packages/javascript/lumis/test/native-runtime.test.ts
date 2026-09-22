@@ -10,7 +10,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { cacheLanguages } from "../src/cache.js";
+import { downloadLanguages } from "../src/cache.js";
 import { createNativeLanguagesModule } from "../src/core/native-languages.js";
 import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../src/generated/package-version-range.js";
 import type { LanguagesModule, RuntimeLike } from "../src/core/languages.js";
@@ -101,7 +101,7 @@ describe("native runtime", () => {
     if (compilesWhenCaching) newRuntime().loadLanguage("json");
     const directory = mkdtempSync(join(tmpdir(), "lumis-native-cache-"));
     try {
-      await cacheLanguages(["diff"], {
+      await downloadLanguages(["diff"], {
         directory,
         resolver: (language, wasm) => ensureLocalParserWasm(language, wasm.name),
         languagePackageResolver: localLanguagePackageResolver,

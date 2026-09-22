@@ -299,10 +299,18 @@ runtime release. Publishing `@lumis-sh/wasm-rust@0.26.x` does not.
 
 ### Preparing the persistent store
 
-Two verbs, the same in every runtime: **cache** puts a language on disk,
-**load** caches it and keeps it in this runtime. Load is the superset, so a
-process that will serve wants a load; caching is for filling a directory some
-other process will read.
+Two verbs, the same in every runtime: **download** puts a language on disk,
+**load** downloads it and keeps it in this runtime. Load is the superset, so a
+process that will serve wants a load; downloading is for filling a directory
+some other process will read.
+
+The first verb was `cache` until it was renamed. The directory is still a cache
+and `LanguageStore::cache_language` still says so, because that is what the code
+does — but a caller is not asking for a cache, they are asking for a download,
+and naming the verb after the implementation made the CLI advertise its storage
+layout instead of the thing it was being asked to do. The old spellings still
+work: `lumis languages cache`, `Lumis.Languages.cache/2` and `cacheLanguages()`
+are deprecated aliases.
 
 Those two verbs are the whole store surface, including the CLI's. Editing a lock
 is not a third one: `lumis_wasm_runtime::lock::manage` implements what `add`,

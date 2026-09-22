@@ -239,7 +239,7 @@ fn initial_report(manifest: &CorpusManifest, options: &Options) -> Report {
 }
 
 /// Highlighting one byte per language forces that language's `LazyLock`
-/// `HighlightConfiguration`, the same work `lumis languages cache`,
+/// `HighlightConfiguration`, the same work `lumis languages download`,
 /// `Lumis.Languages.load/1` and `createHighlighter` are timed for elsewhere.
 fn preload(manifest: &CorpusManifest) -> Result<Preload> {
     let mut languages: Vec<String> = manifest

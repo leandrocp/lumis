@@ -51,7 +51,7 @@ supply the injected language.
 
 A cold parser costs a download and then a Wasmtime compile, and the compile is
 the larger half. Preload beside the boot in the process that serves, or fill the
-store from a build step with `lumis languages cache`, which writes the same
+store from a build step with `lumis languages download`, which writes the same
 self-sufficient directory the host APIs do. Both are idempotent and reuse
 verified parser bytes on later starts; native hosts also reuse their compiled
 modules.
@@ -390,18 +390,18 @@ can read it, while the native walk cannot access JavaScript's blob registry.
   <Tab value="CLI">
 
 ```bash title="Cache parsers"
-lumis languages cache rust javascript elixir
+lumis languages download rust javascript elixir
 ```
 
 ```bash title="Cache all parsers"
-lumis languages cache --all
+lumis languages download --all
 ```
 
 ```bash title="Replace cached parsers"
-lumis languages cache rust --force
+lumis languages download rust --force
 ```
 
-The CLI does not expose a custom WASM resolver hook. Use `lumis languages cache`
+The CLI does not expose a custom WASM resolver hook. Use `lumis languages download`
 and `--data-dir` when you need local control over parser files.
 
   </Tab>

@@ -36,7 +36,7 @@ use the standalone CLI and copy the resulting directory into the runtime image:
 
 ```dockerfile
 FROM node:22-bookworm-slim AS parsers
-RUN npx --yes @lumis-sh/cli --data-dir /app/lumis languages cache markdown elixir javascript rust css html comment
+RUN npx --yes @lumis-sh/cli --data-dir /app/lumis languages download markdown elixir javascript rust css html comment
 
 FROM debian:bookworm-20250428-slim
 COPY --from=parsers --chown=nobody:root /app/lumis /app/lumis
@@ -50,7 +50,7 @@ or `LUMIS_DATA_DIR=/app/lumis`. Keep the `async_load/1` call: against a prepared
 directory it needs no network and only moves the parsers into the VM, which is
 the half a prepared directory cannot do for you.
 
-`Lumis.Languages.cache/2` does the same preparation from Elixir rather than the
+`Lumis.Languages.download/2` does the same preparation from Elixir rather than the
 CLI, for a release task or a migration step that runs before the VM that serves.
 Inside a running application prefer `async_load/1`, which keeps what it loads
 instead of compiling and discarding it.

@@ -123,7 +123,7 @@ the zero-configuration default. A cold cache resolves the runtime's compatible
 package range; the exact package stored in that directory is then served
 without revalidating it.
 
-`Lumis.Languages.cache/2` and `lumis languages cache` fill that directory
+`Lumis.Languages.download/2` and `lumis languages download` fill that directory
 without loading anything, for a build or operations step that runs before the
 VM that serves. Inside a running application prefer `async_load/1`, which keeps
 what it loads rather than compiling and discarding it.

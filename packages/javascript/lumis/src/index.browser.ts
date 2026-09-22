@@ -24,7 +24,7 @@ export { guessLanguage } from "./guess-language.js";
  * This is the JavaScript / TypeScript spelling of `Lumis.Languages.load/1`:
  * it caches verified parser bytes and, on the native addon, their compiled
  * Wasmtime module. It keeps the languages in the default runtime so no later
- * call reloads them. `cacheLanguages()` does only the caching half, for filling a
+ * call reloads them. `downloadLanguages()` does only the caching half, for filling a
  * directory a different process will read.
  *
  * Accepts catalog names, aliases, and `bundle-<name>` tokens.

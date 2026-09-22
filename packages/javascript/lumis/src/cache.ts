@@ -26,7 +26,7 @@ import type { Language, WasmRef } from "./types.js";
 
 export { expandBundles } from "./core/language-names.js";
 
-export interface CacheLanguagesOptions {
+export interface DownloadLanguagesOptions {
   /** Destination for verified parsers and native compiled modules. */
   directory?: string;
   /** Resolve the compatible package range again and replace verified parser files. */
@@ -37,7 +37,7 @@ export interface CacheLanguagesOptions {
   languagePackageResolver?: LanguagePackageResolver;
 }
 
-export interface CachedLanguage {
+export interface DownloadedLanguage {
   language: string;
   path: string;
   downloaded: boolean;
@@ -140,14 +140,14 @@ async function writeSharedLanguagePackage(
  * selected language and persist its Wasmtime module in the same directory.
  *
  * Accepts language names and `bundle-<name>` tokens, the same set
- * `Lumis.Languages.cache/2` and `lumis languages cache` accept.
+ * `Lumis.Languages.download/2` and `lumis languages download` accept.
  *
  * Point `LUMIS_DATA_DIR` at the same directory in the deployed process.
  */
-export async function cacheLanguages(
+export async function downloadLanguages(
   names: Iterable<string>,
-  options: CacheLanguagesOptions = {},
-): Promise<CachedLanguage[]> {
+  options: DownloadLanguagesOptions = {},
+): Promise<DownloadedLanguage[]> {
   const directory = options.directory;
   const resolver = options.resolver ?? DEFAULT_RESOLVER;
   const packageResolver = options.languagePackageResolver ?? DEFAULT_LANGUAGE_PACKAGE_RESOLVER;
@@ -155,7 +155,7 @@ export async function cacheLanguages(
   const seen = new Set<string>();
   const packages = new Map<string, LanguagePackage>();
   const persisted = new Set<string>();
-  const cached: CachedLanguage[] = [];
+  const cached: DownloadedLanguage[] = [];
 
   for (const language of languages) {
     if (language.id === "plaintext") continue;
@@ -213,7 +213,7 @@ export async function cacheLanguages(
 async function languagePackageFor(
   packageName: string,
   packages: Map<string, LanguagePackage>,
-  options: CacheLanguagesOptions,
+  options: DownloadLanguagesOptions,
   packageResolver: LanguagePackageResolver,
 ): Promise<LanguagePackage> {
   const known = packages.get(packageName);
@@ -299,3 +299,17 @@ async function precompileNatively(
   );
   if (compilable.length > 0) await binding.precompileLanguages(compilable, directory);
 }
+
+/**
+ * Former name of {@link downloadLanguages}. Still works.
+ *
+ * @deprecated Renamed to `downloadLanguages`. The store it fills is still a
+ * cache; what a caller asks for is a download, which is the half they choose.
+ */
+export const cacheLanguages = downloadLanguages;
+
+/** @deprecated Renamed to `DownloadLanguagesOptions`. */
+export type CacheLanguagesOptions = DownloadLanguagesOptions;
+
+/** @deprecated Renamed to `DownloadedLanguage`. */
+export type CachedLanguage = DownloadedLanguage;

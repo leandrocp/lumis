@@ -281,9 +281,9 @@ its queries and persists the compiled Wasmtime module in the same directory.
 The portable fallback caches the verified parser bytes, but
 `web-tree-sitter` cannot persist its compilation across processes.
 
-`cacheLanguages()` is the caching half on its own — it writes the store and
+`downloadLanguages()` is the caching half on its own — it writes the store and
 holds nothing — for a build or prestart step preparing a directory the serving
-process will read. Await that one; failing is the point. `lumis languages cache`
+process will read. Await that one; failing is the point. `lumis languages download`
 does the same from the CLI.
 
 :::note Edge is not supported yet

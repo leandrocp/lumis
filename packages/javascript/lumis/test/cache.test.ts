@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cacheLanguages, expandBundles } from "../src/cache.js";
+import { downloadLanguages, expandBundles } from "../src/cache.js";
 import { cacheKey } from "../src/core/languages.js";
 import { wasmCachePath } from "../src/runtime/node-cache.js";
 import {
@@ -28,13 +28,13 @@ async function temporaryDirectory(): Promise<string> {
   return directory;
 }
 
-describe("cacheLanguages", () => {
+describe("downloadLanguages", () => {
   it("persists verified parsers and reuses them without resolving again", async () => {
     const directory = await temporaryDirectory();
     const resolver = (_language: string, wasm: { name: string }) =>
       ensureLocalParserWasm(_language, wasm.name);
 
-    const first = await cacheLanguages(["diff", "plaintext"], {
+    const first = await downloadLanguages(["diff", "plaintext"], {
       directory,
       resolver,
       languagePackageResolver: localLanguagePackageResolver,
@@ -48,7 +48,7 @@ describe("cacheLanguages", () => {
     const unavailablePackage = vi.fn<() => never>(() => {
       throw new Error("package resolver must not run");
     });
-    const second = await cacheLanguages(["diff"], {
+    const second = await downloadLanguages(["diff"], {
       directory,
       resolver: unavailableWasm,
       languagePackageResolver: unavailablePackage,
@@ -64,7 +64,7 @@ describe("cacheLanguages", () => {
     const directory = await temporaryDirectory();
     const resolver = (_language: string, wasm: { name: string }) =>
       ensureLocalParserWasm(_language, wasm.name);
-    await cacheLanguages(["diff"], {
+    await downloadLanguages(["diff"], {
       directory,
       resolver,
       languagePackageResolver: localLanguagePackageResolver,
@@ -73,7 +73,7 @@ describe("cacheLanguages", () => {
       .fn<typeof localLanguagePackageResolver>()
       .mockImplementation(localLanguagePackageResolver);
 
-    await cacheLanguages(["diff"], {
+    await downloadLanguages(["diff"], {
       directory,
       force: true,
       resolver,
@@ -91,7 +91,7 @@ describe("cacheLanguages", () => {
     const directory = await temporaryDirectory();
     const resolver = (language: string, wasm: { name: string }) =>
       ensureLocalParserWasm(language, wasm.name);
-    const first = await cacheLanguages(["diff"], {
+    const first = await downloadLanguages(["diff"], {
       directory,
       resolver,
       languagePackageResolver: localLanguagePackageResolver,
@@ -107,7 +107,7 @@ describe("cacheLanguages", () => {
     )}`;
 
     await expect(
-      cacheLanguages(["diff"], {
+      downloadLanguages(["diff"], {
         directory,
         force: true,
         resolver: () => {
@@ -119,7 +119,7 @@ describe("cacheLanguages", () => {
 
     expect(JSON.parse(readFileSync(shared, "utf8")).version).toBe(cachedVersion);
 
-    const offline = await cacheLanguages(["diff"], {
+    const offline = await downloadLanguages(["diff"], {
       directory,
       resolver: () => {
         throw new Error("the store must still be complete offline");
@@ -140,7 +140,7 @@ describe("cacheLanguages", () => {
     ).toString("base64")}`;
 
     await expect(
-      cacheLanguages(["diff"], {
+      downloadLanguages(["diff"], {
         directory,
         resolver: (_language, wasm) => ensureLocalParserWasm(_language, wasm.name),
         languagePackageResolver: () => dataUrl,
@@ -163,7 +163,7 @@ describe("cacheLanguages", () => {
     mkdirSync(dirname(cacheFile), { recursive: true });
     writeFileSync(cacheFile, "corrupt");
 
-    const result = await cacheLanguages(["diff"], {
+    const result = await downloadLanguages(["diff"], {
       directory,
       resolver: (_language, wasm) => ensureLocalParserWasm(_language, wasm.name),
       languagePackageResolver: localLanguagePackageResolver,
@@ -178,7 +178,7 @@ describe("cacheLanguages", () => {
   // it, and the assertion would pass for the wrong reason.
   it("loads a cached parser after a runtime restart without the network", async () => {
     const directory = await temporaryDirectory();
-    await cacheLanguages(["diff"], {
+    await downloadLanguages(["diff"], {
       directory,
       resolver: (_language, wasm) => ensureLocalParserWasm(_language, wasm.name),
       languagePackageResolver: localLanguagePackageResolver,
@@ -235,5 +235,20 @@ describe("expandBundles", () => {
 
   it("rejects a name that looks like a bundle but is not one", () => {
     expect(() => expandBundles(["bundle-nope"])).toThrow(/Unknown bundle "bundle-nope"/);
+  });
+});
+
+describe("the former name", () => {
+  // Renaming a published export without keeping the old one turns an upgrade
+  // into a build error for every caller.
+  it("still points at downloadLanguages", async () => {
+    // Read off a loose type rather than the module's own: naming
+    // `cacheLanguages` through it would trip `no-deprecated`, and silencing
+    // that needs a directive the repo's other oxlint run — the one without
+    // `--type-aware` — then reports as unused. What the test checks is the
+    // binding at runtime, which this still does.
+    const cache = (await import("../src/cache.js")) as Record<string, unknown>;
+
+    expect(cache.cacheLanguages).toBe(downloadLanguages);
   });
 });

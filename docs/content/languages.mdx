@@ -68,9 +68,9 @@ the work is the one that will serve:
 | Runtime | In the process that serves | In a process that exits |
 | --- | --- | --- |
 | JavaScript / TypeScript | `loadLanguages([...])`, not awaited | `cacheLanguages([...])` |
-| Elixir | `Lumis.Languages.async_load([...])` in `start/2` | `Lumis.Languages.cache/2` |
+| Elixir | `Lumis.Languages.async_load([...])` in `start/2` | `Lumis.Languages.download/2` |
 | Browsers / CDN | `createHighlighter({languages})`, or `loadLanguages()` | — nothing to prepare ahead |
-| CLI | — the process exits, so there is no later to hold for | `lumis languages cache <names>` |
+| CLI | — the process exits, so there is no later to hold for | `lumis languages download <names>` |
 | Rust | — parsers are Cargo features compiled into the binary | — |
 | Java | construct `Lumis` at startup and retain it | — parsers ship inside `lumis4j` |
 
@@ -140,7 +140,7 @@ have loaded.
 `createHighlighter({languages})` is the same load into an instance you keep
 yourself, and is what browsers use.
 
-Await `cacheLanguages()` instead when a build or prestart step is preparing a
+Await `downloadLanguages()` instead when a build or prestart step is preparing a
 directory the serving process will read — failing is the point of a preparation
 step:
 
@@ -197,15 +197,15 @@ build, a release task, or an operations step. It fills the store for a process
 that has not started yet, which is the case a startup preload cannot cover.
 
 ```bash
-lumis languages cache rust javascript elixir
-lumis languages cache bundle-web
-lumis languages cache --all
+lumis languages download rust javascript elixir
+lumis languages download bundle-web
+lumis languages download --all
 ```
 
 Refresh compatible versions already in the store with `--force`:
 
 ```bash
-lumis languages cache rust javascript --force
+lumis languages download rust javascript --force
 ```
 
 For an image build, name the destination explicitly and copy that same
@@ -313,7 +313,7 @@ process prepares files for another:
 | Elixir | `config :lumis, data_dir: "/app/lumis"` | `LUMIS_DATA_DIR` | the Lumis application `priv/lumis` directory |
 
 Elixir configuration takes precedence over the environment. The npm `directory`
-option controls where `cacheLanguages()` writes; also set `LUMIS_DATA_DIR` for
+option controls where `downloadLanguages()` writes; also set `LUMIS_DATA_DIR` for
 the deployed highlighter when it must read that explicit directory.
 
 [WASM and CDN](/advanced/wasm-and-cdn#the-store-directory) has the directory
