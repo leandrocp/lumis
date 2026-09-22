@@ -5,13 +5,14 @@ use lumis_core::events::{Coalescing, HighlightEvent};
 use lumis_core::formatter::BudgetExhausted;
 use lumis_core::highlights::HIGHLIGHT_NAMES;
 use std::collections::HashMap;
+use std::ops::ControlFlow;
 use std::sync::{Arc, Condvar, Mutex, OnceLock, RwLock};
 use std::time::{Duration, Instant};
 use thiserror::Error;
-use tree_sitter::{Language, Parser, Query, Tree, WasmStore};
+use tree_sitter::{Language, ParseOptions, Parser, Query, Tree, WasmStore};
 use wasmtime::{Cache, CacheConfig, Config, Engine};
 
-use crate::brackets::{bracket_pairs, colorize_bracket_pairs, RainbowRange};
+use crate::brackets::{bracket_pairs_within, colorize_bracket_pairs, RainbowRange};
 use crate::store::LanguageStore;
 use crate::tree_sitter_highlight::{
     Deadline, HighlightConfiguration, Highlighter, Interrupt, DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT,
@@ -802,14 +803,29 @@ impl Runtime {
             collector.finish()
         };
 
-        if options.rainbow_brackets {
+        // Rainbow brackets parse and query the document a second time, so this
+        // is inside the budget too — a render that bounded its highlight and
+        // then ran an unbounded second pass is not bounded. Once the clock is
+        // spent there is nothing left to decorate, and running it anyway would
+        // put rainbow spans on a document that is supposed to be plain.
+        if options.rainbow_brackets && budget != Some(BudgetExhausted::Time) {
             let ranges = rainbow_ranges(
                 worker.highlighter.parser(),
                 &root,
                 source,
                 options.match_limit,
+                deadline.as_ref(),
             )?;
-            collected = compose_rainbow_decorations(source, &collected, &ranges);
+
+            if deadline.as_ref().is_some_and(Deadline::passed) {
+                budget = Some(BudgetExhausted::Time);
+                collected = vec![HighlightEvent::Source {
+                    start: 0,
+                    end: source.len(),
+                }];
+            } else {
+                collected = compose_rainbow_decorations(source, &collected, &ranges);
+            }
         }
 
         Ok(HighlightOutput {
@@ -972,6 +988,7 @@ fn rainbow_ranges(
     language: &LoadedLanguage,
     source: &str,
     match_limit: u32,
+    deadline: Option<&Deadline>,
 ) -> Result<Vec<RainbowRange>, RuntimeError> {
     let query = language.brackets.get_or_init(|| {
         crate::brackets::compile(&language.highlight.language, &language.brackets_source)
@@ -983,11 +1000,38 @@ fn rainbow_ranges(
     parser
         .set_language(&language.highlight.language)
         .map_err(|error| RuntimeError::TreeSitter(error.to_string()))?;
-    let Some(tree) = parser.parse(source.as_bytes(), None) else {
+    let tree = parser.parse_with_options(
+        &mut |i, _| {
+            if i < source.len() {
+                &source.as_bytes()[i..]
+            } else {
+                &[]
+            }
+        },
+        None,
+        Some(ParseOptions::new().progress_callback(&mut |_| {
+            if deadline.is_some_and(Deadline::passed) {
+                ControlFlow::Break(())
+            } else {
+                ControlFlow::Continue(())
+            }
+        })),
+    );
+    let Some(tree) = tree else {
+        // A stopped parse leaves the parser holding this document, and
+        // tree-sitter resumes it on the next call unless it is reset. This
+        // parser is the pooled highlighter's.
+        parser.reset();
         return Ok(Vec::new());
     };
 
-    let pairs = bracket_pairs(query, tree.root_node(), source.as_bytes(), match_limit);
+    let pairs = bracket_pairs_within(
+        query,
+        tree.root_node(),
+        source.as_bytes(),
+        match_limit,
+        deadline,
+    );
     Ok(colorize_bracket_pairs(pairs))
 }
 

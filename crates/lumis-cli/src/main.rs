@@ -1757,23 +1757,8 @@ fn render_html_multi_themes(
 
     let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
     let mut output = Vec::new();
-    render_with_budget(&fmt, source, events, budget, &mut output)?;
+    fmt.render_budgeted_or(source, events, &mut output, budget)?;
     Ok(output)
-}
-
-/// Render, telling the formatter when a limit bound the work.
-fn render_with_budget<F: CoreFormatter<()>>(
-    formatter: &F,
-    source: &str,
-    events: &[HighlightEvent],
-    budget: Option<BudgetExhausted>,
-    output: &mut dyn std::io::Write,
-) -> Result<()> {
-    match budget {
-        Some(exhausted) => formatter.render_budgeted(source, events, output, exhausted)?,
-        None => formatter.render(source, events, output)?,
-    }
-    Ok(())
 }
 
 fn render_output(
@@ -1841,7 +1826,7 @@ fn render_output(
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
-            render_with_budget(&fmt, source, events, budget, &mut output)?;
+            fmt.render_budgeted_or(source, events, &mut output, budget)?;
             print!("{}", String::from_utf8(output)?);
         }
 
@@ -1882,7 +1867,7 @@ fn render_output(
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
-            render_with_budget(&fmt, source, events, budget, &mut output)?;
+            fmt.render_budgeted_or(source, events, &mut output, budget)?;
             print!("{}", String::from_utf8(output)?);
         }
 
@@ -1900,7 +1885,7 @@ fn render_output(
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
-            render_with_budget(&fmt, source, events, budget, &mut output)?;
+            fmt.render_budgeted_or(source, events, &mut output, budget)?;
             print!("{}", String::from_utf8(output)?);
         }
 
@@ -1909,7 +1894,7 @@ fn render_output(
             let fmt =
                 lumis_core::formatter::BBCodeScoped::new(lang, bbcode_highlight_lines(&args)?);
             let mut output = Vec::new();
-            render_with_budget(&fmt, source, events, budget, &mut output)?;
+            fmt.render_budgeted_or(source, events, &mut output, budget)?;
             print!("{}", String::from_utf8(output)?);
         }
     }

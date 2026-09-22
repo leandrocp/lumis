@@ -4,9 +4,11 @@
 //! itself is [`compile`].
 
 pub use lumis_core::decorations::{RainbowRange, RAINBOW_BRACKET_SCOPES, RAINBOW_SCOPE_INDICES};
-use std::ops::Range;
+use std::ops::{ControlFlow, Range};
 use streaming_iterator::StreamingIterator;
-use tree_sitter::{Language, Node, Query, QueryCursor};
+use tree_sitter::{Language, Node, Query, QueryCursor, QueryCursorOptions};
+
+use crate::tree_sitter_highlight::Deadline;
 
 /// A matched open/close bracket pair.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -48,13 +50,42 @@ pub fn bracket_pairs(
     source: &[u8],
     match_limit: u32,
 ) -> Vec<BracketPair> {
+    bracket_pairs_within(query, root, source, match_limit, None)
+}
+
+/// [`bracket_pairs`], stopped by `deadline`.
+///
+/// Rainbow brackets are a second query over the same document, so a render that
+/// bounds its highlight and leaves this unbounded is not bounded at all. The
+/// pairs found before the deadline come back; every caller here discards them,
+/// because a render that ran out of time has no highlight left to decorate.
+#[must_use]
+pub fn bracket_pairs_within(
+    query: &Query,
+    root: Node<'_>,
+    source: &[u8],
+    match_limit: u32,
+    deadline: Option<&Deadline>,
+) -> Vec<BracketPair> {
     let Some((open_capture, close_capture)) = capture_indices(query) else {
         return Vec::new();
     };
 
     let mut cursor = QueryCursor::new();
     cursor.set_match_limit(match_limit);
-    let mut matches = cursor.matches(query, root, source);
+    let mut stopped = |_: &tree_sitter::QueryCursorState| {
+        if deadline.is_some_and(Deadline::passed) {
+            ControlFlow::Break(())
+        } else {
+            ControlFlow::Continue(())
+        }
+    };
+    let mut matches = cursor.matches_with_options(
+        query,
+        root,
+        source,
+        QueryCursorOptions::new().progress_callback(&mut stopped),
+    );
     let mut pairs = Vec::new();
 
     while let Some(query_match) = matches.next() {

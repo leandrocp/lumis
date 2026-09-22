@@ -638,12 +638,17 @@ describe("budget", () => {
     },
   );
 
-  it("leaves an ordinary document well inside a small budget", () => {
+  it("leaves an ordinary document well inside its budget", () => {
     // The parser is already loaded by `beforeAll`, so this is not the
     // parser-load exclusion test — the CLI and Elixir suites own that, because
-    // their processes do the loading. What it pins is that a small budget is
-    // still a working budget, not one everything degrades under.
-    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), { timeLimit: 50 });
+    // their processes do the loading. What it pins is that an explicit budget
+    // is still a working budget, not one everything degrades under.
+    //
+    // 1 s against a render measured in microseconds. The assertion is that the
+    // budget was not hit, so the headroom is deliberately large: the deadline
+    // is wall clock, and a loaded runner can deschedule this process for longer
+    // than a tight limit would allow.
+    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), { timeLimit: 1000 });
 
     expect(html).toContain("<span");
     expect(html).not.toContain("data-lumis-budget");

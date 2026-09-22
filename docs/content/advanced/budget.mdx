@@ -40,18 +40,25 @@ came back plain and the next one did not, with nothing about either document to
 explain the difference. [Load languages ahead of time](/languages) if a first
 request should not pay the latency either.
 
-## Exhaustion returns plain text
+## Exhaustion is never an error
 
-When either bound is reached Lumis returns **the whole document, unhighlighted**,
-in the formatter you asked for. No exception, no error tuple, no truncation, and
-no partially coloured output — the source is complete, it just has no scopes.
+Neither bound raises, returns an error tuple, or truncates. The document comes
+back whole, in the formatter you asked for. What changes is how much of it is
+highlighted, and the two bounds differ there:
+
+- **Time** returns **the whole document, unhighlighted**. A render stopped part
+  way has no tree left to highlight from, so there are no scopes to emit.
+- **Matches** returns **the whole document, still highlighted**, with some
+  scopes missing. Tree-sitter drops in-progress matches at the limit and keeps
+  going, so the output is ordinary highlighted output that is less complete
+  than it would otherwise be.
 
 A page that renders a code block slowly and correctly stays a page. One that
 raises turns a large paste into a 500.
 
-Partial highlighting is deliberately not offered. Stopping a query walk halfway
-produces output that is coloured down to an arbitrary byte and bare after it,
-which reads as a rendering bug rather than as a limit.
+Partial highlighting is deliberately not offered for the time limit. Stopping a
+query walk halfway produces output that is coloured down to an arbitrary byte
+and bare after it, which reads as a rendering bug rather than as a limit.
 
 ## The marker
 
@@ -66,10 +73,9 @@ Every HTML formatter marks the `<pre>` when a budget was exhausted:
 | `time` | the time limit was reached |
 | `matches` | tree-sitter dropped matches at the match limit |
 
-`matches` is the one case where the output is not plain: tree-sitter drops
-in-progress matches and keeps going, so the document is highlighted with scopes
-missing. The attribute is how you find out that happened, because nothing else
-distinguishes it from a document that genuinely had few captures.
+`matches` is the case that needs the attribute most: the output is ordinary
+highlighted output, and nothing else distinguishes it from a document that
+genuinely had few captures.
 
 Style it, log it, count it, or ignore it. Lumis attaches no behaviour to it.
 
@@ -78,8 +84,9 @@ pre.lumis[data-lumis-budget] { border-left: 2px solid var(--warn); }
 ```
 
 The terminal and BBCode formatters have no attribute channel, so they report
-nothing; their output is plain and that is all the caller learns. Event-stream
-APIs return events only, so they carry no marker either — the rendering entry
+nothing. They still degrade the same way — plain text on the time limit, missing
+scopes on the match limit — the caller just has no way to tell. Event-stream
+APIs return events only, so they carry no marker either; the rendering entry
 points are where it appears.
 
 ## Setting the limits

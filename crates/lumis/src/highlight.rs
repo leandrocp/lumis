@@ -72,7 +72,9 @@ use lumis_core::annotations::Annotation;
 use lumis_core::decorations::{compose_rainbow_decorations, rainbow_scope};
 use lumis_core::events::{Decoration, HighlightEvent as CoreHighlightEvent};
 use lumis_core::highlights::HIGHLIGHT_NAMES;
-use lumis_wasm_runtime::brackets::{bracket_pairs, colorize_bracket_pairs, compile, RainbowRange};
+use lumis_wasm_runtime::brackets::{
+    bracket_pairs_within, colorize_bracket_pairs, compile, RainbowRange,
+};
 use lumis_wasm_runtime::tree_sitter_highlight::{
     Deadline, HighlightEvent, Highlighter as TSHighlighter, Interrupt,
 };
@@ -82,12 +84,12 @@ pub use lumis_wasm_runtime::tree_sitter_highlight::{
 use smol_str::format_smolstr;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::ops::Range;
+use std::ops::{ControlFlow, Range};
 use std::sync::atomic::AtomicUsize;
 use std::sync::{Arc, LazyLock};
 use std::time::Instant;
 use thiserror::Error;
-use tree_sitter::{Parser, Query};
+use tree_sitter::{ParseOptions, Parser, Query};
 
 pub use crate::themes::{Style, TextDecoration, UnderlineStyle};
 
@@ -816,14 +818,25 @@ where
     let core_events = collector.finish();
 
     let exceeded = ts_highlighter.exceeded_match_limit();
-    if options.rainbow_brackets_enabled() {
-        Ok((
-            apply_query_rainbow_brackets(source, &core_events, language, match_limit),
-            exceeded,
-        ))
-    } else {
-        Ok((core_events, exceeded))
+    if !options.rainbow_brackets_enabled() {
+        return Ok((core_events, exceeded));
     }
+
+    // Rainbow brackets parse and query the document a second time, so this is
+    // inside the budget too — a render that bounded its highlight and then ran
+    // an unbounded second pass is not bounded at all.
+    let rainbow = apply_query_rainbow_brackets(
+        source,
+        &core_events,
+        language,
+        match_limit,
+        deadline.as_ref(),
+    );
+    if deadline.as_ref().is_some_and(Deadline::passed) {
+        return Err(HighlightError::TimeLimit);
+    }
+
+    Ok((rainbow, exceeded))
 }
 
 /// Highlight for a formatter, reporting whether the match limit bound it.
@@ -855,19 +868,48 @@ fn apply_query_rainbow_brackets(
     events: &[CoreHighlightEvent<'_, ()>],
     language: Language,
     match_limit: u32,
+    deadline: Option<&Deadline>,
 ) -> Vec<CoreHighlightEvent<'static>> {
-    let ranges = query_rainbow_ranges(source, language, match_limit);
+    let ranges = query_rainbow_ranges(source, language, match_limit, deadline);
     compose_rainbow_decorations(source, events, &ranges)
 }
 
-fn query_rainbow_ranges(source: &str, language: Language, match_limit: u32) -> Vec<RainbowRange> {
+fn query_rainbow_ranges(
+    source: &str,
+    language: Language,
+    match_limit: u32,
+    deadline: Option<&Deadline>,
+) -> Vec<RainbowRange> {
     let config = language.config();
     let tree = RAINBOW_PARSER.with(|parser| {
         let mut parser = parser.borrow_mut();
         if parser.set_language(&config.language).is_err() {
             return None;
         }
-        parser.parse(source.as_bytes(), None)
+        let tree = parser.parse_with_options(
+            &mut |i, _| {
+                if i < source.len() {
+                    &source.as_bytes()[i..]
+                } else {
+                    &[]
+                }
+            },
+            None,
+            Some(ParseOptions::new().progress_callback(&mut |_| {
+                if deadline.is_some_and(Deadline::passed) {
+                    ControlFlow::Break(())
+                } else {
+                    ControlFlow::Continue(())
+                }
+            })),
+        );
+        if tree.is_none() {
+            // A stopped parse leaves the parser holding this document, and
+            // tree-sitter resumes it on the next call unless it is reset. This
+            // parser is a thread-local reused by every render on this thread.
+            parser.reset();
+        }
+        tree
     });
     let Some(tree) = tree else {
         return Vec::new();
@@ -878,11 +920,12 @@ fn query_rainbow_ranges(source: &str, language: Language, match_limit: u32) -> V
             return Vec::new();
         };
 
-        colorize_bracket_pairs(bracket_pairs(
+        colorize_bracket_pairs(bracket_pairs_within(
             query,
             tree.root_node(),
             source.as_bytes(),
             match_limit,
+            deadline,
         ))
     })
 }

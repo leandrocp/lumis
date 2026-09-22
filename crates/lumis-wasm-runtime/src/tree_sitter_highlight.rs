@@ -701,22 +701,32 @@ const NO_LIST: u32 = u32::MAX;
 /// A `Cell` rather than an atomic: one walk runs on one thread, and
 /// [`Interrupt`] borrows this rather than owning it precisely so the caller can
 /// keep adjusting it while the walk reads it.
-pub struct Deadline(Cell<Instant>);
+///
+/// `None` means the limit is further out than this platform's `Instant` can
+/// name, which is a limit no render can reach. `Instant + Duration` panics on
+/// an unrepresentable result and the limit comes from a caller, so the sum is
+/// checked; a saturating fallback of "now" would be the opposite of what the
+/// caller asked for.
+pub struct Deadline(Cell<Option<Instant>>);
 
 impl Deadline {
     /// A deadline `ms` milliseconds from now.
     #[must_use]
     pub fn in_ms(ms: u64) -> Self {
-        Self(Cell::new(Instant::now() + Duration::from_millis(ms)))
+        Self(Cell::new(
+            Instant::now().checked_add(Duration::from_millis(ms)),
+        ))
     }
 
     /// Push the deadline back by `by`, for work the budget should not pay for.
     pub fn extend(&self, by: Duration) {
-        self.0.set(self.0.get() + by);
+        self.0.set(self.0.get().and_then(|at| at.checked_add(by)));
     }
 
-    fn passed(&self) -> bool {
-        Instant::now() >= self.0.get()
+    /// Whether the deadline has passed.
+    #[must_use]
+    pub fn passed(&self) -> bool {
+        self.0.get().is_some_and(|at| Instant::now() >= at)
     }
 }
 

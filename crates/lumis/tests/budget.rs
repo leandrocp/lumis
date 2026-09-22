@@ -160,7 +160,11 @@ fn an_exhausted_match_budget_marks_the_pre_and_keeps_highlighting() {
         "dropped matches are reported, got {html}"
     );
     assert!(
-        html.contains(SOURCE.trim_end()) || html.contains("value"),
+        html.contains("<span"),
+        "matches is not plain-text degradation; the document stays highlighted, got {html}"
+    );
+    assert!(
+        html.contains("value"),
         "the document is still whole, got {html}"
     );
 }
@@ -225,6 +229,29 @@ fn an_exhausted_render_does_not_leak_into_the_next_one() {
     );
     assert!(after.contains("<span"), "got {after}");
     assert!(!after.contains("data-lumis-budget"), "got {after}");
+}
+
+/// Rainbow brackets are inside the budget, not beside it.
+///
+/// They parse and query the document a second time. A render that bounded its
+/// highlight and then ran that pass unbounded is not bounded, and decorating an
+/// exhausted render would put rainbow spans on a document that is meant to be
+/// plain.
+#[test]
+fn rainbow_brackets_do_not_escape_the_budget() {
+    let html = html_linked(SOURCE, spent().rainbow_brackets(true));
+
+    assert!(html.contains(r#"data-lumis-budget="time""#), "got {html}");
+    assert!(
+        !html.contains("<span"),
+        "an exhausted render came back with rainbow spans, got {html}"
+    );
+
+    let ordinary = html_linked(SOURCE, HighlightOptions::new().rainbow_brackets(true));
+    assert!(
+        ordinary.contains("l-punctuation-bracket-rainbow-"),
+        "a render inside its budget still gets rainbow brackets, got {ordinary}"
+    );
 }
 
 #[test]

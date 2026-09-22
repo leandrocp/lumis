@@ -487,6 +487,42 @@ function parseWithin(
   return tree;
 }
 
+// The capture snapshot a layer reads, taken the way this language's queries
+// need it.
+//
+// `captures()` runs the cursor a second time, so it can reach the match limit
+// even when `matches()` did not. Reading the flag only after `matches()` would
+// report a complete highlight for a document that lost scopes here.
+function snapshotCaptures(
+  language: LoadedLanguage,
+  rootNode: Node,
+  queryOptions: { matchLimit: number; progressCallback?: () => boolean },
+  queryMatches: QueryMatch[],
+  maps: SourceMaps,
+  budget: BudgetState,
+) {
+  if (language.config.replayCapturesFromMatches) {
+    return snapshotCapturesFromMatches(
+      queryMatches,
+      maps,
+      language.config.injectionPatternEnd,
+      language.config.captureOffsets,
+    );
+  }
+
+  const captures = language.config.query.captures(rootNode, queryOptions);
+  if (language.config.query.didExceedMatchLimit?.()) {
+    budget.exceededMatchLimit = true;
+  }
+  return snapshotCapturesWithMatches(
+    captures,
+    queryMatches,
+    maps,
+    language.config.injectionPatternEnd,
+    language.config.captureOffsets,
+  );
+}
+
 function collectHighlightLayers(
   source: string,
   maps: SourceMaps,
@@ -509,20 +545,7 @@ function collectHighlightLayers(
     if (language.config.query.didExceedMatchLimit?.()) {
       budget.exceededMatchLimit = true;
     }
-    const snapshot = language.config.replayCapturesFromMatches
-      ? snapshotCapturesFromMatches(
-          queryMatches,
-          maps,
-          language.config.injectionPatternEnd,
-          language.config.captureOffsets,
-        )
-      : snapshotCapturesWithMatches(
-          language.config.query.captures(rootNode, queryOptions),
-          queryMatches,
-          maps,
-          language.config.injectionPatternEnd,
-          language.config.captureOffsets,
-        );
+    const snapshot = snapshotCaptures(language, rootNode, queryOptions, queryMatches, maps, budget);
     const localDefinitionValueEnds = collectLocalDefinitionValueEnds(
       queryMatches,
       language,
@@ -976,22 +999,46 @@ export function buildHighlightEventsWithSourceIndex(
   };
   const layers = collectHighlightLayers(source, maps, runtime, language, 0, matchLimit, budget);
 
-  // A render that ran out of time stopped part way through parsing or
-  // querying, so there is no tree to highlight from. The text is still the
-  // caller's document, so it goes back whole and unhighlighted.
-  if (budget.deadline?.expired) {
-    return {
-      events: [{ type: "source", start: 0, end: maps.sourceUtf8ByteLength }],
-      sourceIndex: maps,
-      budget: "time",
-    };
+  return finishHighlight(source, language, maps, matchLimit, budget, layers, options);
+}
+
+// The events a finished walk produces, or the plain document when it ran out of
+// time. A render that ran out stopped part way through parsing or querying, so
+// there is no tree left to highlight from; the text is still the caller's
+// document, so it goes back whole and unhighlighted.
+//
+// The deadline is read twice because rainbow brackets parse and query the
+// document a second time, and that pass can be the one that runs out.
+function finishHighlight(
+  source: string,
+  language: LoadedLanguage,
+  maps: SourceMaps,
+  matchLimit: number,
+  budget: BudgetState,
+  layers: HighlightLayer[],
+  options: { rainbowBrackets?: boolean },
+): { events: LumisHighlightEvent[]; sourceIndex: SourceIndex; budget?: BudgetExhausted } {
+  const plain = (): {
+    events: LumisHighlightEvent[];
+    sourceIndex: SourceIndex;
+    budget: BudgetExhausted;
+  } => ({
+    events: [{ type: "source", start: 0, end: maps.sourceUtf8ByteLength }],
+    sourceIndex: maps,
+    budget: "time",
+  });
+
+  if (budget.deadline?.expired) return plain();
+
+  const nested = buildNestedEvents(layers, maps);
+  let events: LumisHighlightEvent[] = nested;
+  if (options.rainbowBrackets) {
+    events = applyRainbowBrackets(source, nested, language, maps, matchLimit, budget);
+    if (budget.deadline?.expired) return plain();
   }
 
-  const events = buildNestedEvents(layers, maps);
   return {
-    events: options.rainbowBrackets
-      ? applyRainbowBrackets(source, events, language, maps, matchLimit)
-      : events,
+    events,
     sourceIndex: maps,
     budget: budget.exceededMatchLimit ? "matches" : undefined,
   };
@@ -1011,22 +1058,31 @@ interface BracketPair {
   close: { startByte: number; endByte: number };
 }
 
+// Rainbow brackets parse and query the document a second time, so this is
+// inside the budget too — a render that bounded its highlight and then ran an
+// unbounded second pass is not bounded at all.
 function queryRainbowBracketRanges(
   source: string,
   language: LoadedLanguage,
   maps: SourceMaps,
   matchLimit: number,
+  budget: BudgetState,
 ): RainbowRange[] {
   if (!language.brackets) return [];
 
-  const tree = language.parser.parse(source);
+  const progressCallback = budget.deadline ? () => budget.deadline?.passed() ?? false : undefined;
+  const tree = parseWithin(language, source, budget, undefined, progressCallback);
   if (!tree) return [];
 
   try {
+    const queryOptions = { matchLimit, ...(progressCallback ? { progressCallback } : {}) };
     const pairs: BracketPair[] = [];
-    for (const match of language.brackets.query.matches(tree.rootNode, { matchLimit })) {
+    for (const match of language.brackets.query.matches(tree.rootNode, queryOptions)) {
       if (language.brackets.rainbowExcludePatterns[match.patternIndex]) continue;
       pairs.push(...matchBracketPairs(match, language.brackets.captureMetadata, maps));
+    }
+    if (language.brackets.query.didExceedMatchLimit?.()) {
+      budget.exceededMatchLimit = true;
     }
 
     return colorizeBracketPairs(pairs);
@@ -1125,8 +1181,9 @@ function applyRainbowBrackets(
   language: LoadedLanguage,
   maps: SourceMaps,
   matchLimit: number,
+  budget: BudgetState,
 ): LumisHighlightEvent[] {
-  const ranges = queryRainbowBracketRanges(source, language, maps, matchLimit);
+  const ranges = queryRainbowBracketRanges(source, language, maps, matchLimit, budget);
   return composeRainbowDecorations(events, ranges, maps);
 }
 
