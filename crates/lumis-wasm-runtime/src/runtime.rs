@@ -2,18 +2,20 @@
 
 use lumis_core::decorations::compose_rainbow_decorations;
 use lumis_core::events::{Coalescing, HighlightEvent};
+use lumis_core::formatter::BudgetExhausted;
 use lumis_core::highlights::HIGHLIGHT_NAMES;
 use std::collections::HashMap;
+use std::ops::ControlFlow;
 use std::sync::{Arc, Condvar, Mutex, OnceLock, RwLock};
 use std::time::{Duration, Instant};
 use thiserror::Error;
-use tree_sitter::{Language, Parser, Query, Tree, WasmStore};
+use tree_sitter::{Language, ParseOptions, Parser, Query, Tree, WasmStore};
 use wasmtime::{Cache, CacheConfig, Config, Engine};
 
-use crate::brackets::{bracket_pairs, colorize_bracket_pairs, RainbowRange};
+use crate::brackets::{bracket_pairs_within, colorize_bracket_pairs, RainbowRange};
 use crate::store::LanguageStore;
 use crate::tree_sitter_highlight::{
-    HighlightConfiguration, Highlighter, DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT,
+    Deadline, HighlightConfiguration, Highlighter, Interrupt, DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT,
 };
 
 /// Everything needed to register a parser and its highlighting queries.
@@ -714,84 +716,200 @@ impl Runtime {
             }
         };
 
-        let events = worker
-            .highlighter
-            .highlight(&root.highlight, source.as_bytes(), None, |injected| {
-                if !options.injections {
-                    return None;
-                }
-
-                // A host resolver has precedence over the process catalog. In
-                // particular, two Node highlighters may resolve the same
-                // public id to different packages, each loaded under its own
-                // internal id. Calling this before the shared alias map keeps
-                // one instance from selecting another instance's definition.
-                match resolve_injected(injected) {
-                    InjectionResolution::Loaded(resolved) => {
-                        if let Some(loaded) = self.loaded(&resolved) {
-                            return Some(&loaded_here.alloc(loaded).highlight);
-                        }
-                    }
-                    InjectionResolution::Unresolved => {
-                        record_unresolved(injected);
+        // The clock starts here rather than at the call, so loading the root
+        // language is not charged to the document. Injected languages load
+        // during the walk instead, and `Deadline::extend` below keeps those off
+        // the budget too.
+        let deadline = options.time_limit_ms.map(Deadline::in_ms);
+        let interrupt = deadline
+            .as_ref()
+            .map_or_else(Interrupt::none, |at| Interrupt::none().deadline(at));
+        // The walk borrows the highlighter, so it lives in a block: the layers
+        // and the match-limit report are read once it has ended.
+        let (collector, mut budget) = {
+            let events = worker.highlighter.highlight(
+                &root.highlight,
+                source.as_bytes(),
+                interrupt,
+                |injected| {
+                    if !options.injections {
                         return None;
                     }
-                    InjectionResolution::Fallback => {}
-                }
 
-                let id = aliases.get(injected).map_or(injected, String::as_str);
+                    // A host resolver has precedence over the process catalog. In
+                    // particular, two Node highlighters may resolve the same
+                    // public id to different packages, each loaded under its own
+                    // internal id. Calling this before the shared alias map keeps
+                    // one instance from selecting another instance's definition.
+                    match resolve_injected(injected) {
+                        InjectionResolution::Loaded(resolved) => {
+                            if let Some(loaded) = self.loaded(&resolved) {
+                                return Some(&loaded_here.alloc(loaded).highlight);
+                            }
+                        }
+                        InjectionResolution::Unresolved => {
+                            record_unresolved(injected);
+                            return None;
+                        }
+                        InjectionResolution::Fallback => {}
+                    }
 
-                if let Some(loaded) = languages.get(id) {
-                    return Some(&loaded.highlight);
-                }
+                    let id = aliases.get(injected).map_or(injected, String::as_str);
 
-                // Loading here is what makes one pass enough: the walk descends
-                // into the language it just fetched and finds whatever that
-                // contains, however deeply nested. A language that cannot be
-                // fetched leaves its block unhighlighted rather than failing the
-                // document around it.
-                if let Ok(loaded) = self.load_through_store(id) {
-                    Some(&loaded_here.alloc(loaded).highlight)
-                } else {
-                    record_unresolved(id);
-                    None
-                }
-            })
-            .map_err(|error| RuntimeError::Highlight(error.to_string()))?;
+                    if let Some(loaded) = languages.get(id) {
+                        return Some(&loaded.highlight);
+                    }
 
-        // The same collector `lumis::highlight` uses, so a host reaching
-        // tree-sitter through this store sees the stream the Rust API does.
-        let mut collector = Coalescing::new();
-        for event in events {
-            match event.map_err(|error| RuntimeError::Highlight(error.to_string()))? {
-                crate::tree_sitter_highlight::HighlightEvent::Source { start, end } => {
-                    collector.source(start, end);
-                }
-                crate::tree_sitter_highlight::HighlightEvent::HighlightStart {
-                    highlight,
-                    language,
-                } => collector.start(highlight.0, language),
-                crate::tree_sitter_highlight::HighlightEvent::HighlightEnd => collector.end(),
+                    // Loading here is what makes one pass enough: the walk descends
+                    // into the language it just fetched and finds whatever that
+                    // contains, however deeply nested. A language that cannot be
+                    // fetched leaves its block unhighlighted rather than failing the
+                    // document around it.
+                    //
+                    // The load is a disk read and a Wasmtime compile, hundreds of
+                    // milliseconds against a render measured in single digits, and
+                    // it happens because of what the document contains rather than
+                    // because of how much work highlighting it is. Give the time
+                    // back: otherwise the first document to inject a cold language
+                    // exhausts its budget and comes back plain, and the next one
+                    // does not, which reads as a bug and is one.
+                    let started = Instant::now();
+                    let loaded = self.load_through_store(id);
+                    if let Some(at) = deadline.as_ref() {
+                        at.extend(started.elapsed());
+                    }
+
+                    if let Ok(loaded) = loaded {
+                        Some(&loaded_here.alloc(loaded).highlight)
+                    } else {
+                        record_unresolved(id);
+                        None
+                    }
+                },
+            );
+
+            collect_into_coalescing(events)?
+        };
+
+        let mut collected = if budget == Some(BudgetExhausted::Time) {
+            vec![HighlightEvent::Source {
+                start: 0,
+                end: source.len(),
+            }]
+        } else {
+            if worker.highlighter.exceeded_match_limit() {
+                budget = Some(BudgetExhausted::Matches);
             }
-        }
-        let mut collected = collector.finish();
+            collector.finish()
+        };
 
-        if options.rainbow_brackets {
-            let ranges = rainbow_ranges(
+        if options.rainbow_brackets && budget != Some(BudgetExhausted::Time) {
+            collected = decorate_with_rainbow(
                 worker.highlighter.parser(),
                 &root,
                 source,
                 options.match_limit,
+                interrupt,
+                collected,
+                &mut budget,
             )?;
-            collected = compose_rainbow_decorations(source, &collected, &ranges);
         }
 
         Ok(HighlightOutput {
             events: collected,
             layers: worker.highlighter.take_parsed_layers(),
             unresolved: unresolved.into_inner(),
+            budget,
         })
     }
+}
+
+/// Drain a highlight walk into the collector, and report a spent time budget.
+///
+/// The same collector `lumis::highlight` uses, so a host reaching tree-sitter
+/// through this store sees the stream the Rust API does.
+///
+/// A render that ran out of time stopped part way through parsing or querying,
+/// so there is no tree left to highlight from. The text is still the caller's
+/// document, so the budget comes back as a report rather than an error and the
+/// caller sends the source back whole and unhighlighted.
+fn collect_into_coalescing(
+    events: Result<
+        impl Iterator<
+            Item = Result<
+                crate::tree_sitter_highlight::HighlightEvent,
+                crate::tree_sitter_highlight::Error,
+            >,
+        >,
+        crate::tree_sitter_highlight::Error,
+    >,
+) -> Result<(Coalescing<'static, ()>, Option<BudgetExhausted>), RuntimeError> {
+    use crate::tree_sitter_highlight::{Error as HighlightError, HighlightEvent as TsEvent};
+
+    let mut collector: Coalescing<'static, ()> = Coalescing::new();
+
+    // A layer collects its captures before it yields an event, so a render can
+    // run out of time before the walk even starts.
+    let events = match events {
+        Ok(events) => events,
+        Err(HighlightError::TimeLimit) => return Ok((collector, Some(BudgetExhausted::Time))),
+        Err(error) => return Err(RuntimeError::Highlight(error.to_string())),
+    };
+
+    for event in events {
+        match event {
+            Ok(TsEvent::Source { start, end }) => collector.source(start, end),
+            Ok(TsEvent::HighlightStart {
+                highlight,
+                language,
+            }) => collector.start(highlight.0, language),
+            Ok(TsEvent::HighlightEnd) => collector.end(),
+            Err(HighlightError::TimeLimit) => {
+                return Ok((collector, Some(BudgetExhausted::Time)));
+            }
+            Err(error) => return Err(RuntimeError::Highlight(error.to_string())),
+        }
+    }
+
+    Ok((collector, None))
+}
+
+/// Decorate `collected` with rainbow brackets, inside the same budget.
+///
+/// Rainbow brackets parse and query the document a second time, so this is
+/// inside the budget too — a render that bounded its highlight and then ran an
+/// unbounded second pass is not bounded. When this pass is the one that runs
+/// out, the document goes back plain like any other exhausted render; running
+/// the decoration anyway would put rainbow spans on a document that is supposed
+/// to have none.
+fn decorate_with_rainbow(
+    parser: &mut Parser,
+    language: &LoadedLanguage,
+    source: &str,
+    match_limit: u32,
+    interrupt: Interrupt<'_>,
+    collected: Vec<HighlightEvent<'static>>,
+    budget: &mut Option<BudgetExhausted>,
+) -> Result<Vec<HighlightEvent<'static>>, RuntimeError> {
+    let (ranges, exceeded_match_limit) =
+        rainbow_ranges(parser, language, source, match_limit, interrupt)?;
+
+    if interrupt.stopped().is_some() {
+        *budget = Some(BudgetExhausted::Time);
+        return Ok(vec![HighlightEvent::Source {
+            start: 0,
+            end: source.len(),
+        }]);
+    }
+
+    // The bracket cursor drops matches like any other. Reporting the highlight
+    // query's exhaustion and not this one's would call a document complete that
+    // lost brackets here.
+    if exceeded_match_limit {
+        *budget = Some(BudgetExhausted::Matches);
+    }
+
+    Ok(compose_rainbow_decorations(source, &collected, &ranges))
 }
 
 /// How a host handled a language named by an injection query.
@@ -818,6 +936,9 @@ pub struct HighlightOptions {
     /// highlight and bracket queries alike, in `1..=`[`MAX_MATCH_LIMIT`]. A value
     /// outside that range fails the highlight before any language loads.
     pub match_limit: u32,
+    /// How long this highlight may run, in milliseconds, or `None` for no
+    /// bound. The clock starts here, after the caller's languages are loaded.
+    pub time_limit_ms: Option<u64>,
 }
 
 impl Default for HighlightOptions {
@@ -827,6 +948,7 @@ impl Default for HighlightOptions {
             injections: true,
             layers: false,
             match_limit: DEFAULT_MATCH_LIMIT,
+            time_limit_ms: None,
         }
     }
 }
@@ -840,6 +962,12 @@ pub struct HighlightOutput {
     /// resolves parsers itself can tell what the store could not reach. Empty
     /// when everything the document named was available.
     pub unresolved: Vec<String>,
+    /// Which limit bound this render, when one did. `Time` means `events` is
+    /// the source text and nothing else, because a render stopped part way has
+    /// no tree to highlight from; `Matches` means the events are complete but
+    /// tree-sitter dropped matches to stay inside the limit, so some scopes are
+    /// missing.
+    pub budget: Option<BudgetExhausted>,
 }
 
 static COMPILE_CACHE_DIR: RwLock<Option<std::path::PathBuf>> = RwLock::new(None);
@@ -885,23 +1013,54 @@ fn rainbow_ranges(
     language: &LoadedLanguage,
     source: &str,
     match_limit: u32,
-) -> Result<Vec<RainbowRange>, RuntimeError> {
+    interrupt: Interrupt<'_>,
+) -> Result<(Vec<RainbowRange>, bool), RuntimeError> {
     let query = language.brackets.get_or_init(|| {
         crate::brackets::compile(&language.highlight.language, &language.brackets_source)
     });
     let Some(query) = query else {
-        return Ok(Vec::new());
+        return Ok((Vec::new(), false));
     };
 
     parser
         .set_language(&language.highlight.language)
         .map_err(|error| RuntimeError::TreeSitter(error.to_string()))?;
-    let Some(tree) = parser.parse(source.as_bytes(), None) else {
-        return Ok(Vec::new());
+    let tree = parser.parse_with_options(
+        &mut |i, _| {
+            if i < source.len() {
+                &source.as_bytes()[i..]
+            } else {
+                &[]
+            }
+        },
+        None,
+        Some(ParseOptions::new().progress_callback(&mut |_| {
+            if interrupt.stopped().is_some() {
+                ControlFlow::Break(())
+            } else {
+                ControlFlow::Continue(())
+            }
+        })),
+    );
+    let Some(tree) = tree else {
+        // A stopped parse leaves the parser holding this document, and
+        // tree-sitter resumes it on the next call unless it is reset. This
+        // parser is the pooled highlighter's.
+        parser.reset();
+        return Ok((Vec::new(), false));
     };
 
-    let pairs = bracket_pairs(query, tree.root_node(), source.as_bytes(), match_limit);
-    Ok(colorize_bracket_pairs(pairs))
+    let found = bracket_pairs_within(
+        query,
+        tree.root_node(),
+        source.as_bytes(),
+        match_limit,
+        interrupt,
+    );
+    Ok((
+        colorize_bracket_pairs(found.pairs),
+        found.exceeded_match_limit,
+    ))
 }
 
 // A table-driven test's branches are its coverage; splitting one to satisfy the

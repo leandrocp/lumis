@@ -46,6 +46,7 @@ type NativeBBCodeScopedOptions = Pick<BBCodeScopedOptions, "highlightLines">;
 interface NativeFormatterBase {
   rainbowBrackets?: boolean;
   matchLimit?: number;
+  timeLimit?: number;
 }
 
 export type NativeFormatter = NativeFormatterBase &
@@ -95,9 +96,10 @@ interface NativeRuntimeInstance {
     language: string,
     rainbowBrackets?: boolean,
     matchLimit?: number,
+    timeLimit?: number,
     packageResolver?: (packageName: string) => string | undefined,
     wasmResolver?: (language: string, wasmJson: string) => string | undefined,
-  ): { events: Uint8Array; unresolved: string[] };
+  ): { events: Uint8Array; unresolved: string[]; budget?: "time" | "matches" };
   format(
     source: string,
     language: string,

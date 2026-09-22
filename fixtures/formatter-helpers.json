@@ -228,6 +228,7 @@
     "javascript": {
       "html": {
         "appendFragment": "See `append_fragment` under rust.",
+        "budgetAttrs": "Adds `data-lumis-budget` to the `<pre>` attributes when a limit bound the render. Rust keeps the same helper `pub(crate)`, which ES modules have no equivalent of: the three HTML formatters live in sibling files and can only reach it through an export.",
         "encodeSource": "JavaScript strings are UTF-16 and the event offsets are UTF-8 byte offsets, so a port has to encode before it can slice. Rust and Elixir index bytes already.",
         "decodeSourceSlice": "See `encodeSource`.",
         "sortedThemeNames": "`Array.prototype.sort` orders by UTF-16 code unit and Rust orders `&str` by UTF-8 byte, so the two disagree on astral characters. Rust keeps its counterpart private; JavaScript exports it for the multi-themes formatter next door.",

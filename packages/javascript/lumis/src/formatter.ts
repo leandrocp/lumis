@@ -35,8 +35,8 @@ import { formatHtmlMultiThemes } from "./formatter/html-multi-themes.js";
 export function htmlInline(options: HtmlInlineOptions = {}): HtmlInlineFormatter {
   const formatter: HtmlInlineFormatter = {
     ...options,
-    render(source, events): string {
-      return formatHtmlInline(source, events, formatter);
+    render(source, events, budget): string {
+      return formatHtmlInline(source, events, formatter, budget);
     },
   };
   return markBuiltinFormatter(formatter, "html-inline");
@@ -58,8 +58,8 @@ export function htmlInline(options: HtmlInlineOptions = {}): HtmlInlineFormatter
 export function htmlLinked(options: HtmlLinkedOptions = {}): HtmlLinkedFormatter {
   const formatter: HtmlLinkedFormatter = {
     ...options,
-    render(source, events): string {
-      return formatHtmlLinked(source, events, formatter);
+    render(source, events, budget): string {
+      return formatHtmlLinked(source, events, formatter, budget);
     },
   };
   return markBuiltinFormatter(formatter, "html-linked");
@@ -122,11 +122,11 @@ export function htmlMultiThemes(options: HtmlMultiThemesOptions): HtmlMultiTheme
 
   const formatter: HtmlMultiThemesFormatter = {
     ...options,
-    render(source, events): string {
+    render(source, events, budget): string {
       // Formatter objects are mutable in JavaScript, so construction-time
       // validation alone does not protect the actual render boundary.
       validateMultiThemes(formatter);
-      return formatHtmlMultiThemes(source, events, formatter);
+      return formatHtmlMultiThemes(source, events, formatter, budget);
     },
   };
   return markBuiltinFormatter(formatter, "html-multi-themes");

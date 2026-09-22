@@ -2,8 +2,13 @@ import type { Node, Point, QueryCapture, QueryMatch, Range } from "web-tree-sitt
 import { composeRainbowDecorations, type RainbowRange } from "./decorations.js";
 import { LANGUAGES } from "./generated/languages-meta.js";
 import { languageIdForFilename } from "./guess-language.js";
-import { DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT } from "./types.js";
-import type { LoadedLanguage, LumisHighlightEvent, QueryCaptureOffset } from "./types.js";
+import { DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT } from "./types.js";
+import type {
+  BudgetExhausted,
+  LoadedLanguage,
+  LumisHighlightEvent,
+  QueryCaptureOffset,
+} from "./types.js";
 
 interface RuntimeLookup {
   getLoadedLanguage(nameOrAlias: string): LoadedLanguage | undefined;
@@ -450,6 +455,74 @@ function injectionLanguageName(
   return languageName;
 }
 
+/// Parse, stopping if the render is already out of time. A tree parsed past
+/// the deadline is discarded rather than walked: the walk is the expensive half
+/// and the document is going back plain either way.
+///
+/// A parse the progress callback stopped leaves the parser holding that
+/// document, and tree-sitter resumes it on the next call unless it is reset.
+/// Parsers live as long as the highlighter here, so without the reset the
+/// render after a stopped one continues the stopped document instead of
+/// parsing its own — under a fresh clock, so it is not bounded either.
+function parseWithin(
+  language: LoadedLanguage,
+  source: string,
+  budget: BudgetState,
+  includedRanges: Range[] | undefined,
+  progressCallback: (() => boolean) | undefined,
+) {
+  const tree = language.parser.parse(source, null, {
+    ...(includedRanges ? { includedRanges } : {}),
+    ...(progressCallback ? { progressCallback } : {}),
+  });
+  if (!tree) {
+    language.parser.reset();
+    return null;
+  }
+  if (budget.deadline?.passed()) {
+    tree.delete();
+    language.parser.reset();
+    return null;
+  }
+  return tree;
+}
+
+// The capture snapshot a layer reads, taken the way this language's queries
+// need it.
+//
+// `captures()` runs the cursor a second time, so it can reach the match limit
+// even when `matches()` did not. Reading the flag only after `matches()` would
+// report a complete highlight for a document that lost scopes here.
+function snapshotCaptures(
+  language: LoadedLanguage,
+  rootNode: Node,
+  queryOptions: { matchLimit: number; progressCallback?: () => boolean },
+  queryMatches: QueryMatch[],
+  maps: SourceMaps,
+  budget: BudgetState,
+) {
+  if (language.config.replayCapturesFromMatches) {
+    return snapshotCapturesFromMatches(
+      queryMatches,
+      maps,
+      language.config.injectionPatternEnd,
+      language.config.captureOffsets,
+    );
+  }
+
+  const captures = language.config.query.captures(rootNode, queryOptions);
+  if (language.config.query.didExceedMatchLimit?.()) {
+    budget.exceededMatchLimit = true;
+  }
+  return snapshotCapturesWithMatches(
+    captures,
+    queryMatches,
+    maps,
+    language.config.injectionPatternEnd,
+    language.config.captureOffsets,
+  );
+}
+
 function collectHighlightLayers(
   source: string,
   maps: SourceMaps,
@@ -457,29 +530,22 @@ function collectHighlightLayers(
   language: LoadedLanguage,
   depth: number,
   matchLimit: number,
+  budget: BudgetState,
   includedRanges?: Range[],
   parentLanguageName?: string,
 ): HighlightLayer[] {
-  const tree = language.parser.parse(source, null, includedRanges ? { includedRanges } : undefined);
+  const progressCallback = budget.deadline ? () => budget.deadline?.passed() ?? false : undefined;
+  const tree = parseWithin(language, source, budget, includedRanges, progressCallback);
   if (!tree) return [];
 
   try {
     const rootNode = tree.rootNode;
-    const queryMatches = language.config.query.matches(rootNode, { matchLimit });
-    const snapshot = language.config.replayCapturesFromMatches
-      ? snapshotCapturesFromMatches(
-          queryMatches,
-          maps,
-          language.config.injectionPatternEnd,
-          language.config.captureOffsets,
-        )
-      : snapshotCapturesWithMatches(
-          language.config.query.captures(rootNode, { matchLimit }),
-          queryMatches,
-          maps,
-          language.config.injectionPatternEnd,
-          language.config.captureOffsets,
-        );
+    const queryOptions = { matchLimit, ...(progressCallback ? { progressCallback } : {}) };
+    const queryMatches = language.config.query.matches(rootNode, queryOptions);
+    if (language.config.query.didExceedMatchLimit?.()) {
+      budget.exceededMatchLimit = true;
+    }
+    const snapshot = snapshotCaptures(language, rootNode, queryOptions, queryMatches, maps, budget);
     const localDefinitionValueEnds = collectLocalDefinitionValueEnds(
       queryMatches,
       language,
@@ -509,6 +575,7 @@ function collectHighlightLayers(
         language,
         depth,
         matchLimit,
+        budget,
         parentLanguageName,
       ),
     );
@@ -532,6 +599,7 @@ function collectInjectedLayers(
   language: LoadedLanguage,
   depth: number,
   matchLimit: number,
+  budget: BudgetState,
   parentLanguageName?: string,
 ): HighlightLayer[] {
   const layers: HighlightLayer[] = [];
@@ -539,7 +607,17 @@ function collectInjectedLayers(
 
   const inject = (languageName: string, ranges: Range[]) => {
     layers.push(
-      ...injectedLayers(languageName, ranges, source, maps, runtime, language, depth, matchLimit),
+      ...injectedLayers(
+        languageName,
+        ranges,
+        source,
+        maps,
+        runtime,
+        language,
+        depth,
+        matchLimit,
+        budget,
+      ),
     );
   };
 
@@ -576,6 +654,7 @@ function injectedLayers(
   language: LoadedLanguage,
   depth: number,
   matchLimit: number,
+  budget: BudgetState,
 ): HighlightLayer[] {
   const injectedLanguage = runtime.getLoadedLanguage(languageName);
   if (!injectedLanguage) {
@@ -590,6 +669,7 @@ function injectedLayers(
     injectedLanguage,
     depth + 1,
     matchLimit,
+    budget,
     ranges,
     language.definition.id,
   );
@@ -853,23 +933,114 @@ export function assertMatchLimit(matchLimit: number | undefined): void {
   }
 }
 
+/**
+ * A render's deadline, and the fact that it passed.
+ *
+ * Tree-sitter calls back periodically while it parses and while it walks a
+ * query, which is the only place a synchronous highlight can be stopped part
+ * way. `expired` latches, because by the time the caller sees it the clock may
+ * have moved on and the question is whether this render ran out, not whether
+ * it is out of time now.
+ */
+interface Deadline {
+  /** Whether the render is out of time, for tree-sitter's progress callbacks. */
+  passed: () => boolean;
+  /** Whether it ever ran out, which is what the caller is asking. */
+  expired: boolean;
+}
+
+function deadlineIn(timeLimitMs: number): Deadline {
+  const at = Date.now() + timeLimitMs;
+  const deadline: Deadline = {
+    expired: false,
+    passed: () => {
+      if (!deadline.expired && Date.now() >= at) deadline.expired = true;
+      return deadline.expired;
+    },
+  };
+  return deadline;
+}
+
+/** What the walk has to report back about the limits it ran under. */
+interface BudgetState {
+  deadline?: Deadline;
+  exceededMatchLimit: boolean;
+}
+
+/** @internal */
+export function assertTimeLimit(timeLimit: number | undefined): void {
+  if (timeLimit === undefined) return;
+  if (!Number.isInteger(timeLimit) || timeLimit < 0) {
+    throw new Error(`timeLimit must be a whole number of milliseconds, got ${timeLimit}`);
+  }
+}
+
 /** @internal */
 export function buildHighlightEventsWithSourceIndex(
   source: string,
   language: LoadedLanguage,
   runtime: RuntimeLookup,
-  options: { rainbowBrackets?: boolean; matchLimit?: number } = {},
-): { events: LumisHighlightEvent[]; sourceIndex: SourceIndex } {
+  options: { rainbowBrackets?: boolean; matchLimit?: number; timeLimit?: number } = {},
+): {
+  events: LumisHighlightEvent[];
+  sourceIndex: SourceIndex;
+  budget?: BudgetExhausted;
+} {
   assertMatchLimit(options.matchLimit);
+  assertTimeLimit(options.timeLimit);
   const matchLimit = options.matchLimit ?? DEFAULT_MATCH_LIMIT;
+  const timeLimit = options.timeLimit ?? DEFAULT_TIME_LIMIT;
   const maps = buildSourceMaps(source);
-  const layers = collectHighlightLayers(source, maps, runtime, language, 0, matchLimit);
-  const events = buildNestedEvents(layers, maps);
-  return {
-    events: options.rainbowBrackets
-      ? applyRainbowBrackets(source, events, language, maps, matchLimit)
-      : events,
+  // The clock starts here, after the caller's languages are loaded, so a
+  // language the caller has not warmed up is not charged to the document.
+  const budget: BudgetState = {
+    deadline: timeLimit > 0 ? deadlineIn(timeLimit) : undefined,
+    exceededMatchLimit: false,
+  };
+  const layers = collectHighlightLayers(source, maps, runtime, language, 0, matchLimit, budget);
+
+  return finishHighlight(source, language, maps, matchLimit, budget, layers, options);
+}
+
+// The events a finished walk produces, or the plain document when it ran out of
+// time. A render that ran out stopped part way through parsing or querying, so
+// there is no tree left to highlight from; the text is still the caller's
+// document, so it goes back whole and unhighlighted.
+//
+// The deadline is read twice because rainbow brackets parse and query the
+// document a second time, and that pass can be the one that runs out.
+function finishHighlight(
+  source: string,
+  language: LoadedLanguage,
+  maps: SourceMaps,
+  matchLimit: number,
+  budget: BudgetState,
+  layers: HighlightLayer[],
+  options: { rainbowBrackets?: boolean },
+): { events: LumisHighlightEvent[]; sourceIndex: SourceIndex; budget?: BudgetExhausted } {
+  const plain = (): {
+    events: LumisHighlightEvent[];
+    sourceIndex: SourceIndex;
+    budget: BudgetExhausted;
+  } => ({
+    events: [{ type: "source", start: 0, end: maps.sourceUtf8ByteLength }],
     sourceIndex: maps,
+    budget: "time",
+  });
+
+  if (budget.deadline?.expired) return plain();
+
+  const nested = buildNestedEvents(layers, maps);
+  let events: LumisHighlightEvent[] = nested;
+  if (options.rainbowBrackets) {
+    events = applyRainbowBrackets(source, nested, language, maps, matchLimit, budget);
+    if (budget.deadline?.expired) return plain();
+  }
+
+  return {
+    events,
+    sourceIndex: maps,
+    budget: budget.exceededMatchLimit ? "matches" : undefined,
   };
 }
 
@@ -877,7 +1048,7 @@ export function buildHighlightEvents(
   source: string,
   language: LoadedLanguage,
   runtime: RuntimeLookup,
-  options: { rainbowBrackets?: boolean; matchLimit?: number } = {},
+  options: { rainbowBrackets?: boolean; matchLimit?: number; timeLimit?: number } = {},
 ): LumisHighlightEvent[] {
   return buildHighlightEventsWithSourceIndex(source, language, runtime, options).events;
 }
@@ -887,22 +1058,31 @@ interface BracketPair {
   close: { startByte: number; endByte: number };
 }
 
+// Rainbow brackets parse and query the document a second time, so this is
+// inside the budget too — a render that bounded its highlight and then ran an
+// unbounded second pass is not bounded at all.
 function queryRainbowBracketRanges(
   source: string,
   language: LoadedLanguage,
   maps: SourceMaps,
   matchLimit: number,
+  budget: BudgetState,
 ): RainbowRange[] {
   if (!language.brackets) return [];
 
-  const tree = language.parser.parse(source);
+  const progressCallback = budget.deadline ? () => budget.deadline?.passed() ?? false : undefined;
+  const tree = parseWithin(language, source, budget, undefined, progressCallback);
   if (!tree) return [];
 
   try {
+    const queryOptions = { matchLimit, ...(progressCallback ? { progressCallback } : {}) };
     const pairs: BracketPair[] = [];
-    for (const match of language.brackets.query.matches(tree.rootNode, { matchLimit })) {
+    for (const match of language.brackets.query.matches(tree.rootNode, queryOptions)) {
       if (language.brackets.rainbowExcludePatterns[match.patternIndex]) continue;
       pairs.push(...matchBracketPairs(match, language.brackets.captureMetadata, maps));
+    }
+    if (language.brackets.query.didExceedMatchLimit?.()) {
+      budget.exceededMatchLimit = true;
     }
 
     return colorizeBracketPairs(pairs);
@@ -1001,8 +1181,9 @@ function applyRainbowBrackets(
   language: LoadedLanguage,
   maps: SourceMaps,
   matchLimit: number,
+  budget: BudgetState,
 ): LumisHighlightEvent[] {
-  const ranges = queryRainbowBracketRanges(source, language, maps, matchLimit);
+  const ranges = queryRainbowBracketRanges(source, language, maps, matchLimit, budget);
   return composeRainbowDecorations(events, ranges, maps);
 }
 

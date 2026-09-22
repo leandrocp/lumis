@@ -9,6 +9,7 @@ import type {
   NativeRuntimeInstance,
 } from "../native-binding.js";
 import type {
+  BudgetExhausted,
   Formatter,
   HighlightOptions,
   HtmlAttrs,
@@ -21,7 +22,7 @@ import type {
   WasmRef,
 } from "../types.js";
 import { BUILTIN_FORMATTER, getBuiltinFormatter } from "./builtin-formatter.js";
-import { assertMatchLimit, warnUnresolvedInjection } from "../events.js";
+import { assertMatchLimit, assertTimeLimit, warnUnresolvedInjection } from "../events.js";
 import { decodeNativeEvents } from "./native-event-codec.js";
 import { PLAINTEXT_LANG_ID } from "../types.js";
 import {
@@ -498,10 +499,12 @@ export function createNativeLanguagesModule(
     highlightEvents(
       source: string,
       language: LoadedLanguage,
-      options: { rainbowBrackets?: boolean; matchLimit?: number } = {},
+      options: { rainbowBrackets?: boolean; matchLimit?: number; timeLimit?: number } = {},
+      report?: { budget?: BudgetExhausted },
     ): LumisHighlightEvent[] {
       rejectReentrantHighlight();
       assertMatchLimit(options.matchLimit);
+      assertTimeLimit(options.timeLimit);
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
       }
@@ -511,10 +514,12 @@ export function createNativeLanguagesModule(
         this.addonIdFor(language),
         options.rainbowBrackets ?? false,
         options.matchLimit,
+        options.timeLimit,
         hasResolvers ? this.packageResolverCallback : undefined,
         hasResolvers ? this.wasmResolverCallback : undefined,
       );
       this.reportUnresolved(highlighted.unresolved);
+      if (report) report.budget = highlighted.budget;
       return decodeNativeEvents(highlighted.events);
     }
 
@@ -586,16 +591,19 @@ export function createNativeLanguagesModule(
       const rainbowBrackets = highlightOptions.rainbowBrackets;
       const matchLimit = highlightOptions.matchLimit;
       assertMatchLimit(matchLimit);
+      const timeLimit = highlightOptions.timeLimit;
+      assertTimeLimit(timeLimit);
 
       switch (kind) {
         case "html-inline":
-          return { ...nativeHtmlInlineFormatter(builtin, rainbowBrackets), matchLimit };
+          return { ...nativeHtmlInlineFormatter(builtin, rainbowBrackets), matchLimit, timeLimit };
         case "html-linked":
-          return { ...nativeHtmlLinkedFormatter(builtin, rainbowBrackets), matchLimit };
+          return { ...nativeHtmlLinkedFormatter(builtin, rainbowBrackets), matchLimit, timeLimit };
         case "bbcode-scoped":
           return {
             rainbowBrackets,
             matchLimit,
+            timeLimit,
             kind,
             options: { highlightLines: builtin.highlightLines },
           };
@@ -603,6 +611,7 @@ export function createNativeLanguagesModule(
           return {
             rainbowBrackets,
             matchLimit,
+            timeLimit,
             kind,
             options: {
               theme: builtin.theme,

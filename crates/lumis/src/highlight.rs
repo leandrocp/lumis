@@ -72,17 +72,24 @@ use lumis_core::annotations::Annotation;
 use lumis_core::decorations::{compose_rainbow_decorations, rainbow_scope};
 use lumis_core::events::{Decoration, HighlightEvent as CoreHighlightEvent};
 use lumis_core::highlights::HIGHLIGHT_NAMES;
-use lumis_wasm_runtime::brackets::{bracket_pairs, colorize_bracket_pairs, compile, RainbowRange};
-use lumis_wasm_runtime::tree_sitter_highlight::{HighlightEvent, Highlighter as TSHighlighter};
-pub use lumis_wasm_runtime::tree_sitter_highlight::{DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT};
+use lumis_wasm_runtime::brackets::{
+    bracket_pairs_within, colorize_bracket_pairs, compile, RainbowRange,
+};
+use lumis_wasm_runtime::tree_sitter_highlight::{
+    Deadline, HighlightEvent, Highlighter as TSHighlighter, Interrupt,
+};
+pub use lumis_wasm_runtime::tree_sitter_highlight::{
+    DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT,
+};
 use smol_str::format_smolstr;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::ops::Range;
+use std::ops::{ControlFlow, Range};
 use std::sync::atomic::AtomicUsize;
 use std::sync::{Arc, LazyLock};
+use std::time::Instant;
 use thiserror::Error;
-use tree_sitter::{Parser, Query};
+use tree_sitter::{ParseOptions, Parser, Query};
 
 pub use crate::themes::{Style, TextDecoration, UnderlineStyle};
 
@@ -112,6 +119,7 @@ pub struct HighlightOptions<'a, T = ()> {
     annotations: &'a [Annotation<T>],
     rainbow_brackets: bool,
     match_limit: u32,
+    time_limit: Option<u64>,
     cancellation: Option<&'a AtomicUsize>,
 }
 
@@ -126,6 +134,7 @@ impl<T: PartialEq> PartialEq for HighlightOptions<'_, T> {
         self.annotations == other.annotations
             && self.rainbow_brackets == other.rainbow_brackets
             && self.match_limit == other.match_limit
+            && self.time_limit == other.time_limit
             && match (self.cancellation, other.cancellation) {
                 (Some(left), Some(right)) => std::ptr::eq(left, right),
                 (None, None) => true,
@@ -157,6 +166,7 @@ impl HighlightOptions<'static> {
             annotations: &[],
             rainbow_brackets: false,
             match_limit: DEFAULT_MATCH_LIMIT,
+            time_limit: Some(DEFAULT_TIME_LIMIT),
             cancellation: None,
         }
     }
@@ -167,6 +177,7 @@ impl HighlightOptions<'static> {
             annotations,
             rainbow_brackets: self.rainbow_brackets,
             match_limit: self.match_limit,
+            time_limit: self.time_limit,
             cancellation: self.cancellation,
         }
     }
@@ -215,6 +226,31 @@ impl<'a, T> HighlightOptions<'a, T> {
 
     pub(crate) const fn match_limit_value(&self) -> u32 {
         self.match_limit
+    }
+
+    /// Bound how long this render may take, in milliseconds, or `None` to let
+    /// it run as long as it needs.
+    ///
+    /// Defaults to [`DEFAULT_TIME_LIMIT`]. A render that runs out returns the
+    /// whole file as plain text rather than an error, and the HTML formatters
+    /// mark it `data-lumis-budget="time"`. Compiling a language's queries is
+    /// not counted against it.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use lumis::highlight::HighlightOptions;
+    ///
+    /// let options = HighlightOptions::new().time_limit(Some(250));
+    /// let unbounded = HighlightOptions::new().time_limit(None);
+    /// ```
+    pub const fn time_limit(mut self, time_limit: Option<u64>) -> Self {
+        self.time_limit = time_limit;
+        self
+    }
+
+    pub(crate) const fn time_limit_value(&self) -> Option<u64> {
+        self.time_limit
     }
 
     /// Abandon this render as soon as `flag` holds anything but zero.
@@ -302,6 +338,15 @@ pub enum HighlightError {
     /// set before the render finished.
     #[error("highlighting was cancelled")]
     Cancelled,
+
+    /// The [`time_limit`](HighlightOptions::time_limit) ran out.
+    ///
+    /// The entry points that return a document turn this into plain text
+    /// rather than surfacing it; it reaches a caller only through
+    /// [`highlight_events`] and its siblings, which have no document to
+    /// degrade.
+    #[error("highlighting ran out of its time limit")]
+    TimeLimit,
 }
 
 /// High-level stateful highlighter for syntax highlighting.
@@ -400,7 +445,7 @@ impl Highlighter {
             .highlight(
                 self.language.config(),
                 source.as_bytes(),
-                None,
+                Interrupt::none(),
                 |injected| Some(Language::guess(Some(injected), "").config()),
             )
             .map_err(|e| HighlightError::HighlighterInit(format!("{e:?}")))?;
@@ -700,19 +745,57 @@ fn highlight_events_with<T, F>(
 where
     F: Fn(&str) -> Option<Language>,
 {
+    highlight_events_reporting(ts_highlighter, source, language, options, injected_language)
+        .map(|(events, _)| events)
+}
+
+/// [`highlight_events_with`], and whether the match limit bound the query.
+///
+/// Separate because the entry points that produce a document mark it, and the
+/// ones that produce events have nowhere to put it.
+fn highlight_events_reporting<T, F>(
+    ts_highlighter: &mut TSHighlighter,
+    source: &str,
+    language: Language,
+    options: HighlightOptions<'_, T>,
+    injected_language: F,
+) -> Result<(Vec<CoreHighlightEvent<'static>>, bool), HighlightError>
+where
+    F: Fn(&str) -> Option<Language>,
+{
     let match_limit = options.match_limit_value();
     ts_highlighter
         .set_match_limit(match_limit)
         .map_err(|_| HighlightError::InvalidMatchLimit(match_limit))?;
 
-    let cancellation = options.cancellation_flag();
+    // Forced before the clock starts, deliberately. A language's `LazyLock`
+    // compiles its queries, which on a first render costs orders of magnitude
+    // more than a small document does; charging it would make the first render
+    // of a language behave differently from every one after it.
+    let config = language.config();
+
+    let deadline = options.time_limit_value().map(Deadline::in_ms);
+    let mut interrupt = Interrupt::none();
+    if let Some(flag) = options.cancellation_flag() {
+        interrupt = interrupt.cancellation(flag);
+    }
+    if let Some(at) = deadline.as_ref() {
+        interrupt = interrupt.deadline(at);
+    }
+
     let events = ts_highlighter
-        .highlight(
-            language.config(),
-            source.as_bytes(),
-            cancellation,
-            |injected| injected_language(injected).map(|language| language.config()),
-        )
+        .highlight(config, source.as_bytes(), interrupt, |injected| {
+            // An injected language forces its own `LazyLock` here, in the
+            // middle of the walk. Same reasoning, same exemption: what the
+            // document contains should not decide whether it fits its
+            // budget.
+            let started = Instant::now();
+            let config = injected_language(injected).map(|language| language.config());
+            if let Some(at) = deadline.as_ref() {
+                at.extend(started.elapsed());
+            }
+            config
+        })
         .map_err(highlight_error)?;
 
     let mut collector = lumis_core::events::Coalescing::new();
@@ -728,22 +811,48 @@ where
     }
     let core_events = collector.finish();
 
-    if options.rainbow_brackets_enabled() {
-        Ok(apply_query_rainbow_brackets(
-            source,
-            &core_events,
-            language,
-            match_limit,
-        ))
-    } else {
-        Ok(core_events)
+    let exceeded = ts_highlighter.exceeded_match_limit();
+    if !options.rainbow_brackets_enabled() {
+        return Ok((core_events, exceeded));
     }
+
+    // Rainbow brackets parse and query the document a second time, so this is
+    // inside the budget too — a render that bounded its highlight and then ran
+    // an unbounded second pass is not bounded at all. It takes the whole
+    // `Interrupt` rather than the deadline alone, so a caller that cancels
+    // during this pass is answered here as it is anywhere else.
+    let (rainbow, rainbow_exceeded) =
+        apply_query_rainbow_brackets(source, &core_events, language, match_limit, interrupt);
+    if let Some(error) = interrupt.stopped() {
+        return Err(highlight_error(error));
+    }
+
+    // The bracket cursor drops matches like any other. Reporting the highlight
+    // query's exhaustion and not this one's would call a document complete that
+    // lost brackets here.
+    Ok((rainbow, exceeded || rainbow_exceeded))
+}
+
+/// Highlight for a formatter, reporting whether the match limit bound it.
+#[doc(hidden)]
+pub fn highlight_events_for_render<T>(
+    source: &str,
+    language: Language,
+    options: HighlightOptions<'_, T>,
+) -> Result<(Vec<CoreHighlightEvent<'static>>, bool), HighlightError> {
+    DOCUMENT_TS_HIGHLIGHTER.with(|ts_highlighter| {
+        let mut ts_highlighter = ts_highlighter.borrow_mut();
+        highlight_events_reporting(&mut ts_highlighter, source, language, options, |injected| {
+            Some(Language::guess(Some(injected), ""))
+        })
+    })
 }
 
 /// Keep the cancelled case out of the opaque message the others share.
 fn highlight_error(error: lumis_wasm_runtime::tree_sitter_highlight::Error) -> HighlightError {
     match error {
         lumis_wasm_runtime::tree_sitter_highlight::Error::Cancelled => HighlightError::Cancelled,
+        lumis_wasm_runtime::tree_sitter_highlight::Error::TimeLimit => HighlightError::TimeLimit,
         other => HighlightError::EventProcessing(format!("{other:?}")),
     }
 }
@@ -753,35 +862,72 @@ fn apply_query_rainbow_brackets(
     events: &[CoreHighlightEvent<'_, ()>],
     language: Language,
     match_limit: u32,
-) -> Vec<CoreHighlightEvent<'static>> {
-    let ranges = query_rainbow_ranges(source, language, match_limit);
-    compose_rainbow_decorations(source, events, &ranges)
+    interrupt: Interrupt<'_>,
+) -> (Vec<CoreHighlightEvent<'static>>, bool) {
+    let (ranges, exceeded) = query_rainbow_ranges(source, language, match_limit, interrupt);
+    (
+        compose_rainbow_decorations(source, events, &ranges),
+        exceeded,
+    )
 }
 
-fn query_rainbow_ranges(source: &str, language: Language, match_limit: u32) -> Vec<RainbowRange> {
+fn query_rainbow_ranges(
+    source: &str,
+    language: Language,
+    match_limit: u32,
+    interrupt: Interrupt<'_>,
+) -> (Vec<RainbowRange>, bool) {
     let config = language.config();
     let tree = RAINBOW_PARSER.with(|parser| {
         let mut parser = parser.borrow_mut();
         if parser.set_language(&config.language).is_err() {
             return None;
         }
-        parser.parse(source.as_bytes(), None)
+        let tree = parser.parse_with_options(
+            &mut |i, _| {
+                if i < source.len() {
+                    &source.as_bytes()[i..]
+                } else {
+                    &[]
+                }
+            },
+            None,
+            Some(ParseOptions::new().progress_callback(&mut |_| {
+                if interrupt.stopped().is_some() {
+                    ControlFlow::Break(())
+                } else {
+                    ControlFlow::Continue(())
+                }
+            })),
+        );
+        if tree.is_none() {
+            // A stopped parse leaves the parser holding this document, and
+            // tree-sitter resumes it on the next call unless it is reset. This
+            // parser is a thread-local reused by every render on this thread.
+            parser.reset();
+        }
+        tree
     });
     let Some(tree) = tree else {
-        return Vec::new();
+        return (Vec::new(), false);
     };
 
     with_bracket_query_config(config, |bracket_config| {
         let Some(query) = bracket_config else {
-            return Vec::new();
+            return (Vec::new(), false);
         };
 
-        colorize_bracket_pairs(bracket_pairs(
+        let found = bracket_pairs_within(
             query,
             tree.root_node(),
             source.as_bytes(),
             match_limit,
-        ))
+            interrupt,
+        );
+        (
+            colorize_bracket_pairs(found.pairs),
+            found.exceeded_match_limit,
+        )
     })
 }
 

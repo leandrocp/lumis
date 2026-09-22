@@ -4,9 +4,11 @@
 //! itself is [`compile`].
 
 pub use lumis_core::decorations::{RainbowRange, RAINBOW_BRACKET_SCOPES, RAINBOW_SCOPE_INDICES};
-use std::ops::Range;
+use std::ops::{ControlFlow, Range};
 use streaming_iterator::StreamingIterator;
-use tree_sitter::{Language, Node, Query, QueryCursor};
+use tree_sitter::{Language, Node, Query, QueryCursor, QueryCursorOptions};
+
+use crate::tree_sitter_highlight::Interrupt;
 
 /// A matched open/close bracket pair.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -48,13 +50,56 @@ pub fn bracket_pairs(
     source: &[u8],
     match_limit: u32,
 ) -> Vec<BracketPair> {
+    bracket_pairs_within(query, root, source, match_limit, Interrupt::none()).pairs
+}
+
+/// What one bracket query produced, and whether either limit bound it.
+pub struct BracketPairs {
+    pub pairs: Vec<BracketPair>,
+    /// The cursor dropped matches at the limit, so pairs may be missing.
+    pub exceeded_match_limit: bool,
+}
+
+/// [`bracket_pairs`], bounded by `interrupt`.
+///
+/// Rainbow brackets are a second query over the same document, so a render that
+/// bounds its highlight and leaves this unbounded is not bounded at all. The
+/// same goes for the match limit: this cursor drops matches like any other, and
+/// a caller that reports one query's exhaustion and not the other's reports a
+/// complete render for a document that lost brackets here.
+///
+/// The pairs found before the interrupt come back, and every caller here throws
+/// them away — a render that ran out has no highlight left to decorate.
+#[must_use]
+pub fn bracket_pairs_within(
+    query: &Query,
+    root: Node<'_>,
+    source: &[u8],
+    match_limit: u32,
+    interrupt: Interrupt<'_>,
+) -> BracketPairs {
     let Some((open_capture, close_capture)) = capture_indices(query) else {
-        return Vec::new();
+        return BracketPairs {
+            pairs: Vec::new(),
+            exceeded_match_limit: false,
+        };
     };
 
     let mut cursor = QueryCursor::new();
     cursor.set_match_limit(match_limit);
-    let mut matches = cursor.matches(query, root, source);
+    let mut stopped = |_: &tree_sitter::QueryCursorState| {
+        if interrupt.stopped().is_some() {
+            ControlFlow::Break(())
+        } else {
+            ControlFlow::Continue(())
+        }
+    };
+    let mut matches = cursor.matches_with_options(
+        query,
+        root,
+        source,
+        QueryCursorOptions::new().progress_callback(&mut stopped),
+    );
     let mut pairs = Vec::new();
 
     while let Some(query_match) = matches.next() {
@@ -83,7 +128,11 @@ pub fn bracket_pairs(
         }
     }
 
-    pairs
+    drop(matches);
+    BracketPairs {
+        exceeded_match_limit: cursor.did_exceed_match_limit(),
+        pairs,
+    }
 }
 
 /// Assign the real nesting depth to each pair, walking them in closing order.
@@ -171,6 +220,51 @@ mod tests {
     fn a_valid_query_compiles() {
         let grammar: Language = tree_sitter_json::LANGUAGE.into();
         assert!(compile(&grammar, "(\"[\" @open \"]\" @close)").is_some());
+    }
+
+    /// The bracket cursor drops matches like any other, and says so.
+    ///
+    /// Without this a rainbow render could lose brackets to the match limit and
+    /// still report a complete document, because the caller only ever saw the
+    /// highlight query's flag.
+    #[test]
+    fn a_spent_match_limit_is_reported() {
+        let grammar: Language = tree_sitter_json::LANGUAGE.into();
+        let query = compile(&grammar, "(\"[\" @open \"]\" @close)").unwrap();
+        let source = "[[[[[[[[1]]]]]]]]";
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&grammar).unwrap();
+        let tree = parser.parse(source, None).unwrap();
+
+        let generous = bracket_pairs_within(
+            &query,
+            tree.root_node(),
+            source.as_bytes(),
+            4096,
+            Interrupt::none(),
+        );
+        let starved = bracket_pairs_within(
+            &query,
+            tree.root_node(),
+            source.as_bytes(),
+            1,
+            Interrupt::none(),
+        );
+
+        assert!(
+            !generous.exceeded_match_limit,
+            "a limit nothing reaches is not exhausted"
+        );
+        assert!(
+            starved.exceeded_match_limit,
+            "a limit of one in-progress match is exhausted by eight nested pairs"
+        );
+        assert!(
+            starved.pairs.len() < generous.pairs.len(),
+            "the starved cursor lost pairs: {} vs {}",
+            starved.pairs.len(),
+            generous.pairs.len()
+        );
     }
 
     #[test]

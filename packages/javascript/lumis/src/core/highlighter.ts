@@ -1,4 +1,5 @@
 import type {
+  BudgetExhausted,
   HighlightCallback,
   HighlightEvent,
   HighlightOptions,
@@ -234,6 +235,7 @@ function runHighlightIter(
   const events = runtime.highlightEvents(source, loaded, {
     rainbowBrackets: options.rainbowBrackets,
     matchLimit: options.matchLimit,
+    timeLimit: options.timeLimit,
   });
   const bytes = buildSourceIndex(source).sourceBytes;
   const scopeStack: ScopeLayer[] = [];
@@ -276,12 +278,19 @@ function runHighlightEvents<T>(
   source: string,
   language: LanguageRef | undefined,
   options: HighlightOptions<T> = {},
+  report?: { budget?: BudgetExhausted },
 ): HighlightEvent<T>[] {
   const loaded = resolveLoadedLanguage(runtime, language);
-  const events = runtime.highlightEvents(source, loaded, {
-    rainbowBrackets: options.rainbowBrackets,
-    matchLimit: options.matchLimit,
-  });
+  const events = runtime.highlightEvents(
+    source,
+    loaded,
+    {
+      rainbowBrackets: options.rainbowBrackets,
+      matchLimit: options.matchLimit,
+      timeLimit: options.timeLimit,
+    },
+    report,
+  );
   const annotations = options.annotations ?? [];
   if (annotations.length === 0) return events;
 
@@ -364,13 +373,14 @@ function runFormatter<T>(
     if (nativeOutput !== undefined) return nativeOutput;
   }
 
-  const events = runHighlightEvents(runtime, source, detectedRef, options);
+  const report: { budget?: BudgetExhausted } = {};
+  const events = runHighlightEvents(runtime, source, detectedRef, options, report);
   const prevRuntime = currentRuntime;
   const prevLanguage = fmt.language;
   currentRuntime = runtime;
   fmt.language = detectedRef;
   try {
-    return fmt.render(source, events);
+    return fmt.render(source, events, report.budget);
   } finally {
     fmt.language = prevLanguage;
     currentRuntime = prevRuntime;

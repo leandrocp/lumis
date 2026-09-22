@@ -217,14 +217,18 @@ impl HtmlMultiThemes {
         )
     }
 
-    fn open_pre_tag(&self, output: &mut dyn Write) -> io::Result<()> {
+    fn open_pre_tag(
+        &self,
+        output: &mut dyn Write,
+        exhausted: Option<super::BudgetExhausted>,
+    ) -> io::Result<()> {
         crate::formatter::html::write_multi_themes_pre_tag(
             output,
             self.pre_class.as_deref(),
             &self.themes,
             self.default_theme_name(),
             &self.css_variable_prefix,
-            &self.pre_attrs,
+            &crate::formatter::html::budget_attrs(&self.pre_attrs, exhausted),
         )
     }
 
@@ -330,11 +334,33 @@ impl<T> Formatter<T> for HtmlMultiThemes {
         events: &[HighlightEvent<'_, T>],
         output: &mut dyn Write,
     ) -> io::Result<()> {
+        self.write(source, events, output, None)
+    }
+
+    fn render_budgeted(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+        exhausted: super::BudgetExhausted,
+    ) -> io::Result<()> {
+        self.write(source, events, output, Some(exhausted))
+    }
+}
+
+impl HtmlMultiThemes {
+    fn write<T>(
+        &self,
+        source: &str,
+        events: &[HighlightEvent<'_, T>],
+        output: &mut dyn Write,
+        exhausted: Option<super::BudgetExhausted>,
+    ) -> io::Result<()> {
         if let Some(ref header) = self.header {
             write!(output, "{}", header.open_tag)?;
         }
 
-        self.open_pre_tag(output)?;
+        self.open_pre_tag(output, exhausted)?;
         crate::formatter::html::write_code_tag(output, self.language, &self.code_attrs)?;
 
         let (class_suffix, style) = self.get_line_attrs(true);

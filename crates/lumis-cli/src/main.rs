@@ -11,11 +11,14 @@ use formatter_options::{
 };
 use lumis_core::events::HighlightEvent as CoreHighlightEvent;
 use lumis_core::formatter::ansi::hex_to_rgb;
+use lumis_core::formatter::BudgetExhausted;
 use lumis_core::formatter::Formatter as CoreFormatter;
 use lumis_core::formatter::TerminalBackground;
 use lumis_core::languages::Language;
 use lumis_wasm_runtime::tree_sitter_highlight::ParsedLayer;
-use lumis_wasm_runtime::{HighlightOptions, HighlightOutput, DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT};
+use lumis_wasm_runtime::{
+    HighlightOptions, HighlightOutput, DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT,
+};
 use serde::Serialize;
 use std::fmt::Display;
 use std::fmt::Write as _;
@@ -122,6 +125,11 @@ struct HighlightArgs {
         value_parser = clap::value_parser!(u32).range(1..=i64::from(MAX_MATCH_LIMIT))
     )]
     match_limit: u32,
+
+    /// Milliseconds this render may take before it falls back to plain text, or
+    /// 0 for no limit
+    #[arg(long, default_value_t = DEFAULT_TIME_LIMIT)]
+    time_limit: u64,
 
     /// Lines to highlight, e.g. "1,3-5,10"
     #[arg(short = 'H', long)]
@@ -1072,7 +1080,9 @@ fn dump_events(
         dump_language(lang)?,
         false,
         DEFAULT_MATCH_LIMIT,
+        DEFAULT_TIME_LIMIT,
     )?
+    .0
     .into_iter()
     .map(|event| match event {
         HighlightEvent::Start {
@@ -1482,6 +1492,7 @@ fn dump_tree_lines(
                 depth: 0,
             }],
             unresolved: Vec::new(),
+            budget: None,
         }
     };
     let resolved_highlights = if highlights {
@@ -1567,11 +1578,14 @@ fn do_highlight(reg: &registry::Registry, args: HighlightArgs, verbose: bool) ->
     // Plaintext has no grammar to walk, so its whole document is one `Source`
     // event. It still goes through the formatter: the caller asked for HTML, or
     // for line numbers, and gets them.
-    let events = if lang == Language::PlainText {
-        vec![HighlightEvent::Source {
-            start: 0,
-            end: source.len(),
-        }]
+    let (events, budget) = if lang == Language::PlainText {
+        (
+            vec![HighlightEvent::Source {
+                start: 0,
+                end: source.len(),
+            }],
+            None,
+        )
     } else {
         highlight_to_events(
             reg,
@@ -1579,10 +1593,11 @@ fn do_highlight(reg: &registry::Registry, args: HighlightArgs, verbose: bool) ->
             lang.id_name(),
             args.rainbow_brackets,
             args.match_limit,
+            args.time_limit,
         )?
     };
 
-    render_output(reg, &source, &events, lang, args, verbose)
+    render_output(reg, &source, &events, budget, lang, args, verbose)
 }
 
 /// Line ranges plus the class and style that apply to them, or `None` when no
@@ -1681,6 +1696,7 @@ fn render_html_multi_themes(
     reg: &registry::Registry,
     source: &str,
     events: &[HighlightEvent],
+    budget: Option<BudgetExhausted>,
     lang: Language,
     themes: &[String],
     default_theme: Option<&str>,
@@ -1741,7 +1757,7 @@ fn render_html_multi_themes(
 
     let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
     let mut output = Vec::new();
-    fmt.render(source, events, &mut output)?;
+    fmt.render_budgeted_or(source, events, &mut output, budget)?;
     Ok(output)
 }
 
@@ -1749,6 +1765,7 @@ fn render_output(
     reg: &registry::Registry,
     source: &str,
     events: &[HighlightEvent],
+    budget: Option<BudgetExhausted>,
     lang: Language,
     args: HighlightArgs,
     verbose: bool,
@@ -1809,7 +1826,7 @@ fn render_output(
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
-            fmt.render(source, events, &mut output)?;
+            fmt.render_budgeted_or(source, events, &mut output, budget)?;
             print!("{}", String::from_utf8(output)?);
         }
 
@@ -1818,6 +1835,7 @@ fn render_output(
                 reg,
                 source,
                 events,
+                budget,
                 lang,
                 themes,
                 default_theme.as_deref(),
@@ -1849,7 +1867,7 @@ fn render_output(
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
-            fmt.render(source, events, &mut output)?;
+            fmt.render_budgeted_or(source, events, &mut output, budget)?;
             print!("{}", String::from_utf8(output)?);
         }
 
@@ -1867,7 +1885,7 @@ fn render_output(
 
             let fmt = builder.build().map_err(|e| anyhow::anyhow!("{e}"))?;
             let mut output = Vec::new();
-            fmt.render(source, events, &mut output)?;
+            fmt.render_budgeted_or(source, events, &mut output, budget)?;
             print!("{}", String::from_utf8(output)?);
         }
 
@@ -1876,7 +1894,7 @@ fn render_output(
             let fmt =
                 lumis_core::formatter::BBCodeScoped::new(lang, bbcode_highlight_lines(&args)?);
             let mut output = Vec::new();
-            fmt.render(source, events, &mut output)?;
+            fmt.render_budgeted_or(source, events, &mut output, budget)?;
             print!("{}", String::from_utf8(output)?);
         }
     }
@@ -2056,18 +2074,19 @@ fn highlight_to_events(
     lang_name: &str,
     rainbow_brackets: bool,
     match_limit: u32,
-) -> Result<Vec<HighlightEvent>> {
-    Ok(reg
-        .highlight(
-            source,
-            lang_name,
-            &HighlightOptions {
-                rainbow_brackets,
-                match_limit,
-                ..HighlightOptions::default()
-            },
-        )?
-        .events)
+    time_limit: u64,
+) -> Result<(Vec<HighlightEvent>, Option<BudgetExhausted>)> {
+    let output = reg.highlight(
+        source,
+        lang_name,
+        &HighlightOptions {
+            rainbow_brackets,
+            match_limit,
+            time_limit_ms: (time_limit > 0).then_some(time_limit),
+            ..HighlightOptions::default()
+        },
+    )?;
+    Ok((output.events, output.budget))
 }
 
 #[cfg(test)]
@@ -2115,7 +2134,15 @@ mod tests {
 </script>
 ";
 
-        let events = highlight_to_events(&reg, source, "html", false, DEFAULT_MATCH_LIMIT).unwrap();
+        let (events, _) = highlight_to_events(
+            &reg,
+            source,
+            "html",
+            false,
+            DEFAULT_MATCH_LIMIT,
+            DEFAULT_TIME_LIMIT,
+        )
+        .unwrap();
 
         assert!(events.iter().any(|event| matches!(
             event,

@@ -898,6 +898,26 @@ pub fn pre_attrs(
     merge_attrs(generated, attrs)
 }
 
+/// The `<pre>` attributes for a render, plus the marker when a limit bound it.
+///
+/// A plain document and a file with no syntax to highlight are the same bytes
+/// otherwise, so without this a caller cannot tell one from the other.
+pub(crate) fn budget_attrs(
+    attrs: &HtmlAttrs,
+    exhausted: Option<crate::formatter::BudgetExhausted>,
+) -> HtmlAttrs {
+    let Some(exhausted) = exhausted else {
+        return attrs.clone();
+    };
+
+    let mut attrs = attrs.clone();
+    attrs.push((
+        "data-lumis-budget".to_string(),
+        AttrValue::from(exhausted.as_str()),
+    ));
+    attrs
+}
+
 pub(crate) fn write_pre_tag(
     output: &mut dyn Write,
     pre_class: Option<&str>,

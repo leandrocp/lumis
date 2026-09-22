@@ -1,7 +1,7 @@
 import type { Language, PredicateStep, Query as TreeSitterQuery } from "web-tree-sitter";
 import satisfies from "semver/functions/satisfies.js";
 import minVersion from "semver/ranges/min-version.js";
-import { buildHighlightEvents } from "../events.js";
+import { buildHighlightEventsWithSourceIndex } from "../events.js";
 import { LANGUAGES } from "../generated/languages-meta.js";
 import { cloneLanguageInfo, normalizeLanguageName } from "../catalog-metadata.js";
 import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../generated/package-version-range.js";
@@ -9,6 +9,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { HIGHLIGHT_NAMES } from "../highlights.js";
 import type { RuntimeEnvironment } from "../runtime/runtime.js";
 import type {
+  BudgetExhausted,
   CaptureMetadata,
   CompiledBracketConfig,
   CompiledHighlightConfig,
@@ -145,7 +146,13 @@ export interface RuntimeLike {
   highlightEvents(
     source: string,
     language: LoadedLanguage,
-    options?: { rainbowBrackets?: boolean; matchLimit?: number },
+    options?: { rainbowBrackets?: boolean; matchLimit?: number; timeLimit?: number },
+    /**
+     * Filled in with which limit bound the render, when one did. An out
+     * parameter rather than a wider return type because every caller wants the
+     * events and only the formatters want this.
+     */
+    report?: { budget?: BudgetExhausted },
   ): LumisHighlightEvent[];
   format?(
     source: string,
@@ -1438,7 +1445,8 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     highlightEvents(
       source: string,
       language: LoadedLanguage,
-      options: { rainbowBrackets?: boolean; matchLimit?: number } = {},
+      options: { rainbowBrackets?: boolean; matchLimit?: number; timeLimit?: number } = {},
+      report?: { budget?: BudgetExhausted },
     ): LumisHighlightEvent[] {
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
@@ -1450,7 +1458,9 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
           language.brackets = compile();
         }
       }
-      return buildHighlightEvents(source, language, this, options);
+      const built = buildHighlightEventsWithSourceIndex(source, language, this, options);
+      if (report) report.budget = built.budget;
+      return built.events;
     }
   }
 

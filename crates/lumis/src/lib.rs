@@ -386,6 +386,7 @@ pub use crate::formatters::{
 };
 pub use crate::highlight::HighlightOptions;
 pub use lumis_core::annotations::{Annotation, AnnotationError, AnnotationRange};
+pub use lumis_core::formatter::BudgetExhausted;
 
 /// Highlights source code and returns it as a string.
 ///
@@ -495,19 +496,43 @@ where
 {
     let syntax_options = HighlightOptions::new()
         .rainbow_brackets(options.rainbow_brackets_enabled())
-        .match_limit(options.match_limit_value());
+        .match_limit(options.match_limit_value())
+        .time_limit(options.time_limit_value());
     let syntax_options = match options.cancellation_flag() {
         Some(flag) => syntax_options.cancellation(flag),
         None => syntax_options,
     };
-    let syntax_events = crate::highlight::highlight_events_with_options(
+    let (syntax_events, exceeded_match_limit) = match crate::highlight::highlight_events_for_render(
         source,
         formatter.language(),
         syntax_options,
-    )
-    .map_err(io::Error::other)?;
+    ) {
+        Ok(reported) => reported,
+        // A render that ran out of time stopped part way through parsing or
+        // querying, so there is no tree to salvage and nothing to highlight
+        // with. The text is still the caller's document, so it goes back whole
+        // and unhighlighted rather than as an error.
+        Err(crate::highlight::HighlightError::TimeLimit) => {
+            return formatter.render_budgeted(
+                source,
+                &[crate::events::HighlightEvent::Source {
+                    start: 0,
+                    end: source.len(),
+                }],
+                output,
+                BudgetExhausted::Time,
+            );
+        }
+        Err(error) => return Err(io::Error::other(error)),
+    };
     let events = compose_annotations(source, &syntax_events, options.annotation_items())
         .map_err(|error| io::Error::new(io::ErrorKind::InvalidInput, error))?;
+
+    // The document is highlighted, but tree-sitter dropped matches to stay
+    // inside the limit, so some scopes are missing and only the cursor knew.
+    if exceeded_match_limit {
+        return formatter.render_budgeted(source, &events, output, BudgetExhausted::Matches);
+    }
 
     formatter.render(source, &events, output)
 }

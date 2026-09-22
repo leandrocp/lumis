@@ -294,6 +294,112 @@ fn highlight_rejects_a_match_limit_outside_the_tree_sitter_range() {
     }
 }
 
+/// A spent time budget hands back the document instead of failing.
+///
+/// 40k unclosed brackets is the shape the budget exists for: nothing about the
+/// byte count predicts the cost, and error recovery does far more work than the
+/// input suggests. One millisecond is not enough for it on any machine, so the
+/// test does not depend on how fast the one running it is.
+#[test]
+fn highlight_degrades_to_plain_text_when_the_time_budget_is_spent() {
+    let pathological = "[".repeat(40_000);
+
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args([
+            "highlight",
+            "-l",
+            "json",
+            "-f",
+            "html-linked",
+            "--time-limit",
+            "1",
+        ])
+        .write_stdin(pathological.clone())
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(r#"data-lumis-budget="time""#))
+        .stdout(predicate::str::contains(&pathological))
+        .stdout(predicate::str::contains("<span").not());
+}
+
+/// Loading a parser is not charged against the budget.
+///
+/// This command reads and compiles a WASM module, which costs hundreds of
+/// milliseconds; the document it then highlights costs microseconds. So
+/// highlighting under `--time-limit 50` is the whole claim: the clock starts
+/// once the language is ready, not when the command does. Without that, the
+/// first render of any language would degrade and every later one would not.
+/// The limit is not tighter because the rest of this suite runs in parallel,
+/// and a render measured in microseconds still waits on a loaded machine.
+#[test]
+fn a_parser_load_is_not_charged_against_the_time_budget() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args([
+            "highlight",
+            "-l",
+            "javascript",
+            "-f",
+            "html-linked",
+            "--time-limit",
+            "50",
+        ])
+        .write_stdin("const answer = 42;\n")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("<span"))
+        .stdout(predicate::str::contains("data-lumis-budget").not());
+}
+
+/// A spent match budget is reported without degrading the document.
+///
+/// The javascript highlight query nests enough for one in-progress match to be
+/// too few; json's does not, whatever the document.
+#[test]
+fn highlight_reports_a_spent_match_budget() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args([
+            "highlight",
+            "-l",
+            "javascript",
+            "-f",
+            "html-linked",
+            "--match-limit",
+            "1",
+        ])
+        .write_stdin("const value = (1 + (2 * (3 - 4)));\n")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(r#"data-lumis-budget="matches""#))
+        .stdout(predicate::str::contains("<span"));
+}
+
+#[test]
+fn highlight_without_a_time_limit_highlights() {
+    cmd()
+        .arg("--data-dir")
+        .arg(fixtures_dir())
+        .args([
+            "highlight",
+            "-l",
+            "javascript",
+            "-f",
+            "html-linked",
+            "--time-limit",
+            "0",
+        ])
+        .write_stdin("const answer = 42;\n")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("<span"))
+        .stdout(predicate::str::contains("data-lumis-budget").not());
+}
+
 #[test]
 fn dump_tree_from_stdin() {
     cmd()

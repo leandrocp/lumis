@@ -34,6 +34,21 @@
 //   per-event check is unreachable until that finishes, and a caller that timed out
 //   still waits for it. That is nearly the whole render on a document where query work
 //   dominates: 100,000 unclosed `[` spend 8.2s of 8.2s inside `next_capture`.
+// - `Interrupt` replaces upstream's `Option<&AtomicUsize>` so a render can also carry a
+//   deadline, which is the only bound that holds when cost does not track input size.
+//   It reports which one fired: `Error::Cancelled` or `Error::TimeLimit`. The deadline is
+//   a `Deadline` the caller can push forward mid-walk rather than a plain `Instant`,
+//   because the injection callback loads and compiles languages the document named, and
+//   charging that to the render makes the first document to inject a cold language come
+//   back plain for a reason that has nothing to do with the document.
+// - `Highlighter::exceeded_match_limit` aggregates `QueryCursor::did_exceed_match_limit`
+//   across layers. Upstream drops matches at the limit and says nothing, so a document
+//   highlighted with scopes missing is indistinguishable from one that had few.
+// - An interrupted parse resets the parser. tree-sitter resumes a stopped parse on the
+//   next call, and these parsers are pooled and reused, so the render after an
+//   interrupted one would otherwise continue that document under its own fresh clock.
+//   Upstream has no test for this because upstream's callers do not reuse a parser
+//   after cancelling one.
 // - `@injection.filename` resolves an injected language from a path, as Neovim's
 //   `LanguageTree:_get_injection` does through `vim.filetype.match`. It sits beside the
 //   `injection.language` capture it is an alternative to, and is the only reason this file
@@ -52,6 +67,7 @@
 #![allow(clippy::all, clippy::pedantic, dead_code, elided_lifetimes_in_paths)]
 
 use std::{
+    cell::Cell,
     cmp::Reverse,
     collections::{BinaryHeap, HashMap, HashSet},
     mem, ops, str,
@@ -59,6 +75,7 @@ use std::{
         atomic::{AtomicUsize, Ordering},
         LazyLock,
     },
+    time::{Duration, Instant},
 };
 
 use streaming_iterator::StreamingIterator;
@@ -90,6 +107,15 @@ const BUFFER_LINES_RESERVE_CAPACITY: usize = 1000;
 /// highlights identically at this bound and at 65536; a document nested eight
 /// hundred levels deep does not. Raise it for one of those, at the cost above.
 pub const DEFAULT_MATCH_LIMIT: u32 = 8192;
+
+/// How long a render may take by default, in milliseconds.
+///
+/// Five seconds is about five megabytes of ordinary source and roughly a
+/// hundred times what the slowest file in `samples/` needs, so a document that
+/// reaches it is not a large document but a pathological one. Callers serving
+/// requests will want less; callers rendering one file at a time will not
+/// notice it.
+pub const DEFAULT_TIME_LIMIT: u64 = 5_000;
 
 /// Largest match limit accepted here. tree-sitter takes any `u32` and its Rust
 /// binding documents `1..=65536`, though nothing in the C library enforces
@@ -164,6 +190,8 @@ pub struct Highlight(pub usize);
 pub enum Error {
     #[error("Cancelled")]
     Cancelled,
+    #[error("Time limit exhausted")]
+    TimeLimit,
     #[error("Invalid language")]
     InvalidLanguage,
     #[error("Match limit {0} is outside 1..=65536")]
@@ -569,6 +597,7 @@ pub struct Highlighter {
     match_limit: u32,
     record_parsed_layers: bool,
     parsed_layers: Vec<ParsedLayer>,
+    exceeded_match_limit: bool,
 }
 
 /// A syntax tree produced while highlighting a host or injected language.
@@ -613,7 +642,7 @@ where
     byte_offset: usize,
     highlighter: &'a mut Highlighter,
     injection_callback: F,
-    cancellation_flag: Option<&'a AtomicUsize>,
+    interrupt: Interrupt<'a>,
     layers: Vec<HighlightIterLayer<'a>>,
     iter_count: usize,
     next_event: Option<HighlightEvent>,
@@ -651,22 +680,109 @@ struct CaptureStream<'a> {
     removed: Vec<bool>,
     order: Vec<(u32, u32)>,
     position: usize,
+    /// The cursor hit its match limit and discarded matches, so this layer may
+    /// be missing scopes. tree-sitter reports it and nothing else surfaces it.
+    exceeded_match_limit: bool,
 }
 
 /// A match whose capture list nothing reads.
 const NO_LIST: u32 = u32::MAX;
 
-/// Whether the caller has abandoned this highlight.
-fn is_cancelled(cancellation_flag: Option<&AtomicUsize>) -> bool {
-    cancellation_flag.is_some_and(|flag| flag.load(Ordering::Relaxed) != 0)
+/// When a highlight has run out of time.
+///
+/// Movable, because a walk does work the document did not ask for: an injection
+/// query can name a language this process has never loaded, and loading it
+/// costs a disk read and a Wasmtime compile — hundreds of milliseconds, against
+/// a render measured in single digits. Charging that to the budget would make
+/// the first render of an injected document degrade for a reason that has
+/// nothing to do with the document. The caller gives the time back with
+/// [`extend`](Self::extend).
+///
+/// A `Cell` rather than an atomic: one walk runs on one thread, and
+/// [`Interrupt`] borrows this rather than owning it precisely so the caller can
+/// keep adjusting it while the walk reads it.
+///
+/// `None` means the limit is further out than this platform's `Instant` can
+/// name, which is a limit no render can reach. `Instant + Duration` panics on
+/// an unrepresentable result and the limit comes from a caller, so the sum is
+/// checked; a saturating fallback of "now" would be the opposite of what the
+/// caller asked for.
+pub struct Deadline(Cell<Option<Instant>>);
+
+impl Deadline {
+    /// A deadline `ms` milliseconds from now.
+    #[must_use]
+    pub fn in_ms(ms: u64) -> Self {
+        Self(Cell::new(
+            Instant::now().checked_add(Duration::from_millis(ms)),
+        ))
+    }
+
+    /// Push the deadline back by `by`, for work the budget should not pay for.
+    pub fn extend(&self, by: Duration) {
+        self.0.set(self.0.get().and_then(|at| at.checked_add(by)));
+    }
+
+    /// Whether the deadline has passed.
+    #[must_use]
+    pub fn passed(&self) -> bool {
+        self.0.get().is_some_and(|at| Instant::now() >= at)
+    }
 }
 
-/// `Err(Cancelled)` once the caller has abandoned this highlight.
-fn cancelled(cancellation_flag: Option<&AtomicUsize>) -> Result<(), Error> {
-    if is_cancelled(cancellation_flag) {
-        return Err(Error::Cancelled);
+/// What may stop a highlight before it finishes.
+///
+/// A caller that has abandoned the work sets the flag; a caller that bounded
+/// the work sets the deadline. Both are read in the same places, so they travel
+/// together rather than as two arguments through every signature here.
+#[derive(Clone, Copy, Default)]
+pub struct Interrupt<'a> {
+    flag: Option<&'a AtomicUsize>,
+    deadline: Option<&'a Deadline>,
+}
+
+impl<'a> Interrupt<'a> {
+    /// Nothing stops this highlight.
+    #[must_use]
+    pub const fn none() -> Self {
+        Self {
+            flag: None,
+            deadline: None,
+        }
     }
-    Ok(())
+
+    /// Stop when `flag` holds anything but zero.
+    #[must_use]
+    pub const fn cancellation(mut self, flag: &'a AtomicUsize) -> Self {
+        self.flag = Some(flag);
+        self
+    }
+
+    /// Stop at `deadline`.
+    #[must_use]
+    pub const fn deadline(mut self, deadline: &'a Deadline) -> Self {
+        self.deadline = Some(deadline);
+        self
+    }
+
+    /// Whether this highlight should stop, and why.
+    #[must_use]
+    pub fn stopped(&self) -> Option<Error> {
+        if self
+            .flag
+            .is_some_and(|flag| flag.load(Ordering::Relaxed) != 0)
+        {
+            return Some(Error::Cancelled);
+        }
+        if self.deadline.is_some_and(Deadline::passed) {
+            return Some(Error::TimeLimit);
+        }
+        None
+    }
+
+    fn check(&self) -> Result<(), Error> {
+        self.stopped().map_or(Ok(()), Err)
+    }
 }
 
 /// Stop a query cursor when the caller has abandoned the highlight.
@@ -678,10 +794,10 @@ fn cancelled(cancellation_flag: Option<&AtomicUsize>) -> Result<(), Error> {
 /// ending the stream, so what it collected is discarded by the check that
 /// follows the walk rather than returned as a short document.
 fn progress(
-    cancellation_flag: Option<&AtomicUsize>,
+    interrupt: Interrupt<'_>,
 ) -> impl FnMut(&tree_sitter::QueryCursorState) -> ops::ControlFlow<()> + '_ {
     move |_| {
-        if is_cancelled(cancellation_flag) {
+        if interrupt.stopped().is_some() {
             ops::ControlFlow::Break(())
         } else {
             ops::ControlFlow::Continue(())
@@ -698,7 +814,7 @@ impl<'a> CaptureStream<'a> {
         replay_from_matches: bool,
         highlights_pattern_index: usize,
         covered_bytes: usize,
-        cancellation_flag: Option<&AtomicUsize>,
+        interrupt: Interrupt<'_>,
     ) -> Result<Self, Error> {
         if !replay_from_matches {
             return Self::collect_captures(
@@ -708,11 +824,11 @@ impl<'a> CaptureStream<'a> {
                 source,
                 highlights_pattern_index,
                 covered_bytes,
-                cancellation_flag,
+                interrupt,
             );
         }
 
-        Self::collect_matches(cursor, query, root, source, cancellation_flag)
+        Self::collect_matches(cursor, query, root, source, interrupt)
     }
 
     fn collect_matches(
@@ -720,13 +836,13 @@ impl<'a> CaptureStream<'a> {
         query: &'a Query,
         root: Node<'a>,
         source: &'a [u8],
-        cancellation_flag: Option<&AtomicUsize>,
+        interrupt: Interrupt<'_>,
     ) -> Result<Self, Error> {
         let mut patterns = Vec::new();
         let mut list_starts = Vec::new();
         let mut list_ends = Vec::new();
         let mut entries: Vec<QueryCapture<'a>> = Vec::new();
-        let mut abandoned = progress(cancellation_flag);
+        let mut abandoned = progress(interrupt);
         let mut matches = cursor.matches_with_options(
             query,
             root,
@@ -775,7 +891,7 @@ impl<'a> CaptureStream<'a> {
         }
 
         let removed = vec![false; patterns.len()];
-        cancelled(cancellation_flag)?;
+        interrupt.check()?;
         Ok(Self {
             patterns,
             list_starts,
@@ -784,6 +900,7 @@ impl<'a> CaptureStream<'a> {
             removed,
             order,
             position: 0,
+            exceeded_match_limit: cursor.did_exceed_match_limit(),
         })
     }
 
@@ -794,7 +911,7 @@ impl<'a> CaptureStream<'a> {
         source: &'a [u8],
         highlights_pattern_index: usize,
         covered_bytes: usize,
-        cancellation_flag: Option<&AtomicUsize>,
+        interrupt: Interrupt<'_>,
     ) -> Result<Self, Error> {
         let mut patterns: Vec<u32> = Vec::new();
         let mut list_starts: Vec<u32> = Vec::new();
@@ -811,7 +928,7 @@ impl<'a> CaptureStream<'a> {
         // The cursor numbers its matches from zero and upwards, so the slot each id
         // maps to is a lookup rather than a hash of one entry per match.
         let mut slot_of_id: Vec<u32> = Vec::new();
-        let mut abandoned = progress(cancellation_flag);
+        let mut abandoned = progress(interrupt);
         let mut query_captures = cursor.captures_with_options(
             query,
             root,
@@ -865,7 +982,7 @@ impl<'a> CaptureStream<'a> {
         }
 
         let removed = vec![false; patterns.len()];
-        cancelled(cancellation_flag)?;
+        interrupt.check()?;
         Ok(Self {
             patterns,
             list_starts,
@@ -874,6 +991,7 @@ impl<'a> CaptureStream<'a> {
             removed,
             order,
             position: 0,
+            exceeded_match_limit: cursor.did_exceed_match_limit(),
         })
     }
 
@@ -930,6 +1048,7 @@ impl Highlighter {
             match_limit: DEFAULT_MATCH_LIMIT,
             record_parsed_layers: false,
             parsed_layers: Vec::new(),
+            exceeded_match_limit: false,
         }
     }
 
@@ -956,6 +1075,16 @@ impl Highlighter {
         Ok(())
     }
 
+    /// Whether any layer's query cursor discarded matches at the match limit.
+    ///
+    /// Reset by each [`highlight`](Self::highlight). tree-sitter reports this
+    /// per cursor and nothing else reads it, so a document that quietly lost
+    /// scopes looked exactly like one that had none to lose.
+    #[must_use]
+    pub const fn exceeded_match_limit(&self) -> bool {
+        self.exceeded_match_limit
+    }
+
     pub fn record_parsed_layers(&mut self, record: bool) {
         self.record_parsed_layers = record;
     }
@@ -969,15 +1098,16 @@ impl Highlighter {
         &'a mut self,
         config: &'a HighlightConfiguration,
         source: &'a [u8],
-        cancellation_flag: Option<&'a AtomicUsize>,
+        interrupt: Interrupt<'a>,
         mut injection_callback: impl FnMut(&str) -> Option<&'a HighlightConfiguration> + 'a,
     ) -> Result<impl Iterator<Item = Result<HighlightEvent, Error>> + 'a, Error> {
         self.parsed_layers.clear();
+        self.exceeded_match_limit = false;
         let layers = HighlightIterLayer::new(
             source,
             None,
             self,
-            cancellation_flag,
+            interrupt,
             &mut injection_callback,
             config,
             0,
@@ -994,7 +1124,7 @@ impl Highlighter {
             language_name: &config.language_name,
             byte_offset: 0,
             injection_callback,
-            cancellation_flag,
+            interrupt,
             highlighter: self,
             iter_count: 0,
             layers,
@@ -1233,7 +1363,7 @@ impl<'a> HighlightIterLayer<'a> {
         source: &'a [u8],
         parent_name: Option<&str>,
         highlighter: &mut Highlighter,
-        cancellation_flag: Option<&'a AtomicUsize>,
+        interrupt: Interrupt<'a>,
         injection_callback: &mut F,
         mut config: &'a HighlightConfiguration,
         mut depth: usize,
@@ -1249,30 +1379,35 @@ impl<'a> HighlightIterLayer<'a> {
                     .map_err(|_| Error::InvalidLanguage)?;
 
                 // tree-sitter 0.26 uses ControlFlow for cancellation checks.
-                let tree = highlighter
-                    .parser
-                    .parse_with_options(
-                        &mut |i, _| {
-                            if i < source.len() {
-                                &source[i..]
-                            } else {
-                                &[]
-                            }
-                        },
-                        None,
-                        Some(ParseOptions::new().progress_callback(&mut |_| {
-                            if let Some(cancellation_flag) = cancellation_flag {
-                                if cancellation_flag.load(Ordering::SeqCst) != 0 {
-                                    ops::ControlFlow::Break(())
-                                } else {
-                                    ops::ControlFlow::Continue(())
-                                }
-                            } else {
-                                ops::ControlFlow::Continue(())
-                            }
-                        })),
-                    )
-                    .ok_or(Error::Cancelled)?;
+                let tree = highlighter.parser.parse_with_options(
+                    &mut |i, _| {
+                        if i < source.len() {
+                            &source[i..]
+                        } else {
+                            &[]
+                        }
+                    },
+                    None,
+                    Some(ParseOptions::new().progress_callback(&mut |_| {
+                        if interrupt.stopped().is_some() {
+                            ops::ControlFlow::Break(())
+                        } else {
+                            ops::ControlFlow::Continue(())
+                        }
+                    })),
+                );
+
+                // A parse the callback stopped leaves the parser holding
+                // this document, and tree-sitter resumes it on the next call
+                // unless it is reset. Highlighters are pooled and reused, so
+                // without this the render after an interrupted one continues
+                // this document instead of parsing its own — under a fresh
+                // clock, so it is not bounded either.
+                let Some(tree) = tree else {
+                    highlighter.parser.reset();
+                    // A parse stops for whichever interrupt fired; say which.
+                    return Err(interrupt.stopped().unwrap_or(Error::Cancelled));
+                };
                 let mut cursor = highlighter.cursors.pop().unwrap_or_default();
                 cursor.set_match_limit(highlighter.match_limit);
 
@@ -1340,10 +1475,11 @@ impl<'a> HighlightIterLayer<'a> {
                             end.saturating_sub(range.start_byte.min(end))
                         })
                         .sum(),
-                    cancellation_flag,
+                    interrupt,
                 );
                 highlighter.cursors.push(cursor);
                 let captures = captures?;
+                highlighter.exceeded_match_limit |= captures.exceeded_match_limit;
 
                 if highlighter.record_parsed_layers {
                     highlighter.parsed_layers.push(ParsedLayer {
@@ -1582,15 +1718,13 @@ where
                 return Some(Ok(e));
             }
 
-            // Periodically check for cancellation, returning `Cancelled` error if the
-            // cancellation flag was flipped.
-            if let Some(cancellation_flag) = self.cancellation_flag {
-                self.iter_count += 1;
-                if self.iter_count >= CANCELLATION_CHECK_INTERVAL {
-                    self.iter_count = 0;
-                    if cancellation_flag.load(Ordering::Relaxed) != 0 {
-                        return Some(Err(Error::Cancelled));
-                    }
+            // Periodically check whether this highlight should stop, returning
+            // why it stopped.
+            self.iter_count += 1;
+            if self.iter_count >= CANCELLATION_CHECK_INTERVAL {
+                self.iter_count = 0;
+                if let Some(stopped) = self.interrupt.stopped() {
+                    return Some(Err(stopped));
                 }
             }
 
@@ -1693,7 +1827,7 @@ where
                                 self.source,
                                 Some(self.language_name),
                                 self.highlighter,
-                                self.cancellation_flag,
+                                self.interrupt,
                                 &mut self.injection_callback,
                                 config,
                                 self.layers[0].depth + 1,
