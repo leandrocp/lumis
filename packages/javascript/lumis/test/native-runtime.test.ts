@@ -411,6 +411,7 @@ describe("native adapter routing", () => {
         return nativeRuntime;
       },
       configureStore: () => true,
+      setDeclaredSet: () => undefined,
       runtimeKind: () => "native",
     } as unknown as NativeBinding;
     const resolvers = {
@@ -448,6 +449,7 @@ describe("native adapter routing", () => {
         return nativeRuntime;
       },
       configureStore: () => true,
+      setDeclaredSet: () => undefined,
       runtimeKind: () => "native",
     } as unknown as NativeBinding;
     const parserBytes = new Uint8Array([0]);
@@ -500,6 +502,7 @@ describe("native adapter routing", () => {
         return nativeRuntime;
       },
       configureStore: () => true,
+      setDeclaredSet: () => undefined,
       runtimeKind: () => "native",
     } as unknown as NativeBinding;
     const resolveLanguagePackage = vi.fn<RuntimeLike["resolveLanguagePackage"]>(async () => ({

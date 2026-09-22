@@ -29,7 +29,7 @@ exactly one of these.
 | Runtime | Declares its set in | Needs `lumis-lock.toml` |
 | --- | --- | --- |
 | Rust | `Cargo.toml` features | no |
-| JavaScript / TypeScript | `package.json` | no |
+| JavaScript / TypeScript | `package.json` dependencies | no |
 | Elixir | `lumis-lock.toml` | **yes** |
 | CLI | nothing | no |
 
@@ -70,18 +70,29 @@ mix lumis.install
   </Tab>
   <Tab value="JavaScript / TypeScript">
 
-Install the parsers you want and your lockfile pins them. There is no separate
-Lumis lock.
+Install the parsers you want. Your package manager's lockfile pins them, so
+there is no separate Lumis lock.
 
 ```bash
-pnpm add @lumis-sh/wasm-rust
+npm install @lumis-sh/wasm-rust @lumis-sh/wasm-json
 ```
 
-A bundle covers a set in one package:
+Rust and JSON now highlight. A Markdown file with a Haskell block renders that
+block as plain text — Lumis will not go and fetch `haskell`.
+
+Install nothing and the opposite holds: every language downloads the first time
+a document names it. That is the default, and why highlighting works with no
+setup.
+
+A bundle installs a set in one package:
 
 ```bash
-pnpm add @lumis-sh/wasm-bundle-web
+npm install @lumis-sh/wasm-bundle-web
 ```
+
+Only `dependencies` count. Parsers in `devDependencies` or
+`optionalDependencies` do not close the set, so a library that tests against one
+still downloads everything at runtime.
 
   </Tab>
   <Tab value="Rust">

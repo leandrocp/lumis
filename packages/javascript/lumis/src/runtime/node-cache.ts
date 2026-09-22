@@ -226,3 +226,66 @@ export async function withWasmCacheLock<T>(
     }
   }
 }
+
+/**
+ * Whether the nearest `package.json` depends on any `@lumis-sh/wasm-*` package.
+ *
+ * That dependency list is a JavaScript project's declaration of the languages it
+ * uses, so its presence closes the set the way a `lumis-lock.toml` does for
+ * Elixir. Searched upward from the working directory, as a lock is, so a command
+ * run inside a workspace package still finds the manifest that installed them.
+ *
+ * Read once. A dependency list does not change while a process runs, and asking
+ * the filesystem on every resolution would put a stat in the highlight path.
+ */
+let declaredLanguages: Promise<boolean> | undefined;
+
+export function declaresLanguages(): Promise<boolean> {
+  declaredLanguages ??= detectDeclaredLanguages();
+  return declaredLanguages;
+}
+
+/** Drop the memoized answer. For tests, which move between fixture projects. */
+export function __resetDeclaredLanguages(): void {
+  declaredLanguages = undefined;
+}
+
+async function detectDeclaredLanguages(): Promise<boolean> {
+  const { readFile } = await import("node:fs/promises");
+  const { dirname, join } = await import("node:path");
+
+  let directory = process.cwd();
+  for (;;) {
+    try {
+      const manifest: unknown = JSON.parse(await readFile(join(directory, "package.json"), "utf8"));
+      if (dependsOnParser(manifest)) return true;
+    } catch {
+      // No manifest here, or one that is not readable JSON. Keep walking: a
+      // missing file is the common case at every level but one.
+    }
+
+    const parent = dirname(directory);
+    if (parent === directory) return false;
+    directory = parent;
+  }
+}
+
+/**
+ * `dependencies` only.
+ *
+ * `devDependencies` are not shipped, so they say nothing about what an
+ * application may load — they are what its own tests and build need. Counting
+ * them would close the set for any library that tests against a parser,
+ * including this package, whose `devDependencies` list two.
+ *
+ * `optionalDependencies` are excluded for a different reason: they fail to
+ * install silently, by design. A parser listed there that did not install would
+ * still close the set and then be refused itself, which is a worse outcome than
+ * downloading it.
+ */
+function dependsOnParser(manifest: unknown): boolean {
+  if (typeof manifest !== "object" || manifest === null) return false;
+  const dependencies = (manifest as Record<string, unknown>).dependencies;
+  if (typeof dependencies !== "object" || dependencies === null) return false;
+  return Object.keys(dependencies).some((name) => name.startsWith("@lumis-sh/wasm-"));
+}

@@ -286,11 +286,22 @@ fn reject_reentrant_highlight(env: &Env) -> Result<()> {
 /// Read once, when the runtime is built.
 static STORE_PATHS: Mutex<StorePaths> = Mutex::new(StorePaths {
     data_dir: None,
+    declared_set: false,
     consumed: false,
 });
 
 struct StorePaths {
     data_dir: Option<PathBuf>,
+    /// Whether the project declared the languages it uses.
+    ///
+    /// False by default, which is the zero-configuration case: nothing was
+    /// declared, so anything a document names resolves on demand. True means
+    /// the project depends on `@lumis-sh/wasm-*` packages, and that list is the
+    /// whole set — a language outside it is not fetched.
+    ///
+    /// Unlike `data_dir` this is read per *request*, by `SwitchableFetcher`, so
+    /// it does not have to be known before the runtime is built.
+    declared_set: bool,
     /// Set when the runtime read them, which it does exactly once.
     consumed: bool,
 }
@@ -334,6 +345,22 @@ pub fn configure_store(data_dir: Option<String>) -> bool {
     true
 }
 
+/// Record whether the project declared the languages it uses.
+///
+/// Internal: JavaScript works this out by reading the nearest `package.json`,
+/// and the addon has to know because it resolves injected languages itself,
+/// during a native walk, without returning to JavaScript.
+///
+/// Unlike [`configure_store`] this does not have to be set before the runtime
+/// exists, because `SwitchableFetcher` reads it per request.
+#[napi(js_name = "setDeclaredSet")]
+pub fn set_declared_set(declared: bool) {
+    STORE_PATHS
+        .lock()
+        .expect("store path lock poisoned")
+        .declared_set = declared;
+}
+
 /// The directory the store uses when nothing names one, so Node can defer to the
 /// same `etcetera` resolution the addon itself runs instead of porting it.
 #[napi(js_name = "defaultDataDir")]
@@ -352,13 +379,40 @@ pub fn precompile_languages(
 }
 
 /// The same resolve, verify and cache path the CLI and the Elixir NIF use.
+/// An HTTP fetcher that asks, per request, whether the project declared its set.
+///
+/// Choosing between `HttpFetcher` and `NoNetwork` when the store is built would
+/// not work: the shared runtime builds its store once, and JavaScript learns the
+/// answer by reading a manifest, so the decision would be frozen at whatever was
+/// known the first time anything loaded.
+struct SwitchableFetcher;
+
+impl store::Fetcher for SwitchableFetcher {
+    fn get(&self, url: &str) -> std::result::Result<Vec<u8>, String> {
+        // Read and release. Holding the lock across the request would serialize
+        // every concurrent download behind it.
+        let declared = STORE_PATHS
+            .lock()
+            .expect("store path lock poisoned")
+            .declared_set;
+        if declared {
+            return Err(
+                "this project declares the languages it uses, and this is not one of them"
+                    .to_string(),
+            );
+        }
+        store::HttpFetcher.get(url)
+    }
+}
+
 fn language_store(cache_dir: Option<PathBuf>) -> store::LanguageStore {
     let mut configured = STORE_PATHS.lock().expect("store path lock poisoned");
     configured.consumed = true;
     let cache_dir = store::resolve_data_dir(cache_dir.or_else(|| configured.data_dir.clone()));
+    drop(configured);
     store::LanguageStore::new(
         store::StoreConfig { cache_dir },
-        Box::new(store::HttpFetcher),
+        Box::new(SwitchableFetcher),
     )
 }
 

@@ -200,6 +200,23 @@ export const DEFAULT_LANGUAGE_PACKAGE_RESOLVER: LanguagePackageResolver = (
 ) => `${CDNS[0]}/${packageName}@${versionRange}/lumis.json`;
 
 /** Only used with the default resolver; a custom resolver names one location. */
+/**
+ * Raised for a language outside the set this project declared.
+ *
+ * Names the package rather than the URL, because the fix is to add it: the
+ * declaration for a JavaScript project is what `package.json` holds, and this is
+ * the language that was not in it.
+ *
+ * No install command, because there is no way to know which package manager the
+ * project uses, and printing the wrong one is worse than printing none.
+ */
+function notDeclared(what: string, install: string): Error {
+  return new Error(
+    `${what} is not one of the @lumis-sh/wasm-* packages this project depends on` +
+      `\n  add ${install} to its dependencies`,
+  );
+}
+
 async function fetchFromCdns(primary: string, isDefault: boolean): Promise<Response> {
   const urls = isDefault ? CDNS.map((base) => primary.replace(CDNS[0], base)) : [primary];
   const failures: string[] = [];
@@ -1019,6 +1036,9 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
   let configuredDefaultResolver: WasmResolver = DEFAULT_RESOLVER;
   let configuredLanguagePackageResolver: LanguagePackageResolver =
     DEFAULT_LANGUAGE_PACKAGE_RESOLVER;
+  // Resolved once, on first use: `declaresLanguages` reads a manifest, and a
+  // project's dependency list does not change while the process runs.
+  let declaredLanguages: Promise<boolean> | undefined;
   const moduleCache = createSharedRuntimeCache();
   const parserModules = new Map<string, CachedParserModule>();
 
@@ -1073,6 +1093,21 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       return this.explicitLanguagePackageResolver ?? configuredLanguagePackageResolver;
     }
 
+    /**
+     * Whether a language this project did not declare may still be fetched.
+     *
+     * A project that depends on `@lumis-sh/wasm-*` packages has said which
+     * languages it uses, and that list is the whole set — as `Cargo.toml`
+     * features are in Rust and `lumis-lock.toml` is in Elixir. One that depends
+     * on none has declared nothing, so everything resolves on demand and
+     * highlighting works with no configuration at all.
+     */
+    private async mayDownload(): Promise<boolean> {
+      if (!runtime.declaresLanguages) return true;
+      declaredLanguages ??= runtime.declaresLanguages();
+      return !(await declaredLanguages);
+    }
+
     private acceptsPackage(packageMetadata: LanguagePackage): boolean {
       return isCompatibleLanguagePackageVersion(packageMetadata.version);
     }
@@ -1121,6 +1156,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
         if (this.acceptsPackage(packageMetadata)) return packageMetadata;
         throw incompatiblePackageVersion(packageMetadata);
       }
+      if (!(await this.mayDownload())) throw notDeclared(packageName, packageName);
       const href = typeof source === "string" ? source : source.href;
       const response = await fetchFromCdns(
         href,
@@ -1234,6 +1270,9 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const url = this.resolver(language, ref);
       const diskData = await runtime.readResolvedWasmFromDisk(url);
       if (diskData) return diskData;
+      if (!(await this.mayDownload())) {
+        throw notDeclared(`${ref.name}@${ref.version}`, ref.packageName);
+      }
       const href = typeof url === "string" ? url : url.href;
       const response = await fetchFromCdns(href, this.resolver === DEFAULT_RESOLVER).catch(
         (error: Error) => {

@@ -5,6 +5,7 @@ import { createNativeLanguagesModule } from "../core/native-languages.js";
 import { loadNativeBinding } from "../native-binding.js";
 import treeSitterWasmBinary from "../tree-sitter-wasm.js";
 import {
+  declaresLanguages,
   isUrlString,
   readCachedWasm,
   wasmCacheFilename,
@@ -103,6 +104,8 @@ export const nodeRuntime: RuntimeEnvironment = {
       wasmBinary: treeSitterWasmBinary,
     };
   },
+
+  declaresLanguages,
 };
 
 export { wasmCacheFilename };
@@ -131,7 +134,7 @@ const binding = loadNativeBinding();
 const wasmRuntime = createLanguagesModule(nodeRuntime);
 
 const runtime: LanguagesModule = binding
-  ? createNativeLanguagesModule(binding, wasmRuntime)
+  ? createNativeLanguagesModule(binding, wasmRuntime, declaresLanguages)
   : wasmRuntime;
 
 /**

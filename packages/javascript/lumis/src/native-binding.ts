@@ -120,6 +120,17 @@ export interface NativeBinding {
   precompileLanguages(names: string[], directory?: string): Promise<boolean>;
   /** `false` once the runtime has read them, which it does on first use. */
   configureStore(dataDir?: string): boolean;
+  /**
+   * Tell the addon whether the project declared the languages it uses.
+   *
+   * JavaScript works that out by reading the nearest `package.json`; the addon
+   * has to know because it resolves injected languages itself during a native
+   * walk, without returning to JavaScript.
+   *
+   * Unlike `configureStore` this need not be set before the runtime exists,
+   * since the addon reads it per request.
+   */
+  setDeclaredSet(declared: boolean): void;
   /** Where the store lives when `LUMIS_DATA_DIR` names nothing. */
   defaultDataDir(): string;
 }
