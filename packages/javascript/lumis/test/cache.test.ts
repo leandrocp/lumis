@@ -242,9 +242,13 @@ describe("the former name", () => {
   // Renaming a published export without keeping the old one turns an upgrade
   // into a build error for every caller.
   it("still points at downloadLanguages", async () => {
-    const cache = await import("../src/cache.js");
+    // Read off a loose type rather than the module's own: naming
+    // `cacheLanguages` through it would trip `no-deprecated`, and silencing
+    // that needs a directive the repo's other oxlint run — the one without
+    // `--type-aware` — then reports as unused. What the test checks is the
+    // binding at runtime, which this still does.
+    const cache = (await import("../src/cache.js")) as Record<string, unknown>;
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated -- being deprecated is the point
     expect(cache.cacheLanguages).toBe(downloadLanguages);
   });
 });
