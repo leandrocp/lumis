@@ -22,7 +22,7 @@ defmodule Lumis.Packages do
   # no parsers, so it may load none. Nothing is fetched to make up the
   # difference, which is the same thing depending on no `@lumis-sh/wasm-*`
   # package means in JavaScript and compiling no language features means in
-  # Rust. A language you did not add is a language you do not have.
+  # Rust.
   @spec installed_dirs() :: [Path.t()]
   def installed_dirs do
     (configured() ++ Enum.flat_map(roots(), &parser_dir/1))

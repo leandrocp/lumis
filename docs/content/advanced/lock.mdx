@@ -23,9 +23,9 @@ have.
 
 ## One rule, one place to look
 
-Every runtime honours the same rule: **a language you did not add is a language
-you do not have.** A parser is a dependency, declared where that runtime's
-dependencies already live.
+Every runtime resolves parsers the same way: **only the ones the project
+installed**, with no fallback that fetches anything else. A parser is a
+dependency, declared where that runtime's dependencies already live.
 
 | Runtime | Declares its parsers in | Pinned by |
 | --- | --- | --- |

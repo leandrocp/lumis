@@ -59,9 +59,8 @@ defmodule Lumis.Languages do
   is every language in the catalog, which is rarely what a deployment wants; prefer
   a narrower bundle, or name the languages a document can contain.
 
-  Loading only ever reaches parsers this project depends on. A parser is an
-  ordinary dependency, so a language you did not add is a language you do not
-  have:
+  Loading only ever reaches parsers this project depends on, because a parser is
+  an ordinary dependency:
 
       # mix.exs
       {:lumis_wasm_elixir, "~> 0.26"}
