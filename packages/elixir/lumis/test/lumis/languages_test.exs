@@ -352,7 +352,10 @@ defmodule Lumis.LanguagesTest do
     test "cache/2 still works under its former name" do
       # Renaming a published function without keeping the old one is what turns
       # an upgrade into a compile error for every caller.
-      assert {:ok, []} = apply(Lumis.Languages, :cache, [["plaintext"]])
+      #
+      # Called by name, like the other "deprecated still works" tests: the
+      # deprecation warning this prints names this line, which is the point.
+      assert {:ok, []} = Lumis.Languages.cache(["plaintext"])
     end
   end
 end

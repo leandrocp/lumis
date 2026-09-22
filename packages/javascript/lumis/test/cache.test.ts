@@ -242,8 +242,9 @@ describe("the former name", () => {
   // Renaming a published export without keeping the old one turns an upgrade
   // into a build error for every caller.
   it("still points at downloadLanguages", async () => {
-    const { cacheLanguages } = await import("../src/cache.js");
+    const cache = await import("../src/cache.js");
 
-    expect(cacheLanguages).toBe(downloadLanguages);
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- being deprecated is the point
+    expect(cache.cacheLanguages).toBe(downloadLanguages);
   });
 });

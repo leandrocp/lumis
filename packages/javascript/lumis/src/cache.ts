@@ -213,7 +213,7 @@ export async function downloadLanguages(
 async function languagePackageFor(
   packageName: string,
   packages: Map<string, LanguagePackage>,
-  options: CacheLanguagesOptions,
+  options: DownloadLanguagesOptions,
   packageResolver: LanguagePackageResolver,
 ): Promise<LanguagePackage> {
   const known = packages.get(packageName);
@@ -308,8 +308,8 @@ async function precompileNatively(
  */
 export const cacheLanguages = downloadLanguages;
 
-/** @deprecated Renamed to {@link DownloadLanguagesOptions}. */
+/** @deprecated Renamed to `DownloadLanguagesOptions`. */
 export type CacheLanguagesOptions = DownloadLanguagesOptions;
 
-/** @deprecated Renamed to {@link DownloadedLanguage}. */
+/** @deprecated Renamed to `DownloadedLanguage`. */
 export type CachedLanguage = DownloadedLanguage;
