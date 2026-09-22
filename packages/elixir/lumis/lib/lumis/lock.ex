@@ -1,47 +1,34 @@
 defmodule Lumis.Lock do
-  @moduledoc """
-  Where this project's `lumis-lock.toml` lives, and how it reaches a release.
+  @moduledoc false
 
-  A lock pins every parser a project may load, at an exact version with the
-  digests to prove it. Without one, whichever compatible version a machine
-  downloaded first is the one it keeps, so two machines can render the same
-  document differently and nothing records which parser produced which output.
-
-  Elixir is one of the runtimes that needs a lock. A Rust project declares its
-  languages as `Cargo.toml` features and a JavaScript project installs
-  `@lumis-sh/wasm-*` packages, so both already pin what they use; an Elixir
-  application fetches parsers at runtime and has no manifest of its own.
-
-  Use `mix lumis.add` and friends to manage it.
-  """
+  # Where this project's `lumis-lock.toml` lives, and how it reaches a release.
+  #
+  # Internal. What users touch is `mix lumis.*` and `config :lumis, :lock`; what
+  # a lock is and which runtimes need one belongs in the docs site, not here.
 
   @lock_file "lumis-lock.toml"
 
-  @doc """
-  The lock governing this application, or `nil` when there is none.
-
-  Resolved in order:
-
-    1. `config :lumis, :lock`, an explicit path
-    2. `lumis-lock.toml` in the data directory, which is what a release reads
-    3. `lumis-lock.toml` at or above the working directory, for `mix` and tests
-
-  A release has no project to search upward from, which is why the data
-  directory carries a copy. `mix lumis.add` and `mix lumis.install` write it,
-  so the two never drift apart in normal use.
-  """
+  # The lock governing this application, or `nil` when there is none.
+  #
+  # Resolved in order:
+  #
+  #   1. `config :lumis, :lock`, an explicit path
+  #   2. `lumis-lock.toml` in the data directory, which is what a release reads
+  #   3. `lumis-lock.toml` at or above the working directory, for `mix` and tests
+  #
+  # A release has no project to search upward from, which is why the data
+  # directory carries a copy. `mix lumis.add` and `mix lumis.install` write it,
+  # so the two never drift apart in normal use.
   @spec path() :: Path.t() | nil
   def path do
     configured() || in_data_dir() || nearest(File.cwd!())
   end
 
-  @doc """
-  The lock a `mix lumis.*` task edits: the one governing the current project.
-
-  Unlike `path/0` this never answers with the data directory's copy, which is an
-  output rather than a source. `create?` decides whether a project with no lock
-  yet gets a path to create one at, which only `mix lumis.add` wants.
-  """
+  # The lock a `mix lumis.*` task edits: the one governing the current project.
+  #
+  # Unlike `path/0` this never answers with the data directory's copy, which is
+  # an output rather than a source. `create?` decides whether a project with no
+  # lock yet gets a path to create one at, which only `mix lumis.add` wants.
   @spec project_path(boolean()) :: {:ok, Path.t()} | {:error, String.t()}
   def project_path(create? \\ false) do
     cwd = File.cwd!()
@@ -53,13 +40,11 @@ defmodule Lumis.Lock do
     end
   end
 
-  @doc """
-  Copy `source` into the data directory, so a release reads what was locked.
-
-  A release ships `priv/` but not the project root, so without this the
-  application would boot with no lock and load anything — the behaviour the lock
-  exists to remove.
-  """
+  # Copy `source` into the data directory, so a release reads what was locked.
+  #
+  # A release ships `priv/` but not the project root, so without this the
+  # application would boot with no lock and load anything — the behaviour the
+  # lock exists to remove.
   @spec sync(Path.t()) :: :ok | {:error, File.posix()}
   def sync(source) do
     destination = data_dir_lock()
@@ -71,7 +56,6 @@ defmodule Lumis.Lock do
     end
   end
 
-  @doc false
   @spec file_name() :: String.t()
   def file_name, do: @lock_file
 

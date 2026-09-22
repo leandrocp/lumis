@@ -314,22 +314,12 @@ lumis languages cache --all
 lumis languages cache rust javascript --force
 ```
 
-## `lumis-lock.toml`
+## Pinning parsers
 
-The CLI does not read or write a project's lock. It is its own runtime with its
-own store, so `lumis highlight` resolves freely and `lumis languages cache`
-fills the store — a viewer is not the application whose output a lock governs,
-and a highlighter whose behaviour changed with the working directory would be
-worse than one that does not.
-
-A lock belongs to a project, and the runtime that owns that project manages it:
-`mix lumis.*` in Elixir, `package.json` in JavaScript, `Cargo.toml` features in
-Rust. See [Architecture](/architecture) for which runtimes need one and why.
-
-```bash title="Elixir"
-mix lumis.add rust
-mix lumis.install
-```
+The CLI has no lock. `lumis highlight` resolves freely and `lumis languages
+cache` fills its store — a viewer is not the application whose output a lock
+governs. Pinning belongs to a project and its own runtime; see
+[Pinning parsers](/advanced/lock).
 
 ## `lumis themes list`
 
