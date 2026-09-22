@@ -250,24 +250,69 @@ impl Lock {
         Ok(toml::to_string_pretty(&sorted)?)
     }
 
-    /// Write the lock to `path` under an advisory lock.
+    /// Write the lock to `path`.
     ///
-    /// The parser store deliberately has no file lock: writes rename a uniquely
-    /// named temporary into place and content is verified first, so concurrent
-    /// writers converge. A lock file cannot use that trick — it is one mutable
-    /// document with many keys, so two `add` runs would each write the entry
-    /// they knew about and the later rename would win outright.
+    /// A caller that reads, mutates and writes must hold a [`LockFile`] across
+    /// all three instead; this is for one that has already serialized itself.
     pub fn write(&self, path: &Path) -> Result<(), LockError> {
         let contents = self.to_toml()?;
-        let guard = LockGuard::acquire(path)?;
         crate::store::write_atomic(path, contents.as_bytes()).map_err(|error| {
             LockError::io(
                 format!("could not write {}", path.display()),
                 std::io::Error::other(error),
             )
-        })?;
-        drop(guard);
-        Ok(())
+        })
+    }
+}
+
+/// Exclusive access to one lock file, held across read, mutate and write.
+///
+/// The parser store deliberately has no file lock: writes rename a uniquely
+/// named temporary into place and parser bytes are verified first, so concurrent
+/// writers converge on identical content. A lock file cannot use that trick — it
+/// is one mutable document with many keys, so two `add` runs would each write
+/// the entry they knew about and the later rename would win outright, silently
+/// dropping the other.
+///
+/// Guarding only the write would not help, because both runs read the same
+/// earlier state before either wrote. The guard has to span the whole
+/// read-modify-write, which is why taking it is a step of its own.
+pub struct LockFile {
+    path: PathBuf,
+    _guard: LockGuard,
+}
+
+impl LockFile {
+    /// Take exclusive access to the lock at `path`, blocking until it is free.
+    ///
+    /// # Errors
+    /// Fails when the sidecar cannot be created or locked.
+    pub fn open(path: &Path) -> Result<Self, LockError> {
+        Ok(Self {
+            _guard: LockGuard::acquire(path)?,
+            path: path.to_path_buf(),
+        })
+    }
+
+    #[must_use]
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    /// The lock as it stands, or `None` when the file does not exist yet.
+    ///
+    /// # Errors
+    /// Fails when the file exists but cannot be read or parsed.
+    pub fn read(&self) -> Result<Option<Lock>, LockError> {
+        Lock::read(&self.path)
+    }
+
+    /// Replace the file's contents.
+    ///
+    /// # Errors
+    /// Fails when the lock cannot be serialized or the file cannot be replaced.
+    pub fn write(&self, lock: &Lock) -> Result<(), LockError> {
+        lock.write(&self.path)
     }
 }
 
@@ -300,15 +345,29 @@ pub fn resolve_path(start: &Path) -> Option<PathBuf> {
     find(start).or_else(|| default_path(start))
 }
 
+/// Where the advisory sidecar for `target` lives.
+///
+/// A dotfile beside the lock rather than a visible one, because it stays on disk
+/// (see [`LockGuard`]'s `Drop`) and should not look like something to commit.
+/// It is also not put in the data directory: two projects can share one, and
+/// locking project A's file must not block project B.
+#[must_use]
+pub fn sidecar_path(target: &Path) -> PathBuf {
+    let name = target.file_name().map_or_else(
+        || LOCK_FILE_NAME.to_string(),
+        |name| name.to_string_lossy().into_owned(),
+    );
+    target.with_file_name(format!(".{name}.lock"))
+}
+
 /// Held for the duration of a lock-file write.
 struct LockGuard {
     file: std::fs::File,
-    path: PathBuf,
 }
 
 impl LockGuard {
     fn acquire(target: &Path) -> Result<Self, LockError> {
-        let path = target.with_extension("toml.lock");
+        let path = sidecar_path(target);
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|error| {
                 LockError::io(format!("could not create {}", parent.display()), error)
@@ -322,15 +381,18 @@ impl LockGuard {
             .map_err(|error| LockError::io(format!("could not open {}", path.display()), error))?;
         file.lock()
             .map_err(|error| LockError::io(format!("could not lock {}", path.display()), error))?;
-        Ok(Self { file, path })
+        Ok(Self { file })
     }
 }
 
+// The sidecar is deliberately left on disk. Removing it would unlink a file
+// another process has already opened and is blocked on, so that process would
+// end up holding a lock on an inode with no name while a third created a fresh
+// file and took a second "exclusive" lock on the same target.
 impl Drop for LockGuard {
     fn drop(&mut self) {
         let _ = self.file.flush();
         let _ = self.file.unlock();
-        let _ = std::fs::remove_file(&self.path);
     }
 }
 
@@ -486,9 +548,40 @@ future_row_field = 7
 
         lock.write(&path).unwrap();
         assert_eq!(Lock::read(&path).unwrap().unwrap(), lock);
-        assert!(
-            !path.with_extension("toml.lock").exists(),
-            "the advisory lock file is cleaned up"
+    }
+
+    /// The failure the guard exists to prevent: two writers that each read the
+    /// same earlier state keep only the later entry. Guarding the write alone
+    /// would not catch this, because both reads happen before either write.
+    #[test]
+    fn concurrent_writers_do_not_drop_each_others_entries() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(LOCK_FILE_NAME);
+        Lock::new("0.26").write(&path).unwrap();
+
+        std::thread::scope(|scope| {
+            for language in ["rust", "elixir"] {
+                let path = path.clone();
+                scope.spawn(move || {
+                    let file = LockFile::open(&path).unwrap();
+                    let mut lock = file.read().unwrap().unwrap();
+                    // Widen the window the guard has to cover.
+                    std::thread::sleep(std::time::Duration::from_millis(50));
+                    lock.insert(package(
+                        &format!("@lumis-sh/wasm-{language}"),
+                        "0.26.1",
+                        &[language],
+                    ));
+                    file.write(&lock).unwrap();
+                });
+            }
+        });
+
+        let final_lock = Lock::read(&path).unwrap().unwrap();
+        assert_eq!(
+            final_lock.packages.len(),
+            2,
+            "both entries survive: {final_lock:?}"
         );
     }
 

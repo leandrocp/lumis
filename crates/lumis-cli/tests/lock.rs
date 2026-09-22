@@ -1,8 +1,9 @@
 //! `lumis languages add|remove|update|install` against a staged store.
 //!
-//! Every test here runs offline. The lock names the versions `common::data_dir`
-//! staged, so `install` is satisfied from disk and nothing reaches a CDN —
-//! which is also the deployment shape the lock exists to make reproducible.
+//! These run against the staged fixture store rather than a CDN, which is also
+//! the deployment shape the lock exists to make reproducible. The one exception
+//! is noted where it happens: refusing a version the store holds necessarily
+//! falls through to a fetch, and that fetch is expected to fail.
 
 use assert_cmd::cargo::cargo_bin_cmd;
 use lumis_wasm_runtime::sha256_hex;
@@ -112,6 +113,12 @@ fn install_finds_the_lock_from_a_nested_directory() {
 /// The enforcement the whole feature is for: the staged store holds a
 /// range-compatible manifest, but it is not the version the lock names, so it
 /// must not satisfy the lock.
+///
+/// Refusing the local file necessarily falls through to a fetch for the pinned
+/// version, which is the one place here that touches the network. The assertion
+/// is on the store having been bypassed rather than on the fetch's own failure,
+/// so it reads the same whether the CDN answers 404 or is unreachable — and it
+/// still discriminates, because accepting the stale manifest would *succeed*.
 #[test]
 fn install_refuses_a_version_the_store_has_but_the_lock_does_not_name() {
     let project = project();
@@ -130,7 +137,10 @@ fn install_refuses_a_version_the_store_has_but_the_lock_does_not_name() {
     cmd(&project.nested)
         .args(["languages", "install"])
         .assert()
-        .failure();
+        .failure()
+        // Naming the pinned version proves the stale local manifest was refused
+        // and the pinned one was sought, rather than the run failing earlier.
+        .stderr(predicate::str::contains("0.26.999"));
 }
 
 #[test]

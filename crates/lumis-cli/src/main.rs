@@ -875,8 +875,8 @@ fn run_languages(
         // the range; `install` must resolve only what is already pinned.
         LanguagesCommands::Add { languages } => {
             let cwd = std::env::current_dir()?;
-            let reg = registry::Registry::new(data_dir)?;
-            lock_commands::add(&reg, &cwd, &languages)
+            let reg = registry::Registry::new(data_dir.clone())?;
+            lock_commands::add(&reg, &data_dir, &cwd, &languages)
         }
         LanguagesCommands::Remove { languages } => {
             lock_commands::remove(&std::env::current_dir()?, &languages)

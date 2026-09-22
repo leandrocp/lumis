@@ -355,6 +355,16 @@ definition_hash = "..."
 `manifest_sha256` covers the package metadata itself, not only the parser it
 describes, so a registry cannot serve different bytes than the ones recorded.
 
+Commit `lumis-lock.toml`, and ignore the advisory sidecar beside it:
+
+```gitignore title=".gitignore"
+.lumis-lock.toml.lock
+```
+
+The sidecar is how two `lumis languages add` runs avoid overwriting each other's
+entries. It stays on disk deliberately — deleting it would race a process that
+has already opened it and is waiting.
+
 Rows are keyed on the package because one package can back several languages —
 `ejs` and `erb` are both `@lumis-sh/wasm-embedded-template`. `languages` lists
 what you added, so a lock can pin `ejs` without also allowing `erb`.

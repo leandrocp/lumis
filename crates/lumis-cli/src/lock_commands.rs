@@ -6,7 +6,7 @@
 
 use anyhow::{bail, Context, Result};
 use lumis_wasm_runtime::catalog;
-use lumis_wasm_runtime::lock::{self, Lock, LockedPackage, LOCK_FILE_NAME};
+use lumis_wasm_runtime::lock::{self, Lock, LockFile, LockedPackage, LOCK_FILE_NAME};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
@@ -16,8 +16,52 @@ use crate::registry::Registry;
 pub(crate) struct Located {
     pub(crate) path: PathBuf,
     pub(crate) lock: Lock,
-    /// Whether the file existed; `add` is the only command that may create one.
+}
+
+/// A lock held open for a command that will rewrite it.
+///
+/// The handle is taken before the read, so a concurrent `add` cannot observe the
+/// same earlier state and then overwrite this one's entry.
+pub(crate) struct Held {
+    pub(crate) file: LockFile,
+    pub(crate) lock: Lock,
     pub(crate) existed: bool,
+}
+
+impl Held {
+    fn save(&self) -> Result<()> {
+        Ok(self.file.write(&self.lock)?)
+    }
+}
+
+/// Take exclusive access to the lock governing `cwd`, reading it under the guard.
+///
+/// `create` is what `add` passes: when there is no lock yet it falls back to the
+/// repository root instead of failing.
+fn hold(cwd: &Path, create: bool) -> Result<Held> {
+    let path = match lock::find(cwd) {
+        Some(path) => path,
+        None if create => lock::default_path(cwd).with_context(|| {
+            format!(
+                "no {LOCK_FILE_NAME} found above {} and no repository root to create one in\n  \
+                 run this inside a git repository, or create {LOCK_FILE_NAME} yourself",
+                cwd.display()
+            )
+        })?,
+        None => bail!("no {LOCK_FILE_NAME} found above {}", cwd.display()),
+    };
+
+    let file = LockFile::open(&path)?;
+    let existing = file.read()?;
+    let existed = existing.is_some();
+    let lock = existing.unwrap_or_else(|| Lock::new(range()));
+    warn_if_newer(&lock, &path);
+    lock.require_range(range(), &path)?;
+    Ok(Held {
+        file,
+        lock,
+        existed,
+    })
 }
 
 /// Find the lock governing `cwd` without creating anything.
@@ -28,30 +72,7 @@ pub(crate) fn load(cwd: &Path) -> Result<Option<Located>> {
     let lock = Lock::read(&path)?.unwrap_or_else(|| Lock::new(range()));
     warn_if_newer(&lock, &path);
     lock.require_range(range(), &path)?;
-    Ok(Some(Located {
-        path,
-        lock,
-        existed: true,
-    }))
-}
-
-/// Find the lock governing `cwd`, or where `add` would create one.
-fn load_or_create(cwd: &Path) -> Result<Located> {
-    if let Some(found) = load(cwd)? {
-        return Ok(found);
-    }
-    let path = lock::default_path(cwd).with_context(|| {
-        format!(
-            "no {LOCK_FILE_NAME} found above {} and no repository root to create one in\n  \
-             run this inside a git repository, or create {LOCK_FILE_NAME} yourself",
-            cwd.display()
-        )
-    })?;
-    Ok(Located {
-        path,
-        lock: Lock::new(range()),
-        existed: false,
-    })
+    Ok(Some(Located { path, lock }))
 }
 
 fn range() -> &'static str {
@@ -106,13 +127,13 @@ fn by_package(languages: &[String]) -> Result<BTreeMap<&'static str, Vec<String>
     Ok(grouped)
 }
 
-pub(crate) fn add(reg: &Registry, cwd: &Path, languages: &[String]) -> Result<()> {
+pub(crate) fn add(reg: &Registry, data_dir: &Path, cwd: &Path, languages: &[String]) -> Result<()> {
     let names = expand(languages)?;
-    let mut located = load_or_create(cwd)?;
+    let mut held = hold(cwd, true)?;
 
     for (package_name, languages) in by_package(&names)? {
         let (package, manifest_sha256) = reg.resolve_for_lock(package_name)?;
-        located.lock.insert(LockedPackage {
+        held.lock.insert(LockedPackage {
             name: package.package_name.clone(),
             version: package.version.clone(),
             languages,
@@ -123,25 +144,29 @@ pub(crate) fn add(reg: &Registry, cwd: &Path, languages: &[String]) -> Result<()
         println!("added {} {}", package.package_name, package.version);
     }
 
-    if !located.existed {
-        println!("created {}", located.path.display());
+    if !held.existed {
+        println!("created {}", held.file.path().display());
     }
-    located.lock.write(&located.path)?;
+    held.save()?;
 
-    // `add` fetches as well as records, so the parser is on disk before anything
-    // asks for it. Materializing here also proves the entry just written can be
-    // satisfied, rather than leaving that to the next run.
-    materialize(reg, &names)
+    // Materialize through a registry that honours what was just written, not the
+    // one that resolved the range. Otherwise `add` would resolve a second time
+    // and could download a version published between the two calls — recording
+    // one parser and fetching another.
+    let locked = Registry::with_lock(
+        data_dir.to_path_buf(),
+        Some(std::sync::Arc::new(held.lock.clone())),
+    )?;
+    materialize(&locked, &names)
 }
 
 pub(crate) fn remove(cwd: &Path, languages: &[String]) -> Result<()> {
     let names = expand(languages)?;
-    let mut located =
-        load(cwd)?.with_context(|| format!("no {LOCK_FILE_NAME} found above {}", cwd.display()))?;
+    let mut held = hold(cwd, false)?;
 
     let mut removed = Vec::new();
     for name in &names {
-        if located.lock.remove_language(name) {
+        if held.lock.remove_language(name) {
             removed.push(name.clone());
         } else {
             eprintln!("warning: {name} is not in {LOCK_FILE_NAME}");
@@ -151,7 +176,7 @@ pub(crate) fn remove(cwd: &Path, languages: &[String]) -> Result<()> {
     if removed.is_empty() {
         return Ok(());
     }
-    located.lock.write(&located.path)?;
+    held.save()?;
     for name in removed {
         println!("removed {name}");
     }
@@ -160,18 +185,14 @@ pub(crate) fn remove(cwd: &Path, languages: &[String]) -> Result<()> {
 
 /// The rows `update` will re-resolve: every one under `--all`, otherwise the
 /// rows pinning the named languages.
-fn update_targets(
-    located: &Located,
-    languages: &[String],
-    all: bool,
-) -> Result<Vec<LockedPackage>> {
+fn update_targets(lock: &Lock, languages: &[String], all: bool) -> Result<Vec<LockedPackage>> {
     if all {
-        return Ok(located.lock.packages.clone());
+        return Ok(lock.packages.clone());
     }
     expand(languages)?
         .iter()
         .map(|name| {
-            located.lock.language(name).cloned().with_context(|| {
+            lock.language(name).cloned().with_context(|| {
                 format!("{name} is not in {LOCK_FILE_NAME}\n  lumis languages add {name}")
             })
         })
@@ -213,10 +234,9 @@ pub(crate) fn update(reg: &Registry, cwd: &Path, languages: &[String], all: bool
     if !all && languages.is_empty() {
         bail!("name a language to update, or pass --all");
     }
-    let mut located =
-        load(cwd)?.with_context(|| format!("no {LOCK_FILE_NAME} found above {}", cwd.display()))?;
+    let mut held = hold(cwd, false)?;
 
-    let targets = update_targets(&located, languages, all)?;
+    let targets = update_targets(&held.lock, languages, all)?;
     let resolved = resolve_all(reg, targets)?;
 
     let mut moved = Vec::new();
@@ -227,7 +247,7 @@ pub(crate) fn update(reg: &Registry, cwd: &Path, languages: &[String], all: bool
                 package.package_name, previous.version, package.version
             ));
         }
-        located.lock.insert(LockedPackage {
+        held.lock.insert(LockedPackage {
             name: package.package_name.clone(),
             version: package.version,
             languages: previous.languages,
@@ -237,7 +257,7 @@ pub(crate) fn update(reg: &Registry, cwd: &Path, languages: &[String], all: bool
         });
     }
 
-    located.lock.write(&located.path)?;
+    held.save()?;
     if moved.is_empty() {
         println!("already up to date");
     } else {
