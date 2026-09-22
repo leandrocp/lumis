@@ -19,7 +19,8 @@ You can use the same plugin for both regular markdown content and Astro MDX.
 ## Install
 
 ```bash
-npm install @lumis-sh/rehype-lumis @lumis-sh/lumis @lumis-sh/themes
+npm install @lumis-sh/rehype-lumis \
+  @lumis-sh/lumis @lumis-sh/themes
 ```
 
 If you use MDX files too:
@@ -41,7 +42,8 @@ export default defineConfig({
   markdown: {
     rehypePlugins: [
       [rehypeLumis, {
-        formatter: (language) => htmlInline({language, theme: latte}),
+        formatter: (language) =>
+          htmlInline({language, theme: latte}),
         languages: [bundledLanguages],
       }],
     ],
@@ -64,7 +66,8 @@ export default defineConfig({
     mdx({
       rehypePlugins: [
         [rehypeLumis, {
-          formatter: (language) => htmlInline({language, theme: latte}),
+          formatter: (language) =>
+            htmlInline({language, theme: latte}),
           languages: [bundledLanguages],
         }],
       ],

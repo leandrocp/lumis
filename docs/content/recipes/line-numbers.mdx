@@ -26,7 +26,11 @@ import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
 const html = await highlight(
   'line 1\nline 2\nline 3',
-  htmlInline({language: javascript, theme: frappe, lineNumbers: true})
+  htmlInline({
+    language: javascript,
+    theme: frappe,
+    lineNumbers: true,
+  })
 );
 ```
 
@@ -34,7 +38,10 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
 
 let formatter = HtmlInlineBuilder::new()
     .language(Language::PlainText)
@@ -52,7 +59,11 @@ let html = highlight("line 1\nline 2\nline 3", formatter);
 ```elixir
 Lumis.highlight!(
   "line 1\nline 2\nline 3",
-  formatter: {:html_inline, language: "plaintext", theme: "catppuccin_frappe", line_numbers: true}
+  formatter:
+    {:html_inline,
+     language: "plaintext",
+     theme: "catppuccin_frappe",
+     line_numbers: true}
 )
 ```
 
@@ -65,7 +76,8 @@ Line numbers are not currently exposed by `lumis4j`.
   <Tab value="CLI">
 
 ```bash
-lumis highlight main.rs --formatter html-inline --line-numbers
+lumis highlight main.rs \
+  --formatter html-inline --line-numbers
 ```
 
   </Tab>

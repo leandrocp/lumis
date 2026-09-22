@@ -10,7 +10,10 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
   <Tab value="JavaScript / TypeScript">
 
 ```js
-const html = await highlight('#!/usr/bin/env bash\necho "hello"', htmlInline({theme: frappe}))
+const html = await highlight(
+  '#!/usr/bin/env bash\necho "hello"',
+  htmlInline({theme: frappe}),
+)
 ```
 
   </Tab>
@@ -61,8 +64,14 @@ guessLanguage(undefined, '#!/usr/bin/env bash')  // "bash"
 ```rust
 use lumis::languages::Language;
 
-assert_eq!(Language::guess(Some("lib/app.ex"), ""), Language::Elixir);
-assert_eq!(Language::guess(None, "#!/usr/bin/env bash"), Language::Bash);
+assert_eq!(
+    Language::guess(Some("lib/app.ex"), ""),
+    Language::Elixir
+);
+assert_eq!(
+    Language::guess(None, "#!/usr/bin/env bash"),
+    Language::Bash
+);
 ```
 
   </Tab>

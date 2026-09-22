@@ -17,7 +17,9 @@ Use `lumis highlight` when you want highlighted output from a file or stdin.
 ```bash
 lumis highlight main.rs
 lumis highlight index.js --theme catppuccin_frappe
-lumis highlight index.js --formatter html-inline --theme catppuccin_frappe
+lumis highlight index.js \
+  --formatter html-inline \
+  --theme catppuccin_frappe
 ```
 
 Terminal output is the default formatter, so `--formatter terminal` is optional. When `--theme` is omitted, Lumis uses the configured theme or automatically matches the terminal background; if detection fails, it renders without a theme.
@@ -26,7 +28,10 @@ Terminal output is the default formatter, so `--formatter terminal` is optional.
 
 ```bash
 cat main.rs | lumis highlight --language rust
-echo 'const x = 1' | lumis highlight --language javascript --formatter html-inline --theme catppuccin_frappe
+echo 'const x = 1' | lumis highlight \
+  --language javascript \
+  --formatter html-inline \
+  --theme catppuccin_frappe
 ```
 
 Use `--language` when piping content with no filename hint.
@@ -46,9 +51,14 @@ lumis highlight main.txt --language rust
 
 ```bash
 lumis highlight main.rs --theme catppuccin_frappe
-lumis highlight main.rs --formatter html-inline --theme catppuccin_frappe
+lumis highlight main.rs \
+  --formatter html-inline \
+  --theme catppuccin_frappe
 lumis highlight main.rs --formatter html-linked
-lumis highlight main.rs --formatter html-multi-themes --themes light:catppuccin_latte --themes dark:catppuccin_frappe
+lumis highlight main.rs \
+  --formatter html-multi-themes \
+  --themes light:catppuccin_latte \
+  --themes dark:catppuccin_frappe
 lumis highlight main.rs --formatter bbcode-scoped
 ```
 

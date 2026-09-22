@@ -16,7 +16,10 @@ keywords:
 Use [`highlight()`](https://docs.rs/lumis/latest/lumis/fn.highlight.html) when you want the rendered output in memory as a `String`.
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
 
 let formatter = HtmlInlineBuilder::new()
     .language(Language::Rust)
@@ -32,7 +35,10 @@ let html = highlight("fn main() {}", formatter);
 Use [`write_highlight()`](https://docs.rs/lumis/latest/lumis/fn.write_highlight.html) when you want to stream into a file, socket, or other writer without building a large intermediate string.
 
 ```rust
-use lumis::{write_highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    languages::Language, themes, write_highlight,
+    HtmlInlineBuilder,
+};
 use std::fs::File;
 
 let formatter = HtmlInlineBuilder::new()
@@ -42,7 +48,8 @@ let formatter = HtmlInlineBuilder::new()
     .unwrap();
 
 let mut file = File::create("output.html").unwrap();
-write_highlight(&mut file, "fn main() {}", formatter).unwrap();
+write_highlight(&mut file, "fn main() {}", formatter)
+    .unwrap();
 ```
 
 ## Language auto-detection
@@ -64,9 +71,14 @@ Detection can use file name hints and shebang/content heuristics.
 Use `Highlighter` when you want styled segments for custom processing.
 
 ```rust
-use lumis::{highlight::Highlighter, languages::Language, themes};
+use lumis::{
+    highlight::Highlighter, languages::Language, themes,
+};
 
-let highlighter = Highlighter::new(Language::SQL, themes::get("catppuccin_mocha").ok());
+let highlighter = Highlighter::new(
+    Language::SQL,
+    themes::get("catppuccin_mocha").ok(),
+);
 let segments = highlighter.highlight(source).unwrap();
 ```
 
@@ -75,13 +87,27 @@ let segments = highlighter.highlight(source).unwrap();
 Use this when you need byte ranges, scopes, and per-token callbacks.
 
 ```rust
-use lumis::{highlight::highlight_iter, languages::Language, themes};
+use lumis::{
+    highlight::highlight_iter, languages::Language, themes,
+};
 
-highlight_iter(source, Language::Rust, themes::get("catppuccin_latte").ok(), |text, language, range, scope, style| {
-    println!("{:?} {:?} {} {:?}", text, language, scope, range);
-    println!("fg={:?} bold={} italic={}", style.fg, style.bold, style.italic);
-    Ok::<_, std::io::Error>(())
-}).unwrap();
+highlight_iter(
+    source,
+    Language::Rust,
+    themes::get("catppuccin_latte").ok(),
+    |text, language, range, scope, style| {
+        println!(
+            "{:?} {:?} {} {:?}",
+            text, language, scope, range
+        );
+        println!(
+            "fg={:?} bold={} italic={}",
+            style.fg, style.bold, style.italic
+        );
+        Ok::<_, std::io::Error>(())
+    },
+)
+.unwrap();
 ```
 
 This is also the base for advanced custom formatters.
@@ -90,15 +116,29 @@ This is also the base for advanced custom formatters.
 so a custom formatter can opt into the scopes the built-in formatters produce:
 
 ```rust
-use lumis::{highlight::{highlight_iter_with_options, HighlightOptions}, languages::Language};
+use lumis::{
+    highlight::{
+        highlight_iter_with_options, HighlightOptions,
+    },
+    languages::Language,
+};
 
-let options = HighlightOptions::new().rainbow_brackets(true);
+let options =
+    HighlightOptions::new().rainbow_brackets(true);
 
-highlight_iter_with_options(source, Language::Rust, None, options, |text, _language, _range, scope, _style| {
-    // scope is punctuation.bracket.rainbow.1 .. .6 on bracket pairs
-    println!("{scope}: {text}");
-    Ok::<_, std::io::Error>(())
-}).unwrap();
+highlight_iter_with_options(
+    source,
+    Language::Rust,
+    None,
+    options,
+    |text, _language, _range, scope, _style| {
+        // scope is punctuation.bracket.rainbow.1
+        // through .6 on bracket pairs
+        println!("{scope}: {text}");
+        Ok::<_, std::io::Error>(())
+    },
+)
+.unwrap();
 ```
 
 The flat iterator cycles rainbow brackets through the six compatibility scopes.
@@ -130,7 +170,8 @@ let theme = themes::from_file("my_theme.json").unwrap();
 let theme = themes::from_json(json).unwrap();
 
 // parse a built-in theme by name
-let theme: themes::Theme = "catppuccin_mocha".parse().unwrap();
+let theme: themes::Theme =
+    "catppuccin_mocha".parse().unwrap();
 ```
 
 ## [Theme discovery](https://docs.rs/lumis/latest/lumis/themes/index.html)
@@ -152,8 +193,10 @@ let dark_themes: Vec<_> = themes::available_themes()
 Reduce compile time and binary size by enabling only the languages you need:
 
 ```toml
-[dependencies]
-lumis = { version = "0.1", default-features = false, features = ["bundle-web", "lang-rust"] }
+[dependencies.lumis]
+version = "0.1"
+default-features = false
+features = ["bundle-web", "lang-rust"]
 ```
 
 This lets you mix bundle features with individual language features. In this example, `bundle-web` covers the usual web stack and `lang-rust` adds Rust on top.

@@ -117,12 +117,18 @@ import { loadLanguages } from "@lumis-sh/lumis";
 
 await startServer();
 
-// Not awaited, so a slow CDN delays no request. The `.catch()` is required:
-// an unhandled rejection terminates the process, which is exactly the failure
+// Not awaited, so a slow CDN delays no request. The
+// `.catch()` is required: an unhandled rejection
+// terminates the process, which is exactly the failure
 // loading in the background is meant to avoid.
-loadLanguages(["javascript", "html", "css"]).catch((error) => {
-  logger.warn({ error }, "Lumis preload failed; languages load on demand");
-});
+loadLanguages(["javascript", "html", "css"]).catch(
+  (error) => {
+    logger.warn(
+      { error },
+      "Lumis preload failed; languages load on demand",
+    );
+  },
+);
 ```
 
 `loadLanguages()` warms the same default runtime the module-level `highlight()`
@@ -155,7 +161,11 @@ Call `Lumis.Languages.async_load/1` from your application's `start/2`:
 
 ```elixir title="lib/my_app/application.ex"
 def start(_type, _args) do
-  Lumis.Languages.async_load(["markdown", "elixir", "javascript"])
+  Lumis.Languages.async_load([
+    "markdown",
+    "elixir",
+    "javascript"
+  ])
 
   Supervisor.start_link(children(),
     strategy: :one_for_one,
@@ -203,10 +213,12 @@ directory into the runtime image:
 
 ```dockerfile
 FROM node:22-bookworm-slim AS parsers
-RUN npx --yes @lumis-sh/cli --data-dir /app/lumis languages cache markdown elixir javascript
+RUN npx --yes @lumis-sh/cli --data-dir /app/lumis \
+      languages cache markdown elixir javascript
 
 FROM debian:bookworm-slim
-COPY --from=parsers --chown=nobody:root /app/lumis /app/lumis
+COPY --from=parsers --chown=nobody:root \
+  /app/lumis /app/lumis
 ENV LUMIS_DATA_DIR=/app/lumis
 ```
 
@@ -255,8 +267,10 @@ no on-demand mode and nothing to preload. Select the languages at build time
 with Cargo features; their parser code is compiled into the application:
 
 ```toml title="Cargo.toml"
-[dependencies]
-lumis = { version = "0.1", default-features = false, features = ["bundle-web", "lang-rust"] }
+[dependencies.lumis]
+version = "0.1"
+default-features = false
+features = ["bundle-web", "lang-rust"]
 ```
 
 There is no preload command, parser data-directory environment variable, or
@@ -276,7 +290,8 @@ import io.roastedroot.lumis4j.core.Lumis;
 var lumis = Lumis.builder().build();
 startServer(lumis);
 
-// Call lumis.close() from the application's shutdown lifecycle.
+// Call lumis.close() from the application's
+// shutdown lifecycle.
 ```
 
 There is no parser cache command, `LUMIS_DATA_DIR`, or parser-store

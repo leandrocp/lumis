@@ -76,12 +76,17 @@ against it are released together and tested together, so pairing a parser with
 queries it was never released with is not expressible:
 
 ```ts title="A language is a package handle"
-import { createHighlighter, withWasm } from "@lumis-sh/lumis";
+import {
+  createHighlighter,
+  withWasm,
+} from "@lumis-sh/lumis";
 import json from "@lumis-sh/lumis/langs/json";
 import jsonParser from "@lumis-sh/wasm-json";
 
 // Where the parser bytes come from is yours to choose.
-const hl = await createHighlighter({ languages: [withWasm(json, jsonParser)] });
+const hl = await createHighlighter({
+  languages: [withWasm(json, jsonParser)],
+});
 ```
 
 `withWasm()` changes only where the bytes come from. Lumis still checks their
@@ -103,9 +108,9 @@ looks for there first. There is no second location to configure.
 ```
 $LUMIS_DATA_DIR/
   parsers/
-    elixir.lumis.json                        # package metadata
+    elixir.lumis.json  # package metadata
     tree-sitter-elixir-0.26.2-<sha256>.wasm  # the parser
-  compiled/                                  # wasmtime's compiled modules
+  compiled/  # wasmtime's compiled modules
   themes/
 ```
 
@@ -161,16 +166,17 @@ https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<name>@0.26/lumis.json
 ```
 
 That metadata names an exact package version, parser filename, byte length, and
-SHA-256. Lumis then resolves the immutable parser:
+SHA-256. Lumis then resolves the immutable parser, where `<name>` is the parser
+name without its `tree-sitter-` prefix:
 
 ```text title="Default resolver pattern"
-https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<parser-name-without-tree-sitter-prefix>@<exact-version>/<parser>.wasm
+https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<name>@<exact-version>/<parser>.wasm
 ```
 
 Equivalent URLs also work on other CDNs such as unpkg:
 
 ```text title="Alternative CDN pattern"
-https://unpkg.com/@lumis-sh/wasm-<parser-name-without-tree-sitter-prefix>@<tree-sitter-version>/<parser>.wasm
+https://unpkg.com/@lumis-sh/wasm-<name>@<tree-sitter-version>/<parser>.wasm
 ```
 
 Lumis rejects bytes whose size or SHA-256 digest differs from its package
@@ -233,7 +239,9 @@ See [`packages/javascript/lumis/examples/npm-wasm-node`](https://github.com/lean
 ```js title="Installed bundle autoload"
 import { createHighlighter } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
-import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import {
+  bundledLanguages,
+} from "@lumis-sh/lumis/bundles/web";
 import latte from "@lumis-sh/themes/catppuccin_latte";
 import "@lumis-sh/wasm-bundle-web";
 
@@ -245,7 +253,10 @@ await hl.loadLanguage(bundledLanguages.javascript);
 
 const html = hl.highlight(
   'const theme = "catppuccin-latte"',
-  htmlInline({ language: bundledLanguages.javascript, theme: latte }),
+  htmlInline({
+    language: bundledLanguages.javascript,
+    theme: latte,
+  }),
 );
 ```
 
@@ -255,7 +266,10 @@ Use this when you want one package in `package.json` to cover a whole preset. Lu
   <Tab value="Bundlers">
 
 ```js title="withWasm helper"
-import { createHighlighter, withWasm } from "@lumis-sh/lumis";
+import {
+  createHighlighter,
+  withWasm,
+} from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import elixir from "@lumis-sh/lumis/langs/elixir";
 import latte from "@lumis-sh/themes/catppuccin_latte";
@@ -281,13 +295,21 @@ See [`packages/javascript/lumis/examples/npm-wasm-browser`](https://github.com/l
   <Tab value="Bundle">
 
 ```js title="withWasmBundle helper"
-import { createHighlighter, withWasmBundle } from "@lumis-sh/lumis";
+import {
+  createHighlighter,
+  withWasmBundle,
+} from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
-import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import {
+  bundledLanguages,
+} from "@lumis-sh/lumis/bundles/web";
 import { bundledWasms } from "@lumis-sh/wasm-bundle-web";
 import latte from "@lumis-sh/themes/catppuccin_latte";
 
-const languages = withWasmBundle(bundledLanguages, bundledWasms);
+const languages = withWasmBundle(
+  bundledLanguages,
+  bundledWasms,
+);
 
 const hl = await createHighlighter({
   languages: [languages],
@@ -297,7 +319,10 @@ await hl.loadLanguage(languages.javascript);
 
 const html = hl.highlight(
   'const theme = "catppuccin-latte"',
-  htmlInline({ language: languages.javascript, theme: latte }),
+  htmlInline({
+    language: languages.javascript,
+    theme: latte,
+  }),
 );
 ```
 
@@ -314,16 +339,22 @@ Override [`configureLanguagePackageResolver()` and `configureWasmResolver()`](ht
   <Tab value="JavaScript / TypeScript">
 
 ```js title="Global resolver"
-import { configureLanguagePackageResolver, configureWasmResolver } from "@lumis-sh/lumis";
+import {
+  configureLanguagePackageResolver,
+  configureWasmResolver,
+} from "@lumis-sh/lumis";
 
 configureLanguagePackageResolver(
-  (packageName, versionRange) =>
-    `https://unpkg.com/${packageName}@${versionRange}/lumis.json`,
+  (packageName, versionRange) => {
+    const pkg = `${packageName}@${versionRange}`;
+    return `https://unpkg.com/${pkg}/lumis.json`;
+  },
 );
 
-configureWasmResolver(
-  (_language, wasm) => `https://unpkg.com/${wasm.packageName}@${wasm.version}/${wasm.name}.wasm`,
-);
+configureWasmResolver((_language, wasm) => {
+  const pkg = `${wasm.packageName}@${wasm.version}`;
+  return `https://unpkg.com/${pkg}/${wasm.name}.wasm`;
+});
 ```
 
 ```js title="Per-highlighter resolver"
@@ -334,7 +365,8 @@ const hl = await createHighlighter({
   languages: [rust],
   languagePackageResolver: (packageName, _versionRange) =>
     `/wasm/${encodeURIComponent(packageName)}/lumis.json`,
-  wasmResolver: (_language, wasm) => `/wasm/${wasm.name}.wasm`,
+  wasmResolver: (_language, wasm) =>
+    `/wasm/${wasm.name}.wasm`,
 });
 ```
 
@@ -387,12 +419,19 @@ preset bundles.
 
 ```html title="ESM CDN"
 <script type="module">
-  import { highlight } from "https://esm.sh/@lumis-sh/lumis";
-  import { htmlInline } from "https://esm.sh/@lumis-sh/lumis/formatters";
+  import {
+    highlight,
+  } from "https://esm.sh/@lumis-sh/lumis";
+  import {
+    htmlInline,
+  } from "https://esm.sh/@lumis-sh/lumis/formatters";
   import javascript from "https://esm.sh/@lumis-sh/lumis/langs/javascript";
   import frappe from "https://esm.sh/@lumis-sh/themes/catppuccin_frappe";
 
-  const html = await highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+  const html = await highlight(
+    "const x = 1",
+    htmlInline({ language: javascript, theme: frappe }),
+  );
 </script>
 ```
 

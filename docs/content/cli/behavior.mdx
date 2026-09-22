@@ -56,9 +56,11 @@ events` when you need the raw highlight event stream.
 
 ```bash
 lumis dump tree component.svelte
-lumis dump tree component.svelte --injections --text --highlights
+lumis dump tree component.svelte \
+  --injections --text --highlights
 lumis dump tree component.svelte --format sexp
-echo 'function increment() { count++; }' | lumis dump events -l svelte
+echo 'function increment() { count++; }' \
+  | lumis dump events -l svelte
 ```
 
 Both commands use the same path, stdin, language detection, parser download,

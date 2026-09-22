@@ -11,10 +11,15 @@ import {htmlInline} from '@lumis-sh/lumis/formatters'
 import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
-const hl = await createHighlighter({languages: [bundledLanguages]})
+const hl = await createHighlighter({
+  languages: [bundledLanguages],
+})
 await hl.loadLanguage('javascript')
 
-const html = hl.highlight('const x = 1', htmlInline({language: 'javascript', theme: frappe}))
+const html = hl.highlight(
+  'const x = 1',
+  htmlInline({language: 'javascript', theme: frappe}),
+)
 ```
 
 See [JavaScript / TypeScript](/usage/javascript) for the reusable highlighter workflow.

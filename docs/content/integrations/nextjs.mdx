@@ -17,8 +17,10 @@ Next.js MDX already supports `rehypePlugins`. That makes `@lumis-sh/rehype-lumis
 ## Install
 
 ```bash
-npm install @next/mdx @mdx-js/loader @mdx-js/react @types/mdx
-npm install @lumis-sh/rehype-lumis @lumis-sh/lumis @lumis-sh/themes
+npm install @next/mdx @mdx-js/loader \
+  @mdx-js/react @types/mdx
+npm install @lumis-sh/rehype-lumis \
+  @lumis-sh/lumis @lumis-sh/themes
 ```
 
 ## Configure `next.config.mjs`
@@ -29,7 +31,9 @@ Wrap the configured plugin in a local module so Turbopack only sees a plain plug
 import createMDX from '@next/mdx'
 import {fileURLToPath} from 'node:url'
 
-const rehypeLumisPath = fileURLToPath(new URL('./rehype-lumis.mjs', import.meta.url))
+const rehypeLumisPath = fileURLToPath(
+  new URL('./rehype-lumis.mjs', import.meta.url),
+)
 
 const withMDX = createMDX({
   options: {
@@ -50,7 +54,8 @@ import latte from '@lumis-sh/themes/catppuccin_latte'
 
 export default function configuredRehypeLumis() {
   return rehypeLumis.call(this, {
-    formatter: (language) => htmlInline({language, theme: latte}),
+    formatter: (language) =>
+      htmlInline({language, theme: latte}),
     languages: [bundledLanguages],
   })
 }

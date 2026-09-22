@@ -15,7 +15,10 @@ import {terminal} from '@lumis-sh/lumis/formatters'
 import rust from '@lumis-sh/lumis/langs/rust'
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
-const ansi = await highlight('fn main() {}', terminal({language: rust, theme: frappe}))
+const ansi = await highlight(
+  'fn main() {}',
+  terminal({language: rust, theme: frappe}),
+)
 console.log(ansi)
 ```
 
@@ -23,13 +26,17 @@ console.log(ansi)
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, TerminalBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes, TerminalBuilder,
+};
 
 let ansi = highlight(
     "fn main() {}",
     TerminalBuilder::new()
         .language(Language::Rust)
-        .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+        .theme(Some(
+            themes::get("catppuccin_frappe").unwrap(),
+        ))
         .build()
         .unwrap(),
 );

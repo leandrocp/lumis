@@ -7,7 +7,12 @@ description: Render Lumis HTML safely in Phoenix and LiveView templates.
 
 ```heex
 {Phoenix.HTML.raw(
-  Lumis.highlight!(source, formatter: {:html_inline, language: "elixir", theme: "catppuccin_frappe"})
+  Lumis.highlight!(source,
+    formatter:
+      {:html_inline,
+       language: "elixir",
+       theme: "catppuccin_frappe"}
+  )
 )}
 ```
 

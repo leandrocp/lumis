@@ -17,7 +17,8 @@ VitePress uses `markdown-it` under the hood. That makes Lumis integration straig
 ## Install
 
 ```bash
-npm install markdown-it @lumis-sh/markdown-it-lumis @lumis-sh/themes
+npm install markdown-it \
+  @lumis-sh/markdown-it-lumis @lumis-sh/themes
 ```
 
 ## Configure `.vitepress/config.ts`
@@ -32,7 +33,8 @@ import plaintext from '@lumis-sh/lumis/langs/plaintext'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const lumis = await markdownItLumis({
-  formatter: (language) => htmlInline({language, theme: latte}),
+  formatter: (language) =>
+    htmlInline({language, theme: latte}),
   languages: [javascript, rust, plaintext],
 })
 
@@ -59,7 +61,8 @@ import plaintext from '@lumis-sh/lumis/langs/plaintext'
 import nightfly from '@lumis-sh/themes/nightfly'
 
 const lumis = await markdownItLumis({
-  formatter: (language) => htmlInline({language, theme: nightfly}),
+  formatter: (language) =>
+    htmlInline({language, theme: nightfly}),
   languages: [javascript, rust, plaintext],
 })
 

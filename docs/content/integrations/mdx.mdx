@@ -19,7 +19,8 @@ The pattern is simple: compile Markdown to HAST, let `rehype-lumis` replace each
 ## Install
 
 ```bash
-npm install @lumis-sh/rehype-lumis @lumis-sh/lumis @lumis-sh/themes
+npm install @lumis-sh/rehype-lumis \
+  @lumis-sh/lumis @lumis-sh/themes
 ```
 
 ## With `@mdx-js/mdx`
@@ -34,7 +35,8 @@ import latte from '@lumis-sh/themes/catppuccin_latte'
 const file = await compile(source, {
   rehypePlugins: [
     [rehypeLumis, {
-      formatter: (language) => htmlInline({language, theme: latte}),
+      formatter: (language) =>
+        htmlInline({language, theme: latte}),
       languages: [bundledLanguages],
     }],
   ],

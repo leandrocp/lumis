@@ -6,7 +6,10 @@ description: Write highlighted output directly to a file in Rust.
 
 
 ```rust
-use lumis::{write_highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    languages::Language, themes, write_highlight,
+    HtmlInlineBuilder,
+};
 use std::fs::File;
 
 let formatter = HtmlInlineBuilder::new()
@@ -16,7 +19,8 @@ let formatter = HtmlInlineBuilder::new()
     .unwrap();
 
 let mut file = File::create("output.html").unwrap();
-write_highlight(&mut file, "fn main() {}", formatter).unwrap();
+write_highlight(&mut file, "fn main() {}", formatter)
+    .unwrap();
 ```
 
 See [Rust](/usage/rust) for guidance on when to use `highlight()` vs `write_highlight()`.

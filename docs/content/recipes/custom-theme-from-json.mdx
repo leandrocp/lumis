@@ -10,8 +10,12 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
   <Tab value="JavaScript / TypeScript">
 
 ```js
-const theme = await fetch('/my_theme.json').then(r => r.json())
-const html = await highlight('const x = 1', htmlInline({language: javascript, theme}))
+const response = await fetch('/my_theme.json')
+const theme = await response.json()
+const html = await highlight(
+  'const x = 1',
+  htmlInline({language: javascript, theme}),
+)
 ```
 
   </Tab>
@@ -27,10 +31,18 @@ let theme = themes::from_file("my_theme.json").unwrap();
   <Tab value="Elixir">
 
 ```elixir
-theme_json = ~s({"name":"my_theme","appearance":"dark","highlights":{"comment":{"fg":"#808080"}}})
+theme_json = ~s({
+  "name": "my_theme",
+  "appearance": "dark",
+  "highlights": {"comment": {"fg": "#808080"}}
+})
+
 {:ok, theme} = Lumis.Theme.from_json(theme_json)
 
-Lumis.highlight!(source, formatter: {:html_inline, language: "elixir", theme: theme})
+Lumis.highlight!(source,
+  formatter:
+    {:html_inline, language: "elixir", theme: theme}
+)
 ```
 
   </Tab>

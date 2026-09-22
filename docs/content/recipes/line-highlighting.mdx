@@ -46,8 +46,13 @@ For linked HTML, use `htmlLinked({ highlightLines: { lines: [1, [3, 4]], class: 
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
-use lumis::formatters::html_inline::{HighlightLines, HighlightLinesStyle};
+use lumis::formatters::html_inline::{
+    HighlightLines, HighlightLinesStyle,
+};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
 
 let highlight_lines = HighlightLines {
     lines: vec![1..=1, 3..=4],
@@ -62,7 +67,8 @@ let formatter = HtmlInlineBuilder::new()
     .build()
     .unwrap();
 
-let html = highlight("line 1\nline 2\nline 3\nline 4", formatter);
+let html =
+    highlight("line 1\nline 2\nline 3\nline 4", formatter);
 ```
 
   </Tab>
@@ -93,7 +99,9 @@ Line highlighting is not currently exposed by `lumis4j`.
   <Tab value="CLI">
 
 ```bash
-lumis highlight main.rs --formatter html-inline --highlight-lines 1,3-5,10
+lumis highlight main.rs \
+  --formatter html-inline \
+  --highlight-lines 1,3-5,10
 ```
 
   </Tab>
@@ -117,7 +125,9 @@ const html = await highlight(
     theme: frappe,
     highlightLines: {
       lines: [2, [4, 4]],
-      style: 'background-color: rgba(255, 221, 87, 0.18); border-left: 3px solid #ffd54f;',
+      style:
+        'background-color: rgba(255, 221, 87, 0.18); ' +
+        'border-left: 3px solid #ffd54f;',
     },
   })
 );
@@ -127,13 +137,23 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
-use lumis::formatter::html_inline::{HighlightLines, HighlightLinesStyle};
+use lumis::formatter::html_inline::{
+    HighlightLines, HighlightLinesStyle,
+};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
+
+let style = concat!(
+    "background-color: rgba(255, 221, 87, 0.18); ",
+    "border-left: 3px solid #ffd54f;"
+);
 
 let highlight_lines = HighlightLines {
     lines: vec![2..=2, 4..=4],
     style: Some(HighlightLinesStyle::Style(
-        "background-color: rgba(255, 221, 87, 0.18); border-left: 3px solid #ffd54f;".to_string(),
+        style.to_string(),
     )),
     class: None,
 };
@@ -145,7 +165,8 @@ let formatter = HtmlInlineBuilder::new()
     .build()
     .unwrap();
 
-let html = highlight("line 1\nline 2\nline 3\nline 4", formatter);
+let html =
+    highlight("line 1\nline 2\nline 3\nline 4", formatter);
 ```
 
   </Tab>
@@ -154,14 +175,16 @@ let html = highlight("line 1\nline 2\nline 3\nline 4", formatter);
 ```elixir
 Lumis.highlight!(
   "line 1\nline 2\nline 3\nline 4",
-  formatter: {:html_inline,
-    language: "plaintext",
-    theme: "catppuccin_frappe",
-    highlight_lines: %{
-      lines: [2, 4],
-      style: "background-color: rgba(255, 221, 87, 0.18); border-left: 3px solid #ffd54f;"
-    }
-  }
+  formatter:
+    {:html_inline,
+     language: "plaintext",
+     theme: "catppuccin_frappe",
+     highlight_lines: %{
+       lines: [2, 4],
+       style:
+         "background-color: rgba(255, 221, 87, 0.18); " <>
+           "border-left: 3px solid #ffd54f;"
+     }}
 )
 ```
 
@@ -181,7 +204,11 @@ the inline style explicitly:
 htmlInline({
   language: javascript,
   theme: frappe,
-  highlightLines: {lines: [2], style: null, class: 'bg-yellow-500'},
+  highlightLines: {
+    lines: [2],
+    style: null,
+    class: 'bg-yellow-500',
+  },
 })
 ```
 
@@ -202,14 +229,22 @@ HighlightLines {
   <Tab value="Elixir">
 
 ```elixir
-{:html_inline, highlight_lines: %{lines: [2], style: nil, class: "bg-yellow-500"}}
+{:html_inline,
+ highlight_lines: %{
+   lines: [2],
+   style: nil,
+   class: "bg-yellow-500"
+ }}
 ```
 
   </Tab>
   <Tab value="CLI">
 
 ```bash
-lumis highlight -f html-inline -h 2 --highlight-lines-style none --highlight-lines-class bg-yellow-500 app.js
+lumis highlight -f html-inline -h 2 \
+  --highlight-lines-style none \
+  --highlight-lines-class bg-yellow-500 \
+  app.js
 ```
 
   </Tab>
@@ -249,16 +284,25 @@ let highlight_lines = HighlightLines {
 ```
 
 ```js
-terminal({language: javascript, theme: frappe, highlightLines: {lines: [1, [3, 4]]}});
+terminal({
+  language: javascript,
+  theme: frappe,
+  highlightLines: {lines: [1, [3, 4]]},
+});
 ```
 
 ```elixir
-{:terminal, theme: "catppuccin_frappe", highlight_lines: %{lines: [1, 3..4]}}
+{:terminal,
+ theme: "catppuccin_frappe",
+ highlight_lines: %{lines: [1, 3..4]}}
 ```
 
 ```sh
-lumis highlight -f terminal -t catppuccin_frappe -H 1,3-4 main.rs
-lumis highlight -f terminal -H 1,3-4 --highlight-lines-background '#3a3a3a' main.rs
+lumis highlight -f terminal \
+  -t catppuccin_frappe -H 1,3-4 main.rs
+lumis highlight -f terminal -H 1,3-4 \
+  --highlight-lines-background '#3a3a3a' \
+  main.rs
 ```
 
 ### BBCode Scoped

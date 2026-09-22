@@ -34,20 +34,28 @@ import {htmlInline} from '@lumis-sh/lumis/formatters'
 import rust from '@lumis-sh/lumis/langs/rust'
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
-const html = await highlight('fn main() {}', htmlInline({language: rust, theme: frappe}))
+const html = await highlight(
+  'fn main() {}',
+  htmlInline({language: rust, theme: frappe}),
+)
 ```
 
   </Tab>
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
 
 let html = highlight(
     "fn main() {}",
     HtmlInlineBuilder::new()
         .language(Language::Rust)
-        .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+        .theme(Some(
+            themes::get("catppuccin_frappe").unwrap(),
+        ))
         .build()
         .unwrap(),
 );
@@ -59,7 +67,9 @@ let html = highlight(
 ```elixir
 Lumis.highlight!(
   "fn main() {}",
-  formatter: {:html_inline, language: "rust", theme: "catppuccin_frappe"}
+  formatter:
+    {:html_inline,
+     language: "rust", theme: "catppuccin_frappe"}
 )
 ```
 
@@ -89,7 +99,9 @@ lumis.close();
   <Tab value="CLI">
 
 ```bash
-lumis highlight main.rs --formatter html-inline --theme catppuccin_frappe
+lumis highlight main.rs \
+  --formatter html-inline \
+  --theme catppuccin_frappe
 ```
 
   </Tab>
@@ -103,7 +115,12 @@ lumis highlight main.rs --formatter html-inline --theme catppuccin_frappe
 ```js
 const html = await highlight(
   'const x = 1',
-  htmlInline({language: javascript, theme: frappe, preClass: 'code-block', includeHighlights: true})
+  htmlInline({
+    language: javascript,
+    theme: frappe,
+    preClass: 'code-block',
+    includeHighlights: true,
+  })
 )
 ```
 
@@ -128,7 +145,12 @@ let html = highlight("const x = 1", formatter);
 ```elixir
 Lumis.highlight!(
   "const x = 1",
-  formatter: {:html_inline, language: "javascript", theme: "catppuccin_frappe", pre_class: "code-block", include_highlights: true}
+  formatter:
+    {:html_inline,
+     language: "javascript",
+     theme: "catppuccin_frappe",
+     pre_class: "code-block",
+     include_highlights: true}
 )
 ```
 
@@ -141,7 +163,10 @@ Lumis.highlight!(
   <Tab value="CLI">
 
 ```bash
-lumis highlight app.js -f html-inline -t catppuccin_frappe --pre-class my-code --include-highlights
+lumis highlight app.js \
+  -f html-inline -t catppuccin_frappe \
+  --pre-class my-code \
+  --include-highlights
 ```
 
   </Tab>
@@ -158,7 +183,10 @@ const html = await highlight(
   htmlInline({
     language: javascript,
     theme: frappe,
-    header: {openTag: '<figure><figcaption>index.js</figcaption>', closeTag: '</figure>'},
+    header: {
+      openTag: '<figure><figcaption>index.js</figcaption>',
+      closeTag: '</figure>',
+    },
   })
 )
 ```
@@ -173,7 +201,9 @@ let formatter = HtmlInlineBuilder::new()
     .language(Language::Javascript)
     .theme(Some(themes::get("catppuccin_frappe").unwrap()))
     .header(Some(HtmlElement {
-        open_tag: "<figure><figcaption>index.js</figcaption>".to_string(),
+        open_tag:
+            "<figure><figcaption>index.js</figcaption>"
+                .to_string(),
         close_tag: "</figure>".to_string(),
     }))
     .build()
@@ -188,11 +218,15 @@ let html = highlight("const x = 1", formatter);
 ```elixir
 Lumis.highlight!(
   "const x = 1",
-  formatter: {:html_inline,
-    language: "javascript",
-    theme: "catppuccin_frappe",
-    header: %{open_tag: "<figure><figcaption>index.js</figcaption>", close_tag: "</figure>"}
-  }
+  formatter:
+    {:html_inline,
+     language: "javascript",
+     theme: "catppuccin_frappe",
+     header: %{
+       open_tag:
+         "<figure><figcaption>index.js</figcaption>",
+       close_tag: "</figure>"
+     }}
 )
 ```
 
@@ -205,7 +239,9 @@ Custom HTML wrappers are not currently exposed by `lumis4j`.
   <Tab value="CLI">
 
 ```bash
-lumis highlight app.js -f html-inline --header-open '<figure>' --header-close '</figure>'
+lumis highlight app.js -f html-inline \
+  --header-open '<figure>' \
+  --header-close '</figure>'
 ```
 
 The two go together; clap rejects one without the other.

@@ -16,7 +16,8 @@ Use `@lumis-sh/markdown-it-lumis` when your renderer is built on `markdown-it`.
 ## Install
 
 ```bash
-npm install markdown-it @lumis-sh/markdown-it-lumis @lumis-sh/themes
+npm install markdown-it \
+  @lumis-sh/markdown-it-lumis @lumis-sh/themes
 ```
 
 ## Example
@@ -32,7 +33,8 @@ import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const md = new MarkdownIt()
 const lumis = await markdownItLumis({
-  formatter: (language) => htmlInline({language, theme: latte}),
+  formatter: (language) =>
+    htmlInline({language, theme: latte}),
   languages: [javascript, rust, plaintext],
 })
 
@@ -61,7 +63,9 @@ import {createHighlighter} from '@lumis-sh/lumis'
 import {fromHighlighter} from '@lumis-sh/markdown-it-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
 import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
-const highlighter = await createHighlighter({languages: [bundledLanguages]})
+const highlighter = await createHighlighter({
+  languages: [bundledLanguages],
+})
 await highlighter.loadLanguage(bundledLanguages.javascript)
 
 const lumis = fromHighlighter(highlighter, options)
@@ -106,7 +110,8 @@ Those survive here, on the `<pre>`:
 
 ```ts
 markdownItLumis({
-  formatter: (language) => htmlInline({language, theme: latte}),
+  formatter: (language) =>
+    htmlInline({language, theme: latte}),
   fenceAttrsOnPre: false,
 })
 ```

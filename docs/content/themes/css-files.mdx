@@ -25,7 +25,10 @@ import {highlight} from '@lumis-sh/lumis'
 import {htmlLinked} from '@lumis-sh/lumis/formatters'
 import javascript from '@lumis-sh/lumis/langs/javascript'
 
-const html = await highlight('const x = 1', htmlLinked({language: javascript}))
+const html = await highlight(
+  'const x = 1',
+  htmlLinked({language: javascript}),
+)
 ```
 
 ## CDN
@@ -33,7 +36,10 @@ const html = await highlight('const x = 1', htmlLinked({language: javascript}))
 Load the compiled CSS file directly:
 
 ```html
-<link rel="stylesheet" href="https://unpkg.com/@lumis-sh/themes/dist/css/catppuccin_frappe.css">
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/@lumis-sh/themes/dist/css/catppuccin_frappe.css"
+>
 ```
 
 Available distribution folders:
@@ -53,7 +59,11 @@ plug Plug.Static,
 ```
 
 ```heex title="layout"
-<link phx-track-static rel="stylesheet" href={~p"/themes/catppuccin_frappe.css"} />
+<link
+  phx-track-static
+  rel="stylesheet"
+  href={~p"/themes/catppuccin_frappe.css"}
+/>
 ```
 
 ## Repository-generated CSS

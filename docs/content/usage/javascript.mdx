@@ -30,7 +30,10 @@ import { htmlInline } from "@lumis-sh/lumis/formatters";
 import javascript from "@lumis-sh/lumis/langs/javascript";
 import frappe from "@lumis-sh/themes/catppuccin_frappe";
 
-const html: string = await highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+const html: string = await highlight(
+  "const x = 1",
+  htmlInline({ language: javascript, theme: frappe }),
+);
 ```
 
 `highlight()` uses a shared default runtime, so loaded languages and global WASM resolver changes are process-wide.
@@ -45,9 +48,14 @@ import { htmlInline } from "@lumis-sh/lumis/formatters";
 import javascript from "@lumis-sh/lumis/langs/javascript";
 import frappe from "@lumis-sh/themes/catppuccin_frappe";
 
-const hl = await createHighlighter({ languages: [javascript] });
+const hl = await createHighlighter({
+  languages: [javascript],
+});
 
-const html = hl.highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+const html = hl.highlight(
+  "const x = 1",
+  htmlInline({ language: javascript, theme: frappe }),
+);
 ```
 
 This creates an isolated highlighter unless you intentionally rely on the global resolver.
@@ -66,12 +74,19 @@ Bundles register many languages lazily.
 
 ```ts
 import { createHighlighter } from "@lumis-sh/lumis";
-import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import {
+  bundledLanguages,
+} from "@lumis-sh/lumis/bundles/web";
 
-const hl = await createHighlighter({ languages: [bundledLanguages] });
+const hl = await createHighlighter({
+  languages: [bundledLanguages],
+});
 
-hl.registeredLanguages; // registered, including lazy entries
-hl.languages; // loaded right now, usually just plaintext at first
+// registered, including lazy entries
+hl.registeredLanguages;
+
+// loaded right now, usually just plaintext at first
+hl.languages;
 ```
 
 ## Lazy loading
@@ -81,16 +96,23 @@ You can register a language now and load it only when needed.
 ```ts
 import { createHighlighter } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
-import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import {
+  bundledLanguages,
+} from "@lumis-sh/lumis/bundles/web";
 import frappe from "@lumis-sh/themes/catppuccin_frappe";
 
-const hl = await createHighlighter({ languages: [bundledLanguages] });
+const hl = await createHighlighter({
+  languages: [bundledLanguages],
+});
 
 await hl.loadLanguage(bundledLanguages.javascript);
 
 const html = hl.highlight(
   "const x = 1",
-  htmlInline({ language: bundledLanguages.javascript, theme: frappe }),
+  htmlInline({
+    language: bundledLanguages.javascript,
+    theme: frappe,
+  }),
 );
 ```
 
@@ -111,9 +133,14 @@ import { htmlInline } from "@lumis-sh/lumis/formatters";
 import javascript from "@lumis-sh/lumis/langs/javascript";
 import frappe from "@lumis-sh/themes/catppuccin_frappe";
 
-const hl = await createHighlighter({ languages: [javascript] });
+const hl = await createHighlighter({
+  languages: [javascript],
+});
 
-const html = hl.highlight("const x = 1", htmlInline({ language: javascript, theme: frappe }));
+const html = hl.highlight(
+  "const x = 1",
+  htmlInline({ language: javascript, theme: frappe }),
+);
 ```
 
 ## Language references
@@ -138,7 +165,10 @@ Detection methods:
 - Emacs mode lines
 
 ```ts
-const html = await highlight(source, htmlInline({ theme: frappe }));
+const html = await highlight(
+  source,
+  htmlInline({ theme: frappe }),
+);
 ```
 
 Useful when rendering user-provided content or pasted snippets.
@@ -195,9 +225,14 @@ and cannot run inside a synchronous walk, so load every participating language
 yourself, or use a bundle such as `@lumis-sh/wasm-bundle-web`:
 
 ```ts
-const hl = await createHighlighter({ languages: [html, css, javascript] });
+const hl = await createHighlighter({
+  languages: [html, css, javascript],
+});
 
-const htmlOutput = hl.highlight(source, htmlInline({ language: html, theme: frappe }));
+const htmlOutput = hl.highlight(
+  source,
+  htmlInline({ language: html, theme: frappe }),
+);
 ```
 
 See [Highlighting loads what a document needs](/advanced/wasm-and-cdn#highlighting-loads-what-a-document-needs).
@@ -215,11 +250,17 @@ import { loadLanguages } from "@lumis-sh/lumis";
 
 await startServer();
 
-// Not awaited, so a slow CDN delays no request. The `.catch()` is required:
-// an unhandled rejection terminates the process.
-loadLanguages(["javascript", "html", "css"]).catch((error) => {
-  logger.warn({ error }, "Lumis preload failed; languages load on demand");
-});
+// Not awaited, so a slow CDN delays no request. The
+// `.catch()` is required: an unhandled rejection
+// terminates the process.
+loadLanguages(["javascript", "html", "css"]).catch(
+  (error) => {
+    logger.warn(
+      { error },
+      "Lumis preload failed; languages load on demand",
+    );
+  },
+);
 ```
 
 `loadLanguages()` warms the same default runtime `highlight()` uses, so nothing

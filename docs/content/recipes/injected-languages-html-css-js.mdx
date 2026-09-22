@@ -14,8 +14,13 @@ import html from '@lumis-sh/lumis/langs/html'
 import css from '@lumis-sh/lumis/langs/css'
 import javascript from '@lumis-sh/lumis/langs/javascript'
 
-const hl = await createHighlighter({languages: [html, css, javascript]})
-const output = hl.highlight(source, htmlInline({language: html, theme: frappe}))
+const hl = await createHighlighter({
+  languages: [html, css, javascript],
+})
+const output = hl.highlight(
+  source,
+  htmlInline({language: html, theme: frappe}),
+)
 ```
 
   </Tab>
@@ -33,7 +38,11 @@ let html = highlight(source, HtmlInlineBuilder::new()
   <Tab value="Elixir">
 
 ```elixir
-Lumis.highlight!(source, formatter: {:html_inline, language: "html", theme: "catppuccin_frappe"})
+Lumis.highlight!(source,
+  formatter:
+    {:html_inline,
+     language: "html", theme: "catppuccin_frappe"}
+)
 ```
 
   </Tab>

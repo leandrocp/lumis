@@ -21,7 +21,11 @@ import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
 const html = await highlight(
   'foo(bar([1, 2], {a: 3}))',
-  htmlInline({language: javascript, theme: frappe, rainbowBrackets: true})
+  htmlInline({
+    language: javascript,
+    theme: frappe,
+    rainbowBrackets: true,
+  })
 )
 ```
 
@@ -29,13 +33,18 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
 
 let html = highlight(
     "foo(bar([1, 2], {a: 3}))",
     HtmlInlineBuilder::new()
         .language(Language::JavaScript)
-        .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+        .theme(Some(
+            themes::get("catppuccin_frappe").unwrap(),
+        ))
         .rainbow_brackets(true)
         .build()
         .unwrap(),
@@ -48,7 +57,11 @@ let html = highlight(
 ```elixir
 Lumis.highlight!(
   "foo(bar([1, 2], {a: 3}))",
-  formatter: {:html_inline, language: "javascript", theme: "catppuccin_frappe", rainbow_brackets: true}
+  formatter:
+    {:html_inline,
+     language: "javascript",
+     theme: "catppuccin_frappe",
+     rainbow_brackets: true}
 )
 ```
 

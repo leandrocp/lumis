@@ -19,7 +19,8 @@ curl -LsSf https://lumis.sh/install.sh | sh
 On Windows PowerShell:
 
 ```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://lumis.sh/install.ps1 | iex"
+powershell -ExecutionPolicy ByPass `
+  -c "irm https://lumis.sh/install.ps1 | iex"
 ```
 
 The installers download the matching archive from GitHub Releases and verify its
@@ -33,7 +34,8 @@ curl -LsSf https://lumis.sh/0.5.1/install.sh | sh
 ```
 
 ```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://lumis.sh/0.5.1/install.ps1 | iex"
+powershell -ExecutionPolicy ByPass `
+  -c "irm https://lumis.sh/0.5.1/install.ps1 | iex"
 ```
 
 Set `LUMIS_INSTALL_DIR` to choose another directory. Set
