@@ -107,24 +107,7 @@ export const nodeRuntime: RuntimeEnvironment = {
 
   declaresLanguages: true,
 
-  async installedPackages(candidates: string[]): Promise<string[]> {
-    // Resolved one by one rather than by listing `node_modules/@lumis-sh`: pnpm
-    // links direct dependencies there and leaves everything a bundle pulled in
-    // under `.pnpm`, so a directory listing would miss most of a bundle.
-    const { createRequire } = await import("node:module");
-    const { pathToFileURL } = await import("node:url");
-    const { join } = await import("node:path");
-    const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
-
-    return candidates.filter((name) => {
-      try {
-        resolveFromProject.resolve(name);
-        return true;
-      } catch {
-        return false;
-      }
-    });
-  },
+  installedPackages,
 
   async resolveInstalledManifest(packageName: string): Promise<URL | undefined> {
     // From the application's directory, not Lumis's own: resolving relative to
@@ -168,11 +151,37 @@ const binding = loadNativeBinding();
  * it, so an injected language has to be loaded before the document mentioning
  * it is highlighted.
  */
+/**
+ * Which of `candidates` this project installed.
+ *
+ * Resolved one by one rather than by listing `node_modules/@lumis-sh`: pnpm
+ * links direct dependencies there and leaves everything a bundle pulled in
+ * under `.pnpm`, so a directory listing would miss most of a bundle.
+ *
+ * From the application's directory, not Lumis's own — resolving relative to
+ * this package would answer for whatever parsers Lumis itself carries.
+ */
+async function installedPackages(candidates: string[]): Promise<string[]> {
+  const { createRequire } = await import("node:module");
+  const { pathToFileURL } = await import("node:url");
+  const { join } = await import("node:path");
+  const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
+
+  return candidates.filter((name) => {
+    try {
+      resolveFromProject.resolve(name);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+}
+
 const wasmRuntime = createLanguagesModule(nodeRuntime);
 
 const runtime: LanguagesModule = binding
   ? createNativeLanguagesModule(binding, wasmRuntime, () =>
-      nodeRuntime.installedPackages(LANGUAGE_PACKAGE_NAMES),
+      installedPackages(LANGUAGE_PACKAGE_NAMES),
     )
   : wasmRuntime;
 
