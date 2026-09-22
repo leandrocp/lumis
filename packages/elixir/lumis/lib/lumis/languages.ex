@@ -76,7 +76,6 @@ defmodule Lumis.Languages do
 
     * `:unknown_language` — the name is not in the catalog
     * `:not_installed` — it is, but this project does not depend on its parser
-    * `:not_locked` — a `lumis-lock.toml` is in force and does not pin it
     * `:failed_to_load_parser` — the parser could not be read or verified
     * `:unknown_bundle` — no bundle by that name
 
@@ -84,8 +83,7 @@ defmodule Lumis.Languages do
   name to reason, so one failure never hides the others.
 
   """
-  @type failure() ::
-          :unknown_language | :not_locked | :not_installed | :failed_to_load_parser
+  @type failure() :: :unknown_language | :not_installed | :failed_to_load_parser
   @spec load(bundle() | String.t() | atom() | [String.t() | atom()]) ::
           :ok
           | {:error, :unknown_bundle | failure()}
