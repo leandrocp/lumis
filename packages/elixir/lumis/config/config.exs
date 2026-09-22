@@ -2,10 +2,13 @@ import Config
 
 if config_env() == :test do
   # `mix test` runs `stage.test_parsers` first, which lays the committed parser
-  # fixtures out as a real language store. The suite reads it in place, so it
-  # exercises the real resolve-verify-load path without a download and without
-  # copying anything. This cannot live in test_helper.exs: it is applied before
-  # the store is built, and `System.put_env` is invisible to the NIF.
+  # fixtures out as a real language store. This cannot live in test_helper.exs:
+  # it is applied before the store is built, and `System.put_env` is invisible
+  # to the NIF.
+  #
+  # `:data_dir` no longer supplies parsers — `:parser_dirs` below does. What it
+  # still decides is where wasmtime keeps compiled modules, so pointing it here
+  # keeps the suite from writing into the real user cache directory.
   data_dir = Path.expand("../../../../target/test-parsers", __DIR__)
   config :lumis, data_dir: data_dir
 

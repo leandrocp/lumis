@@ -372,11 +372,16 @@ impl LanguageStore {
     /// Fails when the parser cannot be obtained, or its bytes do not match the
     /// size and digest the package declares.
     pub fn parser(&self, package: &LanguagePackage) -> Result<Vec<u8>, StoreError> {
+        // Before any path is built from `package.parser.name`. `parser_path`
+        // validates on the cache path below, and the installed path reaches
+        // `parser_filename` without it — `LanguagePackage` has public fields, so
+        // a caller can hand over a name with traversal in it and select a file
+        // outside the installed directory, all before `verify_wasm` ever runs.
+        package.validate()?;
+
         if let Some(dirs) = self.config.installed_dirs.as_deref() {
-            return Self::installed_parser(dirs, package).ok_or_else(|| {
-                StoreError::NotInstalled {
-                    package_name: package.package_name.clone(),
-                }
+            return Self::installed_parser(dirs, package).ok_or_else(|| StoreError::NotInstalled {
+                package_name: package.package_name.clone(),
             });
         }
 
@@ -1186,6 +1191,40 @@ mod tests {
         assert!(
             store.parser(&package).is_err(),
             "corrupt installed bytes must not be handed to the runtime"
+        );
+    }
+
+    /// `LanguagePackage` has public fields and `parser` is public, so a caller
+    /// can hand over a parser name with traversal in it. The installed path
+    /// builds a filename from that name, and does it before `verify_wasm` could
+    /// object, so validation has to come first or the digest check never runs
+    /// on the file that was actually opened.
+    #[test]
+    fn a_parser_name_cannot_escape_the_installed_directory() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        let store = declaring(dir.path(), vec![installed]);
+
+        let mut escaping = package();
+        escaping.parser.name = "../outside".into();
+
+        // The decoy sits exactly where the escaped name resolves, holding bytes
+        // that would pass verification. Without `validate` the read succeeds and
+        // hands back a file from outside the installed directory.
+        let decoy = dir
+            .path()
+            .join("installed")
+            .join(parser_filename(&escaping));
+        std::fs::create_dir_all(decoy.parent().unwrap()).unwrap();
+        std::fs::write(&decoy, WASM).unwrap();
+        assert!(
+            decoy.canonicalize().unwrap().parent() != Some(&dir.path().join("installed")),
+            "the decoy has to land outside the installed directory or this proves nothing"
+        );
+
+        assert!(
+            store.parser(&escaping).is_err(),
+            "a traversing parser name must not select a file outside the directory"
         );
     }
 
