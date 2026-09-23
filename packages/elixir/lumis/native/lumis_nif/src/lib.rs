@@ -949,15 +949,20 @@ fn language_package_refs() -> Vec<ExLanguagePackageRef<'static>> {
         .collect()
 }
 
-/// The parser package version range this build supports.
+/// The lowest parser package version this build accepts.
 ///
 /// One value for the whole catalog rather than a field on every error, which is
-/// how JavaScript carries it too — `generated/package-version-range.js` is a
-/// module constant. `Lumis.ParserError` reads it to name a dependency version
-/// that cannot go stale.
+/// how JavaScript carries the same thing — `generated/package-version-range.js`
+/// is a module constant. `Lumis.Packages.requirement/0` writes the `~>` around
+/// it, so the dependency `Lumis.ParserError` names cannot go stale.
+///
+/// The lowest version rather than the range itself, because `~>` does not mean
+/// what the range does: the catalog says `0.26`, which semver reads as
+/// `>=0.26.0, <0.27.0`, while Mix reads `~> 0.26` as `>= 0.26.0 and < 1.0.0`.
+/// Only `~> 0.26.0` is the bound the store enforces.
 #[rustler::nif]
-fn language_package_version_range() -> &'static str {
-    catalog::LANGUAGE_PACKAGE_VERSION_RANGE
+fn lowest_compatible_package_version() -> String {
+    store::lowest_compatible_package_version()
 }
 
 #[rustler::nif]

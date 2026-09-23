@@ -84,6 +84,14 @@ defmodule Lumis.PackagesTest do
     test "a language the catalog does not name has no package" do
       assert Packages.hex_name(nil) == nil
     end
+
+    # `~> 0.26` means `>= 0.26.0 and < 1.0.0` in Mix, while the store accepts
+    # only `>= 0.26.0 and < 0.27.0`. Two parts would let a 0.27 parser resolve
+    # and then be refused at load, and 0.27 of a 0.x package is exactly where a
+    # breaking change lands.
+    test "the requirement stops at the next minor, not the next major" do
+      assert Packages.requirement() =~ ~r/^~> \d+\.\d+\.\d+$/
+    end
   end
 
   describe "what the suite itself declares" do

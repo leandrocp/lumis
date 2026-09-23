@@ -73,7 +73,7 @@ defmodule Lumis.ParserError do
 
     add it to mix.exs, then fetch your dependencies again:
 
-        {:#{error.package}, "~> #{Lumis.Languages.package_version_range()}"}
+        {:#{error.package}, "#{Lumis.Packages.requirement()}"}
     """
   end
 
@@ -91,7 +91,7 @@ defmodule Lumis.ParserError do
     """
     this build of Lumis does not support the installed #{error.package} parser: #{error.detail}
 
-    update the dependency in mix.exs to ~> #{Lumis.Languages.package_version_range()}, or \
+    update the dependency in mix.exs to #{Lumis.Packages.requirement()}, or \
     pin Lumis to a version that accepts the one you have
     """
   end

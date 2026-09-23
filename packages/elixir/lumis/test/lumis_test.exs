@@ -1859,7 +1859,11 @@ defmodule Lumis.LumisTest do
       message = Exception.message(error)
 
       assert message =~ "mix.exs"
-      assert message =~ ~s({:lumis_wasm_typescript, "~> )
+
+      # Three-part, so the requirement stops at the next minor. `~> 0.26` would
+      # admit a 0.27 parser that the store then refuses at load, which turns a
+      # resolver error into a runtime one.
+      assert message =~ ~r/\{:lumis_wasm_typescript, "~> \d+\.\d+\.\d+"\}/
 
       refute message =~ "@lumis-sh/",
              "the npm package name is the wrong advice for an Elixir project"

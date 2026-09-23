@@ -113,7 +113,7 @@ defmodule Lumis.Native do
   def configure_store(_data_dir, _installed_dirs), do: :erlang.nif_error(:nif_not_loaded)
 
   def language_package_refs, do: :erlang.nif_error(:nif_not_loaded)
-  def language_package_version_range, do: :erlang.nif_error(:nif_not_loaded)
+  def lowest_compatible_package_version, do: :erlang.nif_error(:nif_not_loaded)
   def language_bundles, do: :erlang.nif_error(:nif_not_loaded)
   def load_language_by_name(_name), do: :erlang.nif_error(:nif_not_loaded)
 
