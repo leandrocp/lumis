@@ -737,9 +737,10 @@ rather than recomputed — a parser takes the version from the `lumis.json`
 staged with it, and a bundle from `wasm-bundle-<name>/package.json`.
 
 Hex publishing is **manual for now**: an automatic npm release does not carry it
-along. Run the `WASM Release` workflow by hand with `publish_hex` checked, which
-publishes the parsers from the same job that publishes them to npm, then the
-bundles once those parsers exist. A hyphenated package becomes an underscored
+along, because every Hex step is gated on the run being a `workflow_dispatch`.
+Running `WASM Release` by hand publishes to Hex by default — `publish_hex` is
+checked unless you clear it — taking the parsers from the same job that
+publishes them to npm, then the bundles once those parsers exist. A hyphenated package becomes an underscored
 application name, since an Elixir application name is an atom —
 `@lumis-sh/wasm-embedded-template` is `lumis_wasm_embedded_template`.
 

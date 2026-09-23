@@ -42,7 +42,7 @@ on:
         description: >-
           Also publish to Hex, from the same build npm receives
         required: false
-        default: false
+        default: true
         type: boolean
 
 jobs:
