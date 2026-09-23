@@ -70,6 +70,34 @@ defmodule Lumis.Packages do
   @spec prefix() :: String.t()
   def prefix, do: @prefix
 
+  @doc false
+  # The Hex package supplying the catalog language package with this suffix.
+  #
+  # The catalog names packages the way npm does, since that is where parsers are
+  # published from, and the NIF hands over only the part after
+  # `@lumis-sh/wasm-`. Composing the rest here keeps `lumis_wasm_` in one place
+  # and keeps the npm spelling in `store::package_suffix`, so neither side has
+  # to know how the other names the same bytes.
+  @spec hex_name(String.t() | nil) :: String.t() | nil
+  def hex_name(nil), do: nil
+  def hex_name(suffix), do: @prefix <> String.replace(suffix, "-", "_")
+
+  @doc false
+  # The Mix requirement for a parser this build can load, for the dependency
+  # `Lumis.ParserError` tells someone to add.
+  #
+  # `~> 0.26.0`, never `~> 0.26`. The catalog's range is `0.26`, which semver
+  # reads as `>= 0.26.0 and < 0.27.0` — the bound the store actually enforces —
+  # while Mix reads `~> 0.26` as `>= 0.26.0 and < 1.0.0`. The looser one lets a
+  # 0.27 parser install and then be refused at load, which is a runtime error
+  # standing in for a resolver one, and 0.27 of a 0.x package is where a
+  # breaking change lands.
+  #
+  # Built from the lowest accepted version rather than by appending `.0` to the
+  # range, so it stays correct if the range stops being a bare `MAJOR.MINOR`.
+  @spec requirement() :: String.t()
+  def requirement, do: "~> " <> Lumis.Native.lowest_compatible_package_version()
+
   # A parser application with no `priv/parsers` is not an error worth stopping a
   # boot over: it contributes nothing, and the language it was supposed to carry
   # reports itself when something asks for it.

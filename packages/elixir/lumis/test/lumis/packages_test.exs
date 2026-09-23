@@ -69,6 +69,31 @@ defmodule Lumis.PackagesTest do
     end
   end
 
+  describe "naming the Hex package for a catalog parser" do
+    # The NIF hands over the part after `@lumis-sh/wasm-`, because only this
+    # module knows how Hex spells the same bytes. A `Lumis.ParserError` reads
+    # the answer back out, so it has to be the name a dep entry takes.
+    test "a suffix becomes the dependency a project adds to mix.exs" do
+      assert Packages.hex_name("elixir") == "lumis_wasm_elixir"
+    end
+
+    test "dashes become underscores, since a Hex package cannot carry one" do
+      assert Packages.hex_name("c-sharp") == "lumis_wasm_c_sharp"
+    end
+
+    test "a language the catalog does not name has no package" do
+      assert Packages.hex_name(nil) == nil
+    end
+
+    # `~> 0.26` means `>= 0.26.0 and < 1.0.0` in Mix, while the store accepts
+    # only `>= 0.26.0 and < 0.27.0`. Two parts would let a 0.27 parser resolve
+    # and then be refused at load, and 0.27 of a 0.x package is exactly where a
+    # breaking change lands.
+    test "the requirement stops at the next minor, not the next major" do
+      assert Packages.requirement() =~ ~r/^~> \d+\.\d+\.\d+$/
+    end
+  end
+
   describe "what the suite itself declares" do
     # The suite points `:parser_dirs` at the staged fixtures rather than taking
     # an escape hatch, so these tests exercise the path a real project takes.
