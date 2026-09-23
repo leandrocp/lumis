@@ -36,14 +36,27 @@ Lumis.highlight!("elixir", "defmodule MyApp do", [])
 
 ### Return Values
 
-- `highlight/2` returns `{:ok, html_string}` or `{:error, reason}`
-- `highlight!/2` returns `html_string` or raises an exception
+- `highlight/2` returns `{:ok, html_string}` or `{:error, exception}`
+- `highlight!/2` returns `html_string` or raises `Lumis.HighlightError`
+
+The error is a `Lumis.ParserError` when a language's parser could not be
+loaded, and a `Lumis.RenderError` otherwise. Match on `:reason`, never on the
+message — the reasons are the API, the messages are not.
 
 ```elixir
 # Pattern match on success/error
 case Lumis.highlight(source, formatter: {:html_inline, language: "elixir"}) do
-  {:ok, html} -> html
-  {:error, error} -> handle_error(error)
+  {:ok, html} ->
+    html
+
+  # The one a deployment normally hits: the parser is not a dependency yet.
+  # `:package` is the Hex package to add to mix.exs.
+  {:error, %Lumis.ParserError{reason: :not_installed, package: package}} ->
+    handle_missing_parser(package)
+
+  {:error, error} ->
+    Logger.error(Exception.message(error))
+    handle_error(error)
 end
 
 # Or use the bang version when you expect success

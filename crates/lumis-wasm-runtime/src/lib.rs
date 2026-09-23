@@ -246,6 +246,7 @@ pub use store::HttpFetcher;
 pub use store::{
     lowest_compatible_package_version, package_suffix, parser_filename, write_atomic,
     CacheLanguageOutcome, Fetcher, LanguageStore, NoNetwork, StoreConfig, StoreError,
+    StoreErrorKind,
 };
 pub use tree_sitter_highlight::{DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT};
 

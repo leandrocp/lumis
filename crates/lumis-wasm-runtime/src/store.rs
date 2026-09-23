@@ -73,6 +73,55 @@ pub enum StoreError {
     Package(#[from] LanguagePackageError),
 }
 
+/// Why a [`StoreError`] happened, in the terms a host reports to its users.
+///
+/// [`StoreError`] is `#[non_exhaustive]` and its variants carry whatever each
+/// case needs, so a host that wants to say "add this parser to your
+/// dependencies" cannot match on it and must not match on the message. This is
+/// the stable classification it matches on instead, and it is what every
+/// runtime's structured error is built from, so `:not_installed` means the same
+/// thing in Elixir, JavaScript and the CLI.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum StoreErrorKind {
+    /// The name is not in the catalog.
+    UnknownLanguage,
+    /// The package name is not a Lumis language package name.
+    InvalidPackageName,
+    /// The package resolved to a different name than the one requested.
+    PackageNameMismatch,
+    /// The package's version is outside the range this build supports.
+    IncompatibleVersion,
+    /// The package or its parser bytes could not be read, parsed or verified.
+    InvalidPackage,
+    /// The filesystem refused a read or a write.
+    Io,
+    /// The package could not be downloaded.
+    DownloadFailed,
+    /// The package is neither on disk nor downloadable.
+    Unavailable,
+    /// The package is not a dependency of this project.
+    NotInstalled,
+}
+
+impl StoreErrorKind {
+    /// The `snake_case` name hosts report this kind under.
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::UnknownLanguage => "unknown_language",
+            Self::InvalidPackageName => "invalid_package_name",
+            Self::PackageNameMismatch => "package_name_mismatch",
+            Self::IncompatibleVersion => "incompatible_version",
+            Self::InvalidPackage => "invalid_package",
+            Self::Io => "io",
+            Self::DownloadFailed => "download_failed",
+            Self::Unavailable => "unavailable",
+            Self::NotInstalled => "not_installed",
+        }
+    }
+}
+
 /// Result of caching one language package.
 #[derive(Clone, Debug)]
 pub struct CacheLanguageOutcome {
@@ -86,6 +135,47 @@ impl StoreError {
         Self::Io {
             context: context.into(),
             source,
+        }
+    }
+
+    /// What kind of failure this is.
+    #[must_use]
+    pub fn kind(&self) -> StoreErrorKind {
+        match self {
+            Self::UnknownLanguage(_) => StoreErrorKind::UnknownLanguage,
+            Self::InvalidPackageName(_) => StoreErrorKind::InvalidPackageName,
+            Self::PackageNameMismatch { .. } => StoreErrorKind::PackageNameMismatch,
+            Self::IncompatiblePackageVersion { .. } => StoreErrorKind::IncompatibleVersion,
+            Self::NotUtf8 | Self::Package(_) => StoreErrorKind::InvalidPackage,
+            Self::Io { .. } => StoreErrorKind::Io,
+            Self::Fetch { .. } => StoreErrorKind::DownloadFailed,
+            Self::Unavailable { .. } => StoreErrorKind::Unavailable,
+            Self::NotInstalled { .. } => StoreErrorKind::NotInstalled,
+        }
+    }
+
+    /// The language package this failure is about, when it names one.
+    #[must_use]
+    pub fn package_name(&self) -> Option<&str> {
+        match self {
+            Self::InvalidPackageName(name) => Some(name),
+            Self::PackageNameMismatch { expected, .. } => Some(expected),
+            Self::IncompatiblePackageVersion { package_name, .. }
+            | Self::Unavailable { package_name, .. }
+            | Self::NotInstalled { package_name } => Some(package_name),
+            _ => None,
+        }
+    }
+
+    /// The version that was found and the range that was required, for
+    /// [`StoreErrorKind::IncompatibleVersion`].
+    #[must_use]
+    pub fn versions(&self) -> Option<(&str, &str)> {
+        match self {
+            Self::IncompatiblePackageVersion {
+                actual, required, ..
+            } => Some((actual, required)),
+            _ => None,
         }
     }
 }

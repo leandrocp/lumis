@@ -21,15 +21,28 @@ case Lumis.highlight(source,
          {:html_inline,
           language: "elixir", theme: "catppuccin_latte"}
      ) do
-  {:ok, html} -> html
-  {:error, reason} -> handle_error(reason)
+  {:ok, html} ->
+    html
+
+  # The parser is not a dependency yet; `:package` is what to add to mix.exs.
+  {:error, %Lumis.ParserError{reason: :not_installed, package: package}} ->
+    handle_missing_parser(package)
+
+  {:error, error} ->
+    handle_error(error)
 end
 ```
 
 There is no default theme. Without `:theme`, `:html_inline` and `:terminal` emit
 uncolored output.
 
-`highlight/2` returns `{:ok, output}` or `{:error, reason}`.
+`highlight/2` returns `{:ok, output}` or `{:error, exception}`. The exception is
+a [`Lumis.ParserError`](https://hexdocs.pm/lumis/Lumis.ParserError.html) when a
+language's parser could not be loaded and a
+[`Lumis.RenderError`](https://hexdocs.pm/lumis/Lumis.RenderError.html)
+otherwise. Both carry a `:reason` atom to match on, so the case a deployment has
+to act on is a clause rather than a substring; `Exception.message/1` renders
+either one for a log.
 
 ## When you want the highlighted output directly
 

@@ -70,6 +70,18 @@ defmodule Lumis.Packages do
   @spec prefix() :: String.t()
   def prefix, do: @prefix
 
+  @doc false
+  # The Hex package supplying the catalog language package with this suffix.
+  #
+  # The catalog names packages the way npm does, since that is where parsers are
+  # published from, and the NIF hands over only the part after
+  # `@lumis-sh/wasm-`. Composing the rest here keeps `lumis_wasm_` in one place
+  # and keeps the npm spelling in `store::package_suffix`, so neither side has
+  # to know how the other names the same bytes.
+  @spec hex_name(String.t() | nil) :: String.t() | nil
+  def hex_name(nil), do: nil
+  def hex_name(suffix), do: @prefix <> String.replace(suffix, "-", "_")
+
   # A parser application with no `priv/parsers` is not an error worth stopping a
   # boot over: it contributes nothing, and the language it was supposed to carry
   # reports itself when something asks for it.

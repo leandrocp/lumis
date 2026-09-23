@@ -13,7 +13,7 @@ use tree_sitter::{Language, ParseOptions, Parser, Query, Tree, WasmStore};
 use wasmtime::{Cache, CacheConfig, Config, Engine};
 
 use crate::brackets::{bracket_pairs_within, colorize_bracket_pairs, RainbowRange};
-use crate::store::LanguageStore;
+use crate::store::{LanguageStore, StoreError};
 use crate::tree_sitter_highlight::{
     Deadline, HighlightConfiguration, Highlighter, Interrupt, DEFAULT_MATCH_LIMIT, MAX_MATCH_LIMIT,
 };
@@ -179,6 +179,18 @@ pub enum RuntimeError {
     TreeSitter(String),
     #[error("failed to load parser for language '{language}': {message}")]
     Parser { language: String, message: String },
+    /// The store could not supply the language's package or parser bytes.
+    ///
+    /// Reads the same as [`RuntimeError::Parser`], and is separate from it so
+    /// the [`StoreError`] survives to the caller. A host has to be able to tell
+    /// "you never added this parser" from "the download failed" to say anything
+    /// useful, and the alternative is matching on the message.
+    #[error("failed to load parser for language '{language}': {source}")]
+    Store {
+        language: String,
+        #[source]
+        source: Box<StoreError>,
+    },
     #[error("failed to compile queries for language '{language}': {message}")]
     Query { language: String, message: String },
     #[error("language '{0}' is not loaded")]
@@ -370,19 +382,15 @@ impl Runtime {
             return Ok(loaded);
         }
 
-        let parser_error = |message: String| RuntimeError::Parser {
+        let store_error = |error: StoreError| RuntimeError::Store {
             language: id.to_string(),
-            message,
+            source: Box::new(error),
         };
-        let package = store
-            .package(location.package_name)
-            .map_err(|error| parser_error(error.to_string()))?;
+        let package = store.package(location.package_name).map_err(store_error)?;
         let (resolved_id, definition) = package
             .language(id)
             .ok_or_else(|| RuntimeError::LanguageNotLoaded(id.into()))?;
-        let wasm = store
-            .parser(&package)
-            .map_err(|error| parser_error(error.to_string()))?;
+        let wasm = store.parser(&package).map_err(store_error)?;
 
         self.load_language(LanguageSpec {
             id: resolved_id.to_string(),

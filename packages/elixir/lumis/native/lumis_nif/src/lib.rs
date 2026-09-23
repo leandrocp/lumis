@@ -18,10 +18,10 @@ use lumis_core::formatter::Formatter;
 use lumis_core::languages::Language;
 use lumis_core::{languages, themes};
 use lumis_wasm_runtime::{
-    catalog, store, HighlightOptions, Runtime, RuntimeError, DEFAULT_MATCH_LIMIT,
+    catalog, store, HighlightOptions, Runtime, RuntimeError, StoreError, DEFAULT_MATCH_LIMIT,
 };
 use parking_lot::RwLock;
-use rustler::{Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
+use rustler::{Atom, Encoder, Env, Error, NifMap, NifResult, NifStruct, Term};
 
 /// Lazy per-theme cache to eliminate repeated allocations.
 /// Themes are converted and cached on first access, amortizing the cost.
@@ -103,6 +103,106 @@ impl Encoder for LoadFailure {
             Self::NotInstalled => not_installed().encode(env),
             Self::Parser => failed_to_load_parser().encode(env),
         }
+    }
+}
+
+/// The fields `Lumis.ParserError` is built from.
+///
+/// Elixir owns the exception struct, because the advice a missing parser needs
+/// is "add it to mix.exs" here and "add it to package.json" in Node, off the
+/// same `reason`. What crosses the boundary is the classification, never a
+/// message for Elixir to match on.
+#[derive(NifMap)]
+struct ExParserFailure {
+    language: String,
+    /// The catalog package name with its `@lumis-sh/wasm-` prefix removed, so
+    /// `Lumis.Packages` can spell the Hex dependency without this crate
+    /// knowing how, and `store::package_suffix` stays the only place that
+    /// knows how npm spells it.
+    package_suffix: Option<String>,
+    reason: Atom,
+    detail: String,
+    required_version: String,
+    actual_version: Option<String>,
+}
+
+/// The fields `Lumis.RenderError` is built from: everything that fails after,
+/// or instead of, loading a parser.
+#[derive(NifMap)]
+struct ExRenderFailure {
+    reason: Atom,
+    detail: String,
+}
+
+/// `{:error, {:render, %{...}}}`, which `Lumis.highlight/2` turns into a
+/// `Lumis.RenderError`.
+fn render_failure(env: Env<'_>, reason: Atom, detail: String) -> Term<'_> {
+    (error(), (render(), ExRenderFailure { reason, detail })).encode(env)
+}
+
+/// The error term for a failed highlight: `{:error, {:parser, %{...}}}` when a
+/// language's parser could not be loaded, `{:error, {:render, %{...}}}`
+/// otherwise.
+///
+/// The reason comes from [`StoreError::kind`] rather than from the message, for
+/// the same reason `never_added` is checked rather than read out of the store's
+/// error: a caller telling "add this parser to your dependencies" apart from
+/// "the download timed out" must not be a substring match.
+fn highlight_failure<'a>(env: Env<'a>, failure: &RuntimeError, language: &str) -> Term<'a> {
+    let parser_failure =
+        |language: &str, reason: Atom, detail: String, store: Option<&StoreError>| {
+            let package_name = store
+                .and_then(StoreError::package_name)
+                .or_else(|| catalog::find(language).map(|entry| entry.package_name));
+            let failure = ExParserFailure {
+                language: language.to_string(),
+                package_suffix: package_name
+                    .and_then(store::package_suffix)
+                    .map(ToString::to_string),
+                reason,
+                detail,
+                required_version: catalog::LANGUAGE_PACKAGE_VERSION_RANGE.to_string(),
+                actual_version: store
+                    .and_then(StoreError::versions)
+                    .map(|(actual, _required)| actual.to_string()),
+            };
+            (error(), (parser(), failure)).encode(env)
+        };
+
+    match failure {
+        RuntimeError::Store { language, source } => {
+            // `from_str` only ever sees the nine names `StoreErrorKind` spells,
+            // so this cannot grow the atom table; the fallback is for a variant
+            // added to that `#[non_exhaustive]` enum before this is updated.
+            let reason = Atom::from_str(env, source.kind().as_str())
+                .unwrap_or_else(|_| failed_to_load_parser());
+            parser_failure(language, reason, source.to_string(), Some(source))
+        }
+        RuntimeError::Parser { language, message } => {
+            parser_failure(language, invalid_parser(), message.clone(), None)
+        }
+        RuntimeError::Query { language, message } => {
+            parser_failure(language, invalid_queries(), message.clone(), None)
+        }
+        RuntimeError::LanguageNotLoaded(language) => {
+            parser_failure(language, not_loaded(), failure.to_string(), None)
+        }
+        RuntimeError::UnknownLanguage(language) => {
+            parser_failure(language, unknown_language(), failure.to_string(), None)
+        }
+        RuntimeError::LanguageNotCached(language) => {
+            parser_failure(language, not_cached(), failure.to_string(), None)
+        }
+        RuntimeError::LanguageStoreUnavailable => {
+            parser_failure(language, store_unavailable(), failure.to_string(), None)
+        }
+        RuntimeError::InvalidMatchLimit(_) => {
+            render_failure(env, invalid_match_limit(), failure.to_string())
+        }
+        RuntimeError::Highlight(_) => render_failure(env, highlight_failed(), failure.to_string()),
+        // `Wasmtime` and `TreeSitter`, plus whatever is added to this
+        // `#[non_exhaustive]` enum next: the WASM runtime itself is unusable.
+        _ => render_failure(env, runtime_atom(), failure.to_string()),
     }
 }
 
@@ -266,10 +366,30 @@ rustler::atoms! {
     annotation_end,
     decoration_start,
     decoration_end,
-    language_not_loaded,
     unknown_language,
     not_installed,
     failed_to_load_parser,
+
+    // Which exception `Lumis.highlight/2` builds from the failure beside it.
+    parser,
+    render,
+
+    // `Lumis.ParserError` reasons a `StoreError` does not name. The ones it does
+    // come from `StoreErrorKind::as_str`, so every runtime spells them alike.
+    not_loaded,
+    not_cached,
+    invalid_parser,
+    invalid_queries,
+    store_unavailable,
+
+    // `Lumis.RenderError` reasons. Suffixed where a bare name would be shadowed
+    // by a local binding at the site that encodes it.
+    formatter_atom = "formatter",
+    annotation_atom = "annotation",
+    render_failed = "render",
+    highlight_failed = "highlight",
+    invalid_match_limit,
+    runtime_atom = "runtime",
 }
 
 rustler::init!("Elixir.Lumis.Native");
@@ -482,7 +602,7 @@ pub(crate) fn highlight<'a>(
     let annotations = decode_annotations(options.annotations)?;
     let formatter = match options.formatter.into_formatter(language) {
         Ok(formatter) => formatter,
-        Err(message) => return Ok((error(), message).encode(env)),
+        Err(message) => return Ok(render_failure(env, formatter_atom(), message)),
     };
 
     let Highlighted { events, budget } = match syntax_events(
@@ -498,12 +618,22 @@ pub(crate) fn highlight<'a>(
     };
     let events = match compose_annotations(source, &events, &annotations) {
         Ok(events) => events,
-        Err(annotation_error) => return Ok((error(), annotation_error.to_string()).encode(env)),
+        Err(annotation_error) => {
+            return Ok(render_failure(
+                env,
+                annotation_atom(),
+                annotation_error.to_string(),
+            ))
+        }
     };
 
     let mut output = Vec::new();
     if let Err(render_error) = formatter.render_budgeted_or(source, &events, &mut output, budget) {
-        return Ok((error(), render_error.to_string()).encode(env));
+        return Ok(render_failure(
+            env,
+            render_failed(),
+            render_error.to_string(),
+        ));
     }
     let output = String::from_utf8(output)
         .map_err(|error| Error::Term(Box::new(format!("invalid formatter output: {error}"))))?;
@@ -529,7 +659,8 @@ fn syntax_events<'a>(
         });
     }
 
-    let executor = executor().map_err(|reason| (error(), format!("{reason:#}")).encode(env))?;
+    let executor =
+        executor().map_err(|reason| render_failure(env, runtime_atom(), format!("{reason:#}")))?;
     executor
         .highlight(
             source,
@@ -538,12 +669,7 @@ fn syntax_events<'a>(
             match_limit,
             time_limit,
         )
-        .map_err(|runtime_error| match runtime_error {
-            RuntimeError::LanguageNotLoaded(language) => {
-                (error(), (language_not_loaded(), language)).encode(env)
-            }
-            runtime_error => (error(), runtime_error.to_string()).encode(env),
-        })
+        .map_err(|runtime_error| highlight_failure(env, &runtime_error, language.id_name()))
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
@@ -571,7 +697,13 @@ pub(crate) fn highlight_events<'a>(
     };
     let events = match compose_annotations(source, &events, &annotations) {
         Ok(events) => events,
-        Err(annotation_error) => return Ok((error(), annotation_error.to_string()).encode(env)),
+        Err(annotation_error) => {
+            return Ok(render_failure(
+                env,
+                annotation_atom(),
+                annotation_error.to_string(),
+            ))
+        }
     };
 
     formatter

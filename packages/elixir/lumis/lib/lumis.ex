@@ -1098,10 +1098,19 @@ defmodule Lumis do
   @doc """
   Highlights `source` code and outputs into a formatted string.
 
-  Returns `{:error, reason}` when the root language cannot be loaded or the
+  Returns `{:error, exception}` when the root language cannot be loaded or the
   formatter fails. An injected language that cannot be fetched is not an error:
   that block stays plain and the rest of the document still highlights. Use
   `highlight!/2` to raise instead.
+
+  The exception is a `Lumis.ParserError` when a parser could not be loaded and a
+  `Lumis.RenderError` otherwise. Both carry a `:reason` to match on, so the
+  case a deployment has to act on is a clause rather than a substring:
+
+      {:error, %Lumis.ParserError{reason: :not_installed, package: package}} ->
+        Logger.error("add {:\#{package}, \"~> 0.26\"} to mix.exs")
+
+  `Exception.message/1` renders either one for a log.
 
   Invalid *options* still raise, because those are a caller mistake rather than
   a runtime condition.
@@ -1175,7 +1184,8 @@ defmodule Lumis do
   See https://docs.rs/lumis/latest/lumis/fn.highlight.html for more info.
 
   """
-  @spec highlight(String.t(), options()) :: {:ok, String.t()} | {:error, String.t()}
+  @spec highlight(String.t(), options()) ::
+          {:ok, String.t()} | {:error, Lumis.ParserError.t() | Lumis.RenderError.t()}
   def highlight(source, options \\ [])
 
   def highlight(source, options) when is_binary(source) and is_list(options) do
@@ -1204,11 +1214,21 @@ defmodule Lumis do
     highlight(source, language: language)
   end
 
-  defp describe_highlight_error({:error, {:language_not_loaded, language}}) do
-    {:error,
-     "language #{inspect(language)} could not be loaded. Warm it with " <>
-       "`Lumis.Languages.async_load([#{inspect(language)}])` from your " <>
-       "application's start/2 if this host has no network access"}
+  # The NIF classifies a failure and hands over its fields; the exception struct
+  # is built here, because the advice a missing parser needs is "add it to
+  # mix.exs" in Elixir and "add it to package.json" in Node, off the same
+  # `:reason`.
+  defp describe_highlight_error({:error, {:parser, fields}}) do
+    fields =
+      fields
+      |> Map.delete(:package_suffix)
+      |> Map.put(:package, Lumis.Packages.hex_name(fields.package_suffix))
+
+    {:error, struct!(Lumis.ParserError, fields)}
+  end
+
+  defp describe_highlight_error({:error, {:render, fields}}) do
+    {:error, struct!(Lumis.RenderError, fields)}
   end
 
   defp describe_highlight_error(other), do: other
