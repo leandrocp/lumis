@@ -33,10 +33,6 @@ The application has no code. It starts nothing and supervises nothing.
 | ------ | ------- | --- |
 | [{git_url}]({git_url}) | {upstream_version} | {rev} |
 
-The same parser is published to npm as
-[`{npm_package}`](https://www.npmjs.com/package/{npm_package}) — byte for byte,
-from one build, so both registries serve the same artifact.
-
 ## License
 
 The Lumis packaging is MIT. The parser itself is redistributed from the
