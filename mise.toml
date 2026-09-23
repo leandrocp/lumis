@@ -1011,6 +1011,10 @@ done < <(cargo run -q --manifest-path crates/dev/Cargo.toml --no-default-feature
 manifests=()
 while IFS='|' read -r package paths; do
     case "$package" in
+        # npm keeps a trusted publisher on the package record, and there is no
+        # record until a package has been published once. Restore this row when
+        # https://github.com/leandrocp/lumis/issues/1437 cuts @lumis-sh/vite 0.1.0.
+        npm-vite) ;;
         npm-*) manifests+=("${paths%%|*}/package.json") ;;
     esac
 done < <(mise run release-packages)
@@ -1038,6 +1042,7 @@ set -euo pipefail
 filter="${usage_package:-}"
 added=0
 present=0
+unpublished=0
 
 # Read to the end before visiting anything, so the loop that calls npm leaves
 # the terminal on stdin: npm's 2FA prompt reads from there, and a loop fed by a
@@ -1070,11 +1075,22 @@ for entry in "${packages[@]}"; do
     # unless stdout is a terminal — which capturing the JSON above makes it not.
     # So the prompt is run here instead, uncaptured, and the read retried. It
     # fires on the first package and then again each time npm's elevation
-    # lapses, which is well inside a run of this length.
-    if jq -es 'any(.[]; has("error"))' >/dev/null <<< "$listing"; then
+    # lapses, which is well inside a run of this length. `EOTP` is the only code
+    # that asks for it, and the prompt cannot be the thing that ends the run:
+    # whatever it reports belongs in the reading below, which names the package.
+    if jq -es 'any(.[]; .error.code == "EOTP")' >/dev/null <<< "$listing"; then
         echo "npm wants two-factor authentication before it will answer for $package"
-        npm trust list "$package"
+        npm trust list "$package" || true
         listing="$(npm trust list "$package" --json 2>/dev/null || true)"
+    fi
+
+    # A trusted publisher is stored on the package record, so there is nowhere
+    # to put one until the package exists. Its first release has to go out some
+    # other way, and the rest of the catalog is still worth visiting.
+    if jq -es 'any(.[]; .error.code == "E404")' >/dev/null <<< "$listing"; then
+        echo "$package is not published yet, so npm has nothing to hold $workflow"
+        unpublished=$((unpublished + 1))
+        continue
     fi
 
     if jq -es 'any(.[]; has("error"))' >/dev/null <<< "$listing"; then
@@ -1098,7 +1114,7 @@ for entry in "${packages[@]}"; do
     sleep 2
 done
 
-echo "added $added, already present $present"
+echo "added $added, already present $present, not published $unpublished"
 '''
 
 [tasks.'release-needed']
@@ -1184,12 +1200,8 @@ while IFS= read -r entry; do
     current="$(mise run release-version "$package")"
 
     tag="$(git tag --list "$package/v*" --sort=-version:refname | head -n1)"
-    if [ -z "$tag" ]; then
-        printf 'skipping %s: no %s/v* tag yet, so the first release has to be cut by hand\n' "$package" "$package" >&2
-        continue
-    fi
 
-    if [ "$current" != "${tag#*/v}" ]; then
+    if [ -n "$tag" ] && [ "$current" != "${tag#*/v}" ]; then
         printf 'skipping %s: %s is already prepared and %s is still the latest tag\n' "$package" "$current" "$tag" >&2
         continue
     fi
@@ -1202,6 +1214,14 @@ while IFS= read -r entry; do
             printf 'skipping npm-cli: publish cargo-lumis-cli and merge align-npm-cli first\n' >&2
             continue
         fi
+    fi
+
+    # Nothing to bump from, and no range of commits to read for a bump: a
+    # package with no tag has never been released, and its manifest already
+    # declares the version the first release will carry.
+    if [ -z "$tag" ]; then
+        printf '%s %s\n' "$package" "$current"
+        continue
     fi
 
     include_args=()
@@ -1247,19 +1267,24 @@ for path in "${package_paths[@]}"; do
     include_args+=(--include-path "$path/**/*")
 done
 
-case "${package%%-*}" in
-    cargo)
-        cargo set-version --manifest-path "$directory/Cargo.toml" -p "${directory##*/}" "$version"
-        mise run check-crate-deps --fix
-        ;;
-    npm)
-        npm --prefix "$directory" version --no-git-tag-version "$version"
-        ;;
-    hex)
-        mise run elixir-nif-lock-check --fix
-        python3 -c 'from pathlib import Path; import re, sys; path = Path(sys.argv[1]); version = sys.argv[2]; content = path.read_text(); content = re.sub(r"@version \"[^\"]+\"", f"@version \"{version}\"", content, count=1); path.write_text(content)' "$directory/mix.exs" "$version"
-        ;;
-esac
+# A first release is the version the manifest already declares, and both
+# `cargo set-version` and `npm version` treat writing the version that is
+# already there as an error. Only the changelog below is left to write.
+if [ "$(mise run release-version "$package")" != "$version" ]; then
+    case "${package%%-*}" in
+        cargo)
+            cargo set-version --manifest-path "$directory/Cargo.toml" -p "${directory##*/}" "$version"
+            mise run check-crate-deps --fix
+            ;;
+        npm)
+            npm --prefix "$directory" version --no-git-tag-version "$version"
+            ;;
+        hex)
+            mise run elixir-nif-lock-check --fix
+            python3 -c 'from pathlib import Path; import re, sys; path = Path(sys.argv[1]); version = sys.argv[2]; content = path.read_text(); content = re.sub(r"@version \"[^\"]+\"", f"@version \"{version}\"", content, count=1); path.write_text(content)' "$directory/mix.exs" "$version"
+            ;;
+    esac
+fi
 
 if [ "$package" = "npm-lumis" ]; then
     cargo set-version --manifest-path packages/javascript/lumis/native/Cargo.toml -p lumis-js-native "$version"

@@ -117,7 +117,7 @@ and publishing a new version directly with a token is removed in January 2027 â€
 which is every `npm publish` here. Direct publish stays available to a trusted
 publisher; only the token path goes away.
 
-Trust is configured **per package**, and this repository publishes 142:
+Trust is configured **per package**, and this repository publishes 141:
 
 | | count | workflow |
 | --- | --- | --- |
@@ -125,7 +125,14 @@ Trust is configured **per package**, and this repository publishes 142:
 | `@lumis-sh/lumis-native-*` and the selector | 9 | `javascript-release.yml` |
 | `@lumis-sh/cli-*` platform packages | 8 | `javascript-release.yml` |
 | `@lumis-sh/wasm-bundle-*` | 5 | `javascript-release.yml` |
-| `lumis`, `cli`, `themes`, `react`, `vite`, `markdown-it-lumis`, `rehype-lumis` | 7 | `javascript-release.yml` |
+| `lumis`, `cli`, `themes`, `react`, `markdown-it-lumis`, `rehype-lumis` | 6 | `javascript-release.yml` |
+
+`@lumis-sh/vite` is the one package this repository releases that is missing from
+that table. npm keeps a trusted publisher on the package record, and a package
+that has never been published has no record to keep one on, so `npm-packages`
+holds its row commented out until [#1437](https://github.com/leandrocp/lumis/issues/1437)
+cuts `0.1.0`. Its first release cannot come from `javascript-release.yml`, which
+carries no token and has nothing but `id-token: write` to publish with.
 
 ```sh
 mise run npm-trust
@@ -144,7 +151,7 @@ cannot run in CI, under a pipe, or with its output redirected to a file.
 
 Expect to answer the challenge several times. npm's approval lasts about five
 minutes and the calls are spaced two seconds apart as npm asks, so a full pass
-over 142 packages outlives it. The task notices and re-prompts rather than
+over 141 packages outlives it. The task notices and re-prompts rather than
 failing.
 
 Two traps:
@@ -183,7 +190,7 @@ publishing jobs. Note what that is worth: `workflow_dispatch` runs the workflow
 file **from the ref you pick**, so the guard is only as good as the file on that
 branch. npm's third, optional claim is a GitHub **environment**, which would
 move the check into repository settings where a branch cannot rewrite it. It is
-deliberately not used. Adding it later means revoking and re-adding all 142
+deliberately not used. Adding it later means revoking and re-adding all 141
 configurations, so it is a decision to revisit as a whole, not per package.
 
 Two things do limit the damage:
