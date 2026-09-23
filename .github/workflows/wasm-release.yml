@@ -74,10 +74,20 @@ jobs:
         env:
           PARSER_FILTER: ${{ inputs.parser }}
           FORCE_PUBLISH: ${{ inputs.force || 'false' }}
+          PUBLISH_HEX: ${{ inputs.publish_hex || 'false' }}
         run: |
           needed=$(mise run wasm-publish-needed \
             "$PARSER_FILTER" \
             "$FORCE_PUBLISH")
+          # Drift detection asks whether *npm* is behind. Hex is a different
+          # registry with its own history, so a parser npm already has may still
+          # be one Hex needs — and a Hex publish that failed after npm succeeded
+          # has to be retryable. Selecting on npm alone would make both
+          # impossible.
+          if [ -z "$needed" ] && [ "$PUBLISH_HEX" = "true" ]; then
+            needed=$(mise run wasm-publish-needed "$PARSER_FILTER" true)
+            echo "npm is current; selecting for Hex: $needed"
+          fi
           if [ -z "$needed" ]; then
             echo "All packages already published, nothing to build"
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -139,6 +149,14 @@ jobs:
       - name: Publish to npm
         run: |
           cd -- "tmp/wasm/publish/$PARSER"
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          # A Hex-only run still builds and stages, so this version may already
+          # be on npm. Publishing it again is an error rather than a no-op.
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "$name@$version is already on npm, leaving it alone"
+            exit 0
+          fi
           npm publish --access public --provenance
         env:
           PARSER: ${{ matrix.parser }}
@@ -158,22 +176,26 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
+      # `cargo run` and `mix local.hex` build and execute dependency code, so
+      # they run before the key exists in the environment. Only the command
+      # that authenticates gets it.
       - name: Stage the Hex package
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
-        run: cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
+        run: |
+          app_name=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-meta "$PARSER" \
+            | grep '^hex_app=' | cut -d= -f2)
+          echo "HEX_APP=$app_name" >> "$GITHUB_ENV"
+          cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
+          mix local.hex --force
         env:
           PARSER: ${{ matrix.parser }}
 
       - name: Publish to Hex
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
         run: |
-          app_name=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-meta "$PARSER" \
-            | grep '^hex_app=' | cut -d= -f2)
-          cd -- "tmp/wasm/hex/$app_name"
-          mix local.hex --force
+          cd -- "tmp/wasm/hex/$HEX_APP"
           mix hex.publish package --yes
         env:
-          PARSER: ${{ matrix.parser }}
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
   # Bundles carry no parser bytes, only the languages they group, so they are
@@ -189,6 +211,10 @@ jobs:
         bundle: [web, web-extra, system, backend, full]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # Nothing here pushes, and the later cargo and mix steps run
+          # dependency code that would otherwise inherit the token.
+          persist-credentials: false
 
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
@@ -202,12 +228,17 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
-      - name: Publish the bundle to Hex
+      - name: Stage the bundle
         run: |
           cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-bundle "$BUNDLE"
-          cd -- "tmp/wasm/hex/lumis_wasm_bundle_${BUNDLE//-/_}"
+          echo "HEX_APP=lumis_wasm_bundle_${BUNDLE//-/_}" >> "$GITHUB_ENV"
           mix local.hex --force
-          mix hex.publish package --yes
         env:
           BUNDLE: ${{ matrix.bundle }}
+
+      - name: Publish the bundle to Hex
+        run: |
+          cd -- "tmp/wasm/hex/$HEX_APP"
+          mix hex.publish package --yes
+        env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

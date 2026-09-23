@@ -3932,7 +3932,7 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
             .with_context(|| format!("{package_name} has no version requirement"))?;
         members.push((
             format!("lumis_wasm_{}", suffix.replace('-', "_")),
-            hex_requirement(requirement),
+            hex_requirement(requirement)?,
         ));
     }
     members.sort();
@@ -3972,9 +3972,50 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
     Ok(())
 }
 
-/// Hex spells a compatible range `~>`, npm spells it `^`.
-fn hex_requirement(npm: &str) -> String {
-    format!("~> {}", npm.trim_start_matches(['^', '~', '=', 'v']))
+/// The Hex requirement meaning what an npm one means.
+///
+/// Not a rewrite of the prefix: the two spell overlapping but different things,
+/// and `~> 1.2.3` silently narrows `^1.2.3` from "below 2.0.0" to "below
+/// 1.3.0". They coincide only below 1.0, which is where every parser is today
+/// and is exactly why this would have gone unnoticed until it mattered.
+///
+/// # Errors
+/// Fails on a requirement with no equivalent, rather than publishing a bundle
+/// that means something the npm one does not.
+fn hex_requirement(npm: &str) -> Result<String> {
+    let exact = |version: &str| -> Result<(u64, u64, u64)> {
+        let mut parts = version.split('.');
+        let mut next = || -> Result<u64> {
+            parts
+                .next()
+                .and_then(|part| part.parse().ok())
+                .with_context(|| format!("{npm} is not a version this can translate"))
+        };
+        let parsed = (next()?, next()?, next()?);
+        if parts.next().is_some() {
+            bail!("{npm} is not a version this can translate");
+        }
+        Ok(parsed)
+    };
+
+    if let Some(version) = npm.strip_prefix('^') {
+        let (major, _, _) = exact(version)?;
+        // Below 1.0 npm treats the minor as the breaking digit, which is what
+        // `~>` with three parts already means.
+        if major == 0 {
+            return Ok(format!("~> {version}"));
+        }
+        return Ok(format!("~> {version} and < {}.0.0", major + 1));
+    }
+
+    if let Some(version) = npm.strip_prefix('~') {
+        exact(version)?;
+        return Ok(format!("~> {version}"));
+    }
+
+    // Bare in npm is exact, and `~> ` is not.
+    exact(npm)?;
+    Ok(format!("== {npm}"))
 }
 
 /// `lumis_wasm_json` as `LumisWasmJson`.
@@ -4028,10 +4069,25 @@ mod hex_wasm_tests {
     use super::*;
 
     #[test]
-    fn npm_requirements_become_hex_ones() {
-        assert_eq!(hex_requirement("^0.26.0"), "~> 0.26.0");
-        assert_eq!(hex_requirement("~0.26.0"), "~> 0.26.0");
-        assert_eq!(hex_requirement("0.26.0"), "~> 0.26.0");
+    fn npm_requirements_become_hex_ones_that_mean_the_same() {
+        // Below 1.0 the two notations coincide, which is where parsers are.
+        assert_eq!(hex_requirement("^0.26.0").unwrap(), "~> 0.26.0");
+        assert_eq!(hex_requirement("~0.26.0").unwrap(), "~> 0.26.0");
+
+        // Above it they do not: `~> 1.2.3` alone would stop at 1.3.0 where the
+        // npm requirement runs to 2.0.0.
+        assert_eq!(hex_requirement("^1.2.3").unwrap(), "~> 1.2.3 and < 2.0.0");
+
+        // Bare is exact in npm, and `~>` is a range.
+        assert_eq!(hex_requirement("1.2.3").unwrap(), "== 1.2.3");
+
+        // Anything else is refused rather than guessed at.
+        for unsupported in [">=1.2.3", "1.2.x", "*", "1.2", "latest"] {
+            assert!(
+                hex_requirement(unsupported).is_err(),
+                "{unsupported} has no equivalent and must not be translated"
+            );
+        }
     }
 
     #[test]
