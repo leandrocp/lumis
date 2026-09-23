@@ -207,6 +207,8 @@ mise run -C benchmarks run
 
 The root `mise run bench` task runs the same suite. Scenarios and current results are listed in [`benchmarks/README.md`](benchmarks/README.md).
 
+In CI the suite runs weekly, not per merge: a single commit's timings are noise on a shared runner, and nothing reads them as a gate. Run the **Benchmarks** workflow by hand when a change is worth measuring on its own. The one benchmark-adjacent check that does run per merge is **Comparison assets**, which regenerates `website/public/comparison-data` and fails if the committed bytes have drifted from what the code produces.
+
 ## Environment variables
 
 `mise.toml` sets everything a task needs, so a normal `mise run` invocation needs

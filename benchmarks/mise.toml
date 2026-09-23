@@ -160,6 +160,7 @@ sources = [
   "benchmarks/elixir/runtime.exs",
   "benchmarks/elixir/scenario.exs",
   "packages/elixir/lumis/lib/**/*.ex",
+  "packages/elixir/lumis/mix.exs",
   "packages/elixir/lumis/native/lumis_nif/Cargo.toml",
   "packages/elixir/lumis/native/lumis_nif/src/**/*.rs",
   "crates/lumis-core/src/**/*.rs",

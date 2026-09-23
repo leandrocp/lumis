@@ -7,35 +7,23 @@ concurrency:
 permissions:
   contents: read
 
+# Timings are a trend to watch, not a merge gate: nothing reads a single
+# commit's numbers, so the suite runs weekly instead of on every push. Reach
+# for the Run workflow button when a change is worth measuring on its own.
 on:
+  schedule:
+    # Off the hour: GitHub sheds scheduled runs at minute zero under load, and a
+    # dropped run on a weekly cadence is a two-week gap.
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - ".cargo/**"
       - ".github/workflows/benchmarks.yml"
-      - "Cargo.lock"
-      - "Cargo.toml"
-      - "benchmarks/**"
-      - "crates/**"
-      - "fixtures/**"
-      - "highlights.toml"
-      - "languages.toml"
-      - "mise.toml"
-      - "packages/elixir/lumis/**"
-      - "packages/javascript/lumis/**"
-      - "packages/javascript/package.json"
-      - "packages/javascript/themes/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "queries/**"
 
 jobs:
   benchmark:
     name: Benchmark / ${{ matrix.label }}
-    if: >-
-      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
-          !(github.event.pull_request.head.repo.full_name == github.repository &&
-            startsWith(github.event.pull_request.head.ref, 'release/')) }}
     continue-on-error: true
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -100,53 +88,10 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  comparison:
-    name: Comparison assets are current
-    if: >-
-      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
-          !(github.event.pull_request.head.repo.full_name == github.repository &&
-            startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
-        with:
-          # Pinned: mise 2026.7.18 cannot install core:erlang/core:elixir on the
-          # runner, and benchmarks/mise.lock was produced by this version.
-          version: 2026.7.3
-          working_directory: benchmarks
-          install_args: --locked
-          cache: true
-      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
-        with:
-          workspaces: |
-            .
-            benchmarks/rust
-      - name: Regenerate the published comparison
-        run: mise run -C benchmarks showcase-publish
-      - name: Fail if the committed assets are stale
-        run: |
-          if [ -n "$(git status --porcelain -- website/public/comparison-data)" ]; then
-            echo "website/public/comparison-data does not match what the code produces."
-            echo "The site serves these bytes verbatim, so run:"
-            echo "  mise run -C benchmarks showcase-publish"
-            echo "and commit the result."
-            git status --porcelain -- website/public/comparison-data
-            git --no-pager diff --stat -- website/public/comparison-data
-            exit 1
-          fi
-
   report:
     name: Benchmark suite
     needs: benchmark
-    if: >-
-      ${{ always() &&
-          !startsWith(github.event.head_commit.message, 'chore(release):') &&
-          !(github.event.pull_request.head.repo.full_name == github.repository &&
-            startsWith(github.event.pull_request.head.ref, 'release/')) }}
+    if: always()
     continue-on-error: true
     runs-on: ubuntu-24.04
     timeout-minutes: 10
