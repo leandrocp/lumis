@@ -3912,10 +3912,11 @@ fn patch_of(version: &str, series: &str) -> Option<u64> {
 
 /// Every package on Hex and the versions it has published.
 ///
-/// One request to the repository the Hex client itself resolves against, rather
-/// than one API call per package: the API rate-limits at a hundred a minute, so
-/// asking about a hundred and thirteen parsers individually fails partway
-/// through and does it differently each run.
+/// Fetched once per plan, however many parsers it covers: this is the whole
+/// registry, so asking about ten parsers and asking about all of them are the
+/// same single request. The per-package API cannot be used for this — it
+/// rate-limits at a hundred a minute, so a hundred and thirteen lookups fail
+/// partway through, and somewhere different each run.
 ///
 /// The response is a gzipped, signed protobuf. Only two fields are read — the
 /// payload out of the envelope, and name plus versions out of each package —

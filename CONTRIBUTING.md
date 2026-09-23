@@ -720,9 +720,10 @@ that did not change. Only a definition neither registry has seen takes the next
 patch, computed from both so one cannot hand out a version the other used.
 
 Both registries are read through their own interfaces: npm packuments for
-`definitionHash`, and `repo.hex.pm/versions` for Hex — one request for every
-package on Hex, because the Hex API rate-limits at a hundred a minute and asking
-about a hundred and thirteen parsers individually fails partway through.
+`definitionHash`, and `repo.hex.pm/versions` for Hex. The Hex one is fetched
+**once per plan** regardless of how many parsers it covers, because that file is
+the whole registry. The per-package API cannot serve this — it rate-limits at a
+hundred a minute, so a hundred and thirteen lookups fail partway through.
 
 `mise run wasm-publish-needed` still answers the narrower question of which
 parsers npm is behind on.
