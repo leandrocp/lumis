@@ -196,7 +196,11 @@ Two things do limit the damage:
   `javascript-release.yml` the `stage` job installs dependencies, runs their
   lifecycle scripts and builds each package, then packs tarballs and stops; only
   `publish` can reach npm, and it holds no source tree. That split is the whole
-  reason `stage` packs rather than publishes.
+  reason `stage` packs rather than publishes. `wasm-release.yml` is the same
+  shape: `build` compiles the grammar and stages both packages with
+  `contents: read` and nothing more, and `publish-npm` publishes the artifact it
+  uploaded. Neither a grammar's C nor a crate's build script is ever in a job
+  that can publish.
 
 Neither workflow has a `pull_request` trigger, so a fork cannot reach any of
 this.

@@ -6,10 +6,10 @@ use lumis::languages::Language;
 use lumis_wasm_runtime::{parser_filename, LanguagePackage, PackagedLanguage, ParserMetadata};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt::Write as _;
 use std::fs;
-use std::io::Write;
+use std::io::{Read as _, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -83,10 +83,21 @@ enum Commands {
     },
     StageWasm {
         name: String,
+        /// The version to stage. Defaults to the next free patch on npm, which
+        /// is what a one-off local staging wants; the release pipeline passes
+        /// the version its plan resolved, so every job agrees on one.
+        #[arg(long)]
+        version: Option<String>,
     },
     /// Write the Hex package for a parser, from what `stage-wasm` already built.
     StageHexWasm {
         name: String,
+    },
+    /// Plan a release: the version each parser resolves to, and which
+    /// registries are missing it. Emits JSON for the workflow matrix.
+    WasmReleasePlan {
+        #[arg(default_value = "")]
+        filter: String,
     },
     /// Write the Hex meta-package for a bundle, from the npm bundle beside it.
     StageHexBundle {
@@ -178,8 +189,9 @@ fn main() -> Result<()> {
         Commands::GenLanguagesMd => gen_languages_md(),
         Commands::GenLanguageCatalog { check } => gen_language_catalog(check),
         Commands::BuildWasm { name } => build_wasm(&name),
-        Commands::StageWasm { name } => stage_wasm(&name),
+        Commands::StageWasm { name, version } => stage_wasm(&name, version.as_deref()),
         Commands::StageHexWasm { name } => stage_hex_wasm(&name),
+        Commands::WasmReleasePlan { filter } => wasm_release_plan(&filter),
         Commands::StageHexBundle { name } => stage_hex_bundle(&name),
         Commands::StageTestParsers { out } => stage_test_parsers(Path::new(&out)),
         Commands::WasmNeeded { filter, force } => wasm_needed(&filter, &force),
@@ -3309,7 +3321,7 @@ fn parse_npm_versions_json(input: &str) -> Result<Vec<String>> {
     }
 }
 
-fn stage_wasm(name: &str) -> Result<()> {
+fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
     let toml = read_languages_toml()?;
     let (parser_name, info) = toml
         .parsers
@@ -3343,7 +3355,10 @@ fn stage_wasm(name: &str) -> Result<()> {
         .unwrap_or_default()
         .replace("tree-sitter ", "");
     let ts_cli_minor = tree_sitter_cli_minor(&ts_cli_version)?;
-    let npm_version = next_wasm_npm_version(&pkg_name, &ts_cli_minor)?;
+    let npm_version = match version {
+        Some(version) => version.to_string(),
+        None => next_wasm_npm_version(&pkg_name, &ts_cli_minor)?,
+    };
     let version = info.version.as_deref().unwrap_or("0.1.0");
     fs::copy(&wasm_file, format!("{out}/{wasm_name}.wasm"))?;
 
@@ -3758,6 +3773,365 @@ fn definition_matches(meta: &Value, expected: &str, series: &str) -> bool {
         && meta.get("formatVersion").and_then(Value::as_u64) == Some(PACKAGE_FORMAT_VERSION.into())
 }
 
+/// A bundle missing from Hex.
+#[derive(Debug, serde::Serialize)]
+struct BundlePlanEntry {
+    bundle: String,
+    app: String,
+    version: String,
+}
+
+/// What a parser resolves to, and where it is missing.
+#[derive(Debug, serde::Serialize)]
+struct ReleasePlanEntry {
+    wasm_name: String,
+    npm_package: String,
+    hex_package: String,
+    version: String,
+    npm: bool,
+    hex: bool,
+}
+
+/// Plan a release for every parser matching `filter`.
+///
+/// The version comes from the definition, not from a counter. A definition
+/// already published keeps the version it was published under, so a registry
+/// that is behind receives that exact version rather than a fresh one — which
+/// is what stops "publish the missing half" from turning into "release a new
+/// version of something that did not change". Only a definition nothing has
+/// seen takes the next patch, and that is computed from both registries so
+/// neither can hand out a version the other already used.
+///
+/// # Errors
+/// Fails when the catalog cannot be read or a registry cannot be reached.
+fn wasm_release_plan(filter: &str) -> Result<()> {
+    let series = supported_tree_sitter_series()?;
+    let toml = read_languages_toml()?;
+    let candidates = release_candidates(&toml, filter)?;
+
+    let npm_packages: Vec<String> = candidates.iter().map(|(_, pkg, _)| pkg.clone()).collect();
+    let packuments = fetch_packuments(&npm_packages);
+    let registry = hex_registry()?;
+
+    let parsers = plan_parsers(candidates, packuments, &registry, &series)?;
+    let bundles = plan_bundles(&registry, filter, &bundle_versions()?);
+
+    println!(
+        "{}",
+        serde_json::to_string(&json!({ "parsers": parsers, "bundles": bundles }))?
+    );
+    Ok(())
+}
+
+/// The parsers a filter names, empty when it names none.
+///
+/// One reader, because "is this run filtered?" is asked twice and a second
+/// spelling of it would let the parsers and the bundles disagree about the
+/// answer for the same input.
+fn filter_parsers(filter: &str) -> HashSet<&str> {
+    filter
+        .split(',')
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .collect()
+}
+
+/// Every parser matching `filter`, with the npm package and definition hash
+/// that decide where it stands.
+fn release_candidates(toml: &LanguagesToml, filter: &str) -> Result<Vec<(String, String, String)>> {
+    let wanted = filter_parsers(filter);
+
+    let mut seen = HashSet::new();
+    let mut candidates = Vec::new();
+    for (id, info) in &toml.parsers {
+        let default_name = format!("tree-sitter-{id}");
+        let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_name);
+        if !wanted.is_empty() && !wanted.contains(id.as_str()) && !wanted.contains(wasm_name) {
+            continue;
+        }
+        if !seen.insert(wasm_name.to_string()) {
+            continue;
+        }
+
+        let languages = packaged_languages(toml, wasm_name)?;
+        let expected = language_definition_hash(toml, wasm_name, &languages)?;
+        let suffix = wasm_package_suffix(wasm_name);
+        candidates.push((
+            wasm_name.to_string(),
+            format!("@lumis-sh/wasm-{suffix}"),
+            expected,
+        ));
+    }
+    Ok(candidates)
+}
+
+/// The parsers a registry is missing, and the version each resolves to.
+fn plan_parsers(
+    candidates: Vec<(String, String, String)>,
+    packuments: Vec<Result<Option<Value>>>,
+    registry: &HashMap<String, Vec<String>>,
+    series: &str,
+) -> Result<Vec<ReleasePlanEntry>> {
+    let mut parsers = Vec::new();
+    for ((wasm_name, npm_package, expected), packument) in candidates.into_iter().zip(packuments) {
+        let packument = packument?;
+        let hex_package = hex_app_name(&wasm_name);
+        let hex = registry.get(&hex_package).cloned().unwrap_or_default();
+
+        let version = packument
+            .as_ref()
+            .and_then(|p| version_for_definition(p, &expected, series))
+            // Published already: the registry that has it fixes the version,
+            // and the other gets the same one.
+            .unwrap_or_else(|| next_patch(series, packument.as_ref(), &hex));
+
+        let on_npm = packument
+            .as_ref()
+            .and_then(|p| p.get("versions"))
+            .and_then(Value::as_object)
+            .is_some_and(|versions| versions.contains_key(&version));
+        let on_hex = hex.contains(&version);
+
+        if !on_npm || !on_hex {
+            parsers.push(ReleasePlanEntry {
+                wasm_name,
+                npm_package,
+                hex_package,
+                version,
+                npm: !on_npm,
+                hex: !on_hex,
+            });
+        }
+    }
+    Ok(parsers)
+}
+
+/// The bundles Hex is missing.
+///
+/// No build and no npm: bundles carry no bytes, and npm's are released by tag
+/// alongside the other JavaScript packages.
+///
+/// Nothing on a filtered run. A bundle depends on every parser it groups, so
+/// one published after a run that covered a subset has Hex dependencies that
+/// cannot resolve, and the parsers it is short of are exactly the ones the
+/// filter left out.
+fn plan_bundles(
+    registry: &HashMap<String, Vec<String>>,
+    filter: &str,
+    candidates: &[(String, String)],
+) -> Vec<BundlePlanEntry> {
+    if !filter_parsers(filter).is_empty() {
+        return Vec::new();
+    }
+
+    let mut bundles = Vec::new();
+    for (name, version) in candidates {
+        let app = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
+        if !registry
+            .get(&app)
+            .is_some_and(|published| published.contains(version))
+        {
+            bundles.push(BundlePlanEntry {
+                bundle: name.clone(),
+                app,
+                version: version.clone(),
+            });
+        }
+    }
+    bundles
+}
+
+/// Each bundle and the version its npm package is at.
+///
+/// The npm package is the source for both members and version, so the two
+/// registries cannot disagree about what a bundle is.
+fn bundle_versions() -> Result<Vec<(String, String)>> {
+    let mut bundles = Vec::new();
+    for entry in glob::glob("packages/javascript/wasm-bundle-*/package.json")? {
+        let path = entry?;
+        let manifest: Value = serde_json::from_slice(&fs::read(&path)?)
+            .with_context(|| format!("invalid package.json at {}", path.display()))?;
+        let name = path
+            .parent()
+            .and_then(|dir| dir.file_name())
+            .and_then(|dir| dir.to_str())
+            .and_then(|dir| dir.strip_prefix("wasm-bundle-"))
+            .with_context(|| format!("could not name the bundle at {}", path.display()))?;
+        let version = manifest
+            .get("version")
+            .and_then(Value::as_str)
+            .with_context(|| format!("{} has no version", path.display()))?;
+        bundles.push((name.to_string(), version.to_string()));
+    }
+    bundles.sort();
+    Ok(bundles)
+}
+
+/// The version a definition was published under on npm, if it was.
+///
+/// npm alone, because it is the only registry that can answer: a packument
+/// carries each version's `lumis` metadata, while Hex's registry file carries
+/// versions and nothing else. That makes the answer only as good as the
+/// invariant **Hex never holds a definition npm does not**, which
+/// `wasm-release.yml` keeps by publishing Hex after npm and holding it back
+/// when npm fails. Break that and a Hex-only definition reads as unpublished,
+/// takes a fresh patch from `next_patch`, and is released to Hex again
+/// unchanged on every run.
+fn version_for_definition(packument: &Value, expected: &str, series: &str) -> Option<String> {
+    let versions = packument.get("versions")?.as_object()?;
+    let prefix = format!("{series}.");
+    versions
+        .iter()
+        .filter(|(version, manifest)| {
+            version.starts_with(&prefix)
+                && manifest
+                    .get("lumis")
+                    .is_some_and(|meta| definition_matches(meta, expected, series))
+        })
+        .map(|(version, _)| version.clone())
+        .max_by_key(|version| patch_of(version, series))
+}
+
+/// The next free patch in `series`, above whatever either registry has used.
+///
+/// Both, so a version cannot be handed out that one registry already holds —
+/// which would make the two disagree about what that version contains.
+fn next_patch(series: &str, packument: Option<&Value>, hex: &[String]) -> String {
+    let highest = |versions: Box<dyn Iterator<Item = String>>| {
+        versions.filter_map(|v| patch_of(&v, series)).max()
+    };
+
+    let npm_max = packument
+        .and_then(|p| p.get("versions"))
+        .and_then(Value::as_object)
+        .and_then(|versions| highest(Box::new(versions.keys().cloned())));
+    let hex_max = highest(Box::new(hex.iter().cloned()));
+
+    let next = npm_max.max(hex_max).map_or(0, |patch| patch + 1);
+    format!("{series}.{next}")
+}
+
+fn patch_of(version: &str, series: &str) -> Option<u64> {
+    version
+        .strip_prefix(&format!("{series}."))
+        .and_then(|patch| patch.parse().ok())
+}
+
+/// Every package on Hex and the versions it has published.
+///
+/// Fetched once per plan, however many parsers it covers: this is the whole
+/// registry, so asking about ten parsers and asking about all of them are the
+/// same single request. The per-package API cannot be used for this — it
+/// rate-limits at a hundred a minute, so a hundred and thirteen lookups fail
+/// partway through, and somewhere different each run.
+///
+/// The response is a gzipped, signed protobuf. Only two fields are read — the
+/// payload out of the envelope, and name plus versions out of each package —
+/// so this decodes them directly instead of taking a protobuf dependency for
+/// four field numbers. The signature is not checked: this decides whether to
+/// attempt a publish, and Hex rejects a duplicate regardless of what we
+/// believed here.
+fn hex_registry() -> Result<HashMap<String, Vec<String>>> {
+    let agent: ureq::Agent = ureq::Agent::config_builder()
+        .timeout_global(Some(REGISTRY_TIMEOUT))
+        .build()
+        .into();
+
+    let mut last_error = None;
+    for attempt in 0..REGISTRY_ATTEMPTS {
+        if attempt > 0 {
+            thread::sleep(Duration::from_millis(250 * u64::from(attempt)));
+        }
+        let read = agent
+            .get("https://repo.hex.pm/versions")
+            .call()
+            .and_then(|mut response| response.body_mut().read_to_vec());
+        match read {
+            Ok(body) => return decode_hex_registry(&body),
+            Err(err) => last_error = Some(err),
+        }
+    }
+
+    bail!(
+        "could not read the Hex registry: {}",
+        last_error.expect("a failed attempt records its error")
+    )
+}
+
+fn decode_hex_registry(gzipped: &[u8]) -> Result<HashMap<String, Vec<String>>> {
+    let mut payload = Vec::new();
+    flate2::read::GzDecoder::new(gzipped)
+        .read_to_end(&mut payload)
+        .context("the Hex registry was not gzip")?;
+
+    // Signed { payload = 1, signature = 2 }
+    let signed = protobuf_field(&payload, 1).context("the Hex registry carried no payload")?;
+    // Versions { packages = 1 }
+    let mut registry = HashMap::new();
+    for package in protobuf_fields(signed, 1) {
+        // Package { name = 1, versions = 2 }
+        let Some(name) = protobuf_field(package, 1) else {
+            continue;
+        };
+        let name = String::from_utf8_lossy(name).into_owned();
+        let versions = protobuf_fields(package, 2)
+            .map(|v| String::from_utf8_lossy(v).into_owned())
+            .collect();
+        registry.insert(name, versions);
+    }
+    Ok(registry)
+}
+
+/// Every length-delimited value of `field` in a protobuf message.
+fn protobuf_fields(message: &[u8], field: u64) -> impl Iterator<Item = &[u8]> {
+    let mut at = 0;
+    std::iter::from_fn(move || {
+        while at < message.len() {
+            let (key, next) = protobuf_varint(message, at)?;
+            at = next;
+            let (number, wire) = (key >> 3, key & 7);
+            match wire {
+                2 => {
+                    let (len, next) = protobuf_varint(message, at)?;
+                    let len = usize::try_from(len).ok()?;
+                    at = next;
+                    let value = message.get(at..at + len)?;
+                    at += len;
+                    if number == field {
+                        return Some(value);
+                    }
+                }
+                0 => {
+                    let (_, next) = protobuf_varint(message, at)?;
+                    at = next;
+                }
+                _ => return None,
+            }
+        }
+        None
+    })
+}
+
+fn protobuf_field(message: &[u8], field: u64) -> Option<&[u8]> {
+    protobuf_fields(message, field).next()
+}
+
+fn protobuf_varint(bytes: &[u8], mut at: usize) -> Option<(u64, usize)> {
+    let (mut value, mut shift) = (0u64, 0u32);
+    loop {
+        let byte = *bytes.get(at)?;
+        at += 1;
+        value |= u64::from(byte & 0x7f) << shift;
+        if byte & 0x80 == 0 {
+            return Some((value, at));
+        }
+        shift += 7;
+        if shift > 63 {
+            return None;
+        }
+    }
+}
+
 /// Parsers whose published package no longer matches `languages.toml`.
 fn wasm_needed(filter: &str, force: &str) -> Result<()> {
     let series = supported_tree_sitter_series()?;
@@ -4108,6 +4482,130 @@ fn wasm_package_suffix(wasm_name: &str) -> &str {
 #[cfg(test)]
 mod hex_wasm_tests {
     use super::*;
+
+    fn packument(versions: &[(&str, &str)]) -> Value {
+        json!({
+            "versions": versions.iter().map(|(version, hash)| {
+                (version.to_string(), json!({
+                    "lumis": {
+                        "definitionHash": hash,
+                        "treeSitter": "0.26",
+                        "formatVersion": PACKAGE_FORMAT_VERSION,
+                    }
+                }))
+            }).collect::<serde_json::Map<_, _>>()
+        })
+    }
+
+    /// The bug this resolution exists to prevent: asking to publish the
+    /// registry that is behind used to compute a *new* version, releasing
+    /// something that had not changed to the registry that was already current.
+    #[test]
+    fn a_published_definition_keeps_the_version_it_went_out_under() {
+        let published = packument(&[("0.26.2", "old"), ("0.26.3", "current")]);
+
+        assert_eq!(
+            version_for_definition(&published, "current", "0.26"),
+            Some("0.26.3".to_string()),
+            "the definition is already out as 0.26.3, so that is the version"
+        );
+    }
+
+    #[test]
+    fn a_definition_nobody_has_takes_the_next_patch() {
+        let published = packument(&[("0.26.2", "old"), ("0.26.3", "older")]);
+
+        assert_eq!(version_for_definition(&published, "new", "0.26"), None);
+        assert_eq!(next_patch("0.26", Some(&published), &[]), "0.26.4");
+    }
+
+    /// Either registry having used a patch rules it out, or the two would
+    /// disagree about what that version contains.
+    #[test]
+    fn the_next_patch_clears_both_registries() {
+        let published = packument(&[("0.26.3", "a")]);
+        let hex = vec!["0.26.1".to_string(), "0.26.9".to_string()];
+
+        assert_eq!(next_patch("0.26", Some(&published), &hex), "0.26.10");
+        assert_eq!(next_patch("0.26", None, &hex), "0.26.10");
+        assert_eq!(next_patch("0.26", None, &[]), "0.26.0");
+    }
+
+    /// A bundle depends on every parser it groups, so one published after a run
+    /// that covered a subset has Hex dependencies that cannot resolve.
+    #[test]
+    fn a_filtered_run_plans_no_bundles() {
+        let registry = HashMap::new();
+        let candidates = [("web".to_string(), "0.26.3".to_string())];
+
+        assert_eq!(
+            plan_bundles(&registry, "", &candidates).len(),
+            1,
+            "Hex has no bundles, so an unfiltered run plans the one there is"
+        );
+        assert!(plan_bundles(&registry, "json", &candidates).is_empty());
+        assert!(plan_bundles(&registry, "json,elixir", &candidates).is_empty());
+    }
+
+    /// Both readers of the filter have to agree on what counts as filtered, or
+    /// a run can select every parser while planning no bundles.
+    #[test]
+    fn separators_alone_do_not_filter() {
+        assert!(filter_parsers("").is_empty());
+        assert!(filter_parsers(" , ").is_empty());
+        assert_eq!(filter_parsers(" json , elixir ").len(), 2);
+    }
+
+    /// A version from another series is not a patch of this one.
+    #[test]
+    fn other_series_are_ignored() {
+        let published = packument(&[("0.25.9", "a"), ("0.26.1", "b")]);
+
+        assert_eq!(next_patch("0.26", Some(&published), &[]), "0.26.2");
+    }
+
+    #[test]
+    fn the_hex_registry_decodes_to_packages_and_versions() {
+        // Signed { payload: Versions { packages: [Package{name, versions}] } }
+        fn len_delim(field: u64, body: &[u8]) -> Vec<u8> {
+            let mut out = vec![u8::try_from((field << 3) | 2).unwrap()];
+            let mut len = body.len();
+            loop {
+                let mut byte = u8::try_from(len & 0x7f).unwrap();
+                len >>= 7;
+                if len > 0 {
+                    byte |= 0x80;
+                }
+                out.push(byte);
+                if len == 0 {
+                    break;
+                }
+            }
+            out.extend_from_slice(body);
+            out
+        }
+
+        let mut package = len_delim(1, b"lumis_wasm_json");
+        package.extend(len_delim(2, b"0.26.2"));
+        package.extend(len_delim(2, b"0.26.3"));
+        let versions = len_delim(1, &package);
+        let signed = len_delim(1, &versions);
+
+        let mut gzipped = Vec::new();
+        {
+            use std::io::Write as _;
+            let mut encoder =
+                flate2::write::GzEncoder::new(&mut gzipped, flate2::Compression::fast());
+            encoder.write_all(&signed).unwrap();
+            encoder.finish().unwrap();
+        }
+
+        let registry = decode_hex_registry(&gzipped).unwrap();
+        assert_eq!(
+            registry.get("lumis_wasm_json").map(Vec::as_slice),
+            Some(["0.26.2".to_string(), "0.26.3".to_string()].as_slice())
+        );
+    }
 
     #[test]
     fn npm_requirements_become_hex_ones_that_mean_the_same() {

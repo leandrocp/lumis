@@ -700,7 +700,53 @@ Two files record what these checks cannot cover, and both may only shrink:
   sample at the pinned revision, published package included. A test fails when
   either entry starts working.
 
-The `wasm-release` workflow publishes packages automatically. It detects which parsers still need publishing with `mise run wasm-publish-needed`, which compares each published package's `definitionHash` against the one `crates/dev` computes from `languages.toml` and the processed queries, then builds and publishes the rest in parallel.
+The `wasm-release` workflow publishes to npm and Hex, and is a pipeline:
+
+1. **plan** — `mise run wasm-release-plan` works out, for every parser, the
+   version it resolves to and which registries are missing it.
+2. **build** — one job per parser that anything is missing, at the version the
+   plan resolved, staging both packages and uploading them as an artifact.
+3. **publish-npm**, then **publish-hex** — one job per parser per registry that
+   needs it, publishing the artifact the build produced.
+4. **publish-hex-bundles** — one job per bundle Hex is missing, after the
+   parsers, because a bundle depends on every language it groups.
+
+So two parsers missing from both registries is two build jobs and four publish
+jobs, and neither registry is ever published from a build the other did not get.
+
+Running it publishes everything pending. There is nothing to opt into: a package
+already on a registry at its resolved version is simply not in the plan. Bundles
+on npm are the exception, released by tag through `javascript-release` alongside
+the other JavaScript packages.
+
+**The version comes from the definition, not a counter.** A definition already
+published keeps the version it went out under, so a registry that is behind
+receives that same version rather than a fresh one — which is what stops
+"publish the half that is missing" from releasing a new version of something
+that did not change. Only a definition neither registry has seen takes the next
+patch, computed from both so one cannot hand out a version the other used.
+
+Both registries are read through their own interfaces: npm packuments for
+`definitionHash`, and `repo.hex.pm/versions` for Hex. The Hex one is fetched
+**once per plan** regardless of how many parsers it covers, because that file is
+the whole registry. The per-package API cannot serve this — it rate-limits at a
+hundred a minute, so a hundred and thirteen lookups fail partway through.
+
+**Hex publishes after npm, and only npm can recover a version.** A packument
+carries every version's `definitionHash`; the Hex registry file carries versions
+and nothing else. So the version a definition went out under is read from npm
+alone, which is sound only while Hex holds nothing npm does not — and that is
+what the ordering keeps true. A failed npm leg holds Hex back for the whole plan
+rather than letting it get ahead; the next run publishes both. Were Hex to lead,
+its definition would read as unpublished, take a fresh patch, and be released
+again unchanged on every run.
+
+A run filtered to named parsers plans **no bundles**. A bundle depends on every
+parser it groups, and the ones it would be short of are exactly the ones the
+filter left out.
+
+`mise run wasm-publish-needed` still answers the narrower question of which
+parsers npm is behind on.
 
 ### Publishing to Hex
 
@@ -717,6 +763,16 @@ something that ought to be equivalent:
 mise run wasm-hex-stage json      # tmp/wasm/hex/lumis_wasm_json
 mise run wasm-hex-publish json
 ```
+
+Backfilling a parser npm already serves does not build at all. The workflow
+unpacks the published tarball and stages Hex from those bytes, because a
+rebuild would only be equivalent if the build were reproducible and it is not:
+`build-wasm` falls back to an unlocked `npm install` for the grammars that
+generate from `grammar.js` and ship no usable lockfile, so the same revision can
+emit a different `.wasm` months later. `stage-hex-wasm` cannot catch that on its
+own — it checks the staged parser against the manifest beside it, and a rebuild
+produces a manifest describing itself. That case is most of a Hex backfill
+today, so it is also most of the compile time saved.
 
 The layouts differ because each runtime reads its own: npm ships
 `tree-sitter-json.wasm` next to `lumis.json`, and Hex ships
@@ -736,18 +792,21 @@ Versions match npm in both cases, because they are read from the npm package
 rather than recomputed — a parser takes the version from the `lumis.json`
 staged with it, and a bundle from `wasm-bundle-<name>/package.json`.
 
-Hex publishing is **manual for now**: an automatic npm release does not carry it
-along, because every Hex step is gated on the run being a `workflow_dispatch`.
-Running `WASM Release` by hand publishes to Hex by default — `publish_hex` is
-checked unless you clear it — taking the parsers from the same job that
-publishes them to npm, then the bundles once those parsers exist.
+Hex publishes on every run of `WASM Release`, alongside npm. There is no input
+to set and no separate trigger: the plan decides, and a package already on Hex
+at its resolved version is simply not in it.
 
-Both publish steps ask Hex whether the version is already there and skip it if
-so, which is what makes a retry safe after a release that failed part way
-through. Bundles publish only on an unfiltered run: one depends on every parser
-it groups, so publishing it after a run that built a subset would put a package
-on Hex whose dependencies cannot resolve. A hyphenated package becomes an underscored
-application name, since an Elixir application name is an atom —
+**Publish a parser to npm before you publish it to Hex by hand.** The workflow
+holds that order for you — `publish-hex` runs after `publish-npm` and stops when
+it fails — because the plan recovers a published version's definition from npm
+alone. A definition Hex had first reads as unpublished, takes a fresh patch, and
+is released to Hex again unchanged on every run afterwards. The two commands
+above are the one way round that guard.
+
+Nothing asks a registry whether a version is already there. The plan settled
+that, and Hex rejects a duplicate regardless, which is what makes a retry safe
+after a release that failed part way through. A hyphenated package becomes an
+underscored application name, since an Elixir application name is an atom —
 `@lumis-sh/wasm-embedded-template` is `lumis_wasm_embedded_template`.
 
 ## Themes
