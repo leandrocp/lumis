@@ -27,6 +27,7 @@ on:
       - "crates/lumis/**"
       - "languages.toml"
       - "packages/elixir/lumis/lib/**"
+      - "packages/elixir/lumis/mix.exs"
       - "packages/elixir/lumis/native/**"
       - "packages/javascript/lumis/**"
       - "packages/javascript/themes/**"

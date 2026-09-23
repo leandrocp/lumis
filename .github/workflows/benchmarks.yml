@@ -12,7 +12,9 @@ permissions:
 # for the Run workflow button when a change is worth measuring on its own.
 on:
   schedule:
-    - cron: "0 4 * * 1"
+    # Off the hour: GitHub sheds scheduled runs at minute zero under load, and a
+    # dropped run on a weekly cadence is a two-week gap.
+    - cron: "17 4 * * 1"
   workflow_dispatch:
   push:
     branches: [main]
