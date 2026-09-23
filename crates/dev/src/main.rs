@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use clap::{Parser, Subcommand};
 use lumis::events::HighlightEvent;
 use lumis::highlight::{highlight_events_with_options, HighlightOptions};
@@ -4383,6 +4383,11 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
         .get("dependencies")
         .and_then(serde_json::Value::as_object)
         .with_context(|| format!("{manifest} has no dependencies"))?;
+    let description = npm
+        .get("description")
+        .and_then(serde_json::Value::as_str)
+        .with_context(|| format!("{manifest} has no description"))?;
+    check_hex_description(&manifest, description)?;
 
     let app_name = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
     let module_name = elixir_module_name(&app_name);
@@ -4394,11 +4399,11 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
         .map(|(app, requirement)| format!("      {{:{app}, \"{requirement}\"}}"))
         .collect::<Vec<_>>()
         .join(",\n");
-    let languages_text = members
+    let languages = members
         .iter()
         .map(|(app, _)| app.trim_start_matches("lumis_wasm_"))
-        .collect::<Vec<_>>()
-        .join(", ");
+        .collect::<Vec<_>>();
+    let languages_text = languages.join(", ");
 
     let out = format!("tmp/wasm/hex/{app_name}");
     let _ = fs::remove_dir_all(&out);
@@ -4423,13 +4428,35 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
             ("module_name", &module_name),
             ("app_name", &app_name),
             ("hex_version", version),
-            ("languages_text", &languages_text),
+            ("description", description),
             ("deps", &deps),
         ],
     )?;
     fs::write(format!("{out}/mix.exs"), mix)?;
 
     println!("{app_name} {version} -> {out} ({} members)", members.len());
+    Ok(())
+}
+
+/// What Hex refuses to build a package over.
+const HEX_DESCRIPTION_LIMIT: usize = 300;
+
+/// Refuse a description Hex will refuse, while the manifest is still in reach.
+///
+/// Hex enforces this at `mix hex.publish`, which in a release runs on a runner
+/// after every parser has already been published — `lumis_wasm_bundle_full` hit
+/// it at 865 characters and stopped there, with the registry half moved. Read
+/// here it is a staging error naming the file to edit.
+///
+/// # Errors
+/// Fails on a description over [`HEX_DESCRIPTION_LIMIT`] characters.
+fn check_hex_description(manifest: &str, description: &str) -> Result<()> {
+    let length = description.chars().count();
+    ensure!(
+        length <= HEX_DESCRIPTION_LIMIT,
+        "{manifest} has a {length}-character description, and Hex stops the \
+         package build over {HEX_DESCRIPTION_LIMIT}"
+    );
     Ok(())
 }
 
@@ -4800,6 +4827,52 @@ mod hex_wasm_tests {
                 "{unsupported} has no equivalent and must not be translated"
             );
         }
+    }
+
+    /// `lumis_wasm_bundle_full` reached Hex's limit at 865 characters, and the
+    /// only thing that noticed was `mix hex.publish` on a runner, after the
+    /// parsers it groups had been published.
+    #[test]
+    fn a_description_hex_would_reject_is_refused_while_staging() {
+        assert!(check_hex_description("a/package.json", "Lumis WASM full language bundle").is_ok());
+        assert!(check_hex_description("a/package.json", &"x".repeat(300)).is_ok());
+
+        let too_long = check_hex_description("a/package.json", &"x".repeat(301))
+            .expect_err("Hex stops the package build over 300");
+        let message = too_long.to_string();
+        assert!(
+            message.contains("a/package.json"),
+            "{message} names no file"
+        );
+        assert!(message.contains("301"), "{message} does not say how long");
+
+        // Characters, not bytes: a multi-byte description under the limit is
+        // one Hex accepts, and counting bytes would refuse it here.
+        assert!(check_hex_description("a/package.json", &"é".repeat(300)).is_ok());
+    }
+
+    /// The npm bundle is the same package, and already carries the text. A
+    /// second one generated here is a second thing to keep in step.
+    #[test]
+    fn every_bundle_manifest_carries_a_description_hex_accepts() {
+        let manifests = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../packages/javascript")
+            .join("wasm-bundle-*/package.json");
+
+        let mut checked = 0;
+        for entry in glob::glob(&manifests.to_string_lossy()).unwrap() {
+            let path = entry.unwrap();
+            let manifest: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+            let description = manifest
+                .get("description")
+                .and_then(Value::as_str)
+                .unwrap_or_else(|| panic!("{} has no description", path.display()));
+
+            check_hex_description(&path.to_string_lossy(), description)
+                .expect("a bundle manifest Hex would reject cannot be staged");
+            checked += 1;
+        }
+        assert!(checked >= 5, "found {checked} bundle manifests");
     }
 
     #[test]
