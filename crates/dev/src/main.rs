@@ -88,6 +88,10 @@ enum Commands {
     StageHexWasm {
         name: String,
     },
+    /// Write the Hex meta-package for a bundle, from the npm bundle beside it.
+    StageHexBundle {
+        name: String,
+    },
     /// Write the committed test parsers as a Lumis store directory.
     StageTestParsers {
         #[arg(default_value = "target/test-parsers")]
@@ -174,6 +178,7 @@ fn main() -> Result<()> {
         Commands::BuildWasm { name } => build_wasm(&name),
         Commands::StageWasm { name } => stage_wasm(&name),
         Commands::StageHexWasm { name } => stage_hex_wasm(&name),
+        Commands::StageHexBundle { name } => stage_hex_bundle(&name),
         Commands::StageTestParsers { out } => stage_test_parsers(Path::new(&out)),
         Commands::WasmNeeded { filter, force } => wasm_needed(&filter, &force),
         Commands::WasmMeta { name } => wasm_meta(&name),
@@ -3847,16 +3852,7 @@ fn stage_hex_wasm(name: &str) -> Result<()> {
     verify_staged_parser(wasm_name, &wasm_bytes, &package)?;
 
     let app_name = hex_app_name(wasm_name);
-    let module_name = app_name
-        .split('_')
-        .map(|part| {
-            let mut chars = part.chars();
-            match chars.next() {
-                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
-                None => String::new(),
-            }
-        })
-        .collect::<String>();
+    let module_name = elixir_module_name(&app_name);
 
     let out = format!("tmp/wasm/hex/{app_name}");
     let _ = fs::remove_dir_all(&out);
@@ -3890,6 +3886,109 @@ fn stage_hex_wasm(name: &str) -> Result<()> {
 
     println!("{app_name} {} -> {out}", package.version);
     Ok(())
+}
+
+/// Write the Hex meta-package for the `name` bundle.
+///
+/// Members and version both come from `packages/javascript/wasm-bundle-<name>`,
+/// the npm package generated from `languages.toml`, rather than being read from
+/// the TOML again. One source means the two registries cannot disagree about
+/// what a bundle contains or what version it is — which is the whole point of a
+/// bundle, since a project adds one instead of naming languages itself.
+///
+/// No bytes. `bundle_full` would be on the order of 100 MB as a single package
+/// and is a few hundred bytes as a list of dependencies.
+///
+/// # Errors
+/// Fails when the npm bundle has not been generated, or names a package no
+/// parser in `languages.toml` produces.
+fn stage_hex_bundle(name: &str) -> Result<()> {
+    let npm_dir = format!("packages/javascript/wasm-bundle-{name}");
+    let manifest = format!("{npm_dir}/package.json");
+    if !Path::new(&manifest).exists() {
+        bail!("ERROR: {manifest} not found. Run 'mise run build-wasm-bundles' first.");
+    }
+
+    let npm: serde_json::Value = serde_json::from_slice(&fs::read(&manifest)?)?;
+    let version = npm
+        .get("version")
+        .and_then(serde_json::Value::as_str)
+        .with_context(|| format!("{manifest} has no version"))?;
+    let dependencies = npm
+        .get("dependencies")
+        .and_then(serde_json::Value::as_object)
+        .with_context(|| format!("{manifest} has no dependencies"))?;
+
+    let app_name = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
+    let module_name = elixir_module_name(&app_name);
+
+    let mut members = Vec::new();
+    for (package_name, requirement) in dependencies {
+        let suffix = package_name
+            .strip_prefix("@lumis-sh/wasm-")
+            .with_context(|| format!("{package_name} is not a parser package"))?;
+        let requirement = requirement
+            .as_str()
+            .with_context(|| format!("{package_name} has no version requirement"))?;
+        members.push((
+            format!("lumis_wasm_{}", suffix.replace('-', "_")),
+            hex_requirement(requirement),
+        ));
+    }
+    members.sort();
+
+    let deps = members
+        .iter()
+        .map(|(app, requirement)| format!("      {{:{app}, \"{requirement}\"}}"))
+        .collect::<Vec<_>>()
+        .join(",\n");
+    let languages_text = members
+        .iter()
+        .map(|(app, _)| app.trim_start_matches("lumis_wasm_"))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    let out = format!("tmp/wasm/hex/{app_name}");
+    let _ = fs::remove_dir_all(&out);
+    fs::create_dir_all(&out)?;
+
+    fs::copy("templates/wasm/LICENSE", format!("{out}/LICENSE"))?;
+    fs::write(
+        format!("{out}/README.md"),
+        format!(
+            "# {app_name}\n\nLumis parser bundle: {languages_text}.\n\nSee <https://lumis.sh>.\n"
+        ),
+    )?;
+
+    let mix = fs::read_to_string("templates/wasm/bundle.mix.exs.template")?
+        .replace("{module_name}", &module_name)
+        .replace("{app_name}", &app_name)
+        .replace("{hex_version}", version)
+        .replace("{languages_text}", &languages_text)
+        .replace("{deps}", &deps);
+    fs::write(format!("{out}/mix.exs"), mix)?;
+
+    println!("{app_name} {version} -> {out} ({} members)", members.len());
+    Ok(())
+}
+
+/// Hex spells a compatible range `~>`, npm spells it `^`.
+fn hex_requirement(npm: &str) -> String {
+    format!("~> {}", npm.trim_start_matches(['^', '~', '=', 'v']))
+}
+
+/// `lumis_wasm_json` as `LumisWasmJson`.
+fn elixir_module_name(app_name: &str) -> String {
+    app_name
+        .split('_')
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+                None => String::new(),
+            }
+        })
+        .collect()
 }
 
 /// Fail unless `bytes` are the parser the manifest beside them describes.
@@ -3929,6 +4028,22 @@ mod hex_wasm_tests {
     use super::*;
 
     #[test]
+    fn npm_requirements_become_hex_ones() {
+        assert_eq!(hex_requirement("^0.26.0"), "~> 0.26.0");
+        assert_eq!(hex_requirement("~0.26.0"), "~> 0.26.0");
+        assert_eq!(hex_requirement("0.26.0"), "~> 0.26.0");
+    }
+
+    #[test]
+    fn bundle_modules_are_named_after_their_application() {
+        assert_eq!(
+            elixir_module_name("lumis_wasm_bundle_web_extra"),
+            "LumisWasmBundleWebExtra"
+        );
+        assert_eq!(elixir_module_name("lumis_wasm_json"), "LumisWasmJson");
+    }
+
+    #[test]
     fn hex_app_names_are_valid_atoms() {
         assert_eq!(hex_app_name("tree-sitter-json"), "lumis_wasm_json");
         // Hyphens cannot survive: an application name is an atom.
@@ -3936,7 +4051,10 @@ mod hex_wasm_tests {
             hex_app_name("tree-sitter-embedded-template"),
             "lumis_wasm_embedded_template"
         );
-        assert_eq!(hex_app_name("tree-sitter-markdown_inline"), "lumis_wasm_markdown_inline");
+        assert_eq!(
+            hex_app_name("tree-sitter-markdown_inline"),
+            "lumis_wasm_markdown_inline"
+        );
 
         for name in ["tree-sitter-json", "tree-sitter-embedded-template"] {
             let app = hex_app_name(name);

@@ -723,9 +723,23 @@ The layouts differ because each runtime reads its own: npm ships
 `priv/parsers/json.lumis.json` beside the content-addressed name the store
 resolves. The parser file is byte-identical either way.
 
+Bundles are meta-packages: dependencies on every language they group, and no
+bytes at all. Members and version both come from the npm bundle beside them, so
+the two registries cannot disagree about what a bundle contains.
+
+```bash
+mise run wasm-hex-bundle-stage web
+mise run wasm-hex-bundle-publish web
+```
+
+Versions match npm in both cases, because they are read from the npm package
+rather than recomputed — a parser takes the version from the `lumis.json`
+staged with it, and a bundle from `wasm-bundle-<name>/package.json`.
+
 Hex publishing is **manual for now**: an automatic npm release does not carry it
 along. Run the `WASM Release` workflow by hand with `publish_hex` checked, which
-publishes both from the same job. A hyphenated package becomes an underscored
+publishes the parsers from the same job that publishes them to npm, then the
+bundles once those parsers exist. A hyphenated package becomes an underscored
 application name, since an Elixir application name is an atom —
 `@lumis-sh/wasm-embedded-template` is `lumis_wasm_embedded_template`.
 
