@@ -1,36 +1,37 @@
 # {app_name}
 
-Tree-sitter parser for {languages_text}, packaged for [Lumis](https://lumis.sh).
+Self-contained Lumis language package for {languages_text}.
+
+The Tree-sitter parser is compiled to WASM and ships with the queries that highlight it.
+
+Built with [`tree-sitter build --wasm`](https://tree-sitter.github.io/tree-sitter/cli/build.html) `v{tree_sitter_cli_version}`
+
+[Lumis](https://lumis.sh) loads only the parsers a project depends on, so this dependency is what lets it highlight {languages_text}.
 
 ## Installation
 
 ```elixir
 def deps do
   [
-    {:lumis, "~> 0.8"},
-    {:{app_name}, "~> {hex_version}"}
+    {:lumis, "~> {lumis_requirement}"},
+    {:{app_name}, "~> {hex_requirement}"}
   ]
 end
 ```
 
-Lumis loads only the parsers your project depends on, so adding this is what
-lets it highlight {languages_text}. Nothing is downloaded at runtime.
-
 ## What it contains
 
-`priv/parsers/` holds the compiled WASM parser and the manifest describing it —
-its size, its SHA-256, and the queries that drive highlighting. Lumis reads them
-from there, and `mix release` carries them like any dependency's assets.
+`priv/parsers/` holds the parser and the manifest that describes it. The manifest records the parser's size, its SHA-256 and the queries.
 
-No code: this application starts nothing and supervises nothing.
+Lumis reads both from there, so nothing is downloaded at runtime. `mix release` carries them like any dependency's assets.
+
+The application has no code. It starts nothing and supervises nothing.
 
 ## Parser
 
-| Upstream | Version | Revision |
-| --- | --- | --- |
+| Parser | Version | Rev |
+| ------ | ------- | --- |
 | [{git_url}]({git_url}) | {upstream_version} | {rev} |
-
-Built with [`tree-sitter build --wasm`](https://tree-sitter.github.io/tree-sitter/cli/build.html) v{tree_sitter_cli_version}.
 
 The same parser is published to npm as
 [`{npm_package}`](https://www.npmjs.com/package/{npm_package}) — byte for byte,

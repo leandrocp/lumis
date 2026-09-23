@@ -1,14 +1,14 @@
 # {app_name}
 
-A group of Tree-sitter parsers for [Lumis](https://lumis.sh): {languages_text}.
+A group of Lumis language packages for {languages_text}.
 
 ## Installation
 
 ```elixir
 def deps do
   [
-    {:lumis, "~> 0.8"},
-    {:{app_name}, "~> {hex_version}"}
+    {:lumis, "~> {lumis_requirement}"},
+    {:{app_name}, "~> {hex_requirement}"}
   ]
 end
 ```
@@ -16,8 +16,9 @@ end
 ## What it contains
 
 Nothing but the list above. This package has no code and no parser bytes — it
-depends on one `lumis_wasm_*` package per language, so adding it adds them all,
-and it widens when the bundle gains a language.
+depends on one `lumis_wasm_*` package per language, and each of those carries a
+Tree-sitter WASM parser and its queries. Adding it adds them all, and it widens
+when the bundle gains a language.
 
 Depend on the individual packages instead if you want to choose them yourself.
 

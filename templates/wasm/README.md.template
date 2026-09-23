@@ -1,16 +1,36 @@
 # {pkg_name}
 
-Self-contained Lumis language package for {languages_text}, with its parser and queries.
+Self-contained Lumis language package for {languages_text}.
+
+The Tree-sitter parser is compiled to WASM and ships with the queries that highlight it.
 
 Built with [`tree-sitter build --wasm`](https://tree-sitter.github.io/tree-sitter/cli/build.html) `v{tree_sitter_cli_version}`
 
 Used by [Lumis](https://lumis.sh) and compatible with [web-tree-sitter](https://www.npmjs.com/package/web-tree-sitter) v{tree_sitter_cli} and other WASM runtimes.
+
+## Installation
+
+```sh
+npm install {pkg_name}
+```
+
+## What it contains
+
+`{wasm_name}.wasm` is the parser. `lumis.json` describes it and records its size, its SHA-256 and the queries.
+
+Lumis reads both from the installed package, so nothing is downloaded at runtime.
+
+The only JavaScript here is one line that exports the parser's URL, for bundlers that want it.
 
 ## Parser
 
 | Parser | Version | Rev |
 | ------ | ------- | --- |
 | [{git_url}]({git_url}) | {upstream_version} | {rev} |
+
+The same parser is published to Hex as
+[`{hex_package}`](https://hex.pm/packages/{hex_package}) — byte for byte, from
+one build, so both registries serve the same artifact.
 
 ## CDN
 
@@ -19,4 +39,5 @@ Used by [Lumis](https://lumis.sh) and compatible with [web-tree-sitter](https://
 
 ## License
 
-This package redistributes the parser source listed above; see that project for its license.
+The Lumis packaging is MIT. The parser itself is redistributed from the
+upstream project above; see that project for its license.

@@ -3,7 +3,7 @@
   "version": "{npm_version}",
   "type": "module",
   "types": "./index.d.ts",
-  "description": "Self-contained Lumis language package for {languages_text}",
+  "description": "Tree-sitter parser and queries for {languages_text}, compiled to WASM for Lumis",
   "author": "Leandro Pereira",
   "license": "MIT",
   "homepage": "https://lumis.sh",

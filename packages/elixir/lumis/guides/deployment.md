@@ -8,9 +8,9 @@ assets:
 defp deps do
   [
     {:lumis, "~> 0.8"},
-    {:lumis_wasm_bundle_web, "~> 0.26"},
-    {:lumis_wasm_elixir, "~> 0.26"},
-    {:lumis_wasm_markdown, "~> 0.26"}
+    {:lumis_wasm_bundle_web, "~> 0.1.0"},
+    {:lumis_wasm_elixir, "~> 0.26.0"},
+    {:lumis_wasm_markdown, "~> 0.26.0"}
   ]
 end
 ```
@@ -20,10 +20,13 @@ network at boot or at render: the bytes are in the release, one directory per
 package.
 
 ```
-lib/lumis_wasm_bundle_web-0.26.0/priv/parsers/
 lib/lumis_wasm_elixir-0.26.3/priv/parsers/
 lib/lumis_wasm_markdown-0.26.2/priv/parsers/
 ```
+
+`lumis_wasm_bundle_web` has no directory of its own. A bundle carries no parser
+bytes, only dependencies, so it adds one more of these per member: `css`,
+`diff`, `html`, `javascript`, `json`, `tsx` and `typescript`.
 
 ```elixir
 Lumis.Languages.load("haskell")
