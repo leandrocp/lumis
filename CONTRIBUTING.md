@@ -702,6 +702,33 @@ Two files record what these checks cannot cover, and both may only shrink:
 
 The `wasm-release` workflow publishes packages automatically. It detects which parsers still need publishing with `mise run wasm-publish-needed`, which compares each published package's `definitionHash` against the one `crates/dev` computes from `languages.toml` and the processed queries, then builds and publishes the rest in parallel.
 
+### Publishing to Hex
+
+Elixir reads parsers from the `priv/parsers` of `lumis_wasm_*` dependencies, so
+each parser is published to Hex as well as npm.
+
+Both come from **one build**. `wasm-publish-prepare` builds the parser and
+stages the npm package; `stage-hex-wasm` then copies that staged parser and its
+manifest into a Hex package, and fails if the two stop matching. Nothing
+rebuilds in between, so the bytes on Hex are the bytes on npm rather than
+something that ought to be equivalent:
+
+```bash
+mise run wasm-hex-stage json      # tmp/wasm/hex/lumis_wasm_json
+mise run wasm-hex-publish json
+```
+
+The layouts differ because each runtime reads its own: npm ships
+`tree-sitter-json.wasm` next to `lumis.json`, and Hex ships
+`priv/parsers/json.lumis.json` beside the content-addressed name the store
+resolves. The parser file is byte-identical either way.
+
+Hex publishing is **manual for now**: an automatic npm release does not carry it
+along. Run the `WASM Release` workflow by hand with `publish_hex` checked, which
+publishes both from the same job. A hyphenated package becomes an underscored
+application name, since an Elixir application name is an atom —
+`@lumis-sh/wasm-embedded-template` is `lumis_wasm_embedded_template`.
+
 ## Themes
 
 Themes are extracted from Neovim colorscheme plugins. Each theme is a JSON file in `themes/`. Theme definitions live in [`themes/themes.lua`](themes/themes.lua), which follows the `vim.pack` convention so Neovim can install them automatically.

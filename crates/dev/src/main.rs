@@ -84,6 +84,10 @@ enum Commands {
     StageWasm {
         name: String,
     },
+    /// Write the Hex package for a parser, from what `stage-wasm` already built.
+    StageHexWasm {
+        name: String,
+    },
     /// Write the committed test parsers as a Lumis store directory.
     StageTestParsers {
         #[arg(default_value = "target/test-parsers")]
@@ -169,6 +173,7 @@ fn main() -> Result<()> {
         Commands::GenLanguageCatalog { check } => gen_language_catalog(check),
         Commands::BuildWasm { name } => build_wasm(&name),
         Commands::StageWasm { name } => stage_wasm(&name),
+        Commands::StageHexWasm { name } => stage_hex_wasm(&name),
         Commands::StageTestParsers { out } => stage_test_parsers(Path::new(&out)),
         Commands::WasmNeeded { filter, force } => wasm_needed(&filter, &force),
         Commands::WasmMeta { name } => wasm_meta(&name),
@@ -3599,6 +3604,7 @@ fn wasm_meta(name: &str) -> Result<()> {
     let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
 
     println!("wasm_name={wasm_name}");
+    println!("hex_app={}", hex_app_name(wasm_name));
     Ok(())
 }
 
@@ -3798,8 +3804,180 @@ fn wasm_needed(filter: &str, force: &str) -> Result<()> {
     Ok(())
 }
 
+/// Write the Hex package for `name` from the npm package `stage_wasm` staged.
+///
+/// Deliberately reads `tmp/wasm/publish/<wasm>/`, the directory npm publishes,
+/// rather than rebuilding or re-deriving anything. One build produces one
+/// parser, and both registries receive that exact file — so "the Hex package
+/// and the npm package agree" is a property of the pipeline rather than
+/// something to verify after the fact. The digest check below is belt and
+/// braces: it fails if the two ever stop being the same bytes.
+///
+/// # Errors
+/// Fails when the npm package has not been staged, or when the parser does not
+/// match the digest its own manifest declares.
+fn stage_hex_wasm(name: &str) -> Result<()> {
+    let toml = read_languages_toml()?;
+    let (parser_name, info) = toml
+        .parsers
+        .iter()
+        .find(|(parser_name, info)| {
+            let default_wasm_name = format!("tree-sitter-{parser_name}");
+            let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
+            parser_name.as_str() == name || wasm_name == name
+        })
+        .with_context(|| format!("Unknown parser or wasm artifact: {name}"))?;
+
+    let default_wasm_name = format!("tree-sitter-{parser_name}");
+    let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
+    let suffix = wasm_package_suffix(wasm_name);
+
+    let npm = format!("tmp/wasm/publish/{wasm_name}");
+    let manifest_path = format!("{npm}/lumis.json");
+    if !Path::new(&manifest_path).exists() {
+        bail!(
+            "ERROR: {manifest_path} not found. Run 'mise run wasm-publish-prepare {wasm_name}' first."
+        );
+    }
+
+    let manifest_bytes = fs::read(&manifest_path)?;
+    let package: LanguagePackage = serde_json::from_slice(&manifest_bytes)?;
+    let wasm_bytes = fs::read(format!("{npm}/{wasm_name}.wasm"))?;
+
+    verify_staged_parser(wasm_name, &wasm_bytes, &package)?;
+
+    let app_name = hex_app_name(wasm_name);
+    let module_name = app_name
+        .split('_')
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+                None => String::new(),
+            }
+        })
+        .collect::<String>();
+
+    let out = format!("tmp/wasm/hex/{app_name}");
+    let _ = fs::remove_dir_all(&out);
+    let parsers = format!("{out}/priv/parsers");
+    fs::create_dir_all(&parsers)?;
+
+    // The layout `Lumis.Packages` reads: the manifest under the package suffix,
+    // and the parser under the content-addressed name the store resolves.
+    fs::write(format!("{parsers}/{suffix}.lumis.json"), &manifest_bytes)?;
+    fs::write(
+        format!("{parsers}/{}", parser_filename(&package)),
+        &wasm_bytes,
+    )?;
+
+    fs::copy(format!("{npm}/LICENSE"), format!("{out}/LICENSE"))?;
+    fs::copy(format!("{npm}/README.md"), format!("{out}/README.md"))?;
+
+    let languages_text = package
+        .languages
+        .keys()
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(", ");
+    let mix = fs::read_to_string("templates/wasm/mix.exs.template")?
+        .replace("{module_name}", &module_name)
+        .replace("{app_name}", &app_name)
+        .replace("{hex_version}", &package.version)
+        .replace("{languages_text}", &languages_text)
+        .replace("{git_url}", info.git.as_deref().unwrap_or(""));
+    fs::write(format!("{out}/mix.exs"), mix)?;
+
+    println!("{app_name} {} -> {out}", package.version);
+    Ok(())
+}
+
+/// Fail unless `bytes` are the parser the manifest beside them describes.
+///
+/// The guarantee the Hex package rests on: it is staged from what npm ships, so
+/// a mismatch means the two came from different builds and one of them is not
+/// the artifact that was reviewed.
+fn verify_staged_parser(wasm_name: &str, bytes: &[u8], package: &LanguagePackage) -> Result<()> {
+    let actual = sha256_hex(bytes);
+    if actual != package.parser.sha256 {
+        bail!(
+            "ERROR: {wasm_name}.wasm does not match the manifest staged beside it\n  \
+             manifest {}\n  file     {actual}",
+            package.parser.sha256
+        );
+    }
+    Ok(())
+}
+
+/// The Hex application name for a parser.
+///
+/// Hex application names are atoms: lowercase with underscores, so a package
+/// like `embedded-template` cannot keep its hyphen.
+fn hex_app_name(wasm_name: &str) -> String {
+    format!(
+        "lumis_wasm_{}",
+        wasm_package_suffix(wasm_name).replace('-', "_")
+    )
+}
+
 fn wasm_package_suffix(wasm_name: &str) -> &str {
     wasm_name.strip_prefix("tree-sitter-").unwrap_or(wasm_name)
+}
+
+#[cfg(test)]
+mod hex_wasm_tests {
+    use super::*;
+
+    #[test]
+    fn hex_app_names_are_valid_atoms() {
+        assert_eq!(hex_app_name("tree-sitter-json"), "lumis_wasm_json");
+        // Hyphens cannot survive: an application name is an atom.
+        assert_eq!(
+            hex_app_name("tree-sitter-embedded-template"),
+            "lumis_wasm_embedded_template"
+        );
+        assert_eq!(hex_app_name("tree-sitter-markdown_inline"), "lumis_wasm_markdown_inline");
+
+        for name in ["tree-sitter-json", "tree-sitter-embedded-template"] {
+            let app = hex_app_name(name);
+            assert!(
+                app.chars()
+                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'),
+                "{app} is not usable as an Elixir application name"
+            );
+        }
+    }
+
+    /// The whole point of staging Hex from the npm output: both registries get
+    /// the parser one build produced. A mismatch means a rebuild happened
+    /// between them, and the two packages would ship different bytes.
+    #[test]
+    fn staging_hex_refuses_a_parser_that_does_not_match_its_manifest() {
+        let staged = b"the parser npm received";
+        let package = LanguagePackage {
+            package_name: "@lumis-sh/wasm-json".into(),
+            version: "0.26.4".into(),
+            definition_hash: "hash".into(),
+            parser: ParserMetadata {
+                name: "tree-sitter-json".into(),
+                grammar_name: "json".into(),
+                upstream_version: None,
+                revision: None,
+                sha256: sha256_hex(staged),
+                size: staged.len() as u64,
+            },
+            languages: BTreeMap::new(),
+        };
+
+        assert!(
+            verify_staged_parser("tree-sitter-json", staged, &package).is_ok(),
+            "the parser that was staged has to pass"
+        );
+
+        let error = verify_staged_parser("tree-sitter-json", b"a different build", &package)
+            .expect_err("a parser from another build must be refused");
+        assert!(error.to_string().contains("does not match the manifest"));
+    }
 }
 
 #[cfg(test)]

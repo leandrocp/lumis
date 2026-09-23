@@ -38,6 +38,12 @@ on:
         required: false
         default: false
         type: boolean
+      publish_hex:
+        description: >-
+          Also publish to Hex, from the same build npm receives
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   detect:
@@ -137,3 +143,35 @@ jobs:
         env:
           PARSER: ${{ matrix.parser }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Hex publishes from the same `wasm-publish-prepare` above, never its own
+      # build: `stage-hex-wasm` copies the staged parser and fails if its digest
+      # stops matching the manifest beside it. One build, one parser, two
+      # registries — so the two cannot drift, and neither can be tampered with
+      # independently of the other.
+      #
+      # Manual only for now. An automatic npm release does not carry Hex with
+      # it, so turning this on is a deliberate act while the packages are new.
+      - uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+
+      - name: Stage the Hex package
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
+        run: cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
+        env:
+          PARSER: ${{ matrix.parser }}
+
+      - name: Publish to Hex
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
+        run: |
+          app_name=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-meta "$PARSER" \
+            | grep '^hex_app=' | cut -d= -f2)
+          cd -- "tmp/wasm/hex/$app_name"
+          mix local.hex --force
+          mix hex.publish package --yes
+        env:
+          PARSER: ${{ matrix.parser }}
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
