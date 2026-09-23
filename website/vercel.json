@@ -12,7 +12,7 @@
         { "key": "Vary", "value": "Accept" },
         {
           "key": "Link",
-          "value": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\""
+          "value": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\", </.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\""
         }
       ]
     },
@@ -31,6 +31,26 @@
     {
       "source": "/showcase/",
       "headers": [{ "key": "Vary", "value": "Accept" }]
+    },
+    {
+      "source": "/.well-known/api-catalog",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/linkset+json; profile=\"https://www.rfc-editor.org/info/rfc9727\""
+        },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, HEAD, OPTIONS" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
+      "source": "/openapi/versioned-installer.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
     },
     {
       "source": "/.well-known/ai-catalog.json",
@@ -107,7 +127,7 @@
       ],
       "headers": {
         "Content-Type": "text/markdown; charset=utf-8",
-        "Link": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\"",
+        "Link": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\", </.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\"",
         "Vary": "Accept",
         "x-markdown-tokens": "904"
       },
