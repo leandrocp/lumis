@@ -148,10 +148,14 @@ Two traps:
   3 September 2026 default to `npm stage publish`, and that date has passed.
   Without the flag the configuration looks right and every publish fails on
   permissions.
-- **npm 11.15.0 or later**, or `--allow-publish` never reaches the registry and
-  the call fails with a `400` and no body. The runners pin npm for the same
-  family of reason: OIDC publishing needs 11.5.1, and `pnpm publish` shells out
-  to whichever `npm` is on `PATH` rather than doing the exchange itself.
+- **npm 11.15.0 or later locally**, or `--allow-publish` never reaches the
+  registry and the call fails with a `400` and no body.
+
+The runners pin npm@12.1.0 for the same family of reason. OIDC publishing needs
+11.5.1 at minimum and Node 24 LTS bundles 11.19.0, so the pin is about knowing
+which client publishes rather than reaching a floor — `lts/*` moves, and
+`pnpm publish` shells out to whichever `npm` is on `PATH` rather than doing the
+exchange itself. Bump it by hand; Dependabot does not track it.
 
 ### A brand-new package
 

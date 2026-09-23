@@ -142,11 +142,11 @@ jobs:
           node-version: "lts/*"
           registry-url: "https://registry.npmjs.org"
 
-      # `lts/*` decides the npm version, and OIDC publishing needs 11.5.1 or
-      # later. Pinned rather than inherited so a new Node LTS cannot change the
-      # publishing client under us. Dependabot does not track this, so bump it
-      # by hand.
-      - run: npm install --global npm@11.20.0
+      # Current stable, ahead of the 11.19.0 Node 24 bundles. OIDC publishing
+      # needs 11.5.1 at minimum; pinned rather than inherited so a new Node LTS
+      # cannot change the publishing client under us. Dependabot does not track
+      # this, so bump it by hand.
+      - run: npm install --global npm@12.1.0
 
       - run: mise run wasm-publish-prepare "$PARSER"
         env:
