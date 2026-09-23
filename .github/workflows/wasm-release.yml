@@ -142,10 +142,20 @@ jobs:
           node-version: "lts/*"
           registry-url: "https://registry.npmjs.org"
 
+      # `lts/*` decides the npm version, and OIDC publishing needs 11.5.1 or
+      # later. Pinned rather than inherited so a new Node LTS cannot change the
+      # publishing client under us. Dependabot does not track this, so bump it
+      # by hand.
+      - run: npm install --global npm@11.20.0
+
       - run: mise run wasm-publish-prepare "$PARSER"
         env:
           PARSER: ${{ matrix.parser }}
 
+      # No `NODE_AUTH_TOKEN`: the `id-token: write` above is the whole
+      # credential. npm exchanges the workflow's OIDC identity for a
+      # short-lived publish token, which only works because this package names
+      # this workflow as a trusted publisher — `mise run npm-trust`.
       - name: Publish to npm
         run: |
           cd -- "tmp/wasm/publish/$PARSER"
@@ -160,7 +170,6 @@ jobs:
           npm publish --access public --provenance
         env:
           PARSER: ${{ matrix.parser }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # Hex publishes from the same `wasm-publish-prepare` above, never its own
       # build: `stage-hex-wasm` copies the staged parser and fails if its digest

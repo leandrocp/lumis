@@ -998,6 +998,98 @@ hex-lumis|packages/elixir/lumis
 TABLE
 '''
 
+[tasks.'npm-packages']
+description = "List every npm package this repository publishes, with the workflow that publishes it"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+
+while IFS= read -r package; do
+    printf '%s|wasm-release.yml\n' "$package"
+done < <(cargo run -q --manifest-path crates/dev/Cargo.toml --no-default-features -- wasm-packages)
+
+manifests=()
+while IFS='|' read -r package paths; do
+    case "$package" in
+        npm-*) manifests+=("${paths%%|*}/package.json") ;;
+    esac
+done < <(mise run release-packages)
+
+# The platform packages are not rows in `release-packages`: they ship under the
+# version of `npm-lumis` and `npm-cli`, and the publish steps iterate these same
+# directories.
+manifests+=(packages/javascript/lumis/native/npm/*/package.json)
+manifests+=(packages/javascript/cli/npm/*/package.json)
+
+for manifest in "${manifests[@]}"; do
+    printf '%s|javascript-release.yml\n' "$(jq -r .name "$manifest")"
+done
+'''
+
+[tasks.'npm-trust']
+description = "Point each npm package at the workflow allowed to publish it, so no token is needed"
+usage = '''
+arg "[package]" help="Only visit packages whose name contains this substring"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+
+filter="${usage_package:-}"
+added=0
+present=0
+
+# Read to the end before visiting anything, so the loop that calls npm leaves
+# the terminal on stdin. npm asks for 2FA on the first call and then offers to
+# skip it for five minutes, and a loop reading its list from a pipe or a
+# redirect would feed that prompt the next package name.
+catalog="$(mise run npm-packages)"
+
+packages=()
+while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
+    packages+=("$entry")
+done <<< "$catalog"
+
+# Two seconds apart is what npm asks for, which is roughly eighty packages per
+# 2FA window.
+for entry in "${packages[@]}"; do
+    IFS='|' read -r package workflow <<< "$entry"
+
+    if [ -n "$filter" ] && [[ "$package" != *"$filter"* ]]; then
+        continue
+    fi
+
+    # `--json` prints nothing when a package has no configurations and an
+    # `{ error }` object when the call itself failed. Telling those apart is
+    # what stops a transient failure from adding a second configuration to a
+    # package that already had one.
+    listing="$(npm trust list "$package" --json 2>/dev/null || true)"
+
+    if jq -es 'any(.[]; has("error"))' >/dev/null <<< "$listing"; then
+        jq -rs '.[] | select(has("error")) | .error.summary' <<< "$listing" >&2
+        echo "could not read $package's trusted publishers; are you npm logged in?" >&2
+        exit 1
+    fi
+
+    if jq -es --arg file "$workflow" 'any(.[]; .file == $file)' >/dev/null <<< "$listing"; then
+        echo "$package already names $workflow"
+        present=$((present + 1))
+        continue
+    fi
+
+    npm trust github "$package" \
+        --repository leandrocp/lumis \
+        --file "$workflow" \
+        --allow-publish \
+        --yes
+    added=$((added + 1))
+    sleep 2
+done
+
+echo "added $added, already present $present"
+'''
+
 [tasks.'release-needed']
 description = "List packages with non-chore path-scoped commits since their latest release tag"
 run = '''

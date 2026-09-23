@@ -103,6 +103,71 @@ Nothing built here resolves these requirements except `crates/autumnus`, so
 [#1118](https://github.com/leandrocp/lumis/issues/1118) shipped: `lumis` 0.12.1 called
 `lumis-core` 2.2.0 API while requiring `"2"`.
 
+## Publishing to npm
+
+No token. The release workflows request `id-token: write` and npm exchanges that
+OIDC identity for a short-lived publish token, which the registry grants only
+because the package names the workflow that asked. `--provenance` was always the
+same identity being used for attestation; trusted publishing keeps it and drops
+the long-lived credential that sat beside it.
+
+This is not a preference. Write-enabled granular tokens have been capped at 90
+days since September 2025, classic tokens stopped being issued in November 2025,
+and publishing a new version directly with a token is removed in January 2027 —
+which is every `npm publish` here. Direct publish stays available to a trusted
+publisher; only the token path goes away.
+
+Trust is configured **per package**, and this repository publishes 142:
+
+| | count | workflow |
+| --- | --- | --- |
+| `@lumis-sh/wasm-*` parsers | 113 | `wasm-release.yml` |
+| `@lumis-sh/lumis-native-*` and the selector | 9 | `javascript-release.yml` |
+| `@lumis-sh/cli-*` platform packages | 8 | `javascript-release.yml` |
+| `@lumis-sh/wasm-bundle-*` | 5 | `javascript-release.yml` |
+| `lumis`, `cli`, `themes`, `react`, `vite`, `markdown-it-lumis`, `rehype-lumis` | 7 | `javascript-release.yml` |
+
+```sh
+mise run npm-trust
+```
+
+That visits each one and skips those already configured. Both lists are derived
+rather than written down — the parsers from `languages.toml`, the rest from
+`mise run release-packages` and the platform package directories — so a package
+added to either cannot be forgotten. `mise run npm-packages` prints what it will
+visit.
+
+Run it locally, logged in (`npm whoami`). npm requires an interactive 2FA
+challenge and refuses a bypass-2FA token, so CI cannot do this for itself. The
+approval then lasts five minutes and the calls are spaced two seconds apart as
+npm asks, about eighty packages per window, so expect to answer twice.
+
+Two traps:
+
+- **`--allow-publish` has to be explicit.** Configurations created after
+  3 September 2026 default to `npm stage publish`, and that date has passed.
+  Without the flag the configuration looks right and every publish fails on
+  permissions.
+- **npm 11.15.0 or later**, or `--allow-publish` never reaches the registry and
+  the call fails with a `400` and no body. The runners pin npm for the same
+  family of reason: OIDC publishing needs 11.5.1, and `pnpm publish` shells out
+  to whichever `npm` is on `PATH` rather than doing the exchange itself.
+
+### A brand-new package
+
+npm has no equivalent of PyPI's pending publishers: a package must exist before
+it can name a trusted publisher. So the first release of a genuinely new
+package — a language added to `languages.toml`, a new platform — cannot be
+configured in advance, and its first publish fails. Publish that one version by
+hand, then:
+
+```sh
+mise run npm-trust @lumis-sh/wasm-<name>
+```
+
+Everything already on npm is unaffected; this is only about packages npm has
+never seen.
+
 ## npm CLI
 
 `npm-cli` owns its version and changelog. Shared Rust CLI changes publish through

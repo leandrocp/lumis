@@ -214,6 +214,10 @@ jobs:
         )
       }}
     runs-on: ubuntu-latest
+    # `id-token: write` is the whole publishing credential. No step below sets
+    # `NODE_AUTH_TOKEN`: npm exchanges this workflow's OIDC identity for a
+    # short-lived publish token, which works only because each package names
+    # this workflow as a trusted publisher — `mise run npm-trust`.
     permissions:
       contents: read
       id-token: write
@@ -232,6 +236,14 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
+
+      # `lts/*` decides the npm version, and OIDC publishing needs 11.5.1 or
+      # later. This matters for the `pnpm publish` steps too: pnpm shells out to
+      # whichever `npm` is on PATH rather than implementing the exchange itself.
+      # Pinned rather than inherited so a new Node LTS cannot change the
+      # publishing client under us. Dependabot does not track this, so bump it
+      # by hand.
+      - run: npm install --global npm@11.20.0
 
       - name: Determine package to publish
         id: pkg
@@ -335,8 +347,6 @@ jobs:
             echo "expected 8 platform packages, published $published" >&2
             exit 1
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # `pnpm --filter` exits 0 when nothing matches, so a renamed or deleted
       # selector would silently skip publishing and leave the main package
@@ -346,8 +356,6 @@ jobs:
         run: >-
           pnpm --filter @lumis-sh/lumis-native --fail-if-no-match publish
           --access public --no-git-checks --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Download CLI binaries
         if: steps.pkg.outputs.filter == '@lumis-sh/cli'
@@ -385,8 +393,6 @@ jobs:
             echo "expected 8 platform packages, published $published" >&2
             exit 1
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
         run: >-
@@ -394,4 +400,3 @@ jobs:
           --access public --no-git-checks --provenance
         env:
           PACKAGE_FILTER: ${{ steps.pkg.outputs.filter }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
