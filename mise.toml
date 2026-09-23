@@ -1040,9 +1040,9 @@ added=0
 present=0
 
 # Read to the end before visiting anything, so the loop that calls npm leaves
-# the terminal on stdin. npm asks for 2FA on the first call and then offers to
-# skip it for five minutes, and a loop reading its list from a pipe or a
-# redirect would feed that prompt the next package name.
+# the terminal on stdin: npm's 2FA prompt reads from there, and a loop fed by a
+# pipe or a redirect would answer it with the next package name. Its stdout
+# matters just as much, for a different reason — see the retry below.
 catalog="$(mise run npm-packages)"
 
 packages=()
@@ -1066,9 +1066,20 @@ for entry in "${packages[@]}"; do
     # package that already had one.
     listing="$(npm trust list "$package" --json 2>/dev/null || true)"
 
+    # Reading the configuration needs 2FA, and npm refuses to prompt for it
+    # unless stdout is a terminal — which capturing the JSON above makes it not.
+    # So the prompt is run here instead, uncaptured, and the read retried. It
+    # fires on the first package and then again each time npm's elevation
+    # lapses, which is well inside a run of this length.
+    if jq -es 'any(.[]; has("error"))' >/dev/null <<< "$listing"; then
+        echo "npm wants two-factor authentication before it will answer for $package"
+        npm trust list "$package"
+        listing="$(npm trust list "$package" --json 2>/dev/null || true)"
+    fi
+
     if jq -es 'any(.[]; has("error"))' >/dev/null <<< "$listing"; then
         jq -rs '.[] | select(has("error")) | .error.summary' <<< "$listing" >&2
-        echo "could not read $package's trusted publishers; are you npm logged in?" >&2
+        echo "could not read $package's trusted publishers" >&2
         exit 1
     fi
 
