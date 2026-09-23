@@ -17,10 +17,7 @@ end
 
 There is nothing to prepare and nothing to copy. No image stage that downloads
 parsers, no directory to stage, and no network at boot or at render — the bytes
-are inside the release, under
-`lib/lumis_wasm_elixir-0.26.3/priv/parsers/`.
-
-A language you did not add is one the application cannot load:
+are inside the release, under `lib/lumis_wasm_elixir-0.26.3/priv/parsers/`.
 
 ```elixir
 Lumis.Languages.load("haskell")
@@ -31,6 +28,18 @@ Include the languages a document can *inject*, not only the ones it names.
 Markdown fences reach whatever language they label, HTML reaches `css` and
 `javascript`, and Elixir reaches `comment`. A language you missed costs that
 block its highlighting and nothing else — the page still renders.
+
+## Docker
+
+The Dockerfile `mix phx.gen.release --docker` generates needs no changes.
+Parsers arrive with `mix deps.get` and travel inside the release, so the
+standard build and runner stages already carry them.
+
+Optionally, point the compiled-module cache at a writable path:
+
+```dockerfile
+ENV LUMIS_DATA_DIR="/app/lumis"
+```
 
 ## Warm-up
 
@@ -56,28 +65,17 @@ or a smoke test that should fail if a parser is missing.
 
 ## The compiled-module cache
 
-`config :lumis, :data_dir` no longer decides where parsers come from. What it
-still decides is where wasmtime keeps compiled modules:
+`config :lumis, :data_dir` does not decide where parsers come from. It decides
+where wasmtime keeps compiled modules:
 
 ```elixir
 config :lumis, data_dir: "/app/lumis"   # or LUMIS_DATA_DIR
 ```
 
-Point it somewhere writable and persistent and a restart skips recompiling.
-Lose it and the first render of each language is slower; nothing else changes,
-and no request fails. On a read-only filesystem it is simply never written.
-
-## Vendoring instead of depending
-
-A build that cannot reach Hex can ship the parser directories itself. Same
-layout, same verification; only how they got there differs.
-
-```elixir
-config :lumis, parser_dirs: ["priv/parsers"]
-```
-
-Each directory holds the `*.lumis.json` manifests and the `.wasm` files they
-describe, exactly as a parser package's `priv/parsers` does.
+It defaults to the `lumis` application's own `priv/`, which a release owns, and
+is created on first write. Point it somewhere writable and persistent and a
+restart skips recompiling. Lose it and the first render of each language is
+slower; no request fails. On a read-only filesystem it is never written.
 
 ## Build with Nix
 
