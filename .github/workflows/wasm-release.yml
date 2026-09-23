@@ -32,31 +32,25 @@ on:
         description: "Parser name(s), comma-separated (leave empty for all)"
         required: false
         default: ""
-      force:
-        description: >-
-          Publish even when the current parser revision already exists
-        required: false
-        default: false
-        type: boolean
-      publish_hex:
-        description: >-
-          Also publish to Hex, from the same build npm receives
-        required: false
-        default: true
-        type: boolean
 
 jobs:
-  detect:
+  # What to publish, and where. The version comes from the definition rather
+  # than a counter: a definition already on one registry keeps the version it
+  # was published under, so the other receives that same version instead of a
+  # fresh one. Only a definition neither registry has seen takes the next patch.
+  plan:
     if: >-
-      ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
-          (github.event_name != 'push' ||
-           !startsWith(github.event.head_commit.message, 'chore(release):')) }}
+      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
     runs-on: ubuntu-latest
     outputs:
-      parsers: ${{ steps.needed.outputs.parsers }}
-      skip: ${{ steps.needed.outputs.skip }}
+      build: ${{ steps.plan.outputs.build }}
+      npm: ${{ steps.plan.outputs.npm }}
+      hex: ${{ steps.plan.outputs.hex }}
+      any: ${{ steps.plan.outputs.any }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
 
@@ -67,53 +61,41 @@ jobs:
         uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
           workspaces: "crates/dev -> target"
-          shared-key: wasm-release-detect
+          shared-key: wasm-release-plan
 
-      - name: Determine which parsers need publishing
-        id: needed
+      - name: Plan the release
+        id: plan
         env:
           PARSER_FILTER: ${{ inputs.parser }}
-          FORCE_PUBLISH: ${{ inputs.force || 'false' }}
-          PUBLISH_HEX: ${{ inputs.publish_hex || 'false' }}
         run: |
-          needed=$(mise run wasm-publish-needed \
-            "$PARSER_FILTER" \
-            "$FORCE_PUBLISH")
-          # Drift detection asks whether *npm* is behind. Hex is a different
-          # registry with its own history, so a parser npm already has may still
-          # be one Hex needs — and a Hex publish that failed after npm succeeded
-          # has to be retryable. Selecting on npm alone would make both
-          # impossible.
-          if [ -z "$needed" ] && [ "$PUBLISH_HEX" = "true" ]; then
-            needed=$(mise run wasm-publish-needed "$PARSER_FILTER" true)
-            echo "npm is current; selecting for Hex: $needed"
-          fi
-          if [ -z "$needed" ]; then
-            echo "All packages already published, nothing to build"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo 'parsers=[]' >> "$GITHUB_OUTPUT"
-          else
-            echo "Need to build: $needed"
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-            json=$(echo "$needed" | tr ' ' '\n' | jq -R . | jq -sc .)
-            echo "parsers=$json" >> "$GITHUB_OUTPUT"
-          fi
+          plan=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- \
+            wasm-release-plan "$PARSER_FILTER")
+          echo "$plan" | jq -r '.[] | "\(.wasm_name) \(.version) npm=\(.npm) hex=\(.hex)"'
 
+          # One build per parser that any registry is missing; one publish job
+          # per registry that is missing it.
+          {
+            echo "build=$(echo "$plan" | jq -c '[.[] | {parser: .wasm_name, version: .version}]')"
+            echo "npm=$(echo "$plan" | jq -c '[.[] | select(.npm) | {parser: .wasm_name, version: .version}]')"
+            echo "hex=$(echo "$plan" | jq -c '[.[] | select(.hex) | {parser: .wasm_name, version: .version, app: .hex_package}]')"
+            echo "any=$(echo "$plan" | jq -r 'length > 0')"
+          } >> "$GITHUB_OUTPUT"
+
+  # Built once, at the version the plan resolved, and carried to the publish
+  # jobs as an artifact. Both registries receive bytes from this one build
+  # rather than each rebuilding and hoping the results match.
   build:
-    needs: detect
-    if: needs.detect.outputs.skip == 'false'
+    needs: plan
+    if: needs.plan.outputs.any == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read
-      id-token: write
-
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        parser: ${{ fromJson(needs.detect.outputs.parsers) }}
-
+        include: ${{ fromJson(needs.plan.outputs.build) }}
     steps:
       # Nothing here pushes, and this job compiles 113 third-party grammars and
       # runs their cargo build scripts. None of that needs a credential for this
@@ -134,6 +116,7 @@ jobs:
         with:
           shared-key: wasm-release
           add-job-id-key: false
+
       - name: Cache tree-sitter tool downloads
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
@@ -141,6 +124,41 @@ jobs:
           key: ${{ runner.os }}-tree-sitter-cli-${{ hashFiles('mise.toml') }}
           restore-keys: |
             ${{ runner.os }}-tree-sitter-cli-
+
+      - name: Build and stage both packages
+        run: |
+          mise run wasm-build "$PARSER"
+          cargo run -q --manifest-path crates/dev/Cargo.toml -- \
+            stage-wasm "$PARSER" --version "$VERSION"
+          cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
+        env:
+          PARSER: ${{ matrix.parser }}
+          VERSION: ${{ matrix.version }}
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: staged-${{ matrix.parser }}
+          path: |
+            tmp/wasm/publish/${{ matrix.parser }}
+            tmp/wasm/hex
+          retention-days: 1
+          if-no-files-found: error
+
+  publish-npm:
+    needs: [plan, build]
+    if: needs.plan.outputs.npm != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.plan.outputs.npm) }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: staged-${{ matrix.parser }}
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
@@ -154,125 +172,47 @@ jobs:
       # Node 24 bundles 11.19.0, and OIDC publishing needs 11.5.1 at minimum.
       - run: npm install --global npm@12
 
-      - run: mise run wasm-publish-prepare "$PARSER"
-        env:
-          PARSER: ${{ matrix.parser }}
-
       # No `NODE_AUTH_TOKEN`: the `id-token: write` above is the whole
       # credential. npm exchanges the workflow's OIDC identity for a
       # short-lived publish token, which only works because this package names
       # this workflow as a trusted publisher — `mise run npm-trust`.
+      #
+      # No build step either: this job holds the credential, so it publishes the
+      # artifact `build` staged and runs nothing of its own.
       - name: Publish to npm
         run: |
-          cd -- "tmp/wasm/publish/$PARSER"
-          name=$(node -p "require('./package.json').name")
-          version=$(node -p "require('./package.json').version")
-          # A Hex-only run still builds and stages, so this version may already
-          # be on npm. Publishing it again is an error rather than a no-op.
-          if npm view "$name@$version" version >/dev/null 2>&1; then
-            echo "$name@$version is already on npm, leaving it alone"
-            exit 0
-          fi
+          cd -- "publish/$PARSER"
           npm publish --access public --provenance
         env:
           PARSER: ${{ matrix.parser }}
 
-      # Hex publishes from the same `wasm-publish-prepare` above, never its own
-      # build: `stage-hex-wasm` copies the staged parser and fails if its digest
-      # stops matching the manifest beside it. One build, one parser, two
-      # registries — so the two cannot drift, and neither can be tampered with
-      # independently of the other.
-      #
-      # Manual only for now. An automatic npm release does not carry Hex with
-      # it, so turning this on is a deliberate act while the packages are new.
-      - uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
-        with:
-          otp-version: "27"
-          elixir-version: "1.18"
-
-      # `cargo run` and `mix local.hex` build and execute dependency code, so
-      # they run before the key exists in the environment. Only the command
-      # that authenticates gets it.
-      - name: Stage the Hex package
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
-        run: |
-          app_name=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-meta "$PARSER" \
-            | grep '^hex_app=' | cut -d= -f2)
-          echo "HEX_APP=$app_name" >> "$GITHUB_ENV"
-          cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
-          mix local.hex --force
-        env:
-          PARSER: ${{ matrix.parser }}
-
-      # Hex is a separate registry with its own history, so "npm needed this"
-      # does not mean Hex does. Asking Hex directly is what makes a retry after
-      # a partly-failed release safe; `--replace` would paper over the same
-      # conflict by overwriting a published version, which is worse.
-      - name: Publish to Hex
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
-        run: |
-          cd -- "tmp/wasm/hex/$HEX_APP"
-          version=$(grep -o 'version: "[^"]*"' mix.exs | head -1 | cut -d'"' -f2)
-          if curl -sfo /dev/null "https://hex.pm/api/packages/$HEX_APP/releases/$version"; then
-            echo "$HEX_APP $version is already on Hex, leaving it alone"
-            exit 0
-          fi
-          mix hex.publish package --yes
-        env:
-          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
-
-  # Bundles carry no parser bytes, only the languages they group, so they are
-  # not part of the per-parser matrix above and cannot be published until the
-  # parsers they depend on exist.
-  # Only on an unfiltered run. A bundle depends on every parser it groups, so
-  # publishing one after a run that built a subset would put a package on Hex
-  # whose dependencies cannot resolve.
-  hex-bundles:
-    if: >-
-      ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex &&
-          inputs.parser == '' }}
-    needs: build
+  publish-hex:
+    needs: [plan, build]
+    if: needs.plan.outputs.hex != '[]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        bundle: [web, web-extra, system, backend, full]
+        include: ${{ fromJson(needs.plan.outputs.hex) }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          # Nothing here pushes, and the later cargo and mix steps run
-          # dependency code that would otherwise inherit the token.
-          persist-credentials: false
-
-      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
-        with:
-          install: false
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+          name: staged-${{ matrix.parser }}
 
       - uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1
         with:
           otp-version: "27"
           elixir-version: "1.18"
 
-      - name: Stage the bundle
-        run: |
-          cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-bundle "$BUNDLE"
-          echo "HEX_APP=lumis_wasm_bundle_${BUNDLE//-/_}" >> "$GITHUB_ENV"
-          mix local.hex --force
-        env:
-          BUNDLE: ${{ matrix.bundle }}
+      # Hex installed before the key exists, because `mix local.hex` fetches and
+      # runs code that has no business being able to read it.
+      - name: Install Hex
+        run: mix local.hex --force
 
-      - name: Publish the bundle to Hex
+      - name: Publish to Hex
         run: |
-          cd -- "tmp/wasm/hex/$HEX_APP"
-          version=$(grep -o 'version: "[^"]*"' mix.exs | head -1 | cut -d'"' -f2)
-          if curl -sfo /dev/null "https://hex.pm/api/packages/$HEX_APP/releases/$version"; then
-            echo "$HEX_APP $version is already on Hex, leaving it alone"
-            exit 0
-          fi
+          cd -- "hex/$APP"
           mix hex.publish package --yes
         env:
+          APP: ${{ matrix.app }}
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

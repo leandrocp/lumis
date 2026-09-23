@@ -700,7 +700,32 @@ Two files record what these checks cannot cover, and both may only shrink:
   sample at the pinned revision, published package included. A test fails when
   either entry starts working.
 
-The `wasm-release` workflow publishes packages automatically. It detects which parsers still need publishing with `mise run wasm-publish-needed`, which compares each published package's `definitionHash` against the one `crates/dev` computes from `languages.toml` and the processed queries, then builds and publishes the rest in parallel.
+The `wasm-release` workflow publishes to npm and Hex, and is a pipeline:
+
+1. **plan** — `mise run wasm-release-plan` works out, for every parser, the
+   version it resolves to and which registries are missing it.
+2. **build** — one job per parser that anything is missing, at the version the
+   plan resolved, staging both packages and uploading them as an artifact.
+3. **publish-npm** and **publish-hex** — one job per parser per registry that
+   needs it, publishing the artifact the build produced.
+
+So two parsers missing from both registries is two build jobs and four publish
+jobs, and neither registry is ever published from a build the other did not get.
+
+**The version comes from the definition, not a counter.** A definition already
+published keeps the version it went out under, so a registry that is behind
+receives that same version rather than a fresh one — which is what stops
+"publish the half that is missing" from releasing a new version of something
+that did not change. Only a definition neither registry has seen takes the next
+patch, computed from both so one cannot hand out a version the other used.
+
+Both registries are read through their own interfaces: npm packuments for
+`definitionHash`, and `repo.hex.pm/versions` for Hex — one request for every
+package on Hex, because the Hex API rate-limits at a hundred a minute and asking
+about a hundred and thirteen parsers individually fails partway through.
+
+`mise run wasm-publish-needed` still answers the narrower question of which
+parsers npm is behind on.
 
 ### Publishing to Hex
 
