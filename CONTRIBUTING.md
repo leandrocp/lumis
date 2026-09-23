@@ -706,7 +706,7 @@ The `wasm-release` workflow publishes to npm and Hex, and is a pipeline:
    version it resolves to and which registries are missing it.
 2. **build** — one job per parser that anything is missing, at the version the
    plan resolved, staging both packages and uploading them as an artifact.
-3. **publish-npm** and **publish-hex** — one job per parser per registry that
+3. **publish-npm**, then **publish-hex** — one job per parser per registry that
    needs it, publishing the artifact the build produced.
 4. **publish-hex-bundles** — one job per bundle Hex is missing, after the
    parsers, because a bundle depends on every language it groups.
@@ -731,6 +731,19 @@ Both registries are read through their own interfaces: npm packuments for
 **once per plan** regardless of how many parsers it covers, because that file is
 the whole registry. The per-package API cannot serve this — it rate-limits at a
 hundred a minute, so a hundred and thirteen lookups fail partway through.
+
+**Hex publishes after npm, and only npm can recover a version.** A packument
+carries every version's `definitionHash`; the Hex registry file carries versions
+and nothing else. So the version a definition went out under is read from npm
+alone, which is sound only while Hex holds nothing npm does not — and that is
+what the ordering keeps true. A failed npm leg holds Hex back for the whole plan
+rather than letting it get ahead; the next run publishes both. Were Hex to lead,
+its definition would read as unpublished, take a fresh patch, and be released
+again unchanged on every run.
+
+A run filtered to named parsers plans **no bundles**. A bundle depends on every
+parser it groups, and the ones it would be short of are exactly the ones the
+filter left out.
 
 `mise run wasm-publish-needed` still answers the narrower question of which
 parsers npm is behind on.

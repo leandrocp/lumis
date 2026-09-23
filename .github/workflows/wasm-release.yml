@@ -1,8 +1,11 @@
 name: WASM Release
 
+# Queued, not cancelled. A cancel between the two publish jobs leaves a parser
+# on one registry and not the other, and the next plan reads registries that a
+# half-finished run has already moved.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -38,9 +41,15 @@ jobs:
   # than a counter: a definition already on one registry keeps the version it
   # was published under, so the other receives that same version instead of a
   # fresh one. Only a definition neither registry has seen takes the next patch.
+  #
+  # `workflow_dispatch` can be started from any ref, so the branch check is not
+  # redundant with the `push` trigger: without it a trial run from a feature
+  # branch publishes that branch's definitions, and neither registry lets a
+  # version be reused afterwards.
   plan:
     if: >-
-      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
+      ${{ github.ref == 'refs/heads/main' &&
+          !startsWith(github.event.head_commit.message, 'chore(release):') }}
     runs-on: ubuntu-latest
     outputs:
       build: ${{ steps.plan.outputs.build }}
@@ -148,9 +157,16 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
+  # `!cancelled()` rather than the implied `success()`: a matrix job's result is
+  # `failure` when any one leg fails, so without it a single parser that cannot
+  # build would skip the publish for every other parser in the plan. The legs
+  # whose artifact is missing fail at `download-artifact`, which is the blast
+  # radius each parser had when it published inside its own build leg.
   publish-npm:
     needs: [plan, build]
-    if: needs.plan.outputs.npm != '[]'
+    if: >-
+      ${{ !cancelled() && needs.plan.result == 'success' &&
+          needs.plan.outputs.npm != '[]' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -190,9 +206,19 @@ jobs:
         env:
           PARSER: ${{ matrix.parser }}
 
+  # After npm, so Hex can never hold a definition npm does not. `plan` recovers
+  # the version a definition was published under from npm alone — Hex's registry
+  # file carries versions and nothing else — so a parser Hex had and npm did not
+  # would look unpublished, take a fresh patch, and release an unchanged
+  # definition to Hex again on every run. A failed npm leg therefore holds Hex
+  # back for the whole plan rather than letting it get ahead; the next run
+  # publishes both.
   publish-hex:
-    needs: [plan, build]
-    if: needs.plan.outputs.hex != '[]'
+    needs: [plan, build, publish-npm]
+    if: >-
+      ${{ !cancelled() && needs.plan.result == 'success' &&
+          needs.plan.outputs.hex != '[]' &&
+          needs.publish-npm.result != 'failure' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -222,12 +248,15 @@ jobs:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
   # After the parsers, because a bundle depends on every language it groups and
-  # cannot resolve until they are on Hex. Not gated on anything else: running
-  # the workflow publishes whatever is pending, and a bundle already on Hex at
-  # this version is simply not in the plan.
+  # cannot resolve until they are on Hex. `skipped` has to be told apart from
+  # `success` here: `publish-hex` is also skipped when the plan has no parsers
+  # for Hex, which is the one case where publishing bundles alone is right.
   publish-hex-bundles:
     needs: [plan, publish-hex]
-    if: ${{ always() && needs.plan.outputs.bundles != '[]' && !cancelled() && needs.publish-hex.result != 'failure' }}
+    if: >-
+      ${{ !cancelled() && needs.plan.result == 'success' &&
+          needs.plan.outputs.bundles != '[]' &&
+          (needs.plan.outputs.hex == '[]' || needs.publish-hex.result == 'success') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

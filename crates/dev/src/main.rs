@@ -3814,7 +3814,7 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
     let registry = hex_registry()?;
 
     let parsers = plan_parsers(candidates, packuments, &registry, &series)?;
-    let bundles = plan_bundles(&registry)?;
+    let bundles = plan_bundles(&registry, filter, &bundle_versions()?);
 
     println!(
         "{}",
@@ -3823,14 +3823,23 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
     Ok(())
 }
 
-/// Every parser matching `filter`, with the npm package and definition hash
-/// that decide where it stands.
-fn release_candidates(toml: &LanguagesToml, filter: &str) -> Result<Vec<(String, String, String)>> {
-    let wanted: HashSet<&str> = filter
+/// The parsers a filter names, empty when it names none.
+///
+/// One reader, because "is this run filtered?" is asked twice and a second
+/// spelling of it would let the parsers and the bundles disagree about the
+/// answer for the same input.
+fn filter_parsers(filter: &str) -> HashSet<&str> {
+    filter
         .split(',')
         .map(str::trim)
         .filter(|part| !part.is_empty())
-        .collect();
+        .collect()
+}
+
+/// Every parser matching `filter`, with the npm package and definition hash
+/// that decide where it stands.
+fn release_candidates(toml: &LanguagesToml, filter: &str) -> Result<Vec<(String, String, String)>> {
+    let wanted = filter_parsers(filter);
 
     let mut seen = HashSet::new();
     let mut candidates = Vec::new();
@@ -3901,22 +3910,35 @@ fn plan_parsers(
 ///
 /// No build and no npm: bundles carry no bytes, and npm's are released by tag
 /// alongside the other JavaScript packages.
-fn plan_bundles(registry: &HashMap<String, Vec<String>>) -> Result<Vec<BundlePlanEntry>> {
+///
+/// Nothing on a filtered run. A bundle depends on every parser it groups, so
+/// one published after a run that covered a subset has Hex dependencies that
+/// cannot resolve, and the parsers it is short of are exactly the ones the
+/// filter left out.
+fn plan_bundles(
+    registry: &HashMap<String, Vec<String>>,
+    filter: &str,
+    candidates: &[(String, String)],
+) -> Vec<BundlePlanEntry> {
+    if !filter_parsers(filter).is_empty() {
+        return Vec::new();
+    }
+
     let mut bundles = Vec::new();
-    for (name, version) in bundle_versions()? {
+    for (name, version) in candidates {
         let app = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
         if !registry
             .get(&app)
-            .is_some_and(|published| published.contains(&version))
+            .is_some_and(|published| published.contains(version))
         {
             bundles.push(BundlePlanEntry {
-                bundle: name,
+                bundle: name.clone(),
                 app,
-                version,
+                version: version.clone(),
             });
         }
     }
-    Ok(bundles)
+    bundles
 }
 
 /// Each bundle and the version its npm package is at.
@@ -3946,6 +3968,15 @@ fn bundle_versions() -> Result<Vec<(String, String)>> {
 }
 
 /// The version a definition was published under on npm, if it was.
+///
+/// npm alone, because it is the only registry that can answer: a packument
+/// carries each version's `lumis` metadata, while Hex's registry file carries
+/// versions and nothing else. That makes the answer only as good as the
+/// invariant **Hex never holds a definition npm does not**, which
+/// `wasm-release.yml` keeps by publishing Hex after npm and holding it back
+/// when npm fails. Break that and a Hex-only definition reads as unpublished,
+/// takes a fresh patch from `next_patch`, and is released to Hex again
+/// unchanged on every run.
 fn version_for_definition(packument: &Value, expected: &str, series: &str) -> Option<String> {
     let versions = packument.get("versions")?.as_object()?;
     let prefix = format!("{series}.");
@@ -4498,6 +4529,31 @@ mod hex_wasm_tests {
         assert_eq!(next_patch("0.26", Some(&published), &hex), "0.26.10");
         assert_eq!(next_patch("0.26", None, &hex), "0.26.10");
         assert_eq!(next_patch("0.26", None, &[]), "0.26.0");
+    }
+
+    /// A bundle depends on every parser it groups, so one published after a run
+    /// that covered a subset has Hex dependencies that cannot resolve.
+    #[test]
+    fn a_filtered_run_plans_no_bundles() {
+        let registry = HashMap::new();
+        let candidates = [("web".to_string(), "0.26.3".to_string())];
+
+        assert_eq!(
+            plan_bundles(&registry, "", &candidates).len(),
+            1,
+            "Hex has no bundles, so an unfiltered run plans the one there is"
+        );
+        assert!(plan_bundles(&registry, "json", &candidates).is_empty());
+        assert!(plan_bundles(&registry, "json,elixir", &candidates).is_empty());
+    }
+
+    /// Both readers of the filter have to agree on what counts as filtered, or
+    /// a run can select every parser while planning no bundles.
+    #[test]
+    fn separators_alone_do_not_filter() {
+        assert!(filter_parsers("").is_empty());
+        assert!(filter_parsers(" , ").is_empty());
+        assert_eq!(filter_parsers(" json , elixir ").len(), 2);
     }
 
     /// A version from another series is not a patch of this one.
