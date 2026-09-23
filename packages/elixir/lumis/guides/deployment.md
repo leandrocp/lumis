@@ -15,12 +15,15 @@ defp deps do
 end
 ```
 
-There is nothing to prepare and nothing to copy. No image stage that downloads
-parsers, no directory to stage, and no network at boot or at render — the bytes
-are inside the release, under
-`lib/lumis_wasm_elixir-0.26.3/priv/parsers/`.
+Nothing else to prepare. There is no image stage that downloads parsers and no
+network at boot or at render: the bytes are in the release, one directory per
+package.
 
-A language you did not add is one the application cannot load:
+```
+lib/lumis_wasm_bundle_web-0.26.0/priv/parsers/
+lib/lumis_wasm_elixir-0.26.3/priv/parsers/
+lib/lumis_wasm_markdown-0.26.2/priv/parsers/
+```
 
 ```elixir
 Lumis.Languages.load("haskell")
@@ -30,7 +33,19 @@ Lumis.Languages.load("haskell")
 Include the languages a document can *inject*, not only the ones it names.
 Markdown fences reach whatever language they label, HTML reaches `css` and
 `javascript`, and Elixir reaches `comment`. A language you missed costs that
-block its highlighting and nothing else — the page still renders.
+block its highlighting. The page still renders.
+
+## Docker
+
+The Dockerfile `mix phx.gen.release --docker` generates needs no changes.
+`mix deps.get` fetches the parsers and `mix release` packages them, so the build
+and runner stages you already have carry them.
+
+To keep the compiled-module cache on a writable path, set:
+
+```dockerfile
+ENV LUMIS_DATA_DIR="/app/lumis"
+```
 
 ## Warm-up
 
@@ -46,38 +61,27 @@ def start(_type, _args) do
 end
 ```
 
-It returns immediately and the result is deliberately not matched on: a warm-up
-must not be able to stop an application from starting. Failures are logged, and
-highlighting still loads on demand, so the worst case is that the cost this
-moves comes back.
+It returns immediately, and the result is deliberately not matched on: a warm-up
+should not be able to stop an application from starting. Failures are logged and
+highlighting still loads on demand, so the worst case is paying the compile on
+the first render after all.
 
-Use `Lumis.Languages.load/1` instead when you do want to wait — a release task,
-or a smoke test that should fail if a parser is missing.
+Use `Lumis.Languages.load/1` when you do want to wait, such as a release task or
+a smoke test that should fail if a parser is missing.
 
 ## The compiled-module cache
 
-`config :lumis, :data_dir` no longer decides where parsers come from. What it
-still decides is where wasmtime keeps compiled modules:
+`config :lumis, :data_dir` does not decide where parsers come from. It decides
+where wasmtime keeps compiled modules:
 
 ```elixir
 config :lumis, data_dir: "/app/lumis"   # or LUMIS_DATA_DIR
 ```
 
-Point it somewhere writable and persistent and a restart skips recompiling.
-Lose it and the first render of each language is slower; nothing else changes,
-and no request fails. On a read-only filesystem it is simply never written.
-
-## Vendoring instead of depending
-
-A build that cannot reach Hex can ship the parser directories itself. Same
-layout, same verification; only how they got there differs.
-
-```elixir
-config :lumis, parser_dirs: ["priv/parsers"]
-```
-
-Each directory holds the `*.lumis.json` manifests and the `.wasm` files they
-describe, exactly as a parser package's `priv/parsers` does.
+It defaults to the `lumis` application's own `priv/`, which a release owns, and
+is created on first write. Point it somewhere writable and persistent, and a
+restart skips recompiling. Lose it and the first render of each language is
+slower; no request fails. On a read-only filesystem it is never written.
 
 ## Build with Nix
 
