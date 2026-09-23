@@ -198,7 +198,13 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  publish:
+  # Everything up to a set of tarballs, and no `id-token`. This job installs
+  # dependencies and runs their lifecycle scripts, runs each package's build,
+  # and unpacks artifacts from the matrices above — third-party code throughout.
+  # None of it can reach a publishing credential, because there is none here to
+  # reach: `publish` below holds `id-token: write` and does nothing but upload
+  # what this job packed.
+  stage:
     needs: [build-native, build-cli]
     if: >-
       ${{
@@ -214,13 +220,8 @@ jobs:
         )
       }}
     runs-on: ubuntu-latest
-    # `id-token: write` is the whole publishing credential. No step below sets
-    # `NODE_AUTH_TOKEN`: npm exchanges this workflow's OIDC identity for a
-    # short-lived publish token, which works only because each package names
-    # this workflow as a trusted publisher — `mise run npm-trust`.
     permissions:
       contents: read
-      id-token: write
     steps:
       # Nothing here pushes, and `pnpm install` below runs dependency lifecycle
       # scripts. They have no business inheriting a credential for this
@@ -237,18 +238,8 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: "lts/*"
-          registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
-
-      # The major, not a version: patches and minors arrive on their own, and
-      # only a major is a decision. npm publishes no `lts` or `stable` tag, and
-      # `latest` would let the next major land in the middle of a release.
-      # Pinned at all because `lts/*` decides which npm arrives otherwise —
-      # Node 24 bundles 11.19.0, and OIDC publishing needs 11.5.1 at minimum.
-      # This reaches the `pnpm publish` steps too: pnpm shells out to whichever
-      # `npm` is on PATH rather than implementing the exchange itself.
-      - run: npm install --global npm@12
 
       - name: Determine package to publish
         id: pkg
@@ -337,30 +328,36 @@ jobs:
         if: steps.pkg.outputs.filter == '@lumis-sh/lumis'
         run: node packages/javascript/scripts/check-native-versions.mjs
 
-      - name: Publish native runtime packages
+      # Leaf packages with no `workspace:` dependencies, so `npm pack` is enough
+      # and the directory loop stays the thing that counts them.
+      - name: Pack native runtime packages
         if: steps.pkg.outputs.filter == '@lumis-sh/lumis'
         run: |
-          published=0
+          mkdir -p tarballs/platform
+          packed=0
           for package_dir in packages/javascript/lumis/native/npm/*; do
             if [ "$(basename "$package_dir")" = "meta" ]; then
               continue
             fi
-            npm publish "$package_dir" --access public --provenance
-            published=$((published + 1))
+            npm pack "$package_dir" --pack-destination tarballs/platform
+            packed=$((packed + 1))
           done
-          if [ "$published" -ne 8 ]; then
-            echo "expected 8 platform packages, published $published" >&2
+          if [ "$packed" -ne 8 ]; then
+            echo "expected 8 platform packages, packed $packed" >&2
             exit 1
           fi
 
-      # `pnpm --filter` exits 0 when nothing matches, so a renamed or deleted
-      # selector would silently skip publishing and leave the main package
-      # depending on a version that does not exist.
-      - name: Publish native runtime selector
+      # `pnpm pack` rather than `npm pack`, because the selector's
+      # optionalDependencies are `workspace:*` and only pnpm rewrites them to
+      # the resolved version. `--fail-if-no-match` because `pnpm --filter` exits
+      # 0 when nothing matches, so a renamed or deleted selector would silently
+      # pack nothing and leave the main package depending on a version that does
+      # not exist.
+      - name: Pack native runtime selector
         if: steps.pkg.outputs.filter == '@lumis-sh/lumis'
         run: >-
-          pnpm --filter @lumis-sh/lumis-native --fail-if-no-match publish
-          --access public --no-git-checks --provenance
+          pnpm --filter @lumis-sh/lumis-native --fail-if-no-match pack
+          --pack-destination tarballs/selector
 
       - name: Download CLI binaries
         if: steps.pkg.outputs.filter == '@lumis-sh/cli'
@@ -386,22 +383,92 @@ jobs:
         if: steps.pkg.outputs.filter == '@lumis-sh/cli'
         run: node packages/javascript/scripts/check-cli-versions.mjs
 
-      - name: Publish CLI platform packages
+      - name: Pack CLI platform packages
         if: steps.pkg.outputs.filter == '@lumis-sh/cli'
         run: |
-          published=0
+          mkdir -p tarballs/platform
+          packed=0
           for package_dir in packages/javascript/cli/npm/*; do
-            npm publish "$package_dir" --access public --provenance
-            published=$((published + 1))
+            npm pack "$package_dir" --pack-destination tarballs/platform
+            packed=$((packed + 1))
           done
-          if [ "$published" -ne 8 ]; then
-            echo "expected 8 platform packages, published $published" >&2
+          if [ "$packed" -ne 8 ]; then
+            echo "expected 8 platform packages, packed $packed" >&2
             exit 1
           fi
 
-      - name: Publish to npm
+      - name: Pack the package for the tag
         run: >-
-          pnpm --filter "$PACKAGE_FILTER" --fail-if-no-match publish
-          --access public --no-git-checks --provenance
+          pnpm --filter "$PACKAGE_FILTER" --fail-if-no-match pack
+          --pack-destination tarballs/main
         env:
           PACKAGE_FILTER: ${{ steps.pkg.outputs.filter }}
+
+      # Three directories rather than one, because publish order is load
+      # bearing: the selector's optionalDependencies name the platform packages
+      # and the main package's name the selector, so a dependency that is not on
+      # the registry yet ships a tarball that cannot install.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: npm-tarballs
+          path: tarballs
+          if-no-files-found: error
+          retention-days: 1
+
+  # The only job that can publish, and it holds no source tree: it downloads the
+  # tarballs `stage` packed and uploads them. `id-token: write` is the whole
+  # credential — no step sets `NODE_AUTH_TOKEN`. npm exchanges this workflow's
+  # OIDC identity for a publish token scoped to one package and valid for
+  # minutes, granted only because that package names this workflow as a trusted
+  # publisher (`mise run npm-trust`).
+  publish:
+    needs: stage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: npm-tarballs
+          path: tarballs
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+
+      # The major, not a version: patches and minors arrive on their own, and
+      # only a major is a decision. npm publishes no `lts` or `stable` tag, and
+      # `latest` would let the next major land in the middle of a release.
+      # Pinned at all because `lts/*` decides which npm arrives otherwise —
+      # Node 24 bundles 11.19.0, and OIDC publishing needs 11.5.1 at minimum.
+      - run: npm install --global npm@12
+
+      # Provenance signs the tarball's own digest and reads the build's identity
+      # from the runner's environment, so it does not need the source tree that
+      # `stage` had. Same run, same commit, same workflow — what it attests is
+      # unchanged by the split.
+      - name: Publish the platform packages
+        run: |
+          shopt -s nullglob
+          for tarball in tarballs/platform/*.tgz; do
+            npm publish "$tarball" --access public --provenance
+          done
+
+      - name: Publish the native runtime selector
+        run: |
+          shopt -s nullglob
+          for tarball in tarballs/selector/*.tgz; do
+            npm publish "$tarball" --access public --provenance
+          done
+
+      - name: Publish the package for the tag
+        run: |
+          shopt -s nullglob
+          main=(tarballs/main/*.tgz)
+          if [ "${#main[@]}" -ne 1 ]; then
+            echo "expected exactly one package for the tag, found ${#main[@]}" >&2
+            exit 1
+          fi
+          npm publish "${main[0]}" --access public --provenance

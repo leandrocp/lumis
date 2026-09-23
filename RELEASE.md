@@ -163,6 +163,39 @@ major arrive in the middle of a release — npm 12 blocked dependency lifecycle
 scripts by default and made unknown CLI flags throw, neither of which touches
 this path, but neither of which was announced here either.
 
+### What the trust relationship does and does not pin
+
+npm records two claims: the **repository** and the **workflow filename**. There
+is no branch claim, so anything that gets `javascript-release.yml` or
+`wasm-release.yml` to run in this repository with `id-token: write` can mint a
+publish token. `npm trust` says so while configuring: *anyone with GitHub
+repository write access can publish*. That was equally true of `NPM_TOKEN`,
+which any branch's workflow could read, so this is not a new exposure — but it
+is not one trusted publishing removes either.
+
+What holds the line today is the `github.ref == 'refs/heads/main'` guard on the
+publishing jobs. Note what that is worth: `workflow_dispatch` runs the workflow
+file **from the ref you pick**, so the guard is only as good as the file on that
+branch. npm's third, optional claim is a GitHub **environment**, which would
+move the check into repository settings where a branch cannot rewrite it. It is
+deliberately not used. Adding it later means revoking and re-adding all 142
+configurations, so it is a decision to revisit as a whole, not per package.
+
+Two things do limit the damage:
+
+- **The token is scoped to one package and lives for minutes.** The exchange is
+  `POST /-/npm/v1/oidc/token/exchange/package/<pkg>`, so a run publishing
+  `@lumis-sh/themes` cannot touch `@lumis-sh/lumis`. `NPM_TOKEN` covered the
+  whole `@lumis-sh` scope and did not expire.
+- **`id-token: write` is kept out of jobs that run third-party code.** In
+  `javascript-release.yml` the `stage` job installs dependencies, runs their
+  lifecycle scripts and builds each package, then packs tarballs and stops; only
+  `publish` can reach npm, and it holds no source tree. That split is the whole
+  reason `stage` packs rather than publishes.
+
+Neither workflow has a `pull_request` trigger, so a fork cannot reach any of
+this.
+
 ### A brand-new package
 
 npm has no equivalent of PyPI's pending publishers: a package must exist before
