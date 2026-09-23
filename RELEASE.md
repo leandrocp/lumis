@@ -137,10 +137,15 @@ rather than written down — the parsers from `languages.toml`, the rest from
 added to either cannot be forgotten. `mise run npm-packages` prints what it will
 visit.
 
-Run it locally, logged in (`npm whoami`). npm requires an interactive 2FA
-challenge and refuses a bypass-2FA token, so CI cannot do this for itself. The
-approval then lasts five minutes and the calls are spaced two seconds apart as
-npm asks, about eighty packages per window, so expect to answer twice.
+Run it locally, in a terminal. Being logged in is not enough: reading and
+writing a trusted publisher both need a 2FA challenge, npm refuses a bypass-2FA
+token, and it will not prompt at all unless **stdout is a terminal** — so this
+cannot run in CI, under a pipe, or with its output redirected to a file.
+
+Expect to answer the challenge several times. npm's approval lasts about five
+minutes and the calls are spaced two seconds apart as npm asks, so a full pass
+over 142 packages outlives it. The task notices and re-prompts rather than
+failing.
 
 Two traps:
 
