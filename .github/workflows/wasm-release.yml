@@ -181,7 +181,7 @@ jobs:
   # parsers they depend on exist.
   hex-bundles:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
-    needs: publish
+    needs: build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
