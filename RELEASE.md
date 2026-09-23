@@ -103,6 +103,114 @@ Nothing built here resolves these requirements except `crates/autumnus`, so
 [#1118](https://github.com/leandrocp/lumis/issues/1118) shipped: `lumis` 0.12.1 called
 `lumis-core` 2.2.0 API while requiring `"2"`.
 
+## Publishing to npm
+
+No token. The release workflows request `id-token: write` and npm exchanges that
+OIDC identity for a short-lived publish token, which the registry grants only
+because the package names the workflow that asked. `--provenance` was always the
+same identity being used for attestation; trusted publishing keeps it and drops
+the long-lived credential that sat beside it.
+
+This is not a preference. Write-enabled granular tokens have been capped at 90
+days since September 2025, classic tokens stopped being issued in November 2025,
+and publishing a new version directly with a token is removed in January 2027 —
+which is every `npm publish` here. Direct publish stays available to a trusted
+publisher; only the token path goes away.
+
+Trust is configured **per package**, and this repository publishes 142:
+
+| | count | workflow |
+| --- | --- | --- |
+| `@lumis-sh/wasm-*` parsers | 113 | `wasm-release.yml` |
+| `@lumis-sh/lumis-native-*` and the selector | 9 | `javascript-release.yml` |
+| `@lumis-sh/cli-*` platform packages | 8 | `javascript-release.yml` |
+| `@lumis-sh/wasm-bundle-*` | 5 | `javascript-release.yml` |
+| `lumis`, `cli`, `themes`, `react`, `vite`, `markdown-it-lumis`, `rehype-lumis` | 7 | `javascript-release.yml` |
+
+```sh
+mise run npm-trust
+```
+
+That visits each one and skips those already configured. Both lists are derived
+rather than written down — the parsers from `languages.toml`, the rest from
+`mise run release-packages` and the platform package directories — so a package
+added to either cannot be forgotten. `mise run npm-packages` prints what it will
+visit.
+
+Run it locally, logged in (`npm whoami`). npm requires an interactive 2FA
+challenge and refuses a bypass-2FA token, so CI cannot do this for itself. The
+approval then lasts five minutes and the calls are spaced two seconds apart as
+npm asks, about eighty packages per window, so expect to answer twice.
+
+Two traps:
+
+- **`--allow-publish` has to be explicit.** Configurations created after
+  3 September 2026 default to `npm stage publish`, and that date has passed.
+  Without the flag the configuration looks right and every publish fails on
+  permissions.
+- **npm 11.15.0 or later locally**, or `--allow-publish` never reaches the
+  registry and the call fails with a `400` and no body.
+
+The runners pin `npm@12` for the same family of reason. OIDC publishing needs
+11.5.1 at minimum and Node 24 LTS bundles 11.19.0, so the pin is about knowing
+which client publishes rather than reaching a floor — `lts/*` moves, and
+`pnpm publish` shells out to whichever `npm` is on `PATH` rather than doing the
+exchange itself.
+
+It is the major rather than a version so there is nothing to maintain between
+majors. npm publishes no `lts` or `stable` tag, and `latest` would let the next
+major arrive in the middle of a release — npm 12 blocked dependency lifecycle
+scripts by default and made unknown CLI flags throw, neither of which touches
+this path, but neither of which was announced here either.
+
+### What the trust relationship does and does not pin
+
+npm records two claims: the **repository** and the **workflow filename**. There
+is no branch claim, so anything that gets `javascript-release.yml` or
+`wasm-release.yml` to run in this repository with `id-token: write` can mint a
+publish token. `npm trust` says so while configuring: *anyone with GitHub
+repository write access can publish*. That was equally true of `NPM_TOKEN`,
+which any branch's workflow could read, so this is not a new exposure — but it
+is not one trusted publishing removes either.
+
+What holds the line today is the `github.ref == 'refs/heads/main'` guard on the
+publishing jobs. Note what that is worth: `workflow_dispatch` runs the workflow
+file **from the ref you pick**, so the guard is only as good as the file on that
+branch. npm's third, optional claim is a GitHub **environment**, which would
+move the check into repository settings where a branch cannot rewrite it. It is
+deliberately not used. Adding it later means revoking and re-adding all 142
+configurations, so it is a decision to revisit as a whole, not per package.
+
+Two things do limit the damage:
+
+- **The token is scoped to one package and lives for minutes.** The exchange is
+  `POST /-/npm/v1/oidc/token/exchange/package/<pkg>`, so a run publishing
+  `@lumis-sh/themes` cannot touch `@lumis-sh/lumis`. `NPM_TOKEN` covered the
+  whole `@lumis-sh` scope and did not expire.
+- **`id-token: write` is kept out of jobs that run third-party code.** In
+  `javascript-release.yml` the `stage` job installs dependencies, runs their
+  lifecycle scripts and builds each package, then packs tarballs and stops; only
+  `publish` can reach npm, and it holds no source tree. That split is the whole
+  reason `stage` packs rather than publishes.
+
+Neither workflow has a `pull_request` trigger, so a fork cannot reach any of
+this.
+
+### A brand-new package
+
+npm has no equivalent of PyPI's pending publishers: a package must exist before
+it can name a trusted publisher. So the first release of a genuinely new
+package — a language added to `languages.toml`, a new platform — cannot be
+configured in advance, and its first publish fails. Publish that one version by
+hand, then:
+
+```sh
+mise run npm-trust @lumis-sh/wasm-<name>
+```
+
+Everything already on npm is unaffected; this is only about packages npm has
+never seen.
+
 ## npm CLI
 
 `npm-cli` owns its version and changelog. Shared Rust CLI changes publish through

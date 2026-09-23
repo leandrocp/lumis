@@ -6,7 +6,7 @@ use lumis::languages::Language;
 use lumis_wasm_runtime::{parser_filename, LanguagePackage, PackagedLanguage, ParserMetadata};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fmt::Write as _;
 use std::fs;
 use std::io::Write;
@@ -107,6 +107,8 @@ enum Commands {
     WasmMeta {
         name: String,
     },
+    /// List the npm package of every parser `wasm-release.yml` publishes.
+    WasmPackages,
     RenderConformance {
         source: String,
         #[arg(short = 'l', long)]
@@ -182,6 +184,7 @@ fn main() -> Result<()> {
         Commands::StageTestParsers { out } => stage_test_parsers(Path::new(&out)),
         Commands::WasmNeeded { filter, force } => wasm_needed(&filter, &force),
         Commands::WasmMeta { name } => wasm_meta(&name),
+        Commands::WasmPackages => wasm_packages(),
         Commands::RenderConformance {
             source,
             language,
@@ -3610,6 +3613,20 @@ fn wasm_meta(name: &str) -> Result<()> {
 
     println!("wasm_name={wasm_name}");
     println!("hex_app={}", hex_app_name(wasm_name));
+    Ok(())
+}
+
+fn wasm_packages() -> Result<()> {
+    let toml = read_languages_toml()?;
+    let mut packages = BTreeSet::new();
+    for (id, info) in &toml.parsers {
+        let default_wasm_name = format!("tree-sitter-{id}");
+        let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
+        packages.insert(format!("@lumis-sh/wasm-{}", wasm_package_suffix(wasm_name)));
+    }
+    for package in packages {
+        println!("{package}");
+    }
     Ok(())
 }
 

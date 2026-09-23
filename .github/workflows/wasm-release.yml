@@ -115,7 +115,12 @@ jobs:
         parser: ${{ fromJson(needs.detect.outputs.parsers) }}
 
     steps:
+      # Nothing here pushes, and this job compiles 113 third-party grammars and
+      # runs their cargo build scripts. None of that needs a credential for this
+      # repository, so it does not get one left in `.git/config`.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
@@ -142,10 +147,21 @@ jobs:
           node-version: "lts/*"
           registry-url: "https://registry.npmjs.org"
 
+      # The major, not a version: patches and minors arrive on their own, and
+      # only a major is a decision. npm publishes no `lts` or `stable` tag, and
+      # `latest` would let the next major land in the middle of a release.
+      # Pinned at all because `lts/*` decides which npm arrives otherwise —
+      # Node 24 bundles 11.19.0, and OIDC publishing needs 11.5.1 at minimum.
+      - run: npm install --global npm@12
+
       - run: mise run wasm-publish-prepare "$PARSER"
         env:
           PARSER: ${{ matrix.parser }}
 
+      # No `NODE_AUTH_TOKEN`: the `id-token: write` above is the whole
+      # credential. npm exchanges the workflow's OIDC identity for a
+      # short-lived publish token, which only works because this package names
+      # this workflow as a trusted publisher — `mise run npm-trust`.
       - name: Publish to npm
         run: |
           cd -- "tmp/wasm/publish/$PARSER"
@@ -160,7 +176,6 @@ jobs:
           npm publish --access public --provenance
         env:
           PARSER: ${{ matrix.parser }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # Hex publishes from the same `wasm-publish-prepare` above, never its own
       # build: `stage-hex-wasm` copies the staged parser and fails if its digest
