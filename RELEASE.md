@@ -151,11 +151,17 @@ Two traps:
 - **npm 11.15.0 or later locally**, or `--allow-publish` never reaches the
   registry and the call fails with a `400` and no body.
 
-The runners pin npm@12.1.0 for the same family of reason. OIDC publishing needs
+The runners pin `npm@12` for the same family of reason. OIDC publishing needs
 11.5.1 at minimum and Node 24 LTS bundles 11.19.0, so the pin is about knowing
 which client publishes rather than reaching a floor — `lts/*` moves, and
 `pnpm publish` shells out to whichever `npm` is on `PATH` rather than doing the
-exchange itself. Bump it by hand; Dependabot does not track it.
+exchange itself.
+
+It is the major rather than a version so there is nothing to maintain between
+majors. npm publishes no `lts` or `stable` tag, and `latest` would let the next
+major arrive in the middle of a release — npm 12 blocked dependency lifecycle
+scripts by default and made unknown CLI flags throw, neither of which touches
+this path, but neither of which was announced here either.
 
 ### A brand-new package
 
