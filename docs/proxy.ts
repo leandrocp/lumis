@@ -11,10 +11,11 @@ const { rewrite: rewriteSuffix } = rewritePath(
 export default function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   if (
-    ["/.well-known/", "/api/", "/llms", "/og/", "/img/", "/_next/"].some((prefix) =>
-      path.startsWith(prefix),
+    ["/.well-known/", "/api/", "/llms", "/og/", "/img/", "/_next/", "/oauth/", "/agent/"].some(
+      (prefix) => path.startsWith(prefix),
     ) ||
-    ["/robots.txt", "/sitemap.xml", "/favicon.ico"].includes(path)
+    // /auth.md is its own route; without this the `.md` suffix rewrite sends it to a docs page.
+    ["/robots.txt", "/sitemap.xml", "/favicon.ico", "/auth.md"].includes(path)
   )
     return NextResponse.next();
 
