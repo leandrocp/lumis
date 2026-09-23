@@ -15,9 +15,15 @@ defp deps do
 end
 ```
 
-There is nothing to prepare and nothing to copy. No image stage that downloads
-parsers, no directory to stage, and no network at boot or at render — the bytes
-are inside the release, under `lib/lumis_wasm_elixir-0.26.3/priv/parsers/`.
+Nothing else to prepare. There is no image stage that downloads parsers and no
+network at boot or at render: the bytes are in the release, one directory per
+package.
+
+```
+lib/lumis_wasm_bundle_web-0.26.0/priv/parsers/
+lib/lumis_wasm_elixir-0.26.3/priv/parsers/
+lib/lumis_wasm_markdown-0.26.2/priv/parsers/
+```
 
 ```elixir
 Lumis.Languages.load("haskell")
@@ -27,15 +33,15 @@ Lumis.Languages.load("haskell")
 Include the languages a document can *inject*, not only the ones it names.
 Markdown fences reach whatever language they label, HTML reaches `css` and
 `javascript`, and Elixir reaches `comment`. A language you missed costs that
-block its highlighting and nothing else — the page still renders.
+block its highlighting. The page still renders.
 
 ## Docker
 
 The Dockerfile `mix phx.gen.release --docker` generates needs no changes.
-Parsers arrive with `mix deps.get` and travel inside the release, so the
-standard build and runner stages already carry them.
+`mix deps.get` fetches the parsers and `mix release` packages them, so the build
+and runner stages you already have carry them.
 
-Optionally, point the compiled-module cache at a writable path:
+To keep the compiled-module cache on a writable path, set:
 
 ```dockerfile
 ENV LUMIS_DATA_DIR="/app/lumis"
@@ -55,13 +61,13 @@ def start(_type, _args) do
 end
 ```
 
-It returns immediately and the result is deliberately not matched on: a warm-up
-must not be able to stop an application from starting. Failures are logged, and
-highlighting still loads on demand, so the worst case is that the cost this
-moves comes back.
+It returns immediately, and the result is deliberately not matched on: a warm-up
+should not be able to stop an application from starting. Failures are logged and
+highlighting still loads on demand, so the worst case is paying the compile on
+the first render after all.
 
-Use `Lumis.Languages.load/1` instead when you do want to wait — a release task,
-or a smoke test that should fail if a parser is missing.
+Use `Lumis.Languages.load/1` when you do want to wait, such as a release task or
+a smoke test that should fail if a parser is missing.
 
 ## The compiled-module cache
 
@@ -73,7 +79,7 @@ config :lumis, data_dir: "/app/lumis"   # or LUMIS_DATA_DIR
 ```
 
 It defaults to the `lumis` application's own `priv/`, which a release owns, and
-is created on first write. Point it somewhere writable and persistent and a
+is created on first write. Point it somewhere writable and persistent, and a
 restart skips recompiling. Lose it and the first render of each language is
 slower; no request fails. On a read-only filesystem it is never written.
 
