@@ -1,0 +1,7 @@
+{
+  "resource": "https://lumis.sh/",
+  "resource_name": "Lumis website and public APIs",
+  "authorization_servers": ["https://lumis.sh"],
+  "scopes_supported": ["public"],
+  "bearer_methods_supported": ["header"]
+}

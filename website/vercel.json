@@ -45,6 +45,30 @@
       ]
     },
     {
+      "source": "/.well-known/oauth-protected-resource",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
+      "source": "/.well-known/oauth-authorization-server",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
+      "source": "/auth.md",
+      "headers": [
+        { "key": "Content-Type", "value": "text/markdown; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
       "source": "/openapi/versioned-installer.json",
       "headers": [
         { "key": "Content-Type", "value": "application/json; charset=utf-8" },
@@ -113,6 +137,22 @@
     {
       "source": "/:version/install.ps1",
       "destination": "/api/versioned-installer?format=ps1&version=:version"
+    },
+    {
+      "source": "/oauth/authorize",
+      "destination": "/api/oauth-authorization"
+    },
+    {
+      "source": "/oauth/token",
+      "destination": "/api/oauth-token"
+    },
+    {
+      "source": "/oauth/jwks",
+      "destination": "/api/oauth-jwks"
+    },
+    {
+      "source": "/agent/auth",
+      "destination": "/api/agent-auth"
     }
   ],
   "routes": [
