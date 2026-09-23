@@ -471,7 +471,7 @@ Add `samples/{name}.{ext}` with representative code. It is used by tests and `we
 mise run docs-gen-languages-md
 ```
 
-This updates `LANGUAGES.md`.
+This updates `LANGUAGES.md` and `docs/content/reference/languages.md`, which carry the same table.
 
 #### 8. Verify
 
@@ -502,7 +502,7 @@ mise run langs-preprocess-queries
 
 Omit `{name}` to upgrade all queries at once.
 
-`mise run langs-update {name}` is the end-to-end command for a coordinated parser update. It fetches parsers first, syncs crate-backed Rust parser dependencies and Rust bundle features, then fetches and preprocesses queries, and regenerates `LANGUAGES.md`.
+`mise run langs-update {name}` is the end-to-end command for a coordinated parser update. It fetches parsers first, syncs crate-backed Rust parser dependencies and Rust bundle features, then fetches and preprocesses queries, and regenerates `LANGUAGES.md` and the docs language catalog.
 
 Raw query sources live in `queries/upstream/`. First-class local bracket queries live in `queries/brackets/`. Preprocessed tracked outputs live in `queries/processed/` and should be committed whenever upstream queries, bracket queries, replacements, or append patches change.
 
