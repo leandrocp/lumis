@@ -7,7 +7,7 @@ defmodule {module_name}.MixProject do
       app: :{app_name},
       version: "{hex_version}",
       elixir: "~> 1.15",
-      description: "Lumis parser bundle for {languages_text}",
+      description: "{description}",
       deps: deps(),
       package: package()
     ]
