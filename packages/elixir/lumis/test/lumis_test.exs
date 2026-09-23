@@ -1848,11 +1848,8 @@ defmodule Lumis.LumisTest do
       assert %Lumis.ParserError{
                reason: :not_installed,
                language: @uninstalled,
-               package: "lumis_wasm_typescript",
-               required_version: required
+               package: "lumis_wasm_typescript"
              } = error
-
-      assert required =~ ~r/^\d+\.\d+/
     end
 
     test "a missing parser names the dependency to add, in the package manager Elixir uses" do
@@ -1872,6 +1869,26 @@ defmodule Lumis.LumisTest do
       assert_raise Lumis.HighlightError, ~r/lumis_wasm_typescript/, fn ->
         Lumis.highlight!("const x = 1", formatter: {:html_inline, language: @uninstalled})
       end
+    end
+
+    # A parser file missing beside a manifest that is not is a different state
+    # from a dependency nobody added, and the store classifies them apart. The
+    # advice has to follow, or the message sends someone to a mix.exs line that
+    # is already correct. The store side is pinned in `store.rs`; this is the
+    # half that turns a reason into what a reader should do.
+    test ":parser_missing does not tell you to add a dependency you already have" do
+      error = %Lumis.ParserError{
+        reason: :parser_missing,
+        language: "elixir",
+        package: "lumis_wasm_elixir",
+        detail: "@lumis-sh/wasm-elixir is installed but its parser file is missing"
+      }
+
+      message = Exception.message(error)
+
+      assert message =~ "lumis_wasm_elixir is a dependency of this project"
+      assert message =~ "mix deps.get"
+      refute message =~ "add it to mix.exs"
     end
 
     test "highlight!/2 raises where highlight/2 returns an error" do

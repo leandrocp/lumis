@@ -122,8 +122,6 @@ struct ExParserFailure {
     package_suffix: Option<String>,
     reason: Atom,
     detail: String,
-    required_version: String,
-    actual_version: Option<String>,
 }
 
 /// The fields `Lumis.RenderError` is built from: everything that fails after,
@@ -161,10 +159,6 @@ fn highlight_failure<'a>(env: Env<'a>, failure: &RuntimeError, language: &str) -
                     .map(ToString::to_string),
                 reason,
                 detail,
-                required_version: catalog::LANGUAGE_PACKAGE_VERSION_RANGE.to_string(),
-                actual_version: store
-                    .and_then(StoreError::versions)
-                    .map(|(actual, _required)| actual.to_string()),
             };
             (error(), (parser(), failure)).encode(env)
         };
@@ -953,6 +947,17 @@ fn language_package_refs() -> Vec<ExLanguagePackageRef<'static>> {
         .iter()
         .map(ExLanguagePackageRef::from)
         .collect()
+}
+
+/// The parser package version range this build supports.
+///
+/// One value for the whole catalog rather than a field on every error, which is
+/// how JavaScript carries it too — `generated/package-version-range.js` is a
+/// module constant. `Lumis.ParserError` reads it to name a dependency version
+/// that cannot go stale.
+#[rustler::nif]
+fn language_package_version_range() -> &'static str {
+    catalog::LANGUAGE_PACKAGE_VERSION_RANGE
 }
 
 #[rustler::nif]

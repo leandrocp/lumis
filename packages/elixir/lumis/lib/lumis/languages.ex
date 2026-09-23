@@ -271,6 +271,22 @@ defmodule Lumis.Languages do
   end
 
   @doc """
+  The `lumis_wasm_*` version range this build of Lumis accepts.
+
+  One value for the whole catalog, so a parser dependency is written the same
+  way whichever language it carries:
+
+      iex> Lumis.Languages.package_version_range()
+      "0.26"
+
+  The counterpart of JavaScript's `LANGUAGE_PACKAGE_VERSION_RANGE`.
+  `Lumis.ParserError` reads it rather than carrying a copy, which is what keeps
+  the dependency it tells you to add from going stale.
+  """
+  @spec package_version_range() :: String.t()
+  def package_version_range, do: Native.language_package_version_range()
+
+  @doc """
   The languages each `:bundle_*` name covers.
 
   These are the same sets the `@lumis-sh/wasm-bundle-*` packages ship, so naming

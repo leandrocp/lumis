@@ -26,12 +26,14 @@ defmodule Lumis.ParserError do
     * `:not_installed` — the parser is not a dependency of this project. The
       only reason a deployment normally sees, and the only one adding a
       dependency fixes.
+    * `:parser_missing` — it *is* a dependency, but the `.wasm` its manifest
+      names is not beside it. Fetching dependencies again is the fix; adding
+      the dependency is not, since it is already there.
     * `:unknown_language` — the name is not in the catalog
     * `:not_loaded` — the language is known but no store could supply it
     * `:not_cached` — its bytes are not on disk and nothing fetched them
     * `:incompatible_version` — the installed parser package is outside the
-      range this build of Lumis supports. `:actual_version` and
-      `:required_version` say which is which.
+      range this build of Lumis supports; `:detail` names both
     * `:download_failed`, `:unavailable` — it is neither installed nor
       reachable over the network
     * `:invalid_package`, `:invalid_package_name`, `:package_name_mismatch` —
@@ -50,8 +52,6 @@ defmodule Lumis.ParserError do
     * `:package` — the Hex package that supplies it, `nil` when the language is
       not in the catalog
     * `:reason` — one of the atoms above
-    * `:required_version` — the parser package version range this build supports
-    * `:actual_version` — the version found, when one was
     * `:detail` — what the Rust core reported, for logs
   """
 
@@ -61,19 +61,10 @@ defmodule Lumis.ParserError do
           language: String.t(),
           package: String.t() | nil,
           reason: reason(),
-          required_version: String.t() | nil,
-          actual_version: String.t() | nil,
           detail: String.t() | nil
         }
 
-  defexception [
-    :language,
-    :package,
-    :reason,
-    :required_version,
-    :actual_version,
-    :detail
-  ]
+  defexception [:language, :package, :reason, :detail]
 
   @impl true
   def message(%__MODULE__{reason: :not_installed} = error) do
@@ -82,15 +73,25 @@ defmodule Lumis.ParserError do
 
     add it to mix.exs, then fetch your dependencies again:
 
-        {:#{error.package}, "~> #{error.required_version}"}
+        {:#{error.package}, "~> #{Lumis.Languages.package_version_range()}"}
+    """
+  end
+
+  def message(%__MODULE__{reason: :parser_missing} = error) do
+    """
+    #{error.package} is a dependency of this project, but the #{error.language} parser it ships is missing
+
+    fetch your dependencies again, or reinstall it:
+
+        mix deps.get
     """
   end
 
   def message(%__MODULE__{reason: :incompatible_version} = error) do
     """
-    the #{error.package} parser is #{error.actual_version}, which this build of Lumis does not support
+    this build of Lumis does not support the installed #{error.package} parser: #{error.detail}
 
-    it needs ~> #{error.required_version}; update the dependency in mix.exs, or \
+    update the dependency in mix.exs to ~> #{Lumis.Languages.package_version_range()}, or \
     pin Lumis to a version that accepts the one you have
     """
   end

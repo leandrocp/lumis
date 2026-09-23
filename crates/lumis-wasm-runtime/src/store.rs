@@ -69,6 +69,17 @@ pub enum StoreError {
          add it to your dependencies, then fetch them again"
     )]
     NotInstalled { package_name: String },
+    /// The package is installed but the parser file its manifest names is not
+    /// beside it.
+    ///
+    /// Separate from [`StoreError::NotInstalled`] because the fix is opposite:
+    /// the dependency is already declared, and telling someone to add it sends
+    /// them to look at a `mix.exs` line that is correct.
+    #[error(
+        "{package_name} is installed but its parser file {file} is missing\n  \
+         fetch your dependencies again, or reinstall it"
+    )]
+    ParserMissing { package_name: String, file: String },
     #[error(transparent)]
     Package(#[from] LanguagePackageError),
 }
@@ -102,6 +113,8 @@ pub enum StoreErrorKind {
     Unavailable,
     /// The package is not a dependency of this project.
     NotInstalled,
+    /// The package is a dependency, but its parser file is not beside it.
+    ParserMissing,
 }
 
 impl StoreErrorKind {
@@ -118,6 +131,7 @@ impl StoreErrorKind {
             Self::DownloadFailed => "download_failed",
             Self::Unavailable => "unavailable",
             Self::NotInstalled => "not_installed",
+            Self::ParserMissing => "parser_missing",
         }
     }
 }
@@ -151,6 +165,7 @@ impl StoreError {
             Self::Fetch { .. } => StoreErrorKind::DownloadFailed,
             Self::Unavailable { .. } => StoreErrorKind::Unavailable,
             Self::NotInstalled { .. } => StoreErrorKind::NotInstalled,
+            Self::ParserMissing { .. } => StoreErrorKind::ParserMissing,
         }
     }
 
@@ -162,19 +177,8 @@ impl StoreError {
             Self::PackageNameMismatch { expected, .. } => Some(expected),
             Self::IncompatiblePackageVersion { package_name, .. }
             | Self::Unavailable { package_name, .. }
-            | Self::NotInstalled { package_name } => Some(package_name),
-            _ => None,
-        }
-    }
-
-    /// The version that was found and the range that was required, for
-    /// [`StoreErrorKind::IncompatibleVersion`].
-    #[must_use]
-    pub fn versions(&self) -> Option<(&str, &str)> {
-        match self {
-            Self::IncompatiblePackageVersion {
-                actual, required, ..
-            } => Some((actual, required)),
+            | Self::NotInstalled { package_name }
+            | Self::ParserMissing { package_name, .. } => Some(package_name),
             _ => None,
         }
     }
@@ -403,9 +407,7 @@ impl LanguageStore {
         package.validate()?;
 
         if let Some(dirs) = self.config.installed_dirs.as_deref() {
-            return Self::installed_parser(dirs, package).ok_or_else(|| StoreError::NotInstalled {
-                package_name: package.package_name.clone(),
-            });
+            return Self::installed_parser(dirs, package);
         }
 
         let path = self.parser_path(package)?;
@@ -435,12 +437,40 @@ impl LanguageStore {
 
     /// Parser bytes from an installed dependency, verified against the manifest
     /// that came with it.
-    fn installed_parser(dirs: &[PathBuf], package: &LanguagePackage) -> Option<Vec<u8>> {
+    ///
+    /// The caller has already read this package's manifest out of one of these
+    /// directories, so the dependency is present by construction and failing
+    /// here is never [`StoreError::NotInstalled`]: either the parser file is
+    /// missing beside a manifest that is not, or its bytes do not match what
+    /// that manifest declares. "Fetch your dependencies again" and "add this to
+    /// your dependencies" are opposite instructions, so they are opposite
+    /// errors.
+    fn installed_parser(
+        dirs: &[PathBuf],
+        package: &LanguagePackage,
+    ) -> Result<Vec<u8>, StoreError> {
         let file = parser_filename(package);
-        dirs.iter().find_map(|dir| {
-            let bytes = std::fs::read(dir.join(&file)).ok()?;
-            package.verify_wasm(&bytes).ok()?;
-            Some(bytes)
+        let mut rejected = None;
+
+        for dir in dirs {
+            let Ok(bytes) = std::fs::read(dir.join(&file)) else {
+                continue;
+            };
+            match package.verify_wasm(&bytes) {
+                Ok(()) => return Ok(bytes),
+                // A later directory may still hold good bytes, so this is only
+                // the answer if none does. It beats reporting the file missing:
+                // it is there, and its contents are what is wrong.
+                Err(error) => rejected = Some(error),
+            }
+        }
+
+        Err(match rejected {
+            Some(error) => StoreError::from(error),
+            None => StoreError::ParserMissing {
+                package_name: package.package_name.clone(),
+                file,
+            },
         })
     }
 
@@ -1140,10 +1170,53 @@ mod tests {
         let store = declaring(dir.path(), vec![installed]);
 
         let package = store.package("@lumis-sh/wasm-json").unwrap();
+        let error = store.parser(&package).unwrap_err();
         assert!(
-            store.parser(&package).is_err(),
-            "corrupt installed bytes must not be handed to the runtime"
+            matches!(error, StoreError::Package(_)),
+            "corrupt installed bytes must not be handed to the runtime, and must \
+             not read as a missing dependency: {error}"
         );
+        assert_eq!(error.kind(), StoreErrorKind::InvalidPackage);
+    }
+
+    /// A parser file missing beside a manifest that is not means the dependency
+    /// is declared and its bytes did not arrive. Reporting `NotInstalled` here
+    /// tells someone to add a dependency their manifest already has, which is
+    /// the one instruction that cannot help them.
+    #[test]
+    fn an_installed_package_missing_its_parser_is_not_a_missing_dependency() {
+        let dir = tempdir();
+        let installed = install(dir.path());
+        std::fs::remove_file(installed.join(parser_filename(&package()))).unwrap();
+        let store = declaring(dir.path(), vec![installed]);
+
+        let package = store.package("@lumis-sh/wasm-json").unwrap();
+        let error = store.parser(&package).unwrap_err();
+
+        assert_eq!(error.kind(), StoreErrorKind::ParserMissing);
+        assert_eq!(error.package_name(), Some("@lumis-sh/wasm-json"));
+        assert!(
+            error.to_string().contains("fetch your dependencies again"),
+            "{error}"
+        );
+    }
+
+    /// One directory holding an unusable copy must not hide a good one in the
+    /// next: the loop reports only after every declared directory has been
+    /// tried.
+    #[test]
+    fn a_later_installed_directory_can_still_supply_the_parser() {
+        let dir = tempdir();
+        let good = install(dir.path());
+
+        let broken = dir.path().join("broken");
+        std::fs::create_dir_all(&broken).unwrap();
+        std::fs::write(broken.join(parser_filename(&package())), b"corrupt").unwrap();
+
+        let store = declaring(dir.path(), vec![broken, good]);
+        let package = store.package("@lumis-sh/wasm-json").unwrap();
+
+        assert_eq!(store.parser(&package).unwrap(), WASM);
     }
 
     /// `LanguagePackage` has public fields and `parser` is public, so a caller
