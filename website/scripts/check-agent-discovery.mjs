@@ -189,7 +189,8 @@ assert(described, `${openapiPath} does not describe GET /api/versioned-installer
 // The published version pattern has to stay in step with the one the function enforces.
 const enforced = installer.match(/\/(?<pattern>\^[^/]+\$)\/\.test\(version\)/)?.groups?.pattern;
 assert(enforced, "api/versioned-installer.js no longer validates version with a literal pattern");
-const documented = described.parameters?.find(({ name }) => name === "version")?.schema?.pattern;
+const documented = described.parameters?.find((parameter) => parameter.name === "version")?.schema
+  ?.pattern;
 assert(
   documented === enforced,
   `${openapiPath} documents version as ${documented}; the API enforces ${enforced}`,
