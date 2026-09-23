@@ -4299,7 +4299,6 @@ fn stage_hex_wasm(name: &str) -> Result<()> {
             ),
             ("lumis_requirement", &elixir_lumis_requirement()?),
             ("languages_text", &languages_text),
-            ("npm_package", &package.package_name),
             ("git_url", info.git.as_deref().unwrap_or("")),
             ("upstream_version", info.version.as_deref().unwrap_or("")),
             ("rev", info.rev.as_deref().unwrap_or("")),
