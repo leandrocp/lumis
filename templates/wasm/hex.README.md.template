@@ -1,0 +1,42 @@
+# {app_name}
+
+Tree-sitter parser for {languages_text}, packaged for [Lumis](https://lumis.sh).
+
+## Installation
+
+```elixir
+def deps do
+  [
+    {:lumis, "~> 0.8"},
+    {:{app_name}, "~> {hex_version}"}
+  ]
+end
+```
+
+Lumis loads only the parsers your project depends on, so adding this is what
+lets it highlight {languages_text}. Nothing is downloaded at runtime.
+
+## What it contains
+
+`priv/parsers/` holds the compiled WASM parser and the manifest describing it —
+its size, its SHA-256, and the queries that drive highlighting. Lumis reads them
+from there, and `mix release` carries them like any dependency's assets.
+
+No code: this application starts nothing and supervises nothing.
+
+## Parser
+
+| Upstream | Version | Revision |
+| --- | --- | --- |
+| [{git_url}]({git_url}) | {upstream_version} | {rev} |
+
+Built with [`tree-sitter build --wasm`](https://tree-sitter.github.io/tree-sitter/cli/build.html) v{tree_sitter_cli_version}.
+
+The same parser is published to npm as
+[`{npm_package}`](https://www.npmjs.com/package/{npm_package}) — byte for byte,
+from one build, so both registries serve the same artifact.
+
+## License
+
+The Lumis packaging is MIT. The parser itself is redistributed from the
+upstream project above; see that project for its license.

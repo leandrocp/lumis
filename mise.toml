@@ -876,6 +876,56 @@ wasm_name=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-meta ${us
 cd tmp/wasm/publish/$wasm_name && npm publish --access public
 '''
 
+[tasks.'wasm-hex-stage']
+description = "Stage the Hex package for a parser, from the npm package already staged"
+usage = '''
+arg "<parser>"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+# Deliberately not a rebuild: this reads what `wasm-publish-prepare` staged, so
+# npm and Hex ship the one parser that one build produced.
+mise run wasm-publish-prepare ${usage_parser?}
+cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm ${usage_parser?}
+'''
+
+[tasks.'wasm-hex-publish']
+description = "Stage and publish a WASM package to Hex"
+usage = '''
+arg "<parser>"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+mise run wasm-hex-stage ${usage_parser?}
+app_name=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-meta ${usage_parser?} | grep '^hex_app=' | cut -d= -f2)
+cd tmp/wasm/hex/$app_name && mix hex.publish package --yes
+'''
+
+[tasks.'wasm-hex-bundle-stage']
+description = "Stage the Hex meta-package for a bundle, from the npm bundle beside it"
+usage = '''
+arg "<bundle>"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-bundle ${usage_bundle?}
+'''
+
+[tasks.'wasm-hex-bundle-publish']
+description = "Stage and publish a bundle meta-package to Hex"
+usage = '''
+arg "<bundle>"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+mise run wasm-hex-bundle-stage ${usage_bundle?}
+cd "tmp/wasm/hex/lumis_wasm_bundle_$(echo ${usage_bundle?} | tr '-' '_')" && mix hex.publish package --yes
+'''
+
 [tasks.'themes-extract-scopes']
 description = "Extract highlight scopes from theme files"
 run = '''

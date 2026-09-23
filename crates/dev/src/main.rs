@@ -84,6 +84,14 @@ enum Commands {
     StageWasm {
         name: String,
     },
+    /// Write the Hex package for a parser, from what `stage-wasm` already built.
+    StageHexWasm {
+        name: String,
+    },
+    /// Write the Hex meta-package for a bundle, from the npm bundle beside it.
+    StageHexBundle {
+        name: String,
+    },
     /// Write the committed test parsers as a Lumis store directory.
     StageTestParsers {
         #[arg(default_value = "target/test-parsers")]
@@ -169,6 +177,8 @@ fn main() -> Result<()> {
         Commands::GenLanguageCatalog { check } => gen_language_catalog(check),
         Commands::BuildWasm { name } => build_wasm(&name),
         Commands::StageWasm { name } => stage_wasm(&name),
+        Commands::StageHexWasm { name } => stage_hex_wasm(&name),
+        Commands::StageHexBundle { name } => stage_hex_bundle(&name),
         Commands::StageTestParsers { out } => stage_test_parsers(Path::new(&out)),
         Commands::WasmNeeded { filter, force } => wasm_needed(&filter, &force),
         Commands::WasmMeta { name } => wasm_meta(&name),
@@ -3599,6 +3609,7 @@ fn wasm_meta(name: &str) -> Result<()> {
     let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
 
     println!("wasm_name={wasm_name}");
+    println!("hex_app={}", hex_app_name(wasm_name));
     Ok(())
 }
 
@@ -3798,8 +3809,378 @@ fn wasm_needed(filter: &str, force: &str) -> Result<()> {
     Ok(())
 }
 
+/// Write the Hex package for `name` from the npm package `stage_wasm` staged.
+///
+/// Deliberately reads `tmp/wasm/publish/<wasm>/`, the directory npm publishes,
+/// rather than rebuilding or re-deriving anything. One build produces one
+/// parser, and both registries receive that exact file — so "the Hex package
+/// and the npm package agree" is a property of the pipeline rather than
+/// something to verify after the fact. The digest check below is belt and
+/// braces: it fails if the two ever stop being the same bytes.
+///
+/// # Errors
+/// Fails when the npm package has not been staged, or when the parser does not
+/// match the digest its own manifest declares.
+fn stage_hex_wasm(name: &str) -> Result<()> {
+    let toml = read_languages_toml()?;
+    let (parser_name, info) = toml
+        .parsers
+        .iter()
+        .find(|(parser_name, info)| {
+            let default_wasm_name = format!("tree-sitter-{parser_name}");
+            let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
+            parser_name.as_str() == name || wasm_name == name
+        })
+        .with_context(|| format!("Unknown parser or wasm artifact: {name}"))?;
+
+    let default_wasm_name = format!("tree-sitter-{parser_name}");
+    let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
+    let suffix = wasm_package_suffix(wasm_name);
+
+    let npm = format!("tmp/wasm/publish/{wasm_name}");
+    let manifest_path = format!("{npm}/lumis.json");
+    if !Path::new(&manifest_path).exists() {
+        bail!(
+            "ERROR: {manifest_path} not found. Run 'mise run wasm-publish-prepare {wasm_name}' first."
+        );
+    }
+
+    let manifest_bytes = fs::read(&manifest_path)?;
+    let package: LanguagePackage = serde_json::from_slice(&manifest_bytes)?;
+    let wasm_bytes = fs::read(format!("{npm}/{wasm_name}.wasm"))?;
+
+    verify_staged_parser(wasm_name, &wasm_bytes, &package)?;
+
+    let app_name = hex_app_name(wasm_name);
+    let module_name = elixir_module_name(&app_name);
+
+    let out = format!("tmp/wasm/hex/{app_name}");
+    let _ = fs::remove_dir_all(&out);
+    let parsers = format!("{out}/priv/parsers");
+    fs::create_dir_all(&parsers)?;
+
+    // The layout `Lumis.Packages` reads: the manifest under the package suffix,
+    // and the parser under the content-addressed name the store resolves.
+    fs::write(format!("{parsers}/{suffix}.lumis.json"), &manifest_bytes)?;
+    fs::write(
+        format!("{parsers}/{}", parser_filename(&package)),
+        &wasm_bytes,
+    )?;
+
+    fs::copy(format!("{npm}/LICENSE"), format!("{out}/LICENSE"))?;
+
+    let languages_text = package
+        .languages
+        .keys()
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(", ");
+    let mix = fs::read_to_string("templates/wasm/mix.exs.template")?
+        .replace("{module_name}", &module_name)
+        .replace("{app_name}", &app_name)
+        .replace("{hex_version}", &package.version)
+        .replace("{languages_text}", &languages_text)
+        .replace("{git_url}", info.git.as_deref().unwrap_or(""));
+    fs::write(format!("{out}/mix.exs"), mix)?;
+
+    // Its own README rather than npm's: that one is titled with the npm package
+    // name and sends the reader to a CDN, neither of which helps someone
+    // looking at this on hex.pm.
+    let readme = fs::read_to_string("templates/wasm/hex.README.md.template")?
+        .replace("{app_name}", &app_name)
+        .replace("{hex_version}", &package.version)
+        .replace("{languages_text}", &languages_text)
+        .replace("{npm_package}", &package.package_name)
+        .replace("{git_url}", info.git.as_deref().unwrap_or(""))
+        .replace("{upstream_version}", info.version.as_deref().unwrap_or(""))
+        .replace("{rev}", info.rev.as_deref().unwrap_or(""))
+        .replace(
+            "{tree_sitter_cli_version}",
+            &run_cmd("tree-sitter --version")
+                .unwrap_or_default()
+                .replace("tree-sitter ", ""),
+        );
+    fs::write(format!("{out}/README.md"), readme)?;
+
+    println!("{app_name} {} -> {out}", package.version);
+    Ok(())
+}
+
+/// Write the Hex meta-package for the `name` bundle.
+///
+/// Members and version both come from `packages/javascript/wasm-bundle-<name>`,
+/// the npm package generated from `languages.toml`, rather than being read from
+/// the TOML again. One source means the two registries cannot disagree about
+/// what a bundle contains or what version it is — which is the whole point of a
+/// bundle, since a project adds one instead of naming languages itself.
+///
+/// No bytes. `bundle_full` would be on the order of 100 MB as a single package
+/// and is a few hundred bytes as a list of dependencies.
+///
+/// # Errors
+/// Fails when the npm bundle has not been generated, or names a package no
+/// parser in `languages.toml` produces.
+fn stage_hex_bundle(name: &str) -> Result<()> {
+    let npm_dir = format!("packages/javascript/wasm-bundle-{name}");
+    let manifest = format!("{npm_dir}/package.json");
+    if !Path::new(&manifest).exists() {
+        bail!("ERROR: {manifest} not found. Run 'mise run build-wasm-bundles' first.");
+    }
+
+    let npm: serde_json::Value = serde_json::from_slice(&fs::read(&manifest)?)?;
+    let version = npm
+        .get("version")
+        .and_then(serde_json::Value::as_str)
+        .with_context(|| format!("{manifest} has no version"))?;
+    let dependencies = npm
+        .get("dependencies")
+        .and_then(serde_json::Value::as_object)
+        .with_context(|| format!("{manifest} has no dependencies"))?;
+
+    let app_name = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
+    let module_name = elixir_module_name(&app_name);
+
+    let mut members = Vec::new();
+    for (package_name, requirement) in dependencies {
+        let suffix = package_name
+            .strip_prefix("@lumis-sh/wasm-")
+            .with_context(|| format!("{package_name} is not a parser package"))?;
+        let requirement = requirement
+            .as_str()
+            .with_context(|| format!("{package_name} has no version requirement"))?;
+        members.push((
+            format!("lumis_wasm_{}", suffix.replace('-', "_")),
+            hex_requirement(requirement)?,
+        ));
+    }
+    members.sort();
+
+    let deps = members
+        .iter()
+        .map(|(app, requirement)| format!("      {{:{app}, \"{requirement}\"}}"))
+        .collect::<Vec<_>>()
+        .join(",\n");
+    let languages_text = members
+        .iter()
+        .map(|(app, _)| app.trim_start_matches("lumis_wasm_"))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    let out = format!("tmp/wasm/hex/{app_name}");
+    let _ = fs::remove_dir_all(&out);
+    fs::create_dir_all(&out)?;
+
+    fs::copy("templates/wasm/LICENSE", format!("{out}/LICENSE"))?;
+
+    let readme = fs::read_to_string("templates/wasm/hex.bundle.README.md.template")?
+        .replace("{app_name}", &app_name)
+        .replace("{hex_version}", version)
+        .replace("{languages_text}", &languages_text);
+    fs::write(format!("{out}/README.md"), readme)?;
+
+    let mix = fs::read_to_string("templates/wasm/bundle.mix.exs.template")?
+        .replace("{module_name}", &module_name)
+        .replace("{app_name}", &app_name)
+        .replace("{hex_version}", version)
+        .replace("{languages_text}", &languages_text)
+        .replace("{deps}", &deps);
+    fs::write(format!("{out}/mix.exs"), mix)?;
+
+    println!("{app_name} {version} -> {out} ({} members)", members.len());
+    Ok(())
+}
+
+/// The Hex requirement meaning what an npm one means.
+///
+/// Not a rewrite of the prefix: the two spell overlapping but different things,
+/// and `~> 1.2.3` silently narrows `^1.2.3` from "below 2.0.0" to "below
+/// 1.3.0". They coincide only below 1.0, which is where every parser is today
+/// and is exactly why this would have gone unnoticed until it mattered.
+///
+/// # Errors
+/// Fails on a requirement with no equivalent, rather than publishing a bundle
+/// that means something the npm one does not.
+fn hex_requirement(npm: &str) -> Result<String> {
+    let exact = |version: &str| -> Result<(u64, u64, u64)> {
+        let mut parts = version.split('.');
+        let mut next = || -> Result<u64> {
+            parts
+                .next()
+                .and_then(|part| part.parse().ok())
+                .with_context(|| format!("{npm} is not a version this can translate"))
+        };
+        let parsed = (next()?, next()?, next()?);
+        if parts.next().is_some() {
+            bail!("{npm} is not a version this can translate");
+        }
+        Ok(parsed)
+    };
+
+    if let Some(version) = npm.strip_prefix('^') {
+        let (major, minor, patch) = exact(version)?;
+
+        // npm moves the breaking digit left as the version approaches zero, and
+        // `~>` does not follow it, so each case needs its own bounds.
+        if major == 0 && minor == 0 {
+            // `^0.0.3` is patch-locked; `~> 0.0.3` would run to 0.1.0.
+            return Ok(format!(">= {version} and < 0.0.{}", patch + 1));
+        }
+        if major == 0 {
+            // `^0.26.0` and `~> 0.26.0` both stop below 0.27.0.
+            return Ok(format!("~> {version}"));
+        }
+        // `~>` with three parts stops below X.(Y+1).0, so adding an upper bound
+        // to it narrows rather than widens: the two intersect at the lower one.
+        Ok(format!(">= {version} and < {}.0.0", major + 1))
+    } else if let Some(version) = npm.strip_prefix('~') {
+        exact(version)?;
+        Ok(format!("~> {version}"))
+    } else {
+        // Bare in npm is exact, and `~>` is not.
+        exact(npm)?;
+        Ok(format!("== {npm}"))
+    }
+}
+
+/// `lumis_wasm_json` as `LumisWasmJson`.
+fn elixir_module_name(app_name: &str) -> String {
+    app_name
+        .split('_')
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+                None => String::new(),
+            }
+        })
+        .collect()
+}
+
+/// Fail unless `bytes` are the parser the manifest beside them describes.
+///
+/// The guarantee the Hex package rests on: it is staged from what npm ships, so
+/// a mismatch means the two came from different builds and one of them is not
+/// the artifact that was reviewed.
+fn verify_staged_parser(wasm_name: &str, bytes: &[u8], package: &LanguagePackage) -> Result<()> {
+    let actual = sha256_hex(bytes);
+    if actual != package.parser.sha256 {
+        bail!(
+            "ERROR: {wasm_name}.wasm does not match the manifest staged beside it\n  \
+             manifest {}\n  file     {actual}",
+            package.parser.sha256
+        );
+    }
+    Ok(())
+}
+
+/// The Hex application name for a parser.
+///
+/// Hex application names are atoms: lowercase with underscores, so a package
+/// like `embedded-template` cannot keep its hyphen.
+fn hex_app_name(wasm_name: &str) -> String {
+    format!(
+        "lumis_wasm_{}",
+        wasm_package_suffix(wasm_name).replace('-', "_")
+    )
+}
+
 fn wasm_package_suffix(wasm_name: &str) -> &str {
     wasm_name.strip_prefix("tree-sitter-").unwrap_or(wasm_name)
+}
+
+#[cfg(test)]
+mod hex_wasm_tests {
+    use super::*;
+
+    #[test]
+    fn npm_requirements_become_hex_ones_that_mean_the_same() {
+        // Below 1.0 the two notations coincide, which is where parsers are.
+        assert_eq!(hex_requirement("^0.26.0").unwrap(), "~> 0.26.0");
+        assert_eq!(hex_requirement("~0.26.0").unwrap(), "~> 0.26.0");
+
+        // Above it they do not. `~>` with three parts already stops below
+        // 1.3.0, so pairing it with an upper bound intersects to the lower one
+        // rather than widening to 2.0.0.
+        assert_eq!(hex_requirement("^1.2.3").unwrap(), ">= 1.2.3 and < 2.0.0");
+
+        // npm moves the breaking digit left again at 0.0.x: `^0.0.3` is
+        // patch-locked where `~> 0.0.3` would run to 0.1.0.
+        assert_eq!(hex_requirement("^0.0.3").unwrap(), ">= 0.0.3 and < 0.0.4");
+
+        // Bare is exact in npm, and `~>` is a range.
+        assert_eq!(hex_requirement("1.2.3").unwrap(), "== 1.2.3");
+
+        // Anything else is refused rather than guessed at.
+        for unsupported in [">=1.2.3", "1.2.x", "*", "1.2", "latest"] {
+            assert!(
+                hex_requirement(unsupported).is_err(),
+                "{unsupported} has no equivalent and must not be translated"
+            );
+        }
+    }
+
+    #[test]
+    fn bundle_modules_are_named_after_their_application() {
+        assert_eq!(
+            elixir_module_name("lumis_wasm_bundle_web_extra"),
+            "LumisWasmBundleWebExtra"
+        );
+        assert_eq!(elixir_module_name("lumis_wasm_json"), "LumisWasmJson");
+    }
+
+    #[test]
+    fn hex_app_names_are_valid_atoms() {
+        assert_eq!(hex_app_name("tree-sitter-json"), "lumis_wasm_json");
+        // Hyphens cannot survive: an application name is an atom.
+        assert_eq!(
+            hex_app_name("tree-sitter-embedded-template"),
+            "lumis_wasm_embedded_template"
+        );
+        assert_eq!(
+            hex_app_name("tree-sitter-markdown_inline"),
+            "lumis_wasm_markdown_inline"
+        );
+
+        for name in ["tree-sitter-json", "tree-sitter-embedded-template"] {
+            let app = hex_app_name(name);
+            assert!(
+                app.chars()
+                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_'),
+                "{app} is not usable as an Elixir application name"
+            );
+        }
+    }
+
+    /// The whole point of staging Hex from the npm output: both registries get
+    /// the parser one build produced. A mismatch means a rebuild happened
+    /// between them, and the two packages would ship different bytes.
+    #[test]
+    fn staging_hex_refuses_a_parser_that_does_not_match_its_manifest() {
+        let staged = b"the parser npm received";
+        let package = LanguagePackage {
+            package_name: "@lumis-sh/wasm-json".into(),
+            version: "0.26.4".into(),
+            definition_hash: "hash".into(),
+            parser: ParserMetadata {
+                name: "tree-sitter-json".into(),
+                grammar_name: "json".into(),
+                upstream_version: None,
+                revision: None,
+                sha256: sha256_hex(staged),
+                size: staged.len() as u64,
+            },
+            languages: BTreeMap::new(),
+        };
+
+        assert!(
+            verify_staged_parser("tree-sitter-json", staged, &package).is_ok(),
+            "the parser that was staged has to pass"
+        );
+
+        let error = verify_staged_parser("tree-sitter-json", b"a different build", &package)
+            .expect_err("a parser from another build must be refused");
+        assert!(error.to_string().contains("does not match the manifest"));
+    }
 }
 
 #[cfg(test)]

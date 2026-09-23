@@ -702,6 +702,54 @@ Two files record what these checks cannot cover, and both may only shrink:
 
 The `wasm-release` workflow publishes packages automatically. It detects which parsers still need publishing with `mise run wasm-publish-needed`, which compares each published package's `definitionHash` against the one `crates/dev` computes from `languages.toml` and the processed queries, then builds and publishes the rest in parallel.
 
+### Publishing to Hex
+
+Elixir reads parsers from the `priv/parsers` of `lumis_wasm_*` dependencies, so
+each parser is published to Hex as well as npm.
+
+Both come from **one build**. `wasm-publish-prepare` builds the parser and
+stages the npm package; `stage-hex-wasm` then copies that staged parser and its
+manifest into a Hex package, and fails if the two stop matching. Nothing
+rebuilds in between, so the bytes on Hex are the bytes on npm rather than
+something that ought to be equivalent:
+
+```bash
+mise run wasm-hex-stage json      # tmp/wasm/hex/lumis_wasm_json
+mise run wasm-hex-publish json
+```
+
+The layouts differ because each runtime reads its own: npm ships
+`tree-sitter-json.wasm` next to `lumis.json`, and Hex ships
+`priv/parsers/json.lumis.json` beside the content-addressed name the store
+resolves. The parser file is byte-identical either way.
+
+Bundles are meta-packages: dependencies on every language they group, and no
+bytes at all. Members and version both come from the npm bundle beside them, so
+the two registries cannot disagree about what a bundle contains.
+
+```bash
+mise run wasm-hex-bundle-stage web
+mise run wasm-hex-bundle-publish web
+```
+
+Versions match npm in both cases, because they are read from the npm package
+rather than recomputed — a parser takes the version from the `lumis.json`
+staged with it, and a bundle from `wasm-bundle-<name>/package.json`.
+
+Hex publishing is **manual for now**: an automatic npm release does not carry it
+along, because every Hex step is gated on the run being a `workflow_dispatch`.
+Running `WASM Release` by hand publishes to Hex by default — `publish_hex` is
+checked unless you clear it — taking the parsers from the same job that
+publishes them to npm, then the bundles once those parsers exist.
+
+Both publish steps ask Hex whether the version is already there and skip it if
+so, which is what makes a retry safe after a release that failed part way
+through. Bundles publish only on an unfiltered run: one depends on every parser
+it groups, so publishing it after a run that built a subset would put a package
+on Hex whose dependencies cannot resolve. A hyphenated package becomes an underscored
+application name, since an Elixir application name is an atom —
+`@lumis-sh/wasm-embedded-template` is `lumis_wasm_embedded_template`.
+
 ## Themes
 
 Themes are extracted from Neovim colorscheme plugins. Each theme is a JSON file in `themes/`. Theme definitions live in [`themes/themes.lua`](themes/themes.lua), which follows the `vim.pack` convention so Neovim can install them automatically.

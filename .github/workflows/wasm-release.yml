@@ -38,6 +38,12 @@ on:
         required: false
         default: false
         type: boolean
+      publish_hex:
+        description: >-
+          Also publish to Hex, from the same build npm receives
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   detect:
@@ -68,10 +74,20 @@ jobs:
         env:
           PARSER_FILTER: ${{ inputs.parser }}
           FORCE_PUBLISH: ${{ inputs.force || 'false' }}
+          PUBLISH_HEX: ${{ inputs.publish_hex || 'false' }}
         run: |
           needed=$(mise run wasm-publish-needed \
             "$PARSER_FILTER" \
             "$FORCE_PUBLISH")
+          # Drift detection asks whether *npm* is behind. Hex is a different
+          # registry with its own history, so a parser npm already has may still
+          # be one Hex needs — and a Hex publish that failed after npm succeeded
+          # has to be retryable. Selecting on npm alone would make both
+          # impossible.
+          if [ -z "$needed" ] && [ "$PUBLISH_HEX" = "true" ]; then
+            needed=$(mise run wasm-publish-needed "$PARSER_FILTER" true)
+            echo "npm is current; selecting for Hex: $needed"
+          fi
           if [ -z "$needed" ]; then
             echo "All packages already published, nothing to build"
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -133,7 +149,115 @@ jobs:
       - name: Publish to npm
         run: |
           cd -- "tmp/wasm/publish/$PARSER"
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          # A Hex-only run still builds and stages, so this version may already
+          # be on npm. Publishing it again is an error rather than a no-op.
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "$name@$version is already on npm, leaving it alone"
+            exit 0
+          fi
           npm publish --access public --provenance
         env:
           PARSER: ${{ matrix.parser }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Hex publishes from the same `wasm-publish-prepare` above, never its own
+      # build: `stage-hex-wasm` copies the staged parser and fails if its digest
+      # stops matching the manifest beside it. One build, one parser, two
+      # registries — so the two cannot drift, and neither can be tampered with
+      # independently of the other.
+      #
+      # Manual only for now. An automatic npm release does not carry Hex with
+      # it, so turning this on is a deliberate act while the packages are new.
+      - uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+
+      # `cargo run` and `mix local.hex` build and execute dependency code, so
+      # they run before the key exists in the environment. Only the command
+      # that authenticates gets it.
+      - name: Stage the Hex package
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
+        run: |
+          app_name=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- wasm-meta "$PARSER" \
+            | grep '^hex_app=' | cut -d= -f2)
+          echo "HEX_APP=$app_name" >> "$GITHUB_ENV"
+          cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
+          mix local.hex --force
+        env:
+          PARSER: ${{ matrix.parser }}
+
+      # Hex is a separate registry with its own history, so "npm needed this"
+      # does not mean Hex does. Asking Hex directly is what makes a retry after
+      # a partly-failed release safe; `--replace` would paper over the same
+      # conflict by overwriting a published version, which is worse.
+      - name: Publish to Hex
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
+        run: |
+          cd -- "tmp/wasm/hex/$HEX_APP"
+          version=$(grep -o 'version: "[^"]*"' mix.exs | head -1 | cut -d'"' -f2)
+          if curl -sfo /dev/null "https://hex.pm/api/packages/$HEX_APP/releases/$version"; then
+            echo "$HEX_APP $version is already on Hex, leaving it alone"
+            exit 0
+          fi
+          mix hex.publish package --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
+  # Bundles carry no parser bytes, only the languages they group, so they are
+  # not part of the per-parser matrix above and cannot be published until the
+  # parsers they depend on exist.
+  # Only on an unfiltered run. A bundle depends on every parser it groups, so
+  # publishing one after a run that built a subset would put a package on Hex
+  # whose dependencies cannot resolve.
+  hex-bundles:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex &&
+          inputs.parser == '' }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        bundle: [web, web-extra, system, backend, full]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # Nothing here pushes, and the later cargo and mix steps run
+          # dependency code that would otherwise inherit the token.
+          persist-credentials: false
+
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          install: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+
+      - uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+
+      - name: Stage the bundle
+        run: |
+          cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-bundle "$BUNDLE"
+          echo "HEX_APP=lumis_wasm_bundle_${BUNDLE//-/_}" >> "$GITHUB_ENV"
+          mix local.hex --force
+        env:
+          BUNDLE: ${{ matrix.bundle }}
+
+      - name: Publish the bundle to Hex
+        run: |
+          cd -- "tmp/wasm/hex/$HEX_APP"
+          version=$(grep -o 'version: "[^"]*"' mix.exs | head -1 | cut -d'"' -f2)
+          if curl -sfo /dev/null "https://hex.pm/api/packages/$HEX_APP/releases/$version"; then
+            echo "$HEX_APP $version is already on Hex, leaving it alone"
+            exit 0
+          fi
+          mix hex.publish package --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
