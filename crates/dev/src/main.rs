@@ -3773,6 +3773,14 @@ fn definition_matches(meta: &Value, expected: &str, series: &str) -> bool {
         && meta.get("formatVersion").and_then(Value::as_u64) == Some(PACKAGE_FORMAT_VERSION.into())
 }
 
+/// A bundle missing from Hex.
+#[derive(Debug, serde::Serialize)]
+struct BundlePlanEntry {
+    bundle: String,
+    app: String,
+    version: String,
+}
+
 /// What a parser resolves to, and where it is missing.
 #[derive(Debug, serde::Serialize)]
 struct ReleasePlanEntry {
@@ -3830,7 +3838,7 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
     let packuments = fetch_packuments(&npm_packages);
     let registry = hex_registry()?;
 
-    let mut plan = Vec::new();
+    let mut parsers = Vec::new();
     for ((wasm_name, npm_package, expected), packument) in checks.into_iter().zip(packuments) {
         let packument = packument?;
         let hex_package = hex_app_name(&wasm_name);
@@ -3854,7 +3862,7 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
         let on_hex = hex.contains(&version);
 
         if !on_npm || !on_hex {
-            plan.push(ReleasePlanEntry {
+            parsers.push(ReleasePlanEntry {
                 wasm_name,
                 npm_package,
                 hex_package,
@@ -3865,8 +3873,54 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
         }
     }
 
-    println!("{}", serde_json::to_string(&plan)?);
+    // Bundles carry no bytes, so they are not built — only published, and only
+    // to Hex, since npm's are released alongside the JavaScript packages.
+    let mut bundles = Vec::new();
+    for (name, version) in bundle_versions()? {
+        let app = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
+        if !registry
+            .get(&app)
+            .is_some_and(|published| published.contains(&version))
+        {
+            bundles.push(BundlePlanEntry {
+                bundle: name,
+                app,
+                version,
+            });
+        }
+    }
+
+    println!(
+        "{}",
+        serde_json::to_string(&json!({ "parsers": parsers, "bundles": bundles }))?
+    );
     Ok(())
+}
+
+/// Each bundle and the version its npm package is at.
+///
+/// The npm package is the source for both members and version, so the two
+/// registries cannot disagree about what a bundle is.
+fn bundle_versions() -> Result<Vec<(String, String)>> {
+    let mut bundles = Vec::new();
+    for entry in glob::glob("packages/javascript/wasm-bundle-*/package.json")? {
+        let path = entry?;
+        let manifest: Value = serde_json::from_slice(&fs::read(&path)?)
+            .with_context(|| format!("invalid package.json at {}", path.display()))?;
+        let name = path
+            .parent()
+            .and_then(|dir| dir.file_name())
+            .and_then(|dir| dir.to_str())
+            .and_then(|dir| dir.strip_prefix("wasm-bundle-"))
+            .with_context(|| format!("could not name the bundle at {}", path.display()))?;
+        let version = manifest
+            .get("version")
+            .and_then(Value::as_str)
+            .with_context(|| format!("{} has no version", path.display()))?;
+        bundles.push((name.to_string(), version.to_string()));
+    }
+    bundles.sort();
+    Ok(bundles)
 }
 
 /// The version a definition was published under on npm, if it was.
