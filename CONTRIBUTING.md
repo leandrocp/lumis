@@ -782,18 +782,21 @@ Versions match npm in both cases, because they are read from the npm package
 rather than recomputed — a parser takes the version from the `lumis.json`
 staged with it, and a bundle from `wasm-bundle-<name>/package.json`.
 
-Hex publishing is **manual for now**: an automatic npm release does not carry it
-along, because every Hex step is gated on the run being a `workflow_dispatch`.
-Running `WASM Release` by hand publishes to Hex by default — `publish_hex` is
-checked unless you clear it — taking the parsers from the same job that
-publishes them to npm, then the bundles once those parsers exist.
+Hex publishes on every run of `WASM Release`, alongside npm. There is no input
+to set and no separate trigger: the plan decides, and a package already on Hex
+at its resolved version is simply not in it.
 
-Both publish steps ask Hex whether the version is already there and skip it if
-so, which is what makes a retry safe after a release that failed part way
-through. Bundles publish only on an unfiltered run: one depends on every parser
-it groups, so publishing it after a run that built a subset would put a package
-on Hex whose dependencies cannot resolve. A hyphenated package becomes an underscored
-application name, since an Elixir application name is an atom —
+**Publish a parser to npm before you publish it to Hex by hand.** The workflow
+holds that order for you — `publish-hex` runs after `publish-npm` and stops when
+it fails — because the plan recovers a published version's definition from npm
+alone. A definition Hex had first reads as unpublished, takes a fresh patch, and
+is released to Hex again unchanged on every run afterwards. The two commands
+above are the one way round that guard.
+
+Nothing asks a registry whether a version is already there. The plan settled
+that, and Hex rejects a duplicate regardless, which is what makes a retry safe
+after a release that failed part way through. A hyphenated package becomes an
+underscored application name, since an Elixir application name is an atom —
 `@lumis-sh/wasm-embedded-template` is `lumis_wasm_embedded_template`.
 
 ## Themes
