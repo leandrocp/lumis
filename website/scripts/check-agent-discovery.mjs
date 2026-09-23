@@ -26,25 +26,47 @@ const cardPath = "public/.well-known/mcp/server-card.json";
 const catalogPath = "public/.well-known/ai-catalog.json";
 const apiCatalogPath = "public/.well-known/api-catalog";
 const openapiPath = "public/openapi/versioned-installer.json";
+const resourcePath = "public/.well-known/oauth-protected-resource";
+const authServerPath = "public/.well-known/oauth-authorization-server";
+const authMdPath = "public/auth.md";
 
-// The file that serves a lumis.sh URL: a Vercel function under api/, or a static asset.
+const [
+  skill,
+  index,
+  card,
+  catalog,
+  apiCatalog,
+  openapi,
+  resource,
+  authServer,
+  authMd,
+  installer,
+  config,
+  homepage,
+  robots,
+] = await Promise.all([
+  read(skillPath),
+  readJson(indexPath),
+  readJson(cardPath),
+  readJson(catalogPath),
+  readJson(apiCatalogPath),
+  readJson(openapiPath),
+  readJson(resourcePath),
+  readJson(authServerPath),
+  read(authMdPath),
+  read("api/versioned-installer.js"),
+  readJson("vercel.json"),
+  read("index.html"),
+  read("public/robots.txt"),
+]);
+
+// The file that serves a lumis.sh URL: a Vercel function under api/, or a static asset. Paths that
+// vercel.json rewrites resolve to whatever the rewrite points at.
 function sourceFile({ pathname }) {
-  return pathname.startsWith("/api/") ? `${pathname.slice(1)}.js` : `public${pathname}`;
+  const rewrite = config.rewrites?.find(({ source }) => source === pathname);
+  const target = rewrite ? new URL(rewrite.destination, "https://lumis.sh").pathname : pathname;
+  return target.startsWith("/api/") ? `${target.slice(1)}.js` : `public${target}`;
 }
-
-const [skill, index, card, catalog, apiCatalog, openapi, installer, config, homepage, robots] =
-  await Promise.all([
-    read(skillPath),
-    readJson(indexPath),
-    readJson(cardPath),
-    readJson(catalogPath),
-    readJson(apiCatalogPath),
-    readJson(openapiPath),
-    read("api/versioned-installer.js"),
-    readJson("vercel.json"),
-    read("index.html"),
-    read("public/robots.txt"),
-  ]);
 
 const contentSignal = "Content-Signal: ai-train=yes, search=yes, ai-input=yes";
 const robotsGroups = robots.trim().split(/\n\n+/);
@@ -196,6 +218,73 @@ assert(
   `${openapiPath} documents version as ${documented}; the API enforces ${enforced}`,
 );
 
+// RFC 9728 Protected Resource Metadata, RFC 8414 Authorization Server Metadata, and Auth.md.
+// lumis.sh is public, so these documents exist to say that plainly rather than to gate anything.
+assert(resource.resource === "https://lumis.sh/", `${resourcePath} names the wrong resource`);
+assert(
+  resource.authorization_servers?.length === 1 &&
+    resource.authorization_servers[0] === authServer.issuer,
+  `${resourcePath} must list the ${authServerPath} issuer as its authorization server`,
+);
+assert(
+  resource.scopes_supported?.includes("public"),
+  `${resourcePath} must support the public scope`,
+);
+assert(
+  resource.bearer_methods_supported?.includes("header"),
+  `${resourcePath} must list header in bearer_methods_supported`,
+);
+
+// Every advertised endpoint has to resolve; a metadata document pointing at a 404 is worse than none.
+for (const field of ["authorization_endpoint", "token_endpoint", "jwks_uri"]) {
+  const endpoint = URL.parse(authServer[field]);
+  assert(endpoint?.host === "lumis.sh", `${authServerPath} has no lumis.sh ${field}`);
+  await read(sourceFile(endpoint)).catch(() => {
+    throw new Error(
+      `${authServerPath} advertises ${field} ${authServer[field]}, which nothing serves`,
+    );
+  });
+}
+
+// Lumis issues no tokens, so it claims no grant or response types.
+assert(
+  authServer.grant_types_supported?.length === 0 &&
+    authServer.response_types_supported?.length === 0,
+  `${authServerPath} must not advertise grants or response types lumis.sh does not support`,
+);
+
+const agentAuth = authServer.agent_auth;
+assert(agentAuth, `${authServerPath} has no agent_auth block`);
+assert(
+  agentAuth.registration_required === false,
+  `${authServerPath} must not tell agents to register`,
+);
+assert(
+  agentAuth.identity_types_supported?.includes("anonymous") &&
+    agentAuth.anonymous?.credential_types_supported?.includes("none"),
+  `${authServerPath} must offer anonymous access with no credential`,
+);
+assert(
+  agentAuth.skill === `https://lumis.sh/${authMdPath.replace("public/", "")}`,
+  `${authServerPath} must point agents at /auth.md`,
+);
+for (const field of ["register_uri", "claim_uri"]) {
+  const uri = URL.parse(agentAuth[field]);
+  assert(uri?.host === "lumis.sh", `${authServerPath} has no lumis.sh agent_auth.${field}`);
+  await read(sourceFile(uri)).catch(() => {
+    throw new Error(
+      `${authServerPath} advertises agent_auth.${field} ${agentAuth[field]}, which nothing serves`,
+    );
+  });
+}
+assert(
+  agentAuth.anonymous.claim_uri === agentAuth.claim_uri,
+  `${authServerPath} must repeat claim_uri inside agent_auth.anonymous`,
+);
+
+// Auth.md detection keys off an H1 that names the standard.
+assert(/^# .*auth\.md/im.test(authMd), `${authMdPath} needs an H1 heading that contains auth.md`);
+
 assert(
   homepage.includes('rel="ai-catalog"') &&
     homepage.includes('href="/.well-known/ai-catalog.json"') &&
@@ -251,6 +340,18 @@ const expectedHeaders = new Map([
   ],
   [
     "/.well-known/agent-skills/lumis/SKILL.md",
+    { "content-type": "text/markdown; charset=utf-8", "access-control-allow-origin": "*" },
+  ],
+  [
+    "/.well-known/oauth-protected-resource",
+    { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*" },
+  ],
+  [
+    "/.well-known/oauth-authorization-server",
+    { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*" },
+  ],
+  [
+    "/auth.md",
     { "content-type": "text/markdown; charset=utf-8", "access-control-allow-origin": "*" },
   ],
 ]);
