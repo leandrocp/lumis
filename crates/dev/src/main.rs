@@ -3868,7 +3868,6 @@ fn stage_hex_wasm(name: &str) -> Result<()> {
     )?;
 
     fs::copy(format!("{npm}/LICENSE"), format!("{out}/LICENSE"))?;
-    fs::copy(format!("{npm}/README.md"), format!("{out}/README.md"))?;
 
     let languages_text = package
         .languages
@@ -3883,6 +3882,25 @@ fn stage_hex_wasm(name: &str) -> Result<()> {
         .replace("{languages_text}", &languages_text)
         .replace("{git_url}", info.git.as_deref().unwrap_or(""));
     fs::write(format!("{out}/mix.exs"), mix)?;
+
+    // Its own README rather than npm's: that one is titled with the npm package
+    // name and sends the reader to a CDN, neither of which helps someone
+    // looking at this on hex.pm.
+    let readme = fs::read_to_string("templates/wasm/hex.README.md.template")?
+        .replace("{app_name}", &app_name)
+        .replace("{hex_version}", &package.version)
+        .replace("{languages_text}", &languages_text)
+        .replace("{npm_package}", &package.package_name)
+        .replace("{git_url}", info.git.as_deref().unwrap_or(""))
+        .replace("{upstream_version}", info.version.as_deref().unwrap_or(""))
+        .replace("{rev}", info.rev.as_deref().unwrap_or(""))
+        .replace(
+            "{tree_sitter_cli_version}",
+            &run_cmd("tree-sitter --version")
+                .unwrap_or_default()
+                .replace("tree-sitter ", ""),
+        );
+    fs::write(format!("{out}/README.md"), readme)?;
 
     println!("{app_name} {} -> {out}", package.version);
     Ok(())
@@ -3953,12 +3971,12 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
     fs::create_dir_all(&out)?;
 
     fs::copy("templates/wasm/LICENSE", format!("{out}/LICENSE"))?;
-    fs::write(
-        format!("{out}/README.md"),
-        format!(
-            "# {app_name}\n\nLumis parser bundle: {languages_text}.\n\nSee <https://lumis.sh>.\n"
-        ),
-    )?;
+
+    let readme = fs::read_to_string("templates/wasm/hex.bundle.README.md.template")?
+        .replace("{app_name}", &app_name)
+        .replace("{hex_version}", version)
+        .replace("{languages_text}", &languages_text);
+    fs::write(format!("{out}/README.md"), readme)?;
 
     let mix = fs::read_to_string("templates/wasm/bundle.mix.exs.template")?
         .replace("{module_name}", &module_name)
