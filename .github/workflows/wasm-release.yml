@@ -300,14 +300,25 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
-      # Staged and Hex installed before the key exists: both run code that has
-      # no business being able to read it.
+      # Staged, Hex installed and dependencies fetched before the key exists:
+      # all three run or download code that has no business being able to read
+      # it.
+      #
+      # `deps.get` for a package that ships no code, because `mix hex.publish`
+      # refuses to run while any dependency is unchecked out — `mix hex.build`
+      # does not, but there is no publish path that takes a prebuilt tarball.
+      # Fetching is the whole cost: the bundle's `files` list is `mix.exs`,
+      # `README.md` and `LICENSE`, so nothing is compiled and none of what this
+      # downloads reaches the tarball.
       - name: Stage the bundle
         run: |
           cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-bundle "$BUNDLE"
           mix local.hex --force
+          cd -- "tmp/wasm/hex/$APP"
+          mix deps.get
         env:
           BUNDLE: ${{ matrix.bundle }}
+          APP: ${{ matrix.app }}
 
       - name: Publish the bundle to Hex
         run: |
