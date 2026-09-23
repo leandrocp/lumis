@@ -1,0 +1,118 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Lumis Installer API",
+    "version": "1.0.0",
+    "summary": "Serve the Lumis CLI shell and PowerShell installers, pinned to a release when asked.",
+    "description": "The installers download the matching archive from GitHub Releases and verify its published SHA-256 checksum before unpacking it. `/install.sh` and `/install.ps1` install the latest release; the `/{version}/` paths rewrite to `/api/versioned-installer` and pin the install to one release.",
+    "license": { "name": "MIT", "identifier": "MIT" }
+  },
+  "servers": [{ "url": "https://lumis.sh" }],
+  "security": [],
+  "externalDocs": {
+    "description": "Install the CLI",
+    "url": "https://docs.lumis.sh/cli/install"
+  },
+  "paths": {
+    "/api/versioned-installer": {
+      "get": {
+        "operationId": "getVersionedInstaller",
+        "summary": "Get an installer pinned to a release",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": true,
+            "description": "Installer flavor: a POSIX shell script or a PowerShell script.",
+            "schema": { "type": "string", "enum": ["sh", "ps1"] }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "description": "CLI release to pin, as a semantic version without a leading `v`.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$",
+              "examples": ["0.5.1"]
+            }
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Installer" },
+          "400": {
+            "description": "The `version` or `format` parameter is missing or malformed.",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "502": {
+            "description": "The underlying installer could not be read.",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/install.sh": {
+      "get": {
+        "operationId": "getShellInstaller",
+        "summary": "Get the shell installer for the latest release",
+        "responses": { "200": { "$ref": "#/components/responses/Installer" } }
+      }
+    },
+    "/install.ps1": {
+      "get": {
+        "operationId": "getPowerShellInstaller",
+        "summary": "Get the PowerShell installer for the latest release",
+        "responses": { "200": { "$ref": "#/components/responses/Installer" } }
+      }
+    },
+    "/{version}/install.sh": {
+      "get": {
+        "operationId": "getPinnedShellInstaller",
+        "summary": "Get the shell installer pinned to a release",
+        "parameters": [{ "$ref": "#/components/parameters/VersionPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Installer" },
+          "400": {
+            "description": "The `version` path segment is malformed.",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/{version}/install.ps1": {
+      "get": {
+        "operationId": "getPinnedPowerShellInstaller",
+        "summary": "Get the PowerShell installer pinned to a release",
+        "parameters": [{ "$ref": "#/components/parameters/VersionPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Installer" },
+          "400": {
+            "description": "The `version` path segment is malformed.",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "VersionPath": {
+        "name": "version",
+        "in": "path",
+        "required": true,
+        "description": "CLI release to pin, as a semantic version without a leading `v`.",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$",
+          "examples": ["0.5.1"]
+        }
+      }
+    },
+    "responses": {
+      "Installer": {
+        "description": "The installer script, ready to pipe into a shell.",
+        "content": { "text/plain": { "schema": { "type": "string" } } }
+      }
+    }
+  }
+}

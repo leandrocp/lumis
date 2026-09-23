@@ -24,16 +24,27 @@ const skillPath = "public/.well-known/agent-skills/lumis/SKILL.md";
 const indexPath = "public/.well-known/agent-skills/index.json";
 const cardPath = "public/.well-known/mcp/server-card.json";
 const catalogPath = "public/.well-known/ai-catalog.json";
+const apiCatalogPath = "public/.well-known/api-catalog";
+const openapiPath = "public/openapi/versioned-installer.json";
 
-const [skill, index, card, catalog, config, homepage, robots] = await Promise.all([
-  read(skillPath),
-  readJson(indexPath),
-  readJson(cardPath),
-  readJson(catalogPath),
-  readJson("vercel.json"),
-  read("index.html"),
-  read("public/robots.txt"),
-]);
+// The file that serves a lumis.sh URL: a Vercel function under api/, or a static asset.
+function sourceFile({ pathname }) {
+  return pathname.startsWith("/api/") ? `${pathname.slice(1)}.js` : `public${pathname}`;
+}
+
+const [skill, index, card, catalog, apiCatalog, openapi, installer, config, homepage, robots] =
+  await Promise.all([
+    read(skillPath),
+    readJson(indexPath),
+    readJson(cardPath),
+    readJson(catalogPath),
+    readJson(apiCatalogPath),
+    readJson(openapiPath),
+    read("api/versioned-installer.js"),
+    readJson("vercel.json"),
+    read("index.html"),
+    read("public/robots.txt"),
+  ]);
 
 const contentSignal = "Content-Signal: ai-train=yes, search=yes, ai-input=yes";
 const robotsGroups = robots.trim().split(/\n\n+/);
@@ -120,6 +131,70 @@ for (const entry of catalog.entries) {
   );
 }
 
+// RFC 9727 API catalog: a linkset whose anchors are APIs and whose links are RFC 8631 relations.
+assert(
+  Array.isArray(apiCatalog.linkset) && apiCatalog.linkset.length > 0,
+  `${apiCatalogPath} has no linkset`,
+);
+
+const anchors = new Set();
+for (const entry of apiCatalog.linkset) {
+  const anchor = URL.parse(entry.anchor);
+  assert(anchor?.protocol === "https:", `Invalid API catalog anchor: ${entry.anchor}`);
+  assert(!anchors.has(entry.anchor), `${entry.anchor} is listed twice in ${apiCatalogPath}`);
+  anchors.add(entry.anchor);
+
+  for (const relation of ["service-desc", "service-doc", "status"]) {
+    const links = entry[relation];
+    assert(
+      Array.isArray(links) && links.length > 0,
+      `${entry.anchor} has no ${relation} link; agents need all three to use the API`,
+    );
+    for (const link of links) {
+      const target = URL.parse(link.href);
+      assert(target?.protocol === "https:", `Invalid ${relation} href for ${entry.anchor}`);
+      assert(
+        typeof link.type === "string" && link.type.includes("/"),
+        `${link.href} has no media type`,
+      );
+      if (target.host !== "lumis.sh") continue;
+      await read(sourceFile(target)).catch(() => {
+        throw new Error(
+          `${link.href} is in ${apiCatalogPath} but ${sourceFile(target)} is missing`,
+        );
+      });
+    }
+  }
+}
+
+assert(
+  card.remotes.every(({ url }) => anchors.has(url)),
+  `${apiCatalogPath} does not list every MCP endpoint advertised by ${cardPath}`,
+);
+
+const installerAnchor = "https://lumis.sh/api/versioned-installer";
+assert(anchors.has(installerAnchor), `${apiCatalogPath} does not list the installer API`);
+await read(sourceFile(new URL(installerAnchor))).catch(() => {
+  throw new Error(`${installerAnchor} is in ${apiCatalogPath} but its function is missing`);
+});
+
+assert(openapi.openapi?.startsWith("3.1"), `${openapiPath} is not an OpenAPI 3.1 description`);
+assert(
+  openapi.servers?.[0]?.url === "https://lumis.sh",
+  `${openapiPath} does not describe lumis.sh`,
+);
+const described = openapi.paths?.["/api/versioned-installer"]?.get;
+assert(described, `${openapiPath} does not describe GET /api/versioned-installer`);
+
+// The published version pattern has to stay in step with the one the function enforces.
+const enforced = installer.match(/\/(?<pattern>\^[^/]+\$)\/\.test\(version\)/)?.groups?.pattern;
+assert(enforced, "api/versioned-installer.js no longer validates version with a literal pattern");
+const documented = described.parameters?.find(({ name }) => name === "version")?.schema?.pattern;
+assert(
+  documented === enforced,
+  `${openapiPath} documents version as ${documented}; the API enforces ${enforced}`,
+);
+
 assert(
   homepage.includes('rel="ai-catalog"') &&
     homepage.includes('href="/.well-known/ai-catalog.json"') &&
@@ -127,7 +202,34 @@ assert(
   "index.html does not advertise the AI Catalog",
 );
 
+assert(
+  homepage.includes('rel="api-catalog"') &&
+    homepage.includes('href="/.well-known/api-catalog"') &&
+    homepage.includes('type="application/linkset+json"'),
+  "index.html does not advertise the API Catalog",
+);
+
+const apiCatalogLink = '</.well-known/api-catalog>; rel="api-catalog"';
+const homepageLink = headerMap(config, "/").get("link");
+assert(homepageLink?.includes(apiCatalogLink), `/ must advertise ${apiCatalogLink}`);
+const markdownLink = config.routes?.find(({ src }) => src === "^/$")?.headers?.Link;
+assert(
+  markdownLink?.includes(apiCatalogLink),
+  `The Markdown route for / must advertise ${apiCatalogLink}`,
+);
+
 const expectedHeaders = new Map([
+  [
+    "/.well-known/api-catalog",
+    {
+      "content-type": 'application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"',
+      "access-control-allow-origin": "*",
+    },
+  ],
+  [
+    "/openapi/versioned-installer.json",
+    { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*" },
+  ],
   [
     "/.well-known/ai-catalog.json",
     {

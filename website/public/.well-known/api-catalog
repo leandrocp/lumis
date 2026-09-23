@@ -1,0 +1,52 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://docs.lumis.sh/api/mcp",
+      "service-desc": [
+        {
+          "href": "https://lumis.sh/.well-known/mcp/server-card.json",
+          "type": "application/mcp-server-card+json",
+          "title": "Lumis Docs MCP Server Card"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://docs.lumis.sh/",
+          "type": "text/html",
+          "title": "Lumis documentation"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://docs.lumis.sh/api/health",
+          "type": "application/json",
+          "title": "Lumis Docs health"
+        }
+      ]
+    },
+    {
+      "anchor": "https://lumis.sh/api/versioned-installer",
+      "service-desc": [
+        {
+          "href": "https://lumis.sh/openapi/versioned-installer.json",
+          "type": "application/json",
+          "title": "Lumis installer OpenAPI description"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://docs.lumis.sh/cli/install",
+          "type": "text/html",
+          "title": "Install the Lumis CLI"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://lumis.sh/api/health",
+          "type": "application/json",
+          "title": "Lumis website health"
+        }
+      ]
+    }
+  ]
+}
