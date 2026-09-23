@@ -87,7 +87,7 @@ jobs:
           # per registry that is missing it. Bundles carry no bytes, so they are
           # published rather than built.
           {
-            echo "build=$(echo "$plan" | jq -c '[.parsers[] | {parser: .wasm_name, version: .version}]')"
+            echo "build=$(echo "$plan" | jq -c '[.parsers[] | {parser: .wasm_name, version: .version, npm: .npm, npm_package: .npm_package}]')"
             echo "npm=$(echo "$plan" | jq -c '[.parsers[] | select(.npm) | {parser: .wasm_name, version: .version}]')"
             echo "hex=$(echo "$plan" | jq -c '[.parsers[] | select(.hex) | {parser: .wasm_name, version: .version, app: .hex_package}]')"
             echo "bundles=$(echo "$plan" | jq -c '[.bundles[] | {bundle: .bundle, app: .app}]')"
@@ -138,15 +138,36 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tree-sitter-cli-
 
+      # A parser npm already serves at this version is not rebuilt: the
+      # published tarball is unpacked and Hex is staged from those bytes.
+      # Rebuilding would only be equivalent if the build were reproducible, and
+      # it is not — `build-wasm` falls back to an unlocked `npm install` for the
+      # grammars that generate from `grammar.js` and ship no usable lockfile, so
+      # a rebuild months later can resolve different tooling and emit a
+      # different `.wasm`. `stage-hex-wasm` checks the staged bytes against the
+      # manifest beside them, which cannot catch that, because a rebuild
+      # produces a manifest describing itself. Taking the bytes from npm is what
+      # makes "one parser, two registries" true rather than hoped for, and it
+      # skips the compile for every backfilled parser.
       - name: Build and stage both packages
         run: |
-          mise run wasm-build "$PARSER"
-          cargo run -q --manifest-path crates/dev/Cargo.toml -- \
-            stage-wasm "$PARSER" --version "$VERSION"
+          if [ "$NPM" = "true" ]; then
+            mise run wasm-build "$PARSER"
+            cargo run -q --manifest-path crates/dev/Cargo.toml -- \
+              stage-wasm "$PARSER" --version "$VERSION"
+          else
+            download="$RUNNER_TEMP/npm/$PARSER"
+            mkdir -p "$download" "tmp/wasm/publish/$PARSER"
+            npm pack "$NPM_PACKAGE@$VERSION" --pack-destination "$download"
+            tar -xzf "$download"/*.tgz --strip-components=1 \
+              -C "tmp/wasm/publish/$PARSER"
+          fi
           cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
         env:
           PARSER: ${{ matrix.parser }}
           VERSION: ${{ matrix.version }}
+          NPM: ${{ matrix.npm }}
+          NPM_PACKAGE: ${{ matrix.npm_package }}
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

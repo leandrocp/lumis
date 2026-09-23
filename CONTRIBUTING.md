@@ -764,6 +764,16 @@ mise run wasm-hex-stage json      # tmp/wasm/hex/lumis_wasm_json
 mise run wasm-hex-publish json
 ```
 
+Backfilling a parser npm already serves does not build at all. The workflow
+unpacks the published tarball and stages Hex from those bytes, because a
+rebuild would only be equivalent if the build were reproducible and it is not:
+`build-wasm` falls back to an unlocked `npm install` for the grammars that
+generate from `grammar.js` and ship no usable lockfile, so the same revision can
+emit a different `.wasm` months later. `stage-hex-wasm` cannot catch that on its
+own — it checks the staged parser against the manifest beside it, and a rebuild
+produces a manifest describing itself. That case is most of a Hex backfill
+today, so it is also most of the compile time saved.
+
 The layouts differ because each runtime reads its own: npm ships
 `tree-sitter-json.wasm` next to `lumis.json`, and Hex ships
 `priv/parsers/json.lumis.json` beside the content-addressed name the store
