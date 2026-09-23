@@ -4351,20 +4351,7 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
     let app_name = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
     let module_name = elixir_module_name(&app_name);
 
-    let mut members = Vec::new();
-    for (package_name, requirement) in dependencies {
-        let suffix = package_name
-            .strip_prefix("@lumis-sh/wasm-")
-            .with_context(|| format!("{package_name} is not a parser package"))?;
-        let requirement = requirement
-            .as_str()
-            .with_context(|| format!("{package_name} has no version requirement"))?;
-        members.push((
-            format!("lumis_wasm_{}", suffix.replace('-', "_")),
-            hex_requirement(requirement)?,
-        ));
-    }
-    members.sort();
+    let members = hex_bundle_members(dependencies)?;
 
     let deps = members
         .iter()
@@ -4408,6 +4395,34 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
 
     println!("{app_name} {version} -> {out} ({} members)", members.len());
     Ok(())
+}
+
+/// The `lumis_wasm_*` dependencies meaning what the npm bundle's mean.
+///
+/// Sorted, because the generated `mix.exs` is read by people and a JSON object's
+/// order is not something to inherit.
+///
+/// # Errors
+/// Fails on a dependency that no parser package produces, or on a requirement
+/// [`hex_requirement`] cannot translate.
+fn hex_bundle_members(
+    dependencies: &serde_json::Map<String, serde_json::Value>,
+) -> Result<Vec<(String, String)>> {
+    let mut members = Vec::new();
+    for (package_name, requirement) in dependencies {
+        let suffix = package_name
+            .strip_prefix("@lumis-sh/wasm-")
+            .with_context(|| format!("{package_name} is not a parser package"))?;
+        let requirement = requirement
+            .as_str()
+            .with_context(|| format!("{package_name} has no version requirement"))?;
+        members.push((
+            format!("lumis_wasm_{}", suffix.replace('-', "_")),
+            hex_requirement(requirement)?,
+        ));
+    }
+    members.sort();
+    Ok(members)
 }
 
 /// The Hex requirement meaning what an npm one means.
