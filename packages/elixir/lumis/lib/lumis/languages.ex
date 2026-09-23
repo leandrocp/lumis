@@ -66,7 +66,7 @@ defmodule Lumis.Languages do
   an ordinary dependency:
 
       # mix.exs
-      {:lumis_wasm_elixir, "~> 0.26"}
+      {:lumis_wasm_elixir, "~> 0.26.0"}
 
   ## Failures
 

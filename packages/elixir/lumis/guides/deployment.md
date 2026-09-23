@@ -8,9 +8,9 @@ assets:
 defp deps do
   [
     {:lumis, "~> 0.8"},
-    {:lumis_wasm_bundle_web, "~> 0.26"},
-    {:lumis_wasm_elixir, "~> 0.26"},
-    {:lumis_wasm_markdown, "~> 0.26"}
+    {:lumis_wasm_bundle_web, "~> 0.1.0"},
+    {:lumis_wasm_elixir, "~> 0.26.0"},
+    {:lumis_wasm_markdown, "~> 0.26.0"}
   ]
 end
 ```

@@ -3348,7 +3348,6 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
 
     fs::copy("templates/wasm/LICENSE", format!("{out}/LICENSE"))?;
 
-    let readme_template = fs::read_to_string("templates/wasm/README.md.template")?;
     let git_url = info.git.as_deref().unwrap_or("");
     let rev = info.rev.as_deref().unwrap_or("");
     let ts_cli_version = run_cmd("tree-sitter --version")
@@ -3389,8 +3388,10 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
         format!("{}\n", serde_json::to_string_pretty(&language_package)?),
     )?;
 
-    let browser_template = fs::read_to_string("templates/wasm/index.js.template")?;
-    let browser_entry = browser_template.replace("{wasm_name}", wasm_name);
+    let browser_entry = render_template(
+        "templates/wasm/index.js.template",
+        &[("wasm_name", wasm_name)],
+    )?;
     fs::write(format!("{out}/index.js"), browser_entry)?;
 
     fs::copy(
@@ -3398,27 +3399,34 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
         format!("{out}/index.d.ts"),
     )?;
 
-    let readme = readme_template
-        .replace("{wasm_name}", wasm_name)
-        .replace("{pkg_name}", &pkg_name)
-        .replace("{languages_text}", &languages_text)
-        .replace("{git_url}", git_url)
-        .replace("{rev}", rev)
-        .replace("{upstream_version}", version)
-        .replace("{npm_version}", &npm_version)
-        .replace("{tree_sitter_cli_version}", &ts_cli_version)
-        .replace("{tree_sitter_cli}", &ts_cli_minor)
-        .replace("{parser_version}", version);
+    let readme = render_template(
+        "templates/wasm/README.md.template",
+        &[
+            ("wasm_name", wasm_name),
+            ("pkg_name", &pkg_name),
+            ("hex_package", &hex_app_name(wasm_name)),
+            ("languages_text", &languages_text),
+            ("git_url", git_url),
+            ("rev", rev),
+            ("upstream_version", version),
+            ("npm_version", &npm_version),
+            ("tree_sitter_cli_version", &ts_cli_version),
+            ("tree_sitter_cli", &ts_cli_minor),
+        ],
+    )?;
     fs::write(format!("{out}/README.md"), readme)?;
 
-    let pkg_template = fs::read_to_string("templates/wasm/package.json.template")?;
-    let pkg = pkg_template
-        .replace("{pkg_name}", &pkg_name)
-        .replace("{npm_version}", &npm_version)
-        .replace("{languages_text}", &languages_text)
-        .replace("{tree_sitter_cli}", &ts_cli_minor)
-        .replace("{wasm_name}", wasm_name)
-        .replace("{definition_hash}", &definition_hash);
+    let pkg = render_template(
+        "templates/wasm/package.json.template",
+        &[
+            ("pkg_name", &pkg_name),
+            ("npm_version", &npm_version),
+            ("languages_text", &languages_text),
+            ("tree_sitter_cli", &ts_cli_minor),
+            ("wasm_name", wasm_name),
+            ("definition_hash", &definition_hash),
+        ],
+    )?;
     fs::write(format!("{out}/package.json"), pkg)?;
 
     let store = "tmp/wasm/local";
@@ -4266,31 +4274,43 @@ fn stage_hex_wasm(name: &str) -> Result<()> {
         .cloned()
         .collect::<Vec<_>>()
         .join(", ");
-    let mix = fs::read_to_string("templates/wasm/mix.exs.template")?
-        .replace("{module_name}", &module_name)
-        .replace("{app_name}", &app_name)
-        .replace("{hex_version}", &package.version)
-        .replace("{languages_text}", &languages_text)
-        .replace("{git_url}", info.git.as_deref().unwrap_or(""));
+    let mix = render_template(
+        "templates/wasm/mix.exs.template",
+        &[
+            ("module_name", &module_name),
+            ("app_name", &app_name),
+            ("hex_version", &package.version),
+            ("languages_text", &languages_text),
+            ("git_url", info.git.as_deref().unwrap_or("")),
+        ],
+    )?;
     fs::write(format!("{out}/mix.exs"), mix)?;
 
     // Its own README rather than npm's: that one is titled with the npm package
     // name and sends the reader to a CDN, neither of which helps someone
     // looking at this on hex.pm.
-    let readme = fs::read_to_string("templates/wasm/hex.README.md.template")?
-        .replace("{app_name}", &app_name)
-        .replace("{hex_version}", &package.version)
-        .replace("{languages_text}", &languages_text)
-        .replace("{npm_package}", &package.package_name)
-        .replace("{git_url}", info.git.as_deref().unwrap_or(""))
-        .replace("{upstream_version}", info.version.as_deref().unwrap_or(""))
-        .replace("{rev}", info.rev.as_deref().unwrap_or(""))
-        .replace(
-            "{tree_sitter_cli_version}",
-            &run_cmd("tree-sitter --version")
-                .unwrap_or_default()
-                .replace("tree-sitter ", ""),
-        );
+    let readme = render_template(
+        "templates/wasm/hex.README.md.template",
+        &[
+            ("app_name", &app_name),
+            (
+                "hex_requirement",
+                &hex_series_requirement(&package.version)?,
+            ),
+            ("lumis_requirement", &elixir_lumis_requirement()?),
+            ("languages_text", &languages_text),
+            ("npm_package", &package.package_name),
+            ("git_url", info.git.as_deref().unwrap_or("")),
+            ("upstream_version", info.version.as_deref().unwrap_or("")),
+            ("rev", info.rev.as_deref().unwrap_or("")),
+            (
+                "tree_sitter_cli_version",
+                &run_cmd("tree-sitter --version")
+                    .unwrap_or_default()
+                    .replace("tree-sitter ", ""),
+            ),
+        ],
+    )?;
     fs::write(format!("{out}/README.md"), readme)?;
 
     println!("{app_name} {} -> {out}", package.version);
@@ -4363,18 +4383,27 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
 
     fs::copy("templates/wasm/LICENSE", format!("{out}/LICENSE"))?;
 
-    let readme = fs::read_to_string("templates/wasm/hex.bundle.README.md.template")?
-        .replace("{app_name}", &app_name)
-        .replace("{hex_version}", version)
-        .replace("{languages_text}", &languages_text);
+    let readme = render_template(
+        "templates/wasm/hex.bundle.README.md.template",
+        &[
+            ("app_name", &app_name),
+            ("hex_requirement", &hex_series_requirement(version)?),
+            ("lumis_requirement", &elixir_lumis_requirement()?),
+            ("languages_text", &languages_text),
+        ],
+    )?;
     fs::write(format!("{out}/README.md"), readme)?;
 
-    let mix = fs::read_to_string("templates/wasm/bundle.mix.exs.template")?
-        .replace("{module_name}", &module_name)
-        .replace("{app_name}", &app_name)
-        .replace("{hex_version}", version)
-        .replace("{languages_text}", &languages_text)
-        .replace("{deps}", &deps);
+    let mix = render_template(
+        "templates/wasm/bundle.mix.exs.template",
+        &[
+            ("module_name", &module_name),
+            ("app_name", &app_name),
+            ("hex_version", version),
+            ("languages_text", &languages_text),
+            ("deps", &deps),
+        ],
+    )?;
     fs::write(format!("{out}/mix.exs"), mix)?;
 
     println!("{app_name} {version} -> {out} ({} members)", members.len());
@@ -4477,6 +4506,94 @@ fn hex_app_name(wasm_name: &str) -> String {
 
 fn wasm_package_suffix(wasm_name: &str) -> &str {
     wasm_name.strip_prefix("tree-sitter-").unwrap_or(wasm_name)
+}
+
+/// Fill a template's `{placeholder}` tokens, failing on one left unfilled.
+///
+/// These files are rendered only while publishing, so a typo or a placeholder
+/// added to a template and nowhere else reaches hex.pm and npm as literal
+/// `{hex_requirement}` in a README nobody reads again.
+///
+/// # Errors
+/// Fails when the template cannot be read, or when the rendered output still
+/// holds a `{lower_snake_case}` token.
+fn render_template(path: &str, values: &[(&str, &str)]) -> Result<String> {
+    let mut rendered = fs::read_to_string(path)?;
+    for (key, value) in values {
+        rendered = rendered.replace(&format!("{{{key}}}"), value);
+    }
+    if let Some(name) = leftover_placeholder(&rendered) {
+        bail!("{path} has no value for {{{name}}}");
+    }
+    Ok(rendered)
+}
+
+/// The first `{lower_snake_case}` token in `rendered`, if any.
+///
+/// Every other brace these templates carry — Elixir's `%{}` and `{:dep, "..."}`,
+/// JSON objects — holds something outside that alphabet, so it is left alone.
+fn leftover_placeholder(rendered: &str) -> Option<&str> {
+    let mut rest = rendered;
+    while let Some(open) = rest.find('{') {
+        rest = &rest[open + 1..];
+        let close = rest.find('}')?;
+        let name = &rest[..close];
+        if !name.is_empty() && name.chars().all(|c| c.is_ascii_lowercase() || c == '_') {
+            return Some(name);
+        }
+    }
+    None
+}
+
+/// The Hex requirement for a package of `version`, bounded to its own series.
+///
+/// Three components rather than the two a reader expects from `~> 0.26`, which
+/// in Hex runs to 1.0.0. A parser package's minor is its Tree-sitter series, and
+/// `lumis_wasm_runtime` refuses to load a package outside the one series it was
+/// built for, so the looser requirement lets Mix resolve a parser that then
+/// fails at highlight time. `~> 0.26.0` is the range the runtime accepts,
+/// spelled in Hex.
+///
+/// # Errors
+/// Fails on a version whose major and minor are not numbers.
+fn hex_series_requirement(version: &str) -> Result<String> {
+    let mut parts = version.split('.');
+    let mut number = || -> Result<u64> {
+        parts
+            .next()
+            .and_then(|part| part.parse().ok())
+            .with_context(|| format!("{version} is not a version a requirement can be built from"))
+    };
+    let (major, minor) = (number()?, number()?);
+    Ok(format!("{major}.{minor}.0"))
+}
+
+/// The `lumis` requirement a generated README installs alongside a parser.
+///
+/// Read from the Elixir package in this repository rather than written into the
+/// templates, so the install snippet on ~120 published packages does not have to
+/// be remembered when Lumis releases a minor.
+///
+/// # Errors
+/// Fails when `mix.exs` no longer carries a `@version` attribute, rather than
+/// publishing a README that names a version nobody has.
+fn elixir_lumis_requirement() -> Result<String> {
+    let path = "packages/elixir/lumis/mix.exs";
+    let mix = fs::read_to_string(path)?;
+    let version = mix
+        .split_once("@version \"")
+        .and_then(|(_, rest)| rest.split_once('"'))
+        .map(|(version, _)| version)
+        .with_context(|| format!("{path} has no @version attribute"))?;
+    let mut parts = version.split('.');
+    let mut number = || -> Result<u64> {
+        parts
+            .next()
+            .and_then(|part| part.parse().ok())
+            .with_context(|| format!("{path} declares @version \"{version}\""))
+    };
+    let (major, minor) = (number()?, number()?);
+    Ok(format!("{major}.{minor}"))
 }
 
 #[cfg(test)]
@@ -4641,6 +4758,62 @@ mod hex_wasm_tests {
             "LumisWasmBundleWebExtra"
         );
         assert_eq!(elixir_module_name("lumis_wasm_json"), "LumisWasmJson");
+    }
+
+    /// A parser only loads inside the Tree-sitter series it was built for, so
+    /// the requirement has to stop at the next one. `~> 0.26` would not.
+    #[test]
+    fn a_requirement_stops_at_the_end_of_its_series() {
+        assert_eq!(hex_series_requirement("0.26.4").unwrap(), "0.26.0");
+        assert_eq!(hex_series_requirement("0.1.0").unwrap(), "0.1.0");
+        assert_eq!(hex_series_requirement("1.2.3").unwrap(), "1.2.0");
+        assert!(hex_series_requirement("nightly").is_err());
+        assert!(hex_series_requirement("0.x.4").is_err());
+    }
+
+    /// The whole point of the guard: a template gaining a placeholder that the
+    /// staging code does not fill has to stop the publish, not ship as text.
+    #[test]
+    fn an_unfilled_placeholder_is_not_published() {
+        let template = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../templates/wasm/hex.README.md.template")
+            .to_string_lossy()
+            .into_owned();
+
+        let filled = render_template(
+            &template,
+            &[
+                ("app_name", "lumis_wasm_json"),
+                ("hex_requirement", "0.26.0"),
+                ("lumis_requirement", "0.8"),
+                ("languages_text", "json"),
+                ("npm_package", "@lumis-sh/wasm-json"),
+                ("git_url", "https://example.invalid/tree-sitter-json"),
+                ("upstream_version", "0.24.8"),
+                ("rev", "0123456"),
+                ("tree_sitter_cli_version", "0.26.0"),
+            ],
+        )
+        .expect("every placeholder the template carries has a value");
+        assert!(filled.contains(r#"{:lumis_wasm_json, "~> 0.26.0"}"#));
+        assert!(filled.contains(r#"{:lumis, "~> 0.8"}"#));
+
+        assert!(
+            render_template(&template, &[]).is_err(),
+            "an unfilled placeholder has to fail the staging run"
+        );
+    }
+
+    /// Elixir map and dependency syntax is braces too, and rendering must not
+    /// mistake either for a placeholder.
+    #[test]
+    fn only_placeholders_look_like_placeholders() {
+        assert_eq!(leftover_placeholder("{app_name} here"), Some("app_name"));
+        assert_eq!(leftover_placeholder("%{\n  \"Lumis\" => \"x\"\n}"), None);
+        assert_eq!(leftover_placeholder("{:lumis, \"~> 0.8\"}"), None);
+        assert_eq!(leftover_placeholder("{unclosed"), None);
+        assert_eq!(leftover_placeholder("{}"), None);
+        assert_eq!(leftover_placeholder("%{\n  {inner}\n}"), Some("inner"));
     }
 
     #[test]
