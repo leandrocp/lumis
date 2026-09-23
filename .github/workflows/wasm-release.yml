@@ -190,10 +190,19 @@ jobs:
         env:
           PARSER: ${{ matrix.parser }}
 
+      # Hex is a separate registry with its own history, so "npm needed this"
+      # does not mean Hex does. Asking Hex directly is what makes a retry after
+      # a partly-failed release safe; `--replace` would paper over the same
+      # conflict by overwriting a published version, which is worse.
       - name: Publish to Hex
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
         run: |
           cd -- "tmp/wasm/hex/$HEX_APP"
+          version=$(grep -o 'version: "[^"]*"' mix.exs | head -1 | cut -d'"' -f2)
+          if curl -sfo /dev/null "https://hex.pm/api/packages/$HEX_APP/releases/$version"; then
+            echo "$HEX_APP $version is already on Hex, leaving it alone"
+            exit 0
+          fi
           mix hex.publish package --yes
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
@@ -201,8 +210,13 @@ jobs:
   # Bundles carry no parser bytes, only the languages they group, so they are
   # not part of the per-parser matrix above and cannot be published until the
   # parsers they depend on exist.
+  # Only on an unfiltered run. A bundle depends on every parser it groups, so
+  # publishing one after a run that built a subset would put a package on Hex
+  # whose dependencies cannot resolve.
   hex-bundles:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex }}
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' && inputs.publish_hex &&
+          inputs.parser == '' }}
     needs: build
     runs-on: ubuntu-latest
     strategy:
@@ -239,6 +253,11 @@ jobs:
       - name: Publish the bundle to Hex
         run: |
           cd -- "tmp/wasm/hex/$HEX_APP"
+          version=$(grep -o 'version: "[^"]*"' mix.exs | head -1 | cut -d'"' -f2)
+          if curl -sfo /dev/null "https://hex.pm/api/packages/$HEX_APP/releases/$version"; then
+            echo "$HEX_APP $version is already on Hex, leaving it alone"
+            exit 0
+          fi
           mix hex.publish package --yes
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

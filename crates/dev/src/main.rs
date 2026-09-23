@@ -3999,23 +3999,29 @@ fn hex_requirement(npm: &str) -> Result<String> {
     };
 
     if let Some(version) = npm.strip_prefix('^') {
-        let (major, _, _) = exact(version)?;
-        // Below 1.0 npm treats the minor as the breaking digit, which is what
-        // `~>` with three parts already means.
+        let (major, minor, patch) = exact(version)?;
+
+        // npm moves the breaking digit left as the version approaches zero, and
+        // `~>` does not follow it, so each case needs its own bounds.
+        if major == 0 && minor == 0 {
+            // `^0.0.3` is patch-locked; `~> 0.0.3` would run to 0.1.0.
+            return Ok(format!(">= {version} and < 0.0.{}", patch + 1));
+        }
         if major == 0 {
+            // `^0.26.0` and `~> 0.26.0` both stop below 0.27.0.
             return Ok(format!("~> {version}"));
         }
-        return Ok(format!("~> {version} and < {}.0.0", major + 1));
-    }
-
-    if let Some(version) = npm.strip_prefix('~') {
+        // `~>` with three parts stops below X.(Y+1).0, so adding an upper bound
+        // to it narrows rather than widens: the two intersect at the lower one.
+        Ok(format!(">= {version} and < {}.0.0", major + 1))
+    } else if let Some(version) = npm.strip_prefix('~') {
         exact(version)?;
-        return Ok(format!("~> {version}"));
+        Ok(format!("~> {version}"))
+    } else {
+        // Bare in npm is exact, and `~>` is not.
+        exact(npm)?;
+        Ok(format!("== {npm}"))
     }
-
-    // Bare in npm is exact, and `~> ` is not.
-    exact(npm)?;
-    Ok(format!("== {npm}"))
 }
 
 /// `lumis_wasm_json` as `LumisWasmJson`.
@@ -4074,9 +4080,14 @@ mod hex_wasm_tests {
         assert_eq!(hex_requirement("^0.26.0").unwrap(), "~> 0.26.0");
         assert_eq!(hex_requirement("~0.26.0").unwrap(), "~> 0.26.0");
 
-        // Above it they do not: `~> 1.2.3` alone would stop at 1.3.0 where the
-        // npm requirement runs to 2.0.0.
-        assert_eq!(hex_requirement("^1.2.3").unwrap(), "~> 1.2.3 and < 2.0.0");
+        // Above it they do not. `~>` with three parts already stops below
+        // 1.3.0, so pairing it with an upper bound intersects to the lower one
+        // rather than widening to 2.0.0.
+        assert_eq!(hex_requirement("^1.2.3").unwrap(), ">= 1.2.3 and < 2.0.0");
+
+        // npm moves the breaking digit left again at 0.0.x: `^0.0.3` is
+        // patch-locked where `~> 0.0.3` would run to 0.1.0.
+        assert_eq!(hex_requirement("^0.0.3").unwrap(), ">= 0.0.3 and < 0.0.4");
 
         // Bare is exact in npm, and `~>` is a range.
         assert_eq!(hex_requirement("1.2.3").unwrap(), "== 1.2.3");

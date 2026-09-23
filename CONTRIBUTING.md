@@ -740,7 +740,13 @@ Hex publishing is **manual for now**: an automatic npm release does not carry it
 along, because every Hex step is gated on the run being a `workflow_dispatch`.
 Running `WASM Release` by hand publishes to Hex by default — `publish_hex` is
 checked unless you clear it — taking the parsers from the same job that
-publishes them to npm, then the bundles once those parsers exist. A hyphenated package becomes an underscored
+publishes them to npm, then the bundles once those parsers exist.
+
+Both publish steps ask Hex whether the version is already there and skip it if
+so, which is what makes a retry safe after a release that failed part way
+through. Bundles publish only on an unfiltered run: one depends on every parser
+it groups, so publishing it after a run that built a subset would put a package
+on Hex whose dependencies cannot resolve. A hyphenated package becomes an underscored
 application name, since an Elixir application name is an atom —
 `@lumis-sh/wasm-embedded-template` is `lumis_wasm_embedded_template`.
 
