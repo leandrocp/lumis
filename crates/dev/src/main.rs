@@ -3807,52 +3807,74 @@ struct ReleasePlanEntry {
 fn wasm_release_plan(filter: &str) -> Result<()> {
     let series = supported_tree_sitter_series()?;
     let toml = read_languages_toml()?;
+    let candidates = release_candidates(&toml, filter)?;
+
+    let npm_packages: Vec<String> = candidates.iter().map(|(_, pkg, _)| pkg.clone()).collect();
+    let packuments = fetch_packuments(&npm_packages);
+    let registry = hex_registry()?;
+
+    let parsers = plan_parsers(candidates, packuments, &registry, &series)?;
+    let bundles = plan_bundles(&registry)?;
+
+    println!(
+        "{}",
+        serde_json::to_string(&json!({ "parsers": parsers, "bundles": bundles }))?
+    );
+    Ok(())
+}
+
+/// Every parser matching `filter`, with the npm package and definition hash
+/// that decide where it stands.
+fn release_candidates(toml: &LanguagesToml, filter: &str) -> Result<Vec<(String, String, String)>> {
     let wanted: HashSet<&str> = filter
         .split(',')
         .map(str::trim)
         .filter(|part| !part.is_empty())
         .collect();
 
-    let mut candidates = Vec::new();
     let mut seen = HashSet::new();
+    let mut candidates = Vec::new();
     for (id, info) in &toml.parsers {
         let default_name = format!("tree-sitter-{id}");
         let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_name);
         if !wanted.is_empty() && !wanted.contains(id.as_str()) && !wanted.contains(wasm_name) {
             continue;
         }
-        if seen.insert(wasm_name.to_string()) {
-            candidates.push(wasm_name.to_string());
+        if !seen.insert(wasm_name.to_string()) {
+            continue;
         }
+
+        let languages = packaged_languages(toml, wasm_name)?;
+        let expected = language_definition_hash(toml, wasm_name, &languages)?;
+        let suffix = wasm_package_suffix(wasm_name);
+        candidates.push((
+            wasm_name.to_string(),
+            format!("@lumis-sh/wasm-{suffix}"),
+            expected,
+        ));
     }
+    Ok(candidates)
+}
 
-    let mut checks = Vec::with_capacity(candidates.len());
-    for wasm_name in candidates {
-        let languages = packaged_languages(&toml, &wasm_name)?;
-        let expected = language_definition_hash(&toml, &wasm_name, &languages)?;
-        let suffix = wasm_package_suffix(&wasm_name).to_string();
-        checks.push((wasm_name, format!("@lumis-sh/wasm-{suffix}"), expected));
-    }
-
-    let npm_packages: Vec<String> = checks.iter().map(|(_, pkg, _)| pkg.clone()).collect();
-    let packuments = fetch_packuments(&npm_packages);
-    let registry = hex_registry()?;
-
+/// The parsers a registry is missing, and the version each resolves to.
+fn plan_parsers(
+    candidates: Vec<(String, String, String)>,
+    packuments: Vec<Result<Option<Value>>>,
+    registry: &HashMap<String, Vec<String>>,
+    series: &str,
+) -> Result<Vec<ReleasePlanEntry>> {
     let mut parsers = Vec::new();
-    for ((wasm_name, npm_package, expected), packument) in checks.into_iter().zip(packuments) {
+    for ((wasm_name, npm_package, expected), packument) in candidates.into_iter().zip(packuments) {
         let packument = packument?;
         let hex_package = hex_app_name(&wasm_name);
         let hex = registry.get(&hex_package).cloned().unwrap_or_default();
 
-        let version = match packument
+        let version = packument
             .as_ref()
-            .and_then(|p| version_for_definition(p, &expected, &series))
-        {
+            .and_then(|p| version_for_definition(p, &expected, series))
             // Published already: the registry that has it fixes the version,
             // and the other gets the same one.
-            Some(published) => published,
-            None => next_patch(&series, packument.as_ref(), &hex),
-        };
+            .unwrap_or_else(|| next_patch(series, packument.as_ref(), &hex));
 
         let on_npm = packument
             .as_ref()
@@ -3872,9 +3894,14 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
             });
         }
     }
+    Ok(parsers)
+}
 
-    // Bundles carry no bytes, so they are not built — only published, and only
-    // to Hex, since npm's are released alongside the JavaScript packages.
+/// The bundles Hex is missing.
+///
+/// No build and no npm: bundles carry no bytes, and npm's are released by tag
+/// alongside the other JavaScript packages.
+fn plan_bundles(registry: &HashMap<String, Vec<String>>) -> Result<Vec<BundlePlanEntry>> {
     let mut bundles = Vec::new();
     for (name, version) in bundle_versions()? {
         let app = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
@@ -3889,12 +3916,7 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
             });
         }
     }
-
-    println!(
-        "{}",
-        serde_json::to_string(&json!({ "parsers": parsers, "bundles": bundles }))?
-    );
-    Ok(())
+    Ok(bundles)
 }
 
 /// Each bundle and the version its npm package is at.
