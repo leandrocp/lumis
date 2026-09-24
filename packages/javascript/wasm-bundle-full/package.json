@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/wasm-bundle-full",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lumis WASM full language bundle",
   "author": "Leandro Pereira",
   "license": "MIT",

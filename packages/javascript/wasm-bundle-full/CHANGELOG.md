@@ -1,3 +1,10 @@
+## [0.1.2](https://github.com/leandrocp/lumis/compare/npm-wasm-bundle-full/v0.1.1...npm-wasm-bundle-full/v0.1.2) (2026-09-24)
+
+
+### Bug Fixes
+
+- drop systemverilog from bundle-full so the bundle can be loaded - [#1509](https://github.com/leandrocp/lumis/pull/1509)
+
 ## [0.1.1](https://github.com/leandrocp/lumis/compare/npm-wasm-bundle-full/v0.1.0...npm-wasm-bundle-full/v0.1.1) (2026-08-13)
 
 
