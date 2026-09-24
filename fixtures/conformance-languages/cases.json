@@ -1,7 +1,7 @@
 {
   "comment": [
-    "Caching and loading take the same names in every runtime, so the vocabulary",
-    "that turns those names into languages has to mean one thing everywhere.",
+    "Loading and the CLI's download take the same names in every runtime, so the",
+    "vocabulary that turns those names into languages has to mean one thing everywhere.",
     "Three implementations of it exist — catalog::expand_bundles in Rust,",
     "expandBundles in JavaScript, and Lumis.Languages.expand_bundles in Elixir —",
     "and nothing else pins them to each other.",

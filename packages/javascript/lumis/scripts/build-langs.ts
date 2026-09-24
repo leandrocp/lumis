@@ -252,7 +252,7 @@ function writeBundles(config: LanguagesToml, plaintextAliases: string[]): void {
 
   const allParserIds = Object.keys(config.parsers);
 
-  // Bundle membership as data, so `cacheLanguages` can expand `bundle-web`
+  // Bundle membership as data, so `loadLanguages` can expand `bundle-web`
   // without importing every bundle's lazy language modules.
   const bundleMembers: Record<string, string[]> = {};
   for (const [bundleName, bundleEntry] of Object.entries(config.bundles ?? {})) {

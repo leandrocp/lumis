@@ -2,9 +2,9 @@ defmodule Lumis.LanguagesConformanceTest do
   @moduledoc """
   The Elixir half of the shared language-name conformance suite.
 
-  `fixtures/conformance-languages/cases.json` states what caching and loading
-  must agree on in every runtime. This asserts the Elixir implementation against
-  it; `crates/lumis-wasm-runtime/tests/languages_conformance.rs` and
+  `fixtures/conformance-languages/cases.json` states what loading and the CLI's
+  download must agree on in every runtime. This asserts the Elixir implementation
+  against it; `crates/lumis-wasm-runtime/tests/languages_conformance.rs` and
   `packages/javascript/lumis/test/languages-conformance.test.ts` assert theirs
   against the same file.
   """

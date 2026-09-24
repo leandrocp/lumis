@@ -17,8 +17,7 @@ export function createLoadLanguages(loadLanguage: RuntimeLike["loadLanguage"]): 
 
     // Expanded one name at a time. Expanding the whole list at once makes an
     // unknown bundle abandon every name beside it, and `Lumis.Languages.load/1`
-    // instead reports that bundle and loads the rest. `downloadLanguages()` is the
-    // one that stops, matching `cache/2`.
+    // instead reports that bundle and loads the rest.
     for (const name of names) {
       try {
         wanted.push(...expandBundles([name]));

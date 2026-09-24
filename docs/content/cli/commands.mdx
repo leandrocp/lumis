@@ -6,7 +6,7 @@ description: >-
 keywords:
   - lumis cli
   - themes generate
-  - languages cache
+  - languages download
   - highlight command
 ---
 
@@ -302,9 +302,9 @@ lumis languages download bundle-web
 ```
 
 The `bundle-*` names cover the same languages as the matching
-`@lumis-sh/wasm-bundle-*` package. `Lumis.Languages.async_load/1`,
-`Lumis.Languages.download/2` and the JavaScript / TypeScript `downloadLanguages()` accept the same
-names in application code.
+`@lumis-sh/wasm-bundle-*` package. `Lumis.Languages.async_load/1` and the
+JavaScript / TypeScript `loadLanguages()` accept the same names in application
+code.
 
 ```bash title="All parsers"
 lumis languages download --all
@@ -317,7 +317,7 @@ lumis languages download rust javascript --force
 ## Pinning parsers
 
 The CLI has no lock. `lumis highlight` resolves freely and `lumis languages
-cache` fills its store — a viewer is not the application whose output a lock
+download` fills its store — a viewer is not the application whose output a lock
 governs. Pinning belongs to a project and its own runtime; see
 [Pinning parsers](/advanced/lock).
 

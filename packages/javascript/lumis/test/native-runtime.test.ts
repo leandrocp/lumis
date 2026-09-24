@@ -4,13 +4,12 @@
  * worth having: it resolves parsers itself, and it loads a language injected
  * inside a document during the walk that finds it.
  */
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { downloadLanguages } from "../src/cache.js";
 import { createNativeLanguagesModule } from "../src/core/native-languages.js";
 import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../src/generated/package-version-range.js";
 import type { LanguagesModule, RuntimeLike } from "../src/core/languages.js";
@@ -60,15 +59,6 @@ function newRuntime(): NativeRuntimeInstance {
   return new binding.NativeRuntime();
 }
 
-function filesUnder(directory: string): string[] {
-  if (!existsSync(directory)) return [];
-
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(directory, entry.name);
-    return entry.isDirectory() ? filesUnder(path) : [path];
-  });
-}
-
 describe("native runtime", () => {
   it("is present wherever an addon is built", () => {
     if (!hasPrebuiltAddon) {
@@ -85,41 +75,6 @@ describe("native runtime", () => {
     const runtime = newRuntime();
     runtime.loadLanguage("json");
     expect(runtime.hasLanguage("json")).toBe(true);
-  });
-
-  // Compiling is the addon's, so this asserts one thing on a native run and its
-  // negation on a Wasm one. Only the native half needs a binding: a host with no
-  // published target runs the portable fallback, which is exactly where "caches
-  // without compiling" is the behaviour in use, so gating that half on an addon
-  // would drop the assertion on the platform it describes.
-  const compilesWhenCaching = process.env.LUMIS_TEST_RUNTIME !== "wasm";
-  const itForCacheCompilation = compilesWhenCaching ? itWithAddon : it;
-
-  itForCacheCompilation("persists compiled modules only where the addon does it", async () => {
-    // Fixes the process-global engine's cache directory first. Preparing another
-    // one afterwards is the case this pins: it needs an engine of its own.
-    if (compilesWhenCaching) newRuntime().loadLanguage("json");
-    const directory = mkdtempSync(join(tmpdir(), "lumis-native-cache-"));
-    try {
-      await downloadLanguages(["diff"], {
-        directory,
-        resolver: (language, wasm) => ensureLocalParserWasm(language, wasm.name),
-        languagePackageResolver: localLanguagePackageResolver,
-      });
-
-      const compiled = filesUnder(join(directory, "compiled", "modules"));
-      if (compilesWhenCaching) {
-        expect(compiled).not.toEqual([]);
-      } else {
-        expect(compiled).toEqual([]);
-      }
-
-      // Either way the parser itself is cached, which is the half that does not
-      // depend on which runtime the process selected.
-      expect(filesUnder(join(directory, "parsers"))).not.toEqual([]);
-    } finally {
-      rmSync(directory, { recursive: true, force: true });
-    }
   });
 
   itWithAddon("shares catalog languages until caller behavior requires isolation", () => {

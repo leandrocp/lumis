@@ -33,7 +33,7 @@
 - **Language auto-detection** - File extension, shebang, and emacs-mode support
 - **Line highlighting** - Mark and style individual lines, with custom HTML wrappers
 - **Streaming-friendly** - Handles incomplete code
-- **Load parsers on demand** - Verified and cached, including injected languages
+- **Load parsers on demand** - Verified and compiled, including injected languages
 
 ## Installation
 
@@ -65,19 +65,20 @@ built-in formatters use. See [custom formatters](https://docs.lumis.sh/formatter
 
 ## Parsers
 
-Highlighting downloads, verifies and loads whatever a document needs, including
-languages injected inside it, and caches them for every later request. Loading is
-global to the VM, so only the first process pays.
+A parser is an ordinary dependency: add `{:lumis_wasm_elixir, "~> 0.26.0"}` and
+`mix deps.get` delivers the bytes. Highlighting verifies and loads whatever a
+document needs, including languages injected inside it, and keeps them for every
+later request. Loading is global to the VM, so only the first process pays.
 
 ```elixir
-# move the download off the first request
+# move the compile off the first request
 Lumis.Languages.load(["elixir", "html", "javascript", "css"])
 ```
 
 ## Application startup
 
-Warm parsers from your application's `start/2` so production does not download
-or compile them on the first request:
+Warm parsers from your application's `start/2` so production does not compile
+them on the first request:
 
 ```elixir
 def start(_type, _args) do
@@ -86,11 +87,11 @@ def start(_type, _args) do
 end
 ```
 
-It returns immediately, so the boot never waits on the network, and a failed
+It returns immediately, so the boot never waits on a compile, and a failed
 warm-up is logged rather than able to stop the application from starting.
 
 See the [deployment guide](https://lumis.hexdocs.pm/deployment.html) for the
-full lifecycle example, bundles, the standalone CLI, and custom cache directories.
+full lifecycle example, bundles, and custom data directories.
 
 The NIF is precompiled. Set `LUMIS_BUILD=1` to build it from source instead, or
 `LUMIS_USE_LEGACY_ARTIFACTS=1` to take the legacy-CPU variant on a machine

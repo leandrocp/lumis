@@ -1,8 +1,6 @@
 /**
  * Turning the names a caller writes into the language definitions the runtime
- * takes. Shared by `loadLanguages()` and `downloadLanguages()` so a name means the
- * same thing whether it is being loaded or cached, and free of Node imports so
- * the browser entry can use it too.
+ * takes. Free of Node imports, so the browser entry can use it too.
  */
 import { BUNDLES } from "../generated/bundles-meta.js";
 import { EXACT_LANGUAGE_MAP } from "../generated/language-detection.js";

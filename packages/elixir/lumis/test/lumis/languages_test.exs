@@ -197,10 +197,6 @@ defmodule Lumis.LanguagesTest do
       assert {:error, :unknown_bundle} = Lumis.Languages.load(:bundle_nope)
     end
 
-    test "cache/2 takes the same bundle names load/1 does" do
-      assert {:error, {:unknown_bundle, "bundle_nope"}} = Lumis.Languages.download([:bundle_nope])
-    end
-
     test "expand_bundles/1 expands a bundle into its members" do
       assert {:ok, members} = Lumis.Languages.expand_bundles([:bundle_web])
       assert Enum.sort(members) == Enum.sort(Lumis.Languages.bundles()[:bundle_web])
@@ -335,59 +331,6 @@ defmodule Lumis.LanguagesTest do
       assert Process.alive?(self())
       assert Process.whereis(Lumis.TaskSupervisor) == supervisor
       assert Process.alive?(supervisor)
-    end
-  end
-
-  describe "cache/2" do
-    @store Application.compile_env!(:lumis, :data_dir)
-
-    test "writes verified parsers and compiled modules into the store" do
-      File.rm_rf!(Path.join(@store, "compiled"))
-
-      assert {:ok, [path]} = Lumis.Languages.download(["comment"])
-      assert String.starts_with?(Path.basename(path), "tree-sitter-comment-")
-      assert File.exists?(path)
-
-      assert @store
-             |> Path.join("compiled/modules/**/*")
-             |> Path.wildcard()
-             |> Enum.any?(&File.regular?/1)
-    end
-
-    test "collapses languages that share one parser" do
-      assert {:ok, [_only_one]} = Lumis.Languages.download(["markdown", "markdown"])
-    end
-
-    test "leaves the store usable on its own" do
-      assert {:ok, [path]} = Lumis.Languages.download(["python"])
-
-      assert File.exists?(path)
-      assert File.exists?(Path.join([@store, "parsers", "python.lumis.json"]))
-    end
-
-    test "preserves the single-language error shape" do
-      assert {:error, reason} = Lumis.Languages.download(["not-a-language"])
-      assert reason =~ "not-a-language"
-    end
-
-    test "reports every failure rather than stopping at the first" do
-      assert {:error, failures} =
-               Lumis.Languages.download(["not-a-language", "also-not", "comment"])
-
-      assert Map.keys(failures) |> Enum.sort() == ["also-not", "not-a-language"]
-    end
-
-    test "skips names that have no parser to compile" do
-      assert {:ok, []} = Lumis.Languages.download(["plaintext"])
-    end
-
-    test "cache/2 still works under its former name" do
-      # Renaming a published function without keeping the old one is what turns
-      # an upgrade into a compile error for every caller.
-      #
-      # Called by name, like the other "deprecated still works" tests: the
-      # deprecation warning this prints names this line, which is the point.
-      assert {:ok, []} = Lumis.Languages.cache(["plaintext"])
     end
   end
 end

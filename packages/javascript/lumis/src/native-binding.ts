@@ -90,7 +90,6 @@ interface NativeRuntimeInstance {
   ): string;
   loadLanguageDefinition(spec: NativeLanguageSpec, wasm: Uint8Array): string;
   hasLanguage(id: string): boolean;
-  cacheLanguage(id: string, directory?: string, force?: boolean): string;
   highlightEvents(
     source: string,
     language: string,
@@ -117,7 +116,6 @@ interface NativeRuntimeInstance {
 export interface NativeBinding {
   NativeRuntime: new () => NativeRuntimeInstance;
   runtimeKind(): string;
-  precompileLanguages(names: string[], directory?: string): Promise<boolean>;
   /** `false` once the runtime has read them, which it does on first use. */
   configureStore(dataDir?: string): boolean;
   /**

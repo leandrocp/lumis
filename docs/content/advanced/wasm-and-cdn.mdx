@@ -133,9 +133,8 @@ revalidated during highlighting. This gives deployments two useful modes:
 
 - stage the cache during a build to make every instance use identical parser
   and query bytes without request-time network access
-- call a host cache API with `force: true`, or run the CLI with `--force`, to
-  resolve the range again and adopt a newer compatible language release without
-  upgrading Lumis
+- run the CLI with `--force` to resolve the range again and adopt a newer
+  compatible language release without upgrading Lumis
 
 Different caches refreshed at different times can hold different compatible
 patch releases. Reproducibility therefore belongs to the prepared cache, while
