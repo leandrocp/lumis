@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { parse as parseToml } from "smol-toml";
@@ -203,9 +202,6 @@ const highlighter = await createHighlighter({ languages: [languages] })
   fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify(packageJson, null, 2) + "\n");
   fs.writeFileSync(path.join(dir, "README.md"), readme);
 
-  execFileSync("oxfmt", [path.join(dir, "index.js"), path.join(dir, "index.d.ts")], {
-    stdio: "inherit",
-  });
   console.log(`  wasm bundle ${bundleName}@${VERSION}: ${path.relative(WORKSPACE_ROOT, dir)}`);
 }
 
