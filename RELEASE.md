@@ -140,10 +140,16 @@ mise run npm-trust
 ```
 
 That visits each one and skips those already configured. Both lists are derived
-rather than written down — the parsers from `languages.toml`, the rest from
-`mise run release-packages` and the platform package directories — so a package
-added to either cannot be forgotten. `mise run npm-packages` prints what it will
-visit.
+rather than written down — the parsers and bundles from `languages.toml`, the
+rest from `mise run release-packages` and the platform package directories — so
+a package added to either cannot be forgotten. `mise run npm-packages` prints
+what it will visit.
+
+A package that *moves* between workflows is the case the skip does not cover.
+Trust is stored per package on npm, so the old workflow keeps its entry and the
+new one has none until this runs; publishing from the new one answers `404 Not
+Found` on the PUT, which reads like the package does not exist. Run
+`mise run npm-trust` after changing which workflow publishes something.
 
 Run it locally, in a terminal. Being logged in is not enough: reading and
 writing a trusted publisher both need a 2FA challenge, npm refuses a bypass-2FA
