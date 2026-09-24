@@ -837,6 +837,19 @@ arg "<name>"
 '''
 run = "cargo run --manifest-path crates/dev/Cargo.toml -- stage-wasm {{arg(name='name')}}"
 
+[tasks.'wasm-sizes']
+description = "Measure the published parsers into parser-sizes.json for the docs table"
+usage = '''
+arg "[parser]"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- \
+    wasm-sizes "${usage_parser:-}"
+mise run docs-gen-languages-md
+'''
+
 [tasks.'wasm-publish-needed']
 description = "List parsers whose current WASM packages still need publishing"
 usage = '''

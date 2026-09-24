@@ -233,8 +233,8 @@ pub use brackets::{
     RAINBOW_BRACKET_SCOPES, RAINBOW_SCOPE_INDICES,
 };
 pub use package::{
-    grammar_name, sha256_hex, LanguagePackage, LanguagePackageError, PackagedLanguage,
-    ParserMetadata,
+    grammar_name, parser_memory_size, sha256_hex, LanguagePackage, LanguagePackageError,
+    PackagedLanguage, ParserMetadata, WASM_STORE_MEMORY_LIMIT,
 };
 #[cfg(feature = "wasm")]
 pub use runtime::{

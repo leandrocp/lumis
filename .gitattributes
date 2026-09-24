@@ -8,6 +8,7 @@ benchmarks/README.md linguist-generated
 crates/lumis-cli/formatter-options.json linguist-generated
 crates/lumis-core/src/highlights.rs linguist-generated
 crates/lumis-wasm-runtime/src/catalog.rs linguist-generated
+docs/content/reference/languages.md linguist-generated
 docs/content/reference/themes.md linguist-generated
 packages/javascript/lumis/bundles/*.ts linguist-generated
 packages/javascript/lumis/src/highlights.ts linguist-generated
@@ -16,6 +17,7 @@ packages/javascript/wasm-bundle-*/README.md linguist-generated
 packages/javascript/wasm-bundle-*/index.d.ts linguist-generated
 packages/javascript/wasm-bundle-*/index.js linguist-generated
 packages/javascript/wasm-bundle-*/package.json linguist-generated
+parser-sizes.json linguist-generated
 queries/processed/** linguist-generated
 
 # Generated themes and formatter output.

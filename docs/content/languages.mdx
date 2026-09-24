@@ -113,8 +113,11 @@ spends the budget. `bundle-full` also leaves out `systemverilog`, whose 22 MB
 of parse tables take a sixth of it alone. Install
 `@lumis-sh/wasm-systemverilog` and name it directly if you need it.
 
-[Language catalog](/reference/languages) has every name, and the package each
-one resolves to.
+[Language catalog](/reference/languages) has every name, the package each one
+resolves to, and what each one costs: **Size** on disk, **Memory** against this
+budget, and a running total for every bundle. Neither column is what you
+download — a package manager fetches the parser gzipped, which for the whole
+catalog is 12.6 MB against 147.1 MB unpacked.
 
 All of these operations are safe to repeat. A normal run reuses valid files;
 the CLI's `--force` is an explicit update that resolves the compatible package

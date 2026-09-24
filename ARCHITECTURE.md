@@ -116,6 +116,13 @@ containing:
 During staging, `crates/dev` serializes those inputs into `lumis.json`. The
 manifest is published inside the language package and is not checked in.
 
+What those packages cost runs the other way. `parser-sizes.json` is checked in
+and measured *from* the published packages by `mise run wasm-sizes`: the
+tarball, the unpacked `.wasm`, and the memory the parser reserves in the shared
+Tree-sitter WASM store, read from its `dylink.0` section. The language catalog
+is generated in a checkout with no network and no built WASM, so the numbers
+cannot be measured where they are rendered.
+
 Changing a parser or one of its queries publishes only that language package.
 It does not require a JavaScript, CLI, Rust, or Elixir runtime release unless
 the language-package format or supported Tree-sitter ABI series changes.

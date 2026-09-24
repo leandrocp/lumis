@@ -120,6 +120,11 @@ enum Commands {
     },
     /// List the npm package of every parser `wasm-release.yml` publishes.
     WasmPackages,
+    /// Measure the published parsers into `parser-sizes.json`, for the docs table.
+    WasmSizes {
+        #[arg(default_value = "")]
+        filter: String,
+    },
     RenderConformance {
         source: String,
         #[arg(short = 'l', long)]
@@ -197,6 +202,7 @@ fn main() -> Result<()> {
         Commands::WasmNeeded { filter, force } => wasm_needed(&filter, &force),
         Commands::WasmMeta { name } => wasm_meta(&name),
         Commands::WasmPackages => wasm_packages(),
+        Commands::WasmSizes { filter } => wasm_sizes(&filter),
         Commands::RenderConformance {
             source,
             language,
@@ -2578,12 +2584,67 @@ fn gen_highlights() -> Result<()> {
     Ok(())
 }
 
+/// A byte count at the precision a reader can act on.
+///
+/// Binary units, spelled the way the rest of the documentation spells the
+/// 128 MB store budget these numbers are measured against.
+fn human_bytes(bytes: u64) -> String {
+    const KB: u64 = 1024;
+    const MB: u64 = KB * KB;
+
+    if bytes < MB {
+        return format!("{} KB", ((bytes + KB / 2) / KB).max(1));
+    }
+    // The store budget is exactly 128 MB, and "128.0 MB" in a sentence about it
+    // reads as a measurement of something else. Only an exact multiple drops the
+    // decimal: 1.0 MB is a measured parser sitting between 1.1 MB neighbours and
+    // has to keep the place it was measured to.
+    if bytes.is_multiple_of(MB) {
+        return format!("{} MB", bytes / MB);
+    }
+    let mut whole = bytes / MB;
+    let mut tenths = ((bytes % MB) * 10 + MB / 2) / MB;
+    if tenths == 10 {
+        whole += 1;
+        tenths = 0;
+    }
+    format!("{whole}.{tenths} MB")
+}
+
+/// What loading a whole bundle reserves, or `None` if any member is unmeasured.
+///
+/// Counted per parser rather than per language: several languages can share one
+/// parser, and loading the second costs nothing because the first already
+/// reserved it. A partial total would read as a budget a bundle fits inside when
+/// it may not, so an incomplete measurement declines to answer.
+fn bundle_memory(
+    language_names: &[String],
+    parser_of: &BTreeMap<&str, String>,
+    sizes: &BTreeMap<String, ParserSizes>,
+) -> Option<u64> {
+    language_names
+        .iter()
+        .map(|language| parser_of.get(language.as_str()).cloned())
+        .collect::<Option<BTreeSet<String>>>()?
+        .iter()
+        .map(|parser| Some(sizes.get(parser)?.memory))
+        .sum()
+}
+
 fn gen_languages_md() -> Result<()> {
     let toml = read_languages_toml()?;
+    let sizes = read_parser_sizes()?;
+
+    // Every parser a language resolves to, so a bundle total counts a shared
+    // parser once. `ejs` and `erb` are both tree-sitter-embedded-template, and
+    // loading one is loading the other.
+    let mut parser_of: BTreeMap<&str, String> = BTreeMap::new();
 
     let mut table_lines = vec![
-        "| Language | Parser | Vendored | Version / Rev | Queries | npm | Hex |".to_string(),
-        "|----------|--------|----------|---------------|---------|-----|-----|".to_string(),
+        "| Language | Parser | Vendored | Version / Rev | Queries | npm | Hex | Size | Memory |"
+            .to_string(),
+        "|----------|--------|----------|---------------|---------|-----|-----|------|--------|"
+            .to_string(),
     ];
 
     for (lang, info) in &toml.parsers {
@@ -2641,8 +2702,14 @@ fn gen_languages_md() -> Result<()> {
             )
         };
 
+        parser_of.insert(lang.as_str(), wasm_name.to_string());
+        let (size_col, memory_col) = match sizes.get(wasm_name) {
+            Some(measured) => (human_bytes(measured.wasm), human_bytes(measured.memory)),
+            None => ("—".to_string(), "—".to_string()),
+        };
+
         table_lines.push(format!(
-            "| {lang} | {parser_link} | {vendored} | {version_col} | {query_col} | {npm_col} | {hex_col} |"
+            "| {lang} | {parser_link} | {vendored} | {version_col} | {query_col} | {npm_col} | {hex_col} | {size_col} | {memory_col} |"
         ));
     }
 
@@ -2650,8 +2717,8 @@ fn gen_languages_md() -> Result<()> {
         table_lines.push(String::new());
         table_lines.push("## Bundles".to_string());
         table_lines.push(String::new());
-        table_lines.push("| Bundle | Languages |".to_string());
-        table_lines.push("|--------|-----------|".to_string());
+        table_lines.push("| Bundle | Memory | Languages |".to_string());
+        table_lines.push("|--------|--------|-----------|".to_string());
 
         let preferred_order = ["web", "web-extra", "system", "backend", "full"];
         let mut bundle_names: Vec<_> = preferred_order
@@ -2689,8 +2756,58 @@ fn gen_languages_md() -> Result<()> {
                 .map(|parser| format!("`{parser}`"))
                 .collect::<Vec<_>>()
                 .join(", ");
-            table_lines.push(format!("| `{bundle_name}` | {languages_col} |"));
+            let memory_col = bundle_memory(&parser_names, &parser_of, &sizes).map_or_else(
+                || "—".to_string(),
+                |total| {
+                    format!(
+                        "{} of {}",
+                        human_bytes(total),
+                        human_bytes(lumis_wasm_runtime::WASM_STORE_MEMORY_LIMIT)
+                    )
+                },
+            );
+            table_lines.push(format!(
+                "| `{bundle_name}` | {memory_col} | {languages_col} |"
+            ));
         }
+    }
+
+    let measured: Vec<&ParserSizes> = parser_of
+        .values()
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .filter_map(|parser| sizes.get(parser))
+        .collect();
+    let mut note = Vec::new();
+    if measured.len() == parser_of.values().collect::<BTreeSet<_>>().len() {
+        let unpacked: u64 = measured.iter().map(|sizes| sizes.wasm).sum();
+        let over_the_wire: u64 = measured.iter().map(|sizes| sizes.download).sum();
+        note.extend([
+            "**Size** is the `.wasm` file unpacked. **Memory** is what loading that parser"
+                .to_string(),
+            "reserves in the Tree-sitter WASM store, which every language in a process shares"
+                .to_string(),
+            format!(
+                "and which is capped at {}. Nothing is ever reclaimed from it, so Memory — not",
+                human_bytes(lumis_wasm_runtime::WASM_STORE_MEMORY_LIMIT)
+            ),
+            "Size, and not the number of languages — is what a preload list has to stay under."
+                .to_string(),
+            String::new(),
+            "Neither column is what you download. A package manager fetches the package"
+                .to_string(),
+            format!(
+                "gzipped, and a parser compresses well: all {} parsers are {} unpacked",
+                measured.len(),
+                human_bytes(unpacked)
+            ),
+            format!(
+                "but {} over the wire. Installing a parser is cheap; loading one is what",
+                human_bytes(over_the_wire)
+            ),
+            "spends the budget.".to_string(),
+            String::new(),
+        ]);
     }
 
     let mut languages_md = vec![
@@ -2700,6 +2817,7 @@ fn gen_languages_md() -> Result<()> {
             .to_string(),
         String::new(),
     ];
+    languages_md.extend(note.clone());
     languages_md.extend(table_lines.clone());
 
     fs::write("LANGUAGES.md", languages_md.join("\n") + "\n")?;
@@ -2725,6 +2843,7 @@ fn gen_languages_md() -> Result<()> {
             .to_string(),
         String::new(),
     ];
+    docs_md.extend(note);
     docs_md.extend(table_lines);
 
     fs::write(
@@ -3698,6 +3817,231 @@ fn wasm_meta(name: &str) -> Result<()> {
     Ok(())
 }
 
+const PARSER_SIZES_PATH: &str = "parser-sizes.json";
+
+/// Downloading a parser is mostly transfer rather than round trip, so this is
+/// lower than the packument concurrency: 113 parsers are about 160 MB.
+const PARSER_DOWNLOAD_CONCURRENCY: usize = 8;
+
+/// What one published parser costs a user, at each of the three points it
+/// matters.
+///
+/// Three different numbers that get conflated. `download` is what npm or Hex
+/// transfers, `wasm` is what unpacking leaves on disk, and `memory` is what
+/// loading reserves in the Tree-sitter WASM store — the only one bounded by the
+/// 128 MB every language in a process shares.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+struct ParserSizes {
+    version: String,
+    download: u64,
+    wasm: u64,
+    memory: u64,
+}
+
+/// The checked-in measurements, keyed by parser WASM name.
+///
+/// `gen-languages-md` runs from a checkout with no network and no emscripten, so
+/// the numbers cannot be measured where they are rendered. They are measured off
+/// the published packages here and committed, the same way the catalog and the
+/// query files are.
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct ParserSizesFile {
+    #[serde(rename = "$comment")]
+    comment: Vec<String>,
+    series: String,
+    parsers: BTreeMap<String, ParserSizes>,
+}
+
+fn parser_sizes_comment() -> Vec<String> {
+    [
+        "Measured from the published parser packages by `mise run wasm-sizes`.",
+        "Do not edit.",
+        "",
+        "`download` is the gzipped npm tarball, `wasm` is the parser file it",
+        "unpacks to, and `memory` is what that parser reserves in a Tree-sitter",
+        "WASM store, read from its `dylink.0` section. Every language a process",
+        "loads shares one 128 MB store and none of it is reclaimed, so `memory`",
+        "is the number a preload list has to stay under. It is neither of the",
+        "other two.",
+        "",
+        "`gen-languages-md` renders these into LANGUAGES.md and the docs table.",
+        "Refresh after parsers are republished; a parser missing here renders",
+        "as an em dash rather than failing the generator.",
+    ]
+    .iter()
+    .map(|line| (*line).to_string())
+    .collect()
+}
+
+fn read_parser_sizes() -> Result<BTreeMap<String, ParserSizes>> {
+    let Ok(text) = fs::read_to_string(PARSER_SIZES_PATH) else {
+        return Ok(BTreeMap::new());
+    };
+    let file: ParserSizesFile = serde_json::from_str(&text)
+        .with_context(|| format!("failed to parse {PARSER_SIZES_PATH}"))?;
+    Ok(file.parsers)
+}
+
+/// Measure every published parser and rewrite `parser-sizes.json`.
+///
+/// A filtered run updates only the parsers it names and leaves the rest of the
+/// file alone, so one republished parser does not cost a 160 MB refresh.
+fn wasm_sizes(filter: &str) -> Result<()> {
+    let toml = read_languages_toml()?;
+    let series = supported_tree_sitter_series()?;
+
+    let mut wanted: BTreeMap<String, String> = BTreeMap::new();
+    for (parser_name, info) in &toml.parsers {
+        if !filter.is_empty() && filter != parser_name {
+            continue;
+        }
+        let default_wasm_name = format!("tree-sitter-{parser_name}");
+        let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
+        wanted.insert(
+            wasm_name.to_string(),
+            format!("@lumis-sh/wasm-{}", wasm_package_suffix(wasm_name)),
+        );
+    }
+    ensure!(
+        !wanted.is_empty(),
+        "no parser in languages.toml matches '{filter}'"
+    );
+
+    let wasm_names: Vec<String> = wanted.keys().cloned().collect();
+    let packages: Vec<String> = wanted.values().cloned().collect();
+    let packuments = fetch_packuments(&packages);
+
+    let mut targets = Vec::new();
+    for ((wasm_name, package), packument) in wasm_names.iter().zip(&packages).zip(packuments) {
+        let packument =
+            packument?.with_context(|| format!("{package} is not published on npm yet"))?;
+        let (version, tarball) = highest_published_in_series(&packument, &series)
+            .with_context(|| format!("{package} has no {series}.x release on npm"))?;
+        targets.push((wasm_name.clone(), package.clone(), version, tarball));
+    }
+
+    let agent: ureq::Agent = ureq::Agent::config_builder()
+        .timeout_global(Some(PARSER_DOWNLOAD_TIMEOUT))
+        .build()
+        .into();
+    let measured = parallel_results(
+        PARSER_DOWNLOAD_CONCURRENCY,
+        &targets,
+        |(wasm_name, package, version, tarball)| {
+            let download = download_bytes(&agent, tarball)
+                .with_context(|| format!("failed to download the {package} tarball"))?;
+            let parser_url =
+                format!("https://cdn.jsdelivr.net/npm/{package}@{version}/{wasm_name}.wasm");
+            let wasm = download_bytes(&agent, &parser_url)
+                .with_context(|| format!("failed to download {wasm_name}.wasm"))?;
+            let memory = lumis_wasm_runtime::parser_memory_size(&wasm)
+                .with_context(|| format!("{wasm_name}.wasm carries no dylink.0 memory info"))?;
+            println!("-> {wasm_name} {version}");
+            Ok(ParserSizes {
+                version: version.clone(),
+                download: download.len() as u64,
+                wasm: wasm.len() as u64,
+                memory: u64::from(memory),
+            })
+        },
+    );
+
+    let mut parsers = read_parser_sizes()?;
+    for ((wasm_name, ..), sizes) in targets.iter().zip(measured) {
+        parsers.insert(wasm_name.clone(), sizes?);
+    }
+
+    let file = ParserSizesFile {
+        comment: parser_sizes_comment(),
+        series,
+        parsers,
+    };
+    fs::write(
+        PARSER_SIZES_PATH,
+        format!("{}\n", serde_json::to_string_pretty(&file)?),
+    )?;
+    println!(
+        "Measured {} parser(s) into {PARSER_SIZES_PATH}",
+        targets.len()
+    );
+    Ok(())
+}
+
+/// A parser tarball is up to 23 MB, which the registry timeout is too short for.
+const PARSER_DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(300);
+
+/// The newest `series.x` release on npm, with the tarball npm would fetch for it.
+fn highest_published_in_series(packument: &Value, series: &str) -> Option<(String, String)> {
+    let versions = packument.get("versions").and_then(Value::as_object)?;
+    versions
+        .iter()
+        .filter_map(|(version, manifest)| {
+            let patch = patch_of(version, series)?;
+            let tarball = manifest.get("dist")?.get("tarball")?.as_str()?;
+            Some((patch, version.clone(), tarball.to_string()))
+        })
+        .max_by_key(|(patch, ..)| *patch)
+        .map(|(_, version, tarball)| (version, tarball))
+}
+
+fn download_bytes(agent: &ureq::Agent, url: &str) -> Result<Vec<u8>> {
+    let mut last_error = None;
+    for attempt in 0..REGISTRY_ATTEMPTS {
+        if attempt > 0 {
+            thread::sleep(Duration::from_millis(250 * u64::from(attempt)));
+        }
+        let read = agent.get(url).call().and_then(|mut response| {
+            response
+                .body_mut()
+                .with_config()
+                .limit(u64::MAX)
+                .read_to_vec()
+        });
+        match read {
+            Ok(body) => return Ok(body),
+            Err(err) => last_error = Some(err),
+        }
+    }
+    Err(last_error.expect("a failed attempt records its error"))
+        .with_context(|| format!("GET {url}"))
+}
+
+/// Run `work` over `items` on up to `concurrency` threads, in input order.
+fn parallel_results<Item, Output, Work>(
+    concurrency: usize,
+    items: &[Item],
+    work: Work,
+) -> Vec<Result<Output>>
+where
+    Item: Sync,
+    Output: Send,
+    Work: Fn(&Item) -> Result<Output> + Sync,
+{
+    let next = AtomicUsize::new(0);
+    let mut done: Vec<(usize, Result<Output>)> = thread::scope(|scope| {
+        let workers: Vec<_> = (0..concurrency.clamp(1, items.len().max(1)))
+            .map(|_| {
+                scope.spawn(|| {
+                    let mut mine = Vec::new();
+                    loop {
+                        let index = next.fetch_add(1, Ordering::Relaxed);
+                        let Some(item) = items.get(index) else {
+                            return mine;
+                        };
+                        mine.push((index, work(item)));
+                    }
+                })
+            })
+            .collect();
+        workers
+            .into_iter()
+            .flat_map(|worker| worker.join().expect("download worker panicked"))
+            .collect()
+    });
+    done.sort_by_key(|(index, _)| *index);
+    done.into_iter().map(|(_, result)| result).collect()
+}
+
 fn wasm_packages() -> Result<()> {
     let toml = read_languages_toml()?;
     let mut packages = BTreeSet::new();
@@ -3710,7 +4054,7 @@ fn wasm_packages() -> Result<()> {
     // `mise run npm-trust` walks, and npm keeps the trusted publisher on the
     // package record: a bundle missing here keeps whichever workflow it was
     // last pointed at, and OIDC publishing from the other one answers 404.
-    for (bundle, _) in &toml.bundles {
+    for bundle in toml.bundles.keys() {
         packages.insert(format!("@lumis-sh/wasm-bundle-{bundle}"));
     }
     for package in packages {
@@ -5466,6 +5810,88 @@ mod tests {
                 "formatVersion": format,
             }
         })
+    }
+
+    fn sizes(memory: u64) -> ParserSizes {
+        ParserSizes {
+            version: "0.26.1".into(),
+            download: 1,
+            wasm: memory * 2,
+            memory,
+        }
+    }
+
+    /// The docs table and the 128 MB budget are written in the same units, so a
+    /// row cannot be compared against the budget unless both are binary.
+    #[test]
+    fn byte_counts_read_in_the_units_the_budget_is_written_in() {
+        assert_eq!(human_bytes(3136), "3 KB");
+        assert_eq!(human_bytes(0), "1 KB");
+        assert_eq!(human_bytes(1_086_656), "1.0 MB");
+        assert_eq!(human_bytes(23_288_628), "22.2 MB");
+        assert_eq!(
+            human_bytes(lumis_wasm_runtime::WASM_STORE_MEMORY_LIMIT),
+            "128 MB"
+        );
+    }
+
+    /// `ejs` and `erb` are both tree-sitter-embedded-template. Loading the
+    /// second costs nothing, so counting per language would overstate a bundle
+    /// against the one budget that decides whether it can load at all.
+    #[test]
+    fn a_bundle_counts_a_shared_parser_once() {
+        let parser_of = BTreeMap::from([
+            ("ejs", "tree-sitter-embedded-template".to_string()),
+            ("erb", "tree-sitter-embedded-template".to_string()),
+            ("rust", "tree-sitter-rust".to_string()),
+        ]);
+        let measured = BTreeMap::from([
+            ("tree-sitter-embedded-template".to_string(), sizes(3436)),
+            ("tree-sitter-rust".to_string(), sizes(1_086_656)),
+        ]);
+
+        let members = ["ejs".to_string(), "erb".to_string(), "rust".to_string()];
+        assert_eq!(
+            bundle_memory(&members, &parser_of, &measured),
+            Some(3436 + 1_086_656)
+        );
+    }
+
+    /// A partial sum would render as a budget the bundle fits inside, which is
+    /// the one thing the column exists to answer.
+    #[test]
+    fn an_unmeasured_member_leaves_a_bundle_without_a_total() {
+        let parser_of = BTreeMap::from([
+            ("rust", "tree-sitter-rust".to_string()),
+            ("zig", "tree-sitter-zig".to_string()),
+        ]);
+        let measured = BTreeMap::from([("tree-sitter-rust".to_string(), sizes(1_086_656))]);
+
+        let members = ["rust".to_string(), "zig".to_string()];
+        assert_eq!(bundle_memory(&members, &parser_of, &measured), None);
+        assert_eq!(
+            bundle_memory(&members[..1], &parser_of, &measured),
+            Some(1_086_656)
+        );
+    }
+
+    /// npm orders versions as strings, so the newest patch is not the last one.
+    #[test]
+    fn the_newest_patch_in_the_series_is_measured() {
+        let packument = packument(json!({
+            "0.25.9": { "dist": { "tarball": "https://example.test/old-series.tgz" } },
+            "0.26.2": { "dist": { "tarball": "https://example.test/two.tgz" } },
+            "0.26.10": { "dist": { "tarball": "https://example.test/ten.tgz" } },
+        }));
+
+        assert_eq!(
+            highest_published_in_series(&packument, "0.26"),
+            Some((
+                "0.26.10".to_string(),
+                "https://example.test/ten.tgz".to_string()
+            ))
+        );
+        assert_eq!(highest_published_in_series(&packument, "0.27"), None);
     }
 
     #[test]
