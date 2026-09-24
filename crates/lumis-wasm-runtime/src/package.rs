@@ -367,6 +367,11 @@ pub const WASM_STORE_MEMORY_LIMIT: u64 = 128 * 1024 * 1024;
 pub fn parser_memory_size(wasm: &[u8]) -> Result<u32, LanguagePackageError> {
     use wasmparser::{Dylink0Subsection, KnownCustom, Parser, Payload};
 
+    // `dylink.0` is the first section, so returning as soon as it is read would
+    // accept anything at all in the rest of the file. Parsing to the end costs
+    // nothing next to the download that produced these bytes, and it is what
+    // makes a truncated one fail here instead of being recorded as a size.
+    let mut memory_size = None;
     for payload in Parser::new(0).parse_all(wasm) {
         let payload = payload.map_err(|_| LanguagePackageError::Invalid("parser memory size"))?;
         let Payload::CustomSection(section) = payload else {
@@ -379,12 +384,12 @@ pub fn parser_memory_size(wasm: &[u8]) -> Result<u32, LanguagePackageError> {
             let subsection =
                 subsection.map_err(|_| LanguagePackageError::Invalid("parser memory size"))?;
             if let Dylink0Subsection::MemInfo(info) = subsection {
-                return Ok(info.memory_size);
+                memory_size.get_or_insert(info.memory_size);
             }
         }
     }
 
-    Err(LanguagePackageError::Invalid("parser memory size"))
+    memory_size.ok_or(LanguagePackageError::Invalid("parser memory size"))
 }
 
 fn has_ambiguous_language_names(languages: &BTreeMap<String, PackagedLanguage>) -> bool {
@@ -572,6 +577,18 @@ mod tests {
     fn rejects_bytes_that_reserve_no_memory() {
         assert!(matches!(
             parser_memory_size(b"not wasm"),
+            Err(LanguagePackageError::Invalid("parser memory size"))
+        ));
+    }
+
+    /// `dylink.0` comes first, so a parser truncated after it still answers the
+    /// memory question. Recording a size for a file that is not a whole module
+    /// would put a number measured from a broken download into the catalog.
+    #[test]
+    fn rejects_a_parser_truncated_after_its_memory_info() {
+        let truncated = &JSON_WASM[..JSON_WASM.len() / 2];
+        assert!(matches!(
+            parser_memory_size(truncated),
             Err(LanguagePackageError::Invalid("parser memory size"))
         ));
     }

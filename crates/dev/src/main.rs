@@ -2614,34 +2614,9 @@ fn human_bytes(bytes: u64) -> String {
     format!("{whole}.{tenths} MB")
 }
 
-/// What loading a whole bundle reserves, or `None` if any member is unmeasured.
-///
-/// Counted per parser rather than per language: several languages can share one
-/// parser, and loading the second costs nothing because the first already
-/// reserved it. A partial total would read as a budget a bundle fits inside when
-/// it may not, so an incomplete measurement declines to answer.
-fn bundle_memory(
-    language_names: &[String],
-    parser_of: &BTreeMap<&str, String>,
-    sizes: &BTreeMap<String, ParserSizes>,
-) -> Option<u64> {
-    language_names
-        .iter()
-        .map(|language| parser_of.get(language.as_str()).cloned())
-        .collect::<Option<BTreeSet<String>>>()?
-        .iter()
-        .map(|parser| Some(sizes.get(parser)?.memory))
-        .sum()
-}
-
 fn gen_languages_md() -> Result<()> {
     let toml = read_languages_toml()?;
-    let sizes = read_parser_sizes()?;
-
-    // Every parser a language resolves to, so a bundle total counts a shared
-    // parser once. `ejs` and `erb` are both tree-sitter-embedded-template, and
-    // loading one is loading the other.
-    let mut parser_of: BTreeMap<&str, String> = BTreeMap::new();
+    let sizes = parser_sizes_for(&supported_tree_sitter_series()?)?;
 
     let mut table_lines = vec![
         "| Language | Parser | Vendored | Version / Rev | Queries | npm | Hex | Size | Memory |"
@@ -2705,7 +2680,6 @@ fn gen_languages_md() -> Result<()> {
             )
         };
 
-        parser_of.insert(lang.as_str(), wasm_name.to_string());
         let (size_col, memory_col) = match sizes.get(wasm_name) {
             Some(measured) => (human_bytes(measured.wasm), human_bytes(measured.memory)),
             None => ("—".to_string(), "—".to_string()),
@@ -2720,8 +2694,8 @@ fn gen_languages_md() -> Result<()> {
         table_lines.push(String::new());
         table_lines.push("## Bundles".to_string());
         table_lines.push(String::new());
-        table_lines.push("| Bundle | Memory | Languages |".to_string());
-        table_lines.push("|--------|--------|-----------|".to_string());
+        table_lines.push("| Bundle | Languages |".to_string());
+        table_lines.push("|--------|-----------|".to_string());
 
         let preferred_order = ["web", "web-extra", "system", "backend", "full"];
         let mut bundle_names: Vec<_> = preferred_order
@@ -2759,59 +2733,31 @@ fn gen_languages_md() -> Result<()> {
                 .map(|parser| format!("`{parser}`"))
                 .collect::<Vec<_>>()
                 .join(", ");
-            let memory_col = bundle_memory(&parser_names, &parser_of, &sizes).map_or_else(
-                || "—".to_string(),
-                |total| {
-                    format!(
-                        "{} of {}",
-                        human_bytes(total),
-                        human_bytes(lumis_wasm_runtime::WASM_STORE_MEMORY_LIMIT)
-                    )
-                },
-            );
-            table_lines.push(format!(
-                "| `{bundle_name}` | {memory_col} | {languages_col} |"
-            ));
+            table_lines.push(format!("| `{bundle_name}` | {languages_col} |"));
         }
     }
 
-    let measured: Vec<&ParserSizes> = parser_of
-        .values()
-        .collect::<BTreeSet<_>>()
-        .into_iter()
-        .filter_map(|parser| sizes.get(parser))
-        .collect();
-    let mut note = Vec::new();
-    if measured.len() == parser_of.values().collect::<BTreeSet<_>>().len() {
-        let unpacked: u64 = measured.iter().map(|sizes| sizes.wasm).sum();
-        let over_the_wire: u64 = measured.iter().map(|sizes| sizes.download).sum();
-        note.extend([
-            "**Size** is the `.wasm` file unpacked. **Memory** is what loading that parser"
-                .to_string(),
-            "reserves in the Tree-sitter WASM store, which every language in a process shares"
-                .to_string(),
-            format!(
-                "and which is capped at {}. Nothing is ever reclaimed from it, so Memory — not",
-                human_bytes(lumis_wasm_runtime::WASM_STORE_MEMORY_LIMIT)
-            ),
-            "Size, and not the number of languages — is what a preload list has to stay under."
-                .to_string(),
-            String::new(),
-            "Neither column is what you download. A package manager fetches the package"
-                .to_string(),
-            format!(
-                "gzipped, and a parser compresses well: all {} parsers are {} unpacked",
-                measured.len(),
-                human_bytes(unpacked)
-            ),
-            format!(
-                "but {} over the wire. Installing a parser is cheap; loading one is what",
-                human_bytes(over_the_wire)
-            ),
-            "spends the budget.".to_string(),
-            String::new(),
-        ]);
-    }
+    let note = vec![
+        "**Size** is the `.wasm` file unpacked. **Memory** is what loading that parser".to_string(),
+        "reserves in the Tree-sitter WASM store, which every language in a process shares"
+            .to_string(),
+        format!(
+            "and which is capped at {}. Nothing is ever reclaimed from it, so Memory — not",
+            human_bytes(lumis_wasm_runtime::WASM_STORE_MEMORY_LIMIT)
+        ),
+        "Size, and not the number of languages — is what a preload list has to stay under."
+            .to_string(),
+        "The store spends that cap on more than parsers — it also holds a lexer, a".to_string(),
+        "serialization buffer, and the heap it allocates from while parsing — so leave".to_string(),
+        "headroom rather than preloading up to the number.".to_string(),
+        String::new(),
+        "Neither column is what you download. A package manager fetches the parser gzipped,"
+            .to_string(),
+        "which is several times smaller. Installing a parser is cheap; loading one is what"
+            .to_string(),
+        "spends the budget.".to_string(),
+        String::new(),
+    ];
 
     let mut languages_md = vec![
         "# Supported Languages".to_string(),
@@ -3878,13 +3824,38 @@ fn parser_sizes_comment() -> Vec<String> {
     .collect()
 }
 
-fn read_parser_sizes() -> Result<BTreeMap<String, ParserSizes>> {
-    let Ok(text) = fs::read_to_string(PARSER_SIZES_PATH) else {
-        return Ok(BTreeMap::new());
+/// The measurements on disk, or `None` when none have been taken.
+///
+/// Absent is not the same as unreadable, and only the first may answer "nothing
+/// measured yet". Treating a permission error or invalid UTF-8 as an empty file
+/// would let a filtered `wasm-sizes` run write back only the parser it measured,
+/// silently dropping every other measurement in the file it could not read.
+fn read_parser_sizes() -> Result<Option<ParserSizesFile>> {
+    let text = match fs::read_to_string(PARSER_SIZES_PATH) {
+        Ok(text) => text,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => {
+            return Err(error).with_context(|| format!("failed to read {PARSER_SIZES_PATH}"))
+        }
     };
-    let file: ParserSizesFile = serde_json::from_str(&text)
+    let file = serde_json::from_str(&text)
         .with_context(|| format!("failed to parse {PARSER_SIZES_PATH}"))?;
-    Ok(file.parsers)
+    Ok(Some(file))
+}
+
+/// The measurements that describe `series`, and nothing from another one.
+///
+/// A series move republishes every parser, so measurements taken in the
+/// previous one describe packages nobody resolves any more. Rendering them
+/// under the new series would be worse than rendering nothing.
+fn parser_sizes_for(series: &str) -> Result<BTreeMap<String, ParserSizes>> {
+    Ok(measurements_for(series, read_parser_sizes()?))
+}
+
+fn measurements_for(series: &str, file: Option<ParserSizesFile>) -> BTreeMap<String, ParserSizes> {
+    file.filter(|file| file.series == series)
+        .map(|file| file.parsers)
+        .unwrap_or_default()
 }
 
 /// Measure every published parser and rewrite `parser-sizes.json`.
@@ -3897,7 +3868,25 @@ fn read_parser_sizes() -> Result<BTreeMap<String, ParserSizes>> {
 fn wasm_sizes(filter: &str, force: bool) -> Result<()> {
     let toml = read_languages_toml()?;
     let series = supported_tree_sitter_series()?;
-    let known = read_parser_sizes()?;
+    // A series move republishes the whole catalog, so measurements from the
+    // previous one are all stale at once. Dropping them on a full sweep is
+    // right — every parser is about to be remeasured anyway — but doing it
+    // under a filter would write one fresh parser and quietly discard 112, so
+    // that combination asks for the full sweep instead.
+    let known = match read_parser_sizes()? {
+        Some(file) if file.series == series => file.parsers,
+        Some(file) => {
+            ensure!(
+                filter.is_empty(),
+                "{PARSER_SIZES_PATH} was measured for Tree-sitter {}, but mise.toml now pins \
+                 {series}. Every parser republishes on a series move, so remeasure them all: \
+                 `mise run wasm-sizes`",
+                file.series
+            );
+            BTreeMap::new()
+        }
+        None => BTreeMap::new(),
+    };
 
     let mut wanted: BTreeMap<String, String> = BTreeMap::new();
     for (parser_name, info) in &toml.parsers {
@@ -5863,44 +5852,21 @@ mod tests {
         );
     }
 
-    /// `ejs` and `erb` are both tree-sitter-embedded-template. Loading the
-    /// second costs nothing, so counting per language would overstate a bundle
-    /// against the one budget that decides whether it can load at all.
+    /// A measurement is only about the series it was taken in: a series move
+    /// republishes every parser, so the old numbers describe packages nobody
+    /// resolves any more. Rendering them under the new series would be worse
+    /// than rendering nothing.
     #[test]
-    fn a_bundle_counts_a_shared_parser_once() {
-        let parser_of = BTreeMap::from([
-            ("ejs", "tree-sitter-embedded-template".to_string()),
-            ("erb", "tree-sitter-embedded-template".to_string()),
-            ("rust", "tree-sitter-rust".to_string()),
-        ]);
-        let measured = BTreeMap::from([
-            ("tree-sitter-embedded-template".to_string(), sizes(3436)),
-            ("tree-sitter-rust".to_string(), sizes(1_086_656)),
-        ]);
+    fn measurements_from_another_series_are_not_used() {
+        let measured = |series: &str| ParserSizesFile {
+            comment: Vec::new(),
+            series: series.into(),
+            parsers: BTreeMap::from([("tree-sitter-rust".to_string(), sizes(1_086_656))]),
+        };
 
-        let members = ["ejs".to_string(), "erb".to_string(), "rust".to_string()];
-        assert_eq!(
-            bundle_memory(&members, &parser_of, &measured),
-            Some(3436 + 1_086_656)
-        );
-    }
-
-    /// A partial sum would render as a budget the bundle fits inside, which is
-    /// the one thing the column exists to answer.
-    #[test]
-    fn an_unmeasured_member_leaves_a_bundle_without_a_total() {
-        let parser_of = BTreeMap::from([
-            ("rust", "tree-sitter-rust".to_string()),
-            ("zig", "tree-sitter-zig".to_string()),
-        ]);
-        let measured = BTreeMap::from([("tree-sitter-rust".to_string(), sizes(1_086_656))]);
-
-        let members = ["rust".to_string(), "zig".to_string()];
-        assert_eq!(bundle_memory(&members, &parser_of, &measured), None);
-        assert_eq!(
-            bundle_memory(&members[..1], &parser_of, &measured),
-            Some(1_086_656)
-        );
+        assert_eq!(measurements_for("0.26", Some(measured("0.26"))).len(), 1);
+        assert!(measurements_for("0.27", Some(measured("0.26"))).is_empty());
+        assert!(measurements_for("0.26", None).is_empty());
     }
 
     /// What makes an unfiltered refresh affordable: an npm version is immutable,

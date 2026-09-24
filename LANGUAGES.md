@@ -6,10 +6,12 @@
 reserves in the Tree-sitter WASM store, which every language in a process shares
 and which is capped at 128 MB. Nothing is ever reclaimed from it, so Memory — not
 Size, and not the number of languages — is what a preload list has to stay under.
+The store spends that cap on more than parsers — it also holds a lexer, a
+serialization buffer, and the heap it allocates from while parsing — so leave
+headroom rather than preloading up to the number.
 
-Neither column is what you download. A package manager fetches the package
-gzipped, and a parser compresses well: all 113 parsers are 147.1 MB unpacked
-but 12.6 MB over the wire. Installing a parser is cheap; loading one is what
+Neither column is what you download. A package manager fetches the parser gzipped,
+which is several times smaller. Installing a parser is cheap; loading one is what
 spends the budget.
 
 | Language | Parser | Vendored | Version / Rev | Queries | npm | Hex | Size | Memory |
@@ -132,10 +134,10 @@ spends the budget.
 
 ## Bundles
 
-| Bundle | Memory | Languages |
-|--------|--------|-----------|
-| `web` | 3.1 MB of 128 MB | `css`, `html`, `javascript`, `json`, `tsx`, `typescript` |
-| `web-extra` | 2.9 MB of 128 MB | `angular`, `astro`, `dart`, `eex`, `ejs`, `elm`, `erb`, `glimmer`, `graphql`, `heex`, `markdown`, `markdown_inline`, `mdx`, `php`, `prisma`, `scss`, `surface`, `svelte`, `vue`, `xml` |
-| `system` | 11.6 MB of 128 MB | `asm`, `bash`, `c`, `cmake`, `cpp`, `go`, `llvm`, `make`, `rust`, `wat`, `zig`, `zsh` |
-| `backend` | 22.9 MB of 128 MB | `csharp`, `elixir`, `erlang`, `go`, `java`, `javadoc`, `javascript`, `kotlin`, `php`, `protobuf`, `python`, `ruby`, `rust`, `scala`, `sql`, `typescript` |
-| `full` | 113.7 MB of 128 MB | `angular`, `arduino`, `asm`, `astro`, `bash`, `bicep`, `c`, `caddy`, `clojure`, `cmake`, `comment`, `commonlisp`, `cpp`, `csharp`, `css`, `csv`, `d`, `dart`, `diff`, `dockerfile`, `dot`, `editorconfig`, `eex`, `ejs`, `elixir`, `elm`, `erb`, `erlang`, `fish`, `fortran`, `fsharp`, `gitattributes`, `gitignore`, `gleam`, `glimmer`, `glsl`, `go`, `graphql`, `haskell`, `hcl`, `heex`, `html`, `http`, `iex`, `ini`, `java`, `javadoc`, `javascript`, `jinja`, `jinja_inline`, `jq`, `json`, `json5`, `julia`, `just`, `kdl`, `kotlin`, `latex`, `liquid`, `llvm`, `lua`, `luadoc`, `make`, `markdown`, `markdown_inline`, `matlab`, `mdx`, `mermaid`, `nginx`, `nim`, `nix`, `nushell`, `objc`, `ocaml`, `ocaml_interface`, `pascal`, `perl`, `php`, `powershell`, `prisma`, `protobuf`, `puppet`, `python`, `qmljs`, `r`, `racket`, `regex`, `rst`, `ruby`, `rust`, `scala`, `scheme`, `scss`, `solidity`, `sql`, `surface`, `svelte`, `swift`, `tcl`, `terraform`, `toml`, `toon`, `tsx`, `typescript`, `typst`, `vhdl`, `vim`, `vue`, `wat`, `wgsl`, `xml`, `yaml`, `zig`, `zsh` |
+| Bundle | Languages |
+|--------|-----------|
+| `web` | `css`, `html`, `javascript`, `json`, `tsx`, `typescript` |
+| `web-extra` | `angular`, `astro`, `dart`, `eex`, `ejs`, `elm`, `erb`, `glimmer`, `graphql`, `heex`, `markdown`, `markdown_inline`, `mdx`, `php`, `prisma`, `scss`, `surface`, `svelte`, `vue`, `xml` |
+| `system` | `asm`, `bash`, `c`, `cmake`, `cpp`, `go`, `llvm`, `make`, `rust`, `wat`, `zig`, `zsh` |
+| `backend` | `csharp`, `elixir`, `erlang`, `go`, `java`, `javadoc`, `javascript`, `kotlin`, `php`, `protobuf`, `python`, `ruby`, `rust`, `scala`, `sql`, `typescript` |
+| `full` | `angular`, `arduino`, `asm`, `astro`, `bash`, `bicep`, `c`, `caddy`, `clojure`, `cmake`, `comment`, `commonlisp`, `cpp`, `csharp`, `css`, `csv`, `d`, `dart`, `diff`, `dockerfile`, `dot`, `editorconfig`, `eex`, `ejs`, `elixir`, `elm`, `erb`, `erlang`, `fish`, `fortran`, `fsharp`, `gitattributes`, `gitignore`, `gleam`, `glimmer`, `glsl`, `go`, `graphql`, `haskell`, `hcl`, `heex`, `html`, `http`, `iex`, `ini`, `java`, `javadoc`, `javascript`, `jinja`, `jinja_inline`, `jq`, `json`, `json5`, `julia`, `just`, `kdl`, `kotlin`, `latex`, `liquid`, `llvm`, `lua`, `luadoc`, `make`, `markdown`, `markdown_inline`, `matlab`, `mdx`, `mermaid`, `nginx`, `nim`, `nix`, `nushell`, `objc`, `ocaml`, `ocaml_interface`, `pascal`, `perl`, `php`, `powershell`, `prisma`, `protobuf`, `puppet`, `python`, `qmljs`, `r`, `racket`, `regex`, `rst`, `ruby`, `rust`, `scala`, `scheme`, `scss`, `solidity`, `sql`, `surface`, `svelte`, `swift`, `tcl`, `terraform`, `toml`, `toon`, `tsx`, `typescript`, `typst`, `vhdl`, `vim`, `vue`, `wat`, `wgsl`, `xml`, `yaml`, `zig`, `zsh` |
