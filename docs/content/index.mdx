@@ -26,9 +26,6 @@ It keeps the same core workflow across runtimes:
 4. [pick a formatter](#4-pick-a-formatter)
 5. [render to multiple formats](#5-render)
 
-Every step below has the same example in every runtime. Pick your runtime once
-and the tabs follow you down the page.
-
 ## 1. Install Lumis
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
@@ -71,15 +68,20 @@ end
   <Tab value="CLI">
 
 ```bash
-npm install -g @lumis-sh/cli
+curl -LsSf https://lumis.sh/install.sh | sh
 ```
 
-Or run it without installing: `npx @lumis-sh/cli --help`.
+On Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy ByPass `
+  -c "irm https://lumis.sh/install.ps1 | iex"
+```
+
+Homebrew, npm, `cargo binstall`, and mise: [Install the CLI](/cli/install).
 
   </Tab>
   <Tab value="Browsers / CDN">
-
-Nothing to install. Import straight from a CDN:
 
 ```js
 import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
@@ -88,12 +90,9 @@ import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
   </Tab>
 </Tabs>
 
-[Installation](/installation) covers platform packages, local parser assets, and the notes each runtime needs.
+[Installation](/installation)
 
 ## 2. Pick a language
-
-A language is a Tree-sitter parser. Name it, or let Lumis detect it from the
-file extension, filename, shebang, or mode line.
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
   <Tab value="JavaScript / TypeScript">
@@ -101,8 +100,6 @@ file extension, filename, shebang, or mode line.
 ```js
 import javascript from '@lumis-sh/lumis/langs/javascript';
 ```
-
-Parsers also load on demand, so importing one is optional.
 
   </Tab>
   <Tab value="Rust">
@@ -113,10 +110,14 @@ use lumis::languages::Language;
 let language = Language::JavaScript;
 ```
 
-Rust compiles parsers in at build time; select them with Cargo features such as `lang-javascript`.
-
   </Tab>
   <Tab value="Elixir">
+
+A parser is a Hex package:
+
+```elixir title="mix.exs"
+{:lumis_wasm_javascript, "~> 0.26.0"}
+```
 
 ```elixir
 language = "javascript"
@@ -138,8 +139,6 @@ var lang = Lang.JAVASCRIPT;
 lumis highlight index.js --language javascript
 ```
 
-Omit `--language` and Lumis detects it from the filename.
-
   </Tab>
   <Tab value="Browsers / CDN">
 
@@ -150,12 +149,9 @@ import javascript from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
   </Tab>
 </Tabs>
 
-[Languages](/languages) explains on-demand loading and preloading; the [language catalog](/reference/languages) has every name.
+[Languages](/languages) · [Language catalog](/reference/languages)
 
 ## 3. Pick a theme
-
-Themes come from Neovim colorschemes. Use a built-in one, or
-[generate your own](/recipes/generate-theme-from-neovim-colorscheme).
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
   <Tab value="JavaScript / TypeScript">
@@ -179,8 +175,6 @@ let theme = themes::get("catppuccin_frappe").unwrap();
 ```elixir
 theme = "catppuccin_frappe"
 ```
-
-`Lumis.Theme.get/1` returns the theme struct when you want its metadata.
 
   </Tab>
   <Tab value="Java">
@@ -209,12 +203,9 @@ import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe';
   </Tab>
 </Tabs>
 
-[Themes](/themes) covers custom theme JSON and CSS files; the [theme catalog](/reference/themes) has every name.
+[Themes](/themes) · [Theme catalog](/reference/themes)
 
 ## 4. Pick a formatter
-
-The formatter decides what the tokens become: HTML, ANSI, BBCode, or
-[something you write](/formatters/custom).
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
   <Tab value="JavaScript / TypeScript">
@@ -262,8 +253,6 @@ var formatter = Formatter.HTML_INLINE;
 lumis highlight index.js --formatter html-inline
 ```
 
-Terminal output is the default, so `--formatter terminal` is optional.
-
   </Tab>
   <Tab value="Browsers / CDN">
 
@@ -276,11 +265,9 @@ const formatter = htmlInline({language: javascript, theme: frappe});
   </Tab>
 </Tabs>
 
-[Formatters](/formatters) lists all five built-ins and their options.
+[Formatters](/formatters)
 
 ## 5. Render
-
-The four picks above, together, end to end.
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
   <Tab value="JavaScript / TypeScript">
@@ -374,15 +361,13 @@ echo 'const x = 1' | lumis highlight \
     'const x = 1',
     htmlInline({language: javascript, theme: frappe})
   );
-
-  document.getElementById('output').innerHTML = html;
 </script>
 ```
 
   </Tab>
 </Tabs>
 
-[Highlight](/usage/highlight) has the full option set, language detection, and incomplete-code behavior.
+[Highlight](/usage/highlight)
 
 ## Why Lumis
 
