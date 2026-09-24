@@ -384,7 +384,7 @@ pub use crate::formatters::{
     BBCodeScopedBuilder, HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder,
     TerminalBackground, TerminalBuilder,
 };
-pub use crate::highlight::HighlightOptions;
+pub use crate::highlight::{Budget, HighlightOptions};
 pub use lumis_core::annotations::{Annotation, AnnotationError, AnnotationRange};
 pub use lumis_core::formatter::BudgetExhausted;
 
@@ -496,8 +496,7 @@ where
 {
     let syntax_options = HighlightOptions::new()
         .rainbow_brackets(options.rainbow_brackets_enabled())
-        .match_limit(options.match_limit_value())
-        .time_limit(options.time_limit_value());
+        .budget(options.budget_value());
     let syntax_options = match options.cancellation_flag() {
         Some(flag) => syntax_options.cancellation(flag),
         None => syntax_options,

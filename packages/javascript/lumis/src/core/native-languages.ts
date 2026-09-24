@@ -9,6 +9,7 @@ import type {
   NativeRuntimeInstance,
 } from "../native-binding.js";
 import type {
+  Budget,
   BudgetExhausted,
   Formatter,
   HighlightOptions,
@@ -22,7 +23,7 @@ import type {
   WasmRef,
 } from "../types.js";
 import { BUILTIN_FORMATTER, getBuiltinFormatter } from "./builtin-formatter.js";
-import { assertMatchLimit, assertTimeLimit, warnUnresolvedInjection } from "../events.js";
+import { assertBudget, warnUnresolvedInjection } from "../events.js";
 import { decodeNativeEvents } from "./native-event-codec.js";
 import { PLAINTEXT_LANG_ID } from "../types.js";
 import {
@@ -531,12 +532,11 @@ export function createNativeLanguagesModule(
     highlightEvents(
       source: string,
       language: LoadedLanguage,
-      options: { rainbowBrackets?: boolean; matchLimit?: number; timeLimit?: number } = {},
+      options: { rainbowBrackets?: boolean; budget?: Budget } = {},
       report?: { budget?: BudgetExhausted },
     ): LumisHighlightEvent[] {
       rejectReentrantHighlight();
-      assertMatchLimit(options.matchLimit);
-      assertTimeLimit(options.timeLimit);
+      assertBudget(options.budget);
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
       }
@@ -545,8 +545,7 @@ export function createNativeLanguagesModule(
         source,
         this.addonIdFor(language),
         options.rainbowBrackets ?? false,
-        options.matchLimit,
-        options.timeLimit,
+        options.budget,
         hasResolvers ? this.packageResolverCallback : undefined,
         hasResolvers ? this.wasmResolverCallback : undefined,
       );
@@ -621,29 +620,25 @@ export function createNativeLanguagesModule(
       if (!this.canFormatNatively(language, canCallResolver)) return undefined;
 
       const rainbowBrackets = highlightOptions.rainbowBrackets;
-      const matchLimit = highlightOptions.matchLimit;
-      assertMatchLimit(matchLimit);
-      const timeLimit = highlightOptions.timeLimit;
-      assertTimeLimit(timeLimit);
+      const budget = highlightOptions.budget;
+      assertBudget(budget);
 
       switch (kind) {
         case "html-inline":
-          return { ...nativeHtmlInlineFormatter(builtin, rainbowBrackets), matchLimit, timeLimit };
+          return { ...nativeHtmlInlineFormatter(builtin, rainbowBrackets), budget };
         case "html-linked":
-          return { ...nativeHtmlLinkedFormatter(builtin, rainbowBrackets), matchLimit, timeLimit };
+          return { ...nativeHtmlLinkedFormatter(builtin, rainbowBrackets), budget };
         case "bbcode-scoped":
           return {
             rainbowBrackets,
-            matchLimit,
-            timeLimit,
+            budget,
             kind,
             options: { highlightLines: builtin.highlightLines },
           };
         case "terminal":
           return {
             rainbowBrackets,
-            matchLimit,
-            timeLimit,
+            budget,
             kind,
             options: {
               theme: builtin.theme,

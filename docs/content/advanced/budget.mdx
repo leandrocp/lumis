@@ -26,10 +26,12 @@ unterminated construct can cost more than a 4 MB file that parses cleanly, so
 
 | Dimension | Option | Default | Bounds |
 | --- | --- | --- | --- |
-| Query matches | `match_limit` | 8192 | in-progress query matches tree-sitter keeps, for the highlight and bracket queries alike |
-| Wall clock | `time_limit` | 5000 ms | the whole render — parse and query walk together |
+| Query matches | `budget.match_limit` | 8192 | in-progress query matches tree-sitter keeps, for the highlight and bracket queries alike |
+| Wall clock | `budget.time_limit` | 5000 ms | the whole render — parse and query walk together |
 
-`time_limit` is **milliseconds in every runtime**, including Rust.
+Both dimensions bound the same render, so they are one `budget` option rather
+than two loose ones; set only the one you care about and the other keeps its
+default. `time_limit` is **milliseconds in every runtime**, including Rust.
 
 It does not count language loading. Not the root language, which is ready
 before the clock starts, and not the languages an injection names — those load
@@ -98,12 +100,14 @@ points are where it appears.
 import { highlight, htmlInline } from "@lumis-sh/lumis";
 
 const html = await highlight(source, htmlInline({language, theme}), {
-  timeLimit: 2000, // milliseconds
-  matchLimit: 16384,
+  budget: {
+    timeLimit: 2000, // milliseconds
+    matchLimit: 16384,
+  },
 });
 ```
 
-`timeLimit: 0` removes the time limit. Both options apply to the native addon
+`timeLimit: 0` removes the time limit. The budget applies to the native addon
 and to the portable `web-tree-sitter` runtime, including in browsers.
 
   </Tab>
@@ -111,9 +115,11 @@ and to the portable `web-tree-sitter` runtime, including in browsers.
 
 ```elixir
 Lumis.highlight(source,
-  # milliseconds
-  time_limit: 2_000,
-  match_limit: 16_384
+  budget: [
+    # milliseconds
+    time_limit: 2_000,
+    match_limit: 16_384
+  ]
 )
 ```
 
@@ -123,13 +129,14 @@ Lumis.highlight(source,
   <Tab value="Rust">
 
 ```rust
-use lumis::highlight::HighlightOptions;
+use lumis::highlight::{Budget, HighlightOptions};
 
 // milliseconds
-let options = HighlightOptions::new().time_limit(Some(2_000)).match_limit(16_384);
+let options =
+    HighlightOptions::new().budget(Budget::new().time_limit(Some(2_000)).match_limit(16_384));
 
 // No time limit.
-let unbounded = HighlightOptions::new().time_limit(None);
+let unbounded = HighlightOptions::new().budget(Budget::new().time_limit(None));
 ```
 
 The unit is milliseconds here too, rather than a `Duration`, so that one number
@@ -139,10 +146,11 @@ means the same thing in every runtime.
   <Tab value="CLI">
 
 ```bash
-lumis highlight big.json --time-limit 2000 --match-limit 16384
+lumis highlight big.json --budget-time-limit 2000 --budget-match-limit 16384
 ```
 
-`--time-limit 0` removes the time limit.
+A CLI has no nesting, so the group becomes a flag prefix.
+`--budget-time-limit 0` removes the time limit.
 
   </Tab>
 </Tabs>
@@ -152,7 +160,7 @@ repository.
 
 ## The limit is a bound, not a stopwatch
 
-`time_limit` is checked where tree-sitter offers to be interrupted, during the
+The time limit is checked where tree-sitter offers to be interrupted, during the
 parse and during the query walk. Those points are frequent on ordinary content
 and the render stops within a few milliseconds of its limit. They are not
 uniform: on a document built to be pathological, a single step between two
@@ -163,7 +171,7 @@ fewer of them.
 So treat the limit as a ceiling on the order of magnitude, not a deadline you
 can schedule against. If a render must return within a hard wall-clock bound,
 enforce that where you can cancel the work — a worker with a timeout, a request
-deadline — and use `time_limit` to keep the common case cheap.
+deadline — and use the time limit to keep the common case cheap.
 
 ## Choosing a value
 

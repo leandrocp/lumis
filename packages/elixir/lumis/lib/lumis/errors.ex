@@ -166,7 +166,7 @@ defmodule Lumis.RenderError do
     * `:annotation` — an annotation could not be composed onto the source
     * `:render` — the formatter failed while writing its output
     * `:highlight` — the highlighter itself failed
-    * `:invalid_match_limit` — `:match_limit` was outside `1..65536`
+    * `:invalid_match_limit` — `budget: [match_limit: _]` was outside `1..65536`
     * `:runtime` — the WASM runtime could not be started or is unusable
 
   The list is open, so a `case` over it needs a catch-all clause.

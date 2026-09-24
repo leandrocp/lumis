@@ -374,30 +374,44 @@ defmodule Lumis do
       default: false,
       doc: "Render nested brackets with rainbow bracket decorations."
     ],
-    time_limit: [
-      type: {:or, [:non_neg_integer, nil]},
-      default: nil,
-      doc: """
-      How long one render may take, in milliseconds, `0` for no bound, or `nil`
-      for the default of 5000.
+    budget: [
+      type: :keyword_list,
+      default: [],
+      keys: [
+        time_limit: [
+          type: {:or, [:non_neg_integer, nil]},
+          default: nil,
+          doc: """
+          How long one render may take, in milliseconds, `0` for no bound, or
+          `nil` for the default of 5000.
 
-      A render that runs out returns the whole file as plain text rather than
-      an error, and HTML formatters mark it `data-lumis-budget="time"`.
-      Loading a language is not counted against it.
-      """
-    ],
-    match_limit: [
-      type: {:or, [{:in, 1..65_536}, nil]},
-      default: nil,
-      doc: """
-      Bound on the query matches Tree-sitter keeps in progress at once, for the
-      highlight and bracket queries alike, or `nil` for the default.
+          A render that runs out returns the whole file as plain text rather
+          than an error, and HTML formatters mark it `data-lumis-budget="time"`.
+          Loading a language is not counted against it.
+          """
+        ],
+        match_limit: [
+          type: {:or, [{:in, 1..65_536}, nil]},
+          default: nil,
+          doc: """
+          Bound on the query matches Tree-sitter keeps in progress at once, for
+          the highlight and bracket queries alike, or `nil` for the default.
 
-      Tree-sitter walks its whole pool of in-progress matches before it emits
-      each capture, so the bound is what keeps highlighting linear on documents
-      whose markup nests deeply enough to keep many matches open at once.
-      Raising it recovers matches that would otherwise be dropped on such
-      documents, at that cost.
+          Tree-sitter walks its whole pool of in-progress matches before it
+          emits each capture, so the bound is what keeps highlighting linear on
+          documents whose markup nests deeply enough to keep many matches open
+          at once. Raising it recovers matches that would otherwise be dropped
+          on such documents, at that cost.
+          """
+        ]
+      ],
+      doc: """
+      The work one render is allowed to do:
+
+          budget: [time_limit: 1_000, match_limit: 16_384]
+
+      Both dimensions bound the same render, so they are one option. `nil`
+      selects the default for either key.
       """
     ]
   ]
@@ -1203,8 +1217,7 @@ defmodule Lumis do
         formatter_options,
         Keyword.fetch!(options, :annotations),
         Keyword.fetch!(options, :rainbow_brackets),
-        Keyword.fetch!(options, :match_limit),
-        Keyword.fetch!(options, :time_limit)
+        Keyword.fetch!(options, :budget)
       )
     end
   end
@@ -1290,7 +1303,16 @@ defmodule Lumis do
     options
     |> Keyword.put(:language, language)
     |> Keyword.put(:formatter, rust_formatter)
+    |> Keyword.update(:budget, budget_for_nif([]), &budget_for_nif/1)
     |> Map.new()
+  end
+
+  # The NIF decodes a map, so the nested keyword list crosses as one.
+  defp budget_for_nif(budget) do
+    %{
+      time_limit: Keyword.get(budget, :time_limit),
+      match_limit: Keyword.get(budget, :match_limit)
+    }
   end
 
   defp render_with_custom_formatter(
@@ -1299,15 +1321,13 @@ defmodule Lumis do
          formatter_options,
          annotations,
          rainbow_brackets,
-         match_limit,
-         time_limit
+         budget
        ) do
     options = %{
       language: Keyword.get(formatter_options, :language),
       annotations: annotations,
       rainbow_brackets: rainbow_brackets,
-      match_limit: match_limit,
-      time_limit: time_limit
+      budget: budget_for_nif(budget)
     }
 
     case Lumis.Native.highlight_events(source, options) do

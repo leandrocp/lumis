@@ -7,12 +7,12 @@
 //! a slow render into an error; losing the marker turns a plain or
 //! scope-starved render into something indistinguishable from a correct one.
 //!
-//! `time_limit(Some(0))` is the deterministic lever: the deadline is `now`, so
+//! `Budget::new().time_limit(Some(0))` is the deterministic lever: the deadline is `now`, so
 //! it is already past by the first check and no test here depends on how fast
 //! the machine running it is.
 
 use lumis::{
-    languages::Language, HighlightOptions, HtmlInlineBuilder, HtmlLinkedBuilder,
+    languages::Language, Budget, HighlightOptions, HtmlInlineBuilder, HtmlLinkedBuilder,
     HtmlMultiThemesBuilder, TerminalBuilder,
 };
 use std::collections::HashMap;
@@ -34,7 +34,7 @@ fn html_linked(source: &str, options: HighlightOptions<'_, ()>) -> String {
 
 /// The clock is already spent, so every check sees an expired deadline.
 fn spent() -> HighlightOptions<'static, ()> {
-    HighlightOptions::new().time_limit(Some(0))
+    HighlightOptions::new().budget(Budget::new().time_limit(Some(0)))
 }
 
 #[test]
@@ -91,7 +91,10 @@ fn an_unspent_budget_highlights_and_marks_nothing() {
 
 #[test]
 fn a_removed_time_limit_highlights() {
-    let html = html_linked(SOURCE, HighlightOptions::new().time_limit(None));
+    let html = html_linked(
+        SOURCE,
+        HighlightOptions::new().budget(Budget::new().time_limit(None)),
+    );
 
     assert!(html.contains("<span"), "got {html}");
     assert!(!html.contains("data-lumis-budget"), "got {html}");
@@ -153,7 +156,10 @@ fn an_exhausted_match_budget_marks_the_pre_and_keeps_highlighting() {
     // Matches are the one dimension that does not degrade to plain: tree-sitter
     // drops in-progress matches and carries on, so the output is highlighted
     // with scopes missing. The marker is the only way to learn that.
-    let html = html_linked(SOURCE, HighlightOptions::new().match_limit(1));
+    let html = html_linked(
+        SOURCE,
+        HighlightOptions::new().budget(Budget::new().match_limit(1)),
+    );
 
     assert!(
         html.contains(r#"data-lumis-budget="matches""#),

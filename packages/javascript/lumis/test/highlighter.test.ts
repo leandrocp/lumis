@@ -516,7 +516,7 @@ class User:
     const source = '{"a": 1, "b": [2, 3]}';
     const formatter = htmlInline({ language: json, theme });
 
-    expect(hl.highlight(source, formatter, { matchLimit: 16_384 })).toBe(
+    expect(hl.highlight(source, formatter, { budget: { matchLimit: 16_384 } })).toBe(
       hl.highlight(source, formatter),
     );
   });
@@ -524,11 +524,12 @@ class User:
   it("rejects a match limit tree-sitter would not accept", () => {
     const formatter = htmlInline({ language: json, theme });
 
-    const render = (matchLimit: number) => () => hl.highlight("[]", formatter, { matchLimit });
+    const render = (matchLimit: number) => () =>
+      hl.highlight("[]", formatter, { budget: { matchLimit } });
 
     for (const matchLimit of [0, 65_537, 1.5, Number.NaN]) {
       expect(render(matchLimit)).toThrow(
-        `matchLimit must be an integer from 1 to 65536, got ${matchLimit}`,
+        `budget.matchLimit must be an integer from 1 to 65536, got ${matchLimit}`,
       );
     }
     expect(render(65_536)).not.toThrow();
@@ -544,7 +545,7 @@ class User:
       const source = `${"[".repeat(8)}1${"]".repeat(8)}`;
       const formatter = htmlInline({ language: json, theme });
       const render = (matchLimit: number) =>
-        hl.highlight(source, formatter, { rainbowBrackets: true, matchLimit });
+        hl.highlight(source, formatter, { rainbowBrackets: true, budget: { matchLimit } });
 
       expect(render(1)).not.toBe(render(4096));
       expect(render(65_536)).toBe(render(4096));
@@ -558,13 +559,13 @@ class User:
       const formatter = htmlInline({ language: json, theme });
       const matches = vi.spyOn(Query.prototype, "matches");
       try {
-        hl.highlight(source, formatter, { rainbowBrackets: true, matchLimit: 1 });
+        hl.highlight(source, formatter, { rainbowBrackets: true, budget: { matchLimit: 1 } });
         const withBrackets = matches.mock.calls.length;
         for (const [, options] of matches.mock.calls) {
           expect(options).toMatchObject({ matchLimit: 1 });
         }
         matches.mockClear();
-        hl.highlight(source, formatter, { matchLimit: 1 });
+        hl.highlight(source, formatter, { budget: { matchLimit: 1 } });
         expect(withBrackets).toBeGreaterThan(matches.mock.calls.length);
       } finally {
         matches.mockRestore();
@@ -596,7 +597,7 @@ describe("budget", () => {
 
   it("returns the whole document as plain text when the time budget is spent", () => {
     const html = budgetHl.highlight(pathological, htmlLinked({ language: json }), {
-      timeLimit: 50,
+      budget: { timeLimit: 50 },
     });
 
     expect(html).toContain('data-lumis-budget="time"');
@@ -610,7 +611,7 @@ describe("budget", () => {
       htmlInline({ language: json, theme }),
       htmlMultiThemes({ language: json, themes: { main: theme }, defaultTheme: "main" }),
     ]) {
-      const html = budgetHl.highlight(pathological, formatter, { timeLimit: 50 });
+      const html = budgetHl.highlight(pathological, formatter, { budget: { timeLimit: 50 } });
       expect(html).toContain('data-lumis-budget="time"');
     }
   });
@@ -630,7 +631,7 @@ describe("budget", () => {
     "marks the pre and keeps highlighting when the match budget is spent",
     () => {
       const html = budgetHl.highlight(nested, htmlLinked({ language: javascript }), {
-        matchLimit: 1,
+        budget: { matchLimit: 1 },
       });
 
       expect(html).toContain('data-lumis-budget="matches"');
@@ -648,14 +649,18 @@ describe("budget", () => {
     // budget was not hit, so the headroom is deliberately large: the deadline
     // is wall clock, and a loaded runner can deschedule this process for longer
     // than a tight limit would allow.
-    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), { timeLimit: 1000 });
+    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), {
+      budget: { timeLimit: 1000 },
+    });
 
     expect(html).toContain("<span");
     expect(html).not.toContain("data-lumis-budget");
   });
 
-  it("treats timeLimit 0 as no limit", () => {
-    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), { timeLimit: 0 });
+  it("treats budget.timeLimit 0 as no limit", () => {
+    const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), {
+      budget: { timeLimit: 0 },
+    });
 
     expect(html).toContain("<span");
     expect(html).not.toContain("data-lumis-budget");
@@ -663,7 +668,7 @@ describe("budget", () => {
 
   it("degrades under a formatter with nowhere to put the marker", () => {
     const text = budgetHl.highlight(pathological, terminal({ language: json, theme }), {
-      timeLimit: 50,
+      budget: { timeLimit: 50 },
     });
 
     expect(text).toBe(pathological);
@@ -671,11 +676,12 @@ describe("budget", () => {
 
   it("rejects a time limit that is not a whole number of milliseconds", () => {
     const formatter = htmlLinked({ language: json });
-    const render = (timeLimit: number) => () => budgetHl.highlight("[]", formatter, { timeLimit });
+    const render = (timeLimit: number) => () =>
+      budgetHl.highlight("[]", formatter, { budget: { timeLimit } });
 
     for (const timeLimit of [-1, 1.5, Number.NaN]) {
       expect(render(timeLimit)).toThrow(
-        `timeLimit must be a whole number of milliseconds, got ${timeLimit}`,
+        `budget.timeLimit must be a whole number of milliseconds, got ${timeLimit}`,
       );
     }
     expect(render(0)).not.toThrow();
