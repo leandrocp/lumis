@@ -13,6 +13,10 @@ updates:
           - "*"
     ignore:
       - dependency-name: "tree-sitter-*"
+      - dependency-name: "tree-sitter"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-major"
       - dependency-name: "wasmtime"
         update-types:
           - "version-update:semver-major"
@@ -53,6 +57,10 @@ updates:
           - "*"
     ignore:
       - dependency-name: "tree-sitter-*"
+      - dependency-name: "tree-sitter"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-major"
       - dependency-name: "wasmtime"
         update-types:
           - "version-update:semver-major"
@@ -69,4 +77,8 @@ updates:
           - "*"
     ignore:
       - dependency-name: "tree-sitter-*"
+      - dependency-name: "web-tree-sitter"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-major"
       - dependency-name: "@lumis-sh/wasm-*"
