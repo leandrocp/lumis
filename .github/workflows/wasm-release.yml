@@ -59,8 +59,13 @@ jobs:
   # toolchain it needs, staging the bundles, reading their manifests, reaching
   # npm and Hex — first ran after a merge. Three releases broke that way in a
   # day: a missing `pnpm`, a missing `pnpm install`, and a plan that resolved a
-  # version for a package whose trusted publisher named another workflow. Each
-  # was a red run on main that a pull request could have caught.
+  # version for a package whose trusted publisher named another workflow.
+  #
+  # This catches the first two. It cannot catch the third: a trusted publisher
+  # lives on the npm package record, and nothing short of a real publish — with
+  # the credential, from the workflow that claims it — reports that the wrong
+  # workflow is named. Run `mise run npm-trust` after moving a package between
+  # workflows; `RELEASE.md` says why.
   #
   # No credentials and no `id-token`, so the worst a bad plan does here is fail
   # this job. It reads both registries, which is public.
