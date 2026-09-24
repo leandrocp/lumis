@@ -3858,23 +3858,24 @@ fn measurements_for(series: &str, file: Option<ParserSizesFile>) -> BTreeMap<Str
         .unwrap_or_default()
 }
 
-/// Measure every published parser and rewrite `parser-sizes.json`.
+/// One parser to download, and the published release to download it from.
+struct MeasureTarget {
+    wasm_name: String,
+    package: String,
+    version: String,
+    tarball: String,
+}
+
+/// The measurements a run may keep, or an error if keeping them would mislead.
 ///
-/// Downloads only what it has not already measured. A published version is
-/// immutable, so a parser whose recorded version is still the newest one cannot
-/// have changed, and an unfiltered run after a single parser release costs that
-/// one parser rather than the 160 MB catalog. `force` re-downloads regardless,
-/// for a file written by an older format.
-fn wasm_sizes(filter: &str, force: bool) -> Result<()> {
-    let toml = read_languages_toml()?;
-    let series = supported_tree_sitter_series()?;
-    // A series move republishes the whole catalog, so measurements from the
-    // previous one are all stale at once. Dropping them on a full sweep is
-    // right — every parser is about to be remeasured anyway — but doing it
-    // under a filter would write one fresh parser and quietly discard 112, so
-    // that combination asks for the full sweep instead.
-    let known = match read_parser_sizes()? {
-        Some(file) if file.series == series => file.parsers,
+/// A series move republishes the whole catalog, so measurements from the
+/// previous one are all stale at once. Dropping them on a full sweep is right —
+/// every parser is about to be remeasured anyway — but doing it under a filter
+/// would write one fresh parser and quietly discard the rest, so that
+/// combination asks for the full sweep instead.
+fn measurements_to_keep(series: &str, filter: &str) -> Result<BTreeMap<String, ParserSizes>> {
+    match read_parser_sizes()? {
+        Some(file) if file.series == series => Ok(file.parsers),
         Some(file) => {
             ensure!(
                 filter.is_empty(),
@@ -3883,12 +3884,15 @@ fn wasm_sizes(filter: &str, force: bool) -> Result<()> {
                  `mise run wasm-sizes`",
                 file.series
             );
-            BTreeMap::new()
+            Ok(BTreeMap::new())
         }
-        None => BTreeMap::new(),
-    };
+        None => Ok(BTreeMap::new()),
+    }
+}
 
-    let mut wanted: BTreeMap<String, String> = BTreeMap::new();
+/// The npm package of every parser `filter` selects, keyed by WASM name.
+fn parser_packages(toml: &LanguagesToml, filter: &str) -> Result<BTreeMap<String, String>> {
+    let mut wanted = BTreeMap::new();
     for (parser_name, info) in &toml.parsers {
         if !filter.is_empty() && filter != parser_name {
             continue;
@@ -3904,59 +3908,95 @@ fn wasm_sizes(filter: &str, force: bool) -> Result<()> {
         !wanted.is_empty(),
         "no parser in languages.toml matches '{filter}'"
     );
+    Ok(wanted)
+}
 
-    let wasm_names: Vec<String> = wanted.keys().cloned().collect();
+/// What still has to be downloaded, and how many parsers were already current.
+fn plan_measurements(
+    wanted: &BTreeMap<String, String>,
+    series: &str,
+    known: &BTreeMap<String, ParserSizes>,
+    force: bool,
+) -> Result<(Vec<MeasureTarget>, usize)> {
     let packages: Vec<String> = wanted.values().cloned().collect();
     let packuments = fetch_packuments(&packages);
 
     let mut targets = Vec::new();
     let mut current = 0;
-    for ((wasm_name, package), packument) in wasm_names.iter().zip(&packages).zip(packuments) {
+    for ((wasm_name, package), packument) in wanted.keys().zip(&packages).zip(packuments) {
         let packument =
             packument?.with_context(|| format!("{package} is not published on npm yet"))?;
-        let (version, tarball) = highest_published_in_series(&packument, &series)
+        let (version, tarball) = highest_published_in_series(&packument, series)
             .with_context(|| format!("{package} has no {series}.x release on npm"))?;
         if !force && measurement_is_current(known.get(wasm_name), &version) {
             current += 1;
             continue;
         }
-        targets.push((wasm_name.clone(), package.clone(), version, tarball));
+        targets.push(MeasureTarget {
+            wasm_name: wasm_name.clone(),
+            package: package.clone(),
+            version,
+            tarball,
+        });
     }
+    Ok((targets, current))
+}
+
+/// Download each target and read the three numbers off it, in input order.
+fn measure_parsers(targets: &[MeasureTarget]) -> Vec<Result<ParserSizes>> {
+    let agent: ureq::Agent = ureq::Agent::config_builder()
+        .timeout_global(Some(PARSER_DOWNLOAD_TIMEOUT))
+        .build()
+        .into();
+
+    parallel_results(PARSER_DOWNLOAD_CONCURRENCY, targets, |target| {
+        let MeasureTarget {
+            wasm_name,
+            package,
+            version,
+            tarball,
+        } = target;
+        let download = download_bytes(&agent, tarball)
+            .with_context(|| format!("failed to download the {package} tarball"))?;
+        let parser_url =
+            format!("https://cdn.jsdelivr.net/npm/{package}@{version}/{wasm_name}.wasm");
+        let wasm = download_bytes(&agent, &parser_url)
+            .with_context(|| format!("failed to download {wasm_name}.wasm"))?;
+        let memory = lumis_wasm_runtime::parser_memory_size(&wasm)
+            .with_context(|| format!("{wasm_name}.wasm is not a whole parser module"))?;
+        println!("-> {wasm_name} {version}");
+        Ok(ParserSizes {
+            version: version.clone(),
+            download: download.len() as u64,
+            wasm: wasm.len() as u64,
+            memory: u64::from(memory),
+        })
+    })
+}
+
+/// Measure every published parser and rewrite `parser-sizes.json`.
+///
+/// Downloads only what it has not already measured. A published version is
+/// immutable, so a parser whose recorded version is still the newest one cannot
+/// have changed, and an unfiltered run after a single parser release costs that
+/// one parser rather than the 160 MB catalog. `force` re-downloads regardless,
+/// for a file written by an older format.
+fn wasm_sizes(filter: &str, force: bool) -> Result<()> {
+    let series = supported_tree_sitter_series()?;
+    let known = measurements_to_keep(&series, filter)?;
+    let wanted = parser_packages(&read_languages_toml()?, filter)?;
+    let (targets, current) = plan_measurements(&wanted, &series, &known, force)?;
 
     if targets.is_empty() {
         println!("{current} parser(s) already measured at their published version; nothing to do");
         return Ok(());
     }
 
-    let agent: ureq::Agent = ureq::Agent::config_builder()
-        .timeout_global(Some(PARSER_DOWNLOAD_TIMEOUT))
-        .build()
-        .into();
-    let measured = parallel_results(
-        PARSER_DOWNLOAD_CONCURRENCY,
-        &targets,
-        |(wasm_name, package, version, tarball)| {
-            let download = download_bytes(&agent, tarball)
-                .with_context(|| format!("failed to download the {package} tarball"))?;
-            let parser_url =
-                format!("https://cdn.jsdelivr.net/npm/{package}@{version}/{wasm_name}.wasm");
-            let wasm = download_bytes(&agent, &parser_url)
-                .with_context(|| format!("failed to download {wasm_name}.wasm"))?;
-            let memory = lumis_wasm_runtime::parser_memory_size(&wasm)
-                .with_context(|| format!("{wasm_name}.wasm carries no dylink.0 memory info"))?;
-            println!("-> {wasm_name} {version}");
-            Ok(ParserSizes {
-                version: version.clone(),
-                download: download.len() as u64,
-                wasm: wasm.len() as u64,
-                memory: u64::from(memory),
-            })
-        },
-    );
+    let measured = measure_parsers(&targets);
 
     let mut parsers = known;
-    for ((wasm_name, ..), sizes) in targets.iter().zip(measured) {
-        parsers.insert(wasm_name.clone(), sizes?);
+    for (target, sizes) in targets.iter().zip(measured) {
+        parsers.insert(target.wasm_name.clone(), sizes?);
     }
 
     let file = ParserSizesFile {
