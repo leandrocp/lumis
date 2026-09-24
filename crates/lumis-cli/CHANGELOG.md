@@ -1,3 +1,48 @@
+## [0.6.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.5.1...cargo-lumis-cli/v0.6.0) (2026-09-24)
+
+
+### Bug Fixes
+
+- reject a hex colour that is only partly hex - [#1394](https://github.com/leandrocp/lumis/pull/1394)
+- BREAKING: make public error enums non-exhaustive - [#1395](https://github.com/leandrocp/lumis/pull/1395)
+- bound the query match limit so capture iteration stays linear, and make it configurable - [#1425](https://github.com/leandrocp/lumis/pull/1425) by @ericmj
+- slow HTML highlighting and missing colors inside nested elements - [#1435](https://github.com/leandrocp/lumis/pull/1435)
+- BREAKING: return an exception from Lumis.highlight/2 instead of a string - [#1499](https://github.com/leandrocp/lumis/pull/1499)
+- BREAKING: report a full Wasm store as its own parser failure - [#1507](https://github.com/leandrocp/lumis/pull/1507)
+- drop systemverilog from bundle-full so the bundle can be loaded - [#1509](https://github.com/leandrocp/lumis/pull/1509)
+
+
+### Code Refactoring
+
+- BREAKING: nest the render limits under one budget option - [#1526](https://github.com/leandrocp/lumis/pull/1526)
+
+
+### Documentation
+
+- migrate documentation to Fumadocs - [#1445](https://github.com/leandrocp/lumis/pull/1445)
+
+
+### Features
+
+- BREAKING: introduce annotations - [#1100](https://github.com/leandrocp/lumis/pull/1100)
+- BREAKING: render line highlighting as built-in decoration events - [#1398](https://github.com/leandrocp/lumis/pull/1398)
+- BREAKING: render line numbers from the line decoration - [#1411](https://github.com/leandrocp/lumis/pull/1411)
+- theme line number gutters - [#1431](https://github.com/leandrocp/lumis/pull/1431)
+- support HTML tag attributes - [#1436](https://github.com/leandrocp/lumis/pull/1436)
+- expose rainbow brackets as decorations - [#1439](https://github.com/leandrocp/lumis/pull/1439)
+- add binary installers - [#1473](https://github.com/leandrocp/lumis/pull/1473)
+- add lumis-lock.toml to pin parser versions - [#1477](https://github.com/leandrocp/lumis/pull/1477)
+- manage and enforce lumis-lock.toml with mix lumis.* - [#1479](https://github.com/leandrocp/lumis/pull/1479)
+- bound a render with a time limit - [#1478](https://github.com/leandrocp/lumis/pull/1478)
+- rename the cache verb to download - [#1481](https://github.com/leandrocp/lumis/pull/1481)
+- BREAKING: parsers from Hex deps - [#1486](https://github.com/leandrocp/lumis/pull/1486)
+- BREAKING: remove the runtime parser download from the Elixir and Node libraries - [#1510](https://github.com/leandrocp/lumis/pull/1510)
+
+
+### Performance
+
+- coalesce same-scope highlight spans - [#1459](https://github.com/leandrocp/lumis/pull/1459)
+
 ## [0.5.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.5.0...cargo-lumis-cli/v0.5.1) (2026-09-03)
 
 
