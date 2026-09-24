@@ -989,11 +989,6 @@ npm-rehype-lumis|packages/javascript/rehype-lumis
 npm-vite|packages/javascript/vite
 npm-react|packages/javascript/react
 npm-cli|packages/javascript/cli
-npm-wasm-bundle-web|packages/javascript/wasm-bundle-web
-npm-wasm-bundle-web-extra|packages/javascript/wasm-bundle-web-extra
-npm-wasm-bundle-system|packages/javascript/wasm-bundle-system
-npm-wasm-bundle-backend|packages/javascript/wasm-bundle-backend
-npm-wasm-bundle-full|packages/javascript/wasm-bundle-full
 hex-lumis|packages/elixir/lumis
 TABLE
 '''

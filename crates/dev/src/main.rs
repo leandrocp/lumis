@@ -3706,6 +3706,13 @@ fn wasm_packages() -> Result<()> {
         let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
         packages.insert(format!("@lumis-sh/wasm-{}", wasm_package_suffix(wasm_name)));
     }
+    // Bundles publish from `wasm-release.yml` too. This list is what
+    // `mise run npm-trust` walks, and npm keeps the trusted publisher on the
+    // package record: a bundle missing here keeps whichever workflow it was
+    // last pointed at, and OIDC publishing from the other one answers 404.
+    for (bundle, _) in &toml.bundles {
+        packages.insert(format!("@lumis-sh/wasm-bundle-{bundle}"));
+    }
     for package in packages {
         println!("{package}");
     }
