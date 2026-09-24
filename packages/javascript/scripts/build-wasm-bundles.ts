@@ -25,12 +25,8 @@ function argValue(flag: string): string | undefined {
   return index === -1 ? undefined : process.argv[index + 1];
 }
 
-const OUT_DIR = path.resolve(
-  WORKSPACE_ROOT,
-  argValue("--out") ?? path.join("tmp", "wasm", "npm"),
-);
+const OUT_DIR = path.resolve(WORKSPACE_ROOT, argValue("--out") ?? path.join("tmp", "wasm", "npm"));
 const VERSION = argValue("--version") ?? "0.0.0";
-
 
 function readLanguagesToml(): LanguagesToml {
   const text = fs.readFileSync(LANGUAGES_TOML, "utf-8");
