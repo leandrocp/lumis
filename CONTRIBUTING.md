@@ -295,7 +295,7 @@ All language metadata lives in `languages.toml`. It is consumed by:
 - `crates/lumis-cli/build.rs`: reads `queries/processed/` to embed query constants
 - `crates/lumis-core/build.rs`: generates the `Language` enum and Rust detection metadata
 - `packages/javascript/lumis/scripts/build-langs.ts`: generates `packages/javascript/lumis/langs/*.ts`, bundles, and JS detection and loader metadata
-- `packages/javascript/scripts/build-wasm-bundles.ts`: generates `packages/javascript/wasm-bundle-*` preset packages from bundle definitions
+- `packages/javascript/scripts/build-wasm-bundles.ts`: generates the `@lumis-sh/wasm-bundle-*` packages into `tmp/wasm/npm/` at publish time. They are not committed: a bundle is a manifest and an import list derived from `languages.toml`, so a copy in the tree is a second source of truth that goes stale whenever membership changes
 - CI workflows: build WASMs and update parser and query revisions
 
 Bundle definitions also live here under `[bundles.*]`.
@@ -309,7 +309,6 @@ For Rust crates, bundle support is implemented as Cargo features such as `lang-b
 mise run cargo-update-features
 mise run langs-gen-catalog
 pnpm --filter @lumis-sh/lumis run build:generate
-pnpm --dir packages/javascript run build:wasm-bundles
 ```
 
 This updates files such as:
@@ -318,7 +317,6 @@ This updates files such as:
 - `packages/javascript/lumis/langs/*.ts`
 - `packages/javascript/lumis/bundles/*.ts`
 - `packages/javascript/lumis/src/generated/*`
-- `packages/javascript/wasm-bundle-*/`
 
 Parser/query upgrades do not change runtime catalogs. Changes to language IDs,
 aliases, package assignments, bundles, or the Tree-sitter series do; CI runs

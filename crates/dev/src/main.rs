@@ -3846,6 +3846,8 @@ struct BundlePlanEntry {
     bundle: String,
     app: String,
     version: String,
+    npm: bool,
+    hex: bool,
 }
 
 /// What a parser resolves to, and where it is missing.
@@ -3881,7 +3883,15 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
     let registry = hex_registry()?;
 
     let parsers = plan_parsers(candidates, packuments, &registry, &series)?;
-    let bundles = plan_bundles(&registry, filter, &bundle_versions()?);
+
+    let staged = staged_bundles()?;
+    let bundle_packuments = fetch_packuments(
+        &staged
+            .iter()
+            .map(|bundle| format!("@lumis-sh/wasm-bundle-{}", bundle.name))
+            .collect::<Vec<_>>(),
+    );
+    let bundles = plan_bundles(&registry, filter, &staged, &bundle_packuments)?;
 
     println!(
         "{}",
@@ -3985,36 +3995,77 @@ fn plan_parsers(
 fn plan_bundles(
     registry: &HashMap<String, Vec<String>>,
     filter: &str,
-    candidates: &[(String, String)],
-) -> Vec<BundlePlanEntry> {
+    staged: &[StagedBundle],
+    packuments: &[Result<Option<Value>>],
+) -> Result<Vec<BundlePlanEntry>> {
     if !filter_parsers(filter).is_empty() {
-        return Vec::new();
+        return Ok(Vec::new());
     }
 
     let mut bundles = Vec::new();
-    for (name, version) in candidates {
-        let app = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
-        if !registry
-            .get(&app)
-            .is_some_and(|published| published.contains(version))
-        {
+    for (bundle, packument) in staged.iter().zip(packuments) {
+        let packument = match packument {
+            Ok(packument) => packument.as_ref(),
+            Err(error) => bail!(
+                "could not read @lumis-sh/wasm-bundle-{}: {error}",
+                bundle.name
+            ),
+        };
+        let app = format!("lumis_wasm_bundle_{}", bundle.name.replace('-', "_"));
+        let hex = registry.get(&app).cloned().unwrap_or_default();
+
+        let version = packument
+            .and_then(|p| bundle_version_for_members(p, &bundle.members))
+            // These members are published already: that version is the one, and
+            // the registry missing it gets the same one.
+            .unwrap_or_else(|| next_patch(BUNDLE_SERIES, packument, &hex));
+
+        let on_npm = packument
+            .and_then(|p| p.get("versions"))
+            .and_then(Value::as_object)
+            .is_some_and(|versions| versions.contains_key(&version));
+        let on_hex = hex.contains(&version);
+
+        if !on_npm || !on_hex {
             bundles.push(BundlePlanEntry {
-                bundle: name.clone(),
+                bundle: bundle.name.clone(),
                 app,
-                version: version.clone(),
+                version,
+                npm: !on_npm,
+                hex: !on_hex,
             });
         }
     }
-    bundles
+    Ok(bundles)
 }
 
-/// Each bundle and the version its npm package is at.
+/// Bundles version independently of the parsers they group: a bundle is a list
+/// of dependencies, not a Tree-sitter artifact, so it has no ABI series to
+/// track. `0.1` is where they started and nothing has needed a minor since.
+const BUNDLE_SERIES: &str = "0.1";
+
+/// Where `build:wasm-bundles` stages the npm packages it generates.
 ///
-/// The npm package is the source for both members and version, so the two
-/// registries cannot disagree about what a bundle is.
-fn bundle_versions() -> Result<Vec<(String, String)>> {
+/// Bundles are not committed. They carry no code of their own — a manifest, an
+/// import list and a README, all derivable from languages.toml — so a copy in
+/// the tree would be a second source of truth that goes stale whenever
+/// membership changes without someone bumping a version by hand.
+const NPM_BUNDLE_STAGE: &str = "tmp/wasm/npm";
+
+/// A staged bundle: what it is called and which parser packages it groups.
+///
+/// The generator is the only thing that decides membership, in one place, and
+/// this reads what it wrote rather than working it out a second time.
+struct StagedBundle {
+    name: String,
+    /// npm dependency names, sorted. A bundle *is* its dependency list.
+    members: Vec<String>,
+}
+
+fn staged_bundles() -> Result<Vec<StagedBundle>> {
+    let pattern = format!("{NPM_BUNDLE_STAGE}/wasm-bundle-*/package.json");
     let mut bundles = Vec::new();
-    for entry in glob::glob("packages/javascript/wasm-bundle-*/package.json")? {
+    for entry in glob::glob(&pattern)? {
         let path = entry?;
         let manifest: Value = serde_json::from_slice(&fs::read(&path)?)
             .with_context(|| format!("invalid package.json at {}", path.display()))?;
@@ -4024,14 +4075,48 @@ fn bundle_versions() -> Result<Vec<(String, String)>> {
             .and_then(|dir| dir.to_str())
             .and_then(|dir| dir.strip_prefix("wasm-bundle-"))
             .with_context(|| format!("could not name the bundle at {}", path.display()))?;
-        let version = manifest
-            .get("version")
-            .and_then(Value::as_str)
-            .with_context(|| format!("{} has no version", path.display()))?;
-        bundles.push((name.to_string(), version.to_string()));
+        bundles.push(StagedBundle {
+            name: name.to_string(),
+            members: dependency_names(&manifest),
+        });
     }
-    bundles.sort();
+
+    if bundles.is_empty() {
+        bail!(
+            "no bundles staged under {NPM_BUNDLE_STAGE}. \
+             Run `pnpm --dir packages/javascript run build:wasm-bundles` first."
+        );
+    }
+
+    bundles.sort_by(|a, b| a.name.cmp(&b.name));
     Ok(bundles)
+}
+
+/// `dependencies` keys, sorted, or empty when there are none.
+fn dependency_names(manifest: &Value) -> Vec<String> {
+    let mut names = manifest
+        .get("dependencies")
+        .and_then(Value::as_object)
+        .map(|deps| deps.keys().cloned().collect::<Vec<_>>())
+        .unwrap_or_default();
+    names.sort();
+    names
+}
+
+/// The version a bundle's membership was published under on npm, if it was.
+///
+/// The bundle equivalent of `version_for_definition`. A parser identifies its
+/// content with a `definitionHash`; a bundle has no bytes to hash, so its
+/// dependency list is the identity. Matching it against what npm published is
+/// what makes a membership change take a new version on its own, instead of
+/// waiting for someone to notice and bump one by hand.
+fn bundle_version_for_members(packument: &Value, members: &[String]) -> Option<String> {
+    let versions = packument.get("versions")?.as_object()?;
+    versions
+        .iter()
+        .filter(|(_, manifest)| dependency_names(manifest) == members)
+        .map(|(version, _)| version.clone())
+        .max_by_key(|version| patch_of(version, "0.1").unwrap_or(0))
 }
 
 /// The version a definition was published under on npm, if it was.
@@ -4390,10 +4475,13 @@ fn stage_hex_wasm(name: &str) -> Result<()> {
 /// Fails when the npm bundle has not been generated, or names a package no
 /// parser in `languages.toml` produces.
 fn stage_hex_bundle(name: &str) -> Result<()> {
-    let npm_dir = format!("packages/javascript/wasm-bundle-{name}");
+    let npm_dir = format!("{NPM_BUNDLE_STAGE}/wasm-bundle-{name}");
     let manifest = format!("{npm_dir}/package.json");
     if !Path::new(&manifest).exists() {
-        bail!("ERROR: {manifest} not found. Run 'mise run build-wasm-bundles' first.");
+        bail!(
+            "ERROR: {manifest} not found. Run \
+             `pnpm --dir packages/javascript run build:wasm-bundles --version <version>` first."
+        );
     }
 
     let npm: serde_json::Value = serde_json::from_slice(&fs::read(&manifest)?)?;
@@ -4700,6 +4788,64 @@ fn elixir_lumis_requirement() -> Result<String> {
 mod hex_wasm_tests {
     use super::*;
 
+    fn bundle_packument(versions: &[(&str, &[&str])]) -> Value {
+        let published = versions
+            .iter()
+            .map(|(version, members)| {
+                let deps = members
+                    .iter()
+                    .map(|m| ((*m).to_string(), json!("^0.26.0")))
+                    .collect::<serde_json::Map<_, _>>();
+                ((*version).to_string(), json!({ "dependencies": deps }))
+            })
+            .collect::<serde_json::Map<_, _>>();
+        json!({ "versions": published })
+    }
+
+    /// A bundle has no bytes to hash, so its dependency list is its identity.
+    /// Finding the version that carries the current membership is what lets a
+    /// membership change publish itself.
+    #[test]
+    fn a_bundle_keeps_the_version_its_membership_was_published_under() {
+        let published = bundle_packument(&[
+            ("0.1.0", &["@lumis-sh/wasm-c"]),
+            ("0.1.1", &["@lumis-sh/wasm-c", "@lumis-sh/wasm-diff"]),
+        ]);
+        let members = vec![
+            "@lumis-sh/wasm-c".to_string(),
+            "@lumis-sh/wasm-diff".to_string(),
+        ];
+
+        assert_eq!(
+            bundle_version_for_members(&published, &members).as_deref(),
+            Some("0.1.1")
+        );
+    }
+
+    /// The case that shipped: `systemverilog` left `bundle-full` and nothing
+    /// republished, because the planner only asked whether the version existed.
+    #[test]
+    fn changed_membership_matches_no_published_version() {
+        let published = bundle_packument(&[(
+            "0.1.1",
+            &["@lumis-sh/wasm-c", "@lumis-sh/wasm-systemverilog"],
+        )]);
+        let members = vec!["@lumis-sh/wasm-c".to_string()];
+
+        assert_eq!(bundle_version_for_members(&published, &members), None);
+        // So it takes the next patch and publishes, rather than reporting
+        // nothing to do.
+        assert_eq!(
+            next_patch(BUNDLE_SERIES, Some(&published), &["0.1.1".to_string()]),
+            "0.1.2"
+        );
+    }
+
+    #[test]
+    fn a_bundle_npm_has_never_seen_starts_at_the_first_patch() {
+        assert_eq!(next_patch(BUNDLE_SERIES, None, &[]), "0.1.0");
+    }
+
     fn packument(versions: &[(&str, &str)]) -> Value {
         json!({
             "versions": versions.iter().map(|(version, hash)| {
@@ -4753,15 +4899,25 @@ mod hex_wasm_tests {
     #[test]
     fn a_filtered_run_plans_no_bundles() {
         let registry = HashMap::new();
-        let candidates = [("web".to_string(), "0.26.3".to_string())];
+        let staged = [StagedBundle {
+            name: "web".to_string(),
+            members: vec!["@lumis-sh/wasm-css".to_string()],
+        }];
+        let packuments = vec![Ok(None)];
 
         assert_eq!(
-            plan_bundles(&registry, "", &candidates).len(),
+            plan_bundles(&registry, "", &staged, &packuments)
+                .unwrap()
+                .len(),
             1,
-            "Hex has no bundles, so an unfiltered run plans the one there is"
+            "neither registry has it, so an unfiltered run plans the one there is"
         );
-        assert!(plan_bundles(&registry, "json", &candidates).is_empty());
-        assert!(plan_bundles(&registry, "json,elixir", &candidates).is_empty());
+        assert!(plan_bundles(&registry, "json", &staged, &packuments)
+            .unwrap()
+            .is_empty());
+        assert!(plan_bundles(&registry, "json,elixir", &staged, &packuments)
+            .unwrap()
+            .is_empty());
     }
 
     /// Both readers of the filter have to agree on what counts as filtered, or
@@ -4875,26 +5031,31 @@ mod hex_wasm_tests {
 
     /// The npm bundle is the same package, and already carries the text. A
     /// second one generated here is a second thing to keep in step.
+    ///
+    /// Bundles are generated rather than committed, so there are no manifests
+    /// on disk to read. What is fixed is the template `build-wasm-bundles.ts`
+    /// writes, and the names it writes it for — so this checks the text Hex
+    /// will actually receive, for every bundle languages.toml declares.
     #[test]
-    fn every_bundle_manifest_carries_a_description_hex_accepts() {
-        let manifests = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../packages/javascript")
-            .join("wasm-bundle-*/package.json");
+    fn every_bundle_description_is_one_hex_accepts() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../languages.toml");
+        let text = fs::read_to_string(&path).expect("languages.toml should be readable");
+        let toml: LanguagesToml = toml::from_str(&text).expect("languages.toml should parse");
 
-        let mut checked = 0;
-        for entry in glob::glob(&manifests.to_string_lossy()).unwrap() {
-            let path = entry.unwrap();
-            let manifest: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-            let description = manifest
-                .get("description")
-                .and_then(Value::as_str)
-                .unwrap_or_else(|| panic!("{} has no description", path.display()));
+        assert!(
+            toml.bundles.len() >= 5,
+            "found {} bundles; the corpus is meant to be every one declared",
+            toml.bundles.len()
+        );
 
-            check_hex_description(&path.to_string_lossy(), description)
-                .expect("a bundle manifest Hex would reject cannot be staged");
-            checked += 1;
+        for name in toml.bundles.keys() {
+            // Kept in step with `writeBundlePackage` by hand. The alternative
+            // is reading a generated manifest, which means this test passes or
+            // fails on whether someone ran pnpm first.
+            let description = format!("Lumis WASM {name} language bundle");
+            check_hex_description(&format!("wasm-bundle-{name}"), &description)
+                .expect("a bundle description Hex would reject cannot be staged");
         }
-        assert!(checked >= 5, "found {checked} bundle manifests");
     }
 
     #[test]

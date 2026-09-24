@@ -16,7 +16,6 @@ on:
       - "packages/javascript/themes/**"
       - "packages/javascript/package.json"
       - "packages/javascript/scripts/check-native-versions.mjs"
-      - "packages/javascript/wasm-bundle-*/**"
       - "crates/lumis-core/**"
       - "crates/lumis/**"
       - "crates/lumis-wasm-runtime/**"
@@ -38,7 +37,6 @@ on:
       - "packages/javascript/themes/**"
       - "packages/javascript/package.json"
       - "packages/javascript/scripts/check-native-versions.mjs"
-      - "packages/javascript/wasm-bundle-*/**"
       - "crates/lumis-core/**"
       - "crates/lumis/**"
       - "crates/lumis-wasm-runtime/**"
@@ -87,7 +85,9 @@ jobs:
       # The release workflow publishes six native npm packages before the main
       # package, and npm will not republish an existing version.
       - run: node packages/javascript/scripts/check-native-versions.mjs
-      - run: pnpm --dir packages/javascript run build:wasm-bundles && git diff --exit-code -- packages/javascript/wasm-bundle-*
+      # Generated into tmp/ and never committed, so there is nothing to diff.
+      # This only proves the generator still runs.
+      - run: pnpm --dir packages/javascript run build:wasm-bundles
 
   test:
     if: >-

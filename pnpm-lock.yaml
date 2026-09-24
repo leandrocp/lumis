@@ -165,8 +165,8 @@ importers:
         specifier: workspace:*
         version: link:../themes
       '@lumis-sh/wasm-bundle-full':
-        specifier: workspace:*
-        version: link:../wasm-bundle-full
+        specifier: ^0.1.1
+        version: 0.1.1(@lumis-sh/lumis@0.7.1)
       '@lumis-sh/wasm-json':
         specifier: 0.26.2
         version: 0.26.2
@@ -485,545 +485,6 @@ importers:
       vitest:
         specifier: ^4.1.2
         version: 4.1.4(@types/node@25.6.0)(jsdom@27.4.0(@noble/hashes@2.3.0)(supports-color@8.1.1))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.8.3))
-
-  packages/javascript/wasm-bundle-backend:
-    dependencies:
-      '@lumis-sh/wasm-csharp':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-diff':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-elixir':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-erlang':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-go':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-java':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-javadoc':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-javascript':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-kotlin':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-php':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-protobuf':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-python':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-ruby':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-rust':
-        specifier: ^0.26.0
-        version: 0.26.2
-      '@lumis-sh/wasm-scala':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-sql':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-typescript':
-        specifier: ^0.26.0
-        version: 0.26.1
-    devDependencies:
-      '@lumis-sh/lumis':
-        specifier: '>=0.0.1'
-        version: 0.3.0
-
-  packages/javascript/wasm-bundle-full:
-    dependencies:
-      '@lumis-sh/wasm-angular':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-arduino':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-asm':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-astro':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-bash':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-bicep':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-c':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-caddy':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-clojure':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-cmake':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-comment':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-commonlisp':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-cpp':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-csharp':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-css':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-csv':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-d':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-dart':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-diff':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-dockerfile':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-dot':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-editorconfig':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-eex':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-elixir':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-elm':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-embedded-template':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-erlang':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-fish':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-fortran':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-fsharp':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-gitattributes':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-gitignore':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-gleam':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-glimmer':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-glsl':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-go':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-graphql':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-haskell':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-hcl':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-heex':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-html':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-http':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-iex':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-ini':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-java':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-javadoc':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-javascript':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-jinja':
-        specifier: ^0.26.0
-        version: 0.26.2
-      '@lumis-sh/wasm-jinja_inline':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-jq':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-json':
-        specifier: ^0.26.0
-        version: 0.26.2
-      '@lumis-sh/wasm-json5':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-julia':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-just':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-kdl':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-kotlin':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-latex':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-liquid':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-llvm':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-lua':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-luadoc':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-make':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-markdown':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-markdown_inline':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-matlab':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-mermaid':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-nginx':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-nim':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-nix':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-nushell':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-objc':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-ocaml':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-ocaml_interface':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-pascal':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-perl':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-php':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-powershell':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-prisma':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-protobuf':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-puppet':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-python':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-qmljs':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-r':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-racket':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-regex':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-rst':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-ruby':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-rust':
-        specifier: ^0.26.0
-        version: 0.26.2
-      '@lumis-sh/wasm-scala':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-scheme':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-scss':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-solidity':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-sql':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-surface':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-svelte':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-swift':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-tcl':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-terraform':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-toml':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-toon':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-tsx':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-typescript':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-typst':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-vhdl':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-vim':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-vue':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-wat':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-wgsl':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-xml':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-yaml':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-zig':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-zsh':
-        specifier: ^0.26.0
-        version: 0.26.0
-    devDependencies:
-      '@lumis-sh/lumis':
-        specifier: '>=0.0.1'
-        version: 0.3.0
-
-  packages/javascript/wasm-bundle-system:
-    dependencies:
-      '@lumis-sh/wasm-asm':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-bash':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-c':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-cmake':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-cpp':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-diff':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-go':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-llvm':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-make':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-rust':
-        specifier: ^0.26.0
-        version: 0.26.2
-      '@lumis-sh/wasm-wat':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-zig':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-zsh':
-        specifier: ^0.26.0
-        version: 0.26.0
-    devDependencies:
-      '@lumis-sh/lumis':
-        specifier: '>=0.0.1'
-        version: 0.3.0
-
-  packages/javascript/wasm-bundle-web:
-    dependencies:
-      '@lumis-sh/wasm-css':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-diff':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-html':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-javascript':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-json':
-        specifier: ^0.26.0
-        version: 0.26.2
-      '@lumis-sh/wasm-tsx':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-typescript':
-        specifier: ^0.26.0
-        version: 0.26.1
-    devDependencies:
-      '@lumis-sh/lumis':
-        specifier: '>=0.0.1'
-        version: 0.3.0
-
-  packages/javascript/wasm-bundle-web-extra:
-    dependencies:
-      '@lumis-sh/wasm-angular':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-astro':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-dart':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-diff':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-eex':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-elm':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-embedded-template':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-glimmer':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-graphql':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-heex':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-markdown':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-markdown_inline':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-php':
-        specifier: ^0.26.0
-        version: 0.26.1
-      '@lumis-sh/wasm-prisma':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-scss':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-surface':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-svelte':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-vue':
-        specifier: ^0.26.0
-        version: 0.26.0
-      '@lumis-sh/wasm-xml':
-        specifier: ^0.26.0
-        version: 0.26.1
-    devDependencies:
-      '@lumis-sh/lumis':
-        specifier: '>=0.0.1'
-        version: 0.3.0
 
 packages:
 
@@ -1424,8 +885,60 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lumis-sh/lumis@0.3.0':
-    resolution: {integrity: sha512-BfT8mP7B2xHPfZXSgdvpK5HJNompn0VZ9VLA30015uf/EwnNbiF0RW9MhDgH/TijB8bXkYNIzDnqB8mY3Pd4xw==}
+  '@lumis-sh/lumis-native-darwin-arm64@0.7.1':
+    resolution: {integrity: sha512-mm+KS7/uI5O3pgE7kPHPlXHjE+niFn8PNjwreiXFmeK22eRipWJ0X2gQW1J2ZjSPlOzctQR9yCob/qaSGowGDw==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@lumis-sh/lumis-native-darwin-x64@0.7.1':
+    resolution: {integrity: sha512-TwmyzOhb8/s5CDhKnr9+QbC8fEEuvuK5NLnYRYLjfDKCejtHFHEYjo3FzdaT5w5J/Jh4AVFo4/QA43q9woasBw==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.7.1':
+    resolution: {integrity: sha512-ZgVlABh64KFFZbTvWZljGtoqB1KDoGo1gVk/mTD9XuG9ZEiZMegpuVZd+hfnOsDFhLtNBCzeB+iQcO+F7DItdQ==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.7.1':
+    resolution: {integrity: sha512-q0D4auxlFfeW8UR0DahBC1zZEjyxMaFpRS8L+oXEtY15JENdSLjhn/78ur24IlgTcN5BEbS1u2W2z8bUVmGIOA==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.7.1':
+    resolution: {integrity: sha512-DRNyF9yxKmbdFpUzLHXCMIJyun6tSvWpgy1kEunwo20GA3zYlupsbhNg1ZsomCASRAfk7+tGcUUvW/ST6U76jQ==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@lumis-sh/lumis-native-linux-x64-musl@0.7.1':
+    resolution: {integrity: sha512-nJUedMuAfMAF24wqwAxI8dsTip8v9HDmuvfh4UZg5NY+tWY53cJSmFmbUlXgnpNOOoJAGRD9NUGlLIe17v+FUg==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.7.1':
+    resolution: {integrity: sha512-fLalaPYC9UaSkiHHOak41S3cp67TSaKLFfr/D66RWri7lUCXc20j7YnSRvQNSSSMQEEuWm5zOX5gw34UnPZUuQ==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.7.1':
+    resolution: {integrity: sha512-w9N3pNuy+2//9paivs4h/NzOO5MCPFIyHzI6qD4S03dd0N4eD5kHskfnijFN4G6G54RR+IKrX2JMd7aY7Pp33g==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [win32]
+
+  '@lumis-sh/lumis@0.7.1':
+    resolution: {integrity: sha512-E6dIjIXAeQmy8dn7EzwqZh+cyWkhLTCO96MSRJeu1sKETyJLD/iePCgTTtB8fqEzknaSe6T54L8cblw+SZAhqw==}
     engines: {node: '>=18'}
 
   '@lumis-sh/wasm-angular@0.26.0':
@@ -1440,17 +953,16 @@ packages:
   '@lumis-sh/wasm-astro@0.26.0':
     resolution: {integrity: sha512-TggDJY1psbZJv8j1q8lOPJbrjJDLQTQCcMMVsYB4KUWfMriLYmDKBu21QGLWQy49pQf/9VqsLb8x/RDmv2N4Sg==}
 
-  '@lumis-sh/wasm-bash@0.26.1':
-    resolution: {integrity: sha512-Nvs8zJGsNzcXJl7KufZIy3xeGrjxynVs+rJnHRpW6NKJ1hmiGoCInLI5pnXIdWMGq0yyi8Pwvc3l8supXb7JHg==}
-
   '@lumis-sh/wasm-bash@0.26.3':
     resolution: {integrity: sha512-smDGqIH5MNGi5GwfkHVSOwNaMJf+HBKx3+zkGiwDF6QRXoVX+tWmkb5yiaEbyRcIbGVVwApUhomQCb/ZOHauGQ==}
 
   '@lumis-sh/wasm-bicep@0.26.0':
     resolution: {integrity: sha512-1B5aOKjUVcsbzDF1g5+uZPTmU3r07WfmB1DkuLARnLyphue90XIQZZvnfSy+ggVOpfsTSrZTtry2YA6Vl2/TVg==}
 
-  '@lumis-sh/wasm-c@0.26.0':
-    resolution: {integrity: sha512-wfvGeNdQHLsB5rVLr9mlXlGgLQvVW+utLJiSjjRVwK4J2CCesIXiwsTWWkXbO30AeskpCm6C9T9I8g2ElX5Tnw==}
+  '@lumis-sh/wasm-bundle-full@0.1.1':
+    resolution: {integrity: sha512-p0WP1SWrKAerP7SUTuhFp6JOFFBfPP/5OCjvKZ9QnyyfhVYcASo4GrOHt1HR+JYCXNpzwI04e3e6kRpDyzrWoA==}
+    peerDependencies:
+      '@lumis-sh/lumis': '>=0.0.1'
 
   '@lumis-sh/wasm-c@0.26.1':
     resolution: {integrity: sha512-3WJB71iJk4CXkrUGrQNz1xUzAyY6ykzp0przLGhAmjdfJoagIHawgt51hGaL4E7mxvC/tO2zxMYVlkVYEDmB4w==}
@@ -1475,9 +987,6 @@ packages:
 
   '@lumis-sh/wasm-csharp@0.26.0':
     resolution: {integrity: sha512-o/lEUZDADRmvPJ8Lo1BwcOK00shDyELyEoajRhWkwVgUHMiQwaaHxRzVlRdf2qUBtDfIqo3Bfs48ZTkvPH+h/A==}
-
-  '@lumis-sh/wasm-css@0.26.1':
-    resolution: {integrity: sha512-XxMXs5UnfMAgF7msdQn7prl+DQIh+rrgCetbg6TrZlzx0IGYH+D/VpkMt3mIImFRcwxlzFFPYqTdEtodgFufQQ==}
 
   '@lumis-sh/wasm-css@0.26.2':
     resolution: {integrity: sha512-BH7pFMWLrwhVMOD5X2Kn8LWnsjXT+o1yXmiw9KF4Chjbl6bHvxwHGKSjn8WyDmPxnLDOLEy75tjU4wapDT2dZQ==}
@@ -1505,9 +1014,6 @@ packages:
 
   '@lumis-sh/wasm-eex@0.26.0':
     resolution: {integrity: sha512-3K8tUnqXCsYUOVj6Us4GPaLZpFpen3x/UEumqdpAJih93qljD4iggmMRPAVGX2EF7iIwtcXr8WiGpgsvc8lWqg==}
-
-  '@lumis-sh/wasm-elixir@0.26.1':
-    resolution: {integrity: sha512-HqlYSj3NUG+tBoQ9jvRkqLg40p+tIEQNOlhrm0DYVWEafVvIJglQOetKWiL5/kkHk5helEx3A5FMRaZjSm8CgQ==}
 
   '@lumis-sh/wasm-elixir@0.26.2':
     resolution: {integrity: sha512-y79aQzXlcPjV4ot1t72DfwdJUN1yCbwZLVbxTWBlL1u5zyyrIKy7dQ4KXbeyB4YMovLjUlPjPHtV7z0cLlDWCw==}
@@ -1545,9 +1051,6 @@ packages:
   '@lumis-sh/wasm-glsl@0.26.0':
     resolution: {integrity: sha512-4zcQ2wPmB/oPqFq3QSiCMXUz2nwFZqdz1hikdyoyz/udhkrnebx0rDnFiQY5g0tcwFTxo0XboWsDgQ8iOWEUZg==}
 
-  '@lumis-sh/wasm-go@0.26.0':
-    resolution: {integrity: sha512-1++ZZkkYGNWOIPIQ+6/LtiKtW3i7LnAHhJhvPvq0+KAssl2xuTPEajEtfOcqQNAy85lfk4BsRKTqG5TEaG/gUg==}
-
   '@lumis-sh/wasm-go@0.26.1':
     resolution: {integrity: sha512-0y/6e07WFHnLLrYq/ibdSnEU6+7vgcaY19s55+0FeBHlg8jvHEF3i1b1aKfJsSdWdkyIn2SV0WZ9+Tnjqtii2Q==}
 
@@ -1560,14 +1063,8 @@ packages:
   '@lumis-sh/wasm-hcl@0.26.0':
     resolution: {integrity: sha512-d+gsxqa7hVrqzKGFc6fS6/HmMZKcuNKQqX6z/rgQI5uUf8q0jSZZF2KCnaiO+zEz2XS719oaMfFglFvRY71O8Q==}
 
-  '@lumis-sh/wasm-heex@0.26.0':
-    resolution: {integrity: sha512-PdZHQazYfKBmiAKaoVM3dXhP//EiAkK/DGZQTzt57/umi+FUXc+j0ivUnGGJTWYc7HFFTtFCmiCog6VwmocvTQ==}
-
   '@lumis-sh/wasm-heex@0.26.1':
     resolution: {integrity: sha512-PScHW0oUVtWqmNKL4H51gZIucEnqJ+oCKEiFmkDpbxIF6gQu0B7Zzi22+EFAiQerN8ts8MSWKCTdWAZr3QsOSA==}
-
-  '@lumis-sh/wasm-html@0.26.1':
-    resolution: {integrity: sha512-B4wvYmQdGprTRjjSYbt/p3g1Futa1H4GSCXVsatbDuRRkVoNc+Tix2qSDVKMaaaCAkzHtVYjZ7wtG6M8u1i5HQ==}
 
   '@lumis-sh/wasm-html@0.26.2':
     resolution: {integrity: sha512-mPYhxTu+DySYivfZ2ca2cavSTCiYiuEtyduvessupX7NMd3oSulB72xI9PY08I66vSlNEVIiwnRWvcy6sMFKWQ==}
@@ -1586,9 +1083,6 @@ packages:
 
   '@lumis-sh/wasm-javadoc@0.26.0':
     resolution: {integrity: sha512-yI2G6i17acUxpnPkCjqt+DRBTeqLGSV7rw+nrfdKunIuAOKA3W4c/GWtzHeZ687tWEmlx0+pDpTz9ejRMoANDA==}
-
-  '@lumis-sh/wasm-javascript@0.26.1':
-    resolution: {integrity: sha512-O7sEbhj77CXiSb0DdmmzSW/ggFjQrYUywDjg7O3m0X4J7SCALOqyOiAgsRv2rfA3oBXf1zBqCgrstiYf/opUfQ==}
 
   '@lumis-sh/wasm-javascript@0.26.2':
     resolution: {integrity: sha512-bwvOg4bQxDGocUaCbj8u4nYffHxH2sJpxQc3IsNFoXRa7doJD7uGc1t3HS6SjPXNimsDMAnb0gAoST9yuWP6BA==}
@@ -1638,14 +1132,8 @@ packages:
   '@lumis-sh/wasm-make@0.26.1':
     resolution: {integrity: sha512-cAK38EomUf13GAAN5S4ag0+9ckdvjAzcn3YEnZcHfHr3sqt5N9gme8D+sLZ8kBNCIkjG9RSzKR6mBrpe4L9yxw==}
 
-  '@lumis-sh/wasm-markdown@0.26.0':
-    resolution: {integrity: sha512-j3SgDlOktRGVAOq7jEvodBE4b42r8fmRp3Da9U7sbAI32mFvJVHjXEfVU6a63t0/yM9F3gGOAFUcggqxM7Xpow==}
-
   '@lumis-sh/wasm-markdown@0.26.1':
     resolution: {integrity: sha512-JFXyb+FdU89ZKDoFyKHZkeObGjeVevp6OI70JPHgZa0WDXmyoytUmav0Rs4LY0I1sGJvElloIP+tA6168HMX8A==}
-
-  '@lumis-sh/wasm-markdown_inline@0.26.0':
-    resolution: {integrity: sha512-W+m3XVcWsk1Fpts4L1pCX4S+YIAgbIObvzg0KNST0aKtghpqKxf2gMVJxR+IomZoGr0J6ey2kh2Ow50/nDsXmA==}
 
   '@lumis-sh/wasm-markdown_inline@0.26.1':
     resolution: {integrity: sha512-0lrHgeL7YWUpufEBQSJ0kFlNuc2ShpS3twUyADC0o8p8hMEoqvsSBlcKCVXs4VYhZGoJKNZsdjJ7C6LWTRt35Q==}
@@ -1698,9 +1186,6 @@ packages:
   '@lumis-sh/wasm-puppet@0.26.0':
     resolution: {integrity: sha512-7FM7HlveW8uTMVx/weYdSULStVKULOg0sBZxpMHFZ322qiZxxMo6Z1OCL02OyN7ulep6/o+PeDd/wPWkFtrYxg==}
 
-  '@lumis-sh/wasm-python@0.26.0':
-    resolution: {integrity: sha512-ltynaOG0TH8EvmEjsj4Za3VvIA3eKR3IZgr3owEf0ZRILYrJocP7vuPWv14zR/sB7DcBz6uZPmaFT/4ikg863g==}
-
   '@lumis-sh/wasm-python@0.26.2':
     resolution: {integrity: sha512-wevU3mGtXGWlBOkPL7fpM7MCvqjaP72mWmK3YbUDLNqRoZgRwIo9XC9UScFiMZWUQZ9QC9xZ6jlOUrRblwHyXA==}
 
@@ -1719,14 +1204,8 @@ packages:
   '@lumis-sh/wasm-rst@0.26.0':
     resolution: {integrity: sha512-uQJRUyzRp9jW4/JN9NfSo84A/sf5DTiF5klSvG3bPDRXpbTY3XboCWCsHya3K4ZGYEJrd9i8QVpaz50jdTzAEw==}
 
-  '@lumis-sh/wasm-ruby@0.26.1':
-    resolution: {integrity: sha512-FJoWjMJpiPtG1zx9inALZ400rzqeDkPwvhlr+igSByrWg/cZb+GVxRUUpOaN7vuGdPUaGE+gqoCjLAQtpamtTg==}
-
   '@lumis-sh/wasm-ruby@0.26.2':
     resolution: {integrity: sha512-PgrgNTPhgXIBrl4oJpL+HbmvHBC1HZRW9u5/zSz4t7+6KCJntsXLLBwliz2ZH/h+dc8T+hnhsFG6T7cPQnZWbQ==}
-
-  '@lumis-sh/wasm-rust@0.26.2':
-    resolution: {integrity: sha512-iguBPDz5RFq2Je7en6IXtiRJzvjKKT/9JZAWD+no/8dydpJZs+FTS9uJL6XI7gcI526ZuVnI69uI/TqSmDTlxA==}
 
   '@lumis-sh/wasm-rust@0.26.3':
     resolution: {integrity: sha512-HBYcTj6KBT7LBndkKRopR+zvRlfs/ILE9LPeoW3noyvV+En50P7swusvMNqaRhJOuqdxb/W01rlvnyDdX3NkeA==}
@@ -1754,6 +1233,9 @@ packages:
 
   '@lumis-sh/wasm-swift@0.26.0':
     resolution: {integrity: sha512-a0ZEXL8SCZEq/OQsaiVg0rOMNqC4dcDXqDJ7QOD9QDa2hW8VYkyPCzwsOhwzjVEwKc3fmjEcyQigvoJqyoPiow==}
+
+  '@lumis-sh/wasm-systemverilog@0.26.3':
+    resolution: {integrity: sha512-SBOMgtlblBNrzeV9z9sX1FTazdKjjezRhnDkJ41HZS41rROAak9Qgf9AxR0BTI6CDtKjeJ5R6iVqpidShsLB1g==}
 
   '@lumis-sh/wasm-tcl@0.26.0':
     resolution: {integrity: sha512-7fzUqXqze52+Rs/trLm8uVs9zUo2Cq9dWfdEGGiUN/WtButqBrcq9sRKWfINlOUbt15bYF4TfncKcu6oWDNH0A==}
@@ -3745,9 +3227,6 @@ packages:
   web-tree-sitter@0.26.11:
     resolution: {integrity: sha512-Q5Dm3YTIXSXuH6FxX6RuzX2Qwpc4DPGiYMU87Wg5Z8OIStiQFiUex4zMDc0vBTw78EphaYJacncJghCHzbZptg==}
 
-  web-tree-sitter@0.26.8:
-    resolution: {integrity: sha512-4sUwi7ZyOrIk5KLgYLkc2A/F0LFMQnBhfb+2Cdl7ik4ePJ6JD+fk4ofI2sA5eGawBKBaK4Vntt7Ww5KcEsay4A==}
-
   webidl-conversions@8.0.1:
     resolution: {integrity: sha512-BMhLD/Sw+GbJC21C/UgyaZX41nPt8bUTg+jWyDeg7e7YN4xOM05YPSIXceACnXVtqyEw/LMClUQMtMZ+PGGpqQ==}
     engines: {node: '>=20'}
@@ -4045,9 +3524,45 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lumis-sh/lumis@0.3.0':
+  '@lumis-sh/lumis-native-darwin-arm64@0.7.1':
+    optional: true
+
+  '@lumis-sh/lumis-native-darwin-x64@0.7.1':
+    optional: true
+
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.7.1':
+    optional: true
+
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.7.1':
+    optional: true
+
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.7.1':
+    optional: true
+
+  '@lumis-sh/lumis-native-linux-x64-musl@0.7.1':
+    optional: true
+
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.7.1':
+    optional: true
+
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.7.1':
+    optional: true
+
+  '@lumis-sh/lumis@0.7.1':
     dependencies:
-      web-tree-sitter: 0.26.8
+      '@noble/hashes': 2.3.0
+      pathe: 2.0.3
+      semver: 7.8.5
+      web-tree-sitter: 0.26.11
+    optionalDependencies:
+      '@lumis-sh/lumis-native-darwin-arm64': 0.7.1
+      '@lumis-sh/lumis-native-darwin-x64': 0.7.1
+      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.7.1
+      '@lumis-sh/lumis-native-linux-arm64-musl': 0.7.1
+      '@lumis-sh/lumis-native-linux-x64-gnu': 0.7.1
+      '@lumis-sh/lumis-native-linux-x64-musl': 0.7.1
+      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.7.1
+      '@lumis-sh/lumis-native-win32-x64-msvc': 0.7.1
 
   '@lumis-sh/wasm-angular@0.26.0': {}
 
@@ -4057,13 +3572,126 @@ snapshots:
 
   '@lumis-sh/wasm-astro@0.26.0': {}
 
-  '@lumis-sh/wasm-bash@0.26.1': {}
-
   '@lumis-sh/wasm-bash@0.26.3': {}
 
   '@lumis-sh/wasm-bicep@0.26.0': {}
 
-  '@lumis-sh/wasm-c@0.26.0': {}
+  '@lumis-sh/wasm-bundle-full@0.1.1(@lumis-sh/lumis@0.7.1)':
+    dependencies:
+      '@lumis-sh/lumis': 0.7.1
+      '@lumis-sh/wasm-angular': 0.26.0
+      '@lumis-sh/wasm-arduino': 0.26.0
+      '@lumis-sh/wasm-asm': 0.26.0
+      '@lumis-sh/wasm-astro': 0.26.0
+      '@lumis-sh/wasm-bash': 0.26.3
+      '@lumis-sh/wasm-bicep': 0.26.0
+      '@lumis-sh/wasm-c': 0.26.1
+      '@lumis-sh/wasm-caddy': 0.26.1
+      '@lumis-sh/wasm-clojure': 0.26.0
+      '@lumis-sh/wasm-cmake': 0.26.0
+      '@lumis-sh/wasm-comment': 0.26.1
+      '@lumis-sh/wasm-commonlisp': 0.26.0
+      '@lumis-sh/wasm-cpp': 0.26.0
+      '@lumis-sh/wasm-csharp': 0.26.0
+      '@lumis-sh/wasm-css': 0.26.2
+      '@lumis-sh/wasm-csv': 0.26.0
+      '@lumis-sh/wasm-d': 0.26.0
+      '@lumis-sh/wasm-dart': 0.26.0
+      '@lumis-sh/wasm-diff': 0.26.1
+      '@lumis-sh/wasm-dockerfile': 0.26.0
+      '@lumis-sh/wasm-dot': 0.26.0
+      '@lumis-sh/wasm-editorconfig': 0.26.1
+      '@lumis-sh/wasm-eex': 0.26.0
+      '@lumis-sh/wasm-elixir': 0.26.2
+      '@lumis-sh/wasm-elm': 0.26.0
+      '@lumis-sh/wasm-embedded-template': 0.26.1
+      '@lumis-sh/wasm-erlang': 0.26.0
+      '@lumis-sh/wasm-fish': 0.26.0
+      '@lumis-sh/wasm-fortran': 0.26.0
+      '@lumis-sh/wasm-fsharp': 0.26.1
+      '@lumis-sh/wasm-gitattributes': 0.26.0
+      '@lumis-sh/wasm-gitignore': 0.26.0
+      '@lumis-sh/wasm-gleam': 0.26.0
+      '@lumis-sh/wasm-glimmer': 0.26.0
+      '@lumis-sh/wasm-glsl': 0.26.0
+      '@lumis-sh/wasm-go': 0.26.1
+      '@lumis-sh/wasm-graphql': 0.26.0
+      '@lumis-sh/wasm-haskell': 0.26.0
+      '@lumis-sh/wasm-hcl': 0.26.0
+      '@lumis-sh/wasm-heex': 0.26.1
+      '@lumis-sh/wasm-html': 0.26.2
+      '@lumis-sh/wasm-http': 0.26.0
+      '@lumis-sh/wasm-iex': 0.26.0
+      '@lumis-sh/wasm-ini': 0.26.0
+      '@lumis-sh/wasm-java': 0.26.1
+      '@lumis-sh/wasm-javadoc': 0.26.0
+      '@lumis-sh/wasm-javascript': 0.26.2
+      '@lumis-sh/wasm-jinja': 0.26.2
+      '@lumis-sh/wasm-jinja_inline': 0.26.1
+      '@lumis-sh/wasm-jq': 0.26.0
+      '@lumis-sh/wasm-json': 0.26.2
+      '@lumis-sh/wasm-json5': 0.26.0
+      '@lumis-sh/wasm-julia': 0.26.0
+      '@lumis-sh/wasm-just': 0.26.0
+      '@lumis-sh/wasm-kdl': 0.26.0
+      '@lumis-sh/wasm-kotlin': 0.26.1
+      '@lumis-sh/wasm-latex': 0.26.0
+      '@lumis-sh/wasm-liquid': 0.26.0
+      '@lumis-sh/wasm-llvm': 0.26.1
+      '@lumis-sh/wasm-lua': 0.26.0
+      '@lumis-sh/wasm-luadoc': 0.26.0
+      '@lumis-sh/wasm-make': 0.26.1
+      '@lumis-sh/wasm-markdown': 0.26.1
+      '@lumis-sh/wasm-markdown_inline': 0.26.1
+      '@lumis-sh/wasm-matlab': 0.26.0
+      '@lumis-sh/wasm-mermaid': 0.26.0
+      '@lumis-sh/wasm-nginx': 0.26.0
+      '@lumis-sh/wasm-nim': 0.26.0
+      '@lumis-sh/wasm-nix': 0.26.0
+      '@lumis-sh/wasm-nushell': 0.26.0
+      '@lumis-sh/wasm-objc': 0.26.0
+      '@lumis-sh/wasm-ocaml': 0.26.0
+      '@lumis-sh/wasm-ocaml_interface': 0.26.0
+      '@lumis-sh/wasm-pascal': 0.26.0
+      '@lumis-sh/wasm-perl': 0.26.0
+      '@lumis-sh/wasm-php': 0.26.1
+      '@lumis-sh/wasm-powershell': 0.26.0
+      '@lumis-sh/wasm-prisma': 0.26.0
+      '@lumis-sh/wasm-protobuf': 0.26.1
+      '@lumis-sh/wasm-puppet': 0.26.0
+      '@lumis-sh/wasm-python': 0.26.2
+      '@lumis-sh/wasm-qmljs': 0.26.0
+      '@lumis-sh/wasm-r': 0.26.0
+      '@lumis-sh/wasm-racket': 0.26.0
+      '@lumis-sh/wasm-regex': 0.26.0
+      '@lumis-sh/wasm-rst': 0.26.0
+      '@lumis-sh/wasm-ruby': 0.26.2
+      '@lumis-sh/wasm-rust': 0.26.3
+      '@lumis-sh/wasm-scala': 0.26.0
+      '@lumis-sh/wasm-scheme': 0.26.0
+      '@lumis-sh/wasm-scss': 0.26.0
+      '@lumis-sh/wasm-solidity': 0.26.0
+      '@lumis-sh/wasm-sql': 0.26.1
+      '@lumis-sh/wasm-surface': 0.26.0
+      '@lumis-sh/wasm-svelte': 0.26.0
+      '@lumis-sh/wasm-swift': 0.26.0
+      '@lumis-sh/wasm-systemverilog': 0.26.3
+      '@lumis-sh/wasm-tcl': 0.26.0
+      '@lumis-sh/wasm-terraform': 0.26.0
+      '@lumis-sh/wasm-toml': 0.26.0
+      '@lumis-sh/wasm-toon': 0.26.0
+      '@lumis-sh/wasm-tsx': 0.26.1
+      '@lumis-sh/wasm-typescript': 0.26.1
+      '@lumis-sh/wasm-typst': 0.26.0
+      '@lumis-sh/wasm-vhdl': 0.26.0
+      '@lumis-sh/wasm-vim': 0.26.0
+      '@lumis-sh/wasm-vue': 0.26.0
+      '@lumis-sh/wasm-wat': 0.26.0
+      '@lumis-sh/wasm-wgsl': 0.26.0
+      '@lumis-sh/wasm-xml': 0.26.1
+      '@lumis-sh/wasm-yaml': 0.26.0
+      '@lumis-sh/wasm-zig': 0.26.0
+      '@lumis-sh/wasm-zsh': 0.26.0
 
   '@lumis-sh/wasm-c@0.26.1': {}
 
@@ -4080,8 +3708,6 @@ snapshots:
   '@lumis-sh/wasm-cpp@0.26.0': {}
 
   '@lumis-sh/wasm-csharp@0.26.0': {}
-
-  '@lumis-sh/wasm-css@0.26.1': {}
 
   '@lumis-sh/wasm-css@0.26.2': {}
 
@@ -4100,8 +3726,6 @@ snapshots:
   '@lumis-sh/wasm-editorconfig@0.26.1': {}
 
   '@lumis-sh/wasm-eex@0.26.0': {}
-
-  '@lumis-sh/wasm-elixir@0.26.1': {}
 
   '@lumis-sh/wasm-elixir@0.26.2': {}
 
@@ -4127,8 +3751,6 @@ snapshots:
 
   '@lumis-sh/wasm-glsl@0.26.0': {}
 
-  '@lumis-sh/wasm-go@0.26.0': {}
-
   '@lumis-sh/wasm-go@0.26.1': {}
 
   '@lumis-sh/wasm-graphql@0.26.0': {}
@@ -4137,11 +3759,7 @@ snapshots:
 
   '@lumis-sh/wasm-hcl@0.26.0': {}
 
-  '@lumis-sh/wasm-heex@0.26.0': {}
-
   '@lumis-sh/wasm-heex@0.26.1': {}
-
-  '@lumis-sh/wasm-html@0.26.1': {}
 
   '@lumis-sh/wasm-html@0.26.2': {}
 
@@ -4154,8 +3772,6 @@ snapshots:
   '@lumis-sh/wasm-java@0.26.1': {}
 
   '@lumis-sh/wasm-javadoc@0.26.0': {}
-
-  '@lumis-sh/wasm-javascript@0.26.1': {}
 
   '@lumis-sh/wasm-javascript@0.26.2': {}
 
@@ -4189,11 +3805,7 @@ snapshots:
 
   '@lumis-sh/wasm-make@0.26.1': {}
 
-  '@lumis-sh/wasm-markdown@0.26.0': {}
-
   '@lumis-sh/wasm-markdown@0.26.1': {}
-
-  '@lumis-sh/wasm-markdown_inline@0.26.0': {}
 
   '@lumis-sh/wasm-markdown_inline@0.26.1': {}
 
@@ -4229,8 +3841,6 @@ snapshots:
 
   '@lumis-sh/wasm-puppet@0.26.0': {}
 
-  '@lumis-sh/wasm-python@0.26.0': {}
-
   '@lumis-sh/wasm-python@0.26.2': {}
 
   '@lumis-sh/wasm-qmljs@0.26.0': {}
@@ -4243,11 +3853,7 @@ snapshots:
 
   '@lumis-sh/wasm-rst@0.26.0': {}
 
-  '@lumis-sh/wasm-ruby@0.26.1': {}
-
   '@lumis-sh/wasm-ruby@0.26.2': {}
-
-  '@lumis-sh/wasm-rust@0.26.2': {}
 
   '@lumis-sh/wasm-rust@0.26.3': {}
 
@@ -4266,6 +3872,8 @@ snapshots:
   '@lumis-sh/wasm-svelte@0.26.0': {}
 
   '@lumis-sh/wasm-swift@0.26.0': {}
+
+  '@lumis-sh/wasm-systemverilog@0.26.3': {}
 
   '@lumis-sh/wasm-tcl@0.26.0': {}
 
@@ -6379,8 +5987,6 @@ snapshots:
   web-namespaces@2.0.1: {}
 
   web-tree-sitter@0.26.11: {}
-
-  web-tree-sitter@0.26.8: {}
 
   webidl-conversions@8.0.1: {}
 

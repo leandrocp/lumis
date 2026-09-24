@@ -25,7 +25,6 @@ on:
       - "packages/javascript/lumis/bundles/**"
       - "packages/javascript/lumis/langs/**"
       - "packages/javascript/lumis/src/generated/**"
-      - "packages/javascript/wasm-bundle-*/**"
       - "mise.toml"
       - ".github/workflows/wasm-release.yml"
       - ".github/workflows/upgrade-langs.yml"
@@ -56,6 +55,7 @@ jobs:
       npm: ${{ steps.plan.outputs.npm }}
       hex: ${{ steps.plan.outputs.hex }}
       bundles: ${{ steps.plan.outputs.bundles }}
+      bundles_npm: ${{ steps.plan.outputs.bundles_npm }}
       any: ${{ steps.plan.outputs.any }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -73,6 +73,13 @@ jobs:
           workspaces: "crates/dev -> target"
           shared-key: wasm-release-plan
 
+      # Bundles are generated, not committed, so the planner has nothing to
+      # read until this runs. The version here is a placeholder: membership is
+      # what the plan needs, and the version it resolves is passed back to the
+      # generator when a bundle is actually published.
+      - name: Stage the bundles
+        run: pnpm --dir packages/javascript run build:wasm-bundles
+
       - name: Plan the release
         id: plan
         env:
@@ -81,7 +88,7 @@ jobs:
           plan=$(cargo run -q --manifest-path crates/dev/Cargo.toml -- \
             wasm-release-plan "$PARSER_FILTER")
           echo "$plan" | jq -r '.parsers[] | "\(.wasm_name) \(.version) npm=\(.npm) hex=\(.hex)"'
-          echo "$plan" | jq -r '.bundles[] | "\(.app) \(.version) hex=true"'
+          echo "$plan" | jq -r '.bundles[] | "\(.app) \(.version) npm=\(.npm) hex=\(.hex)"'
 
           # One build per parser that any registry is missing; one publish job
           # per registry that is missing it. Bundles carry no bytes, so they are
@@ -90,7 +97,8 @@ jobs:
             echo "build=$(echo "$plan" | jq -c '[.parsers[] | {parser: .wasm_name, version: .version, npm: .npm, npm_package: .npm_package}]')"
             echo "npm=$(echo "$plan" | jq -c '[.parsers[] | select(.npm) | {parser: .wasm_name, version: .version}]')"
             echo "hex=$(echo "$plan" | jq -c '[.parsers[] | select(.hex) | {parser: .wasm_name, version: .version, app: .hex_package}]')"
-            echo "bundles=$(echo "$plan" | jq -c '[.bundles[] | {bundle: .bundle, app: .app}]')"
+            echo "bundles_npm=$(echo "$plan" | jq -c '[.bundles[] | select(.npm) | {bundle: .bundle, version: .version}]')"
+            echo "bundles=$(echo "$plan" | jq -c '[.bundles[] | select(.hex) | {bundle: .bundle, app: .app, version: .version}]')"
             echo "any=$(echo "$plan" | jq -r '.parsers | length > 0')"
           } >> "$GITHUB_OUTPUT"
 
@@ -268,15 +276,64 @@ jobs:
           APP: ${{ matrix.app }}
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
+  # After the parsers on npm, for the same reason the Hex bundles wait for Hex:
+  # a bundle resolves nothing until the packages it groups are published.
+  publish-npm-bundles:
+    needs: [plan, publish-npm]
+    if: >-
+      ${{ !cancelled() && needs.plan.result == 'success' &&
+          needs.plan.outputs.bundles_npm != '[]' &&
+          needs.publish-npm.result != 'failure' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.plan.outputs.bundles_npm) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+
+      - run: npm install --global npm@12
+
+      # Generated here rather than carried from `plan`, because only now is the
+      # version known. A bundle is a manifest and an import list, so generating
+      # it is milliseconds.
+      - name: Generate the bundle
+        run: |
+          pnpm --dir packages/javascript run build:wasm-bundles \
+            --bundle "$BUNDLE" --version "$VERSION"
+        env:
+          BUNDLE: ${{ matrix.bundle }}
+          VERSION: ${{ matrix.version }}
+
+      - name: Publish to npm
+        run: |
+          cd -- "tmp/wasm/npm/wasm-bundle-$BUNDLE"
+          npm publish --access public --provenance
+        env:
+          BUNDLE: ${{ matrix.bundle }}
+
   # After the parsers, because a bundle depends on every language it groups and
   # cannot resolve until they are on Hex. `skipped` has to be told apart from
   # `success` here: `publish-hex` is also skipped when the plan has no parsers
   # for Hex, which is the one case where publishing bundles alone is right.
   publish-hex-bundles:
-    needs: [plan, publish-hex]
+    needs: [plan, publish-hex, publish-npm-bundles]
     if: >-
       ${{ !cancelled() && needs.plan.result == 'success' &&
           needs.plan.outputs.bundles != '[]' &&
+          needs.publish-npm-bundles.result != 'failure' &&
           (needs.plan.outputs.hex == '[]' || needs.publish-hex.result == 'success') }}
     runs-on: ubuntu-latest
     strategy:
@@ -312,6 +369,8 @@ jobs:
       # downloads reaches the tarball.
       - name: Stage the bundle
         run: |
+          pnpm --dir packages/javascript run build:wasm-bundles \
+            --bundle "$BUNDLE" --version "$VERSION"
           cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-bundle "$BUNDLE"
           mix local.hex --force
           cd -- "tmp/wasm/hex/$APP"
@@ -319,6 +378,7 @@ jobs:
         env:
           BUNDLE: ${{ matrix.bundle }}
           APP: ${{ matrix.app }}
+          VERSION: ${{ matrix.version }}
 
       - name: Publish the bundle to Hex
         run: |

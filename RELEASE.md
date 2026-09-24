@@ -28,16 +28,17 @@ Not merged is not released.
 10. npm-vite                     needs 9
 11. npm-react                    needs 7
 12. npm-cli
-13. npm-wasm-bundle-web
-14. npm-wasm-bundle-web-extra
-15. npm-wasm-bundle-system       13-17 need the @lumis-sh/wasm-* parser packages
-16. npm-wasm-bundle-backend
-17. npm-wasm-bundle-full
-18. hex-lumis                    needs 1 and 3 published to crates.io
+13. hex-lumis                    needs 1 and 3 published to crates.io
 ```
 
 Merge order is publish order; nothing enforces it. This is every releasable package —
 the list itself lives in `mise run release-packages`.
+
+`@lumis-sh/wasm-bundle-*` is not on that list and has no tag. A bundle is a
+manifest and an import list derived from `languages.toml`, so it is generated at
+publish time like the parser packages and versioned the same way: its dependency
+list is its identity, and `wasm-release.yml` gives it the next patch whenever
+that list changes. Nothing to bump and nothing to remember.
 
 - `npm-lumis` and `npm-cli` publish their `@lumis-sh/lumis-native-*` / `@lumis-sh/cli-*`
   platform packages first, at the same version. `release-prepare` bumps them together
@@ -124,7 +125,7 @@ Trust is configured **per package**, and this repository publishes 141:
 | `@lumis-sh/wasm-*` parsers | 113 | `wasm-release.yml` |
 | `@lumis-sh/lumis-native-*` and the selector | 9 | `javascript-release.yml` |
 | `@lumis-sh/cli-*` platform packages | 8 | `javascript-release.yml` |
-| `@lumis-sh/wasm-bundle-*` | 5 | `javascript-release.yml` |
+| `@lumis-sh/wasm-bundle-*` | 5 | `wasm-release.yml` |
 | `lumis`, `cli`, `themes`, `react`, `markdown-it-lumis`, `rehype-lumis` | 6 | `javascript-release.yml` |
 
 `@lumis-sh/vite` is the one package this repository releases that is missing from
