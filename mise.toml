@@ -1006,10 +1006,6 @@ done < <(cargo run -q --manifest-path crates/dev/Cargo.toml --no-default-feature
 manifests=()
 while IFS='|' read -r package paths; do
     case "$package" in
-        # npm keeps a trusted publisher on the package record, and there is no
-        # record until a package has been published once. Restore this row when
-        # https://github.com/leandrocp/lumis/issues/1437 cuts @lumis-sh/vite 0.1.0.
-        npm-vite) ;;
         npm-*) manifests+=("${paths%%|*}/package.json") ;;
     esac
 done < <(mise run release-packages)
