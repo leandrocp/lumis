@@ -16,7 +16,6 @@ on:
       - "npm-react/v*"
       - "npm-cli/v*"
       - "npm-themes/v*"
-      - "npm-wasm-bundle-*/v*"
 
 permissions:
   contents: read
@@ -280,10 +279,6 @@ jobs:
             set_output build_filters "$build_filters"
           elif [ "$component" = "npm-cli" ]; then
             set_output filter "@lumis-sh/cli"
-            set_output build_filters ""
-          elif [[ "$component" == npm-wasm-bundle-* ]]; then
-            set_output filter "@lumis-sh/${component#npm-}"
-            # Bundle packages contain generated, publish-ready entry points.
             set_output build_filters ""
           else
             echo "Unknown component: $component" && exit 1

@@ -12,11 +12,25 @@ import {
 const WORKSPACE_ROOT = path.resolve(import.meta.dirname, "../../..");
 const LANGUAGES_TOML = path.join(WORKSPACE_ROOT, "languages.toml");
 const LUMIS_PACKAGE_JSON = path.resolve(import.meta.dirname, "../lumis/package.json");
-const PACKAGES_DIR = path.join(WORKSPACE_ROOT, "packages", "javascript");
-
-interface BundlePackageJson {
-  version?: string;
+/// Bundles are generated, never committed. They carry no code of their own —
+/// a manifest, an import list and a README, all derivable from languages.toml —
+/// so a copy in the tree is a second source of truth that goes stale the moment
+/// membership changes without someone bumping a version by hand.
+///
+/// `--out` is where they land and `--version` is what they claim. The release
+/// planner owns both: it decides the version from what is published, the same
+/// way it does for parsers.
+function argValue(flag: string): string | undefined {
+  const index = process.argv.indexOf(flag);
+  return index === -1 ? undefined : process.argv[index + 1];
 }
+
+const OUT_DIR = path.resolve(
+  WORKSPACE_ROOT,
+  argValue("--out") ?? path.join("tmp", "wasm", "npm"),
+);
+const VERSION = argValue("--version") ?? "0.0.0";
+
 
 function readLanguagesToml(): LanguagesToml {
   const text = fs.readFileSync(LANGUAGES_TOML, "utf-8");
@@ -51,7 +65,7 @@ function wasmPackageName(wasmName: string): string {
 }
 
 function packageDir(bundleName: string): string {
-  return path.join(PACKAGES_DIR, `wasm-bundle-${bundleName}`);
+  return path.join(OUT_DIR, `wasm-bundle-${bundleName}`);
 }
 
 function importName(packageName: string): string {
@@ -64,18 +78,6 @@ function importName(packageName: string): string {
 
 function unique<T>(values: T[]): T[] {
   return [...new Set(values)];
-}
-
-function readBundlePackageJson(dir: string): BundlePackageJson | null {
-  const file = path.join(dir, "package.json");
-  if (!fs.existsSync(file)) return null;
-  return JSON.parse(fs.readFileSync(file, "utf-8")) as BundlePackageJson;
-}
-
-function readBundleChangelog(dir: string): string | null {
-  const file = path.join(dir, "CHANGELOG.md");
-  if (!fs.existsSync(file)) return null;
-  return fs.readFileSync(file, "utf-8");
 }
 
 function bundleLanguageIds(bundle: BundleEntry, allParserIds: string[]): string[] {
@@ -95,10 +97,8 @@ function writeBundlePackage(
   parsers: Record<string, ParserEntry>,
 ) {
   const dir = packageDir(bundleName);
+  fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
-
-  const existingPackageJson = readBundlePackageJson(dir);
-  const existingChangelog = readBundleChangelog(dir);
 
   const wasmPackagesByLanguage = Object.fromEntries(
     languageIds.map((id) => {
@@ -141,7 +141,7 @@ export default bundledWasms
   );
   const packageJson = {
     name: `@lumis-sh/wasm-bundle-${bundleName}`,
-    version: existingPackageJson?.version ?? "0.0.1",
+    version: VERSION,
     description: `Lumis WASM ${bundleName} language bundle`,
     author: "Leandro Pereira",
     license: "MIT",
@@ -163,7 +163,7 @@ export default bundledWasms
         default: "./index.js",
       },
     },
-    files: ["index.js", "index.d.ts", "README.md", "CHANGELOG.md"],
+    files: ["index.js", "index.d.ts", "README.md"],
     publishConfig: {
       access: "public",
     },
@@ -202,34 +202,25 @@ const highlighter = await createHighlighter({ languages: [languages] })
 \`\`\`
 `;
 
-  const changelog = "# Changelog\n\n";
-
   fs.writeFileSync(path.join(dir, "index.js"), indexJs);
   fs.writeFileSync(path.join(dir, "index.d.ts"), indexDts);
   fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify(packageJson, null, 2) + "\n");
   fs.writeFileSync(path.join(dir, "README.md"), readme);
-  fs.writeFileSync(path.join(dir, "CHANGELOG.md"), existingChangelog ?? changelog);
 
   execFileSync("oxfmt", [path.join(dir, "index.js"), path.join(dir, "index.d.ts")], {
     stdio: "inherit",
   });
-  console.log(`  wasm bundle ${bundleName}: packages/javascript/wasm-bundle-${bundleName}`);
+  console.log(`  wasm bundle ${bundleName}@${VERSION}: ${path.relative(WORKSPACE_ROOT, dir)}`);
 }
 
 function main() {
   const config = readLanguagesToml();
   const bundles = config.bundles ?? {};
   const allParserIds = Object.keys(config.parsers);
-
-  for (const entry of fs.readdirSync(PACKAGES_DIR, { withFileTypes: true })) {
-    if (!entry.isDirectory() || !entry.name.startsWith("wasm-bundle-")) continue;
-    const bundleName = entry.name.slice("wasm-bundle-".length);
-    if (bundleName in bundles) continue;
-    fs.rmSync(path.join(PACKAGES_DIR, entry.name), { recursive: true, force: true });
-    console.log(`  removed stale wasm bundle ${bundleName}: packages/javascript/${entry.name}`);
-  }
+  const only = argValue("--bundle");
 
   for (const [bundleName, bundle] of Object.entries(bundles)) {
+    if (only !== undefined && only !== bundleName) continue;
     writeBundlePackage(bundleName, bundleLanguageIds(bundle, allParserIds), config.parsers);
   }
 }
