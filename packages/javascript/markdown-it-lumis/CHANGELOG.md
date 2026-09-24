@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/leandrocp/lumis/compare/npm-markdown-it-lumis/v0.2.0...npm-markdown-it-lumis/v0.2.1) (2026-09-24)
+
+
+### Bug Fixes
+
+- preserve code block attributes in plugins - [#1433](https://github.com/leandrocp/lumis/pull/1433)
+
 ## [0.2.0](https://github.com/leandrocp/lumis/compare/npm-markdown-it-lumis/v0.1.3...npm-markdown-it-lumis/v0.2.0) (2026-08-13)
 
 ### Bug Fixes
