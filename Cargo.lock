@@ -873,7 +873,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1411,7 +1411,7 @@ dependencies = [
  "glob",
  "lumis-build",
  "lumis-core 3.0.0",
- "lumis-wasm-runtime",
+ "lumis-wasm-runtime 0.3.0",
  "pretty_assertions",
  "prettyplease",
  "proc-macro2",
@@ -1512,7 +1512,7 @@ dependencies = [
  "clap",
  "etcetera",
  "lumis-core 3.0.0",
- "lumis-wasm-runtime",
+ "lumis-wasm-runtime 0.3.0",
  "predicates",
  "serde",
  "serde_json",
@@ -1571,7 +1571,7 @@ version = "0.7.1"
 dependencies = [
  "base64 0.23.1",
  "lumis-core 3.0.0",
- "lumis-wasm-runtime",
+ "lumis-wasm-runtime 0.3.0",
  "napi",
  "napi-build",
  "napi-derive",
@@ -1583,6 +1583,28 @@ dependencies = [
 [[package]]
 name = "lumis-wasm-runtime"
 version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b19dfdab518688ba8605277e74d210af62c67d59b515e678507cf74d21dfd82e"
+dependencies = [
+ "etcetera",
+ "lumis-core 2.5.0",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "streaming-iterator",
+ "tempfile",
+ "thiserror 2.0.20",
+ "tree-sitter",
+ "typed-arena",
+ "ureq",
+ "wasmparser 0.258.0",
+ "wasmtime",
+]
+
+[[package]]
+name = "lumis-wasm-runtime"
+version = "0.3.0"
 dependencies = [
  "etcetera",
  "lumis-core 3.0.0",
@@ -1607,8 +1629,8 @@ name = "lumis_nif"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "lumis-core 2.5.0",
- "lumis-wasm-runtime",
+ "lumis-core 3.0.0",
+ "lumis-wasm-runtime 0.2.1",
  "once_cell",
  "parking_lot",
  "rustler",
@@ -2413,7 +2435,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2762,10 +2784,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.3.4",
+ "getrandom 0.4.3",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3944,6 +3966,19 @@ dependencies = [
 
 [[package]]
 name = "wasmparser"
+version = "0.258.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d9a61719f93a87b16d325921e251800c4833f8fab50fa21c7de73aed50086313"
+dependencies = [
+ "bitflags 2.13.1",
+ "hashbrown 0.17.1",
+ "indexmap",
+ "semver",
+ "serde",
+]
+
+[[package]]
+name = "wasmparser"
 version = "0.259.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f7c12eac7bb587801590f6a67ff0bc84d0748513864b71108e4b311cc3df694"
@@ -4308,7 +4343,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
