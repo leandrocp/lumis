@@ -170,6 +170,32 @@ pub struct Runtime {
     loading: Mutex<HashMap<&'static str, Arc<Mutex<()>>>>,
 }
 
+/// Turn a failed `load_language` into something a caller can act on.
+///
+/// Every language loaded into a `WasmStore` adds its static data to that store's
+/// one linear memory and none of it is ever reclaimed, so the store fills up and
+/// refuses the next parser however much RAM the host has. Tree-sitter reports
+/// that as `invalid memory size <n>`, where `<n>` is the *incoming* parser's
+/// static size rather than the cap or the amount already spent — so the sentence
+/// reads like a defect in a parser that loads perfectly well on its own.
+///
+/// That string is the only signal Tree-sitter offers: the C layer formats it and
+/// the Rust binding passes it through. It is matched here, once, rather than
+/// left for callers to guess at.
+fn classify_load_error(language: &str, message: String) -> RuntimeError {
+    if message.contains("invalid memory size ") {
+        RuntimeError::StoreFull {
+            language: language.to_string(),
+            message,
+        }
+    } else {
+        RuntimeError::Parser {
+            language: language.to_string(),
+            message,
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum RuntimeError {
@@ -179,6 +205,17 @@ pub enum RuntimeError {
     TreeSitter(String),
     #[error("failed to load parser for language '{language}': {message}")]
     Parser { language: String, message: String },
+    /// Every language a process loads shares one Tree-sitter `WasmStore`, whose
+    /// linear memory Tree-sitter caps. Each parser's static data is appended and
+    /// nothing is ever reclaimed, so a process that loads enough languages runs
+    /// out however much RAM the host has.
+    ///
+    /// Separate from [`RuntimeError::Parser`] because the parser is not at
+    /// fault and retrying it will not help: the same parser loads on its own,
+    /// and which languages fail depends only on the order they were asked for.
+    /// `message` is what Tree-sitter said, kept for logs.
+    #[error("cannot load another parser for language '{language}': the Wasm store is full")]
+    StoreFull { language: String, message: String },
     /// The store could not supply the language's package or parser bytes.
     ///
     /// Reads the same as [`RuntimeError::Parser`], and is separate from it so
@@ -337,10 +374,7 @@ impl Runtime {
             .map_err(|error| RuntimeError::TreeSitter(error.to_string()))?;
         let language = wasm_store
             .load_language(&package.parser.grammar_name, &wasm)
-            .map_err(|error| RuntimeError::Parser {
-                language: name.to_string(),
-                message: error.to_string(),
-            })?;
+            .map_err(|error| classify_load_error(name, error.to_string()))?;
         let (id, definition) = package
             .language(name)
             .ok_or_else(|| RuntimeError::UnknownLanguage(name.into()))?;
@@ -455,10 +489,13 @@ impl Runtime {
 
         let module_key = (spec.grammar_name.clone(), crate::sha256_hex(&spec.wasm));
         let language = if let Some(module) = loader.modules.get(&module_key) {
-            module.clone().map_err(|message| RuntimeError::Parser {
-                language: spec.id.clone(),
-                message,
-            })?
+            // Classified rather than assumed to be a bad parser: a memoized
+            // failure has to come back as the same reason it was recorded
+            // under, or a second request for a language a full store refused
+            // would be told its parser is invalid.
+            module
+                .clone()
+                .map_err(|message| classify_load_error(&spec.id, message))?
         } else {
             let actual_grammar = crate::grammar_name(&spec.wasm).map_err(|error| {
                 let message = error.to_string();
@@ -492,12 +529,18 @@ impl Runtime {
                     language
                 }
                 Err(error) => {
+                    // Memoized like any other rejection, a full store included.
+                    // Tree-sitter grows the function table before it tries to
+                    // grow memory and does not shrink it back when that fails,
+                    // so re-attempting a parser this store has already refused
+                    // leaks table capacity to no purpose. It cannot succeed
+                    // later either: the store's memory offset only ever
+                    // advances, so bytes that did not fit never will. The key
+                    // is this parser's hash, so a new version is still asked.
                     let message = error.to_string();
                     loader.modules.insert(module_key, Err(message.clone()));
-                    return Err(RuntimeError::Parser {
-                        language: spec.id,
-                        message,
-                    });
+
+                    return Err(classify_load_error(&spec.id, message));
                 }
             }
         };
@@ -1142,6 +1185,78 @@ mod tests {
                 brackets_source: String::new(),
                 brackets: OnceLock::new(),
             }),
+        );
+    }
+
+    /// The string match in `classify_load_error` is the whole mechanism: it is
+    /// the only signal Tree-sitter gives for a full store, and it lives in C
+    /// where no constant is exported. A wording change upstream would silently
+    /// send every full-store failure back to `RuntimeError::Parser`, so both
+    /// branches are pinned here.
+    ///
+    /// Filling a real store instead would mean compiling thousands of distinct
+    /// parsers to reach the cap, which is minutes per run for the same coverage.
+    #[test]
+    fn a_full_store_is_classified_apart_from_a_broken_parser() {
+        let error = classify_load_error(
+            "swift",
+            "Failed to instantiate Wasm module: invalid memory size 3366528".into(),
+        );
+
+        let RuntimeError::StoreFull { language, message } = error else {
+            panic!("a full store must not be reported as a broken parser: {error:?}");
+        };
+
+        assert_eq!(language, "swift");
+
+        // Tree-sitter's own wording survives as the detail a log keeps: the
+        // number in it is the *incoming* parser's size, which is why it is not
+        // promoted to something a caller reads as a limit or a remainder.
+        assert!(message.contains("invalid memory size 3366528"), "{message}");
+    }
+
+    #[test]
+    fn any_other_load_failure_stays_a_parser_error() {
+        let error = classify_load_error("json", "invalid function table size 7".into());
+
+        assert!(
+            matches!(error, RuntimeError::Parser { ref language, .. } if language == "json"),
+            "only a full store is a store-full failure, got {error:?}"
+        );
+    }
+
+    /// A full store is memoized like any other rejection, so the second request
+    /// for a refused language is answered from the cache. That answer has to
+    /// carry the reason it was recorded under: rebuilding it as
+    /// `RuntimeError::Parser` would tell a caller its parser is invalid, which
+    /// is the sentence this classification exists to stop.
+    ///
+    /// Seeded rather than provoked, because filling a real store takes a hundred
+    /// parser compiles.
+    #[test]
+    fn a_memoized_full_store_is_still_a_full_store_on_the_second_ask() {
+        let runtime = Runtime::with_worker_limit(1).unwrap();
+        let spec = LanguageSpec {
+            id: "cached-full-json".into(),
+            aliases: Vec::new(),
+            grammar_name: "json".into(),
+            wasm: JSON_WASM.to_vec(),
+            highlights: "(number) @number".into(),
+            injections: String::new(),
+            locals: String::new(),
+            brackets: String::new(),
+        };
+
+        runtime.loader.lock().unwrap().modules.insert(
+            (spec.grammar_name.clone(), crate::sha256_hex(&spec.wasm)),
+            Err("Failed to instantiate Wasm module: invalid memory size 3366528".into()),
+        );
+
+        let error = runtime.load_language(spec).unwrap_err();
+
+        assert!(
+            matches!(error, RuntimeError::StoreFull { ref language, .. } if language == "cached-full-json"),
+            "a cached full store must not resurface as a broken parser: {error:?}"
         );
     }
 

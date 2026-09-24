@@ -80,12 +80,23 @@ defmodule Lumis.Languages do
     * `:not_installed` — it is, but this project does not depend on its parser
     * `:failed_to_load_parser` — the parser could not be read or verified
     * `:unknown_bundle` — no bundle by that name
+    * `%Lumis.ParserError{reason: :store_full}` — the parser is fine, and this
+      process has no room for another one
+
+  The last is the exception `Lumis.highlight/2` answers with, rather than an
+  atom, because it is the one failure here that is not about the language named:
+  it loads on its own, retrying it cannot help, and `Exception.message/1` says
+  what does. See `Lumis.ParserError` for the reason itself.
 
   A single name answers with the reason itself; a list answers with a map from
   name to reason, so one failure never hides the others.
 
   """
-  @type failure() :: :unknown_language | :not_installed | :failed_to_load_parser
+  @type failure() ::
+          :unknown_language
+          | :not_installed
+          | :failed_to_load_parser
+          | Lumis.ParserError.t()
   @spec load(bundle() | String.t() | atom() | [String.t() | atom()]) ::
           :ok
           | {:error, :unknown_bundle | failure()}
@@ -93,12 +104,7 @@ defmodule Lumis.Languages do
   def load(names) when is_list(names) do
     failures =
       Enum.reduce(names, %{}, fn name, failures ->
-        case load(name) do
-          :ok -> failures
-          # A bundle named inside a list reports its own members, not itself.
-          {:error, nested} when is_map(nested) -> Map.merge(failures, nested)
-          {:error, reason} -> Map.put(failures, to_string(name), reason)
-        end
+        collect_failure(failures, name, load(name))
       end)
 
     if failures == %{}, do: :ok, else: {:error, failures}
@@ -118,9 +124,35 @@ defmodule Lumis.Languages do
     case bundle_members(name) do
       {:ok, members} -> load(members)
       :error -> {:error, :unknown_bundle}
-      :not_a_bundle -> Native.load_language_by_name(name)
+      :not_a_bundle -> describe_load(Native.load_language_by_name(name))
     end
   end
+
+  # Every other reason the NIF gives is already an atom. A full store arrives as
+  # the fields of a `Lumis.ParserError`, the same way a failed highlight's do.
+  defp describe_load({:error, {:parser, fields}}),
+    do: {:error, Lumis.ParserError.from_nif(fields)}
+
+  defp describe_load(other), do: other
+
+  @doc false
+  # Files one name's answer into the failures `load/1` has collected so far.
+  # Named rather than inlined so the clause order can be tested: reaching the
+  # map clause with a struct needs a Wasm store that is actually full, which
+  # costs a hundred parser compiles to arrange.
+  def collect_failure(failures, _name, :ok), do: failures
+
+  # A bundle named inside a list reports its own members, not itself.
+  # `not is_struct` because an exception is a map too: merging a
+  # `Lumis.ParserError` would scatter its fields across the result instead of
+  # filing it under the language that failed, and spelling the guard this way
+  # covers every struct reason added later.
+  def collect_failure(failures, _name, {:error, nested})
+      when is_map(nested) and not is_struct(nested),
+      do: Map.merge(failures, nested)
+
+  def collect_failure(failures, name, {:error, reason}),
+    do: Map.put(failures, to_string(name), reason)
 
   @doc """
   Runs `load/1` in the background and returns immediately.
@@ -159,6 +191,9 @@ defmodule Lumis.Languages do
           Logger.warning(
             "Lumis could not warm #{inspect(names)}: #{inspect(reason)}. " <>
               "A :not_installed language needs its parser added to mix.exs; " <>
+              "a :store_full one means this VM already holds every parser it " <>
+              "can and cannot free any, so it takes a smaller language set at " <>
+              "the next boot rather than a shorter warm-up here; " <>
               "anything else is retried when a document asks for it."
           )
       end

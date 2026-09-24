@@ -1895,6 +1895,36 @@ defmodule Lumis.LumisTest do
       refute message =~ "add it to mix.exs"
     end
 
+    # The failure this reason exists for used to arrive as
+    # `invalid memory size 3366528`, which names the incoming parser's size and
+    # so reads as a defect in a language that loads perfectly well alone. Filling
+    # a real store to reproduce it costs a hundred parser compiles, so the
+    # classification is pinned in `runtime.rs` and the advice here.
+    test ":store_full blames the process's capacity, not the language that hit it" do
+      error = %Lumis.ParserError{
+        reason: :store_full,
+        language: "swift",
+        package: "lumis_wasm_swift",
+        detail: "Failed to instantiate Wasm module: invalid memory size 3366528"
+      }
+
+      message = Exception.message(error)
+
+      assert message =~ "swift is not at fault"
+      assert message =~ "OS processes"
+
+      refute message =~ "mix.exs",
+             "no dependency is missing: the parser was found and refused for lack of room"
+
+      # Loading is global to the VM and a parser is never unloaded, so the two
+      # things a reader would try first — run it again, trim the call that
+      # failed — are the two that cannot work. Saying so is the whole point of
+      # the reason, and the advice has to point at the next boot instead.
+      assert message =~ "cannot recover"
+      assert message =~ "no retry"
+      assert message =~ "at boot"
+    end
+
     test "highlight!/2 raises where highlight/2 returns an error" do
       assert_raise Lumis.HighlightError, ~r/Default theme/, fn ->
         Lumis.highlight!("x = 1", formatter: @bad_default)

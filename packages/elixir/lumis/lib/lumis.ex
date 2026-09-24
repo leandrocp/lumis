@@ -1214,17 +1214,8 @@ defmodule Lumis do
     highlight(source, language: language)
   end
 
-  # The NIF classifies a failure and hands over its fields; the exception struct
-  # is built here, because the advice a missing parser needs is "add it to
-  # mix.exs" in Elixir and "add it to package.json" in Node, off the same
-  # `:reason`.
   defp describe_highlight_error({:error, {:parser, fields}}) do
-    fields =
-      fields
-      |> Map.delete(:package_suffix)
-      |> Map.put(:package, Lumis.Packages.hex_name(fields.package_suffix))
-
-    {:error, struct!(Lumis.ParserError, fields)}
+    {:error, Lumis.ParserError.from_nif(fields)}
   end
 
   defp describe_highlight_error({:error, {:render, fields}}) do

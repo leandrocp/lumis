@@ -89,11 +89,21 @@ struct Highlighted {
 /// Why a load failed, at the granularity Elixir matches on.
 ///
 /// A caller decides between "I typed the name wrong" and "it could not be
-/// obtained"; the detail behind the second is not something a `case` can act on.
+/// obtained"; the detail behind the second is usually not something a `case`
+/// can act on, so those stay atoms.
+///
+/// A full Wasm store is the exception. `:failed_to_load_parser` said "this
+/// parser could not be read or verified" about a parser that loads perfectly
+/// well on its own, and pointed at retrying, which cannot work. It is reported
+/// as `Lumis.ParserError` instead — the same exception `Lumis.highlight/2`
+/// answers with, off the same `:store_full` reason — so the advice lives in one
+/// place for both entry points.
 enum LoadFailure {
     UnknownLanguage,
     NotInstalled,
     Parser,
+    /// The language that was refused, plus what Tree-sitter said about it.
+    StoreFull(String, String),
 }
 
 impl Encoder for LoadFailure {
@@ -102,6 +112,25 @@ impl Encoder for LoadFailure {
             Self::UnknownLanguage => unknown_language().encode(env),
             Self::NotInstalled => not_installed().encode(env),
             Self::Parser => failed_to_load_parser().encode(env),
+            // `{:parser, %{...}}`, the shape `Lumis.ParserError.from_nif/1`
+            // takes, so a load reports a full store exactly as a highlight does.
+            Self::StoreFull(language, message) => (
+                parser(),
+                ExParserFailure::new(language, store_full(), message.clone(), None),
+            )
+                .encode(env),
+        }
+    }
+}
+
+impl From<&RuntimeError> for LoadFailure {
+    fn from(error: &RuntimeError) -> Self {
+        match error {
+            RuntimeError::LanguageNotLoaded(_) => Self::UnknownLanguage,
+            RuntimeError::StoreFull { language, message } => {
+                Self::StoreFull(language.clone(), message.clone())
+            }
+            _ => Self::Parser,
         }
     }
 }
@@ -122,6 +151,26 @@ struct ExParserFailure {
     package_suffix: Option<String>,
     reason: Atom,
     detail: String,
+}
+
+impl ExParserFailure {
+    /// The package comes from the store's error when it named one, and from the
+    /// catalog otherwise, so a language nobody has installed still reports the
+    /// dependency to add.
+    fn new(language: &str, reason: Atom, detail: String, store: Option<&StoreError>) -> Self {
+        let package_name = store
+            .and_then(StoreError::package_name)
+            .or_else(|| catalog::find(language).map(|entry| entry.package_name));
+
+        Self {
+            language: language.to_string(),
+            package_suffix: package_name
+                .and_then(store::package_suffix)
+                .map(ToString::to_string),
+            reason,
+            detail,
+        }
+    }
 }
 
 /// The fields `Lumis.RenderError` is built from: everything that fails after,
@@ -149,18 +198,14 @@ fn render_failure(env: Env<'_>, reason: Atom, detail: String) -> Term<'_> {
 fn highlight_failure<'a>(env: Env<'a>, failure: &RuntimeError, language: &str) -> Term<'a> {
     let parser_failure =
         |language: &str, reason: Atom, detail: String, store: Option<&StoreError>| {
-            let package_name = store
-                .and_then(StoreError::package_name)
-                .or_else(|| catalog::find(language).map(|entry| entry.package_name));
-            let failure = ExParserFailure {
-                language: language.to_string(),
-                package_suffix: package_name
-                    .and_then(store::package_suffix)
-                    .map(ToString::to_string),
-                reason,
-                detail,
-            };
-            (error(), (parser(), failure)).encode(env)
+            (
+                error(),
+                (
+                    parser(),
+                    ExParserFailure::new(language, reason, detail, store),
+                ),
+            )
+                .encode(env)
         };
 
     match failure {
@@ -174,6 +219,13 @@ fn highlight_failure<'a>(env: Env<'a>, failure: &RuntimeError, language: &str) -
         }
         RuntimeError::Parser { language, message } => {
             parser_failure(language, invalid_parser(), message.clone(), None)
+        }
+        // Deliberately not `:invalid_parser`: this parser is valid, and the only
+        // thing that helps is asking for fewer languages. Tree-sitter's wording
+        // is the detail, since the number in it is the incoming parser's size
+        // rather than anything a caller should read as a limit.
+        RuntimeError::StoreFull { language, message } => {
+            parser_failure(language, store_full(), message.clone(), None)
         }
         RuntimeError::Query { language, message } => {
             parser_failure(language, invalid_queries(), message.clone(), None)
@@ -320,8 +372,7 @@ impl WasmExecutor {
             .map_err(|_| LoadFailure::Parser)?;
         match result.recv().map_err(|_| LoadFailure::Parser)? {
             Ok(()) => Ok(()),
-            Err(RuntimeError::LanguageNotLoaded(_)) => Err(LoadFailure::UnknownLanguage),
-            Err(_) => Err(LoadFailure::Parser),
+            Err(error) => Err(LoadFailure::from(&error)),
         }
     }
 
@@ -375,6 +426,7 @@ rustler::atoms! {
     invalid_parser,
     invalid_queries,
     store_unavailable,
+    store_full,
 
     // `Lumis.RenderError` reasons. Suffixed where a bare name would be shadowed
     // by a local binding at the site that encodes it.
