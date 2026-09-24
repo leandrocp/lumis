@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/cli-linux-x64-gnu",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Lumis command line syntax highlighter for Linux x64 glibc",
   "license": "MIT",
   "repository": "github:leandrocp/lumis",

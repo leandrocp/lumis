@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/cli-win32-arm64-msvc",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Lumis command line syntax highlighter for Windows arm64",
   "license": "MIT",
   "repository": "github:leandrocp/lumis",

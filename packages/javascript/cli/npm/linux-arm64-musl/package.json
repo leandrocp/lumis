@@ -1,6 +1,6 @@
 {
   "name": "@lumis-sh/cli-linux-arm64-musl",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Lumis command line syntax highlighter for Linux arm64 musl",
   "license": "MIT",
   "repository": "github:leandrocp/lumis",
