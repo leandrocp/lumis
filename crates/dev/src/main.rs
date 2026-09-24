@@ -3710,7 +3710,7 @@ fn wasm_packages() -> Result<()> {
     // `mise run npm-trust` walks, and npm keeps the trusted publisher on the
     // package record: a bundle missing here keeps whichever workflow it was
     // last pointed at, and OIDC publishing from the other one answers 404.
-    for (bundle, _) in &toml.bundles {
+    for bundle in toml.bundles.keys() {
         packages.insert(format!("@lumis-sh/wasm-bundle-{bundle}"));
     }
     for package in packages {
