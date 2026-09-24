@@ -50,9 +50,10 @@ that list changes. Nothing to bump and nothing to remember.
 - An ordinary `0.26.x` WASM release needs no runtime release. Moving to a new
   Tree-sitter minor series in `mise.toml` does.
 - `parser-sizes.json` is measured off what is published, so it lags a parser
-  release by design. Run `mise run wasm-sizes {name}` after one lands to refresh
-  the `Size` and `Memory` columns in the language catalog; a whole-series move
-  wants the unfiltered run.
+  release by design. Run `mise run wasm-sizes` after one lands to refresh the
+  `Size` and `Memory` columns in the language catalog. It downloads only what it
+  has not already measured at that version, so the sweep after one parser
+  release fetches that one parser; name a parser to narrow it further.
 
 ## By hand
 

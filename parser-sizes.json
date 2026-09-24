@@ -11,8 +11,10 @@
     "other two.",
     "",
     "`gen-languages-md` renders these into LANGUAGES.md and the docs table.",
-    "Refresh after parsers are republished; a parser missing here renders",
-    "as an em dash rather than failing the generator."
+    "Refresh after parsers are republished. A published version is immutable,",
+    "so the refresh downloads only the parsers whose version moved, and a",
+    "parser missing here renders as an em dash rather than failing the",
+    "generator."
   ],
   "series": "0.26",
   "parsers": {

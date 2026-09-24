@@ -841,12 +841,13 @@ run = "cargo run --manifest-path crates/dev/Cargo.toml -- stage-wasm {{arg(name=
 description = "Measure the published parsers into parser-sizes.json for the docs table"
 usage = '''
 arg "[parser]"
+flag "--force" help="Re-download parsers already measured at their published version"
 '''
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 cargo run --manifest-path crates/dev/Cargo.toml --no-default-features -- \
-    wasm-sizes "${usage_parser:-}"
+    wasm-sizes "${usage_parser:-}" ${usage_force:+--force}
 mise run docs-gen-languages-md
 '''
 

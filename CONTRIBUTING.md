@@ -479,7 +479,9 @@ The table's `Size` and `Memory` columns come from `parser-sizes.json`, measured 
 mise run wasm-sizes {name}
 ```
 
-Omit `{name}` to remeasure the whole catalog, which downloads every parser. `Memory` is what a parser reserves in the 128 MB Tree-sitter WASM store that every language in a process shares, read from the module's `dylink.0` section. It is neither what npm transfers nor what lands on disk, and it is the only one of the three bounded by a budget.
+Omit `{name}` to sweep the catalog. That is not a full download: a published version is immutable, so a parser whose recorded version is still the newest one is left alone, and the sweep after a single parser release costs that one parser. `--force` re-downloads regardless.
+
+`Memory` is what a parser reserves in the 128 MB Tree-sitter WASM store that every language in a process shares, read from the module's `dylink.0` section. It is neither what npm transfers nor what lands on disk, and it is the only one of the three bounded by a budget.
 
 #### 8. Verify
 

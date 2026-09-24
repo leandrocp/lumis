@@ -124,6 +124,9 @@ enum Commands {
     WasmSizes {
         #[arg(default_value = "")]
         filter: String,
+        /// Re-download parsers already measured at their published version.
+        #[arg(long)]
+        force: bool,
     },
     RenderConformance {
         source: String,
@@ -202,7 +205,7 @@ fn main() -> Result<()> {
         Commands::WasmNeeded { filter, force } => wasm_needed(&filter, &force),
         Commands::WasmMeta { name } => wasm_meta(&name),
         Commands::WasmPackages => wasm_packages(),
-        Commands::WasmSizes { filter } => wasm_sizes(&filter),
+        Commands::WasmSizes { filter, force } => wasm_sizes(&filter, force),
         Commands::RenderConformance {
             source,
             language,
@@ -3865,8 +3868,10 @@ fn parser_sizes_comment() -> Vec<String> {
         "other two.",
         "",
         "`gen-languages-md` renders these into LANGUAGES.md and the docs table.",
-        "Refresh after parsers are republished; a parser missing here renders",
-        "as an em dash rather than failing the generator.",
+        "Refresh after parsers are republished. A published version is immutable,",
+        "so the refresh downloads only the parsers whose version moved, and a",
+        "parser missing here renders as an em dash rather than failing the",
+        "generator.",
     ]
     .iter()
     .map(|line| (*line).to_string())
@@ -3884,11 +3889,15 @@ fn read_parser_sizes() -> Result<BTreeMap<String, ParserSizes>> {
 
 /// Measure every published parser and rewrite `parser-sizes.json`.
 ///
-/// A filtered run updates only the parsers it names and leaves the rest of the
-/// file alone, so one republished parser does not cost a 160 MB refresh.
-fn wasm_sizes(filter: &str) -> Result<()> {
+/// Downloads only what it has not already measured. A published version is
+/// immutable, so a parser whose recorded version is still the newest one cannot
+/// have changed, and an unfiltered run after a single parser release costs that
+/// one parser rather than the 160 MB catalog. `force` re-downloads regardless,
+/// for a file written by an older format.
+fn wasm_sizes(filter: &str, force: bool) -> Result<()> {
     let toml = read_languages_toml()?;
     let series = supported_tree_sitter_series()?;
+    let known = read_parser_sizes()?;
 
     let mut wanted: BTreeMap<String, String> = BTreeMap::new();
     for (parser_name, info) in &toml.parsers {
@@ -3912,12 +3921,22 @@ fn wasm_sizes(filter: &str) -> Result<()> {
     let packuments = fetch_packuments(&packages);
 
     let mut targets = Vec::new();
+    let mut current = 0;
     for ((wasm_name, package), packument) in wasm_names.iter().zip(&packages).zip(packuments) {
         let packument =
             packument?.with_context(|| format!("{package} is not published on npm yet"))?;
         let (version, tarball) = highest_published_in_series(&packument, &series)
             .with_context(|| format!("{package} has no {series}.x release on npm"))?;
+        if !force && measurement_is_current(known.get(wasm_name), &version) {
+            current += 1;
+            continue;
+        }
         targets.push((wasm_name.clone(), package.clone(), version, tarball));
+    }
+
+    if targets.is_empty() {
+        println!("{current} parser(s) already measured at their published version; nothing to do");
+        return Ok(());
     }
 
     let agent: ureq::Agent = ureq::Agent::config_builder()
@@ -3946,7 +3965,7 @@ fn wasm_sizes(filter: &str) -> Result<()> {
         },
     );
 
-    let mut parsers = read_parser_sizes()?;
+    let mut parsers = known;
     for ((wasm_name, ..), sizes) in targets.iter().zip(measured) {
         parsers.insert(wasm_name.clone(), sizes?);
     }
@@ -3961,7 +3980,7 @@ fn wasm_sizes(filter: &str) -> Result<()> {
         format!("{}\n", serde_json::to_string_pretty(&file)?),
     )?;
     println!(
-        "Measured {} parser(s) into {PARSER_SIZES_PATH}",
+        "Measured {} parser(s) into {PARSER_SIZES_PATH}, {current} already current",
         targets.len()
     );
     Ok(())
@@ -3969,6 +3988,15 @@ fn wasm_sizes(filter: &str) -> Result<()> {
 
 /// A parser tarball is up to 23 MB, which the registry timeout is too short for.
 const PARSER_DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(300);
+
+/// Whether a recorded measurement still describes what is published.
+///
+/// An npm version is immutable, so the same version is the same bytes and the
+/// same numbers. This is what keeps an unfiltered refresh from re-downloading
+/// the catalog to learn what it already knows.
+fn measurement_is_current(known: Option<&ParserSizes>, published: &str) -> bool {
+    known.is_some_and(|had| had.version == published)
+}
 
 /// The newest `series.x` release on npm, with the tarball npm would fetch for it.
 fn highest_published_in_series(packument: &Value, series: &str) -> Option<(String, String)> {
@@ -5873,6 +5901,32 @@ mod tests {
             bundle_memory(&members[..1], &parser_of, &measured),
             Some(1_086_656)
         );
+    }
+
+    /// What makes an unfiltered refresh affordable: an npm version is immutable,
+    /// so a recorded version that is still the newest one cannot have different
+    /// bytes behind it, and re-downloading it would buy nothing.
+    #[test]
+    fn only_a_parser_whose_published_version_moved_is_downloaded() {
+        let recorded = BTreeMap::from([("tree-sitter-rust".to_string(), {
+            let mut sizes = sizes(1_086_656);
+            sizes.version = "0.26.4".into();
+            sizes
+        })]);
+
+        assert!(measurement_is_current(
+            recorded.get("tree-sitter-rust"),
+            "0.26.4"
+        ));
+        assert!(!measurement_is_current(
+            recorded.get("tree-sitter-rust"),
+            "0.26.5"
+        ));
+        // A parser measured for the first time has nothing to compare against.
+        assert!(!measurement_is_current(
+            recorded.get("tree-sitter-zig"),
+            "0.26.1"
+        ));
     }
 
     /// npm orders versions as strings, so the newest patch is not the last one.
