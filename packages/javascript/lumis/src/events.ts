@@ -4,6 +4,7 @@ import { LANGUAGES } from "./generated/languages-meta.js";
 import { languageIdForFilename } from "./guess-language.js";
 import { DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT } from "./types.js";
 import type {
+  Budget,
   BudgetExhausted,
   LoadedLanguage,
   LumisHighlightEvent,
@@ -920,15 +921,12 @@ function makeRange(
   return { startIndex, endIndex, startPosition, endPosition };
 }
 
-/**
- * Reject a `matchLimit` tree-sitter would not accept, before any query runs.
- * @internal
- */
-export function assertMatchLimit(matchLimit: number | undefined): void {
+/** Reject a `matchLimit` tree-sitter would not accept, before any query runs. */
+function assertMatchLimit(matchLimit: number | undefined): void {
   if (matchLimit === undefined) return;
   if (!Number.isInteger(matchLimit) || matchLimit < 1 || matchLimit > MAX_MATCH_LIMIT) {
     throw new Error(
-      `matchLimit must be an integer from 1 to ${MAX_MATCH_LIMIT}, got ${matchLimit}`,
+      `budget.matchLimit must be an integer from 1 to ${MAX_MATCH_LIMIT}, got ${matchLimit}`,
     );
   }
 }
@@ -967,12 +965,20 @@ interface BudgetState {
   exceededMatchLimit: boolean;
 }
 
-/** @internal */
-export function assertTimeLimit(timeLimit: number | undefined): void {
+function assertTimeLimit(timeLimit: number | undefined): void {
   if (timeLimit === undefined) return;
   if (!Number.isInteger(timeLimit) || timeLimit < 0) {
-    throw new Error(`timeLimit must be a whole number of milliseconds, got ${timeLimit}`);
+    throw new Error(`budget.timeLimit must be a whole number of milliseconds, got ${timeLimit}`);
   }
+}
+
+/**
+ * Reject limits no runtime would accept, before any query runs.
+ * @internal
+ */
+export function assertBudget(budget: Budget | undefined): void {
+  assertMatchLimit(budget?.matchLimit);
+  assertTimeLimit(budget?.timeLimit);
 }
 
 /** @internal */
@@ -980,16 +986,16 @@ export function buildHighlightEventsWithSourceIndex(
   source: string,
   language: LoadedLanguage,
   runtime: RuntimeLookup,
-  options: { rainbowBrackets?: boolean; matchLimit?: number; timeLimit?: number } = {},
+  options: { rainbowBrackets?: boolean; budget?: Budget } = {},
 ): {
   events: LumisHighlightEvent[];
   sourceIndex: SourceIndex;
   budget?: BudgetExhausted;
 } {
-  assertMatchLimit(options.matchLimit);
-  assertTimeLimit(options.timeLimit);
-  const matchLimit = options.matchLimit ?? DEFAULT_MATCH_LIMIT;
-  const timeLimit = options.timeLimit ?? DEFAULT_TIME_LIMIT;
+  assertBudget(options.budget);
+  const limits = options.budget ?? {};
+  const matchLimit = limits.matchLimit ?? DEFAULT_MATCH_LIMIT;
+  const timeLimit = limits.timeLimit ?? DEFAULT_TIME_LIMIT;
   const maps = buildSourceMaps(source);
   // The clock starts here, after the caller's languages are loaded, so a
   // language the caller has not warmed up is not charged to the document.
@@ -1048,7 +1054,7 @@ export function buildHighlightEvents(
   source: string,
   language: LoadedLanguage,
   runtime: RuntimeLookup,
-  options: { rainbowBrackets?: boolean; matchLimit?: number; timeLimit?: number } = {},
+  options: { rainbowBrackets?: boolean; budget?: Budget } = {},
 ): LumisHighlightEvent[] {
   return buildHighlightEventsWithSourceIndex(source, language, runtime, options).events;
 }

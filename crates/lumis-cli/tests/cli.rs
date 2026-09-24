@@ -286,7 +286,13 @@ fn highlight_nonexistent_file() {
 fn highlight_rejects_a_match_limit_outside_the_tree_sitter_range() {
     for limit in ["0", "65537"] {
         cmd()
-            .args(["highlight", "-l", "javascript", "--match-limit", limit])
+            .args([
+                "highlight",
+                "-l",
+                "javascript",
+                "--budget-match-limit",
+                limit,
+            ])
             .write_stdin("const answer = 42;\n")
             .assert()
             .failure()
@@ -313,7 +319,7 @@ fn highlight_degrades_to_plain_text_when_the_time_budget_is_spent() {
             "json",
             "-f",
             "html-linked",
-            "--time-limit",
+            "--budget-time-limit",
             "1",
         ])
         .write_stdin(pathological.clone())
@@ -328,7 +334,7 @@ fn highlight_degrades_to_plain_text_when_the_time_budget_is_spent() {
 ///
 /// This command reads and compiles a WASM module, which costs hundreds of
 /// milliseconds; the document it then highlights costs microseconds. So
-/// highlighting under `--time-limit 50` is the whole claim: the clock starts
+/// highlighting under `--budget-time-limit 50` is the whole claim: the clock starts
 /// once the language is ready, not when the command does. Without that, the
 /// first render of any language would degrade and every later one would not.
 /// The limit is not tighter because the rest of this suite runs in parallel,
@@ -344,7 +350,7 @@ fn a_parser_load_is_not_charged_against_the_time_budget() {
             "javascript",
             "-f",
             "html-linked",
-            "--time-limit",
+            "--budget-time-limit",
             "50",
         ])
         .write_stdin("const answer = 42;\n")
@@ -369,7 +375,7 @@ fn highlight_reports_a_spent_match_budget() {
             "javascript",
             "-f",
             "html-linked",
-            "--match-limit",
+            "--budget-match-limit",
             "1",
         ])
         .write_stdin("const value = (1 + (2 * (3 - 4)));\n")
@@ -390,7 +396,7 @@ fn highlight_without_a_time_limit_highlights() {
             "javascript",
             "-f",
             "html-linked",
-            "--time-limit",
+            "--budget-time-limit",
             "0",
         ])
         .write_stdin("const answer = 42;\n")

@@ -118,9 +118,86 @@ static DEFAULT_STYLE: LazyLock<Arc<Style>> = LazyLock::new(|| Arc::new(Style::de
 pub struct HighlightOptions<'a, T = ()> {
     annotations: &'a [Annotation<T>],
     rainbow_brackets: bool,
+    budget: Budget,
+    cancellation: Option<&'a AtomicUsize>,
+}
+
+/// The work one render is allowed to do.
+///
+/// Both dimensions bound the same render, so they travel together rather than
+/// as two loose options. [`Budget::new`] carries Lumis's defaults, so a caller
+/// changes only the one it cares about:
+///
+/// ```rust
+/// use lumis::highlight::{Budget, HighlightOptions};
+///
+/// let options = HighlightOptions::new().budget(Budget::new().match_limit(16_384));
+/// ```
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[must_use]
+pub struct Budget {
     match_limit: u32,
     time_limit: Option<u64>,
-    cancellation: Option<&'a AtomicUsize>,
+}
+
+impl Budget {
+    /// A budget carrying [`DEFAULT_MATCH_LIMIT`] and [`DEFAULT_TIME_LIMIT`].
+    pub const fn new() -> Self {
+        Self {
+            match_limit: DEFAULT_MATCH_LIMIT,
+            time_limit: Some(DEFAULT_TIME_LIMIT),
+        }
+    }
+
+    /// Bound the number of query matches tree-sitter keeps in progress at once,
+    /// for the highlight and bracket queries alike.
+    ///
+    /// Defaults to [`DEFAULT_MATCH_LIMIT`] and must be in `1..=`[`MAX_MATCH_LIMIT`];
+    /// highlighting with a value outside that range fails with
+    /// [`HighlightError::InvalidMatchLimit`]. Tree-sitter walks its whole pool of
+    /// in-progress matches before it emits each capture, so the bound is what
+    /// keeps highlighting linear on documents whose markup nests deeply enough to
+    /// keep many matches open at once. Raising it recovers matches that would
+    /// otherwise be dropped on such documents, at that cost.
+    pub const fn match_limit(mut self, match_limit: u32) -> Self {
+        self.match_limit = match_limit;
+        self
+    }
+
+    /// Bound how long this render may take, in milliseconds, or `None` to let
+    /// it run as long as it needs.
+    ///
+    /// Defaults to [`DEFAULT_TIME_LIMIT`]. A render that runs out returns the
+    /// whole file as plain text rather than an error, and the HTML formatters
+    /// mark it `data-lumis-budget="time"`. Compiling a language's queries is
+    /// not counted against it.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use lumis::highlight::Budget;
+    ///
+    /// let quick = Budget::new().time_limit(Some(250));
+    /// let unbounded = Budget::new().time_limit(None);
+    /// ```
+    pub const fn time_limit(mut self, time_limit: Option<u64>) -> Self {
+        self.time_limit = time_limit;
+        self
+    }
+
+    pub(crate) const fn match_limit_value(&self) -> u32 {
+        self.match_limit
+    }
+
+    pub(crate) const fn time_limit_value(&self) -> Option<u64> {
+        self.time_limit
+    }
+}
+
+impl Default for Budget {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// Written out rather than derived only because of the cancellation flag:
@@ -133,8 +210,7 @@ impl<T: PartialEq> PartialEq for HighlightOptions<'_, T> {
     fn eq(&self, other: &Self) -> bool {
         self.annotations == other.annotations
             && self.rainbow_brackets == other.rainbow_brackets
-            && self.match_limit == other.match_limit
-            && self.time_limit == other.time_limit
+            && self.budget == other.budget
             && match (self.cancellation, other.cancellation) {
                 (Some(left), Some(right)) => std::ptr::eq(left, right),
                 (None, None) => true,
@@ -165,8 +241,7 @@ impl HighlightOptions<'static> {
         Self {
             annotations: &[],
             rainbow_brackets: false,
-            match_limit: DEFAULT_MATCH_LIMIT,
-            time_limit: Some(DEFAULT_TIME_LIMIT),
+            budget: Budget::new(),
             cancellation: None,
         }
     }
@@ -176,8 +251,7 @@ impl HighlightOptions<'static> {
         HighlightOptions {
             annotations,
             rainbow_brackets: self.rainbow_brackets,
-            match_limit: self.match_limit,
-            time_limit: self.time_limit,
+            budget: self.budget,
             cancellation: self.cancellation,
         }
     }
@@ -197,26 +271,22 @@ impl<'a, T> HighlightOptions<'a, T> {
         self.annotations
     }
 
-    /// Bound the number of query matches tree-sitter keeps in progress at once,
-    /// for the highlight and bracket queries alike.
+    /// Bound the work this render may do, in query matches and in wall clock.
     ///
-    /// Defaults to [`DEFAULT_MATCH_LIMIT`] and must be in `1..=`[`MAX_MATCH_LIMIT`];
-    /// highlighting with a value outside that range fails with
-    /// [`HighlightError::InvalidMatchLimit`]. Tree-sitter walks its whole pool of
-    /// in-progress matches before it emits each capture, so the bound is what
-    /// keeps highlighting linear on documents whose markup nests deeply enough to
-    /// keep many matches open at once. Raising it recovers matches that would
-    /// otherwise be dropped on such documents, at that cost.
+    /// Both dimensions bound the same render, so they are one option. See
+    /// [`Budget::match_limit`] and [`Budget::time_limit`] for each, and
+    /// [`Budget::new`] for the defaults a caller leaves alone.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// use lumis::highlight::HighlightOptions;
+    /// use lumis::highlight::{Budget, HighlightOptions};
     ///
-    /// let options = HighlightOptions::new().match_limit(16_384);
+    /// let options = HighlightOptions::new()
+    ///     .budget(Budget::new().match_limit(16_384).time_limit(Some(250)));
     /// ```
-    pub const fn match_limit(mut self, match_limit: u32) -> Self {
-        self.match_limit = match_limit;
+    pub const fn budget(mut self, budget: Budget) -> Self {
+        self.budget = budget;
         self
     }
 
@@ -224,33 +294,16 @@ impl<'a, T> HighlightOptions<'a, T> {
         self.rainbow_brackets
     }
 
-    pub(crate) const fn match_limit_value(&self) -> u32 {
-        self.match_limit
+    pub(crate) const fn budget_value(&self) -> Budget {
+        self.budget
     }
 
-    /// Bound how long this render may take, in milliseconds, or `None` to let
-    /// it run as long as it needs.
-    ///
-    /// Defaults to [`DEFAULT_TIME_LIMIT`]. A render that runs out returns the
-    /// whole file as plain text rather than an error, and the HTML formatters
-    /// mark it `data-lumis-budget="time"`. Compiling a language's queries is
-    /// not counted against it.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use lumis::highlight::HighlightOptions;
-    ///
-    /// let options = HighlightOptions::new().time_limit(Some(250));
-    /// let unbounded = HighlightOptions::new().time_limit(None);
-    /// ```
-    pub const fn time_limit(mut self, time_limit: Option<u64>) -> Self {
-        self.time_limit = time_limit;
-        self
+    pub(crate) const fn match_limit_value(&self) -> u32 {
+        self.budget.match_limit_value()
     }
 
     pub(crate) const fn time_limit_value(&self) -> Option<u64> {
-        self.time_limit
+        self.budget.time_limit_value()
     }
 
     /// Abandon this render as soon as `flag` holds anything but zero.
@@ -1072,7 +1125,9 @@ mod tests {
             DEFAULT_MATCH_LIMIT
         );
         assert_eq!(
-            HighlightOptions::new().match_limit(64).match_limit_value(),
+            HighlightOptions::new()
+                .budget(Budget::new().match_limit(64))
+                .match_limit_value(),
             64
         );
     }
@@ -1095,7 +1150,7 @@ mod tests {
             crate::highlight_with_options(
                 &source,
                 crate::formatter::HtmlLinked::new(Language::HTML, None, None, false, None),
-                HighlightOptions::new().match_limit(limit),
+                HighlightOptions::new().budget(Budget::new().match_limit(limit)),
             )
         };
 
@@ -1120,7 +1175,7 @@ mod tests {
             highlight_events_with_options(
                 &source,
                 Language::HTML,
-                HighlightOptions::new().match_limit(limit),
+                HighlightOptions::new().budget(Budget::new().match_limit(limit)),
             )
             .unwrap()
         };
@@ -1140,14 +1195,14 @@ mod tests {
             let result = highlight_events_with_options(
                 code,
                 Language::Rust,
-                HighlightOptions::new().match_limit(limit),
+                HighlightOptions::new().budget(Budget::new().match_limit(limit)),
             );
             assert_eq!(result, Err(HighlightError::InvalidMatchLimit(limit)));
         }
         assert!(highlight_events_with_options(
             code,
             Language::Rust,
-            HighlightOptions::new().match_limit(MAX_MATCH_LIMIT),
+            HighlightOptions::new().budget(Budget::new().match_limit(MAX_MATCH_LIMIT)),
         )
         .is_ok());
     }
@@ -1163,7 +1218,7 @@ mod tests {
                 Language::Rust,
                 HighlightOptions::new()
                     .rainbow_brackets(true)
-                    .match_limit(limit),
+                    .budget(Budget::new().match_limit(limit)),
             )
             .unwrap()
         };
@@ -1179,7 +1234,7 @@ mod tests {
         let raised = highlight_events_with_options(
             code,
             Language::Rust,
-            HighlightOptions::new().match_limit(DEFAULT_MATCH_LIMIT * 4),
+            HighlightOptions::new().budget(Budget::new().match_limit(DEFAULT_MATCH_LIMIT * 4)),
         )
         .unwrap();
 

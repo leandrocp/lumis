@@ -11,7 +11,7 @@
 //! budget is for: the first request after a deploy would come back plain, and
 //! nothing about the document would explain why.
 
-use lumis::{languages::Language, HighlightOptions, HtmlLinkedBuilder};
+use lumis::{languages::Language, Budget, HighlightOptions, HtmlLinkedBuilder};
 
 /// HTML injects css and javascript, so this forces three sets of queries: the
 /// root before the clock starts, and two more during the walk.
@@ -28,7 +28,7 @@ fn compiling_queries_is_not_charged_to_the_budget() {
     let html = lumis::highlight_with_options(
         SOURCE,
         formatter,
-        HighlightOptions::new().time_limit(Some(100)),
+        HighlightOptions::new().budget(Budget::new().time_limit(Some(100))),
     );
 
     assert!(

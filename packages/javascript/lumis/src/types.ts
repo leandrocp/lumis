@@ -443,12 +443,13 @@ export const DEFAULT_TIME_LIMIT = 5000;
  */
 export type BudgetExhausted = "time" | "matches";
 
-/** Options for one highlighting operation. */
-export interface HighlightOptions<T = unknown> {
-  /** Caller-provided semantic ranges composed into the formatter event stream. */
-  annotations?: readonly Annotation<T>[];
-  /** Render nested brackets with rainbow-bracket decorations. */
-  rainbowBrackets?: boolean;
+/**
+ * The work one render is allowed to do.
+ *
+ * Both dimensions bound the same render, so they travel together rather than as
+ * two loose options. An omitted field takes its default.
+ */
+export interface Budget {
   /**
    * Bound on the query matches tree-sitter keeps in progress at once, for the
    * highlight and bracket queries alike. An integer from 1 to
@@ -471,6 +472,22 @@ export interface HighlightOptions<T = unknown> {
    * {@link DEFAULT_TIME_LIMIT}.
    */
   timeLimit?: number;
+}
+
+/** Options for one highlighting operation. */
+export interface HighlightOptions<T = unknown> {
+  /** Caller-provided semantic ranges composed into the formatter event stream. */
+  annotations?: readonly Annotation<T>[];
+  /** Render nested brackets with rainbow-bracket decorations. */
+  rainbowBrackets?: boolean;
+  /**
+   * Bound the work this render may do, in query matches and in wall clock:
+   *
+   * ```ts
+   * { budget: { timeLimit: 1000, matchLimit: 16384 } }
+   * ```
+   */
+  budget?: Budget;
 }
 
 /**

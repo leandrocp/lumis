@@ -168,11 +168,29 @@ struct BBCodeScopedOptions {
     highlight_lines: Option<JsBBCodeHighlightLines>,
 }
 
+/// The work one render is allowed to do, as JavaScript spells it. An absent
+/// field takes Lumis's default for that dimension.
+#[napi(object)]
+#[derive(Clone, Copy, Default)]
+pub struct NativeBudget {
+    pub match_limit: Option<u32>,
+    pub time_limit: Option<i64>,
+}
+
+impl NativeBudget {
+    fn match_limit(self) -> u32 {
+        self.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT)
+    }
+
+    fn time_limit_ms(self) -> Option<u64> {
+        time_limit_ms(self.time_limit)
+    }
+}
+
 #[napi(object)]
 pub struct NativeFormatter {
     pub rainbow_brackets: Option<bool>,
-    pub match_limit: Option<u32>,
-    pub time_limit: Option<i64>,
+    pub budget: Option<NativeBudget>,
     pub kind: String,
     pub options: serde_json::Value,
 }
@@ -582,8 +600,8 @@ fn render_formatter(
         &source,
         &runtime_language,
         formatter.rainbow_brackets.unwrap_or(false),
-        formatter.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
-        time_limit_ms(formatter.time_limit),
+        formatter.budget.unwrap_or_default().match_limit(),
+        formatter.budget.unwrap_or_default().time_limit_ms(),
         &internal_ids,
     )?;
     publicize_event_languages(&mut events, &public_ids);
@@ -1245,8 +1263,7 @@ impl NativeRuntime {
         source: String,
         language: String,
         rainbow_brackets: Option<bool>,
-        match_limit: Option<u32>,
-        time_limit: Option<i64>,
+        budget: Option<NativeBudget>,
         package_resolver: Option<PackageResolverFunction<'_>>,
         wasm_resolver: Option<WasmResolverFunction<'_>>,
     ) -> Result<NativeHighlight> {
@@ -1259,8 +1276,8 @@ impl NativeRuntime {
                 &language,
                 &HighlightOptions {
                     rainbow_brackets: rainbow_brackets.unwrap_or(false),
-                    match_limit: match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
-                    time_limit_ms: time_limit_ms(time_limit),
+                    match_limit: budget.unwrap_or_default().match_limit(),
+                    time_limit_ms: budget.unwrap_or_default().time_limit_ms(),
                     ..HighlightOptions::default()
                 },
                 |injected| {
@@ -1318,8 +1335,8 @@ impl NativeRuntime {
                 &language,
                 &HighlightOptions {
                     rainbow_brackets: formatter.rainbow_brackets.unwrap_or(false),
-                    match_limit: formatter.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
-                    time_limit_ms: time_limit_ms(formatter.time_limit),
+                    match_limit: formatter.budget.unwrap_or_default().match_limit(),
+                    time_limit_ms: formatter.budget.unwrap_or_default().time_limit_ms(),
                     ..HighlightOptions::default()
                 },
                 |injected| {

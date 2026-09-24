@@ -103,11 +103,12 @@ lumis highlight index.js \
 | Set language | `--language` | `.language(...)` | `language: "..."` | `language: ...` | `withLang(...)` |
 | Set theme | `--theme` | `.theme(...)` | `theme: "..."` | `theme: ...` | `withTheme(...)` |
 | Choose output | `--formatter` | builder type | `formatter: ...` | formatter factory | runtime-specific |
-| Bound query matches | `--match-limit` | `.match_limit(...)` | `match_limit: ...` | `matchLimit: ...` | — |
-| Bound render time | `--time-limit` | `.time_limit(...)` | `time_limit: ...` | `timeLimit: ...` | — |
+| Bound query matches | `--budget-match-limit` | `.budget(Budget::new().match_limit(...))` | `budget: [match_limit: ...]` | `budget: {matchLimit: ...}` | — |
+| Bound render time | `--budget-time-limit` | `.budget(Budget::new().time_limit(...))` | `budget: [time_limit: ...]` | `budget: {timeLimit: ...}` | — |
 
-Both limits are one feature; see [Budget](/advanced/budget) for what happens
-when either runs out.
+Both limits are one feature, so they sit under one `budget` option rather than
+two loose ones. See [Budget](/advanced/budget) for what happens when either
+runs out. A CLI has no nesting, so the group becomes a flag prefix.
 
 ## Language detection
 
@@ -135,7 +136,7 @@ When matches are dropped, HTML formatters mark the `<pre>` with `data-lumis-budg
 const html = await highlight(
   source,
   htmlInline({language: html_, theme: frappe}),
-  {matchLimit: 16384},
+  {budget: {matchLimit: 16384}},
 );
 ```
 
@@ -143,23 +144,23 @@ const html = await highlight(
   <Tab value="Rust">
 
 ```rust
-use lumis::highlight::HighlightOptions;
+use lumis::highlight::{Budget, HighlightOptions};
 
-let options = HighlightOptions::new().match_limit(16_384);
+let options = HighlightOptions::new().budget(Budget::new().match_limit(16_384));
 ```
 
   </Tab>
   <Tab value="Elixir">
 
 ```elixir
-Lumis.highlight(source, match_limit: 16_384)
+Lumis.highlight(source, budget: [match_limit: 16_384])
 ```
 
   </Tab>
   <Tab value="CLI">
 
 ```bash
-lumis highlight index.html --match-limit 16384
+lumis highlight index.html --budget-match-limit 16384
 ```
 
   </Tab>

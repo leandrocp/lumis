@@ -124,12 +124,12 @@ struct HighlightArgs {
         default_value_t = DEFAULT_MATCH_LIMIT,
         value_parser = clap::value_parser!(u32).range(1..=i64::from(MAX_MATCH_LIMIT))
     )]
-    match_limit: u32,
+    budget_match_limit: u32,
 
     /// Milliseconds this render may take before it falls back to plain text, or
     /// 0 for no limit
     #[arg(long, default_value_t = DEFAULT_TIME_LIMIT)]
-    time_limit: u64,
+    budget_time_limit: u64,
 
     /// Lines to highlight, e.g. "1,3-5,10"
     #[arg(short = 'H', long)]
@@ -1614,8 +1614,8 @@ fn do_highlight(reg: &registry::Registry, args: HighlightArgs, verbose: bool) ->
             &source,
             lang.id_name(),
             args.rainbow_brackets,
-            args.match_limit,
-            args.time_limit,
+            args.budget_match_limit,
+            args.budget_time_limit,
         )?
     };
 

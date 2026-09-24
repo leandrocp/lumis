@@ -87,6 +87,7 @@ export type { LoadLanguages } from "./core/load-languages.js";
 export type {
   Annotation,
   AnnotationRange,
+  Budget,
   Decoration,
   Formatter,
   HighlightEvent,

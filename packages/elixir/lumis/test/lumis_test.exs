@@ -188,8 +188,7 @@ defmodule Lumis.LumisTest do
   test "default_options/0" do
     assert [
              formatter: {:html_inline, formatter_opts},
-             match_limit: nil,
-             time_limit: nil,
+             budget: [match_limit: nil, time_limit: nil],
              rainbow_brackets: false,
              annotations: []
            ] =
@@ -1234,30 +1233,38 @@ defmodule Lumis.LumisTest do
   end
 
   describe "validate_options!/1" do
-    test "match_limit is validated and reaches the highlighter" do
-      options = Lumis.validate_options!(match_limit: 16_384)
-      assert Keyword.fetch!(options, :match_limit) == 16_384
+    test "budget match_limit is validated and reaches the highlighter" do
+      options = Lumis.validate_options!(budget: [match_limit: 16_384])
+      assert Keyword.fetch!(options, :budget)[:match_limit] == 16_384
 
       for limit <- [0, 65_537] do
         assert_raise NimbleOptions.ValidationError, fn ->
-          Lumis.validate_options!(match_limit: limit)
+          Lumis.validate_options!(budget: [match_limit: limit])
         end
       end
 
       source = "defmodule A do\n  def b, do: :c\nend\n"
 
-      assert Lumis.highlight(source, language: "elixir", match_limit: 16_384) ==
+      assert Lumis.highlight(source, language: "elixir", budget: [match_limit: 16_384]) ==
                Lumis.highlight(source, language: "elixir")
     end
 
-    test "time_limit is validated" do
-      assert Keyword.fetch!(Lumis.validate_options!(time_limit: 250), :time_limit) == 250
-      assert Keyword.fetch!(Lumis.validate_options!(time_limit: 0), :time_limit) == 0
-      assert Keyword.fetch!(Lumis.validate_options!(time_limit: nil), :time_limit) == nil
+    test "budget time_limit is validated" do
+      assert Keyword.fetch!(Lumis.validate_options!(budget: [time_limit: 250]), :budget)[
+               :time_limit
+             ] == 250
+
+      assert Keyword.fetch!(Lumis.validate_options!(budget: [time_limit: 0]), :budget)[
+               :time_limit
+             ] == 0
+
+      assert Keyword.fetch!(Lumis.validate_options!(budget: [time_limit: nil]), :budget)[
+               :time_limit
+             ] == nil
 
       for limit <- [-1, 1.5, "250"] do
         assert_raise NimbleOptions.ValidationError, fn ->
-          Lumis.validate_options!(time_limit: limit)
+          Lumis.validate_options!(budget: [time_limit: limit])
         end
       end
     end
@@ -1265,8 +1272,7 @@ defmodule Lumis.LumisTest do
     test "validates valid options" do
       assert [
                formatter: {:html_inline, formatter_opts},
-               match_limit: nil,
-               time_limit: nil,
+               budget: [match_limit: nil, time_limit: nil],
                rainbow_brackets: false,
                annotations: []
              ] =
@@ -1292,8 +1298,7 @@ defmodule Lumis.LumisTest do
     test "validates options with default values" do
       assert [
                formatter: {:html_inline, formatter_opts},
-               match_limit: nil,
-               time_limit: nil,
+               budget: [match_limit: nil, time_limit: nil],
                rainbow_brackets: false,
                annotations: []
              ] =
@@ -1319,8 +1324,7 @@ defmodule Lumis.LumisTest do
     test "validates formatter options" do
       assert [
                formatter: {:html_inline, formatter_opts},
-               match_limit: nil,
-               time_limit: nil,
+               budget: [match_limit: nil, time_limit: nil],
                rainbow_brackets: false,
                annotations: []
              ] =
@@ -1360,8 +1364,7 @@ defmodule Lumis.LumisTest do
                       pre_class: nil,
                       theme: nil
                     ]},
-                 match_limit: nil,
-                 time_limit: nil,
+                 budget: [match_limit: nil, time_limit: nil],
                  rainbow_brackets: false,
                  annotations: [],
                  theme: "dracula",
@@ -1379,8 +1382,7 @@ defmodule Lumis.LumisTest do
     test "copies deprecated language into formatter language" do
       assert [
                formatter: {:html_inline, formatter_opts},
-               match_limit: nil,
-               time_limit: nil,
+               budget: [match_limit: nil, time_limit: nil],
                rainbow_brackets: false,
                annotations: [],
                language: "rust"
@@ -1408,8 +1410,7 @@ defmodule Lumis.LumisTest do
       capture_io(:stderr, fn ->
         assert [
                  formatter: {:html_inline, formatter_opts},
-                 match_limit: nil,
-                 time_limit: nil,
+                 budget: [match_limit: nil, time_limit: nil],
                  rainbow_brackets: false,
                  annotations: [],
                  language: "elixir"
@@ -1467,7 +1468,7 @@ defmodule Lumis.LumisTest do
     test "an exhausted time budget returns the whole document as plain text" do
       assert {:ok, html} =
                Lumis.highlight(@pathological,
-                 time_limit: 50,
+                 budget: [time_limit: 50],
                  formatter: {:html_linked, language: "json"}
                )
 
@@ -1487,7 +1488,7 @@ defmodule Lumis.LumisTest do
     test "an exhausted match budget marks the pre and keeps highlighting" do
       assert {:ok, html} =
                Lumis.highlight(@ordinary,
-                 match_limit: 1,
+                 budget: [match_limit: 1],
                  formatter: {:html_linked, language: "elixir"}
                )
 
@@ -1508,7 +1509,7 @@ defmodule Lumis.LumisTest do
       # loaded machine can stall a process for longer than a tight limit allows.
       assert {:ok, html} =
                Lumis.highlight(@ordinary,
-                 time_limit: 1_000,
+                 budget: [time_limit: 1_000],
                  formatter: {:html_linked, language: "elixir"}
                )
 
@@ -1516,10 +1517,10 @@ defmodule Lumis.LumisTest do
       refute html =~ "data-lumis-budget"
     end
 
-    test "time_limit: 0 removes the limit" do
+    test "budget time_limit: 0 removes the limit" do
       assert {:ok, html} =
                Lumis.highlight(@ordinary,
-                 time_limit: 0,
+                 budget: [time_limit: 0],
                  formatter: {:html_linked, language: "elixir"}
                )
 
@@ -1530,7 +1531,7 @@ defmodule Lumis.LumisTest do
     test "a formatter with nowhere to put the marker still degrades" do
       assert {:ok, text} =
                Lumis.highlight(@pathological,
-                 time_limit: 50,
+                 budget: [time_limit: 50],
                  formatter: {:terminal, language: "json"}
                )
 

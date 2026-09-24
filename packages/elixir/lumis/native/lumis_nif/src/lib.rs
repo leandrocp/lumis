@@ -446,8 +446,25 @@ pub struct ExOptions<'a> {
     pub formatter: ExFormatterOption,
     pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
+    pub budget: ExBudget,
+}
+
+/// The `:budget` keyword list, which Elixir hands over as one map. `nil` in
+/// either field selects Lumis's default for that dimension.
+#[derive(Clone, Copy, Debug, NifMap)]
+pub struct ExBudget {
     pub match_limit: Option<u32>,
     pub time_limit: Option<u64>,
+}
+
+impl ExBudget {
+    fn match_limit(self) -> u32 {
+        self.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT)
+    }
+
+    fn time_limit_ms(self) -> Option<u64> {
+        time_limit_ms(self.time_limit)
+    }
 }
 
 #[derive(Clone, Debug, NifMap)]
@@ -467,8 +484,7 @@ pub struct ExEventOptions<'a> {
     pub language: Option<&'a str>,
     pub annotations: Vec<Term<'a>>,
     pub rainbow_brackets: bool,
-    pub match_limit: Option<u32>,
-    pub time_limit: Option<u64>,
+    pub budget: ExBudget,
 }
 
 #[derive(Debug, NifMap)]
@@ -656,8 +672,8 @@ pub(crate) fn highlight<'a>(
         source,
         language,
         options.rainbow_brackets,
-        options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
-        time_limit_ms(options.time_limit),
+        options.budget.match_limit(),
+        options.budget.time_limit_ms(),
     ) {
         Ok(highlighted) => highlighted,
         Err(failure) => return Ok(failure),
@@ -735,8 +751,8 @@ pub(crate) fn highlight_events<'a>(
         source,
         language,
         options.rainbow_brackets,
-        options.match_limit.unwrap_or(DEFAULT_MATCH_LIMIT),
-        time_limit_ms(options.time_limit),
+        options.budget.match_limit(),
+        options.budget.time_limit_ms(),
     ) {
         Ok(highlighted) => highlighted.events,
         Err(failure) => return Ok(failure),
