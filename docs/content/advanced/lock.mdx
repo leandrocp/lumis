@@ -96,7 +96,12 @@ block as plain text — Lumis will not go and fetch `haskell`.
 
 Install nothing and nothing highlights. There is no fallback that fetches a
 language the project did not install, the same way Rust cannot use a language
-that was not compiled in. Install `@lumis-sh/wasm-bundle-full` to get them all.
+that was not compiled in.
+
+Install a bundle for a set of them, and prefer a focused one:
+[loading the full set can exhaust](/languages#bundle-full-is-not-the-safe-default)
+the 128 MB Wasm store every language shares. `bundle-full` also leaves out
+`systemverilog`; install `@lumis-sh/wasm-systemverilog` if you need it.
 
 A bundle installs a set in one package:
 

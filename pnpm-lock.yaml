@@ -834,9 +834,6 @@ importers:
       '@lumis-sh/wasm-swift':
         specifier: ^0.26.0
         version: 0.26.0
-      '@lumis-sh/wasm-systemverilog':
-        specifier: ^0.26.0
-        version: 0.26.0
       '@lumis-sh/wasm-tcl':
         specifier: ^0.26.0
         version: 0.26.0
@@ -1757,9 +1754,6 @@ packages:
 
   '@lumis-sh/wasm-swift@0.26.0':
     resolution: {integrity: sha512-a0ZEXL8SCZEq/OQsaiVg0rOMNqC4dcDXqDJ7QOD9QDa2hW8VYkyPCzwsOhwzjVEwKc3fmjEcyQigvoJqyoPiow==}
-
-  '@lumis-sh/wasm-systemverilog@0.26.0':
-    resolution: {integrity: sha512-hxJXA26QhrY1qNdlvZ6AVKJIGm58bn2hubTJc291Bs6EtKWJZnYOdbqqcL7QGcWnHCanBTmZY4cYqRtLWdhnTg==}
 
   '@lumis-sh/wasm-tcl@0.26.0':
     resolution: {integrity: sha512-7fzUqXqze52+Rs/trLm8uVs9zUo2Cq9dWfdEGGiUN/WtButqBrcq9sRKWfINlOUbt15bYF4TfncKcu6oWDNH0A==}
@@ -4272,8 +4266,6 @@ snapshots:
   '@lumis-sh/wasm-svelte@0.26.0': {}
 
   '@lumis-sh/wasm-swift@0.26.0': {}
-
-  '@lumis-sh/wasm-systemverilog@0.26.0': {}
 
   '@lumis-sh/wasm-tcl@0.26.0': {}
 

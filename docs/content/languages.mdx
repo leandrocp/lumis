@@ -98,9 +98,20 @@ delay a boot or fail one — every example below keeps both true.
 
 Name your root languages and anything they can inject. Markdown may need the
 languages used in fenced code blocks, and HTML may inject CSS and JavaScript.
-Prefer a focused list or a bundle over every parser unless your application
-genuinely accepts every supported language. Anything you miss still loads on
+Prefer a focused list or a small bundle. Anything you miss still loads on
 demand.
+
+### `bundle-full` is not the safe default
+
+Every language in a process shares one 128 MB Tree-sitter Wasm store, and
+nothing is ever reclaimed from it. The bound is the total of everything loaded,
+so the published set can exhaust it, and the languages that fail are whichever
+were asked for last.
+
+Preload what you serve. Installing a parser is cheap; loading one is what
+spends the budget. `bundle-full` also leaves out `systemverilog`, whose 22 MB
+of parse tables take a sixth of it alone. Install
+`@lumis-sh/wasm-systemverilog` and name it directly if you need it.
 
 [Language catalog](/reference/languages) has every name, and the package each
 one resolves to.

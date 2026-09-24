@@ -1042,6 +1042,15 @@ struct LanguagesToml {
 #[derive(Debug, serde::Deserialize)]
 struct BundleInfo {
     parsers: BundleParsers,
+    /// Parsers to leave out of a `parsers = "all"` bundle.
+    ///
+    /// Every language a process loads shares one Tree-sitter Wasm store whose
+    /// memory is capped at 128 MB, and nothing is ever reclaimed from it. A
+    /// parser that takes a double-digit share of that cap on its own makes
+    /// "all the languages" a set nobody can load, so it is named here rather
+    /// than left to break the bundle.
+    #[serde(default)]
+    exclude: Vec<String>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -1155,6 +1164,11 @@ fn sync_bundle_features(
                 if value != "all" {
                     bail!("unsupported bundle parsers value for '{bundle_name}': {value}");
                 }
+                // `exclude` is deliberately not applied here. These are
+                // Cargo features selecting parsers compiled *into* the Rust
+                // crate, which has no Wasm store and no 128 MB budget. The
+                // exclusion exists for the runtime bundle, so a Rust build of
+                // `lang-bundle-full` still gets every language.
                 vec!["all-languages".to_string()]
             }
         };
@@ -2663,7 +2677,11 @@ fn gen_languages_md() -> Result<()> {
                     if value != "all" {
                         bail!("unsupported bundle parsers value for '{bundle_name}': {value}");
                     }
-                    toml.parsers.keys().cloned().collect()
+                    toml.parsers
+                        .keys()
+                        .filter(|name| !bundle.exclude.contains(name))
+                        .cloned()
+                        .collect()
                 }
             };
             let languages_col = parser_names
@@ -2795,7 +2813,11 @@ fn render_language_catalog(
                 if value != "all" {
                     bail!("unsupported bundle parsers value for '{bundle_name}': {value}");
                 }
-                parser_order.to_vec()
+                parser_order
+                    .iter()
+                    .filter(|name| !bundle.exclude.contains(name))
+                    .cloned()
+                    .collect()
             }
         };
         let rendered = members
@@ -5933,12 +5955,14 @@ mod tests {
                 "web".to_string(),
                 BundleInfo {
                     parsers: BundleParsers::List(vec!["alpha".to_string()]),
+                    exclude: Vec::new(),
                 },
             ),
             (
                 "full".to_string(),
                 BundleInfo {
                     parsers: BundleParsers::All("all".to_string()),
+                    exclude: vec!["zeta".to_string()],
                 },
             ),
         ]);
@@ -5949,8 +5973,12 @@ mod tests {
         assert!(catalog.find("\"zeta\"").unwrap() < catalog.find("\"alpha\"").unwrap());
         assert!(catalog.contains("package_name: \"@lumis-sh/wasm-shared\""));
         assert!(catalog.contains("aliases: [\"a\"]"));
-        // `parsers = "all"` expands to the catalog, in the same order.
-        assert!(catalog.contains("\"full\" => [\"zeta\", \"alpha\"]"));
+        // `parsers = "all"` expands to the catalog, in the same order, minus
+        // anything `exclude` names. A parser left out of a bundle is still a
+        // language: `zeta` keeps its catalog entry and its package.
+        assert!(catalog.contains("\"full\" => [\"alpha\"]"));
+        assert!(!catalog.contains("\"full\" => [\"zeta\""));
+        assert!(catalog.contains("\"zeta\" => {"));
         assert!(catalog.contains("\"web\" => [\"alpha\"]"));
         assert!(catalog.contains("package_version_range: \"0.26\""));
         assert!(!catalog.contains("version:"));
@@ -5986,7 +6014,11 @@ mod tests {
             .iter()
             .map(|(name, bundle)| {
                 let members = match &bundle.parsers {
-                    BundleParsers::All(_) => order.clone(),
+                    BundleParsers::All(_) => order
+                        .iter()
+                        .filter(|id| !bundle.exclude.contains(id))
+                        .cloned()
+                        .collect(),
                     BundleParsers::List(list) => list.clone(),
                 };
                 (name.as_str(), members)
@@ -6013,8 +6045,20 @@ mod tests {
         );
         assert!(
             shipped["full"].len() > 100,
-            "`full` should be every language"
+            "`full` should be nearly every language"
         );
+        // A parser `full` leaves out is still a language. It keeps its catalog
+        // entry and its package; only the "everything" bundle skips it.
+        for excluded in &toml.bundles["full"].exclude {
+            assert!(
+                !shipped["full"].contains(excluded),
+                "`full` should not contain the excluded `{excluded}`"
+            );
+            assert!(
+                lumis_wasm_runtime::catalog::find(excluded).is_some(),
+                "`{excluded}` should still be in the catalog"
+            );
+        }
     }
 
     #[test]

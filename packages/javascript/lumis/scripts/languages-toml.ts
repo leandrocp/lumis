@@ -12,6 +12,8 @@ export interface ParserEntry {
 
 export interface BundleEntry {
   parsers: string[] | "all";
+  /** Parsers to leave out of a `parsers: "all"` bundle. */
+  exclude?: string[];
 }
 
 export interface LanguagesToml {
@@ -83,9 +85,17 @@ function parseBundle(value: TomlValueWithoutBigInt, name: string): BundleEntry {
   const path = `bundles.${name}`;
   const table = requireTable(value, path);
   const parsers = table.parsers;
-  if (parsers === "all") return { parsers };
+  const rawExclude = table.exclude;
+  let exclude: string[] | undefined;
+  if (rawExclude !== undefined) {
+    if (!Array.isArray(rawExclude) || !rawExclude.every((entry) => typeof entry === "string")) {
+      return invalid(`${path}.exclude`);
+    }
+    exclude = rawExclude;
+  }
+  if (parsers === "all") return { parsers, exclude };
   if (Array.isArray(parsers) && parsers.every((entry) => typeof entry === "string")) {
-    return { parsers };
+    return { parsers, exclude };
   }
   return invalid(`${path}.parsers`);
 }
