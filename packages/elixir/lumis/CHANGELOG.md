@@ -1,5 +1,20 @@
 ## [0.9.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.8.0...hex-lumis/v0.9.0) (2026-09-24)
 
+This release no longer auto loads the languages (parsers) used to syntax highlight code.
+
+You need to install the languages or bundles you want otherwise you won't see any color applied.
+
+Example:
+
+```elixir
+# mix.exs
+
+{:lumis, "~> 0.9"},
+{:lumis_wasm_javascript, "~> 0.26"},
+{:lumis_wasm_bundle_backend, "~> 0.1"}
+```
+
+See https://docs.lumis.sh/reference/languages and https://docs.lumis.sh/languages for more info.
 
 ### Bug Fixes
 
