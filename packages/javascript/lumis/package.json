@@ -45,20 +45,6 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
-    "./cache": {
-      "types": "./dist/cache.d.ts",
-      "require": "./dist/cache.cjs",
-      "node": "./dist/cache.js",
-      "import": "./dist/cache.js",
-      "default": "./dist/cache.js"
-    },
-    "./download": {
-      "types": "./dist/cache.d.ts",
-      "require": "./dist/cache.cjs",
-      "node": "./dist/cache.js",
-      "import": "./dist/cache.js",
-      "default": "./dist/cache.js"
-    },
     "./formatters": {
       "types": "./dist/formatters.d.ts",
       "import": "./dist/formatters.js",

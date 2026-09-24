@@ -41,18 +41,14 @@ static EXECUTOR: Lazy<Result<WasmExecutor>> = Lazy::new(|| {
 /// `Lazy::get` only reports initialization that has *finished*, so on its own it
 /// is a check against a state a concurrent caller may be halfway into: a thread
 /// inside `WasmExecutor::new` has already cloned `STORE_PATHS.lock` while
-/// `lock_refresh` still sees `None` and replaces it. The executor would then
-/// resolve against the old lock while every later store used the new one —
-/// downloads honouring one and compiles the other.
+/// `configure_store` still sees `None` and replaces it. The executor would then
+/// resolve against the old directories while every later store used the new
+/// ones.
 ///
 /// Taking this around both sides makes the two orderings the only ones
 /// possible: either the replacement lands first and the executor is built from
 /// it, or the executor is built first and the replacement is refused.
 static STORE_SETTLED: std::sync::LazyLock<parking_lot::Mutex<()>> =
-    std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
-static CACHE_BATCH: std::sync::LazyLock<parking_lot::Mutex<()>> =
-    std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
-static PRECOMPILE_BATCH: std::sync::LazyLock<parking_lot::Mutex<()>> =
     std::sync::LazyLock::new(|| parking_lot::Mutex::new(()));
 
 enum WasmJob {
@@ -273,8 +269,12 @@ struct StorePaths {
 static STORE_PATHS: std::sync::LazyLock<RwLock<StorePaths>> =
     std::sync::LazyLock::new(|| RwLock::new(StorePaths::default()));
 
-/// The same resolve, verify and cache path the CLI uses, pointed at the
-/// directories Lumis persists under.
+/// The same resolve and verify path the CLI uses, pointed at the directories
+/// Lumis persists under.
+///
+/// `installed_dirs` is always `Some` here — a project declares its parsers by
+/// depending on them — so the store never reaches past them, and the fetcher it
+/// would reach through refuses rather than existing unused.
 fn language_store(cache_dir: Option<std::path::PathBuf>) -> store::LanguageStore {
     let paths = STORE_PATHS.read();
     let cache_dir = store::resolve_data_dir(cache_dir.or_else(|| paths.data_dir.clone()));
@@ -283,7 +283,7 @@ fn language_store(cache_dir: Option<std::path::PathBuf>) -> store::LanguageStore
             cache_dir,
             installed_dirs: Some(paths.installed_dirs.clone()),
         },
-        Box::new(store::HttpFetcher),
+        Box::new(store::NoNetwork),
     )
 }
 
@@ -873,104 +873,6 @@ fn load_language_by_name<'a>(env: Env<'a>, name: &str) -> Term<'a> {
         Ok(()) => ok().encode(env),
         Err(failure) => (error(), failure).encode(env),
     }
-}
-
-/// Stack for a thread that resolves TLS or runs Cranelift.
-///
-/// Both want far more than a BEAM dirty scheduler carries, and overrunning one
-/// takes the whole emulator down rather than raising. The executor's workers are
-/// sized the same way, for the same reason.
-const DEEP_STACK: usize = 8 * 1024 * 1024;
-
-/// Run `work` on a thread with a stack the emulator's own do not have.
-///
-/// The batch entry points below do their work on the calling thread when there
-/// is only one item, and `parallel_map` drains from the caller too, so a dirty
-/// scheduler must not be the thread that ends up running either.
-fn on_deep_stack<Output: Send>(work: impl FnOnce() -> Output + Send) -> Result<Output> {
-    std::thread::scope(|scope| {
-        thread::Builder::new()
-            .name("lumis-batch".into())
-            .stack_size(DEEP_STACK)
-            .spawn_scoped(scope, work)
-            .context("could not spawn the Lumis batch thread")?
-            .join()
-            .map_err(|_| anyhow!("the Lumis batch thread panicked"))
-    })
-}
-
-/// Download and compile `names` concurrently for `Lumis.Languages.download/2`.
-///
-/// One result per name, in order, so the caller reports every language that
-/// could not be obtained instead of stopping at the first. Caching a bundle one
-/// language at a time is a hundred sequential round trips to the CDN.
-///
-/// Downloading needs no Wasmtime runtime, so this goes straight to a store
-/// rather than waking the executor.
-#[rustler::nif(schedule = "DirtyIo")]
-fn cache_languages(env: Env<'_>, names: Vec<String>, force: bool) -> Term<'_> {
-    let results = on_deep_stack(|| {
-        let _batch = CACHE_BATCH.lock();
-        language_store(None)
-            .cache_languages(&names, force, lumis_wasm_runtime::DOWNLOAD_CONCURRENCY)
-            .into_iter()
-            .map(|result| result.map_err(|failure| failure.to_string()))
-            .collect::<Vec<_>>()
-    });
-
-    match results {
-        Ok(results) => results
-            .into_iter()
-            .map(|result| match result {
-                Ok(path) => (ok(), path.display().to_string()).encode(env),
-                Err(message) => (error(), message).encode(env),
-            })
-            .collect::<Vec<_>>()
-            .encode(env),
-        Err(error) => repeated_failure(env, &format!("{error:#}"), names.len()),
-    }
-}
-
-/// Compile `names` into the on-disk Wasmtime cache without loading them.
-///
-/// Downloading is the smaller half of a cold parser; the Cranelift compile is
-/// the larger, and this is what puts it in the image. One result per name, in
-/// order.
-#[rustler::nif(schedule = "DirtyCpu")]
-fn precompile_languages(env: Env<'_>, names: Vec<String>) -> Term<'_> {
-    let executor = match executor() {
-        Ok(executor) => executor,
-        Err(error) => return repeated_failure(env, &format!("{error:#}"), names.len()),
-    };
-
-    let results = on_deep_stack(|| {
-        let _batch = PRECOMPILE_BATCH.lock();
-        executor
-            .runtime
-            .precompile_languages(&names, lumis_wasm_runtime::compile_concurrency())
-            .into_iter()
-            .map(|result| result.map_err(|failure| failure.to_string()))
-            .collect::<Vec<_>>()
-    });
-
-    match results {
-        Ok(results) => results
-            .into_iter()
-            .map(|result| match result {
-                Ok(()) => ok().encode(env),
-                Err(message) => (error(), message).encode(env),
-            })
-            .collect::<Vec<_>>()
-            .encode(env),
-        Err(error) => repeated_failure(env, &format!("{error:#}"), names.len()),
-    }
-}
-
-/// One failure per name, for the cases that fail before any name is attempted.
-/// The batch NIFs answer positionally, so the list still has to line up.
-fn repeated_failure<'a>(env: Env<'a>, message: &str, count: usize) -> Term<'a> {
-    let failure = (error(), message).encode(env);
-    vec![failure; count].encode(env)
 }
 
 /// Dirty because the source is caller-supplied and unbounded: detection runs

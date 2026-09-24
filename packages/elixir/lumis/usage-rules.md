@@ -114,32 +114,26 @@ Highlighting loads what a document needs, including languages injected inside
 it, so nothing has to be declared up front. Loading is global to the VM, so the
 cost is paid once.
 
-Load ahead of time to keep the first download off a user's request. A cold
-parser costs a download *and* a Wasmtime compile:
+Load ahead of time to keep the first compile off a user's request. Parser bytes
+arrive with the `lumis_wasm_*` dependency, so a cold parser costs a Wasmtime
+compile and nothing else:
 
 ```elixir
 :ok = Lumis.Languages.load(["markdown", "elixir", "json"])
 ```
 
 From an application's `start/2`, use the async variant instead. It returns
-immediately, so a slow or unreachable CDN cannot delay or fail the boot, and it
-is not matched on:
+immediately, so a slow compile cannot delay or fail the boot, and it is not
+matched on:
 
 ```elixir
 Lumis.Languages.async_load(["markdown", "elixir", "json"])
 ```
 
-The store is checked before the CDN, and is also where Wasmtime persists
-compiled modules. It resolves in that order: `config :lumis, data_dir:` wins,
-`LUMIS_DATA_DIR` is the environment fallback, and Lumis's own `priv/lumis` is
-the zero-configuration default. A cold cache resolves the runtime's compatible
-package range; the exact package stored in that directory is then served
-without revalidating it.
-
-`Lumis.Languages.download/2` and `lumis languages download` fill that directory
-without loading anything, for a build or operations step that runs before the
-VM that serves. Inside a running application prefer `async_load/1`, which keeps
-what it loads rather than compiling and discarding it.
+Wasmtime persists compiled modules under the data directory, which resolves in
+this order: `config :lumis, data_dir:` wins, `LUMIS_DATA_DIR` is the environment
+fallback, and Lumis's own `priv/lumis` is the zero-configuration default. Point
+every node at one directory and the compile is paid once for all of them.
 
 ## Formatters
 
@@ -992,6 +986,6 @@ Lumis is a fast, reliable syntax highlighter for Elixir. Key points to remember:
 9. **250+ built-in Neovim themes** available
 10. **Line numbers** are 1-indexed in the `data-line` attribute
 11. **Validate options** with `validate_options!/1` when needed
-12. **Cache parser WASMs** at build time so the first request does not download
+12. **Load parsers at startup** with `async_load/1` so the first request does not compile
 
 For more information, see the [HexDocs](https://hexdocs.pm/lumis) or the [GitHub repository](https://github.com/leandrocp/lumis).

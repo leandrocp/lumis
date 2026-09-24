@@ -375,16 +375,6 @@ pub fn default_data_dir_js() -> String {
     store::default_data_dir().to_string_lossy().into_owned()
 }
 
-/// Compile and validate cached parsers on Node's worker pool, writing their
-/// Wasmtime modules into the selected data directory.
-#[napi(js_name = "precompileLanguages")]
-pub fn precompile_languages(
-    names: Vec<String>,
-    directory: Option<String>,
-) -> AsyncTask<PrecompileLanguagesTask> {
-    AsyncTask::new(PrecompileLanguagesTask { names, directory })
-}
-
 /// The same resolve, verify and cache path the CLI and the Elixir NIF use.
 /// An HTTP fetcher that asks, per request, whether the project declared its set.
 ///
@@ -758,52 +748,6 @@ impl Task for FormatTask {
             output: output.0,
             unresolved: output.1,
         })
-    }
-}
-
-pub struct PrecompileLanguagesTask {
-    names: Vec<String>,
-    directory: Option<String>,
-}
-
-impl Task for PrecompileLanguagesTask {
-    type Output = bool;
-    type JsValue = bool;
-
-    fn compute(&mut self) -> Result<Self::Output> {
-        let data_dir = store::resolve_data_dir(self.directory.clone().map(PathBuf::from));
-        let language_store = store::LanguageStore::new(
-            store::StoreConfig {
-                cache_dir: data_dir.clone(),
-                installed_dirs: None,
-            },
-            Box::new(store::NoNetwork),
-        );
-        let runtime = Runtime::with_compile_cache_dir(1, data_dir)
-            .map_err(native_error)?
-            .with_store(language_store);
-        let failures = self
-            .names
-            .iter()
-            .zip(
-                runtime
-                    .precompile_languages(&self.names, lumis_wasm_runtime::compile_concurrency()),
-            )
-            .filter_map(|(name, result)| result.err().map(|error| format!("{name} ({error})")))
-            .collect::<Vec<_>>();
-
-        if failures.is_empty() {
-            Ok(true)
-        } else {
-            Err(native_error(format!(
-                "could not compile: {}",
-                failures.join(", ")
-            )))
-        }
-    }
-
-    fn resolve(&mut self, _env: Env, output: Self::Output) -> Result<Self::JsValue> {
-        Ok(output)
     }
 }
 
@@ -1286,32 +1230,6 @@ impl NativeRuntime {
         Ok(self
             .current_runtime()?
             .has_language(self.mapped_id(&id).as_deref().unwrap_or(&id)))
-    }
-
-    /// Download and cache `id` without loading it, for build-time prefetching.
-    /// Returns the path its parser was written to.
-    #[napi(js_name = "cacheLanguage")]
-    pub fn cache_language(
-        &self,
-        id: String,
-        directory: Option<String>,
-        force: Option<bool>,
-    ) -> Result<String> {
-        let runtime = self.current_runtime()?;
-        let owned;
-        let store = match directory {
-            Some(directory) => {
-                owned = language_store(Some(PathBuf::from(directory)));
-                &owned
-            }
-            None => runtime
-                .store()
-                .ok_or_else(|| native_error("this runtime has no language store"))?,
-        };
-        store
-            .cache_language(&id, force.unwrap_or(false))
-            .map(|path| path.display().to_string())
-            .map_err(native_error)
     }
 
     /// The complete nested event stream as one compact binary value, plus any

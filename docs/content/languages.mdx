@@ -13,13 +13,13 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 
 A language in Lumis is a Tree-sitter parser: a WebAssembly module that Lumis
-downloads, verifies, compiles, and loads. You have two ways to get one, and you
-can use both.
+verifies, compiles, and loads. You have two ways to get one, and you can use
+both.
 
 |  | On demand | Preloaded |
 | --- | --- | --- |
 | What you write | nothing | a list of languages, once |
-| First document in a language | pays the download and the compile | already loaded |
+| First document in a language | pays the compile | already loaded |
 | Every document after | full speed | full speed |
 | A language you did not expect | works | works, on demand |
 
@@ -32,20 +32,25 @@ Both end in the same place. Preloading only decides *when* you pay.
 
 ## On demand
 
-Nothing to declare. Lumis resolves, downloads, verifies, and loads a language
-the first time a document names it, then reuses it for every later document.
+Nothing to declare. Lumis resolves, verifies, and loads a language the first
+time a document names it, then reuses it for every later document.
+
+Where the bytes come from depends on the runtime. In Elixir and Node a parser is
+an ordinary dependency: `mix deps.get` and `npm install` deliver it, and
+highlighting reads it off the code path without touching the network. The CLI
+has no manifest to read, so it downloads and verifies a parser the first time it
+needs one. Browsers fetch theirs and keep them in CacheStorage.
 
 That includes languages **injected inside** another one, in the same pass: a
 Markdown file with a fenced Rust block highlights that block, and an HTML page
 highlights its `<style>` and `<script>` contents, without any of them appearing
 in your code.
 
-A language that cannot be fetched costs its own block, not the document. A
-thousand-line file still highlights when one fenced block names something
-unpublished; that block stays plain.
+A language that cannot be loaded costs its own block, not the document. A
+thousand-line file still highlights when one fenced block names something the
+project never installed; that block stays plain.
 
-The cost is one download and then a Wasmtime compile, and the compile is the
-larger half: seven parsers already on disk take about 8 s to compile, against
+The cost is a Wasmtime compile: seven parsers take about 8 s to compile, against
 1.3 s once their compiled forms are stored. Registering an already-compiled
 parser is 3-15 ms, and about 0.3 ms after that. So the penalty is real but it is
 paid once per language, by whichever request arrives first.
@@ -55,7 +60,7 @@ render does not matter. Preload when it does.
 
 :::note
 Browsers are the exception. `web-tree-sitter` loads asynchronously, so a parser
-cannot be fetched inside a synchronous walk: in a browser, preload an injected
+cannot be loaded inside a synchronous walk: in a browser, preload an injected
 language before highlighting the document that mentions it, or use a bundle.
 Node does not have this limit — it highlights through a native addon.
 :::
@@ -67,22 +72,21 @@ the work is the one that will serve:
 
 | Runtime | In the process that serves | In a process that exits |
 | --- | --- | --- |
-| JavaScript / TypeScript | `loadLanguages([...])`, not awaited | `cacheLanguages([...])` |
-| Elixir | `Lumis.Languages.async_load([...])` in `start/2` | `Lumis.Languages.download/2` |
+| JavaScript / TypeScript | `loadLanguages([...])`, not awaited | `lumis languages download <names>` |
+| Elixir | `Lumis.Languages.async_load([...])` in `start/2` | `lumis languages download <names>` |
 | Browsers / CDN | `createHighlighter({languages})`, or `loadLanguages()` | — nothing to prepare ahead |
 | CLI | — the process exits, so there is no later to hold for | `lumis languages download <names>` |
 | Rust | — parsers are Cargo features compiled into the binary | — |
 | Java | construct `Lumis` at startup and retain it | — parsers ship inside `lumis4j` |
 
-The columns are the two verbs, spelled the same way everywhere. **load** caches
-the language *and* keeps it in this runtime, so nothing loads it again. **cache**
-only puts it on disk, where it survives restarts and is shared by every native
-runtime pointed at the same directory.
+**Loading** compiles the language and keeps it in this runtime, so nothing
+compiles it again, and it persists the compiled module on disk, where it
+survives restarts and is shared by every native runtime pointed at the same
+directory.
 
-Load is cache plus keeping it, so a process that will serve wants a load. Cache
-is for a process that is *not* serving — an image build, a release task, a CLI
-run — which has nothing to hold on to. Caching on a native runtime compiles as
-well, so a directory prepared that way saves the serving process both halves.
+A process that will serve loads. A process that is *not* serving — an image
+build, a release task — has nothing to hold on to, so it runs the CLI, which
+writes that same directory and exits.
 
 :::note
 Preloading is an optimization, never a prerequisite. An application that starts
@@ -102,8 +106,8 @@ demand.
 one resolves to.
 
 All of these operations are safe to repeat. A normal run reuses valid files;
-`force: true` or `--force` is an explicit update that resolves the compatible
-package range again.
+the CLI's `--force` is an explicit update that resolves the compatible package
+range again.
 
 ## Preloading, per runtime
 
@@ -117,7 +121,7 @@ import { loadLanguages } from "@lumis-sh/lumis";
 
 await startServer();
 
-// Not awaited, so a slow CDN delays no request. The
+// Not awaited, so a slow compile delays no request. The
 // `.catch()` is required: an unhandled rejection
 // terminates the process, which is exactly the failure
 // loading in the background is meant to avoid.
@@ -140,19 +144,13 @@ have loaded.
 `createHighlighter({languages})` is the same load into an instance you keep
 yourself, and is what browsers use.
 
-Await `downloadLanguages()` instead when a build or prestart step is preparing a
-directory the serving process will read — failing is the point of a preparation
-step:
+On the native Node addon, loading validates the parser and queries and persists
+the compiled Wasmtime module. Bun and Deno, or a Node installation without the
+addon, call the same API, but the portable `web-tree-sitter` fallback cannot
+persist compiled modules across processes.
 
-```ts
-await cacheLanguages(["bundle-web"], { force: true });
-```
-
-`{force: true}` resolves the compatible package range again and replaces valid
-cached files. On the native Node addon, caching also validates the parser and
-queries and persists the compiled Wasmtime module. Bun and Deno, or a Node
-installation without the addon, can call the same API, but the portable
-`web-tree-sitter` fallback cannot persist compiled modules across processes.
+Use the CLI tab below when a build or prestart step is preparing a directory the
+serving process will read.
 
   </Tab>
   <Tab value="Elixir">
@@ -174,10 +172,10 @@ def start(_type, _args) do
 end
 ```
 
-It returns before the download starts, so the boot never waits on the network.
-The return value is deliberately not matched: the work runs under a
-`:temporary` child of Lumis's own supervisor, so a failure is logged and never
-retried, never escalates, and cannot stop the application from starting.
+It returns before the compile starts, so the boot never waits on it. The return
+value is deliberately not matched: the work runs under a `:temporary` child of
+Lumis's own supervisor, so a failure is logged and never retried, never
+escalates, and cannot stop the application from starting.
 
 The API accepts language names and `:bundle_*` names such as `:bundle_web`.
 
@@ -185,7 +183,7 @@ Loading is global to the VM: one `Runtime` lives in the NIF, so the first
 process to need a language pays and every process after it does not.
 
 Use `Lumis.Languages.load/1` when the caller does want the result and can wait
-— a release task, or a smoke test that should fail if a parser is unreachable.
+— a release task, or a smoke test that should fail if a parser is unusable.
 For release and container details, see the standalone
 [Elixir deployment guide](https://lumis.hexdocs.pm/deployment.html).
 
@@ -214,7 +212,7 @@ directory into the runtime image:
 ```dockerfile
 FROM node:22-bookworm-slim AS parsers
 RUN npx --yes @lumis-sh/cli --data-dir /app/lumis \
-      languages cache markdown elixir javascript
+      languages download markdown elixir javascript
 
 FROM debian:bookworm-slim
 COPY --from=parsers --chown=nobody:root \
@@ -227,9 +225,9 @@ from it reaches the runtime image except the directory. Install the binary
 instead — see [Installation](/installation) — if you would rather not reach the
 network during a build.
 
-Keep the startup preload as well. A prepared directory removes the download and
-the compile; moving the parsers into the runtime is still the preload's job, and
-it needs no network once that directory is there.
+Keep the startup preload as well. A prepared directory removes the compile;
+moving the parsers into the runtime is still the preload's job, and it needs no
+network once that directory is there.
 
   </Tab>
   <Tab value="Browsers / CDN">
@@ -303,18 +301,18 @@ configuration in `lumis4j`.
 ## Point every process at one directory
 
 The CLI, Elixir NIF, and native Node addon share one store, so a parser one of
-them downloads is already there for the others. Name it explicitly when one
+them compiles is already compiled for the others. Name it explicitly when one
 process prepares files for another:
 
 | Host | Explicit setting | Environment fallback | Default |
 | --- | --- | --- | --- |
 | CLI | `--data-dir /app/lumis` | `LUMIS_DATA_DIR` | platform user data directory |
-| JavaScript / TypeScript cache API | `{directory: "/app/lumis"}` | `LUMIS_DATA_DIR` | platform user data directory |
+| JavaScript / TypeScript | — | `LUMIS_DATA_DIR` | platform user data directory |
 | Elixir | `config :lumis, data_dir: "/app/lumis"` | `LUMIS_DATA_DIR` | the Lumis application `priv/lumis` directory |
 
-Elixir configuration takes precedence over the environment. The npm `directory`
-option controls where `downloadLanguages()` writes; also set `LUMIS_DATA_DIR` for
-the deployed highlighter when it must read that explicit directory.
+Elixir configuration takes precedence over the environment. Set `LUMIS_DATA_DIR`
+for the deployed highlighter when it must read a directory a build step
+prepared.
 
 [WASM and CDN](/advanced/wasm-and-cdn#the-store-directory) has the directory
 layout, integrity checks, custom resolvers, and offline images.

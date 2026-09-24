@@ -1,8 +1,9 @@
 //! The Rust half of the shared language-name conformance suite.
 //!
-//! `fixtures/conformance-languages/cases.json` states what caching and loading
-//! must agree on in every runtime. This asserts the Rust implementation against
-//! it; `packages/javascript/lumis/test/languages-conformance.test.ts` and
+//! `fixtures/conformance-languages/cases.json` states what loading and the
+//! CLI's download must agree on in every runtime. This asserts the Rust
+//! implementation against it;
+//! `packages/javascript/lumis/test/languages-conformance.test.ts` and
 //! `packages/elixir/lumis/test/languages_conformance_test.exs` assert theirs
 //! against the same file.
 
