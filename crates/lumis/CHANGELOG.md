@@ -1,3 +1,10 @@
+## [0.15.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.14.0...cargo-lumis/v0.15.0) (2026-09-24)
+
+
+### Code Refactoring
+
+- BREAKING: nest the render limits under one budget option - [#1526](https://github.com/leandrocp/lumis/pull/1526)
+
 ## [0.14.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.13.1...cargo-lumis/v0.14.0) (2026-09-24)
 
 
