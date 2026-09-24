@@ -1,3 +1,41 @@
+## [3.0.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v2.5.0...cargo-lumis-core/v3.0.0) (2026-09-24)
+
+
+### Bug Fixes
+
+- escape attribute values in the Rust formatters - [#1385](https://github.com/leandrocp/lumis/pull/1385)
+- reject a hex colour that is only partly hex - [#1394](https://github.com/leandrocp/lumis/pull/1394)
+- BREAKING: make public error enums non-exhaustive - [#1395](https://github.com/leandrocp/lumis/pull/1395)
+- BREAKING: preserve source line endings across runtimes - [#1410](https://github.com/leandrocp/lumis/pull/1410)
+- keep light-dark() to the colors it can express - [#1444](https://github.com/leandrocp/lumis/pull/1444)
+
+
+### Code Refactoring
+
+- BREAKING: re-export lumis-core's formatters from lumis - [#1387](https://github.com/leandrocp/lumis/pull/1387)
+- BREAKING: inline annotation event fields - [#1441](https://github.com/leandrocp/lumis/pull/1441)
+
+
+### Features
+
+- update generated themes - [#1358](https://github.com/leandrocp/lumis/pull/1358)
+- add Token themes - [#1365](https://github.com/leandrocp/lumis/pull/1365)
+- BREAKING: introduce annotations - [#1100](https://github.com/leandrocp/lumis/pull/1100)
+- HTML formatter helpers - [#1377](https://github.com/leandrocp/lumis/pull/1377)
+- ANSI formatter helpers - [#1388](https://github.com/leandrocp/lumis/pull/1388)
+- export the same helpers across runtimes - [#1396](https://github.com/leandrocp/lumis/pull/1396)
+- BREAKING: render line highlighting as built-in decoration events - [#1398](https://github.com/leandrocp/lumis/pull/1398)
+- BREAKING: render line numbers from the line decoration - [#1411](https://github.com/leandrocp/lumis/pull/1411)
+- theme line number gutters - [#1431](https://github.com/leandrocp/lumis/pull/1431)
+- support HTML tag attributes - [#1436](https://github.com/leandrocp/lumis/pull/1436)
+- expose rainbow brackets as decorations - [#1439](https://github.com/leandrocp/lumis/pull/1439)
+- bound a render with a time limit - [#1478](https://github.com/leandrocp/lumis/pull/1478)
+
+
+### Performance
+
+- coalesce same-scope highlight spans - [#1459](https://github.com/leandrocp/lumis/pull/1459)
+
 ## [2.5.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v2.4.0...cargo-lumis-core/v2.5.0) (2026-09-03)
 
 
