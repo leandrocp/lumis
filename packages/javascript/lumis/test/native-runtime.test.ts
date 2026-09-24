@@ -134,7 +134,6 @@ describe("native runtime", () => {
       internalId,
       false,
       undefined,
-      undefined,
       () => {},
       () => {},
     );
@@ -165,7 +164,6 @@ describe("native runtime", () => {
       source,
       "markdown",
       false,
-      undefined,
       undefined,
       localLanguagePackageResolver,
       wasmResolver,
