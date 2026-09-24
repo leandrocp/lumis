@@ -1,0 +1,391 @@
+---
+title: Lumis
+description: Lumis is a Tree-sitter syntax highlighter with Neovim themes and one workflow across CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and Java.
+keywords:
+  - lumis
+  - syntax highlighting
+  - tree-sitter
+  - neovim themes
+  - rust
+  - elixir
+  - javascript
+  - typescript
+  - java
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+
+Lumis is a syntax highlighter built on [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) and [Neovim themes](https://github.com/topics/neovim-colorscheme).
+
+It keeps the same core workflow across runtimes:
+
+1. [install Lumis](#1-install-lumis)
+2. [pick a language](#2-pick-a-language)
+3. [pick a theme](#3-pick-a-theme)
+4. [pick a formatter](#4-pick-a-formatter)
+5. [render to multiple formats](#5-render)
+
+## 1. Install Lumis
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+  <Tab value="JavaScript / TypeScript">
+
+```bash
+npm install @lumis-sh/lumis @lumis-sh/themes
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```bash
+cargo add lumis
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir title="mix.exs"
+def deps do
+  [
+    {:lumis, "~> 0.7"}
+  ]
+end
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```xml title="pom.xml"
+<dependency>
+  <groupId>io.roastedroot</groupId>
+  <artifactId>lumis4j</artifactId>
+  <version>0.0.7</version>
+</dependency>
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+curl -LsSf https://lumis.sh/install.sh | sh
+```
+
+On Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy ByPass `
+  -c "irm https://lumis.sh/install.ps1 | iex"
+```
+
+Homebrew, npm, `cargo binstall`, and mise: [Install the CLI](/cli/install).
+
+  </Tab>
+  <Tab value="Browsers / CDN">
+
+```js
+import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
+```
+
+  </Tab>
+</Tabs>
+
+[Installation](/installation)
+
+## 2. Pick a language
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+import javascript from '@lumis-sh/lumis/langs/javascript';
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::languages::Language;
+
+let language = Language::JavaScript;
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+A parser is a Hex package:
+
+```elixir title="mix.exs"
+{:lumis_wasm_javascript, "~> 0.26.0"}
+```
+
+```elixir
+language = "javascript"
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+import io.roastedroot.lumis4j.core.Lang;
+
+var lang = Lang.JAVASCRIPT;
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight index.js --language javascript
+```
+
+  </Tab>
+  <Tab value="Browsers / CDN">
+
+```js
+import javascript from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
+```
+
+  </Tab>
+</Tabs>
+
+[Languages](/languages) · [Language catalog](/reference/languages)
+
+## 3. Pick a theme
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+import frappe from '@lumis-sh/themes/catppuccin_frappe';
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::themes;
+
+let theme = themes::get("catppuccin_frappe").unwrap();
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+theme = "catppuccin_frappe"
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+import io.roastedroot.lumis4j.core.Theme;
+
+var theme = Theme.CATPPUCCIN_FRAPPE;
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis themes list
+lumis highlight index.js --theme catppuccin_frappe
+```
+
+  </Tab>
+  <Tab value="Browsers / CDN">
+
+```js
+import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe';
+```
+
+  </Tab>
+</Tabs>
+
+[Themes](/themes) · [Theme catalog](/reference/themes)
+
+## 4. Pick a formatter
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+import {htmlInline} from '@lumis-sh/lumis/formatters';
+
+const formatter = htmlInline({language: javascript, theme: frappe});
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::HtmlInlineBuilder;
+
+let formatter = HtmlInlineBuilder::new()
+    .language(Language::JavaScript)
+    .theme(Some(theme))
+    .build()
+    .unwrap();
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+formatter =
+  {:html_inline, language: language, theme: theme}
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+import io.roastedroot.lumis4j.core.Formatter;
+
+var formatter = Formatter.HTML_INLINE;
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight index.js --formatter html-inline
+```
+
+  </Tab>
+  <Tab value="Browsers / CDN">
+
+```js
+import {htmlInline} from 'https://esm.sh/@lumis-sh/lumis/formatters';
+
+const formatter = htmlInline({language: javascript, theme: frappe});
+```
+
+  </Tab>
+</Tabs>
+
+[Formatters](/formatters)
+
+## 5. Render
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+import {highlight} from '@lumis-sh/lumis';
+import {htmlInline} from '@lumis-sh/lumis/formatters';
+import javascript from '@lumis-sh/lumis/langs/javascript';
+import frappe from '@lumis-sh/themes/catppuccin_frappe';
+
+const html = await highlight(
+  'const x = 1',
+  htmlInline({language: javascript, theme: frappe})
+);
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::{
+    highlight, languages::Language, themes,
+    HtmlInlineBuilder,
+};
+
+let formatter = HtmlInlineBuilder::new()
+    .language(Language::JavaScript)
+    .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+    .build()
+    .unwrap();
+
+let html = highlight("const x = 1", formatter);
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+html =
+  Lumis.highlight!(
+    "const x = 1",
+    formatter:
+      {:html_inline,
+       language: "javascript",
+       theme: "catppuccin_frappe"}
+  )
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+import io.roastedroot.lumis4j.core.Formatter;
+import io.roastedroot.lumis4j.core.Lang;
+import io.roastedroot.lumis4j.core.Lumis;
+import io.roastedroot.lumis4j.core.Theme;
+
+var lumis = Lumis.builder().build();
+
+var highlighter = lumis.highlighter()
+    .withLang(Lang.JAVASCRIPT)
+    .withTheme(Theme.CATPPUCCIN_FRAPPE)
+    .withFormatter(Formatter.HTML_INLINE)
+    .build();
+
+var html = highlighter.highlight("const x = 1").string();
+lumis.close();
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+echo 'const x = 1' | lumis highlight \
+  --language javascript \
+  --theme catppuccin_frappe \
+  --formatter html-inline
+```
+
+  </Tab>
+  <Tab value="Browsers / CDN">
+
+```html
+<script type="module">
+  import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
+  import {htmlInline} from 'https://esm.sh/@lumis-sh/lumis/formatters';
+  import javascript from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
+  import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe';
+
+  const html = await highlight(
+    'const x = 1',
+    htmlInline({language: javascript, theme: frappe})
+  );
+</script>
+```
+
+  </Tab>
+</Tabs>
+
+[Highlight](/usage/highlight)
+
+## Why Lumis
+
+- [Tree-sitter parsing](/architecture) instead of regex-based tokenization
+- [110+ languages](/reference/languages) that [load on demand or preload](/languages), with [injected languages](/recipes/injected-languages-html-css-js) highlighted in the same pass
+- [250+ themes](/reference/themes) sourced from Neovim colorschemes, or [one you generate](/recipes/generate-theme-from-neovim-colorscheme)
+- 5 formatters: [HTML Inline](/formatters/html-inline), [HTML Linked](/formatters/html-linked), [HTML Multi-Themes](/formatters/html-multi-themes), [Terminal](/formatters/terminal), and [BBCode Scoped](/formatters/bbcode), or [one you write](/formatters/custom)
+- [handles incomplete code](/usage/highlight#incomplete-code), useful for streaming
+- one API across 6 runtimes: [CLI](/usage/cli), [Rust](/usage/rust), [Elixir](/usage/elixir), [JavaScript / TypeScript](/usage/javascript), [Browsers / CDN](/recipes/browser-cdn), and [Java](/usage/java)
+
+## How it works
+
+- [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) parses code into syntax trees
+- [Neovim colorschemes](https://github.com/topics/neovim-colorscheme) supply the color data
+- highlight queries come from [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter)
+
+[Architecture](/architecture) walks the whole pipeline, from source code to styled output.
+
+---
+
+Every code block on this site is highlighted by Lumis itself, using the [multi-themes formatter](/formatters/html-multi-themes) with `catppuccin_latte` and `catppuccin_frappe` themes for automatic light/dark mode switching.

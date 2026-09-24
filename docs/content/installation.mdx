@@ -60,6 +60,18 @@ end
   <Tab value="CLI">
 
 ```bash
+curl -LsSf https://lumis.sh/install.sh | sh
+```
+
+The shell installer needs no Node.js or Rust toolchain: it downloads the archive
+for your platform from GitHub Releases, verifies its published SHA-256 checksum,
+and unpacks it into `~/.local/bin`. Windows PowerShell has its own installer, and
+[Install the CLI](/cli/install) covers version pinning, `LUMIS_INSTALL_DIR`,
+Homebrew, `cargo binstall`, and mise.
+
+Through npm instead:
+
+```bash
 npx @lumis-sh/cli --help
 ```
 

@@ -89,7 +89,7 @@ let source = "console.log(\"hello\")";
 let filename = "app.js";
 
 let formatter = HtmlInlineBuilder::new()
-    .language(Language::Javascript)
+    .language(Language::JavaScript)
     .theme(Some(themes::get("catppuccin_frappe").unwrap()))
     .header(Some(HtmlElement {
         open_tag: format!(
