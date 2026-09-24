@@ -473,6 +473,16 @@ mise run docs-gen-languages-md
 
 This updates `LANGUAGES.md` and `docs/content/reference/languages.md`, which carry the same table.
 
+The table's `Size` and `Memory` columns come from `parser-sizes.json`, measured off the published packages rather than the checkout: `gen-languages-md` has neither network access nor built WASM to read. A parser missing from that file renders as an em dash, so a language added here shows its sizes once its package is published and it has been measured:
+
+```sh
+mise run wasm-sizes {name}
+```
+
+Omit `{name}` to sweep the catalog. That is not a full download: a published version is immutable, so a parser whose recorded version is still the newest one is left alone, and the sweep after a single parser release costs that one parser. `--force` re-downloads regardless.
+
+`Memory` is what a parser reserves in the 128 MB Tree-sitter WASM store that every language in a process shares, read from the module's `dylink.0` section. It is neither what npm transfers nor what lands on disk, and it is the only one of the three bounded by a budget.
+
 #### 8. Verify
 
 ```sh

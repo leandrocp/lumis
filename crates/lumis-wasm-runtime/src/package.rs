@@ -344,6 +344,54 @@ pub fn grammar_name(wasm: &[u8]) -> Result<String, LanguagePackageError> {
     }
 }
 
+/// Linear memory one Tree-sitter WASM store may grow to, in bytes.
+///
+/// `MAX_MEMORY_SIZE` in Tree-sitter's `wasm_store.c`. Every language a process
+/// loads shares one store, so this is a budget spent by the whole catalog rather
+/// than a per-language limit.
+pub const WASM_STORE_MEMORY_LIMIT: u64 = 128 * 1024 * 1024;
+
+/// Bytes a parser WASM module reserves in a Tree-sitter WASM store, read from
+/// its `dylink.0` section.
+///
+/// Tree-sitter loads a parser as a shared library into the store's single linear
+/// memory and advances an offset by exactly this number
+/// (`current_memory_offset += dylink_info->memory_size` in `wasm_store.c`).
+/// Nothing is ever reclaimed, so what bounds a process is the sum of this over
+/// every language it loads, against [`WASM_STORE_MEMORY_LIMIT`] — not how many
+/// languages there are, and not how large the `.wasm` files are on disk.
+///
+/// # Errors
+/// Fails when the module is not valid WASM, or carries no `dylink.0` memory
+/// info, which a module built as a shared library always has.
+pub fn parser_memory_size(wasm: &[u8]) -> Result<u32, LanguagePackageError> {
+    use wasmparser::{Dylink0Subsection, KnownCustom, Parser, Payload};
+
+    // `dylink.0` is the first section, so returning as soon as it is read would
+    // accept anything at all in the rest of the file. Parsing to the end costs
+    // nothing next to the download that produced these bytes, and it is what
+    // makes a truncated one fail here instead of being recorded as a size.
+    let mut memory_size = None;
+    for payload in Parser::new(0).parse_all(wasm) {
+        let payload = payload.map_err(|_| LanguagePackageError::Invalid("parser memory size"))?;
+        let Payload::CustomSection(section) = payload else {
+            continue;
+        };
+        let KnownCustom::Dylink0(subsections) = section.as_known() else {
+            continue;
+        };
+        for subsection in subsections {
+            let subsection =
+                subsection.map_err(|_| LanguagePackageError::Invalid("parser memory size"))?;
+            if let Dylink0Subsection::MemInfo(info) = subsection {
+                memory_size.get_or_insert(info.memory_size);
+            }
+        }
+    }
+
+    memory_size.ok_or(LanguagePackageError::Invalid("parser memory size"))
+}
+
 fn has_ambiguous_language_names(languages: &BTreeMap<String, PackagedLanguage>) -> bool {
     let mut owners = BTreeMap::<String, String>::new();
     for (id, language) in languages {
@@ -514,6 +562,35 @@ mod tests {
             error.to_string(),
             "invalid parser grammar for 'tree-sitter-json': expected 'not_json', got 'json'"
         );
+    }
+
+    /// The store budget is spent by what a parser reserves, which is not its
+    /// file size: the JSON parser is a 25 KB file that reserves 3 KB.
+    #[test]
+    fn reads_the_memory_a_parser_reserves_in_the_store() {
+        let reserved = parser_memory_size(JSON_WASM).expect("a parser carries dylink.0 mem info");
+        assert_eq!(reserved, 3136);
+        assert!(u64::from(reserved) < JSON_WASM.len() as u64);
+    }
+
+    #[test]
+    fn rejects_bytes_that_reserve_no_memory() {
+        assert!(matches!(
+            parser_memory_size(b"not wasm"),
+            Err(LanguagePackageError::Invalid("parser memory size"))
+        ));
+    }
+
+    /// `dylink.0` comes first, so a parser truncated after it still answers the
+    /// memory question. Recording a size for a file that is not a whole module
+    /// would put a number measured from a broken download into the catalog.
+    #[test]
+    fn rejects_a_parser_truncated_after_its_memory_info() {
+        let truncated = &JSON_WASM[..JSON_WASM.len() / 2];
+        assert!(matches!(
+            parser_memory_size(truncated),
+            Err(LanguagePackageError::Invalid("parser memory size"))
+        ));
     }
 
     #[test]
