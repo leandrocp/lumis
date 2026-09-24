@@ -42,6 +42,16 @@ defmodule Lumis.ParserError do
       were rejected
     * `:io` — a read or a write was refused
     * `:store_unavailable` — this runtime has no language store at all
+    * `:store_full` — the parser is fine and this process has no room for
+      another one. Every language shares one Tree-sitter Wasm store whose memory
+      is capped and never reclaimed, so past a point the next parser does not
+      fit, whatever the machine has free. The language named is not at fault: it
+      loads on its own, and which languages fail depends only on the order they
+      were asked for. Nothing the running VM can do recovers — loading is global
+      to it and no parser is ever unloaded — so this is a decision about which
+      languages a *boot* loads, and work that needs more than fit has to be
+      split across OS processes, the cap being per process and not per
+      scheduler.
 
   The list is open: a Lumis release can add a reason, so a `case` over it needs
   a catch-all clause.
@@ -65,6 +75,19 @@ defmodule Lumis.ParserError do
         }
 
   defexception [:language, :package, :reason, :detail]
+
+  @doc false
+  # The NIF classifies a failure and hands over its fields; the struct is built
+  # here, because the advice a missing parser needs is "add it to mix.exs" in
+  # Elixir and "add it to package.json" in Node, off the same `:reason`. Shared
+  # by `Lumis.highlight/2` and `Lumis.Languages.load/1`, which reach the same
+  # failures by different routes.
+  def from_nif(%{package_suffix: suffix} = fields) do
+    fields
+    |> Map.delete(:package_suffix)
+    |> Map.put(:package, Lumis.Packages.hex_name(suffix))
+    |> then(&struct!(__MODULE__, &1))
+  end
 
   @impl true
   def message(%__MODULE__{reason: :not_installed} = error) do
@@ -98,6 +121,23 @@ defmodule Lumis.ParserError do
 
   def message(%__MODULE__{reason: :unknown_language} = error) do
     "no language named #{inspect(error.language)}; see `Lumis.available_languages/0`"
+  end
+
+  def message(%__MODULE__{reason: :store_full} = error) do
+    """
+    no room for the #{error.language} parser: this process already holds as many as its Wasm store can
+
+    #{error.language} is not at fault — it loads on its own, and which languages \
+    fail depends only on the order they were asked for.
+
+    This VM cannot recover: loading is global to it and a parser is never \
+    unloaded, so no retry and no shorter call frees room. Decide the set at boot \
+    instead — load only the languages this application can be asked for rather \
+    than everything published — and split work that needs more than fit across \
+    OS processes.
+
+    Tree-sitter reported: #{error.detail}
+    """
   end
 
   def message(%__MODULE__{reason: :not_loaded} = error) do

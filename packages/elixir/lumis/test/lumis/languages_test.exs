@@ -38,6 +38,35 @@ defmodule Lumis.LanguagesTest do
     assert "dockerfile" in Lumis.loaded_languages()
   end
 
+  # A `Lumis.ParserError` is a struct, and a struct is a map, so it reaches the
+  # same clause a nested bundle's failures do unless that clause excludes one.
+  # Merging it would spread `:reason`, `:language` and `:__struct__` across the
+  # result and lose which language failed. Provoking a real `:store_full` means
+  # filling a Wasm store, so the clause order is pinned here instead.
+  describe "collect_failure/3" do
+    test "files an exception under the language that failed, rather than merging it" do
+      error = %Lumis.ParserError{reason: :store_full, language: "swift"}
+
+      assert Lumis.Languages.collect_failure(%{}, "swift", {:error, error}) == %{
+               "swift" => error
+             }
+    end
+
+    test "merges a nested bundle's own failures, which is what the map clause is for" do
+      nested = %{"tsx" => :not_installed, "typescript" => :not_installed}
+
+      assert Lumis.Languages.collect_failure(%{}, :bundle_web, {:error, nested}) == nested
+    end
+
+    test "keeps an atom reason under its name, and drops a success" do
+      assert Lumis.Languages.collect_failure(%{}, :json, {:error, :unknown_language}) == %{
+               "json" => :unknown_language
+             }
+
+      assert Lumis.Languages.collect_failure(%{"a" => :x}, "json", :ok) == %{"a" => :x}
+    end
+  end
+
   test "loaded_languages lists what is in memory, not the catalog" do
     assert :ok = Lumis.Languages.load("json")
     loaded = Lumis.loaded_languages()
