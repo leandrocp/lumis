@@ -416,8 +416,14 @@ jobs:
   # OIDC identity for a publish token scoped to one package and valid for
   # minutes, granted only because that package names this workflow as a trusted
   # publisher (`mise run npm-trust`).
+  # `!cancelled()` rather than the implied `success()`, for the same reason
+  # `stage` spells it out: `success()` is evaluated over the whole `needs`
+  # closure, not the one job named here. `build-native` and `build-cli` skip on
+  # every tag but their own, so the implied condition skips this job on every
+  # release — silently, and with the run still green.
   publish:
     needs: stage
+    if: ${{ !cancelled() && needs.stage.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
