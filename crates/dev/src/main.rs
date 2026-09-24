@@ -3881,7 +3881,24 @@ fn wasm_release_plan(filter: &str) -> Result<()> {
     let registry = hex_registry()?;
 
     let parsers = plan_parsers(candidates, packuments, &registry, &series)?;
-    let bundles = plan_bundles(&registry, filter, &bundle_versions()?);
+
+    let bundle_manifests = bundle_manifests()?;
+    // Only on an unfiltered run: `plan_bundles` already skips bundles when a
+    // filter is set, and a filtered run is not the place to fail over a
+    // membership change it was never going to publish.
+    if filter_parsers(filter).is_empty() {
+        let bundle_packages: Vec<String> = bundle_manifests
+            .iter()
+            .map(|bundle| format!("@lumis-sh/wasm-bundle-{}", bundle.name))
+            .collect();
+        check_bundle_membership(&bundle_manifests, &fetch_packuments(&bundle_packages));
+    }
+
+    let versions: Vec<(String, String)> = bundle_manifests
+        .iter()
+        .map(|bundle| (bundle.name.clone(), bundle.version.clone()))
+        .collect();
+    let bundles = plan_bundles(&registry, filter, &versions);
 
     println!(
         "{}",
@@ -4008,11 +4025,20 @@ fn plan_bundles(
     bundles
 }
 
-/// Each bundle and the version its npm package is at.
+/// A bundle's npm manifest: what it is called, what version it claims, and
+/// which parser packages it groups.
 ///
 /// The npm package is the source for both members and version, so the two
 /// registries cannot disagree about what a bundle is.
-fn bundle_versions() -> Result<Vec<(String, String)>> {
+struct BundleManifest {
+    name: String,
+    version: String,
+    /// Dependency names, sorted. This is the bundle's whole content — a bundle
+    /// carries no bytes of its own.
+    members: Vec<String>,
+}
+
+fn bundle_manifests() -> Result<Vec<BundleManifest>> {
     let mut bundles = Vec::new();
     for entry in glob::glob("packages/javascript/wasm-bundle-*/package.json")? {
         let path = entry?;
@@ -4028,10 +4054,108 @@ fn bundle_versions() -> Result<Vec<(String, String)>> {
             .get("version")
             .and_then(Value::as_str)
             .with_context(|| format!("{} has no version", path.display()))?;
-        bundles.push((name.to_string(), version.to_string()));
+        bundles.push(BundleManifest {
+            name: name.to_string(),
+            version: version.to_string(),
+            members: dependency_names(&manifest),
+        });
     }
-    bundles.sort();
+    bundles.sort_by(|a, b| a.name.cmp(&b.name));
     Ok(bundles)
+}
+
+/// `dependencies` keys, sorted, or empty when there are none.
+fn dependency_names(manifest: &Value) -> Vec<String> {
+    let mut names = manifest
+        .get("dependencies")
+        .and_then(Value::as_object)
+        .map(|deps| deps.keys().cloned().collect::<Vec<_>>())
+        .unwrap_or_default();
+    names.sort();
+    names
+}
+
+/// Fail when a bundle's membership changed without its version moving.
+///
+/// A bundle is its dependency list, and the planner queues one only when a
+/// registry is missing its version. Change which parsers a bundle groups
+/// without touching `package.json`, and the plan is empty, every publish job
+/// skips, and the registries keep serving the old membership — a green run
+/// that shipped nothing. Removing a parser from `bundle-full` did exactly that.
+///
+/// Republishing the same version is not possible on either registry, so the
+/// only repair is a version bump, and that is a decision rather than something
+/// to infer: bundle versions come from npm, which releases by tag. So this
+/// reports the drift and stops instead of guessing a patch.
+fn check_bundle_membership(bundles: &[BundleManifest], packuments: &[Result<Option<Value>>]) {
+    let drifted = bundle_membership_drift(bundles, packuments);
+
+    for (bundle, published_members) in &drifted {
+        let added = bundle
+            .members
+            .iter()
+            .filter(|m| !published_members.contains(m))
+            .cloned()
+            .collect::<Vec<_>>();
+        let removed = published_members
+            .iter()
+            .filter(|m| !bundle.members.contains(m))
+            .cloned()
+            .collect::<Vec<_>>();
+
+        eprintln!(
+            "bundle-{} at {} is published with different members",
+            bundle.name, bundle.version
+        );
+        if !added.is_empty() {
+            eprintln!("  added since:   {}", added.join(", "));
+        }
+        if !removed.is_empty() {
+            eprintln!("  removed since: {}", removed.join(", "));
+        }
+    }
+
+    if !drifted.is_empty() {
+        eprintln!(
+            "\nBump the version in packages/javascript/wasm-bundle-<name>/package.json. \
+             The published bundle cannot be replaced in place, so without a bump this \
+             run would report nothing to do and leave the old membership on npm and Hex."
+        );
+        std::process::exit(1);
+    }
+}
+
+/// Bundles whose generated membership differs from what is published at the
+/// version they claim, paired with the published membership.
+fn bundle_membership_drift<'a>(
+    bundles: &'a [BundleManifest],
+    packuments: &[Result<Option<Value>>],
+) -> Vec<(&'a BundleManifest, Vec<String>)> {
+    let mut drifted = Vec::new();
+
+    for (bundle, packument) in bundles.iter().zip(packuments) {
+        let Ok(Some(packument)) = packument else {
+            // Never published, or npm could not be reached. The first is
+            // normal for a new bundle and the second is the caller's problem.
+            continue;
+        };
+        let Some(published) = packument
+            .get("versions")
+            .and_then(Value::as_object)
+            .and_then(|versions| versions.get(&bundle.version))
+        else {
+            // This version is unpublished, so the plan will publish it and
+            // whatever membership it has is the membership that ships.
+            continue;
+        };
+
+        let published_members = dependency_names(published);
+        if published_members != bundle.members {
+            drifted.push((bundle, published_members));
+        }
+    }
+
+    drifted
 }
 
 /// The version a definition was published under on npm, if it was.
@@ -4699,6 +4823,83 @@ fn elixir_lumis_requirement() -> Result<String> {
 #[cfg(test)]
 mod hex_wasm_tests {
     use super::*;
+
+    fn bundle(name: &str, version: &str, members: &[&str]) -> BundleManifest {
+        BundleManifest {
+            name: name.into(),
+            version: version.into(),
+            members: members.iter().map(|m| (*m).to_string()).collect(),
+        }
+    }
+
+    fn bundle_packument(versions: &[(&str, &[&str])]) -> Value {
+        let published = versions
+            .iter()
+            .map(|(version, members)| {
+                let deps = members
+                    .iter()
+                    .map(|m| ((*m).to_string(), json!("0.26.0")))
+                    .collect::<serde_json::Map<_, _>>();
+                ((*version).to_string(), json!({ "dependencies": deps }))
+            })
+            .collect::<serde_json::Map<_, _>>();
+        json!({ "versions": published })
+    }
+
+    /// The case that shipped: `systemverilog` left `bundle-full` and its
+    /// version did not move, so the planner had nothing to publish and the
+    /// registries kept serving the old membership on a green run.
+    #[test]
+    fn membership_changing_under_a_published_version_is_drift() {
+        let bundles = vec![bundle("full", "0.1.1", &["@lumis-sh/wasm-c"])];
+        let packuments = vec![Ok(Some(bundle_packument(&[(
+            "0.1.1",
+            &["@lumis-sh/wasm-c", "@lumis-sh/wasm-systemverilog"],
+        )])))];
+
+        let drifted = bundle_membership_drift(&bundles, &packuments);
+
+        assert_eq!(drifted.len(), 1, "a changed member list must be reported");
+        assert_eq!(drifted[0].0.name, "full");
+        assert!(drifted[0]
+            .1
+            .contains(&"@lumis-sh/wasm-systemverilog".to_string()));
+    }
+
+    #[test]
+    fn an_unchanged_bundle_is_not_drift() {
+        let bundles = vec![bundle("web", "0.1.0", &["@lumis-sh/wasm-css"])];
+        let packuments = vec![Ok(Some(bundle_packument(&[(
+            "0.1.0",
+            &["@lumis-sh/wasm-css"],
+        )])))];
+
+        assert!(bundle_membership_drift(&bundles, &packuments).is_empty());
+    }
+
+    /// A bump is the repair, so a bumped bundle has to stop being reported —
+    /// otherwise the check would fail forever once it fired once.
+    #[test]
+    fn a_bumped_version_clears_the_drift() {
+        let bundles = vec![bundle("full", "0.1.2", &["@lumis-sh/wasm-c"])];
+        let packuments = vec![Ok(Some(bundle_packument(&[(
+            "0.1.1",
+            &["@lumis-sh/wasm-c", "@lumis-sh/wasm-systemverilog"],
+        )])))];
+
+        assert!(bundle_membership_drift(&bundles, &packuments).is_empty());
+    }
+
+    /// A bundle npm has never seen is a new one, not a changed one.
+    #[test]
+    fn an_unpublished_bundle_is_not_drift() {
+        let bundles = vec![bundle("new", "0.1.0", &["@lumis-sh/wasm-c"])];
+
+        assert!(bundle_membership_drift(&bundles, &[Ok(None)]).is_empty());
+        assert!(
+            bundle_membership_drift(&bundles, &[Err(anyhow::anyhow!("npm is down"))]).is_empty()
+        );
+    }
 
     fn packument(versions: &[(&str, &str)]) -> Value {
         json!({
