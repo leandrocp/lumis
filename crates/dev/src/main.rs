@@ -1042,6 +1042,15 @@ struct LanguagesToml {
 #[derive(Debug, serde::Deserialize)]
 struct BundleInfo {
     parsers: BundleParsers,
+    /// Parsers to leave out of a `parsers = "all"` bundle.
+    ///
+    /// Every language a process loads shares one Tree-sitter Wasm store whose
+    /// memory is capped at 128 MB, and nothing is ever reclaimed from it. A
+    /// parser that takes a double-digit share of that cap on its own makes
+    /// "all the languages" a set nobody can load, so it is named here rather
+    /// than left to break the bundle.
+    #[serde(default)]
+    exclude: Vec<String>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -1155,6 +1164,11 @@ fn sync_bundle_features(
                 if value != "all" {
                     bail!("unsupported bundle parsers value for '{bundle_name}': {value}");
                 }
+                // `exclude` is deliberately not applied here. These are
+                // Cargo features selecting parsers compiled *into* the Rust
+                // crate, which has no Wasm store and no 128 MB budget. The
+                // exclusion exists for the runtime bundle, so a Rust build of
+                // `lang-bundle-full` still gets every language.
                 vec!["all-languages".to_string()]
             }
         };
@@ -2663,7 +2677,11 @@ fn gen_languages_md() -> Result<()> {
                     if value != "all" {
                         bail!("unsupported bundle parsers value for '{bundle_name}': {value}");
                     }
-                    toml.parsers.keys().cloned().collect()
+                    toml.parsers
+                        .keys()
+                        .filter(|name| !bundle.exclude.contains(name))
+                        .cloned()
+                        .collect()
                 }
             };
             let languages_col = parser_names
@@ -2795,7 +2813,11 @@ fn render_language_catalog(
                 if value != "all" {
                     bail!("unsupported bundle parsers value for '{bundle_name}': {value}");
                 }
-                parser_order.to_vec()
+                parser_order
+                    .iter()
+                    .filter(|name| !bundle.exclude.contains(name))
+                    .cloned()
+                    .collect()
             }
         };
         let rendered = members

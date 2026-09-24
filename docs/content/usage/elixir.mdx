@@ -139,6 +139,15 @@ of that name — `:bundle_web`, `:bundle_web_extra`, `:bundle_system`, `:bundle_
 and `:bundle_full` — so a bundle means the same thing in every runtime.
 `Lumis.Languages.bundles/0` returns the membership.
 
+Prefer a focused bundle to `:bundle_full`. Every language a process loads shares
+a 128 MB Tree-sitter Wasm store that nothing is reclaimed from, and the full set
+is close enough to that ceiling that
+[loading all of it can fail](/languages#why-bundle-full-is-not-the-safe-default).
+`:bundle_full` also excludes `systemverilog`, which is 17% of that budget on its
+own; add `{:lumis_wasm_systemverilog, "~> 0.26"}` if you need it. Adding the
+dependency is safe — it is loading everything at once that is not, so warm the
+languages you serve rather than the whole catalog.
+
 Compiled modules land under `config :lumis, data_dir:`, `LUMIS_DATA_DIR`, or
 Lumis's `priv/lumis` directory by default, so a restart or a new pod using the
 same persistent directory reuses them instead of compiling again.

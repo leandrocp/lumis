@@ -1127,3 +1127,9 @@ parsers = [
 
 [bundles.full]
 parsers = "all"
+# 22 MB of parse tables, 17% of the 128 MB a Tree-sitter Wasm store gets for
+# every language a process loads. With it, the 113 published parsers total
+# 135.9 MB and `bundle-full` cannot be loaded at all; without it they total
+# 113.7 MB and fit. Measured, not estimated: the median parser is 112 KB, so
+# this one is 203x its peers.
+exclude = ["systemverilog"]
