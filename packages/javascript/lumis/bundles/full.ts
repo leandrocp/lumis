@@ -115,7 +115,6 @@ export const bundledLanguages: LanguageBundle = {
   rst: lazy("rst", ["restructuredtext"], () => import("../langs/rst.js")),
   scheme: lazy("scheme", [], () => import("../langs/scheme.js")),
   solidity: lazy("solidity", [], () => import("../langs/solidity.js")),
-  systemverilog: lazy("systemverilog", [], () => import("../langs/systemverilog.js")),
   tcl: lazy("tcl", [], () => import("../langs/tcl.js")),
   vhdl: lazy("vhdl", [], () => import("../langs/vhdl.js")),
   plaintext: lazy("plaintext", ["text", "txt", "plain"], () => import("../langs/plaintext.js")),

@@ -101,29 +101,17 @@ languages used in fenced code blocks, and HTML may inject CSS and JavaScript.
 Prefer a focused list or a small bundle. Anything you miss still loads on
 demand.
 
-### Why `bundle-full` is not the safe default
+### `bundle-full` is not the safe default
 
-Every language a process loads shares one Tree-sitter Wasm store, and that
-store's memory is capped at 128 MB. Each parser adds its static data to it and
-nothing is ever reclaimed, so the limit is the *total* of everything loaded,
-not a count and not a per-parser size.
+Every language in a process shares one 128 MB Tree-sitter Wasm store, and
+nothing is ever reclaimed from it. The bound is the total of everything loaded,
+so the published set can exhaust it, and the languages that fail are whichever
+were asked for last.
 
-The published parsers now come close enough to that ceiling that loading all of
-them can fail — and the failure lands on whichever languages happen to be asked
-for last, so the set that breaks changes between runs. Name the languages you
-serve, or take `bundle-web`, `bundle-system` or `bundle-backend`, which are
-sized for this.
-
-`bundle-full` excludes **SystemVerilog**. Its parse tables are 22 MB, 17% of
-that 128 MB budget and around 200x the median parser, and with it the bundle
-does not fit at all. It is still a language like any other: install it and name
-`systemverilog` and it loads.
-
-Installing it does not make preloading everything safe, though. Installing is a
-dependency; loading is what spends the budget. Even without SystemVerilog the
-published set leaves only a few MB spare, so preload the languages you actually
-serve and leave the rest to load on demand — a language nobody asks for costs
-nothing.
+Preload what you serve. Installing a parser is cheap; loading one is what
+spends the budget. `bundle-full` also leaves out `systemverilog`, whose 22 MB
+of parse tables take a sixth of it alone. Install
+`@lumis-sh/wasm-systemverilog` and name it directly if you need it.
 
 [Language catalog](/reference/languages) has every name, and the package each
 one resolves to.
