@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/leandrocp/lumis/compare/npm-react/v0.3.0...npm-react/v0.3.1) (2026-09-24)
+
+
+### Documentation
+
+- migrate documentation to Fumadocs - [#1445](https://github.com/leandrocp/lumis/pull/1445)
+
 ## [0.3.0](https://github.com/leandrocp/lumis/compare/npm-react/v0.2.0...npm-react/v0.3.0) (2026-08-13)
 
 
