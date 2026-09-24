@@ -1401,7 +1401,7 @@ dependencies = [
 
 [[package]]
 name = "lumis"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "ansi-to-tui",
  "anyhow",
@@ -1410,8 +1410,8 @@ dependencies = [
  "derive_builder",
  "glob",
  "lumis-build",
- "lumis-core 3.0.0",
- "lumis-wasm-runtime 0.3.0",
+ "lumis-core",
+ "lumis-wasm-runtime",
  "pretty_assertions",
  "prettyplease",
  "proc-macro2",
@@ -1511,8 +1511,8 @@ dependencies = [
  "assert_cmd",
  "clap",
  "etcetera",
- "lumis-core 3.0.0",
- "lumis-wasm-runtime 0.3.0",
+ "lumis-core",
+ "lumis-wasm-runtime",
  "predicates",
  "serde",
  "serde_json",
@@ -1524,26 +1524,6 @@ dependencies = [
  "toml 1.1.6+spec-1.1.0",
  "tree-sitter",
  "wasmtime",
-]
-
-[[package]]
-name = "lumis-core"
-version = "2.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b86aa67672256aa5dc91681d78f98b52dd3af7daae28c631673e98db8440596d"
-dependencies = [
- "derive_builder",
- "glob",
- "prettyplease",
- "proc-macro2",
- "quote",
- "regex",
- "serde",
- "serde_json",
- "syn 3.0.6",
- "toml 1.1.6+spec-1.1.0",
- "typed-path",
- "v_htmlescape",
 ]
 
 [[package]]
@@ -1570,8 +1550,8 @@ name = "lumis-js-native"
 version = "0.7.1"
 dependencies = [
  "base64 0.23.1",
- "lumis-core 3.0.0",
- "lumis-wasm-runtime 0.3.0",
+ "lumis-core",
+ "lumis-wasm-runtime",
  "napi",
  "napi-build",
  "napi-derive",
@@ -1582,32 +1562,10 @@ dependencies = [
 
 [[package]]
 name = "lumis-wasm-runtime"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b19dfdab518688ba8605277e74d210af62c67d59b515e678507cf74d21dfd82e"
-dependencies = [
- "etcetera",
- "lumis-core 2.5.0",
- "semver",
- "serde",
- "serde_json",
- "sha2 0.11.0",
- "streaming-iterator",
- "tempfile",
- "thiserror 2.0.20",
- "tree-sitter",
- "typed-arena",
- "ureq",
- "wasmparser 0.258.0",
- "wasmtime",
-]
-
-[[package]]
-name = "lumis-wasm-runtime"
 version = "0.3.0"
 dependencies = [
  "etcetera",
- "lumis-core 3.0.0",
+ "lumis-core",
  "semver",
  "serde",
  "serde_json",
@@ -1629,8 +1587,8 @@ name = "lumis_nif"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "lumis-core 3.0.0",
- "lumis-wasm-runtime 0.2.1",
+ "lumis-core",
+ "lumis-wasm-runtime",
  "once_cell",
  "parking_lot",
  "rustler",
@@ -3959,19 +3917,6 @@ checksum = "a9b1e81f3eb254cf7404a82cee6926a4a3ccc5aad80cc3d43608a070c67aa1d7"
 dependencies = [
  "bitflags 2.13.1",
  "hashbrown 0.15.5",
- "indexmap",
- "semver",
- "serde",
-]
-
-[[package]]
-name = "wasmparser"
-version = "0.258.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9a61719f93a87b16d325921e251800c4833f8fab50fa21c7de73aed50086313"
-dependencies = [
- "bitflags 2.13.1",
- "hashbrown 0.17.1",
  "indexmap",
  "semver",
  "serde",
