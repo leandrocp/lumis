@@ -116,8 +116,14 @@ sized for this.
 
 `bundle-full` excludes **SystemVerilog**. Its parse tables are 22 MB, 17% of
 that 128 MB budget and around 200x the median parser, and with it the bundle
-does not fit at all. It is still a language like any other — name
-`systemverilog` directly and it loads.
+does not fit at all. It is still a language like any other: install it and name
+`systemverilog` and it loads.
+
+Installing it does not make preloading everything safe, though. Installing is a
+dependency; loading is what spends the budget. Even without SystemVerilog the
+published set leaves only a few MB spare, so preload the languages you actually
+serve and leave the rest to load on demand — a language nobody asks for costs
+nothing.
 
 [Language catalog](/reference/languages) has every name, and the package each
 one resolves to.

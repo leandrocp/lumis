@@ -94,7 +94,6 @@ import wasmSql from "@lumis-sh/wasm-sql";
 import wasmSurface from "@lumis-sh/wasm-surface";
 import wasmSvelte from "@lumis-sh/wasm-svelte";
 import wasmSwift from "@lumis-sh/wasm-swift";
-import wasmSystemverilog from "@lumis-sh/wasm-systemverilog";
 import wasmTcl from "@lumis-sh/wasm-tcl";
 import wasmTerraform from "@lumis-sh/wasm-terraform";
 import wasmToml from "@lumis-sh/wasm-toml";
@@ -225,7 +224,6 @@ export const bundledWasms = {
   rst: wasmRst,
   scheme: wasmScheme,
   solidity: wasmSolidity,
-  systemverilog: wasmSystemverilog,
   tcl: wasmTcl,
   vhdl: wasmVhdl,
   plaintext: wasmDiff,

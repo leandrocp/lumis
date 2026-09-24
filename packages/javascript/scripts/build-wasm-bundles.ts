@@ -79,7 +79,13 @@ function readBundleChangelog(dir: string): string | null {
 }
 
 function bundleLanguageIds(bundle: BundleEntry, allParserIds: string[]): string[] {
-  const parserIds = bundle.parsers === "all" ? allParserIds : bundle.parsers;
+  // `exclude` only applies to `"all"`: an explicit list already says what it
+  // wants. Without this the npm manifest keeps the excluded parser, and
+  // `stage_hex_bundle` copies those dependencies straight into the Hex bundle.
+  const parserIds =
+    bundle.parsers === "all"
+      ? allParserIds.filter((id) => !bundle.exclude?.includes(id))
+      : bundle.parsers;
   return parserIds.includes("plaintext") ? parserIds : [...parserIds, "plaintext"];
 }
 

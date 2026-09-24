@@ -139,7 +139,6 @@
     "@lumis-sh/wasm-surface": "^0.26.0",
     "@lumis-sh/wasm-svelte": "^0.26.0",
     "@lumis-sh/wasm-swift": "^0.26.0",
-    "@lumis-sh/wasm-systemverilog": "^0.26.0",
     "@lumis-sh/wasm-tcl": "^0.26.0",
     "@lumis-sh/wasm-terraform": "^0.26.0",
     "@lumis-sh/wasm-toml": "^0.26.0",
