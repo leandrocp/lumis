@@ -21,7 +21,6 @@ on:
       - "crates/dev/**"
       - "crates/lumis/vendored_parsers/**"
       - "queries/**"
-      - "crates/dev/**"
       - "packages/javascript/lumis/bundles/**"
       - "packages/javascript/lumis/langs/**"
       - "packages/javascript/lumis/src/generated/**"
@@ -38,7 +37,6 @@ on:
       - "crates/dev/**"
       - "crates/lumis/vendored_parsers/**"
       - "queries/**"
-      - "crates/dev/**"
       - "packages/javascript/lumis/bundles/**"
       - "packages/javascript/lumis/langs/**"
       - "packages/javascript/lumis/src/generated/**"
@@ -69,8 +67,17 @@ jobs:
   #
   # No credentials and no `id-token`, so the worst a bad plan does here is fail
   # this job. It reads both registries, which is public.
+  #
+  # Skipped on the release-prep branches, which is the `pull_request` half of
+  # the `chore(release):` guard `plan` carries for `push`. `release-prepare`
+  # bumps a crate version, which rewrites `crates/dev/Cargo.lock` and so matches
+  # `crates/dev/**`, but merging one publishes nothing — there is no plan to dry
+  # run. The filter cannot tell that lockfile edit from a dependency update that
+  # does change the planner, so the branch is what distinguishes them.
   plan-dry-run:
-    if: ${{ github.event_name == 'pull_request' }}
+    if: >-
+      ${{ github.event_name == 'pull_request' &&
+          !startsWith(github.head_ref, 'release/') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
