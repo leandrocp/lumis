@@ -36,27 +36,21 @@ Lumis.highlight!("elixir", "defmodule MyApp do", [])
 
 ### Return Values
 
-- `highlight/2` returns `{:ok, html_string}` or `{:error, exception}`
+- `highlight/2` returns `{:ok, html_string}` or `{:error, %Lumis.RenderError{}}`
 - `highlight!/2` returns `html_string` or raises `Lumis.HighlightError`
 
-The error is a `Lumis.ParserError` when a language's parser could not be
-loaded, and a `Lumis.RenderError` otherwise. Match on `:reason`, never on the
+A missing parser is not an error. A language whose parser is not installed as a
+dependency still returns `{:ok, html}`, rendered as plain text with a warning in
+the log. Don't write a `Lumis.ParserError` clause around `highlight/2` — it will
+never match. Use `Lumis.Languages.load/1` at boot to make a missing parser fatal.
+
+An error means the formatter itself failed. Match on `:reason`, never on the
 message — the reasons are the API, the messages are not.
 
 ```elixir
-# Pattern match on success/error
 case Lumis.highlight(source, formatter: {:html_inline, language: "elixir"}) do
-  {:ok, html} ->
-    html
-
-  # The one a deployment normally hits: the parser is not a dependency yet.
-  # `:package` is the Hex package to add to mix.exs.
-  {:error, %Lumis.ParserError{reason: :not_installed, package: package}} ->
-    handle_missing_parser(package)
-
-  {:error, error} ->
-    Logger.error(Exception.message(error))
-    handle_error(error)
+  {:ok, html} -> html
+  {:error, error} -> Logger.error(Exception.message(error))
 end
 
 # Or use the bang version when you expect success

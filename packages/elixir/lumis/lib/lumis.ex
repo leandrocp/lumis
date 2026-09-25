@@ -1112,19 +1112,7 @@ defmodule Lumis do
   @doc """
   Highlights `source` code and outputs into a formatted string.
 
-  Returns `{:error, exception}` when the root language cannot be loaded or the
-  formatter fails. An injected language that cannot be fetched is not an error:
-  that block stays plain and the rest of the document still highlights. Use
-  `highlight!/2` to raise instead.
-
-  The exception is a `Lumis.ParserError` when a parser could not be loaded and a
-  `Lumis.RenderError` otherwise. Both carry a `:reason` to match on, so the
-  case a deployment has to act on is a clause rather than a substring:
-
-      {:error, %Lumis.ParserError{reason: :not_installed, package: package}} ->
-        Logger.error("add {:\#{package}, \"~> 0.26\"} to mix.exs")
-
-  `Exception.message/1` renders either one for a log.
+  A language whose parser is not installed as a dependency renders as plain text.
 
   Invalid *options* still raise, because those are a caller mistake rather than
   a runtime condition.
@@ -1199,7 +1187,7 @@ defmodule Lumis do
 
   """
   @spec highlight(String.t(), options()) ::
-          {:ok, String.t()} | {:error, Lumis.ParserError.t() | Lumis.RenderError.t()}
+          {:ok, String.t()} | {:error, Lumis.RenderError.t()}
   def highlight(source, options \\ [])
 
   def highlight(source, options) when is_binary(source) and is_list(options) do
@@ -1209,7 +1197,7 @@ defmodule Lumis do
     if formatter in @built_in_formatters do
       source
       |> Lumis.Native.highlight(rust_options!(options))
-      |> describe_highlight_error()
+      |> describe_highlight_result()
     else
       render_with_custom_formatter(
         source,
@@ -1227,15 +1215,30 @@ defmodule Lumis do
     highlight(source, language: language)
   end
 
-  defp describe_highlight_error({:error, {:parser, fields}}) do
-    {:error, Lumis.ParserError.from_nif(fields)}
+  # The NIF fell back to plain text and handed over the failure so that someone
+  # says it out loud. The return value looks like any other success.
+  defp describe_highlight_result({:degraded, output, fields}) do
+    warn_missing_parser(fields)
+    {:ok, output}
   end
 
-  defp describe_highlight_error({:error, {:render, fields}}) do
+  defp describe_highlight_result({:degraded, language, events, fields}) do
+    warn_missing_parser(fields)
+    {:ok, language, events}
+  end
+
+  defp describe_highlight_result({:error, {:render, fields}}) do
     {:error, struct!(Lumis.RenderError, fields)}
   end
 
-  defp describe_highlight_error(other), do: other
+  defp describe_highlight_result(other), do: other
+
+  defp warn_missing_parser(fields) do
+    fields
+    |> Lumis.ParserError.from_nif()
+    |> Exception.message()
+    |> Logger.warning()
+  end
 
   @doc """
   Validates the given options against the options schema.
@@ -1330,9 +1333,9 @@ defmodule Lumis do
       budget: budget_for_nif(budget)
     }
 
-    case Lumis.Native.highlight_events(source, options) do
+    case describe_highlight_result(Lumis.Native.highlight_events(source, options)) do
       {:error, _reason} = error ->
-        describe_highlight_error(error)
+        error
 
       {:ok, language, events} ->
         # `:language` is whatever the caller named, which is nothing when they

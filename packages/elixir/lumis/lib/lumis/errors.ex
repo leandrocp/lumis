@@ -2,24 +2,9 @@ defmodule Lumis.ParserError do
   @moduledoc """
   A language's parser could not be loaded.
 
-  `Lumis.highlight/2` returns this when the root language of a document is
-  unavailable. An *injected* language is not an error — that block stays plain
-  and the rest of the document still highlights.
-
-  Match on `:reason` rather than on the message:
-
-      case Lumis.highlight(source, formatter: {:html_inline, language: "elixir"}) do
-        {:ok, html} ->
-          html
-
-        {:error, %Lumis.ParserError{reason: :not_installed, package: package}} ->
-          Logger.error("add {:\#{package}, \\"~> 0.26\\"} to mix.exs")
-          Plug.HTML.html_escape(source)
-
-        {:error, error} ->
-          Logger.error(Exception.message(error))
-          Plug.HTML.html_escape(source)
-      end
+  `Lumis.highlight/2` logs this and renders the document as plain text instead of
+  returning it, and `Lumis.Languages.load/1` returns it for `:store_full`. Match
+  on `:reason` rather than on the message.
 
   ## Reasons
 

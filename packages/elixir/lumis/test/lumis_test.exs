@@ -1835,6 +1835,20 @@ defmodule Lumis.LumisTest do
     # forgot a dependency is in.
     @uninstalled "typescript"
 
+    # Renders from the event stream rather than from the NIF's HTML, so it reaches
+    # the fallback down the other code path.
+    defmodule SourceOnlyFormatter do
+      @behaviour Lumis.Formatter
+
+      @impl true
+      def render(source, events, _options) do
+        Enum.map(events, fn
+          {:source, %{start: start, end: finish}} -> binary_part(source, start, finish - start)
+          _other -> []
+        end)
+      end
+    end
+
     test "highlight/2 returns {:error, _} rather than raising" do
       assert {:error, %Lumis.RenderError{reason: :formatter} = error} =
                Lumis.highlight("x = 1", formatter: @bad_default)
@@ -1842,38 +1856,68 @@ defmodule Lumis.LumisTest do
       assert Exception.message(error) =~ "Default theme"
     end
 
-    test "a parser this project does not depend on is a Lumis.ParserError" do
-      assert {:error, error} =
-               Lumis.highlight("const x = 1", formatter: {:html_inline, language: @uninstalled})
+    # A parser nobody added costs the colors, not the page — the same degradation
+    # an injected language, an unknown name and an exhausted budget already get.
+    # The class stays the language the caller asked for, because a page's CSS
+    # reads it and rewriting it to `plaintext` would lose that too.
+    test "a parser this project does not depend on renders as plain text" do
+      {{:ok, html}, _log} =
+        ExUnit.CaptureLog.with_log(fn ->
+          Lumis.highlight("const x = 1", formatter: {:html_inline, language: @uninstalled})
+        end)
 
-      assert %Lumis.ParserError{
-               reason: :not_installed,
-               language: @uninstalled,
-               package: "lumis_wasm_typescript"
-             } = error
+      assert html =~ "const x = 1"
+      assert html =~ ~s(class="language-#{@uninstalled}")
+
+      # No parser ran, so nothing inside is scoped.
+      refute html =~ "<span style="
     end
 
-    test "a missing parser names the dependency to add, in the package manager Elixir uses" do
-      {:error, error} =
-        Lumis.highlight("const x = 1", formatter: {:html_inline, language: @uninstalled})
+    # The log is the only signal, and it has to name the dependency in the package
+    # manager Elixir uses.
+    test "a missing parser is logged, naming the dependency to add" do
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          Lumis.highlight("data X = X", formatter: {:html_inline, language: "ocaml"})
+        end)
 
-      message = Exception.message(error)
-
-      assert message =~ "mix.exs"
+      assert log =~ "no parser for \"ocaml\""
+      assert log =~ "mix.exs"
 
       # Three-part, so the requirement stops at the next minor. `~> 0.26` would
       # admit a 0.27 parser that the store then refuses at load, which turns a
       # resolver error into a runtime one.
-      assert message =~ ~r/\{:lumis_wasm_typescript, "~> \d+\.\d+\.\d+"\}/
+      assert log =~ ~r/\{:lumis_wasm_ocaml, "~> \d+\.\d+\.\d+"\}/
 
-      refute message =~ "@lumis-sh/",
+      refute log =~ "@lumis-sh/",
              "the npm package name is the wrong advice for an Elixir project"
     end
 
-    test "highlight!/2 raises with the underlying exception's message" do
-      assert_raise Lumis.HighlightError, ~r/lumis_wasm_typescript/, fn ->
-        Lumis.highlight!("const x = 1", formatter: {:html_inline, language: @uninstalled})
-      end
+    test "a custom formatter degrades too, rather than seeing an error" do
+      {result, log} =
+        ExUnit.CaptureLog.with_log(fn ->
+          Lumis.highlight("-module(demo).", formatter: {SourceOnlyFormatter, language: "erlang"})
+        end)
+
+      # One unhighlighted span over the whole document, so a formatter that
+      # concatenates `:source` events gets it back verbatim.
+      assert {:ok, "-module(demo)."} = result
+      assert log =~ "no parser for \"erlang\""
+    end
+
+    test "highlight!/2 does not raise for a parser this project does not depend on" do
+      {html, _log} =
+        ExUnit.CaptureLog.with_log(fn ->
+          Lumis.highlight!("package main", formatter: {:html_inline, language: "go"})
+        end)
+
+      assert html =~ "package main"
+    end
+
+    # Loading is the entry point that should refuse: a deployment missing a parser
+    # is worth stopping at boot and not worth stopping at render.
+    test "Lumis.Languages.load/1 still refuses a parser this project does not depend on" do
+      assert {:error, :not_installed} = Lumis.Languages.load(@uninstalled)
     end
 
     # A parser file missing beside a manifest that is not is a different state
