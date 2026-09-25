@@ -1,3 +1,10 @@
+## [0.9.1](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.9.0...hex-lumis/v0.9.1) (2026-09-25)
+
+
+### Bug Fixes
+
+- highlight plain text when a parser is not installed - [#1541](https://github.com/leandrocp/lumis/pull/1541)
+
 ## [0.9.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.8.0...hex-lumis/v0.9.0) (2026-09-24)
 
 This release no longer auto loads the languages (parsers) used to syntax highlight code.
