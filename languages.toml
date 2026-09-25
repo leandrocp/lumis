@@ -303,6 +303,7 @@ crate = "tree-sitter-graphql"
 version = "0.2.1"
 variant = "GraphQL"
 aliases = ["gql"]
+globs = ["*.graphql", "*.gql", "*.graphqls"]
 
 [parsers.haskell]
 git = "https://github.com/tree-sitter/tree-sitter-haskell.git"
