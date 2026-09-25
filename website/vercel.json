@@ -169,7 +169,7 @@
         "Content-Type": "text/markdown; charset=utf-8",
         "Link": "<https://docs.lumis.sh/llms.txt>; rel=\"describedby\"; type=\"text/plain\", </.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\"",
         "Vary": "Accept",
-        "x-markdown-tokens": "904"
+        "x-markdown-tokens": "953"
       },
       "dest": "/index.md"
     },

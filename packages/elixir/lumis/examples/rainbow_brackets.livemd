@@ -3,7 +3,7 @@
 ```elixir
 Mix.install([
   {:lumis, "~> 0.9"},
-  {:lumis_wasm_rust, "~> 0.26"}
+  {:lumis_wasm_rust, "~> 0.26.0"}
 ])
 ```
 

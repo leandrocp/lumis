@@ -43,7 +43,7 @@ Add Lumis and a parser for each language you highlight:
 def deps do
   [
     {:lumis, "~> 0.9"},
-    {:lumis_wasm_elixir, "~> 0.26"}
+    {:lumis_wasm_elixir, "~> 0.26.0"}
   ]
 end
 ```
@@ -68,7 +68,7 @@ built-in formatters use. See [custom formatters](https://docs.lumis.sh/formatter
 
 ## Parsers
 
-A parser is an ordinary dependency: add `{:lumis_wasm_elixir, "~> 0.26"}` and
+A parser is an ordinary dependency: add `{:lumis_wasm_elixir, "~> 0.26.0"}` and
 `mix deps.get` delivers the bytes. Highlighting verifies and loads whatever a
 document needs, including languages injected inside it, and keeps them for every
 later request. Loading is global to the VM, so only the first process pays.

@@ -5,7 +5,7 @@ Mix.install([
   {:phoenix_playground, "~> 0.1"},
   {:phoenix_html, "~> 4.3"},
   {:lumis, "~> 0.9"},
-  {:lumis_wasm_elixir, "~> 0.26"}
+  {:lumis_wasm_elixir, "~> 0.26.0"}
 ])
 ```
 

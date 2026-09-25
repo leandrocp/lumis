@@ -62,7 +62,7 @@ defmodule MyBlog.MixProject do
       {:nimble_publisher, "~> 1.1"},
       {:mdex, "~> 0.14"},
       {:lumis, "~> 0.9"},
-      {:lumis_wasm_elixir, "~> 0.26"}
+      {:lumis_wasm_elixir, "~> 0.26.0"}
     ]
   end
 

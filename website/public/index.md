@@ -25,7 +25,7 @@ Lumis is a syntax highlighter powered by Tree-sitter. It provides one model for 
 | Rust | `cargo add lumis` |
 | JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes` |
 | Browsers / CDN | `https://esm.sh/@lumis-sh/lumis` |
-| Elixir | `{:lumis, "~> 0.9"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26"}` |
+| Elixir | `{:lumis, "~> 0.9"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26.0"}` |
 | Java | `io.roastedroot:lumis4j:0.0.7` |
 
 ## Quick start

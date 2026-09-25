@@ -92,8 +92,8 @@ later request:
 def deps do
   [
     {:lumis, "~> 0.9"},
-    {:lumis_wasm_markdown, "~> 0.26"},
-    {:lumis_wasm_elixir, "~> 0.26"}
+    {:lumis_wasm_markdown, "~> 0.26.0"},
+    {:lumis_wasm_elixir, "~> 0.26.0"}
   ]
 end
 ```
@@ -155,7 +155,7 @@ Warm the languages you serve rather than `:bundle_full`. Every language in a
 process shares one 128 MB Tree-sitter Wasm store, and
 [loading the full set can exhaust it](/languages#bundle-full-is-not-the-safe-default).
 `:bundle_full` also leaves out `systemverilog`; add
-`{:lumis_wasm_systemverilog, "~> 0.26"}` and name it if you need it.
+`{:lumis_wasm_systemverilog, "~> 0.26.0"}` and name it if you need it.
 
 Compiled modules land under `config :lumis, data_dir:`, `LUMIS_DATA_DIR`, or
 Lumis's `priv/lumis` directory by default, so a restart or a new pod using the
@@ -192,7 +192,7 @@ highlighted anything before now names what it serves:
 def deps do
   [
     {:lumis, "~> 0.9"},
-    {:lumis_wasm_elixir, "~> 0.26"},
+    {:lumis_wasm_elixir, "~> 0.26.0"},
     {:lumis_wasm_bundle_web, "~> 0.1"}
   ]
 end

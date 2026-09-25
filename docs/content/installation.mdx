@@ -41,7 +41,7 @@ cargo add lumis
 def deps do
   [
     {:lumis, "~> 0.9"},
-    {:lumis_wasm_elixir, "~> 0.26"}
+    {:lumis_wasm_elixir, "~> 0.26.0"}
   ]
 end
 ```
@@ -118,5 +118,5 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
 
 - Highlighting loads the parsers a document needs, including languages injected inside it, from the ones the project installed, and caches the verified bytes. See [Declaring parsers](/advanced/lock) and [WASM and CDN](/advanced/wasm-and-cdn).
 - That happens on demand, or you can [preload the languages you need](/languages) at startup or from a build step.
-- Install per-language packages such as `@lumis-sh/wasm-rust` or `{:lumis_wasm_rust, "~> 0.26"}`, or bundle packages such as `@lumis-sh/wasm-bundle-web` or `{:lumis_wasm_bundle_web, "~> 0.1"}`.
+- Install per-language packages such as `@lumis-sh/wasm-rust` or `{:lumis_wasm_rust, "~> 0.26.0"}`, or bundle packages such as `@lumis-sh/wasm-bundle-web` or `{:lumis_wasm_bundle_web, "~> 0.1"}`.
 - The CLI stores verified, content-addressed parsers and custom themes in a local data directory.
