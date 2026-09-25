@@ -113,18 +113,29 @@ fn exercised_entry_points() -> BTreeSet<&'static str> {
         .build()
         .expect("html_inline builds");
 
-    assert!(!highlight(source, formatter).is_empty());
+    // Each `_with_options` sibling gets the default options, so it has to agree
+    // with the plain one; that is a real property and not just "did not panic".
+    let html = highlight(source, formatter);
     assert!(
-        !highlight_with_options(source, with_options_formatter, HighlightOptions::new()).is_empty()
+        html.contains("<span"),
+        "highlight rendered no spans: {html}"
+    );
+    assert_eq!(
+        html,
+        highlight_with_options(source, with_options_formatter, HighlightOptions::new()),
+        "default options changed the rendered output"
     );
 
-    assert!(!highlight_events(source, language)
-        .expect("highlight_events succeeds")
-        .is_empty());
+    let events = highlight_events(source, language).expect("highlight_events succeeds");
     assert!(
-        !highlight_events_with_options(source, language, HighlightOptions::new())
-            .expect("highlight_events_with_options succeeds")
-            .is_empty()
+        events.iter().any(|event| event.scope() == Some("keyword")),
+        "highlight_events found no keyword in {source:?}"
+    );
+    assert_eq!(
+        events,
+        highlight_events_with_options(source, language, HighlightOptions::new())
+            .expect("highlight_events_with_options succeeds"),
+        "default options changed the event stream"
     );
 
     let mut tokens = 0usize;
@@ -147,8 +158,16 @@ fn exercised_entry_points() -> BTreeSet<&'static str> {
     assert!(tokens > 0, "highlight_iter yielded no tokens");
 
     assert_eq!(Language::guess(Some("main.rs"), "").id_name(), "rust");
-    assert!(!languages::available_languages().is_empty());
-    assert!(themes::available_themes().count() > 0);
+    assert!(
+        languages::available_languages()
+            .iter()
+            .any(|info| info.id == "rust"),
+        "available_languages does not list Rust"
+    );
+    assert!(
+        themes::available_themes().any(|theme| theme.name == "dracula"),
+        "available_themes does not list dracula"
+    );
     assert_eq!(
         Language::from_str("rust")
             .expect("`rust` is in the catalog")
@@ -273,7 +292,7 @@ fn required_in_scope(manifest: &Manifest) -> BTreeSet<&str> {
 fn every_manifest_capability_is_callable() {
     // The capabilities run here, so reaching this line is the proof. Whether the
     // set matches the manifest is the next test's job.
-    assert!(!exercised_entry_points().is_empty());
+    assert_ne!(exercised_entry_points(), BTreeSet::new());
 }
 
 #[test]
