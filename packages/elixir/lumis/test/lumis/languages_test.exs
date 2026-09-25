@@ -170,7 +170,11 @@ defmodule Lumis.LanguagesTest do
           names =
             path
             |> File.read!()
-            |> then(&Regex.scan(~r/lazy\("([^"]+)"/, &1))
+            # oxfmt wraps a `lazy(` call whose alias list makes the line too
+            # long, so the id can land on the next line. Matching only the
+            # unwrapped spelling drops that language and reads as the bundle
+            # disagreeing with the catalog.
+            |> then(&Regex.scan(~r/lazy\(\s*"([^"]+)"/, &1))
             |> Enum.map(fn [_, name] -> name end)
             # `plaintext` needs no parser, so it is not a catalog language and
             # every runtime answers for it without a bundle saying so.
