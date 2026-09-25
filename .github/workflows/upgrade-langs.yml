@@ -217,6 +217,7 @@ jobs:
             crates/lumis-core/Cargo.toml
             crates/lumis/vendored_parsers
             LANGUAGES.md
+            docs/content/reference/languages.md
             queries/upstream
             queries/processed
             queries/override

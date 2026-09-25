@@ -409,6 +409,15 @@ Large parts of the repository are generated from shared inputs such as `language
 - When generated or vendored files are added, removed, moved, or reclassified, update `.gitattributes` in the same change. For content-only updates, verify that its existing patterns still cover every affected path.
 - Keep Rust, JavaScript, Elixir, docs, fixtures, and generated metadata in sync.
 
+### The language catalog
+
+`languages.toml` is the source of truth for the language catalog, and both `LANGUAGES.md` and `docs/content/reference/languages.md` are generated from it by `mise run docs-gen-languages-md`.
+
+- Any change to the `[parsers.*]` table ends with that command run and **both** files committed. That includes adding or removing a language and editing an existing entry's aliases, globs, parser, version or revision, query source, or WASM package — every one of those is a column of the published table.
+- Changing what the generator renders — a column, the note above the table, the bundle list — is the same obligation: the committed files must be the output of the generator as it stands in the change.
+- Nothing checks these two files for drift. `mise run langs-check-catalog` covers the runtime catalogs, not the docs, so a stale table ships as documentation and is only noticed by a reader who trusts it.
+- The docs page is a published reference for people writing code blocks, so a parser entry is not finished until the table answers the names a reader would arrive with: the id, its aliases, and its extensions.
+
 ## Verification
 
 Match verification to the scope of the change, but do not stop at a partial check when a broader shared workflow is affected.

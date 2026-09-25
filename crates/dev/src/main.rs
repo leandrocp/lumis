@@ -1089,10 +1089,8 @@ struct ParserInfo {
     generate: Option<bool>,
     wasm_name: Option<String>,
     feature: Option<String>,
-    #[allow(dead_code)]
     #[serde(default)]
     globs: Vec<String>,
-    #[allow(dead_code)]
     #[serde(default)]
     aliases: Vec<String>,
     #[allow(dead_code)]
@@ -2614,18 +2612,47 @@ fn human_bytes(bytes: u64) -> String {
     format!("{whole}.{tenths} MB")
 }
 
+/// An Aliases or Extensions cell, comma-joined in `languages.toml` order.
+///
+/// A code block is tagged with whichever name its author reached for, so the
+/// table has to answer `js` and `*.py` -> `javascript` and `python` as well as
+/// the other way around; without these cells the only route back from a name
+/// to the id you install under is `lumis languages show`, which is no help
+/// while reading the docs site. Joined the way that command prints them.
+fn name_list_cell(values: &[&str]) -> String {
+    if values.is_empty() {
+        return "—".to_string();
+    }
+    values.join(", ")
+}
+
+/// The globs that name a bare extension, e.g. `*.rs`.
+///
+/// `Language::extensions` in `lumis-core` selects them the same way, so the
+/// column and `lumis languages show` cannot disagree about which globs count.
+fn extension_globs(globs: &[String]) -> Vec<&str> {
+    globs
+        .iter()
+        .map(String::as_str)
+        .filter(|glob| glob.starts_with("*."))
+        .collect()
+}
+
 fn gen_languages_md() -> Result<()> {
     let toml = read_languages_toml()?;
     let sizes = parser_sizes_for(&supported_tree_sitter_series()?)?;
 
     let mut table_lines = vec![
-        "| Language | Parser | Vendored | Version / Rev | Queries | npm | Hex | Size | Memory |"
+        "| Language | Aliases | Extensions | Parser | Vendored | Version / Rev | Queries | npm | Hex | Size | Memory |"
             .to_string(),
-        "|----------|--------|----------|---------------|---------|-----|-----|------|--------|"
+        "|----------|---------|------------|--------|----------|---------------|---------|-----|-----|------|--------|"
             .to_string(),
     ];
 
     for (lang, info) in &toml.parsers {
+        let aliases: Vec<&str> = info.aliases.iter().map(String::as_str).collect();
+        let aliases_col = name_list_cell(&aliases);
+        let extensions_col = name_list_cell(&extension_globs(&info.globs));
         let git = info.git.as_deref().unwrap_or("");
         let rev = info.rev.as_deref().unwrap_or("");
         let short_rev = &rev[..7.min(rev.len())];
@@ -2686,7 +2713,7 @@ fn gen_languages_md() -> Result<()> {
         };
 
         table_lines.push(format!(
-            "| {lang} | {parser_link} | {vendored} | {version_col} | {query_col} | {npm_col} | {hex_col} | {size_col} | {memory_col} |"
+            "| {lang} | {aliases_col} | {extensions_col} | {parser_link} | {vendored} | {version_col} | {query_col} | {npm_col} | {hex_col} | {size_col} | {memory_col} |"
         ));
     }
 
@@ -2728,12 +2755,9 @@ fn gen_languages_md() -> Result<()> {
                         .collect()
                 }
             };
-            let languages_col = parser_names
-                .iter()
-                .map(|parser| format!("`{parser}`"))
-                .collect::<Vec<_>>()
-                .join(", ");
-            table_lines.push(format!("| `{bundle_name}` | {languages_col} |"));
+            let languages_col =
+                name_list_cell(&parser_names.iter().map(String::as_str).collect::<Vec<_>>());
+            table_lines.push(format!("| {bundle_name} | {languages_col} |"));
         }
     }
 
@@ -6583,6 +6607,26 @@ mod tests {
             "\"nil\" @constant.builtin"
         );
         assert_eq!(apply_text_replacements(query, "nim"), query);
+    }
+
+    #[test]
+    fn name_list_cell_keeps_catalog_order_and_marks_an_empty_list() {
+        // Unsorted, because the cell mirrors `languages.toml` rather than
+        // reordering it: that is the order `lumis languages show` prints.
+        assert_eq!(name_list_cell(&["zsh", "sh"]), "zsh, sh");
+        assert_eq!(name_list_cell(&[]), "—");
+    }
+
+    #[test]
+    fn extension_globs_drops_globs_that_are_not_bare_extensions() {
+        let globs = [
+            "*.sh".to_string(),
+            "PKGBUILD".to_string(),
+            ".bash_profile".to_string(),
+            "*.sh.in".to_string(),
+        ];
+
+        assert_eq!(extension_globs(&globs), ["*.sh", "*.sh.in"]);
     }
 
     #[test]
