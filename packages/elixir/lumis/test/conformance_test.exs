@@ -41,6 +41,22 @@ defmodule Lumis.ConformanceTest do
 
   defp rainbow_brackets(fixture), do: fixture["rainbowBrackets"] || false
 
+  defp serialize_event({:start, %{scope: scope, language: language}}),
+    do: %{"type" => "start", "scope" => scope, "language" => language}
+
+  defp serialize_event({:source, %{start: start, end: stop}}),
+    do: %{"type" => "source", "start" => start, "end" => stop}
+
+  defp serialize_event(:end), do: %{"type" => "end"}
+
+  defp serialize_event({:decoration_start, %Lumis.Decoration.RainbowBracket{depth: depth}}),
+    do: %{
+      "type" => "decorationStart",
+      "decoration" => %{"type" => "rainbowBracket", "depth" => depth}
+    }
+
+  defp serialize_event(:decoration_end), do: %{"type" => "decorationEnd"}
+
   defp conformance_theme(name) do
     path = Path.expand("../../../../fixtures/conformance-themes/#{name}.json", __DIR__)
 
@@ -85,6 +101,18 @@ defmodule Lumis.ConformanceTest do
 
   for name <- @fixture_names do
     describe name do
+      @tag fixture: name
+      test "events" do
+        fixture = load_fixture(unquote(name))
+
+        events =
+          Lumis.highlight_events!(fixture["source"], fixture["language"],
+            rainbow_brackets: rainbow_brackets(fixture)
+          )
+
+        assert Enum.map(events, &serialize_event/1) == fixture["events"]
+      end
+
       @tag fixture: name
       test "html_inline" do
         fixture = load_fixture(unquote(name))

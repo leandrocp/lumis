@@ -1,65 +1,115 @@
 defmodule Lumis.HighlightEventsTest do
   use ExUnit.Case, async: true
 
-  alias Lumis.Formatter.HTML
+  import ExUnit.CaptureLog
 
-  defmodule EventsFormatter do
-    @behaviour Lumis.Formatter
+  alias Lumis.Decoration.RainbowBracket
 
-    @impl true
-    def render(_source, events, _options), do: :erlang.term_to_binary(events)
+  test "source events cover the source exactly, in order, inside balanced scopes" do
+    sources = [
+      "",
+      "x = 1",
+      "defmodule A do\n  @doc \"\"\"\n  héllo ☕\n  \"\"\"\n  def a, do: ~r/[a-z]+/\nend\n",
+      "a = 1\r\nb = 2\r\n"
+    ]
+
+    for source <- sources do
+      events = Lumis.highlight_events!(source, "elixir")
+
+      covered =
+        Enum.reduce(events, 0, fn
+          {:source, %{start: start, end: stop}}, position ->
+            assert start == position
+            stop
+
+          _event, position ->
+            position
+        end)
+
+      assert covered == byte_size(source)
+      assert balanced?(events)
+    end
   end
 
-  test "returns the events a custom formatter receives" do
-    source = "items = [[1], {:ok, \"two\"}]"
-    options = [annotations: [[offset: {0, 5}, data: %{id: 1}]], rainbow_brackets: true]
+  test "annotations arrive at their resolved byte range with their data untouched" do
+    source = "π = 1\ncafé = 2"
+    data = %{id: 7, change: {:added, [1, 2]}}
 
-    {:ok, rendered} =
-      Lumis.highlight(source, [formatter: {EventsFormatter, language: "elixir"}] ++ options)
+    events =
+      Lumis.highlight_events!(source, "elixir",
+        annotations: [[position: {{1, 0}, {1, 5}}, data: data]]
+      )
 
-    assert Lumis.highlight_events(source, "elixir", options) ==
-             {:ok, :erlang.binary_to_term(rendered)}
+    assert [%{range: {start, stop}, data: ^data}] =
+             for({:annotation_start, annotation} <- events, do: annotation)
+
+    assert binary_part(source, start, stop - start) == "café"
+    assert Enum.count(events, &(&1 == :annotation_end)) == 1
   end
 
-  test "detects the language when none is given" do
-    events = Lumis.highlight_events!("#!/usr/bin/env bash\necho 1", nil)
+  test "rainbow brackets arrive as decorations whose depth does not wrap" do
+    source = "[[[[[[[0]]]]]]]"
 
-    assert {:start, %{language: "bash"}} = Enum.find(events, &match?({:start, _}, &1))
+    decorated = Lumis.highlight_events!(source, "elixir", rainbow_brackets: true)
+    depths = for {:decoration_start, %RainbowBracket{depth: depth}} <- decorated, do: depth
+
+    assert depths |> Enum.uniq() |> Enum.sort() == Enum.to_list(0..6)
+
+    refute Enum.any?(
+             Lumis.highlight_events!(source, "elixir"),
+             &match?({:decoration_start, _}, &1)
+           )
   end
 
-  test "renders one HTML fragment per source line" do
-    source = "s = \"\"\"\none\n\"\"\"\nx = 1"
-    attrs = Map.new(HTML.classes(), fn {scope, class} -> {scope, ~s|class="#{class}"|} end)
+  test "a render over its time budget comes back as one plain source event" do
+    source = String.duplicate("value = [1, %{a: :b}] |> Enum.map(&(&1 * 2))\n", 20_000)
 
-    lines =
-      HTML.render_lines_from_events(source, Lumis.highlight_events!(source, "elixir"), attrs)
-
-    assert length(lines) == 4
-    assert Enum.at(lines, 1) =~ ~s(<span class="l-string">one</span>)
+    assert Lumis.highlight_events!(source, "elixir", budget: [time_limit: 1]) ==
+             [{:source, %{start: 0, end: byte_size(source)}}]
   end
 
-  test "a language whose parser is not installed comes back as plain source" do
-    {events, log} =
-      ExUnit.CaptureLog.with_log(fn -> Lumis.highlight_events!("package main", "go") end)
+  test "nil detects the language from the source" do
+    source = "#!/usr/bin/env bash\necho 1"
 
-    assert events == [{:source, %{start: 0, end: 12}}]
-    assert log =~ "no parser for \"go\""
+    assert Lumis.highlight_events!(source, nil) == Lumis.highlight_events!(source, "bash")
   end
 
-  test "an annotation that cannot be composed is an error" do
-    options = [annotations: [[offset: {1, 2}, data: %{}]]]
+  test "a language whose parser is not installed comes back as one plain source event" do
+    assert {:error, :not_installed} = Lumis.Languages.load("go")
+
+    source = "package main"
+    {events, log} = with_log(fn -> Lumis.highlight_events!(source, "go") end)
+
+    assert events == [{:source, %{start: 0, end: byte_size(source)}}]
+    assert log =~ "lumis_wasm_go"
+  end
+
+  test "an annotation that cannot be placed is an error" do
+    options = [annotations: [[offset: {1, 2}, data: nil]]]
 
     assert {:error, %Lumis.RenderError{reason: :annotation}} =
              Lumis.highlight_events("π", "elixir", options)
 
-    assert_raise Lumis.HighlightError, ~r/not a UTF-8 character boundary/, fn ->
-      Lumis.highlight_events!("π", "elixir", options)
-    end
+    assert_raise Lumis.HighlightError, fn -> Lumis.highlight_events!("π", "elixir", options) end
   end
 
-  test "invalid options raise" do
+  test "invalid arguments raise" do
     assert_raise NimbleOptions.ValidationError, fn ->
       Lumis.highlight_events("x", "elixir", budget: [match_limit: 0])
     end
+
+    assert_raise FunctionClauseError, fn -> Lumis.highlight_events("x", :elixir) end
+  end
+
+  defp balanced?(events) do
+    depth =
+      Enum.reduce_while(events, 0, fn
+        {:start, _}, depth -> {:cont, depth + 1}
+        :end, 0 -> {:halt, :unbalanced}
+        :end, depth -> {:cont, depth - 1}
+        _event, depth -> {:cont, depth}
+      end)
+
+    depth == 0
   end
 end
