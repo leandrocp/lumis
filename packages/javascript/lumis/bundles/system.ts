@@ -4,7 +4,11 @@ import { lazy } from "../src/bundle-helpers.js";
 
 export const bundledLanguages: LanguageBundle = {
   asm: lazy("asm", ["assembly"], () => import("../langs/asm.js")),
-  bash: lazy("bash", ["sh"], () => import("../langs/bash.js")),
+  bash: lazy(
+    "bash",
+    ["console", "sh", "sh-session", "shell", "shell-session", "terminal"],
+    () => import("../langs/bash.js"),
+  ),
   c: lazy("c", [], () => import("../langs/c.js")),
   cmake: lazy("cmake", [], () => import("../langs/cmake.js")),
   cpp: lazy("cpp", ["c++"], () => import("../langs/cpp.js")),

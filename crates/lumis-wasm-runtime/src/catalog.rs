@@ -17,7 +17,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-astro"
         },
         "bash" => {
-            aliases: ["sh"],
+            aliases: ["console", "sh", "sh-session", "shell", "shell-session", "terminal"],
             package_name: "@lumis-sh/wasm-bash"
         },
         "c" => {
@@ -41,7 +41,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-comment"
         },
         "commonlisp" => {
-            aliases: [],
+            aliases: ["cl"],
             package_name: "@lumis-sh/wasm-commonlisp"
         },
         "cpp" => {
@@ -73,7 +73,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-dockerfile"
         },
         "eex" => {
-            aliases: [],
+            aliases: ["leex"],
             package_name: "@lumis-sh/wasm-eex"
         },
         "ejs" => {
@@ -93,7 +93,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-embedded-template"
         },
         "erlang" => {
-            aliases: [],
+            aliases: ["erl-sh", "erlang-repl"],
             package_name: "@lumis-sh/wasm-erlang"
         },
         "fish" => {
@@ -117,7 +117,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-go"
         },
         "graphql" => {
-            aliases: [],
+            aliases: ["gql"],
             package_name: "@lumis-sh/wasm-graphql"
         },
         "haskell" => {
@@ -157,7 +157,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-javascript"
         },
         "json" => {
-            aliases: [],
+            aliases: ["jsonc", "jsonld"],
             package_name: "@lumis-sh/wasm-json"
         },
         "julia" => {
@@ -229,7 +229,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-php"
         },
         "powershell" => {
-            aliases: [],
+            aliases: ["pwsh"],
             package_name: "@lumis-sh/wasm-powershell"
         },
         "protobuf" => {
@@ -237,7 +237,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-protobuf"
         },
         "python" => {
-            aliases: [],
+            aliases: ["python3"],
             package_name: "@lumis-sh/wasm-python"
         },
         "r" => {
@@ -265,7 +265,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-scss"
         },
         "sql" => {
-            aliases: [],
+            aliases: ["psql"],
             package_name: "@lumis-sh/wasm-sql"
         },
         "surface" => {
@@ -453,7 +453,7 @@ define_catalog! {
             package_name: "@lumis-sh/wasm-solidity"
         },
         "systemverilog" => {
-            aliases: [],
+            aliases: ["verilog"],
             package_name: "@lumis-sh/wasm-systemverilog"
         },
         "tcl" => {
