@@ -183,26 +183,22 @@ fn render_failure(env: Env<'_>, reason: Atom, detail: String) -> Term<'_> {
     (error(), (render(), ExRenderFailure { reason, detail })).encode(env)
 }
 
-/// The error term for a failed highlight: `{:error, {:parser, %{...}}}` when a
-/// language's parser could not be loaded, `{:error, {:render, %{...}}}`
-/// otherwise.
+/// The fields `Lumis.ParserError` is built from, or `None` when no parser is to
+/// blame for the failure.
+///
+/// Which side a `RuntimeError` falls on decides what the caller sees: a parser
+/// that could not be loaded degrades to plain text, and everything else is still
+/// an error, because a bad limit is a caller mistake and a broken Wasm runtime
+/// has nothing left to render with.
 ///
 /// The reason comes from [`StoreError::kind`] rather than from the message, for
 /// the same reason `never_added` is checked rather than read out of the store's
 /// error: a caller telling "add this parser to your dependencies" apart from
 /// "the download timed out" must not be a substring match.
-fn highlight_failure<'a>(env: Env<'a>, failure: &RuntimeError, language: &str) -> Term<'a> {
-    let parser_failure =
-        |language: &str, reason: Atom, detail: String, store: Option<&StoreError>| {
-            (
-                error(),
-                (
-                    parser(),
-                    ExParserFailure::new(language, reason, detail, store),
-                ),
-            )
-                .encode(env)
-        };
+fn parser_failure(env: Env<'_>, failure: &RuntimeError, language: &str) -> Option<ExParserFailure> {
+    let fields = |language: &str, reason: Atom, detail: String, store: Option<&StoreError>| {
+        Some(ExParserFailure::new(language, reason, detail, store))
+    };
 
     match failure {
         RuntimeError::Store { language, source } => {
@@ -211,33 +207,43 @@ fn highlight_failure<'a>(env: Env<'a>, failure: &RuntimeError, language: &str) -
             // added to that `#[non_exhaustive]` enum before this is updated.
             let reason = Atom::from_str(env, source.kind().as_str())
                 .unwrap_or_else(|_| failed_to_load_parser());
-            parser_failure(language, reason, source.to_string(), Some(source))
+            fields(language, reason, source.to_string(), Some(source))
         }
         RuntimeError::Parser { language, message } => {
-            parser_failure(language, invalid_parser(), message.clone(), None)
+            fields(language, invalid_parser(), message.clone(), None)
         }
         // Deliberately not `:invalid_parser`: this parser is valid, and the only
         // thing that helps is asking for fewer languages. Tree-sitter's wording
         // is the detail, since the number in it is the incoming parser's size
         // rather than anything a caller should read as a limit.
         RuntimeError::StoreFull { language, message } => {
-            parser_failure(language, store_full(), message.clone(), None)
+            fields(language, store_full(), message.clone(), None)
         }
         RuntimeError::Query { language, message } => {
-            parser_failure(language, invalid_queries(), message.clone(), None)
+            fields(language, invalid_queries(), message.clone(), None)
         }
         RuntimeError::LanguageNotLoaded(language) => {
-            parser_failure(language, not_loaded(), failure.to_string(), None)
+            fields(language, not_loaded(), failure.to_string(), None)
         }
         RuntimeError::UnknownLanguage(language) => {
-            parser_failure(language, unknown_language(), failure.to_string(), None)
+            fields(language, unknown_language(), failure.to_string(), None)
         }
         RuntimeError::LanguageNotCached(language) => {
-            parser_failure(language, not_cached(), failure.to_string(), None)
+            fields(language, not_cached(), failure.to_string(), None)
         }
         RuntimeError::LanguageStoreUnavailable => {
-            parser_failure(language, store_unavailable(), failure.to_string(), None)
+            fields(language, store_unavailable(), failure.to_string(), None)
         }
+        // A bad limit, a dead executor, and whatever is added to this
+        // `#[non_exhaustive]` enum next: none is fixed by installing a parser.
+        _ => None,
+    }
+}
+
+/// The `{:error, {:render, %{...}}}` term for a failure no parser is to blame
+/// for, which [`parser_failure`] answered `None` about.
+fn render_failure_for<'a>(env: Env<'a>, failure: &RuntimeError) -> Term<'a> {
+    match failure {
         RuntimeError::InvalidMatchLimit(_) => {
             render_failure(env, invalid_match_limit(), failure.to_string())
         }
@@ -404,6 +410,11 @@ impl WasmExecutor {
 rustler::atoms! {
     ok,
     error,
+
+    // A render that succeeded as plain text because no parser could be loaded,
+    // and the fields Elixir needs to say which one. Suffixed because `degraded`
+    // reads as a predicate at the sites that encode it.
+    degraded_atom = "degraded",
     event_start = "start",
     event_source = "source",
     event_end = "end",
@@ -662,12 +673,14 @@ pub(crate) fn highlight<'a>(
 ) -> NifResult<Term<'a>> {
     let language = languages::Language::guess(options.language, source);
     let annotations = decode_annotations(options.annotations)?;
+    // Keeps the language the caller asked for even when no parser answered for
+    // it, so `class="language-typescript"` still says what the block is.
     let formatter = match options.formatter.into_formatter(language) {
         Ok(formatter) => formatter,
         Err(message) => return Ok(render_failure(env, formatter_atom(), message)),
     };
 
-    let Highlighted { events, budget } = match syntax_events(
+    let (Highlighted { events, budget }, degraded) = match syntax_events(
         env,
         source,
         language,
@@ -699,10 +712,32 @@ pub(crate) fn highlight<'a>(
     }
     let output = String::from_utf8(output)
         .map_err(|error| Error::Term(Box::new(format!("invalid formatter output: {error}"))))?;
-    Ok((ok(), output).encode(env))
+
+    // `:degraded` rather than a wider `:ok`, so the one caller that has to log
+    // says so in a clause instead of on an arity.
+    match degraded {
+        Some(failure) => Ok((degraded_atom(), output, failure).encode(env)),
+        None => Ok((ok(), output).encode(env)),
+    }
+}
+
+/// The whole of `source` as one unhighlighted span: what a document highlights to
+/// when there is no parser to walk it with.
+fn plain_text(source: &str) -> Highlighted {
+    Highlighted {
+        events: vec![HighlightEvent::Source {
+            start: 0,
+            end: source.len(),
+        }],
+        budget: None,
+    }
 }
 
 /// Syntax events for `source`, or the error term Elixir should receive.
+///
+/// A parser that could not be loaded is not an error: the document comes back as
+/// plain text with the failure beside it, for the caller to report on the `<pre>`
+/// and in the log.
 fn syntax_events<'a>(
     env: Env<'a>,
     source: &str,
@@ -710,28 +745,27 @@ fn syntax_events<'a>(
     rainbow_brackets: bool,
     match_limit: u32,
     time_limit: Option<u64>,
-) -> Result<Highlighted, Term<'a>> {
+) -> Result<(Highlighted, Option<ExParserFailure>), Term<'a>> {
     if language == languages::Language::PlainText {
-        return Ok(Highlighted {
-            events: vec![HighlightEvent::Source {
-                start: 0,
-                end: source.len(),
-            }],
-            budget: None,
-        });
+        return Ok((plain_text(source), None));
     }
 
     let executor =
         executor().map_err(|reason| render_failure(env, runtime_atom(), format!("{reason:#}")))?;
-    executor
-        .highlight(
-            source,
-            language.id_name(),
-            rainbow_brackets,
-            match_limit,
-            time_limit,
-        )
-        .map_err(|runtime_error| highlight_failure(env, &runtime_error, language.id_name()))
+
+    match executor.highlight(
+        source,
+        language.id_name(),
+        rainbow_brackets,
+        match_limit,
+        time_limit,
+    ) {
+        Ok(highlighted) => Ok((highlighted, None)),
+        Err(runtime_error) => match parser_failure(env, &runtime_error, language.id_name()) {
+            Some(failure) => Ok((plain_text(source), Some(failure))),
+            None => Err(render_failure_for(env, &runtime_error)),
+        },
+    }
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
@@ -745,8 +779,10 @@ pub(crate) fn highlight_events<'a>(
     let formatter = EventFormatter::new(language);
 
     // An event stream has nowhere to carry the budget, so it is dropped here
-    // and only the rendering entry point above reports it.
-    let events = match syntax_events(
+    // and only the rendering entry point above reports it. A missing parser is
+    // not dropped: custom formatters render through here and their caller has the
+    // same warning to log.
+    let (highlighted, degraded) = match syntax_events(
         env,
         source,
         language,
@@ -754,9 +790,10 @@ pub(crate) fn highlight_events<'a>(
         options.budget.match_limit(),
         options.budget.time_limit_ms(),
     ) {
-        Ok(highlighted) => highlighted.events,
+        Ok(highlighted) => highlighted,
         Err(failure) => return Ok(failure),
     };
+    let events = highlighted.events;
     let events = match compose_annotations(source, &events, &annotations) {
         Ok(events) => events,
         Err(annotation_error) => {
@@ -782,7 +819,10 @@ pub(crate) fn highlight_events<'a>(
     // formatter needs it to label its output, and asking Elixir to guess again
     // would run detection over the whole source a second time to reach an answer
     // this call already has.
-    Ok((ok(), language.id_name(), events).encode(env))
+    match degraded {
+        Some(failure) => Ok((degraded_atom(), language.id_name(), events, failure).encode(env)),
+        None => Ok((ok(), language.id_name(), events).encode(env)),
+    }
 }
 
 /// Reads the tagged tuples `Lumis.annotations_type/1` normalizes to:

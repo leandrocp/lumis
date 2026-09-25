@@ -35,8 +35,10 @@ Lumis.Languages.load("haskell")
 
 Include the languages a document can *inject*, not only the ones it names.
 Markdown fences reach whatever language they label, HTML reaches `css` and
-`javascript`, and Elixir reaches `comment`. A language you missed costs that
-block its highlighting. The page still renders.
+`javascript`, and Elixir reaches `comment`. A language you missed costs that block
+its colors and nothing else: `Lumis.highlight/2` returns `{:ok, html}` either way,
+and logs a warning naming the dependency to add. Check staging logs for it after a
+deploy; a colorless block is easy to miss on the page.
 
 ## Docker
 
