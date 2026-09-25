@@ -1,0 +1,153 @@
+{
+  "$comment": [
+    "The top-level entry points every runtime must present.",
+    "",
+    "`formatter-options.json` pins what the formatters ACCEPT and",
+    "`formatter-helpers.json` pins what a CUSTOM formatter can be built from.",
+    "This pins the functions a caller reaches FIRST, which nothing else checked:",
+    "Rust had `highlight_events` and JavaScript had `highlightEvents` while Elixir",
+    "could only get the event stream inside a custom formatter's `render/3`",
+    "(#1543). Nothing failed, because a function one runtime lacks raises no error",
+    "where it does exist.",
+    "",
+    "`name` is the canonical snake_case capability. Rust and Elixir spell it",
+    "verbatim, JavaScript camelCases it. `spelling` records the exceptions. A",
+    "spelling may be a list where a runtime splits one capability across several",
+    "functions, and a spelling containing `::` or `.` names a home outside the",
+    "scanned surface.",
+    "",
+    "The scanned surface is the module a caller reaches first, and it is what the",
+    "reverse direction checks:",
+    "",
+    "- Rust: module-level `pub fn` in `crates/lumis/src/lib.rs` and",
+    "  `crates/lumis/src/highlight.rs`. `#[doc(hidden)]` is not public.",
+    "- JavaScript: the value exports of `packages/javascript/lumis/src/index.ts`",
+    "  and `index.browser.ts`. Types are erased, so only functions are seen.",
+    "- Elixir: the `Lumis` module's exported functions. `@doc false` is not",
+    "  public.",
+    "",
+    "A capability whose home is outside that surface -- `lumis::languages::guess`,",
+    "`Lumis.Languages.guess/2` -- is checked by being CALLED, not by the scan,",
+    "because the scan cannot see it. That is also why the manifest does not have",
+    "to classify everything in `lumis::themes` or `Lumis.Languages`.",
+    "",
+    "Two things are deliberately out of scope. The CLI is not a runtime here: its",
+    "top level is a set of commands rather than functions, and",
+    "`formatter-options.json` already pins its flags. And there is no `deprecated`",
+    "section, unlike `formatter-helpers.json`: what is deprecated at this level is",
+    "an arity of a capability that is not going anywhere -- `Lumis.highlight/3`",
+    "with the language first -- and every check below is by name, so the section",
+    "would have nothing to hold.",
+    "",
+    "There is no shared output contract here, unlike `formatter-helpers.json`.",
+    "What these functions return is already pinned elsewhere and by exact bytes:",
+    "`fixtures/conformance/*/fixture.json` for `highlight` and `highlight_events`,",
+    "`fixtures/language-guess-cases.json` and `fixtures/language-detection.json`",
+    "for `guess`, and `fixtures/conformance-languages` for the catalog. This file",
+    "answers the question those cannot: whether the function is there at all.",
+    "",
+    "Adding an entry point means adding it here first, then watching the three",
+    "local implementations go red. `runtime_only` and `waived` are the two escape",
+    "hatches, both carry their reason, and both are checked, so neither can grow",
+    "quietly."
+  ],
+  "capabilities": [
+    {
+      "name": "highlight",
+      "$comment": "Source plus a formatter, in, rendered output out. The one call the README leads with in every runtime.",
+      "spelling": {
+        "rust": ["highlight", "highlight_with_options"],
+        "elixir": ["highlight", "highlight!"]
+      }
+    },
+    {
+      "name": "highlight_events",
+      "$comment": "The nested open/close event stream, without a formatter. Elixir lacked this until #1543.",
+      "spelling": {
+        "rust": ["highlight_events", "highlight_events_with_options"],
+        "elixir": ["highlight_events", "highlight_events!"]
+      }
+    },
+    {
+      "name": "highlight_iter",
+      "$comment": "Flat per-token iteration: text, language, range, scope, resolved style. Waived for Elixir below.",
+      "spelling": {
+        "rust": ["highlight_iter", "highlight_iter_with_options"]
+      }
+    },
+    {
+      "name": "guess",
+      "$comment": "Resolve a name, an alias or a path to a language, falling back to plain text.",
+      "spelling": {
+        "rust": "languages::Language::guess",
+        "javascript": "guessLanguage",
+        "elixir": "Languages.guess"
+      }
+    },
+    {
+      "name": "available_languages",
+      "$comment": "Every language in the catalog, with its aliases and extensions.",
+      "spelling": { "rust": "languages::available_languages" }
+    },
+    {
+      "name": "available_themes",
+      "$comment": "Every built-in theme's name and appearance.",
+      "spelling": { "rust": "themes::available_themes" }
+    },
+    {
+      "name": "language_info",
+      "$comment": "One language looked up by id or alias, without scanning the catalog.",
+      "spelling": {
+        "rust": ["languages::Language::from_str", "languages::Language::info"],
+        "javascript": "getLanguage",
+        "elixir": "Languages.get"
+      }
+    }
+  ],
+  "runtime_only": {
+    "$comment": [
+      "Entry points one runtime publishes at the top level and the others should",
+      "not, because the boundary dictates it rather than taste. Each entry says",
+      "why, and the tests fail on a name here that the runtime no longer exports,",
+      "so the list cannot outlive its reasons.",
+      "",
+      "\"Only this runtime\" is about the top level. Where another runtime has the",
+      "same capability somewhere else, the reason says where."
+    ],
+    "rust": {
+      "write_highlight": "Streams into a `&mut dyn Write`, so a large document never exists as one `String`. JavaScript builds strings and Elixir returns iodata the caller hands to Phoenix; neither has a writer to stream into.",
+      "write_highlight_with_options": "See `write_highlight`."
+    },
+    "javascript": {
+      "createHighlighter": "Splits async setup from synchronous rendering, because loading a parser is a promise here. Rust's `lumis::highlight::Highlighter` is a type rather than an entry point, and Elixir's NIF loads inside `highlight/2`, so neither has an async phase to split off.",
+      "loadLanguages": "Warms the parser cache before the first render. Elixir has `Lumis.Languages.load/1` and `async_load/1`, and the CLI has `lumis install`, so this is only top-level here; Rust's grammars are compiled in by cargo feature, so it has nothing to load.",
+      "loadedLanguages": "See `loadLanguages`. Elixir has `Lumis.loaded_languages/0`.",
+      "runtimeKind": "Reports whether the Wasmtime addon or `web-tree-sitter` is highlighting. JavaScript alone ships both runtimes in one package; the CLI, Elixir and Rust each have exactly one, so there is nothing to ask.",
+      "withWasm": "Attaches statically imported parser bytes to a language so a bundler can see them. Rust compiles grammars in, and the CLI and Elixir fetch and verify them at run time, so neither has a bundler to satisfy.",
+      "withWasmBundle": "See `withWasm`.",
+      "configureWasmResolver": "Overrides where parser assets are fetched from. Elixir configures that with `config :lumis, :parser_dirs` and the CLI with its config file, neither of which is a function.",
+      "configureLanguagePackageResolver": "See `configureWasmResolver`.",
+      "sanitizeThemeName": "Already pinned for all three runtimes in `formatter-helpers.json` under `html`. JavaScript also re-exports it at the package root, where its themes are plain objects the caller names, so it is top-level only here."
+    },
+    "elixir": {
+      "default_options": "The validated default keyword list. Options are a `NimbleOptions` schema here, so a caller can read the defaults back; Rust's are a typed builder's `Default` and JavaScript's an object literal, neither of which is a function.",
+      "validate_options!": "Checks a keyword list against the same schema before `highlight/2` does, so a caller can fail early on user input. Rust's builder and JavaScript's types reject the same mistakes at compile time.",
+      "loaded_languages": "See `loadLanguages` under javascript."
+    }
+  },
+  "waived": {
+    "$comment": [
+      "A canonical capability a runtime does not offer. Each entry carries its",
+      "reason and, where it is a gap rather than a boundary, the issue tracking",
+      "it. The tests fail on a waiver the runtime has since grown, so it can only",
+      "shrink.",
+      "",
+      "Unlike `formatter-options.json` and `formatter-helpers.json`, whose tests",
+      "assert this section is empty, this one starts with an entry. It is the gap",
+      "#1544 was opened about."
+    ],
+    "elixir": {
+      "highlight_iter": "Not implemented. Rust has `highlight_iter/4` and JavaScript has `highlightIter`; Elixir has no flat per-token walk, only the nested stream from `highlight_events/3`. It is implementable on top of that, so this waiver is a gap and not a boundary, and dropping it is the point."
+    }
+  }
+}

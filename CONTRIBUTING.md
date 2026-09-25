@@ -121,6 +121,36 @@ it can only shrink. It is currently empty.
 
 The browser task installs the required Chromium, Firefox, and WebKit builds before running. CI runs these six tasks as independent parallel jobs.
 
+### The top-level API manifest
+
+The manifest above covers the formatters, and so does
+`fixtures/formatter-helpers.json`. `fixtures/api.json` covers the functions a
+caller reaches **first**, which neither of them could see: Rust had
+`highlight_events` and JavaScript had `highlightEvents` while Elixir could only
+reach the event stream from inside a custom formatter's `render/3`
+([#1543](https://github.com/leandrocp/lumis/pull/1543)). Nothing failed, because
+a function one runtime lacks raises no error where it does exist.
+
+| Runtime | Test | How it checks |
+| --- | --- | --- |
+| Rust | `crates/lumis/tests/api_parity.rs` | calls every capability by name, so a missing one fails to compile, then parses `lib.rs` and `highlight.rs` for the reverse direction |
+| Elixir | `packages/elixir/lumis/test/api_parity_test.exs` | reflects on the `Lumis` module, minus `@doc false` |
+| JavaScript | `packages/javascript/lumis/test/api-parity.test.ts` | reads the value exports of `index.ts` and `index.browser.ts`, and requires the two to agree |
+
+Every one of them checks both directions. A capability in the manifest that the
+runtime lacks fails, and a public top-level function the manifest does not
+account for fails too; only the second catches an entry point added to one
+runtime and nowhere else. `runtime_only` is for an entry point the boundary gives
+one runtime alone, and `waived` is for a canonical capability a runtime does not
+offer. Both carry their reason, and the tests fail on an entry that is no longer
+needed, so neither can grow quietly.
+
+`waived` is not empty here: Elixir has no flat `highlight_iter`, which is the gap
+[#1544](https://github.com/leandrocp/lumis/issues/1544) was opened about.
+
+The CLI is not in this manifest. Its top level is a set of commands rather than
+functions, and the formatter option manifest already pins its flags.
+
 ## Linting
 
 ```sh

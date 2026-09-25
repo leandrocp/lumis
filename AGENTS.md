@@ -31,18 +31,20 @@ The Rust implementation is the source of truth. When a cross-runtime API decisio
 
 ### A shared surface needs a checked-in manifest, or it drifts silently
 
-"Keep the API aligned" is a rule nothing enforces. Two files do enforce it, each for one surface, and each read by a test in every runtime that has to offer it:
+"Keep the API aligned" is a rule nothing enforces. Three files do enforce it, each for one surface, and each read by a test in every runtime that has to offer it:
 
+- `fixtures/api.json` — the entry points a caller reaches **first**.
 - `fixtures/formatter-options.json` — what the built-in formatters **accept**.
 - `fixtures/formatter-helpers.json` — what a **custom** formatter can be built from.
 
-The second exists because the first was the only one. Options were pinned, helpers were not, and the three helper modules reached 46 names between them with 11 in all three ([#1381](https://github.com/leandrocp/lumis/issues/1381)): JavaScript had grown 20 helpers Rust never got, and a multi-theme formatter could not be written in Elixir at all. Nothing failed, because a helper another runtime lacks raises no error where it does exist.
+Each exists because the previous one was the only one. Options were pinned, helpers were not, and the three helper modules reached 46 names between them with 11 in all three ([#1381](https://github.com/leandrocp/lumis/issues/1381)): JavaScript had grown 20 helpers Rust never got, and a multi-theme formatter could not be written in Elixir at all. Then both of those were pinned and the top level was not, so Rust had `highlight_events` and JavaScript had `highlightEvents` while Elixir could only reach the event stream from inside a custom formatter's `render/3` ([#1543](https://github.com/leandrocp/lumis/pull/1543), [#1544](https://github.com/leandrocp/lumis/issues/1544)). Nothing failed either time, because a function another runtime lacks raises no error where it does exist.
 
 - **Add to the manifest first, then watch the runtimes go red.** That is the order that makes the gap visible instead of leaving it for an audit.
-- **Every runtime's test checks both directions.** A capability in the manifest that the runtime lacks fails, and a public helper the manifest does not account for fails too. Only the second one catches a helper added to one runtime and nowhere else, which is how this drifted.
-- **A capability is a thing a formatter can do, not a signature.** Runtimes keep their own argument shapes: Elixir returns a whole scope table where Rust takes a theme, because the NIF boundary is not free; JavaScript takes an attribute object where Rust takes a rendered string. Aligning the spelling of those would make the API worse.
+- **Every runtime's test checks both directions.** A capability in the manifest that the runtime lacks fails, and a public function the manifest does not account for fails too. Only the second one catches a function added to one runtime and nowhere else, which is how this drifted.
+- **A capability is a thing a caller can do, not a signature.** Runtimes keep their own argument shapes: Elixir returns a whole scope table where Rust takes a theme, because the NIF boundary is not free; JavaScript takes an attribute object where Rust takes a rendered string; Rust splits `highlight` and `highlight_with_options` where Elixir folds both into a keyword list. Aligning the spelling of those would make the API worse, so a `spelling` may be a list.
 - **`runtime_only` is for a signature the boundary dictates, and it carries the reason.** Elixir's tables and JavaScript's `encodeSource`/`decodeSourceSlice` are there; generic tag plumbing exported by accident is not, that is `deprecated`.
-- **A new surface with the same shape gets the same treatment.** If a third module lands that every runtime must offer, it goes in a manifest before it goes in a second runtime.
+- **`waived` is the last resort, and only `api.json` has one.** It is empty in the other two, and their tests assert that. Elixir's missing `highlight_iter` is the one entry, and it is there so the gap is written down and checked rather than rediscovered; closing it is what dropping a waiver means.
+- **A new surface with the same shape gets the same treatment.** If a fourth surface lands that every runtime must offer, it goes in a manifest before it goes in a second runtime.
 
 ### Reuse the Rust core instead of reimplementing it
 
