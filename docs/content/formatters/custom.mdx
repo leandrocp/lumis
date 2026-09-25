@@ -231,7 +231,9 @@ Lumis.highlight!("defmodule App do\nend",
 ```
 
 `render/3` returns iodata, so there is no need to flatten it into a binary;
-Lumis does that once at the end.
+Lumis does that once at the end. When the result is not one string, such as a
+list of rendered lines, `Lumis.highlight_events/3` returns the same event stream
+without a formatter.
 
 For line-based output, reach for `render_lines_from_events/3` rather than
 splitting rendered markup on newlines. A `<span>` that crosses a newline has to
@@ -424,7 +426,7 @@ nesting matters — a `string` scope wrapping injected `tag` scopes inside a
 template literal — take the events instead. A `start` opens a scope, `source`
 events carry byte ranges, and `end` closes it.
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
   <Tab value="JavaScript / TypeScript">
 
 ```ts
@@ -492,6 +494,35 @@ per event costs more than the formatters need. `event.scope()` returns the same
 name the npm package's event carries directly. Rainbow brackets are decoration
 events instead: their `depth` does not wrap, leaving a custom formatter free to
 use more than six colors or a non-color representation.
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+alias Lumis.Decoration.RainbowBracket
+
+{:ok, events} =
+  Lumis.highlight_events(source, "rust",
+    rainbow_brackets: true
+  )
+
+for event <- events do
+  case event do
+    {:start, %{scope: scope, language: language}} ->
+      IO.inspect({scope, language})
+
+    {:decoration_start, %RainbowBracket{depth: depth}} ->
+      IO.puts("real zero-based depth: #{depth}")
+
+    _event ->
+      :ok
+  end
+end
+```
+
+The events are the ones a `Lumis.Formatter` receives, so every
+`Lumis.Formatter.HTML` helper applies. `render_lines_from_events/3` turns them
+into one HTML fragment per source line.
 
   </Tab>
 </Tabs>

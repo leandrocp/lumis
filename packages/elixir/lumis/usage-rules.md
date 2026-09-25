@@ -556,6 +556,15 @@ Lumis.highlight!(code, formatter: {MyFormatter, language: "elixir", theme: "gith
 
 `render/3` returns iodata; Lumis flattens it once at the end.
 
+When the result is not one string, call `Lumis.highlight_events/3` and work on
+the events directly rather than splitting a formatter's output. For one HTML
+fragment per line:
+
+```elixir
+events = Lumis.highlight_events!(code, "elixir")
+Lumis.Formatter.HTML.render_lines_from_events(code, events, attrs)
+```
+
 Do not hand-roll HTML escaping or scope-to-class mapping. `Lumis.Formatter.HTML`
 gives the built-in formatters' pieces:
 

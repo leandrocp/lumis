@@ -1199,14 +1199,7 @@ defmodule Lumis do
       |> Lumis.Native.highlight(rust_options!(options))
       |> describe_highlight_result()
     else
-      render_with_custom_formatter(
-        source,
-        formatter,
-        formatter_options,
-        Keyword.fetch!(options, :annotations),
-        Keyword.fetch!(options, :rainbow_brackets),
-        Keyword.fetch!(options, :budget)
-      )
+      render_with_custom_formatter(source, formatter, formatter_options, options)
     end
   end
 
@@ -1318,22 +1311,10 @@ defmodule Lumis do
     }
   end
 
-  defp render_with_custom_formatter(
-         source,
-         formatter,
-         formatter_options,
-         annotations,
-         rainbow_brackets,
-         budget
-       ) do
-    options = %{
-      language: Keyword.get(formatter_options, :language),
-      annotations: annotations,
-      rainbow_brackets: rainbow_brackets,
-      budget: budget_for_nif(budget)
-    }
+  defp render_with_custom_formatter(source, formatter, formatter_options, options) do
+    language = Keyword.get(formatter_options, :language)
 
-    case describe_highlight_result(Lumis.Native.highlight_events(source, options)) do
+    case highlight_events_with_language(source, language, options) do
       {:error, _reason} = error ->
         error
 
@@ -1511,5 +1492,77 @@ defmodule Lumis do
   def highlight!(language, source)
       when is_binary(language) and is_binary(source) do
     highlight!(source, language: language)
+  end
+
+  @typedoc """
+  Options for `highlight_events/3`.
+
+  #{NimbleOptions.docs(@highlight_options)}
+  """
+  @type highlight_events_options() :: [
+          unquote(NimbleOptions.option_typespec(@highlight_options))
+        ]
+
+  @doc """
+  Highlights `source` into the event stream a custom formatter receives, without
+  rendering it.
+
+  Reach for it when a formatter's single string is the wrong shape for the
+  result, such as one HTML fragment per line:
+
+      {:ok, events} = Lumis.highlight_events(source, "elixir")
+      Lumis.Formatter.HTML.render_lines_from_events(source, events, attrs)
+
+  `language` is a language name, a file name or path, or `nil` to detect it from
+  `source`. A language whose parser is not installed comes back as one plain
+  `:source` event.
+
+  The counterpart of `highlight_events` in Rust and `highlightEvents()` in
+  JavaScript.
+
+  ## Options
+
+  See `t:highlight_events_options/0`.
+
+  ## Example
+
+      iex> {:ok, events} = Lumis.highlight_events("x = 1", "elixir")
+      iex> Enum.take(events, 3)
+      [{:start, %{scope: "variable", language: "elixir"}}, {:source, %{start: 0, end: 1}}, :end]
+
+  """
+  @spec highlight_events(String.t(), String.t() | nil, highlight_events_options()) ::
+          {:ok, [Lumis.Formatter.event(term())]} | {:error, Lumis.RenderError.t()}
+  def highlight_events(source, language, options \\ [])
+      when is_binary(source) and (is_binary(language) or is_nil(language)) and is_list(options) do
+    options = NimbleOptions.validate!(options, @highlight_options)
+
+    with {:ok, _language, events} <- highlight_events_with_language(source, language, options) do
+      {:ok, events}
+    end
+  end
+
+  @doc """
+  Same as `highlight_events/3` but raises `Lumis.HighlightError` in case of failure.
+  """
+  @spec highlight_events!(String.t(), String.t() | nil, highlight_events_options()) ::
+          [Lumis.Formatter.event(term())]
+  def highlight_events!(source, language, options \\ []) do
+    case highlight_events(source, language, options) do
+      {:ok, events} -> events
+      {:error, error} -> raise Lumis.HighlightError, error: error
+    end
+  end
+
+  defp highlight_events_with_language(source, language, options) do
+    result =
+      Lumis.Native.highlight_events(source, %{
+        language: language,
+        annotations: Keyword.fetch!(options, :annotations),
+        rainbow_brackets: Keyword.fetch!(options, :rainbow_brackets),
+        budget: budget_for_nif(Keyword.fetch!(options, :budget))
+      })
+
+    describe_highlight_result(result)
   end
 end
