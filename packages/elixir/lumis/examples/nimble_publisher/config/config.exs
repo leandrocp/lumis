@@ -10,6 +10,9 @@ import Config
 config :my_blog,
   generators: [timestamp_type: :utc_datetime]
 
+# Pick the syntax highlighter before :mdex_native compiles
+config :mdex_native, syntax_highlighter: :lumis
+
 # Configure the endpoint
 config :my_blog, MyBlogWeb.Endpoint,
   url: [host: "localhost"],

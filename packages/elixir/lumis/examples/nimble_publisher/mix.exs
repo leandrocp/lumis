@@ -60,7 +60,9 @@ defmodule MyBlog.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:nimble_publisher, "~> 1.1"},
-      {:mdex, "~> 0.11"}
+      {:mdex, "~> 0.14"},
+      {:lumis, "~> 0.9"},
+      {:lumis_wasm_elixir, "~> 0.26.0"}
     ]
   end
 

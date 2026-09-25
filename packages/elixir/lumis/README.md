@@ -33,14 +33,17 @@
 - **Language auto-detection** - File extension, shebang, and emacs-mode support
 - **Line highlighting** - Mark and style individual lines, with custom HTML wrappers
 - **Streaming-friendly** - Handles incomplete code
-- **Load parsers on demand** - Verified and compiled, including injected languages
+- **Parsers are dependencies** - Declared in `mix.exs`, verified and compiled on first use
 
 ## Installation
+
+Add Lumis and a parser for each language you highlight:
 
 ```elixir
 def deps do
   [
-    {:lumis, "~> 0.7"}
+    {:lumis, "~> 0.9"},
+    {:lumis_wasm_elixir, "~> 0.26.0"}
   ]
 end
 ```
@@ -69,6 +72,17 @@ A parser is an ordinary dependency: add `{:lumis_wasm_elixir, "~> 0.26.0"}` and
 `mix deps.get` delivers the bytes. Highlighting verifies and loads whatever a
 document needs, including languages injected inside it, and keeps them for every
 later request. Loading is global to the VM, so only the first process pays.
+
+A language no dependency supplies is not fetched. A document's own language
+missing is an error — `Lumis.ParserError` with the package to add — and a
+language injected inside it missing costs that block its highlighting, not the
+document. So add the ones a document can *inject* too, not only the ones it
+names: Markdown fences reach
+whatever language they label, HTML reaches `css` and `javascript`, and Elixir
+reaches `comment`. A bundle package installs a set at once, such as
+`{:lumis_wasm_bundle_web, "~> 0.1"}`, and
+[the language catalog](https://docs.lumis.sh/reference/languages) lists every
+package name.
 
 ```elixir
 # move the compile off the first request

@@ -82,7 +82,8 @@ defmodule Lumis.MixProject do
         "examples/html_linked_scoped_css.livemd",
         "examples/light_dark_manual.livemd",
         "examples/light_dark_vars.livemd",
-        "examples/light_dark_function.livemd"
+        "examples/light_dark_function.livemd",
+        "examples/rainbow_brackets.livemd"
       ],
       skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
     ]

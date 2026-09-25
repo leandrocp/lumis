@@ -4,9 +4,13 @@
 Mix.install([
   {:phoenix_playground, "~> 0.1"},
   {:phoenix_html, "~> 4.3"},
-  {:lumis, "~> 0.1"}
+  {:lumis, "~> 0.9"},
+  {:lumis_wasm_elixir, "~> 0.26.0"}
 ])
 ```
+
+A parser is an ordinary dependency. `lumis_wasm_elixir` carries the Elixir grammar;
+without it `Lumis.highlight!/2` raises.
 
 ## HtmlMultiThemes Formatter
 

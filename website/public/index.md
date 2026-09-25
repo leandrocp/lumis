@@ -15,7 +15,7 @@ Lumis is a syntax highlighter powered by Tree-sitter. It provides one model for 
 - 110+ compiled Tree-sitter grammars with highlight and injection queries
 - 250+ themes generated from Neovim colorschemes
 - HTML inline, HTML linked, multi-theme HTML, terminal, and BBCode formatters, plus custom formatters
-- Parsers loaded when a document needs them, integrity-checked, and persisted across restarts
+- Parsers declared as dependencies, integrity-checked, and persisted across restarts
 
 ## Install
 
@@ -25,7 +25,7 @@ Lumis is a syntax highlighter powered by Tree-sitter. It provides one model for 
 | Rust | `cargo add lumis` |
 | JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes` |
 | Browsers / CDN | `https://esm.sh/@lumis-sh/lumis` |
-| Elixir | `{:lumis, "~> 0.7"}` |
+| Elixir | `{:lumis, "~> 0.9"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26.0"}` |
 | Java | `io.roastedroot:lumis4j:0.0.7` |
 
 ## Quick start
@@ -69,7 +69,7 @@ Lumis integrates with React, react-markdown, markdown-it, Astro, Nuxt, Docusauru
 
 ### Pre-built parsers
 
-Install one parser, such as `@lumis-sh/wasm-html`, or a preset bundle such as `@lumis-sh/wasm-bundle-full`. Every parser package includes its queries and integrity metadata. Browse the [Lumis packages on npm](https://www.npmjs.com/search?q=keywords:lumis-sh).
+Install one parser, such as `@lumis-sh/wasm-html`, or a preset bundle such as `@lumis-sh/wasm-bundle-full`. Elixir uses the same parsers under Hex names: `lumis_wasm_html`, `lumis_wasm_bundle_full`. Every parser package includes its queries and integrity metadata. Browse the [Lumis packages on npm](https://www.npmjs.com/search?q=keywords:lumis-sh) or [on Hex](https://hex.pm/packages?search=lumis_wasm_).
 
 ## Packages and source
 
