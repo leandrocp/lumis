@@ -713,8 +713,6 @@ pub(crate) fn highlight<'a>(
     let output = String::from_utf8(output)
         .map_err(|error| Error::Term(Box::new(format!("invalid formatter output: {error}"))))?;
 
-    // `:degraded` rather than a wider `:ok`, so the one caller that has to log
-    // says so in a clause instead of on an arity.
     match degraded {
         Some(failure) => Ok((degraded_atom(), output, failure).encode(env)),
         None => Ok((ok(), output).encode(env)),
@@ -736,8 +734,7 @@ fn plain_text(source: &str) -> Highlighted {
 /// Syntax events for `source`, or the error term Elixir should receive.
 ///
 /// A parser that could not be loaded is not an error: the document comes back as
-/// plain text with the failure beside it, for the caller to report on the `<pre>`
-/// and in the log.
+/// plain text with the failure beside it.
 fn syntax_events<'a>(
     env: Env<'a>,
     source: &str,
@@ -779,9 +776,7 @@ pub(crate) fn highlight_events<'a>(
     let formatter = EventFormatter::new(language);
 
     // An event stream has nowhere to carry the budget, so it is dropped here
-    // and only the rendering entry point above reports it. A missing parser is
-    // not dropped: custom formatters render through here and their caller has the
-    // same warning to log.
+    // and only the rendering entry point above reports it.
     let (highlighted, degraded) = match syntax_events(
         env,
         source,
