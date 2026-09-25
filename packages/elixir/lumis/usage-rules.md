@@ -108,11 +108,33 @@ Lumis.Languages.get("not-a-language")
 "elixir" = Lumis.Languages.guess("lib/app.ex")
 ```
 
+### Parser Installation
+
+A parser is an ordinary dependency. Every language the project highlights needs
+its `lumis_wasm_*` package in `mix.exs`, including the ones injected inside
+another — Markdown fences, `css` and `javascript` inside HTML, `comment` inside
+Elixir:
+
+```elixir
+def deps do
+  [
+    {:lumis, "~> 0.9"},
+    {:lumis_wasm_elixir, "~> 0.26"},
+    {:lumis_wasm_bundle_web, "~> 0.1"}
+  ]
+end
+```
+
+A bundle package installs a set of languages at once.
+
+A language no dependency supplies is never fetched. It answers `:not_installed`,
+and an injected one leaves its block plain rather than failing the document.
+
 ### Parser Loading
 
-Highlighting loads what a document needs, including languages injected inside
-it, so nothing has to be declared up front. Loading is global to the VM, so the
-cost is paid once.
+Highlighting loads what a document needs out of the installed parsers, including
+languages injected inside it. Loading is global to the VM, so the cost is paid
+once.
 
 Load ahead of time to keep the first compile off a user's request. Parser bytes
 arrive with the `lumis_wasm_*` dependency, so a cold parser costs a Wasmtime
@@ -889,8 +911,22 @@ opts = Lumis.default_options()
 
 ## Options Reference
 
+`highlight/2` takes four options: `:formatter`, plus `:rainbow_brackets`,
+`:budget` and `:annotations`, which belong beside `:formatter` rather than
+inside its option list. Unset, a budget key uses the built-in bound — 5000 ms
+and 8192 in-progress query matches.
+
 ```elixir
 [
+  # Color nested brackets by depth (default: false)
+  rainbow_brackets: true,
+
+  # Bound one render (default: [time_limit: nil, match_limit: nil])
+  budget: [time_limit: 2_000, match_limit: 16_384],
+
+  # Caller-provided ranges (default: [])
+  annotations: [[offset: {12, 23}, data: %{change: :added}]],
+
   # Formatter specification
   formatter:
     :html_inline |
@@ -987,5 +1023,6 @@ Lumis is a fast, reliable syntax highlighter for Elixir. Key points to remember:
 10. **Line numbers** are 1-indexed in the `data-line` attribute
 11. **Validate options** with `validate_options!/1` when needed
 12. **Load parsers at startup** with `async_load/1` so the first request does not compile
+13. **Add a `lumis_wasm_*` dependency** for every language you highlight; one that is not installed is never fetched
 
 For more information, see the [HexDocs](https://hexdocs.pm/lumis) or the [GitHub repository](https://github.com/leandrocp/lumis).

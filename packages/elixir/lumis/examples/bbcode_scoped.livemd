@@ -2,9 +2,13 @@
 
 ```elixir
 Mix.install([
-  {:lumis, "~> 0.3"}
+  {:lumis, "~> 0.9"},
+  {:lumis_wasm_javascript, "~> 0.26"}
 ])
 ```
+
+A parser is an ordinary dependency. `lumis_wasm_javascript` carries the JavaScript
+grammar; without it `Lumis.highlight!/2` raises.
 
 ## Example
 

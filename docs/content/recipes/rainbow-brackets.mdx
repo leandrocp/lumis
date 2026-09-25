@@ -6,9 +6,9 @@ description: Color nested brackets by depth in any Lumis formatter.
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 
-Rainbow brackets color a language's bracket pairs by nesting depth. The pairs aren't a fixed set: they come from each language's Tree-sitter `brackets.scm` query, or a shared default when a language doesn't define one. Rainbow brackets are a formatter option, so they work with every built-in formatter: the HTML and terminal formatters color the brackets, and BBCode scoped emits them as tags.
+Rainbow brackets color a language's bracket pairs by nesting depth. The pairs aren't a fixed set: they come from each language's Tree-sitter `brackets.scm` query, or a shared default when a language doesn't define one. Rainbow brackets work with every built-in formatter: the HTML and terminal formatters color the brackets, and BBCode scoped emits them as tags.
 
-Turn it on when you build the formatter:
+Turn it on when you highlight:
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
@@ -21,11 +21,8 @@ import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
 const html = await highlight(
   'foo(bar([1, 2], {a: 3}))',
-  htmlInline({
-    language: javascript,
-    theme: frappe,
-    rainbowBrackets: true,
-  })
+  htmlInline({language: javascript, theme: frappe}),
+  {rainbowBrackets: true},
 )
 ```
 
@@ -34,20 +31,22 @@ const html = await highlight(
 
 ```rust
 use lumis::{
-    highlight, languages::Language, themes,
-    HtmlInlineBuilder,
+    highlight_with_options, languages::Language, themes,
+    HighlightOptions, HtmlInlineBuilder,
 };
 
-let html = highlight(
+let formatter = HtmlInlineBuilder::new()
+    .language(Language::JavaScript)
+    .theme(Some(
+        themes::get("catppuccin_frappe").unwrap(),
+    ))
+    .build()
+    .unwrap();
+
+let html = highlight_with_options(
     "foo(bar([1, 2], {a: 3}))",
-    HtmlInlineBuilder::new()
-        .language(Language::JavaScript)
-        .theme(Some(
-            themes::get("catppuccin_frappe").unwrap(),
-        ))
-        .rainbow_brackets(true)
-        .build()
-        .unwrap(),
+    formatter,
+    HighlightOptions::new().rainbow_brackets(true),
 );
 ```
 
@@ -57,13 +56,15 @@ let html = highlight(
 ```elixir
 Lumis.highlight!(
   "foo(bar([1, 2], {a: 3}))",
+  rainbow_brackets: true,
   formatter:
     {:html_inline,
      language: "javascript",
-     theme: "catppuccin_frappe",
-     rainbow_brackets: true}
+     theme: "catppuccin_frappe"}
 )
 ```
+
+The example needs `{:lumis_wasm_javascript, "~> 0.26"}` in `mix.exs`.
 
   </Tab>
   <Tab value="CLI">

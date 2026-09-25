@@ -20,10 +20,23 @@ The hook you want is Tableau's `config :tableau, :config, markdown: [mdex: ...]`
 def deps do
   [
     {:tableau, "~> 0.30"},
-    {:lumis, "~> 0.7"}
+    {:lumis, "~> 0.9"}
   ]
 end
 ```
+
+No `lumis_wasm_*` packages in that list, and no `:mdex_native` configuration.
+Tableau 0.30 pins `mdex ~> 0.11.1`, and MDEx 0.11 highlights inside its own NIF,
+with the grammars compiled in and `:lumis` as a required dependency. Pinning a
+newer MDEx yourself does not work — `mdex ~> 0.14` and `tableau ~> 0.30` have no
+solution.
+
+That is the opposite of what a project calling
+[`Lumis.highlight/2`](/usage/elixir) needs, where each language is its own Hex
+package. When Tableau moves to MDEx 0.14, this page moves with it: MDEx takes
+`:lumis` as optional from 0.13, and `mdex_native` reads `lumis_wasm_*` packages
+from 0.2.9. [NimblePublisher](/integrations/nimble-publisher) is already there,
+since it leaves the MDEx version to you.
 
 ## Configure Tableau to use Lumis
 

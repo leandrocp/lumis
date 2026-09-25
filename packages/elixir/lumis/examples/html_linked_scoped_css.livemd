@@ -2,9 +2,13 @@
 
 ```elixir
 Mix.install([
-  {:lumis, path: ".."}
+  {:lumis, "~> 0.9"},
+  {:lumis_wasm_elixir, "~> 0.26"}
 ])
 ```
+
+A parser is an ordinary dependency. `lumis_wasm_elixir` carries the Elixir grammar;
+without it `Lumis.highlight!/2` raises.
 
 `formatter: :html_linked` renders classes instead of inline styles. This is useful when your app has a strict Content Security Policy or when many code blocks share the same stylesheet.
 

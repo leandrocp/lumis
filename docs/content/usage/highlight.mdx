@@ -105,10 +105,19 @@ lumis highlight index.js \
 | Choose output | `--formatter` | builder type | `formatter: ...` | formatter factory | runtime-specific |
 | Bound query matches | `--budget-match-limit` | `.budget(Budget::new().match_limit(...))` | `budget: [match_limit: ...]` | `budget: {matchLimit: ...}` | — |
 | Bound render time | `--budget-time-limit` | `.budget(Budget::new().time_limit(...))` | `budget: [time_limit: ...]` | `budget: {timeLimit: ...}` | — |
+| Color nested brackets | `--rainbow-brackets` | `.rainbow_brackets(true)` | `rainbow_brackets: true` | `rainbowBrackets: true` | — |
+| Compose your own ranges | — | `.annotations(&annotations)` | `annotations: [...]` | `annotations: [...]` | — |
 
 Both limits are one feature, so they sit under one `budget` option rather than
 two loose ones. See [Budget](/advanced/budget) for what happens when either
 runs out. A CLI has no nesting, so the group becomes a flag prefix.
+
+`budget`, `rainbow_brackets` and `annotations` belong to the highlight rather
+than to a formatter: they change which events the walk produces, and every
+formatter renders whatever it is handed. So they sit beside the formatter rather
+than inside it — `HighlightOptions` in Rust and JavaScript, the options list of
+`Lumis.highlight/2` in Elixir. See [Rainbow brackets](/recipes/rainbow-brackets)
+and [Annotations](/formatters/annotations).
 
 ## Language detection
 

@@ -2,9 +2,13 @@
 
 ```elixir
 Mix.install([
-  {:lumis, "~> 0.3"}
+  {:lumis, "~> 0.9"},
+  {:lumis_wasm_rust, "~> 0.26"}
 ])
 ```
+
+A parser is an ordinary dependency. `lumis_wasm_rust` carries the Rust grammar and
+the `brackets.scm` query below; without it `Lumis.highlight!/2` raises.
 
 ## Example
 
@@ -22,11 +26,11 @@ fn main() {
 '''
 
 Lumis.highlight!(code,
+  rainbow_brackets: true,
   formatter:
     {:html_inline,
      language: "rust",
      theme: "catppuccin_mocha",
-     rainbow_brackets: true,
      include_highlights: true}
 )
 ```

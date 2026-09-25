@@ -35,10 +35,40 @@ use NimblePublisher,
 def deps do
   [
     {:nimble_publisher, "~> 1.0"},
-    {:mdex, "~> 0.11"}
+    {:mdex, "~> 0.14"},
+    {:lumis, "~> 0.9"},
+    {:lumis_wasm_elixir, "~> 0.26"},
+    {:lumis_wasm_bundle_web, "~> 0.1"}
   ]
 end
 ```
+
+MDEx takes Lumis as an optional dependency, so `:lumis` has to be declared — it
+raises without it — and `:mdex_native` has to be told which highlighter to
+download before it compiles:
+
+```elixir
+# config/config.exs
+import Config
+
+config :mdex_native, syntax_highlighter: :lumis
+```
+
+Parsers are dependencies on this path too. Since `mdex_native` 0.2.9 the MDEx
+side runs the same Lumis WASM runtime and reads the same `lumis_wasm_*` packages
+`:lumis` does, so add one per language your posts fence, or a bundle for a set
+of them — a fence whose language the site did not install comes out plain. The
+[language catalog](/reference/languages) has every Hex package name.
+
+Both sides share the cache of compiled parsers, so warming from your
+application's `start/2` covers the fences NimblePublisher renders as well:
+
+```elixir
+Lumis.Languages.async_load(~w(elixir javascript))
+```
+
+`{:mdex, "~> 0.14"}` carries the 0.2.9 floor. `mdex_native` 0.2.8 and earlier
+compiled grammars into the NIF and needed none of these packages.
 
 ## Custom converter
 
@@ -47,7 +77,8 @@ defmodule MyApp.Blog.Markdown do
   def convert(_path, body, _attrs, _opts) do
     MDEx.to_html!(body,
       syntax_highlight: [
-        formatter: {:html_inline, theme: "catppuccin_latte"}
+        engine: :lumis,
+        opts: [formatter: {:html_inline, theme: "catppuccin_latte"}]
       ]
     )
   end
@@ -59,13 +90,16 @@ end
 ```elixir
 MDEx.to_html!(body,
   syntax_highlight: [
-    formatter:
-      {:html_multi_themes,
-       themes: [
-         light: "catppuccin_latte",
-         dark: "catppuccin_frappe"
-       ],
-       default_theme: "light-dark()"}
+    engine: :lumis,
+    opts: [
+      formatter:
+        {:html_multi_themes,
+         themes: [
+           light: "catppuccin_latte",
+           dark: "catppuccin_frappe"
+         ],
+         default_theme: "light-dark()"}
+    ]
   ]
 )
 ```

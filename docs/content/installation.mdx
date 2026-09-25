@@ -40,10 +40,17 @@ cargo add lumis
 ```elixir
 def deps do
   [
-    {:lumis, "~> 0.7"}
+    {:lumis, "~> 0.9"},
+    {:lumis_wasm_elixir, "~> 0.26"}
   ]
 end
 ```
+
+A parser is an ordinary dependency. Add one `lumis_wasm_*` package per language
+you highlight, or a bundle such as `{:lumis_wasm_bundle_web, "~> 0.1"}`. Nothing
+is fetched at runtime: a document's own language missing is an error, and a
+language injected inside it missing costs that block its highlighting. The
+[language catalog](/reference/languages) has every Hex package name.
 
   </Tab>
   <Tab value="Java">
@@ -109,7 +116,7 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
 
 ## Notes
 
-- Highlighting loads the parsers a document needs, including languages injected inside it, and caches the verified bytes. See [WASM and CDN](/advanced/wasm-and-cdn).
+- Highlighting loads the parsers a document needs, including languages injected inside it, from the ones the project installed, and caches the verified bytes. See [Declaring parsers](/advanced/lock) and [WASM and CDN](/advanced/wasm-and-cdn).
 - That happens on demand, or you can [preload the languages you need](/languages) at startup or from a build step.
-- For local parser assets in JavaScript or TypeScript apps, install per-language packages such as `@lumis-sh/wasm-rust` or bundle packages such as `@lumis-sh/wasm-bundle-web`.
+- Install per-language packages such as `@lumis-sh/wasm-rust` or `{:lumis_wasm_rust, "~> 0.26"}`, or bundle packages such as `@lumis-sh/wasm-bundle-web` or `{:lumis_wasm_bundle_web, "~> 0.1"}`.
 - The CLI stores verified, content-addressed parsers and custom themes in a local data directory.

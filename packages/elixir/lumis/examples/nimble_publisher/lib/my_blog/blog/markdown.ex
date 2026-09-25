@@ -11,7 +11,8 @@ defmodule MyBlog.Blog.Markdown do
         tasklist: true
       ],
       syntax_highlight: [
-        formatter: {:html_inline, theme: "github_light"}
+        engine: :lumis,
+        opts: [formatter: {:html_inline, theme: "github_light"}]
       ]
     )
   end
