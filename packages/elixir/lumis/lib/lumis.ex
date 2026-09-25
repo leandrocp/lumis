@@ -1208,30 +1208,19 @@ defmodule Lumis do
     highlight(source, language: language)
   end
 
-  # The NIF fell back to plain text and handed over the failure so that someone
-  # says it out loud. The return value looks like any other success.
-  defp describe_highlight_result({:degraded, output, fields}) do
-    warn_missing_parser(fields)
-    {:ok, output}
-  end
+  # The NIF fell back to plain text and hands over why. Logging it would repeat
+  # on every render of every file in that language; `Lumis.Languages.load/1` is
+  # where a caller asks whether a parser is there.
+  defp describe_highlight_result({:degraded, output, _failure}), do: {:ok, output}
 
-  defp describe_highlight_result({:degraded, language, events, fields}) do
-    warn_missing_parser(fields)
-    {:ok, language, events}
-  end
+  defp describe_highlight_result({:degraded, language, events, _failure}),
+    do: {:ok, language, events}
 
   defp describe_highlight_result({:error, {:render, fields}}) do
     {:error, struct!(Lumis.RenderError, fields)}
   end
 
   defp describe_highlight_result(other), do: other
-
-  defp warn_missing_parser(fields) do
-    fields
-    |> Lumis.ParserError.from_nif()
-    |> Exception.message()
-    |> Logger.warning()
-  end
 
   @doc """
   Validates the given options against the options schema.

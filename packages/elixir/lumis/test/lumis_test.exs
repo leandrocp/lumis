@@ -1861,10 +1861,8 @@ defmodule Lumis.LumisTest do
     # The class stays the language the caller asked for, because a page's CSS
     # reads it and rewriting it to `plaintext` would lose that too.
     test "a parser this project does not depend on renders as plain text" do
-      {{:ok, html}, _log} =
-        ExUnit.CaptureLog.with_log(fn ->
-          Lumis.highlight("const x = 1", formatter: {:html_inline, language: @uninstalled})
-        end)
+      assert {:ok, html} =
+               Lumis.highlight("const x = 1", formatter: {:html_inline, language: @uninstalled})
 
       assert html =~ "const x = 1"
       assert html =~ ~s(class="language-#{@uninstalled}")
@@ -1873,43 +1871,17 @@ defmodule Lumis.LumisTest do
       refute html =~ "<span style="
     end
 
-    # The log is the only signal, and it has to name the dependency in the package
-    # manager Elixir uses.
-    test "a missing parser is logged, naming the dependency to add" do
-      log =
-        ExUnit.CaptureLog.capture_log(fn ->
-          Lumis.highlight("data X = X", formatter: {:html_inline, language: "ocaml"})
-        end)
-
-      assert log =~ "no parser for \"ocaml\""
-      assert log =~ "mix.exs"
-
-      # Three-part, so the requirement stops at the next minor. `~> 0.26` would
-      # admit a 0.27 parser that the store then refuses at load, which turns a
-      # resolver error into a runtime one.
-      assert log =~ ~r/\{:lumis_wasm_ocaml, "~> \d+\.\d+\.\d+"\}/
-
-      refute log =~ "@lumis-sh/",
-             "the npm package name is the wrong advice for an Elixir project"
-    end
-
     test "a custom formatter degrades too, rather than seeing an error" do
-      {result, log} =
-        ExUnit.CaptureLog.with_log(fn ->
-          Lumis.highlight("-module(demo).", formatter: {SourceOnlyFormatter, language: "erlang"})
-        end)
-
       # One unhighlighted span over the whole document, so a formatter that
       # concatenates `:source` events gets it back verbatim.
-      assert {:ok, "-module(demo)."} = result
-      assert log =~ "no parser for \"erlang\""
+      assert {:ok, "-module(demo)."} =
+               Lumis.highlight("-module(demo).",
+                 formatter: {SourceOnlyFormatter, language: "erlang"}
+               )
     end
 
     test "highlight!/2 does not raise for a parser this project does not depend on" do
-      {html, _log} =
-        ExUnit.CaptureLog.with_log(fn ->
-          Lumis.highlight!("package main", formatter: {:html_inline, language: "go"})
-        end)
+      html = Lumis.highlight!("package main", formatter: {:html_inline, language: "go"})
 
       assert html =~ "package main"
     end

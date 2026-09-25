@@ -2,9 +2,8 @@ defmodule Lumis.ParserError do
   @moduledoc """
   A language's parser could not be loaded.
 
-  `Lumis.highlight/2` logs this and renders the document as plain text instead of
-  returning it, and `Lumis.Languages.load/1` returns it for `:store_full`. Match
-  on `:reason` rather than on the message.
+  `Lumis.highlight/2` renders the document as plain text instead of returning it,
+  and `Lumis.Languages.load/1` returns it for `:store_full`.
 
   ## Reasons
 

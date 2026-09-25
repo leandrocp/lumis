@@ -1,8 +1,6 @@
 defmodule Lumis.HighlightEventsTest do
   use ExUnit.Case, async: true
 
-  import ExUnit.CaptureLog
-
   alias Lumis.Decoration.RainbowBracket
 
   test "source events cover the source exactly, in order, inside balanced scopes" do
@@ -78,10 +76,10 @@ defmodule Lumis.HighlightEventsTest do
     assert {:error, :not_installed} = Lumis.Languages.load("go")
 
     source = "package main"
-    {events, log} = with_log(fn -> Lumis.highlight_events!(source, "go") end)
 
-    assert events == [{:source, %{start: 0, end: byte_size(source)}}]
-    assert log =~ "lumis_wasm_go"
+    assert Lumis.highlight_events!(source, "go") == [
+             {:source, %{start: 0, end: byte_size(source)}}
+           ]
   end
 
   test "an annotation that cannot be placed is an error" do
