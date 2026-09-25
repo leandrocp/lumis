@@ -728,10 +728,15 @@ mod tests {
             }
         }
 
+        // Counting `owners` would only say how many languages this feature set
+        // compiled in. `FILENAME_GLOBS` is generated without gates, so it
+        // answers for the whole catalog however few of them are on, and an
+        // empty one is the generator bug worth catching here. That aliases are
+        // read at all is `Language::aliases`'s own doctest.
         assert!(
-            owners.len() > 130,
-            "found {} names, expected every language and alias",
-            owners.len()
+            FILENAME_GLOBS.len() > 110,
+            "found {} languages in the catalog, expected the whole of it",
+            FILENAME_GLOBS.len()
         );
     }
 
