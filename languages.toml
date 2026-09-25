@@ -137,7 +137,7 @@ variant = "CommonLisp"
 display_name = "Common Lisp"
 globs = ["*.lisp", "*.lsp", "*.asd"]
 emacs = ["lisp"]
-shebang = ["lisp", "sbc", "ccl", "clisp", "ecl"]
+shebang = ["lisp", "sbcl", "ccl", "clisp", "ecl"]
 
 [parsers.cpp]
 git = "https://github.com/tree-sitter/tree-sitter-cpp.git"

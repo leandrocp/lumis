@@ -7,7 +7,11 @@
 //! This module is independent of tree-sitter. For tree-sitter configuration,
 //! see the `lumis` crate's `languages` module.
 
-// Guess Language copied from https://github.com/Wilfred/difftastic/blob/f34a9014760efbaed01b972caba8b73754da16c9/src/parse/guess_language.rs
+// Guess Language copied from https://github.com/Wilfred/difftastic/blob/dc2283500838fe5018a48c65682646c9637d7816/src/parse/guess_language.rs
+//
+// That is the last upstream commit to touch the file. The catalog itself lives
+// in `languages.toml`, so only the detection logic is synced from upstream;
+// upstream dropping a language is not a reason for Lumis to drop it.
 
 use regex::Regex;
 use std::collections::HashMap;
@@ -254,8 +258,14 @@ macro_rules! define_languages {
             }
 
             fn from_emacs_mode_header(src: &str) -> Option<Language> {
+                // Emacs only needs a `;` between file variables, so a header that
+                // sets nothing else has none: `; -*- mode: Lisp -*-`. Requiring one
+                // meant the shorthand branch saw those and read `mode: lisp` as the
+                // whole mode name. The `.*?` is the one difference from upstream,
+                // which anchors `mode:` to the opening `-*-` and so stopped
+                // matching `-*- coding: utf-8; mode: python; -*-`.
                 static MODE_RE: LazyLock<Regex> =
-                    LazyLock::new(|| Regex::new(r"-\*-.*mode:([^;]+?);.*-\*-").unwrap());
+                    LazyLock::new(|| Regex::new(r"-\*-.*?mode: *([a-zA-Z0-9_+-]+).*-\*-").unwrap());
                 static SHORTHAND_RE: LazyLock<Regex> =
                     LazyLock::new(|| Regex::new(r"-\*-(.+)-\*-").unwrap());
 
@@ -285,8 +295,10 @@ macro_rules! define_languages {
             }
 
             fn from_shebang(src: &str) -> Option<Language> {
+                // Anchored, so a `#!` anywhere else on the first line is a comment:
+                // `bar = 1 #!/bin/bash` is Python, not Bash.
                 static RE: LazyLock<Regex> =
-                    LazyLock::new(|| Regex::new(r"#! *(?:/usr/bin/env )?([^ ]+)").unwrap());
+                    LazyLock::new(|| Regex::new(r"^#! *(?:/usr/bin/env )?([^ ]+)").unwrap());
 
                 let first_line = split_on_newlines(src).next()?;
                 let cap = RE.captures(first_line)?;
@@ -711,5 +723,45 @@ mod tests {
             Language::guess(None, "// -*- mode: text -*-\nfn main() {}"),
             Language::PlainText
         );
+    }
+
+    /// Emacs writes a `;` between file variables, not after the last one, so a
+    /// header that sets only the mode has none at all.
+    #[cfg(feature = "lang-commonlisp")]
+    #[test]
+    fn emacs_mode_header_needs_no_semicolon() {
+        assert_eq!(
+            Language::guess(None, "; -*- mode: Lisp -*-"),
+            Language::CommonLisp
+        );
+        assert_eq!(
+            Language::guess(None, "; -*- mode: Lisp; eval: (auto-fill-mode 1); -*-"),
+            Language::CommonLisp
+        );
+    }
+
+    /// `mode:` is rarely the first file variable in the wild — `coding:` usually
+    /// comes first. Upstream anchors `mode:` to the opening `-*-`; this does not.
+    #[cfg(feature = "lang-python")]
+    #[test]
+    fn emacs_mode_header_may_follow_another_file_variable() {
+        assert_eq!(
+            Language::guess(None, "# -*- coding: utf-8; mode: python; -*-"),
+            Language::Python
+        );
+    }
+
+    /// A `#!` that opens the line is a shebang; the same bytes further along are
+    /// a comment, and reading them as a shebang made every commented-out command
+    /// rename the file's language.
+    #[test]
+    fn a_shebang_has_to_open_the_line() {
+        assert_eq!(
+            Language::guess(None, "bar = 1 #!/bin/bash"),
+            Language::PlainText
+        );
+
+        #[cfg(feature = "lang-bash")]
+        assert_eq!(Language::guess(None, "#!/bin/bash"), Language::Bash);
     }
 }
