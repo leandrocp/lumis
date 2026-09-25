@@ -24,6 +24,14 @@ if (!implementations.some(({ id, runner }) => id === implementation && runner ==
   throw new Error(`unknown JavaScript benchmark implementation: ${implementation}`);
 }
 
+// No time limit, so a scenario measures highlighting rather than how close the
+// machine came to the default bound. The default is about five megabytes of
+// source and the large scenario is exactly that, so on a slow enough machine the
+// render would run out, return the file as plain text, and report a throughput
+// the highlighter never reached. Shiki and highlight.js have no equivalent
+// bound, which is the other reason the comparison runs without one.
+const UNBOUNDED = { budget: { timeLimit: 0 } };
+
 const resolvedManifest = JSON.parse(
   await readFile(resolve(repoDir, "target/benchmarks/fixtures/scenarios.json"), "utf8"),
 );
@@ -181,7 +189,7 @@ async function loadLumis() {
     render({ formatters, highlighter }, validate = false) {
       let renderedBytes = 0;
       for (const file of scenario.files) {
-        const output = highlighter.highlight(file.source, formatters[file.language]);
+        const output = highlighter.highlight(file.source, formatters[file.language], UNBOUNDED);
         if (validate) assertHtml(output, file.source, implementation);
         renderedBytes += Buffer.byteLength(output);
       }

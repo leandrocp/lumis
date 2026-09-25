@@ -69,6 +69,14 @@ const implementations = [
       file.language,
       "--formatter",
       "terminal",
+      // The default time limit is about five megabytes of source and the large
+      // scenario is exactly that, so whether it is reached comes down to how
+      // fast the machine is. A render that reaches it returns the file as plain
+      // text and exits 0, which would time the bail-out and trip the check
+      // below on a slow runner. bat has no such bound, so unbounded is also
+      // what the two implementations have in common.
+      "--budget-time-limit",
+      "0",
       "--theme",
       "github_dark",
       resolve(repoDir, file.path),
