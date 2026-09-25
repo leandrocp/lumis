@@ -90,8 +90,15 @@ defmodule Lumis.Packages do
   # reads as `>= 0.26.0 and < 0.27.0` — the bound the store actually enforces —
   # while Mix reads `~> 0.26` as `>= 0.26.0 and < 1.0.0`. The looser one lets a
   # 0.27 parser install and then be refused at load, which is a runtime error
-  # standing in for a resolver one, and 0.27 of a 0.x package is where a
-  # breaking change lands.
+  # standing in for a resolver one.
+  #
+  # That bound is not a guess about where a breaking change lands. The series is
+  # generated from the `tree-sitter` pin in `mise.toml`, so `0.26` means parsers
+  # built against tree-sitter 0.26 and a 0.27 series would be built against an
+  # ABI this NIF is not linked to. Refusing is the only safe answer, and the
+  # refusal surfaces as `:not_installed`: the package resolved and is sitting in
+  # `deps`, so an out-of-range one reads as absent rather than as the wrong
+  # version. Getting the requirement right is what keeps that from happening.
   #
   # Built from the lowest accepted version rather than by appending `.0` to the
   # range, so it stays correct if the range stops being a bare `MAJOR.MINOR`.
