@@ -1051,7 +1051,10 @@ defmodule Lumis do
 
   """
   @spec loaded_languages() :: [id :: String.t()]
-  def loaded_languages, do: Lumis.Native.loaded_languages()
+  def loaded_languages do
+    Lumis.Application.configure_store()
+    Lumis.Native.loaded_languages()
+  end
 
   @typedoc "A built-in theme's name and appearance, without its highlight data."
   @type theme_info :: %{name: String.t(), appearance: String.t()}
@@ -1195,6 +1198,8 @@ defmodule Lumis do
     {formatter, formatter_options} = Keyword.fetch!(options, :formatter)
 
     if formatter in @built_in_formatters do
+      Lumis.Application.configure_store()
+
       source
       |> Lumis.Native.highlight(rust_options!(options))
       |> describe_highlight_result()
@@ -1544,6 +1549,8 @@ defmodule Lumis do
   end
 
   defp highlight_events_with_language(source, language, options) do
+    Lumis.Application.configure_store()
+
     result =
       Lumis.Native.highlight_events(source, %{
         language: language,
