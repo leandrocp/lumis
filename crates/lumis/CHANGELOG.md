@@ -1,3 +1,10 @@
+## [0.15.1](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.15.0...cargo-lumis/v0.15.1) (2026-09-26)
+
+
+### Testing
+
+- pin top-level API parity across runtimes with a manifest - [#1547](https://github.com/leandrocp/lumis/pull/1547)
+
 ## [0.15.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.14.0...cargo-lumis/v0.15.0) (2026-09-24)
 
 
