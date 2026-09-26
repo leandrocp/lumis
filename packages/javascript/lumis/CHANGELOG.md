@@ -1,3 +1,26 @@
+## [0.8.1](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.8.0...npm-lumis/v0.8.1) (2026-09-26)
+
+
+### Bug Fixes
+
+- sync detection heuristics with difftastic upstream - [#1539](https://github.com/leandrocp/lumis/pull/1539)
+- ship declarations that typecheck with skipLibCheck: false - [#1556](https://github.com/leandrocp/lumis/pull/1556)
+
+
+### Documentation
+
+- show each parser size and memory - [#1532](https://github.com/leandrocp/lumis/pull/1532)
+
+
+### Features
+
+- recognize 16 more code fence labels - [#1553](https://github.com/leandrocp/lumis/pull/1553)
+
+
+### Testing
+
+- pin top-level API parity across runtimes with a manifest - [#1547](https://github.com/leandrocp/lumis/pull/1547)
+
 ## [0.8.0](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.7.1...npm-lumis/v0.8.0) (2026-09-24)
 
 
