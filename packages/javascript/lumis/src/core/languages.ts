@@ -83,16 +83,16 @@ export interface SharedRuntimeCache {
 
 function compileBracketConfig(
   language: Language,
-  Query: typeof TreeSitterQuery,
+  QueryCtor: typeof TreeSitterQuery,
   bracketsQuery?: string,
 ): CompiledBracketConfig | undefined {
   if (!bracketsQuery) return undefined;
 
   // A bracket query can name tokens a grammar lacks, such as "(" in HTML, so a
   // compile failure means "no rainbow brackets here" rather than a load failure.
-  let query: InstanceType<typeof Query>;
+  let query: InstanceType<typeof QueryCtor>;
   try {
-    query = new Query(language, bracketsQuery);
+    query = new QueryCtor(language, bracketsQuery);
   } catch {
     return undefined;
   }
@@ -922,7 +922,7 @@ function parseOffsetDelta(input: string): number | undefined {
 
 export function compileHighlightConfig(
   language: Language,
-  Query: typeof TreeSitterQuery,
+  QueryCtor: typeof TreeSitterQuery,
   highlightsQuery: string,
   injectionsQuery = "",
   localsQuery = "",
@@ -934,7 +934,7 @@ export function compileHighlightConfig(
   const querySource = `${injectionsQuery}${localsQuery}${highlightsQuery}`;
   const localsQueryOffset = injectionsQuery.length;
   const highlightsQueryOffset = injectionsQuery.length + localsQuery.length;
-  const query = new Query(language, querySource);
+  const query = new QueryCtor(language, querySource);
 
   let injectionPatternEnd = 0;
   let localsPatternEnd = 0;
