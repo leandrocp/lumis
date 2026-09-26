@@ -5,13 +5,27 @@ defmodule Lumis.Application do
 
   @impl true
   def start(_type, _args) do
-    # The parsers this project depends on, and where compiled modules go. Both
-    # are read when the store is built, so this has to run before anything can
-    # use it; `false` back means something already did.
-    Lumis.Native.configure_store(data_dir(), Lumis.Packages.installed_dirs())
+    configure_store()
 
     opts = [strategy: :one_for_one, name: Lumis.Supervisor]
     Supervisor.start_link([{Task.Supervisor, name: Lumis.TaskSupervisor}], opts)
+  end
+
+  @configured {__MODULE__, :store_configured}
+
+  @doc false
+  # The parsers this project depends on, and where compiled modules go. The NIF
+  # reads both once, when the store is built, and refuses to change them after.
+  # Highlighting can build it before this application starts — `mix compile`
+  # rendering a template runs no application at all — so every entry point that
+  # reaches the store calls this first, not only `start/2`.
+  def configure_store do
+    if not :persistent_term.get(@configured, false) do
+      Lumis.Native.configure_store(data_dir(), Lumis.Packages.installed_dirs())
+      :persistent_term.put(@configured, true)
+    end
+
+    :ok
   end
 
   @doc false

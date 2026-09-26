@@ -117,7 +117,7 @@ defmodule Lumis.Languages do
     case bundle_members(name) do
       {:ok, members} -> load(members)
       :error -> {:error, :unknown_bundle}
-      :not_a_bundle -> describe_load(Native.load_language_by_name(name))
+      :not_a_bundle -> describe_load(load_language_by_name(name))
     end
   end
 
@@ -127,6 +127,11 @@ defmodule Lumis.Languages do
     do: {:error, Lumis.ParserError.from_nif(fields)}
 
   defp describe_load(other), do: other
+
+  defp load_language_by_name(name) do
+    Lumis.Application.configure_store()
+    Native.load_language_by_name(name)
+  end
 
   @doc false
   # Files one name's answer into the failures `load/1` has collected so far.

@@ -860,7 +860,9 @@ fn executor() -> Result<&'static WasmExecutor> {
 /// `lock_path` if a lock is there.
 ///
 /// Returns false once the store exists, since the paths are read when it is
-/// built. `Lumis.Application` calls this before anything can use it.
+/// built. `Lumis.Application.configure_store/0` calls this ahead of every
+/// Elixir entry point that reaches the store, which can run before the
+/// application starts.
 #[rustler::nif]
 fn configure_store(data_dir: Option<String>, installed_dirs: Vec<String>) -> bool {
     let _settled = STORE_SETTLED.lock();
