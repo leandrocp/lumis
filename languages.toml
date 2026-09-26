@@ -76,7 +76,7 @@ globs = ["*.astro"]
 git = "https://github.com/ericmj/tree-sitter-bash.git"
 rev = "382ed871c6c7d62eada5da06994d9515ae12edd7"
 version = "0.25.1"
-aliases = ["sh"]
+aliases = ["console", "sh", "sh-session", "shell", "shell-session", "terminal"]
 globs = [
   "*.bash", "*.bats", "*.cgi", "*.command", "*.env", "*.fcgi",
   "*.ksh", "*.sh", "*.sh.in", "*.tool",
@@ -135,6 +135,7 @@ crate = "tree-sitter-commonlisp"
 version = "0.4.1"
 variant = "CommonLisp"
 display_name = "Common Lisp"
+aliases = ["cl"]
 globs = ["*.lisp", "*.lsp", "*.asd"]
 emacs = ["lisp"]
 shebang = ["lisp", "sbcl", "ccl", "clisp", "ecl"]
@@ -205,6 +206,7 @@ rev = "f742f2fe327463335e8671a87c0b9b396905d1d1"
 version = "0.1.0"
 variant = "EEx"
 display_name = "Eex"
+aliases = ["leex"]
 globs = ["*.eex"]
 
 [parsers.ejs]
@@ -249,6 +251,7 @@ git = "https://github.com/WhatsApp/tree-sitter-erlang.git"
 rev = "67e7f7f05baf492ca2a7c0d9538761b242d33d95"
 crate = "tree-sitter-erlang"
 version = "0.20.0"
+aliases = ["erl-sh", "erlang-repl"]
 globs = ["*.erl", "*.app", "*.app.src", "*.es", "*.escript", "*.hrl", "*.xrl", "*.yrl", "Emakefile", "rebar.config"]
 
 [parsers.fish]
@@ -299,6 +302,8 @@ rev = "5e66e961eee421786bdda8495ed1db045e06b5fe"
 crate = "tree-sitter-graphql"
 version = "0.2.1"
 variant = "GraphQL"
+aliases = ["gql"]
+globs = ["*.graphql", "*.gql", "*.graphqls"]
 
 [parsers.haskell]
 git = "https://github.com/tree-sitter/tree-sitter-haskell.git"
@@ -380,6 +385,7 @@ rev = "ee35a6ebefcef0c5c416c0d1ccec7370cfca5a24"
 crate = "tree-sitter-json"
 version = "0.24.8"
 variant = "JSON"
+aliases = ["jsonc", "jsonld"]
 globs = [
   "*.json", "*.avsc", "*.geojson", "*.gltf", "*.har", "*.ice",
   "*.JSON-tmLanguage", "*.jsonl", "*.mcmeta", "*.tfstate",
@@ -553,6 +559,7 @@ rev = "4ffe56d66aa926c28442befbb5b89d1437d7199c"
 crate = "tree-sitter-powershell"
 version = "0.26.4"
 variant = "PowerShell"
+aliases = ["pwsh"]
 globs = ["*.ps1", "*.psm1"]
 
 [parsers.protobuf]
@@ -568,6 +575,7 @@ globs = ["*.proto", "*.protobuf", "*.proto2", "*.proto3"]
 git = "https://github.com/ericmj/tree-sitter-python.git"
 rev = "0e87bd70e972aff4e060d375166e750e3f498a8b"
 version = "0.25.0"
+aliases = ["python3"]
 globs = ["*.py", "*.py3", "*.pyi", "*.bzl", "TARGETS", "BUCK", "DEPS"]
 emacs = ["python"]
 shebang = ["python", "python2", "python3"]
@@ -625,6 +633,7 @@ rev = "7b51ecda191d36b92f5a90a8d1bc3faef1c7b8b8"
 crate = "tree-sitter-sequel"
 version = "0.3.11"
 variant = "SQL"
+aliases = ["psql"]
 globs = ["*.sql", "*.pgsql"]
 emacs = ["sql"]
 
@@ -1035,6 +1044,7 @@ crate = "tree-sitter-systemverilog"
 version = "0.4.1"
 variant = "SystemVerilog"
 display_name = "SystemVerilog"
+aliases = ["verilog"]
 globs = ["*.sv", "*.svh"]
 
 [parsers.tcl]

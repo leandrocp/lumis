@@ -699,6 +699,62 @@ mod tests {
         );
     }
 
+    /// [`Language::from_str`] matches an id or an alias before it consults a
+    /// glob, so a name two parsers both claim resolves by whichever `match` arm
+    /// the macro emitted first, and a name that is also somebody's extension
+    /// takes that extension over. Neither is an error anywhere: the catalog
+    /// keeps working, at a different language than the one it names.
+    #[test]
+    fn no_name_is_claimed_twice_or_shadows_a_glob() {
+        let mut owners: HashMap<String, &'static str> = HashMap::new();
+
+        for language in Language::iter() {
+            let id = language.id_name();
+
+            for name in std::iter::once(id).chain(language.aliases().iter().copied()) {
+                let name = name.to_ascii_lowercase();
+
+                if let Some(owner) = owners.insert(name.clone(), id) {
+                    panic!("`{name}` is claimed twice, by {owner} and by {id}");
+                }
+
+                if let Some(owner) = id_matching_glob(&name) {
+                    assert_eq!(owner, id, "`{name}` names {id} but is {owner}'s file name");
+                }
+
+                if let Some(owner) = id_matching_glob(&format!("*.{name}")) {
+                    assert_eq!(owner, id, "`{name}` names {id} but is {owner}'s extension");
+                }
+            }
+        }
+
+        // Counting `owners` would only say how many languages this feature set
+        // compiled in. `FILENAME_GLOBS` is generated without gates, so it
+        // answers for the whole catalog however few of them are on, and an
+        // empty one is the generator bug worth catching here. That aliases are
+        // read at all is `Language::aliases`'s own doctest.
+        assert!(
+            FILENAME_GLOBS.len() > 110,
+            "found {} languages in the catalog, expected the whole of it",
+            FILENAME_GLOBS.len()
+        );
+    }
+
+    /// An alias repeating its own id is dead weight that the published catalog
+    /// table renders as a column entry.
+    #[test]
+    fn no_alias_repeats_its_own_id() {
+        for language in Language::iter() {
+            let id = language.id_name();
+            for alias in language.aliases() {
+                assert!(
+                    !alias.eq_ignore_ascii_case(id),
+                    "{id} lists its own id as an alias"
+                );
+            }
+        }
+    }
+
     #[test]
     fn plaintext_metadata_and_detection_are_consistent() {
         let plaintext = Language::PlainText.info();

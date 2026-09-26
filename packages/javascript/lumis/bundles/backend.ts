@@ -5,7 +5,7 @@ import { lazy } from "../src/bundle-helpers.js";
 export const bundledLanguages: LanguageBundle = {
   csharp: lazy("csharp", ["c#"], () => import("../langs/csharp.js")),
   elixir: lazy("elixir", [], () => import("../langs/elixir.js")),
-  erlang: lazy("erlang", [], () => import("../langs/erlang.js")),
+  erlang: lazy("erlang", ["erl-sh", "erlang-repl"], () => import("../langs/erlang.js")),
   go: lazy("go", [], () => import("../langs/go.js")),
   java: lazy("java", [], () => import("../langs/java.js")),
   javadoc: lazy("javadoc", [], () => import("../langs/javadoc.js")),
@@ -13,11 +13,11 @@ export const bundledLanguages: LanguageBundle = {
   kotlin: lazy("kotlin", [], () => import("../langs/kotlin.js")),
   php: lazy("php", [], () => import("../langs/php.js")),
   protobuf: lazy("protobuf", [], () => import("../langs/protobuf.js")),
-  python: lazy("python", [], () => import("../langs/python.js")),
+  python: lazy("python", ["python3"], () => import("../langs/python.js")),
   ruby: lazy("ruby", [], () => import("../langs/ruby.js")),
   rust: lazy("rust", [], () => import("../langs/rust.js")),
   scala: lazy("scala", [], () => import("../langs/scala.js")),
-  sql: lazy("sql", [], () => import("../langs/sql.js")),
+  sql: lazy("sql", ["psql"], () => import("../langs/sql.js")),
   typescript: lazy("typescript", ["ts"], () => import("../langs/typescript.js")),
   plaintext: lazy("plaintext", ["text", "txt", "plain"], () => import("../langs/plaintext.js")),
 };
