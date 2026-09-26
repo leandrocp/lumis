@@ -1,3 +1,15 @@
+## [3.1.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v3.0.0...cargo-lumis-core/v3.1.0) (2026-09-26)
+
+
+### Bug Fixes
+
+- sync detection heuristics with difftastic upstream - [#1539](https://github.com/leandrocp/lumis/pull/1539)
+
+
+### Features
+
+- recognize 16 more code fence labels - [#1553](https://github.com/leandrocp/lumis/pull/1553)
+
 ## [3.0.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v2.5.0...cargo-lumis-core/v3.0.0) (2026-09-24)
 
 
