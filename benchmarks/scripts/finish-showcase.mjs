@@ -53,6 +53,10 @@ const palettes = {
 // turns on, so every document names text that must have been coloured, and the
 // colour it must have been given. A document with no entry here fails rather
 // than being silently exempt from the check.
+//
+// The text has to be a whole span, and same-scope spans are coalesced, so it is
+// every adjacent token the scope covers rather than the one that names it: an
+// Elixir sigil is `~w(` and not the `~` the query captures.
 const scopeExpectations = {
   webgpu: [
     ["HTML tag delimiter", "&lt;", "teal"],
@@ -76,7 +80,7 @@ const scopeExpectations = {
     ["Elixir keyword", "end", "mauve"],
     ["Elixir module", "Phoenix.Component", "yellow"],
     ["Elixir atom", ":string", "flamingo"],
-    ["Elixir sigil", "~", "pink"],
+    ["Elixir sigil", "~w(", "pink"],
     ["injected HEEx tag", "div", "blue"],
     ["injected HEEx attribute", "class", "yellow"],
   ],

@@ -6,17 +6,23 @@ defmodule Lumis.BenchmarkRuntime do
 
   def configure(repo_dir) do
     packages = Path.join(repo_dir, "target/benchmarks/language-packages")
+    parsers = Path.join(packages, "parsers")
 
-    unless File.dir?(Path.join(packages, "parsers")) do
+    unless File.dir?(parsers) do
       raise "run `mise run -C benchmarks prepare:languages` first, no parsers at #{packages}"
     end
 
-    # One store directory, so the prepared packages are what the runtime reads
-    # and where it writes compiled modules. Nothing in a timed run reaches the
-    # network as long as every language a scenario names is prepared.
+    # The prepared packages stand in for `lumis_wasm_*` deps: `Mix.install` here
+    # depends on none, so `Lumis.Packages.installed_dirs/0` finds nothing and
+    # every scenario language would be reported as not installed. Declaring the
+    # directory instead keeps a timed run off the network, the way depending on
+    # the Hex packages would.
+    #
+    # One store directory, so the prepared packages are also where compiled
+    # modules are written.
     #
     # After Application.start, so the NIF store is configured here rather than
     # from config; it is built lazily on first use, which has not happened yet.
-    true = Lumis.Native.configure_store(packages)
+    true = Lumis.Native.configure_store(packages, [parsers])
   end
 end

@@ -94,7 +94,7 @@ defmodule Lumis.ScenarioBenchmark do
 
   defp initialize(workload) do
     Code.ensure_loaded!(Lumis.Native)
-    available = Lumis.available_languages()
+    available = MapSet.new(Lumis.available_languages(), & &1.id)
 
     languages =
       workload
@@ -102,7 +102,8 @@ defmodule Lumis.ScenarioBenchmark do
       |> Enum.uniq()
 
     Enum.each(languages, fn language ->
-      unless Map.has_key?(available, language), do: raise("Lumis Elixir is missing #{language}")
+      unless MapSet.member?(available, language),
+        do: raise("Lumis Elixir is missing #{language}")
     end)
 
     # Highlighting would load these anyway; doing it here keeps the download and
@@ -121,9 +122,15 @@ defmodule Lumis.ScenarioBenchmark do
       source = Map.fetch!(file, "source")
       language = Map.fetch!(file, "language")
 
+      # No time limit, so a scenario measures highlighting rather than how close
+      # the machine came to the default bound. The default is about five
+      # megabytes of source and the large scenario is exactly that, so on a slow
+      # enough machine the render would run out, return the file as plain text,
+      # and report a throughput the highlighter never reached.
       output =
         Lumis.highlight!(source,
-          formatter: {:html_inline, language: language, theme: "github_dark"}
+          formatter: {:html_inline, language: language, theme: "github_dark"},
+          budget: [time_limit: 0]
         )
 
       if validate_html and

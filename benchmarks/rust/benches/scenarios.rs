@@ -1,5 +1,8 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use lumis::{formatters::HtmlInline, languages::Language, themes, HtmlInlineBuilder};
+use lumis::{
+    formatters::HtmlInline, languages::Language, themes, Budget, HighlightOptions,
+    HtmlInlineBuilder,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::env;
@@ -146,6 +149,18 @@ fn initialize_lumis(scenario: &Scenario) -> Vec<(String, HtmlInline)> {
         .collect()
 }
 
+/// No time limit, so a scenario measures highlighting rather than how close the
+/// machine came to the default bound.
+///
+/// The default is about five megabytes of source and the large scenario is
+/// exactly that, so on a slow enough machine the render would run out, return
+/// the file as plain text, and report a throughput the highlighter never
+/// reached. syntect has no equivalent bound, which is the other reason the
+/// comparison runs without one.
+fn unbounded() -> HighlightOptions<'static, ()> {
+    HighlightOptions::new().budget(Budget::new().time_limit(None))
+}
+
 fn render_lumis(runtime: &[(String, HtmlInline)], scenario: &Scenario, validate: bool) -> usize {
     scenario
         .files
@@ -157,8 +172,13 @@ fn render_lumis(runtime: &[(String, HtmlInline)], scenario: &Scenario, validate:
                 .expect("Lumis formatter for fixture language")
                 .1;
             let mut output = Vec::with_capacity(file.source.len().saturating_mul(3));
-            lumis::write_highlight(&mut output, black_box(&file.source), formatter)
-                .expect("highlight fixture with Lumis");
+            lumis::write_highlight_with_options(
+                &mut output,
+                black_box(&file.source),
+                formatter,
+                unbounded(),
+            )
+            .expect("highlight fixture with Lumis");
             if validate {
                 validate_html(&output, file.source.len(), "Lumis Rust");
             }

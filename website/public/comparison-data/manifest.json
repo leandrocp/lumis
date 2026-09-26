@@ -25,7 +25,7 @@
     {
       "id": "lumis",
       "label": "Lumis",
-      "version": "Lumis 0.7.0",
+      "version": "Lumis 0.8.0",
       "theme": "Neovim Catppuccin colorschemes, extracted by this repository"
     },
     {
@@ -62,7 +62,7 @@
         "JavaScript"
       ],
       "tokens": {
-        "lumis": 6704,
+        "lumis": 6580,
         "syntect": 6718,
         "shiki": 5887,
         "highlight-js": 2019
@@ -80,7 +80,7 @@
         "Comment"
       ],
       "tokens": {
-        "lumis": 5070,
+        "lumis": 4836,
         "syntect": 4157,
         "shiki": 3734,
         "highlight-js": 1304
@@ -100,7 +100,7 @@
         "Comment"
       ],
       "tokens": {
-        "lumis": 5629,
+        "lumis": 5444,
         "syntect": 3242,
         "shiki": 3668,
         "highlight-js": 709
@@ -118,7 +118,7 @@
         "Comment"
       ],
       "tokens": {
-        "lumis": 6594,
+        "lumis": 6306,
         "syntect": 6824,
         "shiki": 6189,
         "highlight-js": 1336
@@ -140,7 +140,7 @@
         "Rust"
       ],
       "tokens": {
-        "lumis": 939,
+        "lumis": 871,
         "syntect": 839,
         "shiki": 571,
         "highlight-js": 263
@@ -158,7 +158,7 @@
         "Comment"
       ],
       "tokens": {
-        "lumis": 2529,
+        "lumis": 2422,
         "syntect": 2946,
         "shiki": 2474,
         "highlight-js": 1259
