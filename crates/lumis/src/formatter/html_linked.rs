@@ -10,7 +10,7 @@
 //! HTML with CSS classes like:
 //!
 //! ```html
-//! <pre class="lumis"><code class="language-rust" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-keyword-function">fn</span> <span class="l-function">main</span><span class="l-punctuation-bracket">(</span><span class="l-punctuation-bracket">)</span> <span class="l-punctuation-bracket">{</span> <span class="l-keyword-exception">println</span><span class="l-function-macro">!</span><span class="l-punctuation-bracket">(</span><span class="l-string">&quot;Hello&quot;</span><span class="l-punctuation-bracket">)</span><span class="l-punctuation-delimiter">;</span> <span class="l-punctuation-bracket">}</span></div></code></pre>
+//! <pre class="lumis"><code class="language-rust" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-keyword-function">fn</span> <span class="l-function">main</span><span class="l-punctuation-bracket">(</span><span class="l-punctuation-bracket">)</span> <span class="l-punctuation-bracket">{</span> <span class="l-keyword-exception">println</span><span class="l-function-macro">!</span><span class="l-punctuation-bracket">(</span><span class="l-string">&quot;Hello&quot;</span><span class="l-punctuation-bracket">)</span><span class="l-punctuation-delimiter">;</span> <span class="l-punctuation-bracket">}</span></span></code></pre>
 //! ```
 //!
 //! # Example
@@ -49,7 +49,7 @@
 //! ```
 //! The resulting HTML will look like:
 //! ```html
-//! <div class="l-line l-highlighted" data-line="2">...</div>
+//! <span class="l-line l-highlighted" data-line="2">...</span>
 //! ```
 //!
 //! Using a custom CSS class:
@@ -64,7 +64,7 @@
 //!
 //! The resulting HTML will include the classes in line elements:
 //! ```html
-//! <div class="l-line transition-colors duration-500 w-full inline-block bg-yellow-500" data-line="2">...</div>
+//! <span class="l-line transition-colors duration-500 w-full inline-block bg-yellow-500" data-line="2">...</span>
 //! ```
 //!
 //! See the [formatter](crate::formatter) module for more information and examples.
@@ -85,7 +85,7 @@ mod tests {
         let code = "@lang :rust";
         let formatter = HtmlLinked::new(Language::Elixir, None, None, false, None);
         let result = crate::highlight(code, formatter);
-        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-operator"><span class="l-constant">@<span class="l-function-call"><span class="l-constant">lang <span class="l-string-special-symbol">:rust</span></span></span></span></span></div></code></pre>"#;
+        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-operator"><span class="l-constant">@<span class="l-function-call"><span class="l-constant">lang <span class="l-string-special-symbol">:rust</span></span></span></span></span></span></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -153,9 +153,9 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line" data-line="1">line 1
-</div><div class="l-line l-highlighted" data-line="2">line 2
-</div><div class="l-line" data-line="3">line 3</div></code></pre>"#;
+        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><span class="l-line" data-line="1">line 1</span>
+<span class="l-line l-highlighted" data-line="2">line 2</span>
+<span class="l-line" data-line="3">line 3</span></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -176,11 +176,11 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line custom-hl" data-line="1">line 1
-</div><div class="l-line" data-line="2">line 2
-</div><div class="l-line custom-hl" data-line="3">line 3
-</div><div class="l-line custom-hl" data-line="4">line 4
-</div><div class="l-line" data-line="5">line 5</div></code></pre>"#;
+        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><span class="l-line custom-hl" data-line="1">line 1</span>
+<span class="l-line" data-line="2">line 2</span>
+<span class="l-line custom-hl" data-line="3">line 3</span>
+<span class="l-line custom-hl" data-line="4">line 4</span>
+<span class="l-line" data-line="5">line 5</span></code></pre>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -195,8 +195,8 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<div class="code-wrapper"><pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line" data-line="1">line 1
-</div><div class="l-line" data-line="2">line 2</div></code></pre></div>"#;
+        let expected = r#"<div class="code-wrapper"><pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><span class="l-line" data-line="1">line 1</span>
+<span class="l-line" data-line="2">line 2</span></code></pre></div>"#;
         assert_str_eq!(result, expected);
     }
 
@@ -222,8 +222,8 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<section class="code-section"><pre class="lumis custom-pre"><code class="language-plaintext" translate="no" tabindex="0"><div class="l-line l-highlighted" data-line="1">line 1
-</div><div class="l-line" data-line="2">line 2</div></code></pre></section>"#;
+        let expected = r#"<section class="code-section"><pre class="lumis custom-pre"><code class="language-plaintext" translate="no" tabindex="0"><span class="l-line l-highlighted" data-line="1">line 1</span>
+<span class="l-line" data-line="2">line 2</span></code></pre></section>"#;
         assert_str_eq!(result, expected);
     }
 }

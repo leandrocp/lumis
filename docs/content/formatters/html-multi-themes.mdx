@@ -199,22 +199,21 @@ Controls what color values appear inline (not just as CSS variables):
 HTML Multi-Themes keeps the same HTML structure, but each token carries CSS variables for one or more themes:
 
 ```html
-<pre class="lumis" style="--lumis-light-bg:#eff1f5; --lumis-dark-bg:#303446;">
-  <code class="language-javascript" translate="no" tabindex="0">
-    <div class="l-line" data-line="1">
-      <span style="--lumis-dark:#ca9ee6; --lumis-light:#8839ef;">const</span>
-    </div>
-  </code>
-</pre>
+<pre class="lumis lumis-themes dark light" style="--lumis-light-bg:#eff1f5; --lumis-dark-bg:#303446;"><code class="language-javascript" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="--lumis-dark:#ca9ee6; --lumis-light:#8839ef;">const</span></span></code></pre>
 ```
 
 - `<pre class="lumis">` carries shared background and theme variables
 - `<code class="language-*">` identifies the language and keeps the block focusable
-- `<div class="l-line" data-line="N">` wraps each line
+- `<span class="l-line" data-line="N">` wraps only a line's content
 - `<span class="l-line-number">` opens the line when `line_numbers` is on, see [Line Numbers](/recipes/line-numbers)
-- A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
-  final line gets no added newline
+- Lines are separated by `\n` text nodes; nothing follows the last line element
+- A final source newline ends its line rather than adding an empty numbered line
 - `<span style="--lumis-...">` carries per-theme token colors and font styles
+
+Line layout and copy protection use inline styles, as in HTML Inline, including
+when colors are supplied only through variables. See
+[HTML line markup migration](/formatters/html-line-migration) for custom CSS
+and formatter updates.
 
 ## Good uses
 

@@ -214,7 +214,8 @@ async function initInspector(root: HTMLElement, output: HTMLDivElement) {
 
       highlightIter(source, html, lightTheme, appendHighlightedText);
 
-      const body = lines.map((line: string, i: number) => wrapLine(i + 1, line)).join("");
+      if (source.endsWith("\n")) lines.pop();
+      const body = lines.map((line: string, i: number) => wrapLine(i + 1, line)).join("\n");
       return `${openPreTag({ preClass: "inspector-demo" })}${openCodeTag(html)}${body}${closingTags()}`;
     },
   };

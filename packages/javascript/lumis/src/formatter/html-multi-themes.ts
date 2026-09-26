@@ -1,3 +1,4 @@
+import { mergeAttrs } from "../core/attr-merge.js";
 import type {
   BudgetExhausted,
   HighlightEvent,
@@ -60,13 +61,16 @@ function lightDarkHighlightStyle(formatter: HtmlMultiThemesFormatter): string | 
 }
 
 function lineNumberAttrs(formatter: HtmlMultiThemesFormatter, highlighted: boolean): HtmlAttrs {
-  return spanMultiThemesAttrs({
-    scope: highlighted ? "line_number.highlighted" : "line_number",
-    themes: formatter.themes,
-    defaultTheme: formatter.defaultTheme,
-    cssVariablePrefix: formatter.cssVariablePrefix,
-    italic: formatter.italic,
-  });
+  return mergeAttrs(
+    { style: "-webkit-user-select: none; user-select: none;" },
+    spanMultiThemesAttrs({
+      scope: highlighted ? "line_number.highlighted" : "line_number",
+      themes: formatter.themes,
+      defaultTheme: formatter.defaultTheme,
+      cssVariablePrefix: formatter.cssVariablePrefix,
+      italic: formatter.italic,
+    }),
+  );
 }
 
 export function formatHtmlMultiThemes(
@@ -75,6 +79,8 @@ export function formatHtmlMultiThemes(
   formatter: HtmlMultiThemesFormatter,
   budget?: BudgetExhausted,
 ): string {
+  const lineLayout = "display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;";
+  const highlightStyle = highlightLineStyle(formatter);
   const body = formatHtmlLines(source, events, {
     language: formatter.language,
     theme: formatter.defaultTheme ? formatter.themes[formatter.defaultTheme] : undefined,
@@ -86,8 +92,9 @@ export function formatHtmlMultiThemes(
     },
     highlightedAttrs: {
       className: formatter.highlightLines?.class,
-      style: highlightLineStyle(formatter),
+      style: `${lineLayout}${highlightStyle ? ` ${highlightStyle}` : ""}`,
     },
+    emptyStyle: lineLayout,
     openSpan: (span) => openSpanTag(spanAttrs(span, formatter)),
   });
 
@@ -98,7 +105,13 @@ export function formatHtmlMultiThemes(
     cssVariablePrefix: formatter.cssVariablePrefix,
     attrs: budgetAttrs(formatter.preAttrs, budget),
   });
-  const code = openCodeTag(formatter.language, formatter.codeAttrs);
+  const attrs = formatter.highlightLines
+    ? mergeAttrs(
+        { style: "display: block; width: max-content; min-width: 100%;" },
+        formatter.codeAttrs,
+      )
+    : formatter.codeAttrs;
+  const code = openCodeTag(formatter.language, attrs);
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);
 }

@@ -97,7 +97,7 @@ defmodule Lumis.Formatter.HTMLTest do
       for {source, language} <- @sources do
         source
         |> html_linked(language)
-        |> then(&Regex.scan(~r/<span class="([^"]+)"/, &1))
+        |> then(&Regex.scan(~r/<span class="(?!l-line")([^"]+)"/, &1))
         |> Enum.each(fn [_, class] ->
           assert MapSet.member?(known, class),
                  "#{language}: html_linked emits #{inspect(class)}, which is in no scope's class"
@@ -197,12 +197,12 @@ defmodule Lumis.Formatter.HTMLTest do
 
   describe "wrap_line/3" do
     test "numbers lines from one" do
-      assert HTML.wrap_line(2, "code") == ~s|<div class="l-line" data-line="2">code</div>|
+      assert HTML.wrap_line(2, "code") == ~s|<span class="l-line" data-line="2">code</span>|
     end
 
     test "appends a class suffix and a style" do
       assert HTML.wrap_line(1, "x", class_suffix: " l-highlighted", style: "color: red;") ==
-               ~s|<div class="l-line l-highlighted" style="color: red;" data-line="1">x</div>|
+               ~s|<span class="l-line l-highlighted" style="color: red;" data-line="1">x</span>|
     end
 
     test "produces the line wrappers html_linked emits" do
@@ -210,7 +210,7 @@ defmodule Lumis.Formatter.HTMLTest do
         html = html_linked(source, language)
 
         html
-        |> then(&Regex.scan(~r|<div class="l-line" data-line="(\d+)">|, &1))
+        |> then(&Regex.scan(~r|<span class="l-line" data-line="(\d+)">|, &1))
         |> Enum.each(fn [opening, number] ->
           assert String.starts_with?(HTML.wrap_line(String.to_integer(number), ""), opening),
                  "#{language}: wrap_line does not produce #{inspect(opening)}"
@@ -240,7 +240,7 @@ defmodule Lumis.Formatter.HTMLTest do
           )
 
         html
-        |> then(&Regex.scan(~r|(<span[^>]*>)|, &1))
+        |> then(&Regex.scan(~r|(<span(?![^>]*data-line=)[^>]*>)|, &1))
         |> Enum.map(fn [_, tag] -> tag end)
         |> Enum.uniq()
         |> Enum.each(fn tag ->
@@ -403,7 +403,7 @@ defmodule Lumis.Formatter.HTMLTest do
           HTML.span_multi_themes_attrs([themes: @themes_option, language: language] ++ options)
 
         html_multi_themes(source, language, options)
-        |> then(&Regex.scan(~r|(<span[^>]*>)|, &1))
+        |> then(&Regex.scan(~r|(<span(?![^>]*data-line=)[^>]*>)|, &1))
         |> Enum.map(fn [_, tag] -> tag end)
         |> Enum.uniq()
         |> Enum.each(fn tag ->
@@ -532,19 +532,18 @@ defmodule Lumis.Formatter.HTMLTest do
   end
 
   describe "render_lines_from_events/3" do
-    test "built-in HTML preserves each source line ending" do
+    test "built-in HTML separates content-only lines with normalized newlines" do
       prefix =
         ~s|<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0">|
 
       suffix = "</code></pre>"
 
       for {source, lines} <- [
-            {"", ~s|<div class="l-line" data-line="1"></div>|},
-            {"a", ~s|<div class="l-line" data-line="1">a</div>|},
-            {"a\n",
-             ~s|<div class="l-line" data-line="1">a\n</div><div class="l-line" data-line="2"></div>|},
+            {"", ~s|<span class="l-line" data-line="1"></span>|},
+            {"a", ~s|<span class="l-line" data-line="1">a</span>|},
+            {"a\n", ~s|<span class="l-line" data-line="1">a</span>|},
             {"a\r\nb",
-             ~s|<div class="l-line" data-line="1">a\r\n</div><div class="l-line" data-line="2">b</div>|}
+             ~s|<span class="l-line" data-line="1">a</span>\n<span class="l-line" data-line="2">b</span>|}
           ] do
         assert html_linked(source, "plaintext") == prefix <> lines <> suffix
       end
@@ -558,7 +557,9 @@ defmodule Lumis.Formatter.HTMLTest do
         expected =
           source
           |> html_linked(language)
-          |> then(&Regex.scan(~r|<div class="l-line" data-line="\d+">(.*?)</div>|s, &1))
+          |> then(
+            &Regex.scan(~r{<span class="l-line" data-line="\d+">(.*?)</span>(?=\n|</code>)}s, &1)
+          )
           |> Enum.map(fn [_, content] -> content end)
 
         actual =
@@ -577,7 +578,7 @@ defmodule Lumis.Formatter.HTMLTest do
       ]
 
       assert HTML.render_lines_from_events("a\nb", events, %{"keyword" => ~s|class="l-keyword"|}) ==
-               [~s|<span class="l-keyword">a</span>\n|, ~s|<span class="l-keyword">b</span>|]
+               [~s|<span class="l-keyword">a</span>|, ~s|<span class="l-keyword">b</span>|]
     end
 
     test "a scope the table does not carry opens a bare span" do
@@ -649,8 +650,19 @@ defmodule Lumis.Formatter.HTMLTest do
       body =
         source
         |> HTML.render_lines_from_events(events, attrs)
+        |> Enum.zip(String.split(source, ~r/\r?\n/))
         |> Enum.with_index(1)
-        |> Enum.map(fn {line, number} -> HTML.wrap_line(number, line) end)
+        |> Enum.map(fn {{line, content}, number} ->
+          options =
+            if content == "",
+              do: [
+                style: "display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;"
+              ],
+              else: []
+
+          HTML.wrap_line(number, line, options)
+        end)
+        |> Enum.intersperse("\n")
 
       [
         HTML.open_multi_themes_pre_tag(themes: @themes, default_theme: default_theme),

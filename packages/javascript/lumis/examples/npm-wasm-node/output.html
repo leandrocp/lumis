@@ -14,18 +14,17 @@
     <main>
       <h1>npm-wasm-node + Lumis</h1>
       <p>This example runs in Node and imports <code>@lumis-sh/wasm-elixir</code> directly.</p>
-      <pre class="lumis" style="color: #1f2328; background-color: #ffffff;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #cf222e;">defmodule</span> <span style="color: #953800;">Lumis.Release</span> <span style="color: #cf222e;">do</span>
-</div><div class="l-line" data-line="2">  <span style="color: #cf222e;">def</span> <span style="color: #6639ba;">manifest</span><span style="color: #1f2328;">(</span><span style="color: #1f2328;">env</span><span style="color: #1f2328;">)</span> <span style="color: #cf222e;">do</span>
-</div><div class="l-line" data-line="3">    <span style="color: #1f2328;">%</span><span style="color: #1f2328;">&lbrace;</span><span style="color: #0550ae;">target: </span><span style="color: #1f2328;">env</span><span style="color: #1f2328;">,</span> <span style="color: #0550ae;">profile: </span><span style="color: #0550ae;">:release</span><span style="color: #1f2328;">,</span> <span style="color: #0550ae;">artifact: </span><span style="color: #0a3069;">&quot;lumis-<span style="color: #1f2328;">#&lbrace;</span><span style="color: #1f2328;">env</span><span style="color: #1f2328;">&rbrace;</span>.beam&quot;</span><span style="color: #1f2328;">&rbrace;</span>
-</div><div class="l-line" data-line="4">  <span style="color: #cf222e;">end</span>
-</div><div class="l-line" data-line="5">
-</div><div class="l-line" data-line="6">  <span style="color: #cf222e;">def</span> <span style="color: #6639ba;">print</span><span style="color: #1f2328;">(</span><span style="color: #1f2328;">env</span><span style="color: #1f2328;">)</span> <span style="color: #cf222e;">do</span>
-</div><div class="l-line" data-line="7">    <span style="color: #1f2328;">env</span>
-</div><div class="l-line" data-line="8">    <span style="color: #0550ae;">|&gt;</span> <span style="color: #6639ba;">manifest</span><span style="color: #1f2328;">(</span><span style="color: #1f2328;">)</span>
-</div><div class="l-line" data-line="9">    <span style="color: #0550ae;">|&gt;</span> <span style="color: #953800;">IO</span><span style="color: #0550ae;">.</span><span style="color: #6639ba;">inspect</span><span style="color: #1f2328;">(</span><span style="color: #0550ae;">label: </span><span style="color: #0a3069;">&quot;release&quot;</span><span style="color: #1f2328;">)</span>
-</div><div class="l-line" data-line="10">  <span style="color: #cf222e;">end</span>
-</div><div class="l-line" data-line="11"><span style="color: #cf222e;">end</span>
-</div></code></pre>
+      <pre class="lumis" style="color: #1f2328; background-color: #ffffff;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #cf222e;">defmodule</span> <span style="color: #953800;">Lumis.Release</span> <span style="color: #cf222e;">do</span></span>
+<span class="l-line" data-line="2">  <span style="color: #cf222e;">def</span> <span style="color: #6639ba;">manifest</span><span style="color: #1f2328;">(</span><span style="color: #1f2328;">env</span><span style="color: #1f2328;">)</span> <span style="color: #cf222e;">do</span></span>
+<span class="l-line" data-line="3">    <span style="color: #1f2328;">%</span><span style="color: #1f2328;">{</span><span style="color: #0550ae;">target: </span><span style="color: #1f2328;">env</span><span style="color: #1f2328;">,</span> <span style="color: #0550ae;">profile: :release</span><span style="color: #1f2328;">,</span> <span style="color: #0550ae;">artifact: </span><span style="color: #0a3069;">&quot;lumis-<span style="color: #1f2328;">#{</span><span style="color: #1f2328;">env</span><span style="color: #1f2328;">}</span>.beam&quot;</span><span style="color: #1f2328;">}</span></span>
+<span class="l-line" data-line="4">  <span style="color: #cf222e;">end</span></span>
+<span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;" data-line="5"></span>
+<span class="l-line" data-line="6">  <span style="color: #cf222e;">def</span> <span style="color: #6639ba;">print</span><span style="color: #1f2328;">(</span><span style="color: #1f2328;">env</span><span style="color: #1f2328;">)</span> <span style="color: #cf222e;">do</span></span>
+<span class="l-line" data-line="7">    <span style="color: #1f2328;">env</span></span>
+<span class="l-line" data-line="8">    <span style="color: #0550ae;">|&gt;</span> <span style="color: #6639ba;">manifest</span><span style="color: #1f2328;">()</span></span>
+<span class="l-line" data-line="9">    <span style="color: #0550ae;">|&gt;</span> <span style="color: #953800;">IO</span><span style="color: #0550ae;">.</span><span style="color: #6639ba;">inspect</span><span style="color: #1f2328;">(</span><span style="color: #0550ae;">label: </span><span style="color: #0a3069;">&quot;release&quot;</span><span style="color: #1f2328;">)</span></span>
+<span class="l-line" data-line="10">  <span style="color: #cf222e;">end</span></span>
+<span class="l-line" data-line="11"><span style="color: #cf222e;">end</span></span></code></pre>
     </main>
   </body>
 </html>

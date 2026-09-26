@@ -9,6 +9,7 @@
     "packages/javascript/lumis/src/generated/**",
     "packages/javascript/lumis/src/tree-sitter-wasm.ts",
     "packages/javascript/themes/themes/**",
+    "qa/html-lines/generated/**",
     "samples/**"
   ]
 }

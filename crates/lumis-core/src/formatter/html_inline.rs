@@ -135,7 +135,12 @@ impl HtmlInline {
             .and_then(|hl| hl.class.as_ref())
             .map(|c| format!(" {c}"));
 
-        let style = self.get_highlight_style();
+        let style = Some(format!(
+            "{}{}",
+            crate::formatter::html::LINE_LAYOUT,
+            self.get_highlight_style()
+                .map_or(String::new(), |style| format!(" {style}")),
+        ));
 
         (class_suffix, style)
     }
@@ -176,13 +181,13 @@ impl HtmlInline {
             "line_number"
         };
 
-        crate::formatter::html::span_inline_attrs(
+        crate::formatter::html::unselectable_gutter(&crate::formatter::html::span_inline_attrs(
             None,
             scope,
             self.theme.as_ref(),
             self.italic,
             false,
-        )
+        ))
     }
 }
 
@@ -247,7 +252,15 @@ impl HtmlInline {
             self.theme.as_ref(),
             &crate::formatter::html::budget_attrs(&self.pre_attrs, exhausted),
         )?;
-        crate::formatter::html::write_code_tag(output, self.language, &self.code_attrs)?;
+        let code_attrs = if self.highlight_lines.is_some() {
+            crate::formatter::html::merge_attrs(
+                vec![("style".into(), crate::formatter::html::CODE_LAYOUT.into())],
+                &self.code_attrs,
+            )
+        } else {
+            self.code_attrs.clone()
+        };
+        crate::formatter::html::write_code_tag(output, self.language, &code_attrs)?;
 
         let (class_suffix, style) = self.get_line_attrs(true);
         let line_number_attrs = self.line_numbers.then(|| self.line_number_attrs(false));
@@ -264,6 +277,7 @@ impl HtmlInline {
                 highlighted_line_number_attrs: highlighted_line_number_attrs.as_deref(),
                 highlighted_class: class_suffix.as_deref(),
                 highlighted_style: style.as_deref(),
+                empty_style: Some(crate::formatter::html::LINE_LAYOUT),
             },
             &|scope_index, language| self.span_attrs_from_index(scope_index, language),
         )?;

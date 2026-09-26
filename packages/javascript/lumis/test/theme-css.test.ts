@@ -31,6 +31,21 @@ describe("buildCss", () => {
   color: red;
   background-color: green;
 }
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .l-keyword {
   color: blue;
   font-style: italic;
@@ -59,6 +74,21 @@ html[data-theme="dark"] .lumis {
   color: red;
   background-color: var(--color-grey-900);
   border-radius: 0.375rem;
+}
+html[data-theme="dark"] pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+html[data-theme="dark"] .l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+html[data-theme="dark"] .l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
 }
 html[data-theme="dark"] .l-keyword {
   color: blue;

@@ -1,0 +1,18 @@
+{
+  "language": "rust",
+  "theme": "dracula",
+  "highlightLines": [1, 2],
+  "lineNumbers": [false, true],
+  "formatters": ["html-inline", "html-linked", "html-multi-themes"],
+  "cases": [
+    { "id": "basic", "source": "let a = 1;\nlet b = 2;\nlet c = 3;" },
+    { "id": "empty-middle", "source": "let a = 1;\n\nlet c = 3;" },
+    { "id": "final-lf", "source": "let a = 1;\nlet b = 2;\n" },
+    { "id": "trailing-empty", "source": "let a = 1;\n\n" },
+    { "id": "crlf-unicode", "source": "let text = \"café 🦀\";\r\n\r\nlet c = 3;\r\n" },
+    { "id": "multiline-string", "source": "let text = r#\"first\n\nlast\"#;" },
+    { "id": "horizontal-scroll", "source": "let short = 1;\n\nlet long = \"The highlighted short and empty rows must cover the complete scroll width, including this far right edge.\";" },
+    { "id": "only-newlines", "source": "\n\n" },
+    { "id": "empty-source", "source": "" }
+  ]
+}

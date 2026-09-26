@@ -312,7 +312,7 @@ describe("hl.highlight", () => {
 
   it("accepts Language as language", () => {
     const html = hl.highlight('{"a": 1}', htmlInline({ language: json, theme }));
-    expect(html).toContain("<span");
+    expect(html).toMatch(/<span(?! class="l-line")/);
     expect(html).toContain('class="language-json"');
   });
 
@@ -327,7 +327,7 @@ describe("hl.highlight", () => {
     );
 
     expect(html).toContain('class="language-javascript"');
-    expect(html).toContain("<span");
+    expect(html).toMatch(/<span(?! class="l-line")/);
   });
 
   it("highlights Python class scopes when captures omit match metadata", async () => {
@@ -344,7 +344,7 @@ class User:
 
     expect(html).toContain('class="language-python"');
     expect(html).toContain("User");
-    expect(html).toContain("<span");
+    expect(html).toMatch(/<span(?! class="l-line")/);
   });
 
   it("adds custom class to pre element", () => {
@@ -601,7 +601,7 @@ describe("budget", () => {
     });
 
     expect(html).toContain('data-lumis-budget="time"');
-    expect(html).not.toContain("<span");
+    expect(html).not.toMatch(/<span(?! class="l-line")/);
     expect(html).toContain(pathological);
   });
 
@@ -619,7 +619,7 @@ describe("budget", () => {
   it("leaves a render inside its budget unmarked", () => {
     const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }));
 
-    expect(html).toContain("<span");
+    expect(html).toMatch(/<span(?! class="l-line")/);
     expect(html).not.toContain("data-lumis-budget");
   });
 
@@ -635,7 +635,7 @@ describe("budget", () => {
       });
 
       expect(html).toContain('data-lumis-budget="matches"');
-      expect(html).toContain("<span");
+      expect(html).toMatch(/<span(?! class="l-line")/);
     },
   );
 
@@ -653,7 +653,7 @@ describe("budget", () => {
       budget: { timeLimit: 1000 },
     });
 
-    expect(html).toContain("<span");
+    expect(html).toMatch(/<span(?! class="l-line")/);
     expect(html).not.toContain("data-lumis-budget");
   });
 
@@ -662,7 +662,7 @@ describe("budget", () => {
       budget: { timeLimit: 0 },
     });
 
-    expect(html).toContain("<span");
+    expect(html).toMatch(/<span(?! class="l-line")/);
     expect(html).not.toContain("data-lumis-budget");
   });
 
@@ -704,7 +704,7 @@ describe("plaintext", () => {
     expect(html).toContain("&amp;");
     expect(html).toContain('data-line="1"');
     expect(html).toContain('data-line="2"');
-    expect(html).not.toContain("<span");
+    expect(html).not.toMatch(/<span(?! class="l-line")/);
   });
 
   it("renders when language is omitted (html_linked)", () => {
@@ -716,13 +716,13 @@ describe("plaintext", () => {
   it("renders with language: plaintext", () => {
     const html = plaintextHl.highlight("hello world", htmlInline({ language: plaintext, theme }));
     expect(html).toContain('class="language-plaintext"');
-    expect(html).not.toContain("<span");
+    expect(html).not.toMatch(/<span(?! class="l-line")/);
   });
 
   it("renders with plaintext Language", () => {
     const html = plaintextHl.highlight("hello world", htmlInline({ language: plaintext, theme }));
     expect(html).toContain('class="language-plaintext"');
-    expect(html).not.toContain("<span");
+    expect(html).not.toMatch(/<span(?! class="l-line")/);
   });
 
   it("works with stateless highlight()", async () => {
@@ -761,7 +761,7 @@ describe("plaintext", () => {
 describe("highlight() async", () => {
   it("auto-loads Language", async () => {
     const html = await highlight('{"a": 1}', htmlInline({ language: json, theme }));
-    expect(html).toContain("<span");
+    expect(html).toMatch(/<span(?! class="l-line")/);
     expect(html).toContain('class="language-json"');
   });
 
@@ -875,7 +875,9 @@ describe("htmlMultiThemes", () => {
         highlightLines: { lines: [1], style: "theme" },
       }),
     );
-    expect(html).toContain('style="color: #eeeeee; background-color: #44475a;"');
+    expect(html).toContain(
+      'style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; color: #eeeeee; background-color: #44475a;"',
+    );
   });
 
   function renderLightDarkHighlightedLine(
@@ -919,16 +921,20 @@ describe("htmlMultiThemes", () => {
   it("highlights lines in both colour schemes", () => {
     const html = renderLightDarkHighlightedLine("#2f334d", "#44475a");
 
-    expect(html).toContain('style="background-color: light-dark(#2f334d, #44475a);"');
+    expect(html).toContain(
+      'style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: light-dark(#2f334d, #44475a);"',
+    );
   });
 
   it.each([
     ["light", undefined, "#44475a"],
     ["dark", "#2f334d", undefined],
-  ])("does not style lines without the %s highlighted background", (_theme, lightBg, darkBg) => {
+  ])("keeps line layout without the %s highlighted background", (_theme, lightBg, darkBg) => {
     const html = renderLightDarkHighlightedLine(lightBg, darkBg);
 
-    expect(html).toContain('<div class="l-line" data-line="1">');
+    expect(html).toContain(
+      '<span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;" data-line="1">',
+    );
   });
 
   it("wraps output with header element", () => {
@@ -1106,10 +1112,10 @@ describe("lineNumbers", () => {
     );
 
     expect(html).toContain(
-      '<span class="l-line-number" style="color: #123456;" aria-hidden="true">1</span>',
+      '<span class="l-line-number" style="-webkit-user-select: none; user-select: none; color: #123456;" aria-hidden="true">1</span>',
     );
     expect(html).toContain(
-      '<span class="l-line-number" style="color: #123456;" aria-hidden="true">3</span>',
+      '<span class="l-line-number" style="-webkit-user-select: none; user-select: none; color: #123456;" aria-hidden="true">3</span>',
     );
   });
 
@@ -1146,7 +1152,7 @@ describe("lineNumbers", () => {
     );
 
     expect(inline).toContain(
-      '<span class="l-line-number l-line-number-highlighted" style="color: #abcdef; font-weight: bold;" aria-hidden="true">2</span>',
+      '<span class="l-line-number l-line-number-highlighted" style="-webkit-user-select: none; user-select: none; color: #abcdef; font-weight: bold;" aria-hidden="true">2</span>',
     );
     expect(linked).toContain(
       '<span class="l-line-number l-line-number-highlighted" aria-hidden="true">2</span>',
@@ -1166,10 +1172,10 @@ describe("lineNumbers", () => {
     );
 
     expect(html).toContain(
-      '<span class="l-line-number" style="color:#123456; --lumis-dark-font-style:normal; --lumis-dark-font-weight:normal; --lumis-dark-text-decoration:none;" aria-hidden="true">1</span>',
+      '<span class="l-line-number" style="-webkit-user-select: none; user-select: none; color:#123456; --lumis-dark-font-style:normal; --lumis-dark-font-weight:normal; --lumis-dark-text-decoration:none;" aria-hidden="true">1</span>',
     );
     expect(html).toContain(
-      '<span class="l-line-number l-line-number-highlighted" style="color:#abcdef; font-weight:bold; --lumis-dark-font-style:normal; --lumis-dark-font-weight:bold; --lumis-dark-text-decoration:none;" aria-hidden="true">2</span>',
+      '<span class="l-line-number l-line-number-highlighted" style="-webkit-user-select: none; user-select: none; color:#abcdef; font-weight:bold; --lumis-dark-font-style:normal; --lumis-dark-font-weight:bold; --lumis-dark-text-decoration:none;" aria-hidden="true">2</span>',
     );
   });
 

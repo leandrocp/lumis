@@ -1,0 +1,114 @@
+---
+title: HTML Line Markup Migration
+description: Update custom CSS and formatters for content-only line spans.
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+HTML formatters now emit `<span class="l-line" data-line="N">` instead of
+`<div>`. Each span holds only its content; a `\n` text node separates consecutive
+lines, with nothing after the last span. This is valid phrasing content inside
+`<pre><code>` and avoids doubled newlines in `innerText`.
+
+```html
+<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><span class="l-line" data-line="1">first</span>
+<span class="l-line" data-line="2">second</span></code></pre>
+```
+
+Classes, `data-line`, highlight classes and gutter elements are unchanged.
+A final LF or CRLF terminates the last line rather than adding an empty numbered
+line: `"a\n"` renders one line, `"a\n\n"` renders two, and an empty input still
+renders one empty line. HTML separators are always LF; terminal and BBCode output
+retain their source terminators.
+
+## Custom CSS
+
+Update theme CSS along with the formatter. Bundled stylesheets and generated
+`Theme.css` / `build_css` / `buildCss` output include:
+
+```css
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
+```
+
+- Replace selectors such as `div.l-line` with `.l-line`.
+- Remove `display: block` from line rules: blocks plus newline text nodes produce
+  extra blank rows. Do not work around it with `code { display: grid }`, which
+  loses empty lines from copies in some engines.
+- Keep the height and alignment declarations: an empty inline-block otherwise
+  has zero height, and baseline alignment can make empty rows taller.
+- Add `box-sizing: border-box` if lines have horizontal padding or borders, so
+  those fit inside `width: 100%`.
+
+HTML Inline and HTML Multi-Themes carry layout styles on highlighted and empty
+lines, code-width styles when line highlighting is configured, and copy
+protection on gutters. Opting out of highlight colors does not remove layout.
+
+## Custom formatters
+
+`render_lines_from_events` / `renderLinesFromEvents` returns content-only lines.
+Remove any terminator stripping. `wrap_line` / `wrapLine` wraps the content in a
+span but adds no newline, so join its results explicitly. Apply the CSS above
+when laying out these custom line wrappers.
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+const body = renderLinesFromEvents(source, events, spanAttrs)
+  .map((line, i) => wrapLine(i + 1, line))
+  .join('\n');
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+let body = html::render_lines_from_events(source, &events, |scope, _language| {
+    html::span_linked_attrs(HIGHLIGHT_NAMES[scope])
+})
+.iter()
+.enumerate()
+.map(|(i, line)| html::wrap_line(i + 1, line, None, None))
+.collect::<Vec<_>>()
+.join("\n");
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+body =
+  source
+  |> HTML.render_lines_from_events(events, attrs)
+  |> Enum.with_index(1)
+  |> Enum.map(fn {line, number} -> HTML.wrap_line(number, line) end)
+  |> Enum.intersperse("\n")
+```
+
+  </Tab>
+</Tabs>
+
+A per-line table, diff view or stream can use the returned content directly,
+without adding separators.
+
+## Copy buttons
+
+Keep the original source for exact copies. Browsers normalize CRLF, the formatter
+omits the final terminator, and `innerText` / `textContent` include gutter text.
+`user-select: none` excludes numbers from selection copy, not from those DOM
+properties. Chromium also trims trailing blank rows containing only unselectable
+gutters from a selection. Copying the source avoids all of these differences.

@@ -574,7 +574,7 @@ mod tests {
     fn test_write_highlight() {
         let code = r"const = 1";
 
-        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-javascript" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #ca9ee7;">const</span> <span style="color: #99d1dc;">=</span> <span style="color: #ef9f77;">1</span></div></code></pre>"#;
+        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-javascript" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #ca9ee7;">const</span> <span style="color: #99d1dc;">=</span> <span style="color: #ef9f77;">1</span></span></code></pre>"#;
 
         let mut buffer = Vec::new();
 
@@ -604,16 +604,15 @@ mod tests {
 end
 "#;
 
-        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #ca9ee7;">defmodule</span> <span style="color: #e5c891;">Foo</span> <span style="color: #ca9ee7;">do</span>
-</div><div class="l-line" data-line="2">  <span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">@moduledoc</span> <span style="color: #949cbc;">&quot;&quot;&quot;</span></span></span>
-</div><div class="l-line" data-line="3"><span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">  Test Module</span></span></span>
-</div><div class="l-line" data-line="4"><span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">  &quot;&quot;&quot;</span></span></span>
-</div><div class="l-line" data-line="5">
-</div><div class="l-line" data-line="6">  <span style="color: #99d1dc;"><span style="color: #ef9f77;">@<span style="color: #8caaef;"><span style="color: #ef9f77;">projects <span style="color: #949cbc;">[</span><span style="color: #a6d18a;">&quot;Phoenix&quot;</span><span style="color: #949cbc;">,</span> <span style="color: #a6d18a;">&quot;MDEx&quot;</span><span style="color: #949cbc;">]</span></span></span></span></span>
-</div><div class="l-line" data-line="7">
-</div><div class="l-line" data-line="8">  <span style="color: #ca9ee7;">def</span> <span style="color: #8caaef;">projects</span><span style="color: #949cbc;">,</span> <span style="color: #eebebf;">do: </span><span style="color: #99d1dc;"><span style="color: #ef9f77;">@<span style="color: #ef9f77;">projects</span></span></span>
-</div><div class="l-line" data-line="9"><span style="color: #ca9ee7;">end</span>
-</div><div class="l-line" data-line="10"></div></code></pre>"#;
+        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #ca9ee7;">defmodule</span> <span style="color: #e5c891;">Foo</span> <span style="color: #ca9ee7;">do</span></span>
+<span class="l-line" data-line="2">  <span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">@moduledoc</span> <span style="color: #949cbc;">&quot;&quot;&quot;</span></span></span></span>
+<span class="l-line" data-line="3"><span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">  Test Module</span></span></span></span>
+<span class="l-line" data-line="4"><span style="color: #99d1dc;"><span style="color: #949cbc;"><span style="color: #949cbc;">  &quot;&quot;&quot;</span></span></span></span>
+<span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;" data-line="5"></span>
+<span class="l-line" data-line="6">  <span style="color: #99d1dc;"><span style="color: #ef9f77;">@<span style="color: #8caaef;"><span style="color: #ef9f77;">projects <span style="color: #949cbc;">[</span><span style="color: #a6d18a;">&quot;Phoenix&quot;</span><span style="color: #949cbc;">,</span> <span style="color: #a6d18a;">&quot;MDEx&quot;</span><span style="color: #949cbc;">]</span></span></span></span></span></span>
+<span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;" data-line="7"></span>
+<span class="l-line" data-line="8">  <span style="color: #ca9ee7;">def</span> <span style="color: #8caaef;">projects</span><span style="color: #949cbc;">,</span> <span style="color: #eebebf;">do: </span><span style="color: #99d1dc;"><span style="color: #ef9f77;">@<span style="color: #ef9f77;">projects</span></span></span></span>
+<span class="l-line" data-line="9"><span style="color: #ca9ee7;">end</span></span></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
             .language(Language::Elixir)
@@ -633,10 +632,9 @@ end
 end
 ";
 
-        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span data-highlight="keyword.function" style="color: #ca9ee7;">defmodule</span> <span data-highlight="module" style="color: #e5c891;">Foo</span> <span data-highlight="keyword" style="color: #ca9ee7;">do</span>
-</div><div class="l-line" data-line="2">  <span data-highlight="operator" style="color: #99d1dc;"><span data-highlight="constant" style="color: #ef9f77;">@<span data-highlight="function.call" style="color: #8caaef;"><span data-highlight="constant" style="color: #ef9f77;">lang <span data-highlight="string.special.symbol" style="color: #eebebf;">:elixir</span></span></span></span></span>
-</div><div class="l-line" data-line="3"><span data-highlight="keyword" style="color: #ca9ee7;">end</span>
-</div><div class="l-line" data-line="4"></div></code></pre>"#;
+        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span data-highlight="keyword.function" style="color: #ca9ee7;">defmodule</span> <span data-highlight="module" style="color: #e5c891;">Foo</span> <span data-highlight="keyword" style="color: #ca9ee7;">do</span></span>
+<span class="l-line" data-line="2">  <span data-highlight="operator" style="color: #99d1dc;"><span data-highlight="constant" style="color: #ef9f77;">@<span data-highlight="function.call" style="color: #8caaef;"><span data-highlight="constant" style="color: #ef9f77;">lang <span data-highlight="string.special.symbol" style="color: #eebebf;">:elixir</span></span></span></span></span></span>
+<span class="l-line" data-line="3"><span data-highlight="keyword" style="color: #ca9ee7;">end</span></span></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
             .language(Language::Elixir)
@@ -653,7 +651,7 @@ end
     #[test]
     fn test_highlight_html_inline_preserves_curly_braces() {
         let code = "{:ok, char: '{'}";
-        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #949cbc;">{</span><span style="color: #eebebf;">:ok</span><span style="color: #949cbc;">,</span> <span style="color: #eebebf;">char: </span><span style="color: #81c8bf;">&#39;{&#39;</span><span style="color: #949cbc;">}</span></div></code></pre>"#;
+        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #949cbc;">{</span><span style="color: #eebebf;">:ok</span><span style="color: #949cbc;">,</span> <span style="color: #eebebf;">char: </span><span style="color: #81c8bf;">&#39;{&#39;</span><span style="color: #949cbc;">}</span></span></code></pre>"#;
 
         let formatter = HtmlInlineBuilder::default()
             .language(Language::Elixir)
@@ -679,16 +677,15 @@ end
 end
 "#;
 
-        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-keyword-function">defmodule</span> <span class="l-module">Foo</span> <span class="l-keyword">do</span>
-</div><div class="l-line" data-line="2">  <span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">@moduledoc</span> <span class="l-comment">&quot;&quot;&quot;</span></span></span>
-</div><div class="l-line" data-line="3"><span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">  Test Module</span></span></span>
-</div><div class="l-line" data-line="4"><span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">  &quot;&quot;&quot;</span></span></span>
-</div><div class="l-line" data-line="5">
-</div><div class="l-line" data-line="6">  <span class="l-operator"><span class="l-constant">@<span class="l-function-call"><span class="l-constant">projects <span class="l-punctuation-bracket">[</span><span class="l-string">&quot;Phoenix&quot;</span><span class="l-punctuation-delimiter">,</span> <span class="l-string">&quot;MDEx&quot;</span><span class="l-punctuation-bracket">]</span></span></span></span></span>
-</div><div class="l-line" data-line="7">
-</div><div class="l-line" data-line="8">  <span class="l-keyword-function">def</span> <span class="l-function">projects</span><span class="l-punctuation-delimiter">,</span> <span class="l-string-special-symbol">do: </span><span class="l-operator"><span class="l-constant">@<span class="l-constant">projects</span></span></span>
-</div><div class="l-line" data-line="9"><span class="l-keyword">end</span>
-</div><div class="l-line" data-line="10"></div></code></pre>"#;
+        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-keyword-function">defmodule</span> <span class="l-module">Foo</span> <span class="l-keyword">do</span></span>
+<span class="l-line" data-line="2">  <span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">@moduledoc</span> <span class="l-comment">&quot;&quot;&quot;</span></span></span></span>
+<span class="l-line" data-line="3"><span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">  Test Module</span></span></span></span>
+<span class="l-line" data-line="4"><span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">  &quot;&quot;&quot;</span></span></span></span>
+<span class="l-line" data-line="5"></span>
+<span class="l-line" data-line="6">  <span class="l-operator"><span class="l-constant">@<span class="l-function-call"><span class="l-constant">projects <span class="l-punctuation-bracket">[</span><span class="l-string">&quot;Phoenix&quot;</span><span class="l-punctuation-delimiter">,</span> <span class="l-string">&quot;MDEx&quot;</span><span class="l-punctuation-bracket">]</span></span></span></span></span></span>
+<span class="l-line" data-line="7"></span>
+<span class="l-line" data-line="8">  <span class="l-keyword-function">def</span> <span class="l-function">projects</span><span class="l-punctuation-delimiter">,</span> <span class="l-string-special-symbol">do: </span><span class="l-operator"><span class="l-constant">@<span class="l-constant">projects</span></span></span></span>
+<span class="l-line" data-line="9"><span class="l-keyword">end</span></span></code></pre>"#;
 
         let formatter = HtmlLinkedBuilder::default()
             .language(Language::Elixir)
@@ -703,7 +700,7 @@ end
     #[test]
     fn test_highlight_html_linked_preserves_curly_braces() {
         let code = "{:ok, char: '{'}";
-        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span class="l-punctuation-bracket">{</span><span class="l-string-special-symbol">:ok</span><span class="l-punctuation-delimiter">,</span> <span class="l-string-special-symbol">char: </span><span class="l-character">&#39;{&#39;</span><span class="l-punctuation-bracket">}</span></div></code></pre>"#;
+        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-punctuation-bracket">{</span><span class="l-string-special-symbol">:ok</span><span class="l-punctuation-delimiter">,</span> <span class="l-string-special-symbol">char: </span><span class="l-character">&#39;{&#39;</span><span class="l-punctuation-bracket">}</span></span></code></pre>"#;
 
         let formatter = HtmlLinkedBuilder::default()
             .language(Language::Elixir)

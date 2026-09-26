@@ -683,6 +683,14 @@ impl Css<'_> {
             rules.push(format!(" {{\n  {container_style}\n}}\n"));
         }
 
+        for (selector, declarations) in [
+            ("pre.lumis > code", "display: block;\n  width: max-content;\n  min-width: 100%;"),
+            (".l-line", "display: inline-block;\n  width: 100%;\n  min-height: 1lh;\n  vertical-align: top;"),
+            (".l-line-number", "-webkit-user-select: none;\n  user-select: none;"),
+        ] {
+            rules.push(format!("{} {{\n  {declarations}\n}}\n", self.scoped_selector(selector)));
+        }
+
         for (scope, style) in &self.theme.highlights {
             // `normal` defines the code block's inherited colors, already emitted in the container rule
             // above and inherited by all text. It is never applied as a token class in highlighted
@@ -950,6 +958,21 @@ mod tests {
   color: red;
   background-color: green;
 }
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .l-keyword {
   color: blue;
   font-style: italic;
@@ -1057,6 +1080,21 @@ html[data-theme="dark"] .lumis {
   background-color: var(--color-grey-900);
   border-radius: 0.375rem;
 }
+html[data-theme="dark"] pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+html[data-theme="dark"] .l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+html[data-theme="dark"] .l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 html[data-theme="dark"] .l-keyword {
   color: blue;
 }
@@ -1084,6 +1122,21 @@ html[data-theme="dark"] .l-keyword {
  * revision: abc
  */
 .lumis {}
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .l-keyword {
   color: blue;
   font-style: italic;
@@ -1103,6 +1156,21 @@ html[data-theme="dark"] .l-keyword {
  * revision: abc
  */
 .lumis {}
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 ";
 
         assert_eq!(CssBuilder::new(&theme).build(), expected);
@@ -1120,6 +1188,21 @@ html[data-theme="dark"] .l-keyword {
   color: red;
   background-color: green;
   padding: 1rem;
+}
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
 }
 .l-keyword {
   color: blue;
@@ -1146,6 +1229,21 @@ html[data-theme="dark"] .l-keyword {
   color: red;
   background-color: #000;
 }
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 ";
 
         assert_eq!(
@@ -1167,6 +1265,21 @@ html[data-theme="dark"] .l-keyword {
 .lumis {
   color: red;
   background-color: #000;
+}
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
 }
 ";
 
@@ -1205,6 +1318,21 @@ html[data-theme="dark"] .l-keyword {
   padding: 1rem;
   overflow-x: auto;
 }
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 ";
 
         assert_eq!(
@@ -1230,6 +1358,21 @@ html[data-theme="dark"] .l-keyword {
 .app .lumis {
   color: red;
 }
+.app pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.app .l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.app .l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .app .l-keyword {
   color: blue;
 }
@@ -1247,6 +1390,21 @@ html[data-theme="dark"] .l-keyword {
  * revision: abc
  */
 .lumis {}
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .l-keyword {
   color: blue;
   font-weight: bold;

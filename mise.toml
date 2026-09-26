@@ -187,6 +187,26 @@ echo "Running Javascript tests..."
 mise run test-javascript
 '''
 
+[tasks.'qa-html-lines']
+description = "Capture and compare HTML line screenshots across every in-repo runtime"
+depends = ["stage-test-parsers"]
+env = { LUMIS_DATA_DIR = "{{config_root}}/target/test-parsers" }
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cargo run -p lumis --example html_line_qa -- qa/html-lines/cases.json target/html-line-qa/rust.json
+cargo build -p lumis-cli
+pnpm --filter @lumis-sh/themes run build
+pnpm --filter @lumis-sh/lumis run build:native
+pnpm --filter @lumis-sh/lumis run build
+for runtime in native wasm; do
+    LUMIS_TEST_RUNTIME="$runtime" pnpm --dir packages/javascript/lumis exec tsx ../../../qa/html-lines/render-node.mjs
+done
+(cd packages/elixir/lumis && LUMIS_BUILD=1 MIX_ENV=test mix run test/support/html_line_qa.exs)
+pnpm --filter @lumis-sh/lumis exec playwright install chromium firefox webkit
+node qa/html-lines/capture.mjs
+'''
+
 [tasks.'test-elixir']
 description = "Run the Elixir test suite"
 depends = ["stage-test-parsers"]

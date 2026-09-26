@@ -327,7 +327,7 @@ fn highlight_degrades_to_plain_text_when_the_time_budget_is_spent() {
         .success()
         .stdout(predicate::str::contains(r#"data-lumis-budget="time""#))
         .stdout(predicate::str::contains(&pathological))
-        .stdout(predicate::str::contains("<span").not());
+        .stdout(predicate::str::contains("<span").count(1));
 }
 
 /// Loading a parser is not charged against the budget.
@@ -356,7 +356,9 @@ fn a_parser_load_is_not_charged_against_the_time_budget() {
         .write_stdin("const answer = 42;\n")
         .assert()
         .success()
-        .stdout(predicate::str::contains("<span"))
+        .stdout(predicate::function(|html: &str| {
+            html.matches("<span").count() > 1
+        }))
         .stdout(predicate::str::contains("data-lumis-budget").not());
 }
 
@@ -382,7 +384,9 @@ fn highlight_reports_a_spent_match_budget() {
         .assert()
         .success()
         .stdout(predicate::str::contains(r#"data-lumis-budget="matches""#))
-        .stdout(predicate::str::contains("<span"));
+        .stdout(predicate::function(|html: &str| {
+            html.matches("<span").count() > 1
+        }));
 }
 
 #[test]
@@ -402,7 +406,9 @@ fn highlight_without_a_time_limit_highlights() {
         .write_stdin("const answer = 42;\n")
         .assert()
         .success()
-        .stdout(predicate::str::contains("<span"))
+        .stdout(predicate::function(|html: &str| {
+            html.matches("<span").count() > 1
+        }))
         .stdout(predicate::str::contains("data-lumis-budget").not());
 }
 
@@ -1086,10 +1092,10 @@ fn highlight_source_html_inline_routes_parity_options() {
         ))
         .stdout(predicate::str::contains("id=\"pre&quot;&amp;\""))
         .stdout(predicate::str::contains(
-            "<code class=\"language-diff\" translate=\"yes\" tabindex=\"-1\">",
+            "<code class=\"language-diff\" translate=\"yes\" tabindex=\"-1\" style=\"display: block; width: max-content; min-width: 100%;\">",
         ))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number l-line-number-highlighted\" style=\"color: #f8f8f2; font-weight: bold;\" aria-hidden=\"true\">1</span>",
+            "<span class=\"l-line selected\" style=\"display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;\" data-line=\"1\"><span class=\"l-line-number l-line-number-highlighted\" style=\"-webkit-user-select: none; user-select: none; color: #f8f8f2; font-weight: bold;\" aria-hidden=\"true\">1</span>",
         ))
         .stdout(predicate::str::contains("data-highlight=\""))
         .stdout(predicate::str::contains("font-style: italic;"))
@@ -1132,7 +1138,7 @@ fn highlight_source_diff_html_linked() {
         .stdout(predicate::str::contains("id=\"linked\""))
         .stdout(predicate::str::contains("data-copy=\"button\""))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number l-line-number-highlighted\" aria-hidden=\"true\">1</span>",
+            "<span class=\"l-line selected\" data-line=\"1\"><span class=\"l-line-number l-line-number-highlighted\" aria-hidden=\"true\">1</span>",
         ))
         .stdout(predicate::str::ends_with("</code></pre></figure>"));
 }
@@ -1218,7 +1224,7 @@ fn highlight_source_diff_html_multi_themes_with_all_options() {
         .stdout(predicate::str::contains("data-copy=\"button\""))
         .stdout(predicate::str::contains("--demo-alt"))
         .stdout(predicate::str::contains(
-            "<div class=\"l-line selected\" data-line=\"2\"><span class=\"l-line-number l-line-number-highlighted\" style=\"color:#f8f8f2; font-weight:bold;",
+            "<span class=\"l-line selected\" style=\"display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;\" data-line=\"2\"><span class=\"l-line-number l-line-number-highlighted\" style=\"-webkit-user-select: none; user-select: none; color:#f8f8f2; font-weight:bold;",
         ))
         .stdout(predicate::str::contains("data-highlight=\""))
         .stdout(predicate::str::contains("font-style:"))

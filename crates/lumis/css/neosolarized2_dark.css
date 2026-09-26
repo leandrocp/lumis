@@ -4,6 +4,21 @@
 .lumis {
   color: #839496;
 }
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .l-attribute {
   color: #d33682;
   font-style: italic;

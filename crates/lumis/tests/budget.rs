@@ -42,8 +42,8 @@ fn an_exhausted_time_budget_returns_the_whole_document_as_plain_text() {
     let html = html_linked(SOURCE, spent());
 
     assert!(
-        !html.contains("<span"),
-        "an exhausted budget renders no scopes, got {html}"
+        html.matches("<span").count() == 1,
+        "an exhausted budget renders only the line span, got {html}"
     );
     assert!(
         html.contains(SOURCE.trim_end()),
@@ -80,7 +80,7 @@ fn an_unspent_budget_highlights_and_marks_nothing() {
     let html = html_linked(SOURCE, HighlightOptions::new());
 
     assert!(
-        html.contains("<span"),
+        html.matches("<span").count() > 1,
         "the default 5 s budget is not reachable by a one-line document, got {html}"
     );
     assert!(
@@ -96,7 +96,7 @@ fn a_removed_time_limit_highlights() {
         HighlightOptions::new().budget(Budget::new().time_limit(None)),
     );
 
-    assert!(html.contains("<span"), "got {html}");
+    assert!(html.matches("<span").count() > 1, "got {html}");
     assert!(!html.contains("data-lumis-budget"), "got {html}");
 }
 
@@ -129,7 +129,7 @@ fn every_html_formatter_marks_the_pre() {
             "{name} does not mark the pre, got {html}"
         );
         assert!(
-            !html.contains("<span"),
+            html.matches("<span").count() == 1,
             "{name} rendered scopes, got {html}"
         );
     }
@@ -166,7 +166,7 @@ fn an_exhausted_match_budget_marks_the_pre_and_keeps_highlighting() {
         "dropped matches are reported, got {html}"
     );
     assert!(
-        html.contains("<span"),
+        html.matches("<span").count() > SOURCE.lines().count(),
         "matches is not plain-text degradation; the document stays highlighted, got {html}"
     );
     assert!(
@@ -233,7 +233,7 @@ fn an_exhausted_render_does_not_leak_into_the_next_one() {
         after, isolated,
         "the render after an exhausted one is not the render of its own document"
     );
-    assert!(after.contains("<span"), "got {after}");
+    assert!(after.matches("<span").count() > 1, "got {after}");
     assert!(!after.contains("data-lumis-budget"), "got {after}");
 }
 
@@ -249,7 +249,7 @@ fn rainbow_brackets_do_not_escape_the_budget() {
 
     assert!(html.contains(r#"data-lumis-budget="time""#), "got {html}");
     assert!(
-        !html.contains("<span"),
+        html.matches("<span").count() == 1,
         "an exhausted render came back with rainbow spans, got {html}"
     );
 

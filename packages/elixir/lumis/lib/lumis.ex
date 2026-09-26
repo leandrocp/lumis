@@ -1131,8 +1131,8 @@ defmodule Lumis do
       iex> Lumis.highlight("Atom.to_string(:elixir)", formatter: {:html_inline, language: "elixir"})
       {
         :ok,
-        <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><div class="l-line" data-line="1"><span style="color: #e5c07b;">Atom</span><span style="color: #56b6c2;">.</span><span style="color: #61afef;">to_string</span><span style="color: #c678dd;">(</span><span style="color: #e06c75;">:elixir</span><span style="color: #c678dd;">)</span>
-        </div></code></pre>
+        <pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #e5c07b;">Atom</span><span style="color: #56b6c2;">.</span><span style="color: #61afef;">to_string</span><span style="color: #c678dd;">(</span><span style="color: #e06c75;">:elixir</span><span style="color: #c678dd;">)</span>
+        </span></code></pre>
       }
 
   Guessing the language based on the provided source code:
@@ -1161,7 +1161,7 @@ defmodule Lumis do
       iex> highlight_lines = %{lines: [2]}
       iex> Lumis.highlight(code, formatter: {:html_inline, language: "elixir", highlight_lines: highlight_lines})
       # Line 2 will be highlighted with the theme's `highlighted` style:
-      <div class=\"l-line\" style=\"background-color: #414858;\" data-line=\"2\">...</div>
+      <span class=\"l-line\" style=\"background-color: #414858;\" data-line=\"2\">...</span>
 
   Highlighting specific lines in HTML Linked formatter:
       
@@ -1174,7 +1174,7 @@ defmodule Lumis do
       iex> highlight_lines = %{lines: [2]}
       iex> Lumis.highlight(code, formatter: {:html_linked, language: "elixir", highlight_lines: highlight_lines})
       # Line 2 will contain a `l-highlighted` class:
-      <div class=\"l-line l-highlighted\" data-line=\"2\">...
+      <span class=\"l-line l-highlighted\" data-line=\"2\">...
 
   Wrapping with custom HTML:
 
@@ -1183,7 +1183,7 @@ defmodule Lumis do
       ...>   close_tag: "</figure>"
       ...> }
       iex> Lumis.highlight("IO.puts('hello')", formatter: {:html_inline, language: "elixir", header: header})
-      # Returns: "<div class='code-block' data-lang='elixir'><pre class='lumis'>...</pre></div>"
+      # Returns: "<div class='code-block' data-lang='elixir'><pre class='lumis'>...</pre></span>"
       {:ok, "<figure><span>file: example.exs</span><pre...><code ...>...</code></pre></figure>"}
 
   See https://docs.rs/lumis/latest/lumis/fn.highlight.html for more info.

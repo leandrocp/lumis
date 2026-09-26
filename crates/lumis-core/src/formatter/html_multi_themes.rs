@@ -251,7 +251,12 @@ impl HtmlMultiThemes {
             .and_then(|hl| hl.class.as_ref())
             .map(|c| format!(" {c}"));
 
-        let style = self.get_highlight_style();
+        let style = Some(format!(
+            "{}{}",
+            crate::formatter::html::LINE_LAYOUT,
+            self.get_highlight_style()
+                .map_or(String::new(), |style| format!(" {style}")),
+        ));
 
         (class_suffix, style)
     }
@@ -311,14 +316,16 @@ impl HtmlMultiThemes {
             "line_number"
         };
 
-        crate::formatter::html::span_multi_themes_attrs(
-            scope,
-            None,
-            &self.themes,
-            self.default_theme_name(),
-            &self.css_variable_prefix,
-            self.italic,
-            false,
+        crate::formatter::html::unselectable_gutter(
+            &crate::formatter::html::span_multi_themes_attrs(
+                scope,
+                None,
+                &self.themes,
+                self.default_theme_name(),
+                &self.css_variable_prefix,
+                self.italic,
+                false,
+            ),
         )
     }
 }
@@ -361,7 +368,15 @@ impl HtmlMultiThemes {
         }
 
         self.open_pre_tag(output, exhausted)?;
-        crate::formatter::html::write_code_tag(output, self.language, &self.code_attrs)?;
+        let code_attrs = if self.highlight_lines.is_some() {
+            crate::formatter::html::merge_attrs(
+                vec![("style".into(), crate::formatter::html::CODE_LAYOUT.into())],
+                &self.code_attrs,
+            )
+        } else {
+            self.code_attrs.clone()
+        };
+        crate::formatter::html::write_code_tag(output, self.language, &code_attrs)?;
 
         let (class_suffix, style) = self.get_line_attrs(true);
         let line_number_attrs = self.line_numbers.then(|| self.line_number_attrs(false));
@@ -378,6 +393,7 @@ impl HtmlMultiThemes {
                 highlighted_line_number_attrs: highlighted_line_number_attrs.as_deref(),
                 highlighted_class: class_suffix.as_deref(),
                 highlighted_style: style.as_deref(),
+                empty_style: Some(crate::formatter::html::LINE_LAYOUT),
             },
             &|scope_index, language| self.span_attrs_from_index(scope_index, language),
         )?;
@@ -497,7 +513,7 @@ mod tests {
 
         let html = String::from_utf8(output).unwrap();
         let line_tag = html
-            .split_once("<div ")
+            .split_once("<span ")
             .expect("missing first line")
             .1
             .split_once('>')
@@ -517,27 +533,25 @@ mod tests {
             render_highlighted_line(DefaultTheme::LightDark, Some("#e9ebf1"), Some("#2a2b3c"));
         assert_eq!(
             attr_value(&line_tag, "style"),
-            "background-color: light-dark(#e9ebf1, #2a2b3c);"
+            "display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: light-dark(#e9ebf1, #2a2b3c);"
         );
     }
 
     #[test]
     fn light_dark_theme_highlight_lines_require_a_light_background() {
         let line_tag = render_highlighted_line(DefaultTheme::LightDark, None, Some("#2a2b3c"));
-
-        assert!(
-            !line_tag.contains(" style="),
-            "unexpected style: {line_tag}"
+        assert_eq!(
+            attr_value(&line_tag, "style"),
+            crate::formatter::html::LINE_LAYOUT
         );
     }
 
     #[test]
     fn light_dark_theme_highlight_lines_require_a_dark_background() {
         let line_tag = render_highlighted_line(DefaultTheme::LightDark, Some("#e9ebf1"), None);
-
-        assert!(
-            !line_tag.contains(" style="),
-            "unexpected style: {line_tag}"
+        assert_eq!(
+            attr_value(&line_tag, "style"),
+            crate::formatter::html::LINE_LAYOUT
         );
     }
 
@@ -550,7 +564,7 @@ mod tests {
         );
         assert_eq!(
             attr_value(&line_tag, "style"),
-            "color: #eeeeee; background-color: #2a2b3c;"
+            "display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; color: #eeeeee; background-color: #2a2b3c;"
         );
     }
 }

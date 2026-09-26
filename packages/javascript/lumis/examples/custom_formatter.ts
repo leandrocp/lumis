@@ -44,12 +44,12 @@ class InteractiveDocsFormatter implements Formatter {
             lines[lines.length - 1] += escaped;
           }
         }
-        lines[lines.length - 1] += ending;
         if (ending) lines.push("");
       }
     });
 
-    const body = lines.map((line, index) => wrapLine(index + 1, line)).join("");
+    if (source.endsWith("\n")) lines.pop();
+    const body = lines.map((line, index) => wrapLine(index + 1, line)).join("\n");
     return `${openPreTag({ preClass: "docs-demo" })}${openCodeTag(this.language)}${body}${closingTags()}`;
   }
 }

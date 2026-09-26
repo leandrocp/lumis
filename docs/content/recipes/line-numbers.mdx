@@ -90,7 +90,7 @@ The number is the one every line already carries: HTML's `data-line` and
 
 | Formatter | Gutter |
 | --- | --- |
-| HTML Inline | `<span class="l-line-number">` inside the line's `<div>` |
+| HTML Inline | `<span class="l-line-number">` inside the line's `<span>` |
 | HTML Linked | the same |
 | HTML Multi-Themes | the same |
 | Terminal | the number, right-aligned to the widest one and followed by a space |
@@ -101,10 +101,7 @@ The number is the one every line already carries: HTML's `data-line` and
 The gutter is the first child of the line, inside `<code>`:
 
 ```html
-<div class="l-line" data-line="1">
-  <span class="l-line-number" style="color: #51576d;" aria-hidden="true">1</span>
-  <span style="color: #ca9ee6;">fn</span>
-</div>
+<span class="l-line" data-line="1"><span class="l-line-number" style="-webkit-user-select: none; user-select: none; color: #51576d;" aria-hidden="true">1</span><span style="color: #ca9ee6;">fn</span></span>
 ```
 
 It is a real element rather than `content: attr(data-line)` so the number is in
@@ -115,8 +112,9 @@ and uses `CursorLineNr`, falling back to `LineNr` when that style is absent.
 
 HTML Inline writes the style directly, HTML Multi-Themes writes the corresponding
 theme variables, and HTML Linked uses the `.l-line-number` and
-`.l-line-number-highlighted` rules in generated theme CSS. Theme CSS does not
-lay out the gutter, so give it a column and keep it out of a copied selection:
+`.l-line-number-highlighted` rules in generated theme CSS. All three keep the
+gutter out of selection copy with `user-select: none` (and its WebKit prefix).
+Theme CSS does not choose a gutter width, so give it a column:
 
 ```css
 .l-line-number {
@@ -124,7 +122,6 @@ lay out the gutter, so give it a column and keep it out of a copied selection:
   width: 3ch;
   margin-right: 1ch;
   text-align: right;
-  user-select: none;
 }
 ```
 
@@ -153,6 +150,11 @@ always has been, and the CSS-only approach still works.
 .l-line::before { content: attr(data-line); }
 ```
 
+`innerText` and `textContent` still include the gutter's text; `user-select`
+only affects selection. For a copy button, use the original source rather than
+either property. That also preserves CRLF and final newlines exactly. Chromium
+may omit trailing blank rows from selection copy when they contain only gutters.
+
 ### Terminal
 
 The number is padded to the widest one the render will show, so the code stays
@@ -165,10 +167,8 @@ text attribute in the corresponding theme style, including foreground, bold,
 italic, and decorations. When a theme has no `CursorLineNr` style, a highlighted
 gutter falls back to its `LineNr` style.
 
-The number is written with the line's text, so the empty line a trailing newline
-opens carries none: a terminal writes nothing for that line, and a bare number
-after the output would be all you saw of it. HTML numbers it, because HTML emits
-a `<div>` for it.
+A final newline terminates the last line; it does not add an extra line number
+in either terminal or HTML output.
 
 ```sh
 lumis highlight -f terminal -t catppuccin_frappe -n main.rs
