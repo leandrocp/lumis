@@ -5,7 +5,10 @@ defmodule Lumis.Application do
 
   @impl true
   def start(_type, _args) do
-    configure_store()
+    # Past the guard in `configure_store/0`: an earlier call may have configured
+    # the store without building it, and `config/runtime.exs` has run since.
+    # The NIF refuses once the store is built.
+    put_store()
 
     opts = [strategy: :one_for_one, name: Lumis.Supervisor]
     Supervisor.start_link([{Task.Supervisor, name: Lumis.TaskSupervisor}], opts)
@@ -20,12 +23,14 @@ defmodule Lumis.Application do
   # rendering a template runs no application at all — so every entry point that
   # reaches the store calls this first, not only `start/2`.
   def configure_store do
-    if not :persistent_term.get(@configured, false) do
-      Lumis.Native.configure_store(data_dir(), Lumis.Packages.installed_dirs())
-      :persistent_term.put(@configured, true)
-    end
+    if not :persistent_term.get(@configured, false), do: put_store()
 
     :ok
+  end
+
+  defp put_store do
+    Lumis.Native.configure_store(data_dir(), Lumis.Packages.installed_dirs())
+    :persistent_term.put(@configured, true)
   end
 
   @doc false
