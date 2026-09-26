@@ -1,3 +1,27 @@
+## [0.9.2](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.9.1...hex-lumis/v0.9.2) (2026-09-26)
+
+
+### Bug Fixes
+
+- stop logging a warning for a missing parser - [#1546](https://github.com/leandrocp/lumis/pull/1546)
+- configure the parser store on first use - [#1557](https://github.com/leandrocp/lumis/pull/1557)
+
+
+### Documentation
+
+- update the Elixir docs and examples for Lumis 0.9 - [#1536](https://github.com/leandrocp/lumis/pull/1536)
+
+
+### Features
+
+- add Lumis.highlight_events/3 - [#1543](https://github.com/leandrocp/lumis/pull/1543)
+- recognize 16 more code fence labels - [#1553](https://github.com/leandrocp/lumis/pull/1553)
+
+
+### Testing
+
+- pin top-level API parity across runtimes with a manifest - [#1547](https://github.com/leandrocp/lumis/pull/1547)
+
 ## [0.9.1](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.9.0...hex-lumis/v0.9.1) (2026-09-25)
 
 
