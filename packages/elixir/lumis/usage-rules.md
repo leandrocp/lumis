@@ -616,10 +616,14 @@ source
 |> HTML.render_lines_from_events(events, attrs)
 |> Enum.with_index(1)
 |> Enum.map(fn {line, number} -> HTML.wrap_line(number, line) end)
+|> Enum.intersperse("\n")
 ```
 
-Each rendered line already carries the exact `\n` or `\r\n` that ended it in
-the source. An unterminated final line has no terminator.
+Each rendered line contains only content, without LF or CRLF terminators.
+A final newline terminates the last line rather than adding an empty one.
+Wrapped lines are inline spans; join them with `"\n"`. Use `display: inline-block`
+for full-width lines, not `display: block`. See
+[HTML line markup migration](https://docs.lumis.sh/formatters/html-line-migration).
 
 Do not hand-roll ANSI color or text-decoration escape sequences either.
 `Lumis.Formatter.ANSI` gives `:terminal`'s pieces:
@@ -642,20 +646,20 @@ Lumis generates semantic HTML with line wrappers:
 ```html
 <pre class="lumis" style="color: #abb2bf; background-color: #282c34;">
   <code class="language-elixir" translate="no" tabindex="0">
-    <div class="l-line" data-line="1">
+    <span class="l-line" data-line="1">
       <span style="color: #c678dd;">defmodule</span>
       <span style="color: #e5c07b;">MyApp</span>
-    </div>
-    <div class="l-line" data-line="2">
+    </span>
+    <span class="l-line" data-line="2">
       ...
-    </div>
+    </span>
   </code>
 </pre>
 ```
 
 Key points:
-- Each line is wrapped in `<div class="l-line" data-line="N">`
-- Each source `\n` or `\r\n` sits just before its line's `</div>`; none is added
+- Each line is wrapped in `<span class="l-line" data-line="N">`
+- Each source `\n` or `\r\n` sits just before its line's `</span>`; none is added
   to an unterminated final line
 - The `data-line` attribute contains the line number (1-indexed)
 - The `<code>` tag has `translate="no"` to prevent browser translation

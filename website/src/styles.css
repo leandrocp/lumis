@@ -32,8 +32,14 @@ body {
   box-shadow: 0 0 0 1px light-dark(rgba(161, 161, 170, 0.35), rgba(161, 161, 170, 0.28));
 }
 
+.inspector-demo > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+
 .inspector-demo .l-line {
-  @apply block px-[18px] py-1 min-h-[1.65em];
+  @apply inline-block w-full box-border align-top px-[18px] py-1 min-h-[calc(1lh+0.5rem)];
 }
 
 .inspector-demo .l-line[data-line]::before {

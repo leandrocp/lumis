@@ -193,6 +193,7 @@ impl HtmlLinked {
                 highlighted_line_number_attrs: None,
                 highlighted_class: class_suffix.as_deref(),
                 highlighted_style: None,
+                empty_style: None,
             },
             &|scope_index, _language| Self::span_attrs_from_index(scope_index),
         )?;

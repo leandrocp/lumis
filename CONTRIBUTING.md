@@ -70,6 +70,20 @@ Node has two of them because it has two runtimes: the Wasmtime addon it uses by
 default, and `web-tree-sitter` where no addon is built. Both must produce the
 same bytes as Rust.
 
+### Generated HTML and CSS
+
+After changing HTML formatters or theme layout, refresh the shared outputs:
+
+```sh
+mise run css-gen
+mise run conformance-regen
+mise run -C benchmarks showcase-publish
+```
+
+Update checked-in HTML examples against the local formatters too. The Playwright
+conformance suite checks HTML content models, line layout, text and selection
+copy in Chromium, Firefox and WebKit as well as cross-runtime output parity.
+
 ### Stress test
 
 The generated corpus under [`stress-test`](stress-test) keeps large and

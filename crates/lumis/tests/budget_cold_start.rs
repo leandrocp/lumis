@@ -36,7 +36,7 @@ fn compiling_queries_is_not_charged_to_the_budget() {
         "the first render of a language exhausted its budget compiling queries, got {html}"
     );
     assert!(
-        html.contains("<span"),
+        html.matches("<span").count() > SOURCE.lines().count(),
         "the document came back unhighlighted, got {html}"
     );
 }

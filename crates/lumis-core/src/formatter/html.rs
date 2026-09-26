@@ -595,7 +595,7 @@ pub fn wrap_line(
     let mut line = Vec::with_capacity(content.len() + 48);
     let _ = LineTag::new(class_suffix, style, false, false, None).write(&mut line, line_number);
     line.extend_from_slice(content.as_bytes());
-    line.extend_from_slice(b"</div>");
+    line.extend_from_slice(b"</span>");
 
     String::from_utf8(line).expect("the tag and its content are both UTF-8")
 }
@@ -631,7 +631,7 @@ impl LineTag {
         highlighted: bool,
         gutter_attrs: Option<&str>,
     ) -> Self {
-        let mut open = String::from("<div class=\"");
+        let mut open = String::from("<span class=\"");
         match class_suffix {
             Some(suffix) => open.push_str(&escape_attr(&format!("l-line{suffix}"))),
             None => open.push_str("l-line"),
@@ -821,7 +821,7 @@ fn merged_value(name: &str, current: Option<&AttrValue>, authored: &AttrValue) -
     }
 }
 
-fn merge_attrs(mut generated: HtmlAttrs, authored: &[(String, AttrValue)]) -> HtmlAttrs {
+pub(crate) fn merge_attrs(mut generated: HtmlAttrs, authored: &[(String, AttrValue)]) -> HtmlAttrs {
     for (name, value) in authored {
         let existing = generated
             .iter()
@@ -1156,8 +1156,9 @@ pub fn open_span(attrs: &str) -> String {
 
 /// Render highlight events into HTML lines, reopening active spans at line boundaries.
 ///
-/// Each line carries the exact `\n` or `\r\n` that ended it in `source`, after
-/// any closing span tags. An unterminated final line has no terminator.
+/// Lines contain only their content, without `\n` or `\r\n` terminators.
+/// A final newline ends the last line; it does not add an empty line.
+/// Join wrapped lines with `"\n"` to build an HTML block.
 pub fn render_lines_from_events<T, F>(
     source: &str,
     events: &[HighlightEvent<'_, T>],
@@ -1179,10 +1180,7 @@ where
         decoration_language,
         |fragment| match fragment {
             LineFragment::OpenLine { .. } => {}
-            LineFragment::Close(ending) => {
-                line.push_str(ending);
-                lines.push(std::mem::take(&mut line));
-            }
+            LineFragment::Close => lines.push(std::mem::take(&mut line)),
             LineFragment::Text(text) => line.push_str(&escape(text)),
             LineFragment::SpanOpen(scope_index, language) => {
                 line.push_str(&open_span(&span_attrs(scope_index, language)));
@@ -1191,15 +1189,36 @@ where
         },
     );
 
+    if source.ends_with('\n') {
+        lines.pop();
+    }
     lines
+}
+
+pub(crate) const CODE_LAYOUT: &str = "display: block; width: max-content; min-width: 100%;";
+pub(crate) const LINE_LAYOUT: &str =
+    "display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;";
+
+pub(crate) fn unselectable_gutter(attrs: &str) -> String {
+    if attrs.contains("style=\"") {
+        attrs.replacen(
+            "style=\"",
+            "style=\"-webkit-user-select: none; user-select: none; ",
+            1,
+        )
+    } else {
+        format!("style=\"-webkit-user-select: none; user-select: none;\" {attrs}")
+            .trim_end()
+            .to_string()
+    }
 }
 
 /// One step of a line-decorated event stream, with its text already sliced.
 pub(crate) enum LineFragment<'a> {
     /// A line begins.
     OpenLine { number: usize, highlighted: bool },
-    /// The current line ends with the source terminator, when it had one.
-    Close(&'a str),
+    /// The current content-only line ends.
+    Close,
     /// Unescaped source text, never spanning a line boundary.
     Text(&'a str),
     /// A syntax or built-in decoration scope begins.
@@ -1210,11 +1229,8 @@ pub(crate) enum LineFragment<'a> {
 
 /// Walk a line-decorated stream, handing each step to `on_fragment`.
 ///
-/// A source line's `\n` or `\r\n` is held until
-/// [`Close`](LineFragment::Close), after all syntax spans have closed. This
-/// keeps the terminator outside syntax markup while preserving the source
-/// exactly. Caller annotations are skipped, which is what a built-in formatter
-/// does with data it has never seen.
+/// Source terminators are omitted from the line content. Caller annotations
+/// are skipped, which is what a built-in formatter does with data it has never seen.
 pub(crate) fn write_line_events<T, F>(
     events: &[HighlightEvent<'_, T>],
     source: &str,
@@ -1231,18 +1247,14 @@ pub(crate) fn write_line_events<T, F>(
 
 /// [`write_line_events`] one event at a time.
 ///
-/// The state a walk carries between events is the pending line terminator and
-/// the decorations still open, so a formatter composing its stream lazily keeps
-/// this and feeds it whatever the composer just produced.
+/// The walk tracks open decorations while a formatter composes its stream lazily.
 pub(crate) struct LineEventWalk {
-    ending: &'static str,
     decorations: Vec<Decoration>,
 }
 
 impl LineEventWalk {
     pub(crate) const fn new() -> Self {
         Self {
-            ending: "",
             decorations: Vec::new(),
         }
     }
@@ -1256,7 +1268,6 @@ impl LineEventWalk {
     ) where
         F: FnMut(LineFragment<'_>),
     {
-        let ending = &mut self.ending;
         let decorations = &mut self.decorations;
         match event {
             HighlightEvent::DecorationStart { decoration } => {
@@ -1266,7 +1277,6 @@ impl LineEventWalk {
                         number,
                         highlighted,
                     } => {
-                        *ending = "";
                         on_fragment(LineFragment::OpenLine {
                             number: *number,
                             highlighted: *highlighted,
@@ -1279,7 +1289,7 @@ impl LineEventWalk {
                 }
             }
             HighlightEvent::DecorationEnd => match decorations.pop() {
-                Some(Decoration::Line { .. }) => on_fragment(LineFragment::Close(ending)),
+                Some(Decoration::Line { .. }) => on_fragment(LineFragment::Close),
                 Some(Decoration::RainbowBracket { .. }) => on_fragment(LineFragment::SpanClose),
                 None => {}
             },
@@ -1290,23 +1300,23 @@ impl LineEventWalk {
             HighlightEvent::End => on_fragment(LineFragment::SpanClose),
             HighlightEvent::Source { start, end } => {
                 let text = source_slice(source, *start, *end);
-                let (text, source_ending) = split_line_ending(text);
-                *ending = source_ending;
-                on_fragment(LineFragment::Text(text));
+                on_fragment(LineFragment::Text(strip_line_ending(
+                    text,
+                    source.as_bytes().get(*end) == Some(&b'\n'),
+                )));
             }
             HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
         }
     }
 }
 
-fn split_line_ending(text: &str) -> (&str, &'static str) {
-    let Some(content) = text.strip_suffix('\n') else {
-        return (text, "");
-    };
-
-    match content.strip_suffix('\r') {
-        Some(content) => (content, "\r\n"),
-        None => (content, "\n"),
+fn strip_line_ending(text: &str, followed_by_lf: bool) -> &str {
+    if let Some(content) = text.strip_suffix('\n') {
+        content.strip_suffix('\r').unwrap_or(content)
+    } else if followed_by_lf {
+        text.strip_suffix('\r').unwrap_or(text)
+    } else {
+        text
     }
 }
 
@@ -1325,17 +1335,18 @@ pub(crate) struct HtmlLines<'a> {
     pub line_number_attrs: Option<&'a str>,
     /// Extra attributes carried by a highlighted line-number gutter.
     pub highlighted_line_number_attrs: Option<&'a str>,
-    /// The class suffix a highlighted line's `<div>` carries.
+    /// The class suffix a highlighted line's `<span>` carries.
     pub highlighted_class: Option<&'a str>,
-    /// The inline style a highlighted line's `<div>` carries.
+    /// The inline style a highlighted line's `<span>` carries.
     pub highlighted_style: Option<&'a str>,
+    /// Layout for empty lines in output that has no stylesheet.
+    pub empty_style: Option<&'a str>,
 }
 
-/// Write a line-decorated stream as the `<div class="l-line">` blocks every
-/// built-in HTML formatter emits.
+/// Write content-only `<span class="l-line">` elements separated by `\n`.
 ///
-/// [`write_line_events`] supplies the source terminator with each closing line,
-/// and this writer places it immediately before `</div>` without inventing one.
+/// A source's final newline terminates its last line rather than adding one.
+/// No separator follows the last element.
 ///
 /// Nothing here is recomputed per line. The two line tags are assembled once,
 /// and a scope's attributes are resolved the first time it is seen rather than
@@ -1349,6 +1360,13 @@ pub(crate) fn write_html_lines<T>(
     span_attrs: &dyn Fn(usize, &str) -> String,
 ) -> io::Result<()> {
     let plain_tag = LineTag::new(None, None, lines.numbered, false, lines.line_number_attrs);
+    let empty_tag = LineTag::new(
+        None,
+        lines.empty_style,
+        lines.numbered,
+        false,
+        lines.line_number_attrs,
+    );
     let highlighted_tag = LineTag::new(
         lines.highlighted_class,
         lines.highlighted_style,
@@ -1360,9 +1378,15 @@ pub(crate) fn write_html_lines<T>(
     let mut result = Ok(());
     let mut walk = LineEventWalk::new();
     let decoration_language = lines.language.id_name();
+    let line_count = source.lines().count().max(1);
+    let mut source_lines = source.lines();
+    let mut skip_line = false;
 
     let mut on_fragment = |fragment: LineFragment<'_>| {
-        if result.is_err() {
+        if let LineFragment::OpenLine { number, .. } = fragment {
+            skip_line = number > line_count;
+        }
+        if result.is_err() || skip_line {
             return;
         }
         result = match fragment {
@@ -1370,16 +1394,19 @@ pub(crate) fn write_html_lines<T>(
                 number,
                 highlighted,
             } => {
+                let empty = source_lines.next().unwrap_or_default().is_empty();
                 let tag = if highlighted {
                     &highlighted_tag
+                } else if empty {
+                    &empty_tag
                 } else {
                     &plain_tag
                 };
-                tag.write(output, number)
+                let separator = if number > 1 { &b"\n"[..] } else { &[] };
+                output
+                    .write_all(separator)
+                    .and_then(|()| tag.write(output, number))
             }
-            LineFragment::Close(ending) => output
-                .write_all(ending.as_bytes())
-                .and_then(|()| output.write_all(b"</div>")),
             LineFragment::Text(text) => write_escaped(output, text),
             LineFragment::SpanOpen(scope_index, language) => {
                 let attrs = attrs.get_or_insert(scope_index, language, span_attrs);
@@ -1389,7 +1416,7 @@ pub(crate) fn write_html_lines<T>(
                     write!(output, "<span {attrs}>")
                 }
             }
-            LineFragment::SpanClose => output.write_all(b"</span>"),
+            LineFragment::Close | LineFragment::SpanClose => output.write_all(b"</span>"),
         };
     };
 
@@ -1598,6 +1625,7 @@ mod tests {
             highlighted_line_number_attrs: None,
             highlighted_class,
             highlighted_style: None,
+            empty_style: None,
         };
         write_html_lines(&mut output, source, events, &lines, &|_, _| String::new()).unwrap();
 
@@ -1655,13 +1683,14 @@ mod tests {
                     .iter()
                     .enumerate()
                     .map(|(index, line)| wrap_line(index + 1, line, None, None))
-                    .collect::<String>()
+                    .collect::<Vec<_>>()
+                    .join("\n")
             );
         }
     }
 
     #[test]
-    fn html_lines_write_source_endings_after_the_syntax_spans() {
+    fn html_lines_write_normalized_separators_between_line_spans() {
         let source = "a\r\nb";
         let events: [HighlightEvent<'_, ()>; 3] = [
             HighlightEvent::Start {
@@ -1688,6 +1717,7 @@ mod tests {
                 highlighted_line_number_attrs: None,
                 highlighted_class: None,
                 highlighted_style: None,
+                empty_style: None,
             },
             &|_, _| "class=\"scope\"".to_string(),
         )
@@ -1695,7 +1725,7 @@ mod tests {
 
         assert_str_eq!(
             String::from_utf8(html).unwrap(),
-            "<div class=\"l-line\" data-line=\"1\"><span class=\"scope\">a</span>\r\n</div><div class=\"l-line\" data-line=\"2\"><span class=\"scope\">b</span></div>"
+            "<span class=\"l-line\" data-line=\"1\"><span class=\"scope\">a</span></span>\n<span class=\"l-line\" data-line=\"2\"><span class=\"scope\">b</span></span>"
         );
     }
 
@@ -1715,14 +1745,12 @@ mod tests {
         assert_str_eq!(
             html,
             concat!(
-                r#"<div class="l-line" data-line="1">"#,
+                r#"<span class="l-line" data-line="1">"#,
                 r#"<span class="l-line-number" aria-hidden="true">1</span>one"#,
-                "\n</div>",
-                r#"<div class="l-line l-highlighted" data-line="2">"#,
+                "</span>\n",
+                r#"<span class="l-line l-highlighted" data-line="2">"#,
                 r#"<span class="l-line-number l-line-number-highlighted" aria-hidden="true">2</span>two"#,
-                // The last line is unterminated in the source, so it carries no
-                // terminator here either.
-                "</div>",
+                "</span>",
             )
         );
     }
@@ -1744,6 +1772,7 @@ mod tests {
             highlighted_line_number_attrs: Some(r#"style="color:#eeeeee;""#),
             highlighted_class: None,
             highlighted_style: None,
+            empty_style: None,
         };
 
         write_html_lines(&mut output, source, &events, &lines, &|_, _| String::new()).unwrap();
@@ -1765,7 +1794,7 @@ mod tests {
 
         let html = html_lines("a", &events, &LineSelection::default(), false, None);
 
-        assert_str_eq!(html, "<div class=\"l-line\" data-line=\"1\">a</div>");
+        assert_str_eq!(html, "<span class=\"l-line\" data-line=\"1\">a</span>");
     }
 
     #[test]
@@ -1995,7 +2024,7 @@ mod tests {
 
         assert_str_eq!(
             result,
-            r#"<div class="l-line x&quot;&gt;&lt;script&gt;" style="color: red&quot; onmouseover=&quot;alert(1)" data-line="1">content</div>"#
+            r#"<span class="l-line x&quot;&gt;&lt;script&gt;" style="color: red&quot; onmouseover=&quot;alert(1)" data-line="1">content</span>"#
         );
     }
 
@@ -2192,7 +2221,10 @@ mod tests {
     #[test]
     fn test_wrap_line_simple() {
         let result = wrap_line(1, "content", None, None);
-        assert_str_eq!(result, r#"<div class="l-line" data-line="1">content</div>"#);
+        assert_str_eq!(
+            result,
+            r#"<span class="l-line" data-line="1">content</span>"#
+        );
     }
 
     #[test]
@@ -2200,7 +2232,7 @@ mod tests {
         let result = wrap_line(5, "highlighted content", Some(" highlighted"), None);
         assert_str_eq!(
             result,
-            r#"<div class="l-line highlighted" data-line="5">highlighted content</div>"#
+            r#"<span class="l-line highlighted" data-line="5">highlighted content</span>"#
         );
     }
 
@@ -2209,7 +2241,7 @@ mod tests {
         let result = wrap_line(3, "styled", None, Some("color: red;"));
         assert_str_eq!(
             result,
-            r#"<div class="l-line" style="color: red;" data-line="3">styled</div>"#
+            r#"<span class="l-line" style="color: red;" data-line="3">styled</span>"#
         );
     }
 

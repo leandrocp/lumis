@@ -358,10 +358,10 @@ pub fn escape_braces(text: &str) -> String {
     lumis_core::formatter::html::escape_braces(text)
 }
 
-/// Wrap content in a line div with optional class and style attributes.
+/// Wrap content in a line span with optional class and style attributes.
 ///
-/// Creates a `<div class="l-line..." data-line="N">content</div>` element
-/// with optional additional CSS classes and inline styles.
+/// Creates a `<span class="l-line..." data-line="N">content</span>` element.
+/// Pass content-only lines and join the wrapped results with `"\n"`.
 ///
 /// # Arguments
 ///
@@ -376,7 +376,7 @@ pub fn escape_braces(text: &str) -> String {
 /// use lumis::html;
 ///
 /// let line = html::wrap_line(1, "content", Some(" highlighted"), Some("background: yellow"));
-/// assert_eq!(line, r#"<div class="l-line highlighted" style="background: yellow" data-line="1">content</div>"#);
+/// assert_eq!(line, r#"<span class="l-line highlighted" style="background: yellow" data-line="1">content</span>"#);
 /// ```
 pub fn wrap_line(
     line_number: usize,
@@ -685,9 +685,9 @@ pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
 /// the start of the next, so every line's tags nest on their own. `span_attrs`
 /// receives a scope index into [`highlights::HIGHLIGHT_NAMES`](crate::highlights::HIGHLIGHT_NAMES)
 /// and the language of the block the event came from.
-/// Each line carries the exact `\n` or `\r\n` that ended it in `source`, after
-/// any closing span tags. An unterminated final line has no terminator, so each
-/// result can be passed directly to [`wrap_line`].
+/// Lines contain only content, without LF or CRLF terminators. A final newline
+/// ends the last line rather than adding an empty one. Join [`wrap_line`]
+/// results with `"\n"`.
 ///
 /// # Example
 ///
@@ -709,7 +709,7 @@ pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
 /// assert_eq!(
 ///     lines,
 ///     [
-///         "<span class=\"l-keyword\">a</span>\n",
+///         "<span class=\"l-keyword\">a</span>",
 ///         r#"<span class="l-keyword">b</span>"#,
 ///     ]
 /// );
@@ -818,7 +818,10 @@ mod tests {
     #[test]
     fn test_wrap_line_simple() {
         let result = wrap_line(1, "content", None, None);
-        assert_str_eq!(result, r#"<div class="l-line" data-line="1">content</div>"#);
+        assert_str_eq!(
+            result,
+            r#"<span class="l-line" data-line="1">content</span>"#
+        );
     }
 
     #[test]
@@ -826,7 +829,7 @@ mod tests {
         let result = wrap_line(5, "highlighted content", Some(" highlighted"), None);
         assert_str_eq!(
             result,
-            r#"<div class="l-line highlighted" data-line="5">highlighted content</div>"#
+            r#"<span class="l-line highlighted" data-line="5">highlighted content</span>"#
         );
     }
 
@@ -835,7 +838,7 @@ mod tests {
         let result = wrap_line(3, "styled", None, Some("color: red;"));
         assert_str_eq!(
             result,
-            r#"<div class="l-line" style="color: red;" data-line="3">styled</div>"#
+            r#"<span class="l-line" style="color: red;" data-line="3">styled</span>"#
         );
     }
 
@@ -849,14 +852,14 @@ mod tests {
         );
         assert_str_eq!(
             result,
-            r#"<div class="l-line custom-class" style="background: yellow;" data-line="10">both</div>"#
+            r#"<span class="l-line custom-class" style="background: yellow;" data-line="10">both</span>"#
         );
     }
 
     #[test]
     fn test_wrap_line_empty_content() {
         let result = wrap_line(1, "", None, None);
-        assert_str_eq!(result, r#"<div class="l-line" data-line="1"></div>"#);
+        assert_str_eq!(result, r#"<span class="l-line" data-line="1"></span>"#);
     }
 
     #[test]

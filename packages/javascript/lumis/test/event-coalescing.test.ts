@@ -21,7 +21,7 @@ describe("coalesced highlight events", () => {
     const html = hl.highlight("[".repeat(64), htmlLinked({ language: json }));
 
     expect(html).toContain(`<span class="l-punctuation-bracket">${"[".repeat(64)}</span>`);
-    expect(html.match(/<span/g)).toHaveLength(1);
+    expect(html.match(/<span(?! class="l-line")/g)).toHaveLength(1);
   });
 
   it("keeps neighbouring tokens of different scopes apart", () => {

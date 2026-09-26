@@ -5,6 +5,21 @@
   color: #dcdccc;
   background-color: #3f3f3f;
 }
+pre.lumis > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.l-line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1lh;
+  vertical-align: top;
+}
+.l-line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .l-attribute {
   color: #ffcfaf;
   font-weight: bold;

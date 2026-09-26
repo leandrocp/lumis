@@ -180,16 +180,20 @@
 
     .preview-shell code {
       display: block;
+      width: max-content;
       min-width: 100%;
     }
 
-    .preview-shell .line {
-      display: block;
+    .preview-shell .l-line {
+      display: inline-block;
+      width: 100%;
+      box-sizing: border-box;
+      vertical-align: top;
       padding: 0 18px;
-      min-height: 1.65em;
+      min-height: 1lh;
     }
 
-    .preview-shell .line[data-line]::before {
+    .preview-shell .l-line[data-line]::before {
       content: attr(data-line);
       display: inline-block;
       width: 2.5rem;
@@ -336,8 +340,8 @@
         grid-template-columns: 1fr;
       }
 
-      .preview-shell .line,
-      .preview-shell .line[data-line]::before {
+      .preview-shell .l-line,
+      .preview-shell .l-line[data-line]::before {
         padding-left: 12px;
       }
     }
@@ -517,12 +521,12 @@ const docsFormatter: Formatter = {
             lines[lines.length - 1] += escaped
           }
         }
-        lines[lines.length - 1] += ending
         if (ending) lines.push('')
       }
     })
 
-    const body = lines.map((line, i) => wrapLine(i + 1, line)).join('')
+    if (source.endsWith('\\n')) lines.pop()
+    const body = lines.map((line, i) => wrapLine(i + 1, line)).join('\\n')
     return openPreTag({ preClass: 'docs-demo' })
       + openCodeTag(html) + body + closingTags()
   },
@@ -558,12 +562,12 @@ const docsFormatter: Formatter = {
                 lines[lines.length - 1] += escaped
               }
             }
-            lines[lines.length - 1] += ending
             if (ending) lines.push('')
           }
         })
 
-        const body = lines.map((line, i) => wrapLine(i + 1, line)).join('')
+        if (source.endsWith('\n')) lines.pop()
+        const body = lines.map((line, i) => wrapLine(i + 1, line)).join('\n')
         return `${openPreTag({ preClass: 'docs-demo' })}${openCodeTag(html)}${body}${closingTags()}`
       },
     }

@@ -65,6 +65,21 @@
                                                  +---------------------------+
 ```
 
+## HTML line contract
+
+HTML formatters render content-only `span.l-line` elements, separated by LF text
+nodes. A final source newline terminates its line instead of creating an extra
+line element. The per-line HTML helpers follow the same content-only contract;
+custom formatters join wrapped lines explicitly. Terminal and BBCode keep their
+source terminators, so the shared line-decoration event stream is unchanged.
+
+`lumis-core` owns HTML rendering and the generated theme layout. The JavaScript
+port is pinned by `fixtures/formatter-helpers.json` and the conformance corpus;
+Elixir uses the same helpers through its NIF. Theme CSS, inline styles and the
+browser layout tests move with the markup. See
+[the migration guide](docs/content/formatters/html-line-migration.mdx) for custom
+CSS and formatter changes.
+
 ## Performance benchmark lane
 
 `benchmarks/` is an intentionally non-published comparison layer over the public Rust, JavaScript, and CLI surfaces.

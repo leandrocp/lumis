@@ -191,11 +191,11 @@ Lumis.highlight!(
   </Tab>
 </Tabs>
 
-## Class without an inline style
+## Class without inline colors
 
 Omitting the style uses the theme's `highlighted` style. To highlight by class
 alone, so a stylesheet or a utility framework owns the appearance, opt out of
-the inline style explicitly:
+the inline colors explicitly. Structural line layout styles remain:
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
@@ -249,6 +249,18 @@ lumis highlight -f html-inline -h 2 \
 
   </Tab>
 </Tabs>
+
+## Full-width backgrounds
+
+Theme CSS gives linked lines `display: inline-block; width: 100%`, and expands
+`pre.lumis > code` with `width: max-content; min-width: 100%`. Inline and
+multi-theme output carry the equivalent styles when highlighting lines.
+Backgrounds therefore cover horizontally scrolled content, not just the visible
+width. Empty styled lines use `min-height: 1lh; vertical-align: top`.
+
+Keep `.l-line` inline, not `display: block`, or the newline between spans creates
+an extra blank row. Add `box-sizing: border-box` if your line styles add padding
+or borders. See [HTML line markup migration](/formatters/html-line-migration).
 
 ## What changes between formatters
 
@@ -308,7 +320,7 @@ lumis highlight -f terminal -H 1,3-4 \
 ### BBCode Scoped
 
 A highlighted line is wrapped in `[highlighted]...[/highlighted]`, newline
-included, the way an HTML line sits inside its `<div>`. The tag is derived from
+included. Unlike HTML, BBCode keeps its source terminators. The tag is derived from
 the `highlighted` theme scope exactly as every other tag this formatter emits is
 derived from a scope, so there is nothing to configure; the consumer defines what
 `[highlighted]` looks like, as it already must for `[keyword-rust]`.

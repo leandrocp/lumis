@@ -509,14 +509,13 @@ defmodule Lumis.Formatter.HTML do
   end
 
   @doc """
-  Wraps one rendered line in the `<div>` the built-in HTML formatters emit.
+  Wraps one rendered line in the `<span>` the built-in HTML formatters emit.
 
   Lines are 1-based, and `data-line` is what a "highlight these lines" feature
   and anchor links both key off.
 
-  `content` goes in verbatim. A line from `render_lines_from_events/3` already
-  carries the exact terminator from the source, if it had one, so it can be
-  passed directly to `wrap_line/3`.
+  `content` goes in verbatim. Pass content-only lines from
+  `render_lines_from_events/3`, then join the wrapped lines with `"\\n"`.
 
   ## Options
 
@@ -527,7 +526,7 @@ defmodule Lumis.Formatter.HTML do
   ## Example
 
       iex> Lumis.Formatter.HTML.wrap_line(2, "code")
-      ~s|<div class="l-line" data-line="2">code</div>|
+      ~s|<span class="l-line" data-line="2">code</span>|
 
   """
   @spec wrap_line(pos_integer(), iodata(), keyword()) :: String.t()
@@ -604,8 +603,9 @@ defmodule Lumis.Formatter.HTML do
   wrapped with `wrap_line/3` independently. That closing and reopening is the
   part worth not writing again.
 
-  Each returned line carries the exact `\n` or `\r\n` that ended it in `source`,
-  after any closing span tags. An unterminated final line has no terminator.
+  Each returned line contains only its content, without LF or CRLF terminators.
+  A final newline ends the last line rather than adding an empty one.
+  Join `wrap_line/3` results with `"\\n"` to build an HTML block.
 
   `attrs` maps a scope to the attributes its `<span>` carries, so the whole render
   costs one call rather than one per token: a `span_attrs/1` or
@@ -620,7 +620,7 @@ defmodule Lumis.Formatter.HTML do
 
       iex> events = [{:start, %{scope: "keyword", language: "elixir"}}, {:source, %{start: 0, end: 3}}, :end]
       iex> Lumis.Formatter.HTML.render_lines_from_events("a\\nb", events, %{"keyword" => ~s|class="l-keyword"|})
-      [~s|<span class="l-keyword">a</span>\\n|, ~s|<span class="l-keyword">b</span>|]
+      [~s|<span class="l-keyword">a</span>|, ~s|<span class="l-keyword">b</span>|]
 
   """
   @spec render_lines_from_events(String.t(), [Lumis.Formatter.event(term())], %{

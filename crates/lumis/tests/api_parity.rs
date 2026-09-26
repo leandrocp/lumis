@@ -117,7 +117,7 @@ fn exercised_entry_points() -> BTreeSet<&'static str> {
     // with the plain one; that is a real property and not just "did not panic".
     let html = highlight(source, formatter);
     assert!(
-        html.contains("<span"),
+        html.matches("<span").count() > source.lines().count(),
         "highlight rendered no spans: {html}"
     );
     assert_eq!(

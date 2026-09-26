@@ -254,23 +254,22 @@ The two go together; clap rejects one without the other.
 HTML Inline emits the full block structure with inline styles on each token:
 
 ```html
-<pre class="lumis" style="background-color: #303446; color: #c6d0f5;">
-  <code class="language-rust" translate="no" tabindex="0">
-    <div class="l-line" data-line="1">
-      <span style="color: #ca9ee6;">fn</span>
-      <span style="color: #8caaee;">main</span>
-    </div>
-  </code>
-</pre>
+<pre class="lumis" style="background-color: #303446; color: #c6d0f5;"><code class="language-rust" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #ca9ee6;">fn</span> <span style="color: #8caaee;">main</span></span></code></pre>
 ```
 
 - `<pre class="lumis">` is the outer wrapper and carries the block background
 - `<code class="language-*">` identifies the language and keeps the block focusable
-- `<div class="l-line" data-line="N">` wraps each line
+- `<span class="l-line" data-line="N">` wraps only a line's content
 - `<span class="l-line-number">` opens the line when `line_numbers` is on, see [Line Numbers](/recipes/line-numbers)
-- A source `\n` or `\r\n` sits just before that line's `</div>`; an unterminated
-  final line gets no added newline
+- Lines are separated by `\n` text nodes; nothing follows the last line element
+- A final source newline ends its line rather than adding an empty numbered line
 - `<span style="...">` carries the token colors and font styles inline
+
+Highlighted lines and empty lines carry inline layout styles to preserve their
+width and height. When `highlight_lines` is set, `<code>` expands to the scroll
+width, so backgrounds cover long lines too. Line numbers are excluded from
+selection copy. See [HTML line markup migration](/formatters/html-line-migration)
+if you supply custom CSS or a custom formatter.
 
 ## When to use it
 

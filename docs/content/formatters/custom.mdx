@@ -236,7 +236,10 @@ list of rendered lines, `Lumis.highlight_events/3` returns the same event stream
 without a formatter.
 
 For line-based output, reach for `render_lines_from_events/3` rather than
-splitting rendered markup on newlines. A `<span>` that crosses a newline has to
+splitting rendered markup on newlines. The results contain no line terminators;
+join wrapped lines with `"\n"` when building a block. Use the
+[shared line layout CSS](/formatters/html-line-migration#custom-css) for a custom
+formatter's full-width lines. A `<span>` that crosses a newline has to
 be closed and reopened for each line's tags to nest. Swapping `span_attrs/1` for
 `span_multi_themes_attrs/1` is the whole difference between one theme and a set
 of them, restyled later by CSS alone:
@@ -267,6 +270,7 @@ defmodule MultiThemeFormatter do
       |> Enum.map(fn {line, number} ->
         HTML.wrap_line(number, line)
       end)
+      |> Enum.intersperse("\n")
 
     [
       HTML.open_multi_themes_pre_tag(

@@ -56,6 +56,17 @@ export function buildCss(theme: ThemeData, options: BuildCssOptions = {}): strin
     rules.push(` {\n  ${scopeStyle}\n}\n`);
   }
 
+  for (const [selector, declarations] of [
+    ["pre.lumis > code", "display: block;\n  width: max-content;\n  min-width: 100%;"],
+    [
+      ".l-line",
+      "display: inline-block;\n  width: 100%;\n  min-height: 1lh;\n  vertical-align: top;",
+    ],
+    [".l-line-number", "-webkit-user-select: none;\n  user-select: none;"],
+  ] as const) {
+    rules.push(`${scopedSelector(scope, selector)} {\n  ${declarations}\n}\n`);
+  }
+
   rules.push(...scopeRules(theme, scope, enableItalic));
 
   return rules.join("");

@@ -69,7 +69,7 @@ NimblePublisher converts posts while `MyApp.Blog` compiles, and `mix compile`
 starts no applications. Starting `:mdex` brings up `:mdex_native`, whose
 `start/2` is what hands its NIF the `lumis_wasm_*` directories to load parsers
 from, so a converter has to do it. Skip it and every fence still renders through
-the formatter — Lumis markup, theme background, one `div` per line — around
+the formatter — Lumis markup, theme background, one line span — around
 plain, uncolored code, which reads as a theme problem rather than a missing
 parser.
 

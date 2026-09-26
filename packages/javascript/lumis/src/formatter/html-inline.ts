@@ -1,3 +1,4 @@
+import { mergeAttrs } from "../core/attr-merge.js";
 import type {
   BudgetExhausted,
   HighlightEvent,
@@ -60,7 +61,7 @@ function lineNumberAttrs(
 ): Record<string, string> {
   const scope = highlighted ? "line_number.highlighted" : "line_number";
   const style = styleToCss(getThemeStyle(formatter.theme, scope), { italic: formatter.italic });
-  return style === "" ? {} : { style };
+  return { style: `-webkit-user-select: none; user-select: none;${style ? ` ${style}` : ""}` };
 }
 
 export function formatHtmlInline(
@@ -69,6 +70,8 @@ export function formatHtmlInline(
   formatter: HtmlInlineFormatter,
   budget?: BudgetExhausted,
 ): string {
+  const lineLayout = "display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;";
+  const highlightStyle = highlightLineStyle(formatter);
   const body = formatHtmlLines(source, events, {
     language: formatter.language,
     theme: formatter.theme,
@@ -80,8 +83,9 @@ export function formatHtmlInline(
     },
     highlightedAttrs: {
       className: formatter.highlightLines?.class,
-      style: highlightLineStyle(formatter),
+      style: `${lineLayout}${highlightStyle ? ` ${highlightStyle}` : ""}`,
     },
+    emptyStyle: lineLayout,
     openSpan: (span) => openSpanTag(spanAttrs(span, formatter)),
   });
 
@@ -90,7 +94,13 @@ export function formatHtmlInline(
     theme: formatter.theme,
     attrs: budgetAttrs(formatter.preAttrs, budget),
   });
-  const code = openCodeTag(formatter.language, formatter.codeAttrs);
+  const attrs = formatter.highlightLines
+    ? mergeAttrs(
+        { style: "display: block; width: max-content; min-width: 100%;" },
+        formatter.codeAttrs,
+      )
+    : formatter.codeAttrs;
+  const code = openCodeTag(formatter.language, attrs);
 
   return wrapWithHeader(`${pre}${code}${body}${closingTags()}`, formatter.header);
 }
