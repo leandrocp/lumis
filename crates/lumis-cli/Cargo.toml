@@ -33,7 +33,7 @@ path = "src/main.rs"
 doc = false
 
 [dependencies]
-lumis-core = { path = "../lumis-core", version = "3.0.0", features = ["all-languages"] }
+lumis-core = { path = "../lumis-core", version = "3.1.0", features = ["all-languages"] }
 lumis-wasm-runtime = { path = "../lumis-wasm-runtime", version = "0.3.0" }
 tree-sitter = { version = "^0.26.9", features = ["wasm"] }
 wasmtime = { version = "36", default-features = false, features = ["cache", "cranelift", "runtime", "std"] }
