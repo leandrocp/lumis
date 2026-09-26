@@ -1,0 +1,435 @@
+{
+  "implementationCommit": "14531a977cfdfa8bb11514662b4f60bd7c5c6a0d",
+  "platform": "darwin/arm64",
+  "node": "v26.10.0",
+  "playwright": "1.61.1",
+  "font": {
+    "family": "Roboto Mono",
+    "file": "../fonts/RobotoMono.ttf",
+    "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"
+  },
+  "viewport": {
+    "width": 1140,
+    "height": 900
+  },
+  "deviceScaleFactor": 1,
+  "comparison": "Exact PNG bytes, no threshold, masks, resizing or tolerated differences",
+  "cases": [
+    {
+      "id": "basic",
+      "sourceSha256": "aba8ec1b3b6654cd6f92d0e428cbf236a2f8d2918d550bc9cfc2e8c433abeb39"
+    },
+    {
+      "id": "empty-middle",
+      "sourceSha256": "165898443c22750c849acab2ee6f1d1f22f7dfb9f094930e7de0844cfe7d9d25"
+    },
+    {
+      "id": "final-lf",
+      "sourceSha256": "c19cea1997435d52e1c2a0e919c58fb9a749b317027ba204102cd9daa1e252d2"
+    },
+    {
+      "id": "trailing-empty",
+      "sourceSha256": "876756b2ad5dd5b7b4d34fd8a3e7641330dcf2550c0a8db56c8223e607c4e52b"
+    },
+    {
+      "id": "crlf-unicode",
+      "sourceSha256": "a9345a31a980b91fdf7a34c73214799ed32ab0a130c82011c4122f95bd4b4c2e"
+    },
+    {
+      "id": "multiline-string",
+      "sourceSha256": "6a340ab9be3b73c0b1a9f48c02d74978528c5c5a166e19bf49417b62663a4eff"
+    },
+    {
+      "id": "horizontal-scroll",
+      "sourceSha256": "ed8aeca2826ebeb3a9271d42e847d44305934714858be25215d2cf149750f4d0"
+    },
+    {
+      "id": "only-newlines",
+      "sourceSha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+    },
+    {
+      "id": "empty-source",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "variantsPerRuntime": 54,
+  "excluded": [
+    {
+      "runtime": "Java",
+      "reason": "lumis4j is external to this repository, pins lumis 0.9.0, and has no multi-theme formatter or line-number/highlight options. No current-PR Java binary is available."
+    }
+  ],
+  "html": {
+    "cli": {
+      "file": "html/cli.json",
+      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "variants": 54,
+      "matchesRust": true
+    },
+    "rust": {
+      "file": "html/rust.json",
+      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "variants": 54,
+      "matchesRust": true
+    },
+    "elixir": {
+      "file": "html/elixir.json",
+      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "variants": 54,
+      "matchesRust": true
+    },
+    "node-native": {
+      "file": "html/node-native.json",
+      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "variants": 54,
+      "matchesRust": true
+    },
+    "node-wasm": {
+      "file": "html/node-wasm.json",
+      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "variants": 54,
+      "matchesRust": true
+    },
+    "browser-wasm-chromium": {
+      "file": "html/browser-wasm-chromium.json",
+      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "variants": 54,
+      "matchesRust": true
+    },
+    "browser-wasm-firefox": {
+      "file": "html/browser-wasm-firefox.json",
+      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "variants": 54,
+      "matchesRust": true
+    },
+    "browser-wasm-webkit": {
+      "file": "html/browser-wasm-webkit.json",
+      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "variants": 54,
+      "matchesRust": true
+    }
+  },
+  "browsers": {
+    "chromium": {
+      "version": "149.0.7827.55",
+      "screenshots": [
+        {
+          "runtime": "rust",
+          "scroll": "left",
+          "file": "chromium/rust-left.png",
+          "sha256": "d11c2ac2271bb1d004c049231258b546d8aebca9a99970b49474acfaa8415e7f",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "rust",
+          "scroll": "right",
+          "file": "chromium/rust-right.png",
+          "sha256": "5eb36c352f0683be87a5dae55a879f02b6d9fb73e63c53e69afcea6b79b42eee",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "cli",
+          "scroll": "left",
+          "file": "chromium/cli-left.png",
+          "sha256": "d11c2ac2271bb1d004c049231258b546d8aebca9a99970b49474acfaa8415e7f",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "cli",
+          "scroll": "right",
+          "file": "chromium/cli-right.png",
+          "sha256": "5eb36c352f0683be87a5dae55a879f02b6d9fb73e63c53e69afcea6b79b42eee",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "elixir",
+          "scroll": "left",
+          "file": "chromium/elixir-left.png",
+          "sha256": "d11c2ac2271bb1d004c049231258b546d8aebca9a99970b49474acfaa8415e7f",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "elixir",
+          "scroll": "right",
+          "file": "chromium/elixir-right.png",
+          "sha256": "5eb36c352f0683be87a5dae55a879f02b6d9fb73e63c53e69afcea6b79b42eee",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-native",
+          "scroll": "left",
+          "file": "chromium/node-native-left.png",
+          "sha256": "d11c2ac2271bb1d004c049231258b546d8aebca9a99970b49474acfaa8415e7f",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-native",
+          "scroll": "right",
+          "file": "chromium/node-native-right.png",
+          "sha256": "5eb36c352f0683be87a5dae55a879f02b6d9fb73e63c53e69afcea6b79b42eee",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-wasm",
+          "scroll": "left",
+          "file": "chromium/node-wasm-left.png",
+          "sha256": "d11c2ac2271bb1d004c049231258b546d8aebca9a99970b49474acfaa8415e7f",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-wasm",
+          "scroll": "right",
+          "file": "chromium/node-wasm-right.png",
+          "sha256": "5eb36c352f0683be87a5dae55a879f02b6d9fb73e63c53e69afcea6b79b42eee",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "browser-wasm",
+          "scroll": "left",
+          "file": "chromium/browser-wasm-left.png",
+          "sha256": "d11c2ac2271bb1d004c049231258b546d8aebca9a99970b49474acfaa8415e7f",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "browser-wasm",
+          "scroll": "right",
+          "file": "chromium/browser-wasm-right.png",
+          "sha256": "5eb36c352f0683be87a5dae55a879f02b6d9fb73e63c53e69afcea6b79b42eee",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        }
+      ],
+      "negativeControlRejected": true,
+      "negativeControl": {
+        "file": "chromium/negative-control-1px-left.png",
+        "sha256": "14f809cf481ffc34acd0eac5c4671d039bf7e4ce2fc6de6b0a5f76f6ddf52099"
+      }
+    },
+    "firefox": {
+      "version": "151.0",
+      "screenshots": [
+        {
+          "runtime": "rust",
+          "scroll": "left",
+          "file": "firefox/rust-left.png",
+          "sha256": "f90674ae93ca8f8b651af173f084b8eab220bf921433ee3349c69837af851fb9",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "rust",
+          "scroll": "right",
+          "file": "firefox/rust-right.png",
+          "sha256": "77464238481e33a200b6167c8a6a69227113032145b6b2dc6e9d426b22b6294e",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "cli",
+          "scroll": "left",
+          "file": "firefox/cli-left.png",
+          "sha256": "f90674ae93ca8f8b651af173f084b8eab220bf921433ee3349c69837af851fb9",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "cli",
+          "scroll": "right",
+          "file": "firefox/cli-right.png",
+          "sha256": "77464238481e33a200b6167c8a6a69227113032145b6b2dc6e9d426b22b6294e",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "elixir",
+          "scroll": "left",
+          "file": "firefox/elixir-left.png",
+          "sha256": "f90674ae93ca8f8b651af173f084b8eab220bf921433ee3349c69837af851fb9",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "elixir",
+          "scroll": "right",
+          "file": "firefox/elixir-right.png",
+          "sha256": "77464238481e33a200b6167c8a6a69227113032145b6b2dc6e9d426b22b6294e",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-native",
+          "scroll": "left",
+          "file": "firefox/node-native-left.png",
+          "sha256": "f90674ae93ca8f8b651af173f084b8eab220bf921433ee3349c69837af851fb9",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-native",
+          "scroll": "right",
+          "file": "firefox/node-native-right.png",
+          "sha256": "77464238481e33a200b6167c8a6a69227113032145b6b2dc6e9d426b22b6294e",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-wasm",
+          "scroll": "left",
+          "file": "firefox/node-wasm-left.png",
+          "sha256": "f90674ae93ca8f8b651af173f084b8eab220bf921433ee3349c69837af851fb9",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-wasm",
+          "scroll": "right",
+          "file": "firefox/node-wasm-right.png",
+          "sha256": "77464238481e33a200b6167c8a6a69227113032145b6b2dc6e9d426b22b6294e",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "browser-wasm",
+          "scroll": "left",
+          "file": "firefox/browser-wasm-left.png",
+          "sha256": "f90674ae93ca8f8b651af173f084b8eab220bf921433ee3349c69837af851fb9",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "browser-wasm",
+          "scroll": "right",
+          "file": "firefox/browser-wasm-right.png",
+          "sha256": "77464238481e33a200b6167c8a6a69227113032145b6b2dc6e9d426b22b6294e",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        }
+      ],
+      "negativeControlRejected": true,
+      "negativeControl": {
+        "file": "firefox/negative-control-1px-left.png",
+        "sha256": "4e9e971e3b546148edd0ee9bbf99c79be232c0bcaefe425f5d95a638bff6d18d"
+      }
+    },
+    "webkit": {
+      "version": "26.5",
+      "screenshots": [
+        {
+          "runtime": "rust",
+          "scroll": "left",
+          "file": "webkit/rust-left.png",
+          "sha256": "05da8bb1d11ab7979d233292cf654d3518143e5dad111020a7ad08e5e3ed7832",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "rust",
+          "scroll": "right",
+          "file": "webkit/rust-right.png",
+          "sha256": "48bc4f5237e2b9e458123b898f964b06a3b53f12e5a7a98e6138cf8b784c8037",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "cli",
+          "scroll": "left",
+          "file": "webkit/cli-left.png",
+          "sha256": "05da8bb1d11ab7979d233292cf654d3518143e5dad111020a7ad08e5e3ed7832",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "cli",
+          "scroll": "right",
+          "file": "webkit/cli-right.png",
+          "sha256": "48bc4f5237e2b9e458123b898f964b06a3b53f12e5a7a98e6138cf8b784c8037",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "elixir",
+          "scroll": "left",
+          "file": "webkit/elixir-left.png",
+          "sha256": "05da8bb1d11ab7979d233292cf654d3518143e5dad111020a7ad08e5e3ed7832",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "elixir",
+          "scroll": "right",
+          "file": "webkit/elixir-right.png",
+          "sha256": "48bc4f5237e2b9e458123b898f964b06a3b53f12e5a7a98e6138cf8b784c8037",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-native",
+          "scroll": "left",
+          "file": "webkit/node-native-left.png",
+          "sha256": "05da8bb1d11ab7979d233292cf654d3518143e5dad111020a7ad08e5e3ed7832",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-native",
+          "scroll": "right",
+          "file": "webkit/node-native-right.png",
+          "sha256": "48bc4f5237e2b9e458123b898f964b06a3b53f12e5a7a98e6138cf8b784c8037",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-wasm",
+          "scroll": "left",
+          "file": "webkit/node-wasm-left.png",
+          "sha256": "05da8bb1d11ab7979d233292cf654d3518143e5dad111020a7ad08e5e3ed7832",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "node-wasm",
+          "scroll": "right",
+          "file": "webkit/node-wasm-right.png",
+          "sha256": "48bc4f5237e2b9e458123b898f964b06a3b53f12e5a7a98e6138cf8b784c8037",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "browser-wasm",
+          "scroll": "left",
+          "file": "webkit/browser-wasm-left.png",
+          "sha256": "05da8bb1d11ab7979d233292cf654d3518143e5dad111020a7ad08e5e3ed7832",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        },
+        {
+          "runtime": "browser-wasm",
+          "scroll": "right",
+          "file": "webkit/browser-wasm-right.png",
+          "sha256": "48bc4f5237e2b9e458123b898f964b06a3b53f12e5a7a98e6138cf8b784c8037",
+          "differentPixels": 0,
+          "identicalPngBytes": true
+        }
+      ],
+      "negativeControlRejected": true,
+      "negativeControl": {
+        "file": "webkit/negative-control-1px-left.png",
+        "sha256": "1b685dc453feb7471a89c1a9870a880d2afe05f3b51db8a4f8da80c88b007f22"
+      }
+    }
+  },
+  "status": "pass",
+  "actualHtmlRenders": 432,
+  "screenshotComparisons": 30
+}
