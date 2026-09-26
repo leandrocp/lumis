@@ -81,7 +81,7 @@
     "build:runtime-wasm": "tsx scripts/build-runtime-wasm.ts",
     "build:generate": "pnpm run build:runtime-wasm && pnpm run build:langs",
     "build:native": "cargo build -p lumis-js-native --release && tsx scripts/copy-native.ts",
-    "build": "pnpm run build:generate && tsup && node scripts/patch-web-tree-sitter-bundle.mjs",
+    "build": "pnpm run build:generate && tsup && node scripts/patch-web-tree-sitter-bundle.mjs && node scripts/check-declarations.mjs",
     "test": "vitest run --exclude test/conformance.test.ts --exclude test/query-compile.test.ts --exclude 'test/browser/**'",
     "test:queries": "vitest run test/query-compile.test.ts",
     "test:conformance": "vitest run test/conformance.test.ts",
