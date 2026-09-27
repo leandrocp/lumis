@@ -26,7 +26,9 @@
     "Each runtime adapts only its boundary-shaped arguments, converts the result",
     "to a string, and compares it with the helper's `expected` value. Attribute",
     "maps and tables are normalized through `open_span`; lists are JSON strings,",
-    "RGB tuples are comma-separated, and booleans use `true` or `false`."
+    "RGB tuples are comma-separated, and booleans use `true` or `false`. Lines",
+    "from `lines_from_events` are JSON with sorted keys and each range as",
+    "`{start, end}`."
   ],
   "contract": {
     "themes": {
@@ -196,6 +198,197 @@
             ]
           }
         ]
+      },
+      "lineDataCases": {
+        "$comment": [
+          "What `lines_from_events` returns for a stream, compared as data. A range",
+          "is `{start, end}` in UTF-8 bytes. Every runtime also runs it over",
+          "`lineEndingCases`, where its tokens' text must read as the tags-stripped",
+          "HTML line and each token's range must slice back to its text. The",
+          "annotation events are the ones composition gives for the annotations",
+          "each case describes."
+        ],
+        "cases": [
+          {
+            "$comment": "A scope crossing a CRLF gives a token on each line; text outside every scope reports the stream's language.",
+            "source": "a\r\nb c",
+            "events": [
+              { "type": "start", "scope": "comment", "language": "rust" },
+              { "type": "source", "start": 0, "end": 4 },
+              { "type": "end" },
+              { "type": "source", "start": 4, "end": 6 }
+            ],
+            "expected": [
+              {
+                "number": 1,
+                "tokens": [
+                  { "text": "a", "range": { "start": 0, "end": 1 }, "scope": "comment", "language": "rust" }
+                ],
+                "annotations": []
+              },
+              {
+                "number": 2,
+                "tokens": [
+                  { "text": "b", "range": { "start": 3, "end": 4 }, "scope": "comment", "language": "rust" },
+                  { "text": " c", "range": { "start": 4, "end": 6 }, "scope": "", "language": "rust" }
+                ],
+                "annotations": []
+              }
+            ]
+          },
+          {
+            "$comment": "A rainbow bracket inside a scope reports its rainbow scope and the stream's language.",
+            "source": "(a)",
+            "events": [
+              { "type": "start", "scope": "punctuation.bracket", "language": "javascript" },
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 0, "end": 1 },
+              { "type": "decorationEnd" },
+              { "type": "end" },
+              { "type": "start", "scope": "variable", "language": "javascript" },
+              { "type": "source", "start": 1, "end": 2 },
+              { "type": "end" },
+              { "type": "start", "scope": "punctuation.bracket", "language": "javascript" },
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 2, "end": 3 },
+              { "type": "decorationEnd" },
+              { "type": "end" }
+            ],
+            "expected": [
+              {
+                "number": 1,
+                "tokens": [
+                  { "text": "(", "range": { "start": 0, "end": 1 }, "scope": "punctuation.bracket.rainbow.1", "language": "javascript" },
+                  { "text": "a", "range": { "start": 1, "end": 2 }, "scope": "variable", "language": "javascript" },
+                  { "text": ")", "range": { "start": 2, "end": 3 }, "scope": "punctuation.bracket.rainbow.1", "language": "javascript" }
+                ],
+                "annotations": []
+              }
+            ]
+          },
+          {
+            "$comment": "A scope Lumis does not name reports as no scope. Rust spells one as an index past `HIGHLIGHT_NAMES`.",
+            "source": "a",
+            "events": [
+              { "type": "start", "scope": "not.a.lumis.scope", "language": "rust" },
+              { "type": "source", "start": 0, "end": 1 },
+              { "type": "end" }
+            ],
+            "expected": [
+              {
+                "number": 1,
+                "tokens": [
+                  { "text": "a", "range": { "start": 0, "end": 1 }, "scope": "", "language": "rust" }
+                ],
+                "annotations": []
+              }
+            ]
+          },
+          {
+            "$comment": "With no scope in the stream, a rainbow bracket reports plaintext.",
+            "source": "()",
+            "events": [
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 0, "end": 1 },
+              { "type": "decorationEnd" },
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 1, "end": 2 },
+              { "type": "decorationEnd" }
+            ],
+            "expected": [
+              {
+                "number": 1,
+                "tokens": [
+                  { "text": "(", "range": { "start": 0, "end": 1 }, "scope": "punctuation.bracket.rainbow.1", "language": "plaintext" },
+                  { "text": ")", "range": { "start": 1, "end": 2 }, "scope": "punctuation.bracket.rainbow.1", "language": "plaintext" }
+                ],
+                "annotations": []
+              }
+            ]
+          },
+          {
+            "$comment": [
+              "Annotations `late` (1..2), `early` (0..5), two with equal data over 3..5, and `head`",
+              "(0..2), in that order. `early` and `head` are reopened around `late`, `early` again at",
+              "the newline, and each is listed once per line; the two with equal data are both listed."
+            ],
+            "source": "ab\ncd",
+            "events": [
+              { "type": "annotationStart", "range": { "start": 0, "end": 5 }, "data": "early" },
+              { "type": "annotationStart", "range": { "start": 0, "end": 2 }, "data": "head" },
+              { "type": "source", "start": 0, "end": 1 },
+              { "type": "annotationEnd" },
+              { "type": "annotationEnd" },
+              { "type": "annotationStart", "range": { "start": 1, "end": 2 }, "data": "late" },
+              { "type": "annotationStart", "range": { "start": 0, "end": 5 }, "data": "early" },
+              { "type": "annotationStart", "range": { "start": 0, "end": 2 }, "data": "head" },
+              { "type": "source", "start": 1, "end": 2 },
+              { "type": "annotationEnd" },
+              { "type": "annotationEnd" },
+              { "type": "annotationEnd" },
+              { "type": "annotationStart", "range": { "start": 0, "end": 5 }, "data": "early" },
+              { "type": "source", "start": 2, "end": 3 },
+              { "type": "annotationStart", "range": { "start": 3, "end": 5 }, "data": { "kind": "twin" } },
+              { "type": "annotationStart", "range": { "start": 3, "end": 5 }, "data": { "kind": "twin" } },
+              { "type": "source", "start": 3, "end": 5 },
+              { "type": "annotationEnd" },
+              { "type": "annotationEnd" },
+              { "type": "annotationEnd" }
+            ],
+            "expected": [
+              {
+                "number": 1,
+                "tokens": [
+                  { "text": "a", "range": { "start": 0, "end": 1 }, "scope": "", "language": "plaintext" },
+                  { "text": "b", "range": { "start": 1, "end": 2 }, "scope": "", "language": "plaintext" }
+                ],
+                "annotations": ["early", "head", "late"]
+              },
+              {
+                "number": 2,
+                "tokens": [
+                  { "text": "cd", "range": { "start": 3, "end": 5 }, "scope": "", "language": "plaintext" }
+                ],
+                "annotations": ["early", { "kind": "twin" }, { "kind": "twin" }]
+              }
+            ]
+          },
+          {
+            "$comment": [
+              "Annotations `first` (0..2, ending with its newline), a point on the blank line (2..2)",
+              "and a point at the very end (5..5). `first` stays on line 1, and the last point lands",
+              "on line 3 because the final newline adds no line."
+            ],
+            "source": "a\n\nb\n",
+            "events": [
+              { "type": "annotationStart", "range": { "start": 0, "end": 2 }, "data": "first" },
+              { "type": "source", "start": 0, "end": 2 },
+              { "type": "annotationEnd" },
+              { "type": "annotationStart", "range": { "start": 2, "end": 2 }, "data": { "line": 2 } },
+              { "type": "annotationEnd" },
+              { "type": "source", "start": 2, "end": 5 },
+              { "type": "annotationStart", "range": { "start": 5, "end": 5 }, "data": "end" },
+              { "type": "annotationEnd" }
+            ],
+            "expected": [
+              {
+                "number": 1,
+                "tokens": [
+                  { "text": "a", "range": { "start": 0, "end": 1 }, "scope": "", "language": "plaintext" }
+                ],
+                "annotations": ["first"]
+              },
+              { "number": 2, "tokens": [], "annotations": [{ "line": 2 }] },
+              {
+                "number": 3,
+                "tokens": [
+                  { "text": "b", "range": { "start": 3, "end": 4 }, "scope": "", "language": "plaintext" }
+                ],
+                "annotations": ["end"]
+              }
+            ]
+          }
+        ]
       }
     },
     "style": {
@@ -308,6 +501,10 @@
         {
           "name": "render_lines_from_events",
           "expected": "[\"<span class=\\\"l-keyword\\\">a</span>\",\"<span class=\\\"l-keyword\\\">b</span>\"]"
+        },
+        {
+          "name": "lines_from_events",
+          "expected": "[{\"annotations\":[],\"number\":1,\"tokens\":[{\"language\":\"rust\",\"range\":{\"end\":1,\"start\":0},\"scope\":\"keyword\",\"text\":\"a\"}]},{\"annotations\":[],\"number\":2,\"tokens\":[{\"language\":\"rust\",\"range\":{\"end\":4,\"start\":3},\"scope\":\"keyword\",\"text\":\"b\"}]}]"
         }
       ]
     },

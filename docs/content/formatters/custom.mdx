@@ -574,6 +574,109 @@ into one HTML fragment per source line.
   </Tab>
 </Tabs>
 
+## Lines as data
+
+`render_lines_from_events` renders each line as an HTML string.
+`lines_from_events` returns the same lines as data, for output built from React
+elements, SVG or a canvas. A line has a `number`, its `tokens`, and the
+`annotations` that touch it. A token has `text`, a byte `range`, a `scope` and a
+`language`.
+
+A scope that crosses a newline is split into one token per line, and text
+outside every scope gets the scope `""`. A line lists the data of every
+annotation covering any part of it, once each, in the order they open. A point
+annotation on a blank line is listed on that line.
+
+Tokens don't carry a style. Look one up with `getScopedThemeStyle` in
+JavaScript, `Theme::get_style` in Rust, or an `ANSI.styles/1` table in Elixir.
+Those fall back from `comment.documentation` to `comment` the way the built-in
+formatters do. An exact-key lookup in the theme's `highlights` skips the
+fallback, and with some themes the tokens then get different colors than the
+same theme's HTML output.
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```ts
+import {createHighlighter} from '@lumis-sh/lumis'
+import type {Formatter} from '@lumis-sh/lumis/formatters'
+import {
+  getScopedThemeStyle,
+  linesFromEvents,
+} from '@lumis-sh/lumis/formatters/html'
+import rust from '@lumis-sh/lumis/langs/rust'
+import dracula from '@lumis-sh/themes/dracula'
+
+const hl = await createHighlighter({languages: [rust]})
+
+const formatter: Formatter = {
+  language: rust,
+  render(source, events) {
+    for (const line of linesFromEvents(source, events)) {
+      for (const token of line.tokens) {
+        const style = getScopedThemeStyle(
+          dracula,
+          token.scope,
+          token.language,
+        )
+        console.log(line.number, token.text, style?.fg)
+      }
+    }
+    return ''
+  },
+}
+
+hl.highlight('/* one\ntwo */', formatter)
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::highlight::highlight_events;
+use lumis::html;
+use lumis::languages::Language;
+use lumis::themes;
+
+let source = "/* one\ntwo */";
+let theme = themes::get("dracula")?;
+let events = highlight_events(source, Language::Rust)?;
+
+for line in html::lines_from_events(source, &events) {
+    for token in &line.tokens {
+        let style = theme.get_style(&format!(
+            "{}.{}",
+            token.scope, token.language
+        ));
+        println!("{} {:?} {:?}", line.number, token.text, style);
+    }
+}
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+alias Lumis.Formatter.ANSI
+alias Lumis.Formatter.HTML
+
+source = "/* one\ntwo */"
+{:ok, events} = Lumis.highlight_events(source, "rust")
+styles = ANSI.styles(theme: "dracula", language: "rust")
+
+for line <- HTML.lines_from_events(source, events),
+    token <- line.tokens do
+  IO.inspect({line.number, token.text, ANSI.style_for(styles, token.scope)})
+end
+```
+
+A document with injected languages needs one `ANSI.styles/1` table per
+language, keyed by `token.language`.
+
+  </Tab>
+</Tabs>
+
 ## Available helpers
 
 Every runtime offers the same set, so a formatter written against one can be
@@ -603,6 +706,7 @@ the npm package — and so do argument shapes.
 | Render a tag from attributes, escaping the values and checking the names | `open_tag`, `valid_attr_name` |
 | Wrap a line, and decide whether it is highlighted | `wrap_line`, `line_is_highlighted`, `highlight_line_class` |
 | Turn the whole event stream into lines, reopening spans across newlines | `render_lines_from_events` |
+| Split the event stream into lines of tokens and annotations, for output that is not HTML | `lines_from_events` |
 
 Rendered lines carry their exact source `\n` or `\r\n`, after any closing
 syntax spans. The unterminated final line carries none, so pass each result to

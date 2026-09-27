@@ -4,6 +4,7 @@ import type {
   HighlightStyle,
   HighlightSpan,
   HighlightEvent,
+  HighlightRange,
   HtmlAttrs,
   HtmlElement,
   HtmlStructure,
@@ -35,13 +36,20 @@ export function decodeSourceSlice(
   startByte: number,
   endByte: number,
 ): string {
+  const range = sourceRange(sourceBytes, startByte, endByte);
+  return _decoder.decode(sourceBytes.subarray(range.start, range.end));
+}
+
+// The largest range fully inside `startByte..endByte` that splits no character,
+// the same clamping as Rust's `source_range`.
+function sourceRange(sourceBytes: Uint8Array, startByte: number, endByte: number): HighlightRange {
   let start = Math.min(Math.max(startByte, 0), sourceBytes.length);
   while (start < sourceBytes.length && isUtf8Continuation(sourceBytes[start])) start += 1;
 
   let end = Math.min(Math.max(endByte, 0), sourceBytes.length);
   while (end > 0 && isUtf8Continuation(sourceBytes[end])) end -= 1;
 
-  return _decoder.decode(sourceBytes.subarray(start, Math.max(start, end)));
+  return { start, end: Math.max(start, end) };
 }
 
 function isUtf8Continuation(byte: number | undefined): boolean {
@@ -1201,7 +1209,7 @@ export function appendFragment(lines: string[], fragment: string): void {
 }
 
 /** What a formatter does with each step of a line-decorated stream. */
-interface LineRenderOptions {
+interface LineRenderOptions<T = unknown> {
   formatText?: (text: string) => string;
   openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
   closeSpan?: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
@@ -1212,6 +1220,10 @@ interface LineRenderOptions {
    * `formatHighlightIterLines`, which reports the language it resolved, infers.
    */
   inferLanguage?: boolean;
+  /** Sees each composed event before the walk renders it. */
+  onEvent?: (event: HighlightEvent<T>) => void;
+  /** Receives each run of line content with its range and the innermost open span. */
+  onText?: LineRenderContext["onText"];
 }
 
 interface LineRenderState {
@@ -1225,7 +1237,7 @@ interface LineRenderState {
   /** The document's language: the innermost scope's, once one has been open. */
   language: string;
   /** The close tag of each open scope, empty when the formatter omitted it. */
-  openScopes: Array<{ close: string; language: string }>;
+  openScopes: Array<{ close: string; scope: string; language: string }>;
   /**
    * A line boundary reopens every span still open, so resolving a scope's tags
    * once is the difference between paying per scope and paying per scope per
@@ -1245,6 +1257,11 @@ interface LineRenderContext {
     content: string,
     decoration: Extract<Decoration, { type: "line" }>,
     ending: string,
+  ) => void;
+  onText?: (
+    content: string,
+    range: HighlightRange,
+    span: { scope: string; language: string } | undefined,
   ) => void;
 }
 
@@ -1267,7 +1284,7 @@ function openSpanEvent(
   }
 
   state.line += tags.open;
-  state.openScopes.push({ close: tags.close, language: event.language });
+  state.openScopes.push({ close: tags.close, scope: event.scope, language: event.language });
 }
 
 function sourceLineEnding(text: string, followedByLf: boolean): string {
@@ -1284,10 +1301,17 @@ function sourceEvent(
     state.language = state.openScopes.at(-1)?.language ?? state.language;
   }
 
-  const text = decodeSourceSlice(context.sourceBytes, event.start, event.end);
+  const range = sourceRange(context.sourceBytes, event.start, event.end);
+  const text = _decoder.decode(context.sourceBytes.subarray(range.start, range.end));
   const ending = sourceLineEnding(text, context.sourceBytes[event.end] === 10);
+  const content = ending ? text.slice(0, -ending.length) : text;
   state.ending += ending;
-  state.line += context.formatText(ending ? text.slice(0, -ending.length) : text);
+  state.line += context.formatText(content);
+  context.onText?.(
+    content,
+    { start: range.start, end: range.end - ending.length },
+    state.openScopes.at(-1),
+  );
 }
 
 function startLineDecoration(
@@ -1352,12 +1376,12 @@ function applyLineEvent(
  *
  * Returns the document's language.
  */
-function renderDecoratedLines(
+function renderDecoratedLines<T>(
   sourceBytes: Uint8Array,
-  composed: readonly HighlightEvent[],
+  composed: readonly HighlightEvent<T>[],
   theme: Theme | undefined,
   language: string,
-  options: LineRenderOptions,
+  options: LineRenderOptions<T>,
   onLine: LineRenderContext["onLine"],
 ): string {
   const context: LineRenderContext = {
@@ -1368,6 +1392,7 @@ function renderDecoratedLines(
     closeSpan: options.closeSpan ?? (() => "</span>"),
     inferLanguage: options.inferLanguage ?? false,
     onLine,
+    onText: options.onText,
   };
   const state: LineRenderState = {
     line: "",
@@ -1380,6 +1405,7 @@ function renderDecoratedLines(
   };
 
   for (const event of composed) {
+    options.onEvent?.(event);
     applyLineEvent(state, context, event);
   }
 
@@ -1518,6 +1544,147 @@ export function renderLinesFromEvents(
   );
   if (source.endsWith("\n")) lines.pop();
   return lines;
+}
+
+/** One line of {@link linesFromEvents}. */
+export interface Line<T = unknown> {
+  /** The 1-based line number. */
+  number: number;
+  /** The line's text in source order, without its terminator. A blank line has none. */
+  tokens: Token[];
+  /** The data of every annotation covering any part of the line, once each, in the order they open. */
+  annotations: T[];
+}
+
+/** A run of one line's text under one scope. */
+export interface Token {
+  /** The text, which never holds a line terminator. */
+  text: string;
+  /** Where `text` sits in the source, in UTF-8 bytes. */
+  range: HighlightRange;
+  /** The innermost open scope, or `""` outside every scope and for a scope Lumis does not name. */
+  scope: string;
+  /**
+   * The innermost open scope's language. A rainbow bracket, and text outside
+   * every scope, report the language of the stream's first scope, or
+   * `plaintext` when it has none.
+   */
+  language: string;
+}
+
+const HIGHLIGHT_NAME_SET: ReadonlySet<string> = new Set(HIGHLIGHT_NAMES);
+
+/**
+ * Split highlight events into lines of tokens, with the annotations each line touches.
+ *
+ * These are the lines {@link renderLinesFromEvents} renders, as data, for
+ * output that is not an HTML string: React elements, SVG, canvas. Content only,
+ * a final newline adds no line, and an empty source is one empty line. A scope
+ * that crosses a newline gives one token on each line, and a token's `range`
+ * leaves the terminator out.
+ *
+ * Nothing here resolves a style. Look one up with
+ * `getScopedThemeStyle(theme, token.scope, token.language)`, which falls back
+ * to the parent scopes the built-in formatters fall back to;
+ * `theme.highlights[token.scope]` misses those.
+ *
+ * A line lists the data of every annotation covering any part of it, once
+ * each, in the order they open. A point annotation lands on the line holding
+ * it, including a blank one, and a point at the very end of a source that ends
+ * in a newline lands on the last line.
+ *
+ * ```ts
+ * const formatter: Formatter = {
+ *   language: rust,
+ *   render(source, events) {
+ *     return linesFromEvents(source, events)
+ *       .map((line) => `${line.number}: ${line.tokens.map((token) => token.text).join("")}`)
+ *       .join("\n")
+ *   },
+ * }
+ * ```
+ */
+export function linesFromEvents<T = unknown>(
+  source: string,
+  events: readonly HighlightEvent<T>[],
+): Line<T>[] {
+  const sourceBytes = encodeSource(source);
+  const language = streamLanguage(events);
+  const lastLine = source.split("\n").length - Number(source.endsWith("\n"));
+  const lines: Line<T>[] = [];
+  const annotations = new LineAnnotations();
+
+  renderDecoratedLines(
+    sourceBytes,
+    composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
+    undefined,
+    language,
+    {
+      openSpan: () => "",
+      formatText: () => "",
+      onEvent: (event) => {
+        if (event.type === "decorationStart" && event.decoration.type === "line") {
+          // The empty line after a final newline is not returned, so whatever
+          // lands on it belongs to the last line.
+          if (event.decoration.number > lastLine) return;
+          annotations.newLine();
+          lines.push({ number: event.decoration.number, tokens: [], annotations: [] });
+        } else if (event.type === "annotationStart") {
+          if (annotations.opens(event.range)) lines.at(-1)?.annotations.push(event.data);
+        } else if (event.type === "annotationEnd") {
+          annotations.close();
+        }
+      },
+      onText: (text, range, span) => {
+        if (text.length === 0) return;
+        lines.at(-1)?.tokens.push({
+          text,
+          range,
+          scope: span && HIGHLIGHT_NAME_SET.has(span.scope) ? span.scope : "",
+          language: span?.language ?? language,
+        });
+      },
+    },
+    () => {},
+  );
+
+  return lines;
+}
+
+/**
+ * Which annotations one line lists already.
+ *
+ * Composition closes and reopens an annotation at every line boundary and
+ * around every annotation that opens inside it, but never opens one twice at
+ * once. So two annotations sharing a range are always open together, and the
+ * n-th open one with a range is the n-th distinct one. A point never reopens,
+ * so each one is new. That keys on the range, the same in every runtime,
+ * without asking whether two annotations' data are equal.
+ */
+class LineAnnotations {
+  #open: HighlightRange[] = [];
+  #listed = new Map<string, number>();
+
+  newLine(): void {
+    this.#listed.clear();
+  }
+
+  /** Records an annotation opening, and reports whether the line should list it. */
+  opens(range: HighlightRange): boolean {
+    this.#open.push(range);
+    const key = `${range.start}:${range.end}`;
+    const listed = this.#listed.get(key) ?? 0;
+    const open = this.#open.filter(
+      (candidate) => candidate.start === range.start && candidate.end === range.end,
+    ).length;
+    if (range.start !== range.end && open <= listed) return false;
+    this.#listed.set(key, listed + 1);
+    return true;
+  }
+
+  close(): void {
+    this.#open.pop();
+  }
 }
 
 /**

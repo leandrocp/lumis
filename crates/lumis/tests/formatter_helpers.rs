@@ -113,6 +113,7 @@ struct HtmlContract {
     events: Vec<ContractEvent>,
     line_ending_cases: Vec<LineEndingCase>,
     span_language_cases: SpanLanguageCases,
+    line_data_cases: LineDataCases,
 }
 
 #[derive(Debug, Deserialize)]
@@ -132,6 +133,24 @@ struct SpanLanguageCase {
     source: String,
     events: Vec<ContractEvent>,
     expected: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct LineDataCases {
+    cases: Vec<LineDataCase>,
+}
+
+#[derive(Debug, Deserialize)]
+struct LineDataCase {
+    source: String,
+    events: Vec<ContractEvent>,
+    expected: serde_json::Value,
+}
+
+#[derive(Debug, Deserialize)]
+struct ContractRange {
+    start: usize,
+    end: usize,
 }
 
 #[derive(Debug, Deserialize)]
@@ -167,6 +186,13 @@ enum ContractEvent {
     },
     #[serde(rename = "decorationEnd")]
     DecorationEnd,
+    #[serde(rename = "annotationStart")]
+    AnnotationStart {
+        range: ContractRange,
+        data: serde_json::Value,
+    },
+    #[serde(rename = "annotationEnd")]
+    AnnotationEnd,
 }
 
 #[derive(Debug, Deserialize)]
@@ -279,6 +305,117 @@ fn render_lines_preserves_the_shared_line_ending_contract() {
     }
 }
 
+/// `lines_from_events` splits where `render_lines_from_events` does: its tokens
+/// read as the HTML line with the tags stripped.
+#[test]
+fn lines_from_events_preserves_the_shared_line_ending_contract() {
+    let input = manifest().contract.html;
+
+    for case in input.line_ending_cases {
+        let events = case.events.as_ref().map_or_else(
+            || {
+                vec![HighlightEvent::Source {
+                    start: 0,
+                    end: case.source.len(),
+                }]
+            },
+            |events| contract_events(events),
+        );
+        let lines = html::lines_from_events(&case.source, &events);
+
+        assert_token_ranges(&case.source, &lines);
+        assert_eq!(
+            lines.iter().map(|line| line.number).collect::<Vec<_>>(),
+            (1..=case.expected.len()).collect::<Vec<_>>(),
+            "source {:?}",
+            case.source
+        );
+        assert_eq!(
+            lines
+                .iter()
+                .map(|line| line
+                    .tokens
+                    .iter()
+                    .map(|token| token.text)
+                    .collect::<String>())
+                .collect::<Vec<_>>(),
+            case.expected
+                .iter()
+                .map(|line| strip_tags(line))
+                .collect::<Vec<_>>(),
+            "source {:?}",
+            case.source
+        );
+    }
+}
+
+#[test]
+fn lines_from_events_matches_the_shared_line_data() {
+    let input = manifest().contract.html;
+
+    for case in input.line_data_cases.cases {
+        let events = contract_events(&case.events);
+        let lines = html::lines_from_events(&case.source, &events);
+
+        assert_token_ranges(&case.source, &lines);
+        assert_eq!(
+            lines_json(&lines),
+            case.expected,
+            "source {:?}",
+            case.source
+        );
+    }
+}
+
+fn assert_token_ranges<T>(source: &str, lines: &[html::Line<'_, T>]) {
+    for token in lines.iter().flat_map(|line| &line.tokens) {
+        assert_eq!(
+            &source[token.range.clone()],
+            token.text,
+            "source {source:?}"
+        );
+    }
+}
+
+fn strip_tags(html: &str) -> String {
+    let mut text = String::new();
+    let mut in_tag = false;
+    for character in html.chars() {
+        match character {
+            '<' => in_tag = true,
+            '>' => in_tag = false,
+            _ if !in_tag => text.push(character),
+            _ => {}
+        }
+    }
+    text
+}
+
+/// Lines as the manifest spells them: sorted keys, and a range as `{start, end}`.
+fn lines_json(lines: &[html::Line<'_, serde_json::Value>]) -> serde_json::Value {
+    lines
+        .iter()
+        .map(|line| {
+            serde_json::json!({
+                "annotations": line.annotations,
+                "number": line.number,
+                "tokens": line
+                    .tokens
+                    .iter()
+                    .map(|token| {
+                        serde_json::json!({
+                            "language": token.language,
+                            "range": { "end": token.range.end, "start": token.range.start },
+                            "scope": token.scope,
+                            "text": token.text,
+                        })
+                    })
+                    .collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}
+
 /// JavaScript's `renderLinesFromEvents` reads the same cases, so the language a
 /// `span_attrs` callback sees cannot differ between the two.
 #[test]
@@ -314,11 +451,13 @@ fn language(name: &str) -> Language {
     Language::from_str(name).unwrap_or_else(|_| panic!("{name:?} is not a language"))
 }
 
+/// A scope Lumis does not name is an index past `HIGHLIGHT_NAMES`, the only way
+/// a Rust stream can spell one.
 fn scope_index(scope: &str) -> usize {
     HIGHLIGHT_NAMES
         .iter()
         .position(|&candidate| candidate == scope)
-        .unwrap_or_else(|| panic!("{scope:?} is not a highlight scope"))
+        .unwrap_or(HIGHLIGHT_NAMES.len())
 }
 
 fn line_ranges(input: &HtmlContract) -> Vec<RangeInclusive<usize>> {
@@ -332,11 +471,11 @@ fn line_ranges(input: &HtmlContract) -> Vec<RangeInclusive<usize>> {
         .collect()
 }
 
-fn highlight_events(input: &HtmlContract) -> Vec<HighlightEvent<'_, ()>> {
+fn highlight_events(input: &HtmlContract) -> Vec<HighlightEvent<'_, serde_json::Value>> {
     contract_events(&input.events)
 }
 
-fn contract_events(events: &[ContractEvent]) -> Vec<HighlightEvent<'_, ()>> {
+fn contract_events(events: &[ContractEvent]) -> Vec<HighlightEvent<'_, serde_json::Value>> {
     events
         .iter()
         .map(|event| match event {
@@ -355,6 +494,11 @@ fn contract_events(events: &[ContractEvent]) -> Vec<HighlightEvent<'_, ()>> {
                 decoration: Decoration::RainbowBracket { depth: *depth },
             },
             ContractEvent::DecorationEnd => HighlightEvent::DecorationEnd,
+            ContractEvent::AnnotationStart { range, data } => HighlightEvent::AnnotationStart {
+                range: range.start..range.end,
+                data,
+            },
+            ContractEvent::AnnotationEnd => HighlightEvent::AnnotationEnd,
         })
         .collect()
 }
@@ -546,6 +690,10 @@ fn exercised_helpers(
                         },
                     ))
                     .expect("line output serializes"),
+                ),
+                (
+                    "lines_from_events",
+                    lines_json(&html::lines_from_events(&input.source, &events)).to_string(),
                 ),
             ]),
         ),

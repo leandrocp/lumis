@@ -55,6 +55,9 @@ interface Contract {
     spanLanguageCases: {
       cases: Array<{ source: string; events: HighlightEvent[]; expected: string[] }>;
     };
+    lineDataCases: {
+      cases: Array<{ source: string; events: HighlightEvent[]; expected: html.Line[] }>;
+    };
   };
   style: HighlightStyle;
   ansi: {
@@ -93,6 +96,64 @@ it("preserves the shared line-ending contract", () => {
     ).toEqual(testCase.expected);
   }
 });
+
+// `linesFromEvents` splits where `renderLinesFromEvents` does: its tokens read as
+// the HTML line with the tags stripped.
+it("splits lines as data on the shared line-ending contract", () => {
+  for (const testCase of manifest.contract.html.lineEndingCases) {
+    const lines = html.linesFromEvents(
+      testCase.source,
+      testCase.events ?? [
+        { type: "source", start: 0, end: new TextEncoder().encode(testCase.source).length },
+      ],
+    );
+
+    expectTokenRanges(testCase.source, lines);
+    expect(
+      lines.map((line) => line.number),
+      JSON.stringify(testCase.source),
+    ).toEqual(testCase.expected.map((_, index) => index + 1));
+    expect(
+      lines.map((line) => line.tokens.map((token) => token.text).join("")),
+      JSON.stringify(testCase.source),
+    ).toEqual(testCase.expected.map((line) => line.replaceAll(/<[^>]*>/g, "")));
+  }
+});
+
+it("matches the shared line data", () => {
+  for (const testCase of manifest.contract.html.lineDataCases.cases) {
+    const lines = html.linesFromEvents(testCase.source, testCase.events);
+
+    expectTokenRanges(testCase.source, lines);
+    expect(lines, JSON.stringify(testCase.source)).toEqual(testCase.expected);
+  }
+});
+
+function expectTokenRanges(source: string, lines: html.Line[]): void {
+  const bytes = new TextEncoder().encode(source);
+  for (const token of lines.flatMap((line) => line.tokens)) {
+    expect(
+      new TextDecoder().decode(bytes.subarray(token.range.start, token.range.end)),
+      JSON.stringify(source),
+    ).toBe(token.text);
+  }
+}
+
+// Lines as the manifest spells them: sorted keys, and a range as `{start, end}`.
+function linesJson(lines: html.Line[]): string {
+  return JSON.stringify(
+    lines.map((line) => ({
+      annotations: line.annotations,
+      number: line.number,
+      tokens: line.tokens.map((token) => ({
+        language: token.language,
+        range: { end: token.range.end, start: token.range.start },
+        scope: token.scope,
+        text: token.text,
+      })),
+    })),
+  );
+}
 
 // Rust's `render_lines_from_events` reads the same cases, so the language a
 // `spanAttrs` callback sees cannot differ between the two.
@@ -217,6 +278,7 @@ function contractOutputs(): Record<string, Record<string, string>> {
           html.spanLinkedAttrs(scope),
         ),
       ),
+      lines_from_events: linesJson(html.linesFromEvents(htmlInput.source, htmlInput.events)),
     },
     ansi: {
       hex_to_rgb: parsedRgb?.join(",") ?? "",
