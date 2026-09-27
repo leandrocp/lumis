@@ -296,9 +296,12 @@ macro_rules! define_languages {
 
             fn from_shebang(src: &str) -> Option<Language> {
                 // Anchored, so a `#!` anywhere else on the first line is a comment:
-                // `bar = 1 #!/bin/bash` is Python, not Bash.
-                static RE: LazyLock<Regex> =
-                    LazyLock::new(|| Regex::new(r"^#! *(?:/usr/bin/env )?([^ ]+)").unwrap());
+                // `bar = 1 #!/bin/bash` is Python, not Bash. Spaces and tabs
+                // separate the parts, as the kernel reads them, so
+                // `#!/usr/bin/env\tpython` runs Python.
+                static RE: LazyLock<Regex> = LazyLock::new(|| {
+                    Regex::new(r"^#![ \t]*(?:/usr/bin/env[ \t]+)?([^ \t]+)").unwrap()
+                });
 
                 let first_line = split_on_newlines(src).next()?;
                 let cap = RE.captures(first_line)?;
@@ -463,6 +466,10 @@ impl Language {
                 return lang;
             }
         }
+
+        // A byte order mark is encoding, not content. Editors decode it away
+        // before reading the first line, so a BOM'd script is still a script.
+        let src = src.strip_prefix('\u{feff}').unwrap_or(src);
 
         if let Some(lang) = Self::from_emacs_mode_header(src) {
             return lang;

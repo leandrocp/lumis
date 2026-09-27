@@ -123,19 +123,25 @@
     "name": "shebang after a byte order mark",
     "hint": null,
     "source": "\ufeff#!/bin/bash\necho hello",
-    "expected": "plaintext"
+    "expected": "bash"
   },
   {
     "name": "tab between env and the interpreter",
     "hint": null,
     "source": "#!/usr/bin/env\tpython\nprint('ok')",
-    "expected": "plaintext"
+    "expected": "python"
+  },
+  {
+    "name": "spaces between env and the interpreter",
+    "hint": null,
+    "source": "#!/usr/bin/env  python\nprint('ok')",
+    "expected": "python"
   },
   {
     "name": "tab after the shebang interpreter",
     "hint": null,
     "source": "#!/bin/bash\t\necho hello",
-    "expected": "plaintext"
+    "expected": "bash"
   },
   {
     "name": "shebang with a CRLF line ending",
@@ -165,7 +171,7 @@
     "name": "HTML content after a byte order mark",
     "hint": null,
     "source": "\ufeff<!DOCTYPE html>\n<html></html>",
-    "expected": "plaintext"
+    "expected": "html"
   },
   {
     "name": "XML content after a next line character",

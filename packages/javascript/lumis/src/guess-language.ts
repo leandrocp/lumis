@@ -87,10 +87,10 @@ function normalizeShebangCommand(command: string): string {
 }
 
 // Ports `from_shebang`: nothing may precede `#!`, not even whitespace, and
-// only a space separates it, `env` and the interpreter.
+// spaces and tabs separate it, `env` and the interpreter, as the kernel reads them.
 function fromShebang(source: string): string | undefined {
   const firstLine = (source.split("\n", 1)[0] ?? "").replace(/\r$/, "");
-  const command = firstLine.match(/^#! *(?:\/usr\/bin\/env )?([^ ]+)/)?.[1];
+  const command = firstLine.match(/^#![ \t]*(?:\/usr\/bin\/env[ \t]+)?([^ \t]+)/)?.[1];
 
   if (!command) return undefined;
   return SHEBANG_MAP[normalizeShebangCommand(command)];
@@ -134,15 +134,18 @@ export function guessLanguage(language?: string, source = ""): string {
   const explicit = parseLanguageHint(language);
   if (explicit) return explicit;
 
-  const emacsMode = fromEmacsModeHeader(source);
+  // A byte order mark is encoding, not content, as in `Language::guess`.
+  const content = source.startsWith("\uFEFF") ? source.slice(1) : source;
+
+  const emacsMode = fromEmacsModeHeader(content);
   if (emacsMode) return emacsMode;
 
-  const shebang = fromShebang(source);
+  const shebang = fromShebang(content);
   if (shebang) return shebang;
 
-  if (looksLikeHtml(source)) return "html";
-  if (looksLikeXml(source)) return "xml";
-  if (looksLikeObjc(language, source)) return "objc";
+  if (looksLikeHtml(content)) return "html";
+  if (looksLikeXml(content)) return "xml";
+  if (looksLikeObjc(language, content)) return "objc";
 
   return PLAINTEXT_LANG_ID;
 }
