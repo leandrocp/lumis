@@ -114,6 +114,36 @@
     "expected": "python"
   },
   {
+    "name": "shebang after leading whitespace",
+    "hint": null,
+    "source": "  #!/bin/bash\necho hello",
+    "expected": "plaintext"
+  },
+  {
+    "name": "shebang after a byte order mark",
+    "hint": null,
+    "source": "\ufeff#!/bin/bash\necho hello",
+    "expected": "plaintext"
+  },
+  {
+    "name": "tab between env and the interpreter",
+    "hint": null,
+    "source": "#!/usr/bin/env\tpython\nprint('ok')",
+    "expected": "plaintext"
+  },
+  {
+    "name": "tab after the shebang interpreter",
+    "hint": null,
+    "source": "#!/bin/bash\t\necho hello",
+    "expected": "plaintext"
+  },
+  {
+    "name": "shebang with a CRLF line ending",
+    "hint": null,
+    "source": "#!/bin/bash\r\necho hello\r\n",
+    "expected": "bash"
+  },
+  {
     "name": "unknown hint falls through to content",
     "hint": "not-a-language",
     "source": "#!/usr/bin/env bash\necho hello",
@@ -129,6 +159,18 @@
     "name": "XML content after leading whitespace",
     "hint": null,
     "source": "\n<?xml version=\"1.0\"?><root />",
+    "expected": "xml"
+  },
+  {
+    "name": "HTML content after a byte order mark",
+    "hint": null,
+    "source": "\ufeff<!DOCTYPE html>\n<html></html>",
+    "expected": "plaintext"
+  },
+  {
+    "name": "XML content after a next line character",
+    "hint": null,
+    "source": "\u0085<?xml version=\"1.0\"?><root />",
     "expected": "xml"
   },
   {
