@@ -323,6 +323,33 @@ describe("formatter shared helpers", () => {
     expect(lines).toEqual(['<span class="string">a</span>', '<span class="string">b</span>']);
   });
 
+  // Rust hands a rainbow bracket the language of the stream's first scope. A
+  // bracket that opens before any text used to get `plaintext` here instead.
+  it("passes the stream's language to a rainbow bracket that opens first", () => {
+    const languages: string[] = [];
+
+    renderLinesFromEvents(
+      "(a)",
+      [
+        { type: "start", scope: "punctuation.bracket", language: "javascript" },
+        { type: "decorationStart", decoration: { type: "rainbowBracket", depth: 0 } },
+        { type: "source", start: 0, end: 1 },
+        { type: "decorationEnd" },
+        { type: "end" },
+        { type: "source", start: 1, end: 3 },
+      ],
+      (scope, language) => {
+        languages.push(`${scope}@${language}`);
+        return "";
+      },
+    );
+
+    expect(languages).toEqual([
+      "punctuation.bracket@javascript",
+      "punctuation.bracket.rainbow.1@javascript",
+    ]);
+  });
+
   it("shrinks source ranges that split a UTF-8 character", () => {
     expect(renderLinesFromEvents("éx", [{ type: "source", start: 0, end: 1 }], () => "")).toEqual([
       "",

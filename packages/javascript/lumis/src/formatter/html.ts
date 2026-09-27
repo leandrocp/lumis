@@ -1376,6 +1376,12 @@ function renderDecoratedLines(
   return state.language;
 }
 
+// The language of a stream's first scope, which is also what Rust's
+// `render_lines_from_events` hands a rainbow bracket that opens before any text.
+function streamLanguage(events: readonly HighlightEvent[]): string {
+  return events.find((event) => event.type === "start")?.language ?? "plaintext";
+}
+
 /** @internal */
 export function formatHighlightIterLines(
   source: string,
@@ -1386,12 +1392,11 @@ export function formatHighlightIterLines(
 ): { lines: string[]; language: string } {
   const sourceBytes = encodeSource(source);
   const lines: string[] = [];
-  const inferredLanguage = events.find((event) => event.type === "start");
   const language = renderDecoratedLines(
     sourceBytes,
     composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
     theme,
-    languageRef ? languageId(languageRef) : (inferredLanguage?.language ?? "plaintext"),
+    languageRef ? languageId(languageRef) : streamLanguage(events),
     options,
     (content, _decoration, ending) => lines.push(`${content}${ending}`),
   );
@@ -1486,7 +1491,7 @@ export function renderLinesFromEvents(
     sourceBytes,
     composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
     undefined,
-    "plaintext",
+    streamLanguage(events),
     { openSpan: (span) => openSpan(spanAttrs(span.scope, span.language)) },
     (content) => lines.push(content),
   );
