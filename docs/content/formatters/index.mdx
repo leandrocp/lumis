@@ -408,6 +408,74 @@ A custom formatter reaches the same values through `pre_attrs`,
 `multi_themes_pre_attrs` and `code_attrs`, described in
 [Custom Formatters](/formatters/custom).
 
+### Override the block background
+
+Use the `style` entry in `pre_attrs` (`preAttrs` in JavaScript) to set the
+background of the wrapping `<pre>`. Lumis appends it after the theme's styles,
+so your `background-color` wins while the theme's foreground color stays intact.
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+import {htmlInline} from '@lumis-sh/lumis/formatters'
+import dracula from '@lumis-sh/themes/dracula'
+
+htmlInline({
+  theme: dracula,
+  preAttrs: {style: 'background-color: #181818;'},
+})
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::{HtmlInlineBuilder, themes};
+
+let formatter = HtmlInlineBuilder::new()
+    .theme(Some(themes::get("dracula").unwrap()))
+    .pre_attrs(vec![("style".into(), "background-color: #181818;".into())])
+    .build()
+    .unwrap();
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+Lumis.highlight!("text",
+  formatter: {:html_inline,
+    language: "plaintext",
+    theme: "dracula",
+    pre_attrs: [style: "background-color: #181818;"]}
+)
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```sh
+lumis highlight main.rs --formatter html-inline --theme dracula --pre-attr 'style=background-color: #181818;'
+```
+
+  </Tab>
+</Tabs>
+
+The opening tag contains both declarations; the later one takes effect:
+
+```html
+<pre class="lumis" style="color: #f8f8f2; background-color: #282a36; background-color: #181818;">
+```
+
+Replace `#181818` with `transparent` to let an enclosing card's background show
+through. To use a color defined by your page's CSS, use
+`background-color: var(--code-block-background);` and define
+`--code-block-background` on the block or an ancestor.
+
+The same attribute option works with `html_multi_themes`. It changes only the
+block background; token and highlighted-line backgrounds remain unchanged.
+
 ### Adding attributes to a formatter you were handed
 
 The options above are set when a formatter is built. Code that receives one

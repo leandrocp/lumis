@@ -23,6 +23,14 @@ One HTML block that supports multiple themes via CSS custom properties. Useful f
 | Java | Not currently supported in `lumis4j` |
 | CLI | `--structure`, `--themes`, `--default-theme`, `--css-variable-prefix`, `--pre-class`, `--pre-attr`, `--no-pre-attr`, `--code-attr`, `--no-code-attr`, `--italic`, `--include-highlights`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--line-numbers`, `--header-open`, `--header-close` |
 
+Use `pre_attrs` / `preAttrs` to override the block background, including
+backgrounds from a named default or `light-dark()`. See
+[Override the block background](/formatters#override-the-block-background).
+
+The override leaves theme variables and token styles intact. If your
+[theme-switching CSS](/recipes/light-dark) sets the `<pre>` background with
+`!important`, remove that root background rule so the attribute can take effect.
+
 ## Basic example
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
