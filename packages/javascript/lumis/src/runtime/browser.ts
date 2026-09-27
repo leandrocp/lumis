@@ -1,6 +1,8 @@
 import type { RuntimeEnvironment } from "./runtime.js";
 import { createLanguagesModule } from "../core/languages.js";
+import type { LanguagePackageResolver, WasmResolver } from "../core/languages.js";
 import treeSitterWasmBinary from "../tree-sitter-wasm.js";
+import type { LanguageInfo } from "../types.js";
 
 const WASM_CACHE_NAME = "lumis-wasm-v1";
 const WASM_DATABASE_NAME = "lumis-wasm-v1";
@@ -189,15 +191,11 @@ export function createRuntime(...args: Parameters<typeof runtime.createRuntime>)
   return runtime.createRuntime(...args);
 }
 /** {@inheritDoc node.configureWasmResolver} */
-export function configureWasmResolver(
-  ...args: Parameters<typeof runtime.configureWasmResolver>
-): void {
-  return runtime.configureWasmResolver(...args);
+export function configureWasmResolver(fn: WasmResolver): void {
+  runtime.configureWasmResolver(fn);
 }
-export function configureLanguagePackageResolver(
-  ...args: Parameters<typeof runtime.configureLanguagePackageResolver>
-): void {
-  return runtime.configureLanguagePackageResolver(...args);
+export function configureLanguagePackageResolver(fn: LanguagePackageResolver): void {
+  runtime.configureLanguagePackageResolver(fn);
 }
 export function initParser(...args: Parameters<typeof runtime.initParser>) {
   return runtime.initParser(...args);
@@ -225,8 +223,8 @@ export function loadedLanguages(): string[] {
   return runtime.getLoadedLanguageIds();
 }
 /** {@inheritDoc node.availableLanguages} */
-export function availableLanguages(...args: Parameters<typeof runtime.availableLanguages>) {
-  return runtime.availableLanguages(...args);
+export function availableLanguages(): LanguageInfo[] {
+  return runtime.availableLanguages();
 }
 export function getDefaultRuntime(...args: Parameters<typeof runtime.getDefaultRuntime>) {
   return runtime.getDefaultRuntime(...args);

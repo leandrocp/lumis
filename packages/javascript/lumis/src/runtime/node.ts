@@ -5,6 +5,7 @@ import type { LanguagePackageResolver, LanguagesModule, WasmResolver } from "../
 import { createNativeLanguagesModule } from "../core/native-languages.js";
 import { loadNativeBinding } from "../native-binding.js";
 import treeSitterWasmBinary from "../tree-sitter-wasm.js";
+import type { LanguageInfo } from "../types.js";
 import {
   isUrlString,
   readCachedWasm,
@@ -264,8 +265,8 @@ export function loadedLanguages(): string[] {
  * // [{ id: 'javascript', name: 'JavaScript', aliases: ['js', 'jsx'], extensions: ['*.js', ...] }, ...]
  * ```
  */
-export function availableLanguages(...args: Parameters<LanguagesModule["availableLanguages"]>) {
-  return runtime.availableLanguages(...args);
+export function availableLanguages(): LanguageInfo[] {
+  return runtime.availableLanguages();
 }
 export function getDefaultRuntime(...args: Parameters<LanguagesModule["getDefaultRuntime"]>) {
   return runtime.getDefaultRuntime(...args);

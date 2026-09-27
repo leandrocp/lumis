@@ -38,6 +38,7 @@ export default defineConfig({
   },
   format: ["esm", "cjs"],
   experimentalDts: true,
+  tsconfig: "tsconfig.build.json",
   splitting: true,
   clean: true,
   treeshake: true,
