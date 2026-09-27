@@ -21,6 +21,7 @@
     "html_inline": {
       "options": [
         { "name": "language" },
+        { "name": "structure" },
         { "name": "theme" },
         { "name": "pre_class" },
         { "name": "pre_attrs", "spelling": { "cli": ["pre-attr", "no-pre-attr"] } },
@@ -35,6 +36,7 @@
     "html_linked": {
       "options": [
         { "name": "language" },
+        { "name": "structure" },
         { "name": "pre_class" },
         { "name": "pre_attrs", "spelling": { "cli": ["pre-attr", "no-pre-attr"] } },
         { "name": "code_attrs", "spelling": { "cli": ["code-attr", "no-code-attr"] } },
@@ -46,6 +48,7 @@
     "html_multi_themes": {
       "options": [
         { "name": "language" },
+        { "name": "structure" },
         { "name": "themes" },
         { "name": "default_theme" },
         { "name": "css_variable_prefix" },

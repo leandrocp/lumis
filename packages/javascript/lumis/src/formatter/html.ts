@@ -6,6 +6,7 @@ import type {
   HighlightEvent,
   HtmlAttrs,
   HtmlElement,
+  HtmlStructure,
   LineSpec,
   LanguageRef,
   SyntaxHighlightEvent,
@@ -18,7 +19,7 @@ import { mergeAttrs, mergeClasses } from "../core/attr-merge.js";
 
 // Rust exposes this from `lumis::formatters::html`, so the helper modules line up.
 export { sanitizeThemeName } from "../themes.js";
-export type { HtmlAttrs } from "../types.js";
+export type { HtmlAttrs, HtmlStructure } from "../types.js";
 
 const _encoder = new TextEncoder();
 const _decoder = new TextDecoder();
@@ -1414,7 +1415,8 @@ export function formatHighlightIterLines(
 }
 
 /**
- * Render content-only `<span class="l-line">` elements separated by newlines.
+ * Render content-only `<span class="l-line">` elements separated by newlines,
+ * or only the content and the newlines for the `"inline"` structure.
  *
  * The three of them differ only in the attributes a span and a highlighted line
  * carry, so those are the two inputs; the walk itself is shared. A highlighted
@@ -1428,6 +1430,7 @@ export function formatHtmlLines(
   source: string,
   events: readonly HighlightEvent[],
   formatter: {
+    structure?: HtmlStructure;
     language: LanguageRef | undefined;
     theme: Theme | undefined;
     lines: readonly LineSpec[] | undefined;
@@ -1439,6 +1442,7 @@ export function formatHtmlLines(
   },
 ): string {
   const sourceBytes = encodeSource(source);
+  const wrapped = formatter.structure !== "inline";
   const numbered = formatter.lineNumbers === true;
   const composed = composeLineDecorations(sourceBytes, events, new LineSelection(formatter.lines));
   const sourceLines = source.split(/\r?\n/);
@@ -1453,6 +1457,10 @@ export function formatHtmlLines(
     { openSpan: formatter.openSpan },
     (content, decoration) => {
       if (decoration.number > lineCount) return;
+      if (!wrapped) {
+        parts.push(content);
+        return;
+      }
       parts.push(
         wrapLine(
           decoration.number,

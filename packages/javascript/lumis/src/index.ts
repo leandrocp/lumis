@@ -165,6 +165,7 @@ export type {
   PositionAnnotationRange,
   HighlightStyle,
   HtmlAttrs,
+  HtmlStructure,
   Language,
   LanguageDefinition,
   LanguagePackageHandle,

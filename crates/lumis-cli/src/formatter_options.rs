@@ -77,6 +77,7 @@ pub(crate) const OPTION_GROUPS: &[OptionGroup] = &[
     OptionGroup {
         label: "HTML options",
         flags: &[
+            "--structure",
             "--pre-class",
             "--pre-attr",
             "--no-pre-attr",
@@ -86,7 +87,13 @@ pub(crate) const OPTION_GROUPS: &[OptionGroup] = &[
             "--header-close",
             "--highlight-lines-class",
         ],
-        manifest_options: &["pre_class", "pre_attrs", "code_attrs", "header"],
+        manifest_options: &[
+            "structure",
+            "pre_class",
+            "pre_attrs",
+            "code_attrs",
+            "header",
+        ],
     },
     OptionGroup {
         label: "inline-style options",

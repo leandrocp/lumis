@@ -178,6 +178,10 @@ struct TerminalArgs {
 #[derive(clap::Args)]
 #[command(next_help_heading = OPTSET_HTML)]
 struct HtmlArgs {
+    /// What to write around the highlighted tokens [default: block]
+    #[arg(long, value_enum)]
+    structure: Option<Structure>,
+
     /// CSS class appended to the wrapping <pre> tag
     #[arg(long)]
     pre_class: Option<String>,
@@ -330,6 +334,7 @@ impl HighlightArgs {
             "--background" => self.terminal.background.is_some(),
             "--width" => self.terminal.width.is_some(),
             "--highlight-lines-background" => self.terminal.highlight_lines_background.is_some(),
+            "--structure" => self.html.structure.is_some(),
             "--pre-class" => self.html.pre_class.is_some(),
             "--pre-attr" => !self.html.pre_attrs.is_empty(),
             "--no-pre-attr" => !self.html.no_pre_attrs.is_empty(),
@@ -542,6 +547,26 @@ enum TreeFormat {
     Lines,
     /// Canonical Tree-sitter S-expressions
     Sexp,
+}
+
+/// `lumis_core::formatter::html::HtmlStructure`, which clap cannot derive
+/// `ValueEnum` for from this crate.
+#[derive(Clone, Copy, ValueEnum)]
+enum Structure {
+    /// A <pre><code> block with one element per line
+    Block,
+    /// Only the token spans, for markup the page already owns; the <pre>,
+    /// <code>, line and header options have no effect
+    Inline,
+}
+
+impl From<Structure> for lumis_core::formatter::html::HtmlStructure {
+    fn from(structure: Structure) -> Self {
+        match structure {
+            Structure::Block => Self::Block,
+            Structure::Inline => Self::Inline,
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -1778,6 +1803,7 @@ fn render_html_multi_themes(
     events: &[HighlightEvent],
     budget: Option<BudgetExhausted>,
     lang: Language,
+    structure: lumis_core::formatter::html::HtmlStructure,
     themes: &[String],
     default_theme: Option<&str>,
     css_variable_prefix: Option<&str>,
@@ -1816,6 +1842,7 @@ fn render_html_multi_themes(
     let mut builder = lumis_core::formatter::HtmlMultiThemesBuilder::new();
     builder
         .language(lang)
+        .structure(structure)
         .themes(theme_map)
         .css_variable_prefix(
             css_variable_prefix
@@ -1861,6 +1888,7 @@ fn render_output(
             },
         html:
             HtmlArgs {
+                structure,
                 ref pre_class,
                 ref pre_attrs,
                 ref no_pre_attrs,
@@ -1886,6 +1914,7 @@ fn render_output(
     let highlight_lines = inline_highlight_lines(&args)?;
     let line_numbers = args.line_numbers.line_numbers;
     let header = header_element(&args);
+    let structure = structure.map(Into::into).unwrap_or_default();
 
     match chosen {
         Formatter::HtmlInline => {
@@ -1894,6 +1923,7 @@ fn render_output(
             let mut builder = lumis_core::formatter::HtmlInlineBuilder::new();
             builder
                 .language(lang)
+                .structure(structure)
                 .theme(theme_obj)
                 .pre_class(pre_class.clone())
                 .pre_attrs(html_attrs(pre_attrs, no_pre_attrs))
@@ -1917,6 +1947,7 @@ fn render_output(
                 events,
                 budget,
                 lang,
+                structure,
                 themes,
                 default_theme.as_deref(),
                 css_variable_prefix.as_deref(),
@@ -1938,6 +1969,7 @@ fn render_output(
             let mut builder = lumis_core::formatter::HtmlLinkedBuilder::new();
             builder
                 .language(lang)
+                .structure(structure)
                 .pre_class(pre_class.clone())
                 .pre_attrs(html_attrs(pre_attrs, no_pre_attrs))
                 .code_attrs(html_attrs(code_attrs, no_code_attrs))

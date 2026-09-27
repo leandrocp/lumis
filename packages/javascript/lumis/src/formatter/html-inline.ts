@@ -17,6 +17,7 @@ import {
   styleToCss,
   wrapWithHeader,
 } from "./html.js";
+import { formatHtmlSpans, isInlineStructure } from "./html-structure.js";
 
 function spanAttrs(
   span: HighlightSpan,
@@ -70,6 +71,15 @@ export function formatHtmlInline(
   formatter: HtmlInlineFormatter,
   budget?: BudgetExhausted,
 ): string {
+  const openSpan = (span: HighlightSpan): string => openSpanTag(spanAttrs(span, formatter));
+  if (isInlineStructure(formatter.structure)) {
+    return formatHtmlSpans(source, events, {
+      language: formatter.language,
+      theme: formatter.theme,
+      openSpan,
+    });
+  }
+
   const lineLayout = "display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;";
   const highlightStyle = highlightLineStyle(formatter);
   const body = formatHtmlLines(source, events, {
@@ -86,7 +96,7 @@ export function formatHtmlInline(
       style: `${lineLayout}${highlightStyle ? ` ${highlightStyle}` : ""}`,
     },
     emptyStyle: lineLayout,
-    openSpan: (span) => openSpanTag(spanAttrs(span, formatter)),
+    openSpan,
   });
 
   const pre = openPreTag({

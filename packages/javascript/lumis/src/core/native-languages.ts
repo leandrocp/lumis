@@ -16,6 +16,7 @@ import type {
   HtmlAttrs,
   HtmlInlineFormatter,
   HtmlLinkedFormatter,
+  HtmlStructure,
   LanguageDefinition,
   LanguageInfo,
   LoadedLanguage,
@@ -23,6 +24,7 @@ import type {
   WasmRef,
 } from "../types.js";
 import { BUILTIN_FORMATTER, getBuiltinFormatter } from "./builtin-formatter.js";
+import { isInlineStructure } from "../formatter/html-structure.js";
 import { assertBudget, warnUnresolvedInjection } from "../events.js";
 import { decodeNativeEvents } from "./native-event-codec.js";
 import { PLAINTEXT_LANG_ID } from "../types.js";
@@ -60,6 +62,10 @@ function nativeHtmlAttrs(attrs: HtmlAttrs | undefined): NativeHtmlAttrs {
   );
 }
 
+function nativeHtmlStructure(structure: HtmlStructure | undefined): HtmlStructure {
+  return isInlineStructure(structure) ? "inline" : "block";
+}
+
 function nativeHtmlInlineFormatter(
   formatter: HtmlInlineFormatter,
   rainbowBrackets: HighlightOptions["rainbowBrackets"],
@@ -68,6 +74,7 @@ function nativeHtmlInlineFormatter(
     rainbowBrackets,
     kind: "html-inline",
     options: {
+      structure: nativeHtmlStructure(formatter.structure),
       theme: formatter.theme,
       preClass: formatter.preClass,
       preAttrs: nativeHtmlAttrs(formatter.preAttrs),
@@ -89,6 +96,7 @@ function nativeHtmlLinkedFormatter(
     rainbowBrackets,
     kind: "html-linked",
     options: {
+      structure: nativeHtmlStructure(formatter.structure),
       preClass: formatter.preClass,
       preAttrs: nativeHtmlAttrs(formatter.preAttrs),
       codeAttrs: nativeHtmlAttrs(formatter.codeAttrs),

@@ -12,6 +12,7 @@ export type NativeHtmlAttrs = Array<[string, string | boolean]>;
 type NativeHtmlInlineOptions = Omit<
   Pick<
     HtmlInlineOptions,
+    | "structure"
     | "theme"
     | "preClass"
     | "preAttrs"
@@ -30,7 +31,13 @@ type NativeHtmlInlineOptions = Omit<
 type NativeHtmlLinkedOptions = Omit<
   Pick<
     HtmlLinkedOptions,
-    "preClass" | "preAttrs" | "codeAttrs" | "highlightLines" | "lineNumbers" | "header"
+    | "structure"
+    | "preClass"
+    | "preAttrs"
+    | "codeAttrs"
+    | "highlightLines"
+    | "lineNumbers"
+    | "header"
   >,
   "preAttrs" | "codeAttrs"
 > & {

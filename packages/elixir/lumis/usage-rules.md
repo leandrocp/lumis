@@ -178,6 +178,7 @@ Lumis.highlight!(code,
 ```
 
 Available options for `:html_inline`:
+- `:structure` - `:block` (default) writes a `<pre><code>` block; `:inline` writes only the token spans (see Inline Code section)
 - `:theme` - Theme name (string) or `Lumis.Theme` struct
 - `:pre_class` - CSS class to add to the `<pre>` tag
 - `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
@@ -217,6 +218,7 @@ Then in your template:
 ```
 
 Available options for `:html_linked`:
+- `:structure` - `:block` (default) writes a `<pre><code>` block; `:inline` writes only the token spans (see Inline Code section)
 - `:pre_class` - CSS class to add to the `<pre>` tag
 - `:pre_attrs` - Attributes merged into the `<pre>` tag; `true` writes the bare boolean form, `false` drops a default
 - `:code_attrs` - Attributes merged into the `<code>` tag; `true` writes the bare boolean form, `false` drops a default
@@ -341,6 +343,7 @@ Lumis.highlight!(code,
 ```
 
 Available options for `:html_multi_themes`:
+- `:structure` - `:block` (default) writes a `<pre><code>` block; `:inline` writes only the token spans (see Inline Code section)
 - `:themes` (required) - Keyword list mapping theme identifiers to theme names or structs, e.g., `[light: "github_light", dark: "github_dark"]`
 - `:default_theme` - Controls inline color rendering: theme identifier, `"light-dark()"`, or `nil` (default: `nil`)
 - `:css_variable_prefix` - Custom CSS variable prefix (default: `"--lumis"`)
@@ -537,6 +540,27 @@ Lumis.highlight!(code,
 ```
 
 Both `:open_tag` and `:close_tag` are required when using `:header`.
+
+### Inline Code
+
+`structure: :inline` writes the token spans and nothing else, for code inside
+an element the page already has, such as a `<code>` in a sentence:
+
+```elixir
+spans =
+  Lumis.highlight!("mix igniter.install mdex",
+    formatter: {:html_inline, language: "bash", theme: "dracula", structure: :inline}
+  )
+
+"<p>Install it with <code>" <> spans <> "</code>.</p>"
+```
+
+Lines are separated by `\n` and the last one has no terminator. There is no
+`<pre>`, `<code>` or line element, so `:pre_class`, `:pre_attrs`, `:code_attrs`,
+`:highlight_lines`, `:line_numbers` and `:header` have no effect, and the theme's
+text and background color are not written. To keep them, put
+`Lumis.Formatter.HTML.pre_attrs(theme: "dracula")` on your element with
+`Lumis.Formatter.HTML.open_tag/2`.
 
 ### Custom Formatters
 

@@ -39,6 +39,11 @@ impl FromStr for DefaultTheme {
 pub struct HtmlMultiThemes {
     #[builder(setter(custom))]
     language: Language,
+    /// `Block` writes a `<pre><code>` block; `Inline` writes only the token
+    /// spans, for markup the page already owns. See [`HtmlStructure`].
+    ///
+    /// [`HtmlStructure`]: crate::formatter::html::HtmlStructure
+    structure: crate::formatter::html::HtmlStructure,
     themes: HashMap<String, Theme>,
     #[builder(setter(custom))]
     default_theme: Option<DefaultTheme>,
@@ -79,6 +84,7 @@ impl HtmlMultiThemesBuilder {
     pub fn build(&mut self) -> Result<HtmlMultiThemes, String> {
         let result = HtmlMultiThemes {
             language: self.language.take().unwrap_or(Language::PlainText),
+            structure: self.structure.take().unwrap_or_default(),
             themes: self.themes.take().unwrap_or_default(),
             default_theme: self.default_theme.take().flatten(),
             css_variable_prefix: self
@@ -155,6 +161,7 @@ impl Default for HtmlMultiThemes {
     fn default() -> Self {
         Self {
             language: Language::PlainText,
+            structure: crate::formatter::html::HtmlStructure::Block,
             themes: HashMap::new(),
             default_theme: None,
             css_variable_prefix: "--lumis".to_string(),
@@ -187,6 +194,7 @@ impl HtmlMultiThemes {
     ) -> Self {
         Self {
             language,
+            structure: crate::formatter::html::HtmlStructure::Block,
             themes,
             default_theme,
             css_variable_prefix,
@@ -363,6 +371,16 @@ impl HtmlMultiThemes {
         output: &mut dyn Write,
         exhausted: Option<super::BudgetExhausted>,
     ) -> io::Result<()> {
+        if self.structure == crate::formatter::html::HtmlStructure::Inline {
+            return crate::formatter::html::write_html_spans(
+                output,
+                source,
+                events,
+                self.language,
+                &|scope_index, language| self.span_attrs_from_index(scope_index, language),
+            );
+        }
+
         if let Some(ref header) = self.header {
             write!(output, "{}", header.open_tag)?;
         }
@@ -386,6 +404,7 @@ impl HtmlMultiThemes {
             source,
             events,
             &crate::formatter::html::HtmlLines {
+                structure: crate::formatter::html::HtmlStructure::Block,
                 language: self.language,
                 selection: &self.line_selection(),
                 numbered: self.line_numbers,

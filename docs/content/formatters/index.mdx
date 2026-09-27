@@ -444,6 +444,156 @@ closed over its own options by the time you hold it.
 `<pre>` carrying an `id`, a `data-panel` and Tailwind classes survives being
 highlighted.
 
+## Inline code
+
+The HTML formatters write a code block by default. With `structure` set to
+`inline`, they write the token spans and nothing else, for code that goes inside
+markup the page already has: a `<code>` in a sentence, a table cell, a button.
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+import {highlight} from '@lumis-sh/lumis';
+import {htmlInline} from '@lumis-sh/lumis/formatters';
+import bash from '@lumis-sh/lumis/langs/bash';
+import frappe from '@lumis-sh/themes/catppuccin_frappe';
+
+const spans = await highlight(
+  'mix igniter.install mdex',
+  htmlInline({language: bash, theme: frappe, structure: 'inline'})
+);
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::{
+    formatters::html::HtmlStructure, highlight,
+    languages::Language, themes, HtmlInlineBuilder,
+};
+
+let formatter = HtmlInlineBuilder::new()
+    .language(Language::Bash)
+    .theme(Some(themes::get("catppuccin_frappe").unwrap()))
+    .structure(HtmlStructure::Inline)
+    .build()
+    .unwrap();
+
+let spans = highlight("mix igniter.install mdex", formatter);
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+Lumis.highlight!(
+  "mix igniter.install mdex",
+  formatter:
+    {:html_inline,
+     language: "bash",
+     theme: "catppuccin_frappe",
+     structure: :inline}
+)
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight install.sh \
+  --formatter html-inline \
+  --theme catppuccin_frappe \
+  --structure inline
+```
+
+  </Tab>
+</Tabs>
+
+A block of the same source is:
+
+```html
+<pre class="lumis" style="color: #c6d0f5; background-color: #303446;"><code class="language-bash" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #8caaee;">mix</span> <span style="color: #a6d189;">igniter.install</span> <span style="color: #a6d189;">mdex</span></span></code></pre>
+```
+
+The inline output is what the line held:
+
+```html
+<span style="color: #8caaee;">mix</span> <span style="color: #a6d189;">igniter.install</span> <span style="color: #a6d189;">mdex</span>
+```
+
+It goes inside an element of yours, where a `<pre>` or a line element would not
+be valid HTML:
+
+```html
+<p>Install it with <code><span style="color: #8caaee;">mix</span> …</code>, then restart the server.</p>
+```
+
+Source with several lines keeps its newlines. Lines are separated by `\n`, the
+last one has no terminator, and a token that crosses a line is closed before the
+newline and reopened after it, as in a block. What belongs to the block is left
+out:
+
+- the `<pre>`, the `<code>` and the `<span class="l-line">` elements
+- the theme's text and background color, which a block writes on its `<pre>`.
+  Text outside a token takes the color of the element around it
+- whatever `pre_class`, `pre_attrs`, `code_attrs`, `highlight_lines`,
+  `line_numbers` and `header` would add. These options are ignored rather than
+  rejected, so code that highlights both code blocks and inline code can pass
+  the same options to both and add `structure` for the inline ones
+- the `data-lumis-budget` marker, which is an attribute of the `<pre>`
+
+### Keeping the theme's colors
+
+To give inline code the theme's text and background color, put them on your own
+element. `pre_attrs` and `multi_themes_pre_attrs` return the class and style a
+block's `<pre>` would get, and `open_tag` writes them on any tag:
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+import {openTag, preAttrs} from '@lumis-sh/lumis/formatters/html';
+
+const html = `${openTag('code', preAttrs({theme: frappe}))}${spans}</code>`;
+// <code class="lumis" style="color: #c6d0f5; background-color: #303446;">…</code>
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::formatters::html::{open_tag, pre_attrs};
+
+let theme = themes::get("catppuccin_frappe").unwrap();
+let mut html = Vec::new();
+open_tag(&mut html, "code", &pre_attrs(None, Some(&theme), &[]))?;
+html.extend_from_slice(spans.as_bytes());
+html.extend_from_slice(b"</code>");
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+alias Lumis.Formatter.HTML
+
+attrs = HTML.pre_attrs(theme: "catppuccin_frappe")
+html = HTML.open_tag("code", attrs) <> spans <> "</code>"
+```
+
+  </Tab>
+</Tabs>
+
+With HTML Linked, add the `lumis` class to your element and the theme stylesheet
+colors it. The stylesheet's line layout rules only apply inside `pre.lumis`, so
+they leave inline code alone.
+
+`light-dark()` colors from HTML Multi-Themes follow the `color-scheme` of the
+element they are in, as they do in a block. See
+[Light/Dark Mode](/recipes/light-dark).
+
 ## Terminal
 
 ANSI output for the terminal.

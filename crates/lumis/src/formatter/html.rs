@@ -20,6 +20,10 @@ pub type HtmlAttrs = lumis_core::formatter::html::HtmlAttrs;
 /// What an HTML attribute carries: a value, a bare name, or nothing.
 pub use lumis_core::formatter::html::AttrValue;
 
+/// What an HTML formatter writes around the highlighted tokens: a code block,
+/// or the token spans alone.
+pub use lumis_core::formatter::html::HtmlStructure;
+
 /// Whether a name is one HTML can carry on an attribute.
 pub use lumis_core::formatter::html::is_valid_attr_name;
 

@@ -32,6 +32,42 @@
 //! lumis::write_highlight(&mut output, code, formatter).unwrap();
 //! ```
 //!
+//! # Inline Structure
+//!
+//! [`HtmlStructure::Inline`] writes the token spans alone, for code that goes
+//! inside an element the page already owns, such as a `<code>` in a sentence.
+//! The theme's text and background color go on the `<pre>` of a block, so put
+//! [`pre_attrs`] on your own element to keep them:
+//!
+//! ```rust
+//! use lumis::formatters::html::{open_tag, pre_attrs, HtmlStructure};
+//! use lumis::{languages::Language, themes, HtmlInlineBuilder};
+//!
+//! let theme = themes::get("dracula").unwrap();
+//! let formatter = HtmlInlineBuilder::new()
+//!     .language(Language::Bash)
+//!     .theme(Some(theme.clone()))
+//!     .structure(HtmlStructure::Inline)
+//!     .build()
+//!     .unwrap();
+//!
+//! let spans = lumis::highlight("mix igniter.install mdex", formatter);
+//! assert_eq!(
+//!     spans,
+//!     r#"<span style="color: #50fa7b;">mix</span> <span style="color: #ffb86c;">igniter.install</span> <span style="color: #ffb86c;">mdex</span>"#
+//! );
+//!
+//! let mut code = Vec::new();
+//! open_tag(&mut code, "code", &pre_attrs(None, Some(&theme), &[])).unwrap();
+//! assert_eq!(
+//!     String::from_utf8(code).unwrap(),
+//!     r#"<code class="lumis" style="color: #f8f8f2; background-color: #282a36;">"#
+//! );
+//! ```
+//!
+//! [`HtmlStructure::Inline`]: crate::formatters::html::HtmlStructure::Inline
+//! [`pre_attrs`]: crate::formatters::html::pre_attrs
+//!
 //! # Line Highlighting
 //!
 //! [`HighlightLines`] picks the lines to highlight and [`HighlightLinesStyle`] decides

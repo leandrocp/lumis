@@ -5,6 +5,7 @@ import { htmlInline, htmlLinked, htmlMultiThemes } from "../../src/formatters.ts
 import { formatHtmlInline } from "../../src/formatter/html-inline.ts";
 import { formatHtmlLinked } from "../../src/formatter/html-linked.ts";
 import { formatHtmlMultiThemes } from "../../src/formatter/html-multi-themes.ts";
+import { multiThemesPreAttrs, openTag, preAttrs } from "../../src/formatter/html.ts";
 import type { HighlightEvent, HighlightLinesInline, Theme } from "../../src/types.ts";
 
 const theme = {
@@ -307,6 +308,65 @@ test.describe("theme layout regressions", () => {
         .locator("code")
         .evaluate((code) => code.getBoundingClientRect().height);
       expect(height).toBeCloseTo(40 + minHeight, 0);
+    });
+  }
+});
+
+test.describe("inline structure", () => {
+  const source = "a = 1";
+  const events: HighlightEvent[] = [
+    { type: "start", scope: "string", language: "plaintext" },
+    { type: "source", start: 0, end: source.length },
+    { type: "end" },
+  ];
+  // Block options are set on purpose: inline output has no element to put them on.
+  const options = {
+    language: "plaintext",
+    structure: "inline",
+    lineNumbers: true,
+    highlightLines: { lines: [1] },
+    preClass: "block",
+    header: { openTag: "<figure>", closeTag: "</figure>" },
+  } as const;
+  const spans = {
+    linked: {
+      html: `<code class="lumis">${formatHtmlLinked(source, events, htmlLinked(options))}</code>`,
+      css: buildCss(theme),
+    },
+    inline: {
+      html: `${openTag("code", preAttrs({ theme }))}${formatHtmlInline(source, events, htmlInline({ ...options, theme }))}</code>`,
+      css: "",
+    },
+    multi: {
+      html: `${openTag("code", multiThemesPreAttrs({ themes: { dark: theme }, defaultTheme: "dark" }))}${formatHtmlMultiThemes(
+        source,
+        events,
+        htmlMultiThemes({ ...options, themes: { dark: theme }, defaultTheme: "dark" }),
+      )}</code>`,
+      css: "",
+    },
+  };
+
+  for (const [formatter, { html, css }] of Object.entries(spans)) {
+    test(`${formatter}: spans stay on the line of the sentence around them`, async ({ page }) => {
+      const paragraph = `<p>before ${html} after</p>`;
+      const report = await validator.validateString(paragraph);
+      expect(report.results.flatMap((result) => result.messages)).toEqual([]);
+
+      await page.setContent(
+        `<style>p { font: 16px/20px monospace; width: 300px; } ${css}</style>${paragraph}`,
+      );
+      const code = page.locator("code");
+      await expect(code).toHaveCSS("display", "inline");
+      await expect(code).toHaveCSS("color", "rgb(238, 238, 238)");
+      await expect(code).toHaveCSS("background-color", "rgb(17, 17, 17)");
+      await expect(page.locator("code > span")).toHaveCSS("color", "rgb(170, 187, 204)");
+      const result = await page.locator("p").evaluate((element) => ({
+        height: element.getBoundingClientRect().height,
+        text: element.textContent,
+      }));
+      expect(result.height).toBeCloseTo(20, 0);
+      expect(result.text).toBe("before a = 1 after");
     });
   }
 });

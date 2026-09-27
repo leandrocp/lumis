@@ -102,6 +102,20 @@ defmodule Lumis do
   @html_attrs_error "HTML attributes must be a keyword list with string or boolean values"
 
   @typedoc """
+  What an HTML formatter writes around the highlighted tokens.
+
+  `:block` is a `<pre><code>` block holding one `<span class="l-line">` per line.
+  `:inline` is the token spans and the text between them, and nothing else, for
+  a `<code>` or other element the page already owns. Lines are separated by
+  `\\n` and the last one has no terminator, as in a block. `:pre_class`,
+  `:pre_attrs`, `:code_attrs`, `:highlight_lines`, `:line_numbers` and `:header`
+  have no effect. The theme's text and background color are not written either,
+  because a block writes them on its `<pre>`; put
+  `Lumis.Formatter.HTML.pre_attrs/1` on your own element to keep them.
+  """
+  @type html_structure :: :block | :inline
+
+  @typedoc """
   Options for HTML Multi-Themes formatter.
 
   The themes are specified as a keyword list where keys are CSS identifiers (atoms)
@@ -109,6 +123,7 @@ defmodule Lumis do
   """
   @type html_multi_themes_options ::
           %{
+            structure: html_structure(),
             themes: keyword(theme()),
             default_theme: String.t() | nil,
             css_variable_prefix: String.t() | nil,
@@ -153,6 +168,7 @@ defmodule Lumis do
   * `html_inline`:
 
       - `:language` (`t:language/0` - default: `nil`) - the language used by the formatter. When omitted, Lumis tries to auto-detect it from the source.
+      - `:structure` (`t:html_structure/0` - default: `:block`) - `:block` writes a `<pre><code>` block; `:inline` writes only the token spans, for markup the page already owns, and ignores the options that configure a block.
       - `:theme` (`t:theme/0` - default: `nil`) - the theme to apply styles on the highlighted source code.
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
       - `:pre_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the wrapping `<pre>` tag.
@@ -166,6 +182,7 @@ defmodule Lumis do
   * `html_linked`:
 
       - `:language` (`t:language/0` - default: `nil`) - the language used by the formatter. When omitted, Lumis tries to auto-detect it from the source.
+      - `:structure` (`t:html_structure/0` - default: `:block`) - `:block` writes a `<pre><code>` block; `:inline` writes only the token spans, for markup the page already owns, and ignores the options that configure a block.
       - `:pre_class` (`t:String.t/0` - default: `nil`) - the CSS class to append into the wrapping `<pre>` tag.
       - `:pre_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the wrapping `<pre>` tag.
       - `:code_attrs` (`t:html_attrs/0` - default: `[]`) - attributes merged into the nested `<code>` tag.
@@ -176,6 +193,7 @@ defmodule Lumis do
   * `html_multi_themes`:
 
       - `:language` (`t:language/0` - default: `nil`) - the language used by the formatter. When omitted, Lumis tries to auto-detect it from the source.
+      - `:structure` (`t:html_structure/0` - default: `:block`) - `:block` writes a `<pre><code>` block; `:inline` writes only the token spans, for markup the page already owns, and ignores the options that configure a block.
       - `:themes` (`keyword(theme())` - required) - keyword list of theme identifiers to theme names/structs. Theme identifiers become CSS class names and CSS variable prefixes. Example: `[light: "github_light", dark: "github_dark"]`.
       - `:default_theme` (`t:String.t/0` - default: `nil`) - controls inline color rendering: specify a theme identifier for inline colors, use `"light-dark()"` for CSS light-dark() function, or `nil` for CSS variables only.
       - `:css_variable_prefix` (`t:String.t/0` - default: `nil`) - CSS variable prefix (defaults to `"--lumis"` if nil). Generates variables like `--lumis-light` (color), `--lumis-light-bg` (background), `--lumis-light-font-style`, etc.
@@ -240,6 +258,11 @@ defmodule Lumis do
       # use custom class
       {:html_linked, highlight_lines: %{lines: [1, 2, 3], class: "error-line"}}
 
+  ### Inline structure: highlight code inside a sentence
+
+      # only the token spans, to put inside a `<code>` the page already has
+      {:html_inline, theme: "onedark", structure: :inline}
+
   ### Wrap with custom open and close HTML tags
 
       header = %{
@@ -296,6 +319,7 @@ defmodule Lumis do
           | {:html_inline,
              [
                language: language(),
+               structure: html_structure(),
                theme: theme(),
                pre_class: String.t(),
                pre_attrs: html_attrs(),
@@ -310,6 +334,7 @@ defmodule Lumis do
           | {:html_linked,
              [
                language: language(),
+               structure: html_structure(),
                pre_class: String.t(),
                pre_attrs: html_attrs(),
                code_attrs: html_attrs(),
@@ -321,6 +346,7 @@ defmodule Lumis do
           | {:html_multi_themes,
              [
                language: language(),
+               structure: html_structure(),
                themes: keyword(theme()),
                default_theme: String.t(),
                css_variable_prefix: String.t(),
@@ -424,6 +450,8 @@ defmodule Lumis do
     doc: "Formatter to apply on the highlighted source code. See the type doc for more info."
   ]
 
+  @html_structure_schema [type: {:in, [:block, :inline]}, default: :block]
+
   @html_attrs_schema [
     type: {:custom, Lumis, :html_attrs_type, []},
     type_spec: quote(do: Lumis.html_attrs()),
@@ -469,6 +497,7 @@ defmodule Lumis do
   def formatter_type({:html_inline, options}) when is_list(options) do
     schema = [
       language: [type: {:or, [:string, nil]}, default: nil],
+      structure: @html_structure_schema,
       theme: [type: {:or, [{:struct, Lumis.Theme}, :string, nil]}, default: nil],
       pre_class: [type: {:or, [:string, nil]}, default: nil],
       pre_attrs: @html_attrs_schema,
@@ -521,6 +550,7 @@ defmodule Lumis do
   def formatter_type({:html_linked, options}) when is_list(options) do
     schema = [
       language: [type: {:or, [:string, nil]}, default: nil],
+      structure: @html_structure_schema,
       pre_class: [type: {:or, [:string, nil]}, default: nil],
       pre_attrs: @html_attrs_schema,
       code_attrs: @html_attrs_schema,
@@ -569,6 +599,7 @@ defmodule Lumis do
   def formatter_type({:html_multi_themes, options}) when is_list(options) do
     schema = [
       language: [type: {:or, [:string, nil]}, default: nil],
+      structure: @html_structure_schema,
       themes: [
         type: :keyword_list,
         required: true,
@@ -1380,6 +1411,7 @@ defmodule Lumis do
 
     {:html_inline,
      Map.take(opts, [
+       :structure,
        :theme,
        :pre_class,
        :pre_attrs,
@@ -1397,6 +1429,7 @@ defmodule Lumis do
 
     {:html_linked,
      Map.take(opts, [
+       :structure,
        :pre_class,
        :pre_attrs,
        :code_attrs,
@@ -1428,6 +1461,7 @@ defmodule Lumis do
 
     {:html_multi_themes,
      Map.take(opts, [
+       :structure,
        :themes,
        :default_theme,
        :css_variable_prefix,

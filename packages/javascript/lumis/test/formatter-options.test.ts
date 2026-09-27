@@ -42,6 +42,7 @@ const theme: Theme = { name: "t", appearance: "dark", highlights: {} };
 
 const htmlInline: Required<HtmlInlineOptions> = {
   language: "rust",
+  structure: "inline",
   theme,
   preClass: "code",
   preAttrs: { id: "sample" },
@@ -55,6 +56,7 @@ const htmlInline: Required<HtmlInlineOptions> = {
 
 const htmlLinked: Required<HtmlLinkedOptions> = {
   language: "rust",
+  structure: "inline",
   preClass: "code",
   preAttrs: { id: "sample" },
   codeAttrs: { "data-copy": "sample" },
@@ -65,6 +67,7 @@ const htmlLinked: Required<HtmlLinkedOptions> = {
 
 const htmlMultiThemes: Required<HtmlMultiThemesOptions> = {
   language: "rust",
+  structure: "inline",
   themes: { light: theme },
   defaultTheme: "light",
   cssVariablePrefix: "--lumis",

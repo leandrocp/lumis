@@ -1,7 +1,7 @@
 use lumis::{
-    highlight, highlight::highlight_events_with_options, highlight::HighlightOptions,
-    languages::Language, themes, BBCodeScopedBuilder, HtmlInlineBuilder, HtmlLinkedBuilder,
-    HtmlMultiThemesBuilder, TerminalBuilder,
+    formatters::html::HtmlStructure, highlight, highlight::highlight_events_with_options,
+    highlight::HighlightOptions, languages::Language, themes, BBCodeScopedBuilder,
+    HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder, TerminalBuilder,
 };
 use serde::Deserialize;
 use std::{
@@ -20,8 +20,28 @@ struct FixtureMetadata {
     #[serde(default)]
     rainbow_brackets: bool,
     #[serde(default)]
+    structure: FixtureStructure,
+    #[serde(default)]
     html_multi_themes: Option<HtmlMultiThemesFixture>,
     events: Vec<SerializableHighlightEvent>,
+}
+
+/// What the three HTML outputs write around the tokens. Absent means a block.
+#[derive(Debug, Default, Deserialize, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+enum FixtureStructure {
+    #[default]
+    Block,
+    Inline,
+}
+
+impl From<FixtureStructure> for HtmlStructure {
+    fn from(structure: FixtureStructure) -> Self {
+        match structure {
+            FixtureStructure::Block => Self::Block,
+            FixtureStructure::Inline => Self::Inline,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -136,6 +156,7 @@ fn check_html_inline(fixture: &Fixture) {
     let theme = fixture_theme(&fixture.metadata.theme);
     let fmt = HtmlInlineBuilder::new()
         .language(lang)
+        .structure(fixture.metadata.structure.into())
         .theme(Some(theme))
         .build()
         .unwrap();
@@ -151,7 +172,11 @@ fn check_html_inline(fixture: &Fixture) {
 
 fn check_html_linked(fixture: &Fixture) {
     let lang: Language = fixture.metadata.language.parse().unwrap();
-    let fmt = HtmlLinkedBuilder::new().language(lang).build().unwrap();
+    let fmt = HtmlLinkedBuilder::new()
+        .language(lang)
+        .structure(fixture.metadata.structure.into())
+        .build()
+        .unwrap();
     let mut out = Vec::new();
     lumis::write_highlight_with_options(
         &mut out,
@@ -195,7 +220,12 @@ fn check_html_multi_themes(fixture: &Fixture) {
         builder.default_theme("main");
     }
 
-    let fmt = builder.language(lang).themes(map).build().unwrap();
+    let fmt = builder
+        .language(lang)
+        .structure(fixture.metadata.structure.into())
+        .themes(map)
+        .build()
+        .unwrap();
     let mut out = Vec::new();
     lumis::write_highlight_with_options(
         &mut out,

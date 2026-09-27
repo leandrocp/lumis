@@ -1,4 +1,9 @@
-import type { BudgetExhausted, HighlightEvent, HtmlLinkedFormatter } from "../types.js";
+import type {
+  BudgetExhausted,
+  HighlightEvent,
+  HighlightSpan,
+  HtmlLinkedFormatter,
+} from "../types.js";
 import {
   budgetAttrs,
   closingTags,
@@ -9,6 +14,7 @@ import {
   scopeToClass,
   wrapWithHeader,
 } from "./html.js";
+import { formatHtmlSpans, isInlineStructure } from "./html-structure.js";
 
 export function formatHtmlLinked(
   source: string,
@@ -16,6 +22,16 @@ export function formatHtmlLinked(
   formatter: HtmlLinkedFormatter,
   budget?: BudgetExhausted,
 ): string {
+  const openSpan = (span: HighlightSpan): string =>
+    openSpanTag({ class: scopeToClass(span.scope) });
+  if (isInlineStructure(formatter.structure)) {
+    return formatHtmlSpans(source, events, {
+      language: formatter.language,
+      theme: undefined,
+      openSpan,
+    });
+  }
+
   const body = formatHtmlLines(source, events, {
     language: formatter.language,
     theme: undefined,
@@ -23,7 +39,7 @@ export function formatHtmlLinked(
     lineNumbers: formatter.lineNumbers,
     lineNumberAttrs: { regular: {}, highlighted: {} },
     highlightedAttrs: { className: formatter.highlightLines?.class ?? "l-highlighted" },
-    openSpan: (span) => openSpanTag({ class: scopeToClass(span.scope) }),
+    openSpan,
   });
 
   const pre = openPreTag({

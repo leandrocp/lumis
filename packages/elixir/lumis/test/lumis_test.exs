@@ -202,6 +202,7 @@ defmodule Lumis.LumisTest do
                theme: nil,
                code_attrs: [],
                pre_attrs: [],
+               structure: :block,
                pre_class: nil,
                include_highlights: false,
                highlight_lines: nil,
@@ -222,6 +223,7 @@ defmodule Lumis.LumisTest do
                  theme: nil,
                  code_attrs: [],
                  pre_attrs: [],
+                 structure: :block,
                  pre_class: nil,
                  include_highlights: false,
                  highlight_lines: nil,
@@ -242,6 +244,7 @@ defmodule Lumis.LumisTest do
                  language: nil,
                  code_attrs: [],
                  pre_attrs: [],
+                 structure: :block,
                  pre_class: nil,
                  highlight_lines: nil,
                  line_numbers: false,
@@ -607,6 +610,59 @@ defmodule Lumis.LumisTest do
         )
 
       assert html =~ ~s|class="lumis lumis-themes dark"|
+    end
+  end
+
+  describe "HTML formatter structure" do
+    test "inline writes only the token spans" do
+      assert Lumis.highlight!("[1,\r\n2]\n",
+               formatter: {:html_linked, language: "json", structure: :inline}
+             ) ==
+               ~s|<span class="l-punctuation-bracket">[</span><span class="l-number">1</span><span class="l-punctuation-delimiter">,</span>\n<span class="l-number">2</span><span class="l-punctuation-bracket">]</span>|
+    end
+
+    test "inline ignores the options that describe a block" do
+      block = [
+        pre_class: "code",
+        pre_attrs: [id: "pre"],
+        code_attrs: [id: "code"],
+        highlight_lines: %{lines: [1]},
+        line_numbers: true,
+        header: %{open_tag: "<figure>", close_tag: "</figure>"}
+      ]
+
+      for {formatter, options} <- [
+            html_inline: [language: "json", theme: "dracula"],
+            html_linked: [language: "json"],
+            html_multi_themes: [
+              language: "json",
+              themes: [dark: "dracula"],
+              default_theme: "dark"
+            ]
+          ] do
+        spans =
+          Lumis.highlight!("[1,\n2]", formatter: {formatter, [structure: :inline] ++ options})
+
+        assert spans =~ ~r/^<span/
+        refute spans =~ ~r/<pre|<code|l-line/
+
+        assert Lumis.highlight!("[1,\n2]",
+                 formatter: {formatter, [structure: :inline] ++ options ++ block}
+               ) == spans
+      end
+    end
+
+    test "block is the default" do
+      assert Lumis.highlight!("[1]",
+               formatter: {:html_linked, language: "json", structure: :block}
+             ) ==
+               Lumis.highlight!("[1]", formatter: {:html_linked, language: "json"})
+    end
+
+    test "a structure other than block or inline is refused" do
+      assert_raise NimbleOptions.ValidationError, ~r/:structure/, fn ->
+        Lumis.highlight("[1]", formatter: {:html_linked, language: "json", structure: :sentence})
+      end
     end
   end
 
@@ -1290,6 +1346,7 @@ defmodule Lumis.LumisTest do
                  italic: false,
                  code_attrs: [],
                  pre_attrs: [],
+                 structure: :block,
                  pre_class: nil,
                  theme: nil,
                  language: "elixir"
@@ -1316,6 +1373,7 @@ defmodule Lumis.LumisTest do
                  italic: false,
                  code_attrs: [],
                  pre_attrs: [],
+                 structure: :block,
                  pre_class: nil,
                  theme: nil,
                  language: nil
@@ -1342,6 +1400,7 @@ defmodule Lumis.LumisTest do
                  include_highlights: false,
                  code_attrs: [],
                  pre_attrs: [],
+                 structure: :block,
                  pre_class: nil,
                  theme: "dracula",
                  italic: true
@@ -1365,7 +1424,8 @@ defmodule Lumis.LumisTest do
                       code_attrs: [],
                       pre_attrs: [],
                       pre_class: nil,
-                      theme: nil
+                      theme: nil,
+                      structure: :block
                     ]},
                  budget: [match_limit: nil, time_limit: nil],
                  rainbow_brackets: false,
@@ -1402,6 +1462,7 @@ defmodule Lumis.LumisTest do
                  italic: false,
                  code_attrs: [],
                  pre_attrs: [],
+                 structure: :block,
                  pre_class: nil,
                  theme: nil
                ],
@@ -1433,6 +1494,7 @@ defmodule Lumis.LumisTest do
                    italic: false,
                    code_attrs: [],
                    pre_attrs: [],
+                   structure: :block,
                    pre_class: nil,
                    theme: nil
                  ],

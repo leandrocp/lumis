@@ -142,6 +142,8 @@ enum Commands {
         default_theme: Option<String>,
         #[arg(long)]
         rainbow_brackets: bool,
+        #[arg(long, value_enum, default_value_t)]
+        structure: FixtureStructure,
     },
     DumpEvents {
         source: String,
@@ -214,6 +216,7 @@ fn main() -> Result<()> {
             themes,
             default_theme,
             rainbow_brackets,
+            structure,
         } => render_conformance(
             &source,
             &language,
@@ -222,6 +225,7 @@ fn main() -> Result<()> {
             themes,
             default_theme,
             rainbow_brackets,
+            structure,
         ),
         Commands::DumpEvents { source, language } => dump_events(&source, &language),
         Commands::VerifyConformance { name } => verify_conformance(&name),
@@ -253,6 +257,7 @@ fn render_conformance(
     themes: Vec<String>,
     default_theme: Option<String>,
     rainbow_brackets: bool,
+    structure: FixtureStructure,
 ) -> Result<()> {
     let language = parse_language(language)?;
     print!(
@@ -265,6 +270,7 @@ fn render_conformance(
             themes,
             default_theme,
             rainbow_brackets,
+            structure,
             vec![],
         )?
     );
@@ -294,7 +300,34 @@ struct FixtureMetadata {
     language: String,
     theme: String,
     rainbow_brackets: bool,
+    structure: FixtureStructure,
     html_multi_themes: Option<HtmlMultiThemesFixture>,
+}
+
+/// What the three HTML outputs of a fixture write around the tokens.
+#[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq, clap::ValueEnum)]
+#[serde(rename_all = "lowercase")]
+enum FixtureStructure {
+    #[default]
+    Block,
+    Inline,
+}
+
+impl FixtureStructure {
+    // `serde`'s `skip_serializing_if` hands the predicate a reference.
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    fn is_block(&self) -> bool {
+        *self == Self::Block
+    }
+}
+
+impl From<FixtureStructure> for lumis::formatters::html::HtmlStructure {
+    fn from(structure: FixtureStructure) -> Self {
+        match structure {
+            FixtureStructure::Block => Self::Block,
+            FixtureStructure::Inline => Self::Inline,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
@@ -323,6 +356,8 @@ struct FixtureFile {
     // Omitted from the JSON when false so non-rainbow fixtures stay unchanged.
     #[serde(default, skip_serializing_if = "is_false")]
     rainbow_brackets: bool,
+    #[serde(default, skip_serializing_if = "FixtureStructure::is_block")]
+    structure: FixtureStructure,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     html_multi_themes: Option<HtmlMultiThemesFixture>,
     #[serde(default)]
@@ -415,6 +450,7 @@ fn render_html_multi_themes_fixture(
     themes: Vec<String>,
     default_theme: Option<String>,
     rainbow_brackets: bool,
+    structure: FixtureStructure,
     highlight_lines: Vec<usize>,
     output: &mut Vec<u8>,
 ) -> Result<()> {
@@ -431,7 +467,10 @@ fn render_html_multi_themes_fixture(
     }
 
     let mut builder = lumis::HtmlMultiThemesBuilder::new();
-    builder.language(language).themes(theme_map);
+    builder
+        .language(language)
+        .structure(structure.into())
+        .themes(theme_map);
 
     if let Some(default_theme) = default_theme {
         builder.default_theme(default_theme);
@@ -466,6 +505,7 @@ fn render_formatter_output(
     themes: Vec<String>,
     default_theme: Option<String>,
     rainbow_brackets: bool,
+    structure: FixtureStructure,
     highlight_lines: Vec<usize>,
 ) -> Result<String> {
     let mut output = Vec::new();
@@ -476,6 +516,7 @@ fn render_formatter_output(
             let theme = fixture_theme(&theme_name)?;
             let formatter = lumis::HtmlInlineBuilder::new()
                 .language(language)
+                .structure(structure.into())
                 .theme(Some(theme))
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
@@ -489,6 +530,7 @@ fn render_formatter_output(
         "html-linked" => {
             let formatter = lumis::HtmlLinkedBuilder::new()
                 .language(language)
+                .structure(structure.into())
                 .build()
                 .map_err(|e| anyhow::anyhow!("{e}"))?;
             lumis::write_highlight_with_options(
@@ -505,6 +547,7 @@ fn render_formatter_output(
                 themes,
                 default_theme,
                 rainbow_brackets,
+                structure,
                 highlight_lines,
                 &mut output,
             )?;
@@ -548,6 +591,7 @@ fn fixture_outputs(
     theme: &str,
     name: &str,
     rainbow_brackets: bool,
+    structure: FixtureStructure,
     html_multi_themes: Option<HtmlMultiThemesFixture>,
 ) -> Result<FixtureOutputs> {
     let events = highlight_events_with_options(
@@ -581,6 +625,7 @@ fn fixture_outputs(
         language: language.id_name().to_string(),
         theme: theme.to_string(),
         rainbow_brackets,
+        structure,
         html_multi_themes,
     };
 
@@ -595,6 +640,7 @@ fn fixture_outputs(
             vec![],
             None,
             rainbow_brackets,
+            structure,
             vec![],
         )?,
         html_linked: render_formatter_output(
@@ -605,6 +651,7 @@ fn fixture_outputs(
             vec![],
             None,
             rainbow_brackets,
+            structure,
             vec![],
         )?,
         html_multi_themes: render_formatter_output(
@@ -615,6 +662,7 @@ fn fixture_outputs(
             multi_themes,
             multi_default_theme,
             rainbow_brackets,
+            structure,
             multi_highlight_lines,
         )?,
         terminal: render_formatter_output(
@@ -625,6 +673,7 @@ fn fixture_outputs(
             vec![],
             None,
             rainbow_brackets,
+            FixtureStructure::Block,
             vec![],
         )?,
         bbcode: render_formatter_output(
@@ -635,6 +684,7 @@ fn fixture_outputs(
             vec![],
             None,
             rainbow_brackets,
+            FixtureStructure::Block,
             vec![],
         )?,
     })
@@ -670,6 +720,7 @@ fn verify_conformance(name: &str) -> Result<()> {
             &stored.theme,
             &stored.name,
             stored.rainbow_brackets,
+            stored.structure,
             stored.html_multi_themes.clone(),
         )?;
 
@@ -681,6 +732,7 @@ fn verify_conformance(name: &str) -> Result<()> {
                 language: generated.metadata.language.clone(),
                 theme: generated.metadata.theme.clone(),
                 rainbow_brackets: generated.metadata.rainbow_brackets,
+                structure: generated.metadata.structure,
                 html_multi_themes: generated.metadata.html_multi_themes.clone(),
                 events: generated.events.clone(),
             },
@@ -732,6 +784,7 @@ fn regen_conformance(name: &str) -> Result<()> {
             &stored.theme,
             &stored.name,
             stored.rainbow_brackets,
+            stored.structure,
             stored.html_multi_themes.clone(),
         )?;
 
@@ -742,6 +795,7 @@ fn regen_conformance(name: &str) -> Result<()> {
                 language: generated.metadata.language,
                 theme: generated.metadata.theme,
                 rainbow_brackets: generated.metadata.rainbow_brackets,
+                structure: generated.metadata.structure,
                 html_multi_themes: generated.metadata.html_multi_themes,
                 events: generated.events,
             })? + "\n",

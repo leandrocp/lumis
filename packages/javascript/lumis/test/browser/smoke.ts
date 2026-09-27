@@ -8,7 +8,12 @@ import {
   type Formatter,
 } from "../../src/formatters.ts";
 import { lowestCompatibleLanguagePackageVersion } from "../../src/core/languages.ts";
-import type { LanguageDefinition, LumisHighlightEvent, Theme } from "../../src/types.ts";
+import type {
+  HtmlStructure,
+  LanguageDefinition,
+  LumisHighlightEvent,
+  Theme,
+} from "../../src/types.ts";
 
 /**
  * The browser cannot load a parser during the walk that finds an injected
@@ -60,6 +65,8 @@ interface CorpusFixture {
   /** Root plus every injected language, taken from the expected events. */
   languages: string[];
   rainbowBrackets: boolean;
+  /** What the three HTML outputs write around the tokens. */
+  structure: HtmlStructure;
   source: string;
   theme: string;
   htmlMultiThemes?: {
@@ -89,6 +96,7 @@ function loadCorpus(): CorpusFixture[] {
         language: string;
         theme: string;
         rainbowBrackets?: boolean;
+        structure?: HtmlStructure;
         htmlMultiThemes?: CorpusFixture["htmlMultiThemes"];
         events: { type: string; language?: string }[];
       };
@@ -103,6 +111,7 @@ function loadCorpus(): CorpusFixture[] {
         language: parsed.language,
         languages: [...languages],
         rainbowBrackets: parsed.rainbowBrackets ?? false,
+        structure: parsed.structure ?? "block",
         source,
         theme: parsed.theme,
         htmlMultiThemes: parsed.htmlMultiThemes,
@@ -318,7 +327,7 @@ async function run(): Promise<void> {
   }
 
   const render = (fixture: CorpusFixture): FixtureOutput => {
-    const { source, language, rainbowBrackets } = fixture;
+    const { source, language, rainbowBrackets, structure } = fixture;
     const theme = getTheme(fixture.theme);
     const config = fixture.htmlMultiThemes;
     // Reversed on purpose. Rust holds themes in a `HashMap` and sorts before
@@ -335,12 +344,17 @@ async function run(): Promise<void> {
     const options = { rainbowBrackets };
 
     return {
-      htmlInline: highlighter.highlight(source, htmlInline({ language, theme }), options),
-      htmlLinked: highlighter.highlight(source, htmlLinked({ language }), options),
+      htmlInline: highlighter.highlight(
+        source,
+        htmlInline({ language, structure, theme }),
+        options,
+      ),
+      htmlLinked: highlighter.highlight(source, htmlLinked({ language, structure }), options),
       htmlMultiThemes: highlighter.highlight(
         source,
         htmlMultiThemes({
           language,
+          structure,
           themes: formatterThemes,
           defaultTheme: config ? config.defaultTheme : "main",
           highlightLines: config?.highlightLines?.length

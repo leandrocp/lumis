@@ -109,6 +109,7 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
       fixture.source,
       htmlInline({
         language: getLanguage(fixture.language),
+        structure: fixture.structure,
         theme: getTheme(fixture.theme),
       }),
       { rainbowBrackets: fixture.rainbowBrackets },
@@ -121,6 +122,7 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
       fixture.source,
       htmlLinked({
         language: getLanguage(fixture.language),
+        structure: fixture.structure,
       }),
       { rainbowBrackets: fixture.rainbowBrackets },
     );
@@ -143,6 +145,7 @@ describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture
       fixture.source,
       htmlMultiThemes({
         language: getLanguage(fixture.language),
+        structure: fixture.structure,
         themes: formatterThemes,
         defaultTheme: config ? config.defaultTheme : "main",
         highlightLines: config?.highlightLines?.length

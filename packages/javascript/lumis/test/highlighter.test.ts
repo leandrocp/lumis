@@ -436,6 +436,80 @@ class User:
     expect(html).toContain('class="lumis lumis-themes dark"');
   });
 
+  it("writes only the token spans with the inline structure", () => {
+    const source = "[1,\r\n2]\n";
+    const outputs = [
+      hl.highlight(source, htmlInline({ language: json, theme, structure: "inline" })),
+      hl.highlight(source, htmlLinked({ language: json, structure: "inline" })),
+      hl.highlight(
+        source,
+        htmlMultiThemes({
+          language: json,
+          themes: { dark: theme },
+          defaultTheme: "dark",
+          structure: "inline",
+        }),
+      ),
+    ];
+
+    expect(outputs[1]).toBe(
+      '<span class="l-punctuation-bracket">[</span><span class="l-number">1</span><span class="l-punctuation-delimiter">,</span>\n<span class="l-number">2</span><span class="l-punctuation-bracket">]</span>',
+    );
+    for (const html of outputs) {
+      expect(html).not.toMatch(/<pre|<code|l-line/);
+      expect(html.split("\n")).toHaveLength(2);
+    }
+  });
+
+  it("ignores the options that describe a block with the inline structure", () => {
+    const source = "[1,\n2]";
+    const block = {
+      preClass: "code",
+      preAttrs: { id: "pre" },
+      codeAttrs: { id: "code" },
+      highlightLines: { lines: [1] },
+      lineNumbers: true,
+      header: { openTag: "<figure>", closeTag: "</figure>" },
+    };
+    const multiThemes = { language: json, themes: { dark: theme }, defaultTheme: "dark" };
+    const pairs = [
+      [
+        htmlInline({ language: json, theme, structure: "inline" }),
+        htmlInline({ language: json, theme, structure: "inline", ...block }),
+      ],
+      [
+        htmlLinked({ language: json, structure: "inline" }),
+        htmlLinked({ language: json, structure: "inline", ...block }),
+      ],
+      [
+        htmlMultiThemes({ ...multiThemes, structure: "inline" }),
+        htmlMultiThemes({ ...multiThemes, structure: "inline", ...block }),
+      ],
+    ] as const;
+
+    for (const [spans, withBlockOptions] of pairs) {
+      expect(hl.highlight(source, withBlockOptions)).toBe(hl.highlight(source, spans));
+    }
+  });
+
+  it("refuses a structure other than block or inline", () => {
+    const formatters = [
+      // @ts-expect-error -- the value untyped JavaScript could pass
+      htmlInline({ language: json, structure: "sentence" }),
+      // @ts-expect-error -- the value untyped JavaScript could pass
+      htmlLinked({ language: json, structure: "sentence" }),
+      // @ts-expect-error -- the value untyped JavaScript could pass
+      htmlMultiThemes({ language: json, themes: { dark: theme }, structure: "sentence" }),
+    ];
+
+    const render = (formatter: (typeof formatters)[number]) => () =>
+      hl.highlight('{"a": 1}', formatter);
+
+    for (const formatter of formatters) {
+      expect(render(formatter)).toThrow('structure must be "block" or "inline", got "sentence"');
+    }
+  });
+
   it("accepts italic option", () => {
     const html = hl.highlight('{"a": 1}', htmlInline({ language: json, theme, italic: true }));
     expect(html).toContain('class="language-json"');
@@ -672,6 +746,22 @@ describe("budget", () => {
     });
 
     expect(text).toBe(pathological);
+  });
+
+  it("has nowhere to put the marker with the inline structure", () => {
+    for (const formatter of [
+      htmlLinked({ language: json, structure: "inline" }),
+      htmlInline({ language: json, theme, structure: "inline" }),
+      htmlMultiThemes({
+        language: json,
+        themes: { main: theme },
+        defaultTheme: "main",
+        structure: "inline",
+      }),
+    ]) {
+      const html = budgetHl.highlight(pathological, formatter, { budget: { timeLimit: 50 } });
+      expect(html).toBe(pathological);
+    }
   });
 
   it("rejects a time limit that is not a whole number of milliseconds", () => {

@@ -41,6 +41,8 @@ defmodule Lumis.ConformanceTest do
 
   defp rainbow_brackets(fixture), do: fixture["rainbowBrackets"] || false
 
+  defp structure(fixture), do: String.to_existing_atom(fixture["structure"] || "block")
+
   defp serialize_event({:start, %{scope: scope, language: language}}),
     do: %{"type" => "start", "scope" => scope, "language" => language}
 
@@ -93,6 +95,7 @@ defmodule Lumis.ConformanceTest do
 
     [
       language: fixture["language"],
+      structure: structure(fixture),
       themes: themes,
       default_theme: config["defaultTheme"],
       highlight_lines: highlight_lines
@@ -120,7 +123,9 @@ defmodule Lumis.ConformanceTest do
         assert Lumis.highlight!(fixture["source"],
                  formatter: {
                    :html_inline,
-                   language: fixture["language"], theme: fixture["theme"]
+                   language: fixture["language"],
+                   structure: structure(fixture),
+                   theme: fixture["theme"]
                  },
                  rainbow_brackets: rainbow_brackets(fixture)
                ) == fixture["htmlInline"]
@@ -131,7 +136,8 @@ defmodule Lumis.ConformanceTest do
         fixture = load_fixture(unquote(name))
 
         assert Lumis.highlight!(fixture["source"],
-                 formatter: {:html_linked, language: fixture["language"]},
+                 formatter:
+                   {:html_linked, language: fixture["language"], structure: structure(fixture)},
                  rainbow_brackets: rainbow_brackets(fixture)
                ) == fixture["htmlLinked"]
       end

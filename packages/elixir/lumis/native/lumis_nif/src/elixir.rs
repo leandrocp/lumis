@@ -1,6 +1,6 @@
 use lumis_core::formatter::{
-    bbcode, html::AttrValue, html::SteppedLineRange, html_inline, html_linked, terminal,
-    BBCodeScopedBuilder, Formatter, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder,
+    bbcode, html::AttrValue, html::HtmlStructure, html::SteppedLineRange, html_inline, html_linked,
+    terminal, BBCodeScopedBuilder, Formatter, HtmlElement, HtmlInlineBuilder, HtmlLinkedBuilder,
     HtmlMultiThemesBuilder, TerminalBackground, TerminalBuilder,
 };
 use lumis_core::{languages::Language, themes};
@@ -12,6 +12,22 @@ pub enum ExAppearance {
     Light,
     #[default]
     Dark,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, NifUnitEnum)]
+pub enum ExHtmlStructure {
+    #[default]
+    Block,
+    Inline,
+}
+
+impl From<ExHtmlStructure> for HtmlStructure {
+    fn from(structure: ExHtmlStructure) -> Self {
+        match structure {
+            ExHtmlStructure::Block => Self::Block,
+            ExHtmlStructure::Inline => Self::Inline,
+        }
+    }
 }
 
 /// An attribute value as Elixir spells it: a string, or `true`/`false` for the
@@ -67,6 +83,7 @@ pub(crate) fn ex_attr_values(
 #[derive(Debug, NifTaggedEnum)]
 pub enum ExFormatterOption {
     HtmlInline {
+        structure: ExHtmlStructure,
         theme: Option<ThemeOrString>,
         pre_class: Option<String>,
         pre_attrs: Vec<(String, ExAttrValue)>,
@@ -78,6 +95,7 @@ pub enum ExFormatterOption {
         header: Option<ExHtmlElement>,
     },
     HtmlLinked {
+        structure: ExHtmlStructure,
         pre_class: Option<String>,
         pre_attrs: Vec<(String, ExAttrValue)>,
         code_attrs: Vec<(String, ExAttrValue)>,
@@ -86,6 +104,7 @@ pub enum ExFormatterOption {
         header: Option<ExHtmlElement>,
     },
     HtmlMultiThemes {
+        structure: ExHtmlStructure,
         themes: HashMap<String, ExTheme>,
         default_theme: Option<String>,
         css_variable_prefix: Option<String>,
@@ -119,6 +138,7 @@ pub enum ExTerminalBackground {
 impl Default for ExFormatterOption {
     fn default() -> Self {
         Self::HtmlInline {
+            structure: ExHtmlStructure::Block,
             theme: None,
             pre_class: None,
             pre_attrs: Vec::new(),
@@ -254,6 +274,7 @@ impl ExFormatterOption {
     pub fn into_formatter<T>(self, language: Language) -> Result<Box<dyn Formatter<T>>, String> {
         match self {
             ExFormatterOption::HtmlInline {
+                structure,
                 theme,
                 pre_class,
                 pre_attrs,
@@ -276,6 +297,7 @@ impl ExFormatterOption {
 
                 let mut formatter = HtmlInlineBuilder::new()
                     .language(language)
+                    .structure(structure.into())
                     .theme(theme)
                     .pre_class(pre_class)
                     .pre_attrs(attr_values(pre_attrs))
@@ -292,6 +314,7 @@ impl ExFormatterOption {
                 Ok(Box::new(formatter))
             }
             ExFormatterOption::HtmlLinked {
+                structure,
                 pre_class,
                 pre_attrs,
                 code_attrs,
@@ -309,6 +332,7 @@ impl ExFormatterOption {
 
                 let mut formatter = HtmlLinkedBuilder::new()
                     .language(language)
+                    .structure(structure.into())
                     .pre_class(pre_class)
                     .pre_attrs(attr_values(pre_attrs))
                     .code_attrs(attr_values(code_attrs))
@@ -322,6 +346,7 @@ impl ExFormatterOption {
                 Ok(Box::new(formatter))
             }
             ExFormatterOption::HtmlMultiThemes {
+                structure,
                 themes,
                 default_theme,
                 css_variable_prefix,
@@ -348,6 +373,7 @@ impl ExFormatterOption {
                 let mut builder = HtmlMultiThemesBuilder::new();
                 builder
                     .language(language)
+                    .structure(structure.into())
                     .themes(themes_map)
                     .css_variable_prefix(css_variable_prefix.as_deref().unwrap_or("--lumis"))
                     .pre_class(pre_class)

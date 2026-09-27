@@ -762,6 +762,29 @@ impl From<bool> for AttrValue {
 /// Lumis escape every value exactly once.
 pub type HtmlAttrs = Vec<(String, AttrValue)>;
 
+/// What an HTML formatter writes around the highlighted tokens.
+///
+/// [`Block`](Self::Block) is a code block. [`Inline`](Self::Inline) is for code
+/// that goes inside an element the page already owns, such as a `<code>` in a
+/// sentence, where a `<pre>` or a line element would be invalid markup.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+pub enum HtmlStructure {
+    /// `<pre><code>` holding one `<span class="l-line">` per line.
+    #[default]
+    Block,
+    /// The token spans and the text between them, and nothing else.
+    ///
+    /// Lines are separated by `\n` and the last one has no terminator, as in a
+    /// block. The options that configure the block's elements have no effect:
+    /// `pre_class`, `pre_attrs`, `code_attrs`, `highlight_lines`,
+    /// `line_numbers` and `header`. The theme's text and background color are
+    /// not written either, because a block writes them on its `<pre>`; put
+    /// [`pre_attrs`] or [`multi_themes_pre_attrs`] on your own element to keep
+    /// them. Nor is a render that ran out of budget marked, since the marker
+    /// is a `<pre>` attribute.
+    Inline,
+}
+
 /// Whether `name` is a name HTML can carry, per the attribute-name production.
 ///
 /// Escaping a name is not an option, which is why this exists: a space needs no
@@ -1332,6 +1355,8 @@ fn strip_line_ending(text: &str, followed_by_lf: bool) -> &str {
 /// The three HTML formatters differ only in what a highlighted line carries, so
 /// this is what they hand [`write_html_lines`] to make the walk itself shared.
 pub(crate) struct HtmlLines<'a> {
+    /// Whether each line is wrapped in its own element, or only separated.
+    pub structure: HtmlStructure,
     /// Root language used by Lumis-owned syntax-like decorations.
     pub language: Language,
     /// Which lines the caller asked to highlight.
@@ -1350,7 +1375,8 @@ pub(crate) struct HtmlLines<'a> {
     pub empty_style: Option<&'a str>,
 }
 
-/// Write content-only `<span class="l-line">` elements separated by `\n`.
+/// Write content-only `<span class="l-line">` elements separated by `\n`, or
+/// only the content and the separators for [`HtmlStructure::Inline`].
 ///
 /// A source's final newline terminates its last line rather than adding one.
 /// No separator follows the last element.
@@ -1385,6 +1411,7 @@ pub(crate) fn write_html_lines<T>(
     let mut result = Ok(());
     let mut walk = LineEventWalk::new();
     let decoration_language = lines.language.id_name();
+    let wrapped = lines.structure == HtmlStructure::Block;
     let line_count = source.lines().count().max(1);
     let mut source_lines = source.lines();
     let mut skip_line = false;
@@ -1410,9 +1437,13 @@ pub(crate) fn write_html_lines<T>(
                     &plain_tag
                 };
                 let separator = if number > 1 { &b"\n"[..] } else { &[] };
-                output
-                    .write_all(separator)
-                    .and_then(|()| tag.write(output, number))
+                output.write_all(separator).and_then(|()| {
+                    if wrapped {
+                        tag.write(output, number)
+                    } else {
+                        Ok(())
+                    }
+                })
             }
             LineFragment::Text(text) => write_escaped(output, text),
             LineFragment::SpanOpen(scope_index, language) => {
@@ -1423,6 +1454,7 @@ pub(crate) fn write_html_lines<T>(
                     write!(output, "<span {attrs}>")
                 }
             }
+            LineFragment::Close if !wrapped => Ok(()),
             LineFragment::Close | LineFragment::SpanClose => output.write_all(b"</span>"),
         };
     };
@@ -1432,6 +1464,34 @@ pub(crate) fn write_html_lines<T>(
     });
 
     result
+}
+
+/// What a formatter writes for [`HtmlStructure::Inline`]: the lines of a block
+/// without the elements around them.
+pub(crate) fn write_html_spans<T>(
+    output: &mut dyn Write,
+    source: &str,
+    events: &[HighlightEvent<'_, T>],
+    language: Language,
+    span_attrs: &dyn Fn(usize, &str) -> String,
+) -> io::Result<()> {
+    write_html_lines(
+        output,
+        source,
+        events,
+        &HtmlLines {
+            structure: HtmlStructure::Inline,
+            language,
+            selection: &LineSelection::default(),
+            numbered: false,
+            line_number_attrs: None,
+            highlighted_line_number_attrs: None,
+            highlighted_class: None,
+            highlighted_style: None,
+            empty_style: None,
+        },
+        span_attrs,
+    )
 }
 
 /// The rendered attributes of every scope this document has opened.
@@ -1625,6 +1685,7 @@ mod tests {
     ) -> String {
         let mut output = Vec::new();
         let lines = HtmlLines {
+            structure: HtmlStructure::Block,
             language: Language::PlainText,
             selection,
             numbered,
@@ -1696,6 +1757,69 @@ mod tests {
         }
     }
 
+    /// Switching a formatter to the inline structure keeps the spans and the
+    /// text of a block and drops only the elements around its lines.
+    #[test]
+    fn inline_spans_are_the_block_lines_without_their_elements() {
+        for source in [
+            "",
+            "one",
+            "one\n",
+            "one\ntwo",
+            "one\r\ntwo",
+            "one\rtwo",
+            "one\n\ntwo\n",
+        ] {
+            let events: [HighlightEvent<'_, ()>; 3] = [
+                HighlightEvent::Start {
+                    scope_index: 0,
+                    language: "text".to_string(),
+                },
+                HighlightEvent::Source {
+                    start: 0,
+                    end: source.len(),
+                },
+                HighlightEvent::End,
+            ];
+            let span_attrs = |_: usize, _: &str| "class=\"scope\"".to_string();
+            let mut html = Vec::new();
+
+            write_html_spans(&mut html, source, &events, Language::PlainText, &span_attrs).unwrap();
+
+            assert_str_eq!(
+                String::from_utf8(html).unwrap(),
+                render_lines_from_events(source, &events, span_attrs).join("\n")
+            );
+        }
+    }
+
+    #[test]
+    fn inline_spans_close_a_scope_before_a_newline_and_reopen_it_after() {
+        let source = "a\r\nb\n";
+        let events: [HighlightEvent<'_, ()>; 3] = [
+            HighlightEvent::Start {
+                scope_index: 0,
+                language: "text".to_string(),
+            },
+            HighlightEvent::Source {
+                start: 0,
+                end: source.len(),
+            },
+            HighlightEvent::End,
+        ];
+        let mut html = Vec::new();
+
+        write_html_spans(&mut html, source, &events, Language::PlainText, &|_, _| {
+            "class=\"scope\"".to_string()
+        })
+        .unwrap();
+
+        assert_str_eq!(
+            String::from_utf8(html).unwrap(),
+            "<span class=\"scope\">a</span>\n<span class=\"scope\">b</span>"
+        );
+    }
+
     #[test]
     fn html_lines_write_normalized_separators_between_line_spans() {
         let source = "a\r\nb";
@@ -1717,6 +1841,7 @@ mod tests {
             source,
             &events,
             &HtmlLines {
+                structure: HtmlStructure::Block,
                 language: Language::PlainText,
                 selection: &LineSelection::default(),
                 numbered: false,
@@ -1772,6 +1897,7 @@ mod tests {
         let selection = LineSelection::new(std::slice::from_ref(&(2..=2)), &[]);
         let mut output = Vec::new();
         let lines = HtmlLines {
+            structure: HtmlStructure::Block,
             language: Language::PlainText,
             selection: &selection,
             numbered: true,

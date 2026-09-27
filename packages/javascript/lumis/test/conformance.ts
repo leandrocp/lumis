@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
+import type { HtmlStructure } from "../src/types.js";
 
 export type SerializableHighlightEvent =
   | { type: "start"; scope: string; language: string }
@@ -16,6 +17,8 @@ export interface ConformanceFixture {
   theme: string;
   htmlMultiThemesOptions?: HtmlMultiThemesFixture;
   rainbowBrackets: boolean;
+  /** What the three HTML outputs write around the tokens. */
+  structure: HtmlStructure;
   events: SerializableHighlightEvent[];
   source: string;
   htmlInline: string;
@@ -38,6 +41,7 @@ interface FixtureMetadata {
   theme: string;
   htmlMultiThemes?: HtmlMultiThemesFixture;
   rainbowBrackets?: boolean;
+  structure?: HtmlStructure;
   events: SerializableHighlightEvent[];
 }
 
@@ -58,6 +62,7 @@ export function loadConformanceFixtures(): ConformanceFixture[] {
           ...metadata,
           htmlMultiThemesOptions: metadata.htmlMultiThemes,
           rainbowBrackets: metadata.rainbowBrackets ?? false,
+          structure: metadata.structure ?? "block",
           source: readFileSync(new URL("source.txt", fixtureDir), "utf8"),
           htmlInline: readFileSync(new URL("html-inline.html", fixtureDir), "utf8"),
           htmlLinked: readFileSync(new URL("html-linked.html", fixtureDir), "utf8"),

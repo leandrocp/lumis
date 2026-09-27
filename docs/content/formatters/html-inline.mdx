@@ -17,11 +17,11 @@ Self-contained HTML with inline styles on each token. No external CSS required.
 
 | Runtime | Options |
 | --- | --- |
-| Rust | `language`, `theme`, `pre_class`, `pre_attrs`, `code_attrs`, `italic`, `include_highlights`, `highlight_lines`, `line_numbers`, `header` |
-| Elixir | `language`, `theme`, `pre_class`, `pre_attrs`, `code_attrs`, `italic`, `include_highlights`, `highlight_lines`, `line_numbers`, `header` |
-| JavaScript / TypeScript | `language`, `theme`, `preClass`, `preAttrs`, `codeAttrs`, `italic`, `includeHighlights`, `highlightLines`, `lineNumbers`, `header` |
+| Rust | `language`, `structure`, `theme`, `pre_class`, `pre_attrs`, `code_attrs`, `italic`, `include_highlights`, `highlight_lines`, `line_numbers`, `header` |
+| Elixir | `language`, `structure`, `theme`, `pre_class`, `pre_attrs`, `code_attrs`, `italic`, `include_highlights`, `highlight_lines`, `line_numbers`, `header` |
+| JavaScript / TypeScript | `language`, `structure`, `theme`, `preClass`, `preAttrs`, `codeAttrs`, `italic`, `includeHighlights`, `highlightLines`, `lineNumbers`, `header` |
 | Java | `withLang()`, `withTheme()`, `withFormatter(Formatter.HTML_INLINE)` |
-| CLI | `--theme`, `--pre-class`, `--pre-attr`, `--no-pre-attr`, `--code-attr`, `--no-code-attr`, `--italic`, `--include-highlights`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--line-numbers`, `--header-open`, `--header-close` |
+| CLI | `--structure`, `--theme`, `--pre-class`, `--pre-attr`, `--no-pre-attr`, `--code-attr`, `--no-code-attr`, `--italic`, `--include-highlights`, `--highlight-lines`, `--highlight-lines-class`, `--highlight-lines-style`, `--line-numbers`, `--header-open`, `--header-close` |
 
 ## Basic example
 
@@ -264,6 +264,9 @@ HTML Inline emits the full block structure with inline styles on each token:
 - Lines are separated by `\n` text nodes; nothing follows the last line element
 - A final source newline ends its line rather than adding an empty numbered line
 - `<span style="...">` carries the token colors and font styles inline
+
+With `structure: "inline"` only the token spans are written, for a `<code>` or
+other element of your own. See [Inline code](/formatters#inline-code).
 
 Highlighted lines and empty lines carry inline layout styles to preserve their
 width and height. When `highlight_lines` is set, `<code>` expands to the scroll

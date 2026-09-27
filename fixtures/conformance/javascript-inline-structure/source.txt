@@ -1,0 +1,6 @@
+const greet = (name) => {
+  return `Hello, ${name} & <friends>,
+welcome`;
+};
+
+const nested = [[1, 2], { a: (3) }];

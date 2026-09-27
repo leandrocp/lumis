@@ -17,11 +17,11 @@ Class-based HTML that pairs with a CSS theme file. Smaller output than inline st
 
 | Runtime | Options |
 | --- | --- |
-| Rust | `language`, `pre_class`, `pre_attrs`, `code_attrs`, `highlight_lines`, `line_numbers`, `header` |
-| Elixir | `language`, `pre_class`, `pre_attrs`, `code_attrs`, `highlight_lines`, `line_numbers`, `header` |
-| JavaScript / TypeScript | `language`, `preClass`, `preAttrs`, `codeAttrs`, `highlightLines`, `lineNumbers`, `header` |
+| Rust | `language`, `structure`, `pre_class`, `pre_attrs`, `code_attrs`, `highlight_lines`, `line_numbers`, `header` |
+| Elixir | `language`, `structure`, `pre_class`, `pre_attrs`, `code_attrs`, `highlight_lines`, `line_numbers`, `header` |
+| JavaScript / TypeScript | `language`, `structure`, `preClass`, `preAttrs`, `codeAttrs`, `highlightLines`, `lineNumbers`, `header` |
 | Java | `withLang()`, `withFormatter(Formatter.HTML_LINKED)` |
-| CLI | `--pre-class`, `--pre-attr`, `--no-pre-attr`, `--code-attr`, `--no-code-attr`, `--highlight-lines`, `--highlight-lines-class`, `--line-numbers`, `--header-open`, `--header-close` |
+| CLI | `--structure`, `--pre-class`, `--pre-attr`, `--no-pre-attr`, `--code-attr`, `--no-code-attr`, `--highlight-lines`, `--highlight-lines-class`, `--line-numbers`, `--header-open`, `--header-close` |
 
 ## Basic example
 
@@ -124,6 +124,9 @@ HTML Linked wraps each line in a span and uses CSS classes for token styling:
 - Lines are separated by `\n` text nodes; nothing follows the last line element
 - A final source newline ends its line rather than adding an empty numbered line
 - `<span class="...">` carries semantic highlight classes such as `l-keyword` or `l-string`
+
+With `structure: "inline"` only the token spans are written, for a `<code>` or
+other element of your own. See [Inline code](/formatters#inline-code).
 
 The theme stylesheet gives each line the full code-block width, keeps empty
 lines one row tall, and excludes line numbers from selection copy. Layout rules

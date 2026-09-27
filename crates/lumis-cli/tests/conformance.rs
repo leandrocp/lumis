@@ -33,6 +33,9 @@ struct FixtureMetadata {
     theme: String,
     #[serde(default, rename = "rainbowBrackets")]
     rainbow_brackets: bool,
+    /// `--structure` for the three HTML formatters; absent means a block.
+    #[serde(default)]
+    structure: Option<String>,
     #[serde(default, rename = "htmlMultiThemes")]
     html_multi_themes: Option<HtmlMultiThemesFixture>,
 }
@@ -107,17 +110,26 @@ fn run_highlight_source(fixture: &Fixture, formatter: &str, extra_args: &[&str])
     String::from_utf8(output.stdout).unwrap()
 }
 
+fn run_html(fixture: &Fixture, formatter: &str, extra_args: &[&str]) -> String {
+    let mut args = extra_args.to_vec();
+    if let Some(structure) = &fixture.metadata.structure {
+        args.extend(["--structure", structure]);
+    }
+
+    run_highlight_source(fixture, formatter, &args)
+}
+
 fn assert_text_eq(output: &str, expected: &str) {
     assert_eq!(output.replace("\r\n", "\n"), expected.replace("\r\n", "\n"));
 }
 
 fn check_html_inline(fixture: &Fixture) {
-    let output = run_highlight_source(fixture, "html-inline", &["-t", &fixture.metadata.theme]);
+    let output = run_html(fixture, "html-inline", &["-t", &fixture.metadata.theme]);
     assert_text_eq(&output, &fixture.html_inline);
 }
 
 fn check_html_linked(fixture: &Fixture) {
-    let output = run_highlight_source(fixture, "html-linked", &[]);
+    let output = run_html(fixture, "html-linked", &[]);
     assert_text_eq(&output, &fixture.html_linked);
 }
 
@@ -157,7 +169,7 @@ fn check_html_multi_themes(fixture: &Fixture) {
     }
 
     let arg_refs = args.iter().map(String::as_str).collect::<Vec<_>>();
-    let output = run_highlight_source(fixture, "html-multi-themes", &arg_refs);
+    let output = run_html(fixture, "html-multi-themes", &arg_refs);
     assert_text_eq(&output, &fixture.html_multi_themes);
 }
 

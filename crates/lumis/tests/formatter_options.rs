@@ -19,6 +19,7 @@
 //! compiled-in language is enough to exercise every setter.
 #![cfg(feature = "lang-rust")]
 
+use lumis::formatters::html::HtmlStructure;
 use lumis::formatters::html_inline::{HighlightLines, HighlightLinesStyle};
 use lumis::formatters::HtmlElement;
 use lumis::{
@@ -189,6 +190,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
 
     HtmlInlineBuilder::new()
         .language(Language::Rust)
+        .structure(HtmlStructure::Inline)
         .theme(Some(theme()))
         .pre_class(Some("code".to_string()))
         .pre_attrs(vec![("id".to_string(), "sample".into())])
@@ -204,6 +206,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         "html_inline",
         [
             "language",
+            "structure",
             "theme",
             "pre_class",
             "pre_attrs",
@@ -219,6 +222,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
 
     HtmlLinkedBuilder::new()
         .language(Language::Rust)
+        .structure(HtmlStructure::Inline)
         .pre_class(Some("code".to_string()))
         .pre_attrs(vec![("id".to_string(), "sample".into())])
         .code_attrs(vec![("data-copy".to_string(), "sample".into())])
@@ -234,6 +238,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         "html_linked",
         [
             "language",
+            "structure",
             "pre_class",
             "pre_attrs",
             "code_attrs",
@@ -248,6 +253,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
     themes_map.insert("light".to_string(), theme());
     HtmlMultiThemesBuilder::new()
         .language(Language::Rust)
+        .structure(HtmlStructure::Inline)
         .themes(themes_map)
         .default_theme("light")
         .css_variable_prefix("--lumis")
@@ -265,6 +271,7 @@ fn exercised_options() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
         "html_multi_themes",
         [
             "language",
+            "structure",
             "themes",
             "default_theme",
             "css_variable_prefix",

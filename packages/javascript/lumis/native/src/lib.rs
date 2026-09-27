@@ -1,7 +1,7 @@
 use base64::Engine as _;
 use lumis_core::events::{Decoration, HighlightEvent};
 use lumis_core::formatter::bbcode::{BBCodeScoped, HighlightLines as BBCodeHighlightLines};
-use lumis_core::formatter::html::AttrValue;
+use lumis_core::formatter::html::{AttrValue, HtmlStructure};
 use lumis_core::formatter::html_inline::{
     HighlightLines as InlineHighlightLines, HighlightLinesStyle as InlineHighlightLinesStyle,
 };
@@ -115,9 +115,28 @@ fn attr_values(attrs: Vec<(String, JsAttrValue)>) -> lumis_core::formatter::html
         .collect()
 }
 
+/// `HtmlStructure` as JavaScript spells it.
+#[derive(Clone, Copy, Default, Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum JsHtmlStructure {
+    #[default]
+    Block,
+    Inline,
+}
+
+impl From<JsHtmlStructure> for HtmlStructure {
+    fn from(structure: JsHtmlStructure) -> Self {
+        match structure {
+            JsHtmlStructure::Block => Self::Block,
+            JsHtmlStructure::Inline => Self::Inline,
+        }
+    }
+}
+
 #[derive(Default, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 struct HtmlInlineOptions {
+    structure: JsHtmlStructure,
     theme: Option<JsTheme>,
     pre_class: Option<String>,
     pre_attrs: Vec<(String, JsAttrValue)>,
@@ -132,6 +151,7 @@ struct HtmlInlineOptions {
 #[derive(Default, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 struct HtmlLinkedOptions {
+    structure: JsHtmlStructure,
     pre_class: Option<String>,
     pre_attrs: Vec<(String, JsAttrValue)>,
     code_attrs: Vec<(String, JsAttrValue)>,
@@ -638,6 +658,7 @@ fn render_events(
             let options: HtmlInlineOptions = serde_json::from_value(formatter.options)?;
             HtmlInlineBuilder::new()
                 .language(language)
+                .structure(options.structure.into())
                 .theme(options.theme.map(Theme::from))
                 .pre_class(options.pre_class)
                 .pre_attrs(attr_values(options.pre_attrs))
@@ -655,6 +676,7 @@ fn render_events(
             let options: HtmlLinkedOptions = serde_json::from_value(formatter.options)?;
             HtmlLinkedBuilder::new()
                 .language(language)
+                .structure(options.structure.into())
                 .pre_class(options.pre_class)
                 .pre_attrs(attr_values(options.pre_attrs))
                 .code_attrs(attr_values(options.code_attrs))

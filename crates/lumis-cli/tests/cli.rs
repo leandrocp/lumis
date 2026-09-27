@@ -1103,6 +1103,75 @@ fn highlight_source_html_inline_routes_parity_options() {
 }
 
 #[test]
+fn inline_structure_writes_only_the_spans_and_ignores_block_options() {
+    let formatters: [&[&str]; 3] = [
+        &["-f", "html-inline", "-t", "dracula"],
+        &["-f", "html-linked"],
+        &[
+            "-f",
+            "html-multi-themes",
+            "--themes",
+            "light:github_light",
+            "--themes",
+            "dark:github_dark",
+            "--default-theme",
+            "light-dark()",
+        ],
+    ];
+
+    for formatter in formatters {
+        let highlight = |block_options: &[&str]| {
+            let output = cmd()
+                .arg("--data-dir")
+                .arg(fixtures_dir())
+                .args(["highlight", "-l", "diff", "--structure", "inline"])
+                .args(formatter)
+                .args(block_options)
+                .write_stdin(DIFF_SNIPPET)
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            String::from_utf8(output).unwrap()
+        };
+
+        let spans = highlight(&[]);
+        assert!(spans.starts_with("<span "), "{formatter:?}: {spans}");
+        assert!(!spans.contains("<pre"), "{formatter:?}: {spans}");
+        assert!(!spans.contains("<code"), "{formatter:?}: {spans}");
+        assert!(!spans.contains("l-line"), "{formatter:?}: {spans}");
+        assert_eq!(
+            spans.split('\n').count(),
+            DIFF_SNIPPET.lines().count(),
+            "{formatter:?}: one `\\n` between lines and none after the last"
+        );
+
+        assert_eq!(
+            highlight(&[
+                "--pre-class",
+                "custom",
+                "--pre-attr",
+                "id=pre",
+                "--code-attr",
+                "id=code",
+                "--header-open",
+                "<figure>",
+                "--header-close",
+                "</figure>",
+                "-H",
+                "1",
+                "--highlight-lines-class",
+                "selected",
+                "--line-numbers",
+            ]),
+            spans,
+            "{formatter:?}"
+        );
+    }
+}
+
+#[test]
 fn highlight_source_diff_html_linked() {
     cmd()
         .arg("--data-dir")
@@ -1719,6 +1788,18 @@ fn highlight_rejects_an_option_the_chosen_formatter_ignores() {
             "HTML options apply to: html-inline, html-linked, html-multi-themes",
         ))
         .stderr(predicate::str::contains("lumis formatters show terminal"));
+}
+
+#[test]
+fn highlight_rejects_a_structure_for_a_formatter_that_writes_no_html() {
+    cmd()
+        .args(["highlight", "-l", "diff", "--structure", "inline"])
+        .write_stdin(DIFF_SNIPPET)
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "`--structure` is not accepted by the `terminal` formatter",
+        ));
 }
 
 #[test]

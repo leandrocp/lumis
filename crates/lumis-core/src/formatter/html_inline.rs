@@ -53,6 +53,11 @@ impl Default for HighlightLines {
 pub struct HtmlInline {
     #[builder(setter(custom))]
     language: Language,
+    /// `Block` writes a `<pre><code>` block; `Inline` writes only the token
+    /// spans, for markup the page already owns. See [`HtmlStructure`].
+    ///
+    /// [`HtmlStructure`]: crate::formatter::html::HtmlStructure
+    structure: crate::formatter::html::HtmlStructure,
     theme: Option<Theme>,
     pre_class: Option<String>,
     pre_attrs: crate::formatter::html::HtmlAttrs,
@@ -96,6 +101,7 @@ impl HtmlInline {
     ) -> Self {
         Self {
             language,
+            structure: crate::formatter::html::HtmlStructure::Block,
             theme,
             pre_class,
             pre_attrs: Vec::new(),
@@ -195,6 +201,7 @@ impl Default for HtmlInline {
     fn default() -> Self {
         Self {
             language: Language::PlainText,
+            structure: crate::formatter::html::HtmlStructure::Block,
             theme: None,
             pre_class: None,
             pre_attrs: Vec::new(),
@@ -242,6 +249,16 @@ impl HtmlInline {
         output: &mut dyn Write,
         exhausted: Option<super::BudgetExhausted>,
     ) -> io::Result<()> {
+        if self.structure == crate::formatter::html::HtmlStructure::Inline {
+            return crate::formatter::html::write_html_spans(
+                output,
+                source,
+                events,
+                self.language,
+                &|scope_index, language| self.span_attrs_from_index(scope_index, language),
+            );
+        }
+
         if let Some(ref header) = self.header {
             write!(output, "{}", header.open_tag)?;
         }
@@ -270,6 +287,7 @@ impl HtmlInline {
             source,
             events,
             &crate::formatter::html::HtmlLines {
+                structure: crate::formatter::html::HtmlStructure::Block,
                 language: self.language,
                 selection: &self.line_selection(),
                 numbered: self.line_numbers,

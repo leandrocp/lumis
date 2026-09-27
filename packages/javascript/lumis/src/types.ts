@@ -632,6 +632,20 @@ export type HighlightCallback = (
 export type HtmlAttrs = Record<string, string | number | boolean | undefined | null>;
 
 /**
+ * What an HTML formatter writes around the highlighted tokens.
+ *
+ * - `"block"`: `<pre><code>` holding one `<span class="l-line">` per line.
+ * - `"inline"`: the token spans and the text between them, and nothing else.
+ *   Lines are separated by `\n` and the last one has no terminator, as in a
+ *   block. `preClass`, `preAttrs`, `codeAttrs`, `highlightLines`,
+ *   `lineNumbers` and `header` have no effect. The theme's text and background
+ *   color are not written either, because a block writes them on its `<pre>`;
+ *   put `preAttrs()` or `multiThemesPreAttrs()` on your own element to keep
+ *   them.
+ */
+export type HtmlStructure = "block" | "inline";
+
+/**
  * Options for {@link htmlInline}.
  *
  * ```ts
@@ -640,6 +654,12 @@ export type HtmlAttrs = Record<string, string | number | boolean | undefined | n
  */
 export interface HtmlInlineOptions {
   language?: LanguageRef;
+  /**
+   * What to write around the highlighted tokens. `"block"`, the default, is a
+   * `<pre><code>` block. `"inline"` is the token spans alone, for a `<code>` or
+   * other element the page already owns; see {@link HtmlStructure}.
+   */
+  structure?: HtmlStructure;
   theme?: Theme;
   preClass?: string;
   /** Attributes merged into the wrapping `<pre>` tag. */
@@ -667,6 +687,12 @@ export interface HtmlInlineFormatter extends Formatter, HtmlInlineOptions {}
  */
 export interface HtmlLinkedOptions {
   language?: LanguageRef;
+  /**
+   * What to write around the highlighted tokens. `"block"`, the default, is a
+   * `<pre><code>` block. `"inline"` is the token spans alone, for a `<code>` or
+   * other element the page already owns; see {@link HtmlStructure}.
+   */
+  structure?: HtmlStructure;
   preClass?: string;
   /** Attributes merged into the wrapping `<pre>` tag. */
   preAttrs?: HtmlAttrs;
@@ -693,6 +719,12 @@ export interface HtmlLinkedFormatter extends Formatter, HtmlLinkedOptions {}
  */
 export interface HtmlMultiThemesOptions {
   language?: LanguageRef;
+  /**
+   * What to write around the highlighted tokens. `"block"`, the default, is a
+   * `<pre><code>` block. `"inline"` is the token spans alone, for a `<code>` or
+   * other element the page already owns; see {@link HtmlStructure}.
+   */
+  structure?: HtmlStructure;
   themes: Record<string, Theme>;
   /**
    * Theme whose colors are inlined as defaults.
