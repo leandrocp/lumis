@@ -591,8 +591,10 @@ colors it. The stylesheet's line layout rules only apply inside `pre.lumis`, so
 they leave inline code alone.
 
 `light-dark()` colors from HTML Multi-Themes follow the `color-scheme` of the
-element they are in, as they do in a block. See
-[Light/Dark Mode](/recipes/light-dark).
+element they are in, as they do in a block. Leave it unset to inherit the page's
+choice, or set `color-scheme: light dark` on your element to follow the OS
+preference. Inline output ignores `pre_attrs` and `code_attrs`; put the scheme
+on your own element. See [Light/Dark Mode](/recipes/light-dark#inline-code).
 
 ## Terminal
 

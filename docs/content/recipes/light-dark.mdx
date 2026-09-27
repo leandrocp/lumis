@@ -12,13 +12,13 @@ keywords:
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 
-The multi-themes formatter renders one HTML block with CSS variables for each theme. You control which theme is active with CSS. There are three approaches, from simplest to most flexible.
+The multi-themes formatter renders one HTML block with CSS variables for each theme. You control which theme is active with CSS.
 
 ## 1. CSS `light-dark()` function
 
-The simplest option. The browser switches colors automatically based on the OS theme. Requires `color-scheme: light dark` on the root element.
+`light-dark()` selects colors using the element's `color-scheme`, which is inherited from its parent. Lumis leaves that property unset so code follows the page's theme, including a manual light/dark toggle. If the page has not enabled a color scheme, the light colors are used.
 
-Required CSS for the rendered HTML output:
+To follow the OS preference throughout the page, set:
 
 ```css
 html {
@@ -26,7 +26,21 @@ html {
 }
 ```
 
-That switches `color` and `background-color` with no JavaScript and no media query, on every runtime that supports HTML Multi-Themes output. `lumis4j` does not support this formatter, and the CLI only generates the HTML; your app or page still needs to provide the CSS.
+For a manual toggle, set `color-scheme: light` or `color-scheme: dark` on the page or the section containing the code:
+
+```css
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+```
+
+A page-wide rule is optional. To follow the OS preference for one code block, use the [block attributes below](#opt-a-block-into-os-switching). A local `color-scheme: light dark` makes that block follow the OS even when its parent selects only light or dark, so omit it when the block should follow the page's toggle.
+
+This switches `color` and `background-color` on every runtime that supports HTML Multi-Themes output. `lumis4j` does not support this formatter, and the CLI generates HTML for a browser to render.
 
 `light-dark()` is a [color function](https://drafts.csswg.org/css-color-5/#light-dark), so those two properties are all it covers. `font-weight`, `font-style` and `text-decoration` are handled by whether your two themes agree:
 
@@ -55,6 +69,10 @@ No `!important`, and you should not add one. A disputed property is deliberately
 
 The trade-off is that a disputed property renders in neither scheme until you add those rules. That is the same choice [Shiki](https://shiki.style/guide/dual-themes) makes, and it is the only one that keeps the generated HTML from dictating your cascade.
 
+### Opt a block into OS switching
+
+These examples add `color-scheme: light dark` to the block's `<pre>` through `pre_attrs` (`preAttrs` in JavaScript). It applies to the block and its scrollbar without changing form controls or scrollbars elsewhere on the page.
+
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
 
@@ -71,6 +89,7 @@ const html = await highlight(
     language: javascript,
     themes: {light: latte, dark: frappe},
     defaultTheme: 'light-dark()',
+    preAttrs: {style: 'color-scheme: light dark;'},
   })
 )
 ```
@@ -101,6 +120,7 @@ let html = highlight(
         .language(Language::JavaScript)
         .themes(theme_map)
         .default_theme("light-dark()")
+        .pre_attrs(vec![("style".into(), "color-scheme: light dark;".into())])
         .build()
         .unwrap(),
 );
@@ -119,7 +139,8 @@ Lumis.highlight!(
        light: "catppuccin_latte",
        dark: "catppuccin_frappe"
      ],
-     default_theme: "light-dark()"}
+     default_theme: "light-dark()",
+     pre_attrs: [style: "color-scheme: light dark;"]}
 )
 ```
 
@@ -136,11 +157,24 @@ lumis highlight index.js \
   --formatter html-multi-themes \
   --themes light:catppuccin_latte \
   --themes dark:catppuccin_frappe \
-  --default-theme "light-dark()"
+  --default-theme "light-dark()" \
+  --pre-attr 'style=color-scheme: light dark;'
 ```
 
   </Tab>
 </Tabs>
+
+### Inline code
+
+With `structure: "inline"`, Lumis emits only token spans and ignores `pre_attrs` and `code_attrs`. The spans inherit `color-scheme` from the element you put them in. Leave that element's scheme unset to follow the page, or opt it into OS switching:
+
+```html
+<code style="color-scheme: light dark;">
+  <!-- Insert the inline spans from Lumis here. -->
+</code>
+```
+
+Setting the scheme does not add the theme's text or background color to your element. See [Keeping the theme's colors](/formatters#keeping-the-themes-colors) for the attribute helpers that supply them.
 
 ## 2. `@media (prefers-color-scheme)` with CSS variables
 
@@ -374,6 +408,6 @@ lumis highlight index.js \
 
 | Approach | When to use |
 | --- | --- |
-| `light-dark()` | Simplest. OS-driven. No JS, and no CSS beyond `color-scheme` unless your two themes disagree on font weight, font style or text decoration. |
+| `light-dark()` | Follows the element's `color-scheme`: OS preference with `light dark`, or a page-selected `light` or `dark`. Extra CSS handles any font properties the themes disagree on. |
 | `@media prefers-color-scheme` | OS-driven but you need the CSS override pattern (wider browser support). |
 | Manual switching | User-controlled toggle independent of OS setting. |

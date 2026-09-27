@@ -83,7 +83,8 @@
 //!
 //! **Option 4: CSS `light-dark()` function (modern browsers)**
 //!
-//! For browsers that support the [CSS `light-dark()` function](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark), you can use a more elegant approach:
+//! Use the [CSS `light-dark()` function](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark)
+//! to select colors from the element's `color-scheme`:
 //!
 //! ```rust
 //! use lumis::{HtmlMultiThemesBuilder, languages::Language, themes, formatters::Formatter};
@@ -111,8 +112,20 @@
 //! <span style="color: light-dark(#6a737d, #8b949e); --lumis-dark-font-style:normal; --lumis-light-font-style:italic;">comment</span>
 //! ```
 //!
-//! The browser selects the color based on `color-scheme` or `prefers-color-scheme`,
-//! with no additional CSS required.
+//! Lumis leaves `color-scheme` unset so it inherits from the page. Set
+//! `color-scheme: light dark` on the page to follow the OS preference, or
+//! `color-scheme: light` / `color-scheme: dark` for a manual theme selection.
+//! If the page has not enabled a color scheme, the light colors are used.
+//!
+//! To opt just a block into OS switching, add
+//! `.pre_attrs(vec![("style".into(), "color-scheme: light dark;".into())])`
+//! to the builder. This overrides an inherited light-only or dark-only choice,
+//! so omit it when the block should follow the page's toggle.
+//!
+//! With `.structure(HtmlStructure::Inline)`, put `color-scheme` on your own
+//! element if needed. Only token spans are emitted; `pre_attrs` and `code_attrs`
+//! are ignored. See the [light/dark recipe](https://docs.lumis.sh/recipes/light-dark)
+//! for block and inline examples.
 //!
 //! That covers `color` and `background-color`, the only properties `light-dark()` is
 //! defined over. `font-weight`, `font-style` and `text-decoration` follow a value the
@@ -135,6 +148,9 @@
 //!   }
 //! }
 //! ```
+//!
+//! If the page selects a scheme independently of the OS, use selectors matching
+//! that selection instead of the media query so font styles follow the colors.
 //!
 //! No `!important`, and none is wanted: a disputed property is left out of the style
 //! attribute, so these rules have nothing inline to outrank, and they stay where your

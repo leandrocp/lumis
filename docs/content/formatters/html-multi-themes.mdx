@@ -188,7 +188,9 @@ Controls what color values appear inline (not just as CSS variables):
 | --- | --- |
 | omitted / `null` | CSS variables only, no inline colors |
 | `"light"` | Inline colors from the `light` theme, CSS variables for all themes |
-| `"light-dark()"` | Uses CSS `light-dark()` function for automatic OS-level switching |
+| `"light-dark()"` | Uses CSS `light-dark()` to select colors from the element's `color-scheme` |
+
+Lumis leaves `color-scheme` unset so the output follows the page's theme. Use `light dark` on the page to follow the OS, or `light` / `dark` to select one scheme. To opt just a block into OS switching, set `preAttrs: {style: 'color-scheme: light dark;'}`; this overrides an inherited light-only or dark-only choice. See [Light/Dark Mode](/recipes/light-dark) for all runtimes and inline code.
 
 ### What `light-dark()` covers
 
