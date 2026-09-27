@@ -18,6 +18,9 @@ const theme = {
   },
 } satisfies Theme;
 
+const layoutCss =
+  "pre { font: 16px/20px monospace; width: 300px; overflow-x: auto; margin: 0; } code { font: inherit; }";
+
 const cases = {
   basic: "a = 1\nb = 2\nc = 3",
   empty: "a = 1\n\nc = 3",
@@ -67,9 +70,7 @@ for (const [name, highlightLines] of Object.entries(adjacentHighlights)) {
     render(`short\n\n${"long ".repeat(60)}`, true, highlightLines),
   )) {
     test(`${formatter}: adjacent highlighted rows, ${name}`, async ({ page }) => {
-      await page.setContent(
-        `<style>pre { font: 16px/20px monospace; width: 300px; overflow-x: auto; margin: 0; } code { font: inherit; } ${css}</style>${html}`,
-      );
+      await page.setContent(`<style>${layoutCss} ${css}</style>${html}`);
       const result = await page.locator("code").evaluate((code) => {
         const rows = [...code.querySelectorAll<HTMLElement>(":scope > .l-line")];
         const pre = code.parentElement!;
@@ -113,9 +114,7 @@ for (const [name, source] of Object.entries(cases)) {
         const report = await validator.validateString(html);
         expect(report.results.flatMap((result) => result.messages)).toEqual([]);
 
-        await page.setContent(
-          `<style>pre { font: 16px/20px monospace; width: 300px; overflow-x: auto; margin: 0; } code { font: inherit; } ${css}</style>${html}`,
-        );
+        await page.setContent(`<style>${layoutCss} ${css}</style>${html}`);
         const lines = source.replaceAll("\r\n", "\n").split("\n");
         if (source.endsWith("\n")) lines.pop();
         const expected = lines.join("\n");
@@ -173,3 +172,141 @@ for (const [name, source] of Object.entries(cases)) {
     }
   }
 }
+
+test.describe("theme layout regressions", () => {
+  const wrappingCases = {
+    words: "long ".repeat(60).trimEnd(),
+    token: "a".repeat(300),
+  };
+
+  for (const [name, longLine] of Object.entries(wrappingCases)) {
+    const source = `short\n\n${longLine}`;
+    for (const numbered of [false, true]) {
+      for (const [formatter, { html, css }] of Object.entries(
+        render(source, numbered, { lines: [1, 2, 3] }),
+      )) {
+        test(`${formatter}: pre-wrap ${name}, line numbers ${numbered}`, async ({ page }) => {
+          await page.setContent(
+            `<style>${layoutCss} pre { white-space: pre-wrap; } ${css}</style>${html}`,
+          );
+          const result = await page.locator("pre").evaluate((pre) => {
+            const code = pre.querySelector("code")!;
+            return {
+              width: pre.clientWidth,
+              scrollWidth: pre.scrollWidth,
+              codeWidth: code.getBoundingClientRect().width,
+              height: code.getBoundingClientRect().height,
+              innerText: code.innerText,
+              textContent: code.textContent,
+              rows: [...code.querySelectorAll<HTMLElement>(":scope > .l-line")].map((row) => {
+                const rect = row.getBoundingClientRect();
+                return {
+                  height: rect.height,
+                  width: rect.width,
+                  top: rect.top,
+                  bottom: rect.bottom,
+                };
+              }),
+            };
+          });
+          const expectedText = source
+            .split("\n")
+            .map((line, index) => `${numbered ? index + 1 : ""}${line}`)
+            .join("\n");
+
+          expect(result.rows).toHaveLength(3);
+          expect(result.innerText).toBe(expectedText);
+          expect(result.textContent).toBe(expectedText);
+          expect(result.scrollWidth).toBeLessThanOrEqual(result.width + 1);
+          expect(result.codeWidth).toBeCloseTo(result.width, 0);
+          expect(result.rows[0].height).toBeCloseTo(20, 0);
+          expect(result.rows[1].height).toBeCloseTo(20, 0);
+          expect(result.rows[2].height).toBeGreaterThan(20);
+          for (const row of result.rows) expect(row.width).toBeCloseTo(result.width, 0);
+          expect(result.rows[1].top).toBeCloseTo(result.rows[0].bottom, 0);
+          expect(result.rows[2].top).toBeCloseTo(result.rows[1].bottom, 0);
+          expect(result.height).toBeCloseTo(
+            result.rows.reduce((total, row) => total + row.height, 0),
+            0,
+          );
+        });
+      }
+    }
+  }
+
+  test("legacy div lines retain their block layout", async ({ page }) => {
+    // Deliberately keep the invalid legacy markup; new CSS must not reflow it.
+    const html =
+      '<pre class="lumis"><code><div class="l-line">one\n</div>' +
+      '<div class="l-line l-highlighted">two\n</div>' +
+      '<div class="l-line">three</div></code></pre>';
+    await page.setContent(`<style>${layoutCss} ${buildCss(theme)}</style>${html}`);
+    const result = await page.locator("pre").evaluate((pre) => ({
+      height: pre.getBoundingClientRect().height,
+      text: pre.textContent,
+      rows: [...pre.querySelectorAll("code > .l-line")].map((row) => ({
+        tag: row.tagName,
+        display: getComputedStyle(row).display,
+        height: row.getBoundingClientRect().height,
+      })),
+    }));
+
+    expect(result.text).toBe("one\ntwo\nthree");
+    expect(result.height).toBeCloseTo(60, 0);
+    expect(result.rows).toEqual([
+      { tag: "DIV", display: "block", height: 20 },
+      { tag: "DIV", display: "block", height: 20 },
+      { tag: "DIV", display: "block", height: 20 },
+    ]);
+  });
+
+  test("line spans in inline code do not become block rows", async ({ page }) => {
+    await page.setContent(
+      `<style>${layoutCss} p { font: 16px/20px monospace; width: 300px; } ${buildCss(theme)}</style><p>before <code><span class="l-line">inline</span></code> after</p>`,
+    );
+    await expect(page.locator("code")).toHaveCSS("display", "inline");
+    await expect(page.locator(".l-line")).toHaveCSS("display", "inline");
+    const result = await page.locator("p").evaluate((paragraph) => ({
+      height: paragraph.getBoundingClientRect().height,
+      text: paragraph.textContent,
+    }));
+    expect(result.height).toBeCloseTo(20, 0);
+    expect(result.text).toBe("before inline after");
+  });
+
+  for (const position of ["before", "after"]) {
+    test(`unlayered CSS overrides layout ${position} the theme`, async ({ page }) => {
+      const { html, css } = render(cases.basic, false).linked;
+      const override = ".l-line { min-height: 30px; }";
+      const styles = position === "before" ? `${override} ${css}` : `${css} ${override}`;
+      await page.setContent(`<style>${layoutCss} ${styles}</style>${html}`);
+      const rows = page.locator("code > .l-line");
+      await expect(rows).toHaveCount(3);
+      for (const row of await rows.all()) await expect(row).toHaveCSS("min-height", "30px");
+      const height = await page
+        .locator("code")
+        .evaluate((code) => code.getBoundingClientRect().height);
+      expect(height).toBeCloseTo(90, 0);
+    });
+  }
+
+  for (const [order, minHeight] of [
+    ["lumis, utilities", 32],
+    ["utilities, lumis", 20],
+  ] as const) {
+    test(`utility layer follows the declared order: ${order}`, async ({ page }) => {
+      const { html, css } = render(cases.basic, false, {
+        lines: [2],
+        class: "min-h-8",
+      }).linked;
+      await page.setContent(
+        `<style>@layer ${order}; ${layoutCss} @layer utilities { .min-h-8 { min-height: 32px; } } ${css}</style>${html}`,
+      );
+      await expect(page.locator("code > .min-h-8")).toHaveCSS("min-height", `${minHeight}px`);
+      const height = await page
+        .locator("code")
+        .evaluate((code) => code.getBoundingClientRect().height);
+      expect(height).toBeCloseTo(40 + minHeight, 0);
+    });
+  }
+});
