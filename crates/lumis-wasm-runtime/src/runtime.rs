@@ -686,6 +686,11 @@ impl Runtime {
         let loaded = self.load_through_store(name_or_alias)?;
         let mut lease = self.workers.lease()?;
         let parser = lease.worker().highlighter.parser();
+        // A highlight on this worker left the parser narrowed to the last
+        // injection it parsed, and `set_language` does not widen it again.
+        parser
+            .set_included_ranges(&[])
+            .map_err(|error| RuntimeError::TreeSitter(error.to_string()))?;
         parser
             .set_language(&loaded.highlight.language)
             .map_err(|error| RuntimeError::Parser {
@@ -1784,5 +1789,23 @@ mod tests {
             let events = runtime.highlight(source, "elixir", false).unwrap();
             assert!(!events.is_empty(), "highlighting produced no events");
         }
+    }
+
+    #[test]
+    fn parse_tree_covers_the_whole_document_after_a_highlight_with_injections() {
+        let runtime = Runtime::with_worker_limit(1).unwrap();
+        install_json(
+            &runtime,
+            r#"((string_content) @injection.content
+               (#set! injection.language "json"))"#,
+        );
+        let source = r#"{"a": "[1, 2]"}"#;
+        let fresh = runtime.parse_tree(source, "json").unwrap();
+
+        runtime.highlight(source, "json", false).unwrap();
+        let after = runtime.parse_tree(source, "json").unwrap();
+
+        assert_eq!(after.root_node().byte_range(), 0..source.len());
+        assert_eq!(after.root_node().to_sexp(), fresh.root_node().to_sexp());
     }
 }
