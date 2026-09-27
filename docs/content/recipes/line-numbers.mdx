@@ -83,8 +83,8 @@ lumis highlight main.rs \
   </Tab>
 </Tabs>
 
-The number is the one every line already carries: HTML's `data-line` and
-`highlight_lines` name the same line.
+Line numbers correspond to HTML's `data-line` attribute and the numbers
+accepted by `highlight_lines`.
 
 ## What each formatter renders
 
@@ -143,15 +143,15 @@ recolors the highlighted gutter along with the rest. To recolor only the lines
 that are not highlighted, and to win regardless of order, add the same `:not()`
 the theme rule carries.
 
-Without `line_numbers`, nothing is added: `data-line` is on every line as it
-always has been, and the CSS-only approach still works.
+With `line_numbers` disabled, HTML contains no gutter elements. Each line has a
+`data-line` attribute, which you can use to display numbers with CSS:
 
 ```css
 .l-line::before { content: attr(data-line); }
 ```
 
-`innerText` and `textContent` still include the gutter's text; `user-select`
-only affects selection. For a copy button, use the original source rather than
+`innerText` and `textContent` include the gutter's text; `user-select` affects
+selection only. For a copy button, use the original source rather than
 either property. That also preserves CRLF and final newlines exactly. Chromium
 may omit trailing blank rows from selection copy when they contain only gutters.
 

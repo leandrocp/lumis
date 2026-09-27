@@ -111,7 +111,7 @@ See [CSS Theme Files](/themes/css-files) for the full setup.
 
 ## Output format
 
-HTML Linked keeps the same block structure, but token styling moves to CSS classes instead of inline styles:
+HTML Linked wraps each line in a span and uses CSS classes for token styling:
 
 ```html
 <pre class="lumis"><code class="language-javascript" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-keyword">const</span> <span class="l-variable">x</span></span></code></pre>
@@ -125,12 +125,14 @@ HTML Linked keeps the same block structure, but token styling moves to CSS class
 - A final source newline ends its line rather than adding an empty numbered line
 - `<span class="...">` carries semantic highlight classes such as `l-keyword` or `l-string`
 
-The theme stylesheet lays the lines out: each one spans the full width, an empty
-line keeps its height, and line numbers stay out of copied text. Those rules sit
-in `@layer lumis`, so your own CSS overrides them; with Tailwind, see
-[Tailwind CSS](/recipes/tailwind-css). Use the stylesheet from the same Lumis
-version as the formatter, and don't set `.l-line` to `display: block` or lay the lines out as a
-grid. [Line layout](/themes/css-files#line-layout) explains why.
+The theme stylesheet gives each line the full code-block width, keeps empty
+lines one row tall, and excludes line numbers from selection copy. Layout rules
+use `@layer lumis`, so unlayered CSS can override them. See
+[Line layout](/themes/css-files#line-layout) for custom line styles and
+[Tailwind CSS](/recipes/tailwind-css) for cascade-layer ordering.
+
+For CSS or formatters written for line divs, see
+[HTML line markup migration](/migrate/html-lines).
 
 ## When to use it
 

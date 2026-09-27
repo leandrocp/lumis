@@ -18,6 +18,9 @@ Declaring parsers makes output reproducible. The set is in a file you already
 review, pinned by a lock you already have, so every machine renders the same
 document with the same parsers, and the lock records which parser produced it.
 
+For an Elixir application that downloaded parsers before 0.9, see
+[Upgrading to 0.9](/migrate/elixir#upgrading-to-09).
+
 ## One rule, one place to look
 
 Every runtime resolves parsers the same way: **only the ones the project

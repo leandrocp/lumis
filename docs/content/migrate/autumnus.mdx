@@ -1,0 +1,34 @@
+---
+title: Autumnus to Lumis
+description: Rename the Rust autumnus dependency and imports to lumis.
+---
+
+The Rust `autumnus` crate was renamed to `lumis`. The original rename was from
+Autumnus 0.8 to Lumis 0.1; the examples below show that transition. For a newer
+Lumis release, use the version listed in [Installation](/installation).
+
+## Change the dependency
+
+Replace the `autumnus` entry in `Cargo.toml`:
+
+```toml title="Before"
+[dependencies]
+autumnus = "0.8"
+```
+
+```toml title="After"
+[dependencies]
+lumis = "0.1"
+```
+
+## Change imports
+
+Replace the crate name in imports and qualified paths:
+
+```rust title="Before"
+use autumnus::*;
+```
+
+```rust title="After"
+use lumis::*;
+```

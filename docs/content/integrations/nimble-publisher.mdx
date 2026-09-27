@@ -54,14 +54,13 @@ import Config
 config :mdex_native, syntax_highlighter: :lumis
 ```
 
-Parsers are dependencies on this path too. Since `mdex_native` 0.2.9 the MDEx
-side runs the same Lumis WASM runtime and reads the same `lumis_wasm_*` packages
-`:lumis` does, so add one per language your posts fence, or a bundle for a set
-of them — a fence whose language the site did not install comes out plain. The
-[language catalog](/reference/languages) has every Hex package name.
+MDEx reads `lumis_wasm_*` parser packages. Add one per language your posts use,
+or a bundle for a set of them. A fence whose language is not installed renders
+as plain text. The [language catalog](/reference/languages) lists the Hex
+package names.
 
-`{:mdex, "~> 0.14"}` carries the 0.2.9 floor. `mdex_native` 0.2.8 and earlier
-compiled grammars into the NIF and needed none of these packages.
+For upgrades from MDEx releases with compiled-in grammars, see
+[MDEx parser packages](/migrate/mdex).
 
 ## Custom converter
 

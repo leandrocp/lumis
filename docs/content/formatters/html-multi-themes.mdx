@@ -196,7 +196,7 @@ Controls what color values appear inline (not just as CSS variables):
 
 ## Output format
 
-HTML Multi-Themes keeps the same HTML structure, but each token carries CSS variables for one or more themes:
+HTML Multi-Themes wraps each line in a span. Tokens carry CSS variables for each configured theme:
 
 ```html
 <pre class="lumis lumis-themes dark light" style="--lumis-light-bg:#eff1f5; --lumis-dark-bg:#303446;"><code class="language-javascript" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="--lumis-dark:#ca9ee6; --lumis-light:#8839ef;">const</span></span></code></pre>
@@ -214,6 +214,9 @@ Line layout and copy protection use inline styles, as in HTML Inline, including
 when colors are supplied only through variables. See
 [Line layout](/themes/css-files#line-layout) for the rules if you supply custom
 CSS.
+
+For CSS or formatters written for line divs, see
+[HTML line markup migration](/migrate/html-lines).
 
 ## Good uses
 

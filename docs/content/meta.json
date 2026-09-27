@@ -12,6 +12,7 @@
     "recipes",
     "cli",
     "advanced",
+    "migrate",
     "reference"
   ]
 }

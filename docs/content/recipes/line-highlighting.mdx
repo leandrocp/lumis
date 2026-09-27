@@ -331,7 +331,6 @@ derived from a scope, so there is nothing to configure; the consumer defines wha
 lumis highlight -f bbcode-scoped -H 1,3-4 main.rs
 ```
 
-Without `highlight_lines` these two formatters emit exactly what they did
-before. Neither carries line structure of its own, so lines only enter the
-stream when there is a line to mark — which is also why a scope spanning a
-newline is closed and reopened once you ask for highlighting, and not before.
+Without `highlight_lines`, Terminal and BBCode emit tokens without line
+wrappers. Line highlighting closes and reopens scopes at line boundaries so it
+can mark individual lines.

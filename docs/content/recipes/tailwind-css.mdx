@@ -19,9 +19,9 @@ come out on top:
 @import "tailwindcss";
 ```
 
-Load the theme stylesheet the way you already do. With `lumis` declared first,
-utilities change the line layout without `!`. This wraps long lines and highlights line 2 with a utility
-class:
+Load a [CSS theme file](/themes/css-files) for `htmlLinked` output. With `lumis`
+declared first, utility classes override the line layout without `!important`.
+This example wraps long lines and highlights line 2 with a utility class:
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
@@ -75,7 +75,7 @@ lumis highlight app.js -f html-linked \
 
 A custom highlight class takes the place of `l-highlighted`, so the theme's
 highlight color stays out of the way and the utility sets the background. The
-line still spans the full width.
+line spans the full code-block width.
 
 Theme colors are not in the layer. To override one with a utility, add the
 important modifier, as in `bg-slate-900!` on the `<pre>`.

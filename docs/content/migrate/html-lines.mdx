@@ -1,0 +1,116 @@
+---
+title: HTML line markup
+description: Update CSS, custom formatters, and copy buttons for content-only line spans.
+keywords:
+  - lumis html migration
+  - line spans
+  - custom formatters
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+Use this guide if your CSS or custom formatter expects a `<div>` for each line,
+or a line terminator inside each wrapper.
+
+The Rust, JavaScript, Elixir, and CLI HTML formatters use
+`<span class="l-line" data-line="N">`. Each span holds only its content. A `\n`
+text node separates consecutive lines, with nothing after the last span:
+
+```html
+<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0"><span class="l-line" data-line="1">first</span>
+<span class="l-line" data-line="2">second</span></code></pre>
+```
+
+Spans are valid phrasing content inside `<pre><code>` and avoid doubled
+newlines in `innerText`. Classes, `data-line`, highlight classes, and gutter
+elements are unchanged.
+
+A final LF or CRLF terminates the last line rather than adding an empty numbered
+line: `"a\n"` renders one line, `"a\n\n"` renders two, and empty input renders one
+empty line. HTML separators are LF. Terminal and BBCode output retain their
+source terminators.
+
+## Custom CSS
+
+Update the bundled theme stylesheet when you update the formatter. If you
+generate CSS with `CssBuilder`, `build_css`, or `buildCss`, regenerate it.
+[Line layout](/themes/css-files#line-layout) lists the structural rules included
+in those stylesheets.
+
+Check your own line rules:
+
+- Replace selectors such as `div.l-line` with `.l-line`.
+- Remove `display: block`. A block line plus its separating newline renders an
+  extra blank row. Use inline or inline-block lines; `code { display: grid }`
+  can leave empty lines out of copied text in some browsers.
+- Add `box-sizing: border-box` if a line has horizontal padding or a border,
+  so it fits within `width: 100%`.
+
+The bundled layout rule targets `span.l-line`, so it does not change the block
+layout of cached HTML that uses divs. Its `fit-content` width supports both
+horizontal scrolling and `white-space: pre-wrap`. Empty rows keep their height.
+
+Layout rules sit in `@layer lumis`. Unlayered CSS overrides them. If your styles
+also use layers, declare `lumis` before those layers; see
+[Tailwind CSS](/recipes/tailwind-css).
+
+HTML Inline and HTML Multi-Themes supply layout styles inline: on highlighted
+and empty lines, on `<code>` when lines are highlighted, and on line-number
+gutters. Disabling highlight colors with `style: nil` (`null` in JavaScript)
+does not disable this layout.
+
+## Custom formatters
+
+`render_lines_from_events` / `renderLinesFromEvents` returns content-only lines.
+Remove any terminator stripping from your formatter. `wrap_line` / `wrapLine`
+wraps a line in a span and adds no newline, so join wrapped lines explicitly:
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+const body = renderLinesFromEvents(source, events, spanAttrs)
+  .map((line, i) => wrapLine(i + 1, line))
+  .join('\n');
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+let body = html::render_lines_from_events(source, &events, |scope, _language| {
+    html::span_linked_attrs(HIGHLIGHT_NAMES[scope])
+})
+.iter()
+.enumerate()
+.map(|(i, line)| html::wrap_line(i + 1, line, None, None))
+.collect::<Vec<_>>()
+.join("\n");
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+body =
+  source
+  |> HTML.render_lines_from_events(events, attrs)
+  |> Enum.with_index(1)
+  |> Enum.map(fn {line, number} -> HTML.wrap_line(number, line) end)
+  |> Enum.intersperse("\n")
+```
+
+  </Tab>
+</Tabs>
+
+Apply the [line layout CSS](/themes/css-files#line-layout) if these wrappers
+need full-width backgrounds. A per-line table, diff view, or stream can use the
+returned content directly without adding separators.
+
+## Copy buttons
+
+Copy the original source when exact text matters. Browsers normalize CRLF, HTML
+output omits the final terminator, and `innerText` / `textContent` include gutter
+text. `user-select: none` excludes numbers from selection copy, not from those
+DOM properties. Chromium can also trim trailing blank rows that contain only
+unselectable gutters. A source-backed copy button avoids these differences.

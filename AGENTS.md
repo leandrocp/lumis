@@ -345,7 +345,8 @@ Docs, specs, and examples are not cleanup work for later. They are part of the f
 
 - Keep README files, package docs, examples, and generated references consistent with the shipped behavior.
 - If a change affects public API, behavior, configuration, or generated outputs, update the relevant docs and examples in the same PR.
-- If writing needs polish, use the available `humanizer` skill before finishing.
+- Significant breaking changes must add a migration guide under `docs/content/migrate/` (`/migrate` on the docs site). Explain what breaks and how to update existing code or configuration. Usage and reference pages describe the current behavior and link to the guide. Move existing upgrade instructions there rather than deleting them.
+- Use the `humanizer` skill when writing or editing documentation.
 
 Prefer concrete explanations over marketing language. Show the real API. Keep examples runnable.
 

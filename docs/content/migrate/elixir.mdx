@@ -1,0 +1,84 @@
+---
+title: Elixir upgrades
+description: Upgrade Elixir applications from Lumis 0.6 and adopt parser dependencies in 0.9.
+keywords:
+  - lumis elixir migration
+  - lumis 0.6
+  - lumis 0.9
+  - parser dependencies
+---
+
+If you're moving from 0.6 to 0.9, follow both sections below. For the current API
+and application setup, see [Elixir usage](/usage/elixir).
+
+## Upgrading from 0.6
+
+In 0.6, highlighting raised when a language had not been loaded, and injected
+languages stayed unhighlighted. Highlighting loads both on demand, so
+`Lumis.Languages.load/1` is an optimization rather than a prerequisite.
+
+Remove `config :lumis, :bundled_languages`. To warm parsers before a request
+needs them, call `Lumis.Languages.async_load/1` from your application's
+`start/2`:
+
+```elixir
+Lumis.Languages.async_load(["markdown", "elixir", "json"])
+```
+
+The function accepts language names or a bundle atom such as `:bundle_web`.
+The warm set belongs beside the application code, not in Lumis configuration.
+See [Warming parsers](/usage/elixir#warming-parsers-during-application-startup)
+for a complete example.
+
+The resolver callbacks and separate WASM paths from 0.6 are also removed. For
+an application targeting 0.9:
+
+| Remove | Use instead |
+| --- | --- |
+| `config :lumis, :wasm_resolver` | Parser dependencies, or `:parser_dirs` for vendored parsers |
+| `config :lumis, :language_package_resolver` | The manifests shipped by installed parser packages |
+| `config :lumis, :wasm_path` | Parser dependencies, or `:parser_dirs` |
+| A release-local `priv/wasm` copy step | The `priv/parsers` directories included by parser dependencies |
+
+Keep `config :lumis, data_dir: "/app/lumis"` or `LUMIS_DATA_DIR` for the compiled
+module cache. In 0.9, this directory does not replace parser dependencies.
+
+## Upgrading to 0.9
+
+Before 0.9, highlighting could download a missing parser. Version 0.9 loads only
+parsers installed by the project. Add the languages your application accepts to
+`mix.exs`:
+
+```elixir title="mix.exs"
+def deps do
+  [
+    {:lumis, "~> 0.9"},
+    {:lumis_wasm_elixir, "~> 0.26.0"},
+    {:lumis_wasm_bundle_web, "~> 0.1"}
+  ]
+end
+```
+
+```bash
+mix deps.get
+```
+
+A parser package includes its WASM bytes, queries, and metadata. `mix.lock`
+pins the versions, and `mix release` includes their `priv/parsers` directories.
+There is no parser download or copy step to add to the release.
+
+A missing root-language parser returns
+`{:error, %Lumis.ParserError{reason: :not_installed, package: package}}`.
+The `package` field names the dependency to add. A missing injected-language
+parser leaves that block as plain text without failing the document.
+
+If you vendor parser packages rather than installing Hex dependencies, point
+Lumis at their directories:
+
+```elixir title="config/config.exs"
+config :lumis, parser_dirs: ["priv/parsers"]
+```
+
+The directory must contain the parser bytes and their matching package
+metadata. See [Declaring parsers](/advanced/lock) for dependency and verification
+rules, and the [language catalog](/reference/languages) for package names.

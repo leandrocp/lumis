@@ -1,0 +1,63 @@
+---
+title: MDEx parser packages
+description: Upgrade MDEx integrations from compiled-in grammars to Lumis parser dependencies.
+keywords:
+  - mdex migration
+  - mdex_native
+  - lumis_wasm
+---
+
+`mdex_native` 0.2.8 and earlier compiled grammars into the NIF.
+From 0.2.9, its Lumis highlighter reads `lumis_wasm_*` parser packages.
+MDEx 0.14 requires that native version or later.
+
+MDEx also makes `:lumis` optional from 0.13. Applications upgrading from a
+release that supplied it automatically must declare it themselves.
+
+## Declare the highlighter and parsers
+
+Add Lumis and the languages your Markdown uses:
+
+```elixir title="mix.exs"
+def deps do
+  [
+    {:mdex, "~> 0.14"},
+    {:lumis, "~> 0.9"},
+    {:lumis_wasm_elixir, "~> 0.26.0"},
+    {:lumis_wasm_bundle_web, "~> 0.1"}
+  ]
+end
+```
+
+Choose the Lumis highlighter before compiling dependencies:
+
+```elixir title="config/config.exs"
+import Config
+
+config :mdex_native, syntax_highlighter: :lumis
+```
+
+A fenced block whose language is not installed renders as plain text. Add its
+parser package or a bundle that contains it; package names are in the
+[language catalog](/reference/languages).
+
+## Start MDEx before compile-time rendering
+
+If a static-site build converts Markdown during `mix compile`, start MDEx
+before converting the first document:
+
+```elixir
+{:ok, _} = Application.ensure_all_started(:mdex)
+```
+
+This makes the installed parser directories available to the highlighter.
+Without it, a build can produce Lumis markup around plain, uncolored code.
+The [NimblePublisher guide](/integrations/nimble-publisher) shows a complete
+converter.
+
+## Check integrations that pin MDEx
+
+Tableau 0.30 requires `mdex ~> 0.11.1`, which cannot resolve alongside
+`mdex ~> 0.14`. Its converter therefore uses the older dependency and parser
+setup. Follow the [Tableau guide](/integrations/tableau) for that release;
+applying the dependency changes above requires a compatible Tableau version.

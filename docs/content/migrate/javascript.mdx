@@ -1,0 +1,49 @@
+---
+title: JavaScript custom languages
+description: Update integrations that supplied their own parser and queries through the JavaScript-only language API.
+---
+
+The JavaScript-only API for combining a custom parser with caller-supplied
+queries was removed. If your integration used it, a language definition cannot
+be carried over unchanged.
+
+## Use a published language package
+
+Import a language from `@lumis-sh/lumis/langs/*`. The language handle identifies
+a package that supplies the parser metadata and matching queries together:
+
+```js
+import { createHighlighter } from '@lumis-sh/lumis';
+import json from '@lumis-sh/lumis/langs/json';
+
+const highlighter = await createHighlighter({ languages: [json] });
+```
+
+Use the [language catalog](/reference/languages) to find a supported language.
+
+## Keep parser bytes local with `withWasm`
+
+`withWasm()` lets you supply the bytes for a published language package. It
+does not accept replacement queries or turn an arbitrary grammar into a Lumis
+language:
+
+```js
+import { createHighlighter, withWasm } from '@lumis-sh/lumis';
+import json from '@lumis-sh/lumis/langs/json';
+import jsonParser from '@lumis-sh/wasm-json';
+
+const highlighter = await createHighlighter({
+  languages: [withWasm(json, jsonParser)],
+});
+```
+
+The bytes must match the size and SHA-256 in the language package. See
+[WASM and CDN](/advanced/wasm-and-cdn#where-a-language-comes-from) for resolution
+and verification rules.
+
+## Unpublished grammars
+
+There is no supported replacement for supplying a grammar and queries that
+Lumis does not publish. If your application needs that capability, changing the
+byte resolver is not enough to upgrade it. A cross-runtime API with a
+package-shaped input is planned, but is not available.
