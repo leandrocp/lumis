@@ -1,5 +1,6 @@
 # Normalize conformance source fixtures across platforms.
 fixtures/conformance/**/source.txt text eol=lf
+fixtures/conformance/rust-crlf-line-comments/*.txt -text whitespace=cr-at-eol
 
 # Generated documentation and source files.
 LANGUAGES.md linguist-generated

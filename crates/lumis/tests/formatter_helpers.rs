@@ -118,6 +118,7 @@ struct HtmlContract {
 #[derive(Debug, Deserialize)]
 struct LineEndingCase {
     source: String,
+    events: Option<Vec<ContractEvent>>,
     expected: Vec<String>,
 }
 
@@ -259,10 +260,15 @@ fn render_lines_preserves_the_shared_line_ending_contract() {
     let input = manifest().contract.html;
 
     for case in input.line_ending_cases {
-        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source {
-            start: 0,
-            end: case.source.len(),
-        }];
+        let events = case.events.as_ref().map_or_else(
+            || {
+                vec![HighlightEvent::Source {
+                    start: 0,
+                    end: case.source.len(),
+                }]
+            },
+            |events| contract_events(events),
+        );
 
         assert_eq!(
             html::render_lines_from_events(&case.source, &events, |_, _| String::new()),

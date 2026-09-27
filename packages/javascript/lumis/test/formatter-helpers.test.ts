@@ -51,7 +51,7 @@ interface Contract {
     defaultHighlightClass: string;
     source: string;
     events: HighlightEvent[];
-    lineEndingCases: Array<{ source: string; expected: string[] }>;
+    lineEndingCases: Array<{ source: string; events?: HighlightEvent[]; expected: string[] }>;
     spanLanguageCases: {
       cases: Array<{ source: string; events: HighlightEvent[]; expected: string[] }>;
     };
@@ -84,7 +84,9 @@ it("preserves the shared line-ending contract", () => {
     expect(
       html.renderLinesFromEvents(
         testCase.source,
-        [{ type: "source", start: 0, end: new TextEncoder().encode(testCase.source).length }],
+        testCase.events ?? [
+          { type: "source", start: 0, end: new TextEncoder().encode(testCase.source).length },
+        ],
         () => "",
       ),
       JSON.stringify(testCase.source),

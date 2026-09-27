@@ -81,7 +81,45 @@
         { "source": "a\n\n", "expected": ["a", ""] },
         { "source": "\n", "expected": [""] },
         { "source": "\n\n", "expected": ["", ""] },
-        { "source": "a\rb", "expected": ["a\rb"] }
+        { "source": "a\rb", "expected": ["a\rb"] },
+        {
+          "source": "a\r\nb",
+          "events": [
+            { "type": "start", "scope": "comment", "language": "rust" },
+            { "type": "source", "start": 0, "end": 2 },
+            { "type": "end" },
+            { "type": "source", "start": 2, "end": 4 }
+          ],
+          "expected": ["<span>a</span>", "b"]
+        },
+        {
+          "source": "a\r\n",
+          "events": [
+            { "type": "start", "scope": "comment", "language": "rust" },
+            { "type": "source", "start": 0, "end": 2 },
+            { "type": "end" },
+            { "type": "source", "start": 2, "end": 3 }
+          ],
+          "expected": ["<span>a</span>"]
+        },
+        {
+          "source": "\r\n",
+          "events": [
+            { "type": "source", "start": 0, "end": 1 },
+            { "type": "source", "start": 1, "end": 2 }
+          ],
+          "expected": [""]
+        },
+        {
+          "source": "a\rb",
+          "events": [
+            { "type": "start", "scope": "comment", "language": "rust" },
+            { "type": "source", "start": 0, "end": 2 },
+            { "type": "end" },
+            { "type": "source", "start": 2, "end": 3 }
+          ],
+          "expected": ["<span>a\r</span>b"]
+        }
       ],
       "spanLanguageCases": {
         "$comment": [

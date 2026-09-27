@@ -1,0 +1,3 @@
+[comment-rust]// hi[/comment-rust]
+[keyword-rust]let[/keyword-rust] [variable-rust]x[/variable-rust] [operator-rust]=[/operator-rust] [number-rust]1[/number-rust][punctuation-delimiter-rust];[/punctuation-delimiter-rust]
+[comment-rust]// bye[/comment-rust]

@@ -1,0 +1,128 @@
+{
+  "name": "rust-crlf-line-comments",
+  "language": "rust",
+  "theme": "dracula",
+  "events": [
+    {
+      "type": "start",
+      "scope": "comment",
+      "language": "rust"
+    },
+    {
+      "type": "source",
+      "start": 0,
+      "end": 6
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 6,
+      "end": 7
+    },
+    {
+      "type": "start",
+      "scope": "keyword",
+      "language": "rust"
+    },
+    {
+      "type": "source",
+      "start": 7,
+      "end": 10
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 10,
+      "end": 11
+    },
+    {
+      "type": "start",
+      "scope": "variable",
+      "language": "rust"
+    },
+    {
+      "type": "source",
+      "start": 11,
+      "end": 12
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 12,
+      "end": 13
+    },
+    {
+      "type": "start",
+      "scope": "operator",
+      "language": "rust"
+    },
+    {
+      "type": "source",
+      "start": 13,
+      "end": 14
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 14,
+      "end": 15
+    },
+    {
+      "type": "start",
+      "scope": "number",
+      "language": "rust"
+    },
+    {
+      "type": "source",
+      "start": 15,
+      "end": 16
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "start",
+      "scope": "punctuation.delimiter",
+      "language": "rust"
+    },
+    {
+      "type": "source",
+      "start": 16,
+      "end": 17
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 17,
+      "end": 19
+    },
+    {
+      "type": "start",
+      "scope": "comment",
+      "language": "rust"
+    },
+    {
+      "type": "source",
+      "start": 19,
+      "end": 26
+    },
+    {
+      "type": "end"
+    },
+    {
+      "type": "source",
+      "start": 26,
+      "end": 27
+    }
+  ]
+}

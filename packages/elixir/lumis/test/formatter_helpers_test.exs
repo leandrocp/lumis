@@ -107,9 +107,12 @@ defmodule Lumis.FormatterHelpersTest do
   defp opening_tag(name, attrs), do: HTML.open_tag(name, attrs)
 
   test "preserves the shared line-ending contract" do
-    for %{"source" => source, "expected" => expected} <-
+    for %{"source" => source, "expected" => expected} = test_case <-
           manifest()["contract"]["html"]["lineEndingCases"] do
-      events = [{:source, %{start: 0, end: byte_size(source)}}]
+      events =
+        test_case
+        |> Map.get("events", [%{"type" => "source", "start" => 0, "end" => byte_size(source)}])
+        |> Enum.map(&event/1)
 
       assert HTML.render_lines_from_events(source, events, %{}) == expected,
              "source #{inspect(source)}"
