@@ -1073,6 +1073,11 @@ fn rainbow_ranges(
         return Ok((Vec::new(), false));
     };
 
+    // The highlight walk narrows this parser to each injection it parses and
+    // leaves it on the last one, and `set_language` does not widen it again.
+    parser
+        .set_included_ranges(&[])
+        .map_err(|error| RuntimeError::TreeSitter(error.to_string()))?;
     parser
         .set_language(&language.highlight.language)
         .map_err(|error| RuntimeError::TreeSitter(error.to_string()))?;

@@ -1,0 +1,4 @@
+// the comment and the template are both injections
+f(g([1]));
+html`<b>(x)</b>`;
+h({ a: [2] });
