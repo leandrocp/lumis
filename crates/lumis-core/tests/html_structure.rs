@@ -21,7 +21,7 @@ fn events() -> Vec<HighlightEvent<'static, ()>> {
     vec![
         HighlightEvent::Start {
             scope_index: string,
-            language: "javascript".to_string(),
+            language: "plaintext".to_string(),
         },
         HighlightEvent::Source { start: 0, end: 5 },
         HighlightEvent::End,
@@ -76,7 +76,7 @@ fn header() -> HtmlElement {
 fn html_inline(block_options: bool) -> impl Formatter<()> {
     let mut builder = HtmlInlineBuilder::new();
     builder
-        .language(Language::JavaScript)
+        .language(Language::PlainText)
         .theme(Some(themes::get("dracula").unwrap()))
         .structure(HtmlStructure::Inline);
     if block_options {
@@ -94,7 +94,7 @@ fn html_inline(block_options: bool) -> impl Formatter<()> {
 fn html_linked(block_options: bool) -> impl Formatter<()> {
     let mut builder = HtmlLinkedBuilder::new();
     builder
-        .language(Language::JavaScript)
+        .language(Language::PlainText)
         .structure(HtmlStructure::Inline);
     if block_options {
         builder
@@ -114,7 +114,7 @@ fn html_linked(block_options: bool) -> impl Formatter<()> {
 fn html_multi_themes(block_options: bool) -> impl Formatter<()> {
     let mut builder = HtmlMultiThemesBuilder::new();
     builder
-        .language(Language::JavaScript)
+        .language(Language::PlainText)
         .themes(light_dark_themes())
         .default_theme("light-dark()")
         .structure(HtmlStructure::Inline);
@@ -180,11 +180,11 @@ fn block_is_the_default_structure() {
     assert_eq!(HtmlStructure::default(), HtmlStructure::Block);
 
     let formatter = HtmlLinkedBuilder::new()
-        .language(Language::JavaScript)
+        .language(Language::PlainText)
         .build()
         .unwrap();
     let explicit = HtmlLinkedBuilder::new()
-        .language(Language::JavaScript)
+        .language(Language::PlainText)
         .structure(HtmlStructure::Block)
         .build()
         .unwrap();
