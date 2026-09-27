@@ -536,9 +536,9 @@ describe("runtime parity", () => {
       // The document still highlights; only the two fences are plain.
       expect(html).toContain('class="language-markdown"');
       expect(warnings.join("\n")).toContain("erlang");
-      // "Load it up front, prefetch it, or use a bundle" is not advice that can
-      // apply to a name which is not a language, and injection queries produce
-      // those routinely: html asks for the raw `<script type=...>` value.
+      // "Load it up front" is not advice that can apply to a name which is not
+      // a language, and injection queries produce those routinely: html asks
+      // for the raw `<script type=...>` value.
       expect(warnings.join("\n")).not.toContain("no-such-language");
     } finally {
       console.warn = warn;

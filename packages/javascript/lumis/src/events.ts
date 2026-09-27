@@ -154,7 +154,7 @@ export function warnUnresolvedInjection(id: string): void {
   warnedUnresolved.add(id);
   console.warn(
     `Lumis could not load "${id}", injected inside the document being highlighted. ` +
-      "Load it up front, or use a bundle. " +
+      "Load it up front. " +
       "See https://docs.lumis.sh/advanced/wasm-and-cdn#highlighting-loads-what-a-document-needs",
   );
 }
