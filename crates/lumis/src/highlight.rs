@@ -396,7 +396,7 @@ pub enum HighlightError {
     EventProcessing(String),
 
     /// An annotation could not be placed in the source.
-    #[error("{0}")]
+    #[error(transparent)]
     Annotation(#[from] AnnotationError),
 
     /// The match limit was outside `1..=`[`MAX_MATCH_LIMIT`].

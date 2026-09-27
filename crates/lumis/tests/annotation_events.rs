@@ -115,10 +115,7 @@ fn event_api_rejects_annotations_that_cannot_be_placed() {
         .unwrap_err();
         assert_eq!(error, HighlightError::Annotation(expected.clone()));
         assert_eq!(error.to_string(), expected.to_string());
-        assert_eq!(
-            std::error::Error::source(&error).unwrap().to_string(),
-            expected.to_string()
-        );
+        assert!(std::error::Error::source(&error).is_none());
     }
 }
 
