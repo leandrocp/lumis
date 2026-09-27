@@ -68,5 +68,5 @@ identical contents. `target/html-line-qa/` contains disposable intermediate data
 Java is explicitly excluded. It is maintained in
 [`roastedroot/lumis4j`](https://github.com/roastedroot/lumis4j), outside this
 repository. Its current bridge pins Lumis 0.9.0 and exposes neither multi-theme
-formatting nor line-number/highlight options, so it cannot exercise this PR's
-current implementation or this matrix.
+formatting nor line-number/highlight options, so it cannot exercise this
+matrix.

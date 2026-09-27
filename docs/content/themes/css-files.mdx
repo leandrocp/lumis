@@ -111,9 +111,44 @@ If the pre-built files do not fit, generate a stylesheet at runtime with the [CS
 ## Line layout
 
 Each theme file ends with a small `@layer lumis` block that lays out the lines.
-`<code>` grows to its longest line, lines stretch to the full width so highlights
-reach the edge, and line numbers stay out of copied text. The
-[migration guide](/formatters/html-line-migration#custom-css) lists the rules.
+The CSS that `CssBuilder`, `build_css` and `buildCss` generate ends with the same
+block:
+
+```css
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+```
+
+`<code>` grows to its longest line, so a highlighted line covers the whole
+scrolled width, and a block wrapped with `white-space: pre-wrap` still wraps at
+its container. `min-height` keeps an empty line one row tall, and
+`vertical-align: top` stops it from sitting on the baseline and stretching the
+row. Line numbers stay out of selection copy.
+
+If your stylesheet targets lines:
+
+- Select lines with `.l-line`; each line is a `<span>`.
+- Keep lines inline or inline-block. A `display: block` line plus the newline
+  after it renders an extra blank row, and `code { display: grid }` makes some
+  engines leave empty lines out of copied text.
+- Add `box-sizing: border-box` when a line has horizontal padding or a border,
+  so it still fits in `width: 100%`.
 
 Your own CSS overrides the block as long as it is not in a layer itself. If it
 is, as with Tailwind v4, declare `lumis` before your layers; see

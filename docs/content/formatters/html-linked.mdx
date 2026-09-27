@@ -128,9 +128,9 @@ HTML Linked keeps the same block structure, but token styling moves to CSS class
 The theme stylesheet lays the lines out: each one spans the full width, an empty
 line keeps its height, and line numbers stay out of copied text. Those rules sit
 in `@layer lumis`, so your own CSS overrides them; with Tailwind, see
-[Tailwind CSS](/recipes/tailwind-css). Update the stylesheet when you update
-Lumis, and don't set `.l-line` to `display: block` or lay the lines out as a
-grid. [HTML line markup migration](/formatters/html-line-migration) explains why.
+[Tailwind CSS](/recipes/tailwind-css). Use the stylesheet from the same Lumis
+version as the formatter, and don't set `.l-line` to `display: block` or lay the lines out as a
+grid. [Line layout](/themes/css-files#line-layout) explains why.
 
 ## When to use it
 

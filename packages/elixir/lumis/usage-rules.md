@@ -623,7 +623,7 @@ Each rendered line contains only content, without LF or CRLF terminators.
 A final newline terminates the last line rather than adding an empty one.
 Wrapped lines are inline spans; join them with `"\n"`. Use `display: inline-block`
 for full-width lines, not `display: block`. See
-[HTML line markup migration](https://docs.lumis.sh/formatters/html-line-migration).
+[Line layout](https://docs.lumis.sh/themes/css-files#line-layout).
 
 Do not hand-roll ANSI color or text-decoration escape sequences either.
 `Lumis.Formatter.ANSI` gives `:terminal`'s pieces:

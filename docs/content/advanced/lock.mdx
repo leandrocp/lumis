@@ -14,12 +14,9 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 A parser is a dependency. You add it, your package manager pins it, and it is
 there — or you did not add it, and it is not.
 
-That is worth saying because it used to be otherwise. Highlighting resolved
-parsers on demand and kept whichever compatible version a machine downloaded
-first, so two machines could render the same document differently and nothing
-recorded which parser produced which output. Declaring them removes the
-question: the set is in a file you already review, pinned by a lock you already
-have.
+Declaring parsers makes output reproducible. The set is in a file you already
+review, pinned by a lock you already have, so every machine renders the same
+document with the same parsers, and the lock records which parser produced it.
 
 ## One rule, one place to look
 

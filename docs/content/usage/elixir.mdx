@@ -182,46 +182,6 @@ Bytes are checked against the size and SHA-256 their package declares before
 use, and anything that fails is discarded rather than trusted, so a corrupted
 store repairs itself.
 
-### Upgrading to 0.9
-
-0.9 loads only the parsers the project installed. A language with no
-`lumis_wasm_*` dependency is no longer fetched, so an application that
-highlighted anything before now names what it serves:
-
-```elixir title="mix.exs"
-def deps do
-  [
-    {:lumis, "~> 0.9"},
-    {:lumis_wasm_elixir, "~> 0.26.0"},
-    {:lumis_wasm_bundle_web, "~> 0.1"}
-  ]
-end
-```
-
-`{:error, %Lumis.ParserError{reason: :not_installed, package: package}}` names
-the one to add for the language that was asked for.
-
-### Upgrading from 0.6
-
-Highlighting used to raise for a language that had not been loaded, and left
-injected languages unhighlighted. It now loads them from the parsers you depend
-on, so `Lumis.Languages.load/1` becomes an optimization rather than a
-requirement.
-
-Four things were removed along with the Elixir-side download code, which now
-lives in the shared Rust store:
-
-| Removed | Use instead |
-| --- | --- |
-| `config :lumis, :bundled_languages` | call `Lumis.Languages.async_load/1` from your `start/2` |
-| `config :lumis, :wasm_resolver` | `config :lumis, data_dir: "/app/lumis"` |
-| `config :lumis, :language_package_resolver` | `config :lumis, data_dir: "/app/lumis"` |
-| release-local `priv/wasm` | `config :lumis, data_dir: "/app/lumis"`, or `LUMIS_DATA_DIR` |
-| `config :lumis, :wasm_path` | one directory now: `config :lumis, data_dir:` |
-
-`async_load/1` takes language names or a `:bundle_*` name rather than reading
-configuration, so the warm set lives beside the code that needs it.
-
 ## Where the precompiled NIF comes from
 
 The NIF ships precompiled, and it is downloaded once while the `lumis` dependency

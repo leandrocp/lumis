@@ -71,14 +71,14 @@ HTML formatters render content-only `span.l-line` elements, separated by LF text
 nodes. A final source newline terminates its line instead of creating an extra
 line element. The per-line HTML helpers follow the same content-only contract;
 custom formatters join wrapped lines explicitly. Terminal and BBCode keep their
-source terminators, so the shared line-decoration event stream is unchanged.
+source terminators; every formatter reads the same line-decoration event stream.
 
 `lumis-core` owns HTML rendering and the generated theme layout. The JavaScript
 port is pinned by `fixtures/formatter-helpers.json` and the conformance corpus;
 Elixir uses the same helpers through its NIF. Theme CSS, inline styles and the
-browser layout tests move with the markup. See
-[the migration guide](docs/content/formatters/html-line-migration.mdx) for custom
-CSS and formatter changes.
+browser layout tests move with the markup. The layout rules are documented in
+[CSS theme files](docs/content/themes/css-files.mdx#line-layout) and the line
+helpers in [custom formatters](docs/content/formatters/custom.mdx).
 
 ## Performance benchmark lane
 
