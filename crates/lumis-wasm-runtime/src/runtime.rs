@@ -797,7 +797,16 @@ impl Runtime {
                     // public id to different packages, each loaded under its own
                     // internal id. Calling this before the shared alias map keeps
                     // one instance from selecting another instance's definition.
-                    match resolve_injected(injected) {
+                    //
+                    // The host may load the language itself before it answers,
+                    // and that load is given back for the same reason as the
+                    // store's below.
+                    let started = Instant::now();
+                    let resolution = resolve_injected(injected);
+                    if let Some(at) = deadline.as_ref() {
+                        at.extend(started.elapsed());
+                    }
+                    match resolution {
                         InjectionResolution::Loaded(resolved) => {
                             if let Some(loaded) = self.loaded(&resolved) {
                                 return Some(&loaded_here.alloc(loaded).highlight);
@@ -1565,6 +1574,40 @@ mod tests {
             !events.is_empty(),
             "the rest of the document still highlights"
         );
+    }
+
+    /// The Node addon loads an installed language from inside the resolver
+    /// callback, so that load has to be given back just like the store's.
+    #[test]
+    fn a_host_load_is_not_charged_to_the_time_budget() {
+        let runtime = Runtime::with_worker_limit(1).unwrap();
+        install_json(
+            &runtime,
+            r#"(pair
+                 value: (string (string_content) @injection.content)
+                 (#set! injection.language "installed"))"#,
+        );
+        // One injection, then enough events after it for the walk to check
+        // the clock.
+        let source = format!(r#"[{{"k":"v"}}{}]"#, r#","s""#.repeat(1_000));
+
+        let output = runtime
+            .highlight_with_resolver(
+                &source,
+                "json",
+                &HighlightOptions {
+                    time_limit_ms: Some(100),
+                    ..HighlightOptions::default()
+                },
+                |_| {
+                    // Stands in for reading and compiling a parser.
+                    thread::sleep(Duration::from_millis(300));
+                    InjectionResolution::Loaded("json".into())
+                },
+            )
+            .unwrap();
+
+        assert_eq!(output.budget, None);
     }
 
     /// html asks for "module" and "importmap" before a later pattern injects

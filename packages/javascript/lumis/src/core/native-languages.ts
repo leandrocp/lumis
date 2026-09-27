@@ -184,6 +184,26 @@ async function readWasmInput(wasm: RuntimeWasmInput): Promise<Uint8Array> {
 const resolverSource = (source: string | URL): string =>
   source instanceof URL ? source.href : source;
 
+/**
+ * Where an installed `@lumis-sh/wasm-*` package keeps its `lumis.json`, if it
+ * ships one.
+ *
+ * Through the package's export map, not its default export: in Node that entry
+ * point *is* the parser bytes, so there was never a URL there to resolve the
+ * manifest against.
+ */
+async function installedManifest(packageName: string): Promise<string | undefined> {
+  const { createRequire } = await import("node:module");
+  const { pathToFileURL } = await import("node:url");
+  const { join } = await import("node:path");
+  const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
+  try {
+    return resolveFromProject.resolve(`${packageName}/lumis.json`);
+  } catch {
+    return undefined;
+  }
+}
+
 export function createNativeLanguagesModule(
   binding: NativeBinding,
   resolvers: LanguagesModule,
@@ -222,11 +242,21 @@ export function createNativeLanguagesModule(
    * coming back to JavaScript — so the TypeScript check cannot see them. Both
    * sides have to know, or an injection would be fetched on Node and refused in
    * the browser.
+   *
+   * With each one's manifest, so an injected language loads from the package
+   * as `loadInstalled` does for the root, rather than through a store that may
+   * not be able to write.
    */
   function tellAddon(): Promise<void> {
     declarationTold ??= (async () => {
       if (!installedPackages) return;
-      binding.setInstalledPackages(await installedPackages());
+      const packages = await installedPackages();
+      const manifests: Record<string, string> = {};
+      for (const packageName of packages) {
+        const manifest = await installedManifest(packageName);
+        if (manifest) manifests[packageName] = manifest;
+      }
+      binding.setInstalledPackages(packages, manifests);
     })();
     return declarationTold;
   }
@@ -476,16 +506,11 @@ export function createNativeLanguagesModule(
       const id = opts.definition.id;
       if (!packageName) return undefined;
       try {
-        // Through the package's export map, not its default export: in Node
-        // that entry point *is* the parser bytes, so there was never a URL
-        // there to resolve the manifest against.
-        const { createRequire } = await import("node:module");
-        const { pathToFileURL } = await import("node:url");
-        const { join } = await import("node:path");
-        const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
-        const manifestUrl = pathToFileURL(resolveFromProject.resolve(`${packageName}/lumis.json`));
+        const manifestPath = await installedManifest(packageName);
+        if (!manifestPath) return undefined;
+        const { fileURLToPath, pathToFileURL } = await import("node:url");
+        const manifestUrl = pathToFileURL(manifestPath);
         const { readFile } = await import("node:fs/promises");
-        const { fileURLToPath } = await import("node:url");
         const read = async (name: string) => readFile(fileURLToPath(new URL(name, manifestUrl)));
 
         const manifest = await read("lumis.json");

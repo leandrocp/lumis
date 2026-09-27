@@ -137,8 +137,11 @@ export interface NativeBinding {
    *
    * Unlike `configureStore` this need not be set before the runtime exists,
    * since the addon reads it per request.
+   *
+   * `manifests` maps a package to its `lumis.json`, which the addon cannot
+   * resolve itself.
    */
-  setInstalledPackages(packages: string[]): void;
+  setInstalledPackages(packages: string[], manifests: Record<string, string>): void;
   /** Where the store lives when `LUMIS_DATA_DIR` names nothing. */
   defaultDataDir(): string;
 }

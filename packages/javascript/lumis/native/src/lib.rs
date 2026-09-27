@@ -325,6 +325,7 @@ fn reject_reentrant_highlight(env: &Env) -> Result<()> {
 static STORE_PATHS: Mutex<StorePaths> = Mutex::new(StorePaths {
     data_dir: None,
     installed_packages: None,
+    installed_manifests: BTreeMap::new(),
     consumed: false,
 });
 
@@ -347,6 +348,10 @@ struct StorePaths {
     /// anything. A package that ships no manifest of its own is still declared,
     /// and still has to be reachable.
     installed_packages: Option<std::collections::HashSet<String>>,
+    /// The `lumis.json` of each installed package that ships one, by package
+    /// name, so a language injected mid-walk loads from the package itself.
+    /// Per request, like `installed_packages`.
+    installed_manifests: BTreeMap<String, PathBuf>,
     /// Set when the runtime read them, which it does exactly once.
     consumed: bool,
 }
@@ -398,12 +403,67 @@ pub fn configure_store(data_dir: Option<String>) -> bool {
 ///
 /// Unlike [`configure_store`] this does not have to be set before the runtime
 /// exists, because `SwitchableFetcher` reads it per request.
+///
+/// `manifests` maps a package to its `lumis.json`. The addon cannot resolve
+/// one itself, since a package sits wherever the package manager put it.
 #[napi(js_name = "setInstalledPackages")]
-pub fn set_installed_packages(packages: Vec<String>) {
-    STORE_PATHS
+pub fn set_installed_packages(packages: Vec<String>, manifests: Option<HashMap<String, String>>) {
+    let mut paths = STORE_PATHS.lock().expect("store path lock poisoned");
+    paths.installed_packages = Some(packages.into_iter().collect());
+    paths.installed_manifests = manifests
+        .unwrap_or_default()
+        .into_iter()
+        .map(|(name, manifest)| (name, PathBuf::from(manifest)))
+        .collect();
+}
+
+/// Load `injected` from the installed package that ships it: the same files
+/// JavaScript reads for the language a document is highlighted in.
+///
+/// Ahead of the store, which could only download that package again and write
+/// it into the data directory, so an installed injection stayed plain offline
+/// or when that directory is read-only. Anything this cannot read, including a
+/// package that ships no manifest, still falls back to the store.
+fn load_installed(runtime: &Runtime, injected: &str) -> InjectionResolution {
+    if runtime.has_language(injected) {
+        return InjectionResolution::Fallback;
+    }
+    let Some(location) = catalog::find(injected) else {
+        return InjectionResolution::Fallback;
+    };
+    let manifest = STORE_PATHS
         .lock()
         .expect("store path lock poisoned")
-        .installed_packages = Some(packages.into_iter().collect());
+        .installed_manifests
+        .get(location.package_name)
+        .cloned();
+    let Some(manifest) = manifest else {
+        return InjectionResolution::Fallback;
+    };
+
+    let loaded = (|| -> Result<String> {
+        let package_json = std::fs::read_to_string(&manifest).map_err(native_error)?;
+        let package =
+            lumis_wasm_runtime::LanguagePackage::from_json(&package_json).map_err(native_error)?;
+        if package.package_name != location.package_name {
+            return Err(native_error(format!(
+                "{} is {}, not {}",
+                manifest.display(),
+                package.package_name,
+                location.package_name
+            )));
+        }
+        let wasm = std::fs::read(manifest.with_file_name(format!("{}.wasm", package.parser.name)))
+            .map_err(native_error)?;
+        let spec = package
+            .language_spec(injected, wasm)
+            .map_err(native_error)?;
+        let id = spec.id.clone();
+        runtime.load_language(spec).map_err(native_error)?;
+        Ok(id)
+    })();
+
+    loaded.map_or(InjectionResolution::Fallback, InjectionResolution::Loaded)
 }
 
 /// The directory the store uses when nothing names one, so Node can defer to the
@@ -836,7 +896,10 @@ fn highlight_events(
             internal_ids
                 .get(&injected.to_ascii_lowercase())
                 .cloned()
-                .map_or(InjectionResolution::Fallback, InjectionResolution::Loaded)
+                .map_or_else(
+                    || load_installed(runtime, injected),
+                    InjectionResolution::Loaded,
+                )
         },
     )?;
     Ok((output.events, output.unresolved, output.budget))
@@ -1099,7 +1162,7 @@ impl NativeRuntime {
             return InjectionResolution::Fallback;
         };
         let Some(package_resolver) = package_resolver else {
-            return InjectionResolution::Fallback;
+            return load_installed(runtime, injected);
         };
         let package_source = {
             let _guard = ResolverCallbackGuard::enter(&env);
