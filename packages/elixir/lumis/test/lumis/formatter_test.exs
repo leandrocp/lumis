@@ -1,6 +1,8 @@
 defmodule Lumis.FormatterTest do
   use ExUnit.Case, async: true
 
+  doctest Lumis.Formatter
+
   defmodule LanguageFormatter do
     @moduledoc false
     @behaviour Lumis.Formatter

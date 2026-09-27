@@ -198,15 +198,25 @@
             ]
           }
         ]
-      },
+      }
+    },
+    "formatter": {
+      "source": "a\nb",
+      "events": [
+        { "type": "annotationStart", "range": { "start": 0, "end": 3 }, "data": "note" },
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "source", "start": 0, "end": 3 },
+        { "type": "end" },
+        { "type": "annotationEnd" }
+      ],
       "lineDataCases": {
         "$comment": [
           "What `lines_from_events` returns for a stream, compared as data. A range",
           "is `{start, end}` in UTF-8 bytes. Every runtime also runs it over",
-          "`lineEndingCases`, where its tokens' text must read as the tags-stripped",
-          "HTML line and each token's range must slice back to its text. The",
-          "annotation events are the ones composition gives for the annotations",
-          "each case describes."
+          "`html.lineEndingCases`, where its tokens' text must read as the HTML",
+          "line with its tags stripped and each token's range must slice back to",
+          "its text. The annotation events are the ones composition gives for the",
+          "annotations each case describes."
         ],
         "cases": [
           {
@@ -407,6 +417,21 @@
     }
   },
   "modules": {
+    "formatter": {
+      "$comment": [
+        "`lumis::formatters` (re-exporting `lumis_core::formatter`),",
+        "`@lumis-sh/lumis/formatters`, and `Lumis.Formatter`: helpers over the",
+        "event stream that belong to no output format. The JavaScript entry also",
+        "exports the built-in formatters, which `formatter-options.json` pins, so",
+        "its test counts those as accounted for."
+      ],
+      "helpers": [
+        {
+          "name": "lines_from_events",
+          "expected": "[{\"annotations\":[\"note\"],\"number\":1,\"tokens\":[{\"language\":\"rust\",\"range\":{\"end\":1,\"start\":0},\"scope\":\"comment\",\"text\":\"a\"}]},{\"annotations\":[\"note\"],\"number\":2,\"tokens\":[{\"language\":\"rust\",\"range\":{\"end\":3,\"start\":2},\"scope\":\"comment\",\"text\":\"b\"}]}]"
+        }
+      ]
+    },
     "html": {
       "$comment": [
         "`lumis::html` (re-exporting `lumis_core::formatter::html`),",
@@ -501,10 +526,6 @@
         {
           "name": "render_lines_from_events",
           "expected": "[\"<span class=\\\"l-keyword\\\">a</span>\",\"<span class=\\\"l-keyword\\\">b</span>\"]"
-        },
-        {
-          "name": "lines_from_events",
-          "expected": "[{\"annotations\":[],\"number\":1,\"tokens\":[{\"language\":\"rust\",\"range\":{\"end\":1,\"start\":0},\"scope\":\"keyword\",\"text\":\"a\"}]},{\"annotations\":[],\"number\":2,\"tokens\":[{\"language\":\"rust\",\"range\":{\"end\":4,\"start\":3},\"scope\":\"keyword\",\"text\":\"b\"}]}]"
         }
       ]
     },
@@ -545,6 +566,9 @@
       }
     },
     "javascript": {
+      "formatter": {
+        "withAttrs": "Derives a built-in HTML formatter carrying extra `<pre>` and `<code>` attributes after it is built. Rust takes the same attributes on the builder and Elixir as formatter options, both before the formatter exists, so neither has a built formatter to derive from."
+      },
       "html": {
         "appendFragment": "See `append_fragment` under rust.",
         "budgetAttrs": "Adds `data-lumis-budget` to the `<pre>` attributes when a limit bound the render. Rust keeps the same helper `pub(crate)`, which ES modules have no equivalent of: the three HTML formatters live in sibling files and can only reach it through an export.",

@@ -20,6 +20,7 @@ defmodule Lumis.FormatterHelpersTest do
   """
   use ExUnit.Case, async: true
 
+  alias Lumis.Formatter
   alias Lumis.Formatter.ANSI
   alias Lumis.Formatter.HTML
   alias Lumis.Theme
@@ -29,7 +30,11 @@ defmodule Lumis.FormatterHelpersTest do
   @manifest_path Path.expand("../../../../fixtures/formatter-helpers.json", __DIR__)
   @external_resource @manifest_path
 
-  @modules %{"html" => Lumis.Formatter.HTML, "ansi" => Lumis.Formatter.ANSI}
+  @modules %{
+    "formatter" => Lumis.Formatter,
+    "html" => Lumis.Formatter.HTML,
+    "ansi" => Lumis.Formatter.ANSI
+  }
 
   # Read at runtime rather than into a module attribute: inlining the decoded
   # JSON gives the compiler a literal type precise enough to warn on `Map.keys/1`.
@@ -182,7 +187,7 @@ defmodule Lumis.FormatterHelpersTest do
         |> Map.get("events", [%{"type" => "source", "start" => 0, "end" => byte_size(source)}])
         |> Enum.map(&event/1)
 
-      lines = HTML.lines_from_events(source, events)
+      lines = Formatter.lines_from_events(source, events)
 
       assert_token_ranges(source, lines)
       assert Enum.map(lines, & &1.number) == Enum.to_list(1..length(expected)//1)
@@ -195,8 +200,8 @@ defmodule Lumis.FormatterHelpersTest do
 
   test "matches the shared line data" do
     for %{"source" => source, "events" => events, "expected" => expected} <-
-          manifest()["contract"]["html"]["lineDataCases"]["cases"] do
-      lines = HTML.lines_from_events(source, Enum.map(events, &event/1))
+          manifest()["contract"]["formatter"]["lineDataCases"]["cases"] do
+      lines = Formatter.lines_from_events(source, Enum.map(events, &event/1))
 
       assert_token_ranges(source, lines)
       assert line_data(lines) == expected, "source #{inspect(source)}"
@@ -275,9 +280,14 @@ defmodule Lumis.FormatterHelpersTest do
             HTML.render_lines_from_events(html["source"], events, %{
               html["scope"] => HTML.span_linked_attrs(html["scope"])
             })
-          ),
+          )
+      },
+      "formatter" => %{
         "lines_from_events" =>
-          html["source"] |> HTML.lines_from_events(events) |> line_data() |> sorted_json()
+          contract["formatter"]["source"]
+          |> Formatter.lines_from_events(Enum.map(contract["formatter"]["events"], &event/1))
+          |> line_data()
+          |> sorted_json()
       },
       "ansi" => %{
         "hex_to_rgb" => ansi["hex"] |> ANSI.hex_to_rgb() |> rgb_string(),

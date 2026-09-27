@@ -18,6 +18,9 @@ use std::io::{self, Write};
 pub mod ansi;
 pub mod html;
 
+mod lines;
+pub use lines::{lines_from_events, Line, Token};
+
 pub mod html_inline;
 pub use html_inline::{HtmlInline, HtmlInlineBuilder};
 

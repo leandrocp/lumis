@@ -26,7 +26,7 @@ use lumis::decorations::Decoration;
 use lumis::events::HighlightEvent;
 use lumis::highlights::HIGHLIGHT_NAMES;
 use lumis::themes::{Style, TextDecoration, Theme, UnderlineStyle};
-use lumis::{ansi, html, languages::Language, themes};
+use lumis::{ansi, formatters, html, languages::Language, themes};
 use serde::Deserialize;
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -87,6 +87,7 @@ struct HelperEntry {
 struct Contract {
     themes: BTreeMap<String, serde_json::Value>,
     html: HtmlContract,
+    formatter: FormatterContract,
     style: StyleContract,
     ansi: AnsiContract,
 }
@@ -113,6 +114,13 @@ struct HtmlContract {
     events: Vec<ContractEvent>,
     line_ending_cases: Vec<LineEndingCase>,
     span_language_cases: SpanLanguageCases,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct FormatterContract {
+    source: String,
+    events: Vec<ContractEvent>,
     line_data_cases: LineDataCases,
 }
 
@@ -321,7 +329,7 @@ fn lines_from_events_preserves_the_shared_line_ending_contract() {
             },
             |events| contract_events(events),
         );
-        let lines = html::lines_from_events(&case.source, &events);
+        let lines = formatters::lines_from_events(&case.source, &events);
 
         assert_token_ranges(&case.source, &lines);
         assert_eq!(
@@ -351,11 +359,11 @@ fn lines_from_events_preserves_the_shared_line_ending_contract() {
 
 #[test]
 fn lines_from_events_matches_the_shared_line_data() {
-    let input = manifest().contract.html;
+    let input = manifest().contract.formatter;
 
     for case in input.line_data_cases.cases {
         let events = contract_events(&case.events);
-        let lines = html::lines_from_events(&case.source, &events);
+        let lines = formatters::lines_from_events(&case.source, &events);
 
         assert_token_ranges(&case.source, &lines);
         assert_eq!(
@@ -367,7 +375,7 @@ fn lines_from_events_matches_the_shared_line_data() {
     }
 }
 
-fn assert_token_ranges<T>(source: &str, lines: &[html::Line<'_, T>]) {
+fn assert_token_ranges<T>(source: &str, lines: &[formatters::Line<'_, T>]) {
     for token in lines.iter().flat_map(|line| &line.tokens) {
         assert_eq!(
             &source[token.range.clone()],
@@ -392,7 +400,7 @@ fn strip_tags(html: &str) -> String {
 }
 
 /// Lines as the manifest spells them: sorted keys, and a range as `{start, end}`.
-fn lines_json(lines: &[html::Line<'_, serde_json::Value>]) -> serde_json::Value {
+fn lines_json(lines: &[formatters::Line<'_, serde_json::Value>]) -> serde_json::Value {
     lines
         .iter()
         .map(|line| {
@@ -691,11 +699,18 @@ fn exercised_helpers(
                     ))
                     .expect("line output serializes"),
                 ),
-                (
-                    "lines_from_events",
-                    lines_json(&html::lines_from_events(&input.source, &events)).to_string(),
-                ),
             ]),
+        ),
+        (
+            "formatter",
+            BTreeMap::from([(
+                "lines_from_events",
+                lines_json(&formatters::lines_from_events(
+                    &contract.formatter.source,
+                    &contract_events(&contract.formatter.events),
+                ))
+                .to_string(),
+            )]),
         ),
         (
             "ansi",
@@ -726,10 +741,25 @@ fn exercised_helpers(
 /// public, so both are read.
 fn public_helpers(module: &str) -> BTreeMap<String, bool> {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let sources = [
-        manifest_dir.join(format!("src/formatter/{module}.rs")),
-        manifest_dir.join(format!("../lumis-core/src/formatter/{module}.rs")),
-    ];
+    // The format-neutral helpers sit in the formatter module itself, and
+    // `lumis-core` keeps their walk in its own file.
+    let (sources, minimum) = match module {
+        "formatter" => (
+            vec![
+                manifest_dir.join("src/formatter/mod.rs"),
+                manifest_dir.join("../lumis-core/src/formatter/mod.rs"),
+                manifest_dir.join("../lumis-core/src/formatter/lines.rs"),
+            ],
+            1,
+        ),
+        module => (
+            vec![
+                manifest_dir.join(format!("src/formatter/{module}.rs")),
+                manifest_dir.join(format!("../lumis-core/src/formatter/{module}.rs")),
+            ],
+            6,
+        ),
+    };
 
     let mut helpers = BTreeMap::new();
     for path in &sources {
@@ -737,7 +767,7 @@ fn public_helpers(module: &str) -> BTreeMap<String, bool> {
     }
 
     assert!(
-        helpers.len() > 5,
+        helpers.len() >= minimum,
         "{module}: source scan found almost nothing: {} helpers",
         helpers.len()
     );
@@ -783,7 +813,7 @@ fn every_manifest_helper_is_callable() {
     // The helpers run here; reaching this line means they all exist and build.
     let manifest = manifest();
     let exercised = exercised_helpers(&manifest.contract);
-    assert_eq!(exercised.len(), 2, "both helper modules are covered");
+    assert_eq!(exercised.len(), 3, "every helper module is covered");
 }
 
 #[test]

@@ -224,6 +224,9 @@ export function withAttrs<T extends Formatter>(formatter: T, attrs: FormatterAtt
   }
 }
 
+export { linesFromEvents } from "./formatter/lines.js";
+export type { Line, Token } from "./formatter/lines.js";
+
 export type {
   BBCodeScopedFormatter,
   BBCodeScopedOptions,

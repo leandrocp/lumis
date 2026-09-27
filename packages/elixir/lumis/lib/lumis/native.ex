@@ -191,5 +191,5 @@ defmodule Lumis.Native do
   def html_render_lines_from_events(_source, _events, _attrs),
     do: :erlang.nif_error(:nif_not_loaded)
 
-  def html_lines_from_events(_source, _events), do: :erlang.nif_error(:nif_not_loaded)
+  def formatter_lines_from_events(_source, _events), do: :erlang.nif_error(:nif_not_loaded)
 end

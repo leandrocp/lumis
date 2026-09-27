@@ -1512,7 +1512,7 @@ fn html_render_lines_from_events(
     })
 }
 
-/// One event of a stream `html_lines_from_events` reads, before the
+/// One event of a stream `formatter_lines_from_events` reads, before the
 /// annotation data it borrows is in place.
 enum LineEvent<'a> {
     Start {
@@ -1586,7 +1586,7 @@ struct ExToken<'a> {
 /// lacks becomes the index past it, which is how Rust spells a scope it does
 /// not name, so it reports as no scope in every runtime.
 #[rustler::nif(schedule = "DirtyCpu")]
-fn html_lines_from_events<'a>(
+fn formatter_lines_from_events<'a>(
     env: Env<'a>,
     source: &'a str,
     events: Vec<Term<'a>>,
@@ -1599,7 +1599,7 @@ fn html_lines_from_events<'a>(
         .collect();
     let events: Vec<_> = decoded.iter().map(LineEvent::event).collect();
 
-    lumis_core::formatter::html::lines_from_events(source, &events)
+    lumis_core::formatter::lines_from_events(source, &events)
         .iter()
         .map(|line| encode_line(env, line))
         .collect()
@@ -1657,10 +1657,7 @@ fn decode_line_event<'a>(
     }
 }
 
-fn encode_line<'a>(
-    env: Env<'a>,
-    line: &lumis_core::formatter::html::Line<'_, Term<'a>>,
-) -> Term<'a> {
+fn encode_line<'a>(env: Env<'a>, line: &lumis_core::formatter::Line<'_, Term<'a>>) -> Term<'a> {
     ExLine {
         number: line.number,
         tokens: line
