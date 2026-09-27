@@ -82,7 +82,64 @@
         { "source": "\n", "expected": [""] },
         { "source": "\n\n", "expected": ["", ""] },
         { "source": "a\rb", "expected": ["a\rb"] }
-      ]
+      ],
+      "spanLanguageCases": {
+        "$comment": [
+          "What `render_lines_from_events` asks `span_attrs` for, as scope@language,",
+          "first request of each pair in order. A rainbow bracket gets the language of",
+          "the stream's first scope, or `plaintext` when it has none. Elixir's",
+          "`render_lines_from_events/3` takes a scope-to-attrs map and asks no language."
+        ],
+        "cases": [
+          {
+            "source": "()",
+            "events": [
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 0, "end": 1 },
+              { "type": "decorationEnd" },
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 1, "end": 2 },
+              { "type": "decorationEnd" }
+            ],
+            "expected": ["punctuation.bracket.rainbow.1@plaintext"]
+          },
+          {
+            "source": "(a)",
+            "events": [
+              { "type": "start", "scope": "punctuation.bracket", "language": "javascript" },
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 0, "end": 1 },
+              { "type": "decorationEnd" },
+              { "type": "end" },
+              { "type": "start", "scope": "variable", "language": "javascript" },
+              { "type": "source", "start": 1, "end": 2 },
+              { "type": "end" },
+              { "type": "start", "scope": "punctuation.bracket", "language": "javascript" },
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 2, "end": 3 },
+              { "type": "decorationEnd" },
+              { "type": "end" }
+            ],
+            "expected": [
+              "punctuation.bracket@javascript",
+              "punctuation.bracket.rainbow.1@javascript",
+              "variable@javascript"
+            ]
+          },
+          {
+            "source": "(a",
+            "events": [
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 0, "end": 1 },
+              { "type": "decorationEnd" },
+              { "type": "start", "scope": "variable", "language": "rust" },
+              { "type": "source", "start": 1, "end": 2 },
+              { "type": "end" }
+            ],
+            "expected": ["punctuation.bracket.rainbow.1@rust", "variable@rust"]
+          }
+        ]
+      }
     },
     "style": {
       "fg": "#ff79c6",

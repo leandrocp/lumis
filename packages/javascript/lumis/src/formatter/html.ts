@@ -1475,6 +1475,10 @@ export function formatHtmlLines(
  * ends the last line rather than adding an empty line. Join {@link wrapLine}
  * results with `"\n"`.
  *
+ * `spanAttrs` gets the language each scope carries. A rainbow bracket carries
+ * none, so it gets the language of the stream's first scope, or `plaintext`
+ * when there is none, the same as Rust's `render_lines_from_events`.
+ *
  * ```ts
  * renderLinesFromEvents('a\nb', events, (scope) => `class="${scope}"`)
  * // ['<span class="...">a</span>', '<span class="...">b</span>']

@@ -1159,6 +1159,10 @@ pub fn open_span(attrs: &str) -> String {
 /// Lines contain only their content, without `\n` or `\r\n` terminators.
 /// A final newline ends the last line; it does not add an empty line.
 /// Join wrapped lines with `"\n"` to build an HTML block.
+///
+/// `span_attrs` gets the language each scope carries. A rainbow bracket
+/// carries none, so it gets the language of the stream's first scope, or
+/// `plaintext` when the stream has no scopes.
 pub fn render_lines_from_events<T, F>(
     source: &str,
     events: &[HighlightEvent<'_, T>],
@@ -1172,7 +1176,7 @@ where
     let decoration_language = events
         .iter()
         .find_map(HighlightEvent::language)
-        .unwrap_or_default();
+        .unwrap_or(Language::PlainText.id_name());
 
     write_line_events(
         &compose_line_decorations(source, events, &LineSelection::default()),

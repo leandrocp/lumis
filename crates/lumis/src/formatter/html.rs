@@ -684,7 +684,9 @@ pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
 /// A span that crosses a newline is closed at the end of one line and reopened at
 /// the start of the next, so every line's tags nest on their own. `span_attrs`
 /// receives a scope index into [`highlights::HIGHLIGHT_NAMES`](crate::highlights::HIGHLIGHT_NAMES)
-/// and the language of the block the event came from.
+/// and the language of the block the event came from. A rainbow bracket belongs
+/// to no block, so it gets the language of the stream's first scope, or
+/// `plaintext` when there is none.
 /// Lines contain only content, without LF or CRLF terminators. A final newline
 /// ends the last line rather than adding an empty one. Join [`wrap_line`]
 /// results with `"\n"`.

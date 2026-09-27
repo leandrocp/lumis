@@ -52,6 +52,9 @@ interface Contract {
     source: string;
     events: HighlightEvent[];
     lineEndingCases: Array<{ source: string; expected: string[] }>;
+    spanLanguageCases: {
+      cases: Array<{ source: string; events: HighlightEvent[]; expected: string[] }>;
+    };
   };
   style: HighlightStyle;
   ansi: {
@@ -86,6 +89,22 @@ it("preserves the shared line-ending contract", () => {
       ),
       JSON.stringify(testCase.source),
     ).toEqual(testCase.expected);
+  }
+});
+
+// Rust's `render_lines_from_events` reads the same cases, so the language a
+// `spanAttrs` callback sees cannot differ between the two.
+it("asks for the shared span languages", () => {
+  for (const testCase of manifest.contract.html.spanLanguageCases.cases) {
+    const requested: string[] = [];
+
+    html.renderLinesFromEvents(testCase.source, testCase.events, (scope, language) => {
+      const pair = `${scope}@${language}`;
+      if (!requested.includes(pair)) requested.push(pair);
+      return "";
+    });
+
+    expect(requested, JSON.stringify(testCase.source)).toEqual(testCase.expected);
   }
 });
 

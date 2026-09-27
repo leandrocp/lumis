@@ -22,11 +22,13 @@
 #![cfg(feature = "lang-rust")]
 #![allow(deprecated)]
 
+use lumis::decorations::Decoration;
 use lumis::events::HighlightEvent;
 use lumis::highlights::HIGHLIGHT_NAMES;
 use lumis::themes::{Style, TextDecoration, Theme, UnderlineStyle};
 use lumis::{ansi, html, languages::Language, themes};
 use serde::Deserialize;
+use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fs;
 use std::ops::RangeInclusive;
@@ -110,11 +112,24 @@ struct HtmlContract {
     source: String,
     events: Vec<ContractEvent>,
     line_ending_cases: Vec<LineEndingCase>,
+    span_language_cases: SpanLanguageCases,
 }
 
 #[derive(Debug, Deserialize)]
 struct LineEndingCase {
     source: String,
+    expected: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct SpanLanguageCases {
+    cases: Vec<SpanLanguageCase>,
+}
+
+#[derive(Debug, Deserialize)]
+struct SpanLanguageCase {
+    source: String,
+    events: Vec<ContractEvent>,
     expected: Vec<String>,
 }
 
@@ -136,9 +151,27 @@ enum LineContractRange {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 enum ContractEvent {
-    Start { scope: String, language: String },
-    Source { start: usize, end: usize },
+    Start {
+        scope: String,
+        language: String,
+    },
+    Source {
+        start: usize,
+        end: usize,
+    },
     End,
+    #[serde(rename = "decorationStart")]
+    DecorationStart {
+        decoration: ContractDecoration,
+    },
+    #[serde(rename = "decorationEnd")]
+    DecorationEnd,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+enum ContractDecoration {
+    RainbowBracket { depth: usize },
 }
 
 #[derive(Debug, Deserialize)]
@@ -240,6 +273,37 @@ fn render_lines_preserves_the_shared_line_ending_contract() {
     }
 }
 
+/// JavaScript's `renderLinesFromEvents` reads the same cases, so the language a
+/// `span_attrs` callback sees cannot differ between the two.
+#[test]
+fn render_lines_asks_for_the_shared_span_languages() {
+    let input = manifest().contract.html;
+
+    for case in input.span_language_cases.cases {
+        let requested = RefCell::new(Vec::new());
+
+        html::render_lines_from_events(
+            &case.source,
+            &contract_events(&case.events),
+            |scope_index, language| {
+                let pair = format!("{}@{language}", HIGHLIGHT_NAMES[scope_index]);
+                let mut requested = requested.borrow_mut();
+                if !requested.contains(&pair) {
+                    requested.push(pair);
+                }
+                String::new()
+            },
+        );
+
+        assert_eq!(
+            requested.into_inner(),
+            case.expected,
+            "source {:?}",
+            case.source
+        );
+    }
+}
+
 fn language(name: &str) -> Language {
     Language::from_str(name).unwrap_or_else(|_| panic!("{name:?} is not a language"))
 }
@@ -263,8 +327,11 @@ fn line_ranges(input: &HtmlContract) -> Vec<RangeInclusive<usize>> {
 }
 
 fn highlight_events(input: &HtmlContract) -> Vec<HighlightEvent<'_, ()>> {
-    input
-        .events
+    contract_events(&input.events)
+}
+
+fn contract_events(events: &[ContractEvent]) -> Vec<HighlightEvent<'_, ()>> {
+    events
         .iter()
         .map(|event| match event {
             ContractEvent::Start { scope, language } => HighlightEvent::Start {
@@ -276,6 +343,12 @@ fn highlight_events(input: &HtmlContract) -> Vec<HighlightEvent<'_, ()>> {
                 end: *end,
             },
             ContractEvent::End => HighlightEvent::End,
+            ContractEvent::DecorationStart {
+                decoration: ContractDecoration::RainbowBracket { depth },
+            } => HighlightEvent::DecorationStart {
+                decoration: Decoration::RainbowBracket { depth: *depth },
+            },
+            ContractEvent::DecorationEnd => HighlightEvent::DecorationEnd,
         })
         .collect()
 }
