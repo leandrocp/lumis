@@ -59,6 +59,24 @@ defmodule Lumis.ConformanceTest do
 
   defp serialize_event(:decoration_end), do: %{"type" => "decorationEnd"}
 
+  defp serialize_event({:annotation_start, %{range: {start, stop}, data: data}}),
+    do: %{
+      "type" => "annotationStart",
+      "range" => %{"start" => start, "end" => stop},
+      "data" => data
+    }
+
+  defp serialize_event(:annotation_end), do: %{"type" => "annotationEnd"}
+
+  defp annotations(fixture) do
+    Enum.map(fixture["annotations"] || [], fn annotation ->
+      [
+        offset: {annotation["range"]["start"], annotation["range"]["end"]},
+        data: annotation["data"]
+      ]
+    end)
+  end
+
   defp conformance_theme(name) do
     path = Path.expand("../../../../fixtures/conformance-themes/#{name}.json", __DIR__)
 
@@ -110,6 +128,7 @@ defmodule Lumis.ConformanceTest do
 
         events =
           Lumis.highlight_events!(fixture["source"], fixture["language"],
+            annotations: annotations(fixture),
             rainbow_brackets: rainbow_brackets(fixture)
           )
 

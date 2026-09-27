@@ -16,7 +16,7 @@ import markdownInline from "../langs/markdown_inline.ts";
 import mdx from "../langs/mdx.ts";
 import python from "../langs/python.ts";
 import rust from "../langs/rust.ts";
-import { createHighlighter } from "../src/index.js";
+import { createHighlighter, highlightEvents } from "../src/index.js";
 import {
   bbcodeScoped,
   htmlInline,
@@ -25,7 +25,7 @@ import {
   terminal,
 } from "../src/formatters.js";
 import type { Highlighter } from "../src/core/highlighter.js";
-import type { Language, Theme } from "../src/types.js";
+import type { HighlightEvent, Language, Theme } from "../src/types.js";
 
 import { loadConformanceFixtures } from "./conformance.js";
 import { configureLocalWasmResolver } from "./wasm.js";
@@ -104,6 +104,24 @@ beforeAll(async () => {
 }, 120_000);
 
 describe.each(conformanceFixtures.map((f) => [f.name, f]))("%s", (_name, fixture) => {
+  it("events", () => {
+    let events: HighlightEvent[] = [];
+    highlighter.highlight(fixture.source, {
+      language: getLanguage(fixture.language),
+      render(source) {
+        events = highlightEvents(source, this.language, {
+          rainbowBrackets: fixture.rainbowBrackets,
+          annotations: fixture.annotations?.map(({ range, data }) => ({
+            range: { type: "offset", ...range },
+            data,
+          })),
+        });
+        return "";
+      },
+    });
+    expect(events).toEqual(fixture.events);
+  });
+
   it("html-inline", () => {
     const output = highlighter.highlight(
       fixture.source,

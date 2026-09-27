@@ -12,6 +12,18 @@
       1
     ]
   },
+  "annotations": [
+    {
+      "range": {
+        "start": 1,
+        "end": 4
+      },
+      "data": {
+        "id": 7,
+        "kind": "property"
+      }
+    }
+  ],
   "events": [
     {
       "type": "start",
@@ -27,6 +39,17 @@
       "type": "end"
     },
     {
+      "type": "annotationStart",
+      "range": {
+        "start": 1,
+        "end": 4
+      },
+      "data": {
+        "id": 7,
+        "kind": "property"
+      }
+    },
+    {
       "type": "start",
       "scope": "property",
       "language": "json"
@@ -38,6 +61,9 @@
     },
     {
       "type": "end"
+    },
+    {
+      "type": "annotationEnd"
     },
     {
       "type": "start",

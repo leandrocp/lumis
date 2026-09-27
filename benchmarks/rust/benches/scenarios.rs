@@ -157,7 +157,7 @@ fn initialize_lumis(scenario: &Scenario) -> Vec<(String, HtmlInline)> {
 /// the file as plain text, and report a throughput the highlighter never
 /// reached. syntect has no equivalent bound, which is the other reason the
 /// comparison runs without one.
-fn unbounded() -> HighlightOptions<'static, ()> {
+fn unbounded() -> HighlightOptions<'static, 'static, ()> {
     HighlightOptions::new().budget(Budget::new().time_limit(None))
 }
 

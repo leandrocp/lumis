@@ -68,7 +68,7 @@
 
 use crate::languages::{bracket_query_for_language, Language, LanguageConfig};
 use crate::themes::Theme;
-use lumis_core::annotations::Annotation;
+use lumis_core::annotations::{compose_annotations, Annotation, AnnotationError};
 use lumis_core::decorations::{compose_rainbow_decorations, rainbow_scope};
 use lumis_core::events::{Decoration, HighlightEvent as CoreHighlightEvent};
 use lumis_core::highlights::HIGHLIGHT_NAMES;
@@ -108,6 +108,9 @@ static DEFAULT_STYLE: LazyLock<Arc<Style>> = LazyLock::new(|| Arc::new(Style::de
 /// The counterpart of the `options` argument to JavaScript's `highlight()` and
 /// `highlightEvents()`.
 ///
+/// `'a` is the annotation data's lifetime; `'c` is the cancellation flag's.
+/// Returned events borrow only the annotations, so they can outlive the flag.
+///
 /// ```rust
 /// use lumis::highlight::HighlightOptions;
 ///
@@ -115,11 +118,11 @@ static DEFAULT_STYLE: LazyLock<Arc<Style>> = LazyLock::new(|| Arc::new(Style::de
 /// ```
 #[derive(Debug)]
 #[must_use]
-pub struct HighlightOptions<'a, T = ()> {
+pub struct HighlightOptions<'a, 'c, T = ()> {
     annotations: &'a [Annotation<T>],
     rainbow_brackets: bool,
     budget: Budget,
-    cancellation: Option<&'a AtomicUsize>,
+    cancellation: Option<&'c AtomicUsize>,
 }
 
 /// The work one render is allowed to do.
@@ -206,7 +209,7 @@ impl Default for Budget {
 /// whatever the caller last stored and can change between the two loads. Two
 /// options carry the same cancellation when they point at the same flag.
 /// Everything else compares by value, annotations included.
-impl<T: PartialEq> PartialEq for HighlightOptions<'_, T> {
+impl<T: PartialEq> PartialEq for HighlightOptions<'_, '_, T> {
     fn eq(&self, other: &Self) -> bool {
         self.annotations == other.annotations
             && self.rainbow_brackets == other.rainbow_brackets
@@ -219,23 +222,23 @@ impl<T: PartialEq> PartialEq for HighlightOptions<'_, T> {
     }
 }
 
-impl<T: Eq> Eq for HighlightOptions<'_, T> {}
+impl<T: Eq> Eq for HighlightOptions<'_, '_, T> {}
 
-impl<T> Copy for HighlightOptions<'_, T> {}
+impl<T> Copy for HighlightOptions<'_, '_, T> {}
 
-impl<T> Clone for HighlightOptions<'_, T> {
+impl<T> Clone for HighlightOptions<'_, '_, T> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl Default for HighlightOptions<'static> {
+impl Default for HighlightOptions<'static, 'static> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl HighlightOptions<'static> {
+impl HighlightOptions<'static, 'static> {
     /// Creates options with no annotations and rainbow brackets disabled.
     pub const fn new() -> Self {
         Self {
@@ -245,9 +248,11 @@ impl HighlightOptions<'static> {
             cancellation: None,
         }
     }
+}
 
+impl<'c> HighlightOptions<'static, 'c> {
     /// Adds caller-provided annotations to this highlighting operation.
-    pub fn annotations<T>(self, annotations: &[Annotation<T>]) -> HighlightOptions<'_, T> {
+    pub fn annotations<T>(self, annotations: &[Annotation<T>]) -> HighlightOptions<'_, 'c, T> {
         HighlightOptions {
             annotations,
             rainbow_brackets: self.rainbow_brackets,
@@ -257,7 +262,7 @@ impl HighlightOptions<'static> {
     }
 }
 
-impl<'a, T> HighlightOptions<'a, T> {
+impl<'a, 'c, T> HighlightOptions<'a, 'c, T> {
     /// Emit [`Decoration::RainbowBracket`] events around matched brackets.
     ///
     /// Built-in formatters and the flat iterator render those events through
@@ -329,12 +334,19 @@ impl<'a, T> HighlightOptions<'a, T> {
     /// let abandoned = AtomicUsize::new(0);
     /// let options = HighlightOptions::new().cancellation(&abandoned);
     /// ```
-    pub const fn cancellation(mut self, flag: &'a AtomicUsize) -> Self {
-        self.cancellation = Some(flag);
-        self
+    pub const fn cancellation<'flag>(
+        self,
+        flag: &'flag AtomicUsize,
+    ) -> HighlightOptions<'a, 'flag, T> {
+        HighlightOptions {
+            annotations: self.annotations,
+            rainbow_brackets: self.rainbow_brackets,
+            budget: self.budget,
+            cancellation: Some(flag),
+        }
     }
 
-    pub(crate) const fn cancellation_flag(&self) -> Option<&'a AtomicUsize> {
+    pub(crate) const fn cancellation_flag(&self) -> Option<&'c AtomicUsize> {
         self.cancellation
     }
 }
@@ -382,6 +394,10 @@ pub enum HighlightError {
     /// Failed to process a highlight event during parsing.
     #[error("failed to process highlight event: {0}")]
     EventProcessing(String),
+
+    /// An annotation could not be placed in the source.
+    #[error("{0}")]
+    Annotation(#[from] AnnotationError),
 
     /// The match limit was outside `1..=`[`MAX_MATCH_LIMIT`].
     #[error("match limit {0} is outside 1..=65536")]
@@ -636,7 +652,7 @@ pub fn highlight_iter_with_options<F, E>(
     source: &str,
     language: Language,
     theme: Option<Theme>,
-    options: HighlightOptions<'_>,
+    options: HighlightOptions<'_, '_>,
     mut on_event_source: F,
 ) -> Result<(), HighlightError>
 where
@@ -755,17 +771,29 @@ pub fn highlight_events(
 /// See [`highlight_events`]. Rainbow brackets arrive as
 /// [`Decoration::RainbowBracket`] with their real zero-based depth; built-in
 /// formatters alone cycle that value through the six theme scopes.
-pub fn highlight_events_with_options<T>(
+///
+/// Annotations arrive as [`CoreHighlightEvent::AnnotationStart`] and
+/// [`CoreHighlightEvent::AnnotationEnd`], with ranges resolved to UTF-8 byte
+/// offsets. Their data is borrowed from the annotations, not copied. The events
+/// do not borrow `source` or the cancellation flag.
+///
+/// # Errors
+///
+/// Returns [`HighlightError::Annotation`] if an annotation is outside the
+/// source or its range does not lie on UTF-8 character boundaries. Highlighting
+/// errors, including cancellation and an exhausted time budget, propagate too.
+pub fn highlight_events_with_options<'a, T>(
     source: &str,
     language: Language,
-    options: HighlightOptions<'_, T>,
-) -> Result<Vec<CoreHighlightEvent<'static>>, HighlightError> {
-    DOCUMENT_TS_HIGHLIGHTER.with(|ts_highlighter| {
+    options: HighlightOptions<'a, '_, T>,
+) -> Result<Vec<CoreHighlightEvent<'a, T>>, HighlightError> {
+    let events = DOCUMENT_TS_HIGHLIGHTER.with(|ts_highlighter| {
         let mut ts_highlighter = ts_highlighter.borrow_mut();
         highlight_events_with(&mut ts_highlighter, source, language, options, |injected| {
             Some(Language::guess(Some(injected), ""))
         })
-    })
+    })?;
+    compose_annotations(source, &events, options.annotation_items()).map_err(HighlightError::from)
 }
 
 /// Highlight using only the supplied languages for injections.
@@ -773,26 +801,27 @@ pub fn highlight_events_with_options<T>(
 /// This is used by stateful runtime bindings where loading a language controls
 /// whether it may be injected into another language.
 #[doc(hidden)]
-pub fn highlight_events_with_languages<T>(
+pub fn highlight_events_with_languages<'a, T>(
     source: &str,
     language: Language,
-    options: HighlightOptions<'_, T>,
+    options: HighlightOptions<'a, '_, T>,
     languages: &std::collections::HashSet<Language>,
-) -> Result<Vec<CoreHighlightEvent<'static>>, HighlightError> {
-    DOCUMENT_TS_HIGHLIGHTER.with(|ts_highlighter| {
+) -> Result<Vec<CoreHighlightEvent<'a, T>>, HighlightError> {
+    let events = DOCUMENT_TS_HIGHLIGHTER.with(|ts_highlighter| {
         let mut ts_highlighter = ts_highlighter.borrow_mut();
         highlight_events_with(&mut ts_highlighter, source, language, options, |injected| {
             let language = Language::guess(Some(injected), "");
             languages.contains(&language).then_some(language)
         })
-    })
+    })?;
+    compose_annotations(source, &events, options.annotation_items()).map_err(HighlightError::from)
 }
 
 fn highlight_events_with<T, F>(
     ts_highlighter: &mut TSHighlighter,
     source: &str,
     language: Language,
-    options: HighlightOptions<'_, T>,
+    options: HighlightOptions<'_, '_, T>,
     injected_language: F,
 ) -> Result<Vec<CoreHighlightEvent<'static>>, HighlightError>
 where
@@ -810,7 +839,7 @@ fn highlight_events_reporting<T, F>(
     ts_highlighter: &mut TSHighlighter,
     source: &str,
     language: Language,
-    options: HighlightOptions<'_, T>,
+    options: HighlightOptions<'_, '_, T>,
     injected_language: F,
 ) -> Result<(Vec<CoreHighlightEvent<'static>>, bool), HighlightError>
 where
@@ -891,7 +920,7 @@ where
 pub fn highlight_events_for_render<T>(
     source: &str,
     language: Language,
-    options: HighlightOptions<'_, T>,
+    options: HighlightOptions<'_, '_, T>,
 ) -> Result<(Vec<CoreHighlightEvent<'static>>, bool), HighlightError> {
     DOCUMENT_TS_HIGHLIGHTER.with(|ts_highlighter| {
         let mut ts_highlighter = ts_highlighter.borrow_mut();
@@ -1330,7 +1359,7 @@ mod tests {
         assert!(has_colors, "Expected at least some segments with colors");
     }
 
-    fn iter_scopes(code: &str, options: HighlightOptions<'_>) -> Vec<&'static str> {
+    fn iter_scopes(code: &str, options: HighlightOptions<'_, '_>) -> Vec<&'static str> {
         let mut scopes = Vec::new();
         highlight_iter_with_options(
             code,

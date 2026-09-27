@@ -9,11 +9,13 @@ import {
 } from "../../src/formatters.ts";
 import { lowestCompatibleLanguagePackageVersion } from "../../src/core/languages.ts";
 import type {
+  HighlightEvent,
   HtmlStructure,
   LanguageDefinition,
   LumisHighlightEvent,
   Theme,
 } from "../../src/types.ts";
+import type { FixtureAnnotation } from "../conformance.ts";
 
 /**
  * The browser cannot load a parser during the walk that finds an injected
@@ -65,6 +67,7 @@ interface CorpusFixture {
   /** Root plus every injected language, taken from the expected events. */
   languages: string[];
   rainbowBrackets: boolean;
+  annotations?: FixtureAnnotation[];
   /** What the three HTML outputs write around the tokens. */
   structure: HtmlStructure;
   source: string;
@@ -96,6 +99,7 @@ function loadCorpus(): CorpusFixture[] {
         language: string;
         theme: string;
         rainbowBrackets?: boolean;
+        annotations?: FixtureAnnotation[];
         structure?: HtmlStructure;
         htmlMultiThemes?: CorpusFixture["htmlMultiThemes"];
         events: { type: string; language?: string }[];
@@ -111,6 +115,7 @@ function loadCorpus(): CorpusFixture[] {
         language: parsed.language,
         languages: [...languages],
         rainbowBrackets: parsed.rainbowBrackets ?? false,
+        annotations: parsed.annotations,
         structure: parsed.structure ?? "block",
         source,
         theme: parsed.theme,
@@ -225,6 +230,7 @@ export interface FixtureOutput {
 
 export interface BrowserTestResult {
   customFormatter: CustomFormatterResult;
+  events: Record<string, HighlightEvent[]>;
   /** Every conformance fixture, rendered through all five formatters. */
   fixtures: Record<string, FixtureOutput>;
   formatters: FixtureOutput;
@@ -369,8 +375,22 @@ async function run(): Promise<void> {
   };
 
   const fixtures: Record<string, FixtureOutput> = {};
+  const fixtureEvents: Record<string, HighlightEvent[]> = {};
   for (const fixture of corpus) {
     fixtures[fixture.name] = render(fixture);
+    highlighter.highlight(fixture.source, {
+      language: fixture.language,
+      render(source) {
+        fixtureEvents[fixture.name] = highlightEvents(source, this.language, {
+          rainbowBrackets: fixture.rainbowBrackets,
+          annotations: fixture.annotations?.map(({ range, data }) => ({
+            range: { type: "offset", ...range },
+            data,
+          })),
+        });
+        return "";
+      },
+    });
   }
 
   const fixtureSource = corpus.find(
@@ -441,6 +461,7 @@ async function run(): Promise<void> {
       restoredLanguage: customFormatter.language,
     },
     fixtures,
+    events: fixtureEvents,
     formatters,
     languages: highlighter.languages,
     requestedWasms,

@@ -20,6 +20,8 @@ struct FixtureMetadata {
     #[serde(default)]
     rainbow_brackets: bool,
     #[serde(default)]
+    annotations: Vec<FixtureAnnotation>,
+    #[serde(default)]
     structure: FixtureStructure,
     #[serde(default)]
     html_multi_themes: Option<HtmlMultiThemesFixture>,
@@ -57,11 +59,30 @@ struct HtmlMultiThemesFixture {
 #[derive(Debug, Deserialize, PartialEq, Eq)]
 #[serde(tag = "type", rename_all = "camelCase")]
 enum SerializableHighlightEvent {
-    Start { scope: String, language: String },
-    Source { start: usize, end: usize },
+    Start {
+        scope: String,
+        language: String,
+    },
+    Source {
+        start: usize,
+        end: usize,
+    },
     End,
-    DecorationStart { decoration: SerializableDecoration },
+    DecorationStart {
+        decoration: SerializableDecoration,
+    },
     DecorationEnd,
+    AnnotationStart {
+        range: std::ops::Range<usize>,
+        data: serde_json::Value,
+    },
+    AnnotationEnd,
+}
+
+#[derive(Debug, Deserialize)]
+struct FixtureAnnotation {
+    range: std::ops::Range<usize>,
+    data: serde_json::Value,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Eq)]
@@ -117,10 +138,21 @@ fn load_fixture(name: &str) -> Fixture {
 
 fn check_events(fixture: &Fixture) {
     let lang: Language = fixture.metadata.language.parse().expect("invalid language");
+    let annotations: Vec<_> = fixture
+        .metadata
+        .annotations
+        .iter()
+        .map(|annotation| {
+            lumis::annotations::Annotation::new(annotation.range.clone(), annotation.data.clone())
+                .unwrap()
+        })
+        .collect();
     let events = highlight_events_with_options(
         &fixture.source,
         lang,
-        HighlightOptions::new().rainbow_brackets(fixture.metadata.rainbow_brackets),
+        HighlightOptions::new()
+            .annotations(&annotations)
+            .rainbow_brackets(fixture.metadata.rainbow_brackets),
     )
     .expect("events should build");
     let serialized = events
@@ -145,7 +177,16 @@ fn check_events(fixture: &Fixture) {
             lumis_core::events::HighlightEvent::DecorationEnd => {
                 SerializableHighlightEvent::DecorationEnd
             }
-            _ => unreachable!("syntax highlighting emits only scope and source events"),
+            lumis_core::events::HighlightEvent::AnnotationStart { range, data } => {
+                SerializableHighlightEvent::AnnotationStart {
+                    range,
+                    data: serde_json::to_value(data).unwrap(),
+                }
+            }
+            lumis_core::events::HighlightEvent::AnnotationEnd => {
+                SerializableHighlightEvent::AnnotationEnd
+            }
+            _ => unreachable!("unsupported conformance event"),
         })
         .collect::<Vec<_>>();
     assert_eq!(serialized, fixture.metadata.events);

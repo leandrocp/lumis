@@ -70,6 +70,13 @@ Node has two of them because it has two runtimes: the Wasmtime addon it uses by
 default, and `web-tree-sitter` where no addon is built. Both must produce the
 same bytes as Rust.
 
+The optional `annotations` field in a conformance `fixture.json` supplies
+UTF-8 byte ranges and arbitrary JSON data to the event checks. Rust, JavaScript
+(native, Wasm, and browser), and Elixir compare the complete stream, including resolved
+`annotationStart` ranges and data. The formatter snapshots use their own
+options and do not consume these event annotations. `conformance-regen`
+preserves the annotations and regenerates their expected events.
+
 ### Generated HTML and CSS
 
 After changing HTML formatters or theme layout, refresh the shared outputs:

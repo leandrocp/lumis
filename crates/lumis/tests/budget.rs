@@ -23,7 +23,7 @@ const SOURCE: &str = "fn main() { let value = (1 + (2 * (3 - 4))); }\n";
 /// Source whose plain rendering is wrong unless it is still HTML-escaped.
 const UNSAFE_SOURCE: &str = "fn main() { let _ = a < b && c > d; }\n";
 
-fn html_linked(source: &str, options: HighlightOptions<'_, ()>) -> String {
+fn html_linked(source: &str, options: HighlightOptions<'_, '_, ()>) -> String {
     let formatter = HtmlLinkedBuilder::new()
         .language(Language::Rust)
         .build()
@@ -33,7 +33,7 @@ fn html_linked(source: &str, options: HighlightOptions<'_, ()>) -> String {
 }
 
 /// The clock is already spent, so every check sees an expired deadline.
-fn spent() -> HighlightOptions<'static, ()> {
+fn spent() -> HighlightOptions<'static, 'static, ()> {
     HighlightOptions::new().budget(Budget::new().time_limit(Some(0)))
 }
 

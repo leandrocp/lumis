@@ -280,17 +280,36 @@ fn render_conformance(
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(tag = "type", rename_all = "camelCase")]
 enum SerializableHighlightEvent {
-    Start { scope: String, language: String },
-    Source { start: usize, end: usize },
+    Start {
+        scope: String,
+        language: String,
+    },
+    Source {
+        start: usize,
+        end: usize,
+    },
     End,
-    DecorationStart { decoration: SerializableDecoration },
+    DecorationStart {
+        decoration: SerializableDecoration,
+    },
     DecorationEnd,
+    AnnotationStart {
+        range: std::ops::Range<usize>,
+        data: Value,
+    },
+    AnnotationEnd,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(tag = "type", rename_all = "camelCase")]
 enum SerializableDecoration {
     RainbowBracket { depth: usize },
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+struct FixtureAnnotation {
+    range: std::ops::Range<usize>,
+    data: Value,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq)]
@@ -300,6 +319,7 @@ struct FixtureMetadata {
     language: String,
     theme: String,
     rainbow_brackets: bool,
+    annotations: Vec<FixtureAnnotation>,
     structure: FixtureStructure,
     html_multi_themes: Option<HtmlMultiThemesFixture>,
 }
@@ -360,6 +380,8 @@ struct FixtureFile {
     structure: FixtureStructure,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     html_multi_themes: Option<HtmlMultiThemesFixture>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    annotations: Vec<FixtureAnnotation>,
     #[serde(default)]
     events: Vec<SerializableHighlightEvent>,
 }
@@ -374,7 +396,9 @@ struct FixtureOutputs {
     bbcode: String,
 }
 
-fn serialize_events(events: Vec<HighlightEvent<'_>>) -> Vec<SerializableHighlightEvent> {
+fn serialize_events<T: Serialize>(
+    events: Vec<HighlightEvent<'_, T>>,
+) -> Vec<SerializableHighlightEvent> {
     events
         .into_iter()
         .map(|event| match event {
@@ -395,7 +419,14 @@ fn serialize_events(events: Vec<HighlightEvent<'_>>) -> Vec<SerializableHighligh
                 decoration: SerializableDecoration::RainbowBracket { depth },
             },
             HighlightEvent::DecorationEnd => SerializableHighlightEvent::DecorationEnd,
-            _ => unreachable!("syntax highlighting emits only scope and source events"),
+            HighlightEvent::AnnotationStart { range, data } => {
+                SerializableHighlightEvent::AnnotationStart {
+                    range,
+                    data: serde_json::to_value(data).expect("serializable annotation data"),
+                }
+            }
+            HighlightEvent::AnnotationEnd => SerializableHighlightEvent::AnnotationEnd,
+            _ => unreachable!("unsupported conformance event"),
         })
         .collect()
 }
@@ -585,19 +616,25 @@ fn render_formatter_output(
     String::from_utf8(output).map_err(Into::into)
 }
 
-fn fixture_outputs(
-    source: &str,
-    language: Language,
-    theme: &str,
-    name: &str,
-    rainbow_brackets: bool,
-    structure: FixtureStructure,
-    html_multi_themes: Option<HtmlMultiThemesFixture>,
-) -> Result<FixtureOutputs> {
+fn fixture_outputs(source: &str, stored: &FixtureFile) -> Result<FixtureOutputs> {
+    let language = parse_language(&stored.language)?;
+    let theme = stored.theme.as_str();
+    let rainbow_brackets = stored.rainbow_brackets;
+    let structure = stored.structure;
+    let html_multi_themes = stored.html_multi_themes.clone();
+    let annotations = stored
+        .annotations
+        .iter()
+        .map(|annotation| {
+            lumis::annotations::Annotation::new(annotation.range.clone(), annotation.data.clone())
+        })
+        .collect::<Result<Vec<_>, _>>()?;
     let events = highlight_events_with_options(
         source,
         language,
-        HighlightOptions::new().rainbow_brackets(rainbow_brackets),
+        HighlightOptions::new()
+            .annotations(&annotations)
+            .rainbow_brackets(rainbow_brackets),
     )?;
     let (multi_themes, multi_default_theme, multi_highlight_lines) =
         html_multi_themes.as_ref().map_or_else(
@@ -621,10 +658,11 @@ fn fixture_outputs(
             },
         );
     let metadata = FixtureMetadata {
-        name: name.to_string(),
+        name: stored.name.clone(),
         language: language.id_name().to_string(),
         theme: theme.to_string(),
         rainbow_brackets,
+        annotations: stored.annotations.clone(),
         structure,
         html_multi_themes,
     };
@@ -713,16 +751,7 @@ fn verify_conformance(name: &str) -> Result<()> {
     for dir in selected_fixture_dirs(name)? {
         let source = fs::read_to_string(dir.join("source.txt"))?;
         let stored = load_fixture_file(&dir)?;
-        let language = parse_language(&stored.language)?;
-        let generated = fixture_outputs(
-            &source,
-            language,
-            &stored.theme,
-            &stored.name,
-            stored.rainbow_brackets,
-            stored.structure,
-            stored.html_multi_themes.clone(),
-        )?;
+        let generated = fixture_outputs(&source, &stored)?;
 
         ensure_fixture_file_match(
             &dir.join("fixture.json"),
@@ -734,6 +763,7 @@ fn verify_conformance(name: &str) -> Result<()> {
                 rainbow_brackets: generated.metadata.rainbow_brackets,
                 structure: generated.metadata.structure,
                 html_multi_themes: generated.metadata.html_multi_themes.clone(),
+                annotations: generated.metadata.annotations.clone(),
                 events: generated.events.clone(),
             },
         )?;
@@ -777,16 +807,7 @@ fn regen_conformance(name: &str) -> Result<()> {
     for dir in selected_fixture_dirs(name)? {
         let source = fs::read_to_string(dir.join("source.txt"))?;
         let stored = load_fixture_file(&dir)?;
-        let language = parse_language(&stored.language)?;
-        let generated = fixture_outputs(
-            &source,
-            language,
-            &stored.theme,
-            &stored.name,
-            stored.rainbow_brackets,
-            stored.structure,
-            stored.html_multi_themes.clone(),
-        )?;
+        let generated = fixture_outputs(&source, &stored)?;
 
         fs::write(
             dir.join("fixture.json"),
@@ -797,6 +818,7 @@ fn regen_conformance(name: &str) -> Result<()> {
                 rainbow_brackets: generated.metadata.rainbow_brackets,
                 structure: generated.metadata.structure,
                 html_multi_themes: generated.metadata.html_multi_themes,
+                annotations: generated.metadata.annotations,
                 events: generated.events,
             })? + "\n",
         )?;

@@ -437,7 +437,7 @@ where
 pub fn highlight_with_options<T, F>(
     source: &str,
     formatter: F,
-    options: HighlightOptions<'_, T>,
+    options: HighlightOptions<'_, '_, T>,
 ) -> String
 where
     F: Formatter<T>,
@@ -489,7 +489,7 @@ pub fn write_highlight_with_options<T, F>(
     output: &mut dyn Write,
     source: &str,
     formatter: F,
-    options: HighlightOptions<'_, T>,
+    options: HighlightOptions<'_, '_, T>,
 ) -> io::Result<()>
 where
     F: Formatter<T>,

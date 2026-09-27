@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
-import type { HtmlStructure } from "../src/types.js";
+import type { HighlightRange, HtmlStructure } from "../src/types.js";
 
 export type SerializableHighlightEvent =
   | { type: "start"; scope: string; language: string }
@@ -9,7 +9,14 @@ export type SerializableHighlightEvent =
       type: "decorationStart";
       decoration: { type: "rainbowBracket"; depth: number };
     }
-  | { type: "decorationEnd" };
+  | { type: "decorationEnd" }
+  | { type: "annotationStart"; range: HighlightRange; data: unknown }
+  | { type: "annotationEnd" };
+
+export interface FixtureAnnotation {
+  range: HighlightRange;
+  data: unknown;
+}
 
 export interface ConformanceFixture {
   name: string;
@@ -17,6 +24,7 @@ export interface ConformanceFixture {
   theme: string;
   htmlMultiThemesOptions?: HtmlMultiThemesFixture;
   rainbowBrackets: boolean;
+  annotations?: FixtureAnnotation[];
   /** What the three HTML outputs write around the tokens. */
   structure: HtmlStructure;
   events: SerializableHighlightEvent[];
@@ -41,6 +49,7 @@ interface FixtureMetadata {
   theme: string;
   htmlMultiThemes?: HtmlMultiThemesFixture;
   rainbowBrackets?: boolean;
+  annotations?: FixtureAnnotation[];
   structure?: HtmlStructure;
   events: SerializableHighlightEvent[];
 }

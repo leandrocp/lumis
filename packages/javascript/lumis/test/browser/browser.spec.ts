@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import type { BrowserTestResult, FixtureOutput } from "./smoke.js";
+import type { ConformanceFixture } from "../conformance.js";
 
 const conformanceDir = new URL("../../../../../fixtures/conformance/", import.meta.url);
 const CUSTOM_FORMATTER_FIXTURE = "javascript-html-template-nested-script-css";
@@ -123,5 +124,17 @@ test.describe("browser runtime", () => {
     expect(custom.unicodeToken!.endByte - custom.unicodeToken!.startByte).toBeGreaterThan(
       custom.unicodeToken!.text.length,
     );
+  });
+
+  test("returns every conformance event stream including annotations", () => {
+    expect(fixtureNames.length).toBeGreaterThan(20);
+    expect(Object.keys(result.events).sort()).toEqual(fixtureNames);
+    for (const fixture of fixtureNames) {
+      const metadata: Pick<ConformanceFixture, "events"> = JSON.parse(
+        readFixture(fixture, "fixture.json"),
+      );
+      expect(result.events[fixture], fixture).toEqual(metadata.events);
+      expect(reloadedResult.events[fixture], fixture).toEqual(metadata.events);
+    }
   });
 });
