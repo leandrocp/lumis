@@ -1,11 +1,12 @@
 ---
 title: Next.js
-description: Use Lumis in Next.js MDX through rehype-lumis.
+description: Use Lumis in Next.js MDX through rehype-lumis, and in Server Components.
 keywords:
   - nextjs lumis
   - next mdx rehype
   - nextjs syntax highlighting
   - rehype lumis
+  - nextjs server components
 ---
 
 
@@ -64,3 +65,25 @@ export default function configuredRehypeLumis() {
 This avoids passing non-serializable formatter callbacks directly through the MDX loader options.
 
 You also need `app/layout.tsx` and `mdx-components.tsx` at the project root for Next.js App Router MDX to work.
+
+## Server Components
+
+The MDX setup above highlights while Next.js compiles each page. A Server Component that imports `@lumis-sh/lumis`, directly or through [`renderCodeBlock()`](/integrations/react#server-rendering), highlights on the server when the route renders. That needs two settings:
+
+```js title="next.config.mjs"
+export default {
+  serverExternalPackages: ['@lumis-sh/lumis'],
+  outputFileTracingIncludes: {
+    '/*': ['./node_modules/@lumis-sh/wasm-*/**/*'],
+  },
+}
+```
+
+[`serverExternalPackages`](https://nextjs.org/docs/app/api-reference/config/next-config-js/serverExternalPackages) leaves Lumis out of the server bundle and loads it with Node's `require` instead. On Node, Lumis highlights through a native addon that it loads with `createRequire`, and Turbopack, the default bundler since Next.js 16, can't place that addon in a chunk. Without this setting the build fails:
+
+```text
+Error: non-ecmascript placeable asset
+asset is not placeable in ESM chunks, so it doesn't have a module id
+```
+
+[`outputFileTracingIncludes`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output) adds the installed [parser packages](/advanced/wasm-and-cdn#npm-language-packages) to the files traced for each route. Lumis looks those packages up at runtime from the project directory, which file tracing can't follow. A deployment that ships only the traced files, such as `output: 'standalone'`, would leave them out, and the route would fail to load its language. `'/*'` adds them to every route; a narrower route glob limits them to the routes that highlight.
