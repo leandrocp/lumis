@@ -137,6 +137,25 @@
               { "type": "end" }
             ],
             "expected": ["punctuation.bracket.rainbow.1@rust", "variable@rust"]
+          },
+          {
+            "source": "ab(",
+            "events": [
+              { "type": "start", "scope": "variable", "language": "plaintext" },
+              { "type": "source", "start": 0, "end": 1 },
+              { "type": "end" },
+              { "type": "start", "scope": "variable", "language": "rust" },
+              { "type": "source", "start": 1, "end": 2 },
+              { "type": "end" },
+              { "type": "decorationStart", "decoration": { "type": "rainbowBracket", "depth": 0 } },
+              { "type": "source", "start": 2, "end": 3 },
+              { "type": "decorationEnd" }
+            ],
+            "expected": [
+              "variable@plaintext",
+              "variable@rust",
+              "punctuation.bracket.rainbow.1@plaintext"
+            ]
           }
         ]
       }

@@ -1204,6 +1204,13 @@ interface LineRenderOptions {
   formatText?: (text: string) => string;
   openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
   closeSpan?: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  /**
+   * Replace a `plaintext` starting language with the language of the first scope
+   * that holds text. Rust's line walks keep the starting language for rainbow
+   * brackets, and so does every walk here that mirrors one; only
+   * `formatHighlightIterLines`, which reports the language it resolved, infers.
+   */
+  inferLanguage?: boolean;
 }
 
 interface LineRenderState {
@@ -1232,6 +1239,7 @@ interface LineRenderContext {
   formatText: (text: string) => string;
   openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
   closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
+  inferLanguage: boolean;
   onLine: (
     content: string,
     decoration: Extract<Decoration, { type: "line" }>,
@@ -1271,7 +1279,7 @@ function sourceEvent(
   context: LineRenderContext,
   event: { start: number; end: number },
 ): void {
-  if (!state.language || state.language === "plaintext") {
+  if (context.inferLanguage && (!state.language || state.language === "plaintext")) {
     state.language = state.openScopes.at(-1)?.language ?? state.language;
   }
 
@@ -1357,6 +1365,7 @@ function renderDecoratedLines(
     formatText: options.formatText ?? escape,
     openSpan: options.openSpan,
     closeSpan: options.closeSpan ?? (() => "</span>"),
+    inferLanguage: options.inferLanguage ?? false,
     onLine,
   };
   const state: LineRenderState = {
@@ -1397,7 +1406,7 @@ export function formatHighlightIterLines(
     composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
     theme,
     languageRef ? languageId(languageRef) : streamLanguage(events),
-    options,
+    { ...options, inferLanguage: true },
     (content, _decoration, ending) => lines.push(`${content}${ending}`),
   );
 
