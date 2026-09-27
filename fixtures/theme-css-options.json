@@ -1,0 +1,150 @@
+{
+  "$comment": [
+    "Theme CSS is its own option surface, outside the top-level highlighting API.",
+    "Rust CssBuilder, JavaScript buildCss, Elixir Lumis.Theme.build_css/2 and CLI themes build-css must accept every option.",
+    "Names are snake_case in Rust and Elixir, camelCase in JavaScript; cli names are flags. Boolean CLI flags negate the true default.",
+    "Tests check option inventories in both directions, defaults, and these exact CSS bytes. Add options here before implementing them.",
+    "layout=false removes only the built-in layout layer; theme styles and explicit container_style declarations stay. Prebuilt stylesheets retain layout."
+  ],
+  "options": [
+    {
+      "name": "layout",
+      "default": true,
+      "cli": "no-layout"
+    },
+    {
+      "name": "enable_italic",
+      "default": true,
+      "cli": "no-italic"
+    },
+    {
+      "name": "scope",
+      "default": "",
+      "cli": "scope"
+    },
+    {
+      "name": "container_selector",
+      "default": ".lumis",
+      "cli": "container-selector"
+    },
+    {
+      "name": "container_style",
+      "default": [],
+      "cli": "container-style"
+    }
+  ],
+  "theme": {
+    "name": "css-contract",
+    "appearance": "dark",
+    "revision": "test",
+    "highlights": {
+      "normal": {
+        "fg": "#111111",
+        "bg": "#eeeeee"
+      },
+      "keyword": {
+        "fg": "#123456",
+        "italic": true
+      },
+      "line_number": {
+        "fg": "#555555"
+      },
+      "line_number.highlighted": {
+        "fg": "#ffffff",
+        "bold": true
+      }
+    }
+  },
+  "cases": [
+    {
+      "name": "defaults",
+      "options": {},
+      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
+    },
+    {
+      "name": "explicit-defaults",
+      "options": {
+        "layout": true,
+        "enable_italic": true,
+        "scope": "",
+        "container_selector": ".lumis",
+        "container_style": []
+      },
+      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
+    },
+    {
+      "name": "colors-only",
+      "options": {
+        "layout": false
+      },
+      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
+    },
+    {
+      "name": "no-italic",
+      "options": {
+        "enable_italic": false
+      },
+      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n}\n.l-keyword {\n  color: #123456;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
+    },
+    {
+      "name": "custom-layout",
+      "options": {
+        "enable_italic": false,
+        "scope": ".docs",
+        "container_selector": ".code",
+        "container_style": [
+          [
+            "background-color",
+            "var(--code-bg)"
+          ],
+          [
+            "padding",
+            "2rem"
+          ],
+          [
+            "padding",
+            "1rem"
+          ]
+        ]
+      },
+      "css": "/* css-contract\n * revision: test\n */\n.docs .code {\n  color: #111111;\n  background-color: var(--code-bg);\n  padding: 1rem;\n}\n.docs .l-keyword {\n  color: #123456;\n}\n.docs .l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.docs .l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n@layer lumis {\n  .docs pre.lumis > code {\n    display: block;\n    width: fit-content;\n    min-width: 100%;\n    overflow-wrap: anywhere;\n  }\n  .docs pre.lumis > code > span.l-line {\n    display: inline-block;\n    width: 100%;\n    min-height: 1lh;\n    vertical-align: top;\n  }\n  .docs .l-line-number {\n    -webkit-user-select: none;\n    user-select: none;\n  }\n}\n"
+    },
+    {
+      "name": "custom-colors-only",
+      "options": {
+        "enable_italic": false,
+        "scope": ".docs",
+        "container_selector": ".code",
+        "container_style": [
+          [
+            "background-color",
+            "var(--code-bg)"
+          ],
+          [
+            "padding",
+            "2rem"
+          ],
+          [
+            "padding",
+            "1rem"
+          ]
+        ],
+        "layout": false
+      },
+      "css": "/* css-contract\n * revision: test\n */\n.docs .code {\n  color: #111111;\n  background-color: var(--code-bg);\n  padding: 1rem;\n}\n.docs .l-keyword {\n  color: #123456;\n}\n.docs .l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.docs .l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
+    },
+    {
+      "name": "custom-property-with-equals",
+      "options": {
+        "layout": false,
+        "container_style": [
+          [
+            "--code-label",
+            "\"a=b\""
+          ]
+        ]
+      },
+      "css": "/* css-contract\n * revision: test\n */\n.lumis {\n  color: #111111;\n  background-color: #eeeeee;\n  --code-label: \"a=b\";\n}\n.l-keyword {\n  color: #123456;\n  font-style: italic;\n}\n.l-line-number:not(.l-line-number-highlighted) {\n  color: #555555;\n}\n.l-line-number-highlighted {\n  color: #ffffff;\n  font-weight: bold;\n}\n"
+    }
+  ]
+}

@@ -465,6 +465,12 @@ enum ThemesCommands {
         theme: String,
     },
 
+    /// Write a theme stylesheet to stdout
+    #[command(
+        after_help = "Examples:\n  lumis themes build-css dracula > theme.css\n  lumis themes build-css github_light --no-layout\n  lumis themes build-css dracula --scope .docs --container-style 'padding=1rem'"
+    )]
+    BuildCss(ThemeCssArgs),
+
     /// Extract a theme from a Neovim colorscheme Git repo
     #[command(
         after_help = "Examples:\n  lumis themes generate -u https://github.com/catppuccin/nvim -c catppuccin-mocha\n  lumis themes generate -u https://github.com/folke/tokyonight.nvim -c tokyonight-night -o tokyonight.json"
@@ -490,6 +496,43 @@ enum ThemesCommands {
         #[arg(short = 'a', long)]
         appearance: Option<String>,
     },
+}
+
+#[derive(clap::Args)]
+struct ThemeCssArgs {
+    /// Built-in theme name or a custom theme in the data directory
+    theme: String,
+
+    /// Omit the built-in line layout rules
+    #[arg(long)]
+    no_layout: bool,
+
+    /// Omit italic theme declarations
+    #[arg(long)]
+    no_italic: bool,
+
+    /// Parent selector prepended to every generated selector
+    #[arg(long, default_value = "")]
+    scope: String,
+
+    /// Selector for the container color rule
+    #[arg(long, default_value = ".lumis")]
+    container_selector: String,
+
+    /// Add or replace a container declaration (repeat for multiple properties)
+    #[arg(long, value_name = "PROPERTY=VALUE", allow_hyphen_values = true, value_parser = parse_container_style)]
+    container_style: Vec<(String, String)>,
+}
+
+fn parse_container_style(value: &str) -> std::result::Result<(String, String), String> {
+    let (property, value) = value
+        .split_once('=')
+        .ok_or_else(|| "expected property=value".to_string())?;
+    let (property, value) = (property.trim(), value.trim());
+    if property.is_empty() || value.is_empty() {
+        return Err("expected non-empty property=value".to_string());
+    }
+    Ok((property.to_string(), value.to_string()))
 }
 
 #[derive(Clone, Copy, Default, ValueEnum)]
@@ -612,6 +655,7 @@ fn main() -> Result<()> {
         Commands::Themes { command } => match command {
             ThemesCommands::List => list_themes(&data_dir),
             ThemesCommands::Show { theme } => show_theme(&theme, &data_dir),
+            ThemesCommands::BuildCss(args) => build_theme_css(args, &data_dir),
             ThemesCommands::Generate {
                 url,
                 colorscheme,
@@ -744,6 +788,20 @@ fn show_theme(name: &str, data_dir: &Path) -> Result<()> {
         println!("  background: {bg}");
     }
     println!("  highlights: {}", theme.highlights.len());
+    Ok(())
+}
+
+fn build_theme_css(args: ThemeCssArgs, data_dir: &Path) -> Result<()> {
+    let theme = resolve_theme(Some(args.theme.clone()), Some(data_dir), false)
+        .ok_or_else(|| anyhow::anyhow!("unknown theme: {}", args.theme))?;
+    let css = lumis_core::themes::CssBuilder::new(&theme)
+        .layout(!args.no_layout)
+        .enable_italic(!args.no_italic)
+        .scope(args.scope)
+        .container_selector(args.container_selector)
+        .container_style(args.container_style)
+        .build();
+    print!("{css}");
     Ok(())
 }
 

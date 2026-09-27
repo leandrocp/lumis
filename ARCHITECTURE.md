@@ -76,7 +76,10 @@ source terminators; every formatter reads the same line-decoration event stream.
 `lumis-core` owns HTML rendering and the generated theme layout. The JavaScript
 port is pinned by `fixtures/formatter-helpers.json` and the conformance corpus;
 Elixir uses the same helpers through its NIF. Theme CSS, inline styles and the
-browser layout tests move with the markup. The layout rules are documented in
+browser layout tests move with the markup. `fixtures/theme-css-options.json`
+pins CSS builder options and output across Rust, JavaScript, Elixir, and the CLI.
+Generated CSS includes layout by default; callers can disable it while prebuilt
+stylesheets keep it. The layout rules are documented in
 [CSS theme files](docs/content/themes/css-files.mdx#line-layout) and the line
 helpers in [custom formatters](docs/content/formatters/custom.mdx).
 

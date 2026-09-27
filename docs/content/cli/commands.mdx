@@ -38,6 +38,7 @@ These flags work with any subcommand:
 | `lumis languages download` | Download and compile parsers so later runs skip both |
 | `lumis themes list` | List built-in and local themes |
 | `lumis themes show` | Print one theme's appearance and colors |
+| `lumis themes build-css` | Generate a theme stylesheet |
 | `lumis themes generate` | Generate a theme from a Neovim colorscheme repo |
 
 ## `lumis highlight`
@@ -338,6 +339,28 @@ lumis themes show catppuccin_frappe
 Prints a theme's appearance, foreground, background and how many highlight
 scopes it defines. Finds themes in the data directory as well as built-in ones.
 Exits non-zero on an unknown name.
+
+## `lumis themes build-css`
+
+Write CSS for a built-in or local theme to stdout. Redirect it to save a file:
+
+```sh
+lumis themes build-css catppuccin_frappe > theme.css
+lumis themes build-css catppuccin_frappe --no-layout > colors.css
+```
+
+| Flag | Default | Behavior |
+| --- | --- | --- |
+| `--no-layout` | Layout included | Omit the built-in line layout layer. |
+| `--no-italic` | Italic included | Omit italic theme declarations. |
+| `--scope <selector>` | Empty | Prefix every selector with a parent selector. |
+| `--container-selector <selector>` | `.lumis` | Change the container color rule's selector. |
+| `--container-style <property=value>` | None | Add or replace a container declaration; repeat for more properties. |
+
+The command uses the same [CSS builder](/themes/css-builder) as the libraries.
+Theme styles and supplied container declarations remain when layout is disabled.
+Quote values containing spaces, for example `--container-style 'padding=1rem 2rem'`.
+CSS custom properties work too: `--container-style '--code-bg=#111'`.
 
 ## `lumis themes generate`
 

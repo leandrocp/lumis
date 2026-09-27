@@ -112,7 +112,9 @@ If the pre-built files do not fit, generate a stylesheet at runtime with the [CS
 
 Each theme file ends with a small `@layer lumis` block that lays out the lines.
 The CSS that `CssBuilder`, `build_css` and `buildCss` generate ends with the same
-block:
+block by default. To generate theme colors without these rules, set
+[`layout: false`](/themes/css-builder#colors-without-layout) or use
+`lumis themes build-css <theme> --no-layout`:
 
 ```css
 @layer lumis {

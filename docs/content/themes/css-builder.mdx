@@ -1,6 +1,6 @@
 ---
 title: CSS Builder
-description: Build a theme stylesheet at runtime in Rust, JavaScript / TypeScript, and Elixir.
+description: Build a theme stylesheet at runtime in Rust, JavaScript / TypeScript, Elixir, and the CLI.
 keywords:
   - lumis css builder
   - buildCss
@@ -25,15 +25,56 @@ The npm API uses camelCase. Rust and Elixir use snake_case.
 | `scope` | `""` | Parent selector prepended to every generated selector. |
 | `containerSelector` / `container_selector` | `".lumis"` | Set the selector for the code block container rule. |
 | `containerStyle` / `container_style` | none | Add declarations to the container selector. Use this for layout-related CSS such as `padding`, `border-radius`, or `overflow-x`. If a property already exists, the new value replaces it. |
+| `layout` | `true` | Include the built-in line layout rules in `@layer lumis`. Set to `false` when your app supplies its own layout. |
 | `enableItalic` / `enable_italic` | `true` | Drop italic declarations when set to `false`. |
 
 `containerStyle` / `container_style` is a list of `(property, value)` pairs. For example, `background-color: var(--code-background)` replaces the theme background, while `padding: 1rem` adds a new declaration.
 
 Token selectors are fixed as `l-*` classes, matching the built-in `htmlLinked` formatter output. Line wrappers use `l-line`, highlighted lines use `l-highlighted` by default, and line-number themes use `l-line-number` plus `l-line-number-highlighted` on highlighted gutters.
 
+## Colors without layout
+
+Set `layout` to `false` to omit the entire `@layer lumis` block. Container,
+token, and gutter theme styles stay, including italic, bold, and decoration
+styles. Any explicit `containerStyle` / `container_style` declarations stay too.
+Prebuilt CSS files always include layout.
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+const css = buildCss(frappe, {layout: false})
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+let css = themes::CssBuilder::new(&theme).layout(false).build();
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+css = Lumis.Theme.build_css!("catppuccin_frappe", layout: false)
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```sh
+lumis themes build-css catppuccin_frappe --no-layout > theme.css
+```
+
+  </Tab>
+</Tabs>
+
+Use your own rules for [line layout](/themes/css-files#line-layout) when disabling it.
+
 ## Use all options together
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
@@ -49,6 +90,7 @@ const css = buildCss(frappe, {
     ['padding', '1rem'],
   ],
   enableItalic: false,
+  layout: false,
 })
 ```
 
@@ -69,6 +111,7 @@ let css = themes::CssBuilder::new(&theme)
         ("padding", "1rem"),
     ])
     .enable_italic(false)
+    .layout(false)
     .build();
 ```
 
@@ -85,8 +128,22 @@ css =
       {"border-radius", "0.5rem"},
       {"padding", "1rem"}
     ],
-    enable_italic: false
+    enable_italic: false,
+    layout: false
   )
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```sh
+lumis themes build-css catppuccin_frappe \
+  --scope .docs-theme \
+  --container-selector .code-block \
+  --container-style 'background-color=var(--code-background)' \
+  --container-style 'border-radius=0.5rem' \
+  --container-style 'padding=1rem' \
+  --no-italic --no-layout > theme.css
 ```
 
   </Tab>
@@ -111,7 +168,7 @@ The output starts like this:
 
 ## Default output
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
@@ -139,6 +196,13 @@ css = Lumis.Theme.build_css!("catppuccin_frappe")
 ```
 
   </Tab>
+  <Tab value="CLI">
+
+```sh
+lumis themes build-css catppuccin_frappe > theme.css
+```
+
+  </Tab>
 </Tabs>
 
 The output starts with the theme name and revision, then the container `.lumis` rule, then token rules:
@@ -163,7 +227,7 @@ The output starts with the theme name and revision, then the container `.lumis` 
 
 Use `scope` when the same page needs more than one theme, or when a code block should inherit theme styles only inside part of your app. Do not include a trailing space; Lumis inserts the descendant combinator for you.
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
@@ -214,6 +278,17 @@ css =
 ```
 
   </Tab>
+  <Tab value="CLI">
+
+```sh
+lumis themes build-css catppuccin_frappe \
+  --scope 'html[data-theme="dark"]' \
+  --container-style 'background-color=var(--code-background)' \
+  --container-style 'border-radius=0.375rem' \
+  --container-style 'padding=1rem' > theme.css
+```
+
+  </Tab>
 </Tabs>
 
 That produces selectors like this:
@@ -234,7 +309,7 @@ html[data-theme="dark"] .l-keyword {
 
 The container rule uses `.lumis` by default. Change it when your rendered HTML uses a different wrapper class.
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
@@ -263,6 +338,14 @@ css =
 ```
 
   </Tab>
+  <Tab value="CLI">
+
+```sh
+lumis themes build-css catppuccin_frappe \
+  --container-selector .code-block > theme.css
+```
+
+  </Tab>
 </Tabs>
 
 That changes only the container rule selector:
@@ -279,4 +362,4 @@ That changes only the container rule selector:
 
 ## Other runtimes
 
-Java and the CLI do not expose the CSS builder yet.
+Java does not expose the CSS builder yet.

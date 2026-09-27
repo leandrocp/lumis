@@ -2,6 +2,8 @@ import type { StyleEntry, ThemeData } from "./types.js";
 
 /** Options for {@link buildCss}. */
 export interface BuildCssOptions {
+  /** Include the built-in line layout rules. Defaults to `true`; disable for your own layout. */
+  layout?: boolean;
   /** Whether italic theme styles should be emitted. Defaults to `true`. */
   enableItalic?: boolean;
   /** Parent selector prepended to every generated selector. Defaults to `""`. */
@@ -57,12 +59,14 @@ export function buildCss(theme: ThemeData, options: BuildCssOptions = {}): strin
   }
 
   rules.push(...scopeRules(theme, scope, enableItalic));
-  rules.push(layoutRules(scope));
+  if (options.layout !== false) {
+    rules.push(layoutRules(scope));
+  }
 
   return rules.join("");
 }
 
-// The line layout every stylesheet carries after its colors, the same rules as
+// The default line layout appended after colors unless disabled, the same rules as
 // `LAYOUT_RULES` in `crates/lumis-core/src/themes.rs`; "matches the bundled
 // stylesheet" in `theme-css.test.ts` fails when the two drift. They sit in
 // `@layer lumis` so any CSS outside a layer overrides them. `span.l-line` skips

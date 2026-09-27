@@ -653,6 +653,7 @@ pub struct ExBBCodeHighlightLines {
 
 #[derive(Clone, Debug, NifMap)]
 pub(crate) struct ExCssOptions {
+    pub layout: bool,
     pub enable_italic: bool,
     pub scope: String,
     pub container_selector: String,

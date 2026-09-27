@@ -48,6 +48,7 @@ lumis languages show     Print what the catalog knows about one language
 lumis languages download    Download and compile parsers so later runs skip both
 lumis themes list        List built-in themes and custom themes in the data dir
 lumis themes show        Print one theme's appearance and colors
+lumis themes build-css   Build a theme stylesheet
 lumis themes generate    Extract a theme JSON file from a Neovim colorscheme repo
 ```
 

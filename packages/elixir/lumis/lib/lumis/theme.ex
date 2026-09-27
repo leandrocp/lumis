@@ -36,6 +36,12 @@ defmodule Lumis.Theme do
   @type appearance :: :light | :dark
 
   @css_options_schema [
+    layout: [
+      type: :boolean,
+      default: true,
+      doc:
+        "Include the built-in line layout rules. Set to `false` when your stylesheet supplies its own layout."
+    ],
     enable_italic: [
       type: :boolean,
       default: true,
@@ -75,6 +81,9 @@ defmodule Lumis.Theme do
   Accepts a bundled theme name or a `Lumis.Theme` struct. Use this with the
   `:html_linked` formatter when you need to embed CSS, scope selectors, or
   customize the container code block rule.
+
+  Pass `layout: false` to generate theme styles without the built-in line layout
+  layer. Prebuilt CSS files always include layout.
 
   ## Options
 

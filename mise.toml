@@ -214,6 +214,19 @@ dir = "{{config_root}}/packages/elixir/lumis"
 env = { LUMIS_BUILD = "1" }
 run = "mix test"
 
+[tasks.'test-theme-css']
+description = "Check theme CSS options and output across Rust, CLI, JavaScript, and Elixir"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cargo test -p lumis --no-default-features --test theme_css_options
+cargo test -p lumis-cli --test theme_css_options
+pnpm --filter @lumis-sh/themes run build
+pnpm --filter @lumis-sh/lumis run build:generate
+pnpm --filter @lumis-sh/lumis exec vitest run test/theme-css-options.test.ts test/theme-css.test.ts
+(cd packages/elixir/lumis && LUMIS_BUILD=1 mix test test/theme_css_options_test.exs test/lumis/theme_test.exs)
+'''
+
 [tasks.stress]
 description = "Run the generated Lumis stress-test corpus across runtime boundaries"
 run = "node stress-test/run.mjs"

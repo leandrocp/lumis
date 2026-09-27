@@ -609,6 +609,10 @@ impl Theme {
 struct Css<'a> {
     #[builder(setter(custom))]
     theme: &'a Theme,
+    /// Whether to include the built-in line layout rules. Defaults to `true`.
+    /// Set to `false` when your stylesheet supplies its own layout.
+    #[builder(default = "true")]
+    layout: bool,
     /// Whether italic theme styles should be emitted. Defaults to `true`.
     #[builder(default = "true")]
     enable_italic: bool,
@@ -664,7 +668,7 @@ impl<'a> CssBuilder<'a> {
     }
 }
 
-/// The line layout every theme stylesheet carries after its colors.
+/// The default line layout, appended after theme colors unless disabled.
 ///
 /// It is written inside `@layer lumis`, so any CSS outside a layer overrides it,
 /// and a Tailwind v4 site that declares `lumis` before its own layers overrides
@@ -736,7 +740,9 @@ impl Css<'_> {
             }
         }
 
-        rules.push(self.layout());
+        if self.layout {
+            rules.push(self.layout());
+        }
 
         rules.join("")
     }

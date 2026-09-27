@@ -146,6 +146,20 @@ it can only shrink. It is currently empty.
 
 The browser task installs the required Chromium, Firefox, and WebKit builds before running. CI runs these six tasks as independent parallel jobs.
 
+### The theme CSS option manifest
+
+`fixtures/theme-css-options.json` pins the CSS builder's options, defaults,
+CLI flag spellings, and shared input/output cases. Rust, JavaScript, Elixir,
+and the CLI each check option names in both directions and render the same
+cases. Keep this separate from `fixtures/api.json`, which covers top-level
+highlighting entry points rather than theme builder options.
+
+Add an option to the manifest first and watch the checks fail before implementing it:
+
+```sh
+mise run test-theme-css
+```
+
 ### The top-level API manifest
 
 The manifest above covers the formatters, and so does

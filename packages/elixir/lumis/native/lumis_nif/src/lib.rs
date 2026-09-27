@@ -1057,6 +1057,7 @@ fn build_theme_css(theme: &themes::Theme, options: ExCssOptions) -> String {
     let mut builder = themes::CssBuilder::new(theme);
 
     builder
+        .layout(options.layout)
         .enable_italic(options.enable_italic)
         .scope(options.scope)
         .container_selector(options.container_selector);
