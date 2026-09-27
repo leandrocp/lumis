@@ -154,13 +154,20 @@ type OpenLayer =
   | { type: "annotation"; event: HighlightEvent }
   | { type: "decoration"; event: HighlightEvent };
 
+interface LineState {
+  number: number;
+  pending: boolean;
+}
+
 /**
  * Compose one line decoration per rendered line into `events`.
  *
  * Lines are the outermost layer, so every syntax scope and caller annotation
  * still open at a newline is closed before the line ends and reopened on the
- * next one. That is why a formatter can write the stream straight out instead of
- * assembling lines and wrapping them afterwards.
+ * next one only when another source or opening event needs them. Layers that
+ * end immediately after the newline stay closed. That is why a formatter can
+ * write the stream straight out instead of assembling lines and wrapping them
+ * afterwards.
  *
  * The returned stream always holds at least one line: an empty document is one
  * empty line, the same line a caller sees numbered `1`.
@@ -176,56 +183,61 @@ export function composeLineDecorations<T>(
 ): HighlightEvent<T>[] {
   const output: HighlightEvent<T>[] = [];
   const layers: OpenLayer[] = [];
-  let line = 1;
+  const line: LineState = { number: 1, pending: false };
 
-  output.push(lineStart(line, selection));
+  output.push(lineStart(line.number, selection));
 
   for (const event of events) {
-    line = applyEvent(output, sourceBytes, event, layers, line, selection);
+    applyEvent(output, sourceBytes, event, layers, line, selection);
   }
 
   // An unbalanced input stream would otherwise leave a scope open past the last
   // line, which no formatter can close.
-  closeLayers(output, layers);
+  if (!line.pending) closeLayers(output, layers);
   output.push({ type: "decorationEnd" });
 
   return output;
 }
 
-/** Copy one event through, and return the line number it ends on. */
+/** Copy one event through, updating the current line. */
 function applyEvent<T>(
   output: HighlightEvent<T>[],
   sourceBytes: Uint8Array,
   event: HighlightEvent<T>,
   layers: OpenLayer[],
-  line: number,
+  line: LineState,
   selection: LineSelection,
-): number {
+): void {
   switch (event.type) {
     case "start":
+      reopenPendingLayers(output, layers, line);
       output.push(event);
       layers.push({ type: "syntax", event });
-      return line;
+      return;
     case "end":
-      return closeLayer(output, layers, "syntax", event, line);
+      closeLayer(output, layers, "syntax", event, line.pending);
+      return;
     case "annotationStart":
+      reopenPendingLayers(output, layers, line);
       output.push(event);
       layers.push({ type: "annotation", event });
-      return line;
+      return;
     case "annotationEnd":
-      return closeLayer(output, layers, "annotation", event, line);
+      closeLayer(output, layers, "annotation", event, line.pending);
+      return;
     case "source":
-      return splitSource(output, sourceBytes, event, layers, line, selection);
+      reopenPendingLayers(output, layers, line);
+      splitSource(output, sourceBytes, event, layers, line, selection);
+      return;
     case "decorationStart":
       // A stream that already carries lines is re-composed, not nested.
-      if (event.decoration.type === "line") return line;
+      if (event.decoration.type === "line") return;
+      reopenPendingLayers(output, layers, line);
       output.push(event);
       layers.push({ type: "decoration", event });
-      return line;
+      return;
     case "decorationEnd":
-      return closeLayer(output, layers, "decoration", event, line);
-    default:
-      return line;
+      closeLayer(output, layers, "decoration", event, line.pending);
   }
 }
 
@@ -235,14 +247,12 @@ function closeLayer<T>(
   layers: OpenLayer[],
   kind: OpenLayer["type"],
   event: HighlightEvent<T>,
-  line: number,
-): number {
+  pending: boolean,
+): void {
   if (layers.at(-1)?.type === kind) {
     layers.pop();
-    output.push(event);
+    if (!pending) output.push(event);
   }
-
-  return line;
 }
 
 function lineStart<T>(line: number, selection: LineSelection): HighlightEvent<T> {
@@ -273,6 +283,17 @@ function reopenLayers<T>(output: HighlightEvent<T>[], layers: readonly OpenLayer
   }
 }
 
+function reopenPendingLayers<T>(
+  output: HighlightEvent<T>[],
+  layers: readonly OpenLayer[],
+  line: LineState,
+): void {
+  if (line.pending) {
+    reopenLayers(output, layers);
+    line.pending = false;
+  }
+}
+
 const NEWLINE = 0x0a;
 
 /**
@@ -286,12 +307,11 @@ function splitSource<T>(
   sourceBytes: Uint8Array,
   event: { start: number; end: number },
   layers: readonly OpenLayer[],
-  line: number,
+  line: LineState,
   selection: LineSelection,
-): number {
+): void {
   let cursor = Math.min(event.start, sourceBytes.length);
   const end = Math.max(Math.min(event.end, sourceBytes.length), cursor);
-  let current = line;
 
   while (cursor < end) {
     const newline = sourceBytes.indexOf(NEWLINE, cursor);
@@ -301,16 +321,18 @@ function splitSource<T>(
     closeLayers(output, layers);
     output.push({ type: "decorationEnd" });
 
-    current += 1;
-    output.push(lineStart(current, selection));
-    reopenLayers(output, layers);
+    line.number += 1;
+    output.push(lineStart(line.number, selection));
 
     cursor = newline + 1;
+    if (cursor === end) {
+      line.pending = true;
+      return;
+    }
+    reopenLayers(output, layers);
   }
 
   if (cursor < end) {
     output.push({ type: "source", start: cursor, end });
   }
-
-  return current;
 }

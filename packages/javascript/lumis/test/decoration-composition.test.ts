@@ -2,7 +2,7 @@
  * The TypeScript half of the line-decoration composition parity check.
  *
  * `fixtures/decoration-composition.json` holds one expected event stream per
- * case. `crates/lumis-core/tests/decoration_composition.rs` asserts Rust
+ * case. `crates/lumis-core/src/decorations_parity.rs` asserts Rust
  * produces it; this asserts the port does too. Rust is the reference, so a
  * difference here is a bug in this port.
  *
@@ -110,7 +110,7 @@ function decorationEndNotation(
 describe("line decoration composition parity", () => {
   it("covers the shapes composition has to get right", () => {
     // A discovery bug that found nothing would otherwise pass silently.
-    expect(manifest.cases.length).toBeGreaterThanOrEqual(20);
+    expect(manifest.cases.length).toBeGreaterThanOrEqual(36);
 
     const names = manifest.cases.map((testCase) => testCase.name);
     for (const required of [
@@ -118,6 +118,17 @@ describe("line decoration composition parity", () => {
       "lines/trailing-newline-opens-one-more",
       "lines/blank-line-in-the-middle",
       "scope/closed-and-reopened-across-a-newline",
+      "scope/ends-at-newline",
+      "scope/continues-in-next-source-event",
+      "scope/inner-ends-at-newline-outer-continues",
+      "scope/ends-at-final-newline",
+      "scope/unbalanced-start-at-final-newline",
+      "scope/reopens-before-explicit-empty-scope",
+      "scope/ends-at-crlf-before-blank-line",
+      "annotation/ends-at-newline",
+      "annotation/point-after-range-ending-at-newline",
+      "rainbow/ends-at-newline",
+      "layers/all-end-at-newline",
       "scope/unbalanced-start-closes-before-the-last-line-ends",
       "annotation/closed-and-reopened-across-a-newline",
       "rainbow/crosses-source-and-syntax-boundaries",
@@ -133,9 +144,14 @@ describe("line decoration composition parity", () => {
 
   it("produces the same stream as Rust", () => {
     for (const testCase of manifest.cases) {
-      expect(notation(compose(testCase)), `${testCase.name}: diverged from Rust`).toBe(
-        testCase.expected,
+      const composed = compose(testCase);
+      expect(notation(composed), `${testCase.name}: diverged from Rust`).toBe(testCase.expected);
+      const recomposed = composeLineDecorations(
+        new TextEncoder().encode(testCase.source),
+        composed,
+        new LineSelection(testCase.highlightLines),
       );
+      expect(notation(recomposed), `${testCase.name}: recomposed`).toBe(testCase.expected);
     }
   });
 

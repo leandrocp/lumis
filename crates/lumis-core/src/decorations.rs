@@ -357,7 +357,8 @@ impl<'a, T> OpenLayer<'a, T> {
 ///
 /// Lines are the outermost layer, so every syntax scope and caller annotation
 /// still open at a newline is closed before the line ends and reopened on the
-/// next one. That is the same close-and-reopen
+/// next one only when another source or opening event needs them. Layers that
+/// end immediately after the newline stay closed. That is the same close-and-reopen
 /// [`compose_annotations`](crate::annotations::compose_annotations) does for a
 /// scope an annotation cuts across, and it is why a formatter can write the
 /// stream straight out instead of assembling lines and wrapping them
@@ -395,10 +396,26 @@ pub(crate) fn compose_line_decorations_into<'a, T>(
     let mut layers: Vec<OpenLayer<'a, T>> = Vec::new();
     let mut cursor = selection.cursor();
     let mut line = 1usize;
+    let mut pending = false;
 
     output.push(line_start(line, &mut cursor));
 
     for event in events {
+        if pending
+            && matches!(
+                event,
+                HighlightEvent::Start { .. }
+                    | HighlightEvent::AnnotationStart { .. }
+                    | HighlightEvent::Source { .. }
+                    | HighlightEvent::DecorationStart {
+                        decoration: Decoration::RainbowBracket { .. }
+                    }
+            )
+        {
+            reopen_layers(output, &layers);
+            pending = false;
+        }
+
         match event {
             HighlightEvent::Start {
                 scope_index,
@@ -410,12 +427,6 @@ pub(crate) fn compose_line_decorations_into<'a, T>(
                     language: language.clone(),
                 });
             }
-            HighlightEvent::End => {
-                if matches!(layers.last(), Some(OpenLayer::Syntax { .. })) {
-                    layers.pop();
-                    output.push(HighlightEvent::End);
-                }
-            }
             HighlightEvent::AnnotationStart { range, data } => {
                 output.push(event.clone());
                 layers.push(OpenLayer::Annotation(ResolvedAnnotation {
@@ -423,14 +434,8 @@ pub(crate) fn compose_line_decorations_into<'a, T>(
                     data: *data,
                 }));
             }
-            HighlightEvent::AnnotationEnd => {
-                if matches!(layers.last(), Some(OpenLayer::Annotation(_))) {
-                    layers.pop();
-                    output.push(HighlightEvent::AnnotationEnd);
-                }
-            }
             HighlightEvent::Source { start, end } => {
-                split_source(
+                pending = split_source(
                     output,
                     source,
                     *start,
@@ -448,18 +453,17 @@ pub(crate) fn compose_line_decorations_into<'a, T>(
                 // A stream that already carries lines is re-composed, not nested.
                 Decoration::Line { .. } => {}
             },
-            HighlightEvent::DecorationEnd => {
-                if matches!(layers.last(), Some(OpenLayer::Decoration(_))) {
-                    layers.pop();
-                    output.push(HighlightEvent::DecorationEnd);
-                }
+            HighlightEvent::End | HighlightEvent::AnnotationEnd | HighlightEvent::DecorationEnd => {
+                close_layer(output, &mut layers, event, pending);
             }
         }
     }
 
     // An unbalanced input stream would otherwise leave a scope open past the
     // last line, which no formatter can close.
-    close_layers(output, &layers);
+    if !pending {
+        close_layers(output, &layers);
+    }
     output.push(HighlightEvent::DecorationEnd);
 }
 
@@ -487,6 +491,31 @@ fn close_layers<'a, T>(output: &mut Emit<'_, 'a, T>, layers: &[OpenLayer<'a, T>]
     }
 }
 
+fn close_layer<'a, T>(
+    output: &mut Emit<'_, 'a, T>,
+    layers: &mut Vec<OpenLayer<'a, T>>,
+    event: &HighlightEvent<'a, T>,
+    pending: bool,
+) {
+    if matches!(
+        (layers.last(), event),
+        (Some(OpenLayer::Syntax { .. }), HighlightEvent::End)
+            | (
+                Some(OpenLayer::Annotation(_)),
+                HighlightEvent::AnnotationEnd
+            )
+            | (
+                Some(OpenLayer::Decoration(_)),
+                HighlightEvent::DecorationEnd
+            )
+    ) {
+        layers.pop();
+        if !pending {
+            output.push(event.clone());
+        }
+    }
+}
+
 fn reopen_layers<'a, T>(output: &mut Emit<'_, 'a, T>, layers: &[OpenLayer<'a, T>]) {
     for layer in layers {
         output.push(layer.open_event());
@@ -497,6 +526,7 @@ fn reopen_layers<'a, T>(output: &mut Emit<'_, 'a, T>, layers: &[OpenLayer<'a, T>
 ///
 /// The newline stays inside the line it ends, so concatenating the `Source`
 /// events of the composed stream still reproduces the source exactly.
+/// Returns whether the layers are held closed at a trailing newline.
 fn split_source<'a, T>(
     output: &mut Emit<'_, 'a, T>,
     source: &str,
@@ -505,7 +535,7 @@ fn split_source<'a, T>(
     layers: &[OpenLayer<'a, T>],
     line: &mut usize,
     cursor: &mut LineCursor<'_>,
-) {
+) -> bool {
     let mut cursor_offset = start.min(source.len());
     let end = end.min(source.len()).max(cursor_offset);
 
@@ -527,9 +557,12 @@ fn split_source<'a, T>(
 
         *line += 1;
         output.push(line_start(*line, cursor));
-        reopen_layers(output, layers);
 
         cursor_offset = line_end;
+        if cursor_offset == end {
+            return true;
+        }
+        reopen_layers(output, layers);
     }
 
     if cursor_offset < end {
@@ -538,6 +571,7 @@ fn split_source<'a, T>(
             end,
         });
     }
+    false
 }
 
 #[cfg(test)]

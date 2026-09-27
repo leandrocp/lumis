@@ -185,7 +185,7 @@ fn the_corpus_covers_the_shapes_composition_has_to_get_right() {
 
     // A discovery bug that found nothing would otherwise pass silently.
     assert!(
-        manifest.cases.len() >= 20,
+        manifest.cases.len() >= 36,
         "corpus shrank to {} cases",
         manifest.cases.len()
     );
@@ -195,6 +195,17 @@ fn the_corpus_covers_the_shapes_composition_has_to_get_right() {
         "lines/trailing-newline-opens-one-more",
         "lines/blank-line-in-the-middle",
         "scope/closed-and-reopened-across-a-newline",
+        "scope/ends-at-newline",
+        "scope/continues-in-next-source-event",
+        "scope/inner-ends-at-newline-outer-continues",
+        "scope/ends-at-final-newline",
+        "scope/unbalanced-start-at-final-newline",
+        "scope/reopens-before-explicit-empty-scope",
+        "scope/ends-at-crlf-before-blank-line",
+        "annotation/ends-at-newline",
+        "annotation/point-after-range-ending-at-newline",
+        "rainbow/ends-at-newline",
+        "layers/all-end-at-newline",
         "scope/unbalanced-start-closes-before-the-last-line-ends",
         "annotation/closed-and-reopened-across-a-newline",
         "rainbow/crosses-source-and-syntax-boundaries",
@@ -215,13 +226,18 @@ fn the_corpus_covers_the_shapes_composition_has_to_get_right() {
 fn rust_produces_the_expected_stream() {
     for case in &manifest().cases {
         let annotations = annotations(case);
-        let rendered = notation(&compose(case, &annotations));
+        let composed = compose(case, &annotations);
+        let rendered = notation(&composed);
 
         assert_eq!(
             rendered, case.expected,
             "{}: composition changed",
             case.name
         );
+
+        let recomposed =
+            compose_line_decorations(&case.source, &composed, &selection(&case.highlight_lines));
+        assert_eq!(notation(&recomposed), rendered, "{}: recomposed", case.name);
     }
 }
 

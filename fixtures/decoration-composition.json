@@ -1,6 +1,132 @@
 {
-  "$comment": "Expected event streams for decoration composition. Rust is the reference; crates/lumis-core/tests/decoration_composition.rs asserts it produces these, packages/javascript/lumis/test/decoration-composition.test.ts asserts the TypeScript port produces the same. Notation: L+N/L+N* opens a line decoration (starred when highlighted), L- closes it, R+depth/R- wraps a rainbow bracket, S:scope / E a syntax scope, T:start-end a source range, A+data@start-end / A- a caller annotation.",
+  "$comment": "Expected event streams for decoration composition. Rust is the reference; crates/lumis-core/src/decorations_parity.rs asserts it produces these, packages/javascript/lumis/test/decoration-composition.test.ts asserts the TypeScript port produces the same. Notation: L+N/L+N* opens a line decoration (starred when highlighted), L- closes it, R+depth/R- wraps a rainbow bracket, S:scope / E a syntax scope, T:start-end a source range, A+data@start-end / A- a caller annotation.",
   "cases": [
+    {
+      "name": "scope/ends-at-newline",
+      "source": "a\nb",
+      "events": [
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "source", "start": 0, "end": 2 },
+        { "type": "end" },
+        { "type": "source", "start": 2, "end": 3 }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:comment T:0-2 E L- L+2 T:2-3 L-"
+    },
+    {
+      "name": "annotation/ends-at-newline",
+      "source": "a\nb",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "annotations": [{ "start": 0, "end": 2, "data": "x" }],
+      "highlightLines": [],
+      "expected": "L+1 A+x@0-2 T:0-2 A- L- L+2 T:2-3 L-"
+    },
+    {
+      "name": "rainbow/ends-at-newline",
+      "source": "a\nb",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "rainbowRanges": [{ "start": 0, "end": 2, "depth": 1 }],
+      "highlightLines": [],
+      "expected": "L+1 R+1 T:0-2 R- L- L+2 T:2-3 L-"
+    },
+    {
+      "name": "scope/continues-in-next-source-event",
+      "source": "a\nb",
+      "events": [
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "source", "start": 0, "end": 2 },
+        { "type": "source", "start": 2, "end": 3 },
+        { "type": "end" }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:comment T:0-2 E L- L+2 S:comment T:2-3 E L-"
+    },
+    {
+      "name": "scope/inner-ends-at-newline-outer-continues",
+      "source": "a\nb",
+      "events": [
+        { "type": "start", "scope": "string", "language": "rust" },
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "source", "start": 0, "end": 2 },
+        { "type": "end" },
+        { "type": "source", "start": 2, "end": 3 },
+        { "type": "end" }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:string S:comment T:0-2 E E L- L+2 S:string T:2-3 E L-"
+    },
+    {
+      "name": "layers/all-end-at-newline",
+      "source": "a\nb",
+      "events": [
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "source", "start": 0, "end": 2 },
+        { "type": "end" },
+        { "type": "source", "start": 2, "end": 3 }
+      ],
+      "annotations": [{ "start": 0, "end": 2, "data": "x" }],
+      "rainbowRanges": [{ "start": 0, "end": 2, "depth": 1 }],
+      "highlightLines": [],
+      "expected": "L+1 A+x@0-2 S:comment R+1 T:0-2 R- E A- L- L+2 T:2-3 L-"
+    },
+    {
+      "name": "scope/ends-at-final-newline",
+      "source": "a\n",
+      "events": [
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "source", "start": 0, "end": 2 },
+        { "type": "end" }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:comment T:0-2 E L- L+2 L-"
+    },
+    {
+      "name": "scope/unbalanced-start-at-final-newline",
+      "source": "a\n",
+      "events": [
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "source", "start": 0, "end": 2 }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:comment T:0-2 E L- L+2 L-"
+    },
+    {
+      "name": "scope/reopens-before-explicit-empty-scope",
+      "source": "a\nb",
+      "events": [
+        { "type": "start", "scope": "string", "language": "rust" },
+        { "type": "source", "start": 0, "end": 2 },
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "end" },
+        { "type": "source", "start": 2, "end": 3 },
+        { "type": "end" }
+      ],
+      "highlightLines": [],
+      "expected": "L+1 S:string T:0-2 E L- L+2 S:string S:comment E T:2-3 E L-"
+    },
+    {
+      "name": "annotation/point-after-range-ending-at-newline",
+      "source": "a\nb",
+      "events": [{ "type": "source", "start": 0, "end": 3 }],
+      "annotations": [
+        { "start": 0, "end": 2, "data": "x" },
+        { "start": 2, "end": 2, "data": "point" }
+      ],
+      "highlightLines": [2],
+      "expected": "L+1 A+x@0-2 T:0-2 A- L- L+2* A+point@2-2 A- T:2-3 L-"
+    },
+    {
+      "name": "scope/ends-at-crlf-before-blank-line",
+      "source": "a\r\n\r\nb",
+      "events": [
+        { "type": "start", "scope": "comment", "language": "rust" },
+        { "type": "source", "start": 0, "end": 3 },
+        { "type": "end" },
+        { "type": "source", "start": 3, "end": 6 }
+      ],
+      "highlightLines": [2],
+      "expected": "L+1 S:comment T:0-3 E L- L+2* T:3-5 L- L+3 T:5-6 L-"
+    },
     {
       "name": "empty/no-events",
       "source": "",
