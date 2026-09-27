@@ -438,35 +438,45 @@ annotation range returns an error.
 Call `highlightEvents` inside a formatter’s `render` method.
 
 ```ts
-import {highlightEvents} from '@lumis-sh/lumis'
+import {createHighlighter, highlightEvents} from '@lumis-sh/lumis'
+import type {Formatter} from '@lumis-sh/lumis/formatters'
 import rust from '@lumis-sh/lumis/langs/rust'
 
-const source = 'let value = (1);'
-const events = highlightEvents(source, rust, {
-  rainbowBrackets: true,
-  annotations: [{
-    range: {type: 'offset', start: 4, end: 9},
-    data: {id: 7},
-  }],
-})
+const hl = await createHighlighter({languages: [rust]})
 
-for (const event of events) {
-  if (event.type === 'annotationStart') {
-    console.log(event.range, event.data.id)
-  }
-  if (event.type === 'start') {
-    console.log(event.scope, event.language)
-  }
-  if (
-    event.type === 'decorationStart' &&
-    event.decoration.type === 'rainbowBracket'
-  ) {
-    console.log(
-      'real zero-based depth',
-      event.decoration.depth,
-    )
-  }
+const formatter: Formatter = {
+  language: rust,
+  render(source) {
+    const events = highlightEvents(source, this.language, {
+      rainbowBrackets: true,
+      annotations: [{
+        range: {type: 'offset', start: 4, end: 9},
+        data: {id: 7},
+      }],
+    })
+
+    for (const event of events) {
+      if (event.type === 'annotationStart') {
+        console.log(event.range, event.data.id)
+      }
+      if (event.type === 'start') {
+        console.log(event.scope, event.language)
+      }
+      if (
+        event.type === 'decorationStart' &&
+        event.decoration.type === 'rainbowBracket'
+      ) {
+        console.log(
+          'real zero-based depth',
+          event.decoration.depth,
+        )
+      }
+    }
+    return ''
+  },
 }
+
+hl.highlight('let value = (1);', formatter)
 ```
 
   </Tab>
