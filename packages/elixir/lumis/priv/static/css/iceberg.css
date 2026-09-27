@@ -5,21 +5,6 @@
   color: #c6c8d1;
   background-color: #161821;
 }
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
-}
 .l-attribute {
   color: #b4be82;
 }
@@ -323,4 +308,22 @@ pre.lumis > code {
 }
 .l-variable-parameter-builtin {
   color: #b4be82;
+}
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }

@@ -107,3 +107,14 @@ The block and language classes stay bare: `.lumis` and `language-*`.
 ```
 
 If the pre-built files do not fit, generate a stylesheet at runtime with the [CSS Builder](/themes/css-builder). Use it for parent selectors, custom block selectors, or a background that comes from your app CSS.
+
+## Line layout
+
+Each theme file ends with a small `@layer lumis` block that lays out the lines.
+`<code>` grows to its longest line, lines stretch to the full width so highlights
+reach the edge, and line numbers stay out of copied text. The
+[migration guide](/formatters/html-line-migration#custom-css) lists the rules.
+
+Your own CSS overrides the block as long as it is not in a layer itself. If it
+is, as with Tailwind v4, declare `lumis` before your layers; see
+[Tailwind CSS](/recipes/tailwind-css).

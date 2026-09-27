@@ -664,6 +664,39 @@ impl<'a> CssBuilder<'a> {
     }
 }
 
+/// The line layout every theme stylesheet carries after its colors.
+///
+/// It is written inside `@layer lumis`, so any CSS outside a layer overrides it,
+/// and a Tailwind v4 site that declares `lumis` before its own layers overrides
+/// it with utilities. `span.l-line` skips the `<div>` lines older output has,
+/// which would otherwise all land on one row. `fit-content` keeps a wrapping
+/// block inside its container, and `overflow-wrap: anywhere` stops one long
+/// token from widening every line of it.
+const LAYOUT_RULES: [(&str, &[&str]); 3] = [
+    (
+        "pre.lumis > code",
+        &[
+            "display: block",
+            "width: fit-content",
+            "min-width: 100%",
+            "overflow-wrap: anywhere",
+        ],
+    ),
+    (
+        "pre.lumis > code > span.l-line",
+        &[
+            "display: inline-block",
+            "width: 100%",
+            "min-height: 1lh",
+            "vertical-align: top",
+        ],
+    ),
+    (
+        ".l-line-number",
+        &["-webkit-user-select: none", "user-select: none"],
+    ),
+];
+
 impl Css<'_> {
     fn render(&self) -> String {
         let mut rules = Vec::new();
@@ -681,14 +714,6 @@ impl Css<'_> {
             rules.push(" {}\n".to_string());
         } else {
             rules.push(format!(" {{\n  {container_style}\n}}\n"));
-        }
-
-        for (selector, declarations) in [
-            ("pre.lumis > code", "display: block;\n  width: max-content;\n  min-width: 100%;"),
-            (".l-line", "display: inline-block;\n  width: 100%;\n  min-height: 1lh;\n  vertical-align: top;"),
-            (".l-line-number", "-webkit-user-select: none;\n  user-select: none;"),
-        ] {
-            rules.push(format!("{} {{\n  {declarations}\n}}\n", self.scoped_selector(selector)));
         }
 
         for (scope, style) in &self.theme.highlights {
@@ -711,7 +736,25 @@ impl Css<'_> {
             }
         }
 
+        rules.push(self.layout());
+
         rules.join("")
+    }
+
+    /// [`LAYOUT_RULES`] in `@layer lumis`, scoped like every other rule.
+    fn layout(&self) -> String {
+        let rules: Vec<String> = LAYOUT_RULES
+            .iter()
+            .map(|(selector, declarations)| {
+                format!(
+                    "  {} {{\n    {};\n  }}\n",
+                    self.scoped_selector(selector),
+                    declarations.join(";\n    ")
+                )
+            })
+            .collect();
+
+        format!("@layer lumis {{\n{}}}\n", rules.concat())
     }
 
     /// The selector a scope's rule hangs off.
@@ -958,21 +1001,6 @@ mod tests {
   color: red;
   background-color: green;
 }
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
-}
 .l-keyword {
   color: blue;
   font-style: italic;
@@ -987,6 +1015,24 @@ pre.lumis > code {
 .l-tag-attribute {
   background-color: gray;
   font-weight: bold;
+}
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 
@@ -1080,23 +1126,26 @@ html[data-theme="dark"] .lumis {
   background-color: var(--color-grey-900);
   border-radius: 0.375rem;
 }
-html[data-theme="dark"] pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-html[data-theme="dark"] .l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-html[data-theme="dark"] .l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
-}
 html[data-theme="dark"] .l-keyword {
   color: blue;
+}
+@layer lumis {
+  html[data-theme="dark"] pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  html[data-theme="dark"] pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  html[data-theme="dark"] .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 "#;
 
@@ -1122,24 +1171,27 @@ html[data-theme="dark"] .l-keyword {
  * revision: abc
  */
 .lumis {}
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
-}
 .l-keyword {
   color: blue;
   font-style: italic;
+}
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 
@@ -1156,20 +1208,23 @@ pre.lumis > code {
  * revision: abc
  */
 .lumis {}
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 
@@ -1189,23 +1244,26 @@ pre.lumis > code {
   background-color: green;
   padding: 1rem;
 }
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
-}
 .l-keyword {
   color: blue;
+}
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 
@@ -1229,20 +1287,23 @@ pre.lumis > code {
   color: red;
   background-color: #000;
 }
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 
@@ -1266,20 +1327,23 @@ pre.lumis > code {
   color: red;
   background-color: #000;
 }
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 
@@ -1318,20 +1382,23 @@ pre.lumis > code {
   padding: 1rem;
   overflow-x: auto;
 }
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 
@@ -1358,23 +1425,26 @@ pre.lumis > code {
 .app .lumis {
   color: red;
 }
-.app pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.app .l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.app .l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
-}
 .app .l-keyword {
   color: blue;
+}
+@layer lumis {
+  .app pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .app pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .app .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 
@@ -1390,26 +1460,29 @@ pre.lumis > code {
  * revision: abc
  */
 .lumis {}
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
-}
 .l-keyword {
   color: blue;
   font-weight: bold;
   font-style: italic;
   text-decoration: underline double line-through;
+}
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ";
 

@@ -5,6 +5,7 @@
     "minimal-html",
     "auto-detect-language",
     "linked-html-css-theme-file",
+    "tailwind-css",
     "multi-theme-html",
     "terminal-output",
     "wrap-output-with-custom-html",

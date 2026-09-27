@@ -193,9 +193,10 @@ Lumis.highlight!(
 
 ## Class without inline colors
 
-Omitting the style uses the theme's `highlighted` style. To highlight by class
-alone, so a stylesheet or a utility framework owns the appearance, opt out of
-the inline colors explicitly. Structural line layout styles remain:
+Leaving `style` out uses the theme's `highlighted` style. To color highlighted
+lines with your own class instead, from a stylesheet or a Tailwind utility, turn
+the inline colors off. The line keeps its inline layout, so the class only has to
+set a background:
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
@@ -252,15 +253,16 @@ lumis highlight -f html-inline -h 2 \
 
 ## Full-width backgrounds
 
-Theme CSS gives linked lines `display: inline-block; width: 100%`, and expands
-`pre.lumis > code` with `width: max-content; min-width: 100%`. Inline and
-multi-theme output carry the equivalent styles when highlighting lines.
-Backgrounds therefore cover horizontally scrolled content, not just the visible
-width. Empty styled lines use `min-height: 1lh; vertical-align: top`.
+A highlighted line spans the whole block, including the part you only reach by
+scrolling sideways. For HTML Linked, the theme stylesheet does this with a few
+rules in `@layer lumis`. HTML Inline and HTML Multi-Themes write the same
+declarations inline when lines are highlighted. The
+[migration guide](/formatters/html-line-migration#custom-css) lists the rules.
 
-Keep `.l-line` inline, not `display: block`, or the newline between spans creates
-an extra blank row. Add `box-sizing: border-box` if your line styles add padding
-or borders. See [HTML line markup migration](/formatters/html-line-migration).
+If you style lines yourself, keep `.l-line` inline or inline-block. With
+`display: block`, the newline between two lines becomes an extra blank row. Add
+`box-sizing: border-box` when your line rule adds padding or a border. For
+Tailwind, see [Tailwind CSS](/recipes/tailwind-css).
 
 ## What changes between formatters
 

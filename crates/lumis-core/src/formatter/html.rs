@@ -1195,7 +1195,10 @@ where
     lines
 }
 
-pub(crate) const CODE_LAYOUT: &str = "display: block; width: max-content; min-width: 100%;";
+/// The inline twin of the theme stylesheet's `pre.lumis > code` rule. `fit-content`
+/// rather than `max-content`, so a page that wraps long lines still wraps them.
+pub(crate) const CODE_LAYOUT: &str =
+    "display: block; width: fit-content; min-width: 100%; overflow-wrap: anywhere;";
 pub(crate) const LINE_LAYOUT: &str =
     "display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;";
 

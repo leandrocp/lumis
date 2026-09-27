@@ -1,0 +1,81 @@
+---
+title: Tailwind CSS
+description: Load Lumis theme CSS next to Tailwind v4 and style code lines with utilities.
+keywords:
+  - lumis tailwind
+  - tailwind v4
+  - cascade layers
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+Theme stylesheets keep their line layout in a cascade layer named `lumis`.
+Tailwind v4 keeps its utilities in layers too, and between two layers the one
+declared later wins. Declare `lumis` before importing Tailwind so the utilities
+come out on top:
+
+```css title="app.css"
+@layer lumis;
+@import "tailwindcss";
+```
+
+Load the theme stylesheet the way you already do. Utilities now change the line
+layout without `!`. This wraps long lines and highlights line 2 with a utility
+class:
+
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
+  <Tab value="JavaScript / TypeScript">
+
+```js
+htmlLinked({
+  language: javascript,
+  preClass: 'whitespace-pre-wrap',
+  highlightLines: {lines: [2], class: 'bg-yellow-500/20'},
+})
+```
+
+  </Tab>
+  <Tab value="Rust">
+
+```rust
+use lumis::formatters::html_linked::HighlightLines;
+
+HtmlLinkedBuilder::new()
+    .language(Language::JavaScript)
+    .pre_class(Some("whitespace-pre-wrap".to_string()))
+    .highlight_lines(Some(HighlightLines {
+        lines: vec![2..=2],
+        class: "bg-yellow-500/20".to_string(),
+    }))
+    .build()
+    .unwrap()
+```
+
+  </Tab>
+  <Tab value="Elixir">
+
+```elixir
+{:html_linked,
+ language: "javascript",
+ pre_class: "whitespace-pre-wrap",
+ highlight_lines: %{lines: [2], class: "bg-yellow-500/20"}}
+```
+
+  </Tab>
+  <Tab value="CLI">
+
+```bash
+lumis highlight app.js -f html-linked \
+  --pre-class whitespace-pre-wrap \
+  -H 2 --highlight-lines-class bg-yellow-500/20
+```
+
+  </Tab>
+</Tabs>
+
+A custom highlight class takes the place of `l-highlighted`, so the theme's
+highlight color stays out of the way and the utility sets the background. The
+line still spans the full width.
+
+Theme colors are not in the layer. To override one with a utility, add the
+important modifier, as in `bg-slate-900!` on the `<pre>`.

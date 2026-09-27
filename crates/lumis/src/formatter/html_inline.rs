@@ -234,7 +234,7 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<pre class="lumis" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0" style="display: block; width: max-content; min-width: 100%;"><span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: #e7eaf0;" data-line="1">line 1</span>
+        let expected = r#"<pre class="lumis" style="color: #1f2328; background-color: #ffffff;"><code class="language-plaintext" translate="no" tabindex="0" style="display: block; width: fit-content; min-width: 100%; overflow-wrap: anywhere;"><span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: #e7eaf0;" data-line="1">line 1</span>
 <span class="l-line" data-line="2">line 2</span>
 <span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: #e7eaf0;" data-line="3">line 3</span>
 <span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: #e7eaf0;" data-line="4">line 4</span>
@@ -265,7 +265,7 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0" style="display: block; width: max-content; min-width: 100%;"><span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: yellow" data-line="1">line 1</span>
+        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0" style="display: block; width: fit-content; min-width: 100%; overflow-wrap: anywhere;"><span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: yellow" data-line="1">line 1</span>
 <span class="l-line" data-line="2">line 2</span>
 <span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: yellow" data-line="3">line 3</span>
 <span class="l-line" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: yellow" data-line="4">line 4</span>
@@ -296,7 +296,7 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0" style="display: block; width: max-content; min-width: 100%;"><span class="l-line custom-highlight" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: yellow" data-line="1">line 1</span>
+        let expected = r#"<pre class="lumis"><code class="language-plaintext" translate="no" tabindex="0" style="display: block; width: fit-content; min-width: 100%; overflow-wrap: anywhere;"><span class="l-line custom-highlight" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: yellow" data-line="1">line 1</span>
 <span class="l-line" data-line="2">line 2</span>
 <span class="l-line custom-highlight" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top; background-color: yellow" data-line="3">line 3</span>
 <span class="l-line" data-line="4">line 4</span></code></pre>"#;
@@ -324,7 +324,7 @@ mod tests {
 
         let result = crate::highlight(code, formatter);
 
-        let expected = r#"<pre class="lumis"><code class="language-rust" translate="no" tabindex="0" style="display: block; width: max-content; min-width: 100%;"><span class="l-line custom-highlight" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;" data-line="1"><span>fn</span> <span>main</span><span>()</span> <span>{</span></span>
+        let expected = r#"<pre class="lumis"><code class="language-rust" translate="no" tabindex="0" style="display: block; width: fit-content; min-width: 100%; overflow-wrap: anywhere;"><span class="l-line custom-highlight" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;" data-line="1"><span>fn</span> <span>main</span><span>()</span> <span>{</span></span>
 <span class="l-line" data-line="2">    <span>println!</span><span>(</span><span>&quot;Hello, world!&quot;</span><span>)</span><span>;</span></span>
 <span class="l-line custom-highlight" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;" data-line="3">    <span>let</span> <span>x</span> <span>=</span> <span>42</span><span>;</span></span>
 <span class="l-line" data-line="4"><span>}</span></span></code></pre>"#;

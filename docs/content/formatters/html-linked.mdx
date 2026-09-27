@@ -125,10 +125,12 @@ HTML Linked keeps the same block structure, but token styling moves to CSS class
 - A final source newline ends its line rather than adding an empty numbered line
 - `<span class="...">` carries semantic highlight classes such as `l-keyword` or `l-string`
 
-Theme CSS supplies full-width inline-block lines, keeps empty lines at full
-height, and excludes line numbers from selection copy. Update the stylesheet
-alongside the formatter. Do not set `.l-line` to `display: block` or put the
-lines in a grid; see [HTML line markup migration](/formatters/html-line-migration).
+The theme stylesheet lays the lines out: each one spans the full width, an empty
+line keeps its height, and line numbers stay out of copied text. Those rules sit
+in `@layer lumis`, so your own CSS overrides them; with Tailwind, see
+[Tailwind CSS](/recipes/tailwind-css). Update the stylesheet when you update
+Lumis, and don't set `.l-line` to `display: block` or lay the lines out as a
+grid. [HTML line markup migration](/formatters/html-line-migration) explains why.
 
 ## When to use it
 

@@ -56,20 +56,37 @@ export function buildCss(theme: ThemeData, options: BuildCssOptions = {}): strin
     rules.push(` {\n  ${scopeStyle}\n}\n`);
   }
 
-  for (const [selector, declarations] of [
-    ["pre.lumis > code", "display: block;\n  width: max-content;\n  min-width: 100%;"],
-    [
-      ".l-line",
-      "display: inline-block;\n  width: 100%;\n  min-height: 1lh;\n  vertical-align: top;",
-    ],
-    [".l-line-number", "-webkit-user-select: none;\n  user-select: none;"],
-  ] as const) {
-    rules.push(`${scopedSelector(scope, selector)} {\n  ${declarations}\n}\n`);
-  }
-
   rules.push(...scopeRules(theme, scope, enableItalic));
+  rules.push(layoutRules(scope));
 
   return rules.join("");
+}
+
+// The line layout every stylesheet carries after its colors, the same rules as
+// `LAYOUT_RULES` in `crates/lumis-core/src/themes.rs`; "matches the bundled
+// stylesheet" in `theme-css.test.ts` fails when the two drift. They sit in
+// `@layer lumis` so any CSS outside a layer overrides them. `span.l-line` skips
+// the `<div>` lines older output has, and `overflow-wrap: anywhere` stops one
+// long token from widening a wrapping block.
+const LAYOUT_RULES: readonly (readonly [string, readonly string[]])[] = [
+  [
+    "pre.lumis > code",
+    ["display: block", "width: fit-content", "min-width: 100%", "overflow-wrap: anywhere"],
+  ],
+  [
+    "pre.lumis > code > span.l-line",
+    ["display: inline-block", "width: 100%", "min-height: 1lh", "vertical-align: top"],
+  ],
+  [".l-line-number", ["-webkit-user-select: none", "user-select: none"]],
+];
+
+function layoutRules(scope: string): string {
+  const rules = LAYOUT_RULES.map(
+    ([selector, declarations]) =>
+      `  ${scopedSelector(scope, selector)} {\n    ${declarations.join(";\n    ")};\n  }\n`,
+  ).join("");
+
+  return `@layer lumis {\n${rules}}\n`;
 }
 
 // One rule per scope that renders to anything. `normal` defines the code block's

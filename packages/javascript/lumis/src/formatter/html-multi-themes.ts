@@ -107,7 +107,7 @@ export function formatHtmlMultiThemes(
   });
   const attrs = formatter.highlightLines
     ? mergeAttrs(
-        { style: "display: block; width: max-content; min-width: 100%;" },
+        { style: "display: block; width: fit-content; min-width: 100%; overflow-wrap: anywhere;" },
         formatter.codeAttrs,
       )
     : formatter.codeAttrs;

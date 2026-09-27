@@ -330,7 +330,9 @@ export interface HighlightLinesInline {
   lines: LineSpec[];
   /**
    * `"theme"` uses the theme's highlight background. Any other string is raw
-   * CSS. `null` emits no inline style at all, for highlighting by class alone.
+   * CSS, written after the line layout so it can override it. `null` writes no
+   * colors, for highlighting by class alone; the line keeps its layout, so the
+   * class only has to set a background.
    *
    * Omitting it is the same as `"theme"`.
    */

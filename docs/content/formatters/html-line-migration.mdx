@@ -23,39 +23,56 @@ retain their source terminators.
 
 ## Custom CSS
 
-Update theme CSS along with the formatter. Bundled stylesheets and generated
-`Theme.css` / `build_css` / `buildCss` output include:
+Update the theme stylesheet together with the formatter. The bundled stylesheets,
+and the CSS that `CssBuilder`, `build_css` and `buildCss` generate, end with this
+block:
 
 ```css
-pre.lumis > code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-}
-.l-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 1lh;
-  vertical-align: top;
-}
-.l-line-number {
-  -webkit-user-select: none;
-  user-select: none;
+@layer lumis {
+  pre.lumis > code {
+    display: block;
+    width: fit-content;
+    min-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  pre.lumis > code > span.l-line {
+    display: inline-block;
+    width: 100%;
+    min-height: 1lh;
+    vertical-align: top;
+  }
+  .l-line-number {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 ```
 
-- Replace selectors such as `div.l-line` with `.l-line`.
-- Remove `display: block` from line rules: blocks plus newline text nodes produce
-  extra blank rows. Do not work around it with `code { display: grid }`, which
-  loses empty lines from copies in some engines.
-- Keep the height and alignment declarations: an empty inline-block otherwise
-  has zero height, and baseline alignment can make empty rows taller.
-- Add `box-sizing: border-box` if lines have horizontal padding or borders, so
-  those fit inside `width: 100%`.
+`<code>` grows to its longest line, so a highlighted line covers the whole
+scrolled width, and a block wrapped with `white-space: pre-wrap` still wraps at
+its container. `min-height` keeps an empty line one row tall, and
+`vertical-align: top` stops it from sitting on the baseline and stretching the
+row. The line rule only matches `span.l-line`, so the `<div>` lines older Lumis
+versions wrote keep their block layout.
 
-HTML Inline and HTML Multi-Themes carry layout styles on highlighted and empty
-lines, code-width styles when line highlighting is configured, and copy
-protection on gutters. Opting out of highlight colors does not remove layout.
+The block lives in the `lumis` cascade layer. Rules outside a layer beat layered
+rules regardless of specificity or load order, so your own CSS wins. If your CSS
+is in layers too, as with Tailwind v4, declare `lumis` before them; the
+[Tailwind CSS recipe](/recipes/tailwind-css) shows the one line it takes.
+
+If your stylesheet targets lines:
+
+- Replace selectors such as `div.l-line` with `.l-line`.
+- Drop `display: block` from line rules. A block line plus the newline after it
+  renders an extra blank row. `code { display: grid }` is no way around it
+  either: some engines then leave empty lines out of copied text.
+- Add `box-sizing: border-box` when a line has horizontal padding or a border,
+  so it still fits in `width: 100%`.
+
+HTML Inline and HTML Multi-Themes have no stylesheet, so they write the same
+layout as inline styles: on highlighted and empty lines, on `<code>` when lines
+are highlighted, and `user-select: none` on line numbers. `style: nil` (`null` in
+JavaScript) drops the highlight colors and keeps the layout.
 
 ## Custom formatters
 

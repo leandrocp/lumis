@@ -122,10 +122,12 @@ describe("D4 highlightLines style", () => {
     expect(lineAttrs("outline: 1px solid red;")).toContain("outline: 1px solid red;");
   });
 
-  it("emits no inline style at all for null, leaving the class to do it", () => {
+  it("writes only the line layout for null, leaving the colors to the class", () => {
     const html = lineAttrs(null);
 
-    expect(html).toContain('class="l-line active"');
+    expect(html).toContain(
+      '<span class="l-line active" style="display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;"',
+    );
     expect(html).not.toContain("background-color: #303030");
   });
 });

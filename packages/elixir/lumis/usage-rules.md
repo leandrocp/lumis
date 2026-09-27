@@ -462,7 +462,7 @@ Lumis.highlight!(code,
   }
 )
 
-# CSS class only (no inline style)
+# CSS class only (no inline colors; the line layout stays)
 Lumis.highlight!(code,
   formatter: {:html_inline,
     language: "elixir",
@@ -644,23 +644,15 @@ a scope per language, and an injected block carries its own language on its
 Lumis generates semantic HTML with line wrappers:
 
 ```html
-<pre class="lumis" style="color: #abb2bf; background-color: #282c34;">
-  <code class="language-elixir" translate="no" tabindex="0">
-    <span class="l-line" data-line="1">
-      <span style="color: #c678dd;">defmodule</span>
-      <span style="color: #e5c07b;">MyApp</span>
-    </span>
-    <span class="l-line" data-line="2">
-      ...
-    </span>
-  </code>
-</pre>
+<pre class="lumis" style="color: #abb2bf; background-color: #282c34;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span style="color: #c678dd;">defmodule</span> <span style="color: #e5c07b;">MyApp</span> <span style="color: #c678dd;">do</span></span>
+<span class="l-line" data-line="2">...</span></code></pre>
 ```
 
 Key points:
-- Each line is wrapped in `<span class="l-line" data-line="N">`
-- Each source `\n` or `\r\n` sits just before its line's `</span>`; none is added
-  to an unterminated final line
+- Each line is a `<span class="l-line" data-line="N">` holding only that line's content
+- A `\n` sits between line spans and nothing follows the last one; a final
+  newline in the source does not add an empty line
+- Don't reformat the output: whitespace between the spans shows up in the `<pre>`
 - The `data-line` attribute contains the line number (1-indexed)
 - The `<code>` tag has `translate="no"` to prevent browser translation
 - The `<code>` tag has `tabindex="0"` for keyboard accessibility

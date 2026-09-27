@@ -34,7 +34,7 @@ body {
 
 .inspector-demo > code {
   display: block;
-  width: max-content;
+  width: fit-content;
   min-width: 100%;
 }
 

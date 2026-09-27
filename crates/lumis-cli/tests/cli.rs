@@ -1092,7 +1092,7 @@ fn highlight_source_html_inline_routes_parity_options() {
         ))
         .stdout(predicate::str::contains("id=\"pre&quot;&amp;\""))
         .stdout(predicate::str::contains(
-            "<code class=\"language-diff\" translate=\"yes\" tabindex=\"-1\" style=\"display: block; width: max-content; min-width: 100%;\">",
+            "<code class=\"language-diff\" translate=\"yes\" tabindex=\"-1\" style=\"display: block; width: fit-content; min-width: 100%; overflow-wrap: anywhere;\">",
         ))
         .stdout(predicate::str::contains(
             "<span class=\"l-line selected\" style=\"display: inline-block; width: 100%; min-height: 1lh; vertical-align: top;\" data-line=\"1\"><span class=\"l-line-number l-line-number-highlighted\" style=\"-webkit-user-select: none; user-select: none; color: #f8f8f2; font-weight: bold;\" aria-hidden=\"true\">1</span>",
