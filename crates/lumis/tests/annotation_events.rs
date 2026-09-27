@@ -72,7 +72,7 @@ fn events_without_annotations_remain_static_with_a_cancellation_flag() {
         )
         .unwrap()
     };
-    assert!(!events.is_empty());
+    assert_ne!(events, [] as [HighlightEvent<'_>; 0]);
 }
 
 #[test]
