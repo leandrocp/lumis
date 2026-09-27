@@ -1,5 +1,5 @@
 {
-  "implementationCommit": "14531a977cfdfa8bb11514662b4f60bd7c5c6a0d",
+  "implementationCommit": "fd761b7cd8577de7a0fc4db3d8bbf93635ace8ae",
   "platform": "darwin/arm64",
   "node": "v26.10.0",
   "playwright": "1.61.1",
@@ -62,49 +62,49 @@
   "html": {
     "cli": {
       "file": "html/cli.json",
-      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "sha256": "20254c41266d3e7bd719a9783e8a14d76f3b28f24dd4c8eef1e005eeb1340c9c",
       "variants": 54,
       "matchesRust": true
     },
     "rust": {
       "file": "html/rust.json",
-      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "sha256": "20254c41266d3e7bd719a9783e8a14d76f3b28f24dd4c8eef1e005eeb1340c9c",
       "variants": 54,
       "matchesRust": true
     },
     "elixir": {
       "file": "html/elixir.json",
-      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "sha256": "20254c41266d3e7bd719a9783e8a14d76f3b28f24dd4c8eef1e005eeb1340c9c",
       "variants": 54,
       "matchesRust": true
     },
     "node-native": {
       "file": "html/node-native.json",
-      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "sha256": "20254c41266d3e7bd719a9783e8a14d76f3b28f24dd4c8eef1e005eeb1340c9c",
       "variants": 54,
       "matchesRust": true
     },
     "node-wasm": {
       "file": "html/node-wasm.json",
-      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "sha256": "20254c41266d3e7bd719a9783e8a14d76f3b28f24dd4c8eef1e005eeb1340c9c",
       "variants": 54,
       "matchesRust": true
     },
     "browser-wasm-chromium": {
       "file": "html/browser-wasm-chromium.json",
-      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "sha256": "20254c41266d3e7bd719a9783e8a14d76f3b28f24dd4c8eef1e005eeb1340c9c",
       "variants": 54,
       "matchesRust": true
     },
     "browser-wasm-firefox": {
       "file": "html/browser-wasm-firefox.json",
-      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "sha256": "20254c41266d3e7bd719a9783e8a14d76f3b28f24dd4c8eef1e005eeb1340c9c",
       "variants": 54,
       "matchesRust": true
     },
     "browser-wasm-webkit": {
       "file": "html/browser-wasm-webkit.json",
-      "sha256": "4b784acacfb7f01ee6fcb20fcff1d0221d1f45e1d6d0a077f1399bc541aeeb79",
+      "sha256": "20254c41266d3e7bd719a9783e8a14d76f3b28f24dd4c8eef1e005eeb1340c9c",
       "variants": 54,
       "matchesRust": true
     }
