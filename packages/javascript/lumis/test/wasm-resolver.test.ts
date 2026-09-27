@@ -140,6 +140,46 @@ describe("Wasm resolver", () => {
     expect(html).toContain('class="language-diff"');
   }, 30_000);
 
+  it("verifies withWasm bytes against the manifest paired with them", async () => {
+    const { createHighlighter, withWasm } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const { default: diff } = await import("../langs/diff.ts");
+
+    // The range resolves to a newer patch whose parser and queries both differ
+    // from the bytes the app bundled, as on the CDN after a parser release.
+    const manifest = localLanguagePackageMetadata(diff.packageName);
+    const newer = structuredClone(manifest);
+    newer.version = "0.26.1";
+    newer.parser.sha256 = "0".repeat(64);
+    newer.parser.size += 33;
+    newer.languages.diff.highlights = "(";
+    const newerUrl = `data:application/json;base64,${Buffer.from(JSON.stringify(newer)).toString("base64")}`;
+    const wasm = new Uint8Array(readFileSync(fileURLToPath(ensureLocalWasm("diff"))));
+
+    await expect(
+      createHighlighter({
+        languages: [withWasm(diff, wasm)],
+        languagePackageResolver: () => newerUrl,
+      }),
+    ).rejects.toThrow("Invalid WASM size");
+    await expect(
+      createHighlighter({
+        languages: [withWasm(diff, { wasm, manifest: newer })],
+        languagePackageResolver: () => newerUrl,
+      }),
+    ).rejects.toThrow("Invalid WASM size");
+
+    const language = withWasm(diff, { wasm, manifest });
+    const hl = await createHighlighter({
+      languages: [language],
+      languagePackageResolver: () => newerUrl,
+    });
+
+    expect(hl.highlight("- old\n+ new", htmlLinked({ language }))).toContain(
+      'class="language-diff"',
+    );
+  }, 30_000);
+
   it("accepts wasmResolver in createHighlighter options", async () => {
     const { createHighlighter } = await import("../src/index.js");
     const { htmlLinked } = await import("../src/formatters.js");

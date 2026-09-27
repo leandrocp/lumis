@@ -63,8 +63,10 @@ export function highlight(...args: Parameters<typeof highlighter.highlight>) {
 /** {@inheritDoc index.withWasm} */
 export function withWasm<T extends import("./types.js").Language>(
   language: T,
-  wasm: import("./types.js").RuntimeWasmInput,
-): Omit<T, "wasm"> & { wasm: import("./types.js").RuntimeWasmInput } {
+  wasm: import("./types.js").RuntimeWasmInput | import("./types.js").RuntimeWasmPackage,
+): Omit<T, "wasm"> & {
+  wasm: import("./types.js").RuntimeWasmInput | import("./types.js").RuntimeWasmPackage;
+} {
   return {
     ...language,
     wasm,
@@ -117,6 +119,7 @@ export type {
   Theme,
   WasmRef,
   RuntimeWasmInput,
+  RuntimeWasmPackage,
   RuntimeWasmBundle,
   SyntaxHighlightEvent,
   LanguageInfo,

@@ -116,11 +116,25 @@ export function highlight(...args: Parameters<typeof highlighter.highlight>) {
  *
  * Useful in browser bundlers when you want to import a parser package directly,
  * for example `import elixirWasm from '@lumis-sh/wasm-elixir'`.
+ *
+ * Pair the bytes with the package's `lumis.json` to verify them against the
+ * version they came from. Without it, the browser checks them against the
+ * newest compatible patch on the CDN, which fails once a parser patch changes
+ * the binary your lockfile still pins.
+ *
+ * ```ts
+ * import elixirWasm from '@lumis-sh/wasm-elixir'
+ * import elixirManifest from '@lumis-sh/wasm-elixir/lumis.json'
+ *
+ * const language = withWasm(elixir, { wasm: elixirWasm, manifest: elixirManifest })
+ * ```
  */
 export function withWasm<T extends import("./types.js").Language>(
   language: T,
-  wasm: import("./types.js").RuntimeWasmInput,
-): Omit<T, "wasm"> & { wasm: import("./types.js").RuntimeWasmInput } {
+  wasm: import("./types.js").RuntimeWasmInput | import("./types.js").RuntimeWasmPackage,
+): Omit<T, "wasm"> & {
+  wasm: import("./types.js").RuntimeWasmInput | import("./types.js").RuntimeWasmPackage;
+} {
   return {
     ...language,
     wasm,
@@ -131,6 +145,7 @@ export function withWasm<T extends import("./types.js").Language>(
  * Apply a map of statically imported WASM assets to every matching language in a bundle.
  *
  * Useful with packages like `@lumis-sh/wasm-bundle-web` in browser bundlers.
+ * Entries take the same `{ wasm, manifest }` pair as {@link withWasm}.
  */
 export function withWasmBundle(
   bundle: import("./types.js").LanguageBundle,
@@ -179,6 +194,7 @@ export type {
   Theme,
   WasmRef,
   RuntimeWasmInput,
+  RuntimeWasmPackage,
   RuntimeWasmBundle,
   SyntaxHighlightEvent,
   LanguageInfo,

@@ -24,6 +24,12 @@ export const identifierOnlyReference: LanguageRef = { id: "python", aliases: [] 
 export const generatedPackageHandle: LanguagePackageHandle = diff;
 export const generatedPlaintext: PlaintextLanguage = plaintext;
 export const importedHandleWithWasm: LanguagePackageHandle = withWasm(diff, new Uint8Array());
+// The shape a bundler's JSON import of `lumis.json` has, `null` fields included.
+declare const importedManifest: { packageName: string; parser: { revision: null } };
+export const importedHandleWithManifest: LanguagePackageHandle = withWasm(diff, {
+  wasm: new Uint8Array(),
+  manifest: importedManifest,
+});
 
 export const extensibleLanguage: ExtendedLanguage = {
   ...diff,

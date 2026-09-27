@@ -21,6 +21,7 @@ import type {
   LanguageInfo,
   LoadedLanguage,
   LumisHighlightEvent,
+  RuntimeWasmInput,
   WasmRef,
 } from "../types.js";
 import { BUILTIN_FORMATTER, getBuiltinFormatter } from "./builtin-formatter.js";
@@ -33,6 +34,7 @@ import {
   DEFAULT_RESOLVER,
   normalizeLanguageName,
   parseLanguagePackage,
+  resolveLoadSource,
   verifyWasm,
 } from "./languages.js";
 import type {
@@ -127,8 +129,6 @@ function parseWasmRef(json: string): WasmRef {
   if (!isWasmRef(value)) throw new Error("native runtime returned invalid parser metadata");
   return value;
 }
-
-type RuntimeWasmInput = Exclude<NonNullable<LoadLanguageOptions["wasm"]>, WasmRef>;
 
 interface NativeResolverState {
   wasmResolver?: WasmResolver;
@@ -416,8 +416,13 @@ export function createNativeLanguagesModule(
         throw new Error(`Language "${opts.definition.id}" has no packageName`);
       }
 
-      const packaged = await this.resolveLanguagePackage(opts.definition, opts.packageName);
-      const resolved = { ...packaged, ...(opts.wasm === undefined ? {} : { wasm: opts.wasm }) };
+      const { packaged, wasm: source } = await resolveLoadSource(
+        this,
+        opts.definition,
+        opts.packageName,
+        opts.wasm,
+      );
+      const resolved = { ...packaged, wasm: source };
       if (!resolved.wasm || resolved.highlights === undefined) {
         throw new Error(`Language package "${opts.packageName}" has no parser or highlights query`);
       }

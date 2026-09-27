@@ -21,6 +21,8 @@ import type {
   LoadedLanguage,
   LumisHighlightEvent,
   QueryCaptureOffset,
+  RuntimeWasmInput,
+  RuntimeWasmPackage,
   WasmRef,
 } from "../types.js";
 import { PLAINTEXT_LANG_ID, type LanguageInfo } from "../types.js";
@@ -119,8 +121,11 @@ function compileBracketConfig(
 export interface LoadLanguageOptions {
   definition: LanguageDefinition;
   packageName?: string;
-  /** Where the parser bytes come from. Queries always come from the package. */
-  wasm?: WasmRef | Uint8Array | ArrayBuffer | string | URL | Response;
+  /**
+   * Where the parser bytes come from. Queries always come from the package:
+   * the one paired with the bytes, or else the one resolved by name.
+   */
+  wasm?: WasmRef | RuntimeWasmInput | RuntimeWasmPackage;
 }
 
 export interface HighlighterRuntimeOptions {
@@ -266,10 +271,12 @@ function isWasmRef(wasm: object): wasm is WasmRef {
   );
 }
 
-function isRuntimeWasmInput(
-  wasm: NonNullable<LoadLanguageOptions["wasm"]>,
-): wasm is Uint8Array | ArrayBuffer | string | URL | Response {
+function isRuntimeWasmInput(wasm: WasmRef | RuntimeWasmInput): wasm is RuntimeWasmInput {
   return !(typeof wasm === "object" && wasm !== null && isWasmRef(wasm));
+}
+
+function isRuntimeWasmPackage(wasm: LoadLanguageOptions["wasm"]): wasm is RuntimeWasmPackage {
+  return typeof wasm === "object" && wasm !== null && "wasm" in wasm && "manifest" in wasm;
 }
 
 export function languagePackageCacheKey(packageName: string): string {
@@ -285,6 +292,11 @@ export function parseLanguagePackage(
     throw new Error(`Invalid Lumis language package: ${expectedPackageName}`);
   }
   const parsed: unknown = JSON.parse(json);
+  return validateLanguagePackage(parsed, expectedPackageName);
+}
+
+/** A language package that is already parsed, such as a bundler's import of `lumis.json`. */
+function validateLanguagePackage(parsed: unknown, expectedPackageName: string): LanguagePackage {
   if (!hasOnlyUnicodeScalarStrings(parsed)) {
     throw new Error(`Invalid Lumis language package: ${expectedPackageName}`);
   }
@@ -618,6 +630,54 @@ function packagedLanguage(
   throw new Error(
     `Language "${language.id}" is not provided by ${packageMetadata.packageName}@${packageMetadata.version}`,
   );
+}
+
+function resolvedLanguagePackage(
+  language: LanguageDefinition,
+  packageMetadata: LanguagePackage,
+): ResolvedLanguagePackage {
+  const [id, packaged] = packagedLanguage(language, packageMetadata);
+  return {
+    definition: { id, aliases: packaged.aliases },
+    wasm: {
+      packageName: packageMetadata.packageName,
+      name: packageMetadata.parser.name,
+      version: packageMetadata.version,
+      sha256: packageMetadata.parser.sha256,
+      size: packageMetadata.parser.size,
+    },
+    grammarName: packageMetadata.parser.grammarName,
+    highlights: packaged.highlights,
+    injections: packaged.injections,
+    locals: packaged.locals,
+    brackets: packaged.brackets,
+  };
+}
+
+/**
+ * The package a load verifies against and takes its queries from, and where
+ * its parser bytes come from.
+ *
+ * Bytes paired with their own `lumis.json` use that manifest. Resolving one by
+ * range instead would check the version a lockfile pinned against whatever
+ * patch was published last, so a parser patch that changes the binary would
+ * stop the older bytes from loading.
+ */
+export async function resolveLoadSource(
+  runtime: Pick<RuntimeLike, "resolveLanguagePackage">,
+  definition: LanguageDefinition,
+  packageName: string,
+  wasm: LoadLanguageOptions["wasm"],
+): Promise<{ packaged: ResolvedLanguagePackage; wasm: WasmRef | RuntimeWasmInput }> {
+  if (isRuntimeWasmPackage(wasm)) {
+    const packageMetadata = validateLanguagePackage(wasm.manifest, packageName);
+    if (!isCompatibleLanguagePackageVersion(packageMetadata.version)) {
+      throw incompatiblePackageVersion(packageMetadata);
+    }
+    return { packaged: resolvedLanguagePackage(definition, packageMetadata), wasm: wasm.wasm };
+  }
+  const packaged = await runtime.resolveLanguagePackage(definition, packageName);
+  return { packaged, wasm: wasm ?? packaged.wasm };
 }
 
 let treeSitterPromise: Promise<typeof import("web-tree-sitter")> | undefined;
@@ -1315,7 +1375,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     // A package reference resolves through the store; anything else is a source
     // the runtime knows how to reach.
     private async readParserWasm(
-      resolved: { wasm: NonNullable<LoadLanguageOptions["wasm"]>; definition: { id: string } },
+      resolved: { wasm: WasmRef | RuntimeWasmInput; definition: { id: string } },
       requestedId: string,
     ): Promise<Uint8Array> {
       const { wasm } = resolved;
@@ -1344,8 +1404,13 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
         throw new Error(`Language "${opts.definition.id}" has no packageName`);
       }
 
-      const packaged = await this.resolveLanguagePackage(opts.definition, opts.packageName);
-      const resolved = { ...packaged, ...(opts.wasm === undefined ? {} : { wasm: opts.wasm }) };
+      const { packaged, wasm } = await resolveLoadSource(
+        this,
+        opts.definition,
+        opts.packageName,
+        opts.wasm,
+      );
+      const resolved = { ...packaged, wasm };
       if (!resolved.wasm || resolved.highlights === undefined) {
         throw new Error(`Language package "${opts.packageName}" has no parser or highlights query`);
       }
@@ -1403,23 +1468,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       language: LanguageDefinition,
       packageName: string,
     ): Promise<ResolvedLanguagePackage> {
-      const packageMetadata = await this.resolvePackage(packageName);
-      const [id, packaged] = packagedLanguage(language, packageMetadata);
-      return {
-        definition: { id, aliases: packaged.aliases },
-        wasm: {
-          packageName: packageMetadata.packageName,
-          name: packageMetadata.parser.name,
-          version: packageMetadata.version,
-          sha256: packageMetadata.parser.sha256,
-          size: packageMetadata.parser.size,
-        },
-        grammarName: packageMetadata.parser.grammarName,
-        highlights: packaged.highlights,
-        injections: packaged.injections,
-        locals: packaged.locals,
-        brackets: packaged.brackets,
-      };
+      return resolvedLanguagePackage(language, await this.resolvePackage(packageName));
     }
 
     async initParser(): Promise<void> {

@@ -272,8 +272,12 @@ import { htmlInline } from "@lumis-sh/lumis/formatters";
 import elixir from "@lumis-sh/lumis/langs/elixir";
 import latte from "@lumis-sh/themes/catppuccin_latte";
 import elixirWasm from "@lumis-sh/wasm-elixir";
+import elixirManifest from "@lumis-sh/wasm-elixir/lumis.json";
 
-const elixirFromNpm = withWasm(elixir, elixirWasm);
+const elixirFromNpm = withWasm(elixir, {
+  wasm: elixirWasm,
+  manifest: elixirManifest,
+});
 
 const hl = await createHighlighter({
   languages: [elixirFromNpm],
@@ -286,6 +290,8 @@ const html = hl.highlight(
 ```
 
 Use this when you want bundler-managed parser assets instead of a CDN fetch in browsers or similar non-Node environments.
+
+Pass the package's `lumis.json` with the parser so both come from the version your lockfile installed. A browser has no installed package to read it from, so without one Lumis fetches the newest compatible patch from the CDN and checks your bytes against it, and a parser patch that changes the binary makes them fail to load. Packages published before `lumis.json` was part of their exports cannot be paired; update them first.
 
 See [`packages/javascript/lumis/examples/npm-wasm-browser`](https://github.com/leandrocp/lumis/tree/main/packages/javascript/lumis/examples/npm-wasm-browser).
 
