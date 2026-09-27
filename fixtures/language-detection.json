@@ -84,6 +84,12 @@
     "expected": "ruby"
   },
   {
+    "name": "Emacs mode header without a trailing semicolon",
+    "hint": null,
+    "source": "; -*- mode: Lisp -*-\n",
+    "expected": "commonlisp"
+  },
+  {
     "name": "Emacs shorthand header",
     "hint": null,
     "source": "# -*-python-*-\nprint('ok')",

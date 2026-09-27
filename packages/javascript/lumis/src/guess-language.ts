@@ -64,7 +64,9 @@ function fromEmacsModeHeader(source: string): string | undefined {
   const lines = source.split(/\r?\n/).slice(0, 2);
 
   for (const line of lines) {
-    const modeMatch = line.match(/-\*-.*mode:([^;]+?);.*-\*-/);
+    // Ports `from_emacs_mode_header`: Emacs only needs a `;` between file
+    // variables, so `; -*- mode: Lisp -*-` has none.
+    const modeMatch = line.match(/-\*-.*?mode: *([a-zA-Z0-9_+-]+).*-\*-/);
     const shorthandMatch = line.match(/-\*-(.+)-\*-/);
     const rawMode = modeMatch?.[1] ?? shorthandMatch?.[1];
     if (rawMode == null) {
