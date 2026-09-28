@@ -62,5 +62,6 @@ Preset bundle packages are also available, such as `@lumis-sh/wasm-bundle-web`, 
 - package list: [Languages](/reference/languages)
 - helper for npm parser packages in non-Node runtimes: `withWasm()` from `@lumis-sh/lumis`
 - helper for npm preset bundles in non-Node runtimes: `withWasmBundle()` from `@lumis-sh/lumis`
-- loading and resolver behavior: [WASM and CDN](/advanced/wasm-and-cdn)
+- loading: [Languages](/languages)
+- parser sources and resolvers: [JavaScript / TypeScript](/usage/javascript#where-parsers-come-from)
 - JavaScript / TypeScript usage: [JavaScript / TypeScript](/usage/javascript)

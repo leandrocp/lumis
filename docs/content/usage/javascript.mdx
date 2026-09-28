@@ -200,6 +200,126 @@ Useful for dropdowns, config validation, and docs tooling:
 - non-Node usage usually relies on remote parser assets unless you override the resolver, use `withWasm()` with a single npm parser package such as `@lumis-sh/wasm-json`, or use `withWasmBundle()` with a bundle package such as `@lumis-sh/wasm-bundle-web`
 - Bun and Deno are also supported
 
+## Where parsers come from
+
+Every language is a package. `@lumis-sh/wasm-rust` holds the Rust parser, the
+queries written for it, and the parser's size and SHA-256 digest. The language
+you import, such as `@lumis-sh/lumis/langs/rust`, only names that package. A
+parser and its queries are released and tested together, so Lumis never pairs a
+parser with queries from another release, and it refuses parser bytes that don't
+match the digest.
+
+<Tabs groupId="parser-source" persist items={['Node', 'Browsers']}>
+  <Tab value="Node">
+
+Install the parsers you highlight, one at a time or as a bundle:
+
+```bash
+npm install @lumis-sh/wasm-elixir
+npm install @lumis-sh/wasm-bundle-web
+```
+
+Then import languages as usual. Lumis reads each parser out of its package in
+`node_modules` and downloads nothing:
+
+```ts
+import { createHighlighter } from "@lumis-sh/lumis";
+import elixir from "@lumis-sh/lumis/langs/elixir";
+
+const hl = await createHighlighter({ languages: [elixir] });
+```
+
+A bundle package matches the Lumis bundle of the same name, so
+`@lumis-sh/wasm-bundle-web` covers every language in
+`@lumis-sh/lumis/bundles/web`. A language whose package the project didn't
+install is refused. [Declaring parsers](/advanced/lock) explains why.
+
+  </Tab>
+  <Tab value="Browsers">
+
+A browser has no `node_modules` to read, so by default Lumis fetches parsers
+from jsDelivr, falling back to unpkg. It asks for the package metadata first,
+then for the exact parser version the metadata names:
+
+```text
+https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<name>@0.26/lumis.json
+https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<name>@<version>/<parser>.wasm
+```
+
+Verified bytes are kept in CacheStorage, or IndexedDB on WebKit, so a reload
+doesn't fetch them again.
+
+To ship parsers with your app instead, import them from npm and let your bundler
+handle the files. `withWasm()` attaches one parser to its language:
+
+```ts
+import { createHighlighter, withWasm } from "@lumis-sh/lumis";
+import elixir from "@lumis-sh/lumis/langs/elixir";
+import elixirWasm from "@lumis-sh/wasm-elixir";
+
+const hl = await createHighlighter({
+  languages: [withWasm(elixir, elixirWasm)],
+});
+```
+
+`withWasmBundle()` does the same for a whole bundle:
+
+```ts
+import { createHighlighter, withWasmBundle } from "@lumis-sh/lumis";
+import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import { bundledWasms } from "@lumis-sh/wasm-bundle-web";
+
+const languages = withWasmBundle(bundledLanguages, bundledWasms);
+const hl = await createHighlighter({ languages: [languages] });
+
+await hl.loadLanguage(languages.javascript);
+```
+
+Both change only where the bytes come from. They still have to match the
+package's digest.
+
+  </Tab>
+</Tabs>
+
+## Custom resolvers
+
+A resolver tells Lumis where to find package metadata and parser files, such as
+your own CDN or a directory you serve. Configuring one is a declaration of its
+own, so on Node it takes precedence over the installed packages.
+
+```ts title="Every highlighter"
+import {
+  configureLanguagePackageResolver,
+  configureWasmResolver,
+} from "@lumis-sh/lumis";
+
+configureLanguagePackageResolver(
+  (packageName, versionRange) =>
+    `https://unpkg.com/${packageName}@${versionRange}/lumis.json`,
+);
+
+configureWasmResolver(
+  (_language, wasm) =>
+    `https://unpkg.com/${wasm.packageName}@${wasm.version}/${wasm.name}.wasm`,
+);
+```
+
+```ts title="One highlighter"
+import { createHighlighter } from "@lumis-sh/lumis";
+import rust from "@lumis-sh/lumis/langs/rust";
+
+const hl = await createHighlighter({
+  languages: [rust],
+  languagePackageResolver: (packageName) =>
+    `/wasm/${encodeURIComponent(packageName)}/lumis.json`,
+  wasmResolver: (_language, wasm) => `/wasm/${wasm.name}.wasm`,
+});
+```
+
+Whatever a resolver returns is still checked against the package's digest. On
+Node, resolvers also answer for languages found inside a document; the next
+section covers what that walk can read.
+
 ## Injected languages
 
 On Node, highlighting loads a language injected inside a document during the
@@ -209,7 +329,7 @@ cannot be fetched leaves its own block plain rather than failing the document,
 and Lumis warns once naming it.
 
 Configured [`configureLanguagePackageResolver()` and
-`configureWasmResolver()`](/advanced/wasm-and-cdn#override-the-resolver) callbacks
+`configureWasmResolver()`](#custom-resolvers) callbacks
 participate in that same Node native path. They apply to a language first
 discovered mid-document as well as to the root language, without a preload or
 second pass.
@@ -239,7 +359,7 @@ Languages from a bundle, including one with parser bytes from
 `@lumis-sh/wasm-bundle-web`, are registered but not loaded. Call
 `hl.loadLanguage()` for each one the document uses before highlighting it.
 
-See [Highlighting loads what a document needs](/advanced/wasm-and-cdn#highlighting-loads-what-a-document-needs).
+See [On demand](/languages#on-demand).
 
 ## Preload languages during application startup
 
@@ -253,7 +373,7 @@ import { loadLanguages } from "@lumis-sh/lumis";
 
 await startServer();
 
-// Not awaited, so a slow CDN delays no request. The
+// Not awaited, so a slow compile delays no request. The
 // `.catch()` is required: an unhandled rejection
 // terminates the process.
 loadLanguages(["javascript", "html", "css"]).catch(
@@ -270,18 +390,17 @@ loadLanguages(["javascript", "html", "css"]).catch(
 has to be threaded through the application. `createHighlighter({languages})` is
 the same load into an instance you keep yourself.
 
-Awaiting a preload before `startServer()` puts the CDN on the boot path, so an
-unreachable one keeps the process from ever accepting a request.
+Awaiting a preload before `startServer()` puts every compile on the boot path,
+so the process accepts no request until the slowest one finishes.
 
 The API accepts `bundle-*` names such as `bundle-web`, covering the same
-languages as the matching `@lumis-sh/wasm-bundle-*` package. It resolves the
-runtime's compatible package range, caches the exact manifest, and verifies the
-parser size plus SHA-256 before writing.
+languages as the matching `@lumis-sh/wasm-bundle-*` package. Each parser is
+checked against its package's size and SHA-256 before it loads.
 
 When the native Node addon is available, the API also validates each parser and
-its queries and persists the compiled Wasmtime module in the same directory.
-The portable fallback caches the verified parser bytes, but
-`web-tree-sitter` cannot persist its compilation across processes.
+its queries and persists the compiled Wasmtime module in the data directory.
+The portable fallback can't: `web-tree-sitter` does not persist its compilation
+across processes.
 
 To fill a directory the serving process will read — an image build, a prestart
 step — use `lumis languages download`. It writes the same store and holds
@@ -291,5 +410,3 @@ build rather than a request.
 :::note Edge is not supported yet
 The portable JavaScript runtime uses `web-tree-sitter`, but Edge runtimes are not supported yet because of an upstream Tree-sitter limitation: [tree-sitter/tree-sitter#2160](https://github.com/tree-sitter/tree-sitter/issues/2160).
 :::
-
-For parser asset details, continue with [WASM and CDN](/advanced/wasm-and-cdn).

@@ -86,9 +86,10 @@ import dracula from '@lumis-sh/themes/dracula'
 const html = await highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
 ```
 
-Parsers download on demand, including languages injected inside a document.
-Browsers are the exception: loading is asynchronous there, so an injected
-language has to be loaded first. See [WASM and CDN](https://docs.lumis.sh/advanced/wasm-and-cdn).
+Parsers load on demand from the packages you install, including languages
+injected inside a document. Browsers are the exception: loading is asynchronous
+there, so an injected language has to be loaded first. See
+[Languages](https://docs.lumis.sh/languages).
 
 ### [Browsers / CDN](https://www.npmjs.com/package/@lumis-sh/lumis)
 

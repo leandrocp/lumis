@@ -4,7 +4,7 @@ import type { Highlighter, Language } from "@lumis-sh/lumis";
 // The homepage points the resolver at the parsers in `node_modules`, because it
 // bundles them. Nothing here does that: these demos resolve every parser the way
 // an install does, from the CDN, at the version the release pins. That is the
-// path documented in /advanced/wasm-and-cdn, and it is the one worth showing.
+// browser path documented in /usage/javascript, and it is the one worth showing.
 let shared: Promise<Highlighter> | undefined;
 const loaded = new Map<string, Promise<void>>();
 

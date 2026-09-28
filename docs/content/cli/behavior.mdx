@@ -90,6 +90,13 @@ files under the data directory. A cold cache resolves the runtime's compatible
 package range, then loads the exact parser version and matching queries named
 there. Parser filenames contain the package version and SHA-256 digest.
 
+A compatible manifest already in the store is used as is and never checked
+against the registry again. So a store staged during a build gives every run the
+same parser and query bytes, with no network at run time, and two stores filled
+on different days can hold different patch releases. Bytes that fail their size
+or digest check are discarded and fetched again, which means a damaged store
+repairs itself.
+
 - first use of a language downloads its parser
 - `lumis languages download ...` persists selected parsers ahead of time, so no run
   pays for a download and the Wasmtime compile that follows it

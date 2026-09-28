@@ -78,11 +78,5 @@ from a build step instead, use `lumis languages download`.
 
 ## Documentation
 
-- [JavaScript / TypeScript](https://docs.lumis.sh/usage/javascript) — runtimes, bundles, language handles
-- [WASM and CDN](https://docs.lumis.sh/advanced/wasm-and-cdn) — resolution, caching, custom resolvers
-- [Formatters](https://docs.lumis.sh/formatters) — every formatter and its options
-- [Custom formatters](https://docs.lumis.sh/formatters/custom)
-- [Annotations](https://docs.lumis.sh/formatters/annotations) — compose your own ranges into the event stream
-- [Themes](https://docs.lumis.sh/themes) and [CSS theme files](https://docs.lumis.sh/themes/css-files)
-- [Integrations](https://docs.lumis.sh/integrations/react) — React, Next.js, Astro, Nuxt, VitePress, rehype, markdown-it
-- [Recipes](https://docs.lumis.sh/recipes)
+Guides for formatters, themes, integrations and recipes are at
+[docs.lumis.sh](https://docs.lumis.sh).

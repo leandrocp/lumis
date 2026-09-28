@@ -18,6 +18,15 @@ const config = {
         destination: "/llms.mdx/migrate/html-lines/content.md",
         permanent: true,
       },
+      // Published `@lumis-sh/lumis` warnings link here with a
+      // `#highlighting-loads-what-a-document-needs` fragment, which the
+      // destination keeps as an anchor.
+      { source: "/advanced/wasm-and-cdn", destination: "/languages", permanent: true },
+      {
+        source: "/llms.mdx/advanced/wasm-and-cdn/content.md",
+        destination: "/llms.mdx/languages/content.md",
+        permanent: true,
+      },
     ];
   },
 };

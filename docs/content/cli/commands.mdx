@@ -296,8 +296,8 @@ Download exact, integrity-checked parser WASM files ahead of time, and compile
 them. Highlighting does both anyway; this moves them off the first run.
 
 A cold parser costs a download and then a Wasmtime compile, and the compile is
-the larger half. See [Filling the store at build time](/advanced/wasm-and-cdn#filling-the-store-at-build-time)
-for how the CLI prepares the cache shared by every native runtime.
+the larger half. [Parser cache lifecycle](/cli/behavior#parser-cache-lifecycle)
+covers what the store keeps and how `--force` refreshes it.
 
 ```bash title="Selected parsers"
 lumis languages download rust javascript elixir

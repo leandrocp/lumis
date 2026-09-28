@@ -24,7 +24,7 @@ https://unpkg.com/@lumis-sh/themes/dist/json/dracula.json
 
 ### Build custom CSS
 
-Use `buildCss(theme, options)` to build a stylesheet you can inline or scope. See [CSS Builder](https://docs.lumis.sh/themes/css-builder).
+Use `buildCss(theme, options)` to build a stylesheet you can inline or scope. The CSS builder guide is at [docs.lumis.sh](https://docs.lumis.sh).
 
 ## Browse
 

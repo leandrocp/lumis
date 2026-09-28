@@ -64,7 +64,7 @@ Formatters decide the output: `:html_inline`, `:html_linked`,
 
 For your own, implement `Lumis.Formatter` and build the output with
 `Lumis.Formatter.HTML` or `Lumis.Formatter.ANSI`, which hold the same pieces the
-built-in formatters use. See [custom formatters](https://docs.lumis.sh/formatters/custom).
+built-in formatters use.
 
 ## Parsers
 
@@ -80,9 +80,8 @@ document. So add the ones a document can *inject* too, not only the ones it
 names: Markdown fences reach
 whatever language they label, HTML reaches `css` and `javascript`, and Elixir
 reaches `comment`. A bundle package installs a set at once, such as
-`{:lumis_wasm_bundle_web, "~> 0.1"}`, and
-[the language catalog](https://docs.lumis.sh/reference/languages) lists every
-package name.
+`{:lumis_wasm_bundle_web, "~> 0.1"}`, and the language catalog at
+[docs.lumis.sh](https://docs.lumis.sh) lists every package name.
 
 ```elixir
 # move the compile off the first request
@@ -113,20 +112,12 @@ without the newer instruction sets.
 
 It downloads from GitHub Releases, mirrored to Cloudflare R2. Set
 `config :lumis, artifact_source: :cloudflare` or `LUMIS_ARTIFACT_SOURCE=cloudflare`
-to use the mirror when GitHub is down, see
-[where the precompiled NIF comes from](https://docs.lumis.sh/usage/elixir#where-the-precompiled-nif-comes-from).
+to use the mirror when GitHub is down.
 
 ## Documentation
 
-- [Elixir integration](https://docs.lumis.sh/usage/elixir) — configuration, releases, Phoenix
-- [Formatters](https://docs.lumis.sh/formatters) — every formatter and its options
-- [Custom formatters](https://docs.lumis.sh/formatters/custom) — render the event stream yourself
-- [Annotations](https://docs.lumis.sh/formatters/annotations) — compose your own ranges into the event stream
-- [Themes](https://docs.lumis.sh/themes) — the theme list, custom themes, CSS files
-- [Languages](https://docs.lumis.sh/reference/languages) — what is supported and how detection works
-- [Line highlighting](https://docs.lumis.sh/recipes/line-highlighting)
-- [Line numbers](https://docs.lumis.sh/recipes/line-numbers)
-- [Recipes](https://docs.lumis.sh/recipes) — LiveView rendering, light/dark, injected languages
+Guides for configuration, releases, Phoenix, formatters, themes and recipes are
+at [docs.lumis.sh](https://docs.lumis.sh).
 
 API reference: [hexdocs.pm/lumis](https://hexdocs.pm/lumis).
 
