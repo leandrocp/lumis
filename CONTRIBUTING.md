@@ -732,9 +732,10 @@ package rather than checked in.
 Runtime catalogs generated from `languages.toml` contain stable IDs, aliases,
 and package names. They also contain one compatible npm range derived from the
 Tree-sitter series in `mise.toml`; they do not pin every package independently.
-JavaScript, CLI, and Elixir ask the CDN to resolve that range, validate and cache
-the exact `lumis.json` returned, then fetch the exact versioned parser named by
-that metadata and verify its bytes. Parser or query updates within the supported
+The CLI and browser JavaScript ask the CDN to resolve that range, validate and
+cache the exact `lumis.json` returned, then fetch the exact versioned parser
+named by that metadata and verify its bytes. Node and Elixir load the packages a
+project installed instead, and refuse one outside the range. Parser or query updates within the supported
 series therefore publish only the affected language package, without a runtime
 release.
 

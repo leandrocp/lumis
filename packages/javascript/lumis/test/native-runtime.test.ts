@@ -12,6 +12,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import { createNativeLanguagesModule } from "../src/core/native-languages.js";
+import { decodeNativeEvents } from "../src/core/native-event-codec.js";
 import type { LanguagesModule, RuntimeLike } from "../src/core/languages.js";
 import type { NativeBinding, NativeRuntimeInstance } from "../src/native-binding.js";
 import type { LoadedLanguage } from "../src/types.js";
@@ -306,8 +307,15 @@ describe("native runtime", () => {
     runtime.loadLanguage("markdown");
 
     const highlighted = runtime.highlightEvents("```regex\n[a-z]+\n```\n", "markdown", false);
+    const events = decodeNativeEvents(highlighted.events);
 
-    expect(highlighted.events.length).toBeGreaterThan(0);
+    // The document still highlights; only the fenced body stays plain.
+    expect(events.some((event) => event.type === "start" && event.language === "markdown")).toBe(
+      true,
+    );
+    expect(events.some((event) => event.type === "start" && event.language === "regex")).toBe(
+      false,
+    );
     // Reported rather than swallowed, so a caller that resolves parsers itself
     // can tell the difference between "no injection" and "could not load it".
     expect(highlighted.unresolved).toContain("regex");

@@ -193,11 +193,6 @@ gap: see below.
 Nobody gets two declarations. A JavaScript project that installs its parsers
 does not also write a lock; `package.json` already is one.
 
-One divergence remains: a JavaScript project that installs *no* parser still
-falls back to the CDN, where an Elixir project that depends on none highlights
-nothing. Elixir took the stricter rule first because it had no declaration at
-all before; closing the JavaScript side is its own change.
-
 **The CLI is its own runtime, and declares nothing.** It is a viewer and a store
 filler: `lumis highlight` and `lumis dump` resolve freely, and `lumis languages
 download` fills the store. Reading a project's dependencies would make a
