@@ -272,11 +272,11 @@ import { htmlInline } from "@lumis-sh/lumis/formatters";
 import elixir from "@lumis-sh/lumis/langs/elixir";
 import latte from "@lumis-sh/themes/catppuccin_latte";
 import elixirWasm from "@lumis-sh/wasm-elixir";
-import elixirManifest from "@lumis-sh/wasm-elixir/lumis.json";
+import elixirPackage from "@lumis-sh/wasm-elixir/lumis.json";
 
 const elixirFromNpm = withWasm(elixir, {
   wasm: elixirWasm,
-  manifest: elixirManifest,
+  languagePackage: elixirPackage,
 });
 
 const hl = await createHighlighter({

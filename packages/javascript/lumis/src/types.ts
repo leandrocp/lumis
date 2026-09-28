@@ -146,25 +146,25 @@ export type RuntimeWasmInput = Uint8Array | ArrayBuffer | string | URL | Respons
 /**
  * Parser bytes paired with the `lumis.json` published in the same package.
  *
- * Without a manifest, Lumis resolves one by range: an installed package's in
- * Node, the newest compatible patch from the CDN in a browser. Pairing them
+ * Unpaired, Lumis resolves the package by range: the installed one in Node,
+ * the newest compatible patch on the CDN in a browser. Pairing them
  * keeps the parser digest and the queries on the version the bytes came from,
  * so a lockfile that pins an older patch keeps loading after a newer one ships.
  *
  * ```ts
  * import cmakeWasm from '@lumis-sh/wasm-cmake'
- * import cmakeManifest from '@lumis-sh/wasm-cmake/lumis.json'
+ * import cmakePackage from '@lumis-sh/wasm-cmake/lumis.json'
  *
- * withWasm(cmake, { wasm: cmakeWasm, manifest: cmakeManifest })
+ * withWasm(cmake, { wasm: cmakeWasm, languagePackage: cmakePackage })
  * ```
  */
-export interface RuntimeWasmPackage {
+export interface RuntimeWasmWithPackage {
   wasm: RuntimeWasmInput;
   /** The package's `lumis.json`, as a bundler's JSON import returns it. */
-  manifest: object;
+  languagePackage: object;
 }
 
-export type RuntimeWasmBundle = Partial<Record<string, RuntimeWasmInput | RuntimeWasmPackage>>;
+export type RuntimeWasmBundle = Partial<Record<string, RuntimeWasmInput | RuntimeWasmWithPackage>>;
 
 /**
  * A language accepted by Lumis.
@@ -188,10 +188,10 @@ export interface Language extends LanguageDefinition {
    * - `Uint8Array` or `ArrayBuffer` passed directly (useful with browser bundlers)
    * - `URL` fetched directly (`file://` works in Node.js)
    * - `string` treated as file path (Node.js) or URL (browser)
-   * - `RuntimeWasmPackage` any of the above except `WasmRef`, paired with the
+   * - `RuntimeWasmWithPackage` any of the above except `WasmRef`, paired with the
    *   package's `lumis.json`
    */
-  wasm?: WasmRef | RuntimeWasmInput | RuntimeWasmPackage;
+  wasm?: WasmRef | RuntimeWasmInput | RuntimeWasmWithPackage;
 }
 
 /**
@@ -203,7 +203,7 @@ export interface Language extends LanguageDefinition {
 export interface LanguagePackageHandle extends LanguageDefinition {
   packageName: string;
   /** Optional caller-selected source for the package's verified parser bytes. */
-  wasm?: WasmRef | RuntimeWasmInput | RuntimeWasmPackage;
+  wasm?: WasmRef | RuntimeWasmInput | RuntimeWasmWithPackage;
 }
 
 export interface PlaintextLanguage extends LanguageDefinition {

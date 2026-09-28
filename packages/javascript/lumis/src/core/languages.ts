@@ -22,7 +22,7 @@ import type {
   LumisHighlightEvent,
   QueryCaptureOffset,
   RuntimeWasmInput,
-  RuntimeWasmPackage,
+  RuntimeWasmWithPackage,
   WasmRef,
 } from "../types.js";
 import { PLAINTEXT_LANG_ID, type LanguageInfo } from "../types.js";
@@ -125,7 +125,7 @@ export interface LoadLanguageOptions {
    * Where the parser bytes come from. Queries always come from the package:
    * the one paired with the bytes, or else the one resolved by name.
    */
-  wasm?: WasmRef | RuntimeWasmInput | RuntimeWasmPackage;
+  wasm?: WasmRef | RuntimeWasmInput | RuntimeWasmWithPackage;
 }
 
 export interface HighlighterRuntimeOptions {
@@ -275,8 +275,10 @@ function isRuntimeWasmInput(wasm: WasmRef | RuntimeWasmInput): wasm is RuntimeWa
   return !(typeof wasm === "object" && wasm !== null && isWasmRef(wasm));
 }
 
-function isRuntimeWasmPackage(wasm: LoadLanguageOptions["wasm"]): wasm is RuntimeWasmPackage {
-  return typeof wasm === "object" && wasm !== null && "wasm" in wasm && "manifest" in wasm;
+function isRuntimeWasmWithPackage(
+  wasm: LoadLanguageOptions["wasm"],
+): wasm is RuntimeWasmWithPackage {
+  return typeof wasm === "object" && wasm !== null && "wasm" in wasm && "languagePackage" in wasm;
 }
 
 export function languagePackageCacheKey(packageName: string): string {
@@ -658,7 +660,7 @@ function resolvedLanguagePackage(
  * The package a load verifies against and takes its queries from, and where
  * its parser bytes come from.
  *
- * Bytes paired with their own `lumis.json` use that manifest. Resolving one by
+ * Bytes paired with their own `lumis.json` use that package. Resolving one by
  * range instead would check the version a lockfile pinned against whatever
  * patch was published last, so a parser patch that changes the binary would
  * stop the older bytes from loading.
@@ -669,8 +671,8 @@ export async function resolveLoadSource(
   packageName: string,
   wasm: LoadLanguageOptions["wasm"],
 ): Promise<{ packaged: ResolvedLanguagePackage; wasm: WasmRef | RuntimeWasmInput }> {
-  if (isRuntimeWasmPackage(wasm)) {
-    const packageMetadata = validateLanguagePackage(wasm.manifest, packageName);
+  if (isRuntimeWasmWithPackage(wasm)) {
+    const packageMetadata = validateLanguagePackage(wasm.languagePackage, packageName);
     if (!isCompatibleLanguagePackageVersion(packageMetadata.version)) {
       throw incompatiblePackageVersion(packageMetadata);
     }

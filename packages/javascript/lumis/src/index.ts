@@ -124,16 +124,16 @@ export function highlight(...args: Parameters<typeof highlighter.highlight>) {
  *
  * ```ts
  * import elixirWasm from '@lumis-sh/wasm-elixir'
- * import elixirManifest from '@lumis-sh/wasm-elixir/lumis.json'
+ * import elixirPackage from '@lumis-sh/wasm-elixir/lumis.json'
  *
- * const language = withWasm(elixir, { wasm: elixirWasm, manifest: elixirManifest })
+ * const language = withWasm(elixir, { wasm: elixirWasm, languagePackage: elixirPackage })
  * ```
  */
 export function withWasm<T extends import("./types.js").Language>(
   language: T,
-  wasm: import("./types.js").RuntimeWasmInput | import("./types.js").RuntimeWasmPackage,
+  wasm: import("./types.js").RuntimeWasmInput | import("./types.js").RuntimeWasmWithPackage,
 ): Omit<T, "wasm"> & {
-  wasm: import("./types.js").RuntimeWasmInput | import("./types.js").RuntimeWasmPackage;
+  wasm: import("./types.js").RuntimeWasmInput | import("./types.js").RuntimeWasmWithPackage;
 } {
   return {
     ...language,
@@ -145,7 +145,7 @@ export function withWasm<T extends import("./types.js").Language>(
  * Apply a map of statically imported WASM assets to every matching language in a bundle.
  *
  * Useful with packages like `@lumis-sh/wasm-bundle-web` in browser bundlers.
- * Entries take the same `{ wasm, manifest }` pair as {@link withWasm}.
+ * Entries take the same `{ wasm, languagePackage }` pair as {@link withWasm}.
  */
 export function withWasmBundle(
   bundle: import("./types.js").LanguageBundle,
@@ -194,7 +194,7 @@ export type {
   Theme,
   WasmRef,
   RuntimeWasmInput,
-  RuntimeWasmPackage,
+  RuntimeWasmWithPackage,
   RuntimeWasmBundle,
   SyntaxHighlightEvent,
   LanguageInfo,
