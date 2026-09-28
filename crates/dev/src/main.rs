@@ -5117,17 +5117,14 @@ fn stage_hex_wasm(name: &str) -> Result<()> {
         .cloned()
         .collect::<Vec<_>>()
         .join(", ");
-    let mix = render_template(
-        "templates/wasm/mix.exs.template",
-        &[
-            ("module_name", &module_name),
-            ("app_name", &app_name),
-            ("hex_version", &package.version),
-            ("languages_text", &languages_text),
-            ("git_url", info.git.as_deref().unwrap_or("")),
-        ],
+    write_hex_mix(
+        &out,
+        &npm,
+        (&module_name, &app_name),
+        &package,
+        &languages_text,
+        info.git.as_deref().unwrap_or(""),
     )?;
-    fs::write(format!("{out}/mix.exs"), mix)?;
 
     // Its own README rather than npm's: that one is titled with the npm package
     // name and sends the reader to a CDN, neither of which helps someone
@@ -5201,7 +5198,7 @@ fn stage_hex_bundle(name: &str) -> Result<()> {
     let app_name = format!("lumis_wasm_bundle_{}", name.replace('-', "_"));
     let module_name = elixir_module_name(&app_name);
 
-    let members = hex_bundle_members(dependencies)?;
+    let members = hex_dependencies(dependencies)?;
 
     let deps = members
         .iter()
@@ -5269,7 +5266,9 @@ fn check_hex_description(manifest: &str, description: &str) -> Result<()> {
     Ok(())
 }
 
-/// The `lumis_wasm_*` dependencies meaning what the npm bundle's mean.
+/// The `lumis_wasm_*` dependencies meaning what an npm package's
+/// `@lumis-sh/wasm-*` ones mean: a bundle's members, or the grammars a parser
+/// package's languages require.
 ///
 /// Sorted, because the generated `mix.exs` is read by people and a JSON object's
 /// order is not something to inherit.
@@ -5277,7 +5276,7 @@ fn check_hex_description(manifest: &str, description: &str) -> Result<()> {
 /// # Errors
 /// Fails on a dependency that no parser package produces, or on a requirement
 /// [`hex_requirement`] cannot translate.
-fn hex_bundle_members(
+fn hex_dependencies(
     dependencies: &serde_json::Map<String, serde_json::Value>,
 ) -> Result<Vec<(String, String)>> {
     let mut members = Vec::new();
@@ -5295,6 +5294,57 @@ fn hex_bundle_members(
     }
     members.sort();
     Ok(members)
+}
+
+/// A parser package's `mix.exs`, depending on what its npm counterpart does.
+fn write_hex_mix(
+    out: &str,
+    npm: &str,
+    (module_name, app_name): (&str, &str),
+    package: &LanguagePackage,
+    languages_text: &str,
+    git_url: &str,
+) -> Result<()> {
+    let mix = render_template(
+        "templates/wasm/mix.exs.template",
+        &[
+            ("module_name", module_name),
+            ("app_name", app_name),
+            ("hex_version", &package.version),
+            ("languages_text", languages_text),
+            ("git_url", git_url),
+            ("deps", &staged_mix_deps(npm)?),
+        ],
+    )?;
+    fs::write(format!("{out}/mix.exs"), mix)?;
+    Ok(())
+}
+
+/// The Hex dependencies of the parser package staged for npm in `npm`: the
+/// grammars its languages require, read off the same `package.json`, so both
+/// registries bring the same companions.
+fn staged_mix_deps(npm: &str) -> Result<String> {
+    let package: serde_json::Value =
+        serde_json::from_slice(&fs::read(format!("{npm}/package.json"))?)?;
+    let dependencies = package
+        .get("dependencies")
+        .and_then(serde_json::Value::as_object)
+        .cloned()
+        .unwrap_or_default();
+    Ok(mix_deps(&hex_dependencies(&dependencies)?))
+}
+
+/// The inside of a parser package's `deps` list: nothing when it needs nothing.
+fn mix_deps(dependencies: &[(String, String)]) -> String {
+    if dependencies.is_empty() {
+        return String::new();
+    }
+    let lines = dependencies
+        .iter()
+        .map(|(app, requirement)| format!("      {{:{app}, \"{requirement}\"}}"))
+        .collect::<Vec<_>>()
+        .join(",\n");
+    format!("\n{lines}\n    ")
 }
 
 /// The Hex requirement meaning what an npm one means.
@@ -6975,6 +7025,70 @@ mod tests {
         assert_eq!(tree_sitter_series("v0.26.11").unwrap(), "0.26");
         assert!(tree_sitter_series("latest").is_err());
         assert!(tree_sitter_series("not-a-version-0.26").is_err());
+    }
+
+    // A split grammar is a dependency on both registries. Otherwise an Elixir
+    // project that installs markdown renders its inline code plain, and a Node
+    // one doesn't.
+    #[test]
+    fn a_required_grammar_is_a_dependency_on_npm_and_hex() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../languages.toml");
+        let text = fs::read_to_string(&path).expect("languages.toml should be readable");
+        let toml: LanguagesToml = toml::from_str(&text).expect("languages.toml should parse");
+        let wasm_name = |id: &str| {
+            toml.parsers[id]
+                .wasm_name
+                .clone()
+                .unwrap_or_else(|| format!("tree-sitter-{id}"))
+        };
+
+        let requiring = toml
+            .parsers
+            .iter()
+            .filter(|(_, info)| !info.requires.is_empty())
+            .collect::<Vec<_>>();
+        assert!(
+            requiring.len() >= 3,
+            "markdown, mdx and jinja each require an inline grammar"
+        );
+
+        for (id, info) in requiring {
+            let package = LanguagePackage {
+                package_name: format!("@lumis-sh/wasm-{}", wasm_package_suffix(&wasm_name(id))),
+                version: "0.26.0".into(),
+                definition_hash: String::new(),
+                parser: ParserMetadata {
+                    name: wasm_name(id),
+                    grammar_name: id.clone(),
+                    upstream_version: None,
+                    revision: None,
+                    sha256: String::new(),
+                    size: 0,
+                },
+                languages: BTreeMap::from([(id.clone(), PackagedLanguage::default())]),
+            };
+            let (npm, _) =
+                required_packages(&toml, &package, "0.26").expect("requires should resolve");
+            let npm = npm
+                .into_iter()
+                .map(|(name, range)| (name, Value::String(range)))
+                .collect::<serde_json::Map<_, _>>();
+            let hex = hex_dependencies(&npm).expect("npm requirements should translate");
+
+            let mut expected = info
+                .requires
+                .iter()
+                .map(|required| (hex_app_name(&wasm_name(required)), "~> 0.26.0".to_string()))
+                .collect::<Vec<_>>();
+            expected.sort();
+            assert_eq!(hex, expected, "{id}");
+        }
+
+        assert_eq!(
+            mix_deps(&[("lumis_wasm_markdown_inline".into(), "~> 0.26.0".into())]),
+            "\n      {:lumis_wasm_markdown_inline, \"~> 0.26.0\"}\n    "
+        );
+        assert_eq!(mix_deps(&[]), "", "a package needing nothing renders `[]`");
     }
 
     // Bundle membership is a cross-runtime promise: `@lumis-sh/wasm-bundle-web` and

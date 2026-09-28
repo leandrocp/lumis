@@ -52,6 +52,10 @@ serve more than one, and export each by name:
 `@lumis-sh/wasm-embedded-template` has `ejs` and `erb`, and
 `@lumis-sh/wasm-markdown` has `markdown` and `mdx`.
 [Language catalog](/reference/languages) lists the package for every language.
+
+A grammar split in two is a dependency of the package that needs it, on npm and
+on Hex alike: installing `@lumis-sh/wasm-markdown` or `lumis_wasm_markdown`
+brings `markdown_inline` along.
 :::
 
 That includes languages **injected inside** another one, in the same pass: a

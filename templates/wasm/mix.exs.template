@@ -8,11 +8,16 @@ defmodule {module_name}.MixProject do
       version: "{hex_version}",
       elixir: "~> 1.15",
       description: "Tree-sitter parser and queries for {languages_text}, compiled to WASM for Lumis",
+      deps: deps(),
       package: package()
     ]
   end
 
   def application, do: []
+
+  defp deps do
+    [{deps}]
+  end
 
   defp package do
     [
