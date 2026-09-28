@@ -80,7 +80,7 @@
         "Comment"
       ],
       "tokens": {
-        "lumis": 4836,
+        "lumis": 4521,
         "syntect": 4157,
         "shiki": 3734,
         "highlight-js": 1304
@@ -100,7 +100,7 @@
         "Comment"
       ],
       "tokens": {
-        "lumis": 5444,
+        "lumis": 5401,
         "syntect": 3242,
         "shiki": 3668,
         "highlight-js": 709
@@ -140,7 +140,7 @@
         "Rust"
       ],
       "tokens": {
-        "lumis": 871,
+        "lumis": 849,
         "syntect": 839,
         "shiki": 571,
         "highlight-js": 263
