@@ -24,6 +24,8 @@ protect_breaking_commits = true
 filter_commits = true
 sort_commits = "oldest"
 commit_preprocessors = [
+  # Correct the breaking-change marker omitted from the squash of #1559.
+  { pattern = '^fix: (render HTML lines as inline spans with overridable layout CSS) \(#1559\)', replace = 'fix!: ${1} (#1559)' },
   { pattern = '\\((\\w+\\s)?#([0-9]+)\\)', replace = "" },
 ]
 commit_parsers = [
