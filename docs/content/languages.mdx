@@ -61,9 +61,9 @@ render does not matter. Preload when it does.
 :::note
 Browsers are the exception. `web-tree-sitter` loads asynchronously, so a parser
 cannot be loaded inside a synchronous walk: in a browser, preload an injected
-language before highlighting the document that mentions it. A registered bundle
-does not preload its languages. Node does not have this limit — it highlights
-through a native addon.
+language before highlighting the document that mentions it, including one from a
+registered bundle. Node does not have this limit: it highlights through a native
+addon.
 :::
 
 ## Preloaded

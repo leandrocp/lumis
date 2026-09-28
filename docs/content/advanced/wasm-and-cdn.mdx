@@ -42,12 +42,13 @@ names something unpublished; that block stays plain.
 
 Browsers are the one exception, because loading is asynchronous there and cannot
 happen inside a synchronous walk. In a browser, load an injected language before
-highlighting the document that mentions it, by listing it in
-`createHighlighter({ languages })` or calling `hl.loadLanguage()`. A registered
-bundle does not load its languages, even when `withWasmBundle()` supplies their
-bytes. Node does not have this limit: it highlights through a native addon,
-including when configured `configureLanguagePackageResolver()` and
-`configureWasmResolver()` callbacks supply the injected language.
+highlighting the document that mentions it: list it in
+`createHighlighter({ languages })` or call `hl.loadLanguage()`. A bundle passed
+to `createHighlighter()`, with or without `withWasmBundle()` parser bytes,
+registers its languages without loading them. Node does not have this limit: it
+highlights through a native addon, including when configured
+`configureLanguagePackageResolver()` and `configureWasmResolver()` callbacks
+supply the injected language.
 
 ### Preloading instead
 

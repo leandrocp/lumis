@@ -56,7 +56,7 @@ digest before use, and caches them.
 On Node, a document also loads the languages **injected inside** it during the
 same pass, so a Markdown file with a fenced Rust block highlights that block
 without Rust being named in your code. Browsers load asynchronously, so load
-injected languages up front; registering a bundle does not load them.
+injected languages up front, including those from a registered bundle.
 
 Warm parsers alongside startup, without putting the CDN on the boot path:
 
