@@ -1,7 +1,7 @@
 {
   "name": "modus_operandi",
   "appearance": "light",
-  "revision": "56233f0986ef6c8d0eab97e924e87144e584d970",
+  "revision": "15ffb5ab6a12f72ee1e8393fe5810d5317da2d3e",
   "highlights": {
     "attribute": {
       "fg": "#a0132f"
@@ -24,10 +24,11 @@
       "italic": true
     },
     "comment.documentation": {
+      "fg": "#2a5045",
       "italic": true
     },
     "comment.error": {
-      "fg": "#a0132f"
+      "fg": "#a60000"
     },
     "comment.hint": {
       "fg": "#595959",
@@ -41,16 +42,16 @@
       "bold": true
     },
     "comment.warning": {
-      "fg": "#7a4f2f"
+      "fg": "#884900"
     },
     "constant": {
-      "fg": "#000000"
+      "fg": "#0000b0"
     },
     "constant.builtin": {
       "fg": "#8f0075"
     },
     "constant.macro": {
-      "fg": "#000000"
+      "fg": "#0000b0"
     },
     "constructor": {
       "fg": "#7a4f2f"
@@ -77,7 +78,7 @@
       "fg": "#8f0075"
     },
     "function.call": {
-      "fg": "#721045"
+      "fg": "#7b435c"
     },
     "function.macro": {
       "fg": "#721045"
@@ -86,7 +87,7 @@
       "fg": "#721045"
     },
     "function.method.call": {
-      "fg": "#721045"
+      "fg": "#7b435c"
     },
     "highlighted": {
       "bg": "#dae5ec"
@@ -149,7 +150,7 @@
       "fg": "#005e8b"
     },
     "line_number": {
-      "fg": "#000000",
+      "fg": "#595959",
       "bg": "#f2f2f2"
     },
     "line_number.highlighted": {
@@ -251,10 +252,10 @@
       "bg": "#ffffff"
     },
     "number": {
-      "fg": "#003497"
+      "fg": "#000000"
     },
     "number.float": {
-      "fg": "#003497"
+      "fg": "#000000"
     },
     "operator": {
       "fg": "#000000"
@@ -293,6 +294,7 @@
       "fg": "#3548cf"
     },
     "string.documentation": {
+      "fg": "#2a5045",
       "italic": true
     },
     "string.escape": {
@@ -344,7 +346,7 @@
       "fg": "#3f578f"
     },
     "variable": {
-      "fg": "#005e8b"
+      "fg": "#2f3f83"
     },
     "variable.builtin": {
       "fg": "#531ab6"

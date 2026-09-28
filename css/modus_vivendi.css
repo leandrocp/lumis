@@ -1,15 +1,15 @@
 /* modus_vivendi
- * revision: 56233f0986ef6c8d0eab97e924e87144e584d970
+ * revision: 15ffb5ab6a12f72ee1e8393fe5810d5317da2d3e
  */
 .lumis {
   color: #ffffff;
   background-color: #000000;
 }
 .l-attribute {
-  color: #ff7f9f;
+  color: #ff7f86;
 }
 .l-attribute-builtin {
-  color: #ff7f9f;
+  color: #ff7f86;
 }
 .l-boolean {
   color: #2fafff;
@@ -26,10 +26,11 @@
   font-style: italic;
 }
 .l-comment-documentation {
+  color: #9ac8e0;
   font-style: italic;
 }
 .l-comment-error {
-  color: #ff7f9f;
+  color: #ff5f59;
 }
 .l-comment-hint {
   color: #989898;
@@ -43,16 +44,16 @@
   font-weight: bold;
 }
 .l-comment-warning {
-  color: #dfaf7a;
+  color: #fec43f;
 }
 .l-constant {
-  color: #ffffff;
+  color: #00bcff;
 }
 .l-constant-builtin {
   color: #f78fe7;
 }
 .l-constant-macro {
-  color: #ffffff;
+  color: #00bcff;
 }
 .l-constructor {
   color: #dfaf7a;
@@ -79,7 +80,7 @@
   color: #f78fe7;
 }
 .l-function-call {
-  color: #feacd0;
+  color: #d09dc0;
 }
 .l-function-macro {
   color: #feacd0;
@@ -88,7 +89,7 @@
   color: #feacd0;
 }
 .l-function-method-call {
-  color: #feacd0;
+  color: #d09dc0;
 }
 .l-highlighted {
   background-color: #2f3849;
@@ -111,10 +112,10 @@
   color: #f78fe7;
 }
 .l-keyword-directive {
-  color: #ff7f9f;
+  color: #ff7f86;
 }
 .l-keyword-directive-define {
-  color: #ff7f9f;
+  color: #ff7f86;
 }
 .l-keyword-exception {
   color: #b6a0ff;
@@ -127,7 +128,7 @@
   color: #feacd0;
 }
 .l-keyword-import {
-  color: #ff7f9f;
+  color: #ff7f86;
 }
 .l-keyword-modifier {
   color: #b6a0ff;
@@ -151,7 +152,7 @@
   color: #00d3d0;
 }
 .l-line-number:not(.l-line-number-highlighted) {
-  color: #ffffff;
+  color: #989898;
   background-color: #1e1e1e;
 }
 .l-line-number-highlighted {
@@ -240,19 +241,19 @@
   text-decoration: underline;
 }
 .l-module {
-  color: #ff7f9f;
+  color: #ff7f86;
 }
 .l-module-builtin {
   color: #b6a0ff;
 }
 .l-namespace {
-  color: #ff7f9f;
+  color: #ff7f86;
 }
 .l-number {
-  color: #82b0ec;
+  color: #ffffff;
 }
 .l-number-float {
-  color: #82b0ec;
+  color: #ffffff;
 }
 .l-operator {
   color: #ffffff;
@@ -291,6 +292,7 @@
   color: #79a8ff;
 }
 .l-string-documentation {
+  color: #9ac8e0;
   font-style: italic;
 }
 .l-string-escape {
@@ -342,7 +344,7 @@
   color: #4ae2f0;
 }
 .l-variable {
-  color: #00d3d0;
+  color: #76afbf;
 }
 .l-variable-builtin {
   color: #b6a0ff;

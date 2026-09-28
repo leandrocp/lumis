@@ -1,5 +1,5 @@
 /* modus_operandi
- * revision: 56233f0986ef6c8d0eab97e924e87144e584d970
+ * revision: 15ffb5ab6a12f72ee1e8393fe5810d5317da2d3e
  */
 .lumis {
   color: #000000;
@@ -26,10 +26,11 @@
   font-style: italic;
 }
 .l-comment-documentation {
+  color: #2a5045;
   font-style: italic;
 }
 .l-comment-error {
-  color: #a0132f;
+  color: #a60000;
 }
 .l-comment-hint {
   color: #595959;
@@ -43,16 +44,16 @@
   font-weight: bold;
 }
 .l-comment-warning {
-  color: #7a4f2f;
+  color: #884900;
 }
 .l-constant {
-  color: #000000;
+  color: #0000b0;
 }
 .l-constant-builtin {
   color: #8f0075;
 }
 .l-constant-macro {
-  color: #000000;
+  color: #0000b0;
 }
 .l-constructor {
   color: #7a4f2f;
@@ -79,7 +80,7 @@
   color: #8f0075;
 }
 .l-function-call {
-  color: #721045;
+  color: #7b435c;
 }
 .l-function-macro {
   color: #721045;
@@ -88,7 +89,7 @@
   color: #721045;
 }
 .l-function-method-call {
-  color: #721045;
+  color: #7b435c;
 }
 .l-highlighted {
   background-color: #dae5ec;
@@ -151,7 +152,7 @@
   color: #005e8b;
 }
 .l-line-number:not(.l-line-number-highlighted) {
-  color: #000000;
+  color: #595959;
   background-color: #f2f2f2;
 }
 .l-line-number-highlighted {
@@ -249,10 +250,10 @@
   color: #a0132f;
 }
 .l-number {
-  color: #003497;
+  color: #000000;
 }
 .l-number-float {
-  color: #003497;
+  color: #000000;
 }
 .l-operator {
   color: #000000;
@@ -291,6 +292,7 @@
   color: #3548cf;
 }
 .l-string-documentation {
+  color: #2a5045;
   font-style: italic;
 }
 .l-string-escape {
@@ -342,7 +344,7 @@
   color: #3f578f;
 }
 .l-variable {
-  color: #005e8b;
+  color: #2f3f83;
 }
 .l-variable-builtin {
   color: #531ab6;
