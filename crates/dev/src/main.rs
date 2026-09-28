@@ -4244,12 +4244,13 @@ struct PackageEntry {
 /// version range, and which package each required language comes from.
 fn required_packages(
     toml: &LanguagesToml,
-    package: &LanguagePackage,
+    package_name: &str,
+    languages: &BTreeMap<String, PackagedLanguage>,
     ts_cli_minor: &str,
 ) -> Result<(BTreeMap<String, String>, BTreeMap<String, String>)> {
     let mut dependencies = BTreeMap::new();
     let mut required_ids = BTreeMap::new();
-    for id in package.languages.keys() {
+    for id in languages.keys() {
         for required in toml
             .parsers
             .get(id)
@@ -4265,7 +4266,7 @@ fn required_packages(
                 .unwrap_or_else(|| format!("tree-sitter-{required}"));
             let required_package =
                 format!("@lumis-sh/wasm-{}", wasm_package_suffix(&required_wasm));
-            if required_package == package.package_name {
+            if required_package == package_name {
                 bail!("{id} requires {required}, which ships in the same package");
             }
             dependencies.insert(required_package.clone(), format!("^{ts_cli_minor}.0"));
@@ -4352,7 +4353,12 @@ fn package_entry(
 ) -> Result<PackageEntry> {
     use std::fmt::Write as _;
 
-    let (dependencies, required_ids) = required_packages(toml, package, ts_cli_minor)?;
+    let (dependencies, required_ids) = required_packages(
+        toml,
+        &package.package_name,
+        &package.languages,
+        ts_cli_minor,
+    )?;
     let mut js = String::new();
     for (required, required_package) in &required_ids {
         writeln!(
@@ -4400,6 +4406,13 @@ fn package_entry(
 /// not see, so every parser is published again. 4: the JavaScript entry exports
 /// the language with its language package, so importing it is enough anywhere.
 const PACKAGE_FORMAT_VERSION: u32 = 4;
+
+/// The `PACKAGE_FORMAT_VERSION` at which what a Hex package ships last changed:
+/// `priv/parsers`, `mix.exs` or its README. A Hex release staged from an older
+/// format is published again; a newer format that only changed the npm entry,
+/// as 4 did, is not. Raise it to `PACKAGE_FORMAT_VERSION` whenever a format
+/// change reaches the Hex package.
+const HEX_FORMAT_VERSION: u32 = 3;
 
 /// The bundle counterpart of `PACKAGE_FORMAT_VERSION`, carried in a bundle's
 /// `package.json` as `lumis.bundleFormat`. 2: the default export is the bundle,
@@ -4569,9 +4582,12 @@ struct ReleasePlanEntry {
 fn wasm_release_plan(filter: &str) -> Result<()> {
     let series = supported_tree_sitter_series()?;
     let toml = read_languages_toml()?;
-    let candidates = release_candidates(&toml, filter)?;
+    let candidates = release_candidates(&toml, filter, &series)?;
 
-    let npm_packages: Vec<String> = candidates.iter().map(|(_, pkg, _)| pkg.clone()).collect();
+    let npm_packages: Vec<String> = candidates
+        .iter()
+        .map(|candidate| candidate.npm_package.clone())
+        .collect();
     let packuments = fetch_packuments(&npm_packages);
     let registry = hex_registry()?;
 
@@ -4606,9 +4622,23 @@ fn filter_parsers(filter: &str) -> HashSet<&str> {
         .collect()
 }
 
-/// Every parser matching `filter`, with the npm package and definition hash
-/// that decide where it stands.
-fn release_candidates(toml: &LanguagesToml, filter: &str) -> Result<Vec<(String, String, String)>> {
+/// A parser the plan considers, and what decides where it stands.
+struct ReleaseCandidate {
+    wasm_name: String,
+    npm_package: String,
+    /// Its `definitionHash`: the parser, queries and languages it ships.
+    definition: String,
+    /// The `@lumis-sh/wasm-*` packages its languages require, by range.
+    dependencies: BTreeMap<String, String>,
+}
+
+/// Every parser matching `filter`, with the npm package, definition hash and
+/// dependencies that decide where it stands.
+fn release_candidates(
+    toml: &LanguagesToml,
+    filter: &str,
+    series: &str,
+) -> Result<Vec<ReleaseCandidate>> {
     let wanted = filter_parsers(filter);
 
     let mut seen = HashSet::new();
@@ -4624,33 +4654,45 @@ fn release_candidates(toml: &LanguagesToml, filter: &str) -> Result<Vec<(String,
         }
 
         let languages = packaged_languages(toml, wasm_name)?;
-        let expected = language_definition_hash(toml, wasm_name, &languages)?;
-        let suffix = wasm_package_suffix(wasm_name);
-        candidates.push((
-            wasm_name.to_string(),
-            format!("@lumis-sh/wasm-{suffix}"),
-            expected,
-        ));
+        let npm_package = format!("@lumis-sh/wasm-{}", wasm_package_suffix(wasm_name));
+        let (dependencies, _) = required_packages(toml, &npm_package, &languages, series)?;
+        candidates.push(ReleaseCandidate {
+            wasm_name: wasm_name.to_string(),
+            definition: language_definition_hash(toml, wasm_name, &languages)?,
+            npm_package,
+            dependencies,
+        });
     }
     Ok(candidates)
 }
 
 /// The parsers a registry is missing, and the version each resolves to.
+///
+/// Hex is only missing a parser whose Hex package would differ from the one it
+/// has. A format change that reaches npm alone gives npm a new version and
+/// leaves Hex where it is: publishing a release with nothing new in it would
+/// cost everyone who updates their deps for no reason.
 fn plan_parsers(
-    candidates: Vec<(String, String, String)>,
+    candidates: Vec<ReleaseCandidate>,
     packuments: Vec<Result<Option<Value>>>,
     registry: &HashMap<String, Vec<String>>,
     series: &str,
 ) -> Result<Vec<ReleasePlanEntry>> {
     let mut parsers = Vec::new();
-    for ((wasm_name, npm_package, expected), packument) in candidates.into_iter().zip(packuments) {
+    for (candidate, packument) in candidates.into_iter().zip(packuments) {
         let packument = packument?;
+        let ReleaseCandidate {
+            wasm_name,
+            npm_package,
+            definition,
+            dependencies,
+        } = candidate;
         let hex_package = hex_app_name(&wasm_name);
         let hex = registry.get(&hex_package).cloned().unwrap_or_default();
 
         let version = packument
             .as_ref()
-            .and_then(|p| version_for_definition(p, &expected, series))
+            .and_then(|p| version_for_definition(p, &definition, series))
             // Published already: the registry that has it fixes the version,
             // and the other gets the same one.
             .unwrap_or_else(|| next_patch(series, packument.as_ref(), &hex));
@@ -4660,20 +4702,69 @@ fn plan_parsers(
             .and_then(|p| p.get("versions"))
             .and_then(Value::as_object)
             .is_some_and(|versions| versions.contains_key(&version));
-        let on_hex = hex.contains(&version);
+        let hex_needed = !hex.contains(&version)
+            && !hex_is_current(packument.as_ref(), &hex, &definition, &dependencies, series);
 
-        if !on_npm || !on_hex {
+        if !on_npm || hex_needed {
             parsers.push(ReleasePlanEntry {
                 wasm_name,
                 npm_package,
                 hex_package,
                 version,
                 npm: !on_npm,
-                hex: !on_hex,
+                hex: hex_needed,
             });
         }
     }
     Ok(parsers)
+}
+
+/// Whether the newest Hex release of a parser already ships `definition` with
+/// `dependencies`.
+///
+/// Read off npm, the way [`version_for_definition`] is: a Hex release is staged
+/// from the npm package of the same version, so that package's `lumis`
+/// metadata and dependencies describe it. Only the newest release counts, since
+/// that is the one a project updating its deps would get.
+fn hex_is_current(
+    packument: Option<&Value>,
+    hex: &[String],
+    definition: &str,
+    dependencies: &BTreeMap<String, String>,
+    series: &str,
+) -> bool {
+    let Some(newest) = hex
+        .iter()
+        .filter(|version| patch_of(version, series).is_some())
+        .max_by_key(|version| patch_of(version, series))
+    else {
+        return false;
+    };
+    let Some(manifest) = packument.and_then(|p| p.pointer(&format!("/versions/{newest}"))) else {
+        return false;
+    };
+    let meta = manifest.get("lumis");
+    let published_dependencies = manifest
+        .get("dependencies")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flatten()
+        .filter(|(name, _)| name.starts_with("@lumis-sh/wasm-"))
+        .map(|(name, range)| (name.clone(), range.as_str().unwrap_or_default().to_string()))
+        .collect::<BTreeMap<_, _>>();
+
+    meta.and_then(|meta| meta.get("definitionHash"))
+        .and_then(Value::as_str)
+        == Some(definition)
+        && meta
+            .and_then(|meta| meta.get("treeSitter"))
+            .and_then(Value::as_str)
+            == Some(series)
+        && meta
+            .and_then(|meta| meta.get("formatVersion"))
+            .and_then(Value::as_u64)
+            .is_some_and(|format| format >= u64::from(HEX_FORMAT_VERSION))
+        && &published_dependencies == dependencies
 }
 
 /// The bundles Hex is missing.
@@ -4717,19 +4808,32 @@ fn plan_bundles(
             .and_then(|p| p.get("versions"))
             .and_then(Value::as_object)
             .is_some_and(|versions| versions.contains_key(&version));
-        let on_hex = hex.contains(&version);
+        let hex_needed =
+            !hex.contains(&version) && !hex_bundle_is_current(packument, &hex, &bundle.members);
 
-        if !on_npm || !on_hex {
+        if !on_npm || hex_needed {
             bundles.push(BundlePlanEntry {
                 bundle: bundle.name.clone(),
                 app,
                 version,
                 npm: !on_npm,
-                hex: !on_hex,
+                hex: hex_needed,
             });
         }
     }
     Ok(bundles)
+}
+
+/// Whether the newest Hex release of a bundle already depends on `members`.
+///
+/// A Hex bundle is its `mix.exs` dependency list and a README, so the member
+/// list is all that can change it; `bundleFormat` describes the npm entry.
+fn hex_bundle_is_current(packument: Option<&Value>, hex: &[String], members: &[String]) -> bool {
+    hex.iter()
+        .filter(|version| patch_of(version, BUNDLE_SERIES).is_some())
+        .max_by_key(|version| patch_of(version, BUNDLE_SERIES))
+        .and_then(|newest| packument?.pointer(&format!("/versions/{newest}")))
+        .is_some_and(|manifest| dependency_names(manifest) == members)
 }
 
 /// Bundles version independently of the parsers they group: a bundle is a list
@@ -5696,6 +5800,141 @@ mod hex_wasm_tests {
         assert!(filter_parsers("").is_empty());
         assert!(filter_parsers(" , ").is_empty());
         assert_eq!(filter_parsers(" json , elixir ").len(), 2);
+    }
+
+    /// What npm holds for one parser version: its definition, format, and the
+    /// `@lumis-sh/wasm-*` packages it depends on.
+    fn parser_version(definition: &str, format: u32, dependencies: &[&str]) -> Value {
+        json!({
+            "lumis": {
+                "definitionHash": definition,
+                "treeSitter": "0.26",
+                "formatVersion": format,
+            },
+            "dependencies": dependencies
+                .iter()
+                .map(|name| ((*name).to_string(), json!("^0.26.0")))
+                .collect::<serde_json::Map<_, _>>(),
+        })
+    }
+
+    /// Plans one parser, `@lumis-sh/wasm-markdown`, against npm and Hex as given.
+    fn plan_markdown(
+        npm: Value,
+        hex: &[&str],
+        definition: &str,
+        dependencies: &[&str],
+    ) -> Vec<ReleasePlanEntry> {
+        let candidate = ReleaseCandidate {
+            wasm_name: "tree-sitter-markdown".to_string(),
+            npm_package: "@lumis-sh/wasm-markdown".to_string(),
+            definition: definition.to_string(),
+            dependencies: dependencies
+                .iter()
+                .map(|name| ((*name).to_string(), "^0.26.0".to_string()))
+                .collect(),
+        };
+        let registry = HashMap::from([(
+            "lumis_wasm_markdown".to_string(),
+            hex.iter().map(|v| (*v).to_string()).collect(),
+        )]);
+        plan_parsers(
+            vec![candidate],
+            vec![Ok(Some(packument_of(npm)))],
+            &registry,
+            "0.26",
+        )
+        .expect("the plan should resolve")
+    }
+
+    fn packument_of(versions: Value) -> Value {
+        json!({ "versions": versions })
+    }
+
+    /// A format change that reaches only the npm entry, as `formatVersion` 4
+    /// did, must not hand Hex a release with nothing new in it.
+    #[test]
+    fn an_npm_only_format_change_leaves_hex_alone() {
+        let npm = json!({ "0.26.3": parser_version("d", HEX_FORMAT_VERSION, &[]) });
+
+        let plan = plan_markdown(npm, &["0.26.3"], "d", &[]);
+
+        assert_eq!(plan.len(), 1);
+        assert_eq!(plan[0].version, "0.26.4");
+        assert!(plan[0].npm, "npm takes the new format");
+        assert!(
+            !plan[0].hex,
+            "Hex already ships this parser and these queries"
+        );
+    }
+
+    /// Once npm has the new format, the parser is settled: planning it again
+    /// must not keep offering Hex the version it skipped.
+    #[test]
+    fn a_skipped_hex_version_stays_skipped() {
+        let npm = json!({
+            "0.26.3": parser_version("d", HEX_FORMAT_VERSION, &[]),
+            "0.26.4": parser_version("d", PACKAGE_FORMAT_VERSION, &[]),
+        });
+
+        assert!(plan_markdown(npm, &["0.26.3"], "d", &[]).is_empty());
+    }
+
+    #[test]
+    fn what_hex_ships_changing_publishes_to_hex() {
+        let npm = || json!({ "0.26.3": parser_version("d", HEX_FORMAT_VERSION, &[]) });
+
+        let new_definition = plan_markdown(npm(), &["0.26.3"], "e", &[]);
+        assert!(new_definition[0].hex, "new parser or queries");
+
+        let new_dependency =
+            plan_markdown(npm(), &["0.26.3"], "d", &["@lumis-sh/wasm-markdown_inline"]);
+        assert!(new_dependency[0].hex, "mix.exs gains a dependency");
+
+        let older_format = plan_markdown(
+            json!({ "0.26.3": parser_version("d", HEX_FORMAT_VERSION - 1, &[]) }),
+            &["0.26.3"],
+            "d",
+            &[],
+        );
+        assert!(
+            older_format[0].hex,
+            "staged before the Hex package last changed"
+        );
+
+        let not_on_hex = plan_markdown(npm(), &[], "d", &[]);
+        assert!(not_on_hex[0].hex, "Hex has no release at all");
+    }
+
+    /// `bundleFormat` describes the npm entry. A Hex bundle is its dependency
+    /// list, so only a membership change is news to Hex.
+    #[test]
+    fn a_bundle_format_change_leaves_hex_alone() {
+        let staged = [StagedBundle {
+            name: "web".to_string(),
+            members: vec!["@lumis-sh/wasm-css".to_string()],
+        }];
+        let mut published = bundle_packument(&[("0.1.0", &["@lumis-sh/wasm-css"])]);
+        published["versions"]["0.1.0"]["lumis"]["bundleFormat"] = json!(BUNDLE_FORMAT_VERSION - 1);
+        let registry = HashMap::from([(
+            "lumis_wasm_bundle_web".to_string(),
+            vec!["0.1.0".to_string()],
+        )]);
+
+        let plan = plan_bundles(&registry, "", &staged, &[Ok(Some(published.clone()))]).unwrap();
+        assert_eq!(plan.len(), 1);
+        assert!(plan[0].npm);
+        assert!(!plan[0].hex);
+
+        let grown = [StagedBundle {
+            name: "web".to_string(),
+            members: vec![
+                "@lumis-sh/wasm-css".to_string(),
+                "@lumis-sh/wasm-html".to_string(),
+            ],
+        }];
+        let plan = plan_bundles(&registry, "", &grown, &[Ok(Some(published))]).unwrap();
+        assert!(plan[0].hex, "a new member is a new mix.exs");
     }
 
     /// A version from another series is not a patch of this one.
@@ -7068,7 +7307,8 @@ mod tests {
                 languages: BTreeMap::from([(id.clone(), PackagedLanguage::default())]),
             };
             let (npm, _) =
-                required_packages(&toml, &package, "0.26").expect("requires should resolve");
+                required_packages(&toml, &package.package_name, &package.languages, "0.26")
+                    .expect("requires should resolve");
             let npm = npm
                 .into_iter()
                 .map(|(name, range)| (name, Value::String(range)))

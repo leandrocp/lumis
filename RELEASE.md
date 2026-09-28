@@ -49,9 +49,14 @@ that list changes. Nothing to bump and nothing to remember.
   `mise run wasm-publish-needed` lists pending ones.
 - A change to what a parser or bundle package contains bumps `PACKAGE_FORMAT_VERSION`
   or `BUNDLE_FORMAT_VERSION` in `crates/dev`, and merging it republishes every parser
-  or bundle. That happens on the push to `main`, before any runtime release that reads
-  the new format can ship, so the order takes care of itself. Let that WASM Release
-  run finish before merging `npm-lumis`.
+  or bundle on npm. That happens on the push to `main`, before any runtime release that
+  reads the new format can ship, so the order takes care of itself. Let that WASM
+  Release run finish before merging `npm-lumis`.
+- Hex gets a release only when its own package changes: a new parser or queries, a
+  new dependency in `mix.exs`, or a bundle's members. A format change that touches
+  only the npm entry leaves Hex on the version it has, so Hex and npm versions can
+  differ. When a format change does reach what Hex ships (`priv/parsers`, `mix.exs`,
+  the README), raise `HEX_FORMAT_VERSION` to the new `PACKAGE_FORMAT_VERSION` too.
 - An ordinary `0.26.x` WASM release needs no runtime release. Moving to a new
   Tree-sitter minor series in `mise.toml` does.
 - `parser-sizes.json` is measured off what is published, so it lags a parser
