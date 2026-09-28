@@ -75,21 +75,29 @@ the work is the one that will serve:
 
 | Runtime | In the process that serves | In a process that exits |
 | --- | --- | --- |
-| JavaScript / TypeScript | `loadLanguages([...])`, not awaited | `lumis languages download <names>` |
-| Elixir | `Lumis.Languages.async_load([...])` in `start/2` | `lumis languages download <names>` |
+| JavaScript / TypeScript | `loadLanguages([...])`, not awaited | `loadLanguages([...])`, awaited, in a build step |
+| Elixir | `Lumis.Languages.async_load([...])` in `start/2` | `Lumis.Languages.load([...])` in a release task |
 | Browsers / CDN | `createHighlighter({languages})`, or `loadLanguages()` | — nothing to prepare ahead |
 | CLI | — the process exits, so there is no later to hold for | `lumis languages download <names>` |
 | Rust | — parsers are Cargo features compiled into the binary | — |
 | Java | construct `Lumis` at startup and retain it | — parsers ship inside `lumis4j` |
 
 **Loading** compiles the language and keeps it in this runtime, so nothing
-compiles it again, and it persists the compiled module on disk, where it
-survives restarts and is shared by every native runtime pointed at the same
-directory.
+compiles it again. It also writes the compiled module to the data directory,
+where it survives restarts. A later process that loads the same parser from that
+directory reuses it instead of compiling.
 
-A process that will serve loads. A process that is *not* serving — an image
-build, a release task — has nothing to hold on to, so it runs the CLI, which
-writes that same directory and exits.
+A process that will serve loads in the background. A process that is not
+serving, such as an image build or a release task, runs the same load, waits for
+it, and exits. What it leaves behind is the compiled modules, which the serving
+process picks up. Compiled modules only carry over to the same platform and
+Lumis version, so run that step where the server's image is built, with the same
+parser packages installed.
+
+The CLI's `lumis languages download` fills the CLI's own store. Node and Elixir
+load parsers from the packages a project installed, not from that store, so for
+them the CLI saves only the compile, and only when it fetched the same parser
+version the project installed. Run the application's own load instead.
 
 :::note
 Preloading is an optimization, never a prerequisite. An application that starts
@@ -165,8 +173,20 @@ the compiled Wasmtime module. Bun and Deno, or a Node installation without the
 addon, call the same API, but the portable `web-tree-sitter` fallback cannot
 persist compiled modules across processes.
 
-Use the CLI tab below when a build or prestart step is preparing a directory the
-serving process will read.
+To compile in an image build or a prestart step instead, run the same call
+there and await it, with `LUMIS_DATA_DIR` pointing at the directory the server
+will use:
+
+```bash
+LUMIS_DATA_DIR=/app/lumis node --input-type=module -e '
+  import { loadLanguages } from "@lumis-sh/lumis";
+  await loadLanguages(["javascript", "html", "css"]);
+'
+```
+
+A language that fails to load exits non-zero, so the build fails rather than a
+request. On the portable fallback there is no compiled module to keep, so the
+step only helps the native addon.
 
   </Tab>
   <Tab value="Elixir">
@@ -200,15 +220,19 @@ process to need a language pays and every process after it does not.
 
 Use `Lumis.Languages.load/1` when the caller does want the result and can wait
 — a release task, or a smoke test that should fail if a parser is unusable.
+A release task that runs it during the image build writes the compiled modules
+into the data directory. Keep that directory in the image and the first boot
+doesn't compile.
 For release and container details, see the standalone
 [Elixir deployment guide](https://lumis.hexdocs.pm/deployment.html).
 
   </Tab>
   <Tab value="CLI">
 
-Use the CLI when preparation belongs outside the application lifecycle: an image
-build, a release task, or an operations step. It fills the store for a process
-that has not started yet, which is the case a startup preload cannot cover.
+Use this when the CLI itself does the highlighting, such as a script or a service
+that runs `lumis highlight`, and you want its store filled ahead of time. For a
+Node or Elixir application, run its own load in the build step instead; see
+their tabs.
 
 ```bash
 lumis languages download rust javascript elixir
@@ -240,10 +264,6 @@ The first stage only needs a Node image because `npx` fetches the CLI; nothing
 from it reaches the runtime image except the directory. Install the binary
 instead — see [Installation](/installation) — if you would rather not reach the
 network during a build.
-
-Keep the startup preload as well. A prepared directory removes the compile;
-moving the parsers into the runtime is still the preload's job, and it needs no
-network once that directory is there.
 
   </Tab>
   <Tab value="Browsers / CDN">
@@ -316,9 +336,10 @@ configuration in `lumis4j`.
 
 ## Point every process at one directory
 
-The CLI, Elixir NIF, and native Node addon share one store, so a parser one of
-them compiles is already compiled for the others. Name it explicitly when one
-process prepares files for another:
+The CLI, Elixir NIF, and native Node addon keep compiled modules in the same
+directory, so a parser one of them compiles is already compiled for the others,
+as long as it is the same parser version. Name the directory explicitly when one
+process prepares it for another:
 
 | Host | Explicit setting | Environment fallback | Default |
 | --- | --- | --- | --- |

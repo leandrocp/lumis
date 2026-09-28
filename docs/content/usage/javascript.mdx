@@ -402,10 +402,12 @@ its queries and persists the compiled Wasmtime module in the data directory.
 The portable fallback can't: `web-tree-sitter` does not persist its compilation
 across processes.
 
-To fill a directory the serving process will read — an image build, a prestart
-step — use `lumis languages download`. It writes the same store and holds
-nothing, and being a separate process is the point: failing there fails the
-build rather than a request.
+To compile in an image build or a prestart step instead, run the same
+`loadLanguages()` there and await it, with `LUMIS_DATA_DIR` pointing at the
+directory the server will use. The server then reuses those compiled modules.
+Being a separate process is the point: failing there fails the build rather than
+a request. [Languages](/languages#preloaded) has the command, and why
+`lumis languages download` is not the build step for a Node project.
 
 :::note Edge is not supported yet
 The portable JavaScript runtime uses `web-tree-sitter`, but Edge runtimes are not supported yet because of an upstream Tree-sitter limitation: [tree-sitter/tree-sitter#2160](https://github.com/tree-sitter/tree-sitter/issues/2160).

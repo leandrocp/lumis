@@ -73,8 +73,9 @@ loadLanguages(['javascript', 'html', 'css']).catch((error) => {
 ```
 
 `loadLanguages()` warms the runtime `highlight()` uses and keeps the languages
-there, persisting compiled Wasmtime modules on native Node. To fill a directory
-from a build step instead, use `lumis languages download`.
+there, persisting compiled Wasmtime modules on native Node. To compile in a build
+step instead, run the same call there, awaited, with `LUMIS_DATA_DIR` set to the
+directory the server uses.
 
 ## Documentation
 
