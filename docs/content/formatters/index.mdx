@@ -42,7 +42,7 @@ Self-contained output with no external CSS.
 ```js
 import {highlight} from '@lumis-sh/lumis';
 import {htmlInline} from '@lumis-sh/lumis/formatters';
-import javascript from '@lumis-sh/lumis/langs/javascript';
+import javascript from '@lumis-sh/wasm-javascript';
 import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
 const html = await highlight(
@@ -132,7 +132,7 @@ Smaller HTML. Pair with a CSS theme file.
 import '@lumis-sh/themes/css/catppuccin_frappe.css';
 import {highlight} from '@lumis-sh/lumis';
 import {htmlLinked} from '@lumis-sh/lumis/formatters';
-import javascript from '@lumis-sh/lumis/langs/javascript';
+import javascript from '@lumis-sh/wasm-javascript';
 
 const html = await highlight(
   'const x = 1',
@@ -208,7 +208,7 @@ One block, multiple themes via CSS custom properties.
 ```js
 import {highlight} from '@lumis-sh/lumis';
 import {htmlMultiThemes} from '@lumis-sh/lumis/formatters';
-import javascript from '@lumis-sh/lumis/langs/javascript';
+import javascript from '@lumis-sh/wasm-javascript';
 import latte from '@lumis-sh/themes/catppuccin_latte';
 import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
@@ -524,7 +524,7 @@ markup the page already has: a `<code>` in a sentence, a table cell, a button.
 ```js
 import {highlight} from '@lumis-sh/lumis';
 import {htmlInline} from '@lumis-sh/lumis/formatters';
-import bash from '@lumis-sh/lumis/langs/bash';
+import bash from '@lumis-sh/wasm-bash';
 import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
 const spans = await highlight(
@@ -674,7 +674,7 @@ ANSI output for the terminal.
 ```js
 import {highlight} from '@lumis-sh/lumis';
 import {terminal} from '@lumis-sh/lumis/formatters';
-import javascript from '@lumis-sh/lumis/langs/javascript';
+import javascript from '@lumis-sh/wasm-javascript';
 import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
 const ansi = await highlight(
@@ -754,7 +754,7 @@ Scope-based BBCode output for BBCode-aware renderers and custom pipelines.
 ```js
 import {highlight} from '@lumis-sh/lumis';
 import {bbcodeScoped} from '@lumis-sh/lumis/formatters';
-import javascript from '@lumis-sh/lumis/langs/javascript';
+import javascript from '@lumis-sh/wasm-javascript';
 
 const output = await highlight(
   'const x = "[url=x]"',

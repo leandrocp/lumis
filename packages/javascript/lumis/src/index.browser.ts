@@ -63,7 +63,10 @@ export function highlight(...args: Parameters<typeof highlighter.highlight>) {
 /** {@inheritDoc index.withWasm} */
 export function withWasm<T extends import("./types.js").Language>(
   language: T,
-  source: import("./types.js").LanguagePackageExports | import("./types.js").RuntimeWasmInput,
+  source:
+    | import("./types.js").Language
+    | import("./types.js").LanguagePackageExports
+    | import("./types.js").RuntimeWasmInput,
 ): Omit<T, "wasm" | "manifest"> & {
   wasm: import("./types.js").RuntimeWasmInput;
   manifest?: object;
@@ -76,7 +79,8 @@ export function withWasmBundle(
   bundle: import("./types.js").LanguageBundle,
   sources:
     | import("./types.js").RuntimeLanguagePackageBundle
-    | import("./types.js").RuntimeWasmBundle,
+    | import("./types.js").RuntimeWasmBundle
+    | Partial<Record<string, import("./types.js").Language>>,
 ): import("./types.js").LanguageBundle {
   return bundleWithPackages(bundle, sources);
 }

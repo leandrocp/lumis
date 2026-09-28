@@ -20,7 +20,8 @@ The pattern is simple: compile Markdown to HAST, let `rehype-lumis` replace each
 
 ```bash
 npm install @lumis-sh/rehype-lumis \
-  @lumis-sh/lumis @lumis-sh/themes
+  @lumis-sh/lumis @lumis-sh/themes \
+  @lumis-sh/wasm-bundle-web
 ```
 
 ## With `@mdx-js/mdx`
@@ -29,7 +30,7 @@ npm install @lumis-sh/rehype-lumis \
 import {compile} from '@mdx-js/mdx'
 import rehypeLumis from '@lumis-sh/rehype-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const file = await compile(source, {
@@ -37,7 +38,7 @@ const file = await compile(source, {
     [rehypeLumis, {
       formatter: (language) =>
         htmlInline({language, theme: latte}),
-      languages: [bundledLanguages],
+      languages: [web],
     }],
   ],
 })

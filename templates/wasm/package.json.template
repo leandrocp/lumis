@@ -24,6 +24,13 @@
     "formatVersion": 4,
     "definitionHash": "{definition_hash}"
   },
+  "peerDependencies": {
+    "@lumis-sh/lumis": "{lumis_range}"
+  },
+  "peerDependenciesMeta": {
+    "@lumis-sh/lumis": { "optional": true }
+  },
+  "dependencies": {dependencies},
   "keywords": ["lumis-sh", "wasm", "tree-sitter"],
   "files": ["*.wasm", "*.json", "*.js", "*.d.ts", "README.md", "LICENSE"]
 }

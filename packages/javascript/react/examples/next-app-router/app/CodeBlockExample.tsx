@@ -1,15 +1,12 @@
 "use client";
 
-import { createHighlighter, withWasmBundle } from "@lumis-sh/lumis/client";
-import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
+import { createHighlighter } from "@lumis-sh/lumis/client";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import { CodeBlock } from "@lumis-sh/react";
 import githubDark from "@lumis-sh/themes/github_dark";
-import { bundledPackages } from "@lumis-sh/wasm-bundle-web";
+import web from "@lumis-sh/wasm-bundle-web";
 
-const highlighter = createHighlighter({
-  languages: [withWasmBundle(bundledLanguages, bundledPackages)],
-});
+const highlighter = createHighlighter({ languages: [web] });
 
 export function CodeBlockExample() {
   return (

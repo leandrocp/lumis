@@ -41,8 +41,18 @@ Where the bytes come from depends on the runtime. In Elixir and Node a parser is
 an ordinary dependency: `mix deps.get` and `npm install` deliver it, and
 highlighting reads it off the code path without touching the network. The CLI
 has no manifest to read, so it downloads and verifies a parser the first time it
-needs one. A browser loads the parser packages the application imported and
-passed to `withWasm()`, and downloads nothing unless a resolver is configured.
+needs one. A browser loads the parser packages the application imported, and
+downloads nothing unless a resolver is configured.
+
+:::note
+A package is named after the WebAssembly parser it carries, not after a
+language, because the parser is what Lumis verifies and loads. Most parsers
+serve one language, and the package's default export is that language. A few
+serve more than one, and export each by name:
+`@lumis-sh/wasm-embedded-template` has `ejs` and `erb`, and
+`@lumis-sh/wasm-markdown` has `markdown` and `mdx`.
+[Language catalog](/reference/languages) lists the package for every language.
+:::
 
 That includes languages **injected inside** another one, in the same pass: a
 Markdown file with a fenced Rust block highlights that block, and an HTML page
@@ -273,20 +283,13 @@ A browser loads only the parser packages you import, so preloading is passing
 them to the highlighter you keep:
 
 ```ts
-import { createHighlighter, withWasm } from "@lumis-sh/lumis";
-import css from "@lumis-sh/lumis/langs/css";
-import html from "@lumis-sh/lumis/langs/html";
-import javascript from "@lumis-sh/lumis/langs/javascript";
-import * as cssPackage from "@lumis-sh/wasm-css";
-import * as htmlPackage from "@lumis-sh/wasm-html";
-import * as javascriptPackage from "@lumis-sh/wasm-javascript";
+import { createHighlighter } from "@lumis-sh/lumis";
+import css from "@lumis-sh/wasm-css";
+import html from "@lumis-sh/wasm-html";
+import javascript from "@lumis-sh/wasm-javascript";
 
 const highlighter = await createHighlighter({
-  languages: [
-    withWasm(html, htmlPackage),
-    withWasm(css, cssPackage),
-    withWasm(javascript, javascriptPackage),
-  ],
+  languages: [html, css, javascript],
 });
 
 await renderApplication({ highlighter });

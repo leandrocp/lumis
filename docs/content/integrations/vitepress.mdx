@@ -18,7 +18,8 @@ VitePress uses `markdown-it` under the hood. That makes Lumis integration straig
 
 ```bash
 npm install markdown-it \
-  @lumis-sh/markdown-it-lumis @lumis-sh/themes
+  @lumis-sh/markdown-it-lumis @lumis-sh/themes \
+  @lumis-sh/wasm-javascript @lumis-sh/wasm-rust
 ```
 
 ## Configure `.vitepress/config.ts`
@@ -27,9 +28,9 @@ npm install markdown-it \
 import {defineConfig} from 'vitepress'
 import markdownItLumis from '@lumis-sh/markdown-it-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import javascript from '@lumis-sh/lumis/langs/javascript'
-import rust from '@lumis-sh/lumis/langs/rust'
 import plaintext from '@lumis-sh/lumis/langs/plaintext'
+import javascript from '@lumis-sh/wasm-javascript'
+import rust from '@lumis-sh/wasm-rust'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const lumis = await markdownItLumis({
@@ -55,9 +56,9 @@ Any `@lumis-sh/themes/*` theme module works.
 import {defineConfig} from 'vitepress'
 import markdownItLumis from '@lumis-sh/markdown-it-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import javascript from '@lumis-sh/lumis/langs/javascript'
-import rust from '@lumis-sh/lumis/langs/rust'
 import plaintext from '@lumis-sh/lumis/langs/plaintext'
+import javascript from '@lumis-sh/wasm-javascript'
+import rust from '@lumis-sh/wasm-rust'
 import nightfly from '@lumis-sh/themes/nightfly'
 
 const lumis = await markdownItLumis({

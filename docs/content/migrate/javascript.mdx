@@ -9,37 +9,26 @@ be carried over unchanged.
 
 ## Use a published language package
 
-Import a language from `@lumis-sh/lumis/langs/*`. The language handle identifies
-a package that supplies the parser metadata and matching queries together:
+Install the language's package and import the language it exports. The package
+supplies the parser and its matching queries together:
+
+```bash
+npm install @lumis-sh/wasm-json
+```
 
 ```js
 import { createHighlighter } from '@lumis-sh/lumis';
-import json from '@lumis-sh/lumis/langs/json';
+import json from '@lumis-sh/wasm-json';
 
 const highlighter = await createHighlighter({ languages: [json] });
 ```
 
-Use the [language catalog](/reference/languages) to find a supported language.
+Use the [language catalog](/reference/languages) to find a supported language,
+and see [Where parsers come from](/usage/javascript#where-parsers-come-from).
 
-## Bundle parser packages with `withWasm`
-
-`withWasm()` attaches an imported language package to its language, which is
-how a browser loads one. It does not accept replacement queries or turn an
-arbitrary grammar into a Lumis language:
-
-```js
-import { createHighlighter, withWasm } from '@lumis-sh/lumis';
-import json from '@lumis-sh/lumis/langs/json';
-import * as jsonPackage from '@lumis-sh/wasm-json';
-
-const highlighter = await createHighlighter({
-  languages: [withWasm(json, jsonPackage)],
-});
-```
-
-Pass the whole package, not only its default export: the manifest beside the
-parser carries the queries and the size and SHA-256 the bytes must match. See
-[Where parsers come from](/usage/javascript#where-parsers-come-from).
+`withWasm()` still attaches a package to a language, for code that imports the
+package as a namespace. It does not accept replacement queries or turn an
+arbitrary grammar into a Lumis language.
 
 ## Unpublished grammars
 

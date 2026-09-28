@@ -19,7 +19,7 @@ over each one, and splices the result back into the source.
 
 ```bash
 npm install -D @lumis-sh/vite
-npm install @lumis-sh/lumis @lumis-sh/themes
+npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-html @lumis-sh/wasm-javascript
 ```
 
 ## Configure Vite
@@ -28,8 +28,8 @@ npm install @lumis-sh/lumis @lumis-sh/themes
 import {defineConfig} from 'vite'
 import lumis from '@lumis-sh/vite'
 import {htmlMultiThemes} from '@lumis-sh/lumis/formatters'
-import html from '@lumis-sh/lumis/langs/html'
-import javascript from '@lumis-sh/lumis/langs/javascript'
+import html from '@lumis-sh/wasm-html'
+import javascript from '@lumis-sh/wasm-javascript'
 import githubDark from '@lumis-sh/themes/github_dark'
 import githubLight from '@lumis-sh/themes/github_light'
 
@@ -50,8 +50,8 @@ export default defineConfig({
 
 The plugin creates one highlighter per Vite plugin instance. It initializes that highlighter at
 build or dev-server startup and reuses it for every HTML transform. Put languages in `languages`
-to load their parsers during that startup. If a language injects another language and the build
-must stay off the network, include the injected language too.
+to load their parsers during that startup. A language injected into another loads from its own
+package, so install the packages for the languages your HTML can inject too.
 
 ## Mark code in HTML
 

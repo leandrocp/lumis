@@ -179,10 +179,26 @@ async function readWasmInput(wasm: RuntimeWasmInput): Promise<Uint8Array> {
 const resolverSource = (source: string | URL): string =>
   source instanceof URL ? source.href : source;
 
+/**
+ * Whether a language came from a package this project also installed. It is
+ * that package, so it stays on the installed path, where the shared runtime
+ * keeps it and a native walk loads what it injects.
+ */
+function isImportedInstalled(
+  opts: LoadLanguageOptions,
+  manifests: Record<string, string> | undefined,
+): boolean {
+  return (
+    opts.manifest !== undefined &&
+    opts.packageName !== undefined &&
+    manifests?.[opts.packageName] !== undefined
+  );
+}
+
 export function createNativeLanguagesModule(
   binding: NativeBinding,
   resolvers: LanguagesModule,
-  resolveInstalledManifest?: (packageName: string) => Promise<URL | undefined>,
+  resolveInstalledManifests?: (packageNames: readonly string[]) => Promise<Map<string, URL>>,
 ): LanguagesModule {
   let globalWasmResolver: WasmResolver | undefined;
   let globalLanguagePackageResolver: LanguagePackageResolver | undefined;
@@ -212,12 +228,13 @@ export function createNativeLanguagesModule(
    */
   function tellAddon(): Promise<Record<string, string> | undefined> {
     installed ??= (async () => {
-      if (!resolveInstalledManifest) return;
+      if (!resolveInstalledManifests) return;
       const { fileURLToPath } = await import("node:url");
       const manifests: Record<string, string> = {};
-      for (const packageName of LANGUAGE_PACKAGE_NAMES) {
-        const manifest = await resolveInstalledManifest(packageName);
-        if (manifest) manifests[packageName] = fileURLToPath(manifest);
+      for (const [packageName, manifest] of await resolveInstalledManifests(
+        LANGUAGE_PACKAGE_NAMES,
+      )) {
+        manifests[packageName] = fileURLToPath(manifest);
       }
       binding.setInstalledPackages(manifests);
       return manifests;
@@ -376,10 +393,14 @@ export function createNativeLanguagesModule(
      * stays on the Rust path, where a language injected inside the document
      * still loads mid-walk.
      */
-    private async isCallerResolved(opts: LoadLanguageOptions): Promise<boolean> {
+    private async isCallerResolved(
+      opts: LoadLanguageOptions,
+      manifests: Record<string, string> | undefined,
+    ): Promise<boolean> {
+      const importedInstalled = isImportedInstalled(opts, manifests);
       if (
         hasResolverOverride(this.resolverState) ||
-        opts.wasm !== undefined ||
+        (opts.wasm !== undefined && !importedInstalled) ||
         !CATALOG_LANGUAGE_IDS.has(normalizeLanguageName(opts.definition.id))
       ) {
         return true;
@@ -394,7 +415,7 @@ export function createNativeLanguagesModule(
       // from these in Rust, whichever way the root was loaded.
       const manifests = await tellAddon();
 
-      if (!(await this.isCallerResolved(opts))) {
+      if (!(await this.isCallerResolved(opts, manifests))) {
         const packageName = opts.packageName!;
         if (manifests && !manifests[packageName]) throw notDeclared(packageName, packageName);
         this.native.loadLanguage(opts.definition.id);

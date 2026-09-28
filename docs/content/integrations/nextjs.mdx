@@ -21,7 +21,8 @@ Next.js MDX already supports `rehypePlugins`. That makes `@lumis-sh/rehype-lumis
 npm install @next/mdx @mdx-js/loader \
   @mdx-js/react @types/mdx
 npm install @lumis-sh/rehype-lumis \
-  @lumis-sh/lumis @lumis-sh/themes
+  @lumis-sh/lumis @lumis-sh/themes \
+  @lumis-sh/wasm-bundle-web
 ```
 
 ## Configure `next.config.mjs`
@@ -50,14 +51,14 @@ export default withMDX({
 ```js title="rehype-lumis.mjs"
 import rehypeLumis from '@lumis-sh/rehype-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 export default function configuredRehypeLumis() {
   return rehypeLumis.call(this, {
     formatter: (language) =>
       htmlInline({language, theme: latte}),
-    languages: [bundledLanguages],
+    languages: [web],
   })
 }
 ```

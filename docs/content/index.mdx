@@ -97,8 +97,14 @@ import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
   <Tab value="JavaScript / TypeScript">
 
+A parser is an npm package:
+
+```bash
+npm install @lumis-sh/wasm-javascript
+```
+
 ```js
-import javascript from '@lumis-sh/lumis/langs/javascript';
+import javascript from '@lumis-sh/wasm-javascript';
 ```
 
   </Tab>
@@ -143,12 +149,8 @@ lumis highlight index.js --language javascript
   <Tab value="Browsers / CDN">
 
 ```js
-import {withWasm} from 'https://esm.sh/@lumis-sh/lumis';
-import javascriptLanguage from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
-import * as javascriptPackage from 'https://esm.sh/@lumis-sh/wasm-javascript';
-
 // A browser loads only the parser packages you import.
-const javascript = withWasm(javascriptLanguage, javascriptPackage);
+import javascript from 'https://esm.sh/@lumis-sh/wasm-javascript';
 ```
 
   </Tab>
@@ -280,8 +282,8 @@ const formatter = htmlInline({language: javascript, theme: frappe});
 ```js
 import {highlight} from '@lumis-sh/lumis';
 import {htmlInline} from '@lumis-sh/lumis/formatters';
-import javascript from '@lumis-sh/lumis/langs/javascript';
 import frappe from '@lumis-sh/themes/catppuccin_frappe';
+import javascript from '@lumis-sh/wasm-javascript';
 
 const html = await highlight(
   'const x = 1',
@@ -357,13 +359,11 @@ echo 'const x = 1' | lumis highlight \
 
 ```html
 <script type="module">
-  import {highlight, withWasm} from 'https://esm.sh/@lumis-sh/lumis';
+  import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
   import {htmlInline} from 'https://esm.sh/@lumis-sh/lumis/formatters';
-  import javascriptLanguage from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
-  import * as javascriptPackage from 'https://esm.sh/@lumis-sh/wasm-javascript';
   import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe';
+  import javascript from 'https://esm.sh/@lumis-sh/wasm-javascript';
 
-  const javascript = withWasm(javascriptLanguage, javascriptPackage);
   const html = await highlight(
     'const x = 1',
     htmlInline({language: javascript, theme: frappe})

@@ -167,7 +167,11 @@ export function installLocalPackages(root: string, languages: string[]): Record<
     );
     writeFileSync(
       join(directory, "index.js"),
-      `export default new URL("./${parser}", import.meta.url);\nexport const manifest = ${JSON.stringify(metadata)};\n`,
+      `const wasm = new URL("./${parser}", import.meta.url);
+export const manifest = ${JSON.stringify(metadata)};
+export const ${language} = { id: ${JSON.stringify(language)}, aliases: ${JSON.stringify(metadata.languages[language]?.aliases ?? [])}, packageName: ${JSON.stringify(metadata.packageName)}, wasm, manifest };
+export default ${language};
+`,
     );
     writeFileSync(
       join(directory, "package.json"),
@@ -184,16 +188,27 @@ export function installLocalPackages(root: string, languages: string[]): Record<
 }
 
 /**
- * What `import * as pkg from "@lumis-sh/wasm-<language>"` gives a bundler: the
- * parser as the default export and the manifest beside it.
+ * What `import language from "@lumis-sh/wasm-<language>"` gives a bundler: the
+ * language, its parser and manifest included.
  */
-export function localLanguagePackageExports(language: string): {
-  default: Uint8Array;
+export function localPackageLanguage(
+  language: string,
+  requires?: ReturnType<typeof localPackageLanguage>[],
+): {
+  id: string;
+  aliases: string[];
+  packageName: string;
+  wasm: Uint8Array;
   manifest: LanguagePackage;
+  requires?: ReturnType<typeof localPackageLanguage>[];
 } {
   const manifest = localLanguagePackageMetadata(`@lumis-sh/wasm-${language}`);
   return {
-    default: new Uint8Array(readFileSync(ensureLocalParserWasm(language, manifest.parser.name))),
+    id: language,
+    aliases: manifest.languages[language]?.aliases ?? [],
+    packageName: manifest.packageName,
+    wasm: new Uint8Array(readFileSync(ensureLocalParserWasm(language, manifest.parser.name))),
     manifest,
+    ...(requires ? { requires } : {}),
   };
 }

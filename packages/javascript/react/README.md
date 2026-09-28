@@ -12,7 +12,8 @@ Examples:
 ## Install
 
 ```bash
-npm install @lumis-sh/react @lumis-sh/lumis @lumis-sh/themes react
+npm install @lumis-sh/react @lumis-sh/lumis @lumis-sh/themes react \
+  @lumis-sh/wasm-bundle-web
 ```
 
 ## Usage
@@ -38,11 +39,11 @@ export function Example() {
 ```tsx
 import { CodeBlock } from '@lumis-sh/react'
 import { createHighlighter } from '@lumis-sh/lumis'
-import { bundledLanguages } from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import { htmlInline } from '@lumis-sh/lumis/formatters'
 import githubLight from '@lumis-sh/themes/github_light'
 
-const highlighter = createHighlighter({ languages: [bundledLanguages] })
+const highlighter = createHighlighter({ languages: [web] })
 
 export function Example() {
   return (
@@ -63,11 +64,11 @@ Pass `highlighter` when you want to reuse one instance across multiple blocks or
 ```tsx
 import { useLumis } from '@lumis-sh/react'
 import { createHighlighter } from '@lumis-sh/lumis'
-import { bundledLanguages } from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import { htmlInline } from '@lumis-sh/lumis/formatters'
 import githubLight from '@lumis-sh/themes/github_light'
 
-const highlighter = createHighlighter({ languages: [bundledLanguages] })
+const highlighter = createHighlighter({ languages: [web] })
 
 export function Example() {
   const { content, isLoading } = useLumis({
@@ -85,12 +86,12 @@ export function Example() {
 
 ```tsx
 import { renderCodeBlock } from '@lumis-sh/react/server'
-import { bundledLanguages } from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import { htmlInline } from '@lumis-sh/lumis/formatters'
 import githubLight from '@lumis-sh/themes/github_light'
 
 const node = await renderCodeBlock({
   children: 'const x = 1',
-  formatter: htmlInline({ language: bundledLanguages.javascript, theme: githubLight }),
+  formatter: htmlInline({ language: web.javascript, theme: githubLight }),
 })
 ```

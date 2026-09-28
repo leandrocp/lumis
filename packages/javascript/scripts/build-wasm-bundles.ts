@@ -29,8 +29,9 @@ const VERSION = argValue("--version") ?? "0.0.0";
 
 /**
  * Carried as `lumis.bundleFormat`, so a change to what a bundle exports publishes
- * a new version even when its members stay the same. 2: `bundledPackages`. Must
- * match `BUNDLE_FORMAT_VERSION` in `crates/dev`.
+ * a new version even when its members stay the same. 2: the default export is
+ * the bundle itself, and `bundledWasms` is gone. Must match
+ * `BUNDLE_FORMAT_VERSION` in `crates/dev`.
  */
 const BUNDLE_FORMAT_VERSION = 2;
 
@@ -53,8 +54,9 @@ function treeSitterCompatRange(): string {
   return `^${match[1]}.0`;
 }
 
+/** The first Lumis that reads a bundle's default export. */
 function lumisVersionRange(): string {
-  return ">=0.0.1";
+  return ">=0.9.0";
 }
 
 function wasmNameForLanguage(id: string, entry: ParserEntry | undefined): string {
@@ -68,14 +70,6 @@ function wasmPackageName(wasmName: string): string {
 
 function packageDir(bundleName: string): string {
   return path.join(OUT_DIR, `wasm-bundle-${bundleName}`);
-}
-
-function importName(packageName: string): string {
-  const cleaned = packageName
-    .replace("@lumis-sh/", "")
-    .replaceAll(/[^a-zA-Z0-9]+(.)/g, (_match, next: string) => next.toUpperCase())
-    .replaceAll(/[^a-zA-Z0-9]/g, "");
-  return cleaned.replace(/^[A-Z]/, (char) => char.toLowerCase());
 }
 
 function unique<T>(values: T[]): T[] {
@@ -114,44 +108,34 @@ function writeBundlePackage(
   const lumisVersion = lumisVersionRange();
   const publishedPackages = new Set(dependencyPackages);
 
-  const importLines = [...publishedPackages]
-    .sort()
-    .map((pkg) => `import * as ${importName(pkg)} from ${JSON.stringify(pkg)}`)
+  const lazyEntries = languageIds
+    .filter((id) => id !== "plaintext")
+    .map((id) => {
+      const pkg = JSON.stringify(wasmPackagesByLanguage[id]!);
+      const aliases = JSON.stringify(parsers[id]?.aliases ?? []);
+      return `  ${JSON.stringify(id)}: lazy(${JSON.stringify(id)}, ${aliases}, () => import(${pkg}).then((m) => m[${JSON.stringify(id)}])),`;
+    })
     .join("\n");
 
-  const entries = (value: (name: string) => string) =>
-    languageIds
-      .map((id) => `  ${JSON.stringify(id)}: ${value(importName(wasmPackagesByLanguage[id]!))},`)
-      .join("\n");
+  // Dynamic imports, so a bundler splits each language into its own chunk and a
+  // page downloads only the languages it highlights.
+  const indexJs = `const lazy = (id, aliases, load) => Object.assign(load, { id, aliases })
 
-  const indexJs = `${importLines}
-
-/** Each language's parser package, manifest included. Pass this to \`withWasmBundle()\`. */
-export const bundledPackages = {
-${entries((name) => name)}
+/**
+ * Every language in this bundle, each loaded from its package the first time
+ * it is used. Pass it to \`createHighlighter({ languages })\`.
+ */
+const bundle = {
+${lazyEntries}
 }
 
-/** Parser files only, for Lumis versions that predate \`bundledPackages\`. */
-export const bundledWasms = {
-${entries((name) => `${name}.default`)}
-}
-
-export default bundledPackages
+export default bundle
 `;
 
-  const indexDts = `import type { RuntimeWasmBundle } from '@lumis-sh/lumis'
+  const indexDts = `import type { LanguageBundle } from '@lumis-sh/lumis'
 
-export declare const bundledPackages: Readonly<
-  Record<
-    string,
-    {
-      readonly default: URL
-      readonly manifest: { readonly packageName: string; readonly version: string }
-    }
-  >
->
-export declare const bundledWasms: RuntimeWasmBundle
-export default bundledPackages
+declare const bundle: LanguageBundle
+export default bundle
 `;
 
   const dependencies = Object.fromEntries(
@@ -205,21 +189,15 @@ Lumis WASM ${bundleName} language bundle.
 npm install @lumis-sh/lumis @lumis-sh/wasm-bundle-${bundleName}
 \`\`\`
 
-## Node.js
+## Usage
 
-Install this package alongside \`@lumis-sh/lumis/bundles/${bundleName}\`. Lumis loads the parser packages it depends on, with nothing else to configure.
-
-## Browsers
-
-A browser loads only the parser packages you import. Pass them to \`withWasmBundle()\` so your bundler ships them:
+The package exports the bundle, in Node and in a browser. Each language loads from its package the first time it is used:
 
 \`\`\`ts
-import { createHighlighter, withWasmBundle } from '@lumis-sh/lumis'
-import { bundledLanguages } from '@lumis-sh/lumis/bundles/${bundleName}'
-import { bundledPackages } from '@lumis-sh/wasm-bundle-${bundleName}'
+import { createHighlighter } from '@lumis-sh/lumis'
+import ${bundleName.replaceAll(/-(.)/g, (_m, c: string) => c.toUpperCase())} from '@lumis-sh/wasm-bundle-${bundleName}'
 
-const languages = withWasmBundle(bundledLanguages, bundledPackages)
-const highlighter = await createHighlighter({ languages: [languages] })
+const highlighter = await createHighlighter({ languages: [${bundleName.replaceAll(/-(.)/g, (_m, c: string) => c.toUpperCase())}] })
 \`\`\`
 `;
 

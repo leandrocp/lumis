@@ -1,16 +1,16 @@
 import fs from "node:fs/promises";
 import { renderToStaticMarkup } from "react-dom/server";
 import { renderCodeBlock } from "@lumis-sh/react/server";
-import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import githubLight from "@lumis-sh/themes/github_light";
+import web from "@lumis-sh/wasm-bundle-web";
 import { jsx, Fragment } from "react/jsx-runtime";
 
 const block = await renderCodeBlock({
   children: `export function greet(name) {
   return \`Hello, \${name}!\`
 }`,
-  formatter: htmlInline({ language: bundledLanguages.javascript, theme: githubLight }),
+  formatter: htmlInline({ language: web.javascript, theme: githubLight }),
 });
 
 const html = renderToStaticMarkup(

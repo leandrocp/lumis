@@ -27,7 +27,7 @@ Line highlighting lets you emphasize key lines without changing the rest of the 
 ```js
 import {highlight} from '@lumis-sh/lumis';
 import {htmlInline} from '@lumis-sh/lumis/formatters';
-import javascript from '@lumis-sh/lumis/langs/javascript';
+import javascript from '@lumis-sh/wasm-javascript';
 import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
 const html = await highlight(
@@ -115,7 +115,7 @@ lumis highlight main.rs \
 ```js
 import {highlight} from '@lumis-sh/lumis';
 import {htmlInline} from '@lumis-sh/lumis/formatters';
-import javascript from '@lumis-sh/lumis/langs/javascript';
+import javascript from '@lumis-sh/wasm-javascript';
 import frappe from '@lumis-sh/themes/catppuccin_frappe';
 
 const html = await highlight(

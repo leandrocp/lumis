@@ -17,7 +17,8 @@ Use `@lumis-sh/markdown-it-lumis` when your renderer is built on `markdown-it`.
 
 ```bash
 npm install markdown-it \
-  @lumis-sh/markdown-it-lumis @lumis-sh/themes
+  @lumis-sh/markdown-it-lumis @lumis-sh/themes \
+  @lumis-sh/wasm-javascript @lumis-sh/wasm-rust @lumis-sh/wasm-bundle-web
 ```
 
 ## Example
@@ -26,9 +27,9 @@ npm install markdown-it \
 import MarkdownIt from 'markdown-it'
 import markdownItLumis from '@lumis-sh/markdown-it-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import javascript from '@lumis-sh/lumis/langs/javascript'
-import rust from '@lumis-sh/lumis/langs/rust'
 import plaintext from '@lumis-sh/lumis/langs/plaintext'
+import javascript from '@lumis-sh/wasm-javascript'
+import rust from '@lumis-sh/wasm-rust'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const md = new MarkdownIt()
@@ -62,11 +63,11 @@ Creates a Lumis highlighter and returns an installer function for a `markdown-it
 import {createHighlighter} from '@lumis-sh/lumis'
 import {fromHighlighter} from '@lumis-sh/markdown-it-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 const highlighter = await createHighlighter({
-  languages: [bundledLanguages],
+  languages: [web],
 })
-await highlighter.loadLanguage(bundledLanguages.javascript)
+await highlighter.loadLanguage(web.javascript)
 
 const lumis = fromHighlighter(highlighter, options)
 lumis(md)

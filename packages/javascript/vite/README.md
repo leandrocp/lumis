@@ -8,7 +8,7 @@ Rollup plugin.
 
 ```sh
 npm install -D @lumis-sh/vite
-npm install @lumis-sh/lumis @lumis-sh/themes
+npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ npm install @lumis-sh/lumis @lumis-sh/themes
 import {defineConfig} from 'vite'
 import lumis from '@lumis-sh/vite'
 import {htmlMultiThemes} from '@lumis-sh/lumis/formatters'
-import javascript from '@lumis-sh/lumis/langs/javascript'
+import javascript from '@lumis-sh/wasm-javascript'
 import githubDark from '@lumis-sh/themes/github_dark'
 import githubLight from '@lumis-sh/themes/github_light'
 

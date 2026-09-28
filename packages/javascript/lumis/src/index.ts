@@ -62,8 +62,8 @@ const highlighter = createHighlighterModule({
  * ```ts
  * import { createHighlighter } from '@lumis-sh/lumis'
  * import { htmlInline } from '@lumis-sh/lumis/formatters'
- * import javascript from '@lumis-sh/lumis/langs/javascript'
  * import dracula from '@lumis-sh/themes/dracula'
+ * import javascript from '@lumis-sh/wasm-javascript'
  *
  * const hl = await createHighlighter({ languages: [javascript] })
  * const html = hl.highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
@@ -73,15 +73,15 @@ const highlighter = createHighlighterModule({
  * ```ts
  * import { createHighlighter } from '@lumis-sh/lumis'
  * import { htmlInline } from '@lumis-sh/lumis/formatters'
- * import { bundledLanguages } from '@lumis-sh/lumis/bundles/web'
  * import dracula from '@lumis-sh/themes/dracula'
+ * import web from '@lumis-sh/wasm-bundle-web'
  *
  * // Register all web languages. None are loaded yet.
- * const hl = await createHighlighter({ languages: [bundledLanguages] })
+ * const hl = await createHighlighter({ languages: [web] })
  *
  * // Load a language, then highlight synchronously.
- * await hl.loadLanguage(bundledLanguages.javascript)
- * const html = hl.highlight('const x = 1', htmlInline({ language: bundledLanguages.javascript, theme: dracula }))
+ * await hl.loadLanguage(web.javascript)
+ * const html = hl.highlight('const x = 1', htmlInline({ language: web.javascript, theme: dracula }))
  * ```
  */
 export function createHighlighter(...args: Parameters<typeof highlighter.createHighlighter>) {
@@ -101,8 +101,8 @@ export function createHighlighter(...args: Parameters<typeof highlighter.createH
  * ```ts
  * import { highlight } from '@lumis-sh/lumis'
  * import { htmlInline } from '@lumis-sh/lumis/formatters'
- * import javascript from '@lumis-sh/lumis/langs/javascript'
  * import dracula from '@lumis-sh/themes/dracula'
+ * import javascript from '@lumis-sh/wasm-javascript'
  *
  * const html = await highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
  * ```
@@ -112,23 +112,22 @@ export function highlight(...args: Parameters<typeof highlighter.highlight>) {
 }
 
 /**
- * Return a copy of a language that loads from an imported parser package.
+ * Return a copy of a language that loads its parser from somewhere else.
  *
- * A browser loads only the packages passed in this way, so a bundler ships
- * them and nothing is fetched. Pass the whole package, so its manifest comes
- * along with the parser:
+ * Rarely needed: a parser package already exports its language, parser and
+ * manifest included, so `import elixir from '@lumis-sh/wasm-elixir'` is enough
+ * in Node and in a browser. `withWasm()` also takes that language, or the
+ * package imported as a namespace, and so keeps older code working.
  *
- * ```ts
- * import * as elixirPackage from '@lumis-sh/wasm-elixir'
- * const elixirLanguage = withWasm(elixir, elixirPackage)
- * ```
- *
- * Parser bytes on their own also work in Node, which reads the manifest from
- * the installed package.
+ * Parser bytes on their own work in Node, which reads the manifest from the
+ * installed package. A browser needs the manifest, so give it the package.
  */
 export function withWasm<T extends import("./types.js").Language>(
   language: T,
-  source: import("./types.js").LanguagePackageExports | import("./types.js").RuntimeWasmInput,
+  source:
+    | import("./types.js").Language
+    | import("./types.js").LanguagePackageExports
+    | import("./types.js").RuntimeWasmInput,
 ): Omit<T, "wasm" | "manifest"> & {
   wasm: import("./types.js").RuntimeWasmInput;
   manifest?: object;
@@ -137,15 +136,17 @@ export function withWasm<T extends import("./types.js").Language>(
 }
 
 /**
- * Apply imported parser packages to every matching language in a bundle.
+ * Apply parsers to every matching language in a bundle.
  *
- * Pass `bundledPackages` from a `@lumis-sh/wasm-bundle-*` package.
+ * Rarely needed: a `@lumis-sh/wasm-bundle-*` package default exports the whole
+ * bundle, ready for `createHighlighter({ languages })`.
  */
 export function withWasmBundle(
   bundle: import("./types.js").LanguageBundle,
   sources:
     | import("./types.js").RuntimeLanguagePackageBundle
-    | import("./types.js").RuntimeWasmBundle,
+    | import("./types.js").RuntimeWasmBundle
+    | Partial<Record<string, import("./types.js").Language>>,
 ): import("./types.js").LanguageBundle {
   return bundleWithPackages(bundle, sources);
 }

@@ -26,8 +26,8 @@ import { formatHtmlMultiThemes } from "./formatter/html-multi-themes.js";
  * @example
  * ```ts
  * import { htmlInline } from '@lumis-sh/lumis/formatters'
- * import javascript from '@lumis-sh/lumis/langs/javascript'
  * import dracula from '@lumis-sh/themes/dracula'
+ * import javascript from '@lumis-sh/wasm-javascript'
  *
  * hl.highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
  * ```
@@ -49,7 +49,7 @@ export function htmlInline(options: HtmlInlineOptions = {}): HtmlInlineFormatter
  * @example
  * ```ts
  * import { htmlLinked } from '@lumis-sh/lumis/formatters'
- * import javascript from '@lumis-sh/lumis/langs/javascript'
+ * import javascript from '@lumis-sh/wasm-javascript'
  * import '@lumis-sh/themes/css/dracula.css'
  *
  * hl.highlight('const x = 1', htmlLinked({ language: javascript }))
@@ -72,7 +72,7 @@ export function htmlLinked(options: HtmlLinkedOptions = {}): HtmlLinkedFormatter
  * @example
  * ```ts
  * import { htmlMultiThemes } from '@lumis-sh/lumis/formatters'
- * import javascript from '@lumis-sh/lumis/langs/javascript'
+ * import javascript from '@lumis-sh/wasm-javascript'
  * import githubLight from '@lumis-sh/themes/github_light'
  * import githubDark from '@lumis-sh/themes/github_dark'
  *
@@ -139,7 +139,7 @@ export function htmlMultiThemes(options: HtmlMultiThemesOptions): HtmlMultiTheme
  * @example
  * ```ts
  * import { bbcodeScoped } from '@lumis-sh/lumis/formatters'
- * import javascript from '@lumis-sh/lumis/langs/javascript'
+ * import javascript from '@lumis-sh/wasm-javascript'
  *
  * const output = hl.highlight('const x = 1', bbcodeScoped({ language: javascript }))
  * console.log(output)

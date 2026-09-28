@@ -60,8 +60,8 @@ language definition.
 Preset bundle packages are also available, such as `@lumis-sh/wasm-bundle-web`, `@lumis-sh/wasm-bundle-web-extra`, `@lumis-sh/wasm-bundle-system`, and `@lumis-sh/wasm-bundle-backend`.
 
 - package list: [Languages](/reference/languages)
-- helper for imported parser packages in browsers: `withWasm()` from `@lumis-sh/lumis`
-- helper for imported preset bundles in browsers: `withWasmBundle()` from `@lumis-sh/lumis`
+- each package's default export is its language, so `import rust from "@lumis-sh/wasm-rust"` is all a highlighter needs; a parser that serves more than one language exports each by name
+- a bundle package's default export registers its languages lazily
 - loading: [Languages](/languages)
 - parser sources and resolvers: [JavaScript / TypeScript](/usage/javascript#where-parsers-come-from)
 - JavaScript / TypeScript usage: [JavaScript / TypeScript](/usage/javascript)

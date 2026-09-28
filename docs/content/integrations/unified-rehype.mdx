@@ -22,7 +22,8 @@ If your system already uses `unified`, use `@lumis-sh/rehype-lumis` directly.
 npm install unified remark-parse \
   remark-rehype rehype-stringify
 npm install @lumis-sh/rehype-lumis \
-  @lumis-sh/lumis @lumis-sh/themes
+  @lumis-sh/lumis @lumis-sh/themes \
+  @lumis-sh/wasm-javascript @lumis-sh/wasm-rust
 ```
 
 ## Example
@@ -34,9 +35,9 @@ import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 import rehypeLumis from '@lumis-sh/rehype-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import javascript from '@lumis-sh/lumis/langs/javascript'
-import rust from '@lumis-sh/lumis/langs/rust'
 import plaintext from '@lumis-sh/lumis/langs/plaintext'
+import javascript from '@lumis-sh/wasm-javascript'
+import rust from '@lumis-sh/wasm-rust'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const file = await unified()

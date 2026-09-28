@@ -1,10 +1,7 @@
-import { createHighlighter, withWasm } from "@lumis-sh/lumis";
+import { createHighlighter } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
-import elixir from "@lumis-sh/lumis/langs/elixir";
 import githubLight from "@lumis-sh/themes/github_light";
-import * as elixirPackage from "@lumis-sh/wasm-elixir";
-
-const elixirFromNpm = withWasm(elixir, elixirPackage);
+import elixir from "@lumis-sh/wasm-elixir";
 
 const source = `defmodule Lumis.Release do
   def manifest(env) do
@@ -22,10 +19,10 @@ const output = document.querySelector("#output");
 const error = document.querySelector("#error");
 
 try {
-  const highlighter = await createHighlighter({ languages: [elixirFromNpm] });
+  const highlighter = await createHighlighter({ languages: [elixir] });
   output.innerHTML = highlighter.highlight(
     source,
-    htmlInline({ language: elixirFromNpm, theme: githubLight }),
+    htmlInline({ language: elixir, theme: githubLight }),
   );
 } catch (err) {
   error.style.display = "block";

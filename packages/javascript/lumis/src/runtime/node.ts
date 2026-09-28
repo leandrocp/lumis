@@ -2,6 +2,8 @@ import type { RuntimeEnvironment } from "./runtime.js";
 import { createLanguagesModule } from "../core/languages.js";
 import type { LanguagePackageResolver, LanguagesModule, WasmResolver } from "../core/languages.js";
 import { createNativeLanguagesModule } from "../core/native-languages.js";
+import { BUNDLES } from "../generated/bundles-meta.js";
+import { LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
 import { loadNativeBinding } from "../native-binding.js";
 import treeSitterWasmBinary from "../tree-sitter-wasm.js";
 import type { LanguageInfo } from "../types.js";
@@ -18,26 +20,91 @@ const nodeFsPromises = "node:fs" + "/promises";
 const nodePath = "node:path";
 const nodeUrl = "node:url";
 
+const BUNDLE_PACKAGE_NAMES = Object.keys(BUNDLES).map((name) => `@lumis-sh/wasm-bundle-${name}`);
+
+interface InstalledPackage {
+  root: string;
+  /** Absent for a package published before the manifest was part of it. */
+  manifest?: string;
+}
+
+function findPackage(
+  resolve: NodeJS.RequireResolve,
+  dirname: (path: string) => string,
+  name: string,
+): InstalledPackage | undefined {
+  try {
+    const manifest = resolve(`${name}/lumis.json`);
+    return { root: dirname(manifest), manifest };
+  } catch {
+    // A bundle has no manifest, and neither has an old parser package.
+  }
+  try {
+    return { root: dirname(resolve(name)) };
+  } catch {
+    return;
+  }
+}
+
+async function wasmDependencies(packageJson: string): Promise<string[]> {
+  const { readFile } = await import(nodeFsPromises);
+  try {
+    const { dependencies = {} } = JSON.parse(await readFile(packageJson, "utf8")) as {
+      dependencies?: Record<string, string>;
+    };
+    return Object.keys(dependencies).filter((name) => name.startsWith("@lumis-sh/wasm-"));
+  } catch {
+    return [];
+  }
+}
+
 /**
- * Where an installed `@lumis-sh/wasm-*` package keeps its `lumis.json`.
+ * Where each of `packageNames` this project installed keeps its `lumis.json`.
  *
  * From the application's directory, not Lumis's own: resolving relative to
  * this package would find whatever parser version Lumis itself happens to
- * carry, which is not what the project declared.
+ * carry, which is not what the project declared. pnpm links only the direct
+ * dependencies there, and keeps the packages a bundle, or markdown, depends on
+ * next to that package instead, so those are looked up from the package that
+ * declared them.
  */
-async function resolveInstalledManifest(packageName: string): Promise<URL | undefined> {
+async function resolveInstalledManifests(
+  packageNames: readonly string[],
+): Promise<Map<string, URL>> {
   const { createRequire } = await import("node:module");
-  const { pathToFileURL } = await import("node:url");
-  const { join } = await import("node:path");
-  const resolveFromProject = createRequire(pathToFileURL(join(process.cwd(), "noop.js")));
+  const { pathToFileURL } = await import(nodeUrl);
+  const { dirname, join } = await import(nodePath);
+  const wanted = new Set(packageNames);
+  const manifests = new Map<string, URL>();
+  // By directory rather than name: an old copy without a manifest, found
+  // first, must not hide the one a bundle brought.
+  const explored = new Set<string>();
+  const searches = [
+    { from: join(process.cwd(), "noop.js"), names: [...packageNames, ...BUNDLE_PACKAGE_NAMES] },
+  ];
 
-  try {
-    return pathToFileURL(resolveFromProject.resolve(`${packageName}/lumis.json`));
-  } catch {
-    // Not installed, or published before the manifest was part of the
-    // package. Either way there is nothing here to read.
-    return;
+  for (const { from, names } of searches) {
+    const { resolve } = createRequire(pathToFileURL(from));
+    for (const name of names) {
+      const found = manifests.has(name) ? undefined : findPackage(resolve, dirname, name);
+      if (!found || explored.has(found.root)) continue;
+      explored.add(found.root);
+      if (found.manifest && wanted.has(name)) manifests.set(name, pathToFileURL(found.manifest));
+      const packageJson = join(found.root, "package.json");
+      const dependencies = await wasmDependencies(packageJson);
+      if (dependencies.length > 0) searches.push({ from: packageJson, names: dependencies });
+    }
   }
+  return manifests;
+}
+
+async function resolveInstalledManifest(packageName: string): Promise<URL | undefined> {
+  // A package linked where the project can see it, or one a bundle brought.
+  // Failing that, one that a package the project installed brought.
+  return (
+    (await resolveInstalledManifests([packageName])).get(packageName) ??
+    (await resolveInstalledManifests(LANGUAGE_PACKAGE_NAMES)).get(packageName)
+  );
 }
 
 export const nodeRuntime: RuntimeEnvironment = {
@@ -144,7 +211,7 @@ const binding = loadNativeBinding();
 const wasmRuntime = createLanguagesModule(nodeRuntime);
 
 const runtime: LanguagesModule = binding
-  ? createNativeLanguagesModule(binding, wasmRuntime, resolveInstalledManifest)
+  ? createNativeLanguagesModule(binding, wasmRuntime, resolveInstalledManifests)
   : wasmRuntime;
 
 /**

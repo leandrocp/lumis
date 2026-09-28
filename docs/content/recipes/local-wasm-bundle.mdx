@@ -5,27 +5,22 @@ description: Load a whole bundle of parser packages in a browser.
 
 
 
+A bundle package depends on its language packages and imports each one the
+first time it is loaded, so a bundler splits every parser into its own chunk.
+
 ```js
-import {
-  createHighlighter,
-  withWasmBundle,
-} from '@lumis-sh/lumis'
+import {createHighlighter} from '@lumis-sh/lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
-import {bundledPackages} from '@lumis-sh/wasm-bundle-web'
 import latte from '@lumis-sh/themes/catppuccin_latte'
+import web from '@lumis-sh/wasm-bundle-web'
 
-const languages = withWasmBundle(
-  bundledLanguages,
-  bundledPackages,
-)
-const hl = await createHighlighter({languages: [languages]})
+const hl = await createHighlighter({languages: [web]})
 
-await hl.loadLanguage(languages.javascript)
+await hl.loadLanguage(web.javascript)
 
 const html = hl.highlight(
   'const theme = "catppuccin-latte"',
-  htmlInline({language: languages.javascript, theme: latte})
+  htmlInline({language: web.javascript, theme: latte})
 )
 ```
 

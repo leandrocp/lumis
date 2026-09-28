@@ -114,8 +114,9 @@ npm install @lumis-sh/wasm-bundle-web
 Parsers are read out of `node_modules` — the manifest through each package's
 `./lumis.json` export — so nothing is fetched at runtime.
 
-A browser has no `node_modules`, so import the packages there and pass them to
-`withWasm()`. Nothing is fetched in a browser either; see
+A browser has no `node_modules`, so there the packages you import are the
+declaration. `import rust from "@lumis-sh/wasm-rust"` works in both, and
+nothing is fetched in a browser either; see
 [Where parsers come from](/usage/javascript#where-parsers-come-from).
 
 Supplying your own resolver is a declaration too, and takes precedence: a

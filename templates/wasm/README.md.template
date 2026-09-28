@@ -14,13 +14,22 @@ Used by [Lumis](https://lumis.sh) and compatible with [web-tree-sitter](https://
 npm install {pkg_name}
 ```
 
+## Usage
+
+The package exports the language, ready for Lumis, in Node and in a browser:
+
+```js
+import { createHighlighter } from '@lumis-sh/lumis'
+{import_line}
+
+const highlighter = await createHighlighter({ languages: [{first_language}] })
+```
+
 ## What it contains
 
 `{wasm_name}.wasm` is the parser. `lumis.json` describes it and records its size, its SHA-256 and the queries.
 
-Lumis reads both from the installed package, so nothing is downloaded at runtime.
-
-The only JavaScript here is one line that exports the parser's URL, for bundlers that want it.
+Node reads both from the installed package, and a bundler ships them with your code, so nothing is downloaded at runtime.
 
 ## Parser
 

@@ -123,7 +123,7 @@
       "loadLanguages": "Warms the parser cache before the first render. Elixir has `Lumis.Languages.load/1` and `async_load/1`, and the CLI has `lumis install`, so this is only top-level here; Rust's grammars are compiled in by cargo feature, so it has nothing to load.",
       "loadedLanguages": "See `loadLanguages`. Elixir has `Lumis.loaded_languages/0`.",
       "runtimeKind": "Reports whether the Wasmtime addon or `web-tree-sitter` is highlighting. JavaScript alone ships both runtimes in one package; the CLI, Elixir and Rust each have exactly one, so there is nothing to ask.",
-      "withWasm": "Attaches a statically imported parser package, manifest included, to a language so a bundler can see it and a browser loads it without fetching. Rust compiles grammars in, and the CLI and Elixir read and verify them at run time, so neither has a bundler to satisfy.",
+      "withWasm": "Attaches a parser package imported as a namespace to a language. A package's default export is already the language, so this is only for code that imports the package some other way. Rust compiles grammars in, and the CLI and Elixir read and verify them at run time, so neither has packages to import.",
       "withWasmBundle": "See `withWasm`.",
       "configureWasmResolver": "Overrides where parser assets are fetched from. Elixir configures that with `config :lumis, :parser_dirs` and the CLI with its config file, neither of which is a function.",
       "configureLanguagePackageResolver": "See `configureWasmResolver`.",

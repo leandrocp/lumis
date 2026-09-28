@@ -18,7 +18,8 @@ Docusaurus docs use MDX and expose rehype plugin hooks in the docs plugin config
 
 ```bash
 npm install @lumis-sh/rehype-lumis \
-  @lumis-sh/lumis @lumis-sh/themes
+  @lumis-sh/lumis @lumis-sh/themes \
+  @lumis-sh/wasm-bundle-web
 ```
 
 ## Configure `docusaurus.config.mjs`
@@ -26,7 +27,7 @@ npm install @lumis-sh/rehype-lumis \
 ```js
 import rehypeLumis from '@lumis-sh/rehype-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 export default {
@@ -39,7 +40,7 @@ export default {
             [rehypeLumis, {
               formatter: (language) =>
                 htmlInline({language, theme: latte}),
-              languages: [bundledLanguages],
+              languages: [web],
             }],
           ],
         },

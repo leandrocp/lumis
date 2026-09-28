@@ -21,7 +21,8 @@ Examples:
 
 ```bash
 npm install @lumis-sh/react @lumis-sh/lumis \
-  @lumis-sh/themes react
+  @lumis-sh/themes react \
+  @lumis-sh/wasm-bundle-web
 ```
 
 ## Client component
@@ -58,12 +59,12 @@ export function Example() {
 ```tsx
 import {CodeBlock} from '@lumis-sh/react'
 import {createHighlighter} from '@lumis-sh/lumis'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const highlighter = createHighlighter({
-  languages: [bundledLanguages],
+  languages: [web],
 })
 
 const codeString = `export function Hello() {
@@ -75,7 +76,7 @@ export function Example() {
     <CodeBlock
       highlighter={highlighter}
       formatter={htmlInline({
-        language: bundledLanguages.tsx,
+        language: web.tsx,
         theme: latte,
       })}
     >
@@ -94,12 +95,12 @@ Use `useLumis()` when you want to control the loading UI yourself.
 ```tsx
 import {useLumis} from '@lumis-sh/react'
 import {createHighlighter} from '@lumis-sh/lumis'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const highlighter = createHighlighter({
-  languages: [bundledLanguages],
+  languages: [web],
 })
 
 export function Example() {
@@ -128,7 +129,7 @@ This is a good fit for React Server Components and Next.js App Router pages.
 
 ```tsx
 import {renderCodeBlock} from '@lumis-sh/react/server'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
@@ -140,7 +141,7 @@ export async function Article() {
   const block = await renderCodeBlock({
     children: codeString,
     formatter: htmlInline({
-      language: bundledLanguages.tsx,
+      language: web.tsx,
       theme: latte,
     }),
   })
@@ -155,7 +156,7 @@ Create one `Highlighter` and pass it into `CodeBlock` or `useLumis()`:
 
 ```tsx
 import {createHighlighter} from '@lumis-sh/lumis'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import {CodeBlock} from '@lumis-sh/react'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
 import latte from '@lumis-sh/themes/catppuccin_latte'
@@ -163,7 +164,7 @@ import latte from '@lumis-sh/themes/catppuccin_latte'
 const codeString = `export const answer = 42`
 
 const highlighter = await createHighlighter({
-  languages: [bundledLanguages],
+  languages: [web],
 })
 
 export function Example() {

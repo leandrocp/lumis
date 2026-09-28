@@ -5,7 +5,9 @@
 ## Install
 
 ```sh
-npm install @lumis-sh/markdown-it-lumis @lumis-sh/themes
+npm install @lumis-sh/markdown-it-lumis @lumis-sh/themes \
+  @lumis-sh/wasm-javascript @lumis-sh/wasm-typescript @lumis-sh/wasm-json \
+  @lumis-sh/wasm-bundle-web
 ```
 
 ## Quick start
@@ -14,9 +16,9 @@ npm install @lumis-sh/markdown-it-lumis @lumis-sh/themes
 import MarkdownIt from 'markdown-it'
 import markdownItLumis from '@lumis-sh/markdown-it-lumis'
 import { htmlInline } from '@lumis-sh/lumis/formatters'
-import javascript from '@lumis-sh/lumis/langs/javascript'
-import typescript from '@lumis-sh/lumis/langs/typescript'
-import json from '@lumis-sh/lumis/langs/json'
+import javascript from '@lumis-sh/wasm-javascript'
+import typescript from '@lumis-sh/wasm-typescript'
+import json from '@lumis-sh/wasm-json'
 import dracula from '@lumis-sh/themes/dracula'
 
 const plugin = await markdownItLumis({
@@ -32,7 +34,7 @@ const html = md.render('```javascript\nconst x = 1\n```')
 
 `formatter` receives the language detected from the fenced block and returns a Lumis [Formatter](https://github.com/leandrocp/lumis/tree/main/packages/javascript/lumis#output-formats). Any built-in or custom formatter works.
 
-`languages` lists which languages to download and prepare. Since `md.render()` is synchronous, this has to happen before rendering. Fenced blocks that use a language not in this list won't be highlighted.
+`languages` lists which languages to load and prepare. Since `md.render()` is synchronous, this has to happen before rendering. Fenced blocks that use a language not in this list won't be highlighted.
 
 ## Multiple themes
 
@@ -55,11 +57,11 @@ const plugin = await markdownItLumis({
 You can pass a [bundle](https://github.com/leandrocp/lumis/tree/main/packages/javascript/lumis#bundles) to make a group of languages available, then load specific ones by name:
 
 ```typescript
-import { bundledLanguages } from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 
 const plugin = await markdownItLumis({
   formatter: (language) => htmlInline({ language, theme: dracula }),
-  languages: [bundledLanguages, 'javascript', 'json'],
+  languages: [web, 'javascript', 'json'],
 })
 ```
 
@@ -70,7 +72,7 @@ If you already have a `Highlighter` instance, use `fromHighlighter()` to skip se
 ```typescript
 import { createHighlighter } from '@lumis-sh/lumis'
 import { fromHighlighter } from '@lumis-sh/markdown-it-lumis'
-import javascript from '@lumis-sh/lumis/langs/javascript'
+import javascript from '@lumis-sh/wasm-javascript'
 
 const hl = await createHighlighter({ languages: [javascript] })
 const plugin = fromHighlighter(hl, {
@@ -86,4 +88,4 @@ md.use(plugin)
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `formatter` | `(language: string \| undefined) => Formatter` | (required) | Creates a Lumis formatter for each code block |
-| `languages` | `Array` | `[]` | Languages to download and prepare. Accepts Language objects, bundles, or string names (when a bundle is also passed). |
+| `languages` | `Array` | `[]` | Languages to load and prepare. Accepts Language objects, bundles, or string names (when a bundle is also passed). |

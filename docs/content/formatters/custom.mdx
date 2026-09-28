@@ -121,7 +121,7 @@ import {
   closingTags,
   spanInline,
 } from '@lumis-sh/lumis/formatters/html'
-import rust from '@lumis-sh/lumis/langs/rust'
+import rust from '@lumis-sh/wasm-rust'
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
 const hl = await createHighlighter({languages: [rust]})
@@ -440,7 +440,7 @@ Call `highlightEvents` inside a formatter’s `render` method.
 ```ts
 import {createHighlighter, highlightEvents} from '@lumis-sh/lumis'
 import type {Formatter} from '@lumis-sh/lumis/formatters'
-import rust from '@lumis-sh/lumis/langs/rust'
+import rust from '@lumis-sh/wasm-rust'
 
 const hl = await createHighlighter({languages: [rust]})
 

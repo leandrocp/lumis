@@ -8,15 +8,15 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 The `diff` language colours added, removed and context lines, and highlights the
 code inside each hunk as whatever language the diff header names. Nothing has to
-be configured: the `+++` path decides, and Lumis loads that language during the
-same pass.
+be configured: the `+++` path decides, and Lumis loads that language from its
+installed package during the same pass.
 
 <Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'CLI']}>
   <Tab value="JavaScript / TypeScript">
 
 ```js
-import diff from '@lumis-sh/lumis/langs/diff'
-import elixir from '@lumis-sh/lumis/langs/elixir'
+import diff from '@lumis-sh/wasm-diff'
+import elixir from '@lumis-sh/wasm-elixir'
 
 const hl = await createHighlighter({
   languages: [diff, elixir],

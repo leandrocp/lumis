@@ -459,6 +459,7 @@ crate = "tree-sitter-md"
 version = "0.5.3"
 location = "tree-sitter-markdown"
 globs = ["*.md", "*.markdown", "*.mdown", "*.mkd", ".MD", "README", "LICENSE"]
+requires = ["markdown_inline"]
 
 [parsers.markdown_inline]
 git = "https://github.com/tree-sitter-grammars/tree-sitter-markdown.git"
@@ -482,6 +483,7 @@ location = "tree-sitter-markdown"
 wasm_name = "tree-sitter-markdown"
 display_name = "MDX"
 globs = ["*.mdx"]
+requires = ["markdown_inline"]
 
 [parsers.nix]
 git = "https://github.com/nix-community/tree-sitter-nix.git"
@@ -942,6 +944,7 @@ location = "tree-sitter-jinja"
 aliases = ["jinja2"]
 display_name = "Jinja"
 globs = ["*.j2", "*.jinja", "*.jinja2"]
+requires = ["jinja_inline"]
 
 [parsers.jinja_inline]
 git = "https://github.com/cathaysia/tree-sitter-jinja.git"

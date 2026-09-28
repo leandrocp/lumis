@@ -16,7 +16,7 @@ import { writeCachedWasm } from "../src/runtime/node-cache.js";
 import {
   ensureLocalWasm,
   installLocalPackages,
-  localLanguagePackageExports,
+  localPackageLanguage,
   localLanguagePackageMetadata,
 } from "./wasm.js";
 
@@ -52,6 +52,21 @@ beforeAll(() => {
   writeFileSync(
     join(project, "package.json"),
     JSON.stringify({ name: "host", dependencies: { "@lumis-sh/wasm-json": "^0.26" } }),
+  );
+
+  // pnpm links only the project's direct dependencies into its node_modules,
+  // and keeps the languages a bundle depends on beside the bundle.
+  const bundle = join(project, "node_modules", "@lumis-sh", "wasm-bundle-web");
+  installLocalPackages(bundle, ["css"]);
+  writeFileSync(join(bundle, "index.js"), "export default {};\n");
+  writeFileSync(
+    join(bundle, "package.json"),
+    JSON.stringify({
+      name: "@lumis-sh/wasm-bundle-web",
+      type: "module",
+      exports: { ".": "./index.js" },
+      dependencies: { "@lumis-sh/wasm-css": "^0.26" },
+    }),
   );
 
   // Installed, but from a Tree-sitter series this build does not support.
@@ -96,6 +111,28 @@ describe("a parser installed in the project", () => {
     await expect(
       nodeRuntime.resolveInstalledManifest?.("@lumis-sh/wasm-haskell"),
     ).resolves.toBeUndefined();
+  });
+
+  it("is found through the bundle that brought it", async () => {
+    const { nodeRuntime } = await import("../src/runtime/node.js");
+
+    const resolved = await nodeRuntime.resolveInstalledManifest?.("@lumis-sh/wasm-css");
+
+    expect(resolved?.pathname).toContain(
+      "wasm-bundle-web/node_modules/@lumis-sh/wasm-css/lumis.json",
+    );
+  });
+
+  it("loads a language the bundle brought", async () => {
+    const { createHighlighter } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const hl = await createHighlighter({ languages: [] });
+
+    await hl.loadLanguage("css");
+
+    expect(hl.highlight("a { color: red }", htmlLinked({ language: "css" }))).toContain(
+      'class="l-',
+    );
   });
 
   it("is refused outside the supported version range", async () => {
@@ -201,25 +238,17 @@ describe("a parser installed in the project", () => {
     );
   });
 
-  // An imported package brings its own manifest, so nothing is resolved, not
-  // even the installed copy of the same package.
-  it("uses the manifest an imported package carries", async () => {
-    const { createHighlighter, withWasm } = await import("../src/index.js");
+  // `import json from "@lumis-sh/wasm-json"` works in Node as it does in a
+  // browser. On the addon it is the installed package, so it takes the
+  // installed path and a native walk still loads what it injects.
+  it("loads a language its package exports", async () => {
+    const { createHighlighter } = await import("../src/index.js");
     const { htmlLinked } = await import("../src/formatters.js");
-    const { default: json } = await import("../langs/json.ts");
-    const imported = localLanguagePackageExports("json");
-    const numbersOnly = {
-      ...imported,
-      manifest: {
-        ...imported.manifest,
-        languages: { json: { aliases: [], highlights: "(number) @number" } },
-      },
-    };
-    const hl = await createHighlighter({ languages: [withWasm(json, numbersOnly)] });
+    const json = localPackageLanguage("json");
+    const hl = await createHighlighter({ languages: [json] });
 
-    const html = hl.highlight('["text", 42]', htmlLinked({ language: "json" }));
-
-    expect(html).toContain('class="l-number"');
-    expect(html).not.toContain('class="l-string"');
+    expect(hl.highlight('["text", 42]', htmlLinked({ language: json }))).toContain(
+      'class="l-string"',
+    );
   });
 });

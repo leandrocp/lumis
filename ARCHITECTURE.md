@@ -173,7 +173,7 @@ declared, and a runtime gets exactly one of these:
 | --- | --- | --- |
 | Rust `lumis` crate | `Cargo.toml` features | linked statically: 65 crates.io parsers, 47 vendored sources |
 | JavaScript on Node | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
-| JavaScript in a browser | the packages it imports | `@lumis-sh/wasm-*` in the bundle, through `withWasm()` |
+| JavaScript in a browser | the packages it imports | `@lumis-sh/wasm-*` in the bundle, each exporting its language |
 | Elixir, any future FFI binding | `mix.exs` dependencies | `lumis_wasm_*` in each dependency's `priv/parsers` |
 | The CLI | nothing — it declares no set | fetched on demand into its own store |
 

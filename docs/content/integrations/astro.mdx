@@ -20,7 +20,8 @@ You can use the same plugin for both regular markdown content and Astro MDX.
 
 ```bash
 npm install @lumis-sh/rehype-lumis \
-  @lumis-sh/lumis @lumis-sh/themes
+  @lumis-sh/lumis @lumis-sh/themes \
+  @lumis-sh/wasm-bundle-web
 ```
 
 If you use MDX files too:
@@ -35,7 +36,7 @@ npm install @astrojs/mdx
 import {defineConfig} from 'astro/config'
 import rehypeLumis from '@lumis-sh/rehype-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 export default defineConfig({
@@ -44,7 +45,7 @@ export default defineConfig({
       [rehypeLumis, {
         formatter: (language) =>
           htmlInline({language, theme: latte}),
-        languages: [bundledLanguages],
+        languages: [web],
       }],
     ],
   },
@@ -58,7 +59,7 @@ import {defineConfig} from 'astro/config'
 import mdx from '@astrojs/mdx'
 import rehypeLumis from '@lumis-sh/rehype-lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 export default defineConfig({
@@ -68,7 +69,7 @@ export default defineConfig({
         [rehypeLumis, {
           formatter: (language) =>
             htmlInline({language, theme: latte}),
-          languages: [bundledLanguages],
+          languages: [web],
         }],
       ],
     }),

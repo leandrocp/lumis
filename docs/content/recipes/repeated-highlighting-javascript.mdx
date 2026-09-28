@@ -8,11 +8,11 @@ description: Reuse a JavaScript or TypeScript highlighter for repeated synchrono
 ```js
 import {createHighlighter} from '@lumis-sh/lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
 const hl = await createHighlighter({
-  languages: [bundledLanguages],
+  languages: [web],
 })
 await hl.loadLanguage('javascript')
 

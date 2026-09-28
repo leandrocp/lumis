@@ -19,13 +19,21 @@ Pick the runtime you want to use first. The highlighting concepts stay the same 
   <Tab value="JavaScript / TypeScript">
 
 ```bash
-npm install @lumis-sh/lumis @lumis-sh/themes
+npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript
 ```
 
 Use `@lumis-sh/lumis` for the per-language WASM runtime and
-`@lumis-sh/themes` for bundled themes. Node.js, Bun, Deno, and browsers use the
-same runtime model. The package includes TypeScript declarations; JavaScript and
-TypeScript apps use the same imports.
+`@lumis-sh/themes` for bundled themes. A parser is an ordinary dependency too:
+add one `@lumis-sh/wasm-*` package per language you highlight, or a bundle such
+as `@lumis-sh/wasm-bundle-web`, and import the language from it:
+
+```js
+import javascript from '@lumis-sh/wasm-javascript';
+```
+
+Node.js, Bun, Deno, and browsers use the same imports. The packages include
+TypeScript declarations; JavaScript and TypeScript apps use the same imports.
+The [language catalog](/reference/languages) has every npm package name.
 
   </Tab>
   <Tab value="Rust">
@@ -95,16 +103,14 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
 
 ```html
 <script type="module">
-  import {highlight, withWasm} from 'https://esm.sh/@lumis-sh/lumis';
+  import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
   import {
     htmlInline,
   } from 'https://esm.sh/@lumis-sh/lumis/formatters';
-  import javascriptLanguage from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
-  import * as javascriptPackage from 'https://esm.sh/@lumis-sh/wasm-javascript';
   import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe';
-
   // A browser loads only the parser packages you import.
-  const javascript = withWasm(javascriptLanguage, javascriptPackage);
+  import javascript from 'https://esm.sh/@lumis-sh/wasm-javascript';
+
   const html = await highlight(
     'const x = 1',
     htmlInline({language: javascript, theme: frappe})

@@ -18,14 +18,15 @@ Nuxt Content exposes markdown rehype plugins, so Lumis fits at the content pipel
 
 ```bash
 npm install @nuxt/content @lumis-sh/rehype-lumis \
-  @lumis-sh/lumis @lumis-sh/themes
+  @lumis-sh/lumis @lumis-sh/themes \
+  @lumis-sh/wasm-bundle-web
 ```
 
 ## Configure `nuxt.config.ts`
 
 ```ts
 import {htmlInline} from '@lumis-sh/lumis/formatters'
-import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 export default defineNuxtConfig({
@@ -39,7 +40,7 @@ export default defineNuxtConfig({
             options: {
               formatter: (language) =>
                 htmlInline({language, theme: latte}),
-              languages: [bundledLanguages],
+              languages: [web],
             },
           },
         },

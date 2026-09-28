@@ -8,7 +8,8 @@ Authored classes, styles, ids, ARIA attributes, and data attributes on both elem
 ## Install
 
 ```sh
-npm install @lumis-sh/rehype-lumis @lumis-sh/themes
+npm install @lumis-sh/rehype-lumis @lumis-sh/themes \
+  @lumis-sh/wasm-javascript @lumis-sh/wasm-bundle-web
 ```
 
 ## Quick start
@@ -19,7 +20,7 @@ import rehypeStringify from 'rehype-stringify'
 import { unified } from 'unified'
 import rehypeLumis from '@lumis-sh/rehype-lumis'
 import { htmlInline } from '@lumis-sh/lumis/formatters'
-import javascript from '@lumis-sh/lumis/langs/javascript'
+import javascript from '@lumis-sh/wasm-javascript'
 import dracula from '@lumis-sh/themes/dracula'
 
 const result = await unified()
@@ -36,7 +37,7 @@ console.log(String(result))
 
 `formatter` receives the language detected from the code block and returns a Lumis [Formatter](https://github.com/leandrocp/lumis/tree/main/packages/javascript/lumis#output-formats). Any built-in or custom formatter works.
 
-Each language is downloaded the first time a matching code block is found. Code blocks with unavailable languages are left unchanged.
+Each language loads from its installed package the first time a matching code block is found. Code blocks with unavailable languages are left unchanged.
 
 ## Multiple themes
 
@@ -60,12 +61,12 @@ unified()
 You can pass a [bundle](https://github.com/leandrocp/lumis/tree/main/packages/javascript/lumis#bundles) to make a group of languages available:
 
 ```typescript
-import { bundledLanguages } from '@lumis-sh/lumis/bundles/web'
+import web from '@lumis-sh/wasm-bundle-web'
 
 unified()
   .use(rehypeLumis, {
     formatter: (language) => htmlInline({ language, theme: dracula }),
-    languages: [bundledLanguages],
+    languages: [web],
   })
 ```
 

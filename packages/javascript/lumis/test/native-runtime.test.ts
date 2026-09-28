@@ -19,6 +19,7 @@ import type { LoadedLanguage } from "../src/types.js";
 import {
   ensureLocalParserWasm,
   installLocalPackages,
+  localPackageLanguage,
   localLanguagePackageMetadata,
   localLanguagePackageResolver,
 } from "./wasm.js";
@@ -457,5 +458,47 @@ describe("native adapter routing", () => {
     );
     expect(loadLanguageDefinition).toHaveBeenCalledOnce();
     expect(loadLanguage).not.toHaveBeenCalled();
+  });
+
+  it("keeps a language imported from an installed package on the installed path", async () => {
+    const loadLanguage = vi.fn<NativeRuntimeInstance["loadLanguage"]>();
+    const loadLanguageDefinition = vi.fn<NativeRuntimeInstance["loadLanguageDefinition"]>(
+      () => "json\u0001imported",
+    );
+    const nativeRuntime = {
+      loadLanguage,
+      loadLanguageDefinition,
+    } as unknown as NativeRuntimeInstance;
+    const addon = {
+      NativeRuntime: function NativeRuntime() {
+        return nativeRuntime;
+      },
+      configureStore: () => true,
+      setInstalledPackages: () => undefined,
+      runtimeKind: () => "native",
+    } as unknown as NativeBinding;
+    const resolvers = { createRuntime: () => ({}) } as unknown as LanguagesModule;
+    const runtime = createNativeLanguagesModule(
+      addon,
+      resolvers,
+      async () =>
+        new Map([
+          [
+            "@lumis-sh/wasm-json",
+            new URL("file:///project/node_modules/@lumis-sh/wasm-json/lumis.json"),
+          ],
+        ]),
+    ).createRuntime();
+    const json = localPackageLanguage("json");
+
+    await runtime.loadLanguage({
+      definition: { id: json.id, aliases: json.aliases },
+      packageName: json.packageName,
+      wasm: json.wasm,
+      manifest: json.manifest,
+    });
+
+    expect(loadLanguage).toHaveBeenCalledWith("json");
+    expect(loadLanguageDefinition).not.toHaveBeenCalled();
   });
 });

@@ -84,6 +84,10 @@ export async function loadLanguageDefinition(
   runtime: Pick<RuntimeLike, "loadLanguage">,
   language: Language,
 ): Promise<void> {
+  // First, so a browser has them before the document that injects them.
+  for (const required of language.requires ?? []) {
+    await loadLanguageDefinition(runtime, required);
+  }
   await runtime.loadLanguage({
     definition: { id: language.id, aliases: language.aliases },
     packageName: language.packageName,
