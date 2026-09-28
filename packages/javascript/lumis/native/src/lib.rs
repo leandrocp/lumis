@@ -407,6 +407,7 @@ fn load_installed(runtime: &Runtime, name: &str) -> Result<String> {
             location.package_name
         )));
     }
+    store::require_compatible_package_version(&package).map_err(native_error)?;
     let wasm = std::fs::read(manifest.with_file_name(format!("{}.wasm", package.parser.name)))
         .map_err(native_error)?;
     let spec = package.language_spec(name, wasm).map_err(native_error)?;

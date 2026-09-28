@@ -11,7 +11,9 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { localLanguagePackageMetadata, ensureLocalWasm } from "./wasm.js";
+import { languagePackageCacheKey, serializeLanguagePackageCache } from "../src/core/languages.js";
+import { writeCachedWasm } from "../src/runtime/node-cache.js";
+import { installLocalPackages, localLanguagePackageMetadata, ensureLocalWasm } from "./wasm.js";
 
 const project = mkdtempSync(join(tmpdir(), "lumis-installed-"));
 const packageRoot = join(project, "node_modules", "@lumis-sh", "wasm-json");
@@ -47,6 +49,13 @@ beforeAll(() => {
     JSON.stringify({ name: "host", dependencies: { "@lumis-sh/wasm-json": "^0.26" } }),
   );
 
+  // Installed, but from a Tree-sitter series this build does not support.
+  const luaManifest = installLocalPackages(project, ["lua"])["@lumis-sh/wasm-lua"];
+  const lua = JSON.parse(readFileSync(luaManifest, "utf8")) as { version: string };
+  lua.version = "0.27.0";
+  writeFileSync(luaManifest, JSON.stringify(lua));
+
+  process.env.LUMIS_DATA_DIR = mkdtempSync(join(tmpdir(), "lumis-installed-data-"));
   process.chdir(project);
 });
 
@@ -82,5 +91,42 @@ describe("a parser installed in the project", () => {
     await expect(
       nodeRuntime.resolveInstalledManifest?.("@lumis-sh/wasm-haskell"),
     ).resolves.toBeUndefined();
+  });
+
+  it("is refused outside the supported version range", async () => {
+    const { createHighlighter } = await import("../src/index.js");
+    const hl = await createHighlighter({ languages: [] });
+
+    await expect(hl.loadLanguage("lua")).rejects.toThrow(
+      /@lumis-sh\/wasm-lua@0\.27\.0 does not satisfy the supported range/,
+    );
+  });
+
+  // A caller's resolver says where packages come from, as a native walk
+  // already honors for an injected language.
+  it("gives way to a resolver the caller configured", async () => {
+    const { createHighlighter } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const installed = localLanguagePackageMetadata("@lumis-sh/wasm-json");
+    // The same package cached from another source, which must not win either.
+    await writeCachedWasm(
+      languagePackageCacheKey(installed.packageName),
+      serializeLanguagePackageCache(installed),
+    );
+    const numbersOnly = {
+      ...installed,
+      languages: { json: { aliases: [], highlights: "(number) @number" } },
+    };
+    const hl = await createHighlighter({
+      languages: [],
+      languagePackageResolver: () =>
+        `data:application/json;base64,${Buffer.from(JSON.stringify(numbersOnly)).toString("base64")}`,
+    });
+    await hl.loadLanguage("json");
+
+    const html = hl.highlight('["text", 42]', htmlLinked({ language: "json" }));
+
+    expect(html).toContain('class="l-number"');
+    expect(html).not.toContain('class="l-string"');
   });
 });

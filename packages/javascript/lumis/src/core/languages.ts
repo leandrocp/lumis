@@ -1169,19 +1169,19 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       if (inFlight) return inFlight;
 
       const load = (async () => {
-        const installed = await this.loadInstalledLanguagePackage(packageName);
-        if (installed && this.acceptsPackage(installed)) return installed;
-        // A Node project loads what it installed and nothing else. A caller
-        // that supplied its own resolver said where packages come from, which
-        // is a declaration in itself, the same reason Elixir's `:parser_dirs`
-        // is one.
-        if (
-          runtime.declaresLanguages &&
-          this.languagePackageResolver === DEFAULT_LANGUAGE_PACKAGE_RESOLVER
-        ) {
-          throw installed
-            ? incompatiblePackageVersion(installed)
-            : notDeclared(packageName, packageName);
+        // A caller that supplied its own resolver said where packages come
+        // from, which is a declaration in itself, the same reason Elixir's
+        // `:parser_dirs` is one. It outranks what is installed and anything
+        // cached from another source, as it does in a native walk.
+        if (this.languagePackageResolver !== DEFAULT_LANGUAGE_PACKAGE_RESOLVER) {
+          return this.fetchLanguagePackage(packageName);
+        }
+        // A Node project loads what it installed and nothing else.
+        if (runtime.declaresLanguages) {
+          const installed = await this.loadInstalledLanguagePackage(packageName);
+          if (!installed) throw notDeclared(packageName, packageName);
+          if (!this.acceptsPackage(installed)) throw incompatiblePackageVersion(installed);
+          return installed;
         }
 
         const cached = await this.readCachedLanguagePackage(packageName);
@@ -1277,13 +1277,16 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     }
 
     private async loadWasmBytes(language: string, ref: WasmRef, key: string): Promise<Uint8Array> {
-      // Already on disk where the package manager put it, so there is nothing
-      // to cache and no download to serialize, and a data directory that
-      // cannot be written does not matter.
-      const installed = runtime.resolveInstalledManifest
-        ? await this.readInstalledParser(ref)
-        : await this.loadInstalledPackage(ref);
-      if (installed) return verifyWasm(ref, installed);
+      // Unless the caller supplied a resolver, the parser is the installed one.
+      // It is already on disk where the package manager put it, so there is
+      // nothing to cache and no download to serialize, and a data directory
+      // that cannot be written does not matter.
+      if (this.resolver === DEFAULT_RESOLVER) {
+        const installed = runtime.resolveInstalledManifest
+          ? await this.readInstalledParser(ref)
+          : await this.loadInstalledPackage(ref);
+        if (installed) return verifyWasm(ref, installed);
+      }
 
       const fsCached = await this.readVerifiedCache(ref, key);
       if (fsCached) return fsCached;

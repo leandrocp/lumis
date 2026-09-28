@@ -770,8 +770,8 @@ revision bump is validated before it is published rather than after.
 - **JavaScript CI** runs the direct-addon store tests in their own process against
   a seeded copy of that store, then runs the remaining native-selected tests
   against an empty one before running the full Wasm-selected suite. The split is
-  intentional: in the Wasm runtime, a package already in the store takes
-  precedence over configured JavaScript resolvers, so one process cannot
+  intentional: parser bytes already in the store, matched by digest, are used
+  before a configured JavaScript resolver is asked, so one process cannot
   honestly prove both paths.
 
 That parser set comes from the fixture filenames, not from the languages named

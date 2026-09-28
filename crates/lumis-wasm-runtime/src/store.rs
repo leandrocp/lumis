@@ -878,7 +878,14 @@ pub fn lowest_compatible_package_version() -> String {
     .to_string()
 }
 
-fn require_compatible_package_version(package: &LanguagePackage) -> Result<(), StoreError> {
+/// Refuse a package outside the version range this build supports.
+///
+/// Public for a host that reads packages the store does not, such as the Node
+/// addon reading `node_modules`, so every runtime refuses the same versions.
+///
+/// # Errors
+/// Fails when the version does not parse or is outside the range.
+pub fn require_compatible_package_version(package: &LanguagePackage) -> Result<(), StoreError> {
     let required = crate::catalog::LANGUAGE_PACKAGE_VERSION_RANGE;
     let requirement = requirement();
     let version =
