@@ -45,8 +45,13 @@ that list changes. Nothing to bump and nothing to remember.
   and `mise run lint` fails on drift. `npm-cli` need not match `cargo-lumis-cli`.
 - `hex-lumis` goes last — see [Elixir package](#elixir-package).
 - `@lumis-sh/wasm-*` parser packages are outside this flow: `wasm-release.yml` publishes
-  them on any push to `main` that touches parsers or queries.
+  them on any push to `main` that touches parsers, queries or the package templates.
   `mise run wasm-publish-needed` lists pending ones.
+- A change to what a parser or bundle package contains bumps `PACKAGE_FORMAT_VERSION`
+  or `BUNDLE_FORMAT_VERSION` in `crates/dev`, and merging it republishes every parser
+  or bundle. That happens on the push to `main`, before any runtime release that reads
+  the new format can ship, so the order takes care of itself. Let that WASM Release
+  run finish before merging `npm-lumis`.
 - An ordinary `0.26.x` WASM release needs no runtime release. Moving to a new
   Tree-sitter minor series in `mise.toml` does.
 - `parser-sizes.json` is measured off what is published, so it lags a parser
