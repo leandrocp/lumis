@@ -24,7 +24,6 @@ use serde::Deserialize;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ops::RangeInclusive;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, LazyLock, Mutex};
 
 fn native_error(error: impl std::fmt::Display) -> Error {
@@ -331,16 +330,20 @@ fn reject_reentrant_highlight(env: &Env) -> Result<()> {
 /// and Elixir for its dependencies.
 static INSTALLED_MANIFESTS: Mutex<BTreeMap<String, PathBuf>> = Mutex::new(BTreeMap::new());
 
-/// Set by the first runtime, which fixes the compile cache directory.
-static RUNTIME_BUILT: AtomicBool = AtomicBool::new(false);
+/// Set by the first runtime, which fixes the compile cache directory. A lock
+/// rather than a flag, so a runtime cannot be built between `configure_store`
+/// checking it and setting the directory.
+static RUNTIME_BUILT: Mutex<bool> = Mutex::new(false);
 
 static SHARED_RUNTIME: LazyLock<std::result::Result<Arc<Runtime>, String>> =
     LazyLock::new(|| build_runtime().map(Arc::new));
 
 fn build_runtime() -> std::result::Result<Runtime, String> {
-    RUNTIME_BUILT.store(true, Ordering::Release);
+    let mut built = RUNTIME_BUILT.lock().expect("runtime flag lock poisoned");
+    *built = true;
     let workers = std::thread::available_parallelism().map_or(1, usize::from);
     let runtime = Runtime::with_worker_limit(workers).map_err(|error| error.to_string())?;
+    drop(built);
     for language in catalog::LANGUAGES {
         runtime.declare_language(language.id, language.aliases);
     }
@@ -360,10 +363,12 @@ fn shared_runtime() -> Result<&'static Arc<Runtime>> {
 /// difference is how a caller ends up writing to a directory it did not choose.
 #[napi(js_name = "configureStore")]
 pub fn configure_store(data_dir: Option<String>) -> bool {
-    if RUNTIME_BUILT.load(Ordering::Acquire) {
+    let built = RUNTIME_BUILT.lock().expect("runtime flag lock poisoned");
+    if *built {
         return false;
     }
     lumis_wasm_runtime::set_compile_cache_dir(store::resolve_data_dir(data_dir.map(PathBuf::from)));
+    drop(built);
     true
 }
 

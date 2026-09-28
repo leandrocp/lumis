@@ -1096,6 +1096,14 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       return this.explicitLanguagePackageResolver ?? configuredLanguagePackageResolver;
     }
 
+    /** Whether the caller supplied either resolver, and so said where parsers come from. */
+    private get callerResolved(): boolean {
+      return (
+        this.resolver !== DEFAULT_RESOLVER ||
+        this.languagePackageResolver !== DEFAULT_LANGUAGE_PACKAGE_RESOLVER
+      );
+    }
+
     private acceptsPackage(packageMetadata: LanguagePackage): boolean {
       return isCompatibleLanguagePackageVersion(packageMetadata.version);
     }
@@ -1159,6 +1167,15 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     }
 
     private async resolvePackage(packageName: string): Promise<LanguagePackage> {
+      // A caller that supplied its own resolver said where packages come from,
+      // which is a declaration in itself, the same reason Elixir's
+      // `:parser_dirs` is one. It outranks what is installed and anything
+      // cached, as it does in a native walk. That includes what another
+      // highlighter resolved, so its answer is not shared either.
+      if (this.languagePackageResolver !== DEFAULT_LANGUAGE_PACKAGE_RESOLVER) {
+        return this.fetchLanguagePackage(packageName);
+      }
+
       // Every branch below either returns a package this runtime accepts or
       // throws, so what the shared cache holds is already compatible. Rechecking
       // it here would start a second load for the same name and leave two
@@ -1169,13 +1186,6 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       if (inFlight) return inFlight;
 
       const load = (async () => {
-        // A caller that supplied its own resolver said where packages come
-        // from, which is a declaration in itself, the same reason Elixir's
-        // `:parser_dirs` is one. It outranks what is installed and anything
-        // cached from another source, as it does in a native walk.
-        if (this.languagePackageResolver !== DEFAULT_LANGUAGE_PACKAGE_RESOLVER) {
-          return this.fetchLanguagePackage(packageName);
-        }
         // A Node project loads what it installed and nothing else.
         if (runtime.declaresLanguages) {
           const installed = await this.loadInstalledLanguagePackage(packageName);
@@ -1259,10 +1269,10 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const url = this.resolver(language, ref);
       const diskData = await runtime.readResolvedWasmFromDisk(url);
       if (diskData) return diskData;
-      // Keyed on the default resolver for the same reason the package path is:
-      // a caller that supplied a resolver said where parsers come from, and a
-      // remote one of their own must not be refused on this project's behalf.
-      if (this.resolver === DEFAULT_RESOLVER && runtime.declaresLanguages) {
+      // Keyed on the default resolvers for the same reason the package path is:
+      // a caller that supplied either one said where parsers come from, and a
+      // remote source of their own must not be refused on this project's behalf.
+      if (!this.callerResolved && runtime.declaresLanguages) {
         throw notDeclared(`${ref.name}@${ref.version}`, ref.packageName);
       }
       const href = typeof url === "string" ? url : url.href;
@@ -1277,15 +1287,23 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     }
 
     private async loadWasmBytes(language: string, ref: WasmRef, key: string): Promise<Uint8Array> {
-      // Unless the caller supplied a resolver, the parser is the installed one.
-      // It is already on disk where the package manager put it, so there is
-      // nothing to cache and no download to serialize, and a data directory
-      // that cannot be written does not matter.
+      // Unless the caller supplied a WASM resolver, try the installed parser
+      // first. It is already on disk where the package manager put it, so there
+      // is nothing to cache and no download to serialize, and a data directory
+      // that cannot be written does not matter. A manifest from the caller's
+      // own package resolver can name different bytes; then the parser comes
+      // from wherever that manifest points.
       if (this.resolver === DEFAULT_RESOLVER) {
         const installed = runtime.resolveInstalledManifest
           ? await this.readInstalledParser(ref)
           : await this.loadInstalledPackage(ref);
-        if (installed) return verifyWasm(ref, installed);
+        if (installed) {
+          try {
+            return await verifyWasm(ref, installed);
+          } catch (error) {
+            if (!this.callerResolved) throw error;
+          }
+        }
       }
 
       const fsCached = await this.readVerifiedCache(ref, key);
