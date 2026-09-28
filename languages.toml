@@ -16,7 +16,7 @@ path = "queries"
 
 [queries.gleam]
 git = "https://github.com/gleam-lang/tree-sitter-gleam.git"
-rev = "c610c282ef73f830d80c1f0999dce8e83f024ef5"
+rev = "fa6d0d94804f1b342e175865a3dbeb316ee5115e"
 path = "queries"
 
 [queries.make]
@@ -276,7 +276,7 @@ emacs = ["fsharp"]
 [parsers.gleam]
 # https://github.com/leandrocp/tree-sitter-gleam/tree/fix/error-recovery-sentinel
 git = "https://github.com/leandrocp/tree-sitter-gleam.git"
-rev = "b573f8dca6b7bd6584e7d2a1454f85f4df88c370"
+rev = "fa6d0d94804f1b342e175865a3dbeb316ee5115e"
 version = "1.0.0"
 globs = ["*.gleam"]
 emacs = ["gleam"]

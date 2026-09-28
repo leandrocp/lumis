@@ -78,7 +78,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -197,7 +197,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -287,7 +287,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -415,7 +415,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -443,7 +443,15 @@
             "named": true
           },
           {
+            "type": "record_update",
+            "named": true
+          },
+          {
             "type": "string",
+            "named": true
+          },
+          {
+            "type": "todo",
             "named": true
           },
           {
@@ -462,7 +470,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -490,7 +498,15 @@
           "named": true
         },
         {
+          "type": "record_update",
+          "named": true
+        },
+        {
           "type": "string",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -517,11 +533,11 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
-            "type": "bit_string_pattern",
+            "type": "bit_array_pattern",
             "named": true
           },
           {
@@ -737,11 +753,11 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
-            "type": "bit_string_pattern",
+            "type": "bit_array_pattern",
             "named": true
           },
           {
@@ -849,7 +865,7 @@
     }
   },
   {
-    "type": "bit_string",
+    "type": "bit_array",
     "named": true,
     "fields": {},
     "children": {
@@ -857,14 +873,14 @@
       "required": false,
       "types": [
         {
-          "type": "bit_string_segment",
+          "type": "bit_array_segment",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "bit_string_pattern",
+    "type": "bit_array_pattern",
     "named": true,
     "fields": {},
     "children": {
@@ -872,14 +888,14 @@
       "required": false,
       "types": [
         {
-          "type": "bit_string_segment",
+          "type": "bit_array_segment",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "bit_string_segment",
+    "type": "bit_array_segment",
     "named": true,
     "fields": {
       "assign": {
@@ -905,7 +921,7 @@
             "named": false
           },
           {
-            "type": "bit_string_segment_options",
+            "type": "bit_array_segment_options",
             "named": true
           }
         ]
@@ -927,11 +943,11 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
-            "type": "bit_string_pattern",
+            "type": "bit_array_pattern",
             "named": true
           },
           {
@@ -1027,7 +1043,7 @@
     }
   },
   {
-    "type": "bit_string_segment_option",
+    "type": "bit_array_segment_option",
     "named": true,
     "fields": {},
     "children": {
@@ -1043,7 +1059,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -1122,7 +1138,7 @@
     }
   },
   {
-    "type": "bit_string_segment_options",
+    "type": "bit_array_segment_options",
     "named": true,
     "fields": {},
     "children": {
@@ -1130,7 +1146,7 @@
       "required": true,
       "types": [
         {
-          "type": "bit_string_segment_option",
+          "type": "bit_array_segment_option",
           "named": true
         },
         {
@@ -1161,7 +1177,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -1264,7 +1280,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -1405,7 +1421,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -1497,7 +1513,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -1529,7 +1545,15 @@
           "named": true
         },
         {
+          "type": "record_update",
+          "named": true
+        },
+        {
           "type": "string",
+          "named": true
+        },
+        {
+          "type": "todo",
           "named": true
         },
         {
@@ -1571,7 +1595,7 @@
           "named": true
         },
         {
-          "type": "bit_string_pattern",
+          "type": "bit_array_pattern",
           "named": true
         },
         {
@@ -1656,7 +1680,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -1785,7 +1809,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -1813,7 +1837,15 @@
             "named": true
           },
           {
+            "type": "record_update",
+            "named": true
+          },
+          {
             "type": "string",
+            "named": true
+          },
+          {
+            "type": "todo",
             "named": true
           },
           {
@@ -1969,7 +2001,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -2060,7 +2092,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -2637,7 +2669,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -2751,7 +2783,7 @@
             "named": true
           },
           {
-            "type": "bit_string_pattern",
+            "type": "bit_array_pattern",
             "named": true
           },
           {
@@ -2827,7 +2859,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -2937,7 +2969,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -3027,7 +3059,7 @@
             "named": true
           },
           {
-            "type": "bit_string_pattern",
+            "type": "bit_array_pattern",
             "named": true
           },
           {
@@ -3103,7 +3135,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -3199,7 +3231,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -3290,7 +3322,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -3396,7 +3428,7 @@
           "named": true
         },
         {
-          "type": "bit_string_pattern",
+          "type": "bit_array_pattern",
           "named": true
         },
         {
@@ -3495,7 +3527,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -3592,7 +3624,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -3772,7 +3804,7 @@
             "named": true
           },
           {
-            "type": "bit_string_pattern",
+            "type": "bit_array_pattern",
             "named": true
           },
           {
@@ -3871,7 +3903,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -3977,7 +4009,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -4149,7 +4181,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -4382,7 +4414,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -4478,7 +4510,7 @@
           "named": true
         },
         {
-          "type": "bit_string",
+          "type": "bit_array",
           "named": true
         },
         {
@@ -4634,7 +4666,7 @@
           "named": true
         },
         {
-          "type": "bit_string_pattern",
+          "type": "bit_array_pattern",
           "named": true
         },
         {
@@ -4998,7 +5030,7 @@
             "named": true
           },
           {
-            "type": "bit_string",
+            "type": "bit_array",
             "named": true
           },
           {
@@ -5131,7 +5163,7 @@
           "named": true
         },
         {
-          "type": "bit_string_pattern",
+          "type": "bit_array_pattern",
           "named": true
         },
         {
@@ -5369,7 +5401,7 @@
     "named": false
   },
   {
-    "type": "bit_string",
+    "type": "bit_array",
     "named": false
   },
   {
@@ -5406,11 +5438,11 @@
   },
   {
     "type": "float",
-    "named": false
+    "named": true
   },
   {
     "type": "float",
-    "named": true
+    "named": false
   },
   {
     "type": "fn",
