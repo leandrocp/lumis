@@ -1,8 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  // The declaration rollup exports everything its root files export, so the
-  // roots are the entry points in tsup.config.ts, not all of `src`. The type
-  // test is here because this build is the only typecheck it gets.
   "include": [
     "src/index.ts",
     "src/index.browser.ts",

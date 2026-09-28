@@ -38,6 +38,9 @@ export default defineConfig({
   },
   format: ["esm", "cjs"],
   experimentalDts: true,
+  // The declaration rollup exports everything its tsconfig's files export, so
+  // that tsconfig lists the entry points above rather than all of `src`, plus
+  // the public API type test, which this build is the only typecheck for.
   tsconfig: "tsconfig.build.json",
   splitting: true,
   clean: true,
