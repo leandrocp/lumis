@@ -232,7 +232,9 @@ const hl = await createHighlighter({ languages: [elixir] });
 A bundle package matches the Lumis bundle of the same name, so
 `@lumis-sh/wasm-bundle-web` covers every language in
 `@lumis-sh/lumis/bundles/web`. A language whose package the project didn't
-install is refused. [Declaring parsers](/advanced/lock) explains why.
+install is refused, and so is an installed package that is too old to ship a
+`lumis.json` or outside the supported version range. Update it in that case.
+[Declaring parsers](/advanced/lock) explains why.
 
   </Tab>
   <Tab value="Browsers">
@@ -324,9 +326,10 @@ section covers what that walk can read.
 
 On Node, highlighting loads a language injected inside a document during the
 same pass that finds it, so a Markdown file with a fenced Rust block highlights
-that block without Rust being named anywhere in your code. A language that
-cannot be fetched leaves its own block plain rather than failing the document,
-and Lumis warns once naming it.
+that block without Rust being named anywhere in your code. It loads from the
+installed package, so install the languages a document can inject too. One that
+isn't installed leaves its own block plain rather than failing the document, and
+Lumis warns once naming it.
 
 Configured [`configureLanguagePackageResolver()` and
 `configureWasmResolver()`](#custom-resolvers) callbacks
