@@ -834,6 +834,17 @@ rather than letting it get ahead; the next run publishes both. Were Hex to lead,
 its definition would read as unpublished, take a fresh patch, and be released
 again unchanged on every run.
 
+**Hex gets a release only when its own package changes.** A Hex package is
+`priv/parsers`, a `mix.exs` and a README, so a format change that touches only
+the npm entry is no news to it. The plan compares the newest Hex release, through
+npm's metadata for the same version, with what it would stage: the definition,
+the `@lumis-sh/wasm-*` dependencies, and whether it was staged from a format
+older than `HEX_FORMAT_VERSION`. For a bundle it compares the dependency list,
+members and ranges. When nothing differs, Hex keeps the version it has, and its
+versions and npm's part ways until the next change that reaches it. A language's
+`requires` is part of its definition, so a new required grammar is a new version
+on both.
+
 A run filtered to named parsers plans **no bundles**. A bundle depends on every
 parser it groups, and the ones it would be short of are exactly the ones the
 filter left out.

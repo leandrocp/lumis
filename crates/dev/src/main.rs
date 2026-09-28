@@ -3817,6 +3817,21 @@ fn language_definition_hash(
         hash_definition_field(&mut digest, language.injections.as_bytes());
         hash_definition_field(&mut digest, language.locals.as_bytes());
         hash_definition_field(&mut digest, language.brackets.as_bytes());
+
+        // A required grammar is a dependency of the package, so changing one
+        // is a new package. Only hashed when there is one, so every package
+        // that requires nothing keeps the hash it was published under.
+        let requires = toml
+            .parsers
+            .get(id)
+            .map(|info| info.requires.as_slice())
+            .unwrap_or_default();
+        if !requires.is_empty() {
+            hash_definition_field(&mut digest, b"requires");
+            for required in requires {
+                hash_definition_field(&mut digest, required.as_bytes());
+            }
+        }
     }
     Ok(lower_hex(&digest.finalize()))
 }
@@ -4791,7 +4806,7 @@ fn plan_bundles(
         let hex = registry.get(&app).cloned().unwrap_or_default();
 
         let version = packument
-            .and_then(|p| bundle_version_for_members(p, &bundle.members))
+            .and_then(|p| bundle_version_for_requirements(p, &bundle.requirements))
             // These members are published already: that version is the one, and
             // the registry missing it gets the same one.
             .unwrap_or_else(|| next_patch(BUNDLE_SERIES, packument, &hex));
@@ -4852,10 +4867,8 @@ const NPM_BUNDLE_STAGE: &str = "tmp/wasm/npm";
 /// this reads what it wrote rather than working it out a second time.
 struct StagedBundle {
     name: String,
-    /// npm dependency names, sorted. A bundle *is* its dependency list.
-    members: Vec<String>,
-    /// The same dependencies with their ranges, which its Hex `mix.exs` is
-    /// written from.
+    /// npm dependencies with their ranges. A bundle *is* its dependency list,
+    /// and its Hex `mix.exs` is written from it.
     requirements: BTreeMap<String, String>,
 }
 
@@ -4874,7 +4887,6 @@ fn staged_bundles() -> Result<Vec<StagedBundle>> {
             .with_context(|| format!("could not name the bundle at {}", path.display()))?;
         bundles.push(StagedBundle {
             name: name.to_string(),
-            members: dependency_names(&manifest),
             requirements: wasm_requirements(&manifest),
         });
     }
@@ -4902,30 +4914,23 @@ fn wasm_requirements(manifest: &Value) -> BTreeMap<String, String> {
         .collect()
 }
 
-/// `dependencies` keys, sorted, or empty when there are none.
-fn dependency_names(manifest: &Value) -> Vec<String> {
-    let mut names = manifest
-        .get("dependencies")
-        .and_then(Value::as_object)
-        .map(|deps| deps.keys().cloned().collect::<Vec<_>>())
-        .unwrap_or_default();
-    names.sort();
-    names
-}
-
-/// The version a bundle's membership was published under on npm, if it was.
+/// The version a bundle's dependency list was published under on npm, if it
+/// was.
 ///
 /// The bundle equivalent of `version_for_definition`. A parser identifies its
 /// content with a `definitionHash`; a bundle has no bytes to hash, so its
-/// dependency list is the identity. Matching it against what npm published is
-/// what makes a membership change take a new version on its own, instead of
-/// waiting for someone to notice and bump one by hand.
-fn bundle_version_for_members(packument: &Value, members: &[String]) -> Option<String> {
+/// dependency list, members and ranges, is the identity. Matching it against
+/// what npm published is what makes a membership or range change take a new
+/// version on its own, instead of waiting for someone to bump one by hand.
+fn bundle_version_for_requirements(
+    packument: &Value,
+    requirements: &BTreeMap<String, String>,
+) -> Option<String> {
     let versions = packument.get("versions")?.as_object()?;
     versions
         .iter()
         .filter(|(_, manifest)| {
-            dependency_names(manifest) == members
+            &wasm_requirements(manifest) == requirements
                 && manifest
                     .pointer("/lumis/bundleFormat")
                     .and_then(Value::as_u64)
@@ -5683,14 +5688,31 @@ mod hex_wasm_tests {
             ("0.1.0", &["@lumis-sh/wasm-c"]),
             ("0.1.1", &["@lumis-sh/wasm-c", "@lumis-sh/wasm-diff"]),
         ]);
-        let members = vec![
-            "@lumis-sh/wasm-c".to_string(),
-            "@lumis-sh/wasm-diff".to_string(),
-        ];
+        let members = ranges(&["@lumis-sh/wasm-c", "@lumis-sh/wasm-diff"], "^0.26.0");
 
         assert_eq!(
-            bundle_version_for_members(&published, &members).as_deref(),
+            bundle_version_for_requirements(&published, &members).as_deref(),
             Some("0.1.1")
+        );
+    }
+
+    /// Members at `range`, the way a staged bundle lists them.
+    fn ranges(members: &[&str], range: &str) -> BTreeMap<String, String> {
+        members
+            .iter()
+            .map(|member| ((*member).to_string(), range.to_string()))
+            .collect()
+    }
+
+    /// Same members at a new Tree-sitter series is a new `mix.exs` and a new
+    /// entry point, so it is a new bundle.
+    #[test]
+    fn a_range_change_matches_no_published_version() {
+        let published = bundle_packument(&[("0.1.1", &["@lumis-sh/wasm-c"])]);
+
+        assert_eq!(
+            bundle_version_for_requirements(&published, &ranges(&["@lumis-sh/wasm-c"], "^0.27.0")),
+            None
         );
     }
 
@@ -5698,14 +5720,14 @@ mod hex_wasm_tests {
     /// exports parser URLs rather than languages, so it must not count as this one.
     #[test]
     fn a_bundle_from_an_older_format_takes_a_new_version() {
-        let members = vec!["@lumis-sh/wasm-c".to_string()];
+        let members = ranges(&["@lumis-sh/wasm-c"], "^0.26.0");
         let published = json!({
             "versions": {
                 "0.1.3": { "dependencies": { "@lumis-sh/wasm-c": "^0.26.0" } },
             },
         });
 
-        assert_eq!(bundle_version_for_members(&published, &members), None);
+        assert_eq!(bundle_version_for_requirements(&published, &members), None);
     }
 
     /// The case that shipped: `systemverilog` left `bundle-full` and nothing
@@ -5716,9 +5738,9 @@ mod hex_wasm_tests {
             "0.1.1",
             &["@lumis-sh/wasm-c", "@lumis-sh/wasm-systemverilog"],
         )]);
-        let members = vec!["@lumis-sh/wasm-c".to_string()];
+        let members = ranges(&["@lumis-sh/wasm-c"], "^0.26.0");
 
-        assert_eq!(bundle_version_for_members(&published, &members), None);
+        assert_eq!(bundle_version_for_requirements(&published, &members), None);
         // So it takes the next patch and publishes, rather than reporting
         // nothing to do.
         assert_eq!(
@@ -5924,7 +5946,6 @@ mod hex_wasm_tests {
             .collect::<BTreeMap<_, _>>();
         StagedBundle {
             name: "web".to_string(),
-            members: requirements.keys().cloned().collect(),
             requirements,
         }
     }
@@ -7286,6 +7307,31 @@ mod tests {
         assert_eq!(tree_sitter_series("v0.26.11").unwrap(), "0.26");
         assert!(tree_sitter_series("latest").is_err());
         assert!(tree_sitter_series("not-a-version-0.26").is_err());
+    }
+
+    /// A new required grammar is a new dependency, so it has to be a new
+    /// definition; one that requires nothing keeps the hash it had before
+    /// `requires` existed.
+    #[test]
+    fn requires_is_part_of_the_definition_only_where_it_is_set() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../languages.toml");
+        let text = fs::read_to_string(&path).expect("languages.toml should be readable");
+        let mut toml: LanguagesToml = toml::from_str(&text).expect("languages.toml should parse");
+        let hash = |toml: &LanguagesToml, wasm_name: &str| {
+            let languages = packaged_languages(toml, wasm_name).expect("languages should load");
+            language_definition_hash(toml, wasm_name, &languages).expect("hash")
+        };
+
+        let markdown = hash(&toml, "tree-sitter-markdown");
+        let css = hash(&toml, "tree-sitter-css");
+        toml.parsers
+            .get_mut("markdown")
+            .expect("markdown is in the catalog")
+            .requires
+            .clear();
+
+        assert_ne!(hash(&toml, "tree-sitter-markdown"), markdown);
+        assert_eq!(hash(&toml, "tree-sitter-css"), css);
     }
 
     // A split grammar is a dependency on both registries. Otherwise an Elixir
