@@ -318,8 +318,9 @@ export function createNativeLanguagesModule(
     resolveLanguagePackage(
       language: LanguageDefinition,
       packageName: string,
+      manifest?: object,
     ): Promise<ResolvedLanguagePackage> {
-      return this.resolver.resolveLanguagePackage(language, packageName);
+      return this.resolver.resolveLanguagePackage(language, packageName, manifest);
     }
 
     resolveParserWasm(language: string, wasm: WasmRef): Promise<Uint8Array> {
@@ -406,7 +407,11 @@ export function createNativeLanguagesModule(
         throw new Error(`Language "${opts.definition.id}" has no packageName`);
       }
 
-      const packaged = await this.resolveLanguagePackage(opts.definition, opts.packageName);
+      const packaged = await this.resolveLanguagePackage(
+        opts.definition,
+        opts.packageName,
+        opts.manifest,
+      );
       const resolved = { ...packaged, ...(opts.wasm === undefined ? {} : { wasm: opts.wasm }) };
       if (!resolved.wasm || resolved.highlights === undefined) {
         throw new Error(`Language package "${opts.packageName}" has no parser or highlights query`);
@@ -627,8 +632,8 @@ export function createNativeLanguagesModule(
       resolvers.configureLanguagePackageResolver(fn);
       defaultRuntime.configureLanguagePackageResolver(fn);
     },
-    resolveLanguagePackage(language, packageName) {
-      return defaultRuntime.resolveLanguagePackage(language, packageName);
+    resolveLanguagePackage(language, packageName, manifest) {
+      return defaultRuntime.resolveLanguagePackage(language, packageName, manifest);
     },
     resolveParserWasm(language, wasm) {
       return defaultRuntime.resolveParserWasm(language, wasm);

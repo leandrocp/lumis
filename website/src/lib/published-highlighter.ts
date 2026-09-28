@@ -2,9 +2,10 @@ import { createHighlighter } from "@lumis-sh/lumis";
 import type { Highlighter, Language } from "@lumis-sh/lumis";
 
 // The homepage points the resolver at the parsers in `node_modules`, because it
-// bundles them. Nothing here does that: these demos resolve every parser the way
-// an install does, from the CDN, at the version the release pins. That is the
-// browser path documented in /usage/javascript, and it is the one worth showing.
+// bundles them. These demos show a page that bundles none: every parser comes
+// from the CDN, at the version the release pins. A browser loads only packages
+// it imported unless resolvers say otherwise, so these say so.
+const CDN = "https://cdn.jsdelivr.net/npm";
 let shared: Promise<Highlighter> | undefined;
 const loaded = new Map<string, Promise<void>>();
 
@@ -14,7 +15,12 @@ const loaded = new Map<string, Promise<void>>();
  * language is loaded here rather than discovered mid-highlight.
  */
 export async function highlighterFor(...languages: Language[]): Promise<Highlighter> {
-  shared ??= createHighlighter();
+  shared ??= createHighlighter({
+    languagePackageResolver: (packageName, versionRange) =>
+      `${CDN}/${packageName}@${versionRange}/lumis.json`,
+    wasmResolver: (_language, wasm) =>
+      `${CDN}/${wasm.packageName}@${wasm.version}/${wasm.name}.wasm`,
+  });
   const hl = await shared;
 
   await Promise.all(

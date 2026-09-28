@@ -55,11 +55,13 @@ const html = await highlight(
     install: null,
     usage: {
       language: "javascript",
-      code: `import { highlight } from 'https://esm.sh/@lumis-sh/lumis'
+      code: `import { highlight, withWasm } from 'https://esm.sh/@lumis-sh/lumis'
 import { htmlInline } from 'https://esm.sh/@lumis-sh/lumis/formatters'
-import javascript from 'https://esm.sh/@lumis-sh/lumis/langs/javascript'
+import javascriptLanguage from 'https://esm.sh/@lumis-sh/lumis/langs/javascript'
+import * as javascriptPackage from 'https://esm.sh/@lumis-sh/wasm-javascript'
 import dracula from 'https://esm.sh/@lumis-sh/themes/dracula'
 
+const javascript = withWasm(javascriptLanguage, javascriptPackage)
 document.getElementById('output').innerHTML = await highlight(
   'const x = 1',
   htmlInline({ language: javascript, theme: dracula })

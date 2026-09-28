@@ -11,13 +11,14 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import {
-  cacheKey,
-  languagePackageCacheKey,
-  serializeLanguagePackageCache,
-} from "../src/core/languages.js";
+import { cacheKey } from "../src/core/languages.js";
 import { writeCachedWasm } from "../src/runtime/node-cache.js";
-import { installLocalPackages, localLanguagePackageMetadata, ensureLocalWasm } from "./wasm.js";
+import {
+  ensureLocalWasm,
+  installLocalPackages,
+  localLanguagePackageExports,
+  localLanguagePackageMetadata,
+} from "./wasm.js";
 
 const project = mkdtempSync(join(tmpdir(), "lumis-installed-"));
 const packageRoot = join(project, "node_modules", "@lumis-sh", "wasm-json");
@@ -112,11 +113,6 @@ describe("a parser installed in the project", () => {
     const { createHighlighter } = await import("../src/index.js");
     const { htmlLinked } = await import("../src/formatters.js");
     const installed = localLanguagePackageMetadata("@lumis-sh/wasm-json");
-    // The same package cached from another source, which must not win either.
-    await writeCachedWasm(
-      languagePackageCacheKey(installed.packageName),
-      serializeLanguagePackageCache(installed),
-    );
     const numbersOnly = {
       ...installed,
       languages: { json: { aliases: [], highlights: "(number) @number" } },
@@ -203,5 +199,27 @@ describe("a parser installed in the project", () => {
     expect(hl.highlight("x = 42", htmlLinked({ language: "json" }))).toContain(
       'class="l-variable"',
     );
+  });
+
+  // An imported package brings its own manifest, so nothing is resolved, not
+  // even the installed copy of the same package.
+  it("uses the manifest an imported package carries", async () => {
+    const { createHighlighter, withWasm } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const { default: json } = await import("../langs/json.ts");
+    const imported = localLanguagePackageExports("json");
+    const numbersOnly = {
+      ...imported,
+      manifest: {
+        ...imported.manifest,
+        languages: { json: { aliases: [], highlights: "(number) @number" } },
+      },
+    };
+    const hl = await createHighlighter({ languages: [withWasm(json, numbersOnly)] });
+
+    const html = hl.highlight('["text", 42]', htmlLinked({ language: "json" }));
+
+    expect(html).toContain('class="l-number"');
+    expect(html).not.toContain('class="l-string"');
   });
 });

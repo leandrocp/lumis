@@ -1,13 +1,13 @@
 import { createRoot } from "react-dom/client";
 import { createHighlighter, withWasmBundle } from "@lumis-sh/lumis";
 import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
-import { bundledWasms } from "@lumis-sh/wasm-bundle-web";
+import { bundledPackages } from "@lumis-sh/wasm-bundle-web";
 import { CodeBlock } from "@lumis-sh/react";
 import { htmlInline, htmlMultiThemes } from "@lumis-sh/lumis/formatters";
 import githubDark from "@lumis-sh/themes/github_dark";
 import githubLight from "@lumis-sh/themes/github_light";
 
-const languages = withWasmBundle(bundledLanguages, bundledWasms);
+const languages = withWasmBundle(bundledLanguages, bundledPackages);
 
 const highlighter = await createHighlighter({ languages: [languages] });
 await Promise.all([highlighter.loadLanguage("javascript"), highlighter.loadLanguage("tsx")]);

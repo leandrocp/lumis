@@ -1,6 +1,6 @@
 ---
 title: Local WASM bundle
-description: Use a local npm WASM bundle instead of remote parser fetches.
+description: Load a whole bundle of parser packages in a browser.
 ---
 
 
@@ -12,12 +12,12 @@ import {
 } from '@lumis-sh/lumis'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
 import {bundledLanguages} from '@lumis-sh/lumis/bundles/web'
-import {bundledWasms} from '@lumis-sh/wasm-bundle-web'
+import {bundledPackages} from '@lumis-sh/wasm-bundle-web'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 
 const languages = withWasmBundle(
   bundledLanguages,
-  bundledWasms,
+  bundledPackages,
 )
 const hl = await createHighlighter({languages: [languages]})
 

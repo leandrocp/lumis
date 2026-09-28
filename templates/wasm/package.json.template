@@ -21,7 +21,7 @@
   },
   "lumis": {
     "treeSitter": "{tree_sitter_cli}",
-    "formatVersion": 3,
+    "formatVersion": 4,
     "definitionHash": "{definition_hash}"
   },
   "keywords": ["lumis-sh", "wasm", "tree-sitter"],

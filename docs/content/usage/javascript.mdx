@@ -194,10 +194,9 @@ Useful for dropdowns, config validation, and docs tooling:
 - the package uses conditional exports so Node and web-standard runtimes get the right entry point automatically
 - every language package contains matching queries plus an exact parser version, size, and SHA-256 digest
 - Node keeps compiled parser modules, and anything a custom resolver fetched, in the platform user data directory; `LUMIS_DATA_DIR` overrides it
-- browsers persist package metadata and verified parser bytes in CacheStorage with an IndexedDB fallback
+- browsers load only the parser packages passed to `withWasm()` or `withWasmBundle()`, and fetch nothing unless you configure a resolver; parser bytes a resolver fetched are kept in CacheStorage, with an IndexedDB fallback
 - Node loads installed parser packages such as `@lumis-sh/wasm-elixir` or bundle packages such as `@lumis-sh/wasm-bundle-web`, and nothing else unless you configure a resolver
 - ordinary Node highlighters share one Wasmtime runtime; a highlighter that supplies parser bytes, queries, or resolver callbacks gets an isolated Tree-sitter Wasm store so its definitions are released with that highlighter, while the Wasmtime engine and persistent caches remain shared
-- non-Node usage usually relies on remote parser assets unless you override the resolver, use `withWasm()` with a single npm parser package such as `@lumis-sh/wasm-json`, or use `withWasmBundle()` with a bundle package such as `@lumis-sh/wasm-bundle-web`
 - Bun and Deno are also supported
 
 ## Where parsers come from
@@ -239,28 +238,18 @@ install is refused, and so is an installed package that is too old to ship a
   </Tab>
   <Tab value="Browsers">
 
-A browser has no `node_modules` to read, so by default Lumis fetches parsers
-from jsDelivr, falling back to unpkg. It asks for the package metadata first,
-then for the exact parser version the metadata names:
-
-```text
-https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<name>@0.26/lumis.json
-https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-<name>@<version>/<parser>.wasm
-```
-
-Verified bytes are kept in CacheStorage, or IndexedDB on WebKit, so a reload
-doesn't fetch them again.
-
-To ship parsers with your app instead, import them from npm and let your bundler
-handle the files. `withWasm()` attaches one parser to its language:
+A browser has no `node_modules` to read, so it loads only the parser packages
+you import. Import the whole package and pass it to `withWasm()`: the parser and
+the queries released with it both come from your bundle, and Lumis fetches
+nothing.
 
 ```ts
 import { createHighlighter, withWasm } from "@lumis-sh/lumis";
 import elixir from "@lumis-sh/lumis/langs/elixir";
-import elixirWasm from "@lumis-sh/wasm-elixir";
+import * as elixirPackage from "@lumis-sh/wasm-elixir";
 
 const hl = await createHighlighter({
-  languages: [withWasm(elixir, elixirWasm)],
+  languages: [withWasm(elixir, elixirPackage)],
 });
 ```
 
@@ -269,16 +258,24 @@ const hl = await createHighlighter({
 ```ts
 import { createHighlighter, withWasmBundle } from "@lumis-sh/lumis";
 import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
-import { bundledWasms } from "@lumis-sh/wasm-bundle-web";
+import { bundledPackages } from "@lumis-sh/wasm-bundle-web";
 
-const languages = withWasmBundle(bundledLanguages, bundledWasms);
+const languages = withWasmBundle(bundledLanguages, bundledPackages);
 const hl = await createHighlighter({ languages: [languages] });
 
 await hl.loadLanguage(languages.javascript);
 ```
 
-Both change only where the bytes come from. They still have to match the
-package's digest.
+Without a bundler, import the same packages from a module CDN such as esm.sh.
+It serves the parser file next to the module, so this works the same way:
+
+```ts
+import * as elixirPackage from "https://esm.sh/@lumis-sh/wasm-elixir";
+```
+
+A language you didn't import is refused, and so is a package too old to export
+its manifest; update it. To fetch parsers at run time instead,
+[configure a resolver](#custom-resolvers).
 
   </Tab>
 </Tabs>
@@ -286,8 +283,9 @@ package's digest.
 ## Custom resolvers
 
 A resolver tells Lumis where to find package metadata and parser files, such as
-your own CDN or a directory you serve. Configuring one is a declaration of its
-own, so on Node it takes precedence over the installed packages.
+a CDN or a directory you serve. It is the only way Lumis fetches a parser at
+run time, and configuring one is a declaration of its own: it answers for every
+language you didn't pass to `withWasm()`, ahead of installed packages on Node.
 
 ```ts title="Every highlighter"
 import {
@@ -344,12 +342,16 @@ include that language in `createHighlighter({languages: [...]})` or call
 `loadLanguage()` first so JavaScript resolves it before the synchronous walk.
 
 In a browser, one-pass loading does not happen: loading is asynchronous there
-and cannot run inside a synchronous walk, so load every participating language
-yourself:
+and cannot run inside a synchronous walk, so import and load every
+participating language yourself:
 
 ```ts
 const hl = await createHighlighter({
-  languages: [html, css, javascript],
+  languages: [
+    withWasm(html, htmlPackage),
+    withWasm(css, cssPackage),
+    withWasm(javascript, javascriptPackage),
+  ],
 });
 
 const htmlOutput = hl.highlight(
@@ -358,7 +360,7 @@ const htmlOutput = hl.highlight(
 );
 ```
 
-Languages from a bundle, including one with parser bytes from
+Languages from a bundle, including `bundledPackages` from
 `@lumis-sh/wasm-bundle-web`, are registered but not loaded. Call
 `hl.loadLanguage()` for each one the document uses before highlighting it.
 

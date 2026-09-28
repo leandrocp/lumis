@@ -3615,11 +3615,19 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
         format!("{}\n", serde_json::to_string_pretty(&language_package)?),
     )?;
 
+    // The manifest goes in after rendering: query text can hold anything, and a
+    // template placeholder check has no business reading it.
     let browser_entry = render_template(
         "templates/wasm/index.js.template",
         &[("wasm_name", wasm_name)],
     )?;
-    fs::write(format!("{out}/index.js"), browser_entry)?;
+    fs::write(
+        format!("{out}/index.js"),
+        format!(
+            "{browser_entry}\nexport const manifest = {}\n",
+            serde_json::to_string_pretty(&language_package)?
+        ),
+    )?;
 
     fs::copy(
         "templates/wasm/index.d.ts.template",
@@ -4220,7 +4228,16 @@ fn wasm_packages() -> Result<()> {
     Ok(())
 }
 
-const PACKAGE_FORMAT_VERSION: u32 = 3;
+/// Bumped when a package's contents change in a way its definition hash does
+/// not see, so every parser is published again. 4: the JavaScript entry exports
+/// the manifest, so a browser can load from an imported package alone.
+const PACKAGE_FORMAT_VERSION: u32 = 4;
+
+/// The bundle counterpart of `PACKAGE_FORMAT_VERSION`, carried in a bundle's
+/// `package.json` as `lumis.bundleFormat`. 2: bundles export `bundledPackages`,
+/// the parser packages whole, next to `bundledWasms`. Must match
+/// `BUNDLE_FORMAT_VERSION` in `packages/javascript/scripts/build-wasm-bundles.ts`.
+const BUNDLE_FORMAT_VERSION: u32 = 2;
 
 const REGISTRY_CONCURRENCY: usize = 16;
 
@@ -4622,7 +4639,13 @@ fn bundle_version_for_members(packument: &Value, members: &[String]) -> Option<S
     let versions = packument.get("versions")?.as_object()?;
     versions
         .iter()
-        .filter(|(_, manifest)| dependency_names(manifest) == members)
+        .filter(|(_, manifest)| {
+            dependency_names(manifest) == members
+                && manifest
+                    .pointer("/lumis/bundleFormat")
+                    .and_then(Value::as_u64)
+                    == Some(BUNDLE_FORMAT_VERSION.into())
+        })
         .map(|(version, _)| version.clone())
         .max_by_key(|version| patch_of(version, "0.1").unwrap_or(0))
 }
@@ -5304,7 +5327,13 @@ mod hex_wasm_tests {
                     .iter()
                     .map(|m| ((*m).to_string(), json!("^0.26.0")))
                     .collect::<serde_json::Map<_, _>>();
-                ((*version).to_string(), json!({ "dependencies": deps }))
+                (
+                    (*version).to_string(),
+                    json!({
+                        "dependencies": deps,
+                        "lumis": { "bundleFormat": BUNDLE_FORMAT_VERSION },
+                    }),
+                )
             })
             .collect::<serde_json::Map<_, _>>();
         json!({ "versions": published })
@@ -5328,6 +5357,20 @@ mod hex_wasm_tests {
             bundle_version_for_members(&published, &members).as_deref(),
             Some("0.1.1")
         );
+    }
+
+    /// Same members, older contents: a bundle published before `bundleFormat`
+    /// has no `bundledPackages`, so it must not count as this one.
+    #[test]
+    fn a_bundle_from_an_older_format_takes_a_new_version() {
+        let members = vec!["@lumis-sh/wasm-c".to_string()];
+        let published = json!({
+            "versions": {
+                "0.1.3": { "dependencies": { "@lumis-sh/wasm-c": "^0.26.0" } },
+            },
+        });
+
+        assert_eq!(bundle_version_for_members(&published, &members), None);
     }
 
     /// The case that shipped: `systemverilog` left `bundle-full` and nothing
@@ -6257,7 +6300,7 @@ mod tests {
         serde_json::json!({
             "definitionHash": hash,
             "treeSitter": "0.26",
-            "formatVersion": 3,
+            "formatVersion": PACKAGE_FORMAT_VERSION,
         })
     }
 

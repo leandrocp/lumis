@@ -732,10 +732,12 @@ package rather than checked in.
 Runtime catalogs generated from `languages.toml` contain stable IDs, aliases,
 and package names. They also contain one compatible npm range derived from the
 Tree-sitter series in `mise.toml`; they do not pin every package independently.
-The CLI and browser JavaScript ask the CDN to resolve that range, validate and
-cache the exact `lumis.json` returned, then fetch the exact versioned parser
-named by that metadata and verify its bytes. Node and Elixir load the packages a
-project installed instead, and refuse one outside the range. Parser or query updates within the supported
+The CLI asks the CDN to resolve that range, validates and caches the exact
+`lumis.json` returned, then fetches the exact versioned parser named by that
+metadata and verifies its bytes. Node and Elixir load the packages a project
+installed, a browser loads the packages an application imported, and all three
+refuse one outside the range. A configured JavaScript resolver is the only other
+way a parser is fetched. Parser or query updates within the supported
 series therefore publish only the affected language package, without a runtime
 release.
 
@@ -746,7 +748,8 @@ and does require runtime releases.
 
 The CLI's cache persists on disk under `LUMIS_DATA_DIR`. Elixir and Node load
 the parser packages a project installed and keep only compiled modules there;
-browsers use CacheStorage with an IndexedDB fallback. Local and benchmark execution should provide both
+browsers keep parsers a resolver fetched in CacheStorage, with an IndexedDB
+fallback. Local and benchmark execution should provide both
 `lumis.json` and its matching parser so queries and parser bytes remain
 atomic.
 

@@ -148,8 +148,8 @@ export function ensureLocalParserWasmDataUrl(language: string, parser: string): 
 
 /**
  * Install `languages` under `root/node_modules`, shaped the way a published
- * package is: the manifest under `./lumis.json` in the export map, and the
- * parser beside it named after `parser.name`.
+ * package is: the manifest under `./lumis.json` in the export map and as the
+ * entry's `manifest` export, and the parser beside it named after `parser.name`.
  *
  * Returns each package's `lumis.json` by package name.
  */
@@ -167,7 +167,7 @@ export function installLocalPackages(root: string, languages: string[]): Record<
     );
     writeFileSync(
       join(directory, "index.js"),
-      `export default new URL("./${parser}", import.meta.url);`,
+      `export default new URL("./${parser}", import.meta.url);\nexport const manifest = ${JSON.stringify(metadata)};\n`,
     );
     writeFileSync(
       join(directory, "package.json"),
@@ -181,4 +181,19 @@ export function installLocalPackages(root: string, languages: string[]): Record<
     manifests[metadata.packageName] = join(directory, "lumis.json");
   }
   return manifests;
+}
+
+/**
+ * What `import * as pkg from "@lumis-sh/wasm-<language>"` gives a bundler: the
+ * parser as the default export and the manifest beside it.
+ */
+export function localLanguagePackageExports(language: string): {
+  default: Uint8Array;
+  manifest: LanguagePackage;
+} {
+  const manifest = localLanguagePackageMetadata(`@lumis-sh/wasm-${language}`);
+  return {
+    default: new Uint8Array(readFileSync(ensureLocalParserWasm(language, manifest.parser.name))),
+    manifest,
+  };
 }

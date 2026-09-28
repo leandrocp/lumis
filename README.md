@@ -87,20 +87,22 @@ const html = await highlight('const x = 1', htmlInline({ language: javascript, t
 ```
 
 Parsers load on demand from the packages you install, including languages
-injected inside a document. Browsers are the exception: loading is asynchronous
-there, so an injected language has to be loaded first. See
-[Languages](https://docs.lumis.sh/languages).
+injected inside a document. Browsers load only the packages you import, and
+since loading is asynchronous there, an injected language has to be loaded
+first. See [Languages](https://docs.lumis.sh/languages).
 
 ### [Browsers / CDN](https://www.npmjs.com/package/@lumis-sh/lumis)
 
 Works in Browsers through bundlers or CDN imports.
 
 ```javascript
-import { highlight } from 'https://esm.sh/@lumis-sh/lumis'
+import { highlight, withWasm } from 'https://esm.sh/@lumis-sh/lumis'
 import { htmlInline } from 'https://esm.sh/@lumis-sh/lumis/formatters'
-import javascript from 'https://esm.sh/@lumis-sh/lumis/langs/javascript'
+import javascriptLanguage from 'https://esm.sh/@lumis-sh/lumis/langs/javascript'
+import * as javascriptPackage from 'https://esm.sh/@lumis-sh/wasm-javascript'
 import dracula from 'https://esm.sh/@lumis-sh/themes/dracula'
 
+const javascript = withWasm(javascriptLanguage, javascriptPackage)
 const html = await highlight('const x = 1', htmlInline({ language: javascript, theme: dracula }))
 ```
 

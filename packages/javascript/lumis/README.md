@@ -13,7 +13,7 @@ JavaScript / TypeScript package for [Lumis](https://lumis.sh). Works in Node.js,
 - **Language auto-detection** - File extension, shebang, and emacs-mode support
 - **Line highlighting** - Mark and style individual lines, with custom HTML wrappers
 - **Streaming-friendly** - Handles incomplete code
-- **Load parsers on demand** - Verified and cached, including injected languages on Node; browsers load those up front
+- **Load parsers on demand** - From the packages you install or import, verified, including injected languages on Node; browsers load those up front
 
 ## Install
 
@@ -49,16 +49,28 @@ Bundles register a whole set at once — `bundles/web`, `web-extra`, `system`,
 
 ## Parsers
 
-Each language import is a handle to an independently released parser package.
-Lumis resolves it to an exact version, verifies the bytes against a SHA-256
-digest before use, and caches them.
+Each language import is a handle to an independently released parser package,
+such as `@lumis-sh/wasm-javascript`. On Node, install the ones you highlight and
+Lumis reads them from `node_modules`. In a browser, import the whole package and
+pass it to `withWasm()`; a browser loads nothing else unless you configure a
+resolver. Either way the bytes are checked against the package's SHA-256 digest
+before use.
+
+```typescript
+import { createHighlighter, withWasm } from '@lumis-sh/lumis'
+import javascript from '@lumis-sh/lumis/langs/javascript'
+import * as javascriptPackage from '@lumis-sh/wasm-javascript'
+
+const hl = await createHighlighter({ languages: [withWasm(javascript, javascriptPackage)] })
+```
 
 On Node, a document also loads the languages **injected inside** it during the
 same pass, so a Markdown file with a fenced Rust block highlights that block
 without Rust being named in your code. Browsers load asynchronously, so load
 injected languages up front, including those from a registered bundle.
 
-Warm parsers alongside startup, without putting the CDN on the boot path:
+On Node, warm parsers alongside startup, without putting the compile on the
+boot path:
 
 ```typescript
 import { loadLanguages } from '@lumis-sh/lumis'

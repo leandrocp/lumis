@@ -49,8 +49,9 @@ formatter (tokens + styles -> HTML / ANSI /
 Dynamic runtimes receive parser and queries together in a self-contained,
 independently versioned `@lumis-sh/wasm-*` package. A small stable catalog maps
 language IDs to package names, and one Tree-sitter-compatible npm range applies
-to the whole catalog. The CDN resolves that range; the package supplies current
-queries and the exact integrity-pinned parser. Updating one language within the
+to the whole catalog. A project installs or imports the packages it uses, and
+the CLI asks a CDN to resolve that range; either way the package supplies
+current queries and the exact integrity-pinned parser. Updating one language within the
 supported series does not require a runtime package release.
 
 ### Themes

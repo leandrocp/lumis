@@ -31,10 +31,12 @@ dependency, declared where that runtime's dependencies already live.
 | --- | --- | --- |
 | Rust | `Cargo.toml` features | `Cargo.lock` |
 | JavaScript / TypeScript | `package.json` dependencies | your package manager's lockfile |
+| JavaScript in a browser | the packages it imports | the lockfile behind your bundle |
 | Elixir | `mix.exs` dependencies | `mix.lock` |
 | CLI | nothing | — |
 
-Rust links parsers statically. JavaScript installs `@lumis-sh/wasm-*`. Elixir
+Rust links parsers statically. JavaScript installs `@lumis-sh/wasm-*`, and a
+browser, which has no project to read, declares by what it imports. Elixir
 depends on `lumis_wasm_*`, whose `priv/parsers` holds the bytes — so they travel
 into a release like any other dependency's assets, with no data directory to
 prepare and nothing to copy.
@@ -111,6 +113,10 @@ npm install @lumis-sh/wasm-bundle-web
 
 Parsers are read out of `node_modules` — the manifest through each package's
 `./lumis.json` export — so nothing is fetched at runtime.
+
+A browser has no `node_modules`, so import the packages there and pass them to
+`withWasm()`. Nothing is fetched in a browser either; see
+[Where parsers come from](/usage/javascript#where-parsers-come-from).
 
 Supplying your own resolver is a declaration too, and takes precedence: a
 caller that said where parsers come from has answered the question the

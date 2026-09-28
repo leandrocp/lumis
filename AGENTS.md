@@ -116,7 +116,7 @@ Three rules hold that together, and a change that breaks any of them is wrong:
   reads directly because only Node can find them.
 
 Browsers are the exception, and only because loading is asynchronous there:
-`web-tree-sitter` cannot fetch a parser inside a synchronous walk, so an
+`web-tree-sitter` cannot load a parser inside a synchronous walk, so an
 injected language has to be loaded before the document mentioning it. Node uses
 the native addon precisely so it does not inherit that limit. Do not "fix" the
 browser by making the other runtimes match it.

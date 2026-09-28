@@ -2,9 +2,9 @@ import { createHighlighter, withWasm } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import elixir from "@lumis-sh/lumis/langs/elixir";
 import githubLight from "@lumis-sh/themes/github_light";
-import elixirWasm from "@lumis-sh/wasm-elixir";
+import * as elixirPackage from "@lumis-sh/wasm-elixir";
 
-const elixirFromNpm = withWasm(elixir, elixirWasm);
+const elixirFromNpm = withWasm(elixir, elixirPackage);
 
 const source = `defmodule Lumis.Release do
   def manifest(env) do

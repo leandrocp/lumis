@@ -27,6 +27,13 @@ function argValue(flag: string): string | undefined {
 const OUT_DIR = path.resolve(WORKSPACE_ROOT, argValue("--out") ?? path.join("tmp", "wasm", "npm"));
 const VERSION = argValue("--version") ?? "0.0.0";
 
+/**
+ * Carried as `lumis.bundleFormat`, so a change to what a bundle exports publishes
+ * a new version even when its members stay the same. 2: `bundledPackages`. Must
+ * match `BUNDLE_FORMAT_VERSION` in `crates/dev`.
+ */
+const BUNDLE_FORMAT_VERSION = 2;
+
 function readLanguagesToml(): LanguagesToml {
   const text = fs.readFileSync(LANGUAGES_TOML, "utf-8");
   return parseLanguagesToml(parseToml(text));
@@ -109,26 +116,42 @@ function writeBundlePackage(
 
   const importLines = [...publishedPackages]
     .sort()
-    .map((pkg) => `import ${importName(pkg)} from ${JSON.stringify(pkg)}`)
+    .map((pkg) => `import * as ${importName(pkg)} from ${JSON.stringify(pkg)}`)
     .join("\n");
 
-  const entries = languageIds
-    .map((id) => `  ${JSON.stringify(id)}: ${importName(wasmPackagesByLanguage[id]!)},`)
-    .join("\n");
+  const entries = (value: (name: string) => string) =>
+    languageIds
+      .map((id) => `  ${JSON.stringify(id)}: ${value(importName(wasmPackagesByLanguage[id]!))},`)
+      .join("\n");
 
   const indexJs = `${importLines}
 
-export const bundledWasms = {
-${entries}
+/** Each language's parser package, manifest included. Pass this to \`withWasmBundle()\`. */
+export const bundledPackages = {
+${entries((name) => name)}
 }
 
-export default bundledWasms
+/** Parser files only, for Lumis versions that predate \`bundledPackages\`. */
+export const bundledWasms = {
+${entries((name) => `${name}.default`)}
+}
+
+export default bundledPackages
 `;
 
   const indexDts = `import type { RuntimeWasmBundle } from '@lumis-sh/lumis'
 
+export declare const bundledPackages: Readonly<
+  Record<
+    string,
+    {
+      readonly default: URL
+      readonly manifest: { readonly packageName: string; readonly version: string }
+    }
+  >
+>
 export declare const bundledWasms: RuntimeWasmBundle
-export default bundledWasms
+export default bundledPackages
 `;
 
   const dependencies = Object.fromEntries(
@@ -146,6 +169,7 @@ export default bundledWasms
       directory: `packages/javascript/wasm-bundle-${bundleName}`,
     },
     bugs: "https://github.com/leandrocp/lumis/issues",
+    lumis: { bundleFormat: BUNDLE_FORMAT_VERSION },
     homepage: "https://lumis.sh",
     keywords: ["lumis-sh", "tree-sitter", "wasm", "bundle"],
     sideEffects: false,
@@ -183,16 +207,18 @@ npm install @lumis-sh/lumis @lumis-sh/wasm-bundle-${bundleName}
 
 ## Node.js
 
-Install this package alongside \`@lumis-sh/lumis/bundles/${bundleName}\` and Lumis will resolve the local parser packages automatically.
+Install this package alongside \`@lumis-sh/lumis/bundles/${bundleName}\`. Lumis loads the parser packages it depends on, with nothing else to configure.
 
-## Browser bundlers
+## Browsers
+
+A browser loads only the parser packages you import. Pass them to \`withWasmBundle()\` so your bundler ships them:
 
 \`\`\`ts
 import { createHighlighter, withWasmBundle } from '@lumis-sh/lumis'
 import { bundledLanguages } from '@lumis-sh/lumis/bundles/${bundleName}'
-import { bundledWasms } from '@lumis-sh/wasm-bundle-${bundleName}'
+import { bundledPackages } from '@lumis-sh/wasm-bundle-${bundleName}'
 
-const languages = withWasmBundle(bundledLanguages, bundledWasms)
+const languages = withWasmBundle(bundledLanguages, bundledPackages)
 const highlighter = await createHighlighter({ languages: [languages] })
 \`\`\`
 `;

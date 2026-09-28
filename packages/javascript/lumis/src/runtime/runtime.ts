@@ -12,22 +12,11 @@ export interface RuntimeEnvironment {
   withFsCacheLock<T>(key: string, operation: () => Promise<T>): Promise<T>;
   readResolvedWasmFromDisk(source: string | URL): Promise<Uint8Array | undefined>;
   /**
-   * Whether this runtime's parsers come from packages installed in a project.
-   *
-   * True on Node: the `@lumis-sh/wasm-*` packages a project depends on are the
-   * whole set, the same way `Cargo.toml` features are in Rust and `mix.exs`
-   * dependencies are in Elixir. Nothing outside it is read or fetched, unless
-   * the caller supplied a resolver of its own.
-   *
-   * Absent where there is no project to read, such as the browser: a bundle
-   * declares by what it imported, and there is no manifest to consult.
-   */
-  declaresLanguages?: boolean;
-  /**
    * Where an installed `@lumis-sh/wasm-*` package keeps its `lumis.json`.
    *
-   * Node resolves it through the package's export map. Absent in the browser,
-   * which has no module resolution to ask.
+   * Node resolves it through the package's export map, and loads only those
+   * packages unless a resolver is configured. Absent in the browser, which has
+   * no project to read and loads only the packages passed to `withWasm()`.
    */
   resolveInstalledManifest?(packageName: string): Promise<URL | undefined>;
   parserInitOptions?(): Promise<ParserInitOptions>;

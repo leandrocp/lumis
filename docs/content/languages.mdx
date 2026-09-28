@@ -41,7 +41,8 @@ Where the bytes come from depends on the runtime. In Elixir and Node a parser is
 an ordinary dependency: `mix deps.get` and `npm install` deliver it, and
 highlighting reads it off the code path without touching the network. The CLI
 has no manifest to read, so it downloads and verifies a parser the first time it
-needs one. Browsers fetch theirs and keep them in CacheStorage.
+needs one. A browser loads the parser packages the application imported and
+passed to `withWasm()`, and downloads nothing unless a resolver is configured.
 
 That includes languages **injected inside** another one, in the same pass: a
 Markdown file with a fenced Rust block highlights that block, and an HTML page
@@ -77,7 +78,7 @@ the work is the one that will serve:
 | --- | --- | --- |
 | JavaScript / TypeScript | `loadLanguages([...])`, not awaited | `loadLanguages([...])`, awaited, in a build step |
 | Elixir | `Lumis.Languages.async_load([...])` in `start/2` | `Lumis.Languages.load([...])` in a release task |
-| Browsers / CDN | `createHighlighter({languages})`, or `loadLanguages()` | — nothing to prepare ahead |
+| Browsers / CDN | `createHighlighter({languages})` with imported packages | — the bundle already carries them |
 | CLI | — the process exits, so there is no later to hold for | `lumis languages download <names>` |
 | Rust | — parsers are Cargo features compiled into the binary | — |
 | Java | construct `Lumis` at startup and retain it | — parsers ship inside `lumis4j` |
@@ -268,30 +269,38 @@ network during a build.
   </Tab>
   <Tab value="Browsers / CDN">
 
-`loadLanguages()` works here too, warming the runtime the module-level
-`highlight()` uses. When you keep a highlighter instead, load into it and retain
-that instance:
+A browser loads only the parser packages you import, so preloading is passing
+them to the highlighter you keep:
 
 ```ts
-import { createHighlighter } from "@lumis-sh/lumis";
+import { createHighlighter, withWasm } from "@lumis-sh/lumis";
 import css from "@lumis-sh/lumis/langs/css";
 import html from "@lumis-sh/lumis/langs/html";
 import javascript from "@lumis-sh/lumis/langs/javascript";
+import * as cssPackage from "@lumis-sh/wasm-css";
+import * as htmlPackage from "@lumis-sh/wasm-html";
+import * as javascriptPackage from "@lumis-sh/wasm-javascript";
 
 const highlighter = await createHighlighter({
-  languages: [html, css, javascript],
+  languages: [
+    withWasm(html, htmlPackage),
+    withWasm(css, cssPackage),
+    withWasm(javascript, javascriptPackage),
+  ],
 });
 
 await renderApplication({ highlighter });
 ```
 
-Pass eager language imports when they must be ready immediately. A bundle
-registers lazy entries; call `highlighter.loadLanguage()` for the bundle members
-the application must have.
+A bundle registers lazy entries; call `highlighter.loadLanguage()` for the
+bundle members the application must have. `loadLanguages()` takes names, which
+carry no package, so in a browser it only works with a
+[configured resolver](/usage/javascript#custom-resolvers).
 
-Verified parser bytes persist in CacheStorage, with an IndexedDB fallback for
-WebKit, but never a compiled module: WebAssembly compilation belongs to the
-browser and cannot be persisted by Lumis. Browsers do not use `LUMIS_DATA_DIR`.
+Parser bytes a resolver fetched persist in CacheStorage, with an IndexedDB
+fallback for WebKit, but never a compiled module: WebAssembly compilation
+belongs to the browser and cannot be persisted by Lumis. Browsers do not use
+`LUMIS_DATA_DIR`.
 
   </Tab>
   <Tab value="Rust">

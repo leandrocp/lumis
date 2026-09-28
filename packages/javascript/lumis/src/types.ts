@@ -146,6 +146,25 @@ export type RuntimeWasmInput = Uint8Array | ArrayBuffer | string | URL | Respons
 export type RuntimeWasmBundle = Partial<Record<string, RuntimeWasmInput>>;
 
 /**
+ * An imported `@lumis-sh/wasm-*` package: its parser as the default export and
+ * its `lumis.json` as `manifest`.
+ *
+ * ```ts
+ * import * as elixirPackage from '@lumis-sh/wasm-elixir'
+ * ```
+ */
+export interface LanguagePackageExports {
+  readonly default: RuntimeWasmInput;
+  readonly manifest?: object;
+}
+
+/**
+ * Imported packages by language id, such as `bundledPackages` from a
+ * `@lumis-sh/wasm-bundle-*` package.
+ */
+export type RuntimeLanguagePackageBundle = Partial<Record<string, LanguagePackageExports>>;
+
+/**
  * A language accepted by Lumis.
  *
  * Queries live in the package alongside the parser they were tested against, so
@@ -163,12 +182,17 @@ export interface Language extends LanguageDefinition {
   packageName?: string;
   /**
    * WASM parser source:
-   * - `WasmRef` fetched from CDN (default for pre-built bundles)
+   * - `WasmRef` resolved from the installed package, or a configured resolver
    * - `Uint8Array` or `ArrayBuffer` passed directly (useful with browser bundlers)
    * - `URL` fetched directly (`file://` works in Node.js)
    * - `string` treated as file path (Node.js) or URL (browser)
    */
   wasm?: WasmRef | RuntimeWasmInput;
+  /**
+   * The package's `lumis.json`, carried by `withWasm()` from an imported
+   * package. A browser needs it; Node reads the installed one.
+   */
+  manifest?: object;
 }
 
 /**
@@ -181,6 +205,8 @@ export interface LanguagePackageHandle extends LanguageDefinition {
   packageName: string;
   /** Optional caller-selected source for the package's verified parser bytes. */
   wasm?: WasmRef | RuntimeWasmInput;
+  /** The package's `lumis.json`, when the package was imported. */
+  manifest?: object;
 }
 
 export interface PlaintextLanguage extends LanguageDefinition {

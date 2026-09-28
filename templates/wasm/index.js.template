@@ -1,2 +1,2 @@
-const wasmUrl = new URL('./{wasm_name}.wasm', import.meta.url)
-export default wasmUrl
+const parser = new URL('./{wasm_name}.wasm', import.meta.url)
+export default parser

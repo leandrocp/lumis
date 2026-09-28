@@ -21,23 +21,24 @@ const highlighter = await createHighlighter({ languages: [json] });
 
 Use the [language catalog](/reference/languages) to find a supported language.
 
-## Keep parser bytes local with `withWasm`
+## Bundle parser packages with `withWasm`
 
-`withWasm()` lets you supply the bytes for a published language package. It
-does not accept replacement queries or turn an arbitrary grammar into a Lumis
-language:
+`withWasm()` attaches an imported language package to its language, which is
+how a browser loads one. It does not accept replacement queries or turn an
+arbitrary grammar into a Lumis language:
 
 ```js
 import { createHighlighter, withWasm } from '@lumis-sh/lumis';
 import json from '@lumis-sh/lumis/langs/json';
-import jsonParser from '@lumis-sh/wasm-json';
+import * as jsonPackage from '@lumis-sh/wasm-json';
 
 const highlighter = await createHighlighter({
-  languages: [withWasm(json, jsonParser)],
+  languages: [withWasm(json, jsonPackage)],
 });
 ```
 
-The bytes must match the size and SHA-256 in the language package. See
+Pass the whole package, not only its default export: the manifest beside the
+parser carries the queries and the size and SHA-256 the bytes must match. See
 [Where parsers come from](/usage/javascript#where-parsers-come-from).
 
 ## Unpublished grammars

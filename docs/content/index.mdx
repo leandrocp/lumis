@@ -143,7 +143,12 @@ lumis highlight index.js --language javascript
   <Tab value="Browsers / CDN">
 
 ```js
-import javascript from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
+import {withWasm} from 'https://esm.sh/@lumis-sh/lumis';
+import javascriptLanguage from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
+import * as javascriptPackage from 'https://esm.sh/@lumis-sh/wasm-javascript';
+
+// A browser loads only the parser packages you import.
+const javascript = withWasm(javascriptLanguage, javascriptPackage);
 ```
 
   </Tab>
@@ -352,11 +357,13 @@ echo 'const x = 1' | lumis highlight \
 
 ```html
 <script type="module">
-  import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
+  import {highlight, withWasm} from 'https://esm.sh/@lumis-sh/lumis';
   import {htmlInline} from 'https://esm.sh/@lumis-sh/lumis/formatters';
-  import javascript from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
+  import javascriptLanguage from 'https://esm.sh/@lumis-sh/lumis/langs/javascript';
+  import * as javascriptPackage from 'https://esm.sh/@lumis-sh/wasm-javascript';
   import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe';
 
+  const javascript = withWasm(javascriptLanguage, javascriptPackage);
   const html = await highlight(
     'const x = 1',
     htmlInline({language: javascript, theme: frappe})

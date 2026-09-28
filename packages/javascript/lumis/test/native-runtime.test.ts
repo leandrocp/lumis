@@ -453,6 +453,7 @@ describe("native adapter routing", () => {
     expect(resolveLanguagePackage).toHaveBeenCalledWith(
       { id: "json", aliases: [] },
       "@test/custom-json",
+      undefined,
     );
     expect(loadLanguageDefinition).toHaveBeenCalledOnce();
     expect(loadLanguage).not.toHaveBeenCalled();

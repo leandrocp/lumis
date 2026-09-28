@@ -2,7 +2,7 @@
 
 import { createHighlighterModule } from "./core/highlighter.js";
 import { createLoadLanguages } from "./core/load-languages.js";
-import { mapBundle } from "./bundle-helpers.js";
+import { bundleWithPackages, languageWithPackage } from "./bundle-helpers.js";
 import {
   availableLanguages,
   configureLanguagePackageResolver,
@@ -112,34 +112,42 @@ export function highlight(...args: Parameters<typeof highlighter.highlight>) {
 }
 
 /**
- * Return a copy of a language with a custom WASM source.
+ * Return a copy of a language that loads from an imported parser package.
  *
- * Useful in browser bundlers when you want to import a parser package directly,
- * for example `import elixirWasm from '@lumis-sh/wasm-elixir'`.
+ * A browser loads only the packages passed in this way, so a bundler ships
+ * them and nothing is fetched. Pass the whole package, so its manifest comes
+ * along with the parser:
+ *
+ * ```ts
+ * import * as elixirPackage from '@lumis-sh/wasm-elixir'
+ * const elixirLanguage = withWasm(elixir, elixirPackage)
+ * ```
+ *
+ * Parser bytes on their own also work in Node, which reads the manifest from
+ * the installed package.
  */
 export function withWasm<T extends import("./types.js").Language>(
   language: T,
-  wasm: import("./types.js").RuntimeWasmInput,
-): Omit<T, "wasm"> & { wasm: import("./types.js").RuntimeWasmInput } {
-  return {
-    ...language,
-    wasm,
-  };
+  source: import("./types.js").LanguagePackageExports | import("./types.js").RuntimeWasmInput,
+): Omit<T, "wasm" | "manifest"> & {
+  wasm: import("./types.js").RuntimeWasmInput;
+  manifest?: object;
+} {
+  return languageWithPackage(language, source);
 }
 
 /**
- * Apply a map of statically imported WASM assets to every matching language in a bundle.
+ * Apply imported parser packages to every matching language in a bundle.
  *
- * Useful with packages like `@lumis-sh/wasm-bundle-web` in browser bundlers.
+ * Pass `bundledPackages` from a `@lumis-sh/wasm-bundle-*` package.
  */
 export function withWasmBundle(
   bundle: import("./types.js").LanguageBundle,
-  wasms: import("./types.js").RuntimeWasmBundle,
+  sources:
+    | import("./types.js").RuntimeLanguagePackageBundle
+    | import("./types.js").RuntimeWasmBundle,
 ): import("./types.js").LanguageBundle {
-  return mapBundle(bundle, (language) => {
-    const wasm = wasms[language.id];
-    return wasm ? withWasm(language, wasm) : language;
-  });
+  return bundleWithPackages(bundle, sources);
 }
 
 export type { CreateHighlighterOptions, Highlighter } from "./core/highlighter.js";
@@ -180,6 +188,8 @@ export type {
   WasmRef,
   RuntimeWasmInput,
   RuntimeWasmBundle,
+  LanguagePackageExports,
+  RuntimeLanguagePackageBundle,
   SyntaxHighlightEvent,
   LanguageInfo,
   ThemeInfo,

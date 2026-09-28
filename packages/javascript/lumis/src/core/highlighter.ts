@@ -88,6 +88,7 @@ export async function loadLanguageDefinition(
     definition: { id: language.id, aliases: language.aliases },
     packageName: language.packageName,
     wasm: language.wasm,
+    manifest: language.manifest,
   });
 }
 

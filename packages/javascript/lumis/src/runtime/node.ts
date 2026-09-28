@@ -115,8 +115,6 @@ export const nodeRuntime: RuntimeEnvironment = {
     };
   },
 
-  declaresLanguages: true,
-
   resolveInstalledManifest,
 };
 

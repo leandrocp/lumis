@@ -5,10 +5,10 @@ import { bundledLanguages } from "@lumis-sh/lumis/bundles/web";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import { CodeBlock } from "@lumis-sh/react";
 import githubDark from "@lumis-sh/themes/github_dark";
-import { bundledWasms } from "@lumis-sh/wasm-bundle-web";
+import { bundledPackages } from "@lumis-sh/wasm-bundle-web";
 
 const highlighter = createHighlighter({
-  languages: [withWasmBundle(bundledLanguages, bundledWasms)],
+  languages: [withWasmBundle(bundledLanguages, bundledPackages)],
 });
 
 export function CodeBlockExample() {

@@ -145,20 +145,22 @@ Changing a parser or one of its queries publishes only that language package.
 It does not require a JavaScript, CLI, Rust, or Elixir runtime release unless
 the language-package format or supported Tree-sitter ABI series changes.
 
-Dynamic runtimes ask npm CDNs to resolve the compatible range, validate the
-exact version returned in the package metadata, then load the exact parser that
-metadata identifies:
+Node, Elixir and browsers never ask a CDN: they read the manifest and parser
+from the package a project installed or an application imported, and check it
+against the compatible range. The CLI asks npm CDNs to resolve the range,
+validates the exact version returned in the package metadata, then loads the
+exact parser that metadata identifies:
 
 ```text
 stable language catalog + compatible range
          |
          v
-installed/local language package -> persistent exact metadata cache -> CDN range resolution
+store metadata (exact lock) -> CDN range resolution
          |
          v
-installed/local parser -> persistent verified parser cache -> exact-version CDN parser
-                                  |
-                                  +-> persistent Wasmtime compiled cache
+store parser (verified) -> exact-version CDN parser
+         |
+         +-> persistent Wasmtime compiled cache
 ```
 
 ### One rule, three declarations
@@ -170,7 +172,8 @@ declared, and a runtime gets exactly one of these:
 | Runtime | Declares its set in | How parsers arrive |
 | --- | --- | --- |
 | Rust `lumis` crate | `Cargo.toml` features | linked statically: 65 crates.io parsers, 47 vendored sources |
-| JavaScript with installed packages | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
+| JavaScript on Node | `package.json` | `@lumis-sh/wasm-*` in `node_modules` |
+| JavaScript in a browser | the packages it imports | `@lumis-sh/wasm-*` in the bundle, through `withWasm()` |
 | Elixir, any future FFI binding | `mix.exs` dependencies | `lumis_wasm_*` in each dependency's `priv/parsers` |
 | The CLI | nothing — it declares no set | fetched on demand into its own store |
 
@@ -188,7 +191,8 @@ dependency's assets and nothing is fetched at runtime. `config :lumis,
 instead.
 
 The CLI is the one row with no declaration, and that is deliberate rather than a
-gap: see below.
+gap: see below. A JavaScript caller can still fetch at run time by configuring a
+resolver, which is a declaration of its own.
 
 Nobody gets two declarations. A JavaScript project that installs its parsers
 does not also write a lock; `package.json` already is one.
@@ -292,9 +296,9 @@ manifest caching, integrity verification, and refresh semantics are one Rust
 implementation. The Node addon loads only the `@lumis-sh/wasm-*` packages the
 project installed: JavaScript resolves each one's `lumis.json` through Node's
 module resolution, which Rust cannot follow, and the addon parses and verifies
-them with the same `LanguagePackage` code. The browser cannot call synchronous Rust
-from its asynchronous fetch path, so its small TypeScript adapter consumes the
-same generated range and uses npm's `semver` package for the same check. The
+them with the same `LanguagePackage` code. The browser cannot call Rust, so its small
+TypeScript adapter checks an imported package's manifest against the same
+generated range with npm's `semver` package. The
 portable Node fallback uses that browser implementation. Cross-runtime package
 fixtures pin both implementations to the same manifest contract.
 
@@ -303,7 +307,7 @@ Everything a runtime persists lives under one directory, named by
 for the CLI's custom themes, `compiled/` for Wasmtime's module cache. Only the
 CLI reads `parsers/`, whether the files were downloaded or staged there by a
 build step; Elixir and Node load the parser packages a project installed, and
-share `compiled/` with the CLI. Browsers use CacheStorage instead, having no filesystem. Parser
+share `compiled/` with the CLI. Browsers keep parsers a configured resolver fetched in CacheStorage instead, having no filesystem. Parser
 cache keys contain the parser name, package version, and digest, so upgrades do
 not overwrite older verified assets. A compatible package already in the
 directory is an exact lock and is never revalidated during highlighting; a

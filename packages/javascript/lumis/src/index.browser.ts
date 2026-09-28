@@ -1,6 +1,6 @@
 /** Syntax highlighting with Tree-sitter and Neovim themes. */
 
-import { mapBundle } from "./bundle-helpers.js";
+import { bundleWithPackages, languageWithPackage } from "./bundle-helpers.js";
 import { createHighlighterModule } from "./core/highlighter.js";
 import { createLoadLanguages } from "./core/load-languages.js";
 import {
@@ -63,23 +63,22 @@ export function highlight(...args: Parameters<typeof highlighter.highlight>) {
 /** {@inheritDoc index.withWasm} */
 export function withWasm<T extends import("./types.js").Language>(
   language: T,
-  wasm: import("./types.js").RuntimeWasmInput,
-): Omit<T, "wasm"> & { wasm: import("./types.js").RuntimeWasmInput } {
-  return {
-    ...language,
-    wasm,
-  };
+  source: import("./types.js").LanguagePackageExports | import("./types.js").RuntimeWasmInput,
+): Omit<T, "wasm" | "manifest"> & {
+  wasm: import("./types.js").RuntimeWasmInput;
+  manifest?: object;
+} {
+  return languageWithPackage(language, source);
 }
 
 /** {@inheritDoc index.withWasmBundle} */
 export function withWasmBundle(
   bundle: import("./types.js").LanguageBundle,
-  wasms: import("./types.js").RuntimeWasmBundle,
+  sources:
+    | import("./types.js").RuntimeLanguagePackageBundle
+    | import("./types.js").RuntimeWasmBundle,
 ): import("./types.js").LanguageBundle {
-  return mapBundle(bundle, (language) => {
-    const wasm = wasms[language.id];
-    return wasm ? withWasm(language, wasm) : language;
-  });
+  return bundleWithPackages(bundle, sources);
 }
 
 export type { CreateHighlighterOptions, Highlighter } from "./core/highlighter.js";
@@ -118,6 +117,8 @@ export type {
   WasmRef,
   RuntimeWasmInput,
   RuntimeWasmBundle,
+  LanguagePackageExports,
+  RuntimeLanguagePackageBundle,
   SyntaxHighlightEvent,
   LanguageInfo,
   ThemeInfo,

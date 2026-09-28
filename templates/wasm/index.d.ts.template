@@ -1,2 +1,13 @@
-declare const wasmUrl: URL
-export default wasmUrl
+declare const parser: URL
+export default parser
+
+/**
+ * This package's `lumis.json`: the parser's size and digest, and the queries
+ * released with it. Pass the whole package to `withWasm()` so a browser loads
+ * both from your bundle instead of fetching anything.
+ */
+export declare const manifest: {
+  readonly packageName: string
+  readonly version: string
+  readonly [field: string]: unknown
+}
