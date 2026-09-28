@@ -4744,14 +4744,6 @@ fn hex_is_current(
         return false;
     };
     let meta = manifest.get("lumis");
-    let published_dependencies = manifest
-        .get("dependencies")
-        .and_then(Value::as_object)
-        .into_iter()
-        .flatten()
-        .filter(|(name, _)| name.starts_with("@lumis-sh/wasm-"))
-        .map(|(name, range)| (name.clone(), range.as_str().unwrap_or_default().to_string()))
-        .collect::<BTreeMap<_, _>>();
 
     meta.and_then(|meta| meta.get("definitionHash"))
         .and_then(Value::as_str)
@@ -4764,7 +4756,7 @@ fn hex_is_current(
             .and_then(|meta| meta.get("formatVersion"))
             .and_then(Value::as_u64)
             .is_some_and(|format| format >= u64::from(HEX_FORMAT_VERSION))
-        && &published_dependencies == dependencies
+        && &wasm_requirements(manifest) == dependencies
 }
 
 /// The bundles Hex is missing.
@@ -4808,8 +4800,8 @@ fn plan_bundles(
             .and_then(|p| p.get("versions"))
             .and_then(Value::as_object)
             .is_some_and(|versions| versions.contains_key(&version));
-        let hex_needed =
-            !hex.contains(&version) && !hex_bundle_is_current(packument, &hex, &bundle.members);
+        let hex_needed = !hex.contains(&version)
+            && !hex_bundle_is_current(packument, &hex, &bundle.requirements);
 
         if !on_npm || hex_needed {
             bundles.push(BundlePlanEntry {
@@ -4824,16 +4816,21 @@ fn plan_bundles(
     Ok(bundles)
 }
 
-/// Whether the newest Hex release of a bundle already depends on `members`.
+/// Whether the newest Hex release of a bundle already depends on
+/// `requirements`, members and ranges alike.
 ///
-/// A Hex bundle is its `mix.exs` dependency list and a README, so the member
-/// list is all that can change it; `bundleFormat` describes the npm entry.
-fn hex_bundle_is_current(packument: Option<&Value>, hex: &[String], members: &[String]) -> bool {
+/// A Hex bundle is its `mix.exs` dependency list and a README, so those are
+/// all that can change it; `bundleFormat` describes the npm entry.
+fn hex_bundle_is_current(
+    packument: Option<&Value>,
+    hex: &[String],
+    requirements: &BTreeMap<String, String>,
+) -> bool {
     hex.iter()
         .filter(|version| patch_of(version, BUNDLE_SERIES).is_some())
         .max_by_key(|version| patch_of(version, BUNDLE_SERIES))
         .and_then(|newest| packument?.pointer(&format!("/versions/{newest}")))
-        .is_some_and(|manifest| dependency_names(manifest) == members)
+        .is_some_and(|manifest| &wasm_requirements(manifest) == requirements)
 }
 
 /// Bundles version independently of the parsers they group: a bundle is a list
@@ -4857,6 +4854,9 @@ struct StagedBundle {
     name: String,
     /// npm dependency names, sorted. A bundle *is* its dependency list.
     members: Vec<String>,
+    /// The same dependencies with their ranges, which its Hex `mix.exs` is
+    /// written from.
+    requirements: BTreeMap<String, String>,
 }
 
 fn staged_bundles() -> Result<Vec<StagedBundle>> {
@@ -4875,6 +4875,7 @@ fn staged_bundles() -> Result<Vec<StagedBundle>> {
         bundles.push(StagedBundle {
             name: name.to_string(),
             members: dependency_names(&manifest),
+            requirements: wasm_requirements(&manifest),
         });
     }
 
@@ -4887,6 +4888,18 @@ fn staged_bundles() -> Result<Vec<StagedBundle>> {
 
     bundles.sort_by(|a, b| a.name.cmp(&b.name));
     Ok(bundles)
+}
+
+/// The `@lumis-sh/wasm-*` entries of `dependencies`, with their ranges.
+fn wasm_requirements(manifest: &Value) -> BTreeMap<String, String> {
+    manifest
+        .get("dependencies")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flatten()
+        .filter(|(name, _)| name.starts_with("@lumis-sh/wasm-"))
+        .map(|(name, range)| (name.clone(), range.as_str().unwrap_or_default().to_string()))
+        .collect()
 }
 
 /// `dependencies` keys, sorted, or empty when there are none.
@@ -5772,10 +5785,7 @@ mod hex_wasm_tests {
     #[test]
     fn a_filtered_run_plans_no_bundles() {
         let registry = HashMap::new();
-        let staged = [StagedBundle {
-            name: "web".to_string(),
-            members: vec!["@lumis-sh/wasm-css".to_string()],
-        }];
+        let staged = [staged_web(&[("@lumis-sh/wasm-css", "^0.26.0")])];
         let packuments = vec![Ok(None)];
 
         assert_eq!(
@@ -5906,14 +5916,24 @@ mod hex_wasm_tests {
         assert!(not_on_hex[0].hex, "Hex has no release at all");
     }
 
+    /// `@lumis-sh/wasm-bundle-web` staged with these dependencies.
+    fn staged_web(requirements: &[(&str, &str)]) -> StagedBundle {
+        let requirements = requirements
+            .iter()
+            .map(|(name, range)| ((*name).to_string(), (*range).to_string()))
+            .collect::<BTreeMap<_, _>>();
+        StagedBundle {
+            name: "web".to_string(),
+            members: requirements.keys().cloned().collect(),
+            requirements,
+        }
+    }
+
     /// `bundleFormat` describes the npm entry. A Hex bundle is its dependency
-    /// list, so only a membership change is news to Hex.
+    /// list, so only a change to that list is news to Hex.
     #[test]
     fn a_bundle_format_change_leaves_hex_alone() {
-        let staged = [StagedBundle {
-            name: "web".to_string(),
-            members: vec!["@lumis-sh/wasm-css".to_string()],
-        }];
+        let staged = [staged_web(&[("@lumis-sh/wasm-css", "^0.26.0")])];
         let mut published = bundle_packument(&[("0.1.0", &["@lumis-sh/wasm-css"])]);
         published["versions"]["0.1.0"]["lumis"]["bundleFormat"] = json!(BUNDLE_FORMAT_VERSION - 1);
         let registry = HashMap::from([(
@@ -5926,15 +5946,17 @@ mod hex_wasm_tests {
         assert!(plan[0].npm);
         assert!(!plan[0].hex);
 
-        let grown = [StagedBundle {
-            name: "web".to_string(),
-            members: vec![
-                "@lumis-sh/wasm-css".to_string(),
-                "@lumis-sh/wasm-html".to_string(),
-            ],
-        }];
-        let plan = plan_bundles(&registry, "", &grown, &[Ok(Some(published))]).unwrap();
+        let grown = [staged_web(&[
+            ("@lumis-sh/wasm-css", "^0.26.0"),
+            ("@lumis-sh/wasm-html", "^0.26.0"),
+        ])];
+        let plan = plan_bundles(&registry, "", &grown, &[Ok(Some(published.clone()))]).unwrap();
         assert!(plan[0].hex, "a new member is a new mix.exs");
+
+        // Same members, a new Tree-sitter series: `~> 0.27.0` in mix.exs.
+        let moved = [staged_web(&[("@lumis-sh/wasm-css", "^0.27.0")])];
+        let plan = plan_bundles(&registry, "", &moved, &[Ok(Some(published))]).unwrap();
+        assert!(plan[0].hex, "a new range is a new mix.exs");
     }
 
     /// A version from another series is not a patch of this one.
