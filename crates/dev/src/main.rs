@@ -3818,9 +3818,10 @@ fn language_definition_hash(
         hash_definition_field(&mut digest, language.locals.as_bytes());
         hash_definition_field(&mut digest, language.brackets.as_bytes());
 
-        // A required grammar is a dependency of the package, so changing one
-        // is a new package. Only hashed when there is one, so every package
-        // that requires nothing keeps the hash it was published under.
+        // A required grammar is a dependency of the package, by the package
+        // that ships it, so changing either is a new package. Only hashed when
+        // there is one, so every package that requires nothing keeps the hash
+        // it was published under.
         let requires = toml
             .parsers
             .get(id)
@@ -3830,6 +3831,10 @@ fn language_definition_hash(
             hash_definition_field(&mut digest, b"requires");
             for required in requires {
                 hash_definition_field(&mut digest, required.as_bytes());
+                hash_definition_field(
+                    &mut digest,
+                    required_package(toml, id, required)?.as_bytes(),
+                );
             }
         }
     }
@@ -4257,6 +4262,21 @@ struct PackageEntry {
 
 /// The packages holding the grammars this package's languages require, by
 /// version range, and which package each required language comes from.
+/// The npm package that ships `required`, a grammar `id` requires.
+fn required_package(toml: &LanguagesToml, id: &str, required: &str) -> Result<String> {
+    let info = toml.parsers.get(required).with_context(|| {
+        format!("{id} requires {required}, which languages.toml does not define")
+    })?;
+    let wasm_name = info
+        .wasm_name
+        .clone()
+        .unwrap_or_else(|| format!("tree-sitter-{required}"));
+    Ok(format!(
+        "@lumis-sh/wasm-{}",
+        wasm_package_suffix(&wasm_name)
+    ))
+}
+
 fn required_packages(
     toml: &LanguagesToml,
     package_name: &str,
@@ -4272,15 +4292,7 @@ fn required_packages(
             .map(|info| info.requires.as_slice())
             .unwrap_or_default()
         {
-            let info = toml.parsers.get(required).with_context(|| {
-                format!("{id} requires {required}, which languages.toml does not define")
-            })?;
-            let required_wasm = info
-                .wasm_name
-                .clone()
-                .unwrap_or_else(|| format!("tree-sitter-{required}"));
-            let required_package =
-                format!("@lumis-sh/wasm-{}", wasm_package_suffix(&required_wasm));
+            let required_package = required_package(toml, id, required)?;
             if required_package == package_name {
                 bail!("{id} requires {required}, which ships in the same package");
             }
@@ -7332,6 +7344,28 @@ mod tests {
 
         assert_ne!(hash(&toml, "tree-sitter-markdown"), markdown);
         assert_eq!(hash(&toml, "tree-sitter-css"), css);
+    }
+
+    /// The dependency is the package, so the same grammar moving to another
+    /// package is a new definition for everything that requires it.
+    #[test]
+    fn a_required_grammar_moving_package_is_a_new_definition() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../languages.toml");
+        let text = fs::read_to_string(&path).expect("languages.toml should be readable");
+        let mut toml: LanguagesToml = toml::from_str(&text).expect("languages.toml should parse");
+        let hash = |toml: &LanguagesToml| {
+            let languages =
+                packaged_languages(toml, "tree-sitter-markdown").expect("languages should load");
+            language_definition_hash(toml, "tree-sitter-markdown", &languages).expect("hash")
+        };
+
+        let before = hash(&toml);
+        toml.parsers
+            .get_mut("markdown_inline")
+            .expect("markdown_inline is in the catalog")
+            .wasm_name = Some("tree-sitter-markdown-inline".to_string());
+
+        assert_ne!(hash(&toml), before);
     }
 
     // A split grammar is a dependency on both registries. Otherwise an Elixir
