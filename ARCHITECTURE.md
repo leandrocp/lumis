@@ -291,10 +291,13 @@ loaded before the document mentioning it. Node runs the native addon
 specifically so it does not inherit that limit, and falls back to
 `web-tree-sitter` only where no addon is built.
 
-The resolver itself follows the same ownership boundary. CLI, Elixir, and the
-default Node addon all call `lumis-wasm-runtime::LanguageStore`, so compatible
-version checks, exact manifest caching, integrity verification, and refresh
-semantics are one Rust implementation. The browser cannot call synchronous Rust
+The resolver itself follows the same ownership boundary. The CLI and Elixir call
+`lumis-wasm-runtime::LanguageStore`, so compatible version checks, exact
+manifest caching, integrity verification, and refresh semantics are one Rust
+implementation. The Node addon loads only the `@lumis-sh/wasm-*` packages the
+project installed: JavaScript resolves each one's `lumis.json` through Node's
+module resolution, which Rust cannot follow, and the addon parses and verifies
+them with the same `LanguagePackage` code. The browser cannot call synchronous Rust
 from its asynchronous fetch path, so its small TypeScript adapter consumes the
 same generated range and uses npm's `semver` package for the same check. The
 portable Node fallback uses that browser implementation. Cross-runtime package
@@ -302,10 +305,10 @@ fixtures pin both implementations to the same manifest contract.
 
 Everything a runtime persists lives under one directory, named by
 `LUMIS_DATA_DIR`: `parsers/` for language packages and parser WASM, `themes/`
-for the CLI's custom themes, `compiled/` for Wasmtime's module cache. The CLI,
-Elixir and Node write the same filenames into `parsers/`, so one prepared
-directory serves all three, whether the files were downloaded or staged there
-by a build step. Browsers use CacheStorage instead, having no filesystem. Parser
+for the CLI's custom themes, `compiled/` for Wasmtime's module cache. Only the
+CLI reads `parsers/`, whether the files were downloaded or staged there by a
+build step; Elixir and Node load the parser packages a project installed, and
+share `compiled/` with the CLI. Browsers use CacheStorage instead, having no filesystem. Parser
 cache keys contain the parser name, package version, and digest, so upgrades do
 not overwrite older verified assets. A compatible package already in the
 directory is an exact lock and is never revalidated during highlighting; a

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parse as parseToml } from "smol-toml";
@@ -144,4 +144,41 @@ export function ensureLocalParserWasmDataUrl(language: string, parser: string): 
   const wasmUrl = ensureLocalParserWasm(language, parser);
   const bytes = readFileSync(fileURLToPath(wasmUrl));
   return `data:application/wasm;base64,${bytes.toString("base64")}`;
+}
+
+/**
+ * Install `languages` under `root/node_modules`, shaped the way a published
+ * package is: the manifest under `./lumis.json` in the export map, and the
+ * parser beside it named after `parser.name`.
+ *
+ * Returns each package's `lumis.json` by package name.
+ */
+export function installLocalPackages(root: string, languages: string[]): Record<string, string> {
+  const manifests: Record<string, string> = {};
+  for (const language of languages) {
+    const metadata = localLanguagePackageMetadata(`@lumis-sh/wasm-${language}`);
+    const directory = join(root, "node_modules", metadata.packageName);
+    const parser = `${metadata.parser.name}.wasm`;
+    mkdirSync(directory, { recursive: true });
+    writeFileSync(join(directory, "lumis.json"), JSON.stringify(metadata));
+    writeFileSync(
+      join(directory, parser),
+      readFileSync(ensureLocalParserWasm(language, metadata.parser.name)),
+    );
+    writeFileSync(
+      join(directory, "index.js"),
+      `export default new URL("./${parser}", import.meta.url);`,
+    );
+    writeFileSync(
+      join(directory, "package.json"),
+      JSON.stringify({
+        name: metadata.packageName,
+        version: metadata.version,
+        type: "module",
+        exports: { ".": "./index.js", "./lumis.json": "./lumis.json" },
+      }),
+    );
+    manifests[metadata.packageName] = join(directory, "lumis.json");
+  }
+  return manifests;
 }

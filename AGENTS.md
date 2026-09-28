@@ -109,9 +109,11 @@ Three rules hold that together, and a change that breaks any of them is wrong:
 - **A failure costs one block, not the document.** A thousand-line Markdown file
   with one fenced block in an unpublished language still highlights; that block
   stays plain. Only the root language failing is an error.
-- **One implementation.** `LanguageStore` resolves and caches; `Runtime` loads
-  and highlights. The CLI, the Elixir NIF and the Node addon all call them, so
-  none of them can drift.
+- **One implementation.** `Runtime` loads and highlights, and the CLI, the
+  Elixir NIF and the Node addon all call it, so none of them can drift.
+  `LanguageStore` resolves parsers for the CLI and the NIF; a Node project's
+  parsers are the `@lumis-sh/wasm-*` packages it installed, which the addon
+  reads directly because only Node can find them.
 
 Browsers are the exception, and only because loading is asynchronous there:
 `web-tree-sitter` cannot fetch a parser inside a synchronous walk, so an

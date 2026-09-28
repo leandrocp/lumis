@@ -1,6 +1,7 @@
 //! Resolve, verify and cache language packages and parser WASM on disk.
 //!
-//! Shared by the CLI, the Elixir NIF, and the Node addon.
+//! Shared by the CLI and the Elixir NIF. The Node addon loads the packages a
+//! project installed instead, which only Node's module resolution can find.
 //!
 //! There is deliberately no file lock. Writes rename a uniquely named temporary
 //! into place and parser bytes are verified first, so concurrent writers converge
@@ -193,8 +194,8 @@ pub trait Fetcher: Send + Sync {
 
 /// The default [`Fetcher`]: an HTTP client.
 ///
-/// Lives here rather than in each host so the CLI, the Elixir NIF and the Node
-/// addon download, verify and cache through exactly the same code.
+/// Lives here rather than in each host so every host that downloads does it
+/// through exactly the same code.
 #[cfg(feature = "wasm")]
 pub struct HttpFetcher;
 

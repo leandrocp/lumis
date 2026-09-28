@@ -86,14 +86,9 @@ export interface NativeLanguageSpec {
 }
 
 interface NativeRuntimeInstance {
+  /** Load a catalog language from the installed package that ships it. */
   loadLanguage(id: string): void;
   loadLanguagePackage(
-    id: string,
-    expectedPackageName: string,
-    packageJson: string,
-    wasm: Uint8Array,
-  ): string;
-  loadInstalledLanguagePackage(
     id: string,
     expectedPackageName: string,
     packageJson: string,
@@ -126,23 +121,22 @@ interface NativeRuntimeInstance {
 export interface NativeBinding {
   NativeRuntime: new () => NativeRuntimeInstance;
   runtimeKind(): string;
-  /** `false` once the runtime has read them, which it does on first use. */
+  /**
+   * Where compiled parser modules are kept. `false` once the first runtime has
+   * read it.
+   */
   configureStore(dataDir?: string): boolean;
   /**
-   * Tell the addon whether the project declared the languages it uses.
+   * The `lumis.json` of every `@lumis-sh/wasm-*` package this project
+   * installed, by package name.
    *
-   * JavaScript works that out by reading the nearest `package.json`; the addon
-   * has to know because it resolves injected languages itself during a native
-   * walk, without returning to JavaScript.
-   *
-   * Unlike `configureStore` this need not be set before the runtime exists,
-   * since the addon reads it per request.
-   *
-   * `manifests` maps a package to its `lumis.json`, which the addon cannot
-   * resolve itself.
+   * These are the whole set the addon loads from. JavaScript resolves them,
+   * because the addon cannot follow Node's resolution, and the addon reads them,
+   * because it loads an injected language during a native walk without
+   * returning to JavaScript.
    */
-  setInstalledPackages(packages: string[], manifests: Record<string, string>): void;
-  /** Where the store lives when `LUMIS_DATA_DIR` names nothing. */
+  setInstalledPackages(manifests: Record<string, string>): void;
+  /** The data directory when `LUMIS_DATA_DIR` names nothing. */
   defaultDataDir(): string;
 }
 

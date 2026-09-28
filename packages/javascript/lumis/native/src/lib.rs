@@ -24,6 +24,7 @@ use serde::Deserialize;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ops::RangeInclusive;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, LazyLock, Mutex};
 
 fn native_error(error: impl std::fmt::Display) -> Error {
@@ -320,52 +321,26 @@ fn reject_reentrant_highlight(env: &Env) -> Result<()> {
     Ok(())
 }
 
-/// Where the store looks, when the caller names it rather than the environment.
-/// Read once, when the runtime is built.
-static STORE_PATHS: Mutex<StorePaths> = Mutex::new(StorePaths {
-    data_dir: None,
-    installed_packages: None,
-    installed_manifests: BTreeMap::new(),
-    consumed: false,
-});
+/// The `lumis.json` of each `@lumis-sh/wasm-*` package this project installed,
+/// by package name. JavaScript resolves them, because a package sits wherever
+/// the package manager put it; the addon reads them, because it loads an
+/// injected language during a native walk without coming back to JavaScript.
+///
+/// These are the whole set a Node project can load. Nothing is read from the
+/// data directory or downloaded, the same rule Rust follows for Cargo features
+/// and Elixir for its dependencies.
+static INSTALLED_MANIFESTS: Mutex<BTreeMap<String, PathBuf>> = Mutex::new(BTreeMap::new());
 
-struct StorePaths {
-    data_dir: Option<PathBuf>,
-    /// Whether the project declared the languages it uses.
-    ///
-    /// False by default, which is the zero-configuration case: nothing was
-    /// declared, so anything a document names resolves on demand. True means
-    /// the project depends on `@lumis-sh/wasm-*` packages, and that list is the
-    /// whole set — a language outside it is not fetched.
-    ///
-    /// Unlike `data_dir` this is read per *request*, by `SwitchableFetcher`, so
-    /// it does not have to be known before the runtime is built.
-    /// The `@lumis-sh/wasm-*` packages this project installed, or `None` where
-    /// there is no project to read — the browser.
-    ///
-    /// A set rather than a flag: whether a package may be fetched depends on
-    /// whether the project installed *it*, not on whether the project installed
-    /// anything. A package that ships no manifest of its own is still declared,
-    /// and still has to be reachable.
-    installed_packages: Option<std::collections::HashSet<String>>,
-    /// The `lumis.json` of each installed package that ships one, by package
-    /// name, so a language injected mid-walk loads from the package itself.
-    /// Per request, like `installed_packages`.
-    installed_manifests: BTreeMap<String, PathBuf>,
-    /// Set when the runtime read them, which it does exactly once.
-    consumed: bool,
-}
+/// Set by the first runtime, which fixes the compile cache directory.
+static RUNTIME_BUILT: AtomicBool = AtomicBool::new(false);
 
 static SHARED_RUNTIME: LazyLock<std::result::Result<Arc<Runtime>, String>> =
     LazyLock::new(|| build_runtime().map(Arc::new));
-static SHARED_DEFINITIONS: LazyLock<Mutex<HashMap<String, Arc<lumis_wasm_runtime::LanguageSpec>>>> =
-    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 fn build_runtime() -> std::result::Result<Runtime, String> {
+    RUNTIME_BUILT.store(true, Ordering::Release);
     let workers = std::thread::available_parallelism().map_or(1, usize::from);
-    let runtime = Runtime::with_worker_limit(workers)
-        .map_err(|error| error.to_string())?
-        .with_store(language_store(None));
+    let runtime = Runtime::with_worker_limit(workers).map_err(|error| error.to_string())?;
     for language in catalog::LANGUAGES {
         runtime.declare_language(language.id, language.aliases);
     }
@@ -376,146 +351,85 @@ fn shared_runtime() -> Result<&'static Arc<Runtime>> {
     SHARED_RUNTIME.as_ref().map_err(native_error)
 }
 
-/// Point the store at an explicit directory, overriding `LUMIS_DATA_DIR`.
+/// Keep compiled parser modules under an explicit data directory, overriding
+/// `LUMIS_DATA_DIR`.
 ///
-/// The runtime reads these once, when it is first used, so this returns `false`
-/// if that has already happened. Node sets a directory through the environment
-/// at any time; the addon cannot, and silently ignoring the difference is how a
-/// caller ends up writing to a directory it did not choose.
+/// The engine reads it once, when the first runtime is built, so this returns
+/// `false` if that has already happened. Node sets a directory through the
+/// environment at any time; the addon cannot, and silently ignoring the
+/// difference is how a caller ends up writing to a directory it did not choose.
 #[napi(js_name = "configureStore")]
 pub fn configure_store(data_dir: Option<String>) -> bool {
-    let mut paths = STORE_PATHS.lock().expect("store path lock poisoned");
-    if paths.consumed {
+    if RUNTIME_BUILT.load(Ordering::Acquire) {
         return false;
     }
-    paths.data_dir = data_dir.map(PathBuf::from);
-
-    let compile_cache = store::resolve_data_dir(paths.data_dir.clone());
-    lumis_wasm_runtime::set_compile_cache_dir(compile_cache);
+    lumis_wasm_runtime::set_compile_cache_dir(store::resolve_data_dir(data_dir.map(PathBuf::from)));
     true
 }
 
-/// Record whether the project declared the languages it uses.
-///
-/// Internal: JavaScript works this out by reading the nearest `package.json`,
-/// and the addon has to know because it resolves injected languages itself,
-/// during a native walk, without returning to JavaScript.
-///
-/// Unlike [`configure_store`] this does not have to be set before the runtime
-/// exists, because `SwitchableFetcher` reads it per request.
-///
-/// `manifests` maps a package to its `lumis.json`. The addon cannot resolve
-/// one itself, since a package sits wherever the package manager put it.
+/// Record the `lumis.json` of every package this project installed.
 #[napi(js_name = "setInstalledPackages")]
-pub fn set_installed_packages(packages: Vec<String>, manifests: Option<HashMap<String, String>>) {
-    let mut paths = STORE_PATHS.lock().expect("store path lock poisoned");
-    paths.installed_packages = Some(packages.into_iter().collect());
-    paths.installed_manifests = manifests
-        .unwrap_or_default()
+pub fn set_installed_packages(manifests: HashMap<String, String>) {
+    *INSTALLED_MANIFESTS
+        .lock()
+        .expect("installed manifest lock poisoned") = manifests
         .into_iter()
         .map(|(name, manifest)| (name, PathBuf::from(manifest)))
         .collect();
 }
 
-/// Load `injected` from the installed package that ships it: the same files
-/// JavaScript reads for the language a document is highlighted in.
+/// Load `name` from the installed package that ships it, and return the id it
+/// loaded under.
 ///
-/// Ahead of the store, which could only download that package again and write
-/// it into the data directory, so an installed injection stayed plain offline
-/// or when that directory is read-only. Anything this cannot read, including a
-/// package that ships no manifest, still falls back to the store.
-fn load_installed(runtime: &Runtime, injected: &str) -> InjectionResolution {
-    if runtime.has_language(injected) {
-        return InjectionResolution::Fallback;
+/// The document's language and every language injected inside it come through
+/// here, so both read the same files.
+fn load_installed(runtime: &Runtime, name: &str) -> Result<String> {
+    if runtime.has_language(name) {
+        return Ok(name.to_string());
     }
-    let Some(location) = catalog::find(injected) else {
-        return InjectionResolution::Fallback;
-    };
-    let manifest = STORE_PATHS
+    let location =
+        catalog::find(name).ok_or_else(|| native_error(format!("unknown language {name:?}")))?;
+    let manifest = INSTALLED_MANIFESTS
         .lock()
-        .expect("store path lock poisoned")
-        .installed_manifests
+        .expect("installed manifest lock poisoned")
         .get(location.package_name)
-        .cloned();
-    let Some(manifest) = manifest else {
-        return InjectionResolution::Fallback;
-    };
+        .cloned()
+        .ok_or_else(|| native_error(format!("{} is not installed", location.package_name)))?;
 
-    let loaded = (|| -> Result<String> {
-        let package_json = std::fs::read_to_string(&manifest).map_err(native_error)?;
-        let package =
-            lumis_wasm_runtime::LanguagePackage::from_json(&package_json).map_err(native_error)?;
-        if package.package_name != location.package_name {
-            return Err(native_error(format!(
-                "{} is {}, not {}",
-                manifest.display(),
-                package.package_name,
-                location.package_name
-            )));
-        }
-        let wasm = std::fs::read(manifest.with_file_name(format!("{}.wasm", package.parser.name)))
-            .map_err(native_error)?;
-        let spec = package
-            .language_spec(injected, wasm)
-            .map_err(native_error)?;
-        let id = spec.id.clone();
-        runtime.load_language(spec).map_err(native_error)?;
-        Ok(id)
-    })();
-
-    loaded.map_or(InjectionResolution::Fallback, InjectionResolution::Loaded)
+    let package_json = std::fs::read_to_string(&manifest).map_err(native_error)?;
+    let package =
+        lumis_wasm_runtime::LanguagePackage::from_json(&package_json).map_err(native_error)?;
+    if package.package_name != location.package_name {
+        return Err(native_error(format!(
+            "{} is {}, not {}",
+            manifest.display(),
+            package.package_name,
+            location.package_name
+        )));
+    }
+    let wasm = std::fs::read(manifest.with_file_name(format!("{}.wasm", package.parser.name)))
+        .map_err(native_error)?;
+    let spec = package.language_spec(name, wasm).map_err(native_error)?;
+    let id = spec.id.clone();
+    runtime.load_language(spec).map_err(native_error)?;
+    Ok(id)
 }
 
-/// The directory the store uses when nothing names one, so Node can defer to the
+/// An injected language from the installed package that ships it.
+///
+/// A failure leaves the choice to the runtime, which finds a language this
+/// runtime already holds under that name, and otherwise leaves the block plain
+/// and reports it.
+fn installed_injection(runtime: &Runtime, injected: &str) -> InjectionResolution {
+    load_installed(runtime, injected)
+        .map_or(InjectionResolution::Fallback, InjectionResolution::Loaded)
+}
+
+/// The data directory when nothing names one, so Node can defer to the
 /// same `etcetera` resolution the addon itself runs instead of porting it.
 #[napi(js_name = "defaultDataDir")]
 pub fn default_data_dir_js() -> String {
     store::default_data_dir().to_string_lossy().into_owned()
-}
-
-/// The same resolve, verify and cache path the CLI and the Elixir NIF use.
-/// An HTTP fetcher that asks, per request, whether the project declared its set.
-///
-/// Choosing between `HttpFetcher` and `NoNetwork` when the store is built would
-/// not work: the shared runtime builds its store once, and JavaScript learns the
-/// answer by reading a manifest, so the decision would be frozen at whatever was
-/// known the first time anything loaded.
-struct SwitchableFetcher;
-
-impl store::Fetcher for SwitchableFetcher {
-    fn get(&self, url: &str) -> std::result::Result<Vec<u8>, String> {
-        // Read and release. Holding the lock across the request would serialize
-        // every concurrent download behind it.
-        let installed = STORE_PATHS
-            .lock()
-            .expect("store path lock poisoned")
-            .installed_packages
-            .clone();
-
-        if let Some(installed) = installed {
-            if !installed.iter().any(|name| url.contains(name.as_str())) {
-                return Err(
-                    "this project loads only the parsers it installed, and this is not one of them"
-                        .to_string(),
-                );
-            }
-        }
-        store::HttpFetcher.get(url)
-    }
-}
-
-fn language_store(cache_dir: Option<PathBuf>) -> store::LanguageStore {
-    let mut configured = STORE_PATHS.lock().expect("store path lock poisoned");
-    configured.consumed = true;
-    let cache_dir = store::resolve_data_dir(cache_dir.or_else(|| configured.data_dir.clone()));
-    drop(configured);
-    store::LanguageStore::new(
-        store::StoreConfig {
-            cache_dir,
-            installed_dirs: None,
-        },
-        Box::new(SwitchableFetcher),
-    )
 }
 
 fn resolver_scheme(source: &str) -> Option<(&str, &str)> {
@@ -859,10 +773,11 @@ type HighlightedEvents = (
     Option<BudgetExhausted>,
 );
 
-/// Resolve, download, verify and load `language`, then highlight in one pass.
+/// Highlight `language` in one pass.
 ///
-/// Languages injected inside the document are loaded during the same walk, so
-/// this is the whole of what highlighting needs.
+/// Languages injected inside the document are loaded from their installed
+/// packages during the same walk, so this is the whole of what highlighting
+/// needs.
 fn highlight_events(
     runtime: &Runtime,
     source: &str,
@@ -897,7 +812,7 @@ fn highlight_events(
                 .get(&injected.to_ascii_lowercase())
                 .cloned()
                 .map_or_else(
-                    || load_installed(runtime, injected),
+                    || installed_injection(runtime, injected),
                     InjectionResolution::Loaded,
                 )
         },
@@ -929,7 +844,6 @@ struct ResolvedIds {
 #[derive(Default)]
 struct ReplayState {
     named: HashSet<String>,
-    definitions: HashMap<String, Arc<lumis_wasm_runtime::LanguageSpec>>,
 }
 
 fn append_identity_field(identity: &mut Vec<u8>, value: &[u8]) {
@@ -992,15 +906,9 @@ impl NativeRuntime {
         let private = build_runtime().map_err(native_error)?;
         let mut replay = self.replay.lock().expect("runtime replay lock poisoned");
         for id in &replay.named {
-            private.load_named_language(id).map_err(native_error)?;
-        }
-        for spec in replay.definitions.values() {
-            private
-                .load_language(spec.as_ref().clone())
-                .map_err(native_error)?;
+            load_installed(&private, id)?;
         }
         replay.named.clear();
-        replay.definitions.clear();
         let private = Arc::new(private);
         *state = RuntimeState::Private(Arc::clone(&private));
         Ok(private)
@@ -1076,24 +984,11 @@ impl NativeRuntime {
         resolved: &str,
         aliases: &[String],
         mut spec: lumis_wasm_runtime::LanguageSpec,
-        replay_on_promotion: bool,
     ) -> Result<String> {
         let id = definition_id(resolved, &spec);
         spec.id.clone_from(&id);
         spec.aliases.clear();
-        let replay = replay_on_promotion.then(|| spec.clone());
         runtime.load_language(spec).map_err(native_error)?;
-        if let Some(spec) = replay {
-            let mut shared = SHARED_DEFINITIONS
-                .lock()
-                .expect("shared definition lock poisoned");
-            let spec = Arc::clone(shared.entry(id.clone()).or_insert_with(|| Arc::new(spec)));
-            self.replay
-                .lock()
-                .expect("runtime replay lock poisoned")
-                .definitions
-                .insert(id.clone(), spec);
-        }
         self.remember_language(requested, resolved, aliases, &id);
         Ok(id)
     }
@@ -1104,7 +999,6 @@ impl NativeRuntime {
         expected_package_name: &str,
         package_json: &str,
         wasm: &[u8],
-        isolate: bool,
     ) -> Result<String> {
         let package =
             lumis_wasm_runtime::LanguagePackage::from_json(package_json).map_err(native_error)?;
@@ -1128,22 +1022,8 @@ impl NativeRuntime {
             locals: definition.locals.clone(),
             brackets: definition.brackets.clone(),
         };
-        if isolate {
-            let runtime = self.private_runtime()?;
-            self.load_definition(&runtime, id, resolved, &definition.aliases, spec, false)
-        } else {
-            let mut state = self.runtime.lock().expect("native runtime lock poisoned");
-            let runtime = Self::runtime_from_state(&mut state)?;
-            let replay_on_promotion = matches!(&*state, RuntimeState::Shared(_));
-            self.load_definition(
-                &runtime,
-                id,
-                resolved,
-                &definition.aliases,
-                spec,
-                replay_on_promotion,
-            )
-        }
+        let runtime = self.private_runtime()?;
+        self.load_definition(&runtime, id, resolved, &definition.aliases, spec)
     }
 
     fn resolve_injected(
@@ -1162,13 +1042,13 @@ impl NativeRuntime {
             return InjectionResolution::Fallback;
         };
         let Some(package_resolver) = package_resolver else {
-            return load_installed(runtime, injected);
+            return installed_injection(runtime, injected);
         };
         let package_source = {
             let _guard = ResolverCallbackGuard::enter(&env);
             match package_resolver.call(location.package_name.to_string()) {
                 Ok(Some(source)) => source,
-                Ok(None) => return InjectionResolution::Fallback,
+                Ok(None) => return installed_injection(runtime, injected),
                 Err(_) => return InjectionResolution::Unresolved,
             }
         };
@@ -1224,7 +1104,6 @@ impl NativeRuntime {
                     locals: definition.locals.clone(),
                     brackets: definition.brackets.clone(),
                 },
-                false,
             )
         })();
 
@@ -1262,20 +1141,7 @@ impl NativeRuntime {
         package_json: String,
         wasm: Buffer,
     ) -> Result<String> {
-        self.load_package(&id, &expected_package_name, &package_json, &wasm, true)
-    }
-
-    /// Load a validated package installed at the canonical package name into
-    /// the shared runtime. Once this instance is isolated, it stays isolated.
-    #[napi(js_name = "loadInstalledLanguagePackage")]
-    pub fn load_installed_language_package(
-        &self,
-        id: String,
-        expected_package_name: String,
-        package_json: String,
-        wasm: Buffer,
-    ) -> Result<String> {
-        self.load_package(&id, &expected_package_name, &package_json, &wasm, false)
+        self.load_package(&id, &expected_package_name, &package_json, &wasm)
     }
 
     /// Load a language the caller defined entirely itself: its own parser bytes
@@ -1307,17 +1173,15 @@ impl NativeRuntime {
                 locals: spec.locals.unwrap_or_default(),
                 brackets: spec.brackets.unwrap_or_default(),
             },
-            false,
         )
     }
 
-    /// Download, verify and load `id` ahead of a highlight that would do it
-    /// anyway, so the cost does not land on a request.
+    /// Load `id` from the installed package that ships it.
     #[napi(js_name = "loadLanguage")]
     pub fn load_language(&self, id: String) -> Result<()> {
         let mut state = self.runtime.lock().expect("native runtime lock poisoned");
         let runtime = Self::runtime_from_state(&mut state)?;
-        runtime.load_named_language(&id).map_err(native_error)?;
+        load_installed(&runtime, &id)?;
         if matches!(&*state, RuntimeState::Shared(_)) {
             self.replay
                 .lock()
@@ -1339,7 +1203,7 @@ impl NativeRuntime {
     /// injected language the walk found and could not load.
     ///
     /// A configured JavaScript resolver is called from the walk before the
-    /// shared catalog store. Failure leaves only that injected block plain.
+    /// installed packages. Failure leaves only that injected block plain.
     #[napi(js_name = "highlightEvents")]
     #[allow(clippy::too_many_arguments)]
     pub fn highlight_events(

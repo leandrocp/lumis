@@ -743,9 +743,9 @@ revalidates it. Use the runtime's forced cache command to resolve the range
 again. Changing the Tree-sitter minor series changes the compatibility range
 and does require runtime releases.
 
-CLI, Node and Elixir caches persist on disk under `LUMIS_DATA_DIR`, in the same
-layout, so one prepared directory serves all three; browsers use CacheStorage
-with an IndexedDB fallback. Local and benchmark execution should provide both
+The CLI's cache persists on disk under `LUMIS_DATA_DIR`. Elixir and Node load
+the parser packages a project installed and keep only compiled modules there;
+browsers use CacheStorage with an IndexedDB fallback. Local and benchmark execution should provide both
 `lumis.json` and its matching parser so queries and parser bytes remain
 atomic.
 
@@ -764,12 +764,15 @@ revision bump is validated before it is published rather than after.
   that copy and then to the published package.
 - **Conformance CI** builds the seventeen parsers the committed fixtures supply,
   stages them with `wasm-stage`, and points `LUMIS_DATA_DIR` at the result, so
-  the CLI, Elixir and Node native suites render from parsers built in that run.
+  the CLI and Elixir suites render from parsers built in that run. The Node
+  native suite loads the parser packages the workspace installed, as a Node
+  project does.
 - **JavaScript CI** runs the direct-addon store tests in their own process against
   a seeded copy of that store, then runs the remaining native-selected tests
   against an empty one before running the full Wasm-selected suite. The split is
-  intentional: a parser already in the store takes precedence over configured
-  JavaScript resolvers, so one process cannot honestly prove both paths.
+  intentional: in the Wasm runtime, a package already in the store takes
+  precedence over configured JavaScript resolvers, so one process cannot
+  honestly prove both paths.
 
 That parser set comes from the fixture filenames, not from the languages named
 in the fixtures' expected events. A document can attempt a language that never

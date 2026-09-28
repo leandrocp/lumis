@@ -7,7 +7,7 @@
  * Its own file, because the addon reads the data directory once per process
  * and resolves installed packages from the working directory.
  */
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
@@ -17,34 +17,23 @@ const project = mkdtempSync(join(tmpdir(), "lumis-read-only-data-dir-"));
 writeFileSync(join(project, "file"), "");
 process.env.LUMIS_DATA_DIR = join(project, "file", "lumis");
 
-const { ensureLocalWasm, localLanguagePackageMetadata } = await import("./wasm.js");
-
-// Shaped the way a published package is: the manifest under `./lumis.json` in
-// the export map, and the parser beside it named after `parser.name`.
-for (const language of ["html", "css", "javascript"]) {
-  const metadata = localLanguagePackageMetadata(`@lumis-sh/wasm-${language}`);
-  const root = join(project, "node_modules", metadata.packageName);
-  const parser = `${metadata.parser.name}.wasm`;
-  mkdirSync(root, { recursive: true });
-  writeFileSync(join(root, "lumis.json"), JSON.stringify(metadata));
-  writeFileSync(join(root, parser), readFileSync(ensureLocalWasm(language)));
-  writeFileSync(join(root, "index.js"), `export default new URL("./${parser}", import.meta.url);`);
-  writeFileSync(
-    join(root, "package.json"),
-    JSON.stringify({
-      name: metadata.packageName,
-      version: metadata.version,
-      type: "module",
-      exports: { ".": "./index.js", "./lumis.json": "./lumis.json" },
-    }),
-  );
-}
+const { installLocalPackages } = await import("./wasm.js");
+installLocalPackages(project, ["html", "css", "javascript"]);
 process.chdir(project);
 
 const { createHighlighter, highlight, runtimeKind } = await import("../src/index.js");
 const { htmlLinked } = await import("../src/formatters.js");
 
 describe("a data directory Lumis cannot write", () => {
+  it("loads the document's language from its installed package", async () => {
+    const hl = await createHighlighter({ languages: [] });
+    await hl.loadLanguage("css");
+
+    expect(hl.highlight("a { color: red }", htmlLinked({ language: "css" }))).toContain(
+      'class="l-property"',
+    );
+  });
+
   // `web-tree-sitter` cannot load a language during the walk that finds it,
   // from any directory, so there is nothing to check there.
   it.runIf(runtimeKind() === "native")(

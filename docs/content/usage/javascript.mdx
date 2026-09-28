@@ -190,12 +190,12 @@ Useful for dropdowns, config validation, and docs tooling:
 - browsers, and any platform with no prebuilt addon, run them under the host's own WebAssembly through `web-tree-sitter`, and walk and format in JavaScript
 - the addon is prebuilt for macOS arm64 and x64, Linux arm64 and x64 against both glibc and musl, and Windows arm64 and x64; npm installs the one matching the host, so Alpine and other musl images get the same runtime as a glibc host
 - `runtimeKind()` returns `'native'` or `'wasm'` if you need to confirm which one an install resolved
-- the addon carries no parsers and downloads each on first use, so it costs about 4.7 MB of download on top of the Wasm runtime rather than one binary per language
+- the addon carries no parsers and loads each from the `@lumis-sh/wasm-*` package the project installed, so it costs about 4.7 MB of download on top of the Wasm runtime rather than one binary per language
 - the package uses conditional exports so Node and web-standard runtimes get the right entry point automatically
 - every language package contains matching queries plus an exact parser version, size, and SHA-256 digest
-- Node caches language-package metadata and verified parser WASM in the platform user cache directory; `LUMIS_DATA_DIR` overrides it
+- Node keeps compiled parser modules, and anything a custom resolver fetched, in the platform user data directory; `LUMIS_DATA_DIR` overrides it
 - browsers persist package metadata and verified parser bytes in CacheStorage with an IndexedDB fallback
-- Node can also auto-load installed parser packages such as `@lumis-sh/wasm-elixir` or bundle packages such as `@lumis-sh/wasm-bundle-web`
+- Node loads installed parser packages such as `@lumis-sh/wasm-elixir` or bundle packages such as `@lumis-sh/wasm-bundle-web`, and nothing else unless you configure a resolver
 - ordinary Node highlighters share one Wasmtime runtime; a highlighter that supplies parser bytes, queries, or resolver callbacks gets an isolated Tree-sitter Wasm store so its definitions are released with that highlighter, while the Wasmtime engine and persistent caches remain shared
 - non-Node usage usually relies on remote parser assets unless you override the resolver, use `withWasm()` with a single npm parser package such as `@lumis-sh/wasm-json`, or use `withWasmBundle()` with a bundle package such as `@lumis-sh/wasm-bundle-web`
 - Bun and Deno are also supported
