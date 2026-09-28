@@ -115,12 +115,12 @@ export function highlight(...args: Parameters<typeof highlighter.highlight>) {
  * Return a copy of a language that loads its parser from somewhere else.
  *
  * Rarely needed: a parser package already exports its language, parser and
- * manifest included, so `import elixir from '@lumis-sh/wasm-elixir'` is enough
- * in Node and in a browser. `withWasm()` also takes that language, or the
- * package imported as a namespace, and so keeps older code working.
+ * language package included, so `import elixir from '@lumis-sh/wasm-elixir'`
+ * is enough in Node and in a browser. `withWasm()` also takes that language,
+ * or the package imported as a namespace, and so keeps older code working.
  *
- * Parser bytes on their own work in Node, which reads the manifest from the
- * installed package. A browser needs the manifest, so give it the package.
+ * Parser bytes on their own work in Node, which reads the language package
+ * from the installed package. A browser needs it, so give it the package.
  */
 export function withWasm<T extends import("./types.js").Language>(
   language: T,
@@ -128,9 +128,9 @@ export function withWasm<T extends import("./types.js").Language>(
     | import("./types.js").Language
     | import("./types.js").LanguagePackageExports
     | import("./types.js").RuntimeWasmInput,
-): Omit<T, "wasm" | "manifest"> & {
+): Omit<T, "wasm" | "languagePackage"> & {
   wasm: import("./types.js").RuntimeWasmInput;
-  manifest?: object;
+  languagePackage?: object;
 } {
   return languageWithPackage(language, source);
 }

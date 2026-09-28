@@ -67,9 +67,9 @@ export function withWasm<T extends import("./types.js").Language>(
     | import("./types.js").Language
     | import("./types.js").LanguagePackageExports
     | import("./types.js").RuntimeWasmInput,
-): Omit<T, "wasm" | "manifest"> & {
+): Omit<T, "wasm" | "languagePackage"> & {
   wasm: import("./types.js").RuntimeWasmInput;
-  manifest?: object;
+  languagePackage?: object;
 } {
   return languageWithPackage(language, source);
 }

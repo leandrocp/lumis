@@ -24,10 +24,11 @@ npm install @lumis-sh/react @lumis-sh/lumis @lumis-sh/themes react \
 import { CodeBlock } from '@lumis-sh/react'
 import { htmlInline } from '@lumis-sh/lumis/formatters'
 import githubLight from '@lumis-sh/themes/github_light'
+import web from '@lumis-sh/wasm-bundle-web'
 
 export function Example() {
   return (
-    <CodeBlock formatter={htmlInline({ language: 'javascript', theme: githubLight })}>
+    <CodeBlock formatter={htmlInline({ language: web.javascript, theme: githubLight })}>
       {`const x = 1`}
     </CodeBlock>
   )

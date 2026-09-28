@@ -4240,22 +4240,13 @@ struct PackageEntry {
     first_language: String,
 }
 
-/// Every language in the package as a named export, and as the default the one
-/// the package is named after, or its only one. `@lumis-sh/wasm-cmake` default
-/// exports `cmake`; `@lumis-sh/wasm-embedded-template`, holding `ejs` and `erb`,
-/// has no default.
-///
-/// The manifest is written after rendering: query text can hold anything, and a
-/// template placeholder check has no business reading it.
-fn package_entry(
+/// The packages holding the grammars this package's languages require, by
+/// version range, and which package each required language comes from.
+fn required_packages(
     toml: &LanguagesToml,
-    wasm_name: &str,
     package: &LanguagePackage,
     ts_cli_minor: &str,
-) -> Result<PackageEntry> {
-    use std::fmt::Write as _;
-
-    let mut js = String::new();
+) -> Result<(BTreeMap<String, String>, BTreeMap<String, String>)> {
     let mut dependencies = BTreeMap::new();
     let mut required_ids = BTreeMap::new();
     for id in package.languages.keys() {
@@ -4281,6 +4272,88 @@ fn package_entry(
             required_ids.insert(required.clone(), required_package);
         }
     }
+    Ok((dependencies, required_ids))
+}
+
+/// One language as a named export: the object `createHighlighter` takes.
+fn language_export(
+    js: &mut String,
+    toml: &LanguagesToml,
+    package: &LanguagePackage,
+    id: &str,
+    aliases: &[String],
+) -> Result<()> {
+    use std::fmt::Write as _;
+
+    let requires = toml
+        .parsers
+        .get(id)
+        .map(|info| info.requires.clone())
+        .unwrap_or_default();
+    writeln!(js, "\nexport const {id} = {{")?;
+    writeln!(js, "  id: {},", serde_json::to_string(id)?)?;
+    writeln!(js, "  aliases: {},", serde_json::to_string(aliases)?)?;
+    writeln!(
+        js,
+        "  packageName: {},",
+        serde_json::to_string(&package.package_name)?
+    )?;
+    writeln!(js, "  wasm,")?;
+    writeln!(js, "  languagePackage,")?;
+    if !requires.is_empty() {
+        writeln!(js, "  requires: [{}],", requires.join(", "))?;
+    }
+    writeln!(js, "}}")?;
+    Ok(())
+}
+
+/// The default export, the one language named after the package or its only
+/// one, and the languages exported by name alone.
+fn split_default(wasm_name: &str, ids: &[String]) -> (Option<String>, Vec<String>) {
+    let suffix = wasm_package_suffix(wasm_name);
+    let default = if ids.len() == 1 {
+        Some(ids[0].clone())
+    } else {
+        ids.iter().find(|id| id.as_str() == suffix).cloned()
+    };
+    let named = ids
+        .iter()
+        .filter(|id| Some(*id) != default.as_ref())
+        .cloned()
+        .collect();
+    (default, named)
+}
+
+/// How the README imports this package's languages.
+fn readme_import_line(package_name: &str, default: Option<&str>, named: &[String]) -> String {
+    let package_name = format!("'{package_name}'");
+    match (default, named.is_empty()) {
+        (Some(default), true) => format!("import {default} from {package_name}"),
+        (Some(default), false) => format!(
+            "import {default}, {{ {} }} from {package_name}",
+            named.join(", ")
+        ),
+        (None, _) => format!("import {{ {} }} from {package_name}", named.join(", ")),
+    }
+}
+
+/// Every language in the package as a named export, and as the default the one
+/// the package is named after, or its only one. `@lumis-sh/wasm-cmake` default
+/// exports `cmake`; `@lumis-sh/wasm-embedded-template`, holding `ejs` and `erb`,
+/// has no default.
+///
+/// The language package is written after rendering: query text can hold
+/// anything, and a template placeholder check has no business reading it.
+fn package_entry(
+    toml: &LanguagesToml,
+    wasm_name: &str,
+    package: &LanguagePackage,
+    ts_cli_minor: &str,
+) -> Result<PackageEntry> {
+    use std::fmt::Write as _;
+
+    let (dependencies, required_ids) = required_packages(toml, package, ts_cli_minor)?;
+    let mut js = String::new();
     for (required, required_package) in &required_ids {
         writeln!(
             js,
@@ -4297,78 +4370,35 @@ fn package_entry(
     )?);
     writeln!(
         js,
-        "\nexport const manifest = {}",
+        "\nexport const languagePackage = {}",
         serde_json::to_string_pretty(package)?
     )?;
 
     let mut dts = fs::read_to_string("templates/wasm/index.d.ts.template")?;
     for (id, language) in &package.languages {
-        let requires = toml
-            .parsers
-            .get(id)
-            .map(|info| info.requires.clone())
-            .unwrap_or_default();
-        writeln!(js, "\nexport const {id} = {{")?;
-        writeln!(js, "  id: {},", serde_json::to_string(id)?)?;
-        writeln!(
-            js,
-            "  aliases: {},",
-            serde_json::to_string(&language.aliases)?
-        )?;
-        writeln!(
-            js,
-            "  packageName: {},",
-            serde_json::to_string(&package.package_name)?
-        )?;
-        writeln!(js, "  wasm,")?;
-        writeln!(js, "  manifest,")?;
-        if !requires.is_empty() {
-            writeln!(js, "  requires: [{}],", requires.join(", "))?;
-        }
-        writeln!(js, "}}")?;
+        language_export(&mut js, toml, package, id, &language.aliases)?;
         writeln!(dts, "export declare const {id}: Language")?;
     }
 
-    let suffix = wasm_package_suffix(wasm_name);
     let ids = package.languages.keys().cloned().collect::<Vec<_>>();
-    let default = if ids.len() == 1 {
-        Some(ids[0].clone())
-    } else {
-        ids.iter().find(|id| id.as_str() == suffix).cloned()
-    };
-    let named = ids
-        .iter()
-        .filter(|id| Some(*id) != default.as_ref())
-        .cloned()
-        .collect::<Vec<_>>();
+    let (default, named) = split_default(wasm_name, &ids);
     if let Some(default) = &default {
         writeln!(js, "\nexport default {default}")?;
         writeln!(dts, "export {{ {default} as default }}")?;
     }
 
-    let package_name = format!("'{}'", package.package_name);
-    let import_line = match (&default, named.is_empty()) {
-        (Some(default), true) => format!("import {default} from {package_name}"),
-        (Some(default), false) => format!(
-            "import {default}, {{ {} }} from {package_name}",
-            named.join(", ")
-        ),
-        (None, _) => format!("import {{ {} }} from {package_name}", named.join(", ")),
-    };
-    let first_language = default.clone().unwrap_or_else(|| ids[0].clone());
-
     Ok(PackageEntry {
         js,
         dts,
         dependencies,
-        import_line,
-        first_language,
+        import_line: readme_import_line(&package.package_name, default.as_deref(), &named),
+        first_language: default.unwrap_or_else(|| ids[0].clone()),
     })
 }
 
 /// Bumped when a package's contents change in a way its definition hash does
 /// not see, so every parser is published again. 4: the JavaScript entry exports
-/// the manifest and the language, so importing the package is enough anywhere.
+/// the language with its language package, so importing it is enough anywhere.
 const PACKAGE_FORMAT_VERSION: u32 = 4;
 
 /// The bundle counterpart of `PACKAGE_FORMAT_VERSION`, carried in a bundle's

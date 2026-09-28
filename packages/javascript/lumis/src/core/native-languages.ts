@@ -189,7 +189,7 @@ function isImportedInstalled(
   manifests: Record<string, string> | undefined,
 ): boolean {
   return (
-    opts.manifest !== undefined &&
+    opts.languagePackage !== undefined &&
     opts.packageName !== undefined &&
     manifests?.[opts.packageName] !== undefined
   );
@@ -335,9 +335,9 @@ export function createNativeLanguagesModule(
     resolveLanguagePackage(
       language: LanguageDefinition,
       packageName: string,
-      manifest?: object,
+      languagePackage?: object,
     ): Promise<ResolvedLanguagePackage> {
-      return this.resolver.resolveLanguagePackage(language, packageName, manifest);
+      return this.resolver.resolveLanguagePackage(language, packageName, languagePackage);
     }
 
     resolveParserWasm(language: string, wasm: WasmRef): Promise<Uint8Array> {
@@ -431,7 +431,7 @@ export function createNativeLanguagesModule(
       const packaged = await this.resolveLanguagePackage(
         opts.definition,
         opts.packageName,
-        opts.manifest,
+        opts.languagePackage,
       );
       const resolved = { ...packaged, ...(opts.wasm === undefined ? {} : { wasm: opts.wasm }) };
       if (!resolved.wasm || resolved.highlights === undefined) {

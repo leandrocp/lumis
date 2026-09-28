@@ -54,7 +54,7 @@ loads lazily on first use:
 import web from '@lumis-sh/wasm-bundle-web'
 
 const hl = await createHighlighter({ languages: [web] })
-await hl.loadLanguage(web.rust)
+await hl.loadLanguage(web.typescript)
 ```
 
 The bundles are `@lumis-sh/wasm-bundle-web`, `-web-extra`, `-system`,

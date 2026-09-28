@@ -8,16 +8,16 @@ export interface Language {
   packageName: string
   /** The parser, which a bundler ships next to your code. */
   wasm: URL
-  manifest: Manifest
+  languagePackage: LanguagePackage
   /** Grammars this language cannot highlight without, loaded along with it. */
   requires?: Language[]
 }
 
 /** This package's `lumis.json`: the parser's size and digest, and the queries released with it. */
-export interface Manifest {
+export interface LanguagePackage {
   packageName: string
   version: string
   [field: string]: unknown
 }
 
-export declare const manifest: Manifest
+export declare const languagePackage: LanguagePackage

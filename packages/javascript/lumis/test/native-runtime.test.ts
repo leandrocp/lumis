@@ -495,7 +495,7 @@ describe("native adapter routing", () => {
       definition: { id: json.id, aliases: json.aliases },
       packageName: json.packageName,
       wasm: json.wasm,
-      manifest: json.manifest,
+      languagePackage: json.languagePackage,
     });
 
     expect(loadLanguage).toHaveBeenCalledWith("json");

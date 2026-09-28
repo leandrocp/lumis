@@ -168,8 +168,8 @@ export function installLocalPackages(root: string, languages: string[]): Record<
     writeFileSync(
       join(directory, "index.js"),
       `const wasm = new URL("./${parser}", import.meta.url);
-export const manifest = ${JSON.stringify(metadata)};
-export const ${language} = { id: ${JSON.stringify(language)}, aliases: ${JSON.stringify(metadata.languages[language]?.aliases ?? [])}, packageName: ${JSON.stringify(metadata.packageName)}, wasm, manifest };
+export const languagePackage = ${JSON.stringify(metadata)};
+export const ${language} = { id: ${JSON.stringify(language)}, aliases: ${JSON.stringify(metadata.languages[language]?.aliases ?? [])}, packageName: ${JSON.stringify(metadata.packageName)}, wasm, languagePackage };
 export default ${language};
 `,
     );
@@ -199,16 +199,18 @@ export function localPackageLanguage(
   aliases: string[];
   packageName: string;
   wasm: Uint8Array;
-  manifest: LanguagePackage;
+  languagePackage: LanguagePackage;
   requires?: ReturnType<typeof localPackageLanguage>[];
 } {
-  const manifest = localLanguagePackageMetadata(`@lumis-sh/wasm-${language}`);
+  const languagePackage = localLanguagePackageMetadata(`@lumis-sh/wasm-${language}`);
   return {
     id: language,
-    aliases: manifest.languages[language]?.aliases ?? [],
-    packageName: manifest.packageName,
-    wasm: new Uint8Array(readFileSync(ensureLocalParserWasm(language, manifest.parser.name))),
-    manifest,
+    aliases: languagePackage.languages[language]?.aliases ?? [],
+    packageName: languagePackage.packageName,
+    wasm: new Uint8Array(
+      readFileSync(ensureLocalParserWasm(language, languagePackage.parser.name)),
+    ),
+    languagePackage,
     ...(requires ? { requires } : {}),
   };
 }

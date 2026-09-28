@@ -19,7 +19,7 @@ beforeEach(() => {
   vi.stubGlobal("fetch", async (input: RequestInfo | URL) => {
     const url = String(input instanceof Request ? input.url : input);
     requests.push(url);
-    if (url.endsWith("/lumis.json")) return Response.json(json.manifest);
+    if (url.endsWith("/lumis.json")) return Response.json(json.languagePackage);
     if (url.endsWith(".wasm")) return new Response(json.wasm);
     return new Response(null, { status: 404 });
   });
@@ -86,7 +86,7 @@ describe("a browser", () => {
   it("still takes a package through withWasm()", async () => {
     const fromLanguage = await createHighlighter({ languages: [withWasm(jsonHandle, json)] });
     const fromNamespace = await createHighlighter({
-      languages: [withWasm(jsonHandle, { default: json, manifest: json.manifest })],
+      languages: [withWasm(jsonHandle, { default: json, languagePackage: json.languagePackage })],
     });
 
     expect(fromLanguage.languages).toContain("json");

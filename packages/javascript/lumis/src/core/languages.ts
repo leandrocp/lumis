@@ -121,7 +121,7 @@ export interface LoadLanguageOptions {
   /** Where the parser bytes come from. Queries always come from the package. */
   wasm?: WasmRef | Uint8Array | ArrayBuffer | string | URL | Response;
   /** The `lumis.json` of an imported package, so nothing has to be resolved. */
-  manifest?: object;
+  languagePackage?: object;
 }
 
 export interface HighlighterRuntimeOptions {
@@ -142,7 +142,7 @@ export interface RuntimeLike {
   resolveLanguagePackage(
     language: LanguageDefinition,
     packageName: string,
-    manifest?: object,
+    languagePackage?: object,
   ): Promise<ResolvedLanguagePackage>;
   /** Parser bytes for `wasm`, resolved through this runtime's resolver, verified and cached. */
   resolveParserWasm(language: string, wasm: WasmRef): Promise<Uint8Array>;
@@ -183,7 +183,7 @@ export interface LanguagesModule {
   resolveLanguagePackage(
     language: LanguageDefinition,
     packageName: string,
-    manifest?: object,
+    languagePackage?: object,
   ): Promise<ResolvedLanguagePackage>;
   resolveParserWasm(language: string, wasm: WasmRef): Promise<Uint8Array>;
   loadPlaintext(): Promise<LoadedLanguage>;
@@ -237,7 +237,7 @@ export function notImported(what: string, packageName: string): Error {
   return new Error(
     `${what} was not imported` +
       `\n  import ${packageName} and pass the whole package to withWasm(), updating it if it has` +
-      `\n  no \`manifest\` export, or configure a resolver`,
+      `\n  no \`languagePackage\` export, or configure a resolver`,
   );
 }
 
@@ -1119,12 +1119,13 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     }
 
     /**
-     * The manifest an imported package carries, checked the way one read from
-     * disk or a resolver is. It is the package's own, so nothing is resolved.
+     * The language package an imported package carries, checked the way one
+     * read from disk or a resolver is. It is the package's own, so nothing is
+     * resolved.
      */
-    private importedPackage(manifest: object, packageName: string): LanguagePackage {
+    private importedPackage(languagePackage: object, packageName: string): LanguagePackage {
       const packageMetadata = parseLanguagePackage(
-        encoder.encode(JSON.stringify(manifest)),
+        encoder.encode(JSON.stringify(languagePackage)),
         packageName,
       );
       if (!this.acceptsPackage(packageMetadata)) throw incompatiblePackageVersion(packageMetadata);
@@ -1330,7 +1331,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const packaged = await this.resolveLanguagePackage(
         opts.definition,
         opts.packageName,
-        opts.manifest,
+        opts.languagePackage,
       );
       const resolved = { ...packaged, ...(opts.wasm === undefined ? {} : { wasm: opts.wasm }) };
       if (!resolved.wasm || resolved.highlights === undefined) {
@@ -1389,10 +1390,10 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     async resolveLanguagePackage(
       language: LanguageDefinition,
       packageName: string,
-      manifest?: object,
+      languagePackage?: object,
     ): Promise<ResolvedLanguagePackage> {
-      const packageMetadata = manifest
-        ? this.importedPackage(manifest, packageName)
+      const packageMetadata = languagePackage
+        ? this.importedPackage(languagePackage, packageName)
         : await this.resolvePackage(packageName);
       const [id, packaged] = packagedLanguage(language, packageMetadata);
       return {

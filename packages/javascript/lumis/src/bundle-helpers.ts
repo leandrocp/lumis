@@ -40,35 +40,37 @@ function isObjectSource(
   );
 }
 
-/** What a package or a language it exports carries: the parser, and its manifest and companions when it has them. */
+/** What a package or a language it exports carries: the parser, and its language package and companions when it has them. */
 function packageParts(source: Language | LanguagePackageExports | RuntimeWasmInput): {
   wasm: RuntimeWasmInput;
-  manifest?: object;
+  languagePackage?: object;
   requires?: Language[];
 } {
   if (!isObjectSource(source)) return { wasm: source };
   if ("default" in source) {
     const parts = packageParts(source.default);
-    return parts.manifest || !source.manifest ? parts : { ...parts, manifest: source.manifest };
+    return parts.languagePackage || !source.languagePackage
+      ? parts
+      : { ...parts, languagePackage: source.languagePackage };
   }
-  const { wasm, manifest, requires } = source;
+  const { wasm, languagePackage, requires } = source;
   if (wasm === undefined || (typeof wasm === "object" && "sha256" in wasm)) {
     throw new Error(`Language "${source.id}" carries no parser to attach`);
   }
-  return { wasm, manifest, requires };
+  return { wasm, languagePackage, requires };
 }
 
 /** Shared by both entry points' `withWasm()`. */
 export function languageWithPackage<T extends Language>(
   language: T,
   source: Language | LanguagePackageExports | RuntimeWasmInput,
-): Omit<T, "wasm" | "manifest"> & { wasm: RuntimeWasmInput; manifest?: object } {
-  const { manifest: _manifest, wasm: _wasm, ...rest } = language;
+): Omit<T, "wasm" | "languagePackage"> & { wasm: RuntimeWasmInput; languagePackage?: object } {
+  const { languagePackage: _languagePackage, wasm: _wasm, ...rest } = language;
   const parts = packageParts(source);
   return {
     ...rest,
     wasm: parts.wasm,
-    ...(parts.manifest ? { manifest: parts.manifest } : {}),
+    ...(parts.languagePackage ? { languagePackage: parts.languagePackage } : {}),
     ...(parts.requires ? { requires: parts.requires } : {}),
   };
 }

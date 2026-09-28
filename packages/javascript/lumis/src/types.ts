@@ -148,7 +148,7 @@ export type RuntimeWasmBundle = Partial<Record<string, RuntimeWasmInput>>;
 /**
  * A `@lumis-sh/wasm-*` package imported as a namespace. Its default export is
  * the language; before `@lumis-sh/lumis` 0.9 it was the parser alone, with the
- * manifest beside it.
+ * language package beside it.
  *
  * ```ts
  * import * as elixirPackage from '@lumis-sh/wasm-elixir'
@@ -156,7 +156,7 @@ export type RuntimeWasmBundle = Partial<Record<string, RuntimeWasmInput>>;
  */
 export interface LanguagePackageExports {
   readonly default: RuntimeWasmInput | Language;
-  readonly manifest?: object;
+  readonly languagePackage?: object;
 }
 
 /**
@@ -195,7 +195,7 @@ export interface Language extends LanguageDefinition {
    * The package's `lumis.json`, carried by a language a parser package
    * exports. A browser needs it; Node can read the installed one.
    */
-  manifest?: object;
+  languagePackage?: object;
   /**
    * Grammars this language cannot highlight without, loaded along with it,
    * such as `markdown_inline` for `markdown`.
@@ -214,7 +214,7 @@ export interface LanguagePackageHandle extends LanguageDefinition {
   /** Optional caller-selected source for the package's verified parser bytes. */
   wasm?: WasmRef | RuntimeWasmInput;
   /** The package's `lumis.json`, when the package was imported. */
-  manifest?: object;
+  languagePackage?: object;
 }
 
 export interface PlaintextLanguage extends LanguageDefinition {

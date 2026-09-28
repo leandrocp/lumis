@@ -35,6 +35,7 @@ Use `CodeBlock` when you want a drop-in React component.
 import {CodeBlock} from '@lumis-sh/react'
 import {htmlInline} from '@lumis-sh/lumis/formatters'
 import latte from '@lumis-sh/themes/catppuccin_latte'
+import web from '@lumis-sh/wasm-bundle-web'
 
 const codeString = `export function Hello() {
   return <h1>Hello</h1>
@@ -44,7 +45,7 @@ export function Example() {
   return (
     <CodeBlock
       formatter={htmlInline({
-        language: 'tsx',
+        language: web.tsx,
         theme: latte,
       })}
     >
