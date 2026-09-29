@@ -418,8 +418,31 @@ tools = { "pipx:lizard" = "1.24.0" }
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
+read -r -d '' lizard_rust <<'PY' || true
+import sys
+from lizard import main
+from lizard_languages.code_reader import CodeReader
+from lizard_languages.rust import RustReader
+
+LITERALS = (
+    r'|(?:b|c)?r(?P<hashes>#*)".*?"(?P=hashes)'
+    r"|'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}|x[0-9a-fA-F]{2}|.)|[^'\\\n])'"
+    r"|'\w+\b"
+)
+
+
+def generate_tokens(source_code, addition="", token_class=None):
+    return CodeReader.generate_tokens(source_code, LITERALS, token_class)
+
+
+RustReader.generate_tokens = staticmethod(generate_tokens)
+tokens = [token for token in RustReader.generate_tokens("'_' r###\"'\"##\"### 'a") if token.strip()]
+assert tokens == ["'_'", "r###\"'\"##\"###", "'a"], f"lizard's Rust lexer changed: {tokens}"
+sys.exit(main(sys.argv))
+PY
+read -r -a python < <(sed -n '1s/^#!//p' "$(command -v lizard)")
 git ls-files -z --cached --others --exclude-standard -- '*.rs' |
-    xargs -0 lizard -l rust -C 20 -L 100000 -a 100000 -i 0 -w -W .lizard-whitelist --
+    xargs -0 "${python[@]}" -c "$lizard_rust" -l rust -C 20 -L 100000 -a 100000 -i 0 -w -W .lizard-whitelist --
 '''
 
 [tasks.'lint-lua']

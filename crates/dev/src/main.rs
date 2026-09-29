@@ -3249,216 +3249,48 @@ fn write_tree_sitter_json(
     } else {
         Path::new(metadata_dir).join("package.json")
     };
-    let package = if package_path.exists() {
-        Some(
-            serde_json::from_str::<Value>(
-                &fs::read_to_string(&package_path)
-                    .with_context(|| format!("failed to read {}", package_path.display()))?,
-            )
-            .with_context(|| format!("failed to parse {}", package_path.display()))?,
-        )
-    } else {
-        None
-    };
+    let package = read_json_if_present(&package_path)?;
+    let existing = read_json_if_present(&Path::new(build_dir).join("tree-sitter.json"))?;
+    let (package, existing) = (package.as_ref(), existing.as_ref());
+    let location = info.location.as_deref();
+    let grammar = grammar_at(existing, "grammars", location);
+    let package_grammar = grammar_at(package, "tree-sitter", location);
+    let metadata = existing.and_then(|value| value.get("metadata"));
 
-    let existing_path = Path::new(build_dir).join("tree-sitter.json");
-    let existing = if existing_path.exists() {
-        Some(
-            serde_json::from_str::<Value>(
-                &fs::read_to_string(&existing_path)
-                    .with_context(|| format!("failed to read {}", existing_path.display()))?,
-            )
-            .with_context(|| format!("failed to parse {}", existing_path.display()))?,
-        )
-    } else {
-        None
-    };
-
-    let selected_grammar = existing
-        .as_ref()
-        .and_then(|value| value.get("grammars"))
-        .and_then(Value::as_array)
-        .and_then(|grammars| {
-            if let Some(location) = info.location.as_deref() {
-                grammars.iter().find(|grammar| {
-                    grammar.get("path").and_then(Value::as_str).unwrap_or(".") == location
-                })
-            } else {
-                grammars.first()
-            }
-        });
-    let selected_package_grammar = package
-        .as_ref()
-        .and_then(|value| value.get("tree-sitter"))
-        .and_then(Value::as_array)
-        .and_then(|grammars| {
-            if let Some(location) = info.location.as_deref() {
-                grammars.iter().find(|grammar| {
-                    grammar.get("path").and_then(Value::as_str).unwrap_or(".") == location
-                })
-            } else {
-                grammars.first()
-            }
-        });
-
-    let package_name = package
-        .as_ref()
-        .and_then(|value| value.get("name"))
-        .and_then(Value::as_str)
-        .unwrap_or(parser_name);
-    let grammar_name = selected_grammar
-        .and_then(|grammar| grammar.get("name"))
-        .and_then(Value::as_str)
-        .or_else(|| {
-            selected_package_grammar
-                .and_then(|grammar| grammar.get("name"))
-                .and_then(Value::as_str)
-        })
-        .unwrap_or_else(|| {
-            if info.location.is_some() {
-                parser_name
-            } else {
-                package_name
-                    .strip_prefix("tree-sitter-")
-                    .unwrap_or(package_name)
-            }
-        })
-        .replace('_', "-");
+    let grammar_name =
+        synthesized_grammar_name(parser_name, package, grammar, package_grammar, info);
     let grammar_path = info
         .location
         .clone()
-        .or_else(|| {
-            selected_grammar
-                .and_then(|grammar| grammar.get("path"))
-                .and_then(Value::as_str)
-                .map(ToOwned::to_owned)
-        })
+        .or_else(|| string_field(grammar, "path").map(ToOwned::to_owned))
         .unwrap_or_else(|| ".".to_string());
-    let scope = selected_grammar
-        .and_then(|grammar| grammar.get("scope"))
-        .and_then(Value::as_str)
-        .map(ToOwned::to_owned)
-        .or_else(|| {
-            selected_package_grammar
-                .and_then(|entry| entry.get("scope"))
-                .and_then(Value::as_str)
-                .map(ToOwned::to_owned)
-        })
-        .unwrap_or_else(|| format!("source.{grammar_name}"));
-    let file_types = selected_grammar
-        .and_then(|grammar| grammar.get("file-types"))
-        .and_then(Value::as_array)
-        .cloned()
-        .or_else(|| {
-            selected_package_grammar
-                .and_then(|entry| entry.get("file-types"))
-                .and_then(Value::as_array)
-                .cloned()
-        })
-        .unwrap_or_else(|| {
-            info.globs
-                .iter()
-                .filter_map(|glob| {
-                    glob.strip_prefix("*.")
-                        .map(|ext| Value::String(ext.to_string()))
-                })
-                .collect()
-        });
-    let repository = existing
-        .as_ref()
-        .and_then(|value| value.get("metadata"))
-        .and_then(|value| value.get("links"))
-        .and_then(|value| value.get("repository"))
-        .and_then(Value::as_str)
-        .map(ToOwned::to_owned)
-        .or_else(|| {
-            package.as_ref().and_then(|value| {
-                value.get("repository").and_then(|repo| match repo {
-                    Value::String(url) => Some(url.clone()),
-                    Value::Object(obj) => obj
-                        .get("url")
-                        .and_then(Value::as_str)
-                        .map(ToOwned::to_owned),
-                    _ => None,
-                })
-            })
-        })
+    let scope = first_string([grammar, package_grammar], "scope")
+        .map_or_else(|| format!("source.{grammar_name}"), ToOwned::to_owned);
+    let file_types = [grammar, package_grammar]
+        .into_iter()
+        .find_map(|value| array_field(value, "file-types"))
+        .unwrap_or_else(|| glob_extensions(&info.globs));
+    let repository = declared_repository(metadata, package)
         .unwrap_or_else(|| info.git.clone().unwrap_or_default());
-    let version = existing
-        .as_ref()
-        .and_then(|value| value.get("metadata"))
-        .and_then(|value| value.get("version"))
-        .and_then(Value::as_str)
-        .map(ToOwned::to_owned)
-        .or_else(|| {
-            package
-                .as_ref()
-                .and_then(|value| value.get("version"))
-                .and_then(Value::as_str)
-                .map(ToOwned::to_owned)
-        })
-        .unwrap_or_else(|| info.version.clone().unwrap_or_default());
-    let license = existing
-        .as_ref()
-        .and_then(|value| value.get("metadata"))
-        .and_then(|value| value.get("license"))
-        .and_then(Value::as_str)
-        .or_else(|| {
-            package
-                .as_ref()
-                .and_then(|value| value.get("license"))
-                .and_then(Value::as_str)
-        })
-        .unwrap_or("UNKNOWN");
-    let description = existing
-        .as_ref()
-        .and_then(|value| value.get("metadata"))
-        .and_then(|value| value.get("description"))
-        .and_then(Value::as_str)
-        .or_else(|| {
-            package
-                .as_ref()
-                .and_then(|value| value.get("description"))
-                .and_then(Value::as_str)
-        })
-        .unwrap_or("");
-    let normalized_repository = if let Some(repo) = repository.strip_prefix("git@github.com:") {
-        format!("https://github.com/{}", repo.trim_end_matches(".git"))
-    } else if repository.contains('/') && !repository.contains("://") {
-        format!("https://github.com/{}", repository.trim_end_matches(".git"))
-    } else {
-        repository
-    };
-    let grammar_dir = Path::new(build_dir).join(&grammar_path);
-    let external_files: Vec<Value> = [
-        "src/scanner.c",
-        "src/scanner.cc",
-        "src/scanner.cpp",
-        "src/scanner.h",
-    ]
-    .into_iter()
-    .filter(|scanner| grammar_dir.join(scanner).exists())
-    .map(|scanner| {
-        if grammar_path == "." {
-            Value::String(scanner.to_string())
-        } else {
-            Value::String(format!("{grammar_path}/{scanner}"))
-        }
-    })
-    .collect();
+    let version = first_string([metadata, package], "version").map_or_else(
+        || info.version.clone().unwrap_or_default(),
+        ToOwned::to_owned,
+    );
+    let license = first_string([metadata, package], "license").unwrap_or("UNKNOWN");
+    let description = first_string([metadata, package], "description").unwrap_or("");
+    let external_files = scanner_files(build_dir, &grammar_path);
     let bindings = existing
-        .as_ref()
         .and_then(|value| value.get("bindings"))
         .cloned()
         .unwrap_or_else(|| json!({ "c": true }));
+    let camelcase = string_field(grammar, "camelcase")
+        .map_or_else(|| to_camel_case(parser_name), ToOwned::to_owned);
 
     let tree_sitter_json = json!({
         "grammars": [
             {
                 "name": grammar_name,
-                "camelcase": selected_grammar
-                    .and_then(|grammar| grammar.get("camelcase"))
-                    .and_then(Value::as_str).map_or_else(|| to_camel_case(parser_name), ToOwned::to_owned),
+                "camelcase": camelcase,
                 "scope": scope,
                 "path": grammar_path,
                 "file-types": file_types,
@@ -3471,7 +3303,7 @@ fn write_tree_sitter_json(
             "description": description,
             "authors": [],
             "links": {
-                "repository": normalized_repository,
+                "repository": github_url(repository),
             }
         },
         "bindings": bindings,
@@ -3486,6 +3318,125 @@ fn write_tree_sitter_json(
     .with_context(|| format!("failed to write {}", output_path.display()))?;
 
     Ok(())
+}
+
+fn read_json_if_present(path: &Path) -> Result<Option<Value>> {
+    if !path.exists() {
+        return Ok(None);
+    }
+    let text =
+        fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
+    let value = serde_json::from_str(&text)
+        .with_context(|| format!("failed to parse {}", path.display()))?;
+    Ok(Some(value))
+}
+
+/// The grammar under `key` whose `path` is `location`, or the first one when
+/// the parser names no location.
+fn grammar_at<'a>(
+    document: Option<&'a Value>,
+    key: &str,
+    location: Option<&str>,
+) -> Option<&'a Value> {
+    let grammars = document?.get(key)?.as_array()?;
+    match location {
+        Some(location) => grammars
+            .iter()
+            .find(|grammar| string_field(Some(grammar), "path").unwrap_or(".") == location),
+        None => grammars.first(),
+    }
+}
+
+fn string_field<'a>(value: Option<&'a Value>, key: &str) -> Option<&'a str> {
+    value?.get(key)?.as_str()
+}
+
+/// `key` from the first of `values` that has it as a string.
+fn first_string<'a>(values: [Option<&'a Value>; 2], key: &str) -> Option<&'a str> {
+    values
+        .into_iter()
+        .find_map(|value| string_field(value, key))
+}
+
+fn array_field(value: Option<&Value>, key: &str) -> Option<Vec<Value>> {
+    value?.get(key)?.as_array().cloned()
+}
+
+fn synthesized_grammar_name(
+    parser_name: &str,
+    package: Option<&Value>,
+    grammar: Option<&Value>,
+    package_grammar: Option<&Value>,
+    info: &ParserInfo,
+) -> String {
+    let package_name = string_field(package, "name").unwrap_or(parser_name);
+    first_string([grammar, package_grammar], "name")
+        .unwrap_or_else(|| {
+            if info.location.is_some() {
+                parser_name
+            } else {
+                package_name
+                    .strip_prefix("tree-sitter-")
+                    .unwrap_or(package_name)
+            }
+        })
+        .replace('_', "-")
+}
+
+fn glob_extensions(globs: &[String]) -> Vec<Value> {
+    globs
+        .iter()
+        .filter_map(|glob| {
+            glob.strip_prefix("*.")
+                .map(|ext| Value::String(ext.to_string()))
+        })
+        .collect()
+}
+
+/// The repository a `tree-sitter.json` or `package.json` names, in that order.
+fn declared_repository(metadata: Option<&Value>, package: Option<&Value>) -> Option<String> {
+    let links = metadata.and_then(|value| value.get("links"));
+    if let Some(url) = string_field(links, "repository") {
+        return Some(url.to_owned());
+    }
+    match package?.get("repository")? {
+        Value::String(url) => Some(url.clone()),
+        Value::Object(repository) => repository
+            .get("url")
+            .and_then(Value::as_str)
+            .map(ToOwned::to_owned),
+        _ => None,
+    }
+}
+
+fn github_url(repository: String) -> String {
+    if let Some(repo) = repository.strip_prefix("git@github.com:") {
+        format!("https://github.com/{}", repo.trim_end_matches(".git"))
+    } else if repository.contains('/') && !repository.contains("://") {
+        format!("https://github.com/{}", repository.trim_end_matches(".git"))
+    } else {
+        repository
+    }
+}
+
+fn scanner_files(build_dir: &str, grammar_path: &str) -> Vec<Value> {
+    let grammar_dir = Path::new(build_dir).join(grammar_path);
+    [
+        "src/scanner.c",
+        "src/scanner.cc",
+        "src/scanner.cpp",
+        "src/scanner.h",
+    ]
+    .into_iter()
+    .filter(|scanner| grammar_dir.join(scanner).exists())
+    .map(|scanner| {
+        if grammar_path == "." {
+            Value::String(scanner.to_string())
+        } else {
+            Value::String(format!("{grammar_path}/{scanner}"))
+        }
+    })
+    .collect()
 }
 
 fn to_camel_case(value: &str) -> String {
@@ -3593,15 +3544,7 @@ impl PublishedLanguagePackage {
 
 fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
     let toml = read_languages_toml()?;
-    let (parser_name, info) = toml
-        .parsers
-        .iter()
-        .find(|(parser_name, info)| {
-            let default_wasm_name = format!("tree-sitter-{parser_name}");
-            let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
-            parser_name.as_str() == name || wasm_name == name
-        })
-        .with_context(|| format!("Unknown parser or wasm artifact: {name}"))?;
+    let (parser_name, info) = find_parser(&toml, name)?;
 
     let default_wasm_name = format!("tree-sitter-{parser_name}");
     let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
@@ -3613,13 +3556,8 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
     }
 
     let out = format!("tmp/wasm/publish/{wasm_name}");
-    let _ = fs::remove_dir_all(&out);
-    fs::create_dir_all(&out)?;
+    prepare_publish_dir(&out, &wasm_file, wasm_name)?;
 
-    fs::copy("templates/wasm/LICENSE", format!("{out}/LICENSE"))?;
-
-    let git_url = info.git.as_deref().unwrap_or("");
-    let rev = info.rev.as_deref().unwrap_or("");
     let ts_cli_version = run_cmd("tree-sitter --version")
         .unwrap_or_default()
         .replace("tree-sitter ", "");
@@ -3628,36 +3566,12 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
         Some(version) => version.to_string(),
         None => next_wasm_npm_version(&pkg_name, &ts_cli_minor)?,
     };
-    let version = info.version.as_deref().unwrap_or("0.1.0");
-    fs::copy(&wasm_file, format!("{out}/{wasm_name}.wasm"))?;
 
     let wasm_bytes = fs::read(&wasm_file)?;
-    let wasm_sha256 = sha256_hex(&wasm_bytes);
-    let grammar_name = wasm_grammar_name(&wasm_bytes)?;
-    let languages = packaged_languages(&toml, wasm_name)?;
-    let definition_hash = language_definition_hash(&toml, wasm_name, &languages)?;
-    let language_ids = languages.keys().cloned().collect::<Vec<_>>();
-    let languages_text = language_ids.join(", ");
-    let language_package = LanguagePackage {
-        package_name: pkg_name.clone(),
-        version: npm_version.clone(),
-        parser: ParserMetadata {
-            name: wasm_name.to_string(),
-            grammar_name,
-            upstream_version: info.version.clone(),
-            revision: info.rev.clone(),
-            sha256: wasm_sha256.clone(),
-        },
-        languages,
-    };
-    language_package.validate()?;
+    let (language_package, definition_hash) =
+        staged_language_package(&toml, info, wasm_name, &npm_version, &wasm_bytes)?;
     let published =
         PublishedLanguagePackage::new(&language_package, &definition_hash, wasm_bytes.len());
-    fs::write(
-        format!("{out}/lumis.json"),
-        format!("{}\n", serde_json::to_string_pretty(&published)?),
-    )?;
-
     let entry = package_entry(
         &toml,
         wasm_name,
@@ -3665,8 +3579,12 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
         &published,
         &ts_cli_minor,
     )?;
-    fs::write(format!("{out}/index.js"), &entry.js)?;
-    fs::write(format!("{out}/index.d.ts"), &entry.dts)?;
+    let languages_text = language_package
+        .languages
+        .keys()
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(", ");
 
     let readme = render_template(
         "templates/wasm/README.md.template",
@@ -3675,9 +3593,12 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
             ("pkg_name", &pkg_name),
             ("hex_package", &hex_app_name(wasm_name)),
             ("languages_text", &languages_text),
-            ("git_url", git_url),
-            ("rev", rev),
-            ("upstream_version", version),
+            ("git_url", info.git.as_deref().unwrap_or("")),
+            ("rev", info.rev.as_deref().unwrap_or("")),
+            (
+                "upstream_version",
+                info.version.as_deref().unwrap_or("0.1.0"),
+            ),
             ("npm_version", &npm_version),
             ("tree_sitter_cli_version", &ts_cli_version),
             ("tree_sitter_cli", &ts_cli_minor),
@@ -3685,8 +3606,6 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
             ("first_language", &entry.first_language),
         ],
     )?;
-    fs::write(format!("{out}/README.md"), readme)?;
-
     let pkg = render_template(
         "templates/wasm/package.json.template",
         &[
@@ -3700,23 +3619,88 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
             ("dependencies", &serde_json::to_string(&entry.dependencies)?),
         ],
     )?;
-    fs::write(format!("{out}/package.json"), pkg)?;
+    for (file, contents) in [
+        (
+            "lumis.json",
+            format!("{}\n", serde_json::to_string_pretty(&published)?),
+        ),
+        ("index.js", entry.js),
+        ("index.d.ts", entry.dts),
+        ("README.md", readme),
+        ("package.json", pkg),
+    ] {
+        fs::write(format!("{out}/{file}"), contents)?;
+    }
 
+    stage_local_copy(&wasm_file, &language_package, &published)?;
+    Ok(())
+}
+
+/// An empty `out` holding the license and the parser, for the rest to join.
+fn prepare_publish_dir(out: &str, wasm_file: &str, wasm_name: &str) -> Result<()> {
+    let _ = fs::remove_dir_all(out);
+    fs::create_dir_all(out)?;
+    fs::copy("templates/wasm/LICENSE", format!("{out}/LICENSE"))?;
+    fs::copy(wasm_file, format!("{out}/{wasm_name}.wasm"))?;
+    Ok(())
+}
+
+/// The `languages.toml` parser that `name` names, by parser or WASM artifact.
+fn find_parser<'a>(toml: &'a LanguagesToml, name: &str) -> Result<(&'a String, &'a ParserInfo)> {
+    toml.parsers
+        .iter()
+        .find(|(parser_name, info)| {
+            let default_wasm_name = format!("tree-sitter-{parser_name}");
+            let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
+            parser_name.as_str() == name || wasm_name == name
+        })
+        .with_context(|| format!("Unknown parser or wasm artifact: {name}"))
+}
+
+/// The language package a parser build publishes, and its definition hash.
+fn staged_language_package(
+    toml: &LanguagesToml,
+    info: &ParserInfo,
+    wasm_name: &str,
+    npm_version: &str,
+    wasm: &[u8],
+) -> Result<(LanguagePackage, String)> {
+    let languages = packaged_languages(toml, wasm_name)?;
+    let definition_hash = language_definition_hash(toml, wasm_name, &languages)?;
+    let package = LanguagePackage {
+        package_name: format!("@lumis-sh/wasm-{}", wasm_package_suffix(wasm_name)),
+        version: npm_version.to_string(),
+        parser: ParserMetadata {
+            name: wasm_name.to_string(),
+            grammar_name: wasm_grammar_name(wasm)?,
+            upstream_version: info.version.clone(),
+            revision: info.rev.clone(),
+            sha256: sha256_hex(wasm),
+        },
+        languages,
+    };
+    package.validate()?;
+    Ok((package, definition_hash))
+}
+
+/// A copy of the staged package in a store directory the local runtimes read.
+fn stage_local_copy(
+    wasm_file: &str,
+    package: &LanguagePackage,
+    published: &PublishedLanguagePackage,
+) -> Result<()> {
     let store = "tmp/wasm/local";
     let local = format!("{store}/parsers");
     fs::create_dir_all(&local)?;
-    let suffix = wasm_package_suffix(wasm_name);
+    let suffix = wasm_package_suffix(&package.parser.name);
     fs::write(
         format!("{local}/{suffix}.lumis.json"),
-        serde_json::to_vec(&published)?,
+        serde_json::to_vec(published)?,
     )?;
-    fs::copy(
-        &wasm_file,
-        format!("{local}/{wasm_name}-{npm_version}-{wasm_sha256}.wasm"),
-    )?;
+    fs::copy(wasm_file, format!("{local}/{}", parser_filename(package)))?;
 
-    println!("Staged in {out}");
-    println!("Runtime-ready copy in {local} as {npm_version}");
+    println!("Staged in tmp/wasm/publish/{}", package.parser.name);
+    println!("Runtime-ready copy in {local} as {}", package.version);
     println!("Use it with: export LUMIS_DATA_DIR=$PWD/{store}");
     Ok(())
 }
@@ -3912,15 +3896,7 @@ fn lower_hex(bytes: &[u8]) -> String {
 
 fn wasm_meta(name: &str) -> Result<()> {
     let toml = read_languages_toml()?;
-    let (parser_name, info) = toml
-        .parsers
-        .iter()
-        .find(|(parser_name, info)| {
-            let default_wasm_name = format!("tree-sitter-{parser_name}");
-            let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
-            parser_name.as_str() == name || wasm_name == name
-        })
-        .with_context(|| format!("Unknown parser or wasm artifact: {name}"))?;
+    let (parser_name, info) = find_parser(&toml, name)?;
 
     let default_wasm_name = format!("tree-sitter-{parser_name}");
     let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
@@ -5242,15 +5218,7 @@ fn wasm_needed(filter: &str, force: &str) -> Result<()> {
 /// match the digest its own manifest declares.
 fn stage_hex_wasm(name: &str) -> Result<()> {
     let toml = read_languages_toml()?;
-    let (parser_name, info) = toml
-        .parsers
-        .iter()
-        .find(|(parser_name, info)| {
-            let default_wasm_name = format!("tree-sitter-{parser_name}");
-            let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);
-            parser_name.as_str() == name || wasm_name == name
-        })
-        .with_context(|| format!("Unknown parser or wasm artifact: {name}"))?;
+    let (parser_name, info) = find_parser(&toml, name)?;
 
     let default_wasm_name = format!("tree-sitter-{parser_name}");
     let wasm_name = info.wasm_name.as_deref().unwrap_or(&default_wasm_name);

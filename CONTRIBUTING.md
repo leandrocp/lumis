@@ -227,6 +227,12 @@ its only whitelist entry is an exact function in the upstream-vendored
 Tree-sitter highlighter, and the file that function lives in carries the matching
 `#[allow(clippy::cognitive_complexity)]` for the same reason.
 
+Lizard's Rust lexer loses its place at a char literal such as `'_'` or a raw
+string that holds a quote, and skips every function up to the next quote. About
+190 functions went unchecked that way. `mise run lint-complexity-rust` runs
+lizard with those literals lexed the way rustc lexes them, and fails if a lizard
+upgrade stops accepting the fix.
+
 Two rules hold this together, and both come from what the checks used to miss:
 
 - **Every file the repo authors is linted.** `mise run lint-js` runs oxlint from
