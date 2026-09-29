@@ -263,17 +263,17 @@ serves the parser file next to the module:
 import rust from "https://esm.sh/@lumis-sh/wasm-rust";
 ```
 
-With Vite's dev server, leave the parser packages out of dependency
-pre-bundling. A package finds its parser file relative to its own code, and
-pre-bundling moves that code somewhere else. For a bundle package, list the
-language packages it depends on too:
+Vite 8 needs no configuration. The dev server of Vite 7 and older, VitePress 1
+included, pre-bundles a package away from its parser file, so leave the parser
+packages you import out of pre-bundling. The languages a bundle loads and the
+grammars a language requires come along without being listed:
 
 ```ts title="vite.config.ts"
 import { defineConfig } from "vite";
 
 export default defineConfig({
   optimizeDeps: {
-    exclude: ["@lumis-sh/wasm-rust"],
+    exclude: ["@lumis-sh/wasm-rust", "@lumis-sh/wasm-bundle-web"],
   },
 });
 ```

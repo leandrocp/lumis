@@ -79,8 +79,8 @@ import { ejs, erb } from '@lumis-sh/wasm-embedded-template'
 ```
 
 Importing `markdown` also loads `markdown_inline`, the grammar it depends on.
-With Vite's dev server, list the parser packages in `optimizeDeps.exclude` so
-pre-bundling keeps each one next to its parser file.
+On Vite 7 and older, list the parser packages you import in
+`optimizeDeps.exclude`; Vite 8 needs nothing.
 
 On Node, a document also loads the languages **injected inside** it during the
 same pass, so a Markdown file with a fenced Rust block highlights that block
