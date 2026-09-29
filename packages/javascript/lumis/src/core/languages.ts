@@ -563,23 +563,75 @@ interface CachedParserModule {
   language?: Promise<Language>;
 }
 
+/** The first four bytes of every WebAssembly module: `\0asm`. */
+const WASM_MAGIC = [0x00, 0x61, 0x73, 0x6d];
+const EXPORT_SECTION = 7;
+const FUNCTION_EXPORT = 0;
+
+/** Reads a WebAssembly binary front to back, and throws rather than read past its end. */
+function wasmReader(bytes: Uint8Array) {
+  let offset = 0;
+  const take = (length: number): Uint8Array => {
+    if (offset + length > bytes.length) throw new RangeError("truncated WebAssembly module");
+    offset += length;
+    return bytes.subarray(offset - length, offset);
+  };
+  const byte = (): number => take(1)[0]!;
+  const u32 = (): number => {
+    let value = 0;
+    for (let shift = 0; shift < 35; shift += 7) {
+      const next = byte();
+      value += (next & 0x7f) * 2 ** shift;
+      if (next < 0x80) return value;
+    }
+    throw new RangeError("malformed WebAssembly integer");
+  };
+  return { take, byte, u32, done: () => offset >= bytes.length };
+}
+
+/**
+ * The functions a WebAssembly module exports, read from its export section.
+ *
+ * `WebAssembly.Module.exports` needs the module compiled, which would do
+ * web-tree-sitter's work a second time, and Chrome refuses a synchronous
+ * compile over 8 MB on the main thread, which the largest parsers are.
+ *
+ * @internal
+ */
+export function exportedFunctionNames(bytes: Uint8Array): string[] {
+  const module = wasmReader(bytes);
+  if (!WASM_MAGIC.every((expected) => module.byte() === expected)) {
+    throw new TypeError("not a WebAssembly module");
+  }
+  module.take(4); // The version.
+  while (!module.done()) {
+    const id = module.byte();
+    const section = wasmReader(module.take(module.u32()));
+    if (id === EXPORT_SECTION) return functionExports(section);
+  }
+  return [];
+}
+
+function functionExports(section: ReturnType<typeof wasmReader>): string[] {
+  const names: string[] = [];
+  for (let count = section.u32(); count > 0; count -= 1) {
+    const name = decoder.decode(section.take(section.u32()));
+    const kind = section.byte();
+    section.u32();
+    if (kind === FUNCTION_EXPORT) names.push(name);
+  }
+  return names;
+}
+
 function inspectParserGrammar(data: Uint8Array): ParserGrammar {
-  let module: WebAssembly.Module;
+  let exports: string[];
   try {
-    const bytes =
-      data.buffer instanceof ArrayBuffer &&
-      data.byteOffset === 0 &&
-      data.byteLength === data.buffer.byteLength
-        ? data.buffer
-        : data.slice().buffer;
-    module = new WebAssembly.Module(bytes);
+    exports = exportedFunctionNames(data);
   } catch (error) {
     return { ok: false, detail: error instanceof Error ? error.message : String(error) };
   }
 
-  const names = WebAssembly.Module.exports(module)
-    .filter(({ kind }) => kind === "function")
-    .map(({ name }) => name)
+  const names = exports
     .filter((name) => name.startsWith("tree_sitter_"))
     .map((name) => name.slice("tree_sitter_".length))
     .filter((name) => !name.startsWith("external_scanner_"));
@@ -587,9 +639,6 @@ function inspectParserGrammar(data: Uint8Array): ParserGrammar {
     ? { ok: true, name: names[0]! }
     : { ok: false, detail: `expected one grammar export, got ${names.length}` };
 }
-
-/** The first four bytes of every WebAssembly module: `\0asm`. */
-const WASM_MAGIC = [0x00, 0x61, 0x73, 0x6d];
 
 async function downloadParserWasm(
   source: string,

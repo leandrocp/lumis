@@ -232,14 +232,14 @@ describe("runtime parity", () => {
       }
       if (index.runtimeKind() === "wasm") {
         expect(load.mock.calls.length - loadsBefore).toBe(0);
-        expect(moduleExports.mock.calls.length - exportsBefore).toBe(1);
+        expect(moduleExports.mock.calls.length - exportsBefore).toBe(0);
       }
 
       const corrected = await create("wrong-grammar-first", "@test/corrected-grammar", "comment");
       expect(corrected.languages).toContain("wrong-grammar-first");
       if (index.runtimeKind() === "wasm") {
         expect(load.mock.calls.length - loadsBefore).toBe(1);
-        expect(moduleExports.mock.calls.length - exportsBefore).toBe(1);
+        expect(moduleExports.mock.calls.length - exportsBefore).toBe(0);
       }
     } finally {
       load.mockRestore();
