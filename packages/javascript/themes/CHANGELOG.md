@@ -1,3 +1,21 @@
+## [0.4.0](https://github.com/leandrocp/lumis/compare/npm-themes/v0.3.2...npm-themes/v0.4.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- BREAKING: render HTML lines as inline spans with overridable layout CSS - [#1559](https://github.com/leandrocp/lumis/pull/1559)
+
+
+### Documentation
+
+- retire the WASM and CDN page - [#1609](https://github.com/leandrocp/lumis/pull/1609)
+
+
+### Features
+
+- allow generating CSS without line layout - [#1566](https://github.com/leandrocp/lumis/pull/1566)
+- update generated themes - [#1608](https://github.com/leandrocp/lumis/pull/1608)
+
 ## [0.3.2](https://github.com/leandrocp/lumis/compare/npm-themes/v0.3.1...npm-themes/v0.3.2) (2026-09-24)
 
 
