@@ -23,14 +23,11 @@ No runtime reads `definitionHash` or `parser.size` any more. Older releases stil
 published packages carry both, and `valid/unread-fields.json` pins that no value in them rejects a
 document. `languages` must be a non-empty JSON object, never an array.
 
-The shared raw JSON profile applies before fields are interpreted, including to unknown or
-overwritten values:
-
-- The document is UTF-8 JSON without a byte-order mark.
-- Every string token contains only Unicode scalar values, with no unpaired surrogate escapes.
-- Every number token parses to a finite binary64 value.
-- At most 127 arrays or objects may be open at once, matching serde_json's default recursion limit.
-- Duplicate object members use the last value, matching JSON.parse and serde_json::Value maps.
+Each runtime reads the document with its own JSON parser. The document is UTF-8 without a
+byte-order mark, and a duplicate member takes the last value. JSON that `JSON.parse` accepts and
+serde_json rejects, such as an unpaired surrogate, a number too large for binary64, or nesting
+deeper than 127 levels, is not in the corpus. No Lumis tooling writes it, and the runtimes do not
+have to agree on it.
 
 `packageName` follows npm's lowercase package-name grammar, and non-null parser provenance fields
 are strings. Language IDs and aliases are matched with ASCII case folding, so no two language

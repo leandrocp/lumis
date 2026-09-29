@@ -9,8 +9,8 @@ use std::path::{Path, PathBuf};
 
 /// Lower bounds, not exact counts, so adding a fixture does not force a test edit.
 /// They exist to catch a discovery bug that silently finds nothing.
-const MIN_VALID: usize = 8;
-const MIN_INVALID: usize = 30;
+const MIN_VALID: usize = 7;
+const MIN_INVALID: usize = 25;
 
 fn corpus_dir(kind: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -124,36 +124,11 @@ fn ambiguous_ascii_case_insensitive_language_names_are_rejected() {
 }
 
 #[test]
-fn strings_must_contain_unicode_scalar_values() {
-    for name in ["unpaired-surrogate", "unpaired-surrogate-unknown-field"] {
-        let json = std::fs::read_to_string(corpus_dir("invalid").join(format!("{name}.json")))
-            .expect("unpaired-surrogate fixture exists");
-        assert!(
-            LanguagePackage::from_json(&json).is_err(),
-            "{name} must fail"
-        );
-    }
-}
-
-#[test]
-fn raw_json_tokens_and_nesting_have_one_contract() {
-    for name in ["duplicate-members-last-wins", "maximum-nesting-depth"] {
-        let json = std::fs::read_to_string(corpus_dir("valid").join(format!("{name}.json")))
-            .expect("raw-profile fixture exists");
-        LanguagePackage::from_json(&json)
-            .unwrap_or_else(|error| panic!("valid/{name}.json should parse, got: {error}"));
-    }
-
-    for name in [
-        "duplicate-member-overwritten-surrogate",
-        "nesting-depth-exceeded",
-        "unknown-number-out-of-range",
-    ] {
-        let json = std::fs::read_to_string(corpus_dir("invalid").join(format!("{name}.json")))
-            .expect("raw-profile fixture exists");
-        assert!(
-            LanguagePackage::from_json(&json).is_err(),
-            "invalid/{name}.json should be rejected"
-        );
-    }
+fn a_duplicate_member_takes_the_last_value() {
+    let json =
+        std::fs::read_to_string(corpus_dir("valid").join("duplicate-members-last-wins.json"))
+            .expect("duplicate-member fixture exists");
+    LanguagePackage::from_json(&json).unwrap_or_else(|error| {
+        panic!("valid/duplicate-members-last-wins.json should parse, got: {error}")
+    });
 }

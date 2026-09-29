@@ -85,9 +85,8 @@ pub enum LanguagePackageError {
 
 impl LanguagePackage {
     pub fn from_json(json: &str) -> Result<Self, LanguagePackageError> {
-        // Typed deserialization skips unknown values. Parsing through Value
-        // validates every raw token and gives duplicate members last-wins
-        // behavior, matching JSON.parse and serde_json::Value maps.
+        // Through `Value` first, so a duplicate member takes the last value as
+        // it does in `JSON.parse`; typed deserialization would reject it.
         let value: serde_json::Value = serde_json::from_str(json)?;
         let package: Self = serde_json::from_value(value)?;
         package.validate()?;

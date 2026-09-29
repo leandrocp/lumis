@@ -256,8 +256,6 @@ async function fetchFromCdns(primary: string, isDefault: boolean): Promise<Respo
 
 const HIGHLIGHT_NAMES_SET = new Set(HIGHLIGHT_NAMES);
 const PLAINTEXT_ALIASES = LANGUAGES.find(({ id }) => id === PLAINTEXT_LANG_ID)?.aliases ?? [];
-const MAX_JSON_CONTAINER_DEPTH = 127;
-const JSON_NUMBER = /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/y;
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
@@ -290,14 +288,7 @@ export function parseLanguagePackage(
   data: Uint8Array,
   expectedPackageName: string,
 ): LanguagePackage {
-  const json = decoder.decode(data);
-  if (!hasValidRawJsonProfile(json)) {
-    throw new Error(`Invalid Lumis language package: ${expectedPackageName}`);
-  }
-  const parsed: unknown = JSON.parse(json);
-  if (!hasOnlyUnicodeScalarStrings(parsed)) {
-    throw new Error(`Invalid Lumis language package: ${expectedPackageName}`);
-  }
+  const parsed: unknown = JSON.parse(decoder.decode(data));
   const value = parseLanguagePackageValue(parsed, expectedPackageName);
   const owners = new Map<string, string>();
   for (const [id, language] of Object.entries(value.languages)) {
@@ -426,103 +417,6 @@ function isValidPackageManifest(fields: {
     fields.grammarName.length > 0 &&
     /^[0-9a-f]{64}$/.test(fields.parserSha256)
   );
-}
-
-// Every surrogate has to be half of a pair; a lone one is not a scalar value.
-function isUnicodeScalarString(value: string): boolean {
-  for (let index = 0; index < value.length; index += 1) {
-    const unit = value.charCodeAt(index);
-    if (unit >= 0xd800 && unit <= 0xdbff) {
-      const next = value.charCodeAt(index + 1);
-      if (!(next >= 0xdc00 && next <= 0xdfff)) return false;
-      index += 1;
-    } else if (unit >= 0xdc00 && unit <= 0xdfff) {
-      return false;
-    }
-  }
-  return true;
-}
-
-// JSON.parse discards overwritten members and turns 1e400 into Infinity, so
-// validate raw tokens before it collapses the document.
-function hasValidRawJsonProfile(json: string): boolean {
-  let depth = 0;
-  let index = 0;
-  while (index < json.length) {
-    const character = json[index]!;
-
-    if (character === '"') {
-      const end = scanJsonString(json, index);
-      if (end < 0) return false;
-      index = end;
-      continue;
-    }
-
-    if (isJsonNumberStart(character)) {
-      const end = scanJsonNumber(json, index);
-      if (end < 0) return false;
-      if (end > index) {
-        index = end;
-        continue;
-      }
-    } else {
-      depth += containerDepthDelta(character);
-      if (depth > MAX_JSON_CONTAINER_DEPTH) return false;
-    }
-
-    index += 1;
-  }
-  return true;
-}
-
-function isJsonNumberStart(character: string): boolean {
-  return character === "-" || (character >= "0" && character <= "9");
-}
-
-function containerDepthDelta(character: string): number {
-  if (character === "{" || character === "[") return 1;
-  if (character === "}" || character === "]") return -1;
-  return 0;
-}
-
-// The index just past the string literal at `start`, or -1 when it is
-// unterminated or carries a lone surrogate.
-function scanJsonString(json: string, start: number): number {
-  let end = start + 1;
-  while (end < json.length && json[end] !== '"') {
-    end += json[end] === "\\" ? 2 : 1;
-  }
-  if (end >= json.length) return -1;
-
-  let decoded: unknown;
-  try {
-    decoded = JSON.parse(json.slice(start, end + 1));
-  } catch {
-    return -1;
-  }
-
-  return hasOnlyUnicodeScalarStrings(decoded) ? end + 1 : -1;
-}
-
-// The index just past the number at `start`, `start` itself when no number
-// begins there, or -1 when the number does not survive as a finite value.
-function scanJsonNumber(json: string, start: number): number {
-  JSON_NUMBER.lastIndex = start;
-  const number = JSON_NUMBER.exec(json);
-  if (number === null) return start;
-
-  return Number.isFinite(Number(number[0])) ? JSON_NUMBER.lastIndex : -1;
-}
-
-function hasOnlyUnicodeScalarStrings(value: unknown): boolean {
-  if (typeof value === "string") return isUnicodeScalarString(value);
-  if (Array.isArray(value)) return value.every((entry) => hasOnlyUnicodeScalarStrings(entry));
-  if (typeof value === "object" && value !== null) {
-    return Object.entries(value).every(
-      ([key, child]) => hasOnlyUnicodeScalarStrings(key) && hasOnlyUnicodeScalarStrings(child),
-    );
-  }
-  return true;
 }
 
 function isValidPackageName(value: string): boolean {
