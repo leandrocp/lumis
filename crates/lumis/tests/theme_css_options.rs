@@ -94,6 +94,12 @@ fn shared_css_cases_and_defaults() {
     }
 }
 
+/// A checked-in stylesheet as the generator wrote it, with the `\r\n` a
+/// Windows checkout puts at the end of each line turned back into `\n`.
+fn read_stylesheet(path: &std::path::Path) -> String {
+    std::fs::read_to_string(path).unwrap().replace("\r\n", "\n")
+}
+
 #[test]
 fn prebuilt_stylesheets_keep_layout() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
@@ -106,7 +112,7 @@ fn prebuilt_stylesheets_keep_layout() {
     for path in paths {
         let name = path.file_stem().unwrap().to_str().unwrap();
         let theme = themes::get(name).unwrap();
-        let bundled = std::fs::read_to_string(&path).unwrap();
+        let bundled = read_stylesheet(&path);
         assert_eq!(CssBuilder::new(&theme).build(), bundled, "{name}");
         assert_eq!(
             CssBuilder::new(&theme).layout(false).build(),
@@ -114,11 +120,11 @@ fn prebuilt_stylesheets_keep_layout() {
             "{name}"
         );
         assert_eq!(
-            std::fs::read_to_string(
-                root.join("packages/elixir/lumis/priv/static/css")
+            read_stylesheet(
+                &root
+                    .join("packages/elixir/lumis/priv/static/css")
                     .join(path.file_name().unwrap())
-            )
-            .unwrap(),
+            ),
             bundled
         );
     }
