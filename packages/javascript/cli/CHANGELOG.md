@@ -1,3 +1,15 @@
+## [0.6.4](https://github.com/leandrocp/lumis/compare/npm-cli/v0.6.3...npm-cli/v0.6.4) (2026-09-29)
+
+
+### Bug Fixes
+
+- update npm CLI binary to 0.7.0 - [#1633](https://github.com/leandrocp/lumis/pull/1633)
+
+
+### Documentation
+
+- retire the WASM and CDN page - [#1609](https://github.com/leandrocp/lumis/pull/1609)
+
 ## [0.6.3](https://github.com/leandrocp/lumis/compare/npm-cli/v0.6.2...npm-cli/v0.6.3) (2026-09-24)
 
 
