@@ -1,3 +1,52 @@
+## [0.9.0](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.8.0...npm-lumis/v0.9.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- sync detection heuristics with difftastic upstream - [#1539](https://github.com/leandrocp/lumis/pull/1539)
+- ship declarations that typecheck with skipLibCheck: false - [#1556](https://github.com/leandrocp/lumis/pull/1556)
+- BREAKING: render HTML lines as inline spans with overridable layout CSS - [#1559](https://github.com/leandrocp/lumis/pull/1559)
+- keep rainbow brackets in sources with injections - [#1567](https://github.com/leandrocp/lumis/pull/1567)
+- parse the whole document in parse_tree after a highlight - [#1572](https://github.com/leandrocp/lumis/pull/1572)
+- avoid reopening layers that end at a newline - [#1579](https://github.com/leandrocp/lumis/pull/1579)
+- compose annotations in highlight events - [#1578](https://github.com/leandrocp/lumis/pull/1578)
+- detect Emacs mode headers without a trailing semicolon - [#1602](https://github.com/leandrocp/lumis/pull/1602)
+- detect content after a byte order mark or tab-separated shebang - [#1603](https://github.com/leandrocp/lumis/pull/1603)
+- keep web-tree-sitter types out of shipped declarations - [#1604](https://github.com/leandrocp/lumis/pull/1604)
+- clearer parser error on Vite 7 dev servers - [#1626](https://github.com/leandrocp/lumis/pull/1626)
+- name an outdated parser package passed as a language - [#1630](https://github.com/leandrocp/lumis/pull/1630)
+
+
+### Code Refactoring
+
+- BREAKING: check parser bytes only where Lumis downloads them - [#1627](https://github.com/leandrocp/lumis/pull/1627)
+
+
+### Documentation
+
+- show each parser size and memory - [#1532](https://github.com/leandrocp/lumis/pull/1532)
+- clarify light-dark color scheme inheritance - [#1571](https://github.com/leandrocp/lumis/pull/1571)
+- stop suggesting a bundle for browser injected languages - [#1599](https://github.com/leandrocp/lumis/pull/1599)
+- retire the WASM and CDN page - [#1609](https://github.com/leandrocp/lumis/pull/1609)
+- preload in a build step with the runtime's own load - [#1611](https://github.com/leandrocp/lumis/pull/1611)
+
+
+### Features
+
+- recognize 16 more code fence labels - [#1553](https://github.com/leandrocp/lumis/pull/1553)
+- allow generating CSS without line layout - [#1566](https://github.com/leandrocp/lumis/pull/1566)
+- add an inline structure to the HTML formatters - [#1568](https://github.com/leandrocp/lumis/pull/1568)
+- update generated themes - [#1608](https://github.com/leandrocp/lumis/pull/1608)
+- update lang gleam - [#1607](https://github.com/leandrocp/lumis/pull/1607)
+- BREAKING: import each language from its parser package, and load nothing undeclared - [#1605](https://github.com/leandrocp/lumis/pull/1605)
+
+
+### Testing
+
+- pin top-level API parity across runtimes with a manifest - [#1547](https://github.com/leandrocp/lumis/pull/1547)
+- cover CRLF endings split across highlight events - [#1580](https://github.com/leandrocp/lumis/pull/1580)
+- make Rust CI pass on Rust 1.91 and Windows - [#1631](https://github.com/leandrocp/lumis/pull/1631)
+
 ## [0.8.0](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.7.1...npm-lumis/v0.8.0) (2026-09-24)
 
 
