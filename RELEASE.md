@@ -219,10 +219,12 @@ Two things do limit the damage:
   lifecycle scripts and builds each package, then packs tarballs and stops; only
   `publish` can reach npm, and it holds no source tree. That split is the whole
   reason `stage` packs rather than publishes. `wasm-release.yml` is the same
-  shape: `build` compiles the grammar and stages both packages with
-  `contents: read` and nothing more, and `publish-npm` publishes the artifact it
+  shape: each parser's pipeline in `wasm-release-parser.yml` has a `build` job
+  that compiles the grammar and stages both packages with `contents: read` and
+  nothing more, and a `publish-npm` job that publishes the artifact it
   uploaded. Neither a grammar's C nor a crate's build script is ever in a job
-  that can publish.
+  that can publish. npm checks the calling workflow's filename for a reusable
+  workflow, so `wasm-release.yml` stays the trusted publisher.
 
 Neither workflow has a `pull_request` trigger, so a fork cannot reach any of
 this.

@@ -1,0 +1,200 @@
+name: WASM Release Parser
+
+# One parser's release: build it, publish it to npm, then to Hex. `wasm-release`
+# calls this once per parser in its plan, so each parser is its own pipeline and
+# a parser that cannot build or publish stops only itself. Every other parser
+# still reaches both registries in the same run.
+#
+# npm checks a trusted publisher against the calling workflow, not this one, so
+# `wasm-release.yml` stays the workflow every parser package names. Nothing here
+# runs on its own trigger.
+on:
+  workflow_call:
+    inputs:
+      parser:
+        description: "Parser name, as `wasm_name` in the plan"
+        type: string
+        required: true
+      version:
+        description: "The version the plan resolved"
+        type: string
+        required: true
+      npm:
+        description: "npm is missing this version"
+        type: boolean
+        required: true
+      hex:
+        description: "Hex is missing this version"
+        type: boolean
+        required: true
+      npm_package:
+        type: string
+        required: true
+      app:
+        description: "The Hex application name"
+        type: string
+        required: true
+    secrets:
+      HEX_API_KEY:
+        required: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: read
+
+jobs:
+  # Built once, at the version the plan resolved, and carried to the publish
+  # jobs as an artifact. Both registries receive bytes from this one build
+  # rather than each rebuilding and hoping the results match.
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      # Nothing here pushes, and this job compiles a third-party grammar and
+      # runs its cargo build scripts. None of that needs a credential for this
+      # repository, so it does not get one left in `.git/config`.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          install: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          shared-key: wasm-release
+          add-job-id-key: false
+
+      - name: Cache tree-sitter tool downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.cache/tree-sitter
+          key: ${{ runner.os }}-tree-sitter-cli-${{ hashFiles('mise.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-tree-sitter-cli-
+
+      # A parser npm already serves at this version is not rebuilt: the
+      # published tarball is unpacked and Hex is staged from those bytes.
+      # Rebuilding would only be equivalent if the build were reproducible, and
+      # it is not — `build-wasm` falls back to an unlocked `npm install` for the
+      # grammars that generate from `grammar.js` and ship no usable lockfile, so
+      # a rebuild months later can resolve different tooling and emit a
+      # different `.wasm`. `stage-hex-wasm` checks the staged bytes against the
+      # manifest beside them, which cannot catch that, because a rebuild
+      # produces a manifest describing itself. Taking the bytes from npm is what
+      # makes "one parser, two registries" true rather than hoped for, and it
+      # skips the compile for every backfilled parser.
+      - name: Build and stage both packages
+        run: |
+          if [ "$NPM" = "true" ]; then
+            mise run wasm-build "$PARSER"
+            cargo run -q --manifest-path crates/dev/Cargo.toml -- \
+              stage-wasm "$PARSER" --version "$VERSION"
+          else
+            download="$RUNNER_TEMP/npm/$PARSER"
+            mkdir -p "$download" "tmp/wasm/publish/$PARSER"
+            npm pack "$NPM_PACKAGE@$VERSION" --pack-destination "$download"
+            tar -xzf "$download"/*.tgz --strip-components=1 \
+              -C "tmp/wasm/publish/$PARSER"
+          fi
+          cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
+        env:
+          PARSER: ${{ inputs.parser }}
+          VERSION: ${{ inputs.version }}
+          NPM: ${{ inputs.npm }}
+          NPM_PACKAGE: ${{ inputs.npm_package }}
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: staged-${{ inputs.parser }}
+          path: |
+            tmp/wasm/publish/${{ inputs.parser }}
+            tmp/wasm/hex
+          retention-days: 1
+          if-no-files-found: error
+
+  publish-npm:
+    needs: build
+    if: inputs.npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: staged-${{ inputs.parser }}
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+
+      # The major, not a version: patches and minors arrive on their own, and
+      # only a major is a decision. npm publishes no `lts` or `stable` tag, and
+      # `latest` would let the next major land in the middle of a release.
+      # Pinned at all because `lts/*` decides which npm arrives otherwise —
+      # Node 24 bundles 11.19.0, and OIDC publishing needs 11.5.1 at minimum.
+      - run: npm install --global npm@12
+
+      # No `NODE_AUTH_TOKEN`: the `id-token: write` above is the whole
+      # credential. npm exchanges the workflow's OIDC identity for a
+      # short-lived publish token, which only works because this package names
+      # `wasm-release.yml` as a trusted publisher — `mise run npm-trust`.
+      #
+      # No build step either: this job holds the credential, so it publishes the
+      # artifact `build` staged and runs nothing of its own.
+      - name: Publish to npm
+        run: |
+          cd -- "publish/$PARSER"
+          npm publish --access public --provenance
+        env:
+          PARSER: ${{ inputs.parser }}
+
+  # After npm, so Hex can never hold a definition npm does not. `plan` recovers
+  # the version a definition was published under from npm alone — Hex's registry
+  # file carries versions and nothing else — so a parser Hex had and npm did not
+  # would look unpublished, take a fresh patch, and release an unchanged
+  # definition to Hex again on every run. A failed npm publish therefore holds
+  # this parser's Hex back; the next run publishes both.
+  #
+  # `!cancelled()` because `publish-npm` is skipped when npm already has this
+  # version, and a skipped need would otherwise skip this job too.
+  publish-hex:
+    needs: [build, publish-npm]
+    if: >-
+      ${{ !cancelled() && inputs.hex &&
+          needs.build.result == 'success' &&
+          (needs.publish-npm.result == 'success' || !inputs.npm) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: staged-${{ inputs.parser }}
+
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+
+      # Hex installed before the key exists, because `mix local.hex` fetches and
+      # runs code that has no business being able to read it.
+      - name: Install Hex
+        run: mix local.hex --force
+
+      - name: Publish to Hex
+        run: |
+          cd -- "hex/$APP"
+          mix hex.publish package --yes
+        env:
+          APP: ${{ inputs.app }}
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

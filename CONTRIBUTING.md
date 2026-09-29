@@ -793,19 +793,22 @@ Two files record what these checks cannot cover, and both may only shrink:
   sample at the pinned revision, published package included. A test fails when
   either entry starts working.
 
-The `wasm-release` workflow publishes to npm and Hex, and is a pipeline:
+The `wasm-release` workflow publishes to npm and Hex:
 
 1. **plan** — `mise run wasm-release-plan` works out, for every parser, the
    version it resolves to and which registries are missing it.
-2. **build** — one job per parser that anything is missing, at the version the
-   plan resolved, staging both packages and uploading them as an artifact.
-3. **publish-npm**, then **publish-hex** — one job per parser per registry that
-   needs it, publishing the artifact the build produced.
-4. **publish-hex-bundles** — one job per bundle Hex is missing, after the
-   parsers, because a bundle depends on every language it groups.
+2. **One pipeline per parser** that anything is missing, from
+   `wasm-release-parser.yml`: **build** at the version the plan resolved,
+   staging both packages as an artifact, then **publish-npm** and
+   **publish-hex** for whichever registries need it, publishing that artifact.
+   A parser that fails stops its own pipeline; every other parser still
+   publishes.
+3. **publish-hex-bundles** — one job per bundle Hex is missing, after every
+   parser pipeline, because a bundle depends on every language it groups.
 
-So two parsers missing from both registries is two build jobs and four publish
-jobs, and neither registry is ever published from a build the other did not get.
+So two parsers missing from both registries is two pipelines of one build and
+two publish jobs each, and neither registry is ever published from a build the
+other did not get.
 
 Running it publishes everything pending. There is nothing to opt into: a package
 already on a registry at its resolved version is simply not in the plan. Bundles
@@ -829,7 +832,7 @@ hundred a minute, so a hundred and thirteen lookups fail partway through.
 carries every version's `definitionHash`; the Hex registry file carries versions
 and nothing else. So the version a definition went out under is read from npm
 alone, which is sound only while Hex holds nothing npm does not — and that is
-what the ordering keeps true. A failed npm leg holds Hex back for the whole plan
+what the ordering keeps true. A failed npm publish holds that parser's Hex back
 rather than letting it get ahead; the next run publishes both. Were Hex to lead,
 its definition would read as unpublished, take a fresh patch, and be released
 again unchanged on every run.
