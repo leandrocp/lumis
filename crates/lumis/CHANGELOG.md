@@ -1,3 +1,31 @@
+## [0.16.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.15.0...cargo-lumis/v0.16.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- BREAKING: render HTML lines as inline spans with overridable layout CSS - [#1559](https://github.com/leandrocp/lumis/pull/1559)
+- compose annotations in highlight events - [#1578](https://github.com/leandrocp/lumis/pull/1578)
+
+
+### Documentation
+
+- clarify light-dark color scheme inheritance - [#1571](https://github.com/leandrocp/lumis/pull/1571)
+
+
+### Features
+
+- allow generating CSS without line layout - [#1566](https://github.com/leandrocp/lumis/pull/1566)
+- add an inline structure to the HTML formatters - [#1568](https://github.com/leandrocp/lumis/pull/1568)
+- update generated themes - [#1608](https://github.com/leandrocp/lumis/pull/1608)
+- update lang gleam - [#1607](https://github.com/leandrocp/lumis/pull/1607)
+
+
+### Testing
+
+- pin top-level API parity across runtimes with a manifest - [#1547](https://github.com/leandrocp/lumis/pull/1547)
+- cover CRLF endings split across highlight events - [#1580](https://github.com/leandrocp/lumis/pull/1580)
+- make Rust CI pass on Rust 1.91 and Windows - [#1631](https://github.com/leandrocp/lumis/pull/1631)
+
 ## [0.15.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.14.0...cargo-lumis/v0.15.0) (2026-09-24)
 
 
