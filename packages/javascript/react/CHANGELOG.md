@@ -1,3 +1,16 @@
+## [0.4.0](https://github.com/leandrocp/lumis/compare/npm-react/v0.3.1...npm-react/v0.4.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- BREAKING: render HTML lines as inline spans with overridable layout CSS - [#1559](https://github.com/leandrocp/lumis/pull/1559)
+- clearer parser error on Vite 7 dev servers - [#1626](https://github.com/leandrocp/lumis/pull/1626)
+
+
+### Features
+
+- BREAKING: import each language from its parser package, and load nothing undeclared - [#1605](https://github.com/leandrocp/lumis/pull/1605)
+
 ## [0.3.1](https://github.com/leandrocp/lumis/compare/npm-react/v0.3.0...npm-react/v0.3.1) (2026-09-24)
 
 
