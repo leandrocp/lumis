@@ -815,9 +815,7 @@ two publish jobs each, and neither registry is ever published from a build the
 other did not get.
 
 Running it publishes everything pending. There is nothing to opt into: a package
-already on a registry at its resolved version is simply not in the plan. Bundles
-on npm are the exception, released by tag through `javascript-release` alongside
-the other JavaScript packages.
+already on a registry at its resolved version is simply not in the plan.
 
 **The version comes from the definition, not a counter.** A definition already
 published keeps the version it went out under, so a registry that is behind
