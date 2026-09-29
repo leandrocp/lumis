@@ -1,3 +1,26 @@
+## [4.0.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v3.0.0...cargo-lumis-core/v4.0.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- sync detection heuristics with difftastic upstream - [#1539](https://github.com/leandrocp/lumis/pull/1539)
+- BREAKING: render HTML lines as inline spans with overridable layout CSS - [#1559](https://github.com/leandrocp/lumis/pull/1559)
+- avoid reopening layers that end at a newline - [#1579](https://github.com/leandrocp/lumis/pull/1579)
+- detect content after a byte order mark or tab-separated shebang - [#1603](https://github.com/leandrocp/lumis/pull/1603)
+
+
+### Features
+
+- recognize 16 more code fence labels - [#1553](https://github.com/leandrocp/lumis/pull/1553)
+- allow generating CSS without line layout - [#1566](https://github.com/leandrocp/lumis/pull/1566)
+- add an inline structure to the HTML formatters - [#1568](https://github.com/leandrocp/lumis/pull/1568)
+- update generated themes - [#1608](https://github.com/leandrocp/lumis/pull/1608)
+
+
+### Testing
+
+- make Rust CI pass on Rust 1.91 and Windows - [#1631](https://github.com/leandrocp/lumis/pull/1631)
+
 ## [3.0.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v2.5.0...cargo-lumis-core/v3.0.0) (2026-09-24)
 
 
