@@ -27,7 +27,10 @@ html > body[data-scroll-locked] {
   padding: 1rem;
 }
 
+/* Lines are inline spans, so `<code>` must be a block for its line height to
+   size them rather than the `<pre>`'s. */
 .lumis code {
+  display: block;
   font-size: 0.875rem;
   line-height: 1.6;
 }

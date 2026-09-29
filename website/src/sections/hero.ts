@@ -57,8 +57,8 @@ export function renderHero() {
             </div>
             <div data-install-panel="elixir" id="install-panel-elixir" role="tabpanel" class="hidden">
               <div class="flex items-center justify-between gap-2 px-4 py-3">
-                <code class="font-mono text-sm text-zinc-700 dark:text-zinc-300"><span class="mr-2 text-zinc-400 select-none">&gt;</span>{:lumis, "~&gt; 0.7"}</code>
-                <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy='{:lumis, "~> 0.7"}'>${COPY_SVG}</button>
+                <code class="font-mono text-sm text-zinc-700 dark:text-zinc-300"><span class="mr-2 text-zinc-400 select-none">&gt;</span>{:lumis, "~&gt; 0.10"}</code>
+                <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy='{:lumis, "~> 0.10"}'>${COPY_SVG}</button>
               </div>
             </div>
             <div data-install-panel="java" id="install-panel-java" role="tabpanel" class="hidden">

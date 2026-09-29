@@ -34,7 +34,7 @@ export function renderWasm() {
               </div>
               <div class="border-l-2 border-zinc-200 py-1 pl-5 dark:border-zinc-800">
                 <dt class="font-mono text-sm font-medium text-zinc-900 dark:text-white">Loaded when a document needs them</dt>
-                <dd class="mt-1 font-mono text-xs leading-relaxed text-zinc-500">Highlighting fetches, verifies and loads what a document turns out to name, including languages injected inside it, in a single pass. One it cannot fetch costs that block, not the document. Load ahead of time to keep the download off a first request.</dd>
+                <dd class="mt-1 font-mono text-xs leading-relaxed text-zinc-500">Node reads each parser from the package a project installed, and loads the languages injected inside a document in the same pass. A browser loads the packages it imports. Nothing comes from a CDN unless you configure a resolver.</dd>
               </div>
               <div class="border-l-2 border-zinc-200 py-1 pl-5 dark:border-zinc-800">
                 <dt class="font-mono text-sm font-medium text-zinc-900 dark:text-white">Persistent and verified</dt>

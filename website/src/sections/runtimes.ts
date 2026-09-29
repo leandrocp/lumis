@@ -23,7 +23,7 @@ const RUNTIME_LINKS = [
   },
   {
     name: "Elixir",
-    install: `{:lumis, "~> 0.7"}`,
+    install: `{:lumis, "~> 0.10"}`,
     links: [
       { label: "HexDocs", href: "https://hexdocs.pm/lumis" },
       { label: "Hex", href: "https://hex.pm/packages/lumis" },

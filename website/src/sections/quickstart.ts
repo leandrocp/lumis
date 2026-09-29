@@ -72,13 +72,16 @@ document.getElementById('output').innerHTML = await highlight(
   {
     id: "elixir",
     label: "Elixir",
-    install: { language: "elixir", code: `{:lumis, "~> 0.7"}` },
+    install: {
+      language: "elixir",
+      code: `{:lumis, "~> 0.10"},
+{:lumis_wasm_javascript, "~> 0.26.0"}`,
+    },
     usage: {
       language: "elixir",
       code: `Lumis.highlight!(
   "const x = 1",
-  language: "javascript",
-  formatter: {:html_inline, theme: "dracula"}
+  formatter: {:html_inline, language: "javascript", theme: "dracula"}
 )`,
     },
   },

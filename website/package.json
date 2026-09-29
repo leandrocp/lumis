@@ -13,11 +13,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@lumis-sh/lumis": "^0.7.0",
-    "@lumis-sh/themes": "^0.3.0",
-    "@lumis-sh/wasm-bundle-full": "^0.1.1",
-    "@lumis-sh/wasm-html": "^0.26.3",
-    "@lumis-sh/wasm-javascript": "^0.26.3",
+    "@lumis-sh/lumis": "^0.9.0",
+    "@lumis-sh/themes": "^0.4.0",
+    "@lumis-sh/wasm-bundle-full": "^0.1.3",
+    "@lumis-sh/wasm-css": "^0.26.4",
+    "@lumis-sh/wasm-elixir": "^0.26.5",
+    "@lumis-sh/wasm-embedded-template": "^0.26.4",
+    "@lumis-sh/wasm-heex": "^0.26.3",
+    "@lumis-sh/wasm-html": "^0.26.4",
+    "@lumis-sh/wasm-javascript": "^0.26.4",
+    "@lumis-sh/wasm-json": "^0.26.5",
+    "@lumis-sh/wasm-markdown": "^0.26.3",
+    "@lumis-sh/wasm-ruby": "^0.26.4",
+    "@lumis-sh/wasm-rust": "^0.26.5",
+    "@lumis-sh/wasm-typescript": "^0.26.3",
     "@vercel/analytics": "^2.0.1",
     "webgl-fluid-enhanced": "^0.8.0"
   },
@@ -26,7 +35,7 @@
     "oxfmt": "^0.42.0",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3",
-    "vite": "^7.3.2"
+    "vite": "^8.3.1"
   },
   "engines": {
     "node": "24.x"

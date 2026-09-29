@@ -194,18 +194,18 @@ Reduce compile time and binary size by enabling only the languages you need:
 
 ```toml
 [dependencies.lumis]
-version = "0.1"
+version = "0.16"
 default-features = false
-features = ["bundle-web", "lang-rust"]
+features = ["lang-bundle-web", "lang-rust"]
 ```
 
-This lets you mix bundle features with individual language features. In this example, `bundle-web` covers the usual web stack and `lang-rust` adds Rust on top.
+This lets you mix bundle features with individual language features. In this example, `lang-bundle-web` covers the usual web stack and `lang-rust` adds Rust on top.
 
 To re-enable everything:
 
 ```toml
 [dependencies]
-lumis = { version = "0.1", features = ["all-languages"] }
+lumis = { version = "0.16", features = ["all-languages"] }
 ```
 
-Available features follow the patterns `bundle-<name>` and `lang-<name>` (e.g., `bundle-web`, `bundle-system`, `lang-python`, `lang-html`, `lang-elixir`). See the crate `Cargo.toml` for the full list.
+Available features follow the patterns `lang-bundle-<name>` and `lang-<name>` (e.g., `lang-bundle-web`, `lang-bundle-system`, `lang-python`, `lang-html`, `lang-elixir`). See the crate `Cargo.toml` for the full list.

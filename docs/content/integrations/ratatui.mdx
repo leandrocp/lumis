@@ -24,8 +24,8 @@ That gives you syntax highlighting in terminal UIs without a custom Lumis format
 
 ```toml
 [dependencies]
-lumis = "0.7"
-ratatui = "0.29"
+lumis = "0.16"
+ratatui = "0.30"
 ansi-to-tui = "8"
 ```
 
@@ -33,10 +33,7 @@ ansi-to-tui = "8"
 
 ```rust
 use ansi_to_tui::IntoText;
-use lumis::{
-    formatters::Formatter, languages::Language, themes,
-    TerminalBuilder,
-};
+use lumis::{highlight, languages::Language, themes, TerminalBuilder};
 use ratatui::widgets::{Block, Paragraph};
 
 fn code_paragraph(
@@ -50,9 +47,7 @@ fn code_paragraph(
         .build()
         .unwrap();
 
-    let mut output = Vec::new();
-    formatter.format(source, &mut output).unwrap();
-    let ansi = String::from_utf8(output).unwrap();
+    let ansi = highlight(source, formatter);
     let text = ansi.into_text().unwrap();
 
     Paragraph::new(text)

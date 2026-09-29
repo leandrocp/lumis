@@ -62,9 +62,9 @@ function loadHighlighter() {
     const root = packageRoot("@lumis-sh/lumis");
     highlighterPromise = Promise.all([
       dynamicImport(root + "/dist/index.js"),
-      dynamicImport(root + "/dist/bundles/full.js"),
-    ]).then(([{ createHighlighter }, { bundledLanguages }]) =>
-      createHighlighter({ langs: [bundledLanguages] }),
+      dynamicImport(require.resolve("@lumis-sh/wasm-bundle-full")),
+    ]).then(([{ createHighlighter }, { default: full }]) =>
+      createHighlighter({ languages: [full] }),
     );
   }
   return highlighterPromise;

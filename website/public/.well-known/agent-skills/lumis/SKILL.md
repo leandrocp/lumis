@@ -26,7 +26,7 @@ The complete agent-readable documentation is available at [llms.txt](https://doc
 
 Follow the same workflow on every runtime:
 
-1. Choose or detect the language.
+1. Choose or detect the language. In JavaScript and Elixir, also install its parser package, such as `@lumis-sh/wasm-rust` or `{:lumis_wasm_rust, "~> 0.26.0"}`, or a bundle: Lumis loads no parser the project did not install or import.
 2. Choose a theme when the formatter uses one.
 3. Configure the formatter.
 4. Highlight the source.

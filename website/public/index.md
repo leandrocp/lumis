@@ -23,9 +23,9 @@ Lumis is a syntax highlighter powered by Tree-sitter. It provides one model for 
 | --- | --- |
 | CLI | `curl -LsSf https://lumis.sh/install.sh \| sh` |
 | Rust | `cargo add lumis` |
-| JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes` |
+| JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript` |
 | Browsers / CDN | `https://esm.sh/@lumis-sh/lumis` |
-| Elixir | `{:lumis, "~> 0.9"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26.0"}` |
+| Elixir | `{:lumis, "~> 0.10"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26.0"}` |
 | Java | `io.roastedroot:lumis4j:0.0.7` |
 
 ## Quick start
@@ -33,8 +33,8 @@ Lumis is a syntax highlighter powered by Tree-sitter. It provides one model for 
 ```javascript
 import { highlight } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
-import javascript from "@lumis-sh/lumis/langs/javascript";
 import dracula from "@lumis-sh/themes/dracula";
+import javascript from "@lumis-sh/wasm-javascript";
 
 const html = await highlight(
   "const x = 1",

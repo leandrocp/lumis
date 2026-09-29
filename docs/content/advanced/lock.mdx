@@ -55,7 +55,7 @@ Add the parsers you want to `mix.exs`. There are no Lumis-specific commands:
 ```elixir title="mix.exs"
 defp deps do
   [
-    {:lumis, "~> 0.9"},
+    {:lumis, "~> 0.10"},
     {:lumis_wasm_rust, "~> 0.26.0"},
     {:lumis_wasm_bundle_web, "~> 0.1"}
   ]
@@ -129,7 +129,7 @@ Parsers are Cargo features, so `Cargo.lock` and the `lumis` version pin them.
 Nothing is fetched at runtime.
 
 ```toml title="Cargo.toml"
-lumis = { version = "0.13", default-features = false, features = ["lang-rust", "lang-elixir"] }
+lumis = { version = "0.16", default-features = false, features = ["lang-rust", "lang-elixir"] }
 ```
 
   </Tab>

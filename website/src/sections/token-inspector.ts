@@ -110,32 +110,26 @@ function countTokens(tokens: HTMLElement[]): {
 
 async function initInspector(root: HTMLElement, output: HTMLDivElement) {
   const [
-    { createHighlighter, highlightIter, withWasm },
+    { createHighlighter, highlightIter },
     { escape, openSpanTag, openPreTag, openCodeTag, closingTags, wrapLine, styleToCss },
     html,
     javascript,
-    wasmHtml,
-    wasmJavascript,
     lightTheme,
     darkTheme,
   ] = await Promise.all([
     import("@lumis-sh/lumis"),
     import("@lumis-sh/lumis/formatters/html"),
-    import("@lumis-sh/lumis/langs/html").then((m) => m.default),
-    import("@lumis-sh/lumis/langs/javascript").then((m) => m.default),
     import("@lumis-sh/wasm-html").then((m) => m.default),
     import("@lumis-sh/wasm-javascript").then((m) => m.default),
     loadTheme("catppuccin_latte"),
     loadTheme("catppuccin_frappe"),
   ]);
 
-  const hl = await createHighlighter({
-    languages: [withWasm(html, wasmHtml), withWasm(javascript, wasmJavascript)],
-  });
+  const hl = await createHighlighter({ languages: [html, javascript] });
 
   const docsFormatter = {
     language: html,
-    format(source: string) {
+    render(source: string) {
       let tokenId = 0;
       const lines = [""];
       const darkStyles: Array<{ fg?: string; bg?: string } | undefined> = [];

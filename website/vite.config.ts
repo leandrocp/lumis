@@ -40,12 +40,6 @@ function sitemap(): Plugin {
 export default defineConfig({
   plugins: [tailwindcss(), sitemap()],
   build: {
-    // Every parser's `lumis.json` is reachable from the worker, but a visit
-    // needs the handful of languages it actually highlights. Most are under the
-    // 4 kB default, so inlining put 46 of them in the worker chunk as base64 and
-    // grew it by 171 kB that every visitor downloads to use a few. Emitted as
-    // files, they are fetched only by the language that names one.
-    assetsInlineLimit: (filePath: string) => (filePath.endsWith("lumis.json") ? false : undefined),
     rollupOptions: {
       input: Object.fromEntries(
         Object.entries(pages).map(([name, page]) => [

@@ -5,26 +5,25 @@ import {
   htmlMultiThemes,
   terminal,
 } from "@lumis-sh/lumis/formatters";
-import type { HtmlMultiThemesOptions } from "@lumis-sh/lumis/formatters";
+import type { Formatter, HtmlMultiThemesOptions } from "@lumis-sh/lumis/formatters";
 import type { LanguageRef } from "@lumis-sh/lumis";
-import css from "@lumis-sh/lumis/langs/css";
-import elixir from "@lumis-sh/lumis/langs/elixir";
-import erb from "@lumis-sh/lumis/langs/erb";
-import heex from "@lumis-sh/lumis/langs/heex";
-import html from "@lumis-sh/lumis/langs/html";
-import javascript from "@lumis-sh/lumis/langs/javascript";
-import json from "@lumis-sh/lumis/langs/json";
-import markdown from "@lumis-sh/lumis/langs/markdown";
-import markdownInline from "@lumis-sh/lumis/langs/markdown_inline";
-import ruby from "@lumis-sh/lumis/langs/ruby";
-import rust from "@lumis-sh/lumis/langs/rust";
-import typescript from "@lumis-sh/lumis/langs/typescript";
 import catppuccinFrappe from "@lumis-sh/themes/catppuccin_frappe";
 import catppuccinLatte from "@lumis-sh/themes/catppuccin_latte";
 import dracula from "@lumis-sh/themes/dracula";
 import githubLight from "@lumis-sh/themes/github_light";
 import nord from "@lumis-sh/themes/nord";
 import tokyonightMoon from "@lumis-sh/themes/tokyonight_moon";
+import css from "@lumis-sh/wasm-css";
+import elixir from "@lumis-sh/wasm-elixir";
+import { erb } from "@lumis-sh/wasm-embedded-template";
+import heex from "@lumis-sh/wasm-heex";
+import html from "@lumis-sh/wasm-html";
+import javascript from "@lumis-sh/wasm-javascript";
+import json from "@lumis-sh/wasm-json";
+import markdown from "@lumis-sh/wasm-markdown";
+import ruby from "@lumis-sh/wasm-ruby";
+import rust from "@lumis-sh/wasm-rust";
+import typescript from "@lumis-sh/wasm-typescript";
 import { highlighterFor } from "../lib/published-highlighter";
 import { CHECK_SVG, COPY_SVG, escapeHtml } from "../lib/utils";
 
@@ -123,7 +122,7 @@ const BRACKETS_SOURCE = `const server = createServer({
 })`;
 
 const THEME_SOURCE = `defp deps do
-  [{:lumis, "~> 0.7"}]
+  [{:lumis, "~> 0.10"}]
 end`;
 
 const CSS_SOURCE = `.cart-row {
@@ -151,7 +150,7 @@ const DEMOS: Demo[] = [
     source: `${REPO}/packages/javascript/lumis/examples/multi-themes.html`,
     code: `import { createHighlighter } from '@lumis-sh/lumis'
 import { htmlMultiThemes } from '@lumis-sh/lumis/formatters'
-import typescript from '@lumis-sh/lumis/langs/typescript'
+import typescript from '@lumis-sh/wasm-typescript'
 import latte from '@lumis-sh/themes/catppuccin_latte'
 import frappe from '@lumis-sh/themes/catppuccin_frappe'
 
@@ -174,13 +173,12 @@ const html = hl.highlight(source, htmlMultiThemes({
       "A HEEx template in a sigil and Markdown in a doc string, each parsed by its own grammar.",
     tags: ["Elixir", "HEEx", "Markdown"],
     source: "https://docs.lumis.sh/recipes/injected-languages-html-css-js",
-    code: `import elixir from '@lumis-sh/lumis/langs/elixir'
-import heex from '@lumis-sh/lumis/langs/heex'
-import markdown from '@lumis-sh/lumis/langs/markdown'
-import markdownInline from '@lumis-sh/lumis/langs/markdown_inline'
+    code: `import elixir from '@lumis-sh/wasm-elixir'
+import heex from '@lumis-sh/wasm-heex'
+import markdown from '@lumis-sh/wasm-markdown'
 
 const hl = await createHighlighter({
-  languages: [elixir, heex, markdown, markdownInline],
+  languages: [elixir, heex, markdown],
 })
 
 const html = hl.highlight(source, htmlMultiThemes({
@@ -189,7 +187,7 @@ const html = hl.highlight(source, htmlMultiThemes({
   defaultTheme: 'light-dark()',
 }))`,
     async run() {
-      const hl = await highlighterFor(elixir, heex, markdown, markdownInline);
+      const hl = await highlighterFor(elixir, heex, markdown);
       return hl.highlight(ELIXIR_SOURCE, themed(elixir));
     },
   },
@@ -200,7 +198,7 @@ const html = hl.highlight(source, htmlMultiThemes({
     tags: ["Markdown", "Rust", "JavaScript"],
     source: `${REPO}/packages/javascript/lumis/examples/injected-languages.html`,
     code: `const hl = await createHighlighter({
-  languages: [markdown, markdownInline, rust, javascript],
+  languages: [markdown, rust, javascript],
 })
 
 const html = hl.highlight(readme, htmlMultiThemes({
@@ -209,7 +207,7 @@ const html = hl.highlight(readme, htmlMultiThemes({
   defaultTheme: 'light-dark()',
 }))`,
     async run() {
-      const hl = await highlighterFor(markdown, markdownInline, rust, javascript);
+      const hl = await highlighterFor(markdown, rust, javascript);
       return hl.highlight(MARKDOWN_SOURCE, themed(markdown));
     },
   },
@@ -219,9 +217,9 @@ const html = hl.highlight(readme, htmlMultiThemes({
     blurb: "ERB, EEx, HEEx, Vue and Svelte carry two grammars at once, and both get highlighted.",
     tags: ["ERB", "Ruby", "HTML"],
     source: `${REPO}/packages/javascript/lumis/examples/erb-template.html`,
-    code: `import erb from '@lumis-sh/lumis/langs/erb'
-import html from '@lumis-sh/lumis/langs/html'
-import ruby from '@lumis-sh/lumis/langs/ruby'
+    code: `import { erb } from '@lumis-sh/wasm-embedded-template'
+import html from '@lumis-sh/wasm-html'
+import ruby from '@lumis-sh/wasm-ruby'
 
 const hl = await createHighlighter({ languages: [erb, html, ruby] })
 
@@ -277,11 +275,10 @@ const output = hl.highlight(template, htmlMultiThemes({
   language: javascript,
   themes: { light: latte, dark: frappe },
   defaultTheme: 'light-dark()',
-  rainbowBrackets: true,
-}))`,
+}), { rainbowBrackets: true })`,
     async run() {
       const hl = await highlighterFor(javascript);
-      return hl.highlight(BRACKETS_SOURCE, themed(javascript, { rainbowBrackets: true }));
+      return hl.highlight(BRACKETS_SOURCE, themed(javascript), { rainbowBrackets: true });
     },
   },
   {
@@ -403,16 +400,23 @@ for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
     id: "custom-formatter",
     title: "Custom formatter",
     blurb:
-      "A formatter is an object with a format method, so any output format is a few lines away.",
-    tags: ["Formatter", "highlightIter"],
+      "A formatter is an object with a render method that receives the highlight events, so any output format is a few lines away.",
+    tags: ["Formatter", "Events"],
     source: `${REPO}/packages/javascript/lumis/examples/custom-formatter.html`,
     code: `const tokenTable = {
   language: javascript,
-  format(source) {
+  render(source, events) {
+    const bytes = new TextEncoder().encode(source)
+    const scopes = []
     const rows = []
-    hl.highlightIter(source, javascript, latte, (text, language, range, scope) => {
+    for (const event of events) {
+      if (event.type === 'start') scopes.push(event.scope)
+      if (event.type === 'end') scopes.pop()
+      if (event.type !== 'source') continue
+      const text = new TextDecoder().decode(bytes.subarray(event.start, event.end))
+      const scope = scopes.at(-1)
       if (scope && text.trim()) rows.push(scope.padEnd(24) + text)
-    })
+    }
     return rows.join('\\n')
   },
 }
@@ -420,18 +424,20 @@ for (const theme of [dracula, nord, githubLight, tokyonightMoon]) {
 const table = hl.highlight(source, tokenTable)`,
     async run() {
       const hl = await highlighterFor(javascript);
-      const tokenTable = {
+      const tokenTable: Formatter = {
         language: javascript,
-        format(source: string) {
+        render(source, events) {
+          const bytes = new TextEncoder().encode(source);
+          const scopes: string[] = [];
           const rows: string[] = [];
-          hl.highlightIter(
-            source,
-            javascript,
-            catppuccinLatte,
-            (text, _language, _range, scope) => {
-              if (scope && text.trim()) rows.push(`${scope.padEnd(24)}${text}`);
-            },
-          );
+          for (const event of events) {
+            if (event.type === "start") scopes.push(event.scope);
+            if (event.type === "end") scopes.pop();
+            if (event.type !== "source") continue;
+            const text = new TextDecoder().decode(bytes.subarray(event.start, event.end));
+            const scope = scopes.at(-1);
+            if (scope && text.trim()) rows.push(`${scope.padEnd(24)}${text}`);
+          }
           return rows.join("\n");
         },
       };

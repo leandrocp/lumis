@@ -11,6 +11,7 @@
   "dependencies": {
     "@lumis-sh/lumis": "latest",
     "@lumis-sh/themes": "latest",
+    "@lumis-sh/wasm-bundle-full": "latest",
     "@modelcontextprotocol/server": "latest",
     "@vercel/analytics": "^2.0.1",
     "cn": "^0.2.6",

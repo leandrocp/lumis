@@ -1,6 +1,6 @@
 import { availableLanguages } from "@lumis-sh/lumis";
-import { bundledLanguages } from "@lumis-sh/lumis/bundles/full";
 import type { LazyLanguage } from "@lumis-sh/lumis";
+import full from "@lumis-sh/wasm-bundle-full";
 import { getSample } from "./samples";
 
 export interface LanguageOption {
@@ -15,7 +15,7 @@ export interface LanguageOption {
 // `jinja_inline` as "Jinja_inline".
 const CATALOG_NAMES = new Map(availableLanguages().map(({ id, name }) => [id, name]));
 
-export const LANGUAGES: LanguageOption[] = Object.entries(bundledLanguages)
+export const LANGUAGES: LanguageOption[] = Object.entries(full)
   .map(([id, language]) => ({
     id,
     label: CATALOG_NAMES.get(id) || id,
