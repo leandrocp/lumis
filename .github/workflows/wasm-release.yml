@@ -209,13 +209,30 @@ jobs:
             echo "any=$(echo "$plan" | jq -r '.parsers | length > 0')"
           } >> "$GITHUB_OUTPUT"
 
-  # One pipeline per parser: build, npm, then Hex, in
-  # `wasm-release-parser.yml`. A parser that fails stops its own pipeline and
-  # nothing else, so one grammar that cannot build no longer holds every other
-  # parser's Hex release back.
+      # Every parser job runs this same tool, so it is compiled once, here, and
+      # handed to them. Stripped, because each of them downloads it.
+      - name: Keep the dev tool for the parser jobs
+        if: steps.plan.outputs.any == 'true'
+        run: strip -o "$RUNNER_TEMP/dev" crates/dev/target/debug/dev
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: steps.plan.outputs.any == 'true'
+        with:
+          name: dev
+          path: ${{ runner.temp }}/dev
+          retention-days: 1
+          if-no-files-found: error
+
+  # One pipeline per parser, in `wasm-release-parser.yml`: build once, then
+  # publish to npm and Hex in parallel. A parser that fails stops its own
+  # pipeline and nothing else.
   #
   # `id-token: write` is granted here only so the called workflow can pass it
-  # to its npm job; its build job drops it.
+  # to its npm job; its other jobs drop it.
+  #
+  # Twenty pipelines at once. A full run is 113 builds of a minute or two each,
+  # so this is what bounds how long a release takes; other workflows can queue
+  # behind it meanwhile.
   release:
     needs: plan
     if: needs.plan.outputs.any == 'true'
@@ -225,7 +242,7 @@ jobs:
       id-token: write
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 20
       matrix:
         include: ${{ fromJson(needs.plan.outputs.parsers) }}
     uses: ./.github/workflows/wasm-release-parser.yml

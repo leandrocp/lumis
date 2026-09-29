@@ -4957,11 +4957,11 @@ fn bundle_version_for_requirements(
 /// npm alone, because it is the only registry that can answer: a packument
 /// carries each version's `lumis` metadata, while Hex's registry file carries
 /// versions and nothing else. That makes the answer only as good as the
-/// invariant **Hex never holds a definition npm does not**, which
-/// `wasm-release.yml` keeps by publishing Hex after npm and holding it back
-/// when npm fails. Break that and a Hex-only definition reads as unpublished,
-/// takes a fresh patch from `next_patch`, and is released to Hex again
-/// unchanged on every run.
+/// invariant **Hex never holds a definition npm does not**. `wasm-release.yml`
+/// publishes the two in parallel, so it breaks whenever npm fails and Hex does
+/// not: the Hex-only definition then reads as unpublished, takes a fresh patch
+/// from `next_patch`, and is released to Hex again unchanged on every run until
+/// npm has it.
 fn version_for_definition(packument: &Value, expected: &str, series: &str) -> Option<String> {
     let versions = packument.get("versions")?.as_object()?;
     let prefix = format!("{series}.");

@@ -1,13 +1,21 @@
 name: WASM Release Parser
 
-# One parser's release: build it, publish it to npm, then to Hex. `wasm-release`
-# calls this once per parser in its plan, so each parser is its own pipeline and
-# a parser that cannot build or publish stops only itself. Every other parser
-# still reaches both registries in the same run.
+# One parser's release. `wasm-release` calls this once per parser in its plan,
+# so a parser that fails stops only itself.
+#
+#   build ──┬─> publish-npm
+#           └─> publish-hex
+#   fetch ────> publish-hex     (Hex backfill: npm already has this version)
+#
+# `build` and `fetch` stage both packages and store them as an artifact; the
+# publish jobs only publish it. Neither staging job holds a credential, and
+# neither publish job runs a grammar's C or any of this repository's tooling.
+#
+# Both staging jobs run the `dev` tool that `plan` compiled, rather than each
+# compiling it again.
 #
 # npm checks a trusted publisher against the calling workflow, not this one, so
-# `wasm-release.yml` stays the workflow every parser package names. Nothing here
-# runs on its own trigger.
+# `wasm-release.yml` stays the workflow every parser package names.
 on:
   workflow_call:
     inputs:
@@ -45,34 +53,22 @@ permissions:
   contents: read
 
 jobs:
-  # Built once, at the version the plan resolved, and carried to the publish
-  # jobs as an artifact. Both registries receive bytes from this one build
-  # rather than each rebuilding and hoping the results match.
+  # Compiles the grammar once and stages both packages from that one `.wasm`,
+  # so both registries ship the same bytes.
   build:
+    if: inputs.npm
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: read
     steps:
-      # Nothing here pushes, and this job compiles a third-party grammar and
-      # runs its cargo build scripts. None of that needs a credential for this
-      # repository, so it does not get one left in `.git/config`.
+      # No credential left in `.git/config`: this job runs a third-party
+      # grammar's build, and pushes nothing.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          install: false
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
-
-      - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
-        with:
-          shared-key: wasm-release
-          add-job-id-key: false
+          install_args: tree-sitter
 
       - name: Cache tree-sitter tool downloads
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
@@ -82,36 +78,82 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tree-sitter-cli-
 
-      # A parser npm already serves at this version is not rebuilt: the
-      # published tarball is unpacked and Hex is staged from those bytes.
-      # Rebuilding would only be equivalent if the build were reproducible, and
-      # it is not — `build-wasm` falls back to an unlocked `npm install` for the
-      # grammars that generate from `grammar.js` and ship no usable lockfile, so
-      # a rebuild months later can resolve different tooling and emit a
-      # different `.wasm`. `stage-hex-wasm` checks the staged bytes against the
-      # manifest beside them, which cannot catch that, because a rebuild
-      # produces a manifest describing itself. Taking the bytes from npm is what
-      # makes "one parser, two registries" true rather than hoped for, and it
-      # skips the compile for every backfilled parser.
-      - name: Build and stage both packages
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dev
+          path: ${{ runner.temp }}/bin
+
+      # Artifacts do not keep file modes. tree-sitter goes on PATH itself rather
+      # than as a mise shim: it runs inside the grammar's clone, where no mise
+      # config names it, which is why `mise run wasm-build` does the same.
+      - name: Put the tools on PATH
         run: |
-          if [ "$NPM" = "true" ]; then
-            mise run wasm-build "$PARSER"
-            cargo run -q --manifest-path crates/dev/Cargo.toml -- \
-              stage-wasm "$PARSER" --version "$VERSION"
-          else
-            download="$RUNNER_TEMP/npm/$PARSER"
-            mkdir -p "$download" "tmp/wasm/publish/$PARSER"
-            npm pack "$NPM_PACKAGE@$VERSION" --pack-destination "$download"
-            tar -xzf "$download"/*.tgz --strip-components=1 \
-              -C "tmp/wasm/publish/$PARSER"
-          fi
-          cargo run -q --manifest-path crates/dev/Cargo.toml -- stage-hex-wasm "$PARSER"
+          chmod +x "$RUNNER_TEMP/bin/dev"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          mise where tree-sitter >> "$GITHUB_PATH"
+
+      - name: Build
+        run: dev build-wasm "$PARSER"
+        env:
+          PARSER: ${{ inputs.parser }}
+
+      - name: Stage both packages
+        run: |
+          dev stage-wasm "$PARSER" --version "$VERSION"
+          dev stage-hex-wasm "$PARSER"
         env:
           PARSER: ${{ inputs.parser }}
           VERSION: ${{ inputs.version }}
-          NPM: ${{ inputs.npm }}
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: staged-${{ inputs.parser }}
+          path: |
+            tmp/wasm/publish/${{ inputs.parser }}
+            tmp/wasm/hex
+          retention-days: 1
+          if-no-files-found: error
+
+  # Nothing to build: npm already serves this version, and Hex is staged from
+  # that tarball. A rebuild would not reproduce it — `build-wasm` falls back to
+  # an unlocked `npm install` for grammars that generate from `grammar.js`, so
+  # the same revision can emit a different `.wasm` months later — and
+  # `stage-hex-wasm` cannot tell, since a rebuild comes with a manifest that
+  # describes itself.
+  fetch:
+    if: ${{ !inputs.npm }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dev
+          path: ${{ runner.temp }}/bin
+
+      # Artifacts do not keep file modes.
+      - name: Put the dev tool on PATH
+        run: |
+          chmod +x "$RUNNER_TEMP/bin/dev"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch the npm package
+        run: |
+          download="$RUNNER_TEMP/npm"
+          mkdir -p "$download" "tmp/wasm/publish/$PARSER"
+          npm pack "$NPM_PACKAGE@$VERSION" --pack-destination "$download"
+          tar -xzf "$download"/*.tgz --strip-components=1 -C "tmp/wasm/publish/$PARSER"
+        env:
+          PARSER: ${{ inputs.parser }}
+          VERSION: ${{ inputs.version }}
           NPM_PACKAGE: ${{ inputs.npm_package }}
+
+      - name: Stage the Hex package
+        run: dev stage-hex-wasm "$PARSER"
+        env:
+          PARSER: ${{ inputs.parser }}
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -146,13 +188,10 @@ jobs:
       # Node 24 bundles 11.19.0, and OIDC publishing needs 11.5.1 at minimum.
       - run: npm install --global npm@12
 
-      # No `NODE_AUTH_TOKEN`: the `id-token: write` above is the whole
-      # credential. npm exchanges the workflow's OIDC identity for a
-      # short-lived publish token, which only works because this package names
-      # `wasm-release.yml` as a trusted publisher — `mise run npm-trust`.
-      #
-      # No build step either: this job holds the credential, so it publishes the
-      # artifact `build` staged and runs nothing of its own.
+      # No `NODE_AUTH_TOKEN`: `id-token: write` is the whole credential. npm
+      # exchanges the workflow's OIDC identity for a short-lived publish token,
+      # which works because this package names `wasm-release.yml` as a trusted
+      # publisher — `mise run npm-trust`.
       - name: Publish to npm
         run: |
           cd -- "publish/$PARSER"
@@ -160,21 +199,16 @@ jobs:
         env:
           PARSER: ${{ inputs.parser }}
 
-  # After npm, so Hex can never hold a definition npm does not. `plan` recovers
-  # the version a definition was published under from npm alone — Hex's registry
-  # file carries versions and nothing else — so a parser Hex had and npm did not
-  # would look unpublished, take a fresh patch, and release an unchanged
-  # definition to Hex again on every run. A failed npm publish therefore holds
-  # this parser's Hex back; the next run publishes both.
-  #
-  # `!cancelled()` because `publish-npm` is skipped when npm already has this
-  # version, and a skipped need would otherwise skip this job too.
+  # In parallel with npm, not after it. If npm fails where Hex succeeds, the
+  # next plan cannot find the definition on npm — the only registry it reads
+  # definitions from — so it takes the next patch, and Hex receives the same
+  # definition again under that version. One extra Hex release per run until
+  # npm catches up.
   publish-hex:
-    needs: [build, publish-npm]
+    needs: [build, fetch]
     if: >-
       ${{ !cancelled() && inputs.hex &&
-          needs.build.result == 'success' &&
-          (needs.publish-npm.result == 'success' || !inputs.npm) }}
+          (needs.build.result == 'success' || needs.fetch.result == 'success') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -186,10 +220,18 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
-      # Hex installed before the key exists, because `mix local.hex` fetches and
-      # runs code that has no business being able to read it.
-      - name: Install Hex
-        run: mix local.hex --force
+      # Before the key exists: both download code that has no business reading
+      # it. `deps.get` because `mix hex.publish` refuses to run with a
+      # dependency unchecked out, and a parser that `requires` another grammar
+      # depends on that grammar's Hex package. Nothing is compiled, and the
+      # package's `files` keep the download out of the tarball.
+      - name: Install Hex and fetch dependencies
+        run: |
+          mix local.hex --force
+          cd -- "hex/$APP"
+          mix deps.get
+        env:
+          APP: ${{ inputs.app }}
 
       - name: Publish to Hex
         run: |
