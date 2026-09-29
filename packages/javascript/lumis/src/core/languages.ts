@@ -706,15 +706,53 @@ function inspectParserGrammar(data: Uint8Array): ParserGrammar {
     : { ok: false, detail: `expected one grammar export, got ${names.length}` };
 }
 
-async function downloadParserWasm(source: string, languageId: string): Promise<Uint8Array> {
+/** The first four bytes of every WebAssembly module: `\0asm`. */
+const WASM_MAGIC = [0x00, 0x61, 0x73, 0x6d];
+
+async function downloadParserWasm(
+  source: string,
+  languageId: string,
+  packageName: string,
+): Promise<Uint8Array> {
   const response = await fetch(source);
   if (!response.ok) {
-    throw new Error(
+    throw parserDownloadError(
       `could not download parser WASM for ${languageId}: HTTP ${response.status} ${response.statusText}`,
+      source,
+      packageName,
     );
   }
 
-  return new Uint8Array(await response.arrayBuffer());
+  const data = new Uint8Array(await response.arrayBuffer());
+  if (!WASM_MAGIC.every((byte, index) => data[index] === byte)) {
+    const type = response.headers.get("content-type");
+    throw parserDownloadError(
+      `the ${languageId} parser at ${source} is not WebAssembly: the server sent ${data.byteLength} bytes${type ? ` of ${type}` : ""}`,
+      source,
+      packageName,
+    );
+  }
+  return data;
+}
+
+function parserDownloadError(message: string, source: string, packageName: string): Error {
+  return new Error(
+    underViteDeps(source)
+      ? `${message}\n  Vite 7 and older pre-bundle ${packageName} away from its parser file: add it to optimizeDeps.exclude, or upgrade to Vite 8`
+      : message,
+  );
+}
+
+// Vite 7 and older pre-bundle a package into `<cacheDir>/deps/` in the dev
+// server and leave its `new URL('./x.wasm', import.meta.url)` pointing there,
+// where no parser is. Vite 8 rewrites the URL.
+function underViteDeps(source: string): boolean {
+  try {
+    // Relative when a bundler hands one out, as Next.js does.
+    return /\/deps\/[^/]+\.wasm$/.test(new URL(source, globalThis.location?.href).pathname);
+  } catch {
+    return false;
+  }
 }
 
 function requireParserGrammar(
@@ -1301,6 +1339,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     private async readParserWasm(
       resolved: { wasm: NonNullable<LoadLanguageOptions["wasm"]>; definition: { id: string } },
       requestedId: string,
+      packageName: string,
     ): Promise<Uint8Array> {
       const { wasm } = resolved;
       if (typeof wasm === "object" && isWasmRef(wasm)) {
@@ -1316,7 +1355,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       const disk = await runtime.readResolvedWasmFromDisk(source);
       if (disk) return disk;
 
-      return downloadParserWasm(source, resolved.definition.id);
+      return downloadParserWasm(source, resolved.definition.id, packageName);
     }
 
     private async createLoadedLanguage(opts: LoadLanguageOptions): Promise<LoadedLanguage> {
@@ -1338,7 +1377,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
         throw new Error(`Language package "${opts.packageName}" has no parser or highlights query`);
       }
 
-      const wasmInput = await this.readParserWasm(resolved, opts.definition.id);
+      const wasmInput = await this.readParserWasm(resolved, opts.definition.id, opts.packageName);
       // Always, including when the caller chose where the bytes come from:
       // `withWasm()` selects a source, it does not waive the package's digest.
       await verifyWasm(packaged.wasm, wasmInput);

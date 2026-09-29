@@ -61,6 +61,50 @@ describe("a browser", () => {
     expect(requests).toEqual([]);
   });
 
+  // Vite 7 and older pre-bundle a package into `<cacheDir>/deps/` and leave its
+  // `new URL('./x.wasm', import.meta.url)` pointing there. The dev server then
+  // answers with its HTML fallback page, or with a 404 where the app has none.
+  it.each([
+    [
+      "a page",
+      () => new Response("<!doctype html>", { headers: { "content-type": "text/html" } }),
+      "is not WebAssembly: the server sent 15 bytes of text/html",
+    ],
+    [
+      "a 404",
+      () => new Response(null, { status: 404, statusText: "Not Found" }),
+      "HTTP 404 Not Found",
+    ],
+  ])("names Vite pre-bundling when a parser under deps/ gets %s", async (_, answer, cause) => {
+    vi.stubGlobal("fetch", async () => answer());
+    const prebundled = {
+      ...json,
+      wasm: new URL("http://localhost:5173/node_modules/.vite/deps/tree-sitter-json.wasm"),
+    };
+
+    const loading = createHighlighter({ languages: [prebundled] });
+
+    await expect(loading).rejects.toThrow(cause);
+    await expect(loading).rejects.toThrow(
+      "Vite 7 and older pre-bundle @lumis-sh/wasm-json away from its parser file: add it to optimizeDeps.exclude, or upgrade to Vite 8",
+    );
+  });
+
+  it("names the URL, and not Vite, when a parser elsewhere is not WebAssembly", async () => {
+    vi.stubGlobal(
+      "fetch",
+      async () => new Response("<!doctype html>", { headers: { "content-type": "text/html" } }),
+    );
+    const misplaced = { ...json, wasm: new URL("https://app.test/assets/tree-sitter-json.wasm") };
+
+    const error = await createHighlighter({ languages: [misplaced] }).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toBe(
+      "the json parser at https://app.test/assets/tree-sitter-json.wasm is not WebAssembly: the server sent 15 bytes of text/html",
+    );
+  });
+
   it("refuses a language whose package was not imported", async () => {
     const hl = await createHighlighter({ languages: [] });
 
