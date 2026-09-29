@@ -1,3 +1,30 @@
+## [0.7.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.6.0...cargo-lumis-cli/v0.7.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- BREAKING: render HTML lines as inline spans with overridable layout CSS - [#1559](https://github.com/leandrocp/lumis/pull/1559)
+- keep rainbow brackets in sources with injections - [#1567](https://github.com/leandrocp/lumis/pull/1567)
+- parse the whole document in parse_tree after a highlight - [#1572](https://github.com/leandrocp/lumis/pull/1572)
+
+
+### Code Refactoring
+
+- BREAKING: check parser bytes only where Lumis downloads them - [#1627](https://github.com/leandrocp/lumis/pull/1627)
+
+
+### Documentation
+
+- show each parser size and memory - [#1532](https://github.com/leandrocp/lumis/pull/1532)
+
+
+### Features
+
+- recognize 16 more code fence labels - [#1553](https://github.com/leandrocp/lumis/pull/1553)
+- allow generating CSS without line layout - [#1566](https://github.com/leandrocp/lumis/pull/1566)
+- add an inline structure to the HTML formatters - [#1568](https://github.com/leandrocp/lumis/pull/1568)
+- BREAKING: import each language from its parser package, and load nothing undeclared - [#1605](https://github.com/leandrocp/lumis/pull/1605)
+
 ## [0.6.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.5.1...cargo-lumis-cli/v0.6.0) (2026-09-24)
 
 
