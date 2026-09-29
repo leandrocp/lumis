@@ -1,3 +1,39 @@
+## [0.10.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.9.1...hex-lumis/v0.10.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- stop logging a warning for a missing parser - [#1546](https://github.com/leandrocp/lumis/pull/1546)
+- configure the parser store on first use - [#1557](https://github.com/leandrocp/lumis/pull/1557)
+- BREAKING: render HTML lines as inline spans with overridable layout CSS - [#1559](https://github.com/leandrocp/lumis/pull/1559)
+- compose annotations in highlight events - [#1578](https://github.com/leandrocp/lumis/pull/1578)
+
+
+### Code Refactoring
+
+- BREAKING: check parser bytes only where Lumis downloads them - [#1627](https://github.com/leandrocp/lumis/pull/1627)
+
+
+### Documentation
+
+- update the Elixir docs and examples for Lumis 0.9 - [#1536](https://github.com/leandrocp/lumis/pull/1536)
+- retire the WASM and CDN page - [#1609](https://github.com/leandrocp/lumis/pull/1609)
+
+
+### Features
+
+- add Lumis.highlight_events/3 - [#1543](https://github.com/leandrocp/lumis/pull/1543)
+- recognize 16 more code fence labels - [#1553](https://github.com/leandrocp/lumis/pull/1553)
+- allow generating CSS without line layout - [#1566](https://github.com/leandrocp/lumis/pull/1566)
+- add an inline structure to the HTML formatters - [#1568](https://github.com/leandrocp/lumis/pull/1568)
+- update generated themes - [#1608](https://github.com/leandrocp/lumis/pull/1608)
+
+
+### Testing
+
+- pin top-level API parity across runtimes with a manifest - [#1547](https://github.com/leandrocp/lumis/pull/1547)
+- cover CRLF endings split across highlight events - [#1580](https://github.com/leandrocp/lumis/pull/1580)
+
 ## [0.9.1](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.9.0...hex-lumis/v0.9.1) (2026-09-25)
 
 
