@@ -1411,7 +1411,7 @@ dependencies = [
  "glob",
  "lumis-build",
  "lumis-core 4.0.0",
- "lumis-wasm-runtime",
+ "lumis-wasm-runtime 0.4.0",
  "pretty_assertions",
  "prettyplease",
  "proc-macro2",
@@ -1512,7 +1512,7 @@ dependencies = [
  "clap",
  "etcetera",
  "lumis-core 4.0.0",
- "lumis-wasm-runtime",
+ "lumis-wasm-runtime 0.4.0",
  "predicates",
  "serde",
  "serde_json",
@@ -1571,7 +1571,7 @@ version = "0.8.0"
 dependencies = [
  "base64 0.23.1",
  "lumis-core 4.0.0",
- "lumis-wasm-runtime",
+ "lumis-wasm-runtime 0.4.0",
  "napi",
  "napi-build",
  "napi-derive",
@@ -1583,6 +1583,29 @@ dependencies = [
 [[package]]
 name = "lumis-wasm-runtime"
 version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed9be58d344555e82b9eb0f784dc0c877bb569d241aba134f81a385dfb78e9a3"
+dependencies = [
+ "etcetera",
+ "lumis-core 3.0.0",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "streaming-iterator",
+ "tempfile",
+ "thiserror 2.0.20",
+ "toml 1.1.6+spec-1.1.0",
+ "tree-sitter",
+ "typed-arena",
+ "ureq",
+ "wasmparser 0.259.0",
+ "wasmtime",
+]
+
+[[package]]
+name = "lumis-wasm-runtime"
+version = "0.4.0"
 dependencies = [
  "etcetera",
  "lumis-core 4.0.0",
@@ -1607,8 +1630,8 @@ name = "lumis_nif"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "lumis-core 3.0.0",
- "lumis-wasm-runtime",
+ "lumis-core 4.0.0",
+ "lumis-wasm-runtime 0.3.0",
  "once_cell",
  "parking_lot",
  "rustler",
@@ -2762,7 +2785,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.3",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",

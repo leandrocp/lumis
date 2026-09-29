@@ -1,3 +1,27 @@
+## [0.4.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.3.0...cargo-lumis-wasm-runtime/v0.4.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- keep rainbow brackets in sources with injections - [#1567](https://github.com/leandrocp/lumis/pull/1567)
+- parse the whole document in parse_tree after a highlight - [#1572](https://github.com/leandrocp/lumis/pull/1572)
+
+
+### Code Refactoring
+
+- BREAKING: check parser bytes only where Lumis downloads them - [#1627](https://github.com/leandrocp/lumis/pull/1627)
+
+
+### Documentation
+
+- show each parser size and memory - [#1532](https://github.com/leandrocp/lumis/pull/1532)
+
+
+### Features
+
+- recognize 16 more code fence labels - [#1553](https://github.com/leandrocp/lumis/pull/1553)
+- BREAKING: import each language from its parser package, and load nothing undeclared - [#1605](https://github.com/leandrocp/lumis/pull/1605)
+
 ## [0.3.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.2.1...cargo-lumis-wasm-runtime/v0.3.0) (2026-09-24)
 
 
