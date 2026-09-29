@@ -1866,7 +1866,7 @@ mod tests {
     #[test]
     fn a_gutter_carries_the_number_data_line_does() {
         let source = "one\ntwo";
-        let events = [HighlightEvent::<()>::Source {
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source {
             start: 0,
             end: source.len(),
         }];
@@ -1890,7 +1890,7 @@ mod tests {
     #[test]
     fn gutters_carry_their_theme_attributes() {
         let source = "one\ntwo";
-        let events = [HighlightEvent::<()>::Source {
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source {
             start: 0,
             end: source.len(),
         }];
@@ -1923,7 +1923,7 @@ mod tests {
     /// fixture byte for byte what it was.
     #[test]
     fn no_gutter_without_line_numbers() {
-        let events = [HighlightEvent::<()>::Source { start: 0, end: 1 }];
+        let events: [HighlightEvent<'_, ()>; 1] = [HighlightEvent::Source { start: 0, end: 1 }];
 
         let html = html_lines("a", &events, &LineSelection::default(), false, None);
 

@@ -37,9 +37,11 @@ fn locked_version(lockfile: &str, name: &str) -> Option<String> {
     let contents = fs::read_to_string(&path)
         .unwrap_or_else(|error| panic!("failed to read {}: {error}", path.display()));
 
-    let package = format!("name = \"{name}\"\n");
-    let start = contents.find(&package)? + package.len();
-    let version = contents[start..].strip_prefix("version = \"")?;
+    // `lines` drops the `\r` a Windows checkout adds to each line.
+    let package = format!("name = \"{name}\"");
+    let mut lines = contents.lines();
+    lines.find(|line| *line == package)?;
+    let version = lines.next()?.strip_prefix("version = \"")?;
 
     Some(version[..version.find('"')?].to_string())
 }
