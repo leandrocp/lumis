@@ -1,3 +1,15 @@
+## [0.3.0](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.2.1...npm-rehype-lumis/v0.3.0) (2026-09-29)
+
+
+### Bug Fixes
+
+- BREAKING: render HTML lines as inline spans with overridable layout CSS - [#1559](https://github.com/leandrocp/lumis/pull/1559)
+
+
+### Features
+
+- BREAKING: import each language from its parser package, and load nothing undeclared - [#1605](https://github.com/leandrocp/lumis/pull/1605)
+
 ## [0.2.1](https://github.com/leandrocp/lumis/compare/npm-rehype-lumis/v0.2.0...npm-rehype-lumis/v0.2.1) (2026-09-24)
 
 
