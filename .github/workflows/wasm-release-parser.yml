@@ -225,11 +225,22 @@ jobs:
       # dependency unchecked out, and a parser that `requires` another grammar
       # depends on that grammar's Hex package. Nothing is compiled, and the
       # package's `files` keep the download out of the tarball.
+      #
+      # Retried until that package resolves. In a new Tree-sitter series the
+      # required grammar has no release matching `~> <series>.0` until its own
+      # pipeline in this run publishes one, and it sorts right after the parser
+      # that requires it, so that is minutes away.
       - name: Install Hex and fetch dependencies
         run: |
           mix local.hex --force
           cd -- "hex/$APP"
-          mix deps.get
+          until mix deps.get; do
+            if [ "$SECONDS" -ge 1200 ]; then
+              echo "::error::A package $APP requires is still not on Hex after 20 minutes"
+              exit 1
+            fi
+            sleep 30
+          done
         env:
           APP: ${{ inputs.app }}
 
