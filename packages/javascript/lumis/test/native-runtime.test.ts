@@ -384,7 +384,6 @@ describe("native adapter routing", () => {
               name: "tree-sitter-concurrent",
               version: "0.0.0",
               sha256: createHash("sha256").update(parserBytes).digest("hex"),
-              size: parserBytes.byteLength,
             },
             grammarName: "concurrent",
             highlights: "(string) @string",
@@ -433,7 +432,6 @@ describe("native adapter routing", () => {
         name: metadata.parser.name,
         version: metadata.version,
         sha256: metadata.parser.sha256,
-        size: metadata.parser.size,
       },
       highlights: "(string) @string",
     }));

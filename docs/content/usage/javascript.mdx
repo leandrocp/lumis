@@ -197,7 +197,7 @@ Useful for dropdowns, config validation, and docs tooling:
 - `runtimeKind()` returns `'native'` or `'wasm'` if you need to confirm which one an install resolved
 - the addon carries no parsers and loads each from the `@lumis-sh/wasm-*` package the project installed, so it costs about 4.7 MB of download on top of the Wasm runtime rather than one binary per language
 - the package uses conditional exports so Node and web-standard runtimes get the right entry point automatically
-- every language package contains matching queries plus an exact parser version, size, and SHA-256 digest
+- every language package contains matching queries plus an exact parser version and SHA-256 digest; parser bytes a resolver downloads are checked against that digest
 - Node keeps compiled parser modules, and anything a custom resolver fetched, in the platform user data directory; `LUMIS_DATA_DIR` overrides it
 - browsers load only the parser packages you import, and fetch nothing unless you configure a resolver; parser bytes a resolver fetched are kept in CacheStorage, with an IndexedDB fallback
 - Node loads installed parser packages such as `@lumis-sh/wasm-elixir` or bundle packages such as `@lumis-sh/wasm-bundle-web`, and nothing else unless you configure a resolver
@@ -207,8 +207,8 @@ Useful for dropdowns, config validation, and docs tooling:
 ## Where parsers come from
 
 Every language is a package, named after its parser: `@lumis-sh/wasm-rust`
-holds the Rust parser, the queries written for it, and the parser's size and
-SHA-256 digest. Install it and import the language it exports. The same code
+holds the Rust parser, the queries written for it, and the parser's SHA-256
+digest. Install it and import the language it exports. The same code
 runs in Node and in a browser:
 
 ```bash
@@ -222,10 +222,10 @@ import rust from "@lumis-sh/wasm-rust";
 const hl = await createHighlighter({ languages: [rust] });
 ```
 
-In Node, Lumis reads the parser out of `node_modules`. In a browser, your
-bundler ships it with your code. Either way nothing is downloaded, and Lumis
-refuses parser bytes that don't match the digest, so a parser always runs with
-the queries it was released with.
+In Node, Lumis reads the parser out of `node_modules`, next to its `lumis.json`.
+In a browser, your bundler ships it with your code, and Lumis checks the bytes
+against the package's digest when it fetches them. Either way nothing comes
+from a CDN, and a parser runs with the queries it was released with.
 
 A bundle package exports a whole set, and loads each language the first time
 it is used:
@@ -397,8 +397,9 @@ Awaiting a preload before `startServer()` puts every compile on the boot path,
 so the process accepts no request until the slowest one finishes.
 
 The API accepts `bundle-*` names such as `bundle-web`, covering the same
-languages as the matching `@lumis-sh/wasm-bundle-*` package. Each parser is
-checked against its package's size and SHA-256 before it loads.
+languages as the matching `@lumis-sh/wasm-bundle-*` package. Lumis loads a
+parser as your package manager installed it. A parser downloaded through a
+resolver is checked against its package's SHA-256 first.
 
 When the native Node addon is available, the API also validates each parser and
 its queries and persists the compiled Wasmtime module in the data directory.

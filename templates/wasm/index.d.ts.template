@@ -13,7 +13,7 @@ export interface Language {
   requires?: Language[]
 }
 
-/** This package's `lumis.json`: the parser's size and digest, and the queries released with it. */
+/** This package's `lumis.json`: the parser's digest, and the queries released with it. */
 export interface LanguagePackage {
   packageName: string
   version: string

@@ -28,9 +28,9 @@ It covers Node.js, Bun, Deno, and browsers. Node, the CLI and
 Elixir all run the same Wasmtime highlighting from `lumis-wasm-runtime`, so
 identical input produces identical output; browsers use `web-tree-sitter`.
 
-Every dynamic runtime loads exact, integrity-checked parser WASM per language
-rather than shipping an all-language binary, downloading what a document turns
-out to need and persisting verified assets across process restarts. A host
+Every dynamic runtime loads exact parser WASM per language rather than shipping
+an all-language binary. It loads what a document turns out to need, and keeps
+its caches across process restarts. A host
 application can [preload the languages it needs](/languages) at startup without
 blocking it, and the standalone CLI can prepare the directory ahead of time.
 

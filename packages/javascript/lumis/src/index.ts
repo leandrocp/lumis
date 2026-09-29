@@ -22,7 +22,7 @@ export { guessLanguage } from "./guess-language.js";
  * Load languages into the runtime `highlight()` uses, by name.
  *
  * This is the JavaScript / TypeScript spelling of `Lumis.Languages.load/1`:
- * it caches verified parser bytes and, on the native addon, their compiled
+ * it caches parser bytes and, on the native addon, their compiled
  * Wasmtime module. It keeps the languages in the default runtime so no later
  * call reloads them.
  *

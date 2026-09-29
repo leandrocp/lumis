@@ -54,7 +54,6 @@ describe("verifyWasm without crypto.subtle", () => {
         name: "tree-sitter-x",
         version: "1.0.0",
         sha256: "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
-        size: data.byteLength,
       };
       await expect(verifyWasm(ref, data)).resolves.toBe(data);
       await expect(verifyWasm({ ...ref, sha256: "00" }, data)).rejects.toThrow("integrity");

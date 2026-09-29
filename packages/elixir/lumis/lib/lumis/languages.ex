@@ -3,10 +3,10 @@ defmodule Lumis.Languages do
   Loads Tree-sitter parsers this project depends on.
 
   A language is a parser WASM plus the queries that drive highlighting, shipped
-  together as a `lumis_wasm_*` dependency with its size and SHA-256. Nothing
-  here needs calling for normal use: `Lumis.highlight/2` loads what a document
-  turns out to need, including languages injected inside it — as long as the
-  project depends on them. One it does not answers `:not_installed`.
+  together as a `lumis_wasm_*` dependency. Nothing here needs calling for normal
+  use: `Lumis.highlight/2` loads what a document turns out to need, including
+  languages injected inside it — as long as the project depends on them. One it
+  does not answers `:not_installed`.
 
   Reach for it to load ahead of the first request, so the compile does not land
   on a user. From an application's `start/2`, use `async_load/1`, which returns
@@ -19,10 +19,8 @@ defmodule Lumis.Languages do
 
   From the `priv/parsers` of each installed `lumis_wasm_*` dependency, or a
   directory named by `config :lumis, :parser_dirs`. A language no dependency
-  supplies is not fetched — it answers `:not_installed`.
-
-  Bytes are checked against the size and digest their manifest declares before
-  use, and anything that fails is discarded rather than trusted.
+  supplies is not fetched — it answers `:not_installed`. The bytes are loaded as
+  Hex delivered them, or as the project put them there.
 
   Concurrent requests for the same unloaded language wait for the first rather
   than each compiling it, and loading is global to the VM: the process that pays
@@ -40,7 +38,7 @@ defmodule Lumis.Languages do
           :bundle_web | :bundle_web_extra | :bundle_system | :bundle_backend | :bundle_full
 
   @doc """
-  Loads one language, a list of them, or a bundle, verifying each parser first.
+  Loads one language, a list of them, or a bundle.
 
   Highlighting loads on demand, so this is an optimization rather than a
   requirement: call it at startup to move the compile off the first request.
@@ -71,7 +69,7 @@ defmodule Lumis.Languages do
 
     * `:unknown_language` — the name is not in the catalog
     * `:not_installed` — it is, but this project does not depend on its parser
-    * `:failed_to_load_parser` — the parser could not be read or verified
+    * `:failed_to_load_parser` — the parser could not be read or loaded
     * `:unknown_bundle` — no bundle by that name
     * `%Lumis.ParserError{reason: :store_full}` — the parser is fine, and this
       process has no room for another one

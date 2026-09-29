@@ -152,7 +152,7 @@ export function renderQuickstart() {
               }
               ${
                 tab.id === "javascript"
-                  ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">The same package works in JavaScript and TypeScript, with types included. It loads exact parser WASM per language and persists verified bytes.</p>`
+                  ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">The same package works in JavaScript and TypeScript, with types included. It loads exact parser WASM per language from the packages you install.</p>`
                   : ""
               }
               <div class="border border-zinc-200 dark:border-zinc-800">

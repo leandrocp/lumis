@@ -1014,7 +1014,6 @@ impl NativeRuntime {
                 package.package_name
             )));
         }
-        package.verify_wasm(wasm).map_err(native_error)?;
         let (resolved, definition) = package.language(id).ok_or_else(|| {
             native_error(format!("{} does not define {id:?}", package.package_name))
         })?;
@@ -1081,7 +1080,6 @@ impl NativeRuntime {
                 "name": &package.parser.name,
                 "version": &package.version,
                 "sha256": &package.parser.sha256,
-                "size": package.parser.size,
             }))
             .map_err(native_error)?;
             let wasm_resolver =
@@ -1137,8 +1135,8 @@ impl NativeRuntime {
         Self::default()
     }
 
-    /// Load a caller-selected language package in this instance's isolated
-    /// runtime, verifying its parser against the declared size and digest.
+    /// Load a caller-selected language package and parser bytes in this
+    /// instance's isolated runtime.
     #[napi(js_name = "loadLanguagePackage")]
     pub fn load_language_package(
         &self,

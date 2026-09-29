@@ -33,7 +33,7 @@
 - **Language auto-detection** - File extension, shebang, and emacs-mode support
 - **Line highlighting** - Mark and style individual lines, with custom HTML wrappers
 - **Streaming-friendly** - Handles incomplete code
-- **Parsers are dependencies** - Declared in `mix.exs`, verified and compiled on first use
+- **Parsers are dependencies** - Declared in `mix.exs`, compiled on first use
 
 ## Installation
 
@@ -69,8 +69,8 @@ built-in formatters use.
 ## Parsers
 
 A parser is an ordinary dependency: add `{:lumis_wasm_elixir, "~> 0.26.0"}` and
-`mix deps.get` delivers the bytes. Highlighting verifies and loads whatever a
-document needs, including languages injected inside it, and keeps them for every
+`mix deps.get` delivers the bytes. Highlighting loads whatever a document
+needs, including languages injected inside it, and keeps them for every
 later request. Loading is global to the VM, so only the first process pays.
 
 A language no dependency supplies is not fetched. A document's own language

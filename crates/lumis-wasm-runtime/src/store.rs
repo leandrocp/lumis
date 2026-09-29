@@ -394,17 +394,18 @@ impl LanguageStore {
         Some(self.remember(package_name, package))
     }
 
-    /// Verified parser bytes for `package`, from local source, cache, or the CDN.
+    /// Parser bytes for `package`: an installed dependency's as they are, or
+    /// cached or downloaded ones checked against the package's digest.
     ///
     /// # Errors
-    /// Fails when the parser cannot be obtained, or its bytes do not match the
-    /// size and digest the package declares.
+    /// Fails when the parser cannot be obtained, or downloaded bytes do not
+    /// match the digest the package declares.
     pub fn parser(&self, package: &LanguagePackage) -> Result<Vec<u8>, StoreError> {
         // Before any path is built from `package.parser.name`. `parser_path`
         // validates on the cache path below, and the installed path reaches
         // `parser_filename` without it — `LanguagePackage` has public fields, so
         // a caller can hand over a name with traversal in it and select a file
-        // outside the installed directory, all before `verify_wasm` ever runs.
+        // outside the installed directory.
         package.validate()?;
 
         if let Some(dirs) = self.config.installed_dirs.as_deref() {
@@ -419,10 +420,6 @@ impl LanguageStore {
     }
 
     /// The package as an installed dependency supplies it, if one does.
-    ///
-    /// Verified exactly as a downloaded package is. Bytes that arrived through
-    /// a package manager have a checksum behind them already, but this store
-    /// cannot see that checksum and should not take it on trust.
     fn installed_package(
         dirs: &[PathBuf],
         package_name: &str,
@@ -436,42 +433,27 @@ impl LanguageStore {
             .find_map(|dir| read_local_package(&dir.join(&file), package_name)))
     }
 
-    /// Parser bytes from an installed dependency, verified against the manifest
-    /// that came with it.
+    /// Parser bytes from an installed dependency, as its package manager left
+    /// them.
     ///
     /// The caller has already read this package's manifest out of one of these
     /// directories, so the dependency is present by construction and failing
-    /// here is never [`StoreError::NotInstalled`]: either the parser file is
-    /// missing beside a manifest that is not, or its bytes do not match what
-    /// that manifest declares. "Fetch your dependencies again" and "add this to
-    /// your dependencies" are opposite instructions, so they are opposite
-    /// errors.
+    /// here is never [`StoreError::NotInstalled`]: the parser file is missing
+    /// beside a manifest that is not. "Fetch your dependencies again" and "add
+    /// this to your dependencies" are opposite instructions, so they are
+    /// opposite errors.
     fn installed_parser(
         dirs: &[PathBuf],
         package: &LanguagePackage,
     ) -> Result<Vec<u8>, StoreError> {
         let file = parser_filename(package);
-        let mut rejected = None;
+        let bytes = dirs
+            .iter()
+            .find_map(|dir| std::fs::read(dir.join(&file)).ok());
 
-        for dir in dirs {
-            let Ok(bytes) = std::fs::read(dir.join(&file)) else {
-                continue;
-            };
-            match package.verify_wasm(&bytes) {
-                Ok(()) => return Ok(bytes),
-                // A later directory may still hold good bytes, so this is only
-                // the answer if none does. It beats reporting the file missing:
-                // it is there, and its contents are what is wrong.
-                Err(error) => rejected = Some(error),
-            }
-        }
-
-        Err(match rejected {
-            Some(error) => StoreError::from(error),
-            None => StoreError::ParserMissing {
-                package_name: package.package_name.clone(),
-                file,
-            },
+        bytes.ok_or_else(|| StoreError::ParserMissing {
+            package_name: package.package_name.clone(),
+            file,
         })
     }
 
@@ -556,7 +538,9 @@ impl LanguageStore {
             } else {
                 None
             };
-            self.cache_package(&package)?;
+            // `package` read the manifest from this cache or wrote the fetched
+            // one into it. Rewriting it from the parsed copy would drop the
+            // fields that older runtimes sharing the cache still require.
             (path, download_url)
         };
 
@@ -737,9 +721,7 @@ impl LanguageStore {
         Ok(package)
     }
 
-    /// A locked package is requested by exact version and its bytes are checked
-    /// against the recorded digest; an unlocked one resolves the range and is
-    /// trusted, which is what the lock exists to stop being the only option.
+    /// The newest package in the supported range, as the CDN serves it.
     fn resolve_package(
         &self,
         package_name: &str,
@@ -811,44 +793,17 @@ fn parse_package(bytes: &[u8], package_name: &str) -> Result<LanguagePackage, St
     Ok(package)
 }
 
-/// The manifest on disk, when it is the one that should be used.
+/// The manifest on disk, when it parses and its version is inside the
+/// compatible range.
 ///
-/// Unlocked, that means any version inside the compatible range — the
-/// long-standing behaviour. Locked, it means the exact version *and* the exact
-/// bytes: `local_package` used to accept any on-disk manifest whose version fell
-/// in the range, so a stale file left by another project would quietly outrank
-/// the lock. A file that fails either check is ignored rather than deleted,
-/// because the refetch below replaces it anyway and a shared store may hold it
-/// for a different project.
+/// A file that fails either check is ignored rather than deleted, because a
+/// refetch replaces it anyway and a shared store may hold it for a different
+/// project.
 fn read_local_package(path: &Path, package_name: &str) -> Option<LanguagePackage> {
     let bytes = std::fs::read(path).ok()?;
     let package = parse_package(&bytes, package_name).ok()?;
     require_compatible_package_version(&package).ok()?;
     Some(package)
-}
-
-/// The digest a lock records for `package`.
-///
-/// Taken over the canonical serialization rather than the bytes that arrived,
-/// for two reasons. The store fails over between two CDNs, and nothing promises
-/// they serve byte-identical JSON — whitespace or key order differing would
-/// otherwise make a failover look like tampering. And the store itself persists
-/// a re-serialized copy, so a wire-byte digest could never match what is on
-/// disk.
-///
-/// It still anchors what the digest exists to anchor: every field Lumis reads,
-/// `parser.sha256` above all, survives the round trip. `parser.sha256` is only
-/// trustworthy because the manifest declared it, and the manifest arrives over
-/// the network, so without this a wrong first response is trusted permanently.
-///
-/// # Errors
-/// Fails when the package cannot be serialized.
-pub fn manifest_sha256(package: &LanguagePackage) -> Result<String, StoreError> {
-    let bytes = serde_json::to_vec(package).map_err(|error| StoreError::Io {
-        context: format!("could not serialize {}", package.package_name),
-        source: std::io::Error::other(error),
-    })?;
-    Ok(crate::package::sha256_hex(&bytes))
 }
 
 fn requirement() -> &'static VersionReq {
@@ -989,14 +944,12 @@ mod tests {
         LanguagePackage {
             package_name: "@lumis-sh/wasm-json".into(),
             version: PACKAGE_VERSION.into(),
-            definition_hash: "hash".into(),
             parser: ParserMetadata {
                 name: "tree-sitter-json".into(),
                 grammar_name: "json".into(),
                 upstream_version: None,
                 revision: None,
                 sha256: sha256_hex(WASM),
-                size: u64::try_from(WASM.len()).expect("parser size fits in u64"),
             },
             languages: BTreeMap::from([(
                 "json".into(),
@@ -1167,24 +1120,17 @@ mod tests {
         ));
     }
 
-    /// Bytes that came through a package manager have a checksum behind them,
-    /// but this store cannot see it. A corrupt file in an installed directory
-    /// must fail rather than reach the runtime.
+    /// The package manager that installed a parser already checked it, so the
+    /// store hands the bytes over as they are.
     #[test]
-    fn installed_parser_bytes_are_still_verified() {
+    fn installed_parser_bytes_are_not_checked_again() {
         let dir = tempdir();
         let installed = install(dir.path());
-        std::fs::write(installed.join(parser_filename(&package())), b"corrupt").unwrap();
+        std::fs::write(installed.join(parser_filename(&package())), b"other bytes").unwrap();
         let store = declaring(dir.path(), vec![installed]);
 
         let package = store.package("@lumis-sh/wasm-json").unwrap();
-        let error = store.parser(&package).unwrap_err();
-        assert!(
-            matches!(error, StoreError::Package(_)),
-            "corrupt installed bytes must not be handed to the runtime, and must \
-             not read as a missing dependency: {error}"
-        );
-        assert_eq!(error.kind(), StoreErrorKind::InvalidPackage);
+        assert_eq!(store.parser(&package).unwrap(), b"other bytes");
     }
 
     /// A parser file missing beside a manifest that is not means the dependency
@@ -1209,29 +1155,9 @@ mod tests {
         );
     }
 
-    /// One directory holding an unusable copy must not hide a good one in the
-    /// next: the loop reports only after every declared directory has been
-    /// tried.
-    #[test]
-    fn a_later_installed_directory_can_still_supply_the_parser() {
-        let dir = tempdir();
-        let good = install(dir.path());
-
-        let broken = dir.path().join("broken");
-        std::fs::create_dir_all(&broken).unwrap();
-        std::fs::write(broken.join(parser_filename(&package())), b"corrupt").unwrap();
-
-        let store = declaring(dir.path(), vec![broken, good]);
-        let package = store.package("@lumis-sh/wasm-json").unwrap();
-
-        assert_eq!(store.parser(&package).unwrap(), WASM);
-    }
-
     /// `LanguagePackage` has public fields and `parser` is public, so a caller
     /// can hand over a parser name with traversal in it. The installed path
-    /// builds a filename from that name, and does it before `verify_wasm` could
-    /// object, so validation has to come first or the digest check never runs
-    /// on the file that was actually opened.
+    /// builds a filename from that name, so validation has to come first.
     #[test]
     fn a_parser_name_cannot_escape_the_installed_directory() {
         let dir = tempdir();
@@ -1843,6 +1769,40 @@ mod tests {
             offline.package("@lumis-sh/wasm-json").unwrap().version,
             PACKAGE_VERSION
         );
+    }
+
+    /// Older runtimes sharing the cache still require fields this one does not
+    /// read, so the manifest stays as it was served.
+    #[test]
+    fn caching_a_language_keeps_the_manifest_as_served() {
+        struct Serve {
+            package: Vec<u8>,
+        }
+        impl Fetcher for Serve {
+            fn get(&self, url: &str) -> Result<Vec<u8>, String> {
+                if url.ends_with(".wasm") {
+                    return Ok(WASM.to_vec());
+                }
+                Ok(self.package.clone())
+            }
+        }
+
+        let dir = tempdir();
+        let mut served = serde_json::to_value(package()).unwrap();
+        served["definitionHash"] = "hash".into();
+        served["parser"]["size"] = WASM.len().into();
+        let served = serde_json::to_vec(&served).unwrap();
+
+        let store = make(
+            dir.path(),
+            Box::new(Serve {
+                package: served.clone(),
+            }),
+        );
+        store.cache_language("json", false).unwrap();
+
+        let cached = store.package_path("@lumis-sh/wasm-json").unwrap();
+        assert_eq!(std::fs::read(cached).unwrap(), served);
     }
 
     /// The CLI and host cache APIs land here. A parser already in the store is

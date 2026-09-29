@@ -13,7 +13,7 @@ JavaScript / TypeScript package for [Lumis](https://lumis.sh). Works in Node.js,
 - **Language auto-detection** - File extension, shebang, and emacs-mode support
 - **Line highlighting** - Mark and style individual lines, with custom HTML wrappers
 - **Streaming-friendly** - Handles incomplete code
-- **Load parsers on demand** - From the packages you install or import, verified, including injected languages on Node; browsers load those up front
+- **Load parsers on demand** - From the packages you install or import, including injected languages on Node; browsers load those up front
 
 ## Install
 
@@ -67,8 +67,8 @@ Each parser is an independently released package, such as
 digest. The package's default export is the language, so the same import works
 on Node, where Lumis reads the parser from `node_modules`, and in a browser,
 where your bundler ships it. A project loads nothing it didn't install or
-import unless you configure a resolver, and the bytes are checked against the
-digest before use.
+import unless you configure a resolver, and bytes Lumis fetches are checked
+against the digest before use.
 
 Packages are named after the parser, and a parser that serves more than one
 language exports each by name:

@@ -1163,14 +1163,12 @@ mod tests {
         crate::LanguagePackage {
             package_name: package_name.into(),
             version: crate::lowest_compatible_package_version(),
-            definition_hash: "test".into(),
             parser: crate::ParserMetadata {
                 name: format!("tree-sitter-{grammar_name}"),
                 grammar_name: grammar_name.into(),
                 upstream_version: None,
                 revision: None,
                 sha256: crate::sha256_hex(wasm),
-                size: u64::try_from(wasm.len()).expect("parser size fits in u64"),
             },
             languages: std::collections::BTreeMap::from([(
                 language.into(),

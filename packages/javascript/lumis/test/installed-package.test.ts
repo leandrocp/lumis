@@ -33,7 +33,6 @@ beforeAll(() => {
   const metadata = structuredClone(localLanguagePackageMetadata("@lumis-sh/wasm-json"));
   metadata.parser.name = "tree-sitter-json";
   metadata.parser.sha256 = createHash("sha256").update(wasm).digest("hex");
-  metadata.parser.size = wasm.byteLength;
 
   writeFileSync(join(packageRoot, "lumis.json"), JSON.stringify(metadata));
   writeFileSync(join(packageRoot, "tree-sitter-json.wasm"), wasm);
@@ -68,6 +67,12 @@ beforeAll(() => {
       dependencies: { "@lumis-sh/wasm-css": "^0.26" },
     }),
   );
+
+  // Installed with a digest its parser does not match.
+  const diffManifest = installLocalPackages(project, ["diff"])["@lumis-sh/wasm-diff"];
+  const diff = JSON.parse(readFileSync(diffManifest, "utf8")) as { parser: { sha256: string } };
+  diff.parser.sha256 = "0".repeat(64);
+  writeFileSync(diffManifest, JSON.stringify(diff));
 
   // Installed, but from a Tree-sitter series this build does not support.
   const luaManifest = installLocalPackages(project, ["lua"])["@lumis-sh/wasm-lua"];
@@ -133,6 +138,17 @@ describe("a parser installed in the project", () => {
     expect(hl.highlight("a { color: red }", htmlLinked({ language: "css" }))).toContain(
       'class="l-',
     );
+  });
+
+  // The package manager already checked what it installed.
+  it("loads the parser as installed, without checking it again", async () => {
+    const { createHighlighter } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const hl = await createHighlighter({ languages: [] });
+
+    await hl.loadLanguage("diff");
+
+    expect(hl.highlight("- old\n+ new", htmlLinked({ language: "diff" }))).toContain('class="l-');
   });
 
   it("is refused outside the supported version range", async () => {
@@ -211,7 +227,6 @@ describe("a parser installed in the project", () => {
         name: "tree-sitter-json",
         grammarName: "lua",
         sha256: createHash("sha256").update(lua).digest("hex"),
-        size: lua.byteLength,
       },
       // `identifier` exists in Lua and not in JSON, so this compiles only
       // against the parser the manifest names.

@@ -19,9 +19,9 @@ only. There is no `formatVersion` field and no version gate: the format is addit
 compatibility is decided by shape. Unknown fields are ignored by both runtimes, and a missing
 required field is rejected by name.
 
-`parser.size` must parse to a positive JavaScript-safe integer no greater than `2^53 - 1`. JSON
-spellings such as `4` and `4.0` therefore describe the same valid value, while a fractional value or
-`2^53` is invalid. `languages` must be a non-empty JSON object, never an array.
+No runtime reads `definitionHash` or `parser.size` any more. Older releases still require them, so
+published packages carry both, and `valid/unread-fields.json` pins that no value in them rejects a
+document. `languages` must be a non-empty JSON object, never an array.
 
 The shared raw JSON profile applies before fields are interpreted, including to unknown or
 overwritten values:

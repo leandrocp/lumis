@@ -110,10 +110,7 @@ function isWasmRef(wasm: unknown): wasm is WasmRef {
   const record = wasm as Record<string, unknown>;
   return (
     WASM_REF_STRING_FIELDS.every((field) => typeof record[field] === "string") &&
-    /^[0-9a-f]{64}$/.test(record.sha256 as string) &&
-    typeof record.size === "number" &&
-    Number.isSafeInteger(record.size) &&
-    record.size > 0
+    /^[0-9a-f]{64}$/.test(record.sha256 as string)
   );
 }
 
@@ -135,28 +132,29 @@ interface AddonLanguage {
   definition: LanguageDefinition;
 }
 
-/** Parser bytes from whatever the caller handed over: buffer, path, URL or Response. */
-async function readWasmInput(wasm: RuntimeWasmInput): Promise<Uint8Array> {
+/**
+ * Parser bytes from whatever the caller handed over: buffer, path, URL or
+ * Response. Only what this downloads is checked against `packaged`.
+ */
+async function readWasmInput(wasm: RuntimeWasmInput, packaged: WasmRef): Promise<Uint8Array> {
   if (wasm instanceof Uint8Array) return wasm;
   if (wasm instanceof ArrayBuffer) return new Uint8Array(wasm);
   if (wasm instanceof Response) return new Uint8Array(await wasm.arrayBuffer());
 
   const { readFile } = await import("node:fs/promises");
   const { fileURLToPath } = await import("node:url");
+  const download = async (url: string | URL) =>
+    verifyWasm(packaged, new Uint8Array(await (await fetch(url)).arrayBuffer()));
 
   if (wasm instanceof URL) {
-    if (wasm.protocol !== "file:") {
-      return new Uint8Array(await (await fetch(wasm)).arrayBuffer());
-    }
+    if (wasm.protocol !== "file:") return download(wasm);
     return new Uint8Array(await readFile(fileURLToPath(wasm)));
   }
 
   if (wasm.startsWith("file://")) {
     return new Uint8Array(await readFile(fileURLToPath(new URL(wasm))));
   }
-  if (/^https?:\/\//.test(wasm)) {
-    return new Uint8Array(await (await fetch(wasm)).arrayBuffer());
-  }
+  if (/^https?:\/\//.test(wasm)) return download(wasm);
   return new Uint8Array(await readFile(wasm));
 }
 
@@ -168,7 +166,7 @@ async function readWasmInput(wasm: RuntimeWasmInput): Promise<Uint8Array> {
  * still take that over — `configureWasmResolver`, `configureLanguagePackageResolver`,
  * an explicit `wasm`, or a complete custom `Language` — and those all mean the
  * same thing here as under `web-tree-sitter`. When one is in play the JavaScript
- * pipeline in `createLanguagesModule` resolves roots before handing verified
+ * pipeline in `createLanguagesModule` resolves roots before handing the
  * bytes to the addon. During a native walk, the addon reads and verifies the
  * source locations returned by the same callbacks synchronously.
  *
@@ -440,8 +438,7 @@ export function createNativeLanguagesModule(
 
       const wasm = isWasmRef(resolved.wasm)
         ? await this.resolveParserWasm(resolved.definition.id, resolved.wasm)
-        : await readWasmInput(resolved.wasm);
-      await verifyWasm(packaged.wasm, wasm);
+        : await readWasmInput(resolved.wasm, packaged.wasm);
 
       return {
         addonId: this.native.loadLanguageDefinition(

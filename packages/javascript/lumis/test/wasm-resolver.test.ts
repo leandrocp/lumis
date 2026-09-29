@@ -1,6 +1,11 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { once } from "node:events";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { pathToFileURL } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RuntimeWasmInput } from "../src/types.js";
 import {
@@ -35,12 +40,10 @@ describe("Wasm resolver", () => {
       JSON.stringify({
         packageName,
         version: "0.26.0",
-        definitionHash: "definition",
         parser: {
           name: "tree-sitter-invalid",
           grammarName: "invalid",
           sha256: "digest",
-          size: 1,
         },
         languages: {
           invalid: { aliases: [], highlights: 42 },
@@ -77,7 +80,6 @@ describe("Wasm resolver", () => {
       name: "tree-sitter-diff",
       grammarName: "diff",
       sha256: expect.stringMatching(/^[0-9a-f]{64}$/),
-      size: expect.any(Number),
     });
   });
 
@@ -189,7 +191,9 @@ describe("Wasm resolver", () => {
     expect(hl.highlight("- old\n+ new", htmlLinked({ language: diff }))).toContain(
       'class="language-diff"',
     );
-    expect(readFileSync(cacheFile).byteLength).toBe(packageMetadata.parser.size);
+    expect(createHash("sha256").update(readFileSync(cacheFile)).digest("hex")).toBe(
+      packageMetadata.parser.sha256,
+    );
   }, 30_000);
 
   it("rejects parser bytes that do not match the exact package entry", async () => {
@@ -201,30 +205,56 @@ describe("Wasm resolver", () => {
         languages: [diff],
         wasmResolver: (language) => ensureLocalParserWasm(language, "tree-sitter-html"),
       }),
-    ).rejects.toThrow(/Invalid WASM (size|integrity)/);
+    ).rejects.toThrow(/Invalid WASM integrity/);
   }, 30_000);
 
+  // Bytes handed over directly are the caller's to vouch for, so another build
+  // of the same grammar loads with the package's queries.
   it.each(["Uint8Array", "ArrayBuffer", "string", "URL", "Response"] as const)(
-    "verifies an explicit %s parser against the package entry",
+    "uses an explicit %s parser as it is handed over",
     async (kind) => {
       const { createHighlighter } = await import("../src/index.js");
+      const { htmlLinked } = await import("../src/formatters.js");
       const { default: json } = await import("../langs/json.ts");
-      const url = ensureLocalWasm("markdown");
-      const bytes = new Uint8Array(readFileSync(url));
+      const bytes = anotherBuild(new Uint8Array(readFileSync(ensureLocalWasm("json"))));
+      const file = join(mkdtempSync(join(tmpdir(), "lumis-explicit-")), "tree-sitter-json.wasm");
+      writeFileSync(file, bytes);
       const inputs: Record<typeof kind, RuntimeWasmInput> = {
         Uint8Array: bytes,
         ArrayBuffer: bytes.buffer,
-        string: fileURLToPath(url),
-        URL: url,
+        string: file,
+        URL: pathToFileURL(file),
         Response: new Response(bytes),
       };
 
-      await expect(
-        createHighlighter({ languages: [{ ...json, wasm: inputs[kind] }] }),
-      ).rejects.toThrow(/Invalid WASM (size|integrity)/);
+      const hl = await createHighlighter({ languages: [{ ...json, wasm: inputs[kind] }] });
+
+      expect(hl.highlight('{"answer": 42}', htmlLinked({ language: json }))).toContain(
+        'class="l-number"',
+      );
     },
     30_000,
   );
+
+  it("checks an explicit parser it downloads against the package entry", async () => {
+    const { createHighlighter } = await import("../src/index.js");
+    const { default: json } = await import("../langs/json.ts");
+    const bytes = anotherBuild(new Uint8Array(readFileSync(ensureLocalWasm("json"))));
+    const server = createServer((_request, response) => response.end(bytes));
+    server.listen(0, "127.0.0.1");
+    await once(server, "listening");
+
+    try {
+      const { port } = server.address() as AddressInfo;
+      await expect(
+        createHighlighter({
+          languages: [{ ...json, wasm: `http://127.0.0.1:${port}/tree-sitter-json.wasm` }],
+        }),
+      ).rejects.toThrow(/Invalid WASM integrity/);
+    } finally {
+      server.close();
+    }
+  }, 30_000);
 
   it("per-instance resolver is isolated from global resolver", async () => {
     const { createHighlighter, configureWasmResolver } = await import("../src/index.js");
@@ -289,3 +319,13 @@ describe("Wasm resolver", () => {
     expect(calls).toContain("html");
   }, 30_000);
 });
+
+/** The same parser with an empty custom section appended: another build of one grammar. */
+function anotherBuild(parser: Uint8Array): Uint8Array {
+  // Section id 0, 5 bytes long, holding only the name "lumi".
+  const section = [0x00, 0x05, 0x04, 0x6c, 0x75, 0x6d, 0x69];
+  const bytes = new Uint8Array(parser.byteLength + section.length);
+  bytes.set(parser);
+  bytes.set(section, parser.byteLength);
+  return bytes;
+}

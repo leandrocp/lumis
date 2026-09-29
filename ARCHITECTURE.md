@@ -129,7 +129,7 @@ containing:
 - one parser WASM
 - every Lumis language backed by that parser
 - the matching highlight, injection, locals, and bracket queries
-- parser size, SHA-256, grammar name, and package version
+- parser SHA-256, grammar name, and package version
 
 During staging, `crates/dev` serializes those inputs into `lumis.json`. The
 manifest is published inside the language package and is not checked in.
@@ -295,8 +295,11 @@ The resolver itself follows the same ownership boundary. The CLI and Elixir call
 manifest caching, integrity verification, and refresh semantics are one Rust
 implementation. The Node addon loads only the `@lumis-sh/wasm-*` packages the
 project installed: JavaScript resolves each one's `lumis.json` through Node's
-module resolution, which Rust cannot follow, and the addon parses and verifies
-them with the same `LanguagePackage` code. The browser cannot call Rust, so its small
+module resolution, which Rust cannot follow, and the addon parses and validates
+them with the same `LanguagePackage` code. Lumis checks parser bytes against the
+manifest's SHA-256 only where it downloads them, through the CLI or a resolver,
+and when it reads them back from its own cache; npm and Hex already verify what
+they install. The browser cannot call Rust, so its small
 TypeScript adapter checks an imported package's manifest against the same
 generated range with npm's `semver` package. The
 portable Node fallback uses that browser implementation. Cross-runtime package

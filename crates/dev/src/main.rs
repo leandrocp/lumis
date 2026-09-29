@@ -3553,6 +3553,44 @@ fn parse_npm_versions_json(input: &str) -> Result<Vec<String>> {
     }
 }
 
+/// A language package as `lumis.json` and the package entry publish it.
+///
+/// Runtimes released before Lumis stopped reading `definitionHash` and
+/// `parser.size` still require both, and they take any package in their
+/// Tree-sitter series. Drop them with the next series, which those runtimes
+/// refuse anyway.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PublishedLanguagePackage {
+    package_name: String,
+    version: String,
+    definition_hash: String,
+    parser: PublishedParser,
+    languages: BTreeMap<String, PackagedLanguage>,
+}
+
+#[derive(Serialize)]
+struct PublishedParser {
+    #[serde(flatten)]
+    metadata: ParserMetadata,
+    size: usize,
+}
+
+impl PublishedLanguagePackage {
+    fn new(package: &LanguagePackage, definition_hash: &str, parser_size: usize) -> Self {
+        Self {
+            package_name: package.package_name.clone(),
+            version: package.version.clone(),
+            definition_hash: definition_hash.to_string(),
+            parser: PublishedParser {
+                metadata: package.parser.clone(),
+                size: parser_size,
+            },
+            languages: package.languages.clone(),
+        }
+    }
+}
+
 fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
     let toml = read_languages_toml()?;
     let (parser_name, info) = toml
@@ -3603,24 +3641,30 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
     let language_package = LanguagePackage {
         package_name: pkg_name.clone(),
         version: npm_version.clone(),
-        definition_hash: definition_hash.clone(),
         parser: ParserMetadata {
             name: wasm_name.to_string(),
             grammar_name,
             upstream_version: info.version.clone(),
             revision: info.rev.clone(),
             sha256: wasm_sha256.clone(),
-            size: u64::try_from(wasm_bytes.len()).expect("parser size fits in u64"),
         },
         languages,
     };
     language_package.validate()?;
+    let published =
+        PublishedLanguagePackage::new(&language_package, &definition_hash, wasm_bytes.len());
     fs::write(
         format!("{out}/lumis.json"),
-        format!("{}\n", serde_json::to_string_pretty(&language_package)?),
+        format!("{}\n", serde_json::to_string_pretty(&published)?),
     )?;
 
-    let entry = package_entry(&toml, wasm_name, &language_package, &ts_cli_minor)?;
+    let entry = package_entry(
+        &toml,
+        wasm_name,
+        &language_package,
+        &published,
+        &ts_cli_minor,
+    )?;
     fs::write(format!("{out}/index.js"), &entry.js)?;
     fs::write(format!("{out}/index.d.ts"), &entry.dts)?;
 
@@ -3664,7 +3708,7 @@ fn stage_wasm(name: &str, version: Option<&str>) -> Result<()> {
     let suffix = wasm_package_suffix(wasm_name);
     fs::write(
         format!("{local}/{suffix}.lumis.json"),
-        serde_json::to_vec(&language_package)?,
+        serde_json::to_vec(&published)?,
     )?;
     fs::copy(
         &wasm_file,
@@ -3705,14 +3749,12 @@ fn stage_test_parsers(out: &Path) -> Result<()> {
         let package = LanguagePackage {
             package_name: format!("@lumis-sh/wasm-{}", wasm_package_suffix(&wasm_name)),
             version: fixture_version.clone(),
-            definition_hash: language_definition_hash(&toml, &wasm_name, &languages)?,
             parser: ParserMetadata {
                 name: wasm_name.clone(),
                 grammar_name: wasm_grammar_name(&wasm)?,
                 upstream_version: None,
                 revision: None,
                 sha256: sha256_hex(&wasm),
-                size: u64::try_from(wasm.len()).expect("parser size fits in u64"),
             },
             languages,
         };
@@ -4376,6 +4418,7 @@ fn package_entry(
     toml: &LanguagesToml,
     wasm_name: &str,
     package: &LanguagePackage,
+    published: &PublishedLanguagePackage,
     ts_cli_minor: &str,
 ) -> Result<PackageEntry> {
     use std::fmt::Write as _;
@@ -4404,7 +4447,7 @@ fn package_entry(
     writeln!(
         js,
         "\nexport const languagePackage = {}",
-        serde_json::to_string_pretty(package)?
+        serde_json::to_string_pretty(published)?
     )?;
 
     let mut dts = fs::read_to_string("templates/wasm/index.d.ts.template")?;
@@ -6218,14 +6261,12 @@ mod hex_wasm_tests {
         let package = LanguagePackage {
             package_name: "@lumis-sh/wasm-json".into(),
             version: "0.26.4".into(),
-            definition_hash: "hash".into(),
             parser: ParserMetadata {
                 name: "tree-sitter-json".into(),
                 grammar_name: "json".into(),
                 upstream_version: None,
                 revision: None,
                 sha256: sha256_hex(staged),
-                size: staged.len() as u64,
             },
             languages: BTreeMap::new(),
         };
@@ -6238,6 +6279,39 @@ mod hex_wasm_tests {
         let error = verify_staged_parser("tree-sitter-json", b"a different build", &package)
             .expect_err("a parser from another build must be refused");
         assert!(error.to_string().contains("does not match the manifest"));
+    }
+
+    /// Released runtimes still require `definitionHash` and `parser.size`, so a
+    /// published package keeps both, where they always were.
+    #[test]
+    fn a_published_package_keeps_what_released_runtimes_require() {
+        let sha256 = "ab".repeat(32);
+        let package = LanguagePackage {
+            package_name: "@lumis-sh/wasm-json".into(),
+            version: "0.26.4".into(),
+            parser: ParserMetadata {
+                name: "tree-sitter-json".into(),
+                grammar_name: "json".into(),
+                upstream_version: Some("0.24.8".into()),
+                revision: None,
+                sha256: sha256.clone(),
+            },
+            languages: BTreeMap::from([(
+                "json".into(),
+                PackagedLanguage {
+                    aliases: vec![],
+                    highlights: "(string) @string".into(),
+                    ..PackagedLanguage::default()
+                },
+            )]),
+        };
+
+        assert_eq!(
+            serde_json::to_string(&PublishedLanguagePackage::new(&package, "hash", 4)).unwrap(),
+            format!(
+                r#"{{"packageName":"@lumis-sh/wasm-json","version":"0.26.4","definitionHash":"hash","parser":{{"name":"tree-sitter-json","grammarName":"json","upstreamVersion":"0.24.8","sha256":"{sha256}","size":4}},"languages":{{"json":{{"aliases":[],"highlights":"(string) @string"}}}}}}"#
+            )
+        );
     }
 }
 
@@ -7397,14 +7471,12 @@ mod tests {
             let package = LanguagePackage {
                 package_name: format!("@lumis-sh/wasm-{}", wasm_package_suffix(&wasm_name(id))),
                 version: "0.26.0".into(),
-                definition_hash: String::new(),
                 parser: ParserMetadata {
                     name: wasm_name(id),
                     grammar_name: id.clone(),
                     upstream_version: None,
                     revision: None,
                     sha256: String::new(),
-                    size: 0,
                 },
                 languages: BTreeMap::from([(id.clone(), PackagedLanguage::default())]),
             };

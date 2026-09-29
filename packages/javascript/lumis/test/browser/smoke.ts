@@ -481,12 +481,10 @@ async function languagePackageDataUrl(
   const metadata = JSON.stringify({
     packageName: `@lumis-sh/wasm-${parser}`,
     version: lowestCompatibleLanguagePackageVersion(),
-    definitionHash: sha256,
     parser: {
       name: `tree-sitter-${parser}`,
       grammarName: parser,
       sha256,
-      size: wasm.byteLength,
     },
     languages: Object.fromEntries(
       languages.map((language) => [

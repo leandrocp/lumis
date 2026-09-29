@@ -76,8 +76,7 @@ mix deps.unlock --unused
 ```
 
 A project that vendors parsers rather than depending on them can point at the
-directories instead. Same layout, same verification; only how they got there
-differs.
+directories instead. Same layout; only how they got there differs.
 
 ```elixir title="config/config.exs"
 config :lumis, parser_dirs: ["priv/parsers"]
@@ -171,8 +170,9 @@ render of each language is slower and nothing else changes.
 
 ## Verification
 
-Bytes that arrive through a package manager have a checksum behind them already,
-and Lumis checks them again anyway. Each parser is verified against the
-`lumis.json` shipped beside it, and a package outside the Tree-sitter series
-this Lumis speaks is refused rather than loaded. A corrupt file in a dependency
-fails at load instead of reaching the runtime.
+npm and Hex check every package they fetch against its published checksum, which
+your lockfile records, so a parser that arrives through a package manager is
+already verified. Lumis loads it as installed, beside the `lumis.json` that
+describes it, and refuses a package outside the Tree-sitter series this Lumis
+speaks. It checks a parser against the SHA-256 in `lumis.json` only when it
+downloads the bytes itself, through a resolver or the CLI.

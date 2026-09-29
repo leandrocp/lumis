@@ -125,7 +125,7 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
 
 ## Notes
 
-- Highlighting loads the parsers a document needs, including languages injected inside it, from the ones the project installed, and caches the verified bytes. See [Declaring parsers](/advanced/lock).
+- Highlighting loads the parsers a document needs, including languages injected inside it, from the ones the project installed, and keeps them loaded for later requests. See [Declaring parsers](/advanced/lock).
 - That happens on demand, or you can [preload the languages you need](/languages) at startup or from a build step.
 - Install per-language packages such as `@lumis-sh/wasm-rust` or `{:lumis_wasm_rust, "~> 0.26.0"}`, or bundle packages such as `@lumis-sh/wasm-bundle-web` or `{:lumis_wasm_bundle_web, "~> 0.1"}`.
 - The CLI stores verified, content-addressed parsers and custom themes in a local data directory.

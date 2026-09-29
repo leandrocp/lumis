@@ -98,14 +98,12 @@ fn build_language_fixtures() -> PathBuf {
         let package = LanguagePackage {
             package_name: location.package_name.into(),
             version: lumis_wasm_runtime::lowest_compatible_package_version(),
-            definition_hash: sha256.clone(),
             parser: ParserMetadata {
                 name: stem.into(),
                 grammar_name: parser_id.into(),
                 upstream_version: None,
                 revision: None,
                 sha256: sha256.clone(),
-                size: u64::try_from(wasm.len()).expect("parser size fits in u64"),
             },
             languages: package_languages,
         };

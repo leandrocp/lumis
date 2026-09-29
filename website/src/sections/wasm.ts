@@ -38,7 +38,7 @@ export function renderWasm() {
               </div>
               <div class="border-l-2 border-zinc-200 py-1 pl-5 dark:border-zinc-800">
                 <dt class="font-mono text-sm font-medium text-zinc-900 dark:text-white">Persistent and verified</dt>
-                <dd class="mt-1 font-mono text-xs leading-relaxed text-zinc-500">Every parser is checked against the size and SHA-256 its package declares before it runs. Node.js, Bun, Deno, browsers, and Elixir persist verified bytes across restarts.</dd>
+                <dd class="mt-1 font-mono text-xs leading-relaxed text-zinc-500">Every parser Lumis downloads is checked against the SHA-256 its package declares before it runs. Node.js, Bun, Deno, browsers, and Elixir keep parsers across restarts.</dd>
               </div>
               <div class="border-l-2 border-zinc-200 py-1 pl-5 dark:border-zinc-800">
                 <dt class="font-mono text-sm font-medium text-zinc-900 dark:text-white">Verified on npm</dt>

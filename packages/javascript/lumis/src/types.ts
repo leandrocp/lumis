@@ -127,7 +127,6 @@ export interface LanguageDefinition {
  *   name: 'tree-sitter-javascript',
  *   version: '0.26.2',
  *   sha256: '...',
- *   size: 416499,
  * }
  * ```
  */
@@ -137,8 +136,6 @@ export interface WasmRef {
   version: string;
   /** Lowercase SHA-256 of the exact parser bytes. */
   sha256: string;
-  /** Exact parser size in bytes. */
-  size: number;
 }
 
 export type RuntimeWasmInput = Uint8Array | ArrayBuffer | string | URL | Response;
@@ -206,12 +203,13 @@ export interface Language extends LanguageDefinition {
 /**
  * A handle to a published language package.
  *
- * Use `wasm` to override where the package's parser bytes come from. The bytes
- * are still checked against the package's size and SHA-256 before loading.
+ * Use `wasm` to override where the package's parser bytes come from. Bytes
+ * downloaded from a URL are checked against the package's SHA-256 before
+ * loading; bytes handed over directly are used as they are.
  */
 export interface LanguagePackageHandle extends LanguageDefinition {
   packageName: string;
-  /** Optional caller-selected source for the package's verified parser bytes. */
+  /** Optional caller-selected source for the package's parser bytes. */
   wasm?: WasmRef | RuntimeWasmInput;
   /** The package's `lumis.json`, when the package was imported. */
   languagePackage?: object;

@@ -22,12 +22,15 @@ use thiserror::Error;
 /// The published npm `package.json` still carries `lumis.formatVersion`. That one is
 /// release tooling (`dev wasm-needed`) deciding whether an artifact needs
 /// republishing; no client reads it.
+///
+/// Published packages also carry `definitionHash` and `parser.size`, which
+/// runtimes before this one required. Nothing reads them now, so they are
+/// ignored like any unknown field.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanguagePackage {
     pub package_name: String,
     pub version: String,
-    pub definition_hash: String,
     pub parser: ParserMetadata,
     pub languages: BTreeMap<String, PackagedLanguage>,
 }
@@ -42,76 +45,6 @@ pub struct ParserMetadata {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub revision: Option<String>,
     pub sha256: String,
-    #[serde(deserialize_with = "deserialize_parser_size")]
-    pub size: u64,
-}
-
-const JAVASCRIPT_MAX_SAFE_INTEGER: u64 = (1_u64 << 53) - 1;
-
-fn deserialize_parser_size<'de, D>(deserializer: D) -> Result<u64, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    struct ParserSizeVisitor;
-
-    impl serde::de::Visitor<'_> for ParserSizeVisitor {
-        type Value = u64;
-
-        fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(
-                formatter,
-                "an integral parser size no greater than {JAVASCRIPT_MAX_SAFE_INTEGER}"
-            )
-        }
-
-        fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
-        where
-            E: serde::de::Error,
-        {
-            parser_size_from_u64(value)
-        }
-
-        fn visit_i64<E>(self, value: i64) -> Result<Self::Value, E>
-        where
-            E: serde::de::Error,
-        {
-            let value = u64::try_from(value).map_err(E::custom)?;
-            parser_size_from_u64(value)
-        }
-
-        // The guards below leave `value` a non-negative integer no larger than
-        // 2^53 - 1, which is exact in both `f64` and `u64`.
-        #[allow(clippy::cast_precision_loss, clippy::cast_sign_loss)]
-        fn visit_f64<E>(self, value: f64) -> Result<Self::Value, E>
-        where
-            E: serde::de::Error,
-        {
-            if !value.is_finite()
-                || value < 0.0
-                || value.fract() != 0.0
-                || value > JAVASCRIPT_MAX_SAFE_INTEGER as f64
-            {
-                return Err(E::custom(format!(
-                    "parser size must be an integer from 0 through {JAVASCRIPT_MAX_SAFE_INTEGER}"
-                )));
-            }
-            parser_size_from_u64(value as u64)
-        }
-    }
-
-    deserializer.deserialize_any(ParserSizeVisitor)
-}
-
-fn parser_size_from_u64<E>(value: u64) -> Result<u64, E>
-where
-    E: serde::de::Error,
-{
-    if value > JAVASCRIPT_MAX_SAFE_INTEGER {
-        return Err(E::custom(format!(
-            "parser size exceeds {JAVASCRIPT_MAX_SAFE_INTEGER}"
-        )));
-    }
-    Ok(value)
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
@@ -140,22 +73,10 @@ pub enum LanguagePackageError {
     Invalid(&'static str),
     #[error("language '{language}' is not provided by {package}")]
     LanguageNotFound { language: String, package: String },
-    #[error("invalid parser WASM size for '{parser}': expected {expected}, got {actual}")]
-    InvalidSize {
-        parser: String,
-        expected: u64,
-        actual: usize,
-    },
     #[error(
         "invalid parser WASM integrity for '{parser}': expected sha256-{expected}, got sha256-{actual}"
     )]
     InvalidIntegrity {
-        parser: String,
-        expected: String,
-        actual: String,
-    },
-    #[error("invalid parser grammar for '{parser}': expected '{expected}', got '{actual}'")]
-    InvalidGrammar {
         parser: String,
         expected: String,
         actual: String,
@@ -177,7 +98,6 @@ impl LanguagePackage {
         for (value, field) in [
             (&self.package_name, "packageName"),
             (&self.version, "version"),
-            (&self.definition_hash, "definitionHash"),
             (&self.parser.name, "parser.name"),
             (&self.parser.grammar_name, "parser.grammarName"),
             (&self.parser.sha256, "parser.sha256"),
@@ -210,11 +130,6 @@ impl LanguagePackage {
         {
             return Err(LanguagePackageError::Invalid("parser.sha256"));
         }
-        // Otherwise this surfaces much later as a confusing `InvalidSize` from
-        // `verify_wasm`, and only for runtimes that reach that point.
-        if self.parser.size == 0 || self.parser.size > JAVASCRIPT_MAX_SAFE_INTEGER {
-            return Err(LanguagePackageError::Invalid("parser.size"));
-        }
         Ok(())
     }
 
@@ -242,15 +157,14 @@ impl LanguagePackage {
             })
     }
 
+    /// Checks that `bytes` are the parser this package names.
+    ///
+    /// For bytes Lumis downloaded. An installed package's parser came through a
+    /// package manager with the manifest beside it, and is not checked again.
+    ///
+    /// # Errors
+    /// Fails when the bytes do not hash to `parser.sha256`.
     pub fn verify_wasm(&self, bytes: &[u8]) -> Result<(), LanguagePackageError> {
-        if u64::try_from(bytes.len()).ok() != Some(self.parser.size) {
-            return Err(LanguagePackageError::InvalidSize {
-                parser: self.parser.name.clone(),
-                expected: self.parser.size,
-                actual: bytes.len(),
-            });
-        }
-
         let actual = sha256_hex(bytes);
         if actual != self.parser.sha256 {
             return Err(LanguagePackageError::InvalidIntegrity {
@@ -259,25 +173,18 @@ impl LanguagePackage {
                 actual,
             });
         }
-
-        let actual = grammar_name(bytes)?;
-        if actual != self.parser.grammar_name {
-            return Err(LanguagePackageError::InvalidGrammar {
-                parser: self.parser.name.clone(),
-                expected: self.parser.grammar_name.clone(),
-                actual,
-            });
-        }
         Ok(())
     }
 
+    /// What loading `name` from this package takes, with `wasm` as its parser.
+    ///
+    /// The bytes are taken as given; [`Self::verify_wasm`] checks downloaded ones.
     #[cfg(feature = "wasm")]
     pub fn language_spec(
         &self,
         name: &str,
         wasm: Vec<u8>,
     ) -> Result<crate::LanguageSpec, LanguagePackageError> {
-        self.verify_wasm(&wasm)?;
         let (id, language) = self.require_language(name)?;
         Ok(crate::LanguageSpec {
             id: id.to_string(),
@@ -483,14 +390,12 @@ mod tests {
         LanguagePackage {
             package_name: "@lumis-sh/wasm-json".into(),
             version: "0.26.3".into(),
-            definition_hash: "definition".into(),
             parser: ParserMetadata {
                 name: "tree-sitter-json".into(),
                 grammar_name: "json".into(),
                 upstream_version: None,
                 revision: None,
                 sha256: sha256_hex(JSON_WASM),
-                size: u64::try_from(JSON_WASM.len()).expect("parser size fits in u64"),
             },
             languages: BTreeMap::from([(
                 "json".into(),
@@ -532,7 +437,7 @@ mod tests {
         let package = package();
         assert!(matches!(
             package.verify_wasm(b"bad"),
-            Err(LanguagePackageError::InvalidSize { .. })
+            Err(LanguagePackageError::InvalidIntegrity { .. })
         ));
         let mut wrong = JSON_WASM.to_vec();
         let last = wrong.len() - 1;
@@ -545,23 +450,12 @@ mod tests {
     }
 
     #[test]
-    fn rejects_parser_bytes_whose_grammar_disagrees_with_metadata() {
-        let mut package = package();
-        package.parser.grammar_name = "not_json".into();
-
-        let error = package.verify_wasm(JSON_WASM).unwrap_err();
-        assert!(matches!(
-            &error,
-            LanguagePackageError::InvalidGrammar {
-                parser,
-                expected,
-                actual,
-            } if parser == "tree-sitter-json" && expected == "not_json" && actual == "json"
-        ));
-        assert_eq!(
-            error.to_string(),
-            "invalid parser grammar for 'tree-sitter-json': expected 'not_json', got 'json'"
-        );
+    fn takes_the_parser_bytes_it_is_given() {
+        let spec = package()
+            .language_spec("jsonc", b"not the declared parser".to_vec())
+            .unwrap();
+        assert_eq!(spec.id, "json");
+        assert_eq!(spec.wasm, b"not the declared parser");
     }
 
     /// The store budget is spent by what a parser reserves, which is not its

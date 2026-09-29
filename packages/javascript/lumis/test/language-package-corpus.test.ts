@@ -19,8 +19,8 @@ import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../src/generated/package-version
 const CORPUS = fileURLToPath(new URL("../../../../fixtures/language-packages", import.meta.url));
 
 /** Lower bounds, matching the Rust half. They catch a discovery bug that finds nothing. */
-const MIN_VALID = 9;
-const MIN_INVALID = 34;
+const MIN_VALID = 8;
+const MIN_INVALID = 30;
 
 function fixtures(kind: "valid" | "invalid"): [string, Uint8Array][] {
   return readdirSync(join(CORPUS, kind))
@@ -49,19 +49,25 @@ describe("shared language-package corpus", () => {
     expect(() => parseLanguagePackage(bytes, declaredPackageName(bytes))).toThrow();
   });
 
-  // Rust used to accept both of these while JavaScript rejected them. Pinned by name
-  // so the divergence cannot come back from either side.
-  it.each(["language-missing-aliases", "parser-size-zero"])(
-    "rejects the formerly divergent %s",
-    (name) => {
-      const bytes = new Uint8Array(readFileSync(join(CORPUS, "invalid", `${name}.json`)));
-      expect(() => parseLanguagePackage(bytes, declaredPackageName(bytes))).toThrow();
-    },
-  );
+  // Rust used to accept this while JavaScript rejected it. Pinned by name so the
+  // divergence cannot come back from either side.
+  it("rejects the formerly divergent language-missing-aliases", () => {
+    const bytes = new Uint8Array(
+      readFileSync(join(CORPUS, "invalid", "language-missing-aliases.json")),
+    );
+    expect(() => parseLanguagePackage(bytes, declaredPackageName(bytes))).toThrow();
+  });
+
+  // Released runtimes require `definitionHash` and `parser.size`, so every published
+  // package carries them. Nothing reads them now, so no value in them can reject one.
+  it("ignores the fields released runtimes required", () => {
+    const bytes = new Uint8Array(readFileSync(join(CORPUS, "valid", "unread-fields.json")));
+    expect(() => parseLanguagePackage(bytes, declaredPackageName(bytes))).not.toThrow();
+  });
 
   it("rejects malformed UTF-8 instead of replacing it", () => {
     const bytes = new Uint8Array(readFileSync(join(CORPUS, "valid", "minimal.json")));
-    const index = Buffer.from(bytes).indexOf("d41d8cd98f00");
+    const index = Buffer.from(bytes).indexOf("tree-sitter-json");
     expect(index).toBeGreaterThan(0);
     bytes[index] = 0xff;
 

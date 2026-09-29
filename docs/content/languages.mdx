@@ -13,8 +13,7 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 
 A language in Lumis is a Tree-sitter parser: a WebAssembly module that Lumis
-verifies, compiles, and loads. You have two ways to get one, and you can use
-both.
+compiles and loads. You have two ways to get one, and you can use both.
 
 |  | On demand | Preloaded |
 | --- | --- | --- |
@@ -34,8 +33,8 @@ Both end in the same place. Preloading only decides *when* you pay.
 
 ## On demand
 
-Nothing to declare. Lumis resolves, verifies, and loads a language the first
-time a document names it, then reuses it for every later document.
+Nothing to declare. Lumis resolves and loads a language the first time a
+document names it, then reuses it for every later document.
 
 Where the bytes come from depends on the runtime. In Elixir and Node a parser is
 an ordinary dependency: `mix deps.get` and `npm install` deliver it, and
@@ -46,7 +45,7 @@ downloads nothing unless a resolver is configured.
 
 :::note
 A package is named after the WebAssembly parser it carries, not after a
-language, because the parser is what Lumis verifies and loads. Most parsers
+language, because the parser is what Lumis loads. Most parsers
 serve one language, and the package's default export is that language. A few
 serve more than one, and export each by name:
 `@lumis-sh/wasm-embedded-template` has `ejs` and `erb`, and

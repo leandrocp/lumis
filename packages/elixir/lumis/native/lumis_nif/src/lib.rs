@@ -1563,14 +1563,12 @@ mod tests {
         let package = LanguagePackage {
             package_name: "@lumis-sh/wasm-elixir".into(),
             version: "test".into(),
-            definition_hash: "test".into(),
             parser: ParserMetadata {
                 name: "tree-sitter-elixir".into(),
                 grammar_name: "elixir".into(),
                 upstream_version: None,
                 revision: None,
                 sha256: sha256_hex(&wasm),
-                size: u64::try_from(wasm.len()).expect("parser size fits in u64"),
             },
             languages: BTreeMap::from([(
                 "elixir".into(),

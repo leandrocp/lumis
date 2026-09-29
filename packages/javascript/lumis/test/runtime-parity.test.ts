@@ -60,7 +60,6 @@ function packageDataUrl(
       ...(options.parserBytes
         ? {
             sha256: createHash("sha256").update(options.parserBytes).digest("hex"),
-            size: options.parserBytes.byteLength,
           }
         : {}),
     },
@@ -502,14 +501,14 @@ describe("runtime parity", () => {
     }
   }, 30_000);
 
-  it("rejects explicit parser bytes that do not match their package", async () => {
+  it("rejects explicit parser bytes for another grammar", async () => {
     const { default: json } = await import("../langs/json.ts");
 
     await expect(
       index.createHighlighter({
         languages: [{ ...json, wasm: ensureLocalWasm("markdown") }],
       }),
-    ).rejects.toThrow(/Invalid WASM (?:size|integrity)/);
+    ).rejects.toThrow(/parser grammar/);
   }, 30_000);
 
   /** An unavailable injection costs one block and is reported to the caller. */

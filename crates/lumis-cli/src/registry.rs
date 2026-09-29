@@ -136,14 +136,12 @@ impl Registry {
         let package = LanguagePackage {
             package_name: location.package_name.into(),
             version: lumis_wasm_runtime::lowest_compatible_package_version(),
-            definition_hash: "test".into(),
             parser: ParserMetadata {
                 name: format!("tree-sitter-{grammar_name}"),
                 grammar_name: grammar_name.into(),
                 upstream_version: None,
                 revision: None,
                 sha256: sha256_hex(wasm),
-                size: u64::try_from(wasm.len()).expect("parser size fits in u64"),
             },
             languages: std::collections::BTreeMap::from([(
                 id.into(),

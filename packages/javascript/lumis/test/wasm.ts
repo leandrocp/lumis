@@ -116,12 +116,10 @@ export function localLanguagePackageMetadata(packageName: string): LanguagePacka
   const packageMetadata: LanguagePackage = {
     packageName,
     version: lowestCompatibleLanguagePackageVersion(),
-    definitionHash: createHash("sha256").update(wasm).digest("hex"),
     parser: {
       name: wasmName,
       grammarName: grammarNames[0],
       sha256: createHash("sha256").update(wasm).digest("hex"),
-      size: wasm.byteLength,
     },
     languages: Object.fromEntries(
       packageLanguages.map(([language, definition]) => [

@@ -32,8 +32,8 @@ defmodule Lumis.Packages do
 
   # `config :lumis, :parser_dirs` names directories directly, for a project that
   # vendors parsers rather than depending on them — an air-gapped build that
-  # ships the bytes it already has, say. Same layout, same verification; only
-  # how the directory got there differs.
+  # ships the bytes it already has, say. Same layout; only how the directory got
+  # there differs.
   defp configured do
     :lumis
     |> Application.get_env(:parser_dirs, [])

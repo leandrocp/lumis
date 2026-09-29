@@ -82,9 +82,9 @@ beforeAll(async () => {
     "rust",
   ]);
   // No `wasm` overrides. Parser bytes and the package that describes them have
-  // to come from the same place, or the integrity check rejects the pair: CI
-  // stages freshly built parsers while `ensureLocalWasm` returns the committed
-  // fixture, which is a different build of the same grammar.
+  // to come from the same place: CI stages freshly built parsers while
+  // `ensureLocalWasm` returns the committed fixture, which is a different build
+  // of the same grammar.
   highlighter = await createHighlighter({
     languages: [
       json,

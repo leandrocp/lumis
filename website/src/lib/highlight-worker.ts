@@ -80,7 +80,7 @@ function directoryOf(path: string) {
 // The catalog resolves each parser package against the registry, so it can ask
 // for a version newer than the one installed here, and `pnpm` leaves the
 // superseded copy on disk, so a name alone can match either. The bytes are
-// checked against the size and digest the catalog carries, and a near miss
+// checked against the digest the catalog carries, and a near miss
 // fails every language rather than falling back, so only the exact version is
 // served locally.
 configureWasmResolver((_language, wasm) => {

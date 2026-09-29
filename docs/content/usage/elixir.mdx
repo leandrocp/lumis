@@ -84,8 +84,8 @@ Omitting `language` from the formatter enables auto-detection.
 ## Parser loading
 
 A parser is an ordinary dependency. Declare the languages you highlight in
-`mix.exs`, and `Lumis.highlight/2` verifies and loads the ones a document turns
-out to name, including languages injected inside it, then keeps them for every
+`mix.exs`, and `Lumis.highlight/2` loads the ones a document turns out to
+name, including languages injected inside it, then keeps them for every
 later request:
 
 ```elixir title="mix.exs"
@@ -176,9 +176,9 @@ usually wants:
 config :lumis, data_dir: "/app/lumis"
 ```
 
-Bytes are checked against the size and SHA-256 their package declares before
-use, and anything that fails is discarded rather than trusted, so a corrupted
-store repairs itself.
+Hex checks every package it fetches against the checksum in `mix.lock`, so
+Lumis loads parsers as `mix deps.get` delivered them and does not hash them
+again.
 
 <span id="upgrading-to-09" />
 <span id="upgrading-from-06" />
