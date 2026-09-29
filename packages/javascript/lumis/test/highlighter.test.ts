@@ -260,6 +260,30 @@ describe("createHighlighter", () => {
     );
   });
 
+  // What `import json from "@lumis-sh/wasm-json"` gives when the installed
+  // package predates the language export: the parser's URL.
+  const parserUrl = new URL("file:///app/node_modules/@lumis-sh/wasm-json/tree-sitter-json.wasm");
+  const outdatedPackage = parserUrl as unknown as Language;
+
+  it.each([
+    ["createHighlighter", () => createHighlighter({ languages: [outdatedPackage] })],
+    ["loadLanguage", async () => (await createHighlighter()).loadLanguage(outdatedPackage)],
+    ["the async helper", () => highlight('{"a": 1}', htmlLinked({ language: outdatedPackage }))],
+    [
+      "a sync highlighter",
+      async () =>
+        (await createHighlighter({ languages: [json] })).highlight(
+          '{"a": 1}',
+          htmlLinked({ language: outdatedPackage }),
+        ),
+    ],
+  ])("names an outdated parser package passed as a language to %s", async (_, use) => {
+    await expect(use()).rejects.toThrow(
+      `Expected a language but got the URL ${parserUrl.href}. Older @lumis-sh/wasm-* packages ` +
+        "export their parser's URL instead of the language; update the package it came from.",
+    );
+  });
+
   it("always loads plaintext for fallback highlighting", () => {
     expect(hl.languages).toContain("plaintext");
   });

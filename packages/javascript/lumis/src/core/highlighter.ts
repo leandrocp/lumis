@@ -445,7 +445,17 @@ function incompleteLanguageDefinition(id: string): Error {
   return new Error(`Language "${id}" has an incomplete or conflicting load definition.`);
 }
 
+// A parser package that predates the language export default-exports its
+// parser's URL, so importing it hands that URL over as the language.
+function parserUrlGivenAsLanguage(url: URL): Error {
+  return new Error(
+    `Expected a language but got the URL ${url.href}. Older @lumis-sh/wasm-* packages ` +
+      "export their parser's URL instead of the language; update the package it came from.",
+  );
+}
+
 function validateLanguageBoundary(value: unknown): void {
+  if (value instanceof URL) throw parserUrlGivenAsLanguage(value);
   if (!isLanguageLike(value)) return;
   if (!isLanguageDefinition(value)) throw malformedLanguageDefinition();
 
