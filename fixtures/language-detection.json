@@ -156,6 +156,18 @@
     "expected": "bash"
   },
   {
+    "name": "shebang with env -S",
+    "hint": null,
+    "source": "#!/usr/bin/env -S deno run --allow-read\nconsole.log('ok')",
+    "expected": "typescript"
+  },
+  {
+    "name": "shebang with env --split-string",
+    "hint": null,
+    "source": "#!/usr/bin/env --split-string deno run --allow-read\nconsole.log('ok')",
+    "expected": "typescript"
+  },
+  {
     "name": "unknown hint falls through to content",
     "hint": "not-a-language",
     "source": "#!/usr/bin/env bash\necho hello",

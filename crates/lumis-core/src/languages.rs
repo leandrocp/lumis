@@ -298,9 +298,10 @@ macro_rules! define_languages {
                 // Anchored, so a `#!` anywhere else on the first line is a comment:
                 // `bar = 1 #!/bin/bash` is Python, not Bash. Spaces and tabs
                 // separate the parts, as the kernel reads them, so
-                // `#!/usr/bin/env\tpython` runs Python.
+                // `#!/usr/bin/env\tpython` runs Python, and `-S` / `--split-string`
+                // after `env` passes flags to the interpreter that follows.
                 static RE: LazyLock<Regex> = LazyLock::new(|| {
-                    Regex::new(r"^#![ \t]*(?:/usr/bin/env[ \t]+)?([^ \t]+)").unwrap()
+                    Regex::new(r"^#![ \t]*(?:/usr/bin/env[ \t]+(?:(?:-S|--split-string)[ \t]+)?)?([^ \t]+)").unwrap()
                 });
 
                 let first_line = split_on_newlines(src).next()?;
@@ -826,5 +827,18 @@ mod tests {
 
         #[cfg(feature = "lang-bash")]
         assert_eq!(Language::guess(None, "#!/bin/bash"), Language::Bash);
+    }
+
+    #[cfg(feature = "lang-typescript")]
+    #[test]
+    fn shebang_skips_env_split_string_flag() {
+        assert_eq!(
+            Language::guess(None, "#!/usr/bin/env -S deno run --allow-read"),
+            Language::TypeScript
+        );
+        assert_eq!(
+            Language::guess(None, "#!/usr/bin/env --split-string deno run --allow-read"),
+            Language::TypeScript
+        );
     }
 }

@@ -89,10 +89,13 @@ function normalizeShebangCommand(command: string): string {
 }
 
 // Ports `from_shebang`: nothing may precede `#!`, not even whitespace, and
-// spaces and tabs separate it, `env` and the interpreter, as the kernel reads them.
+// spaces and tabs separate it, `env` (plus an optional `-S` / `--split-string`
+// flag) and the interpreter, as the kernel reads them.
 function fromShebang(source: string): string | undefined {
   const firstLine = (source.split("\n", 1)[0] ?? "").replace(/\r$/, "");
-  const command = firstLine.match(/^#![ \t]*(?:\/usr\/bin\/env[ \t]+)?([^ \t]+)/)?.[1];
+  const command = firstLine.match(
+    /^#![ \t]*(?:\/usr\/bin\/env[ \t]+(?:(?:-S|--split-string)[ \t]+)?)?([^ \t]+)/,
+  )?.[1];
 
   if (!command) return undefined;
   return SHEBANG_MAP[normalizeShebangCommand(command)];
