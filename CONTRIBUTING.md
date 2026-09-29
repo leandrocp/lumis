@@ -804,8 +804,11 @@ The `wasm-release` workflow publishes to npm and Hex:
    **publish-npm** and **publish-hex** publish that artifact, in parallel, to
    whichever registries need it. A parser that fails stops its own pipeline;
    every other parser still publishes.
-3. **publish-hex-bundles** — one job per bundle Hex is missing, after every
-   parser pipeline, because a bundle depends on every language it groups.
+3. **bundles-ready**, then **publish-npm-bundles** and **publish-hex-bundles**
+   in parallel — one job per bundle a registry is missing, once every parser
+   pipeline has finished. A bundle depends on every language it groups, so it
+   waits for its own members: one whose member failed to publish is held back
+   until the next run, and the others publish.
 
 So two parsers missing from both registries is two pipelines of one build and
 two publish jobs each, and neither registry is ever published from a build the

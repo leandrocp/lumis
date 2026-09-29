@@ -156,6 +156,7 @@ jobs:
       parsers: ${{ steps.plan.outputs.parsers }}
       bundles: ${{ steps.plan.outputs.bundles }}
       bundles_npm: ${{ steps.plan.outputs.bundles_npm }}
+      bundle_members: ${{ steps.plan.outputs.bundle_members }}
       any: ${{ steps.plan.outputs.any }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -207,6 +208,9 @@ jobs:
             echo "bundles_npm=$(echo "$plan" | jq -c '[.bundles[] | select(.npm) | {bundle: .bundle, version: .version}]')"
             echo "bundles=$(echo "$plan" | jq -c '[.bundles[] | select(.hex) | {bundle: .bundle, app: .app, version: .version}]')"
             echo "any=$(echo "$plan" | jq -r '.parsers | length > 0')"
+            # Each bundle's npm packages, read off the bundles staged above, so
+            # `bundles-ready` holds a bundle back only for its own members.
+            echo "bundle_members=$(jq -cn '[inputs | {key: (.name | ltrimstr("@lumis-sh/wasm-bundle-")), value: (.dependencies | keys)}] | from_entries' tmp/wasm/npm/wasm-bundle-*/package.json)"
           } >> "$GITHUB_OUTPUT"
 
       # Every parser job runs this same tool, so it is compiled once, here, and
@@ -256,15 +260,61 @@ jobs:
     secrets:
       HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
-  # After every parser pipeline, for the same reason the Hex bundles wait for
-  # Hex: a bundle resolves nothing until the packages it groups are published.
-  # A pipeline that failed holds the bundles back; the next run publishes them.
-  publish-npm-bundles:
+  # Which planned bundles can publish, once every parser pipeline has finished.
+  # A bundle waits for its own members only: each member this run was
+  # publishing to a registry has to have published there, and a parser the
+  # bundle does not group cannot hold it back. Members outside the plan are
+  # already published. The next run publishes whatever waits here.
+  bundles-ready:
     needs: [plan, release]
     if: >-
       ${{ !cancelled() && needs.plan.result == 'success' &&
-          needs.plan.outputs.bundles_npm != '[]' &&
-          needs.release.result != 'failure' }}
+          (needs.plan.outputs.bundles_npm != '[]' || needs.plan.outputs.bundles != '[]') }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      npm: ${{ steps.ready.outputs.npm }}
+      hex: ${{ steps.ready.outputs.hex }}
+    steps:
+      # A parser pipeline's jobs are named "<parser> / <job>", from the
+      # `release` job's name and `wasm-release-parser.yml`.
+      - name: Match each bundle against its members
+        id: ready
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PARSERS: ${{ needs.plan.outputs.parsers }}
+          MEMBERS: ${{ needs.plan.outputs.bundle_members }}
+          BUNDLES_NPM: ${{ needs.plan.outputs.bundles_npm }}
+          BUNDLES_HEX: ${{ needs.plan.outputs.bundles }}
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" \
+            --jq '.jobs[] | select(.conclusion == "success") | .name' > "$RUNNER_TEMP/succeeded"
+
+          ready() {
+            local registry=$1 checked
+            checked=$(jq -c --argjson plan "$PARSERS" --argjson members "$MEMBERS" \
+              --rawfile succeeded "$RUNNER_TEMP/succeeded" --arg registry "$registry" '
+              ($succeeded | split("\n")) as $done
+              | map(. as $bundle | . + {waiting: [
+                  $plan[]
+                  | select(.[$registry])
+                  | select(.npm_package | IN(($members[$bundle.bundle] // [])[]))
+                  | select("\(.parser) / publish-\($registry)" | IN($done[]) | not)
+                  | .npm_package
+                ]})' <<< "$2")
+            jq -r --arg registry "$registry" '.[] | select(.waiting != [])
+              | "::warning::\($registry) bundle \(.bundle) waits for \(.waiting | join(", "))"' <<< "$checked"
+            echo "$registry=$(jq -c 'map(select(.waiting == []) | del(.waiting))' <<< "$checked")" >> "$GITHUB_OUTPUT"
+          }
+          ready npm "$BUNDLES_NPM"
+          ready hex "$BUNDLES_HEX"
+
+  publish-npm-bundles:
+    needs: bundles-ready
+    if: >-
+      ${{ !cancelled() && needs.bundles-ready.result == 'success' &&
+          needs.bundles-ready.outputs.npm != '[]' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -272,7 +322,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.plan.outputs.bundles_npm) }}
+        include: ${{ fromJson(needs.bundles-ready.outputs.npm) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -310,22 +360,19 @@ jobs:
         env:
           BUNDLE: ${{ matrix.bundle }}
 
-  # After the parsers, because a bundle depends on every language it groups and
-  # cannot resolve until they are on Hex. `release` is skipped only when the
-  # plan has no parsers, which is the one case where publishing bundles alone is
-  # right.
+  # In parallel with the npm bundles, as a parser's Hex release is with its npm
+  # one, and with the same cost: if a bundle's npm publish fails where Hex
+  # succeeds, the next run releases that bundle to Hex again under a new patch.
   publish-hex-bundles:
-    needs: [plan, release, publish-npm-bundles]
+    needs: bundles-ready
     if: >-
-      ${{ !cancelled() && needs.plan.result == 'success' &&
-          needs.plan.outputs.bundles != '[]' &&
-          needs.publish-npm-bundles.result != 'failure' &&
-          needs.release.result != 'failure' }}
+      ${{ !cancelled() && needs.bundles-ready.result == 'success' &&
+          needs.bundles-ready.outputs.hex != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.plan.outputs.bundles) }}
+        include: ${{ fromJson(needs.bundles-ready.outputs.hex) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
