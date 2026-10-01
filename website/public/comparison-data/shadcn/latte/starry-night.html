@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>starry-night · Catppuccin Latte · Lumis visual comparison</title>
+  <meta name="color-scheme" content="light">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #e6e9ef; color: #4c4f69; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #bcc0cc; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root{--color-prettylights-syntax-comment:#7c7f93;--color-prettylights-syntax-constant:#fe640b;--color-prettylights-syntax-entity:#1e66f5;--color-prettylights-syntax-storage-modifier-import:#4c4f69;--color-prettylights-syntax-entity-tag:#8839ef;--color-prettylights-syntax-keyword:#8839ef;--color-prettylights-syntax-string:#40a02b;--color-prettylights-syntax-variable:#8839ef;--color-prettylights-syntax-brackethighlighter-unmatched:#4c4f69;--color-prettylights-syntax-invalid-illegal-text:#4c4f69;--color-prettylights-syntax-invalid-illegal-bg:transparent;--color-prettylights-syntax-carriage-return-text:#4c4f69;--color-prettylights-syntax-carriage-return-bg:transparent;--color-prettylights-syntax-string-regexp:#ea76cb;--color-prettylights-syntax-markup-list:#179299;--color-prettylights-syntax-markup-heading:#1e66f5;--color-prettylights-syntax-markup-italic:#d20f39;--color-prettylights-syntax-markup-bold:#d20f39;--color-prettylights-syntax-markup-deleted-text:#d20f39;--color-prettylights-syntax-markup-deleted-bg:rgba(210,15,57,.15);--color-prettylights-syntax-markup-inserted-text:#40a02b;--color-prettylights-syntax-markup-inserted-bg:rgba(64,160,43,.15);--color-prettylights-syntax-markup-changed-text:#4c4f69;--color-prettylights-syntax-markup-changed-bg:transparent;--color-prettylights-syntax-markup-ignored-text:#4c4f69;--color-prettylights-syntax-markup-ignored-bg:transparent;--color-prettylights-syntax-meta-diff-range:#fe640b;--color-prettylights-syntax-brackethighlighter-angle:#5c5f77;--color-prettylights-syntax-sublimelinter-gutter-mark:#4c4f69;--color-prettylights-syntax-constant-other-reference-link:#209fb5}pre{background:#eff1f5;color:#4c4f69}/* This is a theme distributed by `starry-night`.
+ * It’s based on what GitHub uses on their site.
+ * See <https://github.com/wooorm/starry-night> for more info. */
+
+.pl-c {
+  color: var(--color-prettylights-syntax-comment);
+}
+
+.pl-c1,
+.pl-s .pl-v {
+  color: var(--color-prettylights-syntax-constant);
+}
+
+.pl-e,
+.pl-en {
+  color: var(--color-prettylights-syntax-entity);
+}
+
+.pl-smi,
+.pl-s .pl-s1 {
+  color: var(--color-prettylights-syntax-storage-modifier-import);
+}
+
+.pl-ent {
+  color: var(--color-prettylights-syntax-entity-tag);
+}
+
+.pl-k {
+  color: var(--color-prettylights-syntax-keyword);
+}
+
+.pl-s,
+.pl-pds,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sre,
+.pl-sr .pl-sra {
+  color: var(--color-prettylights-syntax-string);
+}
+
+.pl-v,
+.pl-smw {
+  color: var(--color-prettylights-syntax-variable);
+}
+
+.pl-bu {
+  color: var(--color-prettylights-syntax-brackethighlighter-unmatched);
+}
+
+.pl-ii {
+  color: var(--color-prettylights-syntax-invalid-illegal-text);
+  background-color: var(--color-prettylights-syntax-invalid-illegal-bg);
+}
+
+.pl-c2 {
+  color: var(--color-prettylights-syntax-carriage-return-text);
+  background-color: var(--color-prettylights-syntax-carriage-return-bg);
+}
+
+.pl-sr .pl-cce {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-string-regexp);
+}
+
+.pl-ml {
+  color: var(--color-prettylights-syntax-markup-list);
+}
+
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-heading);
+}
+
+.pl-mi {
+  font-style: italic;
+  color: var(--color-prettylights-syntax-markup-italic);
+}
+
+.pl-mb {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-bold);
+}
+
+.pl-md {
+  color: var(--color-prettylights-syntax-markup-deleted-text);
+  background-color: var(--color-prettylights-syntax-markup-deleted-bg);
+}
+
+.pl-mi1 {
+  color: var(--color-prettylights-syntax-markup-inserted-text);
+  background-color: var(--color-prettylights-syntax-markup-inserted-bg);
+}
+
+.pl-mc {
+  color: var(--color-prettylights-syntax-markup-changed-text);
+  background-color: var(--color-prettylights-syntax-markup-changed-bg);
+}
+
+.pl-mi2 {
+  color: var(--color-prettylights-syntax-markup-ignored-text);
+  background-color: var(--color-prettylights-syntax-markup-ignored-bg);
+}
+
+.pl-mdr {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-meta-diff-range);
+}
+
+.pl-ba {
+  color: var(--color-prettylights-syntax-brackethighlighter-angle);
+}
+
+.pl-sg {
+  color: var(--color-prettylights-syntax-sublimelinter-gutter-mark);
+}
+
+.pl-corl {
+  text-decoration: underline;
+  color: var(--color-prettylights-syntax-constant-other-reference-link);
+}
+</style><pre><code><span class="pl-s"><span class="pl-pds">"</span>use client<span class="pl-pds">"</span></span>
+
+<span class="pl-k">import</span> <span class="pl-c1">*</span> <span class="pl-k">as</span> <span class="pl-smi">React</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>react<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">cva</span>, <span class="pl-k">type</span> <span class="pl-smi">VariantProps</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>class-variance-authority<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">PanelLeftIcon</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>lucide-react<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">Slot</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>radix-ui<span class="pl-pds">"</span></span>
+
+<span class="pl-k">import</span> { <span class="pl-smi">useIsMobile</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>@/registry/new-york-v4/hooks/use-mobile<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">cn</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>@/registry/new-york-v4/lib/utils<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">Button</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>@/registry/new-york-v4/ui/button<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">Input</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>@/registry/new-york-v4/ui/input<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">Separator</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>@/registry/new-york-v4/ui/separator<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> {
+  <span class="pl-smi">Sheet</span>,
+  <span class="pl-smi">SheetContent</span>,
+  <span class="pl-smi">SheetDescription</span>,
+  <span class="pl-smi">SheetHeader</span>,
+  <span class="pl-smi">SheetTitle</span>,
+} <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>@/registry/new-york-v4/ui/sheet<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">Skeleton</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>@/registry/new-york-v4/ui/skeleton<span class="pl-pds">"</span></span>
+<span class="pl-k">import</span> {
+  <span class="pl-smi">Tooltip</span>,
+  <span class="pl-smi">TooltipContent</span>,
+  <span class="pl-smi">TooltipProvider</span>,
+  <span class="pl-smi">TooltipTrigger</span>,
+} <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">"</span>@/registry/new-york-v4/ui/tooltip<span class="pl-pds">"</span></span>
+
+<span class="pl-k">const</span> <span class="pl-c1">SIDEBAR_COOKIE_NAME</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>sidebar_state<span class="pl-pds">"</span></span>
+<span class="pl-k">const</span> <span class="pl-c1">SIDEBAR_COOKIE_MAX_AGE</span> <span class="pl-k">=</span> <span class="pl-c1">60</span> <span class="pl-k">*</span> <span class="pl-c1">60</span> <span class="pl-k">*</span> <span class="pl-c1">24</span> <span class="pl-k">*</span> <span class="pl-c1">7</span>
+<span class="pl-k">const</span> <span class="pl-c1">SIDEBAR_WIDTH</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>16rem<span class="pl-pds">"</span></span>
+<span class="pl-k">const</span> <span class="pl-c1">SIDEBAR_WIDTH_MOBILE</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>18rem<span class="pl-pds">"</span></span>
+<span class="pl-k">const</span> <span class="pl-c1">SIDEBAR_WIDTH_ICON</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>3rem<span class="pl-pds">"</span></span>
+<span class="pl-k">const</span> <span class="pl-c1">SIDEBAR_KEYBOARD_SHORTCUT</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>b<span class="pl-pds">"</span></span>
+
+<span class="pl-k">type</span> <span class="pl-en">SidebarContextProps</span> <span class="pl-k">=</span> {
+  <span class="pl-v">state</span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>expanded<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-s"><span class="pl-pds">"</span>collapsed<span class="pl-pds">"</span></span>
+  <span class="pl-v">open</span><span class="pl-k">:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-en">setOpen</span><span class="pl-k">:</span> (<span class="pl-v">open</span><span class="pl-k">:</span> <span class="pl-c1">boolean</span>) <span class="pl-k">=></span> <span class="pl-c1">void</span>
+  <span class="pl-v">openMobile</span><span class="pl-k">:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-en">setOpenMobile</span><span class="pl-k">:</span> (<span class="pl-v">open</span><span class="pl-k">:</span> <span class="pl-c1">boolean</span>) <span class="pl-k">=></span> <span class="pl-c1">void</span>
+  <span class="pl-v">isMobile</span><span class="pl-k">:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-en">toggleSidebar</span><span class="pl-k">:</span> () <span class="pl-k">=></span> <span class="pl-c1">void</span>
+}
+
+<span class="pl-k">const</span> <span class="pl-c1">SidebarContext</span> <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">createContext</span>&#x3C;<span class="pl-en">SidebarContextProps</span> <span class="pl-k">|</span> <span class="pl-c1">null</span>>(<span class="pl-c1">null</span>)
+
+<span class="pl-k">function</span> <span class="pl-en">useSidebar</span>() {
+  <span class="pl-k">const</span> <span class="pl-c1">context</span> <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useContext</span>(<span class="pl-smi">SidebarContext</span>)
+  <span class="pl-k">if</span> (<span class="pl-k">!</span><span class="pl-smi">context</span>) {
+    <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-c1">Error</span>(<span class="pl-s"><span class="pl-pds">"</span>useSidebar must be used within a SidebarProvider.<span class="pl-pds">"</span></span>)
+  }
+
+  <span class="pl-k">return</span> <span class="pl-smi">context</span>
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarProvider</span>({
+  <span class="pl-v">defaultOpen</span> <span class="pl-k">=</span> <span class="pl-c1">true</span>,
+  <span class="pl-v">open</span>: <span class="pl-v">openProp</span>,
+  <span class="pl-v">onOpenChange</span>: <span class="pl-v">setOpenProp</span>,
+  <span class="pl-v">className</span>,
+  <span class="pl-v">style</span>,
+  <span class="pl-v">children</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>> <span class="pl-k">&#x26;</span> {
+  <span class="pl-v">defaultOpen</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-v">open</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-en">onOpenChange</span><span class="pl-k">?:</span> (<span class="pl-v">open</span><span class="pl-k">:</span> <span class="pl-c1">boolean</span>) <span class="pl-k">=></span> <span class="pl-c1">void</span>
+}) {
+  <span class="pl-k">const</span> <span class="pl-c1">isMobile</span> <span class="pl-k">=</span> <span class="pl-en">useIsMobile</span>()
+  <span class="pl-k">const</span> [<span class="pl-c1">openMobile</span>, <span class="pl-c1">setOpenMobile</span>] <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useState</span>(<span class="pl-c1">false</span>)
+
+  <span class="pl-c">// This is the internal state of the sidebar.</span>
+  <span class="pl-c">// We use openProp and setOpenProp for control from outside the component.</span>
+  <span class="pl-k">const</span> [<span class="pl-c1">_open</span>, <span class="pl-c1">_setOpen</span>] <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useState</span>(<span class="pl-smi">defaultOpen</span>)
+  <span class="pl-k">const</span> <span class="pl-c1">open</span> <span class="pl-k">=</span> <span class="pl-smi">openProp</span> <span class="pl-k">??</span> <span class="pl-smi">_open</span>
+  <span class="pl-k">const</span> <span class="pl-c1">setOpen</span> <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useCallback</span>(
+    (<span class="pl-v">value</span><span class="pl-k">:</span> <span class="pl-c1">boolean</span> <span class="pl-k">|</span> ((<span class="pl-v">value</span><span class="pl-k">:</span> <span class="pl-c1">boolean</span>) <span class="pl-k">=></span> <span class="pl-c1">boolean</span>)) <span class="pl-k">=></span> {
+      <span class="pl-k">const</span> <span class="pl-c1">openState</span> <span class="pl-k">=</span> <span class="pl-k">typeof</span> <span class="pl-smi">value</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>function<span class="pl-pds">"</span></span> <span class="pl-k">?</span> <span class="pl-en">value</span>(<span class="pl-smi">open</span>) <span class="pl-k">:</span> <span class="pl-smi">value</span>
+      <span class="pl-k">if</span> (<span class="pl-smi">setOpenProp</span>) {
+        <span class="pl-en">setOpenProp</span>(<span class="pl-smi">openState</span>)
+      } <span class="pl-k">else</span> {
+        <span class="pl-en">_setOpen</span>(<span class="pl-smi">openState</span>)
+      }
+
+      <span class="pl-c">// This sets the cookie to keep the sidebar state.</span>
+      <span class="pl-c1">document</span>.<span class="pl-c1">cookie</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">`</span>${<span class="pl-c1">SIDEBAR_COOKIE_NAME</span>}=${<span class="pl-smi">openState</span>}; path=/; max-age=${<span class="pl-c1">SIDEBAR_COOKIE_MAX_AGE</span>}<span class="pl-pds">`</span></span>
+    },
+    [<span class="pl-smi">setOpenProp</span>, <span class="pl-smi">open</span>]
+  )
+
+  <span class="pl-c">// Helper to toggle the sidebar.</span>
+  <span class="pl-k">const</span> <span class="pl-c1">toggleSidebar</span> <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useCallback</span>(() <span class="pl-k">=></span> {
+    <span class="pl-k">return</span> <span class="pl-smi">isMobile</span> <span class="pl-k">?</span> <span class="pl-en">setOpenMobile</span>((<span class="pl-v">open</span>) <span class="pl-k">=></span> <span class="pl-k">!</span><span class="pl-smi">open</span>) <span class="pl-k">:</span> <span class="pl-en">setOpen</span>((<span class="pl-v">open</span>) <span class="pl-k">=></span> <span class="pl-k">!</span><span class="pl-smi">open</span>)
+  }, [<span class="pl-smi">isMobile</span>, <span class="pl-smi">setOpen</span>, <span class="pl-smi">setOpenMobile</span>])
+
+  <span class="pl-c">// Adds a keyboard shortcut to toggle the sidebar.</span>
+  <span class="pl-smi">React</span>.<span class="pl-en">useEffect</span>(() <span class="pl-k">=></span> {
+    <span class="pl-k">const</span> <span class="pl-en">handleKeyDown</span> <span class="pl-k">=</span> (<span class="pl-v">event</span><span class="pl-k">:</span> <span class="pl-en">KeyboardEvent</span>) <span class="pl-k">=></span> {
+      <span class="pl-k">if</span> (
+        <span class="pl-c1">event</span>.<span class="pl-smi">key</span> <span class="pl-k">===</span> <span class="pl-c1">SIDEBAR_KEYBOARD_SHORTCUT</span> <span class="pl-k">&#x26;&#x26;</span>
+        (<span class="pl-c1">event</span>.<span class="pl-smi">metaKey</span> <span class="pl-k">||</span> <span class="pl-c1">event</span>.<span class="pl-smi">ctrlKey</span>)
+      ) {
+        <span class="pl-c1">event</span>.<span class="pl-c1">preventDefault</span>()
+        <span class="pl-en">toggleSidebar</span>()
+      }
+    }
+
+    <span class="pl-c1">window</span>.<span class="pl-c1">addEventListener</span>(<span class="pl-s"><span class="pl-pds">"</span>keydown<span class="pl-pds">"</span></span>, <span class="pl-smi">handleKeyDown</span>)
+    <span class="pl-k">return</span> () <span class="pl-k">=></span> <span class="pl-c1">window</span>.<span class="pl-c1">removeEventListener</span>(<span class="pl-s"><span class="pl-pds">"</span>keydown<span class="pl-pds">"</span></span>, <span class="pl-smi">handleKeyDown</span>)
+  }, [<span class="pl-smi">toggleSidebar</span>])
+
+  <span class="pl-c">// We add a state so that we can do data-state="expanded" or "collapsed".</span>
+  <span class="pl-c">// This makes it easier to style the sidebar with Tailwind classes.</span>
+  <span class="pl-k">const</span> <span class="pl-c1">state</span> <span class="pl-k">=</span> <span class="pl-smi">open</span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">"</span>expanded<span class="pl-pds">"</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>collapsed<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">const</span> <span class="pl-c1">contextValue</span> <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useMemo</span>&#x3C;<span class="pl-en">SidebarContextProps</span>>(
+    () <span class="pl-k">=></span> ({
+      <span class="pl-smi">state</span>,
+      <span class="pl-smi">open</span>,
+      <span class="pl-smi">setOpen</span>,
+      <span class="pl-smi">isMobile</span>,
+      <span class="pl-smi">openMobile</span>,
+      <span class="pl-smi">setOpenMobile</span>,
+      <span class="pl-smi">toggleSidebar</span>,
+    }),
+    [<span class="pl-smi">state</span>, <span class="pl-smi">open</span>, <span class="pl-smi">setOpen</span>, <span class="pl-smi">isMobile</span>, <span class="pl-smi">openMobile</span>, <span class="pl-smi">setOpenMobile</span>, <span class="pl-smi">toggleSidebar</span>]
+  )
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">SidebarContext.Provider</span> <span class="pl-e">value</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">contextValue</span><span class="pl-pse">}</span>>
+      &#x3C;<span class="pl-c1">TooltipProvider</span> <span class="pl-e">delayDuration</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-c1">0</span><span class="pl-pse">}</span>>
+        &#x3C;<span class="pl-ent">div</span>
+          <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-wrapper<span class="pl-pds">"</span></span>
+          <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>
+            {
+              <span class="pl-s"><span class="pl-pds">"</span>--sidebar-width<span class="pl-pds">"</span></span>: <span class="pl-c1">SIDEBAR_WIDTH</span>,
+              <span class="pl-s"><span class="pl-pds">"</span>--sidebar-width-icon<span class="pl-pds">"</span></span>: <span class="pl-c1">SIDEBAR_WIDTH_ICON</span>,
+              <span class="pl-k">...</span><span class="pl-smi">style</span>,
+            } <span class="pl-k">as</span> <span class="pl-en">React</span>.<span class="pl-en">CSSProperties</span>
+          <span class="pl-pse">}</span>
+          <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+            <span class="pl-s"><span class="pl-pds">"</span>group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar<span class="pl-pds">"</span></span>,
+            <span class="pl-smi">className</span>
+          )<span class="pl-pse">}</span>
+          <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+        >
+          <span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>
+        &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;/<span class="pl-c1">TooltipProvider</span>>
+    &#x3C;/<span class="pl-c1">SidebarContext.Provider</span>>
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">Sidebar</span>({
+  <span class="pl-v">side</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>left<span class="pl-pds">"</span></span>,
+  <span class="pl-v">variant</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>sidebar<span class="pl-pds">"</span></span>,
+  <span class="pl-v">collapsible</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>offcanvas<span class="pl-pds">"</span></span>,
+  <span class="pl-v">className</span>,
+  <span class="pl-v">children</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>> <span class="pl-k">&#x26;</span> {
+  <span class="pl-v">side</span><span class="pl-k">?:</span> <span class="pl-s"><span class="pl-pds">"</span>left<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-s"><span class="pl-pds">"</span>right<span class="pl-pds">"</span></span>
+  <span class="pl-v">variant</span><span class="pl-k">?:</span> <span class="pl-s"><span class="pl-pds">"</span>sidebar<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-s"><span class="pl-pds">"</span>floating<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-s"><span class="pl-pds">"</span>inset<span class="pl-pds">"</span></span>
+  <span class="pl-v">collapsible</span><span class="pl-k">?:</span> <span class="pl-s"><span class="pl-pds">"</span>offcanvas<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-s"><span class="pl-pds">"</span>icon<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-s"><span class="pl-pds">"</span>none<span class="pl-pds">"</span></span>
+}) {
+  <span class="pl-k">const</span> { <span class="pl-c1">isMobile</span>, <span class="pl-c1">state</span>, <span class="pl-c1">openMobile</span>, <span class="pl-c1">setOpenMobile</span> } <span class="pl-k">=</span> <span class="pl-en">useSidebar</span>()
+
+  <span class="pl-k">if</span> (<span class="pl-smi">collapsible</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>none<span class="pl-pds">"</span></span>) {
+    <span class="pl-k">return</span> (
+      &#x3C;<span class="pl-ent">div</span>
+        <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar<span class="pl-pds">"</span></span>
+        <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+          <span class="pl-s"><span class="pl-pds">"</span>flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground<span class="pl-pds">"</span></span>,
+          <span class="pl-smi">className</span>
+        )<span class="pl-pse">}</span>
+        <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+      >
+        <span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>
+      &#x3C;/<span class="pl-ent">div</span>>
+    )
+  }
+
+  <span class="pl-k">if</span> (<span class="pl-smi">isMobile</span>) {
+    <span class="pl-k">return</span> (
+      &#x3C;<span class="pl-c1">Sheet</span> <span class="pl-e">open</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">openMobile</span><span class="pl-pse">}</span> <span class="pl-e">onOpenChange</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">setOpenMobile</span><span class="pl-pse">}</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>>
+        &#x3C;<span class="pl-c1">SheetContent</span>
+          <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar<span class="pl-pds">"</span></span>
+          <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar<span class="pl-pds">"</span></span>
+          <span class="pl-e">data-mobile</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>true<span class="pl-pds">"</span></span>
+          <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&#x26;>button]:hidden<span class="pl-pds">"</span></span>
+          <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>
+            {
+              <span class="pl-s"><span class="pl-pds">"</span>--sidebar-width<span class="pl-pds">"</span></span>: <span class="pl-c1">SIDEBAR_WIDTH_MOBILE</span>,
+            } <span class="pl-k">as</span> <span class="pl-en">React</span>.<span class="pl-en">CSSProperties</span>
+          <span class="pl-pse">}</span>
+          <span class="pl-e">side</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">side</span><span class="pl-pse">}</span>
+        >
+          &#x3C;<span class="pl-c1">SheetHeader</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sr-only<span class="pl-pds">"</span></span>>
+            &#x3C;<span class="pl-c1">SheetTitle</span>>Sidebar&#x3C;/<span class="pl-c1">SheetTitle</span>>
+            &#x3C;<span class="pl-c1">SheetDescription</span>>Displays the mobile sidebar.&#x3C;/<span class="pl-c1">SheetDescription</span>>
+          &#x3C;/<span class="pl-c1">SheetHeader</span>>
+          &#x3C;<span class="pl-ent">div</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>flex h-full w-full flex-col<span class="pl-pds">"</span></span>><span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>&#x3C;/<span class="pl-ent">div</span>>
+        &#x3C;/<span class="pl-c1">SheetContent</span>>
+      &#x3C;/<span class="pl-c1">Sheet</span>>
+    )
+  }
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>group peer hidden text-sidebar-foreground md:block<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-state</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">state</span><span class="pl-pse">}</span>
+      <span class="pl-e">data-collapsible</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">state</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>collapsed<span class="pl-pds">"</span></span> <span class="pl-k">?</span> <span class="pl-smi">collapsible</span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">""</span></span><span class="pl-pse">}</span>
+      <span class="pl-e">data-variant</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">variant</span><span class="pl-pse">}</span>
+      <span class="pl-e">data-side</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">side</span><span class="pl-pse">}</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar<span class="pl-pds">"</span></span>
+    >
+      <span class="pl-pse">{</span><span class="pl-c">/* This is what handles the sidebar gap on desktop */</span><span class="pl-pse">}</span>
+      &#x3C;<span class="pl-ent">div</span>
+        <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-gap<span class="pl-pds">"</span></span>
+        <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+          <span class="pl-s"><span class="pl-pds">"</span>relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear<span class="pl-pds">"</span></span>,
+          <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=offcanvas]:w-0<span class="pl-pds">"</span></span>,
+          <span class="pl-s"><span class="pl-pds">"</span>group-data-[side=right]:rotate-180<span class="pl-pds">"</span></span>,
+          <span class="pl-smi">variant</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>floating<span class="pl-pds">"</span></span> <span class="pl-k">||</span> <span class="pl-smi">variant</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>inset<span class="pl-pds">"</span></span>
+            <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]<span class="pl-pds">"</span></span>
+            <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:w-(--sidebar-width-icon)<span class="pl-pds">"</span></span>
+        )<span class="pl-pse">}</span>
+      />
+      &#x3C;<span class="pl-ent">div</span>
+        <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-container<span class="pl-pds">"</span></span>
+        <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+          <span class="pl-s"><span class="pl-pds">"</span>fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex<span class="pl-pds">"</span></span>,
+          <span class="pl-smi">side</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>left<span class="pl-pds">"</span></span>
+            <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">"</span>left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]<span class="pl-pds">"</span></span>
+            <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]<span class="pl-pds">"</span></span>,
+          <span class="pl-c">// Adjust the padding for floating and inset variants.</span>
+          <span class="pl-smi">variant</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>floating<span class="pl-pds">"</span></span> <span class="pl-k">||</span> <span class="pl-smi">variant</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>inset<span class="pl-pds">"</span></span>
+            <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">"</span>p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]<span class="pl-pds">"</span></span>
+            <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l<span class="pl-pds">"</span></span>,
+          <span class="pl-smi">className</span>
+        )<span class="pl-pse">}</span>
+        <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+      >
+        &#x3C;<span class="pl-ent">div</span>
+          <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar<span class="pl-pds">"</span></span>
+          <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-inner<span class="pl-pds">"</span></span>
+          <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm<span class="pl-pds">"</span></span>
+        >
+          <span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>
+        &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;/<span class="pl-ent">div</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarTrigger</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-v">onClick</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-k">typeof</span> <span class="pl-smi">Button</span>>) {
+  <span class="pl-k">const</span> { <span class="pl-c1">toggleSidebar</span> } <span class="pl-k">=</span> <span class="pl-en">useSidebar</span>()
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">Button</span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>trigger<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-trigger<span class="pl-pds">"</span></span>
+      <span class="pl-e">variant</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>ghost<span class="pl-pds">"</span></span>
+      <span class="pl-e">size</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>icon<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>size-7<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>(<span class="pl-v">event</span>) <span class="pl-k">=></span> {
+        <span class="pl-en">onClick</span>?.(<span class="pl-c1">event</span>)
+        <span class="pl-en">toggleSidebar</span>()
+      }<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    >
+      &#x3C;<span class="pl-c1">PanelLeftIcon</span> />
+      &#x3C;<span class="pl-ent">span</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sr-only<span class="pl-pds">"</span></span>>Toggle Sidebar&#x3C;/<span class="pl-ent">span</span>>
+    &#x3C;/<span class="pl-c1">Button</span>>
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarRail</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>button<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">const</span> { <span class="pl-c1">toggleSidebar</span> } <span class="pl-k">=</span> <span class="pl-en">useSidebar</span>()
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">button</span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>rail<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-rail<span class="pl-pds">"</span></span>
+      <span class="pl-e">aria-label</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Toggle Sidebar<span class="pl-pds">"</span></span>
+      <span class="pl-e">tabIndex</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-k">-</span><span class="pl-c1">1</span><span class="pl-pse">}</span>
+      <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">toggleSidebar</span><span class="pl-pse">}</span>
+      <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Toggle Sidebar<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>[[data-side=left][data-state=collapsed]_&#x26;]:cursor-e-resize [[data-side=right][data-state=collapsed]_&#x26;]:cursor-w-resize<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full hover:group-data-[collapsible=offcanvas]:bg-sidebar<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>[[data-side=left][data-collapsible=offcanvas]_&#x26;]:-right-2<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>[[data-side=right][data-collapsible=offcanvas]_&#x26;]:-left-2<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarInset</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>main<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">main</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-inset<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>relative flex w-full flex-1 flex-col bg-background<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarInput</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-k">typeof</span> <span class="pl-smi">Input</span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">Input</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-input<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>input<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>h-8 w-full bg-background shadow-none<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarHeader</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-header<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>header<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>flex flex-col gap-2 p-2<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarFooter</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-footer<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>footer<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>flex flex-col gap-2 p-2<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarSeparator</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-k">typeof</span> <span class="pl-smi">Separator</span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">Separator</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-separator<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>separator<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>mx-2 w-auto bg-sidebar-border<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarContent</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-content<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>content<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarGroup</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-group<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>group<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>relative flex w-full min-w-0 flex-col p-2<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarGroupLabel</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-v">asChild</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>> <span class="pl-k">&#x26;</span> { <span class="pl-v">asChild</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span> }) {
+  <span class="pl-k">const</span> <span class="pl-c1">Comp</span> <span class="pl-k">=</span> <span class="pl-smi">asChild</span> <span class="pl-k">?</span> <span class="pl-smi">Slot</span>.<span class="pl-smi">Root</span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">Comp</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-group-label<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>group-label<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&#x26;>svg]:size-4 [&#x26;>svg]:shrink-0<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarGroupAction</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-v">asChild</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>button<span class="pl-pds">"</span></span>> <span class="pl-k">&#x26;</span> { <span class="pl-v">asChild</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span> }) {
+  <span class="pl-k">const</span> <span class="pl-c1">Comp</span> <span class="pl-k">=</span> <span class="pl-smi">asChild</span> <span class="pl-k">?</span> <span class="pl-smi">Slot</span>.<span class="pl-smi">Root</span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>button<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">Comp</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-group-action<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>group-action<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&#x26;>svg]:size-4 [&#x26;>svg]:shrink-0<span class="pl-pds">"</span></span>,
+        <span class="pl-c">// Increases the hit area of the button on mobile.</span>
+        <span class="pl-s"><span class="pl-pds">"</span>after:absolute after:-inset-2 md:after:hidden<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:hidden<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarGroupContent</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-group-content<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>group-content<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>w-full text-sm<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenu</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>ul<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">ul</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>flex w-full min-w-0 flex-col gap-1<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenuItem</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>li<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">li</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu-item<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-item<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>group/menu-item relative<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">const</span> <span class="pl-c1">sidebarMenuButtonVariants</span> <span class="pl-k">=</span> <span class="pl-en">cva</span>(
+  <span class="pl-s"><span class="pl-pds">"</span>peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&#x26;>span:last-child]:truncate [&#x26;>svg]:size-4 [&#x26;>svg]:shrink-0<span class="pl-pds">"</span></span>,
+  {
+    variants: {
+      variant: {
+        default: <span class="pl-s"><span class="pl-pds">"</span>hover:bg-sidebar-accent hover:text-sidebar-accent-foreground<span class="pl-pds">"</span></span>,
+        outline:
+          <span class="pl-s"><span class="pl-pds">"</span>bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]<span class="pl-pds">"</span></span>,
+      },
+      size: {
+        default: <span class="pl-s"><span class="pl-pds">"</span>h-8 text-sm<span class="pl-pds">"</span></span>,
+        sm: <span class="pl-s"><span class="pl-pds">"</span>h-7 text-xs<span class="pl-pds">"</span></span>,
+        lg: <span class="pl-s"><span class="pl-pds">"</span>h-12 text-sm group-data-[collapsible=icon]:p-0!<span class="pl-pds">"</span></span>,
+      },
+    },
+    defaultVariants: {
+      variant: <span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>,
+      size: <span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>,
+    },
+  }
+)
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenuButton</span>({
+  <span class="pl-v">asChild</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-v">isActive</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-v">variant</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>,
+  <span class="pl-v">size</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>,
+  <span class="pl-v">tooltip</span>,
+  <span class="pl-v">className</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>button<span class="pl-pds">"</span></span>> <span class="pl-k">&#x26;</span> {
+  <span class="pl-v">asChild</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-v">isActive</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-v">tooltip</span><span class="pl-k">?:</span> <span class="pl-c1">string</span> <span class="pl-k">|</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-k">typeof</span> <span class="pl-smi">TooltipContent</span>>
+} <span class="pl-k">&#x26;</span> <span class="pl-en">VariantProps</span>&#x3C;<span class="pl-k">typeof</span> <span class="pl-smi">sidebarMenuButtonVariants</span>>) {
+  <span class="pl-k">const</span> <span class="pl-c1">Comp</span> <span class="pl-k">=</span> <span class="pl-smi">asChild</span> <span class="pl-k">?</span> <span class="pl-smi">Slot</span>.<span class="pl-smi">Root</span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>button<span class="pl-pds">"</span></span>
+  <span class="pl-k">const</span> { <span class="pl-c1">isMobile</span>, <span class="pl-c1">state</span> } <span class="pl-k">=</span> <span class="pl-en">useSidebar</span>()
+
+  <span class="pl-k">const</span> <span class="pl-en">button</span> <span class="pl-k">=</span> (
+    &#x3C;<span class="pl-c1">Comp</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu-button<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-button<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-size</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">size</span><span class="pl-pse">}</span>
+      <span class="pl-e">data-active</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">isActive</span><span class="pl-pse">}</span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-en">sidebarMenuButtonVariants</span>({ <span class="pl-smi">variant</span>, <span class="pl-smi">size</span> }), <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+
+  <span class="pl-k">if</span> (<span class="pl-k">!</span><span class="pl-smi">tooltip</span>) {
+    <span class="pl-k">return</span> <span class="pl-smi">button</span>
+  }
+
+  <span class="pl-k">if</span> (<span class="pl-k">typeof</span> <span class="pl-smi">tooltip</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>) {
+    <span class="pl-smi">tooltip</span> <span class="pl-k">=</span> {
+      children: <span class="pl-smi">tooltip</span>,
+    }
+  }
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">Tooltip</span>>
+      &#x3C;<span class="pl-c1">TooltipTrigger</span> <span class="pl-e">asChild</span>><span class="pl-pse">{</span><span class="pl-smi">button</span><span class="pl-pse">}</span>&#x3C;/<span class="pl-c1">TooltipTrigger</span>>
+      &#x3C;<span class="pl-c1">TooltipContent</span>
+        <span class="pl-e">side</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>right<span class="pl-pds">"</span></span>
+        <span class="pl-e">align</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>center<span class="pl-pds">"</span></span>
+        <span class="pl-e">hidden</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">state</span> <span class="pl-k">!==</span> <span class="pl-s"><span class="pl-pds">"</span>collapsed<span class="pl-pds">"</span></span> <span class="pl-k">||</span> <span class="pl-smi">isMobile</span><span class="pl-pse">}</span>
+        <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">tooltip</span><span class="pl-pse">}</span>
+      />
+    &#x3C;/<span class="pl-c1">Tooltip</span>>
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenuAction</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-v">asChild</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-v">showOnHover</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>button<span class="pl-pds">"</span></span>> <span class="pl-k">&#x26;</span> {
+  <span class="pl-v">asChild</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-v">showOnHover</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+}) {
+  <span class="pl-k">const</span> <span class="pl-c1">Comp</span> <span class="pl-k">=</span> <span class="pl-smi">asChild</span> <span class="pl-k">?</span> <span class="pl-smi">Slot</span>.<span class="pl-smi">Root</span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>button<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">Comp</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu-action<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-action<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform peer-hover/menu-button:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&#x26;>svg]:size-4 [&#x26;>svg]:shrink-0<span class="pl-pds">"</span></span>,
+        <span class="pl-c">// Increases the hit area of the button on mobile.</span>
+        <span class="pl-s"><span class="pl-pds">"</span>after:absolute after:-inset-2 md:after:hidden<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>peer-data-[size=sm]/menu-button:top-1<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>peer-data-[size=default]/menu-button:top-1.5<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>peer-data-[size=lg]/menu-button:top-2.5<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:hidden<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">showOnHover</span> <span class="pl-k">&#x26;&#x26;</span>
+          <span class="pl-s"><span class="pl-pds">"</span>group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground data-[state=open]:opacity-100 md:opacity-0<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenuBadge</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu-badge<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-badge<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>peer-data-[size=sm]/menu-button:top-1<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>peer-data-[size=default]/menu-button:top-1.5<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>peer-data-[size=lg]/menu-button:top-2.5<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:hidden<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenuSkeleton</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-v">showIcon</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>div<span class="pl-pds">"</span></span>> <span class="pl-k">&#x26;</span> {
+  <span class="pl-v">showIcon</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+}) {
+  <span class="pl-c">// Random width between 50 to 90%.</span>
+  <span class="pl-k">const</span> <span class="pl-c1">width</span> <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useMemo</span>(() <span class="pl-k">=></span> {
+    <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">`</span>${<span class="pl-c1">Math</span>.<span class="pl-c1">floor</span>(<span class="pl-c1">Math</span>.<span class="pl-c1">random</span>() <span class="pl-k">*</span> <span class="pl-c1">40</span>) <span class="pl-k">+</span> <span class="pl-c1">50</span>}%<span class="pl-pds">`</span></span>
+  }, [])
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu-skeleton<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-skeleton<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>flex h-8 items-center gap-2 rounded-md px-2<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    >
+      <span class="pl-pse">{</span><span class="pl-smi">showIcon</span> <span class="pl-k">&#x26;&#x26;</span> (
+        &#x3C;<span class="pl-c1">Skeleton</span>
+          <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>size-4 rounded-md<span class="pl-pds">"</span></span>
+          <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-skeleton-icon<span class="pl-pds">"</span></span>
+        />
+      )<span class="pl-pse">}</span>
+      &#x3C;<span class="pl-c1">Skeleton</span>
+        <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>h-4 max-w-(--skeleton-width) flex-1<span class="pl-pds">"</span></span>
+        <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-skeleton-text<span class="pl-pds">"</span></span>
+        <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>
+          {
+            <span class="pl-s"><span class="pl-pds">"</span>--skeleton-width<span class="pl-pds">"</span></span>: <span class="pl-smi">width</span>,
+          } <span class="pl-k">as</span> <span class="pl-en">React</span>.<span class="pl-en">CSSProperties</span>
+        <span class="pl-pse">}</span>
+      />
+    &#x3C;/<span class="pl-ent">div</span>>
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenuSub</span>({ <span class="pl-v">className</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>ul<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">ul</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu-sub<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-sub<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:hidden<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenuSubItem</span>({
+  <span class="pl-v">className</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>li<span class="pl-pds">"</span></span>>) {
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-ent">li</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu-sub-item<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-sub-item<span class="pl-pds">"</span></span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(<span class="pl-s"><span class="pl-pds">"</span>group/menu-sub-item relative<span class="pl-pds">"</span></span>, <span class="pl-smi">className</span>)<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">function</span> <span class="pl-en">SidebarMenuSubButton</span>({
+  <span class="pl-v">asChild</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-v">size</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>md<span class="pl-pds">"</span></span>,
+  <span class="pl-v">isActive</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>,
+  <span class="pl-v">className</span>,
+  <span class="pl-k">...</span><span class="pl-v">props</span>
+}<span class="pl-k">:</span> <span class="pl-en">React</span>.<span class="pl-en">ComponentProps</span>&#x3C;<span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>> <span class="pl-k">&#x26;</span> {
+  <span class="pl-v">asChild</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+  <span class="pl-v">size</span><span class="pl-k">?:</span> <span class="pl-s"><span class="pl-pds">"</span>sm<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-s"><span class="pl-pds">"</span>md<span class="pl-pds">"</span></span>
+  <span class="pl-v">isActive</span><span class="pl-k">?:</span> <span class="pl-c1">boolean</span>
+}) {
+  <span class="pl-k">const</span> <span class="pl-c1">Comp</span> <span class="pl-k">=</span> <span class="pl-smi">asChild</span> <span class="pl-k">?</span> <span class="pl-smi">Slot</span>.<span class="pl-smi">Root</span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">return</span> (
+    &#x3C;<span class="pl-c1">Comp</span>
+      <span class="pl-e">data-slot</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>sidebar-menu-sub-button<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-sidebar</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>menu-sub-button<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-size</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">size</span><span class="pl-pse">}</span>
+      <span class="pl-e">data-active</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">isActive</span><span class="pl-pse">}</span>
+      <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-en">cn</span>(
+        <span class="pl-s"><span class="pl-pds">"</span>flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground ring-sidebar-ring outline-hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&#x26;>span:last-child]:truncate [&#x26;>svg]:size-4 [&#x26;>svg]:shrink-0 [&#x26;>svg]:text-sidebar-accent-foreground<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">size</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>sm<span class="pl-pds">"</span></span> <span class="pl-k">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>text-xs<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">size</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>md<span class="pl-pds">"</span></span> <span class="pl-k">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>text-sm<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>group-data-[collapsible=icon]:hidden<span class="pl-pds">"</span></span>,
+        <span class="pl-smi">className</span>
+      )<span class="pl-pse">}</span>
+      <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span>
+    />
+  )
+}
+
+<span class="pl-k">export</span> {
+  <span class="pl-smi">Sidebar</span>,
+  <span class="pl-smi">SidebarContent</span>,
+  <span class="pl-smi">SidebarFooter</span>,
+  <span class="pl-smi">SidebarGroup</span>,
+  <span class="pl-smi">SidebarGroupAction</span>,
+  <span class="pl-smi">SidebarGroupContent</span>,
+  <span class="pl-smi">SidebarGroupLabel</span>,
+  <span class="pl-smi">SidebarHeader</span>,
+  <span class="pl-smi">SidebarInput</span>,
+  <span class="pl-smi">SidebarInset</span>,
+  <span class="pl-smi">SidebarMenu</span>,
+  <span class="pl-smi">SidebarMenuAction</span>,
+  <span class="pl-smi">SidebarMenuBadge</span>,
+  <span class="pl-smi">SidebarMenuButton</span>,
+  <span class="pl-smi">SidebarMenuItem</span>,
+  <span class="pl-smi">SidebarMenuSkeleton</span>,
+  <span class="pl-smi">SidebarMenuSub</span>,
+  <span class="pl-smi">SidebarMenuSubButton</span>,
+  <span class="pl-smi">SidebarMenuSubItem</span>,
+  <span class="pl-smi">SidebarProvider</span>,
+  <span class="pl-smi">SidebarRail</span>,
+  <span class="pl-smi">SidebarSeparator</span>,
+  <span class="pl-smi">SidebarTrigger</span>,
+  <span class="pl-smi">useSidebar</span>,
+}
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

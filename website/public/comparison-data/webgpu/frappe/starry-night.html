@@ -1,0 +1,1563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>starry-night · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root{--color-prettylights-syntax-comment:#949cbb;--color-prettylights-syntax-constant:#ef9f76;--color-prettylights-syntax-entity:#8caaee;--color-prettylights-syntax-storage-modifier-import:#c6d0f5;--color-prettylights-syntax-entity-tag:#ca9ee6;--color-prettylights-syntax-keyword:#ca9ee6;--color-prettylights-syntax-string:#a6d189;--color-prettylights-syntax-variable:#ca9ee6;--color-prettylights-syntax-brackethighlighter-unmatched:#c6d0f5;--color-prettylights-syntax-invalid-illegal-text:#c6d0f5;--color-prettylights-syntax-invalid-illegal-bg:transparent;--color-prettylights-syntax-carriage-return-text:#c6d0f5;--color-prettylights-syntax-carriage-return-bg:transparent;--color-prettylights-syntax-string-regexp:#f4b8e4;--color-prettylights-syntax-markup-list:#81c8be;--color-prettylights-syntax-markup-heading:#8caaee;--color-prettylights-syntax-markup-italic:#e78284;--color-prettylights-syntax-markup-bold:#e78284;--color-prettylights-syntax-markup-deleted-text:#e78284;--color-prettylights-syntax-markup-deleted-bg:rgba(231,130,132,.15);--color-prettylights-syntax-markup-inserted-text:#a6d189;--color-prettylights-syntax-markup-inserted-bg:rgba(166,209,137,.15);--color-prettylights-syntax-markup-changed-text:#c6d0f5;--color-prettylights-syntax-markup-changed-bg:transparent;--color-prettylights-syntax-markup-ignored-text:#c6d0f5;--color-prettylights-syntax-markup-ignored-bg:transparent;--color-prettylights-syntax-meta-diff-range:#ef9f76;--color-prettylights-syntax-brackethighlighter-angle:#b5bfe2;--color-prettylights-syntax-sublimelinter-gutter-mark:#c6d0f5;--color-prettylights-syntax-constant-other-reference-link:#85c1dc}pre{background:#303446;color:#c6d0f5}/* This is a theme distributed by `starry-night`.
+ * It’s based on what GitHub uses on their site.
+ * See <https://github.com/wooorm/starry-night> for more info. */
+
+.pl-c {
+  color: var(--color-prettylights-syntax-comment);
+}
+
+.pl-c1,
+.pl-s .pl-v {
+  color: var(--color-prettylights-syntax-constant);
+}
+
+.pl-e,
+.pl-en {
+  color: var(--color-prettylights-syntax-entity);
+}
+
+.pl-smi,
+.pl-s .pl-s1 {
+  color: var(--color-prettylights-syntax-storage-modifier-import);
+}
+
+.pl-ent {
+  color: var(--color-prettylights-syntax-entity-tag);
+}
+
+.pl-k {
+  color: var(--color-prettylights-syntax-keyword);
+}
+
+.pl-s,
+.pl-pds,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sre,
+.pl-sr .pl-sra {
+  color: var(--color-prettylights-syntax-string);
+}
+
+.pl-v,
+.pl-smw {
+  color: var(--color-prettylights-syntax-variable);
+}
+
+.pl-bu {
+  color: var(--color-prettylights-syntax-brackethighlighter-unmatched);
+}
+
+.pl-ii {
+  color: var(--color-prettylights-syntax-invalid-illegal-text);
+  background-color: var(--color-prettylights-syntax-invalid-illegal-bg);
+}
+
+.pl-c2 {
+  color: var(--color-prettylights-syntax-carriage-return-text);
+  background-color: var(--color-prettylights-syntax-carriage-return-bg);
+}
+
+.pl-sr .pl-cce {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-string-regexp);
+}
+
+.pl-ml {
+  color: var(--color-prettylights-syntax-markup-list);
+}
+
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-heading);
+}
+
+.pl-mi {
+  font-style: italic;
+  color: var(--color-prettylights-syntax-markup-italic);
+}
+
+.pl-mb {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-bold);
+}
+
+.pl-md {
+  color: var(--color-prettylights-syntax-markup-deleted-text);
+  background-color: var(--color-prettylights-syntax-markup-deleted-bg);
+}
+
+.pl-mi1 {
+  color: var(--color-prettylights-syntax-markup-inserted-text);
+  background-color: var(--color-prettylights-syntax-markup-inserted-bg);
+}
+
+.pl-mc {
+  color: var(--color-prettylights-syntax-markup-changed-text);
+  background-color: var(--color-prettylights-syntax-markup-changed-bg);
+}
+
+.pl-mi2 {
+  color: var(--color-prettylights-syntax-markup-ignored-text);
+  background-color: var(--color-prettylights-syntax-markup-ignored-bg);
+}
+
+.pl-mdr {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-meta-diff-range);
+}
+
+.pl-ba {
+  color: var(--color-prettylights-syntax-brackethighlighter-angle);
+}
+
+.pl-sg {
+  color: var(--color-prettylights-syntax-sublimelinter-gutter-mark);
+}
+
+.pl-corl {
+  text-decoration: underline;
+  color: var(--color-prettylights-syntax-constant-other-reference-link);
+}
+</style><pre><code>&#x3C;<span class="pl-ent">html</span> <span class="pl-e">lang</span>=<span class="pl-s"><span class="pl-pds">"</span>en<span class="pl-pds">"</span></span>>
+	&#x3C;<span class="pl-ent">head</span>>
+		&#x3C;<span class="pl-ent">title</span>>three.js webgpu - compute reduction&#x3C;/<span class="pl-ent">title</span>>
+		&#x3C;<span class="pl-ent">meta</span> <span class="pl-e">charset</span>=<span class="pl-s"><span class="pl-pds">"</span>utf-8<span class="pl-pds">"</span></span>>
+		&#x3C;<span class="pl-ent">meta</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>viewport<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0<span class="pl-pds">"</span></span>>
+		&#x3C;<span class="pl-ent">meta</span> <span class="pl-e">property</span>=<span class="pl-s"><span class="pl-pds">"</span>og:title<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>three.js webgpu - compute reduction<span class="pl-pds">"</span></span>>
+		&#x3C;<span class="pl-ent">meta</span> <span class="pl-e">property</span>=<span class="pl-s"><span class="pl-pds">"</span>og:type<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>website<span class="pl-pds">"</span></span>>
+		&#x3C;<span class="pl-ent">meta</span> <span class="pl-e">property</span>=<span class="pl-s"><span class="pl-pds">"</span>og:url<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>https://threejs.org/examples/webgpu_compute_reduce.html<span class="pl-pds">"</span></span>>
+		&#x3C;<span class="pl-ent">meta</span> <span class="pl-e">property</span>=<span class="pl-s"><span class="pl-pds">"</span>og:image<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>https://threejs.org/examples/screenshots/webgpu_compute_reduce.jpg<span class="pl-pds">"</span></span>>
+		&#x3C;<span class="pl-ent">link</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text/css<span class="pl-pds">"</span></span> <span class="pl-e">rel</span>=<span class="pl-s"><span class="pl-pds">"</span>stylesheet<span class="pl-pds">"</span></span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>main.css<span class="pl-pds">"</span></span>>
+	&#x3C;/<span class="pl-ent">head</span>>
+	&#x3C;<span class="pl-ent">body</span>>
+
+	&#x3C;<span class="pl-ent">style</span>>
+
+		<span class="pl-e">#reduction-panel</span> {
+			<span class="pl-c1">background-color</span>: <span class="pl-c1">#111</span>;
+			<span class="pl-c1">width</span>: <span class="pl-c1">100</span><span class="pl-k">%</span>;
+			<span class="pl-c1">display</span>: <span class="pl-c1">flex</span>;
+			<span class="pl-c1">position</span>: <span class="pl-c1">fixed</span>;
+			<span class="pl-c1">height</span>: <span class="pl-c1">auto</span>;
+			<span class="pl-c1">bottom</span>: <span class="pl-c1">0</span><span class="pl-k">px</span>;
+			<span class="pl-c1">z-index</span>: <span class="pl-c1">99</span>;
+			<span class="pl-c1">flex-direction</span>: <span class="pl-c1">column</span>;
+			<span class="pl-c1">justify-content</span>: <span class="pl-c1">center</span>;
+			<span class="pl-c1">align-items</span>: <span class="pl-c1">center</span>;
+			<span class="pl-c1">border-left</span>: <span class="pl-c1">2</span><span class="pl-k">px</span> <span class="pl-c1">solid</span> <span class="pl-c1">#222</span>;
+			<span class="pl-c1">text-align</span>: <span class="pl-c1">center</span>;
+		}
+
+		<span class="pl-e">#panel-title</span> {
+			<span class="pl-c1">width</span>: <span class="pl-c1">fit-content</span>;
+		}
+
+		<span class="pl-e">.thread-row</span> {
+			<span class="pl-c1">display</span>: <span class="pl-c1">flex</span>;
+			<span class="pl-c1">flex-direction</span>: <span class="pl-c1">row</span>;
+			<span class="pl-c1">align-items</span>: <span class="pl-c1">center</span>;
+			<span class="pl-c1">margin</span>: <span class="pl-c1">4</span><span class="pl-k">px</span> <span class="pl-c1">0</span>;
+			<span class="pl-c1">position</span>: <span class="pl-c1">relative</span>;
+		}
+
+		<span class="pl-e">.thread</span> {
+			<span class="pl-c1">width</span>: <span class="pl-c1">16</span><span class="pl-k">px</span>;
+			<span class="pl-c1">height</span>: <span class="pl-c1">16</span><span class="pl-k">px</span>;
+			<span class="pl-c1">background-color</span>: <span class="pl-c1">#444</span>;
+			<span class="pl-c1">margin-right</span>: <span class="pl-c1">2</span><span class="pl-k">px</span>;
+			<span class="pl-c1">transition</span>: background-color <span class="pl-c1">0.5</span><span class="pl-k">s</span>, transform <span class="pl-c1">0.5</span><span class="pl-k">s</span>;
+		}
+
+		<span class="pl-e">.stage-display</span> {
+			<span class="pl-c1">display</span>: <span class="pl-c1">flex</span>;
+			<span class="pl-c1">flex-direction</span>: <span class="pl-c1">column</span>;
+			<span class="pl-c1">justify-content</span>: <span class="pl-c1">center</span>;
+			<span class="pl-c1">margin-bottom</span>: <span class="pl-c1">5</span><span class="pl-k">px</span>;
+		}
+
+		<span class="pl-e">.stage-label</span> {
+			<span class="pl-c1">font-size</span>: <span class="pl-c1">1.2</span><span class="pl-k">em</span>;
+			<span class="pl-c1">color</span>: <span class="pl-c1">#aaa</span>;
+			<span class="pl-c1">font-style</span>: <span class="pl-c1">bold</span>;
+			<span class="pl-c1">margin-top</span>: <span class="pl-c1">6</span><span class="pl-k">px</span>;
+			<span class="pl-c1">margin-bottom</span>: <span class="pl-c1">20</span><span class="pl-k">px</span>;
+		}
+
+		<span class="pl-e">.thread</span> {
+			<span class="pl-c1">display</span>: <span class="pl-c1">flex</span>;
+			<span class="pl-c1">justify-content</span>: <span class="pl-c1">center</span>;
+			<span class="pl-c1">align-items</span>: <span class="pl-c1">center</span>;
+			<span class="pl-c1">width</span>: <span class="pl-c1">40</span><span class="pl-k">px</span>;
+			<span class="pl-c1">height</span>: <span class="pl-c1">40</span><span class="pl-k">px</span>;
+			<span class="pl-c1">margin</span>: <span class="pl-c1">2</span><span class="pl-k">px</span>;
+			<span class="pl-c1">border</span>: <span class="pl-c1">1</span><span class="pl-k">px</span> <span class="pl-c1">solid</span> <span class="pl-c1">rgba</span>(<span class="pl-c1">255</span>, <span class="pl-c1">255</span>, <span class="pl-c1">255</span>, <span class="pl-c1">0.2</span>);
+			<span class="pl-c1">border-radius</span>: <span class="pl-c1">4</span><span class="pl-k">px</span>;
+			<span class="pl-c1">background</span>: <span class="pl-c1">linear-gradient</span>(<span class="pl-c1">180</span><span class="pl-k">deg</span>, <span class="pl-c1">rgba</span>(<span class="pl-c1">255</span>,<span class="pl-c1">255</span>,<span class="pl-c1">255</span>,<span class="pl-c1">0.05</span>), <span class="pl-c1">rgba</span>(<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">0.2</span>));
+			<span class="pl-c1">box-shadow</span>: <span class="pl-c1">inset</span> <span class="pl-c1">0</span> <span class="pl-c1">0</span> <span class="pl-c1">2</span><span class="pl-k">px</span> <span class="pl-c1">rgba</span>(<span class="pl-c1">255</span>,<span class="pl-c1">255</span>,<span class="pl-c1">255</span>,<span class="pl-c1">0.1</span>);
+			<span class="pl-c1">font-family</span>: <span class="pl-c1">monospace</span>;
+			<span class="pl-c1">color</span>: <span class="pl-c1">white</span>;
+		}
+
+		<span class="pl-e">.thread_data</span> {
+			<span class="pl-c1">display</span>: <span class="pl-c1">block</span>;
+			<span class="pl-c1">max-width</span>: <span class="pl-c1">100</span><span class="pl-k">%</span>;
+			<span class="pl-c1">padding</span>: <span class="pl-c1">0</span> <span class="pl-c1">2</span><span class="pl-k">px</span>;
+			<span class="pl-c1">white-space</span>: <span class="pl-c1">nowrap</span>;
+			<span class="pl-c1">overflow</span>: <span class="pl-c1">hidden</span>;
+			<span class="pl-c1">text-overflow</span>: <span class="pl-c1">ellipsis</span>;
+			<span class="pl-c1">font-size</span>: <span class="pl-c1">clamp</span>(<span class="pl-c1">8</span><span class="pl-k">px</span>, <span class="pl-c1">2</span><span class="pl-k">vw</span>, <span class="pl-c1">14</span><span class="pl-k">px</span>);
+			<span class="pl-c1">text-align</span>: <span class="pl-c1">center</span>;
+		}
+
+		<span class="pl-e">.subgroup</span> {
+			<span class="pl-c1">display</span>: <span class="pl-c1">flex</span>;
+			<span class="pl-c1">position</span>: <span class="pl-c1">relative</span>;
+			<span class="pl-c1">margin-left</span>: <span class="pl-c1">10</span><span class="pl-k">px</span>;
+			<span class="pl-c1">margin-right</span>: <span class="pl-c1">10</span><span class="pl-k">px</span>;
+		}
+
+		<span class="pl-e">.subgroup::before</span> {
+			<span class="pl-c">/* label text for each subgroup label */</span>
+			<span class="pl-c1">content</span>: <span class="pl-s"><span class="pl-pds">"</span>subgroupAdd()<span class="pl-pds">"</span></span>;
+			<span class="pl-c1">position</span>: <span class="pl-c1">absolute</span>;
+			<span class="pl-c1">top</span>: <span class="pl-c1">-20</span><span class="pl-k">px</span>;
+			<span class="pl-c">/* Hide until animation is displayed */</span>
+			<span class="pl-c1">opacity</span>: <span class="pl-c1">0</span>;
+			<span class="pl-c1">z-index</span>: <span class="pl-c1">100</span>;
+			<span class="pl-c1">transition</span>: opacity <span class="pl-c1">0.5</span><span class="pl-k">s</span> <span class="pl-c1">ease</span>;
+			<span class="pl-c1">font-weight</span>: <span class="pl-c1">bold</span>;
+			<span class="pl-c1">color</span>: <span class="pl-c1">white</span>;
+			<span class="pl-c1">width</span>: <span class="pl-c1">100</span><span class="pl-k">%</span>;
+		}
+
+		<span class="pl-e">.subgroup::after</span> {
+			<span class="pl-c1">content</span>: <span class="pl-c1">attr</span>(<span class="pl-v">data-label</span>);
+			<span class="pl-c1">position</span>: <span class="pl-c1">absolute</span>;
+			<span class="pl-c1">bottom</span>: <span class="pl-c1">-20</span><span class="pl-k">px</span>;
+			<span class="pl-c1">opacity</span>: <span class="pl-c1">1</span>;
+			<span class="pl-c1">z-index</span>: <span class="pl-c1">100</span>;
+			<span class="pl-c1">color</span>: <span class="pl-c1">gray</span>;
+			<span class="pl-c1">width</span>: <span class="pl-c1">100</span><span class="pl-k">%</span>;
+		}
+
+		<span class="pl-e">.reduction-stage</span> {
+			<span class="pl-c1">margin-bottom</span>: <span class="pl-c1">20</span><span class="pl-k">px</span>;
+		}
+
+		<span class="pl-k">@keyframes</span> <span class="pl-v">labelAbsorb</span> {
+			<span class="pl-e">0%</span> {
+				<span class="pl-c1">opacity</span>: <span class="pl-c1">0</span>;
+				<span class="pl-c1">transform</span>: <span class="pl-c1">translateY</span>(<span class="pl-c1">-50</span><span class="pl-k">%</span>);
+			}
+			<span class="pl-e">40%</span> {
+				<span class="pl-c1">opacity</span>: <span class="pl-c1">1</span>;
+				<span class="pl-c1">transform</span>: <span class="pl-c1">translateY</span>(<span class="pl-c1">0</span><span class="pl-k">%</span>);
+			}
+			<span class="pl-e">60%</span> {
+				<span class="pl-c1">opacity</span>: <span class="pl-c1">1</span>;
+				<span class="pl-c1">transform</span>: <span class="pl-c1">translateY</span>(<span class="pl-c1">0</span><span class="pl-k">%</span>);
+			}
+			<span class="pl-e">80%</span> {
+				<span class="pl-c1">opacity</span>: <span class="pl-c1">1</span>;
+				<span class="pl-c1">transform</span>: <span class="pl-c1">translate</span>(<span class="pl-c1">0</span><span class="pl-k">%</span>, <span class="pl-c1">-20</span><span class="pl-k">%</span>);
+			}
+			<span class="pl-e">100%</span> {
+				<span class="pl-c1">opacity</span>: <span class="pl-c1">0</span>;
+				<span class="pl-c1">transform</span>: <span class="pl-c1">translate</span>(<span class="pl-c1">0</span><span class="pl-k">%</span>, <span class="pl-c1">100</span><span class="pl-k">%</span>);
+			}
+		}
+
+		<span class="pl-e">.subgroup.anim::before</span> {
+			<span class="pl-c1">opacity</span>: <span class="pl-c1">0</span>;
+			<span class="pl-c1">animation-name</span>: labelAbsorb;
+			<span class="pl-c1">animation-duration</span>: <span class="pl-c1">1.5</span><span class="pl-k">s</span>;
+			<span class="pl-c1">transition</span>:
+			transform <span class="pl-c1">0.6</span><span class="pl-k">s</span> <span class="pl-c1">ease-out</span>,
+			opacity <span class="pl-c1">0.3</span><span class="pl-k">s</span> <span class="pl-c1">ease-in</span> <span class="pl-c1">0.3</span><span class="pl-k">s</span>;
+		}
+
+	&#x3C;/<span class="pl-ent">style</span>>
+
+		&#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>info<span class="pl-pds">"</span></span>>
+			&#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>https://threejs.org<span class="pl-pds">"</span></span> <span class="pl-e">target</span>=<span class="pl-s"><span class="pl-pds">"</span>_blank<span class="pl-pds">"</span></span> <span class="pl-e">rel</span>=<span class="pl-s"><span class="pl-pds">"</span>noopener<span class="pl-pds">"</span></span>>three.js&#x3C;/<span class="pl-ent">a</span>>
+			&#x3C;<span class="pl-ent">br</span> /> This example demonstrates the performance of various simple parallel reduction kernels.
+			&#x3C;<span class="pl-ent">br</span> /> Reference implementations are translated from the CUDA/WGSL code present in the following books/repos:
+			&#x3C;<span class="pl-ent">br</span> /> Impl. 0 - 2: &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>https://www.cambridge.org/core/books/programming-in-parallel-with-cuda/C43652A69033C25AD6933368CDBE084C<span class="pl-pds">"</span></span>>&#x3C;<span class="pl-ent">i</span>>Programming in Parallel with CUDA&#x3C;/<span class="pl-ent">i</span>>&#x3C;/<span class="pl-ent">a</span>> by &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>https://github.com/RichardAns<span class="pl-pds">"</span></span>>Richard Ansorge&#x3C;/<span class="pl-ent">a</span>>
+			&#x3C;<span class="pl-ent">br</span> /> Impl. 3: &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>https://github.com/frost-beta/betann/blob/main/betann/wgsl/reduce_all.wgsl<span class="pl-pds">"</span></span>>&#x3C;<span class="pl-ent">i</span>>betann reduce_all kernel&#x3C;/<span class="pl-ent">i</span>>&#x3C;/<span class="pl-ent">a</span>> by &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>https://github.com/zcbenz<span class="pl-pds">"</span></span>>zcbenz&#x3C;/<span class="pl-ent">a</span>>
+			&#x3C;<span class="pl-ent">br</span> /> Impl. 4: &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>https://github.com/b0nes164/GPUPrefixSums/blob/main/GPUPrefixSumsWebGPUapis/SharedShaders/rts.wgsl<span class="pl-pds">"</span></span>>&#x3C;<span class="pl-ent">i</span>>GPUPrefixSums reduction approach&#x3C;/<span class="pl-ent">i</span>>&#x3C;/<span class="pl-ent">a</span>> by &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>https://github.com/b0nes164<span class="pl-pds">"</span></span>>b0nes164&#x3C;/<span class="pl-ent">a</span>>
+			&#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>left_side_display<span class="pl-pds">"</span></span> <span class="pl-e">style</span>=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-c1">position</span>: <span class="pl-c1">absolute</span>;<span class="pl-c1">top</span>: <span class="pl-c1">150</span><span class="pl-k">px</span>;<span class="pl-c1">left</span>: <span class="pl-c1">0</span>;<span class="pl-c1">padding</span>: <span class="pl-c1">10</span><span class="pl-k">px</span>;<span class="pl-c1">background</span>: <span class="pl-c1">rgba</span>( <span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0.5</span> );<span class="pl-c1">color</span>: <span class="pl-c1">#fff</span>;<span class="pl-c1">font-family</span>: <span class="pl-c1">monospace</span>;<span class="pl-c1">font-size</span>: <span class="pl-c1">12</span><span class="pl-k">px</span>;<span class="pl-c1">line-height</span>: <span class="pl-c1">1.5</span>;<span class="pl-c1">pointer-events</span>: <span class="pl-c1">none</span>;<span class="pl-c1">text-align</span>: <span class="pl-c1">left</span>;<span class="pl-pds">"</span></span>>&#x3C;/<span class="pl-ent">div</span>>
+			&#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>right_side_display<span class="pl-pds">"</span></span> <span class="pl-e">style</span>=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-c1">position</span>: <span class="pl-c1">absolute</span>;<span class="pl-c1">top</span>: <span class="pl-c1">150</span><span class="pl-k">px</span>;<span class="pl-c1">right</span>: <span class="pl-c1">0</span>;<span class="pl-c1">padding</span>: <span class="pl-c1">10</span><span class="pl-k">px</span>;<span class="pl-c1">background</span>: <span class="pl-c1">rgba</span>( <span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0.5</span> );<span class="pl-c1">color</span>: <span class="pl-c1">#fff</span>;<span class="pl-c1">font-family</span>: <span class="pl-c1">monospace</span>;<span class="pl-c1">font-size</span>: <span class="pl-c1">12</span><span class="pl-k">px</span>;<span class="pl-c1">line-height</span>: <span class="pl-c1">1.5</span>;<span class="pl-c1">pointer-events</span>: <span class="pl-c1">none</span>;<span class="pl-c1">text-align</span>: <span class="pl-c1">left</span>;<span class="pl-pds">"</span></span>>&#x3C;/<span class="pl-ent">div</span>>
+		&#x3C;/<span class="pl-ent">div</span>>
+
+		&#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>reduction-panel<span class="pl-pds">"</span></span>>
+			&#x3C;<span class="pl-ent">h3</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>panel-title<span class="pl-pds">"</span></span> <span class="pl-e">style</span>=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-c1">flex</span>: <span class="pl-c1">0</span> <span class="pl-c1">0</span> <span class="pl-c1">auto</span>;<span class="pl-pds">"</span></span>>Subgroup Reduction Explanation&#x3C;/<span class="pl-ent">h3</span>>
+			&#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>reduction-stage<span class="pl-pds">"</span></span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>subgroup-reduction-stage<span class="pl-pds">"</span></span>>
+    		&#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>stage-label<span class="pl-pds">"</span></span>>Use subgroupAdd() to capture reduction of each workgroup's subgroups (Hover for animation)&#x3C;/<span class="pl-ent">div</span>>
+				&#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>stage-display<span class="pl-pds">"</span></span>>
+					&#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>workgroup_threads<span class="pl-pds">"</span></span> <span class="pl-e">style</span>=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-c1">display</span>: <span class="pl-c1">flex</span>; <span class="pl-c1">justify-content</span>: <span class="pl-c1">center</span>; <span class="pl-c1">margin-bottom</span>: <span class="pl-c1">20</span><span class="pl-k">px</span>;<span class="pl-pds">"</span></span>>&#x3C;/<span class="pl-ent">div</span>>
+					&#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>subgroup_reduction<span class="pl-pds">"</span></span> <span class="pl-e">style</span>=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-c1">display</span>: <span class="pl-c1">flex</span>; <span class="pl-c1">justify-content</span>: <span class="pl-c1">center</span>; <span class="pl-c1">margin-bottom</span>: <span class="pl-c1">5</span><span class="pl-k">px</span>;<span class="pl-pds">"</span></span>>&#x3C;/<span class="pl-ent">div</span>>
+				&#x3C;/<span class="pl-ent">div</span>>
+			&#x3C;/<span class="pl-ent">div</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+
+		&#x3C;<span class="pl-ent">script</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>importmap<span class="pl-pds">"</span></span>>
+			{
+				<span class="pl-s"><span class="pl-pds">"</span>imports<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+					<span class="pl-s"><span class="pl-pds">"</span>three<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>../build/three.webgpu.js<span class="pl-pds">"</span></span>,
+					<span class="pl-s"><span class="pl-pds">"</span>three/webgpu<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>../build/three.webgpu.js<span class="pl-pds">"</span></span>,
+					<span class="pl-s"><span class="pl-pds">"</span>three/tsl<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>../build/three.tsl.js<span class="pl-pds">"</span></span>,
+					<span class="pl-s"><span class="pl-pds">"</span>three/addons/<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>./jsm/<span class="pl-pds">"</span></span>
+				}
+			}
+		&#x3C;/<span class="pl-ent">script</span>>
+
+		&#x3C;<span class="pl-ent">script</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>module<span class="pl-pds">"</span></span>>
+
+			<span class="pl-k">import</span> <span class="pl-c1">*</span> <span class="pl-k">as</span> <span class="pl-smi">THREE</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>three/webgpu<span class="pl-pds">'</span></span>;
+			<span class="pl-k">import</span> { <span class="pl-smi">instancedArray</span>, <span class="pl-smi">Loop</span>, <span class="pl-smi">If</span>, <span class="pl-smi">vec3</span>, <span class="pl-smi">dot</span>, <span class="pl-smi">clamp</span>, <span class="pl-smi">storage</span>, <span class="pl-smi">uvec4</span>, <span class="pl-smi">subgroupAdd</span>, <span class="pl-smi">uniform</span>, <span class="pl-smi">uv</span>, <span class="pl-smi">uint</span>, <span class="pl-smi">float</span>, <span class="pl-smi">Fn</span>, <span class="pl-smi">vec2</span>, <span class="pl-smi">invocationLocalIndex</span>, <span class="pl-smi">invocationSubgroupIndex</span>, <span class="pl-smi">uvec2</span>, <span class="pl-smi">floor</span>, <span class="pl-smi">instanceIndex</span>, <span class="pl-smi">workgroupId</span>, <span class="pl-smi">workgroupBarrier</span>, <span class="pl-smi">workgroupArray</span>, <span class="pl-smi">subgroupSize</span>, <span class="pl-smi">select</span>, <span class="pl-smi">countTrailingZeros</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>three/tsl<span class="pl-pds">'</span></span>;
+
+			<span class="pl-k">import</span> <span class="pl-smi">WebGPU</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>three/addons/capabilities/WebGPU.js<span class="pl-pds">'</span></span>;
+
+			<span class="pl-k">import</span> { <span class="pl-smi">GUI</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>three/addons/libs/lil-gui.module.min.js<span class="pl-pds">'</span></span>;
+
+			<span class="pl-k">const</span> <span class="pl-c1">timestamps</span> <span class="pl-k">=</span> {
+				left_side_display<span class="pl-k">:</span> <span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">'</span>left_side_display<span class="pl-pds">'</span></span> ),
+				right_side_display<span class="pl-k">:</span> <span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">'</span>right_side_display<span class="pl-pds">'</span></span> )
+			};
+
+			<span class="pl-k">const</span> <span class="pl-c1">divRoundUp</span> <span class="pl-k">=</span> ( <span class="pl-smi">size</span>, <span class="pl-smi">part_size</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">return</span> <span class="pl-c1">Math</span>.<span class="pl-c1">floor</span>( ( size <span class="pl-k">+</span> part_size <span class="pl-k">-</span> <span class="pl-c1">1</span> ) <span class="pl-k">/</span> part_size );
+
+			};
+
+			<span class="pl-k">const</span> <span class="pl-c1">cssSubgroupSize</span> <span class="pl-k">=</span> <span class="pl-c1">4</span>;
+			<span class="pl-k">const</span> <span class="pl-c1">cssWorkgroupSize</span> <span class="pl-k">=</span> <span class="pl-c1">16</span>;
+
+			<span class="pl-k">const</span> <span class="pl-c1">workgroupThreadsContainer</span> <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">'</span>workgroup_threads<span class="pl-pds">'</span></span> );
+			<span class="pl-k">const</span> <span class="pl-c1">subgroupReductionContainer</span> <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">'</span>subgroup_reduction<span class="pl-pds">'</span></span> );
+
+			<span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">'</span>panel-title<span class="pl-pds">'</span></span> ).<span class="pl-smi">textContent</span> <span class="pl-k">+=</span> <span class="pl-s"><span class="pl-pds">`</span> (Subgroup Size: <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">cssSubgroupSize</span><span class="pl-pse"><span class="pl-s1">}</span></span>, Workgroup Size: <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">cssWorkgroupSize</span><span class="pl-pse"><span class="pl-s1">}</span></span>)<span class="pl-pds">`</span></span>;
+
+			<span class="pl-k">const</span> <span class="pl-c1">createThreadWithData</span> <span class="pl-k">=</span> ( <span class="pl-smi">data</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">const</span> <span class="pl-c1">threadEle</span> <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">createElement</span>( <span class="pl-s"><span class="pl-pds">'</span>div<span class="pl-pds">'</span></span> );
+				<span class="pl-smi">threadEle</span>.<span class="pl-c1">className</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>thread<span class="pl-pds">'</span></span>;
+				<span class="pl-k">const</span> <span class="pl-c1">threadData</span> <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">createElement</span>( <span class="pl-s"><span class="pl-pds">'</span>span<span class="pl-pds">'</span></span> );
+				<span class="pl-smi">threadData</span>.<span class="pl-smi">textContent</span> <span class="pl-k">=</span> data; <span class="pl-c">// safer than innerHTML for just text</span>
+				<span class="pl-smi">threadData</span>.<span class="pl-c1">className</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>thread_data<span class="pl-pds">'</span></span>;
+				<span class="pl-smi">threadEle</span>.<span class="pl-c1">append</span>( threadData );
+
+				<span class="pl-k">return</span> threadEle;
+
+			};
+
+			<span class="pl-c">// Create thread elements</span>
+			<span class="pl-k">const</span> <span class="pl-c1">workgroupThreads</span> <span class="pl-k">=</span> [];
+			<span class="pl-k">const</span> <span class="pl-c1">initialSubgroups</span> <span class="pl-k">=</span> [];
+			<span class="pl-k">const</span> <span class="pl-c1">initialData</span> <span class="pl-k">=</span> [];
+			<span class="pl-k">let</span> currentSubgroupDiv <span class="pl-k">=</span> <span class="pl-c1">null</span>;
+			<span class="pl-k">for</span> ( <span class="pl-k">let</span> i <span class="pl-k">=</span> <span class="pl-c1">0</span>; i <span class="pl-k">&#x3C;</span> cssWorkgroupSize; i <span class="pl-k">++</span> ) {
+
+				<span class="pl-k">if</span> ( i <span class="pl-k">%</span> cssSubgroupSize <span class="pl-k">===</span> <span class="pl-c1">0</span> ) {
+
+					<span class="pl-k">const</span> <span class="pl-c1">currentSubgroupIndex</span> <span class="pl-k">=</span> <span class="pl-c1">Math</span>.<span class="pl-c1">floor</span>( i <span class="pl-k">/</span> cssSubgroupSize );
+
+					<span class="pl-k">const</span> <span class="pl-c1">subgroupReductionThread</span> <span class="pl-k">=</span> <span class="pl-en">createThreadWithData</span>( <span class="pl-c1">0</span> );
+					<span class="pl-smi">subgroupReductionThread</span>.<span class="pl-c1">id</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">`</span>subgroup_reduction_element_<span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">currentSubgroupIndex</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span>;
+					<span class="pl-smi">subgroupReductionContainer</span>.<span class="pl-c1">appendChild</span>( subgroupReductionThread );
+
+					currentSubgroupDiv <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">createElement</span>( <span class="pl-s"><span class="pl-pds">'</span>div<span class="pl-pds">'</span></span> );
+					<span class="pl-smi">currentSubgroupDiv</span>.<span class="pl-c1">className</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>subgroup<span class="pl-pds">'</span></span>;
+					<span class="pl-smi">currentSubgroupDiv</span>.<span class="pl-c1">setAttribute</span>( <span class="pl-s"><span class="pl-pds">'</span>data-label<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">`</span>Threads <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">currentSubgroupIndex </span><span class="pl-k">*</span><span class="pl-s1"> cssSubgroupSize</span><span class="pl-pse"><span class="pl-s1">}</span></span>-<span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">( currentSubgroupIndex </span><span class="pl-k">+</span><span class="pl-s1"> </span><span class="pl-c1">1</span><span class="pl-s1"> ) </span><span class="pl-k">*</span><span class="pl-s1"> cssSubgroupSize </span><span class="pl-k">-</span><span class="pl-s1"> </span><span class="pl-c1">1</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span> );
+					<span class="pl-smi">initialSubgroups</span>.<span class="pl-c1">push</span>( currentSubgroupDiv );
+					<span class="pl-smi">workgroupThreadsContainer</span>.<span class="pl-c1">appendChild</span>( currentSubgroupDiv );
+
+				}
+
+				<span class="pl-k">const</span> <span class="pl-c1">data</span> <span class="pl-k">=</span> <span class="pl-c1">Math</span>.<span class="pl-c1">floor</span>( <span class="pl-c1">Math</span>.<span class="pl-c1">random</span>() <span class="pl-k">*</span> <span class="pl-c1">9</span> ) <span class="pl-k">+</span> <span class="pl-c1">1</span>;
+				<span class="pl-smi">initialData</span>.<span class="pl-c1">push</span>( data );
+
+				<span class="pl-k">const</span> <span class="pl-c1">thread</span> <span class="pl-k">=</span> <span class="pl-en">createThreadWithData</span>( data );
+				<span class="pl-smi">workgroupThreads</span>.<span class="pl-c1">push</span>( thread );
+				<span class="pl-smi">currentSubgroupDiv</span>.<span class="pl-c1">appendChild</span>( thread );
+
+			}
+
+			<span class="pl-k">const</span> <span class="pl-c1">deactivateLabelAnimation</span> <span class="pl-k">=</span> ( <span class="pl-smi">subgroupDiv</span>, <span class="pl-smi">idx</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-smi">subgroupDiv</span>.<span class="pl-smi">classList</span>.<span class="pl-c1">remove</span>( <span class="pl-s"><span class="pl-pds">'</span>anim<span class="pl-pds">'</span></span> );
+
+				<span class="pl-k">const</span> <span class="pl-c1">subgroupReductionBufferElement</span> <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">`</span>subgroup_reduction_element_<span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">idx</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span> ).<span class="pl-c1">querySelector</span>( <span class="pl-s"><span class="pl-pds">'</span>.thread_data<span class="pl-pds">'</span></span> );
+
+				<span class="pl-smi">subgroupReductionBufferElement</span>.<span class="pl-smi">innerHTML</span> <span class="pl-k">=</span> <span class="pl-c1">0</span>;
+
+			};
+
+			<span class="pl-k">const</span> <span class="pl-c1">activateLabelAnimation</span> <span class="pl-k">=</span> ( <span class="pl-smi">subgroupDiv</span>, <span class="pl-smi">idx</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">const</span> <span class="pl-c1">threads</span> <span class="pl-k">=</span> <span class="pl-c1">Array</span>.<span class="pl-en">from</span>( <span class="pl-smi">subgroupDiv</span>.<span class="pl-smi">children</span> );
+				<span class="pl-k">let</span> total <span class="pl-k">=</span> <span class="pl-c1">0</span>;
+
+				<span class="pl-k">for</span> ( <span class="pl-k">let</span> i <span class="pl-k">=</span> idx <span class="pl-k">*</span> cssSubgroupSize; i <span class="pl-k">&#x3C;</span> idx <span class="pl-k">*</span> cssSubgroupSize <span class="pl-k">+</span> cssSubgroupSize; i <span class="pl-k">++</span> ) {
+
+					total <span class="pl-k">+=</span> initialData[ i ];
+
+				}
+
+				<span class="pl-smi">subgroupDiv</span>.<span class="pl-smi">classList</span>.<span class="pl-c1">add</span>( <span class="pl-s"><span class="pl-pds">'</span>anim<span class="pl-pds">'</span></span> );
+
+				<span class="pl-c1">setTimeout</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-smi">threads</span>.<span class="pl-c1">forEach</span>( <span class="pl-smi">t</span> <span class="pl-k">=></span> {
+
+						<span class="pl-smi">t</span>.<span class="pl-c1">querySelector</span>( <span class="pl-s"><span class="pl-pds">'</span>.thread_data<span class="pl-pds">'</span></span> ).<span class="pl-smi">textContent</span> <span class="pl-k">=</span> total;
+
+					} );
+
+					<span class="pl-k">const</span> <span class="pl-c1">subgroupReductionBufferElement</span> <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">`</span>subgroup_reduction_element_<span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">idx</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span> ).<span class="pl-c1">querySelector</span>( <span class="pl-s"><span class="pl-pds">'</span>.thread_data<span class="pl-pds">'</span></span> );
+
+					<span class="pl-smi">subgroupReductionBufferElement</span>.<span class="pl-smi">innerHTML</span> <span class="pl-k">=</span> total;
+
+				}, <span class="pl-c1">1000</span> );
+
+				<span class="pl-c">// Remove the class after the animation ends so it can be triggered again</span>
+				<span class="pl-c1">setTimeout</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-smi">subgroupDiv</span>.<span class="pl-smi">classList</span>.<span class="pl-c1">remove</span>( <span class="pl-s"><span class="pl-pds">'</span>anim<span class="pl-pds">'</span></span> );
+
+				}, <span class="pl-c1">1500</span> ); <span class="pl-c">// matches animation duration in CSS</span>
+
+			};
+
+			<span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">'</span>subgroup-reduction-stage<span class="pl-pds">'</span></span> ).<span class="pl-c1">addEventListener</span>( <span class="pl-s"><span class="pl-pds">'</span>mouseenter<span class="pl-pds">'</span></span>, () <span class="pl-k">=></span> {
+
+				<span class="pl-smi">initialSubgroups</span>.<span class="pl-c1">forEach</span>( ( <span class="pl-smi">subgroupDiv</span>, <span class="pl-smi">idx</span> ) <span class="pl-k">=></span> {
+
+					<span class="pl-en">activateLabelAnimation</span>( subgroupDiv, idx );
+
+				} );
+
+			} );
+
+			<span class="pl-c1">document</span>.<span class="pl-c1">getElementById</span>( <span class="pl-s"><span class="pl-pds">'</span>subgroup-reduction-stage<span class="pl-pds">'</span></span> ).<span class="pl-c1">addEventListener</span>( <span class="pl-s"><span class="pl-pds">'</span>mouseleave<span class="pl-pds">'</span></span>, () <span class="pl-k">=></span> {
+
+				<span class="pl-smi">initialSubgroups</span>.<span class="pl-c1">forEach</span>( ( <span class="pl-smi">subgroupDiv</span>, <span class="pl-smi">idx</span> ) <span class="pl-k">=></span> {
+
+					<span class="pl-en">deactivateLabelAnimation</span>( subgroupDiv, idx );
+
+				} );
+
+				<span class="pl-smi">workgroupThreads</span>.<span class="pl-c1">forEach</span>( ( <span class="pl-smi">thread</span>, <span class="pl-smi">idx</span> ) <span class="pl-k">=></span> {
+
+					<span class="pl-smi">thread</span>.<span class="pl-c1">querySelector</span>( <span class="pl-s"><span class="pl-pds">'</span>.thread_data<span class="pl-pds">'</span></span> ).<span class="pl-smi">textContent</span> <span class="pl-k">=</span> initialData[ idx ];
+
+				} );
+
+			} );
+
+
+			<span class="pl-k">if</span> ( <span class="pl-smi">WebGPU</span>.<span class="pl-en">isAvailable</span>() <span class="pl-k">===</span> <span class="pl-c1">false</span> ) {
+
+				<span class="pl-c1">document</span>.<span class="pl-c1">body</span>.<span class="pl-c1">appendChild</span>( <span class="pl-smi">WebGPU</span>.<span class="pl-en">getErrorMessage</span>() );
+
+				<span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-en">Error</span>( <span class="pl-s"><span class="pl-pds">'</span>No WebGPU support<span class="pl-pds">'</span></span> );
+
+			}
+
+			<span class="pl-c">// Total number of elements and the dimensions of the display grid.</span>
+			<span class="pl-k">const</span> <span class="pl-c1">size</span> <span class="pl-k">=</span> <span class="pl-c1">262144</span>;
+			<span class="pl-k">const</span> <span class="pl-c1">vecSize</span> <span class="pl-k">=</span> <span class="pl-en">divRoundUp</span>( size, <span class="pl-c1">4</span> );
+			<span class="pl-c">// Grid display is gridDim x gridDim</span>
+			<span class="pl-k">const</span> <span class="pl-c1">gridDim</span> <span class="pl-k">=</span> <span class="pl-c1">Math</span>.<span class="pl-c1">sqrt</span>( size );
+			<span class="pl-k">let</span> maxWorkgroupSize <span class="pl-k">=</span> <span class="pl-c1">64</span>;
+
+			<span class="pl-c">// Algorithm speed increase as you iterate through algorithms array</span>
+			<span class="pl-k">const</span> <span class="pl-c1">algorithms</span> <span class="pl-k">=</span> [
+				<span class="pl-s"><span class="pl-pds">'</span>Reduce 0 (N/2)<span class="pl-pds">'</span></span>,
+				<span class="pl-s"><span class="pl-pds">'</span>Reduce 1 (Naive Accumulate)<span class="pl-pds">'</span></span>,
+				<span class="pl-s"><span class="pl-pds">'</span>Reduce 2 (Workgroup Reduction)<span class="pl-pds">'</span></span>,
+				<span class="pl-s"><span class="pl-pds">'</span>Reduce 3 (Subgroup Reduce)<span class="pl-pds">'</span></span>,
+				<span class="pl-s"><span class="pl-pds">'</span>Reduce 4 (Subgroup Optimized)<span class="pl-pds">'</span></span>,
+				<span class="pl-s"><span class="pl-pds">'</span>Incorrect Baseline<span class="pl-pds">'</span></span>,
+			];
+
+			<span class="pl-c">// Input Grid: Displays input data in a grid format</span>
+			<span class="pl-c">// Input Log2: Displays input grid data's logarithmic indices horizontally (1, 2, 4, 8, 16, ..., size)</span>
+			<span class="pl-c">// Input Element 0: Displays clamped input[0]</span>
+			<span class="pl-k">const</span> <span class="pl-c1">displayModes</span> <span class="pl-k">=</span> [ <span class="pl-s"><span class="pl-pds">'</span>Input Grid<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>Input Log2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>Input Element 0<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>Workgroup Sum Grid<span class="pl-pds">'</span></span> ];
+
+			<span class="pl-c">// Holds uniforms for both displays as well as debug information</span>
+			<span class="pl-k">const</span> <span class="pl-c1">unifiedEffectController</span> <span class="pl-k">=</span> {
+				<span class="pl-c">// Number of elements in the grid</span>
+				gridElementWidth<span class="pl-k">:</span> <span class="pl-en">uniform</span>( gridDim ),
+				gridElementHeight<span class="pl-k">:</span> <span class="pl-en">uniform</span>( gridDim ),
+				<span class="pl-c">// Number of elements in the grid being displayed</span>
+				gridDisplayWidth<span class="pl-k">:</span> <span class="pl-en">uniform</span>( gridDim ),
+				gridDisplayHeight<span class="pl-k">:</span> <span class="pl-en">uniform</span>( gridDim ),
+				<span class="pl-c">// How to display end result of reduction.</span>
+				<span class="pl-c">// Ideally this is unique to the reduction method being deployed</span>
+				<span class="pl-s"><span class="pl-pds">'</span>Display Mode<span class="pl-pds">'</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Input Log2<span class="pl-pds">'</span></span>,
+				loggedBuffer<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Input Buffer<span class="pl-pds">'</span></span>,
+				elementsReduced<span class="pl-k">:</span> size,
+			};
+
+
+			<span class="pl-k">const</span> <span class="pl-c1">leftEffectController</span> <span class="pl-k">=</span> {
+				<span class="pl-c">// Current reduction algorithm being executed by this side</span>
+				algo<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Reduce 0 (N/2)<span class="pl-pds">'</span></span>,
+				<span class="pl-c">// Flag indicating whether to highlight element in validation check</span>
+				highlight<span class="pl-k">:</span> <span class="pl-en">uniform</span>( <span class="pl-c1">0</span> ),
+				<span class="pl-c">// Uniform that corresponds to the index of the current algorithm within the algorithms array</span>
+				currentAlgo<span class="pl-k">:</span> <span class="pl-en">uniform</span>( <span class="pl-c1">0</span> ),
+				<span class="pl-c">// Current state of reduction (Running, validating, resetting)</span>
+				state<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Run Algo<span class="pl-pds">'</span></span>,
+				<span class="pl-c">// Current display mode</span>
+				displayMode<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Input Log2<span class="pl-pds">'</span></span>,
+				<span class="pl-c">// Reduce 0 specific uniform</span>
+				numThreadsDispatched<span class="pl-k">:</span> <span class="pl-en">uniform</span>( size <span class="pl-k">/</span> <span class="pl-c1">2</span> ),
+				<span class="pl-c">// The subgroup size used by this side's device</span>
+			};
+
+			<span class="pl-k">const</span> <span class="pl-c1">rightEffectController</span> <span class="pl-k">=</span> {
+				algo<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Reduce 4 (Subgroup Optimized)<span class="pl-pds">'</span></span>,
+				currentAlgo<span class="pl-k">:</span> <span class="pl-en">uniform</span>( <span class="pl-c1">3</span> ),
+				highlight<span class="pl-k">:</span> <span class="pl-en">uniform</span>( <span class="pl-c1">0</span> ),
+				displayMode<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Input Element 0<span class="pl-pds">'</span></span>,
+				state<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Run Algo<span class="pl-pds">'</span></span>,
+				numThreadsDispatched<span class="pl-k">:</span> <span class="pl-en">uniform</span>( size <span class="pl-k">/</span> <span class="pl-c1">2</span> )
+			};
+
+			<span class="pl-k">const</span> <span class="pl-c1">leftMaterial</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.MeshBasicNodeMaterial</span>( { color<span class="pl-k">:</span> <span class="pl-c1">0x00ff00</span> } );
+			<span class="pl-k">const</span> <span class="pl-c1">rightMaterial</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.MeshBasicNodeMaterial</span>( { color<span class="pl-k">:</span> <span class="pl-c1">0x00ff00</span> } );
+			<span class="pl-k">const</span> <span class="pl-c1">leftDisplayColorNodes</span> <span class="pl-k">=</span> {};
+			<span class="pl-k">const</span> <span class="pl-c1">rightDisplayColorNodes</span> <span class="pl-k">=</span> {};
+
+			<span class="pl-k">const</span> <span class="pl-c1">gui</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">GUI</span>();
+
+			<span class="pl-smi">gui</span>.<span class="pl-c1">add</span>( leftEffectController, <span class="pl-s"><span class="pl-pds">'</span>algo<span class="pl-pds">'</span></span>, algorithms ).<span class="pl-c1">onChange</span>( () <span class="pl-k">=></span> {
+
+				<span class="pl-smi">leftEffectController</span>.<span class="pl-smi">currentAlgo</span>.<span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-smi">algorithms</span>.<span class="pl-en">findIndex</span>( <span class="pl-smi">val</span> <span class="pl-k">=></span> val <span class="pl-k">===</span> <span class="pl-smi">leftEffectController</span>.<span class="pl-smi">algo</span> );
+
+			} );
+
+			<span class="pl-smi">gui</span>.<span class="pl-c1">add</span>( rightEffectController, <span class="pl-s"><span class="pl-pds">'</span>algo<span class="pl-pds">'</span></span>, algorithms ).<span class="pl-c1">onChange</span>( () <span class="pl-k">=></span> {
+
+				<span class="pl-smi">rightEffectController</span>.<span class="pl-smi">currentAlgo</span>.<span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-smi">algorithms</span>.<span class="pl-en">findIndex</span>( <span class="pl-smi">val</span> <span class="pl-k">=></span> val <span class="pl-k">===</span> <span class="pl-smi">rightEffectController</span>.<span class="pl-smi">algo</span> );
+
+			} );
+
+			<span class="pl-smi">gui</span>.<span class="pl-c1">add</span>( leftEffectController, <span class="pl-s"><span class="pl-pds">'</span>displayMode<span class="pl-pds">'</span></span>, displayModes ).<span class="pl-c1">name</span>( <span class="pl-s"><span class="pl-pds">'</span>Left Display Mode<span class="pl-pds">'</span></span> ).<span class="pl-c1">onChange</span>( () <span class="pl-k">=></span> {
+
+				<span class="pl-smi">leftMaterial</span>.<span class="pl-smi">colorNode</span> <span class="pl-k">=</span> leftDisplayColorNodes[ <span class="pl-smi">leftEffectController</span>.<span class="pl-smi">displayMode</span> ];
+				<span class="pl-smi">leftMaterial</span>.<span class="pl-smi">needsUpdate</span> <span class="pl-k">=</span> <span class="pl-c1">true</span>;
+
+			} );
+			<span class="pl-smi">gui</span>.<span class="pl-c1">add</span>( rightEffectController, <span class="pl-s"><span class="pl-pds">'</span>displayMode<span class="pl-pds">'</span></span>, displayModes ).<span class="pl-c1">name</span>( <span class="pl-s"><span class="pl-pds">'</span>Right Display Mode<span class="pl-pds">'</span></span> ).<span class="pl-c1">onChange</span>( () <span class="pl-k">=></span> {
+
+				<span class="pl-smi">rightMaterial</span>.<span class="pl-smi">colorNode</span> <span class="pl-k">=</span> rightDisplayColorNodes[ <span class="pl-smi">rightEffectController</span>.<span class="pl-smi">displayMode</span> ];
+				<span class="pl-smi">rightMaterial</span>.<span class="pl-smi">needsUpdate</span> <span class="pl-k">=</span> <span class="pl-c1">true</span>;
+
+			} );
+
+			<span class="pl-k">const</span> <span class="pl-c1">debugFolder</span> <span class="pl-k">=</span> <span class="pl-smi">gui</span>.<span class="pl-en">addFolder</span>( <span class="pl-s"><span class="pl-pds">'</span>Debug<span class="pl-pds">'</span></span> );
+			<span class="pl-k">const</span> <span class="pl-c1">elementsReducedController</span> <span class="pl-k">=</span> <span class="pl-smi">debugFolder</span>.<span class="pl-c1">add</span>( unifiedEffectController, <span class="pl-s"><span class="pl-pds">'</span>elementsReduced<span class="pl-pds">'</span></span> ).<span class="pl-c1">name</span>( <span class="pl-s"><span class="pl-pds">'</span>Elements Reduced<span class="pl-pds">'</span></span> );
+			<span class="pl-smi">elementsReducedController</span>.<span class="pl-en">disable</span>();
+			<span class="pl-k">const</span> <span class="pl-c1">stateLeftController</span> <span class="pl-k">=</span> <span class="pl-smi">debugFolder</span>.<span class="pl-c1">add</span>( leftEffectController, <span class="pl-s"><span class="pl-pds">'</span>state<span class="pl-pds">'</span></span> ).<span class="pl-c1">name</span>( <span class="pl-s"><span class="pl-pds">'</span>Left Display State<span class="pl-pds">'</span></span> );
+			<span class="pl-k">const</span> <span class="pl-c1">stateRightController</span> <span class="pl-k">=</span> <span class="pl-smi">debugFolder</span>.<span class="pl-c1">add</span>( rightEffectController, <span class="pl-s"><span class="pl-pds">'</span>state<span class="pl-pds">'</span></span> ).<span class="pl-c1">name</span>( <span class="pl-s"><span class="pl-pds">'</span>Right Display State<span class="pl-pds">'</span></span> );
+			<span class="pl-smi">stateLeftController</span>.<span class="pl-en">disable</span>();
+			<span class="pl-smi">stateRightController</span>.<span class="pl-en">disable</span>();
+			<span class="pl-smi">debugFolder</span>.<span class="pl-c1">add</span>( unifiedEffectController, <span class="pl-s"><span class="pl-pds">'</span>loggedBuffer<span class="pl-pds">'</span></span>, [ <span class="pl-s"><span class="pl-pds">'</span>Input Buffer<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>Input Vectorized Buffer<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>Workgroup Sums Buffer<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>Debug Buffer<span class="pl-pds">'</span></span> ] ).<span class="pl-c1">name</span>( <span class="pl-s"><span class="pl-pds">'</span>Buffer to Log<span class="pl-pds">'</span></span> );
+			<span class="pl-smi">debugFolder</span>.<span class="pl-c1">close</span>();
+
+			<span class="pl-c">// HELPER FUNCTIONS</span>
+			<span class="pl-k">const</span> <span class="pl-c1">pow2Ceil</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( ( [ <span class="pl-smi">x</span> ] ) <span class="pl-k">=></span> {
+
+				<span class="pl-en">If</span>( <span class="pl-smi">x</span>.<span class="pl-en">equal</span>( <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ) ), () <span class="pl-k">=></span> {
+
+					<span class="pl-k">return</span> <span class="pl-en">uint</span>( <span class="pl-c1">1</span> );
+
+				} );
+
+				<span class="pl-k">const</span> <span class="pl-c1">val</span> <span class="pl-k">=</span> <span class="pl-smi">x</span>.<span class="pl-c1">sub</span>( <span class="pl-c1">1</span> ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>val<span class="pl-pds">'</span></span> );
+				<span class="pl-smi">val</span>.<span class="pl-en">assign</span>( <span class="pl-smi">val</span>.<span class="pl-en">bitOr</span>( <span class="pl-smi">val</span>.<span class="pl-en">shiftRight</span>( <span class="pl-c1">1</span> ) ) );
+				<span class="pl-smi">val</span>.<span class="pl-en">assign</span>( <span class="pl-smi">val</span>.<span class="pl-en">bitOr</span>( <span class="pl-smi">val</span>.<span class="pl-en">shiftRight</span>( <span class="pl-c1">2</span> ) ) );
+				<span class="pl-smi">val</span>.<span class="pl-en">assign</span>( <span class="pl-smi">val</span>.<span class="pl-en">bitOr</span>( <span class="pl-smi">val</span>.<span class="pl-en">shiftRight</span>( <span class="pl-c1">4</span> ) ) );
+				<span class="pl-smi">val</span>.<span class="pl-en">assign</span>( <span class="pl-smi">val</span>.<span class="pl-en">bitOr</span>( <span class="pl-smi">val</span>.<span class="pl-en">shiftRight</span>( <span class="pl-c1">8</span> ) ) );
+				<span class="pl-smi">val</span>.<span class="pl-en">assign</span>( <span class="pl-smi">val</span>.<span class="pl-en">bitOr</span>( <span class="pl-smi">val</span>.<span class="pl-en">shiftRight</span>( <span class="pl-c1">16</span> ) ) );
+				<span class="pl-k">return</span> <span class="pl-smi">val</span>.<span class="pl-c1">add</span>( <span class="pl-c1">1</span> );
+
+			} ).<span class="pl-en">setLayout</span>( {
+				name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>pow2Ceil<span class="pl-pds">'</span></span>,
+				type<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span>,
+				inputs<span class="pl-k">:</span> [
+					{ name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>x<span class="pl-pds">'</span></span>, type<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span> }
+				]
+			} );
+
+			<span class="pl-c">// ALGORITHM CONSTRUCTORS</span>
+
+			<span class="pl-c">// REDUCE 1</span>
+
+			<span class="pl-c">// Thanks to Sam0oneau of Graphics Programming Discord for the explanation.</span>
+			<span class="pl-c">// (Graphics Programming Discord Message Link): https://discord.com/channels/318590007881236480/374061825454768129/1391248956171882597</span>
+
+			<span class="pl-c">/* Reduce 1 Example (Assume Workgroup Size 256, numElements: 262144) -> Initial currentBuffer State: | 1, 1, 1, 1, ... |</span>
+<span class="pl-c">				 *</span>
+<span class="pl-c">				 * KERNEL 1:</span>
+<span class="pl-c">				 * Executes 256 threads by 256 workgroups. Each thread loops 4 times and accesses elements</span>
+<span class="pl-c">				 * at the indices below.</span>
+<span class="pl-c">				 *          Thread 1                        Thread 2                         Thread 3</span>
+<span class="pl-c">				 * | 0, 65536, ..., n * 65536 | 1, 65537, .... (n * 65536) + 1 | 1, 65538, .... (n * 65536) + 2 | etc</span>
+<span class="pl-c">				 * Buffer Values: | 4, 4, 4, 4, ...|</span>
+<span class="pl-c">				 *</span>
+<span class="pl-c">				 * KERNEL 2:</span>
+<span class="pl-c">				 * Executes 256 threads by one workgroup. Each thread loops 1024 times</span>
+<span class="pl-c">				 *          Thread 1                     Thread 2                     Thread 3</span>
+<span class="pl-c">				 * | 0, 256, ...., n * 256    | 1, 257, ... (n * 256) + 1 | 2, 258, ... (n * 256) + 3 | etc</span>
+<span class="pl-c">				 * Buffer Values: | 1024, 1024, 1024, 1024, ... |</span>
+<span class="pl-c">				 *</span>
+<span class="pl-c">				 * KERNEL 3:</span>
+<span class="pl-c">				 * Executes 1 thread by one workgroup. Single thread loops 256 times</span>
+<span class="pl-c">				 *          Thread 1</span>
+<span class="pl-c">				 * | 0, 1, 2, 3, 4, 5, 6 ... etc|</span>
+<span class="pl-c">				 * Buffer Values: [262144, 1024, 1024]</span>
+<span class="pl-c">				 */</span>
+
+
+			<span class="pl-k">const</span> <span class="pl-c1">createReduce1Fn</span> <span class="pl-k">=</span> ( <span class="pl-smi">createReduce1FnProps</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">const</span> { <span class="pl-c1">dispatchSize</span>, <span class="pl-c1">numElements</span>, <span class="pl-c1">inputBuffer</span>, <span class="pl-c1">workgroupSize</span> } <span class="pl-k">=</span> createReduce1FnProps;
+
+				<span class="pl-k">const</span> <span class="pl-c1">fnDef</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> <span class="pl-c1">dispatch</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( dispatchSize ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>dispatchSize<span class="pl-pds">'</span></span> );
+					<span class="pl-k">const</span> <span class="pl-c1">tSum</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>();
+					<span class="pl-k">const</span> <span class="pl-c1">k</span> <span class="pl-k">=</span> <span class="pl-smi">instanceIndex</span>.<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>k<span class="pl-pds">'</span></span> );
+
+					<span class="pl-en">Loop</span>( <span class="pl-smi">k</span>.<span class="pl-en">lessThan</span>( <span class="pl-en">uint</span>( numElements ) ), ( ) <span class="pl-k">=></span> {
+
+						<span class="pl-smi">tSum</span>.<span class="pl-en">addAssign</span>( <span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( k ) );
+						<span class="pl-smi">k</span>.<span class="pl-en">addAssign</span>( <span class="pl-en">uint</span>( dispatch ) );
+
+					} );
+
+					<span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( instanceIndex ).<span class="pl-en">assign</span>( tSum );
+
+
+				} )().<span class="pl-en">compute</span>( dispatchSize, [ workgroupSize ] );
+
+				<span class="pl-k">return</span> fnDef;
+
+			};
+
+			<span class="pl-c">// REDUCE 2</span>
+
+			<span class="pl-c">// For non power of 2 # of workgroups</span>
+			<span class="pl-k">const</span> <span class="pl-c1">createReduce2Fn</span> <span class="pl-k">=</span> ( <span class="pl-smi">createReduce2FnProps</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">const</span> { <span class="pl-c1">workgroupSize</span>, <span class="pl-c1">dispatchSize</span>, <span class="pl-c1">numElements</span>, <span class="pl-c1">inputBuffer</span> } <span class="pl-k">=</span> createReduce2FnProps;
+
+				<span class="pl-k">const</span> <span class="pl-c1">fnDef</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> <span class="pl-c1">tSum</span> <span class="pl-k">=</span> <span class="pl-en">workgroupArray</span>( <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span>, workgroupSize );
+
+					<span class="pl-k">const</span> <span class="pl-c1">k</span> <span class="pl-k">=</span> <span class="pl-smi">instanceIndex</span>.<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>k<span class="pl-pds">'</span></span> );
+					<span class="pl-smi">tSum</span>.<span class="pl-en">element</span>( invocationLocalIndex ).<span class="pl-en">assign</span>( <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ) );
+
+					<span class="pl-en">Loop</span>( <span class="pl-smi">k</span>.<span class="pl-en">lessThan</span>( <span class="pl-en">uint</span>( numElements ) ), () <span class="pl-k">=></span> {
+
+						<span class="pl-smi">tSum</span>.<span class="pl-en">element</span>( invocationLocalIndex ).<span class="pl-en">addAssign</span>( <span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( k ) );
+
+						<span class="pl-smi">k</span>.<span class="pl-en">addAssign</span>( <span class="pl-en">uint</span>( dispatchSize ) );
+
+					} );
+
+					<span class="pl-en">workgroupBarrier</span>();
+
+					<span class="pl-c">// Reset the loop condition (account for numWorkgroups % 2 != 0)</span>
+					<span class="pl-smi">k</span>.<span class="pl-en">assign</span>( <span class="pl-en">pow2Ceil</span>( <span class="pl-en">uint</span>( workgroupSize ) ).<span class="pl-en">div</span>( <span class="pl-c1">2</span> ) );
+
+					<span class="pl-en">Loop</span>( <span class="pl-smi">k</span>.<span class="pl-en">greaterThan</span>( <span class="pl-c1">0</span> ), () <span class="pl-k">=></span> {
+
+						<span class="pl-en">If</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">lessThan</span>( k ).<span class="pl-en">and</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-c1">add</span>( k ).<span class="pl-en">lessThan</span>( workgroupSize ) ), () <span class="pl-k">=></span> {
+
+							<span class="pl-smi">tSum</span>.<span class="pl-en">element</span>( invocationLocalIndex ).<span class="pl-en">addAssign</span>( <span class="pl-smi">tSum</span>.<span class="pl-en">element</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-c1">add</span>( k ) ) );
+
+						} );
+						<span class="pl-en">workgroupBarrier</span>();
+						<span class="pl-smi">k</span>.<span class="pl-en">divAssign</span>( <span class="pl-c1">2</span> );
+
+					} );
+
+					<span class="pl-en">If</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">equal</span>( <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ) ), () <span class="pl-k">=></span> {
+
+						<span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( <span class="pl-smi">workgroupId</span>.<span class="pl-c1">x</span> ).<span class="pl-en">assign</span>( <span class="pl-smi">tSum</span>.<span class="pl-en">element</span>( <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ) ) );
+
+					} );
+
+				} )().<span class="pl-en">compute</span>( dispatchSize, [ workgroupSize ] );
+
+				<span class="pl-k">return</span> fnDef;
+
+			};
+
+			<span class="pl-c">// REDUCE 3</span>
+
+			<span class="pl-c">/* Create array with enough indices for worst-case subgroup size */</span>
+			<span class="pl-k">const</span> <span class="pl-c1">createSubgroupArray</span> <span class="pl-k">=</span> ( <span class="pl-smi">type</span>, <span class="pl-smi">workgroupSize</span>, <span class="pl-smi">minSubgroupSize</span> <span class="pl-k">=</span> <span class="pl-c1">4</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">return</span> <span class="pl-en">workgroupArray</span>( <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span>, workgroupSize <span class="pl-k">/</span> minSubgroupSize );
+
+			};
+
+			<span class="pl-c">// zcbenz implementation</span>
+			<span class="pl-c">// https://github.com/frost-beta/betann/blob/8aa2701caf63fb29bd4cd2454e656973342c1588/betann/wgsl/reduce_ops.wgsl#L71</span>
+			<span class="pl-k">const</span> <span class="pl-c1">RowReduce</span> <span class="pl-k">=</span> ( <span class="pl-smi">rowReduceProps</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">const</span> { <span class="pl-c1">workgroupSize</span>, <span class="pl-c1">inputBuffer</span>, <span class="pl-c1">total</span>, <span class="pl-c1">rowOffset</span>, <span class="pl-c1">currentRowSize</span>, <span class="pl-c1">workPerThread</span>, <span class="pl-c1">vectorized</span> } <span class="pl-k">=</span> rowReduceProps;
+
+				<span class="pl-c">// Number of unvectorized elements each workgroup can ingest</span>
+				<span class="pl-c">// At workgroupSize of 256, blockSize will be 1024</span>
+				<span class="pl-k">const</span> <span class="pl-c1">blockSize</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( workgroupSize ).<span class="pl-en">mul</span>( workPerThread );
+				<span class="pl-k">const</span> <span class="pl-c1">block</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>block<span class="pl-pds">'</span></span> );
+
+				<span class="pl-c">// At rowSize of 2048, there will be two blocks</span>
+				<span class="pl-k">const</span> <span class="pl-c1">blockLimiter</span> <span class="pl-k">=</span> <span class="pl-smi">currentRowSize</span>.<span class="pl-en">div</span>( blockSize ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>blockLimiter<span class="pl-pds">'</span></span> );
+				<span class="pl-en">Loop</span>( <span class="pl-smi">block</span>.<span class="pl-en">lessThan</span>( blockLimiter ), () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> <span class="pl-c1">blockOffset</span> <span class="pl-k">=</span> <span class="pl-smi">block</span>.<span class="pl-en">mul</span>( blockSize );
+					<span class="pl-k">const</span> <span class="pl-c1">startThread</span> <span class="pl-k">=</span> <span class="pl-smi">blockOffset</span>.<span class="pl-c1">add</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">mul</span>( workPerThread ) );
+					<span class="pl-k">const</span> <span class="pl-c1">localThreadOffset</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>localThreadOffset<span class="pl-pds">'</span></span> );
+					<span class="pl-en">Loop</span>( <span class="pl-smi">localThreadOffset</span>.<span class="pl-en">lessThan</span>( workPerThread ), () <span class="pl-k">=></span> {
+
+						<span class="pl-k">const</span> <span class="pl-c1">inputElement</span> <span class="pl-k">=</span> <span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( <span class="pl-smi">rowOffset</span>.<span class="pl-c1">add</span>( startThread ).<span class="pl-smi">addLocal</span> );
+
+						<span class="pl-k">if</span> ( vectorized ) {
+
+							<span class="pl-k">const</span> <span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-en">dot</span>( inputElement, <span class="pl-en">uvec4</span>( <span class="pl-c1">1</span> ) );
+							<span class="pl-smi">total</span>.<span class="pl-en">addAssign</span>( value );
+
+						} <span class="pl-k">else</span> {
+
+							<span class="pl-k">const</span> <span class="pl-c1">inputElement</span> <span class="pl-k">=</span> <span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( <span class="pl-smi">rowOffset</span>.<span class="pl-c1">add</span>( startThread ).<span class="pl-c1">add</span>( localThreadOffset ) );
+							<span class="pl-smi">total</span>.<span class="pl-en">addAssign</span>( inputElement );
+
+						}
+
+						<span class="pl-c">// Increment up a thread</span>
+						<span class="pl-smi">localThreadOffset</span>.<span class="pl-en">addAssign</span>( <span class="pl-c1">1</span> );
+
+					} );
+
+					<span class="pl-c">// Increment up a block</span>
+					<span class="pl-smi">block</span>.<span class="pl-en">addAssign</span>( <span class="pl-c1">1</span> );
+
+				} );
+
+				<span class="pl-c">// Ignoring left over check for this example, since we know ahead of time the value of leftover (2048 % 1024 === 0)</span>
+
+			};
+
+			<span class="pl-k">const</span> <span class="pl-c1">WorkgroupReduce</span> <span class="pl-k">=</span> ( <span class="pl-smi">workgroupReduceProps</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">const</span> { <span class="pl-c1">total</span>, <span class="pl-c1">workgroupSize</span> } <span class="pl-k">=</span> workgroupReduceProps;
+
+				<span class="pl-k">const</span> <span class="pl-c1">subgroupSums</span> <span class="pl-k">=</span> <span class="pl-en">createSubgroupArray</span>( <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span>, workgroupSize );
+
+				<span class="pl-c">// Assign sum of all values in subgroup to total</span>
+				<span class="pl-smi">total</span>.<span class="pl-en">assign</span>( <span class="pl-en">subgroupAdd</span>( total ) );
+
+				<span class="pl-k">const</span> <span class="pl-c1">delta</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( workgroupSize ).<span class="pl-en">div</span>( subgroupSize ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>delta<span class="pl-pds">'</span></span> );
+
+				<span class="pl-k">const</span> <span class="pl-c1">subgroupMetaRank</span> <span class="pl-k">=</span> <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">div</span>( subgroupSize );
+
+				<span class="pl-en">Loop</span>( <span class="pl-en">float</span>( delta ).<span class="pl-en">greaterThan</span>( <span class="pl-c1">1.0</span> ), () <span class="pl-k">=></span> {
+
+					<span class="pl-en">If</span>( <span class="pl-smi">invocationSubgroupIndex</span>.<span class="pl-en">equal</span>( <span class="pl-c1">0</span> ), () <span class="pl-k">=></span> {
+
+						<span class="pl-c">// Each subgroup will populate the subgroupSums array</span>
+						<span class="pl-smi">subgroupSums</span>.<span class="pl-en">element</span>( subgroupMetaRank ).<span class="pl-en">assign</span>( total );
+
+					} );
+
+					<span class="pl-c">// Ensure that all subgroups in the workgroup have populated the workgroup memory array</span>
+					<span class="pl-en">workgroupBarrier</span>();
+
+					<span class="pl-c">// Thread 0 - subgroupsInWorkgroup will assign a value to total</span>
+					<span class="pl-smi">total</span>.<span class="pl-en">assign</span>( <span class="pl-en">select</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">lessThan</span>( delta ), <span class="pl-smi">subgroupSums</span>.<span class="pl-en">element</span>( invocationLocalIndex ), <span class="pl-c1">0</span> ).<span class="pl-en">uniformFlow</span>() );
+					<span class="pl-c">// # of subgroups in workgroup is invariably less than # of threads in subgroup, so subgroupAdd will still sync here</span>
+					<span class="pl-smi">total</span>.<span class="pl-en">assign</span>( <span class="pl-en">subgroupAdd</span>( total ) );
+
+					<span class="pl-smi">delta</span>.<span class="pl-en">divAssign</span>( subgroupSize );
+
+				} );
+
+			};
+
+			<span class="pl-k">const</span> <span class="pl-c1">createReduce3Fn</span> <span class="pl-k">=</span> ( <span class="pl-smi">createReduce3FnProps</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">const</span> { <span class="pl-c1">workgroupSize</span>, <span class="pl-c1">workPerThread</span>, <span class="pl-c1">inputBuffer</span>, <span class="pl-c1">intermediateBuffer</span>, <span class="pl-c1">rowSize</span> } <span class="pl-k">=</span> createReduce3FnProps;
+
+				<span class="pl-k">const</span> <span class="pl-c1">fnDef</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> <span class="pl-c1">inputSize</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-smi">inputBuffer</span>.<span class="pl-smi">bufferCount</span> );
+					<span class="pl-k">const</span> <span class="pl-c1">rowOffset</span> <span class="pl-k">=</span> <span class="pl-smi">workgroupId</span>.<span class="pl-c1">x</span>.<span class="pl-en">mul</span>( rowSize );
+
+					<span class="pl-c">// If the current rows elements exceed the bounds of the input</span>
+					<span class="pl-c">// Select either 0 or number of elements left,</span>
+					<span class="pl-c">// otherwise, select existing ROW_SIZE</span>
+					<span class="pl-k">const</span> <span class="pl-c1">currentRowSize</span> <span class="pl-k">=</span> <span class="pl-en">select</span>(
+						( <span class="pl-smi">rowOffset</span>.<span class="pl-c1">add</span>( rowSize ) ).<span class="pl-en">greaterThan</span>( inputSize ),
+						<span class="pl-en">select</span>( <span class="pl-smi">inputSize</span>.<span class="pl-en">greaterThan</span>( rowOffset ), <span class="pl-smi">inputSize</span>.<span class="pl-c1">sub</span>( rowOffset ), <span class="pl-c1">0</span> ).<span class="pl-en">uniformFlow</span>(),
+						rowSize,
+					).<span class="pl-en">uniformFlow</span>();
+
+					<span class="pl-k">const</span> <span class="pl-c1">total</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>total<span class="pl-pds">'</span></span> );
+
+					<span class="pl-en">RowReduce</span>( {
+						inputBuffer<span class="pl-k">:</span> inputBuffer,
+						total<span class="pl-k">:</span> total,
+						rowOffset<span class="pl-k">:</span> rowOffset,
+						currentRowSize<span class="pl-k">:</span> currentRowSize,
+						workPerThread<span class="pl-k">:</span> workPerThread,
+						workgroupSize<span class="pl-k">:</span> workgroupSize,
+					} );
+
+					<span class="pl-en">WorkgroupReduce</span>( {
+						total<span class="pl-k">:</span> total,
+						workgroupSize<span class="pl-k">:</span> workgroupSize,
+					} );
+
+					<span class="pl-c">// Populate each workgroup with its reduction</span>
+					<span class="pl-en">If</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">equal</span>( <span class="pl-c1">0</span> ), () <span class="pl-k">=></span> {
+
+						<span class="pl-smi">intermediateBuffer</span>.<span class="pl-en">element</span>( <span class="pl-smi">workgroupId</span>.<span class="pl-c1">x</span> ).<span class="pl-en">assign</span>( total );
+
+					} );
+
+				} )();
+
+				<span class="pl-k">return</span> fnDef;
+
+			};
+
+			<span class="pl-c">// REDUCE 4</span>
+
+			<span class="pl-c">// b0nes164 inspired implementation with vec4</span>
+			<span class="pl-k">const</span> <span class="pl-c1">createReduce4Fn</span> <span class="pl-k">=</span> ( <span class="pl-smi">props</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-c">// Can't pass in subgroup size since we can't always be certain what size is at runtime</span>
+				<span class="pl-k">const</span> { <span class="pl-c1">size</span>, <span class="pl-c1">workPerThread</span>, <span class="pl-c1">workgroupSize</span>, <span class="pl-c1">inputBuffer</span>, <span class="pl-c1">intermediateBuffer</span> } <span class="pl-k">=</span> props;
+
+				<span class="pl-k">const</span> <span class="pl-c1">ELEMENTS_PER_VEC4</span> <span class="pl-k">=</span> <span class="pl-c1">4</span>;
+				<span class="pl-c">// The number of individual elements a single workgroup will access</span>
+				<span class="pl-k">const</span> <span class="pl-c1">partitionSize</span> <span class="pl-k">=</span> workgroupSize <span class="pl-k">*</span> workPerThread <span class="pl-k">*</span> <span class="pl-c1">ELEMENTS_PER_VEC4</span>;
+				<span class="pl-k">const</span> <span class="pl-c1">vecSize</span> <span class="pl-k">=</span> <span class="pl-en">divRoundUp</span>( size, <span class="pl-c1">ELEMENTS_PER_VEC4</span> );
+				<span class="pl-c">// Can also be calculated using divRoundUp( vecSize, workgroupSize * workPerThread );</span>
+				<span class="pl-k">const</span> <span class="pl-c1">numWorkgroups</span> <span class="pl-k">=</span> <span class="pl-en">divRoundUp</span>( size, partitionSize );
+				<span class="pl-c">// Currently no way to specify dispatch size in increments of workgroups, so we convert to numInvocations</span>
+				<span class="pl-k">const</span> <span class="pl-c1">numInvocations</span> <span class="pl-k">=</span> numWorkgroups <span class="pl-k">*</span> workgroupSize;
+
+				<span class="pl-k">const</span> <span class="pl-c1">fnDef</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> <span class="pl-c1">perSubgroupReductionArray</span> <span class="pl-k">=</span> <span class="pl-en">createSubgroupArray</span>( <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span>, workgroupSize );
+
+					<span class="pl-c">// Get the index of the subgroup within the workgroup</span>
+					<span class="pl-k">const</span> <span class="pl-c1">subgroupMetaRank</span> <span class="pl-k">=</span> <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">div</span>( subgroupSize );
+
+					<span class="pl-c">// Each subgroup block scans across 4 subgroups. So when we move into a new subgroup,</span>
+					<span class="pl-c">// align that subgroups' accesses to the next 4 subgroups</span>
+					<span class="pl-k">const</span> <span class="pl-c1">subgroupOffset</span> <span class="pl-k">=</span> <span class="pl-smi">subgroupMetaRank</span>.<span class="pl-en">mul</span>( subgroupSize ).<span class="pl-en">mul</span>( workPerThread );
+					<span class="pl-smi">subgroupOffset</span>.<span class="pl-en">addAssign</span>( invocationSubgroupIndex );
+
+					<span class="pl-c">// Per workgroup, offset by number of vectorized elements scanned per workgroup</span>
+					<span class="pl-k">const</span> <span class="pl-c1">workgroupOffset</span> <span class="pl-k">=</span> <span class="pl-smi">workgroupId</span>.<span class="pl-c1">x</span>.<span class="pl-en">mul</span>( <span class="pl-en">uint</span>( maxWorkgroupSize ).<span class="pl-en">mul</span>( workPerThread ) );
+
+					<span class="pl-k">const</span> <span class="pl-c1">startThread</span> <span class="pl-k">=</span> <span class="pl-smi">subgroupOffset</span>.<span class="pl-c1">add</span>( workgroupOffset );
+
+					<span class="pl-k">const</span> <span class="pl-c1">subgroupReduction</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> );
+
+					<span class="pl-c">// Each thread will accumulate values from across 'workPerThread' subgroups</span>
+					<span class="pl-en">If</span>( <span class="pl-smi">workgroupId</span>.<span class="pl-c1">x</span>.<span class="pl-en">lessThan</span>( <span class="pl-en">uint</span>( numWorkgroups ).<span class="pl-c1">sub</span>( <span class="pl-c1">1</span> ) ), () <span class="pl-k">=></span> {
+
+						<span class="pl-en">Loop</span>( {
+							start<span class="pl-k">:</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ),
+							end<span class="pl-k">:</span> workPerThread,
+							type<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span>,
+							condition<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>&#x3C;<span class="pl-pds">'</span></span>,
+							name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>currentSubgroupInBlock<span class="pl-pds">'</span></span>
+						}, () <span class="pl-k">=></span> {
+
+							<span class="pl-c">// Get vectorized element from input array</span>
+							<span class="pl-k">const</span> <span class="pl-c1">val</span> <span class="pl-k">=</span> <span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( startThread );
+
+							<span class="pl-c">// Sum values within vec4 together by using result of dot product</span>
+							<span class="pl-smi">subgroupReduction</span>.<span class="pl-en">addAssign</span>( <span class="pl-en">dot</span>( <span class="pl-en">uvec4</span>( <span class="pl-c1">1</span> ), val ) );
+
+							<span class="pl-c">// Increment so thread will scan value in next subgroup</span>
+							<span class="pl-smi">startThread</span>.<span class="pl-en">addAssign</span>( subgroupSize );
+
+						} );
+
+					} );
+
+					<span class="pl-c">// Ensure that the last workgroup does not access out of bounds indices</span>
+					<span class="pl-en">If</span>( <span class="pl-smi">workgroupId</span>.<span class="pl-c1">x</span>.<span class="pl-en">equal</span>( <span class="pl-en">uint</span>( numWorkgroups ).<span class="pl-c1">sub</span>( <span class="pl-c1">1</span> ) ), () <span class="pl-k">=></span> {
+
+						<span class="pl-en">Loop</span>( {
+							start<span class="pl-k">:</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ),
+							end<span class="pl-k">:</span> workPerThread,
+							type<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span>,
+							condition<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>&#x3C;<span class="pl-pds">'</span></span>,
+							name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>currentSubgroupInBlock<span class="pl-pds">'</span></span>
+						}, () <span class="pl-k">=></span> {
+
+							<span class="pl-c">// Ensure index is less than number of available vectors in inputBuffer</span>
+							<span class="pl-k">const</span> <span class="pl-c1">val</span> <span class="pl-k">=</span> <span class="pl-en">select</span>( <span class="pl-smi">startThread</span>.<span class="pl-en">lessThan</span>( <span class="pl-en">uint</span>( vecSize ) ), <span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( startThread ), <span class="pl-en">uvec4</span>( <span class="pl-c1">0</span> ) ).<span class="pl-en">uniformFlow</span>();
+
+							<span class="pl-smi">subgroupReduction</span>.<span class="pl-en">addAssign</span>( <span class="pl-en">dot</span>( val, <span class="pl-en">uvec4</span>( <span class="pl-c1">1</span> ) ) );
+							<span class="pl-smi">startThread</span>.<span class="pl-en">addAssign</span>( subgroupSize );
+
+						} );
+
+					} );
+
+					<span class="pl-smi">subgroupReduction</span>.<span class="pl-en">assign</span>( <span class="pl-en">subgroupAdd</span>( subgroupReduction ) );
+
+					<span class="pl-c">// Assuming that each element in the input buffer is 1, we generally expect each invocation's subgroupReduction</span>
+					<span class="pl-c">// value to be ELEMENTS_PER_VEC4 * workPerThread * subgroupSize</span>
+
+					<span class="pl-c">// Delegate one thread per subgroup to assign each subgroup's reduction to the workgroup array</span>
+					<span class="pl-en">If</span>( <span class="pl-smi">invocationSubgroupIndex</span>.<span class="pl-en">equal</span>( <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ) ), () <span class="pl-k">=></span> {
+
+						<span class="pl-smi">perSubgroupReductionArray</span>.<span class="pl-en">element</span>( subgroupMetaRank ).<span class="pl-en">assign</span>( subgroupReduction );
+
+					} );
+
+					<span class="pl-c">// Ensure that each workgroup has populated the perSubgroupReductionArray with data</span>
+					<span class="pl-c">// from each of it's subgroups</span>
+					<span class="pl-en">workgroupBarrier</span>();
+
+					<span class="pl-k">if</span> ( <span class="pl-smi">props</span>.<span class="pl-smi">debugBuffer</span> ) {
+
+						<span class="pl-en">If</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">equal</span>( <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ) ), () <span class="pl-k">=></span> {
+
+							<span class="pl-smi">props</span>.<span class="pl-smi">debugBuffer</span>.<span class="pl-en">element</span>( <span class="pl-smi">workgroupId</span>.<span class="pl-c1">x</span> ).<span class="pl-en">assign</span>( subgroupReduction );
+
+						} );
+
+						<span class="pl-en">workgroupBarrier</span>();
+
+					}
+
+					<span class="pl-c">// WORKGROUP LEVEL REDUCE</span>
+
+					<span class="pl-c">// Multiple approaches here</span>
+					<span class="pl-c">// log2(subgroupSize) -> TSL log2 function</span>
+					<span class="pl-c">// countTrailingZeros/findLSB(subgroupSize) -> TSL function that counts trailing zeros in number bit representation</span>
+					<span class="pl-c">// Can technically petition GPU for subgroupSize in shader and calculate logs on CPU at cost of shader being generalizable across devices</span>
+					<span class="pl-c">// May also break if subgroupSize changes when device is lost or if program is rerun on lower power device</span>
+					<span class="pl-k">const</span> <span class="pl-c1">subgroupSizeLog</span> <span class="pl-k">=</span> <span class="pl-en">countTrailingZeros</span>( subgroupSize ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>subgroupSizeLog<span class="pl-pds">'</span></span> );
+					<span class="pl-k">const</span> <span class="pl-c1">spineSize</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( workgroupSize ).<span class="pl-en">shiftRight</span>( subgroupSizeLog );
+					<span class="pl-k">const</span> <span class="pl-c1">spineSizeLog</span> <span class="pl-k">=</span> <span class="pl-en">countTrailingZeros</span>( spineSize ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>spineSizeLog<span class="pl-pds">'</span></span> );
+
+
+					<span class="pl-c">// Align size to powers of subgroupSize</span>
+					<span class="pl-k">const</span> <span class="pl-c1">squaredSubgroupLog</span> <span class="pl-k">=</span> ( <span class="pl-smi">spineSizeLog</span>.<span class="pl-c1">add</span>( subgroupSizeLog ).<span class="pl-c1">sub</span>( <span class="pl-c1">1</span> ) );
+					<span class="pl-smi">squaredSubgroupLog</span>.<span class="pl-en">divAssign</span>( subgroupSizeLog );
+					<span class="pl-smi">squaredSubgroupLog</span>.<span class="pl-en">mulAssign</span>( subgroupSizeLog );
+					<span class="pl-k">const</span> <span class="pl-c1">alignedSize</span> <span class="pl-k">=</span> ( <span class="pl-en">uint</span>( <span class="pl-c1">1</span> ).<span class="pl-en">shiftLeft</span>( squaredSubgroupLog ) ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>alignedSize<span class="pl-pds">'</span></span> );
+
+					<span class="pl-c">// aligned size 2 * 4</span>
+
+					<span class="pl-k">const</span> <span class="pl-c1">offset</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> );
+
+					<span class="pl-c">// In cases where the number of subgroups in a workgroup is greater than the subgroup size itself,</span>
+					<span class="pl-c">// we need to iterate over the array again to capture all the data in the workgroup array buffer</span>
+					<span class="pl-en">Loop</span>( { start<span class="pl-k">:</span> subgroupSize, end<span class="pl-k">:</span> alignedSize, condition<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>&#x3C;=<span class="pl-pds">'</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>j<span class="pl-pds">'</span></span>, type<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span>, update<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>&#x3C;&#x3C;= subgroupSizeLog<span class="pl-pds">'</span></span> }, () <span class="pl-k">=></span> {
+
+						<span class="pl-k">const</span> <span class="pl-c1">subgroupIndex</span> <span class="pl-k">=</span> ( ( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-c1">add</span>( <span class="pl-c1">1</span> ) ).<span class="pl-en">shiftLeft</span>( offset ) ).<span class="pl-c1">sub</span>( <span class="pl-c1">1</span> );
+
+						<span class="pl-k">const</span> <span class="pl-c1">isValidSubgroupIndex</span> <span class="pl-k">=</span> <span class="pl-smi">subgroupIndex</span>.<span class="pl-en">lessThan</span>( spineSize ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>isValidSubgroupIndex<span class="pl-pds">'</span></span> );
+
+						<span class="pl-c">// Reduce values within the local workgroup memory.</span>
+						<span class="pl-c">// Set toVar to ensure subgroupAdd executes before (not within) the if statement.</span>
+						<span class="pl-k">const</span> <span class="pl-c1">t</span> <span class="pl-k">=</span> <span class="pl-en">subgroupAdd</span>(
+							<span class="pl-en">select</span>(
+								isValidSubgroupIndex,
+								<span class="pl-smi">perSubgroupReductionArray</span>.<span class="pl-en">element</span>( subgroupIndex ),
+								<span class="pl-c1">0</span>
+							).<span class="pl-en">uniformFlow</span>()
+						).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>t<span class="pl-pds">'</span></span> );
+
+						<span class="pl-c">// Can assign back to workgroupArray since all</span>
+						<span class="pl-c">// subgroup threads work in lockstop for subgroupAdd</span>
+						<span class="pl-en">If</span>( isValidSubgroupIndex, () <span class="pl-k">=></span> {
+
+							<span class="pl-smi">perSubgroupReductionArray</span>.<span class="pl-en">element</span>( subgroupIndex ).<span class="pl-en">assign</span>( t );
+
+						} );
+
+						<span class="pl-c">// Ensure all threads have completed work</span>
+
+						<span class="pl-en">workgroupBarrier</span>();
+
+						<span class="pl-smi">offset</span>.<span class="pl-en">addAssign</span>( subgroupSizeLog );
+
+					} );
+
+					<span class="pl-c">// Assign single thread from workgroup to assign workgroup reduction</span>
+					<span class="pl-en">If</span>( <span class="pl-smi">invocationLocalIndex</span>.<span class="pl-en">equal</span>( <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ) ), () <span class="pl-k">=></span> {
+
+						<span class="pl-k">const</span> <span class="pl-c1">reducedWorkgroupSum</span> <span class="pl-k">=</span> <span class="pl-smi">perSubgroupReductionArray</span>.<span class="pl-en">element</span>( <span class="pl-en">uint</span>( spineSize ).<span class="pl-c1">sub</span>( <span class="pl-c1">1</span> ) );
+						<span class="pl-smi">intermediateBuffer</span>.<span class="pl-en">element</span>( <span class="pl-smi">workgroupId</span>.<span class="pl-c1">x</span> ).<span class="pl-en">assign</span>( reducedWorkgroupSum );
+
+					} );
+
+				} )().<span class="pl-en">compute</span>( numInvocations, [ maxWorkgroupSize ] );
+
+				<span class="pl-k">return</span> fnDef;
+
+			};
+
+
+			<span class="pl-c">// INCORRECT BASELINE</span>
+
+			<span class="pl-k">const</span> <span class="pl-c1">createIncorrectBaselineFn</span> <span class="pl-k">=</span> ( <span class="pl-smi">incorrectBaselineProps</span> ) <span class="pl-k">=></span> {
+
+				<span class="pl-k">const</span> { <span class="pl-c1">inputBuffer</span> } <span class="pl-k">=</span> incorrectBaselineProps;
+
+				<span class="pl-k">const</span> <span class="pl-c1">fnDef</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-smi">inputBuffer</span>.<span class="pl-en">element</span>( instanceIndex ).<span class="pl-en">assign</span>( <span class="pl-c1">99999</span> );
+
+				} )();
+
+				<span class="pl-k">return</span> fnDef;
+
+			};
+
+
+			<span class="pl-en">init</span>();
+
+			<span class="pl-en">init</span>( <span class="pl-c1">false</span> );
+
+			<span class="pl-k">async</span> <span class="pl-k">function</span> <span class="pl-en">init</span>( <span class="pl-smi">leftSideDisplay</span> <span class="pl-k">=</span> <span class="pl-c1">true</span> ) {
+
+				<span class="pl-k">const</span> <span class="pl-c1">effectController</span> <span class="pl-k">=</span> leftSideDisplay <span class="pl-k">?</span> leftEffectController <span class="pl-k">:</span> rightEffectController;
+
+				<span class="pl-k">const</span> <span class="pl-c1">aspect</span> <span class="pl-k">=</span> ( <span class="pl-c1">window</span>.<span class="pl-c1">innerWidth</span> <span class="pl-k">/</span> <span class="pl-c1">2</span> ) <span class="pl-k">/</span> <span class="pl-c1">window</span>.<span class="pl-c1">innerHeight</span>;
+				<span class="pl-k">const</span> <span class="pl-c1">camera</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.OrthographicCamera</span>( <span class="pl-k">-</span> aspect, aspect, <span class="pl-c1">1</span>, <span class="pl-k">-</span> <span class="pl-c1">1</span>, <span class="pl-c1">0</span>, <span class="pl-c1">2</span> );
+				<span class="pl-smi">camera</span>.<span class="pl-smi">position</span>.<span class="pl-c1">z</span> <span class="pl-k">=</span> <span class="pl-c1">1</span>;
+
+				<span class="pl-k">const</span> <span class="pl-c1">scene</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.Scene</span>();
+
+				<span class="pl-k">const</span> <span class="pl-c1">array</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Uint32Array</span>( <span class="pl-c1">Array</span>.<span class="pl-en">from</span>( { length<span class="pl-k">:</span> size }, () <span class="pl-k">=></span> {
+
+					<span class="pl-k">return</span> <span class="pl-c1">1</span>;
+
+				} ) );
+
+				<span class="pl-c">// Represents array of data as uints in compute shader.</span>
+				<span class="pl-k">const</span> <span class="pl-c1">inputStorage</span> <span class="pl-k">=</span> <span class="pl-en">instancedArray</span>( array, <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span> ).<span class="pl-en">setPBO</span>( <span class="pl-c1">true</span> ).<span class="pl-en">setName</span>( <span class="pl-s"><span class="pl-pds">`</span>Current_<span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">leftSideDisplay </span><span class="pl-k">?</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Left</span><span class="pl-pds">'</span><span class="pl-s1"> </span><span class="pl-k">:</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Right</span><span class="pl-pds">'</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span> );
+				<span class="pl-c">// Represents array of data as vec4s in compute shader;</span>
+				<span class="pl-k">const</span> <span class="pl-c1">inputVec4BufferAttribute</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.StorageInstancedBufferAttribute</span>( array, <span class="pl-c1">4</span> );
+				<span class="pl-k">const</span> <span class="pl-c1">inputVectorizedStorage</span> <span class="pl-k">=</span> <span class="pl-en">storage</span>( inputVec4BufferAttribute, <span class="pl-s"><span class="pl-pds">'</span>uvec4<span class="pl-pds">'</span></span>, vecSize ).<span class="pl-en">setPBO</span>( <span class="pl-c1">true</span> ).<span class="pl-en">setName</span>( <span class="pl-s"><span class="pl-pds">`</span>CurrentVectorized_<span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">leftSideDisplay </span><span class="pl-k">?</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Left</span><span class="pl-pds">'</span><span class="pl-s1"> </span><span class="pl-k">:</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Right</span><span class="pl-pds">'</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span> );
+
+				<span class="pl-c">// Reduce 3 Calculations</span>
+				<span class="pl-k">const</span> <span class="pl-c1">workPerThread</span> <span class="pl-k">=</span> <span class="pl-c1">4</span>;
+				<span class="pl-k">const</span> <span class="pl-c1">numRows</span> <span class="pl-k">=</span> workPerThread <span class="pl-k">*</span> <span class="pl-c1">32</span>;
+				<span class="pl-k">const</span> <span class="pl-c1">rowSize</span> <span class="pl-k">=</span> <span class="pl-en">divRoundUp</span>( size, numRows );
+
+				<span class="pl-k">const</span> <span class="pl-c1">workgroupSumsArray</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Uint32Array</span>( numRows );
+				<span class="pl-k">const</span> <span class="pl-c1">workgroupSumsStorage</span> <span class="pl-k">=</span> <span class="pl-en">instancedArray</span>( workgroupSumsArray, <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span> ).<span class="pl-en">setPBO</span>( <span class="pl-c1">true</span> ).<span class="pl-en">setName</span>( <span class="pl-s"><span class="pl-pds">`</span>WorkgroupSums_<span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">leftSideDisplay </span><span class="pl-k">?</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Left</span><span class="pl-pds">'</span><span class="pl-s1"> </span><span class="pl-k">:</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Right</span><span class="pl-pds">'</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span> );
+				<span class="pl-k">const</span> <span class="pl-c1">debugArray</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Uint32Array</span>( <span class="pl-c1">1024</span> );
+				<span class="pl-k">const</span> <span class="pl-c1">debugStorage</span> <span class="pl-k">=</span> <span class="pl-en">instancedArray</span>( debugArray, <span class="pl-s"><span class="pl-pds">'</span>uint<span class="pl-pds">'</span></span> ).<span class="pl-en">setPBO</span>( <span class="pl-c1">true</span> ).<span class="pl-en">setName</span>( <span class="pl-s"><span class="pl-pds">`</span>Debug_<span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">leftSideDisplay </span><span class="pl-k">?</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Left</span><span class="pl-pds">'</span><span class="pl-s1"> </span><span class="pl-k">:</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Right</span><span class="pl-pds">'</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span> );
+
+				<span class="pl-k">const</span> <span class="pl-c1">buffers</span> <span class="pl-k">=</span> {
+					<span class="pl-s"><span class="pl-pds">'</span>Input Buffer<span class="pl-pds">'</span></span><span class="pl-k">:</span> inputStorage,
+					<span class="pl-s"><span class="pl-pds">'</span>Input Vectorized Buffer<span class="pl-pds">'</span></span><span class="pl-k">:</span> inputVectorizedStorage,
+					<span class="pl-s"><span class="pl-pds">'</span>Workgroup Sums Buffer<span class="pl-pds">'</span></span><span class="pl-k">:</span> workgroupSumsStorage,
+					<span class="pl-s"><span class="pl-pds">'</span>Debug Buffer<span class="pl-pds">'</span></span><span class="pl-k">:</span> debugStorage,
+				};
+
+				<span class="pl-k">const</span> <span class="pl-c1">logFunctionName</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">`</span>Log <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">leftSideDisplay </span><span class="pl-k">?</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Left</span><span class="pl-pds">'</span><span class="pl-s1"> </span><span class="pl-k">:</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Right</span><span class="pl-pds">'</span><span class="pl-pse"><span class="pl-s1">}</span></span> Side<span class="pl-pds">`</span></span>;
+				<span class="pl-k">const</span> <span class="pl-c1">functionObj</span> <span class="pl-k">=</span> {};
+				functionObj[ logFunctionName ] <span class="pl-k">=</span> <span class="pl-k">async</span>() <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> <span class="pl-c1">selectedBuffer</span> <span class="pl-k">=</span> buffers[ <span class="pl-smi">unifiedEffectController</span>.<span class="pl-smi">loggedBuffer</span> ];
+					<span class="pl-k">const</span> <span class="pl-c1">readbackBuffer</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.ReadbackBuffer</span>( <span class="pl-smi">selectedBuffer</span>.<span class="pl-c1">value</span> );
+
+					<span class="pl-k">const</span> <span class="pl-c1">result</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Uint32Array</span>( <span class="pl-k">await</span> <span class="pl-smi">renderer</span>.<span class="pl-en">getArrayBufferAsync</span>( readbackBuffer ) );
+
+					<span class="pl-en">console</span>.<span class="pl-c1">log</span>( result );
+
+					<span class="pl-c">// Remove GPU/CPU readback buffer from memory</span>
+
+					<span class="pl-smi">readbackBuffer</span>.<span class="pl-en">dispose</span>();
+
+				};
+
+				<span class="pl-smi">debugFolder</span>.<span class="pl-c1">add</span>( functionObj, <span class="pl-s"><span class="pl-pds">`</span>Log <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">leftSideDisplay </span><span class="pl-k">?</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Left</span><span class="pl-pds">'</span><span class="pl-s1"> </span><span class="pl-k">:</span><span class="pl-s1"> </span><span class="pl-pds">'</span><span class="pl-s1">Right</span><span class="pl-pds">'</span><span class="pl-pse"><span class="pl-s1">}</span></span> Side<span class="pl-pds">`</span></span> );
+
+				<span class="pl-k">const</span> <span class="pl-c1">computeResetBufferFn</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-smi">inputStorage</span>.<span class="pl-en">element</span>( instanceIndex ).<span class="pl-en">assign</span>( <span class="pl-c1">1</span> );
+
+				} );
+
+				<span class="pl-k">const</span> <span class="pl-c1">computeResetWorkgroupSumsFn</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-smi">workgroupSumsStorage</span>.<span class="pl-en">element</span>( instanceIndex ).<span class="pl-en">assign</span>( <span class="pl-c1">0</span> );
+
+				} );
+
+
+				<span class="pl-c">// Re-initialize compute buffer</span>
+				<span class="pl-k">const</span> <span class="pl-c1">computeResetBuffer</span> <span class="pl-k">=</span> <span class="pl-en">computeResetBufferFn</span>().<span class="pl-en">compute</span>( size );
+				<span class="pl-k">const</span> <span class="pl-c1">computeResetWorkgroupSums</span> <span class="pl-k">=</span> <span class="pl-en">computeResetWorkgroupSumsFn</span>().<span class="pl-en">compute</span>( <span class="pl-c1">256</span> );
+
+				<span class="pl-k">const</span> <span class="pl-c1">renderer</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.WebGPURenderer</span>( { antialias<span class="pl-k">:</span> <span class="pl-c1">false</span>, trackTimestamp<span class="pl-k">:</span> <span class="pl-c1">true</span> } );
+				<span class="pl-smi">renderer</span>.<span class="pl-en">setPixelRatio</span>( <span class="pl-c1">window</span>.<span class="pl-smi">devicePixelRatio</span> );
+				<span class="pl-smi">renderer</span>.<span class="pl-en">setSize</span>( <span class="pl-c1">window</span>.<span class="pl-c1">innerWidth</span> <span class="pl-k">/</span> <span class="pl-c1">2</span>, <span class="pl-c1">window</span>.<span class="pl-c1">innerHeight</span> );
+
+				<span class="pl-k">await</span> <span class="pl-smi">renderer</span>.<span class="pl-en">init</span>();
+
+				<span class="pl-c">// Unfortunately, need to arbitrarily run compute shader to get access to device limits</span>
+				<span class="pl-smi">renderer</span>.<span class="pl-en">compute</span>( computeResetBuffer );
+
+
+				<span class="pl-k">if</span> ( <span class="pl-smi">renderer</span>.<span class="pl-smi">backend</span>.<span class="pl-smi">device</span> <span class="pl-k">!==</span> <span class="pl-c1">null</span> ) {
+
+					maxWorkgroupSize <span class="pl-k">=</span> <span class="pl-smi">renderer</span>.<span class="pl-smi">backend</span>.<span class="pl-smi">device</span>.<span class="pl-smi">limits</span>.<span class="pl-smi">maxComputeWorkgroupSizeX</span>;
+
+				}
+
+				<span class="pl-c">// Create and store dispatches of reduction of certain size. Map each set of dispatches to algorithm name.</span>
+
+				<span class="pl-k">const</span> <span class="pl-c1">computeReduce0Fn</span> <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> { <span class="pl-c1">numThreadsDispatched</span> } <span class="pl-k">=</span> effectController;
+
+					<span class="pl-smi">inputStorage</span>.<span class="pl-en">element</span>( instanceIndex ).<span class="pl-en">addAssign</span>( <span class="pl-smi">inputStorage</span>.<span class="pl-en">element</span>( <span class="pl-smi">instanceIndex</span>.<span class="pl-c1">add</span>( numThreadsDispatched ) ) );
+
+				} )();
+
+				<span class="pl-k">const</span> <span class="pl-c1">reduce0Calls</span> <span class="pl-k">=</span> [];
+
+				<span class="pl-k">for</span> ( <span class="pl-k">let</span> i <span class="pl-k">=</span> size <span class="pl-k">/</span> <span class="pl-c1">2</span>; i <span class="pl-k">>=</span> <span class="pl-c1">1</span>; i <span class="pl-k">/=</span> <span class="pl-c1">2</span> ) {
+
+					<span class="pl-k">const</span> <span class="pl-c1">reduce0</span> <span class="pl-k">=</span> <span class="pl-smi">computeReduce0Fn</span>.<span class="pl-en">compute</span>( i, [ maxWorkgroupSize ] );
+					<span class="pl-smi">reduce0Calls</span>.<span class="pl-c1">push</span>( reduce0 );
+
+				}
+
+				<span class="pl-k">const</span> <span class="pl-c1">reduce1Calls</span> <span class="pl-k">=</span> [
+					<span class="pl-c">// Accumulation</span>
+					<span class="pl-en">createReduce1Fn</span>( {
+						dispatchSize<span class="pl-k">:</span> maxWorkgroupSize <span class="pl-k">*</span> maxWorkgroupSize,
+						workgroupSize<span class="pl-k">:</span> maxWorkgroupSize,
+						numElements<span class="pl-k">:</span> size,
+						inputBuffer<span class="pl-k">:</span> inputStorage,
+					} ),
+					<span class="pl-c">// 1 Block accumulation</span>
+					<span class="pl-en">createReduce1Fn</span>( {
+						dispatchSize<span class="pl-k">:</span> maxWorkgroupSize,
+						numElements<span class="pl-k">:</span> maxWorkgroupSize <span class="pl-k">*</span> maxWorkgroupSize,
+						workgroupSize<span class="pl-k">:</span> maxWorkgroupSize,
+						inputBuffer<span class="pl-k">:</span> inputStorage,
+					} ),
+					<span class="pl-c">// Final result</span>
+					<span class="pl-en">createReduce1Fn</span>( {
+						dispatchSize<span class="pl-k">:</span> <span class="pl-c1">1</span>,
+						numElements<span class="pl-k">:</span> maxWorkgroupSize,
+						workgroupSize<span class="pl-k">:</span> <span class="pl-c1">1</span>,
+						inputBuffer<span class="pl-k">:</span> inputStorage
+					} ),
+				];
+
+				<span class="pl-k">const</span> <span class="pl-c1">reduce2Calls</span> <span class="pl-k">=</span> [
+					<span class="pl-c">// Accumulate within workgroups</span>
+					<span class="pl-en">createReduce2Fn</span>( {
+						workgroupSize<span class="pl-k">:</span> maxWorkgroupSize,
+						dispatchSize<span class="pl-k">:</span> maxWorkgroupSize <span class="pl-k">*</span> maxWorkgroupSize,
+						numElements<span class="pl-k">:</span> size,
+						inputBuffer<span class="pl-k">:</span> inputStorage,
+					} ),
+					<span class="pl-c">// 1 Block accumulation</span>
+					<span class="pl-en">createReduce2Fn</span>( {
+						workgroupSize<span class="pl-k">:</span> maxWorkgroupSize,
+						dispatchSize<span class="pl-k">:</span> maxWorkgroupSize,
+						numElements<span class="pl-k">:</span> maxWorkgroupSize,
+						inputBuffer<span class="pl-k">:</span> inputStorage,
+					} ),
+				];
+
+				<span class="pl-k">const</span> <span class="pl-c1">reduce3Calls</span> <span class="pl-k">=</span> [
+					<span class="pl-en">createReduce3Fn</span>( {
+						inputBuffer<span class="pl-k">:</span> inputStorage,
+						intermediateBuffer<span class="pl-k">:</span> workgroupSumsStorage,
+						workgroupSize<span class="pl-k">:</span> maxWorkgroupSize,
+						workPerThread<span class="pl-k">:</span> <span class="pl-c1">4</span>,
+						rowSize<span class="pl-k">:</span> rowSize,
+						vectorized<span class="pl-k">:</span> <span class="pl-c1">false</span>,
+					} ).<span class="pl-en">compute</span>( maxWorkgroupSize <span class="pl-k">*</span> numRows, [ maxWorkgroupSize ] ),
+					<span class="pl-en">createReduce3Fn</span>( {
+						inputBuffer<span class="pl-k">:</span> workgroupSumsStorage,
+						intermediateBuffer<span class="pl-k">:</span> inputStorage,
+						workgroupSize<span class="pl-k">:</span> <span class="pl-c1">32</span>,
+						workPerThread<span class="pl-k">:</span> <span class="pl-c1">4</span>,
+						rowSize<span class="pl-k">:</span> rowSize,
+						vectorized<span class="pl-k">:</span> <span class="pl-c1">false</span>
+					} ).<span class="pl-en">compute</span>( <span class="pl-c1">32</span>, [ <span class="pl-c1">32</span> ] )
+				];
+
+				<span class="pl-k">const</span> <span class="pl-c1">reduce4Calls</span> <span class="pl-k">=</span> [
+					<span class="pl-en">createReduce4Fn</span>( {
+						size<span class="pl-k">:</span> size,
+						inputBuffer<span class="pl-k">:</span> inputVectorizedStorage,
+						intermediateBuffer<span class="pl-k">:</span> workgroupSumsStorage,
+						workgroupSize<span class="pl-k">:</span> maxWorkgroupSize,
+						workPerThread<span class="pl-k">:</span> <span class="pl-c1">4</span>,
+					} ),
+					<span class="pl-en">createReduce3Fn</span>( {
+						inputBuffer<span class="pl-k">:</span> workgroupSumsStorage,
+						intermediateBuffer<span class="pl-k">:</span> inputStorage,
+						workgroupSize<span class="pl-k">:</span> <span class="pl-c1">32</span>,
+						workPerThread<span class="pl-k">:</span> <span class="pl-c1">4</span>,
+						rowSize<span class="pl-k">:</span> rowSize,
+						vectorized<span class="pl-k">:</span> <span class="pl-c1">false</span>
+					} ).<span class="pl-en">compute</span>( <span class="pl-c1">32</span>, [ <span class="pl-c1">32</span> ] )
+				];
+
+				<span class="pl-k">const</span> <span class="pl-c1">incorrectBaselineCalls</span> <span class="pl-k">=</span> [
+					<span class="pl-en">createIncorrectBaselineFn</span>( {
+						inputBuffer<span class="pl-k">:</span> inputStorage,
+					} ).<span class="pl-en">compute</span>( size ),
+				];
+
+				<span class="pl-k">const</span> <span class="pl-c1">calls</span> <span class="pl-k">=</span> {
+					<span class="pl-s"><span class="pl-pds">'</span>Reduce 0 (N/2)<span class="pl-pds">'</span></span><span class="pl-k">:</span> reduce0Calls,
+					<span class="pl-s"><span class="pl-pds">'</span>Reduce 1 (Naive Accumulate)<span class="pl-pds">'</span></span><span class="pl-k">:</span> reduce1Calls,
+					<span class="pl-s"><span class="pl-pds">'</span>Reduce 2 (Workgroup Reduction)<span class="pl-pds">'</span></span><span class="pl-k">:</span> reduce2Calls,
+					<span class="pl-s"><span class="pl-pds">'</span>Reduce 3 (Subgroup Reduce)<span class="pl-pds">'</span></span><span class="pl-k">:</span> reduce3Calls,
+					<span class="pl-s"><span class="pl-pds">'</span>Reduce 4 (Subgroup Optimized)<span class="pl-pds">'</span></span><span class="pl-k">:</span> reduce4Calls,
+					<span class="pl-s"><span class="pl-pds">'</span>Incorrect Baseline<span class="pl-pds">'</span></span><span class="pl-k">:</span> incorrectBaselineCalls
+				};
+
+				<span class="pl-k">const</span> <span class="pl-c1">getColor</span> <span class="pl-k">=</span> ( <span class="pl-smi">bufferToCheck</span>, <span class="pl-smi">colorChanger</span>, <span class="pl-smi">width</span>, <span class="pl-smi">height</span> ) <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> <span class="pl-c1">subtracter</span> <span class="pl-k">=</span> <span class="pl-en">float</span>( colorChanger ).<span class="pl-en">div</span>( <span class="pl-smi">width</span>.<span class="pl-en">mul</span>( height ) );
+
+					<span class="pl-k">const</span> <span class="pl-c1">color</span> <span class="pl-k">=</span> <span class="pl-en">vec3</span>( <span class="pl-smi">subtracter</span>.<span class="pl-en">oneMinus</span>() ).<span class="pl-en">toVar</span>();
+
+					<span class="pl-k">const</span> { <span class="pl-c1">highlight</span> } <span class="pl-k">=</span> effectController;
+
+					<span class="pl-c">// Validate that element 0 is equal to expected result of reduction</span>
+					<span class="pl-en">If</span>( <span class="pl-smi">highlight</span>.<span class="pl-en">equal</span>( <span class="pl-c1">1</span> ), () <span class="pl-k">=></span> {
+
+						<span class="pl-en">If</span>( ( <span class="pl-smi">bufferToCheck</span>.<span class="pl-en">element</span>( <span class="pl-c1">0</span> ) ).<span class="pl-en">equal</span>( size ), () <span class="pl-k">=></span> {
+
+							<span class="pl-smi">color</span>.<span class="pl-en">assign</span>( <span class="pl-en">vec3</span>( <span class="pl-c1">0.0</span>, <span class="pl-smi">subtracter</span>.<span class="pl-en">oneMinus</span>(), <span class="pl-c1">0.0</span> ) );
+
+						} ).<span class="pl-en">Else</span>( () <span class="pl-k">=></span> {
+
+							<span class="pl-smi">color</span>.<span class="pl-en">assign</span>( <span class="pl-en">vec3</span>( <span class="pl-smi">subtracter</span>.<span class="pl-en">oneMinus</span>(), <span class="pl-c1">0.0</span>, <span class="pl-c1">0.0</span> ) );
+
+						} );
+
+					} );
+
+					<span class="pl-k">return</span> color;
+
+				};
+
+				<span class="pl-k">const</span> <span class="pl-c1">displayNodes</span> <span class="pl-k">=</span> leftSideDisplay <span class="pl-k">?</span> leftDisplayColorNodes <span class="pl-k">:</span> rightDisplayColorNodes;
+				displayNodes[ <span class="pl-s"><span class="pl-pds">'</span>Input Grid<span class="pl-pds">'</span></span> ] <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> { <span class="pl-c1">gridElementWidth</span>, <span class="pl-c1">gridElementHeight</span>, <span class="pl-c1">gridDisplayWidth</span>, <span class="pl-c1">gridDisplayHeight</span> } <span class="pl-k">=</span> unifiedEffectController;
+
+					<span class="pl-k">const</span> <span class="pl-c1">newUV</span> <span class="pl-k">=</span> <span class="pl-en">uv</span>().<span class="pl-en">mul</span>( <span class="pl-en">vec2</span>( gridDisplayWidth, gridDisplayHeight ) );
+
+					<span class="pl-k">const</span> <span class="pl-c1">pixel</span> <span class="pl-k">=</span> <span class="pl-en">uvec2</span>( <span class="pl-en">uint</span>( <span class="pl-en">floor</span>( <span class="pl-smi">newUV</span>.<span class="pl-c1">x</span> ) ), <span class="pl-en">uint</span>( <span class="pl-en">floor</span>( <span class="pl-smi">newUV</span>.<span class="pl-c1">y</span> ) ) );
+
+					<span class="pl-k">const</span> <span class="pl-c1">elementIndex</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( gridDisplayWidth ).<span class="pl-en">mul</span>( <span class="pl-smi">pixel</span>.<span class="pl-c1">y</span> ).<span class="pl-c1">add</span>( <span class="pl-smi">pixel</span>.<span class="pl-c1">x</span> );
+
+					<span class="pl-k">const</span> <span class="pl-c1">colorChanger</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>();
+					<span class="pl-k">const</span> <span class="pl-c1">color</span> <span class="pl-k">=</span> <span class="pl-en">vec3</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>color<span class="pl-pds">'</span></span> );
+
+					<span class="pl-smi">colorChanger</span>.<span class="pl-en">assign</span>( <span class="pl-smi">inputStorage</span>.<span class="pl-en">element</span>( elementIndex ) );
+					<span class="pl-smi">color</span>.<span class="pl-en">assign</span>( <span class="pl-en">getColor</span>( inputStorage, colorChanger, gridElementWidth, gridElementHeight ) );
+
+					<span class="pl-k">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="pl-s"><span class="pl-pds">'</span>Input Log2<span class="pl-pds">'</span></span> ] <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> { <span class="pl-c1">gridElementWidth</span>, <span class="pl-c1">gridElementHeight</span> } <span class="pl-k">=</span> unifiedEffectController;
+
+					<span class="pl-k">const</span> <span class="pl-c1">newUV</span> <span class="pl-k">=</span> <span class="pl-en">uv</span>().<span class="pl-en">mul</span>( <span class="pl-en">vec2</span>( <span class="pl-c1">Math</span>.<span class="pl-c1">log2</span>( size ) ), <span class="pl-c1">1</span> );
+
+					<span class="pl-k">const</span> <span class="pl-c1">colorChanger</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>();
+					<span class="pl-k">const</span> <span class="pl-c1">color</span> <span class="pl-k">=</span> <span class="pl-en">vec3</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>color<span class="pl-pds">'</span></span> );
+
+					<span class="pl-smi">colorChanger</span>.<span class="pl-en">assign</span>( <span class="pl-smi">inputStorage</span>.<span class="pl-en">element</span>( <span class="pl-en">uint</span>( <span class="pl-c1">1</span> ).<span class="pl-en">shiftLeft</span>( <span class="pl-smi">newUV</span>.<span class="pl-c1">x</span> ) ) );
+					<span class="pl-smi">color</span>.<span class="pl-en">assign</span>( <span class="pl-en">getColor</span>( inputStorage, colorChanger, gridElementWidth, gridElementHeight ) );
+
+					<span class="pl-k">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="pl-s"><span class="pl-pds">'</span>Input Element 0<span class="pl-pds">'</span></span> ] <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> { <span class="pl-c1">gridElementWidth</span>, <span class="pl-c1">gridElementHeight</span> } <span class="pl-k">=</span> unifiedEffectController;
+
+					<span class="pl-k">const</span> <span class="pl-c1">colorChanger</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>();
+					<span class="pl-k">const</span> <span class="pl-c1">color</span> <span class="pl-k">=</span> <span class="pl-en">vec3</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>color<span class="pl-pds">'</span></span> );
+
+					<span class="pl-c">// Clamp display of single element to shade where green is still readable</span>
+					<span class="pl-smi">colorChanger</span>.<span class="pl-en">assign</span>( <span class="pl-en">clamp</span>( <span class="pl-smi">inputStorage</span>.<span class="pl-en">element</span>( <span class="pl-c1">0</span> ), <span class="pl-c1">0</span>, size <span class="pl-k">/</span> <span class="pl-c1">2</span> ) );
+					<span class="pl-smi">color</span>.<span class="pl-en">assign</span>( <span class="pl-en">getColor</span>( inputStorage, colorChanger, gridElementWidth, gridElementHeight ) );
+					<span class="pl-k">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="pl-s"><span class="pl-pds">'</span>Workgroup Sum Grid<span class="pl-pds">'</span></span> ] <span class="pl-k">=</span> <span class="pl-en">Fn</span>( () <span class="pl-k">=></span> {
+
+					<span class="pl-k">const</span> <span class="pl-c1">width</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">8</span> );
+					<span class="pl-k">const</span> <span class="pl-c1">height</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">16</span> );
+
+					<span class="pl-k">const</span> <span class="pl-c1">newUV</span> <span class="pl-k">=</span> <span class="pl-en">uv</span>().<span class="pl-en">mul</span>( <span class="pl-en">vec2</span>( width, height ) );
+
+					<span class="pl-k">const</span> <span class="pl-c1">pixel</span> <span class="pl-k">=</span> <span class="pl-en">uvec2</span>( <span class="pl-en">uint</span>( <span class="pl-en">floor</span>( <span class="pl-smi">newUV</span>.<span class="pl-c1">x</span> ) ), <span class="pl-en">uint</span>( <span class="pl-en">floor</span>( <span class="pl-smi">newUV</span>.<span class="pl-c1">y</span> ) ) );
+
+					<span class="pl-k">const</span> <span class="pl-c1">elementIndex</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( width ).<span class="pl-en">mul</span>( <span class="pl-smi">pixel</span>.<span class="pl-c1">y</span> ).<span class="pl-c1">add</span>( <span class="pl-smi">pixel</span>.<span class="pl-c1">x</span> );
+
+					<span class="pl-k">const</span> <span class="pl-c1">colorChanger</span> <span class="pl-k">=</span> <span class="pl-en">uint</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>();
+					<span class="pl-k">const</span> <span class="pl-c1">color</span> <span class="pl-k">=</span> <span class="pl-en">vec3</span>( <span class="pl-c1">0</span> ).<span class="pl-en">toVar</span>( <span class="pl-s"><span class="pl-pds">'</span>color<span class="pl-pds">'</span></span> );
+
+					<span class="pl-smi">colorChanger</span>.<span class="pl-en">assign</span>( <span class="pl-smi">workgroupSumsStorage</span>.<span class="pl-en">element</span>( elementIndex ) );
+					<span class="pl-smi">color</span>.<span class="pl-en">assign</span>( <span class="pl-en">getColor</span>( inputStorage, colorChanger, width, height ) );
+
+					<span class="pl-k">return</span> color;
+
+				} )();
+
+				( leftSideDisplay <span class="pl-k">?</span> leftMaterial <span class="pl-k">:</span> rightMaterial ).<span class="pl-smi">colorNode</span> <span class="pl-k">=</span> displayNodes[ <span class="pl-smi">effectController</span>.<span class="pl-smi">displayMode</span> ];
+				( leftSideDisplay <span class="pl-k">?</span> leftMaterial <span class="pl-k">:</span> rightMaterial ).<span class="pl-smi">needsUpdate</span> <span class="pl-k">=</span> <span class="pl-c1">true</span>;
+
+				<span class="pl-k">const</span> <span class="pl-c1">plane</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.Mesh</span>( <span class="pl-k">new</span> <span class="pl-en">THREE.PlaneGeometry</span>( <span class="pl-c1">1</span>, <span class="pl-c1">1</span> ), ( leftSideDisplay <span class="pl-k">?</span> leftMaterial <span class="pl-k">:</span> rightMaterial ) );
+				<span class="pl-smi">scene</span>.<span class="pl-c1">add</span>( plane );
+
+				<span class="pl-k">const</span> <span class="pl-c1">animate</span> <span class="pl-k">=</span> () <span class="pl-k">=></span> {
+
+					<span class="pl-smi">renderer</span>.<span class="pl-en">render</span>( scene, camera );
+
+				};
+
+				<span class="pl-smi">renderer</span>.<span class="pl-en">setAnimationLoop</span>( animate );
+
+				<span class="pl-c1">document</span>.<span class="pl-c1">body</span>.<span class="pl-c1">appendChild</span>( <span class="pl-smi">renderer</span>.<span class="pl-smi">domElement</span> );
+				<span class="pl-smi">renderer</span>.<span class="pl-smi">domElement</span>.<span class="pl-c1">style</span>.<span class="pl-smi">position</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>absolute<span class="pl-pds">'</span></span>;
+				<span class="pl-smi">renderer</span>.<span class="pl-smi">domElement</span>.<span class="pl-c1">style</span>.<span class="pl-c1">top</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span>;
+				<span class="pl-smi">renderer</span>.<span class="pl-smi">domElement</span>.<span class="pl-c1">style</span>.<span class="pl-c1">left</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span>;
+				<span class="pl-smi">renderer</span>.<span class="pl-smi">domElement</span>.<span class="pl-c1">style</span>.<span class="pl-c1">width</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>50%<span class="pl-pds">'</span></span>;
+				<span class="pl-smi">renderer</span>.<span class="pl-smi">domElement</span>.<span class="pl-c1">style</span>.<span class="pl-c1">height</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>100%<span class="pl-pds">'</span></span>;
+
+				<span class="pl-k">if</span> ( <span class="pl-k">!</span> leftSideDisplay ) {
+
+					<span class="pl-smi">renderer</span>.<span class="pl-smi">domElement</span>.<span class="pl-c1">style</span>.<span class="pl-c1">left</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>50%<span class="pl-pds">'</span></span>;
+
+					<span class="pl-smi">scene</span>.<span class="pl-c1">background</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.Color</span>( <span class="pl-c1">0x212121</span> );
+
+				} <span class="pl-k">else</span> {
+
+					<span class="pl-smi">scene</span>.<span class="pl-c1">background</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">THREE.Color</span>( <span class="pl-c1">0x313131</span> );
+
+				}
+
+				<span class="pl-smi">renderer</span>.<span class="pl-smi">info</span>.<span class="pl-smi">autoReset</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>;
+
+				<span class="pl-k">const</span> <span class="pl-c1">stepAnimation</span> <span class="pl-k">=</span> <span class="pl-k">async</span> <span class="pl-k">function</span> () {
+
+					<span class="pl-k">const</span> <span class="pl-c1">currentAlgorithm</span> <span class="pl-k">=</span> <span class="pl-smi">effectController</span>.<span class="pl-smi">algo</span>;
+					<span class="pl-k">const</span> <span class="pl-c1">state</span> <span class="pl-k">=</span> <span class="pl-smi">effectController</span>.<span class="pl-smi">state</span>;
+					<span class="pl-k">const</span> <span class="pl-c1">stateController</span> <span class="pl-k">=</span> leftSideDisplay <span class="pl-k">?</span> stateLeftController <span class="pl-k">:</span> stateRightController;
+
+					<span class="pl-k">if</span> ( state <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>Reset<span class="pl-pds">'</span></span> ) {
+
+						<span class="pl-smi">renderer</span>.<span class="pl-en">compute</span>( computeResetBuffer );
+						<span class="pl-smi">renderer</span>.<span class="pl-en">compute</span>( computeResetWorkgroupSums );
+
+					} <span class="pl-k">else</span> <span class="pl-k">if</span> ( state <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>Run Algo<span class="pl-pds">'</span></span> ) {
+
+						<span class="pl-smi">renderer</span>.<span class="pl-smi">info</span>.<span class="pl-c1">reset</span>();
+
+						<span class="pl-k">const</span> <span class="pl-c1">cpuTime</span> <span class="pl-k">=</span> <span class="pl-c1">0</span>;
+
+						<span class="pl-k">switch</span> ( currentAlgorithm ) {
+
+							<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span>Reduce 0 (N/2)<span class="pl-pds">'</span></span>: {
+
+								<span class="pl-k">let</span> m <span class="pl-k">=</span> size <span class="pl-k">/</span> <span class="pl-c1">2</span>;
+
+								<span class="pl-k">for</span> ( <span class="pl-k">let</span> i <span class="pl-k">=</span> <span class="pl-c1">0</span>; i <span class="pl-k">&#x3C;</span> <span class="pl-smi">reduce0Calls</span>.<span class="pl-c1">length</span>; i <span class="pl-k">++</span> ) {
+
+									<span class="pl-smi">effectController</span>.<span class="pl-smi">numThreadsDispatched</span>.<span class="pl-c1">value</span> <span class="pl-k">=</span> m;
+
+									<span class="pl-k">const</span> <span class="pl-c1">reduce0</span> <span class="pl-k">=</span> reduce0Calls[ i ];
+									<span class="pl-c">// Do a reduction step</span>
+									<span class="pl-smi">renderer</span>.<span class="pl-en">compute</span>( reduce0 );
+									<span class="pl-smi">renderer</span>.<span class="pl-en">resolveTimestampsAsync</span>( <span class="pl-c1">THREE</span>.<span class="pl-smi">TimestampQuery</span>.<span class="pl-c1">COMPUTE</span> );
+
+									m <span class="pl-k">/=</span> <span class="pl-c1">2</span>;
+
+								}
+
+
+								<span class="pl-k">break</span>;
+
+							}
+
+							<span class="pl-k">default</span>: {
+
+								<span class="pl-k">const</span> <span class="pl-c1">currentAlgoCalls</span> <span class="pl-k">=</span> calls[ currentAlgorithm ];
+
+								<span class="pl-k">for</span> ( <span class="pl-k">let</span> i <span class="pl-k">=</span> <span class="pl-c1">0</span>; i <span class="pl-k">&#x3C;</span> <span class="pl-smi">currentAlgoCalls</span>.<span class="pl-c1">length</span>; i <span class="pl-k">++</span> ) {
+
+									<span class="pl-smi">renderer</span>.<span class="pl-en">compute</span>( currentAlgoCalls[ i ] );
+									<span class="pl-smi">renderer</span>.<span class="pl-en">resolveTimestampsAsync</span>( <span class="pl-c1">THREE</span>.<span class="pl-smi">TimestampQuery</span>.<span class="pl-c1">COMPUTE</span> );
+
+								}
+
+								<span class="pl-k">break</span>;
+
+							}
+
+						}
+
+						<span class="pl-c">// DEBUG: const reductionResult = new Uint32Array( await renderer.getArrayBufferAsync( currentBuffer ) )[0];</span>
+
+						<span class="pl-k">let</span> passInfoString <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">''</span></span>;
+
+						<span class="pl-k">if</span> ( <span class="pl-smi">effectController</span>.<span class="pl-smi">algo</span>.<span class="pl-c1">substring</span>( <span class="pl-c1">0</span>, <span class="pl-c1">3</span> ) <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>CPU<span class="pl-pds">'</span></span> ) {
+
+							passInfoString <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">`</span>Ran in <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">cpuTime</span><span class="pl-pse"><span class="pl-s1">}</span></span>ms&#x3C;br><span class="pl-pds">`</span></span>;
+
+						} <span class="pl-k">else</span> {
+
+							passInfoString <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">`</span><span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-smi">renderer</span><span class="pl-s1">.</span><span class="pl-smi">info</span><span class="pl-s1">.</span><span class="pl-smi">compute</span><span class="pl-s1">.</span><span class="pl-smi">frameCalls</span><span class="pl-pse"><span class="pl-s1">}</span></span> pass in <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-smi">renderer</span><span class="pl-s1">.</span><span class="pl-smi">info</span><span class="pl-s1">.</span><span class="pl-smi">compute</span><span class="pl-s1">.</span><span class="pl-smi">timestamp</span><span class="pl-s1">.</span><span class="pl-en">toFixed</span><span class="pl-s1">( </span><span class="pl-c1">6</span><span class="pl-s1"> )</span><span class="pl-pse"><span class="pl-s1">}</span></span>ms&#x3C;br><span class="pl-pds">`</span></span>;
+
+						}
+
+
+
+
+						timestamps[ leftSideDisplay <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>left_side_display<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>right_side_display<span class="pl-pds">'</span></span> ].<span class="pl-smi">innerHTML</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">`</span></span>
+<span class="pl-s"></span>
+<span class="pl-s">							Compute <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-smi">effectController</span><span class="pl-s1">.</span><span class="pl-smi">algo</span><span class="pl-pse"><span class="pl-s1">}</span></span>: <span class="pl-pse"><span class="pl-s1">${</span></span><span class="pl-s1">passInfoString</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">`</span></span>;
+
+					}
+
+					<span class="pl-smi">renderer</span>.<span class="pl-en">render</span>( scene, camera );
+					<span class="pl-smi">renderer</span>.<span class="pl-en">resolveTimestampsAsync</span>( <span class="pl-c1">THREE</span>.<span class="pl-smi">TimestampQuery</span>.<span class="pl-c1">RENDER</span> );
+
+					<span class="pl-c">// Validate next state</span>
+
+					<span class="pl-k">if</span> ( state <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>Run Algo<span class="pl-pds">'</span></span> ) {
+
+						<span class="pl-smi">stateController</span>.<span class="pl-en">setValue</span>( <span class="pl-s"><span class="pl-pds">'</span>Validate<span class="pl-pds">'</span></span> );
+
+						<span class="pl-smi">effectController</span>.<span class="pl-smi">highlight</span>.<span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-c1">1</span>;
+
+					} <span class="pl-k">else</span> <span class="pl-k">if</span> ( state <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>Validate<span class="pl-pds">'</span></span> ) {
+
+						<span class="pl-smi">stateController</span>.<span class="pl-en">setValue</span>( <span class="pl-s"><span class="pl-pds">'</span>Reset<span class="pl-pds">'</span></span> );
+
+						<span class="pl-smi">effectController</span>.<span class="pl-smi">highlight</span>.<span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-c1">0</span>;
+
+					} <span class="pl-k">else</span> <span class="pl-k">if</span> ( state <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>Reset<span class="pl-pds">'</span></span> ) {
+
+						<span class="pl-smi">stateController</span>.<span class="pl-en">setValue</span>( <span class="pl-s"><span class="pl-pds">'</span>Run Algo<span class="pl-pds">'</span></span> );
+
+					}
+
+					<span class="pl-c1">setTimeout</span>( stepAnimation, <span class="pl-c1">1000</span> );
+
+				};
+
+
+				<span class="pl-c1">window</span>.<span class="pl-c1">addEventListener</span>( <span class="pl-s"><span class="pl-pds">'</span>resize<span class="pl-pds">'</span></span>, onWindowResize );
+
+				<span class="pl-k">function</span> <span class="pl-en">onWindowResize</span>() {
+
+					<span class="pl-smi">renderer</span>.<span class="pl-en">setSize</span>( <span class="pl-c1">window</span>.<span class="pl-c1">innerWidth</span> <span class="pl-k">/</span> <span class="pl-c1">2</span>, <span class="pl-c1">window</span>.<span class="pl-c1">innerHeight</span> );
+
+					<span class="pl-k">const</span> <span class="pl-c1">aspect</span> <span class="pl-k">=</span> ( <span class="pl-c1">window</span>.<span class="pl-c1">innerWidth</span> <span class="pl-k">/</span> <span class="pl-c1">2</span> ) <span class="pl-k">/</span> <span class="pl-c1">window</span>.<span class="pl-c1">innerHeight</span>;
+
+					<span class="pl-k">const</span> <span class="pl-c1">frustumHeight</span> <span class="pl-k">=</span> <span class="pl-smi">camera</span>.<span class="pl-c1">top</span> <span class="pl-k">-</span> <span class="pl-smi">camera</span>.<span class="pl-c1">bottom</span>;
+
+					<span class="pl-smi">camera</span>.<span class="pl-c1">left</span> <span class="pl-k">=</span> <span class="pl-k">-</span> frustumHeight <span class="pl-k">*</span> aspect <span class="pl-k">/</span> <span class="pl-c1">2</span>;
+					<span class="pl-smi">camera</span>.<span class="pl-c1">right</span> <span class="pl-k">=</span> frustumHeight <span class="pl-k">*</span> aspect <span class="pl-k">/</span> <span class="pl-c1">2</span>;
+
+					<span class="pl-smi">camera</span>.<span class="pl-en">updateProjectionMatrix</span>();
+
+					<span class="pl-smi">renderer</span>.<span class="pl-en">render</span>( scene, camera );
+
+				}
+
+				<span class="pl-c1">setTimeout</span>( stepAnimation, <span class="pl-c1">1000</span> );
+
+			}
+
+		&#x3C;/<span class="pl-ent">script</span>>
+	&#x3C;/<span class="pl-ent">body</span>>
+&#x3C;/<span class="pl-ent">html</span>></code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

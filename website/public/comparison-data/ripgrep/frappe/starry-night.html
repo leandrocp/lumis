@@ -1,0 +1,1220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>starry-night · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root{--color-prettylights-syntax-comment:#949cbb;--color-prettylights-syntax-constant:#ef9f76;--color-prettylights-syntax-entity:#8caaee;--color-prettylights-syntax-storage-modifier-import:#c6d0f5;--color-prettylights-syntax-entity-tag:#ca9ee6;--color-prettylights-syntax-keyword:#ca9ee6;--color-prettylights-syntax-string:#a6d189;--color-prettylights-syntax-variable:#ca9ee6;--color-prettylights-syntax-brackethighlighter-unmatched:#c6d0f5;--color-prettylights-syntax-invalid-illegal-text:#c6d0f5;--color-prettylights-syntax-invalid-illegal-bg:transparent;--color-prettylights-syntax-carriage-return-text:#c6d0f5;--color-prettylights-syntax-carriage-return-bg:transparent;--color-prettylights-syntax-string-regexp:#f4b8e4;--color-prettylights-syntax-markup-list:#81c8be;--color-prettylights-syntax-markup-heading:#8caaee;--color-prettylights-syntax-markup-italic:#e78284;--color-prettylights-syntax-markup-bold:#e78284;--color-prettylights-syntax-markup-deleted-text:#e78284;--color-prettylights-syntax-markup-deleted-bg:rgba(231,130,132,.15);--color-prettylights-syntax-markup-inserted-text:#a6d189;--color-prettylights-syntax-markup-inserted-bg:rgba(166,209,137,.15);--color-prettylights-syntax-markup-changed-text:#c6d0f5;--color-prettylights-syntax-markup-changed-bg:transparent;--color-prettylights-syntax-markup-ignored-text:#c6d0f5;--color-prettylights-syntax-markup-ignored-bg:transparent;--color-prettylights-syntax-meta-diff-range:#ef9f76;--color-prettylights-syntax-brackethighlighter-angle:#b5bfe2;--color-prettylights-syntax-sublimelinter-gutter-mark:#c6d0f5;--color-prettylights-syntax-constant-other-reference-link:#85c1dc}pre{background:#303446;color:#c6d0f5}/* This is a theme distributed by `starry-night`.
+ * It’s based on what GitHub uses on their site.
+ * See <https://github.com/wooorm/starry-night> for more info. */
+
+.pl-c {
+  color: var(--color-prettylights-syntax-comment);
+}
+
+.pl-c1,
+.pl-s .pl-v {
+  color: var(--color-prettylights-syntax-constant);
+}
+
+.pl-e,
+.pl-en {
+  color: var(--color-prettylights-syntax-entity);
+}
+
+.pl-smi,
+.pl-s .pl-s1 {
+  color: var(--color-prettylights-syntax-storage-modifier-import);
+}
+
+.pl-ent {
+  color: var(--color-prettylights-syntax-entity-tag);
+}
+
+.pl-k {
+  color: var(--color-prettylights-syntax-keyword);
+}
+
+.pl-s,
+.pl-pds,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sre,
+.pl-sr .pl-sra {
+  color: var(--color-prettylights-syntax-string);
+}
+
+.pl-v,
+.pl-smw {
+  color: var(--color-prettylights-syntax-variable);
+}
+
+.pl-bu {
+  color: var(--color-prettylights-syntax-brackethighlighter-unmatched);
+}
+
+.pl-ii {
+  color: var(--color-prettylights-syntax-invalid-illegal-text);
+  background-color: var(--color-prettylights-syntax-invalid-illegal-bg);
+}
+
+.pl-c2 {
+  color: var(--color-prettylights-syntax-carriage-return-text);
+  background-color: var(--color-prettylights-syntax-carriage-return-bg);
+}
+
+.pl-sr .pl-cce {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-string-regexp);
+}
+
+.pl-ml {
+  color: var(--color-prettylights-syntax-markup-list);
+}
+
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-heading);
+}
+
+.pl-mi {
+  font-style: italic;
+  color: var(--color-prettylights-syntax-markup-italic);
+}
+
+.pl-mb {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-bold);
+}
+
+.pl-md {
+  color: var(--color-prettylights-syntax-markup-deleted-text);
+  background-color: var(--color-prettylights-syntax-markup-deleted-bg);
+}
+
+.pl-mi1 {
+  color: var(--color-prettylights-syntax-markup-inserted-text);
+  background-color: var(--color-prettylights-syntax-markup-inserted-bg);
+}
+
+.pl-mc {
+  color: var(--color-prettylights-syntax-markup-changed-text);
+  background-color: var(--color-prettylights-syntax-markup-changed-bg);
+}
+
+.pl-mi2 {
+  color: var(--color-prettylights-syntax-markup-ignored-text);
+  background-color: var(--color-prettylights-syntax-markup-ignored-bg);
+}
+
+.pl-mdr {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-meta-diff-range);
+}
+
+.pl-ba {
+  color: var(--color-prettylights-syntax-brackethighlighter-angle);
+}
+
+.pl-sg {
+  color: var(--color-prettylights-syntax-sublimelinter-gutter-mark);
+}
+
+.pl-corl {
+  text-decoration: underline;
+  color: var(--color-prettylights-syntax-constant-other-reference-link);
+}
+</style><pre><code><span class="pl-k">use</span> <span class="pl-en">std</span><span class="pl-k">::</span>{
+    <span class="pl-en">cell</span><span class="pl-k">::</span><span class="pl-en">RefCell</span>,
+    cmp,
+    <span class="pl-en">fs</span><span class="pl-k">::</span><span class="pl-en">File</span>,
+    <span class="pl-en">io</span><span class="pl-k">::</span>{<span class="pl-c1">self</span>, <span class="pl-en">Read</span>},
+    <span class="pl-en">path</span><span class="pl-k">::</span><span class="pl-en">Path</span>,
+};
+
+<span class="pl-k">use</span> {
+    <span class="pl-en">encoding_rs_io</span><span class="pl-k">::</span><span class="pl-en">DecodeReaderBytesBuilder</span>,
+    <span class="pl-en">grep_matcher</span><span class="pl-k">::</span>{<span class="pl-en">LineTerminator</span>, <span class="pl-en">Match</span>, <span class="pl-en">Matcher</span>},
+};
+
+<span class="pl-k">use</span> <span class="pl-k">crate::</span>{
+    <span class="pl-en">line_buffer</span><span class="pl-k">::</span>{
+        <span class="pl-c1">self</span>, alloc_error, <span class="pl-en">BufferAllocation</span>, <span class="pl-en">LineBuffer</span>, <span class="pl-en">LineBufferBuilder</span>,
+        <span class="pl-en">LineBufferReader</span>, <span class="pl-en">DEFAULT_BUFFER_CAPACITY</span>,
+    },
+    <span class="pl-en">searcher</span><span class="pl-k">::</span><span class="pl-en">glue</span><span class="pl-k">::</span>{<span class="pl-en">MultiLine</span>, <span class="pl-en">ReadByLine</span>, <span class="pl-en">SliceByLine</span>},
+    <span class="pl-en">sink</span><span class="pl-k">::</span>{<span class="pl-en">Sink</span>, <span class="pl-en">SinkError</span>},
+};
+
+<span class="pl-k">pub</span> <span class="pl-k">use</span> <span class="pl-c1">self</span><span class="pl-k">::</span><span class="pl-en">mmap</span><span class="pl-k">::</span><span class="pl-en">MmapChoice</span>;
+
+<span class="pl-k">mod</span> <span class="pl-en">core</span>;
+<span class="pl-k">mod</span> <span class="pl-en">glue</span>;
+<span class="pl-k">mod</span> <span class="pl-en">mmap</span>;
+
+<span class="pl-c">/// We use this type alias since we want the ergonomics of a matcher's `Match`</span>
+<span class="pl-c">/// type, but in practice, we use it for arbitrary ranges, so give it a more</span>
+<span class="pl-c">/// accurate name. This is only used in the searcher's internals.</span>
+<span class="pl-k">type</span> <span class="pl-en">Range</span> <span class="pl-k">=</span> <span class="pl-en">Match</span>;
+
+<span class="pl-c">/// The behavior of binary detection while searching.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// Binary detection is the process of _heuristically_ identifying whether a</span>
+<span class="pl-c">/// given chunk of data is binary or not, and then taking an action based on</span>
+<span class="pl-c">/// the result of that heuristic. The motivation behind detecting binary data</span>
+<span class="pl-c">/// is that binary data often indicates data that is undesirable to search</span>
+<span class="pl-c">/// using textual patterns. Of course, there are many cases in which this isn't</span>
+<span class="pl-c">/// true, which is why binary detection is disabled by default.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// Unfortunately, binary detection works differently depending on the type of</span>
+<span class="pl-c">/// search being executed:</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// 1. When performing a search using a fixed size buffer, binary detection is</span>
+<span class="pl-c">///    applied to the buffer's contents as it is filled. Binary detection must</span>
+<span class="pl-c">///    be applied to the buffer directly because binary files may not contain</span>
+<span class="pl-c">///    line terminators, which could result in exorbitant memory usage.</span>
+<span class="pl-c">/// 2. When performing a search using memory maps or by reading data off the</span>
+<span class="pl-c">///    heap, then binary detection is only guaranteed to be applied to the</span>
+<span class="pl-c">///    parts corresponding to a match. When `Quit` is enabled, then the first</span>
+<span class="pl-c">///    few KB of the data are searched for binary data.</span>
+#[derive(<span class="pl-en">Clone</span>, <span class="pl-en">Debug</span>, <span class="pl-en">Default</span>, <span class="pl-en">Eq</span>, <span class="pl-en">PartialEq</span>)]
+<span class="pl-k">pub</span> <span class="pl-k">struct</span> <span class="pl-en">BinaryDetection</span>(<span class="pl-en">line_buffer</span><span class="pl-k">::</span><span class="pl-en">BinaryDetection</span>);
+
+<span class="pl-k">impl</span> <span class="pl-en">BinaryDetection</span> {
+    <span class="pl-c">/// No binary detection is performed. Data reported by the searcher may</span>
+    <span class="pl-c">/// contain arbitrary bytes.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This is the default.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">none</span>() <span class="pl-k">-></span> <span class="pl-en">BinaryDetection</span> {
+        <span class="pl-en">BinaryDetection</span>(<span class="pl-en">line_buffer</span><span class="pl-k">::</span><span class="pl-en">BinaryDetection</span><span class="pl-k">::</span><span class="pl-en">None</span>)
+    }
+
+    <span class="pl-c">/// Binary detection is performed by looking for the given byte.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When searching is performed using a fixed size buffer, then the</span>
+    <span class="pl-c">/// contents of that buffer are always searched for the presence of this</span>
+    <span class="pl-c">/// byte. If it is found, then the underlying data is considered binary</span>
+    <span class="pl-c">/// and the search stops as if it reached EOF.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When searching is performed with the entire contents mapped into</span>
+    <span class="pl-c">/// memory, then binary detection is more conservative. Namely, only a</span>
+    <span class="pl-c">/// fixed sized region at the beginning of the contents are detected for</span>
+    <span class="pl-c">/// binary data. As a compromise, any subsequent matching (or context)</span>
+    <span class="pl-c">/// lines are also searched for binary data. If binary data is detected at</span>
+    <span class="pl-c">/// any point, then the search stops as if it reached EOF.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">quit</span>(<span class="pl-smi">binary_byte</span><span class="pl-k">:</span> <span class="pl-k">u8</span>) <span class="pl-k">-></span> <span class="pl-en">BinaryDetection</span> {
+        <span class="pl-en">BinaryDetection</span>(<span class="pl-en">line_buffer</span><span class="pl-k">::</span><span class="pl-en">BinaryDetection</span><span class="pl-k">::</span><span class="pl-en">Quit</span>(<span class="pl-smi">binary_byte</span>))
+    }
+
+    <span class="pl-c">/// Binary detection is performed by looking for the given byte, and</span>
+    <span class="pl-c">/// replacing it with the line terminator configured on the searcher.</span>
+    <span class="pl-c">/// (If the searcher is configured to use `CRLF` as the line terminator,</span>
+    <span class="pl-c">/// then this byte is replaced by just `LF`.)</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When searching is performed using a fixed size buffer, then the</span>
+    <span class="pl-c">/// contents of that buffer are always searched for the presence of this</span>
+    <span class="pl-c">/// byte and replaced with the line terminator. In effect, the caller is</span>
+    <span class="pl-c">/// guaranteed to never observe this byte while searching.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When searching is performed with the entire contents mapped into</span>
+    <span class="pl-c">/// memory, then this setting has no effect and is ignored.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">convert</span>(<span class="pl-smi">binary_byte</span><span class="pl-k">:</span> <span class="pl-k">u8</span>) <span class="pl-k">-></span> <span class="pl-en">BinaryDetection</span> {
+        <span class="pl-en">BinaryDetection</span>(<span class="pl-en">line_buffer</span><span class="pl-k">::</span><span class="pl-en">BinaryDetection</span><span class="pl-k">::</span><span class="pl-en">Convert</span>(<span class="pl-smi">binary_byte</span>))
+    }
+
+    <span class="pl-c">/// If this binary detection uses the "quit" strategy, then this returns</span>
+    <span class="pl-c">/// the byte that will cause a search to quit. In any other case, this</span>
+    <span class="pl-c">/// returns `None`.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">quit_byte</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-en">Option</span>&#x3C;<span class="pl-k">u8</span>> {
+        <span class="pl-k">match</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-c1">0</span> {
+            <span class="pl-en">line_buffer</span><span class="pl-k">::</span><span class="pl-en">BinaryDetection</span><span class="pl-k">::</span><span class="pl-en">Quit</span>(<span class="pl-smi">b</span>) <span class="pl-k">=></span> <span class="pl-en">Some</span>(<span class="pl-smi">b</span>),
+            <span class="pl-smi">_</span> <span class="pl-k">=></span> <span class="pl-en">None</span>,
+        }
+    }
+
+    <span class="pl-c">/// If this binary detection uses the "convert" strategy, then this returns</span>
+    <span class="pl-c">/// the byte that will be replaced by the line terminator. In any other</span>
+    <span class="pl-c">/// case, this returns `None`.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">convert_byte</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-en">Option</span>&#x3C;<span class="pl-k">u8</span>> {
+        <span class="pl-k">match</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-c1">0</span> {
+            <span class="pl-en">line_buffer</span><span class="pl-k">::</span><span class="pl-en">BinaryDetection</span><span class="pl-k">::</span><span class="pl-en">Convert</span>(<span class="pl-smi">b</span>) <span class="pl-k">=></span> <span class="pl-en">Some</span>(<span class="pl-smi">b</span>),
+            <span class="pl-smi">_</span> <span class="pl-k">=></span> <span class="pl-en">None</span>,
+        }
+    }
+}
+
+<span class="pl-c">/// An encoding to use when searching.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// An encoding can be used to configure a [`SearcherBuilder`] to transcode</span>
+<span class="pl-c">/// source data from an encoding to UTF-8 before searching.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// An `Encoding` will always be cheap to clone.</span>
+#[derive(<span class="pl-en">Clone</span>, <span class="pl-en">Debug</span>, <span class="pl-en">Eq</span>, <span class="pl-en">PartialEq</span>)]
+<span class="pl-k">pub</span> <span class="pl-k">struct</span> <span class="pl-en">Encoding</span>(<span class="pl-k">&#x26;</span>'<span class="pl-en">static</span> <span class="pl-en">encoding_rs</span><span class="pl-k">::</span><span class="pl-en">Encoding</span>);
+
+<span class="pl-k">impl</span> <span class="pl-en">Encoding</span> {
+    <span class="pl-c">/// Create a new encoding for the specified label.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// The encoding label provided is mapped to an encoding via the set of</span>
+    <span class="pl-c">/// available choices specified in the</span>
+    <span class="pl-c">/// [Encoding Standard](https://encoding.spec.whatwg.org/#concept-encoding-get).</span>
+    <span class="pl-c">/// If the given label does not correspond to a valid encoding, then this</span>
+    <span class="pl-c">/// returns an error.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">new</span>(<span class="pl-smi">label</span><span class="pl-k">:</span> <span class="pl-k">&#x26;str</span>) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;<span class="pl-en">Encoding</span>, <span class="pl-en">ConfigError</span>> {
+        <span class="pl-k">let</span> <span class="pl-smi">label</span> <span class="pl-k">=</span> <span class="pl-smi">label</span><span class="pl-k">.</span><span class="pl-en">as_bytes</span>();
+        <span class="pl-k">match</span> <span class="pl-en">encoding_rs</span><span class="pl-k">::</span><span class="pl-en">Encoding</span><span class="pl-k">::</span><span class="pl-en">for_label_no_replacement</span>(<span class="pl-smi">label</span>) {
+            <span class="pl-en">Some</span>(<span class="pl-smi">encoding</span>) <span class="pl-k">=></span> <span class="pl-en">Ok</span>(<span class="pl-en">Encoding</span>(<span class="pl-smi">encoding</span>)),
+            <span class="pl-en">None</span> <span class="pl-k">=></span> {
+                <span class="pl-en">Err</span>(<span class="pl-en">ConfigError</span><span class="pl-k">::</span><span class="pl-en">UnknownEncoding</span> { <span class="pl-smi">label</span><span class="pl-k">:</span> <span class="pl-smi">label</span><span class="pl-k">.</span><span class="pl-en">to_vec</span>() })
+            }
+        }
+    }
+}
+
+<span class="pl-c">/// The internal configuration of a searcher. This is shared among several</span>
+<span class="pl-c">/// search related types, but is only ever written to by the SearcherBuilder.</span>
+#[derive(<span class="pl-en">Clone</span>, <span class="pl-en">Debug</span>)]
+<span class="pl-k">pub</span> <span class="pl-k">struct</span> <span class="pl-en">Config</span> {
+    <span class="pl-c">/// The line terminator to use.</span>
+    <span class="pl-smi">line_term</span><span class="pl-k">:</span> <span class="pl-en">LineTerminator</span>,
+    <span class="pl-c">/// Whether to invert matching.</span>
+    <span class="pl-smi">invert_match</span><span class="pl-k">:</span> <span class="pl-k">bool</span>,
+    <span class="pl-c">/// The number of lines after a match to include.</span>
+    <span class="pl-smi">after_context</span><span class="pl-k">:</span> <span class="pl-k">usize</span>,
+    <span class="pl-c">/// The number of lines before a match to include.</span>
+    <span class="pl-smi">before_context</span><span class="pl-k">:</span> <span class="pl-k">usize</span>,
+    <span class="pl-c">/// Whether to enable unbounded context or not.</span>
+    <span class="pl-smi">passthru</span><span class="pl-k">:</span> <span class="pl-k">bool</span>,
+    <span class="pl-c">/// Whether to count line numbers.</span>
+    <span class="pl-smi">line_number</span><span class="pl-k">:</span> <span class="pl-k">bool</span>,
+    <span class="pl-c">/// The maximum amount of heap memory to use.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When not given, no explicit limit is enforced. When set to `0`, then</span>
+    <span class="pl-c">/// only the memory map search strategy is available.</span>
+    <span class="pl-smi">heap_limit</span><span class="pl-k">:</span> <span class="pl-en">Option</span>&#x3C;<span class="pl-k">usize</span>>,
+    <span class="pl-c">/// The memory map strategy.</span>
+    <span class="pl-smi">mmap</span><span class="pl-k">:</span> <span class="pl-en">MmapChoice</span>,
+    <span class="pl-c">/// The binary data detection strategy.</span>
+    <span class="pl-smi">binary</span><span class="pl-k">:</span> <span class="pl-en">BinaryDetection</span>,
+    <span class="pl-c">/// Whether to enable matching across multiple lines.</span>
+    <span class="pl-smi">multi_line</span><span class="pl-k">:</span> <span class="pl-k">bool</span>,
+    <span class="pl-c">/// An encoding that, when present, causes the searcher to transcode all</span>
+    <span class="pl-c">/// input from the encoding to UTF-8.</span>
+    <span class="pl-smi">encoding</span><span class="pl-k">:</span> <span class="pl-en">Option</span>&#x3C;<span class="pl-en">Encoding</span>>,
+    <span class="pl-c">/// Whether to do automatic transcoding based on a BOM or not.</span>
+    <span class="pl-smi">bom_sniffing</span><span class="pl-k">:</span> <span class="pl-k">bool</span>,
+    <span class="pl-c">/// Whether to stop searching when a non-matching line is found after a</span>
+    <span class="pl-c">/// matching line.</span>
+    <span class="pl-smi">stop_on_nonmatch</span><span class="pl-k">:</span> <span class="pl-k">bool</span>,
+}
+
+<span class="pl-k">impl</span> <span class="pl-en">Default</span> <span class="pl-k">for</span> <span class="pl-en">Config</span> {
+    <span class="pl-k">fn</span> <span class="pl-en">default</span>() <span class="pl-k">-></span> <span class="pl-en">Config</span> {
+        <span class="pl-en">Config</span> {
+            <span class="pl-smi">line_term</span><span class="pl-k">:</span> <span class="pl-en">LineTerminator</span><span class="pl-k">::</span><span class="pl-en">default</span>(),
+            <span class="pl-smi">invert_match</span><span class="pl-k">:</span> <span class="pl-c1">false</span>,
+            <span class="pl-smi">after_context</span><span class="pl-k">:</span> <span class="pl-c1">0</span>,
+            <span class="pl-smi">before_context</span><span class="pl-k">:</span> <span class="pl-c1">0</span>,
+            <span class="pl-smi">passthru</span><span class="pl-k">:</span> <span class="pl-c1">false</span>,
+            <span class="pl-smi">line_number</span><span class="pl-k">:</span> <span class="pl-c1">true</span>,
+            <span class="pl-smi">heap_limit</span><span class="pl-k">:</span> <span class="pl-en">None</span>,
+            <span class="pl-smi">mmap</span><span class="pl-k">:</span> <span class="pl-en">MmapChoice</span><span class="pl-k">::</span><span class="pl-en">default</span>(),
+            <span class="pl-smi">binary</span><span class="pl-k">:</span> <span class="pl-en">BinaryDetection</span><span class="pl-k">::</span><span class="pl-en">default</span>(),
+            <span class="pl-smi">multi_line</span><span class="pl-k">:</span> <span class="pl-c1">false</span>,
+            <span class="pl-smi">encoding</span><span class="pl-k">:</span> <span class="pl-en">None</span>,
+            <span class="pl-smi">bom_sniffing</span><span class="pl-k">:</span> <span class="pl-c1">true</span>,
+            <span class="pl-smi">stop_on_nonmatch</span><span class="pl-k">:</span> <span class="pl-c1">false</span>,
+        }
+    }
+}
+
+<span class="pl-k">impl</span> <span class="pl-en">Config</span> {
+    <span class="pl-c">/// Return the maximal amount of lines needed to fulfill this</span>
+    <span class="pl-c">/// configuration's context.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// If this returns `0`, then no context is ever needed.</span>
+    <span class="pl-k">fn</span> <span class="pl-en">max_context</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">usize</span> {
+        <span class="pl-en">cmp</span><span class="pl-k">::</span><span class="pl-en">max</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>before_context, <span class="pl-c1">self</span><span class="pl-k">.</span>after_context)
+    }
+
+    <span class="pl-c">/// Build a line buffer from this configuration.</span>
+    <span class="pl-k">fn</span> <span class="pl-en">line_buffer</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-en">LineBuffer</span> {
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">builder</span> <span class="pl-k">=</span> <span class="pl-en">LineBufferBuilder</span><span class="pl-k">::</span><span class="pl-en">new</span>();
+        <span class="pl-smi">builder</span>
+            <span class="pl-k">.</span><span class="pl-en">line_terminator</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>line_term<span class="pl-k">.</span><span class="pl-en">as_byte</span>())
+            <span class="pl-k">.</span><span class="pl-en">binary_detection</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>binary<span class="pl-k">.</span><span class="pl-c1">0</span>);
+
+        <span class="pl-k">if</span> <span class="pl-k">let</span> <span class="pl-en">Some</span>(<span class="pl-smi">limit</span>) <span class="pl-k">=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>heap_limit {
+            <span class="pl-k">let</span> (<span class="pl-smi">capacity</span>, <span class="pl-smi">additional</span>) <span class="pl-k">=</span> <span class="pl-k">if</span> <span class="pl-smi">limit</span> <span class="pl-k">&#x3C;=</span> <span class="pl-c1">DEFAULT_BUFFER_CAPACITY</span> {
+                (<span class="pl-smi">limit</span>, <span class="pl-c1">0</span>)
+            } <span class="pl-k">else</span> {
+                (<span class="pl-c1">DEFAULT_BUFFER_CAPACITY</span>, <span class="pl-smi">limit</span> <span class="pl-k">-</span> <span class="pl-c1">DEFAULT_BUFFER_CAPACITY</span>)
+            };
+            <span class="pl-smi">builder</span>
+                <span class="pl-k">.</span><span class="pl-en">capacity</span>(<span class="pl-smi">capacity</span>)
+                <span class="pl-k">.</span><span class="pl-en">buffer_alloc</span>(<span class="pl-en">BufferAllocation</span><span class="pl-k">::</span><span class="pl-en">Error</span>(<span class="pl-smi">additional</span>));
+        }
+        <span class="pl-smi">builder</span><span class="pl-k">.</span><span class="pl-en">build</span>()
+    }
+}
+
+<span class="pl-c">/// An error that can occur when building a searcher.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// This error occurs when a non-sensical configuration is present when trying</span>
+<span class="pl-c">/// to construct a `Searcher` from a `SearcherBuilder`.</span>
+#[derive(<span class="pl-en">Clone</span>, <span class="pl-en">Debug</span>, <span class="pl-en">Eq</span>, <span class="pl-en">PartialEq</span>)]
+#[non_exhaustive]
+<span class="pl-k">pub</span> <span class="pl-k">enum</span> <span class="pl-en">ConfigError</span> {
+    <span class="pl-c">/// Indicates that the heap limit configuration prevents all possible</span>
+    <span class="pl-c">/// search strategies from being used. For example, if the heap limit is</span>
+    <span class="pl-c">/// set to 0 and memory map searching is disabled or unavailable.</span>
+    <span class="pl-en">SearchUnavailable</span>,
+    <span class="pl-c">/// Occurs when a matcher reports a line terminator that is different than</span>
+    <span class="pl-c">/// the one configured in the searcher.</span>
+    <span class="pl-en">MismatchedLineTerminators</span> {
+        <span class="pl-c">/// The matcher's line terminator.</span>
+        <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-en">LineTerminator</span>,
+        <span class="pl-c">/// The searcher's line terminator.</span>
+        <span class="pl-smi">searcher</span><span class="pl-k">:</span> <span class="pl-en">LineTerminator</span>,
+    },
+    <span class="pl-c">/// Occurs when no encoding could be found for a particular label.</span>
+    <span class="pl-en">UnknownEncoding</span> {
+        <span class="pl-c">/// The provided encoding label that could not be found.</span>
+        <span class="pl-smi">label</span><span class="pl-k">:</span> <span class="pl-en">Vec</span>&#x3C;<span class="pl-k">u8</span>>,
+    },
+}
+
+<span class="pl-k">impl</span> <span class="pl-en">std</span><span class="pl-k">::</span><span class="pl-en">error</span><span class="pl-k">::</span><span class="pl-en">Error</span> <span class="pl-k">for</span> <span class="pl-en">ConfigError</span> {}
+
+<span class="pl-k">impl</span> <span class="pl-en">std</span><span class="pl-k">::</span><span class="pl-en">fmt</span><span class="pl-k">::</span><span class="pl-en">Display</span> <span class="pl-k">for</span> <span class="pl-en">ConfigError</span> {
+    <span class="pl-k">fn</span> <span class="pl-en">fmt</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>, <span class="pl-smi">f</span><span class="pl-k">:</span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">std</span><span class="pl-k">::</span><span class="pl-en">fmt</span><span class="pl-k">::</span><span class="pl-en">Formatter</span>&#x3C;'<span class="pl-en">_</span>>) <span class="pl-k">-></span> <span class="pl-en">std</span><span class="pl-k">::</span><span class="pl-en">fmt</span><span class="pl-k">::</span><span class="pl-en">Result</span> {
+        <span class="pl-k">match</span> <span class="pl-k">*</span><span class="pl-c1">self</span> {
+            <span class="pl-en">ConfigError</span><span class="pl-k">::</span><span class="pl-en">SearchUnavailable</span> <span class="pl-k">=></span> {
+                <span class="pl-en">write!</span>(<span class="pl-smi">f</span>, <span class="pl-s"><span class="pl-pds">"</span>grep config error: no available searchers<span class="pl-pds">"</span></span>)
+            }
+            <span class="pl-en">ConfigError</span><span class="pl-k">::</span><span class="pl-en">MismatchedLineTerminators</span> { <span class="pl-smi">matcher</span>, <span class="pl-smi">searcher</span> } <span class="pl-k">=></span> {
+                <span class="pl-en">write!</span>(
+                    <span class="pl-smi">f</span>,
+                    <span class="pl-s"><span class="pl-pds">"</span>grep config error: mismatched line terminators, \</span>
+<span class="pl-s">                     matcher has {:?} but searcher has {:?}<span class="pl-pds">"</span></span>,
+                    <span class="pl-smi">matcher</span>, <span class="pl-smi">searcher</span>
+                )
+            }
+            <span class="pl-en">ConfigError</span><span class="pl-k">::</span><span class="pl-en">UnknownEncoding</span> { <span class="pl-k">ref</span> <span class="pl-smi">label</span> } <span class="pl-k">=></span> <span class="pl-en">write!</span>(
+                <span class="pl-smi">f</span>,
+                <span class="pl-s"><span class="pl-pds">"</span>grep config error: unknown encoding: {}<span class="pl-pds">"</span></span>,
+                <span class="pl-en">String</span><span class="pl-k">::</span><span class="pl-en">from_utf8_lossy</span>(<span class="pl-smi">label</span>),
+            ),
+        }
+    }
+}
+
+<span class="pl-c">/// A builder for configuring a searcher.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// A search builder permits specifying the configuration of a searcher,</span>
+<span class="pl-c">/// including options like whether to invert the search or to enable multi</span>
+<span class="pl-c">/// line search.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// Once a searcher has been built, it is beneficial to reuse that searcher</span>
+<span class="pl-c">/// for multiple searches, if possible.</span>
+#[derive(<span class="pl-en">Clone</span>, <span class="pl-en">Debug</span>)]
+<span class="pl-k">pub</span> <span class="pl-k">struct</span> <span class="pl-en">SearcherBuilder</span> {
+    <span class="pl-smi">config</span><span class="pl-k">:</span> <span class="pl-en">Config</span>,
+}
+
+<span class="pl-k">impl</span> <span class="pl-en">Default</span> <span class="pl-k">for</span> <span class="pl-en">SearcherBuilder</span> {
+    <span class="pl-k">fn</span> <span class="pl-en">default</span>() <span class="pl-k">-></span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-en">SearcherBuilder</span><span class="pl-k">::</span><span class="pl-en">new</span>()
+    }
+}
+
+<span class="pl-k">impl</span> <span class="pl-en">SearcherBuilder</span> {
+    <span class="pl-c">/// Create a new searcher builder with a default configuration.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">new</span>() <span class="pl-k">-></span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-en">SearcherBuilder</span> { <span class="pl-smi">config</span><span class="pl-k">:</span> <span class="pl-en">Config</span><span class="pl-k">::</span><span class="pl-en">default</span>() }
+    }
+
+    <span class="pl-c">/// Build a searcher with the given matcher.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">build</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-en">Searcher</span> {
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">config</span> <span class="pl-k">=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span><span class="pl-en">clone</span>();
+        <span class="pl-k">if</span> <span class="pl-smi">config</span><span class="pl-k">.</span>passthru {
+            <span class="pl-smi">config</span><span class="pl-k">.</span>before_context <span class="pl-k">=</span> <span class="pl-c1">0</span>;
+            <span class="pl-smi">config</span><span class="pl-k">.</span>after_context <span class="pl-k">=</span> <span class="pl-c1">0</span>;
+        }
+
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">decode_builder</span> <span class="pl-k">=</span> <span class="pl-en">DecodeReaderBytesBuilder</span><span class="pl-k">::</span><span class="pl-en">new</span>();
+        <span class="pl-smi">decode_builder</span>
+            <span class="pl-k">.</span><span class="pl-en">encoding</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>encoding<span class="pl-k">.</span><span class="pl-en">as_ref</span>()<span class="pl-k">.</span><span class="pl-en">map</span>(<span class="pl-k">|</span><span class="pl-smi">e</span><span class="pl-k">|</span> <span class="pl-smi">e</span><span class="pl-k">.</span><span class="pl-c1">0</span>))
+            <span class="pl-k">.</span><span class="pl-en">utf8_passthru</span>(<span class="pl-c1">true</span>)
+            <span class="pl-k">.</span><span class="pl-en">strip_bom</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>bom_sniffing)
+            <span class="pl-k">.</span><span class="pl-en">bom_override</span>(<span class="pl-c1">true</span>)
+            <span class="pl-k">.</span><span class="pl-en">bom_sniffing</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>bom_sniffing);
+
+        <span class="pl-en">Searcher</span> {
+            <span class="pl-smi">config</span>,
+            <span class="pl-smi">decode_builder</span>,
+            <span class="pl-smi">decode_buffer</span><span class="pl-k">:</span> <span class="pl-en">RefCell</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-en">vec!</span>[<span class="pl-c1">0</span>; <span class="pl-c1">8</span> <span class="pl-k">*</span> (<span class="pl-c1">1</span> <span class="pl-k">&#x3C;&#x3C;</span> <span class="pl-c1">10</span>)]),
+            <span class="pl-smi">line_buffer</span><span class="pl-k">:</span> <span class="pl-en">RefCell</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span><span class="pl-en">line_buffer</span>()),
+            <span class="pl-smi">multi_line_buffer</span><span class="pl-k">:</span> <span class="pl-en">RefCell</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-en">vec!</span>[]),
+        }
+    }
+
+    <span class="pl-c">/// Set the line terminator that is used by the searcher.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When using a searcher, if the matcher provided has a line terminator</span>
+    <span class="pl-c">/// set, then it must be the same as this one. If they aren't, building</span>
+    <span class="pl-c">/// a searcher will return an error.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// By default, this is set to `b'\n'`.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">line_terminator</span>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">line_term</span><span class="pl-k">:</span> <span class="pl-en">LineTerminator</span>,
+    ) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>line_term <span class="pl-k">=</span> <span class="pl-smi">line_term</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Whether to invert matching, whereby lines that don't match are reported</span>
+    <span class="pl-c">/// instead of reporting lines that do match.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// By default, this is disabled.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">invert_match</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>, <span class="pl-smi">yes</span><span class="pl-k">:</span> <span class="pl-k">bool</span>) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>invert_match <span class="pl-k">=</span> <span class="pl-smi">yes</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Whether to count and include line numbers with matching lines.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This is enabled by default. There is a small performance penalty</span>
+    <span class="pl-c">/// associated with computing line numbers, so this can be disabled when</span>
+    <span class="pl-c">/// this isn't desirable.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">line_number</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>, <span class="pl-smi">yes</span><span class="pl-k">:</span> <span class="pl-k">bool</span>) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>line_number <span class="pl-k">=</span> <span class="pl-smi">yes</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Whether to enable multi line search or not.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When multi line search is enabled, matches *may* match across multiple</span>
+    <span class="pl-c">/// lines. Conversely, when multi line search is disabled, it is impossible</span>
+    <span class="pl-c">/// for any match to span more than one line.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// **Warning:** multi line search requires having the entire contents to</span>
+    <span class="pl-c">/// search mapped in memory at once. When searching files, memory maps</span>
+    <span class="pl-c">/// will be used if possible and if they are enabled, which avoids using</span>
+    <span class="pl-c">/// your program's heap. However, if memory maps cannot be used (e.g.,</span>
+    <span class="pl-c">/// for searching streams like `stdin` or if transcoding is necessary),</span>
+    <span class="pl-c">/// then the entire contents of the stream are read on to the heap before</span>
+    <span class="pl-c">/// starting the search.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This is disabled by default.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">multi_line</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>, <span class="pl-smi">yes</span><span class="pl-k">:</span> <span class="pl-k">bool</span>) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>multi_line <span class="pl-k">=</span> <span class="pl-smi">yes</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Whether to include a fixed number of lines after every match.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When this is set to a non-zero number, then the searcher will report</span>
+    <span class="pl-c">/// `line_count` contextual lines after every match.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This is set to `0` by default.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">after_context</span>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">line_count</span><span class="pl-k">:</span> <span class="pl-k">usize</span>,
+    ) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>after_context <span class="pl-k">=</span> <span class="pl-smi">line_count</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Whether to include a fixed number of lines before every match.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When this is set to a non-zero number, then the searcher will report</span>
+    <span class="pl-c">/// `line_count` contextual lines before every match.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This is set to `0` by default.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">before_context</span>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">line_count</span><span class="pl-k">:</span> <span class="pl-k">usize</span>,
+    ) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>before_context <span class="pl-k">=</span> <span class="pl-smi">line_count</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Whether to enable the "passthru" feature or not.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When passthru is enabled, it effectively treats all non-matching lines</span>
+    <span class="pl-c">/// as contextual lines. In other words, enabling this is akin to</span>
+    <span class="pl-c">/// requesting an unbounded number of before and after contextual lines.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When passthru mode is enabled, any `before_context` or `after_context`</span>
+    <span class="pl-c">/// settings are ignored by setting them to `0`.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This is disabled by default.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">passthru</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>, <span class="pl-smi">yes</span><span class="pl-k">:</span> <span class="pl-k">bool</span>) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>passthru <span class="pl-k">=</span> <span class="pl-smi">yes</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Set an approximate limit on the amount of heap space used by a</span>
+    <span class="pl-c">/// searcher.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// The heap limit is enforced in two scenarios:</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// * When searching using a fixed size buffer, the heap limit controls</span>
+    <span class="pl-c">///   how big this buffer is allowed to be. Assuming contexts are disabled,</span>
+    <span class="pl-c">///   the minimum size of this buffer is the length (in bytes) of the</span>
+    <span class="pl-c">///   largest single line in the contents being searched. If any line</span>
+    <span class="pl-c">///   exceeds the heap limit, then an error will be returned.</span>
+    <span class="pl-c">/// * When performing a multi line search, a fixed size buffer cannot be</span>
+    <span class="pl-c">///   used. Thus, the only choices are to read the entire contents on to</span>
+    <span class="pl-c">///   the heap, or use memory maps. In the former case, the heap limit set</span>
+    <span class="pl-c">///   here is enforced.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// If a heap limit is set to `0`, then no heap space is used. If there are</span>
+    <span class="pl-c">/// no alternative strategies available for searching without heap space</span>
+    <span class="pl-c">/// (e.g., memory maps are disabled), then the searcher wil return an error</span>
+    <span class="pl-c">/// immediately.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// By default, no limit is set.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">heap_limit</span>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">bytes</span><span class="pl-k">:</span> <span class="pl-en">Option</span>&#x3C;<span class="pl-k">usize</span>>,
+    ) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>heap_limit <span class="pl-k">=</span> <span class="pl-smi">bytes</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Set the strategy to employ use of memory maps.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// Currently, there are only two strategies that can be employed:</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// * **Automatic** - A searcher will use heuristics, including but not</span>
+    <span class="pl-c">///   limited to file size and platform, to determine whether to use memory</span>
+    <span class="pl-c">///   maps or not.</span>
+    <span class="pl-c">/// * **Never** - Memory maps will never be used. If multi line search is</span>
+    <span class="pl-c">///   enabled, then the entire contents will be read on to the heap before</span>
+    <span class="pl-c">///   searching begins.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// The default behavior is **never**. Generally speaking, and perhaps</span>
+    <span class="pl-c">/// against conventional wisdom, memory maps don't necessarily enable</span>
+    <span class="pl-c">/// faster searching. For example, depending on the platform, using memory</span>
+    <span class="pl-c">/// maps while searching a large directory can actually be quite a bit</span>
+    <span class="pl-c">/// slower than using normal read calls because of the overhead of managing</span>
+    <span class="pl-c">/// the memory maps.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// Memory maps can be faster in some cases however. On some platforms,</span>
+    <span class="pl-c">/// when searching a very large file that *is already in memory*, it can</span>
+    <span class="pl-c">/// be slightly faster to search it as a memory map instead of using</span>
+    <span class="pl-c">/// normal read calls.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// Finally, memory maps have a somewhat complicated safety story in Rust.</span>
+    <span class="pl-c">/// If you aren't sure whether enabling memory maps is worth it, then just</span>
+    <span class="pl-c">/// don't bother with it.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// **WARNING**: If your process is searching a file backed memory map</span>
+    <span class="pl-c">/// at the same time that file is truncated, then it's possible for the</span>
+    <span class="pl-c">/// process to terminate with a bus error.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">memory_map</span>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">strategy</span><span class="pl-k">:</span> <span class="pl-en">MmapChoice</span>,
+    ) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>mmap <span class="pl-k">=</span> <span class="pl-smi">strategy</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Set the binary detection strategy.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// The binary detection strategy determines not only how the searcher</span>
+    <span class="pl-c">/// detects binary data, but how it responds to the presence of binary</span>
+    <span class="pl-c">/// data. See the [`BinaryDetection`] type for more information.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// By default, binary detection is disabled.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">binary_detection</span>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">detection</span><span class="pl-k">:</span> <span class="pl-en">BinaryDetection</span>,
+    ) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>binary <span class="pl-k">=</span> <span class="pl-smi">detection</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Set the encoding used to read the source data before searching.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When an encoding is provided, then the source data is _unconditionally_</span>
+    <span class="pl-c">/// transcoded using the encoding, unless a BOM is present. If a BOM is</span>
+    <span class="pl-c">/// present, then the encoding indicated by the BOM is used instead. If the</span>
+    <span class="pl-c">/// transcoding process encounters an error, then bytes are replaced with</span>
+    <span class="pl-c">/// the Unicode replacement codepoint.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When no encoding is specified (the default), then BOM sniffing is</span>
+    <span class="pl-c">/// used (if it's enabled, which it is, by default) to determine whether</span>
+    <span class="pl-c">/// the source data is UTF-8 or UTF-16, and transcoding will be performed</span>
+    <span class="pl-c">/// automatically. If no BOM could be found, then the source data is</span>
+    <span class="pl-c">/// searched _as if_ it were UTF-8. However, so long as the source data is</span>
+    <span class="pl-c">/// at least ASCII compatible, then it is possible for a search to produce</span>
+    <span class="pl-c">/// useful results.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">encoding</span>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">encoding</span><span class="pl-k">:</span> <span class="pl-en">Option</span>&#x3C;<span class="pl-en">Encoding</span>>,
+    ) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>encoding <span class="pl-k">=</span> <span class="pl-smi">encoding</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Enable automatic transcoding based on BOM sniffing.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When this is enabled and an explicit encoding is not set, then this</span>
+    <span class="pl-c">/// searcher will try to detect the encoding of the bytes being searched</span>
+    <span class="pl-c">/// by sniffing its byte-order mark (BOM). In particular, when this is</span>
+    <span class="pl-c">/// enabled, UTF-16 encoded files will be searched seamlessly.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When this is disabled and if an explicit encoding is not set, then</span>
+    <span class="pl-c">/// the bytes from the source stream will be passed through unchanged,</span>
+    <span class="pl-c">/// including its BOM, if one is present.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This is enabled by default.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">bom_sniffing</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>, <span class="pl-smi">yes</span><span class="pl-k">:</span> <span class="pl-k">bool</span>) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>bom_sniffing <span class="pl-k">=</span> <span class="pl-smi">yes</span>;
+        <span class="pl-c1">self</span>
+    }
+
+    <span class="pl-c">/// Stop searching a file when a non-matching line is found after a</span>
+    <span class="pl-c">/// matching line.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This is useful for searching sorted files where it is expected that all</span>
+    <span class="pl-c">/// the matches will be on adjacent lines.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">stop_on_nonmatch</span>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">stop_on_nonmatch</span><span class="pl-k">:</span> <span class="pl-k">bool</span>,
+    ) <span class="pl-k">-></span> <span class="pl-k">&#x26;mut</span> <span class="pl-en">SearcherBuilder</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>stop_on_nonmatch <span class="pl-k">=</span> <span class="pl-smi">stop_on_nonmatch</span>;
+        <span class="pl-c1">self</span>
+    }
+}
+
+<span class="pl-c">/// A searcher executes searches over a haystack and writes results to a caller</span>
+<span class="pl-c">/// provided sink.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// Matches are detected via implementations of the `Matcher` trait, which must</span>
+<span class="pl-c">/// be provided by the caller when executing a search.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// When possible, a searcher should be reused.</span>
+#[derive(<span class="pl-en">Clone</span>, <span class="pl-en">Debug</span>)]
+<span class="pl-k">pub</span> <span class="pl-k">struct</span> <span class="pl-en">Searcher</span> {
+    <span class="pl-c">/// The configuration for this searcher.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// We make most of these settings available to users of `Searcher` via</span>
+    <span class="pl-c">/// public API methods, which can be queried in implementations of `Sink`</span>
+    <span class="pl-c">/// if necessary.</span>
+    <span class="pl-smi">config</span><span class="pl-k">:</span> <span class="pl-en">Config</span>,
+    <span class="pl-c">/// A builder for constructing a streaming reader that transcodes source</span>
+    <span class="pl-c">/// data according to either an explicitly specified encoding or via an</span>
+    <span class="pl-c">/// automatically detected encoding via BOM sniffing.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When no transcoding is needed, then the transcoder built will pass</span>
+    <span class="pl-c">/// through the underlying bytes with no additional overhead.</span>
+    <span class="pl-smi">decode_builder</span><span class="pl-k">:</span> <span class="pl-en">DecodeReaderBytesBuilder</span>,
+    <span class="pl-c">/// A buffer that is used for transcoding scratch space.</span>
+    <span class="pl-smi">decode_buffer</span><span class="pl-k">:</span> <span class="pl-en">RefCell</span>&#x3C;<span class="pl-en">Vec</span>&#x3C;<span class="pl-k">u8</span>>>,
+    <span class="pl-c">/// A line buffer for use in line oriented searching.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// We wrap it in a RefCell to permit lending out borrows of `Searcher`</span>
+    <span class="pl-c">/// to sinks. We still require a mutable borrow to execute a search, so</span>
+    <span class="pl-c">/// we statically prevent callers from causing RefCell to panic at runtime</span>
+    <span class="pl-c">/// due to a borrowing violation.</span>
+    <span class="pl-smi">line_buffer</span><span class="pl-k">:</span> <span class="pl-en">RefCell</span>&#x3C;<span class="pl-en">LineBuffer</span>>,
+    <span class="pl-c">/// A buffer in which to store the contents of a reader when performing a</span>
+    <span class="pl-c">/// multi line search. In particular, multi line searches cannot be</span>
+    <span class="pl-c">/// performed incrementally, and need the entire haystack in memory at</span>
+    <span class="pl-c">/// once.</span>
+    <span class="pl-smi">multi_line_buffer</span><span class="pl-k">:</span> <span class="pl-en">RefCell</span>&#x3C;<span class="pl-en">Vec</span>&#x3C;<span class="pl-k">u8</span>>>,
+}
+
+<span class="pl-k">impl</span> <span class="pl-en">Searcher</span> {
+    <span class="pl-c">/// Create a new searcher with a default configuration.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// To configure the searcher (e.g., invert matching, enable memory maps,</span>
+    <span class="pl-c">/// enable contexts, etc.), use the [`SearcherBuilder`].</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">new</span>() <span class="pl-k">-></span> <span class="pl-en">Searcher</span> {
+        <span class="pl-en">SearcherBuilder</span><span class="pl-k">::</span><span class="pl-en">new</span>()<span class="pl-k">.</span><span class="pl-en">build</span>()
+    }
+
+    <span class="pl-c">/// Execute a search over the file with the given path and write the</span>
+    <span class="pl-c">/// results to the given sink.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// If memory maps are enabled and the searcher heuristically believes</span>
+    <span class="pl-c">/// memory maps will help the search run faster, then this will use</span>
+    <span class="pl-c">/// memory maps. For this reason, callers should prefer using this method</span>
+    <span class="pl-c">/// or `search_file` over the more generic `search_reader` when possible.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">search_path</span>&#x3C;<span class="pl-en">P</span>, <span class="pl-en">M</span>, <span class="pl-en">S</span>>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-en">M</span>,
+        <span class="pl-smi">path</span><span class="pl-k">:</span> <span class="pl-en">P</span>,
+        <span class="pl-smi">write_to</span><span class="pl-k">:</span> <span class="pl-en">S</span>,
+    ) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;(), <span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span>>
+    <span class="pl-k">where</span>
+        <span class="pl-en">P</span><span class="pl-k">:</span> <span class="pl-en">AsRef</span>&#x3C;<span class="pl-en">Path</span>>,
+        <span class="pl-en">M</span><span class="pl-k">:</span> <span class="pl-en">Matcher</span>,
+        <span class="pl-en">S</span><span class="pl-k">:</span> <span class="pl-en">Sink</span>,
+    {
+        <span class="pl-k">let</span> <span class="pl-smi">path</span> <span class="pl-k">=</span> <span class="pl-smi">path</span><span class="pl-k">.</span><span class="pl-en">as_ref</span>();
+        <span class="pl-k">let</span> <span class="pl-smi">file</span> <span class="pl-k">=</span> <span class="pl-en">File</span><span class="pl-k">::</span><span class="pl-en">open</span>(<span class="pl-smi">path</span>)<span class="pl-k">.</span><span class="pl-en">map_err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-smi">error_io</span>)<span class="pl-k">?</span>;
+        <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">search_file_maybe_path</span>(<span class="pl-smi">matcher</span>, <span class="pl-en">Some</span>(<span class="pl-smi">path</span>), <span class="pl-k">&#x26;</span><span class="pl-smi">file</span>, <span class="pl-smi">write_to</span>)
+    }
+
+    <span class="pl-c">/// Execute a search over a file and write the results to the given sink.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// If memory maps are enabled and the searcher heuristically believes</span>
+    <span class="pl-c">/// memory maps will help the search run faster, then this will use</span>
+    <span class="pl-c">/// memory maps. For this reason, callers should prefer using this method</span>
+    <span class="pl-c">/// or `search_path` over the more generic `search_reader` when possible.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">search_file</span>&#x3C;<span class="pl-en">M</span>, <span class="pl-en">S</span>>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-en">M</span>,
+        <span class="pl-smi">file</span><span class="pl-k">:</span> <span class="pl-k">&#x26;</span><span class="pl-en">File</span>,
+        <span class="pl-smi">write_to</span><span class="pl-k">:</span> <span class="pl-en">S</span>,
+    ) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;(), <span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span>>
+    <span class="pl-k">where</span>
+        <span class="pl-en">M</span><span class="pl-k">:</span> <span class="pl-en">Matcher</span>,
+        <span class="pl-en">S</span><span class="pl-k">:</span> <span class="pl-en">Sink</span>,
+    {
+        <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">search_file_maybe_path</span>(<span class="pl-smi">matcher</span>, <span class="pl-en">None</span>, <span class="pl-smi">file</span>, <span class="pl-smi">write_to</span>)
+    }
+
+    <span class="pl-k">fn</span> <span class="pl-en">search_file_maybe_path</span>&#x3C;<span class="pl-en">M</span>, <span class="pl-en">S</span>>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-en">M</span>,
+        <span class="pl-smi">path</span><span class="pl-k">:</span> <span class="pl-en">Option</span>&#x3C;<span class="pl-k">&#x26;</span><span class="pl-en">Path</span>>,
+        <span class="pl-smi">file</span><span class="pl-k">:</span> <span class="pl-k">&#x26;</span><span class="pl-en">File</span>,
+        <span class="pl-smi">write_to</span><span class="pl-k">:</span> <span class="pl-en">S</span>,
+    ) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;(), <span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span>>
+    <span class="pl-k">where</span>
+        <span class="pl-en">M</span><span class="pl-k">:</span> <span class="pl-en">Matcher</span>,
+        <span class="pl-en">S</span><span class="pl-k">:</span> <span class="pl-en">Sink</span>,
+    {
+        <span class="pl-k">if</span> <span class="pl-k">let</span> <span class="pl-en">Some</span>(<span class="pl-smi">mmap</span>) <span class="pl-k">=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>mmap<span class="pl-k">.</span><span class="pl-en">open</span>(<span class="pl-smi">file</span>, <span class="pl-smi">path</span>) {
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(<span class="pl-s"><span class="pl-pds">"</span>{:?}: searching via memory map<span class="pl-pds">"</span></span>, <span class="pl-smi">path</span>);
+            <span class="pl-k">return</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">search_slice</span>(<span class="pl-smi">matcher</span>, <span class="pl-k">&#x26;</span><span class="pl-smi">mmap</span>, <span class="pl-smi">write_to</span>);
+        }
+        <span class="pl-c">// Fast path for multi-line searches of files when memory maps are not</span>
+        <span class="pl-c">// enabled. This pre-allocates a buffer roughly the size of the file,</span>
+        <span class="pl-c">// which isn't possible when searching an arbitrary std::io::Read.</span>
+        <span class="pl-k">if</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">multi_line_with_matcher</span>(<span class="pl-k">&#x26;</span><span class="pl-smi">matcher</span>) {
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(
+                <span class="pl-s"><span class="pl-pds">"</span>{:?}: reading entire file on to heap for mulitline<span class="pl-pds">"</span></span>,
+                <span class="pl-smi">path</span>
+            );
+            <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">fill_multi_line_buffer_from_file</span><span class="pl-k">::</span>&#x3C;<span class="pl-en">S</span>>(<span class="pl-smi">file</span>)<span class="pl-k">?</span>;
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(<span class="pl-s"><span class="pl-pds">"</span>{:?}: searching via multiline strategy<span class="pl-pds">"</span></span>, <span class="pl-smi">path</span>);
+            <span class="pl-en">MultiLine</span><span class="pl-k">::</span><span class="pl-en">new</span>(
+                <span class="pl-c1">self</span>,
+                <span class="pl-smi">matcher</span>,
+                <span class="pl-k">&#x26;*</span><span class="pl-c1">self</span><span class="pl-k">.</span>multi_line_buffer<span class="pl-k">.</span><span class="pl-en">borrow</span>(),
+                <span class="pl-smi">write_to</span>,
+            )
+            <span class="pl-k">.</span><span class="pl-en">run</span>()
+        } <span class="pl-k">else</span> {
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(<span class="pl-s"><span class="pl-pds">"</span>{:?}: searching using generic reader<span class="pl-pds">"</span></span>, <span class="pl-smi">path</span>);
+            <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">search_reader</span>(<span class="pl-smi">matcher</span>, <span class="pl-smi">file</span>, <span class="pl-smi">write_to</span>)
+        }
+    }
+
+    <span class="pl-c">/// Execute a search over any implementation of `std::io::Read` and write</span>
+    <span class="pl-c">/// the results to the given sink.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// When possible, this implementation will search the reader incrementally</span>
+    <span class="pl-c">/// without reading it into memory. In some cases---for example, if multi</span>
+    <span class="pl-c">/// line search is enabled---an incremental search isn't possible and the</span>
+    <span class="pl-c">/// given reader is consumed completely and placed on the heap before</span>
+    <span class="pl-c">/// searching begins. For this reason, when multi line search is enabled,</span>
+    <span class="pl-c">/// one should try to use higher level APIs (e.g., searching by file or</span>
+    <span class="pl-c">/// file path) so that memory maps can be used if they are available and</span>
+    <span class="pl-c">/// enabled.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">search_reader</span>&#x3C;<span class="pl-en">M</span>, <span class="pl-en">R</span>, <span class="pl-en">S</span>>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-en">M</span>,
+        <span class="pl-smi">read_from</span><span class="pl-k">:</span> <span class="pl-en">R</span>,
+        <span class="pl-smi">write_to</span><span class="pl-k">:</span> <span class="pl-en">S</span>,
+    ) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;(), <span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span>>
+    <span class="pl-k">where</span>
+        <span class="pl-en">M</span><span class="pl-k">:</span> <span class="pl-en">Matcher</span>,
+        <span class="pl-en">R</span><span class="pl-k">:</span> <span class="pl-en">io</span><span class="pl-k">::</span><span class="pl-en">Read</span>,
+        <span class="pl-en">S</span><span class="pl-k">:</span> <span class="pl-en">Sink</span>,
+    {
+        <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">check_config</span>(<span class="pl-k">&#x26;</span><span class="pl-smi">matcher</span>)<span class="pl-k">.</span><span class="pl-en">map_err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-smi">error_config</span>)<span class="pl-k">?</span>;
+
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">decode_buffer</span> <span class="pl-k">=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>decode_buffer<span class="pl-k">.</span><span class="pl-en">borrow_mut</span>();
+        <span class="pl-k">let</span> <span class="pl-smi">decoder</span> <span class="pl-k">=</span> <span class="pl-c1">self</span>
+            <span class="pl-k">.</span>decode_builder
+            <span class="pl-k">.</span><span class="pl-en">build_with_buffer</span>(<span class="pl-smi">read_from</span>, <span class="pl-k">&#x26;mut</span> <span class="pl-k">*</span><span class="pl-smi">decode_buffer</span>)
+            <span class="pl-k">.</span><span class="pl-en">map_err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-smi">error_io</span>)<span class="pl-k">?</span>;
+
+        <span class="pl-k">if</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">multi_line_with_matcher</span>(<span class="pl-k">&#x26;</span><span class="pl-smi">matcher</span>) {
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(
+                <span class="pl-s"><span class="pl-pds">"</span>generic reader: reading everything to heap for multiline<span class="pl-pds">"</span></span>
+            );
+            <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">fill_multi_line_buffer_from_reader</span><span class="pl-k">::</span>&#x3C;<span class="pl-smi">_</span>, <span class="pl-en">S</span>>(<span class="pl-smi">decoder</span>)<span class="pl-k">?</span>;
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(<span class="pl-s"><span class="pl-pds">"</span>generic reader: searching via multiline strategy<span class="pl-pds">"</span></span>);
+            <span class="pl-en">MultiLine</span><span class="pl-k">::</span><span class="pl-en">new</span>(
+                <span class="pl-c1">self</span>,
+                <span class="pl-smi">matcher</span>,
+                <span class="pl-k">&#x26;*</span><span class="pl-c1">self</span><span class="pl-k">.</span>multi_line_buffer<span class="pl-k">.</span><span class="pl-en">borrow</span>(),
+                <span class="pl-smi">write_to</span>,
+            )
+            <span class="pl-k">.</span><span class="pl-en">run</span>()
+        } <span class="pl-k">else</span> {
+            <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">line_buffer</span> <span class="pl-k">=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>line_buffer<span class="pl-k">.</span><span class="pl-en">borrow_mut</span>();
+            <span class="pl-k">let</span> <span class="pl-smi">rdr</span> <span class="pl-k">=</span> <span class="pl-en">LineBufferReader</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-smi">decoder</span>, <span class="pl-k">&#x26;mut</span> <span class="pl-k">*</span><span class="pl-smi">line_buffer</span>);
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(<span class="pl-s"><span class="pl-pds">"</span>generic reader: searching via roll buffer strategy<span class="pl-pds">"</span></span>);
+            <span class="pl-en">ReadByLine</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-c1">self</span>, <span class="pl-smi">matcher</span>, <span class="pl-smi">rdr</span>, <span class="pl-smi">write_to</span>)<span class="pl-k">.</span><span class="pl-en">run</span>()
+        }
+    }
+
+    <span class="pl-c">/// Execute a search over the given slice and write the results to the</span>
+    <span class="pl-c">/// given sink.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">search_slice</span>&#x3C;<span class="pl-en">M</span>, <span class="pl-en">S</span>>(
+        <span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>,
+        <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-en">M</span>,
+        <span class="pl-smi">slice</span><span class="pl-k">:</span> <span class="pl-k">&#x26;</span>[<span class="pl-k">u8</span>],
+        <span class="pl-smi">write_to</span><span class="pl-k">:</span> <span class="pl-en">S</span>,
+    ) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;(), <span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span>>
+    <span class="pl-k">where</span>
+        <span class="pl-en">M</span><span class="pl-k">:</span> <span class="pl-en">Matcher</span>,
+        <span class="pl-en">S</span><span class="pl-k">:</span> <span class="pl-en">Sink</span>,
+    {
+        <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">check_config</span>(<span class="pl-k">&#x26;</span><span class="pl-smi">matcher</span>)<span class="pl-k">.</span><span class="pl-en">map_err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-smi">error_config</span>)<span class="pl-k">?</span>;
+
+        <span class="pl-c">// We can search the slice directly, unless we need to do transcoding.</span>
+        <span class="pl-k">if</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">slice_needs_transcoding</span>(<span class="pl-smi">slice</span>) {
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(
+                <span class="pl-s"><span class="pl-pds">"</span>slice reader: needs transcoding, using generic reader<span class="pl-pds">"</span></span>
+            );
+            <span class="pl-k">return</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">search_reader</span>(<span class="pl-smi">matcher</span>, <span class="pl-smi">slice</span>, <span class="pl-smi">write_to</span>);
+        }
+        <span class="pl-k">if</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">multi_line_with_matcher</span>(<span class="pl-k">&#x26;</span><span class="pl-smi">matcher</span>) {
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(<span class="pl-s"><span class="pl-pds">"</span>slice reader: searching via multiline strategy<span class="pl-pds">"</span></span>);
+            <span class="pl-en">MultiLine</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-c1">self</span>, <span class="pl-smi">matcher</span>, <span class="pl-smi">slice</span>, <span class="pl-smi">write_to</span>)<span class="pl-k">.</span><span class="pl-en">run</span>()
+        } <span class="pl-k">else</span> {
+            <span class="pl-en">log</span><span class="pl-k">::</span><span class="pl-en">trace!</span>(<span class="pl-s"><span class="pl-pds">"</span>slice reader: searching via slice-by-line strategy<span class="pl-pds">"</span></span>);
+            <span class="pl-en">SliceByLine</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-c1">self</span>, <span class="pl-smi">matcher</span>, <span class="pl-smi">slice</span>, <span class="pl-smi">write_to</span>)<span class="pl-k">.</span><span class="pl-en">run</span>()
+        }
+    }
+
+    <span class="pl-c">/// Set the binary detection method used on this searcher.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">set_binary_detection</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-c1">self</span>, <span class="pl-smi">detection</span><span class="pl-k">:</span> <span class="pl-en">BinaryDetection</span>) {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>binary <span class="pl-k">=</span> <span class="pl-smi">detection</span><span class="pl-k">.</span><span class="pl-en">clone</span>();
+        <span class="pl-c1">self</span><span class="pl-k">.</span>line_buffer<span class="pl-k">.</span><span class="pl-en">borrow_mut</span>()<span class="pl-k">.</span><span class="pl-en">set_binary_detection</span>(<span class="pl-smi">detection</span><span class="pl-k">.</span><span class="pl-c1">0</span>);
+    }
+
+    <span class="pl-c">/// Check that the searcher's configuration and the matcher are consistent</span>
+    <span class="pl-c">/// with each other.</span>
+    <span class="pl-k">fn</span> <span class="pl-en">check_config</span>&#x3C;<span class="pl-en">M</span><span class="pl-k">:</span> <span class="pl-en">Matcher</span>>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>, <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-en">M</span>) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;(), <span class="pl-en">ConfigError</span>> {
+        <span class="pl-k">if</span> <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>heap_limit <span class="pl-k">==</span> <span class="pl-en">Some</span>(<span class="pl-c1">0</span>) <span class="pl-k">&#x26;&#x26;</span> <span class="pl-k">!</span><span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>mmap<span class="pl-k">.</span><span class="pl-en">is_enabled</span>()
+        {
+            <span class="pl-k">return</span> <span class="pl-en">Err</span>(<span class="pl-en">ConfigError</span><span class="pl-k">::</span><span class="pl-en">SearchUnavailable</span>);
+        }
+        <span class="pl-k">let</span> <span class="pl-smi">matcher_line_term</span> <span class="pl-k">=</span> <span class="pl-k">match</span> <span class="pl-smi">matcher</span><span class="pl-k">.</span><span class="pl-en">line_terminator</span>() {
+            <span class="pl-en">None</span> <span class="pl-k">=></span> <span class="pl-k">return</span> <span class="pl-en">Ok</span>(()),
+            <span class="pl-en">Some</span>(<span class="pl-smi">line_term</span>) <span class="pl-k">=></span> <span class="pl-smi">line_term</span>,
+        };
+        <span class="pl-k">if</span> <span class="pl-smi">matcher_line_term</span> <span class="pl-k">!=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>line_term {
+            <span class="pl-k">return</span> <span class="pl-en">Err</span>(<span class="pl-en">ConfigError</span><span class="pl-k">::</span><span class="pl-en">MismatchedLineTerminators</span> {
+                <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-smi">matcher_line_term</span>,
+                <span class="pl-smi">searcher</span><span class="pl-k">:</span> <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>line_term,
+            });
+        }
+        <span class="pl-en">Ok</span>(())
+    }
+
+    <span class="pl-c">/// Returns true if and only if the given slice needs to be transcoded.</span>
+    <span class="pl-k">fn</span> <span class="pl-en">slice_needs_transcoding</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>, <span class="pl-smi">slice</span><span class="pl-k">:</span> <span class="pl-k">&#x26;</span>[<span class="pl-k">u8</span>]) <span class="pl-k">-></span> <span class="pl-k">bool</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>encoding<span class="pl-k">.</span><span class="pl-en">is_some</span>()
+            <span class="pl-k">||</span> (<span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>bom_sniffing <span class="pl-k">&#x26;&#x26;</span> <span class="pl-en">slice_has_bom</span>(<span class="pl-smi">slice</span>))
+    }
+}
+
+<span class="pl-c">/// The following methods permit querying the configuration of a searcher.</span>
+<span class="pl-c">/// These can be useful in generic implementations of [`Sink`], where the</span>
+<span class="pl-c">/// output may be tailored based on how the searcher is configured.</span>
+<span class="pl-k">impl</span> <span class="pl-en">Searcher</span> {
+    <span class="pl-c">/// Returns the line terminator used by this searcher.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">line_terminator</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-en">LineTerminator</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>line_term
+    }
+
+    <span class="pl-c">/// Returns the type of binary detection configured on this searcher.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">binary_detection</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">&#x26;</span><span class="pl-en">BinaryDetection</span> {
+        <span class="pl-k">&#x26;</span><span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>binary
+    }
+
+    <span class="pl-c">/// Returns true if and only if this searcher is configured to invert its</span>
+    <span class="pl-c">/// search results. That is, matching lines are lines that do **not** match</span>
+    <span class="pl-c">/// the searcher's matcher.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">invert_match</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">bool</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>invert_match
+    }
+
+    <span class="pl-c">/// Returns true if and only if this searcher is configured to count line</span>
+    <span class="pl-c">/// numbers.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">line_number</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">bool</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>line_number
+    }
+
+    <span class="pl-c">/// Returns true if and only if this searcher is configured to perform</span>
+    <span class="pl-c">/// multi line search.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">multi_line</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">bool</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>multi_line
+    }
+
+    <span class="pl-c">/// Returns true if and only if this searcher is configured to stop when in</span>
+    <span class="pl-c">/// finds a non-matching line after a matching one.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">stop_on_nonmatch</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">bool</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>stop_on_nonmatch
+    }
+
+    <span class="pl-c">/// Returns true if and only if this searcher will choose a multi-line</span>
+    <span class="pl-c">/// strategy given the provided matcher.</span>
+    <span class="pl-c">///</span>
+    <span class="pl-c">/// This may diverge from the result of `multi_line` in cases where the</span>
+    <span class="pl-c">/// searcher has been configured to execute a search that can report</span>
+    <span class="pl-c">/// matches over multiple lines, but where the matcher guarantees that it</span>
+    <span class="pl-c">/// will never produce a match over multiple lines.</span>
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">multi_line_with_matcher</span>&#x3C;<span class="pl-en">M</span><span class="pl-k">:</span> <span class="pl-en">Matcher</span>>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>, <span class="pl-smi">matcher</span><span class="pl-k">:</span> <span class="pl-en">M</span>) <span class="pl-k">-></span> <span class="pl-k">bool</span> {
+        <span class="pl-k">if</span> <span class="pl-k">!</span><span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">multi_line</span>() {
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        }
+        <span class="pl-k">if</span> <span class="pl-k">let</span> <span class="pl-en">Some</span>(<span class="pl-smi">line_term</span>) <span class="pl-k">=</span> <span class="pl-smi">matcher</span><span class="pl-k">.</span><span class="pl-en">line_terminator</span>() {
+            <span class="pl-k">if</span> <span class="pl-smi">line_term</span> <span class="pl-k">==</span> <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">line_terminator</span>() {
+                <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+            }
+        }
+        <span class="pl-k">if</span> <span class="pl-k">let</span> <span class="pl-en">Some</span>(<span class="pl-smi">non_matching</span>) <span class="pl-k">=</span> <span class="pl-smi">matcher</span><span class="pl-k">.</span><span class="pl-en">non_matching_bytes</span>() {
+            <span class="pl-c">// If the line terminator is CRLF, we don't actually need to care</span>
+            <span class="pl-c">// whether the regex can match `\r` or not. Namely, a `\r` is</span>
+            <span class="pl-c">// neither necessary nor sufficient to terminate a line. A `\n` is</span>
+            <span class="pl-c">// always required.</span>
+            <span class="pl-k">if</span> <span class="pl-smi">non_matching</span><span class="pl-k">.</span><span class="pl-en">contains</span>(<span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">line_terminator</span>()<span class="pl-k">.</span><span class="pl-en">as_byte</span>()) {
+                <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+            }
+        }
+        <span class="pl-c1">true</span>
+    }
+
+    <span class="pl-c">/// Returns the number of "after" context lines to report. When context</span>
+    <span class="pl-c">/// reporting is not enabled, this returns `0`.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">after_context</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">usize</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>after_context
+    }
+
+    <span class="pl-c">/// Returns the number of "before" context lines to report. When context</span>
+    <span class="pl-c">/// reporting is not enabled, this returns `0`.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">before_context</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">usize</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>before_context
+    }
+
+    <span class="pl-c">/// Returns true if and only if the searcher has "passthru" mode enabled.</span>
+    #[inline]
+    <span class="pl-k">pub</span> <span class="pl-k">fn</span> <span class="pl-en">passthru</span>(<span class="pl-k">&#x26;</span><span class="pl-c1">self</span>) <span class="pl-k">-></span> <span class="pl-k">bool</span> {
+        <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>passthru
+    }
+
+    <span class="pl-c">/// Fill the buffer for use with multi-line searching from the given file.</span>
+    <span class="pl-c">/// This reads from the file until EOF or until an error occurs. If the</span>
+    <span class="pl-c">/// contents exceed the configured heap limit, then an error is returned.</span>
+    <span class="pl-k">fn</span> <span class="pl-en">fill_multi_line_buffer_from_file</span>&#x3C;<span class="pl-en">S</span><span class="pl-k">:</span> <span class="pl-en">Sink</span>>(
+        <span class="pl-k">&#x26;</span><span class="pl-c1">self</span>,
+        <span class="pl-smi">file</span><span class="pl-k">:</span> <span class="pl-k">&#x26;</span><span class="pl-en">File</span>,
+    ) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;(), <span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span>> {
+        <span class="pl-en">assert!</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>multi_line);
+
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">decode_buffer</span> <span class="pl-k">=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>decode_buffer<span class="pl-k">.</span><span class="pl-en">borrow_mut</span>();
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">read_from</span> <span class="pl-k">=</span> <span class="pl-c1">self</span>
+            <span class="pl-k">.</span>decode_builder
+            <span class="pl-k">.</span><span class="pl-en">build_with_buffer</span>(<span class="pl-smi">file</span>, <span class="pl-k">&#x26;mut</span> <span class="pl-k">*</span><span class="pl-smi">decode_buffer</span>)
+            <span class="pl-k">.</span><span class="pl-en">map_err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-smi">error_io</span>)<span class="pl-k">?</span>;
+
+        <span class="pl-c">// If we don't have a heap limit, then we can defer to std's</span>
+        <span class="pl-c">// read_to_end implementation. fill_multi_line_buffer_from_reader will</span>
+        <span class="pl-c">// do this too, but since we have a File, we can be a bit smarter about</span>
+        <span class="pl-c">// pre-allocating here.</span>
+        <span class="pl-c">//</span>
+        <span class="pl-c">// If we're transcoding, then our pre-allocation might not be exact,</span>
+        <span class="pl-c">// but is probably still better than nothing.</span>
+        <span class="pl-k">if</span> <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>heap_limit<span class="pl-k">.</span><span class="pl-en">is_none</span>() {
+            <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">buf</span> <span class="pl-k">=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>multi_line_buffer<span class="pl-k">.</span><span class="pl-en">borrow_mut</span>();
+            <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">clear</span>();
+            <span class="pl-k">let</span> <span class="pl-smi">cap</span> <span class="pl-k">=</span>
+                <span class="pl-smi">file</span><span class="pl-k">.</span><span class="pl-en">metadata</span>()<span class="pl-k">.</span><span class="pl-en">map</span>(<span class="pl-k">|</span><span class="pl-smi">m</span><span class="pl-k">|</span> <span class="pl-smi">m</span><span class="pl-k">.</span><span class="pl-en">len</span>() <span class="pl-k">as</span> <span class="pl-k">usize</span> <span class="pl-k">+</span> <span class="pl-c1">1</span>)<span class="pl-k">.</span><span class="pl-en">unwrap_or</span>(<span class="pl-c1">0</span>);
+            <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">reserve</span>(<span class="pl-smi">cap</span>);
+            <span class="pl-smi">read_from</span><span class="pl-k">.</span><span class="pl-en">read_to_end</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-k">*</span><span class="pl-smi">buf</span>)<span class="pl-k">.</span><span class="pl-en">map_err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-smi">error_io</span>)<span class="pl-k">?</span>;
+            <span class="pl-k">return</span> <span class="pl-en">Ok</span>(());
+        }
+        <span class="pl-c1">self</span><span class="pl-k">.</span><span class="pl-en">fill_multi_line_buffer_from_reader</span><span class="pl-k">::</span>&#x3C;<span class="pl-smi">_</span>, <span class="pl-en">S</span>>(<span class="pl-smi">read_from</span>)
+    }
+
+    <span class="pl-c">/// Fill the buffer for use with multi-line searching from the given</span>
+    <span class="pl-c">/// reader. This reads from the reader until EOF or until an error occurs.</span>
+    <span class="pl-c">/// If the contents exceed the configured heap limit, then an error is</span>
+    <span class="pl-c">/// returned.</span>
+    <span class="pl-k">fn</span> <span class="pl-en">fill_multi_line_buffer_from_reader</span>&#x3C;<span class="pl-en">R</span><span class="pl-k">:</span> <span class="pl-en">io</span><span class="pl-k">::</span><span class="pl-en">Read</span>, <span class="pl-en">S</span><span class="pl-k">:</span> <span class="pl-en">Sink</span>>(
+        <span class="pl-k">&#x26;</span><span class="pl-c1">self</span>,
+        <span class="pl-k">mut</span> <span class="pl-smi">read_from</span><span class="pl-k">:</span> <span class="pl-en">R</span>,
+    ) <span class="pl-k">-></span> <span class="pl-en">Result</span>&#x3C;(), <span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span>> {
+        <span class="pl-en">assert!</span>(<span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>multi_line);
+
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">buf</span> <span class="pl-k">=</span> <span class="pl-c1">self</span><span class="pl-k">.</span>multi_line_buffer<span class="pl-k">.</span><span class="pl-en">borrow_mut</span>();
+        <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">clear</span>();
+
+        <span class="pl-c">// If we don't have a heap limit, then we can defer to std's</span>
+        <span class="pl-c">// read_to_end implementation...</span>
+        <span class="pl-k">let</span> <span class="pl-smi">heap_limit</span> <span class="pl-k">=</span> <span class="pl-k">match</span> <span class="pl-c1">self</span><span class="pl-k">.</span>config<span class="pl-k">.</span>heap_limit {
+            <span class="pl-en">Some</span>(<span class="pl-smi">heap_limit</span>) <span class="pl-k">=></span> <span class="pl-smi">heap_limit</span>,
+            <span class="pl-en">None</span> <span class="pl-k">=></span> {
+                <span class="pl-smi">read_from</span>
+                    <span class="pl-k">.</span><span class="pl-en">read_to_end</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-k">*</span><span class="pl-smi">buf</span>)
+                    <span class="pl-k">.</span><span class="pl-en">map_err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-smi">error_io</span>)<span class="pl-k">?</span>;
+                <span class="pl-k">return</span> <span class="pl-en">Ok</span>(());
+            }
+        };
+        <span class="pl-k">if</span> <span class="pl-smi">heap_limit</span> <span class="pl-k">==</span> <span class="pl-c1">0</span> {
+            <span class="pl-k">return</span> <span class="pl-en">Err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-en">error_io</span>(<span class="pl-en">alloc_error</span>(<span class="pl-smi">heap_limit</span>)));
+        }
+
+        <span class="pl-c">// ... otherwise we need to roll our own. This is likely quite a bit</span>
+        <span class="pl-c">// slower than what is optimal, but we avoid worry about memory safety</span>
+        <span class="pl-c">// until there's a compelling reason to speed this up.</span>
+        <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">resize</span>(<span class="pl-en">cmp</span><span class="pl-k">::</span><span class="pl-en">min</span>(<span class="pl-c1">DEFAULT_BUFFER_CAPACITY</span>, <span class="pl-smi">heap_limit</span>), <span class="pl-c1">0</span>);
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">pos</span> <span class="pl-k">=</span> <span class="pl-c1">0</span>;
+        <span class="pl-k">loop</span> {
+            <span class="pl-k">let</span> <span class="pl-smi">nread</span> <span class="pl-k">=</span> <span class="pl-k">match</span> <span class="pl-smi">read_from</span><span class="pl-k">.</span><span class="pl-en">read</span>(<span class="pl-k">&#x26;mut</span> <span class="pl-smi">buf</span>[<span class="pl-smi">pos</span><span class="pl-k">..</span>]) {
+                <span class="pl-en">Ok</span>(<span class="pl-smi">nread</span>) <span class="pl-k">=></span> <span class="pl-smi">nread</span>,
+                <span class="pl-en">Err</span>(<span class="pl-k">ref</span> <span class="pl-smi">err</span>) <span class="pl-k">if</span> <span class="pl-smi">err</span><span class="pl-k">.</span><span class="pl-en">kind</span>() <span class="pl-k">==</span> <span class="pl-en">io</span><span class="pl-k">::</span><span class="pl-en">ErrorKind</span><span class="pl-k">::</span><span class="pl-en">Interrupted</span> <span class="pl-k">=></span> {
+                    <span class="pl-k">continue</span>;
+                }
+                <span class="pl-en">Err</span>(<span class="pl-smi">err</span>) <span class="pl-k">=></span> <span class="pl-k">return</span> <span class="pl-en">Err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-en">error_io</span>(<span class="pl-smi">err</span>)),
+            };
+            <span class="pl-k">if</span> <span class="pl-smi">nread</span> <span class="pl-k">==</span> <span class="pl-c1">0</span> {
+                <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">resize</span>(<span class="pl-smi">pos</span>, <span class="pl-c1">0</span>);
+                <span class="pl-k">return</span> <span class="pl-en">Ok</span>(());
+            }
+
+            <span class="pl-smi">pos</span> <span class="pl-k">+=</span> <span class="pl-smi">nread</span>;
+            <span class="pl-k">if</span> <span class="pl-smi">buf</span>[<span class="pl-smi">pos</span><span class="pl-k">..</span>]<span class="pl-k">.</span><span class="pl-en">is_empty</span>() {
+                <span class="pl-k">let</span> <span class="pl-smi">additional</span> <span class="pl-k">=</span> <span class="pl-smi">heap_limit</span> <span class="pl-k">-</span> <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">len</span>();
+                <span class="pl-k">if</span> <span class="pl-smi">additional</span> <span class="pl-k">==</span> <span class="pl-c1">0</span> {
+                    <span class="pl-k">return</span> <span class="pl-en">Err</span>(<span class="pl-en">S</span><span class="pl-k">::</span><span class="pl-en">Error</span><span class="pl-k">::</span><span class="pl-en">error_io</span>(<span class="pl-en">alloc_error</span>(<span class="pl-smi">heap_limit</span>)));
+                }
+                <span class="pl-k">let</span> <span class="pl-smi">limit</span> <span class="pl-k">=</span> <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">len</span>() <span class="pl-k">+</span> <span class="pl-smi">additional</span>;
+                <span class="pl-k">let</span> <span class="pl-smi">doubled</span> <span class="pl-k">=</span> <span class="pl-c1">2</span> <span class="pl-k">*</span> <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">len</span>();
+                <span class="pl-smi">buf</span><span class="pl-k">.</span><span class="pl-en">resize</span>(<span class="pl-en">cmp</span><span class="pl-k">::</span><span class="pl-en">min</span>(<span class="pl-smi">doubled</span>, <span class="pl-smi">limit</span>), <span class="pl-c1">0</span>);
+            }
+        }
+    }
+}
+
+<span class="pl-c">/// Returns true if and only if the given slice begins with a UTF-8 or UTF-16</span>
+<span class="pl-c">/// BOM.</span>
+<span class="pl-c">///</span>
+<span class="pl-c">/// This is used by the searcher to determine if a transcoder is necessary.</span>
+<span class="pl-c">/// Otherwise, it is advantageous to search the slice directly.</span>
+<span class="pl-k">fn</span> <span class="pl-en">slice_has_bom</span>(<span class="pl-smi">slice</span><span class="pl-k">:</span> <span class="pl-k">&#x26;</span>[<span class="pl-k">u8</span>]) <span class="pl-k">-></span> <span class="pl-k">bool</span> {
+    <span class="pl-k">let</span> <span class="pl-smi">enc</span> <span class="pl-k">=</span> <span class="pl-k">match</span> <span class="pl-en">encoding_rs</span><span class="pl-k">::</span><span class="pl-en">Encoding</span><span class="pl-k">::</span><span class="pl-en">for_bom</span>(<span class="pl-smi">slice</span>) {
+        <span class="pl-en">None</span> <span class="pl-k">=></span> <span class="pl-k">return</span> <span class="pl-c1">false</span>,
+        <span class="pl-en">Some</span>((<span class="pl-smi">enc</span>, <span class="pl-smi">_</span>)) <span class="pl-k">=></span> <span class="pl-smi">enc</span>,
+    };
+    [<span class="pl-en">encoding_rs</span><span class="pl-k">::</span><span class="pl-c1">UTF_16LE</span>, <span class="pl-en">encoding_rs</span><span class="pl-k">::</span><span class="pl-c1">UTF_16BE</span>, <span class="pl-en">encoding_rs</span><span class="pl-k">::</span><span class="pl-c1">UTF_8</span>]
+        <span class="pl-k">.</span><span class="pl-en">contains</span>(<span class="pl-k">&#x26;</span><span class="pl-smi">enc</span>)
+}
+
+#[cfg(test)]
+<span class="pl-k">mod</span> <span class="pl-en">tests</span> {
+    <span class="pl-k">use</span> <span class="pl-k">crate::</span><span class="pl-en">testutil</span><span class="pl-k">::</span>{<span class="pl-en">KitchenSink</span>, <span class="pl-en">RegexMatcher</span>};
+
+    <span class="pl-k">use</span> <span class="pl-c1">super</span><span class="pl-k">::*</span>;
+
+    #[test]
+    <span class="pl-k">fn</span> <span class="pl-en">config_error_heap_limit</span>() {
+        <span class="pl-k">let</span> <span class="pl-smi">matcher</span> <span class="pl-k">=</span> <span class="pl-en">RegexMatcher</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-s"><span class="pl-pds">""</span></span>);
+        <span class="pl-k">let</span> <span class="pl-smi">sink</span> <span class="pl-k">=</span> <span class="pl-en">KitchenSink</span><span class="pl-k">::</span><span class="pl-en">new</span>();
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">searcher</span> <span class="pl-k">=</span> <span class="pl-en">SearcherBuilder</span><span class="pl-k">::</span><span class="pl-en">new</span>()<span class="pl-k">.</span><span class="pl-en">heap_limit</span>(<span class="pl-en">Some</span>(<span class="pl-c1">0</span>))<span class="pl-k">.</span><span class="pl-en">build</span>();
+        <span class="pl-k">let</span> <span class="pl-smi">res</span> <span class="pl-k">=</span> <span class="pl-smi">searcher</span><span class="pl-k">.</span><span class="pl-en">search_slice</span>(<span class="pl-smi">matcher</span>, <span class="pl-k">&#x26;</span>[], <span class="pl-smi">sink</span>);
+        <span class="pl-en">assert!</span>(<span class="pl-smi">res</span><span class="pl-k">.</span><span class="pl-en">is_err</span>());
+    }
+
+    #[test]
+    <span class="pl-k">fn</span> <span class="pl-en">config_error_line_terminator</span>() {
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">matcher</span> <span class="pl-k">=</span> <span class="pl-en">RegexMatcher</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-s"><span class="pl-pds">""</span></span>);
+        <span class="pl-smi">matcher</span><span class="pl-k">.</span><span class="pl-en">set_line_term</span>(<span class="pl-en">Some</span>(<span class="pl-en">LineTerminator</span><span class="pl-k">::</span><span class="pl-en">byte</span>(<span class="pl-s">b'z'</span>)));
+
+        <span class="pl-k">let</span> <span class="pl-smi">sink</span> <span class="pl-k">=</span> <span class="pl-en">KitchenSink</span><span class="pl-k">::</span><span class="pl-en">new</span>();
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">searcher</span> <span class="pl-k">=</span> <span class="pl-en">Searcher</span><span class="pl-k">::</span><span class="pl-en">new</span>();
+        <span class="pl-k">let</span> <span class="pl-smi">res</span> <span class="pl-k">=</span> <span class="pl-smi">searcher</span><span class="pl-k">.</span><span class="pl-en">search_slice</span>(<span class="pl-smi">matcher</span>, <span class="pl-k">&#x26;</span>[], <span class="pl-smi">sink</span>);
+        <span class="pl-en">assert!</span>(<span class="pl-smi">res</span><span class="pl-k">.</span><span class="pl-en">is_err</span>());
+    }
+
+    #[test]
+    <span class="pl-k">fn</span> <span class="pl-en">uft8_bom_sniffing</span>() {
+        <span class="pl-c">// See: https://github.com/BurntSushi/ripgrep/issues/1638</span>
+        <span class="pl-c">// ripgrep must sniff utf-8 BOM, just like it does with utf-16</span>
+        <span class="pl-k">let</span> <span class="pl-smi">matcher</span> <span class="pl-k">=</span> <span class="pl-en">RegexMatcher</span><span class="pl-k">::</span><span class="pl-en">new</span>(<span class="pl-s"><span class="pl-pds">"</span>foo<span class="pl-pds">"</span></span>);
+        <span class="pl-k">let</span> <span class="pl-smi">haystack</span><span class="pl-k">:</span> <span class="pl-k">&#x26;</span>[<span class="pl-k">u8</span>] <span class="pl-k">=</span> <span class="pl-k">&#x26;</span>[<span class="pl-c1">0xef</span>, <span class="pl-c1">0xbb</span>, <span class="pl-c1">0xbf</span>, <span class="pl-c1">0x66</span>, <span class="pl-c1">0x6f</span>, <span class="pl-c1">0x6f</span>];
+
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">sink</span> <span class="pl-k">=</span> <span class="pl-en">KitchenSink</span><span class="pl-k">::</span><span class="pl-en">new</span>();
+        <span class="pl-k">let</span> <span class="pl-k">mut</span> <span class="pl-smi">searcher</span> <span class="pl-k">=</span> <span class="pl-en">SearcherBuilder</span><span class="pl-k">::</span><span class="pl-en">new</span>()<span class="pl-k">.</span><span class="pl-en">build</span>();
+
+        <span class="pl-k">let</span> <span class="pl-smi">res</span> <span class="pl-k">=</span> <span class="pl-smi">searcher</span><span class="pl-k">.</span><span class="pl-en">search_slice</span>(<span class="pl-smi">matcher</span>, <span class="pl-smi">haystack</span>, <span class="pl-k">&#x26;mut</span> <span class="pl-smi">sink</span>);
+        <span class="pl-en">assert!</span>(<span class="pl-smi">res</span><span class="pl-k">.</span><span class="pl-en">is_ok</span>());
+
+        <span class="pl-k">let</span> <span class="pl-smi">sink_output</span> <span class="pl-k">=</span> <span class="pl-en">String</span><span class="pl-k">::</span><span class="pl-en">from_utf8</span>(<span class="pl-smi">sink</span><span class="pl-k">.</span><span class="pl-en">as_bytes</span>()<span class="pl-k">.</span><span class="pl-en">to_vec</span>())<span class="pl-k">.</span><span class="pl-en">unwrap</span>();
+        <span class="pl-en">assert_eq!</span>(<span class="pl-smi">sink_output</span>, <span class="pl-s"><span class="pl-pds">"</span>1:0:foo<span class="pl-cce">\n</span>byte count:3<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>);
+    }
+}
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

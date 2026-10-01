@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>speed-highlight · Catppuccin Latte · Lumis visual comparison</title>
+  <meta name="color-scheme" content="light">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #e6e9ef; color: #4c4f69; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #bcc0cc; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>[class*=shj-lang-]{background:#eff1f5;color:#4c4f69}.shj-syn-cmnt{color:#7c7f93}.shj-syn-err{color:#4c4f69}.shj-syn-kwd{color:#8839ef}.shj-syn-num{color:#fe640b}.shj-syn-class{color:#df8e1d}.shj-syn-insert{color:#40a02b}.shj-syn-str{color:#40a02b}.shj-syn-bool{color:#fe640b}.shj-syn-type{color:#df8e1d}.shj-syn-oper{color:#04a5e5}.shj-syn-section{color:#1e66f5}.shj-syn-func{color:#1e66f5}.shj-syn-deleted{color:#d20f39}.shj-syn-var{color:#8839ef}</style><pre class="shj-lang-rs"><code><span class="shj-syn-kwd">use</span> std<span class="shj-syn-oper">::</span>{
+    cell<span class="shj-syn-oper">::</span><span class="shj-syn-class">RefCell</span><span class="shj-syn-oper">,</span>
+    cmp<span class="shj-syn-oper">,</span>
+    fs<span class="shj-syn-oper">::</span><span class="shj-syn-class">File</span><span class="shj-syn-oper">,</span>
+    io<span class="shj-syn-oper">::</span>{<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Read</span>}<span class="shj-syn-oper">,</span>
+    path<span class="shj-syn-oper">::</span><span class="shj-syn-class">Path</span><span class="shj-syn-oper">,</span>
+};
+
+<span class="shj-syn-kwd">use</span> {
+    encoding_rs_io<span class="shj-syn-oper">::</span><span class="shj-syn-class">DecodeReaderBytesBuilder</span><span class="shj-syn-oper">,</span>
+    grep_matcher<span class="shj-syn-oper">::</span>{<span class="shj-syn-class">LineTerminator</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Match</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Matcher</span>}<span class="shj-syn-oper">,</span>
+};
+
+<span class="shj-syn-kwd">use</span> <span class="shj-syn-kwd">crate</span><span class="shj-syn-oper">::</span>{
+    line_buffer<span class="shj-syn-oper">::</span>{
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> alloc_error<span class="shj-syn-oper">,</span> <span class="shj-syn-class">BufferAllocation</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">LineBuffer</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">LineBufferBuilder</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-class">LineBufferReader</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">DEFAULT_BUFFER_CAPACITY</span><span class="shj-syn-oper">,</span>
+    }<span class="shj-syn-oper">,</span>
+    searcher<span class="shj-syn-oper">::</span>glue<span class="shj-syn-oper">::</span>{<span class="shj-syn-class">MultiLine</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">ReadByLine</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">SliceByLine</span>}<span class="shj-syn-oper">,</span>
+    sink<span class="shj-syn-oper">::</span>{<span class="shj-syn-class">Sink</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">SinkError</span>}<span class="shj-syn-oper">,</span>
+};
+
+<span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">use</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">::</span>mmap<span class="shj-syn-oper">::</span><span class="shj-syn-class">MmapChoice</span>;
+
+<span class="shj-syn-kwd">mod</span> core;
+<span class="shj-syn-kwd">mod</span> glue;
+<span class="shj-syn-kwd">mod</span> mmap;
+
+<span class="shj-syn-cmnt">/// We use this type alias since we want the ergonomics of a matcher's `Match`
+</span><span class="shj-syn-cmnt">/// type, but in practice, we use it for arbitrary ranges, so give it a more
+</span><span class="shj-syn-cmnt">/// accurate name. This is only used in the searcher's internals.
+</span><span class="shj-syn-kwd">type</span> <span class="shj-syn-class">Range</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Match</span>;
+
+<span class="shj-syn-cmnt">/// The behavior of binary detection while searching.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// Binary detection is the process of _heuristically_ identifying whether a
+</span><span class="shj-syn-cmnt">/// given chunk of data is binary or not, and then taking an action based on
+</span><span class="shj-syn-cmnt">/// the result of that heuristic. The motivation behind detecting binary data
+</span><span class="shj-syn-cmnt">/// is that binary data often indicates data that is undesirable to search
+</span><span class="shj-syn-cmnt">/// using textual patterns. Of course, there are many cases in which this isn't
+</span><span class="shj-syn-cmnt">/// true, which is why binary detection is disabled by default.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// Unfortunately, binary detection works differently depending on the type of
+</span><span class="shj-syn-cmnt">/// search being executed:
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// 1. When performing a search using a fixed size buffer, binary detection is
+</span><span class="shj-syn-cmnt">///    applied to the buffer's contents as it is filled. Binary detection must
+</span><span class="shj-syn-cmnt">///    be applied to the buffer directly because binary files may not contain
+</span><span class="shj-syn-cmnt">///    line terminators, which could result in exorbitant memory usage.
+</span><span class="shj-syn-cmnt">/// 2. When performing a search using memory maps or by reading data off the
+</span><span class="shj-syn-cmnt">///    heap, then binary detection is only guaranteed to be applied to the
+</span><span class="shj-syn-cmnt">///    parts corresponding to a match. When `Quit` is enabled, then the first
+</span><span class="shj-syn-cmnt">///    few KB of the data are searched for binary data.
+</span>#[<span class="shj-syn-func">derive</span>(<span class="shj-syn-class">Clone</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Debug</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Default</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Eq</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">PartialEq</span>)]
+<span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">struct</span> <span class="shj-syn-class">BinaryDetection</span>(line_buffer<span class="shj-syn-oper">::</span><span class="shj-syn-class">BinaryDetection</span>);
+
+<span class="shj-syn-kwd">impl</span> <span class="shj-syn-class">BinaryDetection</span> {
+    <span class="shj-syn-cmnt">/// No binary detection is performed. Data reported by the searcher may
+</span>    <span class="shj-syn-cmnt">/// contain arbitrary bytes.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This is the default.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">none</span>() <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">BinaryDetection</span> {
+        <span class="shj-syn-class">BinaryDetection</span>(line_buffer<span class="shj-syn-oper">::</span><span class="shj-syn-class">BinaryDetection</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">None</span>)
+    }
+
+    <span class="shj-syn-cmnt">/// Binary detection is performed by looking for the given byte.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When searching is performed using a fixed size buffer, then the
+</span>    <span class="shj-syn-cmnt">/// contents of that buffer are always searched for the presence of this
+</span>    <span class="shj-syn-cmnt">/// byte. If it is found, then the underlying data is considered binary
+</span>    <span class="shj-syn-cmnt">/// and the search stops as if it reached EOF.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When searching is performed with the entire contents mapped into
+</span>    <span class="shj-syn-cmnt">/// memory, then binary detection is more conservative. Namely, only a
+</span>    <span class="shj-syn-cmnt">/// fixed sized region at the beginning of the contents are detected for
+</span>    <span class="shj-syn-cmnt">/// binary data. As a compromise, any subsequent matching (or context)
+</span>    <span class="shj-syn-cmnt">/// lines are also searched for binary data. If binary data is detected at
+</span>    <span class="shj-syn-cmnt">/// any point, then the search stops as if it reached EOF.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">quit</span>(binary_byte<span class="shj-syn-oper">:</span> u8) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">BinaryDetection</span> {
+        <span class="shj-syn-class">BinaryDetection</span>(line_buffer<span class="shj-syn-oper">::</span><span class="shj-syn-class">BinaryDetection</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Quit</span>(binary_byte))
+    }
+
+    <span class="shj-syn-cmnt">/// Binary detection is performed by looking for the given byte, and
+</span>    <span class="shj-syn-cmnt">/// replacing it with the line terminator configured on the searcher.
+</span>    <span class="shj-syn-cmnt">/// (If the searcher is configured to use `CRLF` as the line terminator,
+</span>    <span class="shj-syn-cmnt">/// then this byte is replaced by just `LF`.)
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When searching is performed using a fixed size buffer, then the
+</span>    <span class="shj-syn-cmnt">/// contents of that buffer are always searched for the presence of this
+</span>    <span class="shj-syn-cmnt">/// byte and replaced with the line terminator. In effect, the caller is
+</span>    <span class="shj-syn-cmnt">/// guaranteed to never observe this byte while searching.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When searching is performed with the entire contents mapped into
+</span>    <span class="shj-syn-cmnt">/// memory, then this setting has no effect and is ignored.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">convert</span>(binary_byte<span class="shj-syn-oper">:</span> u8) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">BinaryDetection</span> {
+        <span class="shj-syn-class">BinaryDetection</span>(line_buffer<span class="shj-syn-oper">::</span><span class="shj-syn-class">BinaryDetection</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Convert</span>(binary_byte))
+    }
+
+    <span class="shj-syn-cmnt">/// If this binary detection uses the "quit" strategy, then this returns
+</span>    <span class="shj-syn-cmnt">/// the byte that will cause a search to quit. In any other case, this
+</span>    <span class="shj-syn-cmnt">/// returns `None`.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">quit_byte</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Option</span><span class="shj-syn-oper">&lt;</span>u8<span class="shj-syn-oper">&gt;</span> {
+        <span class="shj-syn-kwd">match</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-num">.0</span> {
+            line_buffer<span class="shj-syn-oper">::</span><span class="shj-syn-class">BinaryDetection</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Quit</span>(b) <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-class">Some</span>(b)<span class="shj-syn-oper">,</span>
+            _ <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-class">None</span><span class="shj-syn-oper">,</span>
+        }
+    }
+
+    <span class="shj-syn-cmnt">/// If this binary detection uses the "convert" strategy, then this returns
+</span>    <span class="shj-syn-cmnt">/// the byte that will be replaced by the line terminator. In any other
+</span>    <span class="shj-syn-cmnt">/// case, this returns `None`.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">convert_byte</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Option</span><span class="shj-syn-oper">&lt;</span>u8<span class="shj-syn-oper">&gt;</span> {
+        <span class="shj-syn-kwd">match</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-num">.0</span> {
+            line_buffer<span class="shj-syn-oper">::</span><span class="shj-syn-class">BinaryDetection</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Convert</span>(b) <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-class">Some</span>(b)<span class="shj-syn-oper">,</span>
+            _ <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-class">None</span><span class="shj-syn-oper">,</span>
+        }
+    }
+}
+
+<span class="shj-syn-cmnt">/// An encoding to use when searching.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// An encoding can be used to configure a [`SearcherBuilder`] to transcode
+</span><span class="shj-syn-cmnt">/// source data from an encoding to UTF-8 before searching.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// An `Encoding` will always be cheap to clone.
+</span>#[<span class="shj-syn-func">derive</span>(<span class="shj-syn-class">Clone</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Debug</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Eq</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">PartialEq</span>)]
+<span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">struct</span> <span class="shj-syn-class">Encoding</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-type">'static</span> encoding_rs<span class="shj-syn-oper">::</span><span class="shj-syn-class">Encoding</span>);
+
+<span class="shj-syn-kwd">impl</span> <span class="shj-syn-class">Encoding</span> {
+    <span class="shj-syn-cmnt">/// Create a new encoding for the specified label.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// The encoding label provided is mapped to an encoding via the set of
+</span>    <span class="shj-syn-cmnt">/// available choices specified in the
+</span>    <span class="shj-syn-cmnt">/// [Encoding Standard](https://encoding.spec.whatwg.org/#concept-encoding-get).
+</span>    <span class="shj-syn-cmnt">/// If the given label does not correspond to a valid encoding, then this
+</span>    <span class="shj-syn-cmnt">/// returns an error.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">new</span>(label<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span>str) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Encoding</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">ConfigError</span><span class="shj-syn-oper">&gt;</span> {
+        <span class="shj-syn-kwd">let</span> label <span class="shj-syn-oper">=</span> label<span class="shj-syn-oper">.</span><span class="shj-syn-func">as_bytes</span>();
+        <span class="shj-syn-kwd">match</span> encoding_rs<span class="shj-syn-oper">::</span><span class="shj-syn-class">Encoding</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">for_label_no_replacement</span>(label) {
+            <span class="shj-syn-class">Some</span>(encoding) <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-class">Ok</span>(<span class="shj-syn-class">Encoding</span>(encoding))<span class="shj-syn-oper">,</span>
+            <span class="shj-syn-class">None</span> <span class="shj-syn-oper">=&gt;</span> {
+                <span class="shj-syn-class">Err</span>(<span class="shj-syn-class">ConfigError</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">UnknownEncoding</span> { label<span class="shj-syn-oper">:</span> label<span class="shj-syn-oper">.</span><span class="shj-syn-func">to_vec</span>() })
+            }
+        }
+    }
+}
+
+<span class="shj-syn-cmnt">/// The internal configuration of a searcher. This is shared among several
+</span><span class="shj-syn-cmnt">/// search related types, but is only ever written to by the SearcherBuilder.
+</span>#[<span class="shj-syn-func">derive</span>(<span class="shj-syn-class">Clone</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Debug</span>)]
+<span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">struct</span> <span class="shj-syn-class">Config</span> {
+    <span class="shj-syn-cmnt">/// The line terminator to use.
+</span>    line_term<span class="shj-syn-oper">:</span> <span class="shj-syn-class">LineTerminator</span><span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// Whether to invert matching.
+</span>    invert_match<span class="shj-syn-oper">:</span> bool<span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// The number of lines after a match to include.
+</span>    after_context<span class="shj-syn-oper">:</span> usize<span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// The number of lines before a match to include.
+</span>    before_context<span class="shj-syn-oper">:</span> usize<span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// Whether to enable unbounded context or not.
+</span>    passthru<span class="shj-syn-oper">:</span> bool<span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// Whether to count line numbers.
+</span>    line_number<span class="shj-syn-oper">:</span> bool<span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// The maximum amount of heap memory to use.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When not given, no explicit limit is enforced. When set to `0`, then
+</span>    <span class="shj-syn-cmnt">/// only the memory map search strategy is available.
+</span>    heap_limit<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Option</span><span class="shj-syn-oper">&lt;</span>usize<span class="shj-syn-oper">&gt;,</span>
+    <span class="shj-syn-cmnt">/// The memory map strategy.
+</span>    mmap<span class="shj-syn-oper">:</span> <span class="shj-syn-class">MmapChoice</span><span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// The binary data detection strategy.
+</span>    binary<span class="shj-syn-oper">:</span> <span class="shj-syn-class">BinaryDetection</span><span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// Whether to enable matching across multiple lines.
+</span>    multi_line<span class="shj-syn-oper">:</span> bool<span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// An encoding that, when present, causes the searcher to transcode all
+</span>    <span class="shj-syn-cmnt">/// input from the encoding to UTF-8.
+</span>    encoding<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Option</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Encoding</span><span class="shj-syn-oper">&gt;,</span>
+    <span class="shj-syn-cmnt">/// Whether to do automatic transcoding based on a BOM or not.
+</span>    bom_sniffing<span class="shj-syn-oper">:</span> bool<span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// Whether to stop searching when a non-matching line is found after a
+</span>    <span class="shj-syn-cmnt">/// matching line.
+</span>    stop_on_nonmatch<span class="shj-syn-oper">:</span> bool<span class="shj-syn-oper">,</span>
+}
+
+<span class="shj-syn-kwd">impl</span> <span class="shj-syn-class">Default</span> <span class="shj-syn-kwd">for</span> <span class="shj-syn-class">Config</span> {
+    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">default</span>() <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Config</span> {
+        <span class="shj-syn-class">Config</span> {
+            line_term<span class="shj-syn-oper">:</span> <span class="shj-syn-class">LineTerminator</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">default</span>()<span class="shj-syn-oper">,</span>
+            invert_match<span class="shj-syn-oper">:</span> <span class="shj-syn-kwd">false</span><span class="shj-syn-oper">,</span>
+            after_context<span class="shj-syn-oper">:</span> <span class="shj-syn-num">0</span><span class="shj-syn-oper">,</span>
+            before_context<span class="shj-syn-oper">:</span> <span class="shj-syn-num">0</span><span class="shj-syn-oper">,</span>
+            passthru<span class="shj-syn-oper">:</span> <span class="shj-syn-kwd">false</span><span class="shj-syn-oper">,</span>
+            line_number<span class="shj-syn-oper">:</span> <span class="shj-syn-kwd">true</span><span class="shj-syn-oper">,</span>
+            heap_limit<span class="shj-syn-oper">:</span> <span class="shj-syn-class">None</span><span class="shj-syn-oper">,</span>
+            mmap<span class="shj-syn-oper">:</span> <span class="shj-syn-class">MmapChoice</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">default</span>()<span class="shj-syn-oper">,</span>
+            binary<span class="shj-syn-oper">:</span> <span class="shj-syn-class">BinaryDetection</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">default</span>()<span class="shj-syn-oper">,</span>
+            multi_line<span class="shj-syn-oper">:</span> <span class="shj-syn-kwd">false</span><span class="shj-syn-oper">,</span>
+            encoding<span class="shj-syn-oper">:</span> <span class="shj-syn-class">None</span><span class="shj-syn-oper">,</span>
+            bom_sniffing<span class="shj-syn-oper">:</span> <span class="shj-syn-kwd">true</span><span class="shj-syn-oper">,</span>
+            stop_on_nonmatch<span class="shj-syn-oper">:</span> <span class="shj-syn-kwd">false</span><span class="shj-syn-oper">,</span>
+        }
+    }
+}
+
+<span class="shj-syn-kwd">impl</span> <span class="shj-syn-class">Config</span> {
+    <span class="shj-syn-cmnt">/// Return the maximal amount of lines needed to fulfill this
+</span>    <span class="shj-syn-cmnt">/// configuration's context.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// If this returns `0`, then no context is ever needed.
+</span>    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">max_context</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> usize {
+        cmp<span class="shj-syn-oper">::</span><span class="shj-syn-func">max</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>before_context<span class="shj-syn-oper">,</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>after_context)
+    }
+
+    <span class="shj-syn-cmnt">/// Build a line buffer from this configuration.
+</span>    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">line_buffer</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">LineBuffer</span> {
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> builder <span class="shj-syn-oper">=</span> <span class="shj-syn-class">LineBufferBuilder</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>();
+        builder
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">line_terminator</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>line_term<span class="shj-syn-oper">.</span><span class="shj-syn-func">as_byte</span>())
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">binary_detection</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>binary<span class="shj-syn-num">.0</span>);
+
+        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">let</span> <span class="shj-syn-class">Some</span>(limit) <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>heap_limit {
+            <span class="shj-syn-kwd">let</span> (capacity<span class="shj-syn-oper">,</span> additional) <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">if</span> limit <span class="shj-syn-oper">&lt;=</span> <span class="shj-syn-class">DEFAULT_BUFFER_CAPACITY</span> {
+                (limit<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0</span>)
+            } <span class="shj-syn-kwd">else</span> {
+                (<span class="shj-syn-class">DEFAULT_BUFFER_CAPACITY</span><span class="shj-syn-oper">,</span> limit <span class="shj-syn-oper">-</span> <span class="shj-syn-class">DEFAULT_BUFFER_CAPACITY</span>)
+            };
+            builder
+                <span class="shj-syn-oper">.</span><span class="shj-syn-func">capacity</span>(capacity)
+                <span class="shj-syn-oper">.</span><span class="shj-syn-func">buffer_alloc</span>(<span class="shj-syn-class">BufferAllocation</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span>(additional));
+        }
+        builder<span class="shj-syn-oper">.</span><span class="shj-syn-func">build</span>()
+    }
+}
+
+<span class="shj-syn-cmnt">/// An error that can occur when building a searcher.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// This error occurs when a non-sensical configuration is present when trying
+</span><span class="shj-syn-cmnt">/// to construct a `Searcher` from a `SearcherBuilder`.
+</span>#[<span class="shj-syn-func">derive</span>(<span class="shj-syn-class">Clone</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Debug</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Eq</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">PartialEq</span>)]
+#[non_exhaustive]
+<span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">enum</span> <span class="shj-syn-class">ConfigError</span> {
+    <span class="shj-syn-cmnt">/// Indicates that the heap limit configuration prevents all possible
+</span>    <span class="shj-syn-cmnt">/// search strategies from being used. For example, if the heap limit is
+</span>    <span class="shj-syn-cmnt">/// set to 0 and memory map searching is disabled or unavailable.
+</span>    <span class="shj-syn-class">SearchUnavailable</span><span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// Occurs when a matcher reports a line terminator that is different than
+</span>    <span class="shj-syn-cmnt">/// the one configured in the searcher.
+</span>    <span class="shj-syn-class">MismatchedLineTerminators</span> {
+        <span class="shj-syn-cmnt">/// The matcher's line terminator.
+</span>        matcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">LineTerminator</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-cmnt">/// The searcher's line terminator.
+</span>        searcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">LineTerminator</span><span class="shj-syn-oper">,</span>
+    }<span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// Occurs when no encoding could be found for a particular label.
+</span>    <span class="shj-syn-class">UnknownEncoding</span> {
+        <span class="shj-syn-cmnt">/// The provided encoding label that could not be found.
+</span>        label<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Vec</span><span class="shj-syn-oper">&lt;</span>u8<span class="shj-syn-oper">&gt;,</span>
+    }<span class="shj-syn-oper">,</span>
+}
+
+<span class="shj-syn-kwd">impl</span> std<span class="shj-syn-oper">::</span>error<span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span> <span class="shj-syn-kwd">for</span> <span class="shj-syn-class">ConfigError</span> {}
+
+<span class="shj-syn-kwd">impl</span> std<span class="shj-syn-oper">::</span>fmt<span class="shj-syn-oper">::</span><span class="shj-syn-class">Display</span> <span class="shj-syn-kwd">for</span> <span class="shj-syn-class">ConfigError</span> {
+    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">fmt</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> f<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> std<span class="shj-syn-oper">::</span>fmt<span class="shj-syn-oper">::</span><span class="shj-syn-class">Formatter</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-type">'_</span><span class="shj-syn-oper">&gt;</span>) <span class="shj-syn-oper">-&gt;</span> std<span class="shj-syn-oper">::</span>fmt<span class="shj-syn-oper">::</span><span class="shj-syn-class">Result</span> {
+        <span class="shj-syn-kwd">match</span> <span class="shj-syn-oper">*</span><span class="shj-syn-kwd">self</span> {
+            <span class="shj-syn-class">ConfigError</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">SearchUnavailable</span> <span class="shj-syn-oper">=&gt;</span> {
+                <span class="shj-syn-func">write</span><span class="shj-syn-oper">!</span>(f<span class="shj-syn-oper">,</span> <span class="shj-syn-str">"grep config error: no available searchers"</span>)
+            }
+            <span class="shj-syn-class">ConfigError</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">MismatchedLineTerminators</span> { matcher<span class="shj-syn-oper">,</span> searcher } <span class="shj-syn-oper">=&gt;</span> {
+                <span class="shj-syn-func">write</span><span class="shj-syn-oper">!</span>(
+                    f<span class="shj-syn-oper">,</span>
+                    <span class="shj-syn-str">"grep config error: mismatched line terminators, \
+                     matcher has {:?} but searcher has {:?}"</span><span class="shj-syn-oper">,</span>
+                    matcher<span class="shj-syn-oper">,</span> searcher
+                )
+            }
+            <span class="shj-syn-class">ConfigError</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">UnknownEncoding</span> { <span class="shj-syn-kwd">ref</span> label } <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-func">write</span><span class="shj-syn-oper">!</span>(
+                f<span class="shj-syn-oper">,</span>
+                <span class="shj-syn-str">"grep config error: unknown encoding: {}"</span><span class="shj-syn-oper">,</span>
+                <span class="shj-syn-class">String</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">from_utf8_lossy</span>(label)<span class="shj-syn-oper">,</span>
+            )<span class="shj-syn-oper">,</span>
+        }
+    }
+}
+
+<span class="shj-syn-cmnt">/// A builder for configuring a searcher.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// A search builder permits specifying the configuration of a searcher,
+</span><span class="shj-syn-cmnt">/// including options like whether to invert the search or to enable multi
+</span><span class="shj-syn-cmnt">/// line search.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// Once a searcher has been built, it is beneficial to reuse that searcher
+</span><span class="shj-syn-cmnt">/// for multiple searches, if possible.
+</span>#[<span class="shj-syn-func">derive</span>(<span class="shj-syn-class">Clone</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Debug</span>)]
+<span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">struct</span> <span class="shj-syn-class">SearcherBuilder</span> {
+    config<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Config</span><span class="shj-syn-oper">,</span>
+}
+
+<span class="shj-syn-kwd">impl</span> <span class="shj-syn-class">Default</span> <span class="shj-syn-kwd">for</span> <span class="shj-syn-class">SearcherBuilder</span> {
+    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">default</span>() <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-class">SearcherBuilder</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>()
+    }
+}
+
+<span class="shj-syn-kwd">impl</span> <span class="shj-syn-class">SearcherBuilder</span> {
+    <span class="shj-syn-cmnt">/// Create a new searcher builder with a default configuration.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">new</span>() <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-class">SearcherBuilder</span> { config<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Config</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">default</span>() }
+    }
+
+    <span class="shj-syn-cmnt">/// Build a searcher with the given matcher.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">build</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Searcher</span> {
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> config <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span><span class="shj-syn-func">clone</span>();
+        <span class="shj-syn-kwd">if</span> config<span class="shj-syn-oper">.</span>passthru {
+            config<span class="shj-syn-oper">.</span>before_context <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>;
+            config<span class="shj-syn-oper">.</span>after_context <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>;
+        }
+
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> decode_builder <span class="shj-syn-oper">=</span> <span class="shj-syn-class">DecodeReaderBytesBuilder</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>();
+        decode_builder
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">encoding</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>encoding<span class="shj-syn-oper">.</span><span class="shj-syn-func">as_ref</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">map</span>(<span class="shj-syn-oper">|</span>e<span class="shj-syn-oper">|</span> e<span class="shj-syn-num">.0</span>))
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">utf8_passthru</span>(<span class="shj-syn-kwd">true</span>)
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">strip_bom</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>bom_sniffing)
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">bom_override</span>(<span class="shj-syn-kwd">true</span>)
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">bom_sniffing</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>bom_sniffing);
+
+        <span class="shj-syn-class">Searcher</span> {
+            config<span class="shj-syn-oper">,</span>
+            decode_builder<span class="shj-syn-oper">,</span>
+            decode_buffer<span class="shj-syn-oper">:</span> <span class="shj-syn-class">RefCell</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(vec<span class="shj-syn-oper">!</span>[<span class="shj-syn-num">0</span>; <span class="shj-syn-num">8</span> <span class="shj-syn-oper">*</span> (<span class="shj-syn-num">1</span> <span class="shj-syn-oper">&lt;&lt;</span> <span class="shj-syn-num">10</span>)])<span class="shj-syn-oper">,</span>
+            line_buffer<span class="shj-syn-oper">:</span> <span class="shj-syn-class">RefCell</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span><span class="shj-syn-func">line_buffer</span>())<span class="shj-syn-oper">,</span>
+            multi_line_buffer<span class="shj-syn-oper">:</span> <span class="shj-syn-class">RefCell</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(vec<span class="shj-syn-oper">!</span>[])<span class="shj-syn-oper">,</span>
+        }
+    }
+
+    <span class="shj-syn-cmnt">/// Set the line terminator that is used by the searcher.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When using a searcher, if the matcher provided has a line terminator
+</span>    <span class="shj-syn-cmnt">/// set, then it must be the same as this one. If they aren't, building
+</span>    <span class="shj-syn-cmnt">/// a searcher will return an error.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// By default, this is set to `b'\n'`.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">line_terminator</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        line_term<span class="shj-syn-oper">:</span> <span class="shj-syn-class">LineTerminator</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>line_term <span class="shj-syn-oper">=</span> line_term;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Whether to invert matching, whereby lines that don't match are reported
+</span>    <span class="shj-syn-cmnt">/// instead of reporting lines that do match.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// By default, this is disabled.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">invert_match</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> yes<span class="shj-syn-oper">:</span> bool) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>invert_match <span class="shj-syn-oper">=</span> yes;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Whether to count and include line numbers with matching lines.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This is enabled by default. There is a small performance penalty
+</span>    <span class="shj-syn-cmnt">/// associated with computing line numbers, so this can be disabled when
+</span>    <span class="shj-syn-cmnt">/// this isn't desirable.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">line_number</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> yes<span class="shj-syn-oper">:</span> bool) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>line_number <span class="shj-syn-oper">=</span> yes;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Whether to enable multi line search or not.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When multi line search is enabled, matches *may* match across multiple
+</span>    <span class="shj-syn-cmnt">/// lines. Conversely, when multi line search is disabled, it is impossible
+</span>    <span class="shj-syn-cmnt">/// for any match to span more than one line.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// **Warning:** multi line search requires having the entire contents to
+</span>    <span class="shj-syn-cmnt">/// search mapped in memory at once. When searching files, memory maps
+</span>    <span class="shj-syn-cmnt">/// will be used if possible and if they are enabled, which avoids using
+</span>    <span class="shj-syn-cmnt">/// your program's heap. However, if memory maps cannot be used (e.g.,
+</span>    <span class="shj-syn-cmnt">/// for searching streams like `stdin` or if transcoding is necessary),
+</span>    <span class="shj-syn-cmnt">/// then the entire contents of the stream are read on to the heap before
+</span>    <span class="shj-syn-cmnt">/// starting the search.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This is disabled by default.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">multi_line</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> yes<span class="shj-syn-oper">:</span> bool) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>multi_line <span class="shj-syn-oper">=</span> yes;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Whether to include a fixed number of lines after every match.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When this is set to a non-zero number, then the searcher will report
+</span>    <span class="shj-syn-cmnt">/// `line_count` contextual lines after every match.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This is set to `0` by default.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">after_context</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        line_count<span class="shj-syn-oper">:</span> usize<span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>after_context <span class="shj-syn-oper">=</span> line_count;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Whether to include a fixed number of lines before every match.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When this is set to a non-zero number, then the searcher will report
+</span>    <span class="shj-syn-cmnt">/// `line_count` contextual lines before every match.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This is set to `0` by default.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">before_context</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        line_count<span class="shj-syn-oper">:</span> usize<span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>before_context <span class="shj-syn-oper">=</span> line_count;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Whether to enable the "passthru" feature or not.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When passthru is enabled, it effectively treats all non-matching lines
+</span>    <span class="shj-syn-cmnt">/// as contextual lines. In other words, enabling this is akin to
+</span>    <span class="shj-syn-cmnt">/// requesting an unbounded number of before and after contextual lines.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When passthru mode is enabled, any `before_context` or `after_context`
+</span>    <span class="shj-syn-cmnt">/// settings are ignored by setting them to `0`.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This is disabled by default.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">passthru</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> yes<span class="shj-syn-oper">:</span> bool) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>passthru <span class="shj-syn-oper">=</span> yes;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Set an approximate limit on the amount of heap space used by a
+</span>    <span class="shj-syn-cmnt">/// searcher.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// The heap limit is enforced in two scenarios:
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// * When searching using a fixed size buffer, the heap limit controls
+</span>    <span class="shj-syn-cmnt">///   how big this buffer is allowed to be. Assuming contexts are disabled,
+</span>    <span class="shj-syn-cmnt">///   the minimum size of this buffer is the length (in bytes) of the
+</span>    <span class="shj-syn-cmnt">///   largest single line in the contents being searched. If any line
+</span>    <span class="shj-syn-cmnt">///   exceeds the heap limit, then an error will be returned.
+</span>    <span class="shj-syn-cmnt">/// * When performing a multi line search, a fixed size buffer cannot be
+</span>    <span class="shj-syn-cmnt">///   used. Thus, the only choices are to read the entire contents on to
+</span>    <span class="shj-syn-cmnt">///   the heap, or use memory maps. In the former case, the heap limit set
+</span>    <span class="shj-syn-cmnt">///   here is enforced.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// If a heap limit is set to `0`, then no heap space is used. If there are
+</span>    <span class="shj-syn-cmnt">/// no alternative strategies available for searching without heap space
+</span>    <span class="shj-syn-cmnt">/// (e.g., memory maps are disabled), then the searcher wil return an error
+</span>    <span class="shj-syn-cmnt">/// immediately.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// By default, no limit is set.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">heap_limit</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        bytes<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Option</span><span class="shj-syn-oper">&lt;</span>usize<span class="shj-syn-oper">&gt;,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>heap_limit <span class="shj-syn-oper">=</span> bytes;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Set the strategy to employ use of memory maps.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// Currently, there are only two strategies that can be employed:
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// * **Automatic** - A searcher will use heuristics, including but not
+</span>    <span class="shj-syn-cmnt">///   limited to file size and platform, to determine whether to use memory
+</span>    <span class="shj-syn-cmnt">///   maps or not.
+</span>    <span class="shj-syn-cmnt">/// * **Never** - Memory maps will never be used. If multi line search is
+</span>    <span class="shj-syn-cmnt">///   enabled, then the entire contents will be read on to the heap before
+</span>    <span class="shj-syn-cmnt">///   searching begins.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// The default behavior is **never**. Generally speaking, and perhaps
+</span>    <span class="shj-syn-cmnt">/// against conventional wisdom, memory maps don't necessarily enable
+</span>    <span class="shj-syn-cmnt">/// faster searching. For example, depending on the platform, using memory
+</span>    <span class="shj-syn-cmnt">/// maps while searching a large directory can actually be quite a bit
+</span>    <span class="shj-syn-cmnt">/// slower than using normal read calls because of the overhead of managing
+</span>    <span class="shj-syn-cmnt">/// the memory maps.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// Memory maps can be faster in some cases however. On some platforms,
+</span>    <span class="shj-syn-cmnt">/// when searching a very large file that *is already in memory*, it can
+</span>    <span class="shj-syn-cmnt">/// be slightly faster to search it as a memory map instead of using
+</span>    <span class="shj-syn-cmnt">/// normal read calls.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// Finally, memory maps have a somewhat complicated safety story in Rust.
+</span>    <span class="shj-syn-cmnt">/// If you aren't sure whether enabling memory maps is worth it, then just
+</span>    <span class="shj-syn-cmnt">/// don't bother with it.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// **</span><span class="shj-syn-err">WARNING</span><span class="shj-syn-cmnt">**: If your process is searching a file backed memory map
+</span>    <span class="shj-syn-cmnt">/// at the same time that file is truncated, then it's possible for the
+</span>    <span class="shj-syn-cmnt">/// process to terminate with a bus error.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">memory_map</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        strategy<span class="shj-syn-oper">:</span> <span class="shj-syn-class">MmapChoice</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>mmap <span class="shj-syn-oper">=</span> strategy;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Set the binary detection strategy.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// The binary detection strategy determines not only how the searcher
+</span>    <span class="shj-syn-cmnt">/// detects binary data, but how it responds to the presence of binary
+</span>    <span class="shj-syn-cmnt">/// data. See the [`BinaryDetection`] type for more information.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// By default, binary detection is disabled.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">binary_detection</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        detection<span class="shj-syn-oper">:</span> <span class="shj-syn-class">BinaryDetection</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>binary <span class="shj-syn-oper">=</span> detection;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Set the encoding used to read the source data before searching.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When an encoding is provided, then the source data is _unconditionally_
+</span>    <span class="shj-syn-cmnt">/// transcoded using the encoding, unless a BOM is present. If a BOM is
+</span>    <span class="shj-syn-cmnt">/// present, then the encoding indicated by the BOM is used instead. If the
+</span>    <span class="shj-syn-cmnt">/// transcoding process encounters an error, then bytes are replaced with
+</span>    <span class="shj-syn-cmnt">/// the Unicode replacement codepoint.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When no encoding is specified (the default), then BOM sniffing is
+</span>    <span class="shj-syn-cmnt">/// used (if it's enabled, which it is, by default) to determine whether
+</span>    <span class="shj-syn-cmnt">/// the source data is UTF-8 or UTF-16, and transcoding will be performed
+</span>    <span class="shj-syn-cmnt">/// automatically. If no BOM could be found, then the source data is
+</span>    <span class="shj-syn-cmnt">/// searched _as if_ it were UTF-8. However, so long as the source data is
+</span>    <span class="shj-syn-cmnt">/// at least ASCII compatible, then it is possible for a search to produce
+</span>    <span class="shj-syn-cmnt">/// useful results.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">encoding</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        encoding<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Option</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Encoding</span><span class="shj-syn-oper">&gt;,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>encoding <span class="shj-syn-oper">=</span> encoding;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Enable automatic transcoding based on BOM sniffing.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When this is enabled and an explicit encoding is not set, then this
+</span>    <span class="shj-syn-cmnt">/// searcher will try to detect the encoding of the bytes being searched
+</span>    <span class="shj-syn-cmnt">/// by sniffing its byte-order mark (BOM). In particular, when this is
+</span>    <span class="shj-syn-cmnt">/// enabled, UTF-16 encoded files will be searched seamlessly.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When this is disabled and if an explicit encoding is not set, then
+</span>    <span class="shj-syn-cmnt">/// the bytes from the source stream will be passed through unchanged,
+</span>    <span class="shj-syn-cmnt">/// including its BOM, if one is present.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This is enabled by default.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">bom_sniffing</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> yes<span class="shj-syn-oper">:</span> bool) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>bom_sniffing <span class="shj-syn-oper">=</span> yes;
+        <span class="shj-syn-kwd">self</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Stop searching a file when a non-matching line is found after a
+</span>    <span class="shj-syn-cmnt">/// matching line.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This is useful for searching sorted files where it is expected that all
+</span>    <span class="shj-syn-cmnt">/// the matches will be on adjacent lines.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">stop_on_nonmatch</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        stop_on_nonmatch<span class="shj-syn-oper">:</span> bool<span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-class">SearcherBuilder</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>stop_on_nonmatch <span class="shj-syn-oper">=</span> stop_on_nonmatch;
+        <span class="shj-syn-kwd">self</span>
+    }
+}
+
+<span class="shj-syn-cmnt">/// A searcher executes searches over a haystack and writes results to a caller
+</span><span class="shj-syn-cmnt">/// provided sink.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// Matches are detected via implementations of the `Matcher` trait, which must
+</span><span class="shj-syn-cmnt">/// be provided by the caller when executing a search.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// When possible, a searcher should be reused.
+</span>#[<span class="shj-syn-func">derive</span>(<span class="shj-syn-class">Clone</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">Debug</span>)]
+<span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">struct</span> <span class="shj-syn-class">Searcher</span> {
+    <span class="shj-syn-cmnt">/// The configuration for this searcher.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// We make most of these settings available to users of `Searcher` via
+</span>    <span class="shj-syn-cmnt">/// public API methods, which can be queried in implementations of `Sink`
+</span>    <span class="shj-syn-cmnt">/// if necessary.
+</span>    config<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Config</span><span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// A builder for constructing a streaming reader that transcodes source
+</span>    <span class="shj-syn-cmnt">/// data according to either an explicitly specified encoding or via an
+</span>    <span class="shj-syn-cmnt">/// automatically detected encoding via BOM sniffing.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When no transcoding is needed, then the transcoder built will pass
+</span>    <span class="shj-syn-cmnt">/// through the underlying bytes with no additional overhead.
+</span>    decode_builder<span class="shj-syn-oper">:</span> <span class="shj-syn-class">DecodeReaderBytesBuilder</span><span class="shj-syn-oper">,</span>
+    <span class="shj-syn-cmnt">/// A buffer that is used for transcoding scratch space.
+</span>    decode_buffer<span class="shj-syn-oper">:</span> <span class="shj-syn-class">RefCell</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Vec</span><span class="shj-syn-oper">&lt;</span>u8<span class="shj-syn-oper">&gt;&gt;,</span>
+    <span class="shj-syn-cmnt">/// A line buffer for use in line oriented searching.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// We wrap it in a RefCell to permit lending out borrows of `Searcher`
+</span>    <span class="shj-syn-cmnt">/// to sinks. We still require a mutable borrow to execute a search, so
+</span>    <span class="shj-syn-cmnt">/// we statically prevent callers from causing RefCell to panic at runtime
+</span>    <span class="shj-syn-cmnt">/// due to a borrowing violation.
+</span>    line_buffer<span class="shj-syn-oper">:</span> <span class="shj-syn-class">RefCell</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">LineBuffer</span><span class="shj-syn-oper">&gt;,</span>
+    <span class="shj-syn-cmnt">/// A buffer in which to store the contents of a reader when performing a
+</span>    <span class="shj-syn-cmnt">/// multi line search. In particular, multi line searches cannot be
+</span>    <span class="shj-syn-cmnt">/// performed incrementally, and need the entire haystack in memory at
+</span>    <span class="shj-syn-cmnt">/// once.
+</span>    multi_line_buffer<span class="shj-syn-oper">:</span> <span class="shj-syn-class">RefCell</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Vec</span><span class="shj-syn-oper">&lt;</span>u8<span class="shj-syn-oper">&gt;&gt;,</span>
+}
+
+<span class="shj-syn-kwd">impl</span> <span class="shj-syn-class">Searcher</span> {
+    <span class="shj-syn-cmnt">/// Create a new searcher with a default configuration.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// To configure the searcher (e.g., invert matching, enable memory maps,
+</span>    <span class="shj-syn-cmnt">/// enable contexts, etc.), use the [`SearcherBuilder`].
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">new</span>() <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Searcher</span> {
+        <span class="shj-syn-class">SearcherBuilder</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">build</span>()
+    }
+
+    <span class="shj-syn-cmnt">/// Execute a search over the file with the given path and write the
+</span>    <span class="shj-syn-cmnt">/// results to the given sink.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// If memory maps are enabled and the searcher heuristically believes
+</span>    <span class="shj-syn-cmnt">/// memory maps will help the search run faster, then this will use
+</span>    <span class="shj-syn-cmnt">/// memory maps. For this reason, callers should prefer using this method
+</span>    <span class="shj-syn-cmnt">/// or `search_file` over the more generic `search_reader` when possible.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> search_path<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">P</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">&gt;</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        matcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span>
+        path<span class="shj-syn-oper">:</span> <span class="shj-syn-class">P</span><span class="shj-syn-oper">,</span>
+        write_to<span class="shj-syn-oper">:</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-kwd">where</span>
+        <span class="shj-syn-class">P</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">AsRef</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Path</span><span class="shj-syn-oper">&gt;,</span>
+        <span class="shj-syn-class">M</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Matcher</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-class">S</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Sink</span><span class="shj-syn-oper">,</span>
+    {
+        <span class="shj-syn-kwd">let</span> path <span class="shj-syn-oper">=</span> path<span class="shj-syn-oper">.</span><span class="shj-syn-func">as_ref</span>();
+        <span class="shj-syn-kwd">let</span> file <span class="shj-syn-oper">=</span> <span class="shj-syn-class">File</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">open</span>(path)<span class="shj-syn-oper">.</span><span class="shj-syn-func">map_err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span>error_io)<span class="shj-syn-oper">?</span>;
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">search_file_maybe_path</span>(matcher<span class="shj-syn-oper">,</span> <span class="shj-syn-class">Some</span>(path)<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">&#38;</span>file<span class="shj-syn-oper">,</span> write_to)
+    }
+
+    <span class="shj-syn-cmnt">/// Execute a search over a file and write the results to the given sink.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// If memory maps are enabled and the searcher heuristically believes
+</span>    <span class="shj-syn-cmnt">/// memory maps will help the search run faster, then this will use
+</span>    <span class="shj-syn-cmnt">/// memory maps. For this reason, callers should prefer using this method
+</span>    <span class="shj-syn-cmnt">/// or `search_path` over the more generic `search_reader` when possible.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> search_file<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">&gt;</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        matcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span>
+        file<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-class">File</span><span class="shj-syn-oper">,</span>
+        write_to<span class="shj-syn-oper">:</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-kwd">where</span>
+        <span class="shj-syn-class">M</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Matcher</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-class">S</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Sink</span><span class="shj-syn-oper">,</span>
+    {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">search_file_maybe_path</span>(matcher<span class="shj-syn-oper">,</span> <span class="shj-syn-class">None</span><span class="shj-syn-oper">,</span> file<span class="shj-syn-oper">,</span> write_to)
+    }
+
+    <span class="shj-syn-kwd">fn</span> search_file_maybe_path<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">&gt;</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        matcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span>
+        path<span class="shj-syn-oper">:</span> <span class="shj-syn-class">Option</span><span class="shj-syn-oper">&lt;&#38;</span><span class="shj-syn-class">Path</span><span class="shj-syn-oper">&gt;,</span>
+        file<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-class">File</span><span class="shj-syn-oper">,</span>
+        write_to<span class="shj-syn-oper">:</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-kwd">where</span>
+        <span class="shj-syn-class">M</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Matcher</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-class">S</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Sink</span><span class="shj-syn-oper">,</span>
+    {
+        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">let</span> <span class="shj-syn-class">Some</span>(mmap) <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>mmap<span class="shj-syn-oper">.</span><span class="shj-syn-func">open</span>(file<span class="shj-syn-oper">,</span> path) {
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-str">"{:?}: searching via memory map"</span><span class="shj-syn-oper">,</span> path);
+            <span class="shj-syn-kwd">return</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">search_slice</span>(matcher<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">&#38;</span>mmap<span class="shj-syn-oper">,</span> write_to);
+        }
+        <span class="shj-syn-cmnt">// Fast path for multi-line searches of files when memory maps are not
+</span>        <span class="shj-syn-cmnt">// enabled. This pre-allocates a buffer roughly the size of the file,
+</span>        <span class="shj-syn-cmnt">// which isn't possible when searching an arbitrary std::io::Read.
+</span>        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">multi_line_with_matcher</span>(<span class="shj-syn-oper">&#38;</span>matcher) {
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(
+                <span class="shj-syn-str">"{:?}: reading entire file on to heap for mulitline"</span><span class="shj-syn-oper">,</span>
+                path
+            );
+            <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>fill_multi_line_buffer_from_file<span class="shj-syn-oper">::&lt;</span><span class="shj-syn-class">S</span><span class="shj-syn-oper">&gt;</span>(file)<span class="shj-syn-oper">?</span>;
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-str">"{:?}: searching via multiline strategy"</span><span class="shj-syn-oper">,</span> path);
+            <span class="shj-syn-class">MultiLine</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(
+                <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+                matcher<span class="shj-syn-oper">,</span>
+                <span class="shj-syn-oper">&#38;*</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>multi_line_buffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">borrow</span>()<span class="shj-syn-oper">,</span>
+                write_to<span class="shj-syn-oper">,</span>
+            )
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">run</span>()
+        } <span class="shj-syn-kwd">else</span> {
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-str">"{:?}: searching using generic reader"</span><span class="shj-syn-oper">,</span> path);
+            <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">search_reader</span>(matcher<span class="shj-syn-oper">,</span> file<span class="shj-syn-oper">,</span> write_to)
+        }
+    }
+
+    <span class="shj-syn-cmnt">/// Execute a search over any implementation of `std::io::Read` and write
+</span>    <span class="shj-syn-cmnt">/// the results to the given sink.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// When possible, this implementation will search the reader incrementally
+</span>    <span class="shj-syn-cmnt">/// without reading it into memory. In some cases---for example, if multi
+</span>    <span class="shj-syn-cmnt">/// line search is enabled---an incremental search isn't possible and the
+</span>    <span class="shj-syn-cmnt">/// given reader is consumed completely and placed on the heap before
+</span>    <span class="shj-syn-cmnt">/// searching begins. For this reason, when multi line search is enabled,
+</span>    <span class="shj-syn-cmnt">/// one should try to use higher level APIs (e.g., searching by file or
+</span>    <span class="shj-syn-cmnt">/// file path) so that memory maps can be used if they are available and
+</span>    <span class="shj-syn-cmnt">/// enabled.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> search_reader<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">R</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">&gt;</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        matcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span>
+        read_from<span class="shj-syn-oper">:</span> <span class="shj-syn-class">R</span><span class="shj-syn-oper">,</span>
+        write_to<span class="shj-syn-oper">:</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-kwd">where</span>
+        <span class="shj-syn-class">M</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Matcher</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-class">R</span><span class="shj-syn-oper">:</span> io<span class="shj-syn-oper">::</span><span class="shj-syn-class">Read</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-class">S</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Sink</span><span class="shj-syn-oper">,</span>
+    {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">check_config</span>(<span class="shj-syn-oper">&#38;</span>matcher)<span class="shj-syn-oper">.</span><span class="shj-syn-func">map_err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span>error_config)<span class="shj-syn-oper">?</span>;
+
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> decode_buffer <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>decode_buffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">borrow_mut</span>();
+        <span class="shj-syn-kwd">let</span> decoder <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span>
+            <span class="shj-syn-oper">.</span>decode_builder
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">build_with_buffer</span>(read_from<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-oper">*</span>decode_buffer)
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">map_err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span>error_io)<span class="shj-syn-oper">?</span>;
+
+        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">multi_line_with_matcher</span>(<span class="shj-syn-oper">&#38;</span>matcher) {
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(
+                <span class="shj-syn-str">"generic reader: reading everything to heap for multiline"</span>
+            );
+            <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>fill_multi_line_buffer_from_reader<span class="shj-syn-oper">::&lt;</span>_<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">&gt;</span>(decoder)<span class="shj-syn-oper">?</span>;
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-str">"generic reader: searching via multiline strategy"</span>);
+            <span class="shj-syn-class">MultiLine</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(
+                <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+                matcher<span class="shj-syn-oper">,</span>
+                <span class="shj-syn-oper">&#38;*</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>multi_line_buffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">borrow</span>()<span class="shj-syn-oper">,</span>
+                write_to<span class="shj-syn-oper">,</span>
+            )
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">run</span>()
+        } <span class="shj-syn-kwd">else</span> {
+            <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> line_buffer <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>line_buffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">borrow_mut</span>();
+            <span class="shj-syn-kwd">let</span> rdr <span class="shj-syn-oper">=</span> <span class="shj-syn-class">LineBufferReader</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(decoder<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-oper">*</span>line_buffer);
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-str">"generic reader: searching via roll buffer strategy"</span>);
+            <span class="shj-syn-class">ReadByLine</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> matcher<span class="shj-syn-oper">,</span> rdr<span class="shj-syn-oper">,</span> write_to)<span class="shj-syn-oper">.</span><span class="shj-syn-func">run</span>()
+        }
+    }
+
+    <span class="shj-syn-cmnt">/// Execute a search over the given slice and write the results to the
+</span>    <span class="shj-syn-cmnt">/// given sink.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> search_slice<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">&gt;</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        matcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">M</span><span class="shj-syn-oper">,</span>
+        slice<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span>[u8]<span class="shj-syn-oper">,</span>
+        write_to<span class="shj-syn-oper">:</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-kwd">where</span>
+        <span class="shj-syn-class">M</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Matcher</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-class">S</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Sink</span><span class="shj-syn-oper">,</span>
+    {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">check_config</span>(<span class="shj-syn-oper">&#38;</span>matcher)<span class="shj-syn-oper">.</span><span class="shj-syn-func">map_err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span>error_config)<span class="shj-syn-oper">?</span>;
+
+        <span class="shj-syn-cmnt">// We can search the slice directly, unless we need to do transcoding.
+</span>        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">slice_needs_transcoding</span>(slice) {
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(
+                <span class="shj-syn-str">"slice reader: needs transcoding, using generic reader"</span>
+            );
+            <span class="shj-syn-kwd">return</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">search_reader</span>(matcher<span class="shj-syn-oper">,</span> slice<span class="shj-syn-oper">,</span> write_to);
+        }
+        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">multi_line_with_matcher</span>(<span class="shj-syn-oper">&#38;</span>matcher) {
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-str">"slice reader: searching via multiline strategy"</span>);
+            <span class="shj-syn-class">MultiLine</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> matcher<span class="shj-syn-oper">,</span> slice<span class="shj-syn-oper">,</span> write_to)<span class="shj-syn-oper">.</span><span class="shj-syn-func">run</span>()
+        } <span class="shj-syn-kwd">else</span> {
+            log<span class="shj-syn-oper">::</span><span class="shj-syn-func">trace</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-str">"slice reader: searching via slice-by-line strategy"</span>);
+            <span class="shj-syn-class">SliceByLine</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> matcher<span class="shj-syn-oper">,</span> slice<span class="shj-syn-oper">,</span> write_to)<span class="shj-syn-oper">.</span><span class="shj-syn-func">run</span>()
+        }
+    }
+
+    <span class="shj-syn-cmnt">/// Set the binary detection method used on this searcher.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">set_binary_detection</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> detection<span class="shj-syn-oper">:</span> <span class="shj-syn-class">BinaryDetection</span>) {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>binary <span class="shj-syn-oper">=</span> detection<span class="shj-syn-oper">.</span><span class="shj-syn-func">clone</span>();
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>line_buffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">borrow_mut</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">set_binary_detection</span>(detection<span class="shj-syn-num">.0</span>);
+    }
+
+    <span class="shj-syn-cmnt">/// Check that the searcher's configuration and the matcher are consistent
+</span>    <span class="shj-syn-cmnt">/// with each other.
+</span>    <span class="shj-syn-kwd">fn</span> check_config<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">M</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Matcher</span><span class="shj-syn-oper">&gt;</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> matcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">M</span>) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-class">ConfigError</span><span class="shj-syn-oper">&gt;</span> {
+        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>heap_limit <span class="shj-syn-oper">==</span> <span class="shj-syn-class">Some</span>(<span class="shj-syn-num">0</span>) <span class="shj-syn-oper">&#38;&#38;</span> <span class="shj-syn-oper">!</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>mmap<span class="shj-syn-oper">.</span><span class="shj-syn-func">is_enabled</span>()
+        {
+            <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Err</span>(<span class="shj-syn-class">ConfigError</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">SearchUnavailable</span>);
+        }
+        <span class="shj-syn-kwd">let</span> matcher_line_term <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">match</span> matcher<span class="shj-syn-oper">.</span><span class="shj-syn-func">line_terminator</span>() {
+            <span class="shj-syn-class">None</span> <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Ok</span>(())<span class="shj-syn-oper">,</span>
+            <span class="shj-syn-class">Some</span>(line_term) <span class="shj-syn-oper">=&gt;</span> line_term<span class="shj-syn-oper">,</span>
+        };
+        <span class="shj-syn-kwd">if</span> matcher_line_term <span class="shj-syn-oper">!=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>line_term {
+            <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Err</span>(<span class="shj-syn-class">ConfigError</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">MismatchedLineTerminators</span> {
+                matcher<span class="shj-syn-oper">:</span> matcher_line_term<span class="shj-syn-oper">,</span>
+                searcher<span class="shj-syn-oper">:</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>line_term<span class="shj-syn-oper">,</span>
+            });
+        }
+        <span class="shj-syn-class">Ok</span>(())
+    }
+
+    <span class="shj-syn-cmnt">/// Returns true if and only if the given slice needs to be transcoded.
+</span>    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">slice_needs_transcoding</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> slice<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span>[u8]) <span class="shj-syn-oper">-&gt;</span> bool {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>encoding<span class="shj-syn-oper">.</span><span class="shj-syn-func">is_some</span>()
+            <span class="shj-syn-oper">||</span> (<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>bom_sniffing <span class="shj-syn-oper">&#38;&#38;</span> <span class="shj-syn-func">slice_has_bom</span>(slice))
+    }
+}
+
+<span class="shj-syn-cmnt">/// The following methods permit querying the configuration of a searcher.
+</span><span class="shj-syn-cmnt">/// These can be useful in generic implementations of [`Sink`], where the
+</span><span class="shj-syn-cmnt">/// output may be tailored based on how the searcher is configured.
+</span><span class="shj-syn-kwd">impl</span> <span class="shj-syn-class">Searcher</span> {
+    <span class="shj-syn-cmnt">/// Returns the line terminator used by this searcher.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">line_terminator</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">LineTerminator</span> {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>line_term
+    }
+
+    <span class="shj-syn-cmnt">/// Returns the type of binary detection configured on this searcher.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">binary_detection</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-class">BinaryDetection</span> {
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>binary
+    }
+
+    <span class="shj-syn-cmnt">/// Returns true if and only if this searcher is configured to invert its
+</span>    <span class="shj-syn-cmnt">/// search results. That is, matching lines are lines that do **not** match
+</span>    <span class="shj-syn-cmnt">/// the searcher's matcher.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">invert_match</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> bool {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>invert_match
+    }
+
+    <span class="shj-syn-cmnt">/// Returns true if and only if this searcher is configured to count line
+</span>    <span class="shj-syn-cmnt">/// numbers.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">line_number</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> bool {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>line_number
+    }
+
+    <span class="shj-syn-cmnt">/// Returns true if and only if this searcher is configured to perform
+</span>    <span class="shj-syn-cmnt">/// multi line search.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">multi_line</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> bool {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>multi_line
+    }
+
+    <span class="shj-syn-cmnt">/// Returns true if and only if this searcher is configured to stop when in
+</span>    <span class="shj-syn-cmnt">/// finds a non-matching line after a matching one.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">stop_on_nonmatch</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> bool {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>stop_on_nonmatch
+    }
+
+    <span class="shj-syn-cmnt">/// Returns true if and only if this searcher will choose a multi-line
+</span>    <span class="shj-syn-cmnt">/// strategy given the provided matcher.
+</span>    <span class="shj-syn-cmnt">///
+</span>    <span class="shj-syn-cmnt">/// This may diverge from the result of `multi_line` in cases where the
+</span>    <span class="shj-syn-cmnt">/// searcher has been configured to execute a search that can report
+</span>    <span class="shj-syn-cmnt">/// matches over multiple lines, but where the matcher guarantees that it
+</span>    <span class="shj-syn-cmnt">/// will never produce a match over multiple lines.
+</span>    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> multi_line_with_matcher<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">M</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Matcher</span><span class="shj-syn-oper">&gt;</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span> matcher<span class="shj-syn-oper">:</span> <span class="shj-syn-class">M</span>) <span class="shj-syn-oper">-&gt;</span> bool {
+        <span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">multi_line</span>() {
+            <span class="shj-syn-kwd">return</span> <span class="shj-syn-kwd">false</span>;
+        }
+        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">let</span> <span class="shj-syn-class">Some</span>(line_term) <span class="shj-syn-oper">=</span> matcher<span class="shj-syn-oper">.</span><span class="shj-syn-func">line_terminator</span>() {
+            <span class="shj-syn-kwd">if</span> line_term <span class="shj-syn-oper">==</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">line_terminator</span>() {
+                <span class="shj-syn-kwd">return</span> <span class="shj-syn-kwd">false</span>;
+            }
+        }
+        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">let</span> <span class="shj-syn-class">Some</span>(non_matching) <span class="shj-syn-oper">=</span> matcher<span class="shj-syn-oper">.</span><span class="shj-syn-func">non_matching_bytes</span>() {
+            <span class="shj-syn-cmnt">// If the line terminator is CRLF, we don't actually need to care
+</span>            <span class="shj-syn-cmnt">// whether the regex can match `\r` or not. Namely, a `\r` is
+</span>            <span class="shj-syn-cmnt">// neither necessary nor sufficient to terminate a line. A `\n` is
+</span>            <span class="shj-syn-cmnt">// always required.
+</span>            <span class="shj-syn-kwd">if</span> non_matching<span class="shj-syn-oper">.</span><span class="shj-syn-func">contains</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">line_terminator</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">as_byte</span>()) {
+                <span class="shj-syn-kwd">return</span> <span class="shj-syn-kwd">false</span>;
+            }
+        }
+        <span class="shj-syn-kwd">true</span>
+    }
+
+    <span class="shj-syn-cmnt">/// Returns the number of "after" context lines to report. When context
+</span>    <span class="shj-syn-cmnt">/// reporting is not enabled, this returns `0`.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">after_context</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> usize {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>after_context
+    }
+
+    <span class="shj-syn-cmnt">/// Returns the number of "before" context lines to report. When context
+</span>    <span class="shj-syn-cmnt">/// reporting is not enabled, this returns `0`.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">before_context</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> usize {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>before_context
+    }
+
+    <span class="shj-syn-cmnt">/// Returns true if and only if the searcher has "passthru" mode enabled.
+</span>    #[inline]
+    <span class="shj-syn-kwd">pub</span> <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">passthru</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span>) <span class="shj-syn-oper">-&gt;</span> bool {
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>passthru
+    }
+
+    <span class="shj-syn-cmnt">/// Fill the buffer for use with multi-line searching from the given file.
+</span>    <span class="shj-syn-cmnt">/// This reads from the file until EOF or until an error occurs. If the
+</span>    <span class="shj-syn-cmnt">/// contents exceed the configured heap limit, then an error is returned.
+</span>    <span class="shj-syn-kwd">fn</span> fill_multi_line_buffer_from_file<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">S</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Sink</span><span class="shj-syn-oper">&gt;</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        file<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-class">File</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">&gt;</span> {
+        <span class="shj-syn-func">assert</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>multi_line);
+
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> decode_buffer <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>decode_buffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">borrow_mut</span>();
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> read_from <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span>
+            <span class="shj-syn-oper">.</span>decode_builder
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">build_with_buffer</span>(file<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-oper">*</span>decode_buffer)
+            <span class="shj-syn-oper">.</span><span class="shj-syn-func">map_err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span>error_io)<span class="shj-syn-oper">?</span>;
+
+        <span class="shj-syn-cmnt">// If we don't have a heap limit, then we can defer to std's
+</span>        <span class="shj-syn-cmnt">// read_to_end implementation. fill_multi_line_buffer_from_reader will
+</span>        <span class="shj-syn-cmnt">// do this too, but since we have a File, we can be a bit smarter about
+</span>        <span class="shj-syn-cmnt">// pre-allocating here.
+</span>        <span class="shj-syn-cmnt">//
+</span>        <span class="shj-syn-cmnt">// If we're transcoding, then our pre-allocation might not be exact,
+</span>        <span class="shj-syn-cmnt">// but is probably still better than nothing.
+</span>        <span class="shj-syn-kwd">if</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>heap_limit<span class="shj-syn-oper">.</span><span class="shj-syn-func">is_none</span>() {
+            <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> buf <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>multi_line_buffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">borrow_mut</span>();
+            buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">clear</span>();
+            <span class="shj-syn-kwd">let</span> cap <span class="shj-syn-oper">=</span>
+                file<span class="shj-syn-oper">.</span><span class="shj-syn-func">metadata</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">map</span>(<span class="shj-syn-oper">|</span>m<span class="shj-syn-oper">|</span> m<span class="shj-syn-oper">.</span><span class="shj-syn-func">len</span>() <span class="shj-syn-kwd">as</span> usize <span class="shj-syn-oper">+</span> <span class="shj-syn-num">1</span>)<span class="shj-syn-oper">.</span><span class="shj-syn-func">unwrap_or</span>(<span class="shj-syn-num">0</span>);
+            buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">reserve</span>(cap);
+            read_from<span class="shj-syn-oper">.</span><span class="shj-syn-func">read_to_end</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-oper">*</span>buf)<span class="shj-syn-oper">.</span><span class="shj-syn-func">map_err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span>error_io)<span class="shj-syn-oper">?</span>;
+            <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Ok</span>(());
+        }
+        <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>fill_multi_line_buffer_from_reader<span class="shj-syn-oper">::&lt;</span>_<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">&gt;</span>(read_from)
+    }
+
+    <span class="shj-syn-cmnt">/// Fill the buffer for use with multi-line searching from the given
+</span>    <span class="shj-syn-cmnt">/// reader. This reads from the reader until EOF or until an error occurs.
+</span>    <span class="shj-syn-cmnt">/// If the contents exceed the configured heap limit, then an error is
+</span>    <span class="shj-syn-cmnt">/// returned.
+</span>    <span class="shj-syn-kwd">fn</span> fill_multi_line_buffer_from_reader<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">R</span><span class="shj-syn-oper">:</span> io<span class="shj-syn-oper">::</span><span class="shj-syn-class">Read</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">:</span> <span class="shj-syn-class">Sink</span><span class="shj-syn-oper">&gt;</span>(
+        <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">self</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-kwd">mut</span> read_from<span class="shj-syn-oper">:</span> <span class="shj-syn-class">R</span><span class="shj-syn-oper">,</span>
+    ) <span class="shj-syn-oper">-&gt;</span> <span class="shj-syn-class">Result</span><span class="shj-syn-oper">&lt;</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">&gt;</span> {
+        <span class="shj-syn-func">assert</span><span class="shj-syn-oper">!</span>(<span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>multi_line);
+
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> buf <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>multi_line_buffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">borrow_mut</span>();
+        buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">clear</span>();
+
+        <span class="shj-syn-cmnt">// If we don't have a heap limit, then we can defer to std's
+</span>        <span class="shj-syn-cmnt">// read_to_end implementation...
+</span>        <span class="shj-syn-kwd">let</span> heap_limit <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">match</span> <span class="shj-syn-kwd">self</span><span class="shj-syn-oper">.</span>config<span class="shj-syn-oper">.</span>heap_limit {
+            <span class="shj-syn-class">Some</span>(heap_limit) <span class="shj-syn-oper">=&gt;</span> heap_limit<span class="shj-syn-oper">,</span>
+            <span class="shj-syn-class">None</span> <span class="shj-syn-oper">=&gt;</span> {
+                read_from
+                    <span class="shj-syn-oper">.</span><span class="shj-syn-func">read_to_end</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> <span class="shj-syn-oper">*</span>buf)
+                    <span class="shj-syn-oper">.</span><span class="shj-syn-func">map_err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span>error_io)<span class="shj-syn-oper">?</span>;
+                <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Ok</span>(());
+            }
+        };
+        <span class="shj-syn-kwd">if</span> heap_limit <span class="shj-syn-oper">==</span> <span class="shj-syn-num">0</span> {
+            <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">error_io</span>(<span class="shj-syn-func">alloc_error</span>(heap_limit)));
+        }
+
+        <span class="shj-syn-cmnt">// ... otherwise we need to roll our own. This is likely quite a bit
+</span>        <span class="shj-syn-cmnt">// slower than what is optimal, but we avoid worry about memory safety
+</span>        <span class="shj-syn-cmnt">// until there's a compelling reason to speed this up.
+</span>        buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">resize</span>(cmp<span class="shj-syn-oper">::</span><span class="shj-syn-func">min</span>(<span class="shj-syn-class">DEFAULT_BUFFER_CAPACITY</span><span class="shj-syn-oper">,</span> heap_limit)<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0</span>);
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> pos <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>;
+        <span class="shj-syn-kwd">loop</span> {
+            <span class="shj-syn-kwd">let</span> nread <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">match</span> read_from<span class="shj-syn-oper">.</span><span class="shj-syn-func">read</span>(<span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> buf[pos<span class="shj-syn-oper">..</span>]) {
+                <span class="shj-syn-class">Ok</span>(nread) <span class="shj-syn-oper">=&gt;</span> nread<span class="shj-syn-oper">,</span>
+                <span class="shj-syn-class">Err</span>(<span class="shj-syn-kwd">ref</span> err) <span class="shj-syn-kwd">if</span> err<span class="shj-syn-oper">.</span><span class="shj-syn-func">kind</span>() <span class="shj-syn-oper">==</span> io<span class="shj-syn-oper">::</span><span class="shj-syn-class">ErrorKind</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Interrupted</span> <span class="shj-syn-oper">=&gt;</span> {
+                    <span class="shj-syn-kwd">continue</span>;
+                }
+                <span class="shj-syn-class">Err</span>(err) <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">error_io</span>(err))<span class="shj-syn-oper">,</span>
+            };
+            <span class="shj-syn-kwd">if</span> nread <span class="shj-syn-oper">==</span> <span class="shj-syn-num">0</span> {
+                buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">resize</span>(pos<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0</span>);
+                <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Ok</span>(());
+            }
+
+            pos <span class="shj-syn-oper">+=</span> nread;
+            <span class="shj-syn-kwd">if</span> buf[pos<span class="shj-syn-oper">..</span>]<span class="shj-syn-oper">.</span><span class="shj-syn-func">is_empty</span>() {
+                <span class="shj-syn-kwd">let</span> additional <span class="shj-syn-oper">=</span> heap_limit <span class="shj-syn-oper">-</span> buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">len</span>();
+                <span class="shj-syn-kwd">if</span> additional <span class="shj-syn-oper">==</span> <span class="shj-syn-num">0</span> {
+                    <span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Err</span>(<span class="shj-syn-class">S</span><span class="shj-syn-oper">::</span><span class="shj-syn-class">Error</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">error_io</span>(<span class="shj-syn-func">alloc_error</span>(heap_limit)));
+                }
+                <span class="shj-syn-kwd">let</span> limit <span class="shj-syn-oper">=</span> buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">len</span>() <span class="shj-syn-oper">+</span> additional;
+                <span class="shj-syn-kwd">let</span> doubled <span class="shj-syn-oper">=</span> <span class="shj-syn-num">2</span> <span class="shj-syn-oper">*</span> buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">len</span>();
+                buf<span class="shj-syn-oper">.</span><span class="shj-syn-func">resize</span>(cmp<span class="shj-syn-oper">::</span><span class="shj-syn-func">min</span>(doubled<span class="shj-syn-oper">,</span> limit)<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0</span>);
+            }
+        }
+    }
+}
+
+<span class="shj-syn-cmnt">/// Returns true if and only if the given slice begins with a UTF-8 or UTF-16
+</span><span class="shj-syn-cmnt">/// BOM.
+</span><span class="shj-syn-cmnt">///
+</span><span class="shj-syn-cmnt">/// This is used by the searcher to determine if a transcoder is necessary.
+</span><span class="shj-syn-cmnt">/// Otherwise, it is advantageous to search the slice directly.
+</span><span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">slice_has_bom</span>(slice<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span>[u8]) <span class="shj-syn-oper">-&gt;</span> bool {
+    <span class="shj-syn-kwd">let</span> enc <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">match</span> encoding_rs<span class="shj-syn-oper">::</span><span class="shj-syn-class">Encoding</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">for_bom</span>(slice) {
+        <span class="shj-syn-class">None</span> <span class="shj-syn-oper">=&gt;</span> <span class="shj-syn-kwd">return</span> <span class="shj-syn-kwd">false</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-class">Some</span>((enc<span class="shj-syn-oper">,</span> _)) <span class="shj-syn-oper">=&gt;</span> enc<span class="shj-syn-oper">,</span>
+    };
+    [encoding_rs<span class="shj-syn-oper">::</span><span class="shj-syn-class">UTF_16LE</span><span class="shj-syn-oper">,</span> encoding_rs<span class="shj-syn-oper">::</span><span class="shj-syn-class">UTF_16BE</span><span class="shj-syn-oper">,</span> encoding_rs<span class="shj-syn-oper">::</span><span class="shj-syn-class">UTF_8</span>]
+        <span class="shj-syn-oper">.</span><span class="shj-syn-func">contains</span>(<span class="shj-syn-oper">&#38;</span>enc)
+}
+
+#[<span class="shj-syn-func">cfg</span>(test)]
+<span class="shj-syn-kwd">mod</span> tests {
+    <span class="shj-syn-kwd">use</span> <span class="shj-syn-kwd">crate</span><span class="shj-syn-oper">::</span>testutil<span class="shj-syn-oper">::</span>{<span class="shj-syn-class">KitchenSink</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">RegexMatcher</span>};
+
+    <span class="shj-syn-kwd">use</span> <span class="shj-syn-kwd">super</span><span class="shj-syn-oper">::*</span>;
+
+    #[test]
+    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">config_error_heap_limit</span>() {
+        <span class="shj-syn-kwd">let</span> matcher <span class="shj-syn-oper">=</span> <span class="shj-syn-class">RegexMatcher</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(<span class="shj-syn-str">""</span>);
+        <span class="shj-syn-kwd">let</span> sink <span class="shj-syn-oper">=</span> <span class="shj-syn-class">KitchenSink</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>();
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> searcher <span class="shj-syn-oper">=</span> <span class="shj-syn-class">SearcherBuilder</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">heap_limit</span>(<span class="shj-syn-class">Some</span>(<span class="shj-syn-num">0</span>))<span class="shj-syn-oper">.</span><span class="shj-syn-func">build</span>();
+        <span class="shj-syn-kwd">let</span> res <span class="shj-syn-oper">=</span> searcher<span class="shj-syn-oper">.</span><span class="shj-syn-func">search_slice</span>(matcher<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">&#38;</span>[]<span class="shj-syn-oper">,</span> sink);
+        <span class="shj-syn-func">assert</span><span class="shj-syn-oper">!</span>(res<span class="shj-syn-oper">.</span><span class="shj-syn-func">is_err</span>());
+    }
+
+    #[test]
+    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">config_error_line_terminator</span>() {
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> matcher <span class="shj-syn-oper">=</span> <span class="shj-syn-class">RegexMatcher</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(<span class="shj-syn-str">""</span>);
+        matcher<span class="shj-syn-oper">.</span><span class="shj-syn-func">set_line_term</span>(<span class="shj-syn-class">Some</span>(<span class="shj-syn-class">LineTerminator</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">byte</span>(b<span class="shj-syn-str">'z'</span>)));
+
+        <span class="shj-syn-kwd">let</span> sink <span class="shj-syn-oper">=</span> <span class="shj-syn-class">KitchenSink</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>();
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> searcher <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Searcher</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>();
+        <span class="shj-syn-kwd">let</span> res <span class="shj-syn-oper">=</span> searcher<span class="shj-syn-oper">.</span><span class="shj-syn-func">search_slice</span>(matcher<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">&#38;</span>[]<span class="shj-syn-oper">,</span> sink);
+        <span class="shj-syn-func">assert</span><span class="shj-syn-oper">!</span>(res<span class="shj-syn-oper">.</span><span class="shj-syn-func">is_err</span>());
+    }
+
+    #[test]
+    <span class="shj-syn-kwd">fn</span> <span class="shj-syn-func">uft8_bom_sniffing</span>() {
+        <span class="shj-syn-cmnt">// See: https://github.com/BurntSushi/ripgrep/issues/1638
+</span>        <span class="shj-syn-cmnt">// ripgrep must sniff utf-8 BOM, just like it does with utf-16
+</span>        <span class="shj-syn-kwd">let</span> matcher <span class="shj-syn-oper">=</span> <span class="shj-syn-class">RegexMatcher</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>(<span class="shj-syn-str">"foo"</span>);
+        <span class="shj-syn-kwd">let</span> haystack<span class="shj-syn-oper">:</span> <span class="shj-syn-oper">&#38;</span>[u8] <span class="shj-syn-oper">=</span> <span class="shj-syn-oper">&#38;</span>[<span class="shj-syn-num">0xef</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">0xbb</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">0xbf</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">0x66</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">0x6f</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">0x6f</span>];
+
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> sink <span class="shj-syn-oper">=</span> <span class="shj-syn-class">KitchenSink</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>();
+        <span class="shj-syn-kwd">let</span> <span class="shj-syn-kwd">mut</span> searcher <span class="shj-syn-oper">=</span> <span class="shj-syn-class">SearcherBuilder</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">new</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">build</span>();
+
+        <span class="shj-syn-kwd">let</span> res <span class="shj-syn-oper">=</span> searcher<span class="shj-syn-oper">.</span><span class="shj-syn-func">search_slice</span>(matcher<span class="shj-syn-oper">,</span> haystack<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">&#38;</span><span class="shj-syn-kwd">mut</span> sink);
+        <span class="shj-syn-func">assert</span><span class="shj-syn-oper">!</span>(res<span class="shj-syn-oper">.</span><span class="shj-syn-func">is_ok</span>());
+
+        <span class="shj-syn-kwd">let</span> sink_output <span class="shj-syn-oper">=</span> <span class="shj-syn-class">String</span><span class="shj-syn-oper">::</span><span class="shj-syn-func">from_utf8</span>(sink<span class="shj-syn-oper">.</span><span class="shj-syn-func">as_bytes</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">to_vec</span>())<span class="shj-syn-oper">.</span><span class="shj-syn-func">unwrap</span>();
+        <span class="shj-syn-func">assert_eq</span><span class="shj-syn-oper">!</span>(sink_output<span class="shj-syn-oper">,</span> <span class="shj-syn-str">"1:0:foo\nbyte count:3\n"</span>);
+    }
+}
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

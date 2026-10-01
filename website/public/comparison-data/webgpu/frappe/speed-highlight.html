@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>speed-highlight · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>[class*=shj-lang-]{background:#303446;color:#c6d0f5}.shj-syn-cmnt{color:#949cbb}.shj-syn-err{color:#c6d0f5}.shj-syn-kwd{color:#ca9ee6}.shj-syn-num{color:#ef9f76}.shj-syn-class{color:#e5c890}.shj-syn-insert{color:#a6d189}.shj-syn-str{color:#a6d189}.shj-syn-bool{color:#ef9f76}.shj-syn-type{color:#e5c890}.shj-syn-oper{color:#99d1db}.shj-syn-section{color:#8caaee}.shj-syn-func{color:#8caaee}.shj-syn-deleted{color:#e78284}.shj-syn-var{color:#ca9ee6}</style><pre class="shj-lang-html"><code><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">html</span> <span class="shj-syn-class">lang</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"en"</span><span class="shj-syn-oper">&gt;</span>
+	<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">head</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">title</span><span class="shj-syn-oper">&gt;</span>three.js webgpu - compute reduction<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">title</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">meta</span> <span class="shj-syn-class">charset</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"utf-8"</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">meta</span> <span class="shj-syn-class">name</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"viewport"</span> <span class="shj-syn-class">content</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">meta</span> <span class="shj-syn-class">property</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"og:title"</span> <span class="shj-syn-class">content</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"three.js webgpu - compute reduction"</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">meta</span> <span class="shj-syn-class">property</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"og:type"</span> <span class="shj-syn-class">content</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"website"</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">meta</span> <span class="shj-syn-class">property</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"og:url"</span> <span class="shj-syn-class">content</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://threejs.org/examples/webgpu_compute_reduce.html"</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">meta</span> <span class="shj-syn-class">property</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"og:image"</span> <span class="shj-syn-class">content</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://threejs.org/examples/screenshots/webgpu_compute_reduce.jpg"</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">link</span> <span class="shj-syn-class">type</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"text/css"</span> <span class="shj-syn-class">rel</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"stylesheet"</span> <span class="shj-syn-class">href</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"main.css"</span><span class="shj-syn-oper">&gt;</span>
+	<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">head</span><span class="shj-syn-oper">&gt;</span>
+	<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">body</span><span class="shj-syn-oper">&gt;</span>
+
+	<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">style</span><span class="shj-syn-oper">&gt;</span>
+
+		<span class="shj-syn-func">#reduction-panel</span> {
+			<span class="shj-syn-var">background-color</span>: <span class="shj-syn-num">#111</span>;
+			<span class="shj-syn-var">width</span>: <span class="shj-syn-num">100</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">display</span>: <span class="shj-syn-num">flex</span>;
+			<span class="shj-syn-var">position</span>: <span class="shj-syn-num">fixed</span>;
+			<span class="shj-syn-var">height</span>: <span class="shj-syn-num">auto</span>;
+			<span class="shj-syn-var">bottom</span>: <span class="shj-syn-num">0</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">z-index</span>: <span class="shj-syn-num">99</span>;
+			<span class="shj-syn-var">flex-direction</span>: <span class="shj-syn-num">column</span>;
+			<span class="shj-syn-var">justify-content</span>: <span class="shj-syn-num">center</span>;
+			<span class="shj-syn-var">align-items</span>: <span class="shj-syn-num">center</span>;
+			<span class="shj-syn-var">border-left</span>: <span class="shj-syn-num">2</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span> <span class="shj-syn-num">solid</span> <span class="shj-syn-num">#222</span>;
+			<span class="shj-syn-var">text-align</span>: <span class="shj-syn-num">center</span>;
+		}
+
+		<span class="shj-syn-func">#panel-title</span> {
+			<span class="shj-syn-var">width</span>: <span class="shj-syn-num">fit-content</span>;
+		}
+
+		<span class="shj-syn-var">.thread-row</span> {
+			<span class="shj-syn-var">display</span>: <span class="shj-syn-num">flex</span>;
+			<span class="shj-syn-var">flex-direction</span>: <span class="shj-syn-num">row</span>;
+			<span class="shj-syn-var">align-items</span>: <span class="shj-syn-num">center</span>;
+			<span class="shj-syn-var">margin</span>: <span class="shj-syn-num">4</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span> <span class="shj-syn-num">0</span>;
+			<span class="shj-syn-var">position</span>: <span class="shj-syn-num">relative</span>;
+		}
+
+		<span class="shj-syn-var">.thread</span> {
+			<span class="shj-syn-var">width</span>: <span class="shj-syn-num">16</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">height</span>: <span class="shj-syn-num">16</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">background-color</span>: <span class="shj-syn-num">#444</span>;
+			<span class="shj-syn-var">margin-right</span>: <span class="shj-syn-num">2</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">transition</span>: <span class="shj-syn-num">background-color</span> <span class="shj-syn-num">0.5</span><span class="shj-syn-var">s</span><span class="shj-syn-num"></span>, <span class="shj-syn-num">transform</span> <span class="shj-syn-num">0.5</span><span class="shj-syn-var">s</span><span class="shj-syn-num"></span>;
+		}
+
+		<span class="shj-syn-var">.stage-display</span> {
+			<span class="shj-syn-var">display</span>: <span class="shj-syn-num">flex</span>;
+			<span class="shj-syn-var">flex-direction</span>: <span class="shj-syn-num">column</span>;
+			<span class="shj-syn-var">justify-content</span>: <span class="shj-syn-num">center</span>;
+			<span class="shj-syn-var">margin-bottom</span>: <span class="shj-syn-num">5</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+		}
+
+		<span class="shj-syn-var">.stage-label</span> {
+			<span class="shj-syn-var">font-size</span>: <span class="shj-syn-num">1.2</span><span class="shj-syn-var">em</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">color</span>: <span class="shj-syn-num">#aaa</span>;
+			<span class="shj-syn-var">font-style</span>: <span class="shj-syn-num">bold</span>;
+			<span class="shj-syn-var">margin-top</span>: <span class="shj-syn-num">6</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">margin-bottom</span>: <span class="shj-syn-num">20</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+		}
+
+		<span class="shj-syn-var">.thread</span> {
+			<span class="shj-syn-var">display</span>: <span class="shj-syn-num">flex</span>;
+			<span class="shj-syn-var">justify-content</span>: <span class="shj-syn-num">center</span>;
+			<span class="shj-syn-var">align-items</span>: <span class="shj-syn-num">center</span>;
+			<span class="shj-syn-var">width</span>: <span class="shj-syn-num">40</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">height</span>: <span class="shj-syn-num">40</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">margin</span>: <span class="shj-syn-num">2</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">border</span>: <span class="shj-syn-num">1</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span> <span class="shj-syn-num">solid</span> <span class="shj-syn-func">rgba</span>(<span class="shj-syn-num">255</span>, <span class="shj-syn-num">255</span>, <span class="shj-syn-num">255</span>, <span class="shj-syn-num">0.2</span>);
+			<span class="shj-syn-var">border-radius</span>: <span class="shj-syn-num">4</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">background</span>: <span class="shj-syn-func">linear-gradient</span>(<span class="shj-syn-num">180</span><span class="shj-syn-var">deg</span><span class="shj-syn-num"></span>, <span class="shj-syn-func">rgba</span>(<span class="shj-syn-num">255</span>,<span class="shj-syn-num">255</span>,<span class="shj-syn-num">255</span>,<span class="shj-syn-num">0.05</span>), <span class="shj-syn-func">rgba</span>(<span class="shj-syn-num">0</span>,<span class="shj-syn-num">0</span>,<span class="shj-syn-num">0</span>,<span class="shj-syn-num">0.2</span>));
+			<span class="shj-syn-var">box-shadow</span>: <span class="shj-syn-num">inset</span> <span class="shj-syn-num">0</span> <span class="shj-syn-num">0</span> <span class="shj-syn-num">2</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span> <span class="shj-syn-func">rgba</span>(<span class="shj-syn-num">255</span>,<span class="shj-syn-num">255</span>,<span class="shj-syn-num">255</span>,<span class="shj-syn-num">0.1</span>);
+			<span class="shj-syn-var">font-family</span>: <span class="shj-syn-num">monospace</span>;
+			<span class="shj-syn-var">color</span>: <span class="shj-syn-num">white</span>;
+		}
+
+		<span class="shj-syn-var">.thread_data</span> {
+			<span class="shj-syn-var">display</span>: <span class="shj-syn-num">block</span>;
+			<span class="shj-syn-var">max-width</span>: <span class="shj-syn-num">100</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">padding</span>: <span class="shj-syn-num">0</span> <span class="shj-syn-num">2</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">white-space</span>: <span class="shj-syn-num">nowrap</span>;
+			<span class="shj-syn-var">overflow</span>: <span class="shj-syn-num">hidden</span>;
+			<span class="shj-syn-var">text-overflow</span>: <span class="shj-syn-num">ellipsis</span>;
+			<span class="shj-syn-var">font-size</span>: <span class="shj-syn-func">clamp</span>(<span class="shj-syn-num">8</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>, <span class="shj-syn-num">2</span><span class="shj-syn-var">vw</span><span class="shj-syn-num"></span>, <span class="shj-syn-num">14</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>);
+			<span class="shj-syn-var">text-align</span>: <span class="shj-syn-num">center</span>;
+		}
+
+		<span class="shj-syn-var">.subgroup</span> {
+			<span class="shj-syn-var">display</span>: <span class="shj-syn-num">flex</span>;
+			<span class="shj-syn-var">position</span>: <span class="shj-syn-num">relative</span>;
+			<span class="shj-syn-var">margin-left</span>: <span class="shj-syn-num">10</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">margin-right</span>: <span class="shj-syn-num">10</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+		}
+
+		<span class="shj-syn-var">.subgroup</span><span class="shj-syn-var">::before</span> {
+			<span class="shj-syn-cmnt">/* label text for each subgroup label */</span>
+			<span class="shj-syn-var">content</span>: <span class="shj-syn-str">"subgroupAdd()"</span>;
+			<span class="shj-syn-var">position</span>: <span class="shj-syn-num">absolute</span>;
+			<span class="shj-syn-var">top</span>: <span class="shj-syn-num">-20</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-cmnt">/* Hide until animation is displayed */</span>
+			<span class="shj-syn-var">opacity</span>: <span class="shj-syn-num">0</span>;
+			<span class="shj-syn-var">z-index</span>: <span class="shj-syn-num">100</span>;
+			<span class="shj-syn-var">transition</span>: <span class="shj-syn-num">opacity</span> <span class="shj-syn-num">0.5</span><span class="shj-syn-var">s</span><span class="shj-syn-num"></span> <span class="shj-syn-num">ease</span>;
+			<span class="shj-syn-var">font-weight</span>: <span class="shj-syn-num">bold</span>;
+			<span class="shj-syn-var">color</span>: <span class="shj-syn-num">white</span>;
+			<span class="shj-syn-var">width</span>: <span class="shj-syn-num">100</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>;
+		}
+
+		<span class="shj-syn-var">.subgroup</span><span class="shj-syn-var">::after</span> {
+			<span class="shj-syn-var">content</span>: <span class="shj-syn-func">attr</span>(<span class="shj-syn-num">data-label</span>);
+			<span class="shj-syn-var">position</span>: <span class="shj-syn-num">absolute</span>;
+			<span class="shj-syn-var">bottom</span>: <span class="shj-syn-num">-20</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">opacity</span>: <span class="shj-syn-num">1</span>;
+			<span class="shj-syn-var">z-index</span>: <span class="shj-syn-num">100</span>;
+			<span class="shj-syn-var">color</span>: <span class="shj-syn-num">gray</span>;
+			<span class="shj-syn-var">width</span>: <span class="shj-syn-num">100</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>;
+		}
+
+		<span class="shj-syn-var">.reduction-stage</span> {
+			<span class="shj-syn-var">margin-bottom</span>: <span class="shj-syn-num">20</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;
+		}
+
+		<span class="shj-syn-kwd">@keyframes</span> <span class="shj-syn-kwd">label</span>Absorb {
+			<span class="shj-syn-num">0</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span> {
+				<span class="shj-syn-var">opacity</span>: <span class="shj-syn-num">0</span>;
+				<span class="shj-syn-var">transform</span>: <span class="shj-syn-func">translateY</span>(<span class="shj-syn-num">-50</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>);
+			}
+			<span class="shj-syn-num">40</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span> {
+				<span class="shj-syn-var">opacity</span>: <span class="shj-syn-num">1</span>;
+				<span class="shj-syn-var">transform</span>: <span class="shj-syn-func">translateY</span>(<span class="shj-syn-num">0</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>);
+			}
+			<span class="shj-syn-num">60</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span> {
+				<span class="shj-syn-var">opacity</span>: <span class="shj-syn-num">1</span>;
+				<span class="shj-syn-var">transform</span>: <span class="shj-syn-func">translateY</span>(<span class="shj-syn-num">0</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>);
+			}
+			<span class="shj-syn-num">80</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span> {
+				<span class="shj-syn-var">opacity</span>: <span class="shj-syn-num">1</span>;
+				<span class="shj-syn-var">transform</span>: <span class="shj-syn-func">translate</span>(<span class="shj-syn-num">0</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>, <span class="shj-syn-num">-20</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>);
+			}
+			<span class="shj-syn-num">100</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span> {
+				<span class="shj-syn-var">opacity</span>: <span class="shj-syn-num">0</span>;
+				<span class="shj-syn-var">transform</span>: <span class="shj-syn-func">translate</span>(<span class="shj-syn-num">0</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>, <span class="shj-syn-num">100</span><span class="shj-syn-var">%</span><span class="shj-syn-num"></span>);
+			}
+		}
+
+		<span class="shj-syn-var">.subgroup</span><span class="shj-syn-var">.anim</span><span class="shj-syn-var">::before</span> {
+			<span class="shj-syn-var">opacity</span>: <span class="shj-syn-num">0</span>;
+			<span class="shj-syn-var">animation-name</span>: labelAbsorb;
+			<span class="shj-syn-var">animation-duration</span>: <span class="shj-syn-num">1.5</span><span class="shj-syn-var">s</span><span class="shj-syn-num"></span>;
+			<span class="shj-syn-var">transition</span>:
+			<span class="shj-syn-num">transform</span> <span class="shj-syn-num">0.6</span><span class="shj-syn-var">s</span><span class="shj-syn-num"></span> <span class="shj-syn-num">ease-out</span>,
+			<span class="shj-syn-num">opacity</span> <span class="shj-syn-num">0.3</span><span class="shj-syn-var">s</span><span class="shj-syn-num"></span> <span class="shj-syn-num">ease-in</span> <span class="shj-syn-num">0.3</span><span class="shj-syn-var">s</span><span class="shj-syn-num"></span>;
+		}
+
+	<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">style</span><span class="shj-syn-oper">&gt;</span>
+
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">id</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"info"</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">a</span> <span class="shj-syn-class">href</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://threejs.org"</span> <span class="shj-syn-class">target</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"_blank"</span> <span class="shj-syn-class">rel</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"noopener"</span><span class="shj-syn-oper">&gt;</span>three.js<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">a</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">br</span> <span class="shj-syn-oper">/&gt;</span> This example demonstrates the performance of various simple parallel reduction kernels.
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">br</span> <span class="shj-syn-oper">/&gt;</span> Reference implementations are translated from the CUDA/WGSL code present in the following books/repos:
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">br</span> <span class="shj-syn-oper">/&gt;</span> Impl. 0 - 2: <span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">a</span> <span class="shj-syn-class">href</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://www.cambridge.org/core/books/programming-in-parallel-with-cuda/C43652A69033C25AD6933368CDBE084C"</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">i</span><span class="shj-syn-oper">&gt;</span>Programming in Parallel with CUDA<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">i</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">a</span><span class="shj-syn-oper">&gt;</span> by <span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">a</span> <span class="shj-syn-class">href</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://github.com/RichardAns"</span><span class="shj-syn-oper">&gt;</span>Richard Ansorge<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">a</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">br</span> <span class="shj-syn-oper">/&gt;</span> Impl. 3: <span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">a</span> <span class="shj-syn-class">href</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://github.com/frost-beta/betann/blob/main/betann/wgsl/reduce_all.wgsl"</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">i</span><span class="shj-syn-oper">&gt;</span>betann reduce_all kernel<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">i</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">a</span><span class="shj-syn-oper">&gt;</span> by <span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">a</span> <span class="shj-syn-class">href</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://github.com/zcbenz"</span><span class="shj-syn-oper">&gt;</span>zcbenz<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">a</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">br</span> <span class="shj-syn-oper">/&gt;</span> Impl. 4: <span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">a</span> <span class="shj-syn-class">href</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://github.com/b0nes164/GPUPrefixSums/blob/main/GPUPrefixSumsWebGPUapis/SharedShaders/rts.wgsl"</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">i</span><span class="shj-syn-oper">&gt;</span>GPUPrefixSums reduction approach<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">i</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">a</span><span class="shj-syn-oper">&gt;</span> by <span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">a</span> <span class="shj-syn-class">href</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"https://github.com/b0nes164"</span><span class="shj-syn-oper">&gt;</span>b0nes164<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">a</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">id</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"left_side_display"</span> <span class="shj-syn-class">style</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"</span><span class="shj-syn-var">position</span>: <span class="shj-syn-num">absolute</span>;<span class="shj-syn-var">top</span>: <span class="shj-syn-num">150</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;<span class="shj-syn-var">left</span>: <span class="shj-syn-num">0</span>;<span class="shj-syn-var">padding</span>: <span class="shj-syn-num">10</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;<span class="shj-syn-var">background</span>: <span class="shj-syn-func">rgba</span>( <span class="shj-syn-num">0</span>, <span class="shj-syn-num">0</span>, <span class="shj-syn-num">0</span>, <span class="shj-syn-num">0.5</span> );<span class="shj-syn-var">color</span>: <span class="shj-syn-num">#fff</span>;<span class="shj-syn-var">font-family</span>: <span class="shj-syn-num">monospace</span>;<span class="shj-syn-var">font-size</span>: <span class="shj-syn-num">12</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;<span class="shj-syn-var">line-height</span>: <span class="shj-syn-num">1.5</span>;<span class="shj-syn-var">pointer-events</span>: <span class="shj-syn-num">none</span>;<span class="shj-syn-var">text-align</span>: <span class="shj-syn-num">left</span>;<span class="shj-syn-str">"</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">id</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"right_side_display"</span> <span class="shj-syn-class">style</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"</span><span class="shj-syn-var">position</span>: <span class="shj-syn-num">absolute</span>;<span class="shj-syn-var">top</span>: <span class="shj-syn-num">150</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;<span class="shj-syn-var">right</span>: <span class="shj-syn-num">0</span>;<span class="shj-syn-var">padding</span>: <span class="shj-syn-num">10</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;<span class="shj-syn-var">background</span>: <span class="shj-syn-func">rgba</span>( <span class="shj-syn-num">0</span>, <span class="shj-syn-num">0</span>, <span class="shj-syn-num">0</span>, <span class="shj-syn-num">0.5</span> );<span class="shj-syn-var">color</span>: <span class="shj-syn-num">#fff</span>;<span class="shj-syn-var">font-family</span>: <span class="shj-syn-num">monospace</span>;<span class="shj-syn-var">font-size</span>: <span class="shj-syn-num">12</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;<span class="shj-syn-var">line-height</span>: <span class="shj-syn-num">1.5</span>;<span class="shj-syn-var">pointer-events</span>: <span class="shj-syn-num">none</span>;<span class="shj-syn-var">text-align</span>: <span class="shj-syn-num">left</span>;<span class="shj-syn-str">"</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">id</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"reduction-panel"</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">h3</span> <span class="shj-syn-class">id</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"panel-title"</span> <span class="shj-syn-class">style</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"</span><span class="shj-syn-var">flex</span>: <span class="shj-syn-num">0</span> <span class="shj-syn-num">0</span> <span class="shj-syn-num">auto</span>;<span class="shj-syn-str">"</span><span class="shj-syn-oper">&gt;</span>Subgroup Reduction Explanation<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">h3</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">class</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"reduction-stage"</span> <span class="shj-syn-class">id</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"subgroup-reduction-stage"</span><span class="shj-syn-oper">&gt;</span>
+    		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">class</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"stage-label"</span><span class="shj-syn-oper">&gt;</span>Use subgroupAdd() to capture reduction of each workgroup's subgroups (Hover for animation)<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+				<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">class</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"stage-display"</span><span class="shj-syn-oper">&gt;</span>
+					<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">id</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"workgroup_threads"</span> <span class="shj-syn-class">style</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"</span><span class="shj-syn-var">display</span>: <span class="shj-syn-num">flex</span>; <span class="shj-syn-var">justify-content</span>: <span class="shj-syn-num">center</span>; <span class="shj-syn-var">margin-bottom</span>: <span class="shj-syn-num">20</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;<span class="shj-syn-str">"</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+					<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">div</span> <span class="shj-syn-class">id</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"subgroup_reduction"</span> <span class="shj-syn-class">style</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"</span><span class="shj-syn-var">display</span>: <span class="shj-syn-num">flex</span>; <span class="shj-syn-var">justify-content</span>: <span class="shj-syn-num">center</span>; <span class="shj-syn-var">margin-bottom</span>: <span class="shj-syn-num">5</span><span class="shj-syn-var">px</span><span class="shj-syn-num"></span>;<span class="shj-syn-str">"</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+				<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+			<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">div</span><span class="shj-syn-oper">&gt;</span>
+
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">script</span> <span class="shj-syn-class">type</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"importmap"</span><span class="shj-syn-oper">&gt;</span>
+			{
+				"imports"<span class="shj-syn-oper">:</span> {
+					"three"<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"../build/three.webgpu.js"</span><span class="shj-syn-oper">,</span>
+					"three/webgpu"<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"../build/three.webgpu.js"</span><span class="shj-syn-oper">,</span>
+					"three/tsl"<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"../build/three.tsl.js"</span><span class="shj-syn-oper">,</span>
+					"three/addons/"<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"./jsm/"</span>
+				}
+			}
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">script</span><span class="shj-syn-oper">&gt;</span>
+
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-var">script</span> <span class="shj-syn-class">type</span><span class="shj-syn-str"></span><span class="shj-syn-oper">=</span><span class="shj-syn-str">"module"</span><span class="shj-syn-oper">&gt;</span>
+
+			<span class="shj-syn-kwd">import</span> <span class="shj-syn-oper">*</span> <span class="shj-syn-kwd">as</span> <span class="shj-syn-num">THREE</span> <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">'three/webgpu'</span>;
+			<span class="shj-syn-kwd">import</span> { instancedArray<span class="shj-syn-oper">,</span> <span class="shj-syn-class">Loop</span><span class="shj-syn-oper">,</span> <span class="shj-syn-class">If</span><span class="shj-syn-oper">,</span> vec3<span class="shj-syn-oper">,</span> dot<span class="shj-syn-oper">,</span> clamp<span class="shj-syn-oper">,</span> storage<span class="shj-syn-oper">,</span> uvec4<span class="shj-syn-oper">,</span> subgroupAdd<span class="shj-syn-oper">,</span> uniform<span class="shj-syn-oper">,</span> uv<span class="shj-syn-oper">,</span> uint<span class="shj-syn-oper">,</span> float<span class="shj-syn-oper">,</span> <span class="shj-syn-class">Fn</span><span class="shj-syn-oper">,</span> vec2<span class="shj-syn-oper">,</span> invocationLocalIndex<span class="shj-syn-oper">,</span> invocationSubgroupIndex<span class="shj-syn-oper">,</span> uvec2<span class="shj-syn-oper">,</span> floor<span class="shj-syn-oper">,</span> instanceIndex<span class="shj-syn-oper">,</span> workgroupId<span class="shj-syn-oper">,</span> workgroupBarrier<span class="shj-syn-oper">,</span> workgroupArray<span class="shj-syn-oper">,</span> subgroupSize<span class="shj-syn-oper">,</span> select<span class="shj-syn-oper">,</span> countTrailingZeros } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">'three/tsl'</span>;
+
+			<span class="shj-syn-kwd">import</span> <span class="shj-syn-class">WebGPU</span> <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">'three/addons/capabilities/WebGPU.js'</span>;
+
+			<span class="shj-syn-kwd">import</span> { <span class="shj-syn-num">GUI</span> } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">'three/addons/libs/lil-gui.module.min.js'</span>;
+
+			<span class="shj-syn-kwd">const</span> timestamps <span class="shj-syn-oper">=</span> {
+				left_side_display<span class="shj-syn-oper">:</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">'left_side_display'</span> )<span class="shj-syn-oper">,</span>
+				right_side_display<span class="shj-syn-oper">:</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">'right_side_display'</span> )
+			};
+
+			<span class="shj-syn-kwd">const</span> divRoundUp <span class="shj-syn-oper">=</span> ( size<span class="shj-syn-oper">,</span> part_size ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">return</span> <span class="shj-syn-class">Math</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">floor</span>( ( size <span class="shj-syn-oper">+</span> part_size <span class="shj-syn-oper">-</span> <span class="shj-syn-num">1</span> ) <span class="shj-syn-oper">/</span> part_size );
+
+			};
+
+			<span class="shj-syn-kwd">const</span> cssSubgroupSize <span class="shj-syn-oper">=</span> <span class="shj-syn-num">4</span>;
+			<span class="shj-syn-kwd">const</span> cssWorkgroupSize <span class="shj-syn-oper">=</span> <span class="shj-syn-num">16</span>;
+
+			<span class="shj-syn-kwd">const</span> workgroupThreadsContainer <span class="shj-syn-oper">=</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">'workgroup_threads'</span> );
+			<span class="shj-syn-kwd">const</span> subgroupReductionContainer <span class="shj-syn-oper">=</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">'subgroup_reduction'</span> );
+
+			document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">'panel-title'</span> )<span class="shj-syn-oper">.</span>textContent <span class="shj-syn-oper">+=</span> <span class="shj-syn-str">` (Subgroup Size: </span><span class="shj-syn-kwd">${</span>cssSubgroupSize<span class="shj-syn-kwd">}</span><span class="shj-syn-str">, Workgroup Size: </span><span class="shj-syn-kwd">${</span>cssWorkgroupSize<span class="shj-syn-kwd">}</span><span class="shj-syn-str">)`</span>;
+
+			<span class="shj-syn-kwd">const</span> createThreadWithData <span class="shj-syn-oper">=</span> ( data ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">const</span> threadEle <span class="shj-syn-oper">=</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">createElement</span>( <span class="shj-syn-str">'div'</span> );
+				threadEle<span class="shj-syn-oper">.</span>className <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'thread'</span>;
+				<span class="shj-syn-kwd">const</span> threadData <span class="shj-syn-oper">=</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">createElement</span>( <span class="shj-syn-str">'span'</span> );
+				threadData<span class="shj-syn-oper">.</span>textContent <span class="shj-syn-oper">=</span> data; <span class="shj-syn-cmnt">// safer than innerHTML for just text
+</span>				threadData<span class="shj-syn-oper">.</span>className <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'thread_data'</span>;
+				threadEle<span class="shj-syn-oper">.</span><span class="shj-syn-func">append</span>( threadData );
+
+				<span class="shj-syn-kwd">return</span> threadEle;
+
+			};
+
+			<span class="shj-syn-cmnt">// Create thread elements
+</span>			<span class="shj-syn-kwd">const</span> workgroupThreads <span class="shj-syn-oper">=</span> [];
+			<span class="shj-syn-kwd">const</span> initialSubgroups <span class="shj-syn-oper">=</span> [];
+			<span class="shj-syn-kwd">const</span> initialData <span class="shj-syn-oper">=</span> [];
+			<span class="shj-syn-kwd">let</span> currentSubgroupDiv <span class="shj-syn-oper">=</span> <span class="shj-syn-num">null</span>;
+			<span class="shj-syn-kwd">for</span> ( <span class="shj-syn-kwd">let</span> i <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>; i <span class="shj-syn-oper">&lt;</span> cssWorkgroupSize; i <span class="shj-syn-oper">++</span> ) {
+
+				<span class="shj-syn-kwd">if</span> ( i <span class="shj-syn-oper">%</span> cssSubgroupSize <span class="shj-syn-oper">===</span> <span class="shj-syn-num">0</span> ) {
+
+					<span class="shj-syn-kwd">const</span> currentSubgroupIndex <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Math</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">floor</span>( i <span class="shj-syn-oper">/</span> cssSubgroupSize );
+
+					<span class="shj-syn-kwd">const</span> subgroupReductionThread <span class="shj-syn-oper">=</span> <span class="shj-syn-func">createThreadWithData</span>( <span class="shj-syn-num">0</span> );
+					subgroupReductionThread<span class="shj-syn-oper">.</span>id <span class="shj-syn-oper">=</span> <span class="shj-syn-str">`subgroup_reduction_element_</span><span class="shj-syn-kwd">${</span>currentSubgroupIndex<span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span>;
+					subgroupReductionContainer<span class="shj-syn-oper">.</span><span class="shj-syn-func">appendChild</span>( subgroupReductionThread );
+
+					currentSubgroupDiv <span class="shj-syn-oper">=</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">createElement</span>( <span class="shj-syn-str">'div'</span> );
+					currentSubgroupDiv<span class="shj-syn-oper">.</span>className <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'subgroup'</span>;
+					currentSubgroupDiv<span class="shj-syn-oper">.</span><span class="shj-syn-func">setAttribute</span>( <span class="shj-syn-str">'data-label'</span><span class="shj-syn-oper">,</span> <span class="shj-syn-str">`Threads </span><span class="shj-syn-kwd">${</span>currentSubgroupIndex <span class="shj-syn-oper">*</span> cssSubgroupSize<span class="shj-syn-kwd">}</span><span class="shj-syn-str">-</span><span class="shj-syn-kwd">${</span>( currentSubgroupIndex <span class="shj-syn-oper">+</span> <span class="shj-syn-num">1</span> ) <span class="shj-syn-oper">*</span> cssSubgroupSize <span class="shj-syn-oper">-</span> <span class="shj-syn-num">1</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span> );
+					initialSubgroups<span class="shj-syn-oper">.</span><span class="shj-syn-func">push</span>( currentSubgroupDiv );
+					workgroupThreadsContainer<span class="shj-syn-oper">.</span><span class="shj-syn-func">appendChild</span>( currentSubgroupDiv );
+
+				}
+
+				<span class="shj-syn-kwd">const</span> data <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Math</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">floor</span>( <span class="shj-syn-class">Math</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">random</span>() <span class="shj-syn-oper">*</span> <span class="shj-syn-num">9</span> ) <span class="shj-syn-oper">+</span> <span class="shj-syn-num">1</span>;
+				initialData<span class="shj-syn-oper">.</span><span class="shj-syn-func">push</span>( data );
+
+				<span class="shj-syn-kwd">const</span> thread <span class="shj-syn-oper">=</span> <span class="shj-syn-func">createThreadWithData</span>( data );
+				workgroupThreads<span class="shj-syn-oper">.</span><span class="shj-syn-func">push</span>( thread );
+				currentSubgroupDiv<span class="shj-syn-oper">.</span><span class="shj-syn-func">appendChild</span>( thread );
+
+			}
+
+			<span class="shj-syn-kwd">const</span> deactivateLabelAnimation <span class="shj-syn-oper">=</span> ( subgroupDiv<span class="shj-syn-oper">,</span> idx ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				subgroupDiv<span class="shj-syn-oper">.</span>classList<span class="shj-syn-oper">.</span><span class="shj-syn-func">remove</span>( <span class="shj-syn-str">'anim'</span> );
+
+				<span class="shj-syn-kwd">const</span> subgroupReductionBufferElement <span class="shj-syn-oper">=</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">`subgroup_reduction_element_</span><span class="shj-syn-kwd">${</span>idx<span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">querySelector</span>( <span class="shj-syn-str">'.thread_data'</span> );
+
+				subgroupReductionBufferElement<span class="shj-syn-oper">.</span>innerHTML <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>;
+
+			};
+
+			<span class="shj-syn-kwd">const</span> activateLabelAnimation <span class="shj-syn-oper">=</span> ( subgroupDiv<span class="shj-syn-oper">,</span> idx ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">const</span> threads <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Array</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">from</span>( subgroupDiv<span class="shj-syn-oper">.</span>children );
+				<span class="shj-syn-kwd">let</span> total <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>;
+
+				<span class="shj-syn-kwd">for</span> ( <span class="shj-syn-kwd">let</span> i <span class="shj-syn-oper">=</span> idx <span class="shj-syn-oper">*</span> cssSubgroupSize; i <span class="shj-syn-oper">&lt;</span> idx <span class="shj-syn-oper">*</span> cssSubgroupSize <span class="shj-syn-oper">+</span> cssSubgroupSize; i <span class="shj-syn-oper">++</span> ) {
+
+					total <span class="shj-syn-oper">+=</span> initialData[ i ];
+
+				}
+
+				subgroupDiv<span class="shj-syn-oper">.</span>classList<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( <span class="shj-syn-str">'anim'</span> );
+
+				<span class="shj-syn-func">setTimeout</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					threads<span class="shj-syn-oper">.</span><span class="shj-syn-func">forEach</span>( t <span class="shj-syn-kwd">=&gt;</span> {
+
+						t<span class="shj-syn-oper">.</span><span class="shj-syn-func">querySelector</span>( <span class="shj-syn-str">'.thread_data'</span> )<span class="shj-syn-oper">.</span>textContent <span class="shj-syn-oper">=</span> total;
+
+					} );
+
+					<span class="shj-syn-kwd">const</span> subgroupReductionBufferElement <span class="shj-syn-oper">=</span> document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">`subgroup_reduction_element_</span><span class="shj-syn-kwd">${</span>idx<span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">querySelector</span>( <span class="shj-syn-str">'.thread_data'</span> );
+
+					subgroupReductionBufferElement<span class="shj-syn-oper">.</span>innerHTML <span class="shj-syn-oper">=</span> total;
+
+				}<span class="shj-syn-oper">,</span> <span class="shj-syn-num">1000</span> );
+
+				<span class="shj-syn-cmnt">// Remove the class after the animation ends so it can be triggered again
+</span>				<span class="shj-syn-func">setTimeout</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					subgroupDiv<span class="shj-syn-oper">.</span>classList<span class="shj-syn-oper">.</span><span class="shj-syn-func">remove</span>( <span class="shj-syn-str">'anim'</span> );
+
+				}<span class="shj-syn-oper">,</span> <span class="shj-syn-num">1500</span> ); <span class="shj-syn-cmnt">// matches animation duration in CSS
+</span>
+			};
+
+			document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">'subgroup-reduction-stage'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">addEventListener</span>( <span class="shj-syn-str">'mouseenter'</span><span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+				initialSubgroups<span class="shj-syn-oper">.</span><span class="shj-syn-func">forEach</span>( ( subgroupDiv<span class="shj-syn-oper">,</span> idx ) <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-func">activateLabelAnimation</span>( subgroupDiv<span class="shj-syn-oper">,</span> idx );
+
+				} );
+
+			} );
+
+			document<span class="shj-syn-oper">.</span><span class="shj-syn-func">getElementById</span>( <span class="shj-syn-str">'subgroup-reduction-stage'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">addEventListener</span>( <span class="shj-syn-str">'mouseleave'</span><span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+				initialSubgroups<span class="shj-syn-oper">.</span><span class="shj-syn-func">forEach</span>( ( subgroupDiv<span class="shj-syn-oper">,</span> idx ) <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-func">deactivateLabelAnimation</span>( subgroupDiv<span class="shj-syn-oper">,</span> idx );
+
+				} );
+
+				workgroupThreads<span class="shj-syn-oper">.</span><span class="shj-syn-func">forEach</span>( ( thread<span class="shj-syn-oper">,</span> idx ) <span class="shj-syn-kwd">=&gt;</span> {
+
+					thread<span class="shj-syn-oper">.</span><span class="shj-syn-func">querySelector</span>( <span class="shj-syn-str">'.thread_data'</span> )<span class="shj-syn-oper">.</span>textContent <span class="shj-syn-oper">=</span> initialData[ idx ];
+
+				} );
+
+			} );
+
+
+			<span class="shj-syn-kwd">if</span> ( <span class="shj-syn-class">WebGPU</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">isAvailable</span>() <span class="shj-syn-oper">===</span> <span class="shj-syn-bool">false</span> ) {
+
+				document<span class="shj-syn-oper">.</span>body<span class="shj-syn-oper">.</span><span class="shj-syn-func">appendChild</span>( <span class="shj-syn-class">WebGPU</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">getErrorMessage</span>() );
+
+				<span class="shj-syn-kwd">throw</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-class">Error</span>( <span class="shj-syn-str">'No WebGPU support'</span> );
+
+			}
+
+			<span class="shj-syn-cmnt">// Total number of elements and the dimensions of the display grid.
+</span>			<span class="shj-syn-kwd">const</span> size <span class="shj-syn-oper">=</span> <span class="shj-syn-num">262144</span>;
+			<span class="shj-syn-kwd">const</span> vecSize <span class="shj-syn-oper">=</span> <span class="shj-syn-func">divRoundUp</span>( size<span class="shj-syn-oper">,</span> <span class="shj-syn-num">4</span> );
+			<span class="shj-syn-cmnt">// Grid display is gridDim x gridDim
+</span>			<span class="shj-syn-kwd">const</span> gridDim <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Math</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">sqrt</span>( size );
+			<span class="shj-syn-kwd">let</span> maxWorkgroupSize <span class="shj-syn-oper">=</span> <span class="shj-syn-num">64</span>;
+
+			<span class="shj-syn-cmnt">// Algorithm speed increase as you iterate through algorithms array
+</span>			<span class="shj-syn-kwd">const</span> algorithms <span class="shj-syn-oper">=</span> [
+				<span class="shj-syn-str">'Reduce 0 (N/2)'</span><span class="shj-syn-oper">,</span>
+				<span class="shj-syn-str">'Reduce 1 (Naive Accumulate)'</span><span class="shj-syn-oper">,</span>
+				<span class="shj-syn-str">'Reduce 2 (Workgroup Reduction)'</span><span class="shj-syn-oper">,</span>
+				<span class="shj-syn-str">'Reduce 3 (Subgroup Reduce)'</span><span class="shj-syn-oper">,</span>
+				<span class="shj-syn-str">'Reduce 4 (Subgroup Optimized)'</span><span class="shj-syn-oper">,</span>
+				<span class="shj-syn-str">'Incorrect Baseline'</span><span class="shj-syn-oper">,</span>
+			];
+
+			<span class="shj-syn-cmnt">// Input Grid: Displays input data in a grid format
+</span>			<span class="shj-syn-cmnt">// Input Log2: Displays input grid data's logarithmic indices horizontally (1, 2, 4, 8, 16, ..., size)
+</span>			<span class="shj-syn-cmnt">// Input Element 0: Displays clamped input[0]
+</span>			<span class="shj-syn-kwd">const</span> displayModes <span class="shj-syn-oper">=</span> [ <span class="shj-syn-str">'Input Grid'</span><span class="shj-syn-oper">,</span> <span class="shj-syn-str">'Input Log2'</span><span class="shj-syn-oper">,</span> <span class="shj-syn-str">'Input Element 0'</span><span class="shj-syn-oper">,</span> <span class="shj-syn-str">'Workgroup Sum Grid'</span> ];
+
+			<span class="shj-syn-cmnt">// Holds uniforms for both displays as well as debug information
+</span>			<span class="shj-syn-kwd">const</span> unifiedEffectController <span class="shj-syn-oper">=</span> {
+				<span class="shj-syn-cmnt">// Number of elements in the grid
+</span>				gridElementWidth<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( gridDim )<span class="shj-syn-oper">,</span>
+				gridElementHeight<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( gridDim )<span class="shj-syn-oper">,</span>
+				<span class="shj-syn-cmnt">// Number of elements in the grid being displayed
+</span>				gridDisplayWidth<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( gridDim )<span class="shj-syn-oper">,</span>
+				gridDisplayHeight<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( gridDim )<span class="shj-syn-oper">,</span>
+				<span class="shj-syn-cmnt">// How to display end result of reduction.
+</span>				<span class="shj-syn-cmnt">// Ideally this is unique to the reduction method being deployed
+</span>				'Display Mode'<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Input Log2'</span><span class="shj-syn-oper">,</span>
+				loggedBuffer<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Input Buffer'</span><span class="shj-syn-oper">,</span>
+				elementsReduced<span class="shj-syn-oper">:</span> size<span class="shj-syn-oper">,</span>
+			};
+
+
+			<span class="shj-syn-kwd">const</span> leftEffectController <span class="shj-syn-oper">=</span> {
+				<span class="shj-syn-cmnt">// Current reduction algorithm being executed by this side
+</span>				algo<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Reduce 0 (N/2)'</span><span class="shj-syn-oper">,</span>
+				<span class="shj-syn-cmnt">// Flag indicating whether to highlight element in validation check
+</span>				highlight<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span>
+				<span class="shj-syn-cmnt">// Uniform that corresponds to the index of the current algorithm within the algorithms array
+</span>				currentAlgo<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span>
+				<span class="shj-syn-cmnt">// Current state of reduction (Running, validating, resetting)
+</span>				state<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Run Algo'</span><span class="shj-syn-oper">,</span>
+				<span class="shj-syn-cmnt">// Current display mode
+</span>				displayMode<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Input Log2'</span><span class="shj-syn-oper">,</span>
+				<span class="shj-syn-cmnt">// Reduce 0 specific uniform
+</span>				numThreadsDispatched<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( size <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span> )<span class="shj-syn-oper">,</span>
+				<span class="shj-syn-cmnt">// The subgroup size used by this side's device
+</span>			};
+
+			<span class="shj-syn-kwd">const</span> rightEffectController <span class="shj-syn-oper">=</span> {
+				algo<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Reduce 4 (Subgroup Optimized)'</span><span class="shj-syn-oper">,</span>
+				currentAlgo<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( <span class="shj-syn-num">3</span> )<span class="shj-syn-oper">,</span>
+				highlight<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span>
+				displayMode<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Input Element 0'</span><span class="shj-syn-oper">,</span>
+				state<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Run Algo'</span><span class="shj-syn-oper">,</span>
+				numThreadsDispatched<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uniform</span>( size <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span> )
+			};
+
+			<span class="shj-syn-kwd">const</span> leftMaterial <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">MeshBasicNodeMaterial</span>( { color<span class="shj-syn-oper">:</span> <span class="shj-syn-num">0x00ff00</span> } );
+			<span class="shj-syn-kwd">const</span> rightMaterial <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">MeshBasicNodeMaterial</span>( { color<span class="shj-syn-oper">:</span> <span class="shj-syn-num">0x00ff00</span> } );
+			<span class="shj-syn-kwd">const</span> leftDisplayColorNodes <span class="shj-syn-oper">=</span> {};
+			<span class="shj-syn-kwd">const</span> rightDisplayColorNodes <span class="shj-syn-oper">=</span> {};
+
+			<span class="shj-syn-kwd">const</span> gui <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">GUI</span>();
+
+			gui<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( leftEffectController<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'algo'</span><span class="shj-syn-oper">,</span> algorithms )<span class="shj-syn-oper">.</span><span class="shj-syn-func">onChange</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+				leftEffectController<span class="shj-syn-oper">.</span>currentAlgo<span class="shj-syn-oper">.</span>value <span class="shj-syn-oper">=</span> algorithms<span class="shj-syn-oper">.</span><span class="shj-syn-func">findIndex</span>( val <span class="shj-syn-kwd">=&gt;</span> val <span class="shj-syn-oper">===</span> leftEffectController<span class="shj-syn-oper">.</span>algo );
+
+			} );
+
+			gui<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( rightEffectController<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'algo'</span><span class="shj-syn-oper">,</span> algorithms )<span class="shj-syn-oper">.</span><span class="shj-syn-func">onChange</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+				rightEffectController<span class="shj-syn-oper">.</span>currentAlgo<span class="shj-syn-oper">.</span>value <span class="shj-syn-oper">=</span> algorithms<span class="shj-syn-oper">.</span><span class="shj-syn-func">findIndex</span>( val <span class="shj-syn-kwd">=&gt;</span> val <span class="shj-syn-oper">===</span> rightEffectController<span class="shj-syn-oper">.</span>algo );
+
+			} );
+
+			gui<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( leftEffectController<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'displayMode'</span><span class="shj-syn-oper">,</span> displayModes )<span class="shj-syn-oper">.</span><span class="shj-syn-func">name</span>( <span class="shj-syn-str">'Left Display Mode'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">onChange</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+				leftMaterial<span class="shj-syn-oper">.</span>colorNode <span class="shj-syn-oper">=</span> leftDisplayColorNodes[ leftEffectController<span class="shj-syn-oper">.</span>displayMode ];
+				leftMaterial<span class="shj-syn-oper">.</span>needsUpdate <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">true</span>;
+
+			} );
+			gui<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( rightEffectController<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'displayMode'</span><span class="shj-syn-oper">,</span> displayModes )<span class="shj-syn-oper">.</span><span class="shj-syn-func">name</span>( <span class="shj-syn-str">'Right Display Mode'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">onChange</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+				rightMaterial<span class="shj-syn-oper">.</span>colorNode <span class="shj-syn-oper">=</span> rightDisplayColorNodes[ rightEffectController<span class="shj-syn-oper">.</span>displayMode ];
+				rightMaterial<span class="shj-syn-oper">.</span>needsUpdate <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">true</span>;
+
+			} );
+
+			<span class="shj-syn-kwd">const</span> debugFolder <span class="shj-syn-oper">=</span> gui<span class="shj-syn-oper">.</span><span class="shj-syn-func">addFolder</span>( <span class="shj-syn-str">'Debug'</span> );
+			<span class="shj-syn-kwd">const</span> elementsReducedController <span class="shj-syn-oper">=</span> debugFolder<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( unifiedEffectController<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'elementsReduced'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">name</span>( <span class="shj-syn-str">'Elements Reduced'</span> );
+			elementsReducedController<span class="shj-syn-oper">.</span><span class="shj-syn-func">disable</span>();
+			<span class="shj-syn-kwd">const</span> stateLeftController <span class="shj-syn-oper">=</span> debugFolder<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( leftEffectController<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'state'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">name</span>( <span class="shj-syn-str">'Left Display State'</span> );
+			<span class="shj-syn-kwd">const</span> stateRightController <span class="shj-syn-oper">=</span> debugFolder<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( rightEffectController<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'state'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">name</span>( <span class="shj-syn-str">'Right Display State'</span> );
+			stateLeftController<span class="shj-syn-oper">.</span><span class="shj-syn-func">disable</span>();
+			stateRightController<span class="shj-syn-oper">.</span><span class="shj-syn-func">disable</span>();
+			debugFolder<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( unifiedEffectController<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'loggedBuffer'</span><span class="shj-syn-oper">,</span> [ <span class="shj-syn-str">'Input Buffer'</span><span class="shj-syn-oper">,</span> <span class="shj-syn-str">'Input Vectorized Buffer'</span><span class="shj-syn-oper">,</span> <span class="shj-syn-str">'Workgroup Sums Buffer'</span><span class="shj-syn-oper">,</span> <span class="shj-syn-str">'Debug Buffer'</span> ] )<span class="shj-syn-oper">.</span><span class="shj-syn-func">name</span>( <span class="shj-syn-str">'Buffer to Log'</span> );
+			debugFolder<span class="shj-syn-oper">.</span><span class="shj-syn-func">close</span>();
+
+			<span class="shj-syn-cmnt">// HELPER FUNCTIONS
+</span>			<span class="shj-syn-kwd">const</span> pow2Ceil <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( ( [ x ] ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-class">If</span>( x<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">1</span> );
+
+				} );
+
+				<span class="shj-syn-kwd">const</span> val <span class="shj-syn-oper">=</span> x<span class="shj-syn-oper">.</span><span class="shj-syn-func">sub</span>( <span class="shj-syn-num">1</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'val'</span> );
+				val<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">bitOr</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftRight</span>( <span class="shj-syn-num">1</span> ) ) );
+				val<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">bitOr</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftRight</span>( <span class="shj-syn-num">2</span> ) ) );
+				val<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">bitOr</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftRight</span>( <span class="shj-syn-num">4</span> ) ) );
+				val<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">bitOr</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftRight</span>( <span class="shj-syn-num">8</span> ) ) );
+				val<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">bitOr</span>( val<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftRight</span>( <span class="shj-syn-num">16</span> ) ) );
+				<span class="shj-syn-kwd">return</span> val<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( <span class="shj-syn-num">1</span> );
+
+			} )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setLayout</span>( {
+				name<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'pow2Ceil'</span><span class="shj-syn-oper">,</span>
+				type<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'uint'</span><span class="shj-syn-oper">,</span>
+				inputs<span class="shj-syn-oper">:</span> [
+					{ name<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'x'</span><span class="shj-syn-oper">,</span> type<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'uint'</span> }
+				]
+			} );
+
+			<span class="shj-syn-cmnt">// ALGORITHM CONSTRUCTORS
+</span>
+			<span class="shj-syn-cmnt">// REDUCE 1
+</span>
+			<span class="shj-syn-cmnt">// Thanks to Sam0oneau of Graphics Programming Discord for the explanation.
+</span>			<span class="shj-syn-cmnt">// (Graphics Programming Discord Message Link): https://discord.com/channels/318590007881236480/374061825454768129/1391248956171882597
+</span>
+			<span class="shj-syn-cmnt">/* Reduce 1 Example (Assume Workgroup Size 256, numElements: 262144) -&gt; Initial currentBuffer State: | 1, 1, 1, 1, ... |
+				 *
+				 * KERNEL 1:
+				 * Executes 256 threads by 256 workgroups. Each thread loops 4 times and accesses elements
+				 * at the indices below.
+				 *          Thread 1                        Thread 2                         Thread 3
+				 * | 0, 65536, ..., n * 65536 | 1, 65537, .... (n * 65536) + 1 | 1, 65538, .... (n * 65536) + 2 | etc
+				 * Buffer Values: | 4, 4, 4, 4, ...|
+				 *
+				 * KERNEL 2:
+				 * Executes 256 threads by one workgroup. Each thread loops 1024 times
+				 *          Thread 1                     Thread 2                     Thread 3
+				 * | 0, 256, ...., n * 256    | 1, 257, ... (n * 256) + 1 | 2, 258, ... (n * 256) + 3 | etc
+				 * Buffer Values: | 1024, 1024, 1024, 1024, ... |
+				 *
+				 * KERNEL 3:
+				 * Executes 1 thread by one workgroup. Single thread loops 256 times
+				 *          Thread 1
+				 * | 0, 1, 2, 3, 4, 5, 6 ... etc|
+				 * Buffer Values: [262144, 1024, 1024]
+				 */</span>
+
+
+			<span class="shj-syn-kwd">const</span> createReduce1Fn <span class="shj-syn-oper">=</span> ( createReduce1FnProps ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">const</span> { dispatchSize<span class="shj-syn-oper">,</span> numElements<span class="shj-syn-oper">,</span> inputBuffer<span class="shj-syn-oper">,</span> workgroupSize } <span class="shj-syn-oper">=</span> createReduce1FnProps;
+
+				<span class="shj-syn-kwd">const</span> fnDef <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> dispatch <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( dispatchSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'dispatchSize'</span> );
+					<span class="shj-syn-kwd">const</span> tSum <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>();
+					<span class="shj-syn-kwd">const</span> k <span class="shj-syn-oper">=</span> instanceIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'k'</span> );
+
+					<span class="shj-syn-class">Loop</span>( k<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( <span class="shj-syn-func">uint</span>( numElements ) )<span class="shj-syn-oper">,</span> ( ) <span class="shj-syn-kwd">=&gt;</span> {
+
+						tSum<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( k ) );
+						k<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( <span class="shj-syn-func">uint</span>( dispatch ) );
+
+					} );
+
+					inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( instanceIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( tSum );
+
+
+				} )()<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( dispatchSize<span class="shj-syn-oper">,</span> [ workgroupSize ] );
+
+				<span class="shj-syn-kwd">return</span> fnDef;
+
+			};
+
+			<span class="shj-syn-cmnt">// REDUCE 2
+</span>
+			<span class="shj-syn-cmnt">// For non power of 2 # of workgroups
+</span>			<span class="shj-syn-kwd">const</span> createReduce2Fn <span class="shj-syn-oper">=</span> ( createReduce2FnProps ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">const</span> { workgroupSize<span class="shj-syn-oper">,</span> dispatchSize<span class="shj-syn-oper">,</span> numElements<span class="shj-syn-oper">,</span> inputBuffer } <span class="shj-syn-oper">=</span> createReduce2FnProps;
+
+				<span class="shj-syn-kwd">const</span> fnDef <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> tSum <span class="shj-syn-oper">=</span> <span class="shj-syn-func">workgroupArray</span>( <span class="shj-syn-str">'uint'</span><span class="shj-syn-oper">,</span> workgroupSize );
+
+					<span class="shj-syn-kwd">const</span> k <span class="shj-syn-oper">=</span> instanceIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'k'</span> );
+					tSum<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( invocationLocalIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> ) );
+
+					<span class="shj-syn-class">Loop</span>( k<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( <span class="shj-syn-func">uint</span>( numElements ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						tSum<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( invocationLocalIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( k ) );
+
+						k<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( <span class="shj-syn-func">uint</span>( dispatchSize ) );
+
+					} );
+
+					<span class="shj-syn-func">workgroupBarrier</span>();
+
+					<span class="shj-syn-cmnt">// Reset the loop condition (account for numWorkgroups % 2 != 0)
+</span>					k<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">pow2Ceil</span>( <span class="shj-syn-func">uint</span>( workgroupSize ) )<span class="shj-syn-oper">.</span><span class="shj-syn-func">div</span>( <span class="shj-syn-num">2</span> ) );
+
+					<span class="shj-syn-class">Loop</span>( k<span class="shj-syn-oper">.</span><span class="shj-syn-func">greaterThan</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						<span class="shj-syn-class">If</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( k )<span class="shj-syn-oper">.</span><span class="shj-syn-func">and</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( k )<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( workgroupSize ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+							tSum<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( invocationLocalIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( tSum<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( k ) ) );
+
+						} );
+						<span class="shj-syn-func">workgroupBarrier</span>();
+						k<span class="shj-syn-oper">.</span><span class="shj-syn-func">divAssign</span>( <span class="shj-syn-num">2</span> );
+
+					} );
+
+					<span class="shj-syn-class">If</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( workgroupId<span class="shj-syn-oper">.</span>x )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( tSum<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> ) ) );
+
+					} );
+
+				} )()<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( dispatchSize<span class="shj-syn-oper">,</span> [ workgroupSize ] );
+
+				<span class="shj-syn-kwd">return</span> fnDef;
+
+			};
+
+			<span class="shj-syn-cmnt">// REDUCE 3
+</span>
+			<span class="shj-syn-cmnt">/* Create array with enough indices for worst-case subgroup size */</span>
+			<span class="shj-syn-kwd">const</span> createSubgroupArray <span class="shj-syn-oper">=</span> ( type<span class="shj-syn-oper">,</span> workgroupSize<span class="shj-syn-oper">,</span> minSubgroupSize <span class="shj-syn-oper">=</span> <span class="shj-syn-num">4</span> ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">workgroupArray</span>( <span class="shj-syn-str">'uint'</span><span class="shj-syn-oper">,</span> workgroupSize <span class="shj-syn-oper">/</span> minSubgroupSize );
+
+			};
+
+			<span class="shj-syn-cmnt">// zcbenz implementation
+</span>			<span class="shj-syn-cmnt">// https://github.com/frost-beta/betann/blob/8aa2701caf63fb29bd4cd2454e656973342c1588/betann/wgsl/reduce_ops.wgsl#L71
+</span>			<span class="shj-syn-kwd">const</span> <span class="shj-syn-class">RowReduce</span> <span class="shj-syn-oper">=</span> ( rowReduceProps ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">const</span> { workgroupSize<span class="shj-syn-oper">,</span> inputBuffer<span class="shj-syn-oper">,</span> total<span class="shj-syn-oper">,</span> rowOffset<span class="shj-syn-oper">,</span> currentRowSize<span class="shj-syn-oper">,</span> workPerThread<span class="shj-syn-oper">,</span> vectorized } <span class="shj-syn-oper">=</span> rowReduceProps;
+
+				<span class="shj-syn-cmnt">// Number of unvectorized elements each workgroup can ingest
+</span>				<span class="shj-syn-cmnt">// At workgroupSize of 256, blockSize will be 1024
+</span>				<span class="shj-syn-kwd">const</span> blockSize <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( workgroupSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( workPerThread );
+				<span class="shj-syn-kwd">const</span> block <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'block'</span> );
+
+				<span class="shj-syn-cmnt">// At rowSize of 2048, there will be two blocks
+</span>				<span class="shj-syn-kwd">const</span> blockLimiter <span class="shj-syn-oper">=</span> currentRowSize<span class="shj-syn-oper">.</span><span class="shj-syn-func">div</span>( blockSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'blockLimiter'</span> );
+				<span class="shj-syn-class">Loop</span>( block<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( blockLimiter )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> blockOffset <span class="shj-syn-oper">=</span> block<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( blockSize );
+					<span class="shj-syn-kwd">const</span> startThread <span class="shj-syn-oper">=</span> blockOffset<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( workPerThread ) );
+					<span class="shj-syn-kwd">const</span> localThreadOffset <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'localThreadOffset'</span> );
+					<span class="shj-syn-class">Loop</span>( localThreadOffset<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( workPerThread )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						<span class="shj-syn-kwd">const</span> inputElement <span class="shj-syn-oper">=</span> inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( rowOffset<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( startThread )<span class="shj-syn-oper">.</span>addLocal );
+
+						<span class="shj-syn-kwd">if</span> ( vectorized ) {
+
+							<span class="shj-syn-kwd">const</span> value <span class="shj-syn-oper">=</span> <span class="shj-syn-func">dot</span>( inputElement<span class="shj-syn-oper">,</span> <span class="shj-syn-func">uvec4</span>( <span class="shj-syn-num">1</span> ) );
+							total<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( value );
+
+						} <span class="shj-syn-kwd">else</span> {
+
+							<span class="shj-syn-kwd">const</span> inputElement <span class="shj-syn-oper">=</span> inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( rowOffset<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( startThread )<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( localThreadOffset ) );
+							total<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( inputElement );
+
+						}
+
+						<span class="shj-syn-cmnt">// Increment up a thread
+</span>						localThreadOffset<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( <span class="shj-syn-num">1</span> );
+
+					} );
+
+					<span class="shj-syn-cmnt">// Increment up a block
+</span>					block<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( <span class="shj-syn-num">1</span> );
+
+				} );
+
+				<span class="shj-syn-cmnt">// Ignoring left over check for this example, since we know ahead of time the value of leftover (2048 % 1024 === 0)
+</span>
+			};
+
+			<span class="shj-syn-kwd">const</span> <span class="shj-syn-class">WorkgroupReduce</span> <span class="shj-syn-oper">=</span> ( workgroupReduceProps ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">const</span> { total<span class="shj-syn-oper">,</span> workgroupSize } <span class="shj-syn-oper">=</span> workgroupReduceProps;
+
+				<span class="shj-syn-kwd">const</span> subgroupSums <span class="shj-syn-oper">=</span> <span class="shj-syn-func">createSubgroupArray</span>( <span class="shj-syn-str">'uint'</span><span class="shj-syn-oper">,</span> workgroupSize );
+
+				<span class="shj-syn-cmnt">// Assign sum of all values in subgroup to total
+</span>				total<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">subgroupAdd</span>( total ) );
+
+				<span class="shj-syn-kwd">const</span> delta <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( workgroupSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">div</span>( subgroupSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'delta'</span> );
+
+				<span class="shj-syn-kwd">const</span> subgroupMetaRank <span class="shj-syn-oper">=</span> invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">div</span>( subgroupSize );
+
+				<span class="shj-syn-class">Loop</span>( <span class="shj-syn-func">float</span>( delta )<span class="shj-syn-oper">.</span><span class="shj-syn-func">greaterThan</span>( <span class="shj-syn-num">1.0</span> )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-class">If</span>( invocationSubgroupIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						<span class="shj-syn-cmnt">// Each subgroup will populate the subgroupSums array
+</span>						subgroupSums<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( subgroupMetaRank )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( total );
+
+					} );
+
+					<span class="shj-syn-cmnt">// Ensure that all subgroups in the workgroup have populated the workgroup memory array
+</span>					<span class="shj-syn-func">workgroupBarrier</span>();
+
+					<span class="shj-syn-cmnt">// Thread 0 - subgroupsInWorkgroup will assign a value to total
+</span>					total<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">select</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( delta )<span class="shj-syn-oper">,</span> subgroupSums<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( invocationLocalIndex )<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">uniformFlow</span>() );
+					<span class="shj-syn-cmnt">// # of subgroups in workgroup is invariably less than # of threads in subgroup, so subgroupAdd will still sync here
+</span>					total<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">subgroupAdd</span>( total ) );
+
+					delta<span class="shj-syn-oper">.</span><span class="shj-syn-func">divAssign</span>( subgroupSize );
+
+				} );
+
+			};
+
+			<span class="shj-syn-kwd">const</span> createReduce3Fn <span class="shj-syn-oper">=</span> ( createReduce3FnProps ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">const</span> { workgroupSize<span class="shj-syn-oper">,</span> workPerThread<span class="shj-syn-oper">,</span> inputBuffer<span class="shj-syn-oper">,</span> intermediateBuffer<span class="shj-syn-oper">,</span> rowSize } <span class="shj-syn-oper">=</span> createReduce3FnProps;
+
+				<span class="shj-syn-kwd">const</span> fnDef <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> inputSize <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( inputBuffer<span class="shj-syn-oper">.</span>bufferCount );
+					<span class="shj-syn-kwd">const</span> rowOffset <span class="shj-syn-oper">=</span> workgroupId<span class="shj-syn-oper">.</span>x<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( rowSize );
+
+					<span class="shj-syn-cmnt">// If the current rows elements exceed the bounds of the input
+</span>					<span class="shj-syn-cmnt">// Select either 0 or number of elements left,
+</span>					<span class="shj-syn-cmnt">// otherwise, select existing ROW_SIZE
+</span>					<span class="shj-syn-kwd">const</span> currentRowSize <span class="shj-syn-oper">=</span> <span class="shj-syn-func">select</span>(
+						( rowOffset<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( rowSize ) )<span class="shj-syn-oper">.</span><span class="shj-syn-func">greaterThan</span>( inputSize )<span class="shj-syn-oper">,</span>
+						<span class="shj-syn-func">select</span>( inputSize<span class="shj-syn-oper">.</span><span class="shj-syn-func">greaterThan</span>( rowOffset )<span class="shj-syn-oper">,</span> inputSize<span class="shj-syn-oper">.</span><span class="shj-syn-func">sub</span>( rowOffset )<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">uniformFlow</span>()<span class="shj-syn-oper">,</span>
+						rowSize<span class="shj-syn-oper">,</span>
+					)<span class="shj-syn-oper">.</span><span class="shj-syn-func">uniformFlow</span>();
+
+					<span class="shj-syn-kwd">const</span> total <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'total'</span> );
+
+					<span class="shj-syn-class">RowReduce</span>( {
+						inputBuffer<span class="shj-syn-oper">:</span> inputBuffer<span class="shj-syn-oper">,</span>
+						total<span class="shj-syn-oper">:</span> total<span class="shj-syn-oper">,</span>
+						rowOffset<span class="shj-syn-oper">:</span> rowOffset<span class="shj-syn-oper">,</span>
+						currentRowSize<span class="shj-syn-oper">:</span> currentRowSize<span class="shj-syn-oper">,</span>
+						workPerThread<span class="shj-syn-oper">:</span> workPerThread<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> workgroupSize<span class="shj-syn-oper">,</span>
+					} );
+
+					<span class="shj-syn-class">WorkgroupReduce</span>( {
+						total<span class="shj-syn-oper">:</span> total<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> workgroupSize<span class="shj-syn-oper">,</span>
+					} );
+
+					<span class="shj-syn-cmnt">// Populate each workgroup with its reduction
+</span>					<span class="shj-syn-class">If</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						intermediateBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( workgroupId<span class="shj-syn-oper">.</span>x )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( total );
+
+					} );
+
+				} )();
+
+				<span class="shj-syn-kwd">return</span> fnDef;
+
+			};
+
+			<span class="shj-syn-cmnt">// REDUCE 4
+</span>
+			<span class="shj-syn-cmnt">// b0nes164 inspired implementation with vec4
+</span>			<span class="shj-syn-kwd">const</span> createReduce4Fn <span class="shj-syn-oper">=</span> ( props ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-cmnt">// Can't pass in subgroup size since we can't always be certain what size is at runtime
+</span>				<span class="shj-syn-kwd">const</span> { size<span class="shj-syn-oper">,</span> workPerThread<span class="shj-syn-oper">,</span> workgroupSize<span class="shj-syn-oper">,</span> inputBuffer<span class="shj-syn-oper">,</span> intermediateBuffer } <span class="shj-syn-oper">=</span> props;
+
+				<span class="shj-syn-kwd">const</span> <span class="shj-syn-class">ELEMENTS_PER_VEC4</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-num">4</span>;
+				<span class="shj-syn-cmnt">// The number of individual elements a single workgroup will access
+</span>				<span class="shj-syn-kwd">const</span> partitionSize <span class="shj-syn-oper">=</span> workgroupSize <span class="shj-syn-oper">*</span> workPerThread <span class="shj-syn-oper">*</span> <span class="shj-syn-class">ELEMENTS_PER_VEC4</span>;
+				<span class="shj-syn-kwd">const</span> vecSize <span class="shj-syn-oper">=</span> <span class="shj-syn-func">divRoundUp</span>( size<span class="shj-syn-oper">,</span> <span class="shj-syn-class">ELEMENTS_PER_VEC4</span> );
+				<span class="shj-syn-cmnt">// Can also be calculated using divRoundUp( vecSize, workgroupSize * workPerThread );
+</span>				<span class="shj-syn-kwd">const</span> numWorkgroups <span class="shj-syn-oper">=</span> <span class="shj-syn-func">divRoundUp</span>( size<span class="shj-syn-oper">,</span> partitionSize );
+				<span class="shj-syn-cmnt">// Currently no way to specify dispatch size in increments of workgroups, so we convert to numInvocations
+</span>				<span class="shj-syn-kwd">const</span> numInvocations <span class="shj-syn-oper">=</span> numWorkgroups <span class="shj-syn-oper">*</span> workgroupSize;
+
+				<span class="shj-syn-kwd">const</span> fnDef <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> perSubgroupReductionArray <span class="shj-syn-oper">=</span> <span class="shj-syn-func">createSubgroupArray</span>( <span class="shj-syn-str">'uint'</span><span class="shj-syn-oper">,</span> workgroupSize );
+
+					<span class="shj-syn-cmnt">// Get the index of the subgroup within the workgroup
+</span>					<span class="shj-syn-kwd">const</span> subgroupMetaRank <span class="shj-syn-oper">=</span> invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">div</span>( subgroupSize );
+
+					<span class="shj-syn-cmnt">// Each subgroup block scans across 4 subgroups. So when we move into a new subgroup,
+</span>					<span class="shj-syn-cmnt">// align that subgroups' accesses to the next 4 subgroups
+</span>					<span class="shj-syn-kwd">const</span> subgroupOffset <span class="shj-syn-oper">=</span> subgroupMetaRank<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( subgroupSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( workPerThread );
+					subgroupOffset<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( invocationSubgroupIndex );
+
+					<span class="shj-syn-cmnt">// Per workgroup, offset by number of vectorized elements scanned per workgroup
+</span>					<span class="shj-syn-kwd">const</span> workgroupOffset <span class="shj-syn-oper">=</span> workgroupId<span class="shj-syn-oper">.</span>x<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( <span class="shj-syn-func">uint</span>( maxWorkgroupSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( workPerThread ) );
+
+					<span class="shj-syn-kwd">const</span> startThread <span class="shj-syn-oper">=</span> subgroupOffset<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( workgroupOffset );
+
+					<span class="shj-syn-kwd">const</span> subgroupReduction <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> );
+
+					<span class="shj-syn-cmnt">// Each thread will accumulate values from across 'workPerThread' subgroups
+</span>					<span class="shj-syn-class">If</span>( workgroupId<span class="shj-syn-oper">.</span>x<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( <span class="shj-syn-func">uint</span>( numWorkgroups )<span class="shj-syn-oper">.</span><span class="shj-syn-func">sub</span>( <span class="shj-syn-num">1</span> ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						<span class="shj-syn-class">Loop</span>( {
+							start<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span>
+							end<span class="shj-syn-oper">:</span> workPerThread<span class="shj-syn-oper">,</span>
+							type<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'uint'</span><span class="shj-syn-oper">,</span>
+							condition<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'&lt;'</span><span class="shj-syn-oper">,</span>
+							name<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'currentSubgroupInBlock'</span>
+						}<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+							<span class="shj-syn-cmnt">// Get vectorized element from input array
+</span>							<span class="shj-syn-kwd">const</span> val <span class="shj-syn-oper">=</span> inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( startThread );
+
+							<span class="shj-syn-cmnt">// Sum values within vec4 together by using result of dot product
+</span>							subgroupReduction<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( <span class="shj-syn-func">dot</span>( <span class="shj-syn-func">uvec4</span>( <span class="shj-syn-num">1</span> )<span class="shj-syn-oper">,</span> val ) );
+
+							<span class="shj-syn-cmnt">// Increment so thread will scan value in next subgroup
+</span>							startThread<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( subgroupSize );
+
+						} );
+
+					} );
+
+					<span class="shj-syn-cmnt">// Ensure that the last workgroup does not access out of bounds indices
+</span>					<span class="shj-syn-class">If</span>( workgroupId<span class="shj-syn-oper">.</span>x<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-func">uint</span>( numWorkgroups )<span class="shj-syn-oper">.</span><span class="shj-syn-func">sub</span>( <span class="shj-syn-num">1</span> ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						<span class="shj-syn-class">Loop</span>( {
+							start<span class="shj-syn-oper">:</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span>
+							end<span class="shj-syn-oper">:</span> workPerThread<span class="shj-syn-oper">,</span>
+							type<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'uint'</span><span class="shj-syn-oper">,</span>
+							condition<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'&lt;'</span><span class="shj-syn-oper">,</span>
+							name<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'currentSubgroupInBlock'</span>
+						}<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+							<span class="shj-syn-cmnt">// Ensure index is less than number of available vectors in inputBuffer
+</span>							<span class="shj-syn-kwd">const</span> val <span class="shj-syn-oper">=</span> <span class="shj-syn-func">select</span>( startThread<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( <span class="shj-syn-func">uint</span>( vecSize ) )<span class="shj-syn-oper">,</span> inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( startThread )<span class="shj-syn-oper">,</span> <span class="shj-syn-func">uvec4</span>( <span class="shj-syn-num">0</span> ) )<span class="shj-syn-oper">.</span><span class="shj-syn-func">uniformFlow</span>();
+
+							subgroupReduction<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( <span class="shj-syn-func">dot</span>( val<span class="shj-syn-oper">,</span> <span class="shj-syn-func">uvec4</span>( <span class="shj-syn-num">1</span> ) ) );
+							startThread<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( subgroupSize );
+
+						} );
+
+					} );
+
+					subgroupReduction<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">subgroupAdd</span>( subgroupReduction ) );
+
+					<span class="shj-syn-cmnt">// Assuming that each element in the input buffer is 1, we generally expect each invocation's subgroupReduction
+</span>					<span class="shj-syn-cmnt">// value to be ELEMENTS_PER_VEC4 * workPerThread * subgroupSize
+</span>
+					<span class="shj-syn-cmnt">// Delegate one thread per subgroup to assign each subgroup's reduction to the workgroup array
+</span>					<span class="shj-syn-class">If</span>( invocationSubgroupIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						perSubgroupReductionArray<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( subgroupMetaRank )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( subgroupReduction );
+
+					} );
+
+					<span class="shj-syn-cmnt">// Ensure that each workgroup has populated the perSubgroupReductionArray with data
+</span>					<span class="shj-syn-cmnt">// from each of it's subgroups
+</span>					<span class="shj-syn-func">workgroupBarrier</span>();
+
+					<span class="shj-syn-kwd">if</span> ( props<span class="shj-syn-oper">.</span>debugBuffer ) {
+
+						<span class="shj-syn-class">If</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+							props<span class="shj-syn-oper">.</span>debugBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( workgroupId<span class="shj-syn-oper">.</span>x )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( subgroupReduction );
+
+						} );
+
+						<span class="shj-syn-func">workgroupBarrier</span>();
+
+					}
+
+					<span class="shj-syn-cmnt">// WORKGROUP LEVEL REDUCE
+</span>
+					<span class="shj-syn-cmnt">// Multiple approaches here
+</span>					<span class="shj-syn-cmnt">// log2(subgroupSize) -&gt; TSL log2 function
+</span>					<span class="shj-syn-cmnt">// countTrailingZeros/findLSB(subgroupSize) -&gt; TSL function that counts trailing zeros in number bit representation
+</span>					<span class="shj-syn-cmnt">// Can technically petition GPU for subgroupSize in shader and calculate logs on CPU at cost of shader being generalizable across devices
+</span>					<span class="shj-syn-cmnt">// May also break if subgroupSize changes when device is lost or if program is rerun on lower power device
+</span>					<span class="shj-syn-kwd">const</span> subgroupSizeLog <span class="shj-syn-oper">=</span> <span class="shj-syn-func">countTrailingZeros</span>( subgroupSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'subgroupSizeLog'</span> );
+					<span class="shj-syn-kwd">const</span> spineSize <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( workgroupSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftRight</span>( subgroupSizeLog );
+					<span class="shj-syn-kwd">const</span> spineSizeLog <span class="shj-syn-oper">=</span> <span class="shj-syn-func">countTrailingZeros</span>( spineSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'spineSizeLog'</span> );
+
+
+					<span class="shj-syn-cmnt">// Align size to powers of subgroupSize
+</span>					<span class="shj-syn-kwd">const</span> squaredSubgroupLog <span class="shj-syn-oper">=</span> ( spineSizeLog<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( subgroupSizeLog )<span class="shj-syn-oper">.</span><span class="shj-syn-func">sub</span>( <span class="shj-syn-num">1</span> ) );
+					squaredSubgroupLog<span class="shj-syn-oper">.</span><span class="shj-syn-func">divAssign</span>( subgroupSizeLog );
+					squaredSubgroupLog<span class="shj-syn-oper">.</span><span class="shj-syn-func">mulAssign</span>( subgroupSizeLog );
+					<span class="shj-syn-kwd">const</span> alignedSize <span class="shj-syn-oper">=</span> ( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">1</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftLeft</span>( squaredSubgroupLog ) )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'alignedSize'</span> );
+
+					<span class="shj-syn-cmnt">// aligned size 2 * 4
+</span>
+					<span class="shj-syn-kwd">const</span> offset <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> );
+
+					<span class="shj-syn-cmnt">// In cases where the number of subgroups in a workgroup is greater than the subgroup size itself,
+</span>					<span class="shj-syn-cmnt">// we need to iterate over the array again to capture all the data in the workgroup array buffer
+</span>					<span class="shj-syn-class">Loop</span>( { start<span class="shj-syn-oper">:</span> subgroupSize<span class="shj-syn-oper">,</span> end<span class="shj-syn-oper">:</span> alignedSize<span class="shj-syn-oper">,</span> condition<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'&lt;='</span><span class="shj-syn-oper">,</span> name<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'j'</span><span class="shj-syn-oper">,</span> type<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'uint'</span><span class="shj-syn-oper">,</span> update<span class="shj-syn-oper">:</span> <span class="shj-syn-str">'&lt;&lt;= subgroupSizeLog'</span> }<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						<span class="shj-syn-kwd">const</span> subgroupIndex <span class="shj-syn-oper">=</span> ( ( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( <span class="shj-syn-num">1</span> ) )<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftLeft</span>( offset ) )<span class="shj-syn-oper">.</span><span class="shj-syn-func">sub</span>( <span class="shj-syn-num">1</span> );
+
+						<span class="shj-syn-kwd">const</span> isValidSubgroupIndex <span class="shj-syn-oper">=</span> subgroupIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">lessThan</span>( spineSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'isValidSubgroupIndex'</span> );
+
+						<span class="shj-syn-cmnt">// Reduce values within the local workgroup memory.
+</span>						<span class="shj-syn-cmnt">// Set toVar to ensure subgroupAdd executes before (not within) the if statement.
+</span>						<span class="shj-syn-kwd">const</span> t <span class="shj-syn-oper">=</span> <span class="shj-syn-func">subgroupAdd</span>(
+							<span class="shj-syn-func">select</span>(
+								isValidSubgroupIndex<span class="shj-syn-oper">,</span>
+								perSubgroupReductionArray<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( subgroupIndex )<span class="shj-syn-oper">,</span>
+								<span class="shj-syn-num">0</span>
+							)<span class="shj-syn-oper">.</span><span class="shj-syn-func">uniformFlow</span>()
+						)<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'t'</span> );
+
+						<span class="shj-syn-cmnt">// Can assign back to workgroupArray since all
+</span>						<span class="shj-syn-cmnt">// subgroup threads work in lockstop for subgroupAdd
+</span>						<span class="shj-syn-class">If</span>( isValidSubgroupIndex<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+							perSubgroupReductionArray<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( subgroupIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( t );
+
+						} );
+
+						<span class="shj-syn-cmnt">// Ensure all threads have completed work
+</span>
+						<span class="shj-syn-func">workgroupBarrier</span>();
+
+						offset<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( subgroupSizeLog );
+
+					} );
+
+					<span class="shj-syn-cmnt">// Assign single thread from workgroup to assign workgroup reduction
+</span>					<span class="shj-syn-class">If</span>( invocationLocalIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> ) )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						<span class="shj-syn-kwd">const</span> reducedWorkgroupSum <span class="shj-syn-oper">=</span> perSubgroupReductionArray<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( <span class="shj-syn-func">uint</span>( spineSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">sub</span>( <span class="shj-syn-num">1</span> ) );
+						intermediateBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( workgroupId<span class="shj-syn-oper">.</span>x )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( reducedWorkgroupSum );
+
+					} );
+
+				} )()<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( numInvocations<span class="shj-syn-oper">,</span> [ maxWorkgroupSize ] );
+
+				<span class="shj-syn-kwd">return</span> fnDef;
+
+			};
+
+
+			<span class="shj-syn-cmnt">// INCORRECT BASELINE
+</span>
+			<span class="shj-syn-kwd">const</span> createIncorrectBaselineFn <span class="shj-syn-oper">=</span> ( incorrectBaselineProps ) <span class="shj-syn-kwd">=&gt;</span> {
+
+				<span class="shj-syn-kwd">const</span> { inputBuffer } <span class="shj-syn-oper">=</span> incorrectBaselineProps;
+
+				<span class="shj-syn-kwd">const</span> fnDef <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					inputBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( instanceIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-num">99999</span> );
+
+				} )();
+
+				<span class="shj-syn-kwd">return</span> fnDef;
+
+			};
+
+
+			<span class="shj-syn-func">init</span>();
+
+			<span class="shj-syn-func">init</span>( <span class="shj-syn-bool">false</span> );
+
+			<span class="shj-syn-kwd">async</span> <span class="shj-syn-kwd">function</span> <span class="shj-syn-func">init</span>( leftSideDisplay <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">true</span> ) {
+
+				<span class="shj-syn-kwd">const</span> effectController <span class="shj-syn-oper">=</span> leftSideDisplay <span class="shj-syn-oper">?</span> leftEffectController <span class="shj-syn-oper">:</span> rightEffectController;
+
+				<span class="shj-syn-kwd">const</span> aspect <span class="shj-syn-oper">=</span> ( window<span class="shj-syn-oper">.</span>innerWidth <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span> ) <span class="shj-syn-oper">/</span> window<span class="shj-syn-oper">.</span>innerHeight;
+				<span class="shj-syn-kwd">const</span> camera <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">OrthographicCamera</span>( <span class="shj-syn-oper">-</span> aspect<span class="shj-syn-oper">,</span> aspect<span class="shj-syn-oper">,</span> <span class="shj-syn-num">1</span><span class="shj-syn-oper">,</span> <span class="shj-syn-oper">-</span> <span class="shj-syn-num">1</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">0</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">2</span> );
+				camera<span class="shj-syn-oper">.</span>position<span class="shj-syn-oper">.</span>z <span class="shj-syn-oper">=</span> <span class="shj-syn-num">1</span>;
+
+				<span class="shj-syn-kwd">const</span> scene <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">Scene</span>();
+
+				<span class="shj-syn-kwd">const</span> array <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-class">Uint32Array</span>( <span class="shj-syn-class">Array</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">from</span>( { length<span class="shj-syn-oper">:</span> size }<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">return</span> <span class="shj-syn-num">1</span>;
+
+				} ) );
+
+				<span class="shj-syn-cmnt">// Represents array of data as uints in compute shader.
+</span>				<span class="shj-syn-kwd">const</span> inputStorage <span class="shj-syn-oper">=</span> <span class="shj-syn-func">instancedArray</span>( array<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'uint'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setPBO</span>( <span class="shj-syn-bool">true</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setName</span>( <span class="shj-syn-str">`Current_</span><span class="shj-syn-kwd">${</span>leftSideDisplay <span class="shj-syn-oper">?</span> 'Left' <span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Right'</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span> );
+				<span class="shj-syn-cmnt">// Represents array of data as vec4s in compute shader;
+</span>				<span class="shj-syn-kwd">const</span> inputVec4BufferAttribute <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">StorageInstancedBufferAttribute</span>( array<span class="shj-syn-oper">,</span> <span class="shj-syn-num">4</span> );
+				<span class="shj-syn-kwd">const</span> inputVectorizedStorage <span class="shj-syn-oper">=</span> <span class="shj-syn-func">storage</span>( inputVec4BufferAttribute<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'uvec4'</span><span class="shj-syn-oper">,</span> vecSize )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setPBO</span>( <span class="shj-syn-bool">true</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setName</span>( <span class="shj-syn-str">`CurrentVectorized_</span><span class="shj-syn-kwd">${</span>leftSideDisplay <span class="shj-syn-oper">?</span> 'Left' <span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Right'</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span> );
+
+				<span class="shj-syn-cmnt">// Reduce 3 Calculations
+</span>				<span class="shj-syn-kwd">const</span> workPerThread <span class="shj-syn-oper">=</span> <span class="shj-syn-num">4</span>;
+				<span class="shj-syn-kwd">const</span> numRows <span class="shj-syn-oper">=</span> workPerThread <span class="shj-syn-oper">*</span> <span class="shj-syn-num">32</span>;
+				<span class="shj-syn-kwd">const</span> rowSize <span class="shj-syn-oper">=</span> <span class="shj-syn-func">divRoundUp</span>( size<span class="shj-syn-oper">,</span> numRows );
+
+				<span class="shj-syn-kwd">const</span> workgroupSumsArray <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-class">Uint32Array</span>( numRows );
+				<span class="shj-syn-kwd">const</span> workgroupSumsStorage <span class="shj-syn-oper">=</span> <span class="shj-syn-func">instancedArray</span>( workgroupSumsArray<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'uint'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setPBO</span>( <span class="shj-syn-bool">true</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setName</span>( <span class="shj-syn-str">`WorkgroupSums_</span><span class="shj-syn-kwd">${</span>leftSideDisplay <span class="shj-syn-oper">?</span> 'Left' <span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Right'</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span> );
+				<span class="shj-syn-kwd">const</span> debugArray <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-class">Uint32Array</span>( <span class="shj-syn-num">1024</span> );
+				<span class="shj-syn-kwd">const</span> debugStorage <span class="shj-syn-oper">=</span> <span class="shj-syn-func">instancedArray</span>( debugArray<span class="shj-syn-oper">,</span> <span class="shj-syn-str">'uint'</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setPBO</span>( <span class="shj-syn-bool">true</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">setName</span>( <span class="shj-syn-str">`Debug_</span><span class="shj-syn-kwd">${</span>leftSideDisplay <span class="shj-syn-oper">?</span> 'Left' <span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Right'</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span> );
+
+				<span class="shj-syn-kwd">const</span> buffers <span class="shj-syn-oper">=</span> {
+					'Input Buffer'<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+					'Input Vectorized Buffer'<span class="shj-syn-oper">:</span> inputVectorizedStorage<span class="shj-syn-oper">,</span>
+					'Workgroup Sums Buffer'<span class="shj-syn-oper">:</span> workgroupSumsStorage<span class="shj-syn-oper">,</span>
+					'Debug Buffer'<span class="shj-syn-oper">:</span> debugStorage<span class="shj-syn-oper">,</span>
+				};
+
+				<span class="shj-syn-kwd">const</span> logFunctionName <span class="shj-syn-oper">=</span> <span class="shj-syn-str">`Log </span><span class="shj-syn-kwd">${</span>leftSideDisplay <span class="shj-syn-oper">?</span> 'Left' <span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Right'</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str"> Side`</span>;
+				<span class="shj-syn-kwd">const</span> functionObj <span class="shj-syn-oper">=</span> {};
+				functionObj[ logFunctionName ] <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">async</span>() <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> selectedBuffer <span class="shj-syn-oper">=</span> buffers[ unifiedEffectController<span class="shj-syn-oper">.</span>loggedBuffer ];
+					<span class="shj-syn-kwd">const</span> readbackBuffer <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ReadbackBuffer</span>( selectedBuffer<span class="shj-syn-oper">.</span>value );
+
+					<span class="shj-syn-kwd">const</span> result <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-class">Uint32Array</span>( <span class="shj-syn-kwd">await</span> renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">getArrayBufferAsync</span>( readbackBuffer ) );
+
+					console<span class="shj-syn-oper">.</span><span class="shj-syn-func">log</span>( result );
+
+					<span class="shj-syn-cmnt">// Remove GPU/CPU readback buffer from memory
+</span>
+					readbackBuffer<span class="shj-syn-oper">.</span><span class="shj-syn-func">dispose</span>();
+
+				};
+
+				debugFolder<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( functionObj<span class="shj-syn-oper">,</span> <span class="shj-syn-str">`Log </span><span class="shj-syn-kwd">${</span>leftSideDisplay <span class="shj-syn-oper">?</span> 'Left' <span class="shj-syn-oper">:</span> <span class="shj-syn-str">'Right'</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str"> Side`</span> );
+
+				<span class="shj-syn-kwd">const</span> computeResetBufferFn <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					inputStorage<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( instanceIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-num">1</span> );
+
+				} );
+
+				<span class="shj-syn-kwd">const</span> computeResetWorkgroupSumsFn <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					workgroupSumsStorage<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( instanceIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-num">0</span> );
+
+				} );
+
+
+				<span class="shj-syn-cmnt">// Re-initialize compute buffer
+</span>				<span class="shj-syn-kwd">const</span> computeResetBuffer <span class="shj-syn-oper">=</span> <span class="shj-syn-func">computeResetBufferFn</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( size );
+				<span class="shj-syn-kwd">const</span> computeResetWorkgroupSums <span class="shj-syn-oper">=</span> <span class="shj-syn-func">computeResetWorkgroupSumsFn</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( <span class="shj-syn-num">256</span> );
+
+				<span class="shj-syn-kwd">const</span> renderer <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">WebGPURenderer</span>( { antialias<span class="shj-syn-oper">:</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span> trackTimestamp<span class="shj-syn-oper">:</span> <span class="shj-syn-bool">true</span> } );
+				renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">setPixelRatio</span>( window<span class="shj-syn-oper">.</span>devicePixelRatio );
+				renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">setSize</span>( window<span class="shj-syn-oper">.</span>innerWidth <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span><span class="shj-syn-oper">,</span> window<span class="shj-syn-oper">.</span>innerHeight );
+
+				<span class="shj-syn-kwd">await</span> renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">init</span>();
+
+				<span class="shj-syn-cmnt">// Unfortunately, need to arbitrarily run compute shader to get access to device limits
+</span>				renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( computeResetBuffer );
+
+
+				<span class="shj-syn-kwd">if</span> ( renderer<span class="shj-syn-oper">.</span>backend<span class="shj-syn-oper">.</span>device <span class="shj-syn-oper">!==</span> <span class="shj-syn-num">null</span> ) {
+
+					maxWorkgroupSize <span class="shj-syn-oper">=</span> renderer<span class="shj-syn-oper">.</span>backend<span class="shj-syn-oper">.</span>device<span class="shj-syn-oper">.</span>limits<span class="shj-syn-oper">.</span>maxComputeWorkgroupSizeX;
+
+				}
+
+				<span class="shj-syn-cmnt">// Create and store dispatches of reduction of certain size. Map each set of dispatches to algorithm name.
+</span>
+				<span class="shj-syn-kwd">const</span> computeReduce0Fn <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> { numThreadsDispatched } <span class="shj-syn-oper">=</span> effectController;
+
+					inputStorage<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( instanceIndex )<span class="shj-syn-oper">.</span><span class="shj-syn-func">addAssign</span>( inputStorage<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( instanceIndex<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( numThreadsDispatched ) ) );
+
+				} )();
+
+				<span class="shj-syn-kwd">const</span> reduce0Calls <span class="shj-syn-oper">=</span> [];
+
+				<span class="shj-syn-kwd">for</span> ( <span class="shj-syn-kwd">let</span> i <span class="shj-syn-oper">=</span> size <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span>; i <span class="shj-syn-oper">&gt;=</span> <span class="shj-syn-num">1</span>; i <span class="shj-syn-oper">/=</span> <span class="shj-syn-num">2</span> ) {
+
+					<span class="shj-syn-kwd">const</span> reduce0 <span class="shj-syn-oper">=</span> computeReduce0Fn<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( i<span class="shj-syn-oper">,</span> [ maxWorkgroupSize ] );
+					reduce0Calls<span class="shj-syn-oper">.</span><span class="shj-syn-func">push</span>( reduce0 );
+
+				}
+
+				<span class="shj-syn-kwd">const</span> reduce1Calls <span class="shj-syn-oper">=</span> [
+					<span class="shj-syn-cmnt">// Accumulation
+</span>					<span class="shj-syn-func">createReduce1Fn</span>( {
+						dispatchSize<span class="shj-syn-oper">:</span> maxWorkgroupSize <span class="shj-syn-oper">*</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						numElements<span class="shj-syn-oper">:</span> size<span class="shj-syn-oper">,</span>
+						inputBuffer<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+					} )<span class="shj-syn-oper">,</span>
+					<span class="shj-syn-cmnt">// 1 Block accumulation
+</span>					<span class="shj-syn-func">createReduce1Fn</span>( {
+						dispatchSize<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						numElements<span class="shj-syn-oper">:</span> maxWorkgroupSize <span class="shj-syn-oper">*</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						inputBuffer<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+					} )<span class="shj-syn-oper">,</span>
+					<span class="shj-syn-cmnt">// Final result
+</span>					<span class="shj-syn-func">createReduce1Fn</span>( {
+						dispatchSize<span class="shj-syn-oper">:</span> <span class="shj-syn-num">1</span><span class="shj-syn-oper">,</span>
+						numElements<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> <span class="shj-syn-num">1</span><span class="shj-syn-oper">,</span>
+						inputBuffer<span class="shj-syn-oper">:</span> inputStorage
+					} )<span class="shj-syn-oper">,</span>
+				];
+
+				<span class="shj-syn-kwd">const</span> reduce2Calls <span class="shj-syn-oper">=</span> [
+					<span class="shj-syn-cmnt">// Accumulate within workgroups
+</span>					<span class="shj-syn-func">createReduce2Fn</span>( {
+						workgroupSize<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						dispatchSize<span class="shj-syn-oper">:</span> maxWorkgroupSize <span class="shj-syn-oper">*</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						numElements<span class="shj-syn-oper">:</span> size<span class="shj-syn-oper">,</span>
+						inputBuffer<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+					} )<span class="shj-syn-oper">,</span>
+					<span class="shj-syn-cmnt">// 1 Block accumulation
+</span>					<span class="shj-syn-func">createReduce2Fn</span>( {
+						workgroupSize<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						dispatchSize<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						numElements<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						inputBuffer<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+					} )<span class="shj-syn-oper">,</span>
+				];
+
+				<span class="shj-syn-kwd">const</span> reduce3Calls <span class="shj-syn-oper">=</span> [
+					<span class="shj-syn-func">createReduce3Fn</span>( {
+						inputBuffer<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+						intermediateBuffer<span class="shj-syn-oper">:</span> workgroupSumsStorage<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						workPerThread<span class="shj-syn-oper">:</span> <span class="shj-syn-num">4</span><span class="shj-syn-oper">,</span>
+						rowSize<span class="shj-syn-oper">:</span> rowSize<span class="shj-syn-oper">,</span>
+						vectorized<span class="shj-syn-oper">:</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+					} )<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( maxWorkgroupSize <span class="shj-syn-oper">*</span> numRows<span class="shj-syn-oper">,</span> [ maxWorkgroupSize ] )<span class="shj-syn-oper">,</span>
+					<span class="shj-syn-func">createReduce3Fn</span>( {
+						inputBuffer<span class="shj-syn-oper">:</span> workgroupSumsStorage<span class="shj-syn-oper">,</span>
+						intermediateBuffer<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> <span class="shj-syn-num">32</span><span class="shj-syn-oper">,</span>
+						workPerThread<span class="shj-syn-oper">:</span> <span class="shj-syn-num">4</span><span class="shj-syn-oper">,</span>
+						rowSize<span class="shj-syn-oper">:</span> rowSize<span class="shj-syn-oper">,</span>
+						vectorized<span class="shj-syn-oper">:</span> <span class="shj-syn-bool">false</span>
+					} )<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( <span class="shj-syn-num">32</span><span class="shj-syn-oper">,</span> [ <span class="shj-syn-num">32</span> ] )
+				];
+
+				<span class="shj-syn-kwd">const</span> reduce4Calls <span class="shj-syn-oper">=</span> [
+					<span class="shj-syn-func">createReduce4Fn</span>( {
+						size<span class="shj-syn-oper">:</span> size<span class="shj-syn-oper">,</span>
+						inputBuffer<span class="shj-syn-oper">:</span> inputVectorizedStorage<span class="shj-syn-oper">,</span>
+						intermediateBuffer<span class="shj-syn-oper">:</span> workgroupSumsStorage<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> maxWorkgroupSize<span class="shj-syn-oper">,</span>
+						workPerThread<span class="shj-syn-oper">:</span> <span class="shj-syn-num">4</span><span class="shj-syn-oper">,</span>
+					} )<span class="shj-syn-oper">,</span>
+					<span class="shj-syn-func">createReduce3Fn</span>( {
+						inputBuffer<span class="shj-syn-oper">:</span> workgroupSumsStorage<span class="shj-syn-oper">,</span>
+						intermediateBuffer<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+						workgroupSize<span class="shj-syn-oper">:</span> <span class="shj-syn-num">32</span><span class="shj-syn-oper">,</span>
+						workPerThread<span class="shj-syn-oper">:</span> <span class="shj-syn-num">4</span><span class="shj-syn-oper">,</span>
+						rowSize<span class="shj-syn-oper">:</span> rowSize<span class="shj-syn-oper">,</span>
+						vectorized<span class="shj-syn-oper">:</span> <span class="shj-syn-bool">false</span>
+					} )<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( <span class="shj-syn-num">32</span><span class="shj-syn-oper">,</span> [ <span class="shj-syn-num">32</span> ] )
+				];
+
+				<span class="shj-syn-kwd">const</span> incorrectBaselineCalls <span class="shj-syn-oper">=</span> [
+					<span class="shj-syn-func">createIncorrectBaselineFn</span>( {
+						inputBuffer<span class="shj-syn-oper">:</span> inputStorage<span class="shj-syn-oper">,</span>
+					} )<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( size )<span class="shj-syn-oper">,</span>
+				];
+
+				<span class="shj-syn-kwd">const</span> calls <span class="shj-syn-oper">=</span> {
+					'Reduce 0 (N/2)'<span class="shj-syn-oper">:</span> reduce0Calls<span class="shj-syn-oper">,</span>
+					'Reduce 1 (Naive Accumulate)'<span class="shj-syn-oper">:</span> reduce1Calls<span class="shj-syn-oper">,</span>
+					'Reduce 2 (Workgroup Reduction)'<span class="shj-syn-oper">:</span> reduce2Calls<span class="shj-syn-oper">,</span>
+					'Reduce 3 (Subgroup Reduce)'<span class="shj-syn-oper">:</span> reduce3Calls<span class="shj-syn-oper">,</span>
+					'Reduce 4 (Subgroup Optimized)'<span class="shj-syn-oper">:</span> reduce4Calls<span class="shj-syn-oper">,</span>
+					'Incorrect Baseline'<span class="shj-syn-oper">:</span> incorrectBaselineCalls
+				};
+
+				<span class="shj-syn-kwd">const</span> getColor <span class="shj-syn-oper">=</span> ( bufferToCheck<span class="shj-syn-oper">,</span> colorChanger<span class="shj-syn-oper">,</span> width<span class="shj-syn-oper">,</span> height ) <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> subtracter <span class="shj-syn-oper">=</span> <span class="shj-syn-func">float</span>( colorChanger )<span class="shj-syn-oper">.</span><span class="shj-syn-func">div</span>( width<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( height ) );
+
+					<span class="shj-syn-kwd">const</span> color <span class="shj-syn-oper">=</span> <span class="shj-syn-func">vec3</span>( subtracter<span class="shj-syn-oper">.</span><span class="shj-syn-func">oneMinus</span>() )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>();
+
+					<span class="shj-syn-kwd">const</span> { highlight } <span class="shj-syn-oper">=</span> effectController;
+
+					<span class="shj-syn-cmnt">// Validate that element 0 is equal to expected result of reduction
+</span>					<span class="shj-syn-class">If</span>( highlight<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( <span class="shj-syn-num">1</span> )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+						<span class="shj-syn-class">If</span>( ( bufferToCheck<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( <span class="shj-syn-num">0</span> ) )<span class="shj-syn-oper">.</span><span class="shj-syn-func">equal</span>( size )<span class="shj-syn-oper">,</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+							color<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">vec3</span>( <span class="shj-syn-num">0.0</span><span class="shj-syn-oper">,</span> subtracter<span class="shj-syn-oper">.</span><span class="shj-syn-func">oneMinus</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0.0</span> ) );
+
+						} )<span class="shj-syn-oper">.</span><span class="shj-syn-class">Else</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+							color<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">vec3</span>( subtracter<span class="shj-syn-oper">.</span><span class="shj-syn-func">oneMinus</span>()<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0.0</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">0.0</span> ) );
+
+						} );
+
+					} );
+
+					<span class="shj-syn-kwd">return</span> color;
+
+				};
+
+				<span class="shj-syn-kwd">const</span> displayNodes <span class="shj-syn-oper">=</span> leftSideDisplay <span class="shj-syn-oper">?</span> leftDisplayColorNodes <span class="shj-syn-oper">:</span> rightDisplayColorNodes;
+				displayNodes[ <span class="shj-syn-str">'Input Grid'</span> ] <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> { gridElementWidth<span class="shj-syn-oper">,</span> gridElementHeight<span class="shj-syn-oper">,</span> gridDisplayWidth<span class="shj-syn-oper">,</span> gridDisplayHeight } <span class="shj-syn-oper">=</span> unifiedEffectController;
+
+					<span class="shj-syn-kwd">const</span> newUV <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uv</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( <span class="shj-syn-func">vec2</span>( gridDisplayWidth<span class="shj-syn-oper">,</span> gridDisplayHeight ) );
+
+					<span class="shj-syn-kwd">const</span> pixel <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uvec2</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-func">floor</span>( newUV<span class="shj-syn-oper">.</span>x ) )<span class="shj-syn-oper">,</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-func">floor</span>( newUV<span class="shj-syn-oper">.</span>y ) ) );
+
+					<span class="shj-syn-kwd">const</span> elementIndex <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( gridDisplayWidth )<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( pixel<span class="shj-syn-oper">.</span>y )<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( pixel<span class="shj-syn-oper">.</span>x );
+
+					<span class="shj-syn-kwd">const</span> colorChanger <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>();
+					<span class="shj-syn-kwd">const</span> color <span class="shj-syn-oper">=</span> <span class="shj-syn-func">vec3</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'color'</span> );
+
+					colorChanger<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( inputStorage<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( elementIndex ) );
+					color<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">getColor</span>( inputStorage<span class="shj-syn-oper">,</span> colorChanger<span class="shj-syn-oper">,</span> gridElementWidth<span class="shj-syn-oper">,</span> gridElementHeight ) );
+
+					<span class="shj-syn-kwd">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="shj-syn-str">'Input Log2'</span> ] <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> { gridElementWidth<span class="shj-syn-oper">,</span> gridElementHeight } <span class="shj-syn-oper">=</span> unifiedEffectController;
+
+					<span class="shj-syn-kwd">const</span> newUV <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uv</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( <span class="shj-syn-func">vec2</span>( <span class="shj-syn-class">Math</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">log2</span>( size ) )<span class="shj-syn-oper">,</span> <span class="shj-syn-num">1</span> );
+
+					<span class="shj-syn-kwd">const</span> colorChanger <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>();
+					<span class="shj-syn-kwd">const</span> color <span class="shj-syn-oper">=</span> <span class="shj-syn-func">vec3</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'color'</span> );
+
+					colorChanger<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( inputStorage<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">1</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">shiftLeft</span>( newUV<span class="shj-syn-oper">.</span>x ) ) );
+					color<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">getColor</span>( inputStorage<span class="shj-syn-oper">,</span> colorChanger<span class="shj-syn-oper">,</span> gridElementWidth<span class="shj-syn-oper">,</span> gridElementHeight ) );
+
+					<span class="shj-syn-kwd">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="shj-syn-str">'Input Element 0'</span> ] <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> { gridElementWidth<span class="shj-syn-oper">,</span> gridElementHeight } <span class="shj-syn-oper">=</span> unifiedEffectController;
+
+					<span class="shj-syn-kwd">const</span> colorChanger <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>();
+					<span class="shj-syn-kwd">const</span> color <span class="shj-syn-oper">=</span> <span class="shj-syn-func">vec3</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'color'</span> );
+
+					<span class="shj-syn-cmnt">// Clamp display of single element to shade where green is still readable
+</span>					colorChanger<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">clamp</span>( inputStorage<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">,</span> <span class="shj-syn-num">0</span><span class="shj-syn-oper">,</span> size <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span> ) );
+					color<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">getColor</span>( inputStorage<span class="shj-syn-oper">,</span> colorChanger<span class="shj-syn-oper">,</span> gridElementWidth<span class="shj-syn-oper">,</span> gridElementHeight ) );
+					<span class="shj-syn-kwd">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="shj-syn-str">'Workgroup Sum Grid'</span> ] <span class="shj-syn-oper">=</span> <span class="shj-syn-class">Fn</span>( () <span class="shj-syn-kwd">=&gt;</span> {
+
+					<span class="shj-syn-kwd">const</span> width <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">8</span> );
+					<span class="shj-syn-kwd">const</span> height <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">16</span> );
+
+					<span class="shj-syn-kwd">const</span> newUV <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uv</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( <span class="shj-syn-func">vec2</span>( width<span class="shj-syn-oper">,</span> height ) );
+
+					<span class="shj-syn-kwd">const</span> pixel <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uvec2</span>( <span class="shj-syn-func">uint</span>( <span class="shj-syn-func">floor</span>( newUV<span class="shj-syn-oper">.</span>x ) )<span class="shj-syn-oper">,</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-func">floor</span>( newUV<span class="shj-syn-oper">.</span>y ) ) );
+
+					<span class="shj-syn-kwd">const</span> elementIndex <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( width )<span class="shj-syn-oper">.</span><span class="shj-syn-func">mul</span>( pixel<span class="shj-syn-oper">.</span>y )<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( pixel<span class="shj-syn-oper">.</span>x );
+
+					<span class="shj-syn-kwd">const</span> colorChanger <span class="shj-syn-oper">=</span> <span class="shj-syn-func">uint</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>();
+					<span class="shj-syn-kwd">const</span> color <span class="shj-syn-oper">=</span> <span class="shj-syn-func">vec3</span>( <span class="shj-syn-num">0</span> )<span class="shj-syn-oper">.</span><span class="shj-syn-func">toVar</span>( <span class="shj-syn-str">'color'</span> );
+
+					colorChanger<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( workgroupSumsStorage<span class="shj-syn-oper">.</span><span class="shj-syn-func">element</span>( elementIndex ) );
+					color<span class="shj-syn-oper">.</span><span class="shj-syn-func">assign</span>( <span class="shj-syn-func">getColor</span>( inputStorage<span class="shj-syn-oper">,</span> colorChanger<span class="shj-syn-oper">,</span> width<span class="shj-syn-oper">,</span> height ) );
+
+					<span class="shj-syn-kwd">return</span> color;
+
+				} )();
+
+				( leftSideDisplay <span class="shj-syn-oper">?</span> leftMaterial <span class="shj-syn-oper">:</span> rightMaterial )<span class="shj-syn-oper">.</span>colorNode <span class="shj-syn-oper">=</span> displayNodes[ effectController<span class="shj-syn-oper">.</span>displayMode ];
+				( leftSideDisplay <span class="shj-syn-oper">?</span> leftMaterial <span class="shj-syn-oper">:</span> rightMaterial )<span class="shj-syn-oper">.</span>needsUpdate <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">true</span>;
+
+				<span class="shj-syn-kwd">const</span> plane <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">Mesh</span>( <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">PlaneGeometry</span>( <span class="shj-syn-num">1</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">1</span> )<span class="shj-syn-oper">,</span> ( leftSideDisplay <span class="shj-syn-oper">?</span> leftMaterial <span class="shj-syn-oper">:</span> rightMaterial ) );
+				scene<span class="shj-syn-oper">.</span><span class="shj-syn-func">add</span>( plane );
+
+				<span class="shj-syn-kwd">const</span> <span class="shj-syn-func">animate</span> <span class="shj-syn-oper">=</span> () <span class="shj-syn-kwd">=&gt;</span> {
+
+					renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">render</span>( scene<span class="shj-syn-oper">,</span> camera );
+
+				};
+
+				renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">setAnimationLoop</span>( animate );
+
+				document<span class="shj-syn-oper">.</span>body<span class="shj-syn-oper">.</span><span class="shj-syn-func">appendChild</span>( renderer<span class="shj-syn-oper">.</span>domElement );
+				renderer<span class="shj-syn-oper">.</span>domElement<span class="shj-syn-oper">.</span>style<span class="shj-syn-oper">.</span>position <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'absolute'</span>;
+				renderer<span class="shj-syn-oper">.</span>domElement<span class="shj-syn-oper">.</span>style<span class="shj-syn-oper">.</span>top <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'0'</span>;
+				renderer<span class="shj-syn-oper">.</span>domElement<span class="shj-syn-oper">.</span>style<span class="shj-syn-oper">.</span>left <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'0'</span>;
+				renderer<span class="shj-syn-oper">.</span>domElement<span class="shj-syn-oper">.</span>style<span class="shj-syn-oper">.</span>width <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'50%'</span>;
+				renderer<span class="shj-syn-oper">.</span>domElement<span class="shj-syn-oper">.</span>style<span class="shj-syn-oper">.</span>height <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'100%'</span>;
+
+				<span class="shj-syn-kwd">if</span> ( <span class="shj-syn-oper">!</span> leftSideDisplay ) {
+
+					renderer<span class="shj-syn-oper">.</span>domElement<span class="shj-syn-oper">.</span>style<span class="shj-syn-oper">.</span>left <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'50%'</span>;
+
+					scene<span class="shj-syn-oper">.</span>background <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">Color</span>( <span class="shj-syn-num">0x212121</span> );
+
+				} <span class="shj-syn-kwd">else</span> {
+
+					scene<span class="shj-syn-oper">.</span>background <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">Color</span>( <span class="shj-syn-num">0x313131</span> );
+
+				}
+
+				renderer<span class="shj-syn-oper">.</span>info<span class="shj-syn-oper">.</span>autoReset <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span>;
+
+				<span class="shj-syn-kwd">const</span> stepAnimation <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">async</span> <span class="shj-syn-kwd">function</span> () {
+
+					<span class="shj-syn-kwd">const</span> currentAlgorithm <span class="shj-syn-oper">=</span> effectController<span class="shj-syn-oper">.</span>algo;
+					<span class="shj-syn-kwd">const</span> state <span class="shj-syn-oper">=</span> effectController<span class="shj-syn-oper">.</span>state;
+					<span class="shj-syn-kwd">const</span> stateController <span class="shj-syn-oper">=</span> leftSideDisplay <span class="shj-syn-oper">?</span> stateLeftController <span class="shj-syn-oper">:</span> stateRightController;
+
+					<span class="shj-syn-kwd">if</span> ( state <span class="shj-syn-oper">===</span> <span class="shj-syn-str">'Reset'</span> ) {
+
+						renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( computeResetBuffer );
+						renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( computeResetWorkgroupSums );
+
+					} <span class="shj-syn-kwd">else</span> <span class="shj-syn-kwd">if</span> ( state <span class="shj-syn-oper">===</span> <span class="shj-syn-str">'Run Algo'</span> ) {
+
+						renderer<span class="shj-syn-oper">.</span>info<span class="shj-syn-oper">.</span><span class="shj-syn-func">reset</span>();
+
+						<span class="shj-syn-kwd">const</span> cpuTime <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>;
+
+						<span class="shj-syn-kwd">switch</span> ( currentAlgorithm ) {
+
+							<span class="shj-syn-kwd">case</span> 'Reduce 0 (N/2)'<span class="shj-syn-oper">:</span> {
+
+								<span class="shj-syn-kwd">let</span> m <span class="shj-syn-oper">=</span> size <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span>;
+
+								<span class="shj-syn-kwd">for</span> ( <span class="shj-syn-kwd">let</span> i <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>; i <span class="shj-syn-oper">&lt;</span> reduce0Calls<span class="shj-syn-oper">.</span>length; i <span class="shj-syn-oper">++</span> ) {
+
+									effectController<span class="shj-syn-oper">.</span>numThreadsDispatched<span class="shj-syn-oper">.</span>value <span class="shj-syn-oper">=</span> m;
+
+									<span class="shj-syn-kwd">const</span> reduce0 <span class="shj-syn-oper">=</span> reduce0Calls[ i ];
+									<span class="shj-syn-cmnt">// Do a reduction step
+</span>									renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( reduce0 );
+									renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">resolveTimestampsAsync</span>( <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">TimestampQuery</span><span class="shj-syn-oper">.</span><span class="shj-syn-num">COMPUTE</span> );
+
+									m <span class="shj-syn-oper">/=</span> <span class="shj-syn-num">2</span>;
+
+								}
+
+
+								<span class="shj-syn-kwd">break</span>;
+
+							}
+
+							default<span class="shj-syn-oper">:</span> {
+
+								<span class="shj-syn-kwd">const</span> currentAlgoCalls <span class="shj-syn-oper">=</span> calls[ currentAlgorithm ];
+
+								<span class="shj-syn-kwd">for</span> ( <span class="shj-syn-kwd">let</span> i <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>; i <span class="shj-syn-oper">&lt;</span> currentAlgoCalls<span class="shj-syn-oper">.</span>length; i <span class="shj-syn-oper">++</span> ) {
+
+									renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">compute</span>( currentAlgoCalls[ i ] );
+									renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">resolveTimestampsAsync</span>( <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">TimestampQuery</span><span class="shj-syn-oper">.</span><span class="shj-syn-num">COMPUTE</span> );
+
+								}
+
+								<span class="shj-syn-kwd">break</span>;
+
+							}
+
+						}
+
+						<span class="shj-syn-cmnt">// </span><span class="shj-syn-err">DEBUG</span><span class="shj-syn-cmnt">: const reductionResult = new Uint32Array( await renderer.getArrayBufferAsync( currentBuffer ) )[0];
+</span>
+						<span class="shj-syn-kwd">let</span> passInfoString <span class="shj-syn-oper">=</span> <span class="shj-syn-str">''</span>;
+
+						<span class="shj-syn-kwd">if</span> ( effectController<span class="shj-syn-oper">.</span>algo<span class="shj-syn-oper">.</span><span class="shj-syn-func">substring</span>( <span class="shj-syn-num">0</span><span class="shj-syn-oper">,</span> <span class="shj-syn-num">3</span> ) <span class="shj-syn-oper">===</span> <span class="shj-syn-str">'CPU'</span> ) {
+
+							passInfoString <span class="shj-syn-oper">=</span> <span class="shj-syn-str">`Ran in </span><span class="shj-syn-kwd">${</span>cpuTime<span class="shj-syn-kwd">}</span><span class="shj-syn-str">ms&lt;br&gt;`</span>;
+
+						} <span class="shj-syn-kwd">else</span> {
+
+							passInfoString <span class="shj-syn-oper">=</span> <span class="shj-syn-str">`</span><span class="shj-syn-kwd">${</span>renderer<span class="shj-syn-oper">.</span>info<span class="shj-syn-oper">.</span>compute<span class="shj-syn-oper">.</span>frameCalls<span class="shj-syn-kwd">}</span><span class="shj-syn-str"> pass in </span><span class="shj-syn-kwd">${</span>renderer<span class="shj-syn-oper">.</span>info<span class="shj-syn-oper">.</span>compute<span class="shj-syn-oper">.</span>timestamp<span class="shj-syn-oper">.</span><span class="shj-syn-func">toFixed</span>( <span class="shj-syn-num">6</span> )<span class="shj-syn-kwd">}</span><span class="shj-syn-str">ms&lt;br&gt;`</span>;
+
+						}
+
+
+
+
+						timestamps[ leftSideDisplay <span class="shj-syn-oper">?</span> 'left_side_display' <span class="shj-syn-oper">:</span> <span class="shj-syn-str">'right_side_display'</span> ]<span class="shj-syn-oper">.</span>innerHTML <span class="shj-syn-oper">=</span> <span class="shj-syn-str">`
+
+							Compute </span><span class="shj-syn-kwd">${</span>effectController<span class="shj-syn-oper">.</span>algo<span class="shj-syn-kwd">}</span><span class="shj-syn-str">: </span><span class="shj-syn-kwd">${</span>passInfoString<span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span>;
+
+					}
+
+					renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">render</span>( scene<span class="shj-syn-oper">,</span> camera );
+					renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">resolveTimestampsAsync</span>( <span class="shj-syn-num">THREE</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">TimestampQuery</span><span class="shj-syn-oper">.</span><span class="shj-syn-num">RENDER</span> );
+
+					<span class="shj-syn-cmnt">// Validate next state
+</span>
+					<span class="shj-syn-kwd">if</span> ( state <span class="shj-syn-oper">===</span> <span class="shj-syn-str">'Run Algo'</span> ) {
+
+						stateController<span class="shj-syn-oper">.</span><span class="shj-syn-func">setValue</span>( <span class="shj-syn-str">'Validate'</span> );
+
+						effectController<span class="shj-syn-oper">.</span>highlight<span class="shj-syn-oper">.</span>value <span class="shj-syn-oper">=</span> <span class="shj-syn-num">1</span>;
+
+					} <span class="shj-syn-kwd">else</span> <span class="shj-syn-kwd">if</span> ( state <span class="shj-syn-oper">===</span> <span class="shj-syn-str">'Validate'</span> ) {
+
+						stateController<span class="shj-syn-oper">.</span><span class="shj-syn-func">setValue</span>( <span class="shj-syn-str">'Reset'</span> );
+
+						effectController<span class="shj-syn-oper">.</span>highlight<span class="shj-syn-oper">.</span>value <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>;
+
+					} <span class="shj-syn-kwd">else</span> <span class="shj-syn-kwd">if</span> ( state <span class="shj-syn-oper">===</span> <span class="shj-syn-str">'Reset'</span> ) {
+
+						stateController<span class="shj-syn-oper">.</span><span class="shj-syn-func">setValue</span>( <span class="shj-syn-str">'Run Algo'</span> );
+
+					}
+
+					<span class="shj-syn-func">setTimeout</span>( stepAnimation<span class="shj-syn-oper">,</span> <span class="shj-syn-num">1000</span> );
+
+				};
+
+
+				window<span class="shj-syn-oper">.</span><span class="shj-syn-func">addEventListener</span>( <span class="shj-syn-str">'resize'</span><span class="shj-syn-oper">,</span> onWindowResize );
+
+				<span class="shj-syn-kwd">function</span> <span class="shj-syn-func">onWindowResize</span>() {
+
+					renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">setSize</span>( window<span class="shj-syn-oper">.</span>innerWidth <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span><span class="shj-syn-oper">,</span> window<span class="shj-syn-oper">.</span>innerHeight );
+
+					<span class="shj-syn-kwd">const</span> aspect <span class="shj-syn-oper">=</span> ( window<span class="shj-syn-oper">.</span>innerWidth <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span> ) <span class="shj-syn-oper">/</span> window<span class="shj-syn-oper">.</span>innerHeight;
+
+					<span class="shj-syn-kwd">const</span> frustumHeight <span class="shj-syn-oper">=</span> camera<span class="shj-syn-oper">.</span>top <span class="shj-syn-oper">-</span> camera<span class="shj-syn-oper">.</span>bottom;
+
+					camera<span class="shj-syn-oper">.</span>left <span class="shj-syn-oper">=</span> <span class="shj-syn-oper">-</span> frustumHeight <span class="shj-syn-oper">*</span> aspect <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span>;
+					camera<span class="shj-syn-oper">.</span>right <span class="shj-syn-oper">=</span> frustumHeight <span class="shj-syn-oper">*</span> aspect <span class="shj-syn-oper">/</span> <span class="shj-syn-num">2</span>;
+
+					camera<span class="shj-syn-oper">.</span><span class="shj-syn-func">updateProjectionMatrix</span>();
+
+					renderer<span class="shj-syn-oper">.</span><span class="shj-syn-func">render</span>( scene<span class="shj-syn-oper">,</span> camera );
+
+				}
+
+				<span class="shj-syn-func">setTimeout</span>( stepAnimation<span class="shj-syn-oper">,</span> <span class="shj-syn-num">1000</span> );
+
+			}
+
+		<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">script</span><span class="shj-syn-oper">&gt;</span>
+	<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">body</span><span class="shj-syn-oper">&gt;</span>
+<span class="shj-syn-var"></span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-var">html</span><span class="shj-syn-oper">&gt;</span></code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

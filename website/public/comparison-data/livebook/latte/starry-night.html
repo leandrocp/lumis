@@ -1,0 +1,1318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>starry-night · Catppuccin Latte · Lumis visual comparison</title>
+  <meta name="color-scheme" content="light">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #e6e9ef; color: #4c4f69; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #bcc0cc; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root{--color-prettylights-syntax-comment:#7c7f93;--color-prettylights-syntax-constant:#fe640b;--color-prettylights-syntax-entity:#1e66f5;--color-prettylights-syntax-storage-modifier-import:#4c4f69;--color-prettylights-syntax-entity-tag:#8839ef;--color-prettylights-syntax-keyword:#8839ef;--color-prettylights-syntax-string:#40a02b;--color-prettylights-syntax-variable:#8839ef;--color-prettylights-syntax-brackethighlighter-unmatched:#4c4f69;--color-prettylights-syntax-invalid-illegal-text:#4c4f69;--color-prettylights-syntax-invalid-illegal-bg:transparent;--color-prettylights-syntax-carriage-return-text:#4c4f69;--color-prettylights-syntax-carriage-return-bg:transparent;--color-prettylights-syntax-string-regexp:#ea76cb;--color-prettylights-syntax-markup-list:#179299;--color-prettylights-syntax-markup-heading:#1e66f5;--color-prettylights-syntax-markup-italic:#d20f39;--color-prettylights-syntax-markup-bold:#d20f39;--color-prettylights-syntax-markup-deleted-text:#d20f39;--color-prettylights-syntax-markup-deleted-bg:rgba(210,15,57,.15);--color-prettylights-syntax-markup-inserted-text:#40a02b;--color-prettylights-syntax-markup-inserted-bg:rgba(64,160,43,.15);--color-prettylights-syntax-markup-changed-text:#4c4f69;--color-prettylights-syntax-markup-changed-bg:transparent;--color-prettylights-syntax-markup-ignored-text:#4c4f69;--color-prettylights-syntax-markup-ignored-bg:transparent;--color-prettylights-syntax-meta-diff-range:#fe640b;--color-prettylights-syntax-brackethighlighter-angle:#5c5f77;--color-prettylights-syntax-sublimelinter-gutter-mark:#4c4f69;--color-prettylights-syntax-constant-other-reference-link:#209fb5}pre{background:#eff1f5;color:#4c4f69}/* This is a theme distributed by `starry-night`.
+ * It’s based on what GitHub uses on their site.
+ * See <https://github.com/wooorm/starry-night> for more info. */
+
+.pl-c {
+  color: var(--color-prettylights-syntax-comment);
+}
+
+.pl-c1,
+.pl-s .pl-v {
+  color: var(--color-prettylights-syntax-constant);
+}
+
+.pl-e,
+.pl-en {
+  color: var(--color-prettylights-syntax-entity);
+}
+
+.pl-smi,
+.pl-s .pl-s1 {
+  color: var(--color-prettylights-syntax-storage-modifier-import);
+}
+
+.pl-ent {
+  color: var(--color-prettylights-syntax-entity-tag);
+}
+
+.pl-k {
+  color: var(--color-prettylights-syntax-keyword);
+}
+
+.pl-s,
+.pl-pds,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sre,
+.pl-sr .pl-sra {
+  color: var(--color-prettylights-syntax-string);
+}
+
+.pl-v,
+.pl-smw {
+  color: var(--color-prettylights-syntax-variable);
+}
+
+.pl-bu {
+  color: var(--color-prettylights-syntax-brackethighlighter-unmatched);
+}
+
+.pl-ii {
+  color: var(--color-prettylights-syntax-invalid-illegal-text);
+  background-color: var(--color-prettylights-syntax-invalid-illegal-bg);
+}
+
+.pl-c2 {
+  color: var(--color-prettylights-syntax-carriage-return-text);
+  background-color: var(--color-prettylights-syntax-carriage-return-bg);
+}
+
+.pl-sr .pl-cce {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-string-regexp);
+}
+
+.pl-ml {
+  color: var(--color-prettylights-syntax-markup-list);
+}
+
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-heading);
+}
+
+.pl-mi {
+  font-style: italic;
+  color: var(--color-prettylights-syntax-markup-italic);
+}
+
+.pl-mb {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-bold);
+}
+
+.pl-md {
+  color: var(--color-prettylights-syntax-markup-deleted-text);
+  background-color: var(--color-prettylights-syntax-markup-deleted-bg);
+}
+
+.pl-mi1 {
+  color: var(--color-prettylights-syntax-markup-inserted-text);
+  background-color: var(--color-prettylights-syntax-markup-inserted-bg);
+}
+
+.pl-mc {
+  color: var(--color-prettylights-syntax-markup-changed-text);
+  background-color: var(--color-prettylights-syntax-markup-changed-bg);
+}
+
+.pl-mi2 {
+  color: var(--color-prettylights-syntax-markup-ignored-text);
+  background-color: var(--color-prettylights-syntax-markup-ignored-bg);
+}
+
+.pl-mdr {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-meta-diff-range);
+}
+
+.pl-ba {
+  color: var(--color-prettylights-syntax-brackethighlighter-angle);
+}
+
+.pl-sg {
+  color: var(--color-prettylights-syntax-sublimelinter-gutter-mark);
+}
+
+.pl-corl {
+  text-decoration: underline;
+  color: var(--color-prettylights-syntax-constant-other-reference-link);
+}
+</style><pre><code><span class="pl-k">defmodule</span> <span class="pl-e">LivebookWeb</span>.<span class="pl-en">CoreComponents</span> <span class="pl-k">do</span>
+  <span class="pl-k">use</span> <span class="pl-en">Phoenix</span>.<span class="pl-en">Component</span>
+
+  <span class="pl-k">alias</span> <span class="pl-en">Phoenix</span>.<span class="pl-en">LiveView</span>.<span class="pl-en">JS</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders [Remix](https://remixicon.com) icon.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.remix_icon icon="cpu-line" /></span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.remix_icon icon="cpu-line" class="align-middle mr-1" /></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:icon</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:class</span>, <span class="pl-c1">:any</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+  attr <span class="pl-c1">:rest</span>, <span class="pl-c1">:global</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">remix_icon</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">i</span> <span class="pl-e">class</span>=<span class="pl-s">{[<span class="pl-pds">"</span>ri-#{@icon}<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">@class]}</span> <span class="pl-e">aria-hidden</span>=<span class="pl-s"><span class="pl-pds">"</span>true<span class="pl-pds">"</span></span> <span class="pl-e">{@rest}</span>>&#x3C;/<span class="pl-ent">i</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders flash notices.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.flash kind="info" flash={@flash} /></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:flash</span>, <span class="pl-c1">:map</span>, <span class="pl-c1">default:</span> %{}, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the map of flash messages to display<span class="pl-pds">"</span></span>
+
+  attr <span class="pl-c1">:kind</span>, <span class="pl-c1">:string</span>,
+    <span class="pl-c1">values:</span> <span class="pl-s"><span class="pl-pds">~w(</span>info success warning error<span class="pl-pds">)</span></span>,
+    <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>used for styling and flash lookup<span class="pl-pds">"</span></span>
+
+  attr <span class="pl-c1">:rest</span>, <span class="pl-c1">:global</span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the arbitrary HTML attributes to add to the flash container<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">def</span> <span class="pl-en">flash</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">:if</span>=<span class="pl-s">{message</span> = <span class="pl-e">Phoenix.Flash.get(@flash,</span> <span class="pl-e">@kind)}</span>
+      <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative group shadow-lg max-w-xl px-3 py-2 flex items-center gap-2 rounded-lg bg-gray-900 text-gray-200 text-sm<span class="pl-pds">"</span></span>
+      <span class="pl-e">role</span>=<span class="pl-s"><span class="pl-pds">"</span>alert<span class="pl-pds">"</span></span>
+      <span class="pl-e">{@rest}</span>
+    >
+      &#x3C;<span class="pl-ent">div</span>
+        <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>opacity-0 group-hover:opacity-100 absolute -left-2 -top-2 bg-gray-900 border border-gray-600 rounded-full p-0.5 flex leading-none text-gray-200 hover:text-gray-100 hover:bg-gray-700 text-sm cursor-pointer<span class="pl-pds">"</span></span>
+        <span class="pl-e">phx-click</span>=<span class="pl-s"><span class="pl-pds">"</span>lv:clear-flash<span class="pl-pds">"</span></span>
+        <span class="pl-e">phx-value-key</span>=<span class="pl-s">{@kind}</span>
+      >
+        &#x3C;.remix_icon icon="close-line" />
+      &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;.remix_icon :if={@kind == "info"} icon="information-fill" class="text-xl text-blue-500" />
+      &#x3C;.remix_icon
+        :if={@kind == "success"}
+        icon="checkbox-circle-fill"
+        class="text-xl text-green-bright-400"
+      />
+      &#x3C;.remix_icon :if={@kind == "warning"} icon="alert-fill" class="text-xl text-yellow-500" />
+      &#x3C;.remix_icon :if={@kind == "error"} icon="error-warning-fill" class="text-xl text-red-500" />
+      &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>whitespace-pre-wrap pr-2 max-h-52 overflow-y-auto tiny-scrollbar<span class="pl-pds">"</span></span> <span class="pl-e">phx-no-format</span>>{message}&#x3C;/<span class="pl-ent">span</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Shows the flash group with standard titles and content.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.flash_group flash={@flash} /></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:flash</span>, <span class="pl-c1">:map</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the map of flash messages<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">def</span> <span class="pl-en">flash_group</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>fixed right-8 top-5 z-1000 flex flex-col space-y-3<span class="pl-pds">"</span></span>>
+      &#x3C;.flash kind="info" flash={@flash} />
+      &#x3C;.flash kind="success" flash={@flash} />
+      &#x3C;.flash kind="warning" flash={@flash} />
+      &#x3C;.flash kind="error" flash={@flash} />
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders page title.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.title text="Learn" /></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:text</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+  attr <span class="pl-c1">:back_navigate</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+
+  slot <span class="pl-c1">:inner_block</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">title</span>(assigns) <span class="pl-k">do</span>
+    <span class="pl-k">if</span> assigns.text <span class="pl-k">==</span> <span class="pl-c1">nil</span> <span class="pl-k">and</span> assigns.inner_block <span class="pl-k">==</span> [] <span class="pl-k">do</span>
+      <span class="pl-k">raise</span> <span class="pl-en">ArgumentError</span>, <span class="pl-s"><span class="pl-pds">"</span>should pass at least text attribute or an inner block<span class="pl-pds">"</span></span>
+    <span class="pl-k">end</span>
+
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative<span class="pl-pds">"</span></span>>
+      &#x3C;<span class="pl-ent">div</span>
+        <span class="pl-e">:if</span>=<span class="pl-s">{@back_navigate}</span>
+        <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>hidden md:flex absolute top-0 bottom-0 left-0 transform -translate-x-full<span class="pl-pds">"</span></span>
+      >
+        &#x3C;.link navigate={@back_navigate}>
+          &#x3C;.remix_icon icon="arrow-left-line" class="align-middle mr-2 text-2xl text-gray-800" />
+        &#x3C;/.link>
+      &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;<span class="pl-ent">h1</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>text-2xl text-gray-800 font-medium<span class="pl-pds">"</span></span>>
+        <span class="pl-pse">&#x3C;%=</span> <span class="pl-k">if</span> <span class="pl-smi">@inner_block</span> <span class="pl-k">!=</span> [] <span class="pl-k">do</span> <span class="pl-pse">%></span>
+          {render_slot(@inner_block)}
+        <span class="pl-pse">&#x3C;%</span> <span class="pl-k">else</span> <span class="pl-pse">%></span>
+          {@text}
+        <span class="pl-pse">&#x3C;%</span> <span class="pl-k">end</span> <span class="pl-pse">%></span>
+      &#x3C;/<span class="pl-ent">h1</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a message notice.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  Similar to `flash/1`, but for permanent messages on the page.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.message_box kind="info" message="🦊 in a 📦" /></span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.message_box kind="info"></span>
+<span class="pl-c">        &#x3C;span>🦊&#x3C;/span> in a &#x3C;span>📦&#x3C;/span></span>
+<span class="pl-c">      &#x3C;/.message_box></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+
+  attr <span class="pl-c1">:message</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+  attr <span class="pl-c1">:kind</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">values:</span> <span class="pl-s"><span class="pl-pds">~w(</span>info success warning error<span class="pl-pds">)</span></span>
+
+  slot <span class="pl-c1">:inner_block</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">message_box</span>(assigns) <span class="pl-k">do</span>
+    <span class="pl-k">if</span> assigns.message <span class="pl-k">&#x26;&#x26;</span> assigns.inner_block <span class="pl-k">!=</span> [] <span class="pl-k">do</span>
+      <span class="pl-k">raise</span> <span class="pl-en">ArgumentError</span>, <span class="pl-s"><span class="pl-pds">"</span>expected either message or inner_block, got both.<span class="pl-pds">"</span></span>
+    <span class="pl-k">end</span>
+
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s">{[</span>
+      <span class="pl-s"><span class="pl-pds">"</span>shadow text-sm rounded-lg px-4 py-2 border-l-4 rounded-l-none bg-white text-gray-700<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+      <span class="pl-e">@kind</span> == <span class="pl-s"><span class="pl-pds">"</span>info<span class="pl-pds">"</span></span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>border-blue-500<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+      <span class="pl-e">@kind</span> == <span class="pl-s"><span class="pl-pds">"</span>success<span class="pl-pds">"</span></span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>border-green-bright-400<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+      <span class="pl-e">@kind</span> == <span class="pl-s"><span class="pl-pds">"</span>warning<span class="pl-pds">"</span></span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>border-yellow-300<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+      <span class="pl-e">@kind</span> == <span class="pl-s"><span class="pl-pds">"</span>error<span class="pl-pds">"</span></span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>border-red-500<span class="pl-pds">"</span></span>
+    <span class="pl-e">]}</span>>
+      &#x3C;<span class="pl-ent">div</span>
+        <span class="pl-e">:if</span>=<span class="pl-s">{@message}</span>
+        <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>whitespace-pre-wrap pr-2 max-h-52 overflow-y-auto tiny-scrollbar<span class="pl-pds">"</span></span>
+        <span class="pl-e">phx-no-format</span>
+      >{@message}&#x3C;/<span class="pl-ent">div</span>>
+      <span class="pl-pse">&#x3C;%=</span> <span class="pl-k">if</span> <span class="pl-smi">@inner_block</span> <span class="pl-k">!=</span> [] <span class="pl-k">do</span> <span class="pl-pse">%></span>
+        {render_slot(@inner_block)}
+      <span class="pl-pse">&#x3C;%</span> <span class="pl-k">end</span> <span class="pl-pse">%></span>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Creates a live region with the given role.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.live_region role="alert" /></span>
+<span class="pl-c">      &#x3C;.live_region role="status" /></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">live_region</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>sr-only<span class="pl-pds">"</span></span> <span class="pl-e">role</span>=<span class="pl-s">{@role}</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>live-region<span class="pl-pds">"</span></span>>&#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Sends a message to be read by the screen reader by changing the text content of the live region</span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">sr_message</span>(js <span class="pl-k">\\</span> %<span class="pl-en">JS</span>{}, message) <span class="pl-k">do</span>
+    <span class="pl-en">JS</span>.<span class="pl-en">dispatch</span>(js, <span class="pl-s"><span class="pl-pds">"</span>lb:set_text<span class="pl-pds">"</span></span>, <span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#live-region<span class="pl-pds">"</span></span>, <span class="pl-c1">detail:</span> %{<span class="pl-c1">value:</span> message})
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Wraps the given content in a modal dialog.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Example</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.modal id="edit-modal" patch={...}></span>
+<span class="pl-c">        &#x3C;.live_component module={MyComponent}  /></span>
+<span class="pl-c">      &#x3C;/.modal></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:id</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:show</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>
+  attr <span class="pl-c1">:patch</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+  attr <span class="pl-c1">:navigate</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+  attr <span class="pl-c1">:class</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+  attr <span class="pl-c1">:width</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">values:</span> <span class="pl-s"><span class="pl-pds">~w(</span>small medium big large<span class="pl-pds">)</span></span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:rest</span>, <span class="pl-c1">:global</span>
+
+  slot <span class="pl-c1">:inner_block</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">modal</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span>
+      <span class="pl-e">id</span>=<span class="pl-s">{@id}</span>
+      <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>fixed z-10000 inset-0 hidden<span class="pl-pds">"</span></span>
+      <span class="pl-e">phx-mounted</span>=<span class="pl-s">{@show</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-e">show_modal(@id)}</span>
+      <span class="pl-e">phx-remove</span>=<span class="pl-s">{hide_modal(@id)}</span>
+      <span class="pl-e">data-cancel</span>=<span class="pl-s">{modal_on_cancel(@patch,</span> <span class="pl-e">@navigate)}</span>
+      <span class="pl-e">{@rest}</span>
+    >
+      <span class="pl-c">&#x3C;!-- Modal container --></span>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s">{<span class="pl-pds">"</span>#{@id}-container<span class="pl-pds">"</span></span><span class="pl-e">}</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>h-screen flex items-center justify-center p-4<span class="pl-pds">"</span></span>>
+        <span class="pl-c">&#x3C;!-- Overlay --></span>
+        &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>absolute z-0 inset-0 bg-gray-500 opacity-75<span class="pl-pds">"</span></span> <span class="pl-e">aria-hidden</span>=<span class="pl-s"><span class="pl-pds">"</span>true<span class="pl-pds">"</span></span>>&#x3C;/<span class="pl-ent">div</span>>
+        <span class="pl-c">&#x3C;!-- Modal box --></span>
+        &#x3C;.focus_wrap
+          id={"#{@id}-content"}
+          class={[
+            "relative max-h-full overflow-y-auto bg-white rounded-lg shadow-xl focus-visible:outline-none",
+            "w-full p-6",
+            modal_width_class(@width)
+          ]}
+          role="dialog"
+          aria-modal="true"
+          tabindex="0"
+          phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
+          phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
+          phx-key="escape"
+        >
+          &#x3C;<span class="pl-ent">button</span>
+            <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>button<span class="pl-pds">"</span></span>
+            <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>absolute top-6 right-6 text-gray-400 flex space-x-1 items-center<span class="pl-pds">"</span></span>
+            <span class="pl-e">aria_label</span>=<span class="pl-s"><span class="pl-pds">"</span>close modal<span class="pl-pds">"</span></span>
+            <span class="pl-e">phx-click</span>=<span class="pl-s">{JS.exec(<span class="pl-pds">"</span>data-cancel<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">to:</span> <span class="pl-s"><span class="pl-pds">"</span>##{@id}<span class="pl-pds">"</span></span><span class="pl-e">)}</span>
+          >
+            &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>text-sm<span class="pl-pds">"</span></span>>(esc)&#x3C;/<span class="pl-ent">span</span>>
+            &#x3C;.remix_icon icon="close-line" class="text-2xl" />
+          &#x3C;/<span class="pl-ent">button</span>>
+          {render_slot(@inner_block)}
+        &#x3C;/.focus_wrap>
+      &#x3C;/<span class="pl-ent">div</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">modal_width_class</span>(<span class="pl-s"><span class="pl-pds">"</span>small<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>max-w-sm<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">modal_width_class</span>(<span class="pl-s"><span class="pl-pds">"</span>medium<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>max-w-xl<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">modal_width_class</span>(<span class="pl-s"><span class="pl-pds">"</span>big<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>max-w-4xl<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">modal_width_class</span>(<span class="pl-s"><span class="pl-pds">"</span>large<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>max-w-6xl<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">modal_on_cancel</span>(<span class="pl-c1">nil</span>, <span class="pl-c1">nil</span>), <span class="pl-c1">do:</span> <span class="pl-en">JS</span>.<span class="pl-en">exec</span>(<span class="pl-s"><span class="pl-pds">"</span>phx-remove<span class="pl-pds">"</span></span>)
+  <span class="pl-k">defp</span> <span class="pl-en">modal_on_cancel</span>(<span class="pl-c1">nil</span>, navigate), <span class="pl-c1">do:</span> <span class="pl-en">JS</span>.<span class="pl-en">patch</span>(navigate)
+  <span class="pl-k">defp</span> <span class="pl-en">modal_on_cancel</span>(patch, <span class="pl-c1">nil</span>), <span class="pl-c1">do:</span> <span class="pl-en">JS</span>.<span class="pl-en">patch</span>(patch)
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Shows a modal rendered with `modal/1`.</span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">show_modal</span>(js <span class="pl-k">\\</span> %<span class="pl-en">JS</span>{}, id) <span class="pl-k">do</span>
+    js
+    <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">show</span>(<span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span><span class="pl-pds">"</span></span>)
+    <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">dispatch</span>(<span class="pl-s"><span class="pl-pds">"</span>lb:focus<span class="pl-pds">"</span></span>, <span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-content<span class="pl-pds">"</span></span>)
+    <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">transition</span>(
+      {<span class="pl-s"><span class="pl-pds">"</span>ease-out duration-200<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>opacity-0<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>opacity-100<span class="pl-pds">"</span></span>},
+      <span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-container<span class="pl-pds">"</span></span>
+    )
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Hides a modal rendered with `modal/1`.</span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">hide_modal</span>(js <span class="pl-k">\\</span> %<span class="pl-en">JS</span>{}, id) <span class="pl-k">do</span>
+    js
+    <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">transition</span>(
+      {<span class="pl-s"><span class="pl-pds">"</span>ease-in duration-200<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>opacity-100<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>opacity-0<span class="pl-pds">"</span></span>},
+      <span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-container<span class="pl-pds">"</span></span>
+    )
+    <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">hide</span>(<span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span><span class="pl-pds">"</span></span>, <span class="pl-c1">transition:</span> {<span class="pl-s"><span class="pl-pds">"</span>block<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>block<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>hidden<span class="pl-pds">"</span></span>})
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a popup menu that shows up on toggle click.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.menu id="my-menu"></span>
+<span class="pl-c">        &#x3C;:toggle></span>
+<span class="pl-c">          &#x3C;button>Open&#x3C;/button></span>
+<span class="pl-c">        &#x3C;/:toggle></span>
+<span class="pl-c">        &#x3C;.menu_item></span>
+<span class="pl-c">          &#x3C;button role="menuitem">Option 1&#x3C;/button></span>
+<span class="pl-c">        &#x3C;/.menu_item></span>
+<span class="pl-c">        &#x3C;.menu_item></span>
+<span class="pl-c">          &#x3C;button role="menuitem">Option 2&#x3C;/button></span>
+<span class="pl-c">        &#x3C;/.menu_item></span>
+<span class="pl-c">      &#x3C;/.menu></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:id</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:disabled</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>whether the menu is active<span class="pl-pds">"</span></span>
+
+  attr <span class="pl-c1">:position</span>, <span class="pl-c1">:string</span>,
+    <span class="pl-c1">default:</span> <span class="pl-s"><span class="pl-pds">"</span>bottom-right<span class="pl-pds">"</span></span>,
+    <span class="pl-c1">values:</span> <span class="pl-s"><span class="pl-pds">~w(</span>top-left top-right bottom-left bottom-right<span class="pl-pds">)</span></span>
+
+  attr <span class="pl-c1">:sm_position</span>, <span class="pl-c1">:string</span>,
+    <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>,
+    <span class="pl-c1">values:</span> [<span class="pl-c1">nil</span>, <span class="pl-s"><span class="pl-pds">"</span>top-left<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>top-right<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>bottom-left<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>bottom-right<span class="pl-pds">"</span></span>]
+
+  attr <span class="pl-c1">:md_position</span>, <span class="pl-c1">:string</span>,
+    <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>,
+    <span class="pl-c1">values:</span> [<span class="pl-c1">nil</span>, <span class="pl-s"><span class="pl-pds">"</span>top-left<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>top-right<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>bottom-left<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>bottom-right<span class="pl-pds">"</span></span>]
+
+  attr <span class="pl-c1">:distant</span>, <span class="pl-c1">:boolean</span>,
+    <span class="pl-c1">default:</span> <span class="pl-c1">false</span>,
+    <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>whether the menu should be further from the anchor element<span class="pl-pds">"</span></span>
+
+  attr <span class="pl-c1">:secondary_click</span>, <span class="pl-c1">:boolean</span>,
+    <span class="pl-c1">default:</span> <span class="pl-c1">false</span>,
+    <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>whether secondary click (usually right mouse click) should open the menu<span class="pl-pds">"</span></span>
+
+  slot <span class="pl-c1">:toggle</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  slot <span class="pl-c1">:inner_block</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">menu</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative<span class="pl-pds">"</span></span> <span class="pl-e">id</span>=<span class="pl-s">{@id}</span>>
+      &#x3C;<span class="pl-ent">div</span>
+        <span class="pl-e">phx-click</span>=<span class="pl-s">{not</span> <span class="pl-e">@disabled</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-e">show_menu(@id)}</span>
+        <span class="pl-e">data-contextmenu-trigger-click</span>=<span class="pl-s">{@secondary_click}</span>
+        <span class="pl-e">phx-window-keydown</span>=<span class="pl-s">{hide_menu(@id)}</span>
+        <span class="pl-e">phx-key</span>=<span class="pl-s"><span class="pl-pds">"</span>escape<span class="pl-pds">"</span></span>
+      >
+        {render_slot(@toggle)}
+      &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s">{<span class="pl-pds">"</span>#{@id}-overlay<span class="pl-pds">"</span></span><span class="pl-e">}</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>fixed z-90 inset-0 hidden<span class="pl-pds">"</span></span> <span class="pl-e">phx-click-away</span>=<span class="pl-s">{hide_menu(@id)}</span>>
+      &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;<span class="pl-ent">menu</span>
+        <span class="pl-e">id</span>=<span class="pl-s">{<span class="pl-pds">"</span>#{@id}-content<span class="pl-pds">"</span></span><span class="pl-e">}</span>
+        <span class="pl-e">class</span>=<span class="pl-s">{[</span>
+          <span class="pl-s"><span class="pl-pds">"</span>absolute z-100 hidden<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+          <span class="pl-e">menu_position_class(@position),</span>
+          <span class="pl-e">@md_position</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-e">menu_md_position_class(@md_position),</span>
+          <span class="pl-e">@sm_position</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-e">menu_sm_position_class(@sm_position),</span>
+          <span class="pl-e">@distant</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-e">menu_distant_class(@position)</span>
+        <span class="pl-e">]}</span>
+        <span class="pl-e">role</span>=<span class="pl-s"><span class="pl-pds">"</span>menu<span class="pl-pds">"</span></span>
+        <span class="pl-e">phx-click-away</span>=<span class="pl-s">{hide_menu(@id)}</span>
+      >
+        &#x3C;<span class="pl-ent">div</span>
+          <span class="pl-e">id</span>=<span class="pl-s">{<span class="pl-pds">"</span>#{@id}-content-inner<span class="pl-pds">"</span></span><span class="pl-e">}</span>
+          <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>rounded-lg bg-white flex flex-col py-2 shadow-[0_15px_99px_-0px_rgba(12,24,41,0.15)]<span class="pl-pds">"</span></span>
+        >
+          {render_slot(@inner_block)}
+        &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;/<span class="pl-ent">menu</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Shows a menu rendered with `menu/1`.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Options</span>
+<span class="pl-c"></span>
+<span class="pl-c">    * `:animate` - whether to play an animation when the menu is opened.</span>
+<span class="pl-c">      Defaults to `false`</span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">show_menu</span>(js <span class="pl-k">\\</span> %<span class="pl-en">JS</span>{}, id, opts <span class="pl-k">\\</span> []) <span class="pl-k">do</span>
+    opts <span class="pl-k">=</span> <span class="pl-en">Keyword</span>.<span class="pl-en">validate!</span>(opts, <span class="pl-c1">animate:</span> <span class="pl-c1">false</span>)
+
+    js <span class="pl-k">=</span>
+      js
+      <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">show</span>(<span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-overlay<span class="pl-pds">"</span></span>)
+      <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">show</span>(<span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-content<span class="pl-pds">"</span></span>, <span class="pl-c1">display:</span> <span class="pl-s"><span class="pl-pds">"</span>flex<span class="pl-pds">"</span></span>)
+      <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">dispatch</span>(<span class="pl-s"><span class="pl-pds">"</span>lb:scroll_into_view<span class="pl-pds">"</span></span>, <span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-content<span class="pl-pds">"</span></span>)
+
+    <span class="pl-k">if</span> opts[<span class="pl-c1">:animate</span>] <span class="pl-k">do</span>
+      <span class="pl-en">JS</span>.<span class="pl-en">add_class</span>(js, <span class="pl-s"><span class="pl-pds">"</span>animate-shake<span class="pl-pds">"</span></span>, <span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-content-inner<span class="pl-pds">"</span></span>)
+    <span class="pl-k">else</span>
+      js
+    <span class="pl-k">end</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Hides a menu rendered with `menu/1`.</span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">hide_menu</span>(js <span class="pl-k">\\</span> %<span class="pl-en">JS</span>{}, id) <span class="pl-k">do</span>
+    js
+    <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">hide</span>(<span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-overlay<span class="pl-pds">"</span></span>)
+    <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">hide</span>(<span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-content<span class="pl-pds">"</span></span>)
+    <span class="pl-k">|></span> <span class="pl-en">JS</span>.<span class="pl-en">remove_class</span>(<span class="pl-s"><span class="pl-pds">"</span>animate-shake<span class="pl-pds">"</span></span>, <span class="pl-c1">to:</span> <span class="pl-s"><span class="pl-pds">"</span>#<span class="pl-pse">#{</span>id<span class="pl-pse">}</span>-content-inner<span class="pl-pds">"</span></span>)
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>top-left<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>top-0 left-0 transform -translate-y-full -mt-1<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">menu_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>top-right<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>top-0 right-0 transform -translate-y-full -mt-1<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">menu_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>bottom-left<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bottom-0 left-0 transform translate-y-full -mb-1<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>bottom-right<span class="pl-pds">"</span></span>),
+    <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bottom-0 right-0 transform translate-y-full -mb-1<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_md_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>top-left<span class="pl-pds">"</span></span>) <span class="pl-k">do</span>
+    <span class="pl-s"><span class="pl-pds">"</span>md:top-0 md:left-0 md:bottom-auto md:right-auto md:transform md:-translate-y-full md:-mt-1 md:mb-0<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_md_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>top-right<span class="pl-pds">"</span></span>) <span class="pl-k">do</span>
+    <span class="pl-s"><span class="pl-pds">"</span>md:top-0 md:right-0 md:bottom-auto md:left-auto md:transform md:-translate-y-full md:-mt-1 md:mb-0<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_md_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>bottom-left<span class="pl-pds">"</span></span>) <span class="pl-k">do</span>
+    <span class="pl-s"><span class="pl-pds">"</span>md:bottom-0 md:left-0 md:top-auto md:right-auto md:transform md:translate-y-full md:-mb-1 md:mt-0<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_md_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>bottom-right<span class="pl-pds">"</span></span>) <span class="pl-k">do</span>
+    <span class="pl-s"><span class="pl-pds">"</span>md:bottom-0 md:right-0 md:top-auto md:left-auto md:transform md:translate-y-full md:-mb-1 md:mt-0<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_sm_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>top-left<span class="pl-pds">"</span></span>) <span class="pl-k">do</span>
+    <span class="pl-s"><span class="pl-pds">"</span>sm:top-0 sm:left-0 sm:bottom-auto sm:right-auto sm:transform sm:-translate-y-full sm:-mt-1 sm:mb-0<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_sm_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>top-right<span class="pl-pds">"</span></span>) <span class="pl-k">do</span>
+    <span class="pl-s"><span class="pl-pds">"</span>sm:top-0 sm:right-0 sm:bottom-auto sm:left-auto sm:transform sm:-translate-y-full sm:-mt-1 sm:mb-0<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_sm_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>bottom-left<span class="pl-pds">"</span></span>) <span class="pl-k">do</span>
+    <span class="pl-s"><span class="pl-pds">"</span>sm:bottom-0 sm:left-0 sm:top-auto sm:right-auto sm:transform sm:translate-y-full sm:-mb-1 sm:mt-0<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_sm_position_class</span>(<span class="pl-s"><span class="pl-pds">"</span>bottom-right<span class="pl-pds">"</span></span>) <span class="pl-k">do</span>
+    <span class="pl-s"><span class="pl-pds">"</span>sm:bottom-0 sm:right-0 sm:top-auto sm:left-auto sm:transform sm:translate-y-full sm:-mb-1 sm:mt-0<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_distant_class</span>(position) <span class="pl-k">when</span> position <span class="pl-k">in</span> [<span class="pl-s"><span class="pl-pds">"</span>top-left<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>top-right<span class="pl-pds">"</span></span>], <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>-mt-2<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">menu_distant_class</span>(position) <span class="pl-k">when</span> position <span class="pl-k">in</span> [<span class="pl-s"><span class="pl-pds">"</span>bottom-left<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>bottom-right<span class="pl-pds">"</span></span>], <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>-mb-2<span class="pl-pds">"</span></span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Wraps a menu item that shows a submenu on hover.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  This component should be used within `menu/1` content.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Example</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.submenu></span>
+<span class="pl-c">        &#x3C;:primary></span>
+<span class="pl-c">          &#x3C;button class"menu-item" role="menuitem">Submenu&#x3C;/button></span>
+<span class="pl-c">        &#x3C;/:primary></span>
+<span class="pl-c">        &#x3C;.menu_item></span>
+<span class="pl-c">          &#x3C;button class"menu-item" role="menuitem">Option 1&#x3C;/button></span>
+<span class="pl-c">        &#x3C;/.menu_item></span>
+<span class="pl-c">      &#x3C;/.submenu></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  slot <span class="pl-c1">:primary</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  slot <span class="pl-c1">:inner_block</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">submenu</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>group relative<span class="pl-pds">"</span></span>>
+      {render_slot(@primary)}
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>absolute -top-2 right-0 translate-x-full pl-2 hidden group-hover:flex group-focus-within:flex<span class="pl-pds">"</span></span>>
+        &#x3C;<span class="pl-ent">menu</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative mt-0 z-100 rounded-lg bg-white flex flex-col py-2 shadow-[0_15px_99px_-0px_rgba(12,24,41,0.15)]<span class="pl-pds">"</span></span>>
+          {render_slot(@inner_block)}
+        &#x3C;/<span class="pl-ent">menu</span>>
+      &#x3C;/<span class="pl-ent">div</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a menu item used in `menu/1` and `submenu/1`.</span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:disabled</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>
+  attr <span class="pl-c1">:variant</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>, <span class="pl-c1">values:</span> <span class="pl-s"><span class="pl-pds">~w(</span>default selected danger<span class="pl-pds">)</span></span>
+
+  slot <span class="pl-c1">:inner_block</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">menu_item</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">li</span> <span class="pl-e">class</span>=<span class="pl-s">{[</span>
+      <span class="pl-s"><span class="pl-pds">"</span>w-full<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+      <span class="pl-s"><span class="pl-pds">"</span>*:first:w-full *:first:flex *:first:space-x-3 *:first:px-5 *:first:py-2 *:first:items-center [<span class="pl-ii">&#x26;</span>>:first-child:hover]:bg-gray-100 [<span class="pl-ii">&#x26;</span>>:first-child:focus-visible]:bg-gray-100 [<span class="pl-ii">&#x26;</span>>:first-child:focus-visible]:outline-none *:first:whitespace-nowrap font-medium<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+      <span class="pl-e">menu_item_class(@variant),</span>
+      <span class="pl-e">@disabled</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>pointer-events-none opacity-50<span class="pl-pds">"</span></span>
+    <span class="pl-e">]}</span>>
+      {render_slot(@inner_block)}
+    &#x3C;/<span class="pl-ent">li</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">menu_item_class</span>(<span class="pl-s"><span class="pl-pds">"</span>default<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>text-gray-500<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">menu_item_class</span>(<span class="pl-s"><span class="pl-pds">"</span>selected<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>text-gray-900<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">menu_item_class</span>(<span class="pl-s"><span class="pl-pds">"</span>danger<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>text-red-600<span class="pl-pds">"</span></span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a text content skeleton.</span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:empty</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>if the source is empty<span class="pl-pds">"</span></span>
+  attr <span class="pl-c1">:bg_class</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-gray-200<span class="pl-pds">"</span></span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the skeleton background color<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">def</span> <span class="pl-en">content_skeleton</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    <span class="pl-pse">&#x3C;%=</span> <span class="pl-k">if</span> <span class="pl-smi">@empty</span> <span class="pl-k">do</span> <span class="pl-pse">%></span>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>h-4<span class="pl-pds">"</span></span>>&#x3C;/<span class="pl-ent">div</span>>
+    <span class="pl-pse">&#x3C;%</span> <span class="pl-k">else</span> <span class="pl-pse">%></span>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>max-w-2xl w-full animate-pulse<span class="pl-pds">"</span></span>>
+        &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>flex-1 space-y-4<span class="pl-pds">"</span></span>>
+          &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s">{[@bg_class,</span> <span class="pl-s"><span class="pl-pds">"</span>h-4 rounded-lg w-3/4<span class="pl-pds">"</span></span><span class="pl-e">]}</span>>&#x3C;/<span class="pl-ent">div</span>>
+          &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s">{[@bg_class,</span> <span class="pl-s"><span class="pl-pds">"</span>h-4 rounded-lg<span class="pl-pds">"</span></span><span class="pl-e">]}</span>>&#x3C;/<span class="pl-ent">div</span>>
+          &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s">{[@bg_class,</span> <span class="pl-s"><span class="pl-pds">"</span>h-4 rounded-lg w-5/6<span class="pl-pds">"</span></span><span class="pl-e">]}</span>>&#x3C;/<span class="pl-ent">div</span>>
+        &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;/<span class="pl-ent">div</span>>
+    <span class="pl-pse">&#x3C;%</span> <span class="pl-k">end</span> <span class="pl-pse">%></span>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a file content skeleton.</span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:empty</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>if the source is empty<span class="pl-pds">"</span></span>
+  attr <span class="pl-c1">:bg_class</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-gray-200<span class="pl-pds">"</span></span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the skeleton background color<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">def</span> <span class="pl-en">file_skeleton</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    <span class="pl-pse">&#x3C;%=</span> <span class="pl-k">if</span> <span class="pl-smi">@empty</span> <span class="pl-k">do</span> <span class="pl-pse">%></span>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>h-4<span class="pl-pds">"</span></span>>&#x3C;/<span class="pl-ent">div</span>>
+    <span class="pl-pse">&#x3C;%</span> <span class="pl-k">else</span> <span class="pl-pse">%></span>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>max-w-2xl w-full animate-pulse<span class="pl-pds">"</span></span>>
+        &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>flex-1 space-y-4<span class="pl-pds">"</span></span>>
+          &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>w-full flex space-x-2 items-center p-2<span class="pl-pds">"</span></span>>
+            &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s">{[@bg_class,</span> <span class="pl-s"><span class="pl-pds">"</span>h-6 rounded-md w-5<span class="pl-pds">"</span></span><span class="pl-e">]}</span> />
+            &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s">{[</span>
+              <span class="pl-e">@bg_class,</span>
+              <span class="pl-s"><span class="pl-pds">"</span>h-4 rounded-lg<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+              <span class="pl-e">Enum.random([</span><span class="pl-s"><span class="pl-pds">"</span>w-1/2<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-s"><span class="pl-pds">"</span>w-2/3<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-s"><span class="pl-pds">"</span>w-3/4<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-s"><span class="pl-pds">"</span>w-4/5<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-s"><span class="pl-pds">"</span>w-full<span class="pl-pds">"</span></span><span class="pl-e">])</span>
+            <span class="pl-e">]}</span> />
+          &#x3C;/<span class="pl-ent">div</span>>
+        &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;/<span class="pl-ent">div</span>>
+    <span class="pl-pse">&#x3C;%</span> <span class="pl-k">end</span> <span class="pl-pse">%></span>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a highlighted code snippet.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.code_preview</span>
+<span class="pl-c">        source_id="my-snippet"</span>
+<span class="pl-c">        language="elixir"</span>
+<span class="pl-c">        source="System.version()" /></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:source_id</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:language</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:source</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:wrap</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">code_preview</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>markdown<span class="pl-pds">"</span></span>>
+      &#x3C;<span class="pl-ent">pre</span>>&#x3C;<span class="pl-ent">code</span>
+      <span class="pl-e">class</span>=<span class="pl-s">{if(@wrap,</span> <span class="pl-e">do:</span> <span class="pl-s"><span class="pl-pds">"</span>break-all whitespace-pre-wrap<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">else:</span> <span class="pl-s"><span class="pl-pds">"</span>tiny-scrollbar<span class="pl-pds">"</span></span><span class="pl-e">)}</span>
+      <span class="pl-e">id</span>=<span class="pl-s">{<span class="pl-pds">"</span>#{@source_id}-highlight<span class="pl-pds">"</span></span><span class="pl-e">}</span>
+      <span class="pl-e">phx-hook</span>=<span class="pl-s"><span class="pl-pds">"</span>Highlight<span class="pl-pds">"</span></span>
+      <span class="pl-e">data-p-language</span>=<span class="pl-s">{hook_prop(@language)}</span>
+    >&#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s">{@source_id}</span> <span class="pl-e">data-source</span>>{@source}&#x3C;/<span class="pl-ent">div</span>>&#x3C;<span class="pl-ent">div</span> <span class="pl-e">data-target</span>>&#x3C;/<span class="pl-ent">div</span>>&#x3C;/<span class="pl-ent">code</span>>&#x3C;/<span class="pl-ent">pre</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a highlighted code snippet with a title and a copy button.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.code_preview_with_title_and_copy</span>
+<span class="pl-c">        title="</span>
+<span class="pl-c">        source_id="my-snippet"</span>
+<span class="pl-c">        language="elixir"</span>
+<span class="pl-c">        source="System.version()" /></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:title</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:source_id</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:language</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:source</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">code_preview_with_title_and_copy</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span>>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>flex justify-between items-center<span class="pl-pds">"</span></span>>
+        &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>text-sm text-gray-700 font-semibold<span class="pl-pds">"</span></span>>{@title}&#x3C;/<span class="pl-ent">span</span>>
+        &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>flex justify-end space-x-2<span class="pl-pds">"</span></span>>
+          &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>tooltip left<span class="pl-pds">"</span></span> <span class="pl-e">data-tooltip</span>=<span class="pl-s"><span class="pl-pds">"</span>Copy source<span class="pl-pds">"</span></span>>
+            &#x3C;.icon_button
+              aria-label="copy source"
+              phx-click={JS.dispatch("lb:clipcopy", to: "##{@source_id}")}
+            >
+              &#x3C;.remix_icon icon="clipboard-line" />
+            &#x3C;/.icon_button>
+          &#x3C;/<span class="pl-ent">span</span>>
+        &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;/<span class="pl-ent">div</span>>
+
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>markdown<span class="pl-pds">"</span></span>>
+        &#x3C;.code_preview source_id={@source_id} language={@language} source={@source} />
+      &#x3C;/<span class="pl-ent">div</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders text with a tiny label.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.labeled_text label="Name">Sherlock Holmes&#x3C;/.labeled_text></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:label</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  attr <span class="pl-c1">:one_line</span>, <span class="pl-c1">:boolean</span>,
+    <span class="pl-c1">default:</span> <span class="pl-c1">false</span>,
+    <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>whether to force the text into a single scrollable line<span class="pl-pds">"</span></span>
+
+  attr <span class="pl-c1">:class</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+
+  slot <span class="pl-c1">:inner_block</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">labeled_text</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s">{[<span class="pl-pds">"</span>flex flex-col space-y-1<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">@class]}</span>>
+      &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>text-sm text-gray-500<span class="pl-pds">"</span></span>>
+        {@label}
+      &#x3C;/<span class="pl-ent">span</span>>
+      &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s">{[</span>
+        <span class="pl-s"><span class="pl-pds">"</span>text-gray-800 text-sm font-semibold<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+        <span class="pl-e">@one_line</span> <span class="pl-e">&#x26;&#x26;</span>
+          <span class="pl-s"><span class="pl-pds">"</span>whitespace-nowrap overflow-hidden text-ellipsis hover:text-clip hover:overflow-auto hover:tiny-scrollbar<span class="pl-pds">"</span></span>
+      <span class="pl-e">]}</span>>
+        {render_slot(@inner_block)}
+      &#x3C;/<span class="pl-ent">span</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a choice button that is either active or not.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.choice_button active={@tab == "my_tab"} phx-click="set_my_tab"></span>
+<span class="pl-c">        My tab</span>
+<span class="pl-c">      &#x3C;/.choice_button></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:active</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:disabled</span>, <span class="pl-c1">:boolean</span>
+  attr <span class="pl-c1">:class</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+  attr <span class="pl-c1">:rest</span>, <span class="pl-c1">:global</span>
+
+  slot <span class="pl-c1">:inner_block</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">choice_button</span>(assigns) <span class="pl-k">do</span>
+    assigns <span class="pl-k">=</span>
+      assigns
+      <span class="pl-k">|></span> <span class="pl-en">assign_new</span>(<span class="pl-c1">:disabled</span>, <span class="pl-k">fn</span> <span class="pl-k">-></span> assigns.active <span class="pl-k">end</span>)
+
+    ~H"""
+    &#x3C;<span class="pl-ent">button</span>
+      <span class="pl-e">class</span>=<span class="pl-s">{[</span>
+        <span class="pl-s"><span class="pl-pds">"</span>px-5 py-2 rounded-lg text-gray-700 border<span class="pl-pds">"</span></span><span class="pl-e">,</span>
+        <span class="pl-e">if(@active,</span> <span class="pl-e">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-blue-100 border-blue-600<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">else:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-white border-gray-200<span class="pl-pds">"</span></span><span class="pl-e">),</span>
+        <span class="pl-e">@class</span>
+      <span class="pl-e">]}</span>
+      <span class="pl-e">disabled</span>=<span class="pl-s">{@disabled}</span>
+      <span class="pl-e">{@rest}</span>
+    >
+      {render_slot(@inner_block)}
+    &#x3C;/<span class="pl-ent">button</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders an status indicator circle.</span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:variant</span>, <span class="pl-c1">:string</span>,
+    <span class="pl-c1">required:</span> <span class="pl-c1">true</span>,
+    <span class="pl-c1">values:</span> <span class="pl-s"><span class="pl-pds">~w(</span>success warning error inactive waiting progressing<span class="pl-pds">)</span></span>
+
+  <span class="pl-k">def</span> <span class="pl-en">status_indicator</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative flex h-2.5 w-2.5<span class="pl-pds">"</span></span>>
+      &#x3C;<span class="pl-ent">span</span>
+        <span class="pl-e">:if</span>=<span class="pl-s">{animated_status_circle_class(@variant)}</span>
+        <span class="pl-e">class</span>=<span class="pl-s">{[</span>
+          <span class="pl-e">animated_status_circle_class(@variant),</span>
+          <span class="pl-s"><span class="pl-pds">"</span>animate-ping absolute inline-flex h-full w-full rounded-full opacity-75<span class="pl-pds">"</span></span>
+        <span class="pl-e">]}</span>
+      >
+      &#x3C;/<span class="pl-ent">span</span>>
+      &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s">{[status_circle_class(@variant),</span> <span class="pl-s"><span class="pl-pds">"</span>relative inline-flex rounded-full h-2.5 w-2.5<span class="pl-pds">"</span></span><span class="pl-e">]}</span>>
+      &#x3C;/<span class="pl-ent">span</span>>
+    &#x3C;/<span class="pl-ent">span</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Returns background class based on the given variant.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  See `status_indicator/1` for available variants.</span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">status_circle_class</span>(variant)
+
+  <span class="pl-k">def</span> <span class="pl-en">status_circle_class</span>(<span class="pl-s"><span class="pl-pds">"</span>success<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-green-bright-400<span class="pl-pds">"</span></span>
+  <span class="pl-k">def</span> <span class="pl-en">status_circle_class</span>(<span class="pl-s"><span class="pl-pds">"</span>warning<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-yellow-bright-200<span class="pl-pds">"</span></span>
+  <span class="pl-k">def</span> <span class="pl-en">status_circle_class</span>(<span class="pl-s"><span class="pl-pds">"</span>error<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-red-400<span class="pl-pds">"</span></span>
+  <span class="pl-k">def</span> <span class="pl-en">status_circle_class</span>(<span class="pl-s"><span class="pl-pds">"</span>inactive<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-gray-500<span class="pl-pds">"</span></span>
+  <span class="pl-k">def</span> <span class="pl-en">status_circle_class</span>(<span class="pl-s"><span class="pl-pds">"</span>waiting<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-gray-400<span class="pl-pds">"</span></span>
+  <span class="pl-k">def</span> <span class="pl-en">status_circle_class</span>(<span class="pl-s"><span class="pl-pds">"</span>progressing<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-blue-500<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">animated_status_circle_class</span>(<span class="pl-s"><span class="pl-pds">"</span>waiting<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-gray-300<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">animated_status_circle_class</span>(<span class="pl-s"><span class="pl-pds">"</span>progressing<span class="pl-pds">"</span></span>), <span class="pl-c1">do:</span> <span class="pl-s"><span class="pl-pds">"</span>bg-blue-400<span class="pl-pds">"</span></span>
+  <span class="pl-k">defp</span> <span class="pl-en">animated_status_circle_class</span>(<span class="pl-c">_other</span>), <span class="pl-c1">do:</span> <span class="pl-c1">nil</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders an informative box as a placeholder for a list.</span>
+<span class="pl-c">  """</span>
+
+  slot <span class="pl-c1">:inner_block</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  slot <span class="pl-c1">:actions</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">no_entries</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>p-5 flex space-x-4 items-center border border-gray-200 rounded-lg<span class="pl-pds">"</span></span>>
+      &#x3C;<span class="pl-ent">div</span>>
+        &#x3C;.remix_icon icon="windy-line" class="text-gray-400 text-xl" />
+      &#x3C;/<span class="pl-ent">div</span>>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>grow flex items-center justify-between<span class="pl-pds">"</span></span>>
+        &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>text-gray-600<span class="pl-pds">"</span></span>>
+          {render_slot(@inner_block)}
+        &#x3C;/<span class="pl-ent">div</span>>
+        {render_slot(@actions)}
+      &#x3C;/<span class="pl-ent">div</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a circular spinner.</span>
+<span class="pl-c">  """</span>
+
+  attr <span class="pl-c1">:class</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+  attr <span class="pl-c1">:rest</span>, <span class="pl-c1">:global</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">spinner</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">svg</span>
+      <span class="pl-e">aria-hidden</span>=<span class="pl-s"><span class="pl-pds">"</span>true<span class="pl-pds">"</span></span>
+      <span class="pl-e">class</span>=<span class="pl-s">{[<span class="pl-pds">"</span>inline w-4 h-4 text-gray-200 animate-spin fill-blue-600<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">@class]}</span>
+      <span class="pl-e">viewBox</span>=<span class="pl-s"><span class="pl-pds">"</span>0 0 100 101<span class="pl-pds">"</span></span>
+      <span class="pl-e">fill</span>=<span class="pl-s"><span class="pl-pds">"</span>none<span class="pl-pds">"</span></span>
+      <span class="pl-e">xmlns</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.w3.org/2000/svg<span class="pl-pds">"</span></span>
+      <span class="pl-e">{@rest}</span>
+    >
+      &#x3C;<span class="pl-ent">path</span>
+        <span class="pl-e">d</span>=<span class="pl-s"><span class="pl-pds">"</span>M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z<span class="pl-pds">"</span></span>
+        <span class="pl-e">fill</span>=<span class="pl-s"><span class="pl-pds">"</span>currentColor<span class="pl-pds">"</span></span>
+      />
+      &#x3C;<span class="pl-ent">path</span>
+        <span class="pl-e">d</span>=<span class="pl-s"><span class="pl-pds">"</span>M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z<span class="pl-pds">"</span></span>
+        <span class="pl-e">fill</span>=<span class="pl-s"><span class="pl-pds">"</span>currentFill<span class="pl-pds">"</span></span>
+      />
+    &#x3C;/<span class="pl-ent">svg</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Returns the text in singular or plural depending on the quantity.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">    &#x3C;.listing items={@packages}></span>
+<span class="pl-c">      &#x3C;:item :let={package}>&#x3C;code>{package.name}&#x3C;/code>&#x3C;/:item></span>
+<span class="pl-c">      &#x3C;:singular_suffix>package&#x3C;/:singular_suffix></span>
+<span class="pl-c">      &#x3C;:plural_suffix>packages&#x3C;/:plural_suffix></span>
+<span class="pl-c">    &#x3C;/.listing></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+
+  attr <span class="pl-c1">:items</span>, <span class="pl-c1">:list</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  slot <span class="pl-c1">:item</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  slot <span class="pl-c1">:plural_suffix</span>
+  slot <span class="pl-c1">:singular_suffix</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">listing</span>(%{<span class="pl-c1">items:</span> [<span class="pl-c">_</span>]} <span class="pl-k">=</span> assigns) <span class="pl-k">do</span>
+    ~H"""
+    {render_slot(@item, hd(@items))}
+    {render_slot(@singular_suffix)}
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">listing</span>(%{<span class="pl-c1">items:</span> [<span class="pl-c">_</span>, <span class="pl-c">_</span> <span class="pl-k">|</span> <span class="pl-c">_</span>]} <span class="pl-k">=</span> assigns) <span class="pl-k">do</span>
+    {items, assigns} <span class="pl-k">=</span> <span class="pl-en">Map</span>.<span class="pl-en">pop!</span>(assigns, <span class="pl-c1">:items</span>)
+    {leading, [second_to_last, last]} <span class="pl-k">=</span> <span class="pl-en">Enum</span>.<span class="pl-en">split</span>(items, <span class="pl-k">-</span><span class="pl-c1">2</span>)
+    assigns <span class="pl-k">=</span> <span class="pl-en">assign</span>(assigns, <span class="pl-c1">leading:</span> leading, <span class="pl-c1">second_to_last:</span> second_to_last, <span class="pl-c1">last:</span> last)
+
+    ~H"""
+    <span class="pl-pse">&#x3C;%=</span> <span class="pl-k">for</span> item <span class="pl-k">&#x3C;-</span> <span class="pl-smi">@leading</span> <span class="pl-k">do</span> <span class="pl-pse">%></span>
+      {render_slot(@item, item)},
+    <span class="pl-pse">&#x3C;%</span> <span class="pl-k">end</span> <span class="pl-pse">%></span>
+    {render_slot(@item, @second_to_last)} and {render_slot(@item, @last)}
+    {render_slot(@plural_suffix)}
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a table with generic styling.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.table id="users" rows={@users}></span>
+<span class="pl-c">        &#x3C;:col :let={user} label="id">{user.id}&#x3C;/:col></span>
+<span class="pl-c">        &#x3C;:col :let={user} label="username">{user.username}&#x3C;/:col></span>
+<span class="pl-c">      &#x3C;/.table></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:id</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:rows</span>, <span class="pl-c1">:list</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:row_id</span>, <span class="pl-c1">:any</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the function for generating the row id<span class="pl-pds">"</span></span>
+  attr <span class="pl-c1">:row_click</span>, <span class="pl-c1">:any</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the function for handling phx-click on each row<span class="pl-pds">"</span></span>
+
+  attr <span class="pl-c1">:row_item</span>, <span class="pl-c1">:any</span>,
+    <span class="pl-c1">default:</span> <span class="pl-smi">&#x26;</span><span class="pl-en">Function</span>.<span class="pl-en">identity</span><span class="pl-k">/</span><span class="pl-c1">1</span>,
+    <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the function for mapping each row before calling the :col and :action slots<span class="pl-pds">"</span></span>
+
+  slot <span class="pl-c1">:col</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span> <span class="pl-k">do</span>
+    attr <span class="pl-c1">:label</span>, <span class="pl-c1">:string</span>
+  <span class="pl-k">end</span>
+
+  slot <span class="pl-c1">:action</span>, <span class="pl-c1">doc:</span> <span class="pl-s"><span class="pl-pds">"</span>the slot for showing user actions in the last table column<span class="pl-pds">"</span></span>
+
+  <span class="pl-k">def</span> <span class="pl-en">table</span>(assigns) <span class="pl-k">do</span>
+    assigns <span class="pl-k">=</span>
+      <span class="pl-k">with</span> %{<span class="pl-c1">rows:</span> %<span class="pl-en">Phoenix</span>.<span class="pl-en">LiveView</span>.<span class="pl-en">LiveStream</span>{}} <span class="pl-k">&#x3C;-</span> assigns <span class="pl-k">do</span>
+        <span class="pl-en">assign</span>(assigns, <span class="pl-c1">row_id:</span> assigns.row_id <span class="pl-k">||</span> <span class="pl-k">fn</span> {id, <span class="pl-c">_item</span>} <span class="pl-k">-></span> id <span class="pl-k">end</span>)
+      <span class="pl-k">end</span>
+
+    ~H"""
+    &#x3C;<span class="pl-ent">table</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>overflow-y-auto px-4 sm:overflow-visible sm:px-0 min-w-full divide-y divide-gray-300<span class="pl-pds">"</span></span>>
+      &#x3C;<span class="pl-ent">thead</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>text-sm text-left font-semibold leading-6 text-gray-900<span class="pl-pds">"</span></span>>
+        &#x3C;<span class="pl-ent">tr</span>>
+          &#x3C;<span class="pl-ent">th</span> <span class="pl-e">:for</span>=<span class="pl-s">{col</span> &#x3C;<span class="pl-e">-</span> <span class="pl-e">@col}</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>py-3.5 pl-4 pr-3 sm:pl-6<span class="pl-pds">"</span></span>>
+            {col[:label]}
+          &#x3C;/<span class="pl-ent">th</span>>
+          &#x3C;<span class="pl-ent">th</span> <span class="pl-e">:if</span>=<span class="pl-s">{@action</span> <span class="pl-e">!</span>= <span class="pl-s">[]}</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>py-3.5 pl-3 pr-5 text-right sm:pr-7<span class="pl-pds">"</span></span>>
+            &#x3C;<span class="pl-ent">span</span>>Actions&#x3C;/<span class="pl-ent">span</span>>
+          &#x3C;/<span class="pl-ent">th</span>>
+        &#x3C;/<span class="pl-ent">tr</span>>
+      &#x3C;/<span class="pl-ent">thead</span>>
+      &#x3C;<span class="pl-ent">tbody</span>
+        <span class="pl-e">id</span>=<span class="pl-s">{@id}</span>
+        <span class="pl-e">phx-update</span>=<span class="pl-s">{match?(%Phoenix.LiveView.LiveStream{},</span> <span class="pl-e">@rows)</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>stream<span class="pl-pds">"</span></span><span class="pl-e">}</span>
+        <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative divide-y divide-gray-200 bg-white text-sm font-medium leading-6 text-gray-900<span class="pl-pds">"</span></span>
+      >
+        &#x3C;<span class="pl-ent">tr</span> <span class="pl-e">:for</span>=<span class="pl-s">{row</span> &#x3C;<span class="pl-e">-</span> <span class="pl-e">@rows}</span> <span class="pl-e">id</span>=<span class="pl-s">{@row_id</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-e">@row_id.(row)}</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>hover:bg-gray-50<span class="pl-pds">"</span></span>>
+          &#x3C;<span class="pl-ent">td</span>
+            <span class="pl-e">:for</span>=<span class="pl-s">{col</span> &#x3C;<span class="pl-e">-</span> <span class="pl-e">@col}</span>
+            <span class="pl-e">phx-click</span>=<span class="pl-s">{@row_click</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-e">@row_click.(row)}</span>
+            <span class="pl-e">class</span>=<span class="pl-s">{[<span class="pl-pds">"</span>relative p-0<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">@row_click</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>hover:cursor-pointer<span class="pl-pds">"</span></span><span class="pl-e">]}</span>
+          >
+            &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative block p-4 sm:px-6<span class="pl-pds">"</span></span>>
+              {render_slot(col, @row_item.(row))}
+            &#x3C;/<span class="pl-ent">div</span>>
+          &#x3C;/<span class="pl-ent">td</span>>
+          &#x3C;<span class="pl-ent">td</span> <span class="pl-e">:if</span>=<span class="pl-s">{@action</span> <span class="pl-e">!</span>= <span class="pl-s">[]}</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative p-0<span class="pl-pds">"</span></span>>
+            &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>relative whitespace-nowrap py-4 pl-3 pr-4 sm:pr-6 flex justify-end items-center<span class="pl-pds">"</span></span>>
+              &#x3C;<span class="pl-ent">span</span> <span class="pl-e">:for</span>=<span class="pl-s">{action</span> &#x3C;<span class="pl-e">-</span> <span class="pl-e">@action}</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>ml-4<span class="pl-pds">"</span></span>>
+                {render_slot(action, @row_item.(row))}
+              &#x3C;/<span class="pl-ent">span</span>>
+            &#x3C;/<span class="pl-ent">div</span>>
+          &#x3C;/<span class="pl-ent">td</span>>
+        &#x3C;/<span class="pl-ent">tr</span>>
+      &#x3C;/<span class="pl-ent">tbody</span>>
+    &#x3C;/<span class="pl-ent">table</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders a button.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.button>Click&#x3C;/.button></span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.button color="gray" outlined>Click&#x3C;/.button></span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.button color="gray" small>Click&#x3C;/.button></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:disabled</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>
+  attr <span class="pl-c1">:color</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-s"><span class="pl-pds">"</span>blue<span class="pl-pds">"</span></span>, <span class="pl-c1">values:</span> <span class="pl-s"><span class="pl-pds">~w(</span>blue gray red<span class="pl-pds">)</span></span>
+  attr <span class="pl-c1">:outlined</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>
+  attr <span class="pl-c1">:small</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>
+  attr <span class="pl-c1">:class</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+
+  attr <span class="pl-c1">:rest</span>, <span class="pl-c1">:global</span>, <span class="pl-c1">include:</span> <span class="pl-s"><span class="pl-pds">~w(</span>href patch navigate download name<span class="pl-pds">)</span></span>
+
+  slot <span class="pl-c1">:inner_block</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">button</span>(assigns)
+      <span class="pl-k">when</span> <span class="pl-en">is_map_key</span>(assigns.rest, <span class="pl-c1">:href</span>) <span class="pl-k">or</span> <span class="pl-en">is_map_key</span>(assigns.rest, <span class="pl-c1">:patch</span>) <span class="pl-k">or</span>
+             <span class="pl-en">is_map_key</span>(assigns.rest, <span class="pl-c1">:navigate</span>) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;.link class={[button_classes(@small, @disabled, @color, @outlined), @class]} {@rest}>
+      {render_slot(@inner_block)}
+    &#x3C;/.link>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">button</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">button</span>
+      <span class="pl-e">class</span>=<span class="pl-s">{[button_classes(@small,</span> <span class="pl-e">@disabled,</span> <span class="pl-e">@color,</span> <span class="pl-e">@outlined),</span> <span class="pl-e">@class]}</span>
+      <span class="pl-e">disabled</span>=<span class="pl-s">{@disabled}</span>
+      <span class="pl-e">{@rest}</span>
+    >
+      {render_slot(@inner_block)}
+    &#x3C;/<span class="pl-ent">button</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">button_classes</span>(small, disabled, color, outlined) <span class="pl-k">do</span>
+    [
+      <span class="pl-k">if</span> small <span class="pl-k">do</span>
+        <span class="pl-s"><span class="pl-pds">"</span>px-2 py-1 font-normal text-xs gap-1<span class="pl-pds">"</span></span>
+      <span class="pl-k">else</span>
+        <span class="pl-s"><span class="pl-pds">"</span>px-5 py-2 font-medium text-sm gap-1.5<span class="pl-pds">"</span></span>
+      <span class="pl-k">end</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>not-[.hidden]:inline-flex rounded-lg border whitespace-nowrap items-center justify-center focus-visible:outline-none<span class="pl-pds">"</span></span>,
+      <span class="pl-k">if</span> disabled <span class="pl-k">do</span>
+        <span class="pl-s"><span class="pl-pds">"</span>cursor-default pointer-events-none border-transparent bg-gray-100 text-gray-400<span class="pl-pds">"</span></span>
+      <span class="pl-k">else</span>
+        <span class="pl-k">case</span> {color, outlined} <span class="pl-k">do</span>
+          {<span class="pl-s"><span class="pl-pds">"</span>blue<span class="pl-pds">"</span></span>, <span class="pl-c1">false</span>} <span class="pl-k">-></span>
+            <span class="pl-s"><span class="pl-pds">"</span>border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700<span class="pl-pds">"</span></span>
+
+          {<span class="pl-s"><span class="pl-pds">"</span>red<span class="pl-pds">"</span></span>, <span class="pl-c1">false</span>} <span class="pl-k">-></span>
+            <span class="pl-s"><span class="pl-pds">"</span>border-transparent bg-red-600 text-white hover:bg-red-700 focus:bg-red-700<span class="pl-pds">"</span></span>
+
+          {<span class="pl-s"><span class="pl-pds">"</span>gray<span class="pl-pds">"</span></span>, <span class="pl-c1">false</span>} <span class="pl-k">-></span>
+            <span class="pl-s"><span class="pl-pds">"</span>border-gray-200 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:bg-gray-200<span class="pl-pds">"</span></span>
+
+          {<span class="pl-s"><span class="pl-pds">"</span>blue<span class="pl-pds">"</span></span>, <span class="pl-c1">true</span>} <span class="pl-k">-></span>
+            <span class="pl-s"><span class="pl-pds">"</span>bg-blue-50 border-blue-600 text-blue-600 hover:bg-blue-100 focus:bg-blue-100<span class="pl-pds">"</span></span>
+
+          {<span class="pl-s"><span class="pl-pds">"</span>red<span class="pl-pds">"</span></span>, <span class="pl-c1">true</span>} <span class="pl-k">-></span>
+            <span class="pl-s"><span class="pl-pds">"</span>bg-red-50 border-red-600 text-red-600 hover:bg-red-100 focus:bg-red-100<span class="pl-pds">"</span></span>
+
+          {<span class="pl-s"><span class="pl-pds">"</span>gray<span class="pl-pds">"</span></span>, <span class="pl-c1">true</span>} <span class="pl-k">-></span>
+            <span class="pl-s"><span class="pl-pds">"</span>bg-transparent border-gray-300 text-gray-600 hover:bg-gray-100 focus:bg-gray-100<span class="pl-pds">"</span></span>
+        <span class="pl-k">end</span>
+      <span class="pl-k">end</span>
+    ]
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders an icon button.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.icon_button></span>
+<span class="pl-c">        &#x3C;.remix_icon icon="refresh-line" /></span>
+<span class="pl-c">      &#x3C;/.icon_button></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  attr <span class="pl-c1">:disabled</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>
+  attr <span class="pl-c1">:small</span>, <span class="pl-c1">:boolean</span>, <span class="pl-c1">default:</span> <span class="pl-c1">false</span>
+  attr <span class="pl-c1">:class</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">default:</span> <span class="pl-c1">nil</span>
+
+  attr <span class="pl-c1">:rest</span>, <span class="pl-c1">:global</span>, <span class="pl-c1">include:</span> <span class="pl-s"><span class="pl-pds">~w(</span>href patch navigate download name<span class="pl-pds">)</span></span>
+
+  slot <span class="pl-c1">:inner_block</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">icon_button</span>(assigns)
+      <span class="pl-k">when</span> <span class="pl-en">is_map_key</span>(assigns.rest, <span class="pl-c1">:href</span>) <span class="pl-k">or</span> <span class="pl-en">is_map_key</span>(assigns.rest, <span class="pl-c1">:patch</span>) <span class="pl-k">or</span>
+             <span class="pl-en">is_map_key</span>(assigns.rest, <span class="pl-c1">:navigate</span>) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;.link class={[icon_button_classes(@small, @disabled), @class]} {@rest}>
+      {render_slot(@inner_block)}
+    &#x3C;/.link>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">icon_button</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">button</span> <span class="pl-e">class</span>=<span class="pl-s">{[icon_button_classes(@small,</span> <span class="pl-e">@disabled),</span> <span class="pl-e">@class]}</span> <span class="pl-e">disabled</span>=<span class="pl-s">{@disabled}</span> <span class="pl-e">{@rest}</span>>
+      {render_slot(@inner_block)}
+    &#x3C;/<span class="pl-ent">button</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">defp</span> <span class="pl-en">icon_button_classes</span>(small, disabled) <span class="pl-k">do</span>
+    [
+      <span class="pl-k">unless</span> small <span class="pl-k">do</span>
+        <span class="pl-s"><span class="pl-pds">"</span>text-xl<span class="pl-pds">"</span></span>
+      <span class="pl-k">end</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>p-1 flex items-center justify-center rounded-full leading-none<span class="pl-pds">"</span></span>,
+      <span class="pl-k">if</span> disabled <span class="pl-k">do</span>
+        <span class="pl-s"><span class="pl-pds">"</span>cursor-default text-gray-300<span class="pl-pds">"</span></span>
+      <span class="pl-k">else</span>
+        <span class="pl-s"><span class="pl-pds">"</span>text-gray-500 hover:text-gray-900 hover:bg-gray-50 focus-visible:bg-gray-100 focus-visible:outline-none<span class="pl-pds">"</span></span>
+      <span class="pl-k">end</span>
+    ]
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Renders stateful tabs with content.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;.tabs id="animals" default="cat"></span>
+<span class="pl-c">        &#x3C;:tab id="cat" label="Cat"></span>
+<span class="pl-c">          This is a cat.</span>
+<span class="pl-c">        &#x3C;/:tab></span>
+<span class="pl-c">        &#x3C;:tab id="dog" label="Dog"></span>
+<span class="pl-c">          This is a dog.</span>
+<span class="pl-c">        &#x3C;/:tab></span>
+<span class="pl-c">      &#x3C;/.tabs></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+
+  attr <span class="pl-c1">:id</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  attr <span class="pl-c1">:default</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+
+  slot <span class="pl-c1">:tab</span> <span class="pl-k">do</span>
+    attr <span class="pl-c1">:id</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+    attr <span class="pl-c1">:label</span>, <span class="pl-c1">:string</span>, <span class="pl-c1">required:</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">tabs</span>(assigns) <span class="pl-k">do</span>
+    ~H"""
+    &#x3C;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s">{@id}</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>flex flex-col gap-4<span class="pl-pds">"</span></span>>
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>tabs<span class="pl-pds">"</span></span>>
+        &#x3C;<span class="pl-ent">button</span>
+          <span class="pl-e">:for</span>=<span class="pl-s">{tab</span> &#x3C;<span class="pl-e">-</span> <span class="pl-e">@tab}</span>
+          <span class="pl-e">class</span>=<span class="pl-s">{[<span class="pl-pds">"</span>tab<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">@default</span> == <span class="pl-e">tab.id</span> <span class="pl-e">&#x26;&#x26;</span> <span class="pl-s"><span class="pl-pds">"</span>active<span class="pl-pds">"</span></span><span class="pl-e">]}</span>
+          <span class="pl-e">phx-click</span>=<span class="pl-s">{</span>
+            <span class="pl-e">JS.remove_class(</span><span class="pl-s"><span class="pl-pds">"</span>active<span class="pl-pds">"</span></span><span class="pl-e">,</span> <span class="pl-e">to:</span> <span class="pl-s"><span class="pl-pds">"</span>##{@id} .tab.active<span class="pl-pds">"</span></span><span class="pl-e">)</span>
+            <span class="pl-e">|</span>> JS.add_class("active")
+            |> JS.add_class("hidden", to: "##{@id} [data-tab]")
+            |> JS.remove_class("hidden", to: "##{@id} [data-tab='#{tab.id}']")
+          }
+        >
+          &#x3C;<span class="pl-ent">span</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>font-medium<span class="pl-pds">"</span></span>>
+            {tab.label}
+          &#x3C;/<span class="pl-ent">span</span>>
+        &#x3C;/<span class="pl-ent">button</span>>
+      &#x3C;/<span class="pl-ent">div</span>>
+
+      &#x3C;<span class="pl-ent">div</span> <span class="pl-e">:for</span>=<span class="pl-s">{tab</span> &#x3C;<span class="pl-e">-</span> <span class="pl-e">@tab}</span> <span class="pl-e">data-tab</span>=<span class="pl-s">{tab.id}</span> <span class="pl-e">class</span>=<span class="pl-s">{@default</span> == <span class="pl-e">tab.id</span> <span class="pl-e">||</span> <span class="pl-s"><span class="pl-pds">"</span>hidden<span class="pl-pds">"</span></span><span class="pl-e">}</span>>
+        {render_slot(tab)}
+      &#x3C;/<span class="pl-ent">div</span>>
+    &#x3C;/<span class="pl-ent">div</span>>
+    """
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Updates keys in a map assign.</span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">assign_nested</span>(socket, key, keyword) <span class="pl-k">do</span>
+    <span class="pl-en">update</span>(socket, key, <span class="pl-k">fn</span> map <span class="pl-k">-></span>
+      <span class="pl-en">Enum</span>.<span class="pl-en">reduce</span>(keyword, map, <span class="pl-k">fn</span> {key, value}, map <span class="pl-k">-></span> <span class="pl-en">Map</span>.<span class="pl-en">replace!</span>(map, key, value) <span class="pl-k">end</span>)
+    <span class="pl-k">end</span>)
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Sends an event to the given target.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  Given:</span>
+<span class="pl-c"></span>
+<span class="pl-c">    * a LV pid, sends the event as a regular message to the process</span>
+<span class="pl-c"></span>
+<span class="pl-c">    * a component `{module, id}` tuple, the event is sent as an update</span>
+<span class="pl-c">      with `:event` assign</span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">send_event</span>(target, event) <span class="pl-k">when</span> <span class="pl-en">is_pid</span>(target) <span class="pl-k">do</span>
+    <span class="pl-en">send</span>(target, event)
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">send_event</span>({module, id}, event) <span class="pl-k">when</span> <span class="pl-en">is_atom</span>(module) <span class="pl-k">and</span> <span class="pl-en">is_binary</span>(id) <span class="pl-k">do</span>
+    <span class="pl-en">Phoenix</span>.<span class="pl-en">LiveView</span>.<span class="pl-en">send_update</span>(module, <span class="pl-c1">id:</span> id, <span class="pl-c1">event:</span> event)
+  <span class="pl-k">end</span>
+
+  <span class="pl-c"># JS commands</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Pushes and executes the given `%Phoenix.LiveView.JS{}` on the client.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Options</span>
+<span class="pl-c"></span>
+<span class="pl-c">    * `:to` - selector for elements to execute against. Defaults to</span>
+<span class="pl-c">      document body</span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">exec_js</span>(socket, js, opts <span class="pl-k">\\</span> []) <span class="pl-k">do</span>
+    opts <span class="pl-k">=</span> <span class="pl-en">Keyword</span>.<span class="pl-en">validate!</span>(opts, [<span class="pl-c1">:to</span>])
+
+    <span class="pl-en">Phoenix</span>.<span class="pl-en">LiveView</span>.<span class="pl-en">push_event</span>(socket, <span class="pl-s"><span class="pl-pds">"</span>lb:exec_js<span class="pl-pds">"</span></span>, %{<span class="pl-c1">js:</span> <span class="pl-en">JSON</span>.<span class="pl-en">encode!</span>(js.ops), <span class="pl-c1">to:</span> opts[<span class="pl-c1">:to</span>]})
+  <span class="pl-k">end</span>
+
+  <span class="pl-c">@doc """</span>
+<span class="pl-c">  Encodes value for hook prop attribute.</span>
+<span class="pl-c"></span>
+<span class="pl-c">  ## Examples</span>
+<span class="pl-c"></span>
+<span class="pl-c">      &#x3C;div id="hook" phx-hook={MyHook} data-p-value={hook_prop(@value)}></span>
+<span class="pl-c">      &#x3C;/div></span>
+<span class="pl-c"></span>
+<span class="pl-c">  """</span>
+  <span class="pl-k">def</span> <span class="pl-en">hook_prop</span>(value)
+
+  <span class="pl-k">def</span> <span class="pl-en">hook_prop</span>(%<span class="pl-en">Phoenix</span>.<span class="pl-en">LiveComponent</span>.<span class="pl-en">CID</span>{} <span class="pl-k">=</span> value) <span class="pl-k">do</span>
+    <span class="pl-en">hook_prop</span>(<span class="pl-en">to_string</span>(value))
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">hook_prop</span>(value) <span class="pl-k">do</span>
+    <span class="pl-en">JSON</span>.<span class="pl-en">encode!</span>(value)
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

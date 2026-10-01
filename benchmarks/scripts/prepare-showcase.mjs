@@ -50,7 +50,7 @@ const documents = [
       "https://github.com/livebook-dev/livebook/blob/5133601d9678fb8ef0c87484e5d52eff193813e5/lib/livebook_web/components/core_components.ex",
     injections: ["HEEx", "Markdown", "Comment"],
     load: ["elixir", "heex", "comment", "markdown", "markdown_inline"],
-    unsupported: ["tanstack-highlight"],
+    unsupported: ["tanstack-highlight", "sugar-high", "speed-highlight"],
   },
   {
     id: "go",
@@ -108,6 +108,7 @@ const documents = [
 // way a live highlighter does. Rendering both is what lets it try: the page
 // picks a flavour from `prefers-color-scheme` and loads that copy.
 const catppuccinBat = "6810349b28055dce54076712fc05fc68da4b8ec0";
+const catppuccinPrism = "d5cddefcc6f2190f5396d56b42f1f0927d64f6bb";
 const themes = [
   {
     id: "latte",
@@ -116,6 +117,9 @@ const themes = [
     lumis: "catppuccin_latte",
     shiki: "catppuccin-latte",
     highlightJs: "@catppuccin/highlightjs/css/catppuccin-latte.css",
+    prism: "catppuccin-latte.prism.css",
+    prismUrl: `https://raw.githubusercontent.com/catppuccin/prismjs/${catppuccinPrism}/themes/latte.css`,
+    prismSha256: "5ac971fd103f87cadb2d1d64e0071c339efc815839fcd42449f81d2a02ac256e",
     tmTheme: "catppuccin-latte.tmTheme",
     tmThemeUrl: `https://raw.githubusercontent.com/catppuccin/bat/${catppuccinBat}/themes/Catppuccin%20Latte.tmTheme`,
     tmThemeSha256: "a2ddb65bfcf7328802ee4770d1e34ef4093a20fd5c300be3138c99f8a45ed5cb",
@@ -131,6 +135,9 @@ const themes = [
     lumis: "catppuccin_frappe",
     shiki: "catppuccin-frappe",
     highlightJs: "@catppuccin/highlightjs/css/catppuccin-frappe.css",
+    prism: "catppuccin-frappe.prism.css",
+    prismUrl: `https://raw.githubusercontent.com/catppuccin/prismjs/${catppuccinPrism}/themes/frappe.css`,
+    prismSha256: "9c0fb0d1a2d06361c057b232f66aaa3b3e3f28a33dcddcce4228280aee296055",
     tmTheme: "catppuccin-frappe.tmTheme",
     tmThemeUrl: `https://raw.githubusercontent.com/catppuccin/bat/${catppuccinBat}/themes/Catppuccin%20Frappe.tmTheme`,
     tmThemeSha256: "3446d8a3cfb9eb559bc65a3894e6ae8f3579030fac6130c4f96ff524f3e2784f",
@@ -149,6 +156,13 @@ const assets = [
     name: theme.tmTheme,
     url: theme.tmThemeUrl,
     sha256: theme.tmThemeSha256,
+  })),
+  // Catppuccin's Prism port is not published to npm, so it is fetched like the
+  // tmTheme files.
+  ...themes.map((theme) => ({
+    name: theme.prism,
+    url: theme.prismUrl,
+    sha256: theme.prismSha256,
   })),
 ];
 

@@ -1,0 +1,1508 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>starry-night · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root{--color-prettylights-syntax-comment:#949cbb;--color-prettylights-syntax-constant:#ef9f76;--color-prettylights-syntax-entity:#8caaee;--color-prettylights-syntax-storage-modifier-import:#c6d0f5;--color-prettylights-syntax-entity-tag:#ca9ee6;--color-prettylights-syntax-keyword:#ca9ee6;--color-prettylights-syntax-string:#a6d189;--color-prettylights-syntax-variable:#ca9ee6;--color-prettylights-syntax-brackethighlighter-unmatched:#c6d0f5;--color-prettylights-syntax-invalid-illegal-text:#c6d0f5;--color-prettylights-syntax-invalid-illegal-bg:transparent;--color-prettylights-syntax-carriage-return-text:#c6d0f5;--color-prettylights-syntax-carriage-return-bg:transparent;--color-prettylights-syntax-string-regexp:#f4b8e4;--color-prettylights-syntax-markup-list:#81c8be;--color-prettylights-syntax-markup-heading:#8caaee;--color-prettylights-syntax-markup-italic:#e78284;--color-prettylights-syntax-markup-bold:#e78284;--color-prettylights-syntax-markup-deleted-text:#e78284;--color-prettylights-syntax-markup-deleted-bg:rgba(231,130,132,.15);--color-prettylights-syntax-markup-inserted-text:#a6d189;--color-prettylights-syntax-markup-inserted-bg:rgba(166,209,137,.15);--color-prettylights-syntax-markup-changed-text:#c6d0f5;--color-prettylights-syntax-markup-changed-bg:transparent;--color-prettylights-syntax-markup-ignored-text:#c6d0f5;--color-prettylights-syntax-markup-ignored-bg:transparent;--color-prettylights-syntax-meta-diff-range:#ef9f76;--color-prettylights-syntax-brackethighlighter-angle:#b5bfe2;--color-prettylights-syntax-sublimelinter-gutter-mark:#c6d0f5;--color-prettylights-syntax-constant-other-reference-link:#85c1dc}pre{background:#303446;color:#c6d0f5}/* This is a theme distributed by `starry-night`.
+ * It’s based on what GitHub uses on their site.
+ * See <https://github.com/wooorm/starry-night> for more info. */
+
+.pl-c {
+  color: var(--color-prettylights-syntax-comment);
+}
+
+.pl-c1,
+.pl-s .pl-v {
+  color: var(--color-prettylights-syntax-constant);
+}
+
+.pl-e,
+.pl-en {
+  color: var(--color-prettylights-syntax-entity);
+}
+
+.pl-smi,
+.pl-s .pl-s1 {
+  color: var(--color-prettylights-syntax-storage-modifier-import);
+}
+
+.pl-ent {
+  color: var(--color-prettylights-syntax-entity-tag);
+}
+
+.pl-k {
+  color: var(--color-prettylights-syntax-keyword);
+}
+
+.pl-s,
+.pl-pds,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sre,
+.pl-sr .pl-sra {
+  color: var(--color-prettylights-syntax-string);
+}
+
+.pl-v,
+.pl-smw {
+  color: var(--color-prettylights-syntax-variable);
+}
+
+.pl-bu {
+  color: var(--color-prettylights-syntax-brackethighlighter-unmatched);
+}
+
+.pl-ii {
+  color: var(--color-prettylights-syntax-invalid-illegal-text);
+  background-color: var(--color-prettylights-syntax-invalid-illegal-bg);
+}
+
+.pl-c2 {
+  color: var(--color-prettylights-syntax-carriage-return-text);
+  background-color: var(--color-prettylights-syntax-carriage-return-bg);
+}
+
+.pl-sr .pl-cce {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-string-regexp);
+}
+
+.pl-ml {
+  color: var(--color-prettylights-syntax-markup-list);
+}
+
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-heading);
+}
+
+.pl-mi {
+  font-style: italic;
+  color: var(--color-prettylights-syntax-markup-italic);
+}
+
+.pl-mb {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-bold);
+}
+
+.pl-md {
+  color: var(--color-prettylights-syntax-markup-deleted-text);
+  background-color: var(--color-prettylights-syntax-markup-deleted-bg);
+}
+
+.pl-mi1 {
+  color: var(--color-prettylights-syntax-markup-inserted-text);
+  background-color: var(--color-prettylights-syntax-markup-inserted-bg);
+}
+
+.pl-mc {
+  color: var(--color-prettylights-syntax-markup-changed-text);
+  background-color: var(--color-prettylights-syntax-markup-changed-bg);
+}
+
+.pl-mi2 {
+  color: var(--color-prettylights-syntax-markup-ignored-text);
+  background-color: var(--color-prettylights-syntax-markup-ignored-bg);
+}
+
+.pl-mdr {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-meta-diff-range);
+}
+
+.pl-ba {
+  color: var(--color-prettylights-syntax-brackethighlighter-angle);
+}
+
+.pl-sg {
+  color: var(--color-prettylights-syntax-sublimelinter-gutter-mark);
+}
+
+.pl-corl {
+  text-decoration: underline;
+  color: var(--color-prettylights-syntax-constant-other-reference-link);
+}
+</style><pre><code><span class="pl-c">// Copyright 2010 The Go Authors. All rights reserved.</span>
+<span class="pl-c">// Use of this source code is governed by a BSD-style</span>
+<span class="pl-c">// license that can be found in the LICENSE file.</span>
+
+<span class="pl-c">// Package json implements encoding and decoding of JSON as defined in</span>
+<span class="pl-c">// RFC 7159. The mapping between JSON and Go values is described</span>
+<span class="pl-c">// in the documentation for the Marshal and Unmarshal functions.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// See "JSON and Go" for an introduction to this package:</span>
+<span class="pl-c">// https://golang.org/doc/articles/json_and_go.html</span>
+<span class="pl-k">package</span> json
+
+<span class="pl-k">import</span> (
+	<span class="pl-s"><span class="pl-pds">"</span>bytes<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>cmp<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>encoding<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>encoding/base64<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>fmt<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>math<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>reflect<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>slices<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>strconv<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>strings<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>sync<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>unicode<span class="pl-pds">"</span></span>
+	<span class="pl-s"><span class="pl-pds">"</span>unicode/utf8<span class="pl-pds">"</span></span>
+	_ <span class="pl-s"><span class="pl-pds">"</span>unsafe<span class="pl-pds">"</span></span> <span class="pl-c">// for linkname</span>
+)
+
+<span class="pl-c">// Marshal returns the JSON encoding of v.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Marshal traverses the value v recursively.</span>
+<span class="pl-c">// If an encountered value implements [Marshaler]</span>
+<span class="pl-c">// and is not a nil pointer, Marshal calls [Marshaler.MarshalJSON]</span>
+<span class="pl-c">// to produce JSON. If no [Marshaler.MarshalJSON] method is present but the</span>
+<span class="pl-c">// value implements [encoding.TextMarshaler] instead, Marshal calls</span>
+<span class="pl-c">// [encoding.TextMarshaler.MarshalText] and encodes the result as a JSON string.</span>
+<span class="pl-c">// The nil pointer exception is not strictly necessary</span>
+<span class="pl-c">// but mimics a similar, necessary exception in the behavior of</span>
+<span class="pl-c">// [Unmarshaler.UnmarshalJSON].</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Otherwise, Marshal uses the following type-dependent default encodings:</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Boolean values encode as JSON booleans.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Floating point, integer, and [Number] values encode as JSON numbers.</span>
+<span class="pl-c">// NaN and +/-Inf values will return an [UnsupportedValueError].</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// String values encode as JSON strings coerced to valid UTF-8,</span>
+<span class="pl-c">// replacing invalid bytes with the Unicode replacement rune.</span>
+<span class="pl-c">// So that the JSON will be safe to embed inside HTML &#x3C;script> tags,</span>
+<span class="pl-c">// the string is encoded using [HTMLEscape],</span>
+<span class="pl-c">// which replaces "&#x3C;", ">", "&#x26;", U+2028, and U+2029 are escaped</span>
+<span class="pl-c">// to "\u003c","\u003e", "\u0026", "\u2028", and "\u2029".</span>
+<span class="pl-c">// This replacement can be disabled when using an [Encoder],</span>
+<span class="pl-c">// by calling [Encoder.SetEscapeHTML](false).</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Array and slice values encode as JSON arrays, except that</span>
+<span class="pl-c">// []byte encodes as a base64-encoded string, and a nil slice</span>
+<span class="pl-c">// encodes as the null JSON value.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Struct values encode as JSON objects.</span>
+<span class="pl-c">// Each exported struct field becomes a member of the object, using the</span>
+<span class="pl-c">// field name as the object key, unless the field is omitted for one of the</span>
+<span class="pl-c">// reasons given below.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// The encoding of each struct field can be customized by the format string</span>
+<span class="pl-c">// stored under the "json" key in the struct field's tag.</span>
+<span class="pl-c">// The format string gives the name of the field, possibly followed by a</span>
+<span class="pl-c">// comma-separated list of options. The name may be empty in order to</span>
+<span class="pl-c">// specify options without overriding the default field name.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// The "omitempty" option specifies that the field should be omitted</span>
+<span class="pl-c">// from the encoding if the field has an empty value, defined as</span>
+<span class="pl-c">// false, 0, a nil pointer, a nil interface value, and any array,</span>
+<span class="pl-c">// slice, map, or string of length zero.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// As a special case, if the field tag is "-", the field is always omitted.</span>
+<span class="pl-c">// Note that a field with name "-" can still be generated using the tag "-,".</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Examples of struct field tags and their meanings:</span>
+<span class="pl-c">//</span>
+<span class="pl-c">//	// Field appears in JSON as key "myName".</span>
+<span class="pl-c">//	Field int `json:"myName"`</span>
+<span class="pl-c">//</span>
+<span class="pl-c">//	// Field appears in JSON as key "myName" and</span>
+<span class="pl-c">//	// the field is omitted from the object if its value is empty,</span>
+<span class="pl-c">//	// as defined above.</span>
+<span class="pl-c">//	Field int `json:"myName,omitempty"`</span>
+<span class="pl-c">//</span>
+<span class="pl-c">//	// Field appears in JSON as key "Field" (the default), but</span>
+<span class="pl-c">//	// the field is skipped if empty.</span>
+<span class="pl-c">//	// Note the leading comma.</span>
+<span class="pl-c">//	Field int `json:",omitempty"`</span>
+<span class="pl-c">//</span>
+<span class="pl-c">//	// Field is ignored by this package.</span>
+<span class="pl-c">//	Field int `json:"-"`</span>
+<span class="pl-c">//</span>
+<span class="pl-c">//	// Field appears in JSON as key "-".</span>
+<span class="pl-c">//	Field int `json:"-,"`</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// The "omitzero" option specifies that the field should be omitted</span>
+<span class="pl-c">// from the encoding if the field has a zero value, according to rules:</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// 1) If the field type has an "IsZero() bool" method, that will be used to</span>
+<span class="pl-c">// determine whether the value is zero.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// 2) Otherwise, the value is zero if it is the zero value for its type.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// If both "omitempty" and "omitzero" are specified, the field will be omitted</span>
+<span class="pl-c">// if the value is either empty or zero (or both).</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// The "string" option signals that a field is stored as JSON inside a</span>
+<span class="pl-c">// JSON-encoded string. It applies only to fields of string, floating point,</span>
+<span class="pl-c">// integer, or boolean types. This extra level of encoding is sometimes used</span>
+<span class="pl-c">// when communicating with JavaScript programs:</span>
+<span class="pl-c">//</span>
+<span class="pl-c">//	Int64String int64 `json:",string"`</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// The key name will be used if it's a non-empty string consisting of</span>
+<span class="pl-c">// only Unicode letters, digits, and ASCII punctuation except quotation</span>
+<span class="pl-c">// marks, backslash, and comma.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Embedded struct fields are usually marshaled as if their inner exported fields</span>
+<span class="pl-c">// were fields in the outer struct, subject to the usual Go visibility rules amended</span>
+<span class="pl-c">// as described in the next paragraph.</span>
+<span class="pl-c">// An anonymous struct field with a name given in its JSON tag is treated as</span>
+<span class="pl-c">// having that name, rather than being anonymous.</span>
+<span class="pl-c">// An anonymous struct field of interface type is treated the same as having</span>
+<span class="pl-c">// that type as its name, rather than being anonymous.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// The Go visibility rules for struct fields are amended for JSON when</span>
+<span class="pl-c">// deciding which field to marshal or unmarshal. If there are</span>
+<span class="pl-c">// multiple fields at the same level, and that level is the least</span>
+<span class="pl-c">// nested (and would therefore be the nesting level selected by the</span>
+<span class="pl-c">// usual Go rules), the following extra rules apply:</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// 1) Of those fields, if any are JSON-tagged, only tagged fields are considered,</span>
+<span class="pl-c">// even if there are multiple untagged fields that would otherwise conflict.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// 2) If there is exactly one field (tagged or not according to the first rule), that is selected.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// 3) Otherwise there are multiple fields, and all are ignored; no error occurs.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Handling of anonymous struct fields is new in Go 1.1.</span>
+<span class="pl-c">// Prior to Go 1.1, anonymous struct fields were ignored. To force ignoring of</span>
+<span class="pl-c">// an anonymous struct field in both current and earlier versions, give the field</span>
+<span class="pl-c">// a JSON tag of "-".</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Map values encode as JSON objects. The map's key type must either be a</span>
+<span class="pl-c">// string, an integer type, or implement [encoding.TextMarshaler]. The map keys</span>
+<span class="pl-c">// are sorted and used as JSON object keys by applying the following rules,</span>
+<span class="pl-c">// subject to the UTF-8 coercion described for string values above:</span>
+<span class="pl-c">//   - keys of any string type are used directly</span>
+<span class="pl-c">//   - keys that implement [encoding.TextMarshaler] are marshaled</span>
+<span class="pl-c">//   - integer keys are converted to strings</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Pointer values encode as the value pointed to.</span>
+<span class="pl-c">// A nil pointer encodes as the null JSON value.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Interface values encode as the value contained in the interface.</span>
+<span class="pl-c">// A nil interface value encodes as the null JSON value.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Channel, complex, and function values cannot be encoded in JSON.</span>
+<span class="pl-c">// Attempting to encode such a value causes Marshal to return</span>
+<span class="pl-c">// an [UnsupportedTypeError].</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// JSON cannot represent cyclic data structures and Marshal does not</span>
+<span class="pl-c">// handle them. Passing cyclic structures to Marshal will result in</span>
+<span class="pl-c">// an error.</span>
+<span class="pl-k">func</span> <span class="pl-en">Marshal</span>(<span class="pl-v">v</span> <span class="pl-v">any</span>) ([]<span class="pl-v">byte</span>, <span class="pl-v">error</span>) {
+	<span class="pl-smi">e</span> <span class="pl-k">:=</span> <span class="pl-c1">newEncodeState</span>()
+	<span class="pl-k">defer</span> encodeStatePool.<span class="pl-c1">Put</span>(e)
+
+	<span class="pl-smi">err</span> <span class="pl-k">:=</span> e.<span class="pl-c1">marshal</span>(v, encOpts{escapeHTML: <span class="pl-c1">true</span>})
+	<span class="pl-k">if</span> err != <span class="pl-c1">nil</span> {
+		<span class="pl-k">return</span> <span class="pl-c1">nil</span>, err
+	}
+	<span class="pl-smi">buf</span> <span class="pl-k">:=</span> <span class="pl-c1">append</span>([]<span class="pl-k">byte</span>(<span class="pl-c1">nil</span>), e.<span class="pl-c1">Bytes</span>()...)
+
+	<span class="pl-k">return</span> buf, <span class="pl-c1">nil</span>
+}
+
+<span class="pl-c">// MarshalIndent is like [Marshal] but applies [Indent] to format the output.</span>
+<span class="pl-c">// Each JSON element in the output will begin on a new line beginning with prefix</span>
+<span class="pl-c">// followed by one or more copies of indent according to the indentation nesting.</span>
+<span class="pl-k">func</span> <span class="pl-en">MarshalIndent</span>(<span class="pl-v">v</span> <span class="pl-v">any</span>, <span class="pl-v">prefix</span>, <span class="pl-v">indent</span> <span class="pl-v">string</span>) ([]<span class="pl-v">byte</span>, <span class="pl-v">error</span>) {
+	<span class="pl-smi">b</span>, <span class="pl-smi">err</span> <span class="pl-k">:=</span> <span class="pl-c1">Marshal</span>(v)
+	<span class="pl-k">if</span> err != <span class="pl-c1">nil</span> {
+		<span class="pl-k">return</span> <span class="pl-c1">nil</span>, err
+	}
+	<span class="pl-smi">b2</span> <span class="pl-k">:=</span> <span class="pl-c1">make</span>([]<span class="pl-k">byte</span>, <span class="pl-c1">0</span>, indentGrowthFactor*<span class="pl-c1">len</span>(b))
+	b2, err = <span class="pl-c1">appendIndent</span>(b2, b, prefix, indent)
+	<span class="pl-k">if</span> err != <span class="pl-c1">nil</span> {
+		<span class="pl-k">return</span> <span class="pl-c1">nil</span>, err
+	}
+	<span class="pl-k">return</span> b2, <span class="pl-c1">nil</span>
+}
+
+<span class="pl-c">// Marshaler is the interface implemented by types that</span>
+<span class="pl-c">// can marshal themselves into valid JSON.</span>
+<span class="pl-k">type</span> <span class="pl-v">Marshaler</span> <span class="pl-k">interface</span> {
+	<span class="pl-c1">MarshalJSON</span>() ([]<span class="pl-k">byte</span>, <span class="pl-k">error</span>)
+}
+
+<span class="pl-c">// An UnsupportedTypeError is returned by [Marshal] when attempting</span>
+<span class="pl-c">// to encode an unsupported value type.</span>
+<span class="pl-k">type</span> <span class="pl-v">UnsupportedTypeError</span> <span class="pl-k">struct</span> {
+	<span class="pl-v">Type</span> reflect.<span class="pl-smi">Type</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">e</span> *<span class="pl-v">UnsupportedTypeError</span><span class="pl-en">) Error</span>() <span class="pl-v">string</span> {
+	<span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>json: unsupported type: <span class="pl-pds">"</span></span> + e.<span class="pl-smi">Type</span>.<span class="pl-c1">String</span>()
+}
+
+<span class="pl-c">// An UnsupportedValueError is returned by [Marshal] when attempting</span>
+<span class="pl-c">// to encode an unsupported value.</span>
+<span class="pl-k">type</span> <span class="pl-v">UnsupportedValueError</span> <span class="pl-k">struct</span> {
+	<span class="pl-v">Value</span> reflect.<span class="pl-smi">Value</span>
+	<span class="pl-v">Str</span>   <span class="pl-k">string</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">e</span> *<span class="pl-v">UnsupportedValueError</span><span class="pl-en">) Error</span>() <span class="pl-v">string</span> {
+	<span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>json: unsupported value: <span class="pl-pds">"</span></span> + e.<span class="pl-smi">Str</span>
+}
+
+<span class="pl-c">// Before Go 1.2, an InvalidUTF8Error was returned by [Marshal] when</span>
+<span class="pl-c">// attempting to encode a string value with invalid UTF-8 sequences.</span>
+<span class="pl-c">// As of Go 1.2, [Marshal] instead coerces the string to valid UTF-8 by</span>
+<span class="pl-c">// replacing invalid bytes with the Unicode replacement rune U+FFFD.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Deprecated: No longer used; kept for compatibility.</span>
+<span class="pl-k">type</span> <span class="pl-v">InvalidUTF8Error</span> <span class="pl-k">struct</span> {
+	<span class="pl-v">S</span> <span class="pl-k">string</span> <span class="pl-c">// the whole string value that caused the error</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">e</span> *<span class="pl-v">InvalidUTF8Error</span><span class="pl-en">) Error</span>() <span class="pl-v">string</span> {
+	<span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>json: invalid UTF-8 in string: <span class="pl-pds">"</span></span> + strconv.<span class="pl-c1">Quote</span>(e.<span class="pl-smi">S</span>)
+}
+
+<span class="pl-c">// A MarshalerError represents an error from calling a</span>
+<span class="pl-c">// [Marshaler.MarshalJSON] or [encoding.TextMarshaler.MarshalText] method.</span>
+<span class="pl-k">type</span> <span class="pl-v">MarshalerError</span> <span class="pl-k">struct</span> {
+	<span class="pl-v">Type</span>       reflect.<span class="pl-smi">Type</span>
+	<span class="pl-v">Err</span>        <span class="pl-k">error</span>
+	sourceFunc <span class="pl-k">string</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">e</span> *<span class="pl-v">MarshalerError</span><span class="pl-en">) Error</span>() <span class="pl-v">string</span> {
+	<span class="pl-smi">srcFunc</span> <span class="pl-k">:=</span> e.<span class="pl-smi">sourceFunc</span>
+	<span class="pl-k">if</span> srcFunc == <span class="pl-s"><span class="pl-pds">""</span></span> {
+		srcFunc = <span class="pl-s"><span class="pl-pds">"</span>MarshalJSON<span class="pl-pds">"</span></span>
+	}
+	<span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>json: error calling <span class="pl-pds">"</span></span> + srcFunc +
+		<span class="pl-s"><span class="pl-pds">"</span> for type <span class="pl-pds">"</span></span> + e.<span class="pl-smi">Type</span>.<span class="pl-c1">String</span>() +
+		<span class="pl-s"><span class="pl-pds">"</span>: <span class="pl-pds">"</span></span> + e.<span class="pl-smi">Err</span>.<span class="pl-c1">Error</span>()
+}
+
+<span class="pl-c">// Unwrap returns the underlying error.</span>
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">e</span> *<span class="pl-v">MarshalerError</span><span class="pl-en">) Unwrap</span>() <span class="pl-v">error</span> { <span class="pl-k">return</span> e.<span class="pl-smi">Err</span> }
+
+<span class="pl-k">const</span> hex = <span class="pl-s"><span class="pl-pds">"</span>0123456789abcdef<span class="pl-pds">"</span></span>
+
+<span class="pl-c">// An encodeState encodes JSON into a bytes.Buffer.</span>
+<span class="pl-k">type</span> encodeState <span class="pl-k">struct</span> {
+	bytes.<span class="pl-smi">Buffer</span> <span class="pl-c">// accumulated output</span>
+
+	<span class="pl-c">// Keep track of what pointers we've seen in the current recursive call</span>
+	<span class="pl-c">// path, to avoid cycles that could lead to a stack overflow. Only do</span>
+	<span class="pl-c">// the relatively expensive map operations if ptrLevel is larger than</span>
+	<span class="pl-c">// startDetectingCyclesAfter, so that we skip the work if we're within a</span>
+	<span class="pl-c">// reasonable amount of nested pointers deep.</span>
+	ptrLevel <span class="pl-k">uint</span>
+	ptrSeen  <span class="pl-k">map</span>[any]<span class="pl-k">struct</span>{}
+}
+
+<span class="pl-k">const</span> startDetectingCyclesAfter = <span class="pl-c1">1000</span>
+
+<span class="pl-k">var</span> <span class="pl-smi">encodeStatePool</span> sync.<span class="pl-smi">Pool</span>
+
+<span class="pl-k">func</span> <span class="pl-en">newEncodeState</span>() *<span class="pl-v">encodeState</span> {
+	<span class="pl-k">if</span> <span class="pl-smi">v</span> <span class="pl-k">:=</span> encodeStatePool.<span class="pl-c1">Get</span>(); v != <span class="pl-c1">nil</span> {
+		<span class="pl-smi">e</span> <span class="pl-k">:=</span> v.(*encodeState)
+		e.<span class="pl-c1">Reset</span>()
+		<span class="pl-k">if</span> <span class="pl-c1">len</span>(e.<span class="pl-smi">ptrSeen</span>) > <span class="pl-c1">0</span> {
+			<span class="pl-c1">panic</span>(<span class="pl-s"><span class="pl-pds">"</span>ptrEncoder.encode should have emptied ptrSeen via defers<span class="pl-pds">"</span></span>)
+		}
+		e.<span class="pl-smi">ptrLevel</span> = <span class="pl-c1">0</span>
+		<span class="pl-k">return</span> e
+	}
+	<span class="pl-k">return</span> &#x26;encodeState{ptrSeen: <span class="pl-c1">make</span>(<span class="pl-k">map</span>[any]<span class="pl-k">struct</span>{})}
+}
+
+<span class="pl-c">// jsonError is an error wrapper type for internal use only.</span>
+<span class="pl-c">// Panics with errors are wrapped in jsonError so that the top-level recover</span>
+<span class="pl-c">// can distinguish intentional panics from this package.</span>
+<span class="pl-k">type</span> jsonError <span class="pl-k">struct</span>{ <span class="pl-k">error</span> }
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">e</span> *<span class="pl-v">encodeState</span><span class="pl-en">) marshal</span>(<span class="pl-v">v</span> <span class="pl-v">any</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) (<span class="pl-v">err</span> <span class="pl-v">error</span>) {
+	<span class="pl-k">defer</span> <span class="pl-k">func</span>() {
+		<span class="pl-k">if</span> <span class="pl-smi">r</span> <span class="pl-k">:=</span> <span class="pl-c1">recover</span>(); r != <span class="pl-c1">nil</span> {
+			<span class="pl-k">if</span> <span class="pl-smi">je</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> r.(jsonError); ok {
+				err = je.<span class="pl-smi">error</span>
+			} <span class="pl-k">else</span> {
+				<span class="pl-c1">panic</span>(r)
+			}
+		}
+	}()
+	e.<span class="pl-c1">reflectValue</span>(reflect.<span class="pl-c1">ValueOf</span>(v), opts)
+	<span class="pl-k">return</span> <span class="pl-c1">nil</span>
+}
+
+<span class="pl-c">// error aborts the encoding by panicking with err wrapped in jsonError.</span>
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">e</span> *<span class="pl-v">encodeState</span><span class="pl-en">) error</span>(<span class="pl-v">err</span> <span class="pl-v">error</span>) {
+	<span class="pl-c1">panic</span>(jsonError{err})
+}
+
+<span class="pl-k">func</span> <span class="pl-en">isEmptyValue</span>(<span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>) <span class="pl-v">bool</span> {
+	<span class="pl-k">switch</span> v.<span class="pl-c1">Kind</span>() {
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Array</span>, reflect.<span class="pl-smi">Map</span>, reflect.<span class="pl-smi">Slice</span>, reflect.<span class="pl-smi">String</span>:
+		<span class="pl-k">return</span> v.<span class="pl-c1">Len</span>() == <span class="pl-c1">0</span>
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Bool</span>,
+		reflect.<span class="pl-smi">Int</span>, reflect.<span class="pl-smi">Int8</span>, reflect.<span class="pl-smi">Int16</span>, reflect.<span class="pl-smi">Int32</span>, reflect.<span class="pl-smi">Int64</span>,
+		reflect.<span class="pl-smi">Uint</span>, reflect.<span class="pl-smi">Uint8</span>, reflect.<span class="pl-smi">Uint16</span>, reflect.<span class="pl-smi">Uint32</span>, reflect.<span class="pl-smi">Uint64</span>, reflect.<span class="pl-smi">Uintptr</span>,
+		reflect.<span class="pl-smi">Float32</span>, reflect.<span class="pl-smi">Float64</span>,
+		reflect.<span class="pl-smi">Interface</span>, reflect.<span class="pl-smi">Pointer</span>:
+		<span class="pl-k">return</span> v.<span class="pl-c1">IsZero</span>()
+	}
+	<span class="pl-k">return</span> <span class="pl-c1">false</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">e</span> *<span class="pl-v">encodeState</span><span class="pl-en">) reflectValue</span>(<span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-c1">valueEncoder</span>(v)(e, v, opts)
+}
+
+<span class="pl-k">type</span> encOpts <span class="pl-k">struct</span> {
+	<span class="pl-c">// quoted causes primitive fields to be encoded inside JSON strings.</span>
+	quoted <span class="pl-k">bool</span>
+	<span class="pl-c">// escapeHTML causes '&#x3C;', '>', and '&#x26;' to be escaped in JSON strings.</span>
+	escapeHTML <span class="pl-k">bool</span>
+}
+
+<span class="pl-k">type</span> encoderFunc <span class="pl-k">func</span>(e *encodeState, v reflect.<span class="pl-smi">Value</span>, opts encOpts)
+
+<span class="pl-k">var</span> <span class="pl-smi">encoderCache</span> sync.<span class="pl-smi">Map</span> <span class="pl-c">// map[reflect.Type]encoderFunc</span>
+
+<span class="pl-k">func</span> <span class="pl-en">valueEncoder</span>(<span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-k">if</span> !v.<span class="pl-c1">IsValid</span>() {
+		<span class="pl-k">return</span> invalidValueEncoder
+	}
+	<span class="pl-k">return</span> <span class="pl-c1">typeEncoder</span>(v.<span class="pl-c1">Type</span>())
+}
+
+<span class="pl-k">func</span> <span class="pl-en">typeEncoder</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-k">if</span> <span class="pl-smi">fi</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> encoderCache.<span class="pl-c1">Load</span>(t); ok {
+		<span class="pl-k">return</span> fi.(encoderFunc)
+	}
+
+	<span class="pl-c">// To deal with recursive types, populate the map with an</span>
+	<span class="pl-c">// indirect func before we build it. This type waits on the</span>
+	<span class="pl-c">// real func (f) to be ready and then calls it. This indirect</span>
+	<span class="pl-c">// func is only used for recursive types.</span>
+	<span class="pl-c1">var</span> (
+		wg sync.<span class="pl-smi">WaitGroup</span>
+		f  encoderFunc
+	)
+	wg.<span class="pl-c1">Add</span>(<span class="pl-c1">1</span>)
+	<span class="pl-smi">fi</span>, <span class="pl-smi">loaded</span> <span class="pl-k">:=</span> encoderCache.<span class="pl-c1">LoadOrStore</span>(t, <span class="pl-c1">encoderFunc</span>(<span class="pl-k">func</span>(e *encodeState, v reflect.<span class="pl-smi">Value</span>, opts encOpts) {
+		wg.<span class="pl-c1">Wait</span>()
+		<span class="pl-c1">f</span>(e, v, opts)
+	}))
+	<span class="pl-k">if</span> loaded {
+		<span class="pl-k">return</span> fi.(encoderFunc)
+	}
+
+	<span class="pl-c">// Compute the real encoder and replace the indirect func with it.</span>
+	f = <span class="pl-c1">newTypeEncoder</span>(t, <span class="pl-c1">true</span>)
+	wg.<span class="pl-c1">Done</span>()
+	encoderCache.<span class="pl-c1">Store</span>(t, f)
+	<span class="pl-k">return</span> f
+}
+
+<span class="pl-k">var</span> (
+	marshalerType     = reflect.<span class="pl-smi">TypeFor</span>[Marshaler]()
+	textMarshalerType = reflect.<span class="pl-smi">TypeFor</span>[encoding.<span class="pl-smi">TextMarshaler</span>]()
+)
+
+<span class="pl-c">// newTypeEncoder constructs an encoderFunc for a type.</span>
+<span class="pl-c">// The returned encoder only checks CanAddr when allowAddr is true.</span>
+<span class="pl-k">func</span> <span class="pl-en">newTypeEncoder</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>, <span class="pl-v">allowAddr</span> <span class="pl-v">bool</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-c">// If we have a non-pointer value whose type implements</span>
+	<span class="pl-c">// Marshaler with a value receiver, then we're better off taking</span>
+	<span class="pl-c">// the address of the value - otherwise we end up with an</span>
+	<span class="pl-c">// allocation as we cast the value to an interface.</span>
+	<span class="pl-k">if</span> t.<span class="pl-c1">Kind</span>() != reflect.<span class="pl-smi">Pointer</span> &#x26;&#x26; allowAddr &#x26;&#x26; reflect.<span class="pl-c1">PointerTo</span>(t).<span class="pl-c1">Implements</span>(marshalerType) {
+		<span class="pl-k">return</span> <span class="pl-c1">newCondAddrEncoder</span>(addrMarshalerEncoder, <span class="pl-c1">newTypeEncoder</span>(t, <span class="pl-c1">false</span>))
+	}
+	<span class="pl-k">if</span> t.<span class="pl-c1">Implements</span>(marshalerType) {
+		<span class="pl-k">return</span> marshalerEncoder
+	}
+	<span class="pl-k">if</span> t.<span class="pl-c1">Kind</span>() != reflect.<span class="pl-smi">Pointer</span> &#x26;&#x26; allowAddr &#x26;&#x26; reflect.<span class="pl-c1">PointerTo</span>(t).<span class="pl-c1">Implements</span>(textMarshalerType) {
+		<span class="pl-k">return</span> <span class="pl-c1">newCondAddrEncoder</span>(addrTextMarshalerEncoder, <span class="pl-c1">newTypeEncoder</span>(t, <span class="pl-c1">false</span>))
+	}
+	<span class="pl-k">if</span> t.<span class="pl-c1">Implements</span>(textMarshalerType) {
+		<span class="pl-k">return</span> textMarshalerEncoder
+	}
+
+	<span class="pl-k">switch</span> t.<span class="pl-c1">Kind</span>() {
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Bool</span>:
+		<span class="pl-k">return</span> boolEncoder
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Int</span>, reflect.<span class="pl-smi">Int8</span>, reflect.<span class="pl-smi">Int16</span>, reflect.<span class="pl-smi">Int32</span>, reflect.<span class="pl-smi">Int64</span>:
+		<span class="pl-k">return</span> intEncoder
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Uint</span>, reflect.<span class="pl-smi">Uint8</span>, reflect.<span class="pl-smi">Uint16</span>, reflect.<span class="pl-smi">Uint32</span>, reflect.<span class="pl-smi">Uint64</span>, reflect.<span class="pl-smi">Uintptr</span>:
+		<span class="pl-k">return</span> uintEncoder
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Float32</span>:
+		<span class="pl-k">return</span> float32Encoder
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Float64</span>:
+		<span class="pl-k">return</span> float64Encoder
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">String</span>:
+		<span class="pl-k">return</span> stringEncoder
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Interface</span>:
+		<span class="pl-k">return</span> interfaceEncoder
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Struct</span>:
+		<span class="pl-k">return</span> <span class="pl-c1">newStructEncoder</span>(t)
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Map</span>:
+		<span class="pl-k">return</span> <span class="pl-c1">newMapEncoder</span>(t)
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Slice</span>:
+		<span class="pl-k">return</span> <span class="pl-c1">newSliceEncoder</span>(t)
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Array</span>:
+		<span class="pl-k">return</span> <span class="pl-c1">newArrayEncoder</span>(t)
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Pointer</span>:
+		<span class="pl-k">return</span> <span class="pl-c1">newPtrEncoder</span>(t)
+	<span class="pl-k">default</span>:
+		<span class="pl-k">return</span> unsupportedTypeEncoder
+	}
+}
+
+<span class="pl-k">func</span> <span class="pl-en">invalidValueEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">_</span> <span class="pl-v">encOpts</span>) {
+	e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+}
+
+<span class="pl-k">func</span> <span class="pl-en">marshalerEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> &#x26;&#x26; v.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-smi">m</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> v.<span class="pl-c1">Interface</span>().(Marshaler)
+	<span class="pl-k">if</span> !ok {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-smi">b</span>, <span class="pl-smi">err</span> <span class="pl-k">:=</span> m.<span class="pl-c1">MarshalJSON</span>()
+	<span class="pl-k">if</span> err == <span class="pl-c1">nil</span> {
+		e.<span class="pl-c1">Grow</span>(<span class="pl-c1">len</span>(b))
+		<span class="pl-smi">out</span> <span class="pl-k">:=</span> e.<span class="pl-c1">AvailableBuffer</span>()
+		out, err = <span class="pl-c1">appendCompact</span>(out, b, opts.<span class="pl-smi">escapeHTML</span>)
+		e.<span class="pl-smi">Buffer</span>.<span class="pl-c1">Write</span>(out)
+	}
+	<span class="pl-k">if</span> err != <span class="pl-c1">nil</span> {
+		e.<span class="pl-k">error</span>(&#x26;MarshalerError{v.<span class="pl-c1">Type</span>(), err, <span class="pl-s"><span class="pl-pds">"</span>MarshalJSON<span class="pl-pds">"</span></span>})
+	}
+}
+
+<span class="pl-k">func</span> <span class="pl-en">addrMarshalerEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-smi">va</span> <span class="pl-k">:=</span> v.<span class="pl-c1">Addr</span>()
+	<span class="pl-k">if</span> va.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-smi">m</span> <span class="pl-k">:=</span> va.<span class="pl-c1">Interface</span>().(Marshaler)
+	<span class="pl-smi">b</span>, <span class="pl-smi">err</span> <span class="pl-k">:=</span> m.<span class="pl-c1">MarshalJSON</span>()
+	<span class="pl-k">if</span> err == <span class="pl-c1">nil</span> {
+		e.<span class="pl-c1">Grow</span>(<span class="pl-c1">len</span>(b))
+		<span class="pl-smi">out</span> <span class="pl-k">:=</span> e.<span class="pl-c1">AvailableBuffer</span>()
+		out, err = <span class="pl-c1">appendCompact</span>(out, b, opts.<span class="pl-smi">escapeHTML</span>)
+		e.<span class="pl-smi">Buffer</span>.<span class="pl-c1">Write</span>(out)
+	}
+	<span class="pl-k">if</span> err != <span class="pl-c1">nil</span> {
+		e.<span class="pl-k">error</span>(&#x26;MarshalerError{v.<span class="pl-c1">Type</span>(), err, <span class="pl-s"><span class="pl-pds">"</span>MarshalJSON<span class="pl-pds">"</span></span>})
+	}
+}
+
+<span class="pl-k">func</span> <span class="pl-en">textMarshalerEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> &#x26;&#x26; v.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-smi">m</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> v.<span class="pl-c1">Interface</span>().(encoding.<span class="pl-smi">TextMarshaler</span>)
+	<span class="pl-k">if</span> !ok {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-smi">b</span>, <span class="pl-smi">err</span> <span class="pl-k">:=</span> m.<span class="pl-c1">MarshalText</span>()
+	<span class="pl-k">if</span> err != <span class="pl-c1">nil</span> {
+		e.<span class="pl-k">error</span>(&#x26;MarshalerError{v.<span class="pl-c1">Type</span>(), err, <span class="pl-s"><span class="pl-pds">"</span>MarshalText<span class="pl-pds">"</span></span>})
+	}
+	e.<span class="pl-c1">Write</span>(<span class="pl-c1">appendString</span>(e.<span class="pl-c1">AvailableBuffer</span>(), b, opts.<span class="pl-smi">escapeHTML</span>))
+}
+
+<span class="pl-k">func</span> <span class="pl-en">addrTextMarshalerEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-smi">va</span> <span class="pl-k">:=</span> v.<span class="pl-c1">Addr</span>()
+	<span class="pl-k">if</span> va.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-smi">m</span> <span class="pl-k">:=</span> va.<span class="pl-c1">Interface</span>().(encoding.<span class="pl-smi">TextMarshaler</span>)
+	<span class="pl-smi">b</span>, <span class="pl-smi">err</span> <span class="pl-k">:=</span> m.<span class="pl-c1">MarshalText</span>()
+	<span class="pl-k">if</span> err != <span class="pl-c1">nil</span> {
+		e.<span class="pl-k">error</span>(&#x26;MarshalerError{v.<span class="pl-c1">Type</span>(), err, <span class="pl-s"><span class="pl-pds">"</span>MarshalText<span class="pl-pds">"</span></span>})
+	}
+	e.<span class="pl-c1">Write</span>(<span class="pl-c1">appendString</span>(e.<span class="pl-c1">AvailableBuffer</span>(), b, opts.<span class="pl-smi">escapeHTML</span>))
+}
+
+<span class="pl-k">func</span> <span class="pl-en">boolEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-smi">b</span> <span class="pl-k">:=</span> e.<span class="pl-c1">AvailableBuffer</span>()
+	b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+	b = strconv.<span class="pl-c1">AppendBool</span>(b, v.<span class="pl-c1">Bool</span>())
+	b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+	e.<span class="pl-c1">Write</span>(b)
+}
+
+<span class="pl-k">func</span> <span class="pl-en">intEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-smi">b</span> <span class="pl-k">:=</span> e.<span class="pl-c1">AvailableBuffer</span>()
+	b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+	b = strconv.<span class="pl-c1">AppendInt</span>(b, v.<span class="pl-c1">Int</span>(), <span class="pl-c1">10</span>)
+	b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+	e.<span class="pl-c1">Write</span>(b)
+}
+
+<span class="pl-k">func</span> <span class="pl-en">uintEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-smi">b</span> <span class="pl-k">:=</span> e.<span class="pl-c1">AvailableBuffer</span>()
+	b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+	b = strconv.<span class="pl-c1">AppendUint</span>(b, v.<span class="pl-c1">Uint</span>(), <span class="pl-c1">10</span>)
+	b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+	e.<span class="pl-c1">Write</span>(b)
+}
+
+<span class="pl-k">type</span> floatEncoder <span class="pl-k">int</span> <span class="pl-c">// number of bits</span>
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">bits</span> <span class="pl-v">floatEncoder</span><span class="pl-en">) encode</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-smi">f</span> <span class="pl-k">:=</span> v.<span class="pl-c1">Float</span>()
+	<span class="pl-k">if</span> math.<span class="pl-c1">IsInf</span>(f, <span class="pl-c1">0</span>) || math.<span class="pl-c1">IsNaN</span>(f) {
+		e.<span class="pl-k">error</span>(&#x26;UnsupportedValueError{v, strconv.<span class="pl-c1">FormatFloat</span>(f, <span class="pl-s"><span class="pl-pds">'</span>g<span class="pl-pds">'</span></span>, -<span class="pl-c1">1</span>, <span class="pl-c1">int</span>(bits))})
+	}
+
+	<span class="pl-c">// Convert as if by ES6 number to string conversion.</span>
+	<span class="pl-c">// This matches most other JSON generators.</span>
+	<span class="pl-c">// See golang.org/issue/6384 and golang.org/issue/14135.</span>
+	<span class="pl-c">// Like fmt %g, but the exponent cutoffs are different</span>
+	<span class="pl-c">// and exponents themselves are not padded to two digits.</span>
+	<span class="pl-smi">b</span> <span class="pl-k">:=</span> e.<span class="pl-c1">AvailableBuffer</span>()
+	b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+	<span class="pl-smi">abs</span> <span class="pl-k">:=</span> math.<span class="pl-c1">Abs</span>(f)
+	<span class="pl-smi">fmt</span> <span class="pl-k">:=</span> <span class="pl-c1">byte</span>(<span class="pl-s"><span class="pl-pds">'</span>f<span class="pl-pds">'</span></span>)
+	<span class="pl-c">// Note: Must use float32 comparisons for underlying float32 value to get precise cutoffs right.</span>
+	<span class="pl-k">if</span> abs != <span class="pl-c1">0</span> {
+		<span class="pl-k">if</span> bits == <span class="pl-c1">64</span> &#x26;&#x26; (abs &#x3C; <span class="pl-c1">1e-6</span> || abs >= <span class="pl-c1">1e21</span>) || bits == <span class="pl-c1">32</span> &#x26;&#x26; (<span class="pl-k">float32</span>(abs) &#x3C; <span class="pl-c1">1e-6</span> || <span class="pl-c1">float32</span>(abs) >= <span class="pl-c1">1e21</span>) {
+			fmt = <span class="pl-s"><span class="pl-pds">'</span>e<span class="pl-pds">'</span></span>
+		}
+	}
+	b = strconv.<span class="pl-c1">AppendFloat</span>(b, f, fmt, -<span class="pl-c1">1</span>, <span class="pl-c1">int</span>(bits))
+	<span class="pl-k">if</span> fmt == <span class="pl-s"><span class="pl-pds">'</span>e<span class="pl-pds">'</span></span> {
+		<span class="pl-c">// clean up e-09 to e-9</span>
+		<span class="pl-smi">n</span> <span class="pl-k">:=</span> <span class="pl-c1">len</span>(b)
+		<span class="pl-k">if</span> n >= <span class="pl-c1">4</span> &#x26;&#x26; b[n-<span class="pl-c1">4</span>] == <span class="pl-s"><span class="pl-pds">'</span>e<span class="pl-pds">'</span></span> &#x26;&#x26; b[n-<span class="pl-c1">3</span>] == <span class="pl-s"><span class="pl-pds">'</span>-<span class="pl-pds">'</span></span> &#x26;&#x26; b[n-<span class="pl-c1">2</span>] == <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span> {
+			b[n-<span class="pl-c1">2</span>] = b[n-<span class="pl-c1">1</span>]
+			b = b[:n-<span class="pl-c1">1</span>]
+		}
+	}
+	b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+	e.<span class="pl-c1">Write</span>(b)
+}
+
+<span class="pl-k">var</span> (
+	float32Encoder = (<span class="pl-c1">floatEncoder</span>(<span class="pl-c1">32</span>)).<span class="pl-smi">encode</span>
+	float64Encoder = (<span class="pl-c1">floatEncoder</span>(<span class="pl-c1">64</span>)).<span class="pl-smi">encode</span>
+)
+
+<span class="pl-k">func</span> <span class="pl-en">stringEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">Type</span>() == numberType {
+		<span class="pl-smi">numStr</span> <span class="pl-k">:=</span> v.<span class="pl-c1">String</span>()
+		<span class="pl-c">// In Go1.5 the empty string encodes to "0", while this is not a valid number literal</span>
+		<span class="pl-c">// we keep compatibility so check validity after this.</span>
+		<span class="pl-k">if</span> numStr == <span class="pl-s"><span class="pl-pds">""</span></span> {
+			numStr = <span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span> <span class="pl-c">// Number's zero-val</span>
+		}
+		<span class="pl-k">if</span> !<span class="pl-c1">isValidNumber</span>(numStr) {
+			e.<span class="pl-k">error</span>(fmt.<span class="pl-c1">Errorf</span>(<span class="pl-s"><span class="pl-pds">"</span>json: invalid number literal <span class="pl-c1">%q</span><span class="pl-pds">"</span></span>, numStr))
+		}
+		<span class="pl-smi">b</span> <span class="pl-k">:=</span> e.<span class="pl-c1">AvailableBuffer</span>()
+		b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+		b = <span class="pl-c1">append</span>(b, numStr...)
+		b = <span class="pl-c1">mayAppendQuote</span>(b, opts.<span class="pl-smi">quoted</span>)
+		e.<span class="pl-c1">Write</span>(b)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-k">if</span> opts.<span class="pl-smi">quoted</span> {
+		<span class="pl-smi">b</span> <span class="pl-k">:=</span> <span class="pl-c1">appendString</span>(<span class="pl-c1">nil</span>, v.<span class="pl-c1">String</span>(), opts.<span class="pl-smi">escapeHTML</span>)
+		e.<span class="pl-c1">Write</span>(<span class="pl-c1">appendString</span>(e.<span class="pl-c1">AvailableBuffer</span>(), b, <span class="pl-c1">false</span>)) <span class="pl-c">// no need to escape again since it is already escaped</span>
+	} <span class="pl-k">else</span> {
+		e.<span class="pl-c1">Write</span>(<span class="pl-c1">appendString</span>(e.<span class="pl-c1">AvailableBuffer</span>(), v.<span class="pl-c1">String</span>(), opts.<span class="pl-smi">escapeHTML</span>))
+	}
+}
+
+<span class="pl-c">// isValidNumber reports whether s is a valid JSON number literal.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// isValidNumber should be an internal detail,</span>
+<span class="pl-c">// but widely used packages access it using linkname.</span>
+<span class="pl-c">// Notable members of the hall of shame include:</span>
+<span class="pl-c">//   - github.com/bytedance/sonic</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Do not remove or change the type signature.</span>
+<span class="pl-c">// See go.dev/issue/67401.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">//go:linkname isValidNumber</span>
+<span class="pl-k">func</span> <span class="pl-en">isValidNumber</span>(<span class="pl-v">s</span> <span class="pl-v">string</span>) <span class="pl-v">bool</span> {
+	<span class="pl-c">// This function implements the JSON numbers grammar.</span>
+	<span class="pl-c">// See https://tools.ietf.org/html/rfc7159#section-6</span>
+	<span class="pl-c">// and https://www.json.org/img/number.png</span>
+
+	<span class="pl-k">if</span> s == <span class="pl-s"><span class="pl-pds">""</span></span> {
+		<span class="pl-k">return</span> <span class="pl-c1">false</span>
+	}
+
+	<span class="pl-c">// Optional -</span>
+	<span class="pl-k">if</span> s[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">'</span>-<span class="pl-pds">'</span></span> {
+		s = s[<span class="pl-c1">1</span>:]
+		<span class="pl-k">if</span> s == <span class="pl-s"><span class="pl-pds">""</span></span> {
+			<span class="pl-k">return</span> <span class="pl-c1">false</span>
+		}
+	}
+
+	<span class="pl-c">// Digits</span>
+	<span class="pl-k">switch</span> {
+	<span class="pl-k">default</span>:
+		<span class="pl-k">return</span> <span class="pl-c1">false</span>
+
+	<span class="pl-k">case</span> s[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span>:
+		s = s[<span class="pl-c1">1</span>:]
+
+	<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span>1<span class="pl-pds">'</span></span> &#x3C;= s[<span class="pl-c1">0</span>] &#x26;&#x26; s[<span class="pl-c1">0</span>] &#x3C;= <span class="pl-s"><span class="pl-pds">'</span>9<span class="pl-pds">'</span></span>:
+		s = s[<span class="pl-c1">1</span>:]
+		<span class="pl-k">for</span> <span class="pl-c1">len</span>(s) > <span class="pl-c1">0</span> &#x26;&#x26; <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span> &#x3C;= s[<span class="pl-c1">0</span>] &#x26;&#x26; s[<span class="pl-c1">0</span>] &#x3C;= <span class="pl-s"><span class="pl-pds">'</span>9<span class="pl-pds">'</span></span> {
+			s = s[<span class="pl-c1">1</span>:]
+		}
+	}
+
+	<span class="pl-c">// . followed by 1 or more digits.</span>
+	<span class="pl-k">if</span> <span class="pl-c1">len</span>(s) >= <span class="pl-c1">2</span> &#x26;&#x26; s[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">'</span>.<span class="pl-pds">'</span></span> &#x26;&#x26; <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span> &#x3C;= s[<span class="pl-c1">1</span>] &#x26;&#x26; s[<span class="pl-c1">1</span>] &#x3C;= <span class="pl-s"><span class="pl-pds">'</span>9<span class="pl-pds">'</span></span> {
+		s = s[<span class="pl-c1">2</span>:]
+		<span class="pl-k">for</span> <span class="pl-c1">len</span>(s) > <span class="pl-c1">0</span> &#x26;&#x26; <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span> &#x3C;= s[<span class="pl-c1">0</span>] &#x26;&#x26; s[<span class="pl-c1">0</span>] &#x3C;= <span class="pl-s"><span class="pl-pds">'</span>9<span class="pl-pds">'</span></span> {
+			s = s[<span class="pl-c1">1</span>:]
+		}
+	}
+
+	<span class="pl-c">// e or E followed by an optional - or + and</span>
+	<span class="pl-c">// 1 or more digits.</span>
+	<span class="pl-k">if</span> <span class="pl-c1">len</span>(s) >= <span class="pl-c1">2</span> &#x26;&#x26; (s[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">'</span>e<span class="pl-pds">'</span></span> || s[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">'</span>E<span class="pl-pds">'</span></span>) {
+		s = s[<span class="pl-c1">1</span>:]
+		<span class="pl-k">if</span> s[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">'</span>+<span class="pl-pds">'</span></span> || s[<span class="pl-c1">0</span>] == <span class="pl-s"><span class="pl-pds">'</span>-<span class="pl-pds">'</span></span> {
+			s = s[<span class="pl-c1">1</span>:]
+			<span class="pl-k">if</span> s == <span class="pl-s"><span class="pl-pds">""</span></span> {
+				<span class="pl-k">return</span> <span class="pl-c1">false</span>
+			}
+		}
+		<span class="pl-k">for</span> <span class="pl-c1">len</span>(s) > <span class="pl-c1">0</span> &#x26;&#x26; <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span> &#x3C;= s[<span class="pl-c1">0</span>] &#x26;&#x26; s[<span class="pl-c1">0</span>] &#x3C;= <span class="pl-s"><span class="pl-pds">'</span>9<span class="pl-pds">'</span></span> {
+			s = s[<span class="pl-c1">1</span>:]
+		}
+	}
+
+	<span class="pl-c">// Make sure we are at the end.</span>
+	<span class="pl-k">return</span> s == <span class="pl-s"><span class="pl-pds">""</span></span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">interfaceEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	e.<span class="pl-c1">reflectValue</span>(v.<span class="pl-c1">Elem</span>(), opts)
+}
+
+<span class="pl-k">func</span> <span class="pl-en">unsupportedTypeEncoder</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">_</span> <span class="pl-v">encOpts</span>) {
+	e.<span class="pl-k">error</span>(&#x26;UnsupportedTypeError{v.<span class="pl-c1">Type</span>()})
+}
+
+<span class="pl-k">type</span> structEncoder <span class="pl-k">struct</span> {
+	fields structFields
+}
+
+<span class="pl-k">type</span> structFields <span class="pl-k">struct</span> {
+	list         []field
+	byExactName  <span class="pl-k">map</span>[<span class="pl-k">string</span>]*field
+	byFoldedName <span class="pl-k">map</span>[<span class="pl-k">string</span>]*field
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">se</span> <span class="pl-v">structEncoder</span><span class="pl-en">) encode</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-smi">next</span> <span class="pl-k">:=</span> <span class="pl-c1">byte</span>(<span class="pl-s"><span class="pl-pds">'</span>{<span class="pl-pds">'</span></span>)
+FieldLoop:
+	<span class="pl-k">for</span> <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-k">range</span> se.<span class="pl-smi">fields</span>.<span class="pl-smi">list</span> {
+		<span class="pl-smi">f</span> <span class="pl-k">:=</span> &#x26;se.<span class="pl-smi">fields</span>.<span class="pl-smi">list</span>[i]
+
+		<span class="pl-c">// Find the nested struct field by following f.index.</span>
+		<span class="pl-smi">fv</span> <span class="pl-k">:=</span> v
+		<span class="pl-k">for</span> <span class="pl-smi">_</span>, <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-k">range</span> f.<span class="pl-smi">index</span> {
+			<span class="pl-k">if</span> fv.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> {
+				<span class="pl-k">if</span> fv.<span class="pl-c1">IsNil</span>() {
+					<span class="pl-k">continue</span> FieldLoop
+				}
+				fv = fv.<span class="pl-c1">Elem</span>()
+			}
+			fv = fv.<span class="pl-c1">Field</span>(i)
+		}
+
+		<span class="pl-k">if</span> (f.<span class="pl-smi">omitEmpty</span> &#x26;&#x26; <span class="pl-c1">isEmptyValue</span>(fv)) ||
+			(f.<span class="pl-smi">omitZero</span> &#x26;&#x26; (f.<span class="pl-smi">isZero</span> == <span class="pl-c1">nil</span> &#x26;&#x26; fv.<span class="pl-c1">IsZero</span>() || (f.<span class="pl-smi">isZero</span> != <span class="pl-c1">nil</span> &#x26;&#x26; f.<span class="pl-c1">isZero</span>(fv)))) {
+			<span class="pl-k">continue</span>
+		}
+		e.<span class="pl-c1">WriteByte</span>(next)
+		next = <span class="pl-s"><span class="pl-pds">'</span>,<span class="pl-pds">'</span></span>
+		<span class="pl-k">if</span> opts.<span class="pl-smi">escapeHTML</span> {
+			e.<span class="pl-c1">WriteString</span>(f.<span class="pl-smi">nameEscHTML</span>)
+		} <span class="pl-k">else</span> {
+			e.<span class="pl-c1">WriteString</span>(f.<span class="pl-smi">nameNonEsc</span>)
+		}
+		opts.<span class="pl-smi">quoted</span> = f.<span class="pl-smi">quoted</span>
+		f.<span class="pl-c1">encoder</span>(e, fv, opts)
+	}
+	<span class="pl-k">if</span> next == <span class="pl-s"><span class="pl-pds">'</span>{<span class="pl-pds">'</span></span> {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>{}<span class="pl-pds">"</span></span>)
+	} <span class="pl-k">else</span> {
+		e.<span class="pl-c1">WriteByte</span>(<span class="pl-s"><span class="pl-pds">'</span>}<span class="pl-pds">'</span></span>)
+	}
+}
+
+<span class="pl-k">func</span> <span class="pl-en">newStructEncoder</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-smi">se</span> <span class="pl-k">:=</span> structEncoder{fields: <span class="pl-c1">cachedTypeFields</span>(t)}
+	<span class="pl-k">return</span> se.<span class="pl-smi">encode</span>
+}
+
+<span class="pl-k">type</span> mapEncoder <span class="pl-k">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">me</span> <span class="pl-v">mapEncoder</span><span class="pl-en">) encode</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-k">if</span> e.<span class="pl-smi">ptrLevel</span>++; e.<span class="pl-smi">ptrLevel</span> > startDetectingCyclesAfter {
+		<span class="pl-c">// We're a large number of nested ptrEncoder.encode calls deep;</span>
+		<span class="pl-c">// start checking if we've run into a pointer cycle.</span>
+		<span class="pl-smi">ptr</span> <span class="pl-k">:=</span> v.<span class="pl-c1">UnsafePointer</span>()
+		<span class="pl-k">if</span> <span class="pl-smi">_</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> e.<span class="pl-smi">ptrSeen</span>[ptr]; ok {
+			e.<span class="pl-k">error</span>(&#x26;UnsupportedValueError{v, fmt.<span class="pl-c1">Sprintf</span>(<span class="pl-s"><span class="pl-pds">"</span>encountered a cycle via <span class="pl-c1">%s</span><span class="pl-pds">"</span></span>, v.<span class="pl-c1">Type</span>())})
+		}
+		e.<span class="pl-smi">ptrSeen</span>[ptr] = <span class="pl-k">struct</span>{}{}
+		<span class="pl-k">defer</span> <span class="pl-c1">delete</span>(e.<span class="pl-smi">ptrSeen</span>, ptr)
+	}
+	e.<span class="pl-c1">WriteByte</span>(<span class="pl-s"><span class="pl-pds">'</span>{<span class="pl-pds">'</span></span>)
+
+	<span class="pl-c">// Extract and sort the keys.</span>
+	<span class="pl-c1">var</span> (
+		sv  = <span class="pl-c1">make</span>([]reflectWithString, v.<span class="pl-c1">Len</span>())
+		mi  = v.<span class="pl-c1">MapRange</span>()
+		err <span class="pl-k">error</span>
+	)
+	<span class="pl-k">for</span> <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-c1">0</span>; mi.<span class="pl-c1">Next</span>(); i++ {
+		<span class="pl-k">if</span> sv[i].<span class="pl-smi">ks</span>, err = <span class="pl-c1">resolveKeyName</span>(mi.<span class="pl-c1">Key</span>()); err != <span class="pl-c1">nil</span> {
+			e.<span class="pl-k">error</span>(fmt.<span class="pl-c1">Errorf</span>(<span class="pl-s"><span class="pl-pds">"</span>json: encoding error for type <span class="pl-c1">%q</span>: <span class="pl-c1">%q</span><span class="pl-pds">"</span></span>, v.<span class="pl-c1">Type</span>().<span class="pl-c1">String</span>(), err.<span class="pl-c1">Error</span>()))
+		}
+		sv[i].<span class="pl-smi">v</span> = mi.<span class="pl-c1">Value</span>()
+	}
+	slices.<span class="pl-c1">SortFunc</span>(sv, <span class="pl-c1">func</span>(i, j reflectWithString) <span class="pl-k">int</span> {
+		<span class="pl-k">return</span> strings.<span class="pl-c1">Compare</span>(i.<span class="pl-smi">ks</span>, j.<span class="pl-smi">ks</span>)
+	})
+
+	<span class="pl-k">for</span> <span class="pl-smi">i</span>, <span class="pl-smi">kv</span> <span class="pl-k">:=</span> <span class="pl-k">range</span> sv {
+		<span class="pl-k">if</span> i > <span class="pl-c1">0</span> {
+			e.<span class="pl-c1">WriteByte</span>(<span class="pl-s"><span class="pl-pds">'</span>,<span class="pl-pds">'</span></span>)
+		}
+		e.<span class="pl-c1">Write</span>(<span class="pl-c1">appendString</span>(e.<span class="pl-c1">AvailableBuffer</span>(), kv.<span class="pl-smi">ks</span>, opts.<span class="pl-smi">escapeHTML</span>))
+		e.<span class="pl-c1">WriteByte</span>(<span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span>)
+		me.<span class="pl-c1">elemEnc</span>(e, kv.<span class="pl-smi">v</span>, opts)
+	}
+	e.<span class="pl-c1">WriteByte</span>(<span class="pl-s"><span class="pl-pds">'</span>}<span class="pl-pds">'</span></span>)
+	e.<span class="pl-smi">ptrLevel</span>--
+}
+
+<span class="pl-k">func</span> <span class="pl-en">newMapEncoder</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-k">switch</span> t.<span class="pl-c1">Key</span>().<span class="pl-c1">Kind</span>() {
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">String</span>,
+		reflect.<span class="pl-smi">Int</span>, reflect.<span class="pl-smi">Int8</span>, reflect.<span class="pl-smi">Int16</span>, reflect.<span class="pl-smi">Int32</span>, reflect.<span class="pl-smi">Int64</span>,
+		reflect.<span class="pl-smi">Uint</span>, reflect.<span class="pl-smi">Uint8</span>, reflect.<span class="pl-smi">Uint16</span>, reflect.<span class="pl-smi">Uint32</span>, reflect.<span class="pl-smi">Uint64</span>, reflect.<span class="pl-smi">Uintptr</span>:
+	<span class="pl-k">default</span>:
+		<span class="pl-k">if</span> !t.<span class="pl-c1">Key</span>().<span class="pl-c1">Implements</span>(textMarshalerType) {
+			<span class="pl-k">return</span> unsupportedTypeEncoder
+		}
+	}
+	<span class="pl-smi">me</span> <span class="pl-k">:=</span> mapEncoder{<span class="pl-c1">typeEncoder</span>(t.<span class="pl-c1">Elem</span>())}
+	<span class="pl-k">return</span> me.<span class="pl-smi">encode</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">encodeByteSlice</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">_</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+
+	<span class="pl-smi">s</span> <span class="pl-k">:=</span> v.<span class="pl-c1">Bytes</span>()
+	<span class="pl-smi">b</span> <span class="pl-k">:=</span> e.<span class="pl-c1">AvailableBuffer</span>()
+	b = <span class="pl-c1">append</span>(b, <span class="pl-s"><span class="pl-pds">'</span>"<span class="pl-pds">'</span></span>)
+	b = base64.<span class="pl-smi">StdEncoding</span>.<span class="pl-c1">AppendEncode</span>(b, s)
+	b = <span class="pl-c1">append</span>(b, <span class="pl-s"><span class="pl-pds">'</span>"<span class="pl-pds">'</span></span>)
+	e.<span class="pl-c1">Write</span>(b)
+}
+
+<span class="pl-c">// sliceEncoder just wraps an arrayEncoder, checking to make sure the value isn't nil.</span>
+<span class="pl-k">type</span> sliceEncoder <span class="pl-k">struct</span> {
+	arrayEnc encoderFunc
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">se</span> <span class="pl-v">sliceEncoder</span><span class="pl-en">) encode</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-k">if</span> e.<span class="pl-smi">ptrLevel</span>++; e.<span class="pl-smi">ptrLevel</span> > startDetectingCyclesAfter {
+		<span class="pl-c">// We're a large number of nested ptrEncoder.encode calls deep;</span>
+		<span class="pl-c">// start checking if we've run into a pointer cycle.</span>
+		<span class="pl-c">// Here we use a struct to memorize the pointer to the first element of the slice</span>
+		<span class="pl-c">// and its length.</span>
+		<span class="pl-smi">ptr</span> <span class="pl-k">:=</span> <span class="pl-k">struct</span> {
+			ptr any <span class="pl-c">// always an unsafe.Pointer, but avoids a dependency on package unsafe</span>
+			<span class="pl-c1">len</span> <span class="pl-k">int</span>
+		}{v.<span class="pl-c1">UnsafePointer</span>(), v.<span class="pl-c1">Len</span>()}
+		<span class="pl-k">if</span> <span class="pl-smi">_</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> e.<span class="pl-smi">ptrSeen</span>[ptr]; ok {
+			e.<span class="pl-k">error</span>(&#x26;UnsupportedValueError{v, fmt.<span class="pl-c1">Sprintf</span>(<span class="pl-s"><span class="pl-pds">"</span>encountered a cycle via <span class="pl-c1">%s</span><span class="pl-pds">"</span></span>, v.<span class="pl-c1">Type</span>())})
+		}
+		e.<span class="pl-smi">ptrSeen</span>[ptr] = <span class="pl-k">struct</span>{}{}
+		<span class="pl-k">defer</span> <span class="pl-c1">delete</span>(e.<span class="pl-smi">ptrSeen</span>, ptr)
+	}
+	se.<span class="pl-c1">arrayEnc</span>(e, v, opts)
+	e.<span class="pl-smi">ptrLevel</span>--
+}
+
+<span class="pl-k">func</span> <span class="pl-en">newSliceEncoder</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-c">// Byte slices get special treatment; arrays don't.</span>
+	<span class="pl-k">if</span> t.<span class="pl-c1">Elem</span>().<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Uint8</span> {
+		<span class="pl-smi">p</span> <span class="pl-k">:=</span> reflect.<span class="pl-c1">PointerTo</span>(t.<span class="pl-c1">Elem</span>())
+		<span class="pl-k">if</span> !p.<span class="pl-c1">Implements</span>(marshalerType) &#x26;&#x26; !p.<span class="pl-c1">Implements</span>(textMarshalerType) {
+			<span class="pl-k">return</span> encodeByteSlice
+		}
+	}
+	<span class="pl-smi">enc</span> <span class="pl-k">:=</span> sliceEncoder{<span class="pl-c1">newArrayEncoder</span>(t)}
+	<span class="pl-k">return</span> enc.<span class="pl-smi">encode</span>
+}
+
+<span class="pl-k">type</span> arrayEncoder <span class="pl-k">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">ae</span> <span class="pl-v">arrayEncoder</span><span class="pl-en">) encode</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	e.<span class="pl-c1">WriteByte</span>(<span class="pl-s"><span class="pl-pds">'</span>[<span class="pl-pds">'</span></span>)
+	<span class="pl-smi">n</span> <span class="pl-k">:=</span> v.<span class="pl-c1">Len</span>()
+	<span class="pl-k">for</span> <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-c1">0</span>; i &#x3C; n; i++ {
+		<span class="pl-k">if</span> i > <span class="pl-c1">0</span> {
+			e.<span class="pl-c1">WriteByte</span>(<span class="pl-s"><span class="pl-pds">'</span>,<span class="pl-pds">'</span></span>)
+		}
+		ae.<span class="pl-c1">elemEnc</span>(e, v.<span class="pl-c1">Index</span>(i), opts)
+	}
+	e.<span class="pl-c1">WriteByte</span>(<span class="pl-s"><span class="pl-pds">'</span>]<span class="pl-pds">'</span></span>)
+}
+
+<span class="pl-k">func</span> <span class="pl-en">newArrayEncoder</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-smi">enc</span> <span class="pl-k">:=</span> arrayEncoder{<span class="pl-c1">typeEncoder</span>(t.<span class="pl-c1">Elem</span>())}
+	<span class="pl-k">return</span> enc.<span class="pl-smi">encode</span>
+}
+
+<span class="pl-k">type</span> ptrEncoder <span class="pl-k">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">pe</span> <span class="pl-v">ptrEncoder</span><span class="pl-en">) encode</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">IsNil</span>() {
+		e.<span class="pl-c1">WriteString</span>(<span class="pl-s"><span class="pl-pds">"</span>null<span class="pl-pds">"</span></span>)
+		<span class="pl-k">return</span>
+	}
+	<span class="pl-k">if</span> e.<span class="pl-smi">ptrLevel</span>++; e.<span class="pl-smi">ptrLevel</span> > startDetectingCyclesAfter {
+		<span class="pl-c">// We're a large number of nested ptrEncoder.encode calls deep;</span>
+		<span class="pl-c">// start checking if we've run into a pointer cycle.</span>
+		<span class="pl-smi">ptr</span> <span class="pl-k">:=</span> v.<span class="pl-c1">Interface</span>()
+		<span class="pl-k">if</span> <span class="pl-smi">_</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> e.<span class="pl-smi">ptrSeen</span>[ptr]; ok {
+			e.<span class="pl-k">error</span>(&#x26;UnsupportedValueError{v, fmt.<span class="pl-c1">Sprintf</span>(<span class="pl-s"><span class="pl-pds">"</span>encountered a cycle via <span class="pl-c1">%s</span><span class="pl-pds">"</span></span>, v.<span class="pl-c1">Type</span>())})
+		}
+		e.<span class="pl-smi">ptrSeen</span>[ptr] = <span class="pl-k">struct</span>{}{}
+		<span class="pl-k">defer</span> <span class="pl-c1">delete</span>(e.<span class="pl-smi">ptrSeen</span>, ptr)
+	}
+	pe.<span class="pl-c1">elemEnc</span>(e, v.<span class="pl-c1">Elem</span>(), opts)
+	e.<span class="pl-smi">ptrLevel</span>--
+}
+
+<span class="pl-k">func</span> <span class="pl-en">newPtrEncoder</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-smi">enc</span> <span class="pl-k">:=</span> ptrEncoder{<span class="pl-c1">typeEncoder</span>(t.<span class="pl-c1">Elem</span>())}
+	<span class="pl-k">return</span> enc.<span class="pl-smi">encode</span>
+}
+
+<span class="pl-k">type</span> condAddrEncoder <span class="pl-k">struct</span> {
+	canAddrEnc, elseEnc encoderFunc
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(</span><span class="pl-v">ce</span> <span class="pl-v">condAddrEncoder</span><span class="pl-en">) encode</span>(<span class="pl-v">e</span> *<span class="pl-v">encodeState</span>, <span class="pl-v">v</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>, <span class="pl-v">opts</span> <span class="pl-v">encOpts</span>) {
+	<span class="pl-k">if</span> v.<span class="pl-c1">CanAddr</span>() {
+		ce.<span class="pl-c1">canAddrEnc</span>(e, v, opts)
+	} <span class="pl-k">else</span> {
+		ce.<span class="pl-c1">elseEnc</span>(e, v, opts)
+	}
+}
+
+<span class="pl-c">// newCondAddrEncoder returns an encoder that checks whether its value</span>
+<span class="pl-c">// CanAddr and delegates to canAddrEnc if so, else to elseEnc.</span>
+<span class="pl-k">func</span> <span class="pl-en">newCondAddrEncoder</span>(<span class="pl-v">canAddrEnc</span>, <span class="pl-v">elseEnc</span> <span class="pl-v">encoderFunc</span>) <span class="pl-v">encoderFunc</span> {
+	<span class="pl-smi">enc</span> <span class="pl-k">:=</span> condAddrEncoder{canAddrEnc: canAddrEnc, elseEnc: elseEnc}
+	<span class="pl-k">return</span> enc.<span class="pl-smi">encode</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">isValidTag</span>(<span class="pl-v">s</span> <span class="pl-v">string</span>) <span class="pl-v">bool</span> {
+	<span class="pl-k">if</span> s == <span class="pl-s"><span class="pl-pds">""</span></span> {
+		<span class="pl-k">return</span> <span class="pl-c1">false</span>
+	}
+	<span class="pl-k">for</span> <span class="pl-smi">_</span>, <span class="pl-smi">c</span> <span class="pl-k">:=</span> <span class="pl-k">range</span> s {
+		<span class="pl-k">switch</span> {
+		<span class="pl-k">case</span> strings.<span class="pl-c1">ContainsRune</span>(<span class="pl-s"><span class="pl-pds">"</span>!#$<span class="pl-ii">%</span>&#x26;()*+-./:;&#x3C;=>?@[]^_{|}~ <span class="pl-pds">"</span></span>, c):
+			<span class="pl-c">// Backslash and quote chars are reserved, but</span>
+			<span class="pl-c">// otherwise any punctuation chars are allowed</span>
+			<span class="pl-c">// in a tag name.</span>
+		<span class="pl-k">case</span> !unicode.<span class="pl-c1">IsLetter</span>(c) &#x26;&#x26; !unicode.<span class="pl-c1">IsDigit</span>(c):
+			<span class="pl-k">return</span> <span class="pl-c1">false</span>
+		}
+	}
+	<span class="pl-k">return</span> <span class="pl-c1">true</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">typeByIndex</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>, <span class="pl-v">index</span> []<span class="pl-v">int</span>) <span class="pl-v">reflect</span>.<span class="pl-v">Type</span> {
+	<span class="pl-k">for</span> <span class="pl-smi">_</span>, <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-k">range</span> index {
+		<span class="pl-k">if</span> t.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> {
+			t = t.<span class="pl-c1">Elem</span>()
+		}
+		t = t.<span class="pl-c1">Field</span>(i).<span class="pl-smi">Type</span>
+	}
+	<span class="pl-k">return</span> t
+}
+
+<span class="pl-k">type</span> reflectWithString <span class="pl-k">struct</span> {
+	v  reflect.<span class="pl-smi">Value</span>
+	ks <span class="pl-k">string</span>
+}
+
+<span class="pl-k">func</span> <span class="pl-en">resolveKeyName</span>(<span class="pl-v">k</span> <span class="pl-v">reflect</span>.<span class="pl-v">Value</span>) (<span class="pl-v">string</span>, <span class="pl-v">error</span>) {
+	<span class="pl-k">if</span> k.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">String</span> {
+		<span class="pl-k">return</span> k.<span class="pl-c1">String</span>(), <span class="pl-c1">nil</span>
+	}
+	<span class="pl-k">if</span> <span class="pl-smi">tm</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> k.<span class="pl-c1">Interface</span>().(encoding.<span class="pl-smi">TextMarshaler</span>); ok {
+		<span class="pl-k">if</span> k.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> &#x26;&#x26; k.<span class="pl-c1">IsNil</span>() {
+			<span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">""</span></span>, <span class="pl-c1">nil</span>
+		}
+		<span class="pl-smi">buf</span>, <span class="pl-smi">err</span> <span class="pl-k">:=</span> tm.<span class="pl-c1">MarshalText</span>()
+		<span class="pl-k">return</span> <span class="pl-c1">string</span>(buf), err
+	}
+	<span class="pl-k">switch</span> k.<span class="pl-c1">Kind</span>() {
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Int</span>, reflect.<span class="pl-smi">Int8</span>, reflect.<span class="pl-smi">Int16</span>, reflect.<span class="pl-smi">Int32</span>, reflect.<span class="pl-smi">Int64</span>:
+		<span class="pl-k">return</span> strconv.<span class="pl-c1">FormatInt</span>(k.<span class="pl-c1">Int</span>(), <span class="pl-c1">10</span>), <span class="pl-c1">nil</span>
+	<span class="pl-k">case</span> reflect.<span class="pl-smi">Uint</span>, reflect.<span class="pl-smi">Uint8</span>, reflect.<span class="pl-smi">Uint16</span>, reflect.<span class="pl-smi">Uint32</span>, reflect.<span class="pl-smi">Uint64</span>, reflect.<span class="pl-smi">Uintptr</span>:
+		<span class="pl-k">return</span> strconv.<span class="pl-c1">FormatUint</span>(k.<span class="pl-c1">Uint</span>(), <span class="pl-c1">10</span>), <span class="pl-c1">nil</span>
+	}
+	<span class="pl-c1">panic</span>(<span class="pl-s"><span class="pl-pds">"</span>unexpected map key type<span class="pl-pds">"</span></span>)
+}
+
+<span class="pl-k">func</span> appendString[Bytes []<span class="pl-k">byte</span> | <span class="pl-k">string</span>](dst []<span class="pl-k">byte</span>, src <span class="pl-v">Bytes</span>, escapeHTML <span class="pl-k">bool</span>) []<span class="pl-k">byte</span> {
+	dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span>"<span class="pl-pds">'</span></span>)
+	<span class="pl-smi">start</span> <span class="pl-k">:=</span> <span class="pl-c1">0</span>
+	<span class="pl-k">for</span> <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-c1">0</span>; i &#x3C; <span class="pl-c1">len</span>(src); {
+		<span class="pl-k">if</span> <span class="pl-smi">b</span> <span class="pl-k">:=</span> src[i]; b &#x3C; utf8.<span class="pl-smi">RuneSelf</span> {
+			<span class="pl-k">if</span> htmlSafeSet[b] || (!escapeHTML &#x26;&#x26; safeSet[b]) {
+				i++
+				<span class="pl-k">continue</span>
+			}
+			dst = <span class="pl-c1">append</span>(dst, src[start:i]...)
+			<span class="pl-k">switch</span> b {
+			<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>"<span class="pl-pds">'</span></span>:
+				dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, b)
+			<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\b</span><span class="pl-pds">'</span></span>:
+				dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>b<span class="pl-pds">'</span></span>)
+			<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\f</span><span class="pl-pds">'</span></span>:
+				dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>f<span class="pl-pds">'</span></span>)
+			<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\n</span><span class="pl-pds">'</span></span>:
+				dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>n<span class="pl-pds">'</span></span>)
+			<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\r</span><span class="pl-pds">'</span></span>:
+				dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>r<span class="pl-pds">'</span></span>)
+			<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\t</span><span class="pl-pds">'</span></span>:
+				dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>t<span class="pl-pds">'</span></span>)
+			<span class="pl-k">default</span>:
+				<span class="pl-c">// This encodes bytes &#x3C; 0x20 except for \b, \f, \n, \r and \t.</span>
+				<span class="pl-c">// If escapeHTML is set, it also escapes &#x3C;, >, and &#x26;</span>
+				<span class="pl-c">// because they can lead to security holes when</span>
+				<span class="pl-c">// user-controlled strings are rendered into JSON</span>
+				<span class="pl-c">// and served to some browsers.</span>
+				dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>u<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span>, hex[b>><span class="pl-c1">4</span>], hex[b&#x26;<span class="pl-c1">0xF</span>])
+			}
+			i++
+			start = i
+			<span class="pl-k">continue</span>
+		}
+		<span class="pl-c">// TODO(https://go.dev/issue/56948): Use generic utf8 functionality.</span>
+		<span class="pl-c">// For now, cast only a small portion of byte slices to a string</span>
+		<span class="pl-c">// so that it can be stack allocated. This slows down []byte slightly</span>
+		<span class="pl-c">// due to the extra copy, but keeps string performance roughly the same.</span>
+		<span class="pl-smi">n</span> <span class="pl-k">:=</span> <span class="pl-c1">len</span>(src) - i
+		<span class="pl-k">if</span> n > utf8.<span class="pl-smi">UTFMax</span> {
+			n = utf8.<span class="pl-smi">UTFMax</span>
+		}
+		<span class="pl-smi">c</span>, <span class="pl-smi">size</span> <span class="pl-k">:=</span> utf8.<span class="pl-c1">DecodeRuneInString</span>(<span class="pl-k">string</span>(src[i : i+n]))
+		<span class="pl-k">if</span> c == utf8.<span class="pl-smi">RuneError</span> &#x26;&#x26; size == <span class="pl-c1">1</span> {
+			dst = <span class="pl-c1">append</span>(dst, src[start:i]...)
+			dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">`</span>\ufffd<span class="pl-pds">`</span></span>...)
+			i += size
+			start = i
+			<span class="pl-k">continue</span>
+		}
+		<span class="pl-c">// U+2028 is LINE SEPARATOR.</span>
+		<span class="pl-c">// U+2029 is PARAGRAPH SEPARATOR.</span>
+		<span class="pl-c">// They are both technically valid characters in JSON strings,</span>
+		<span class="pl-c">// but don't work in JSONP, which has to be evaluated as JavaScript,</span>
+		<span class="pl-c">// and can lead to security holes there. It is valid JSON to</span>
+		<span class="pl-c">// escape them, so we do so unconditionally.</span>
+		<span class="pl-c">// See https://en.wikipedia.org/wiki/JSON#Safety.</span>
+		<span class="pl-k">if</span> c == <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\u</span>2028<span class="pl-pds">'</span></span> || c == <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\u</span>2029<span class="pl-pds">'</span></span> {
+			dst = <span class="pl-c1">append</span>(dst, src[start:i]...)
+			dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span><span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>u<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>0<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>2<span class="pl-pds">'</span></span>, hex[c&#x26;<span class="pl-c1">0xF</span>])
+			i += size
+			start = i
+			<span class="pl-k">continue</span>
+		}
+		i += size
+	}
+	dst = <span class="pl-c1">append</span>(dst, src[start:]...)
+	dst = <span class="pl-c1">append</span>(dst, <span class="pl-s"><span class="pl-pds">'</span>"<span class="pl-pds">'</span></span>)
+	<span class="pl-k">return</span> dst
+}
+
+<span class="pl-c">// A field represents a single field found in a struct.</span>
+<span class="pl-k">type</span> field <span class="pl-k">struct</span> {
+	name      <span class="pl-k">string</span>
+	nameBytes []<span class="pl-k">byte</span> <span class="pl-c">// []byte(name)</span>
+
+	nameNonEsc  <span class="pl-k">string</span> <span class="pl-c">// `"` + name + `":`</span>
+	nameEscHTML <span class="pl-k">string</span> <span class="pl-c">// `"` + HTMLEscape(name) + `":`</span>
+
+	tag       <span class="pl-k">bool</span>
+	index     []<span class="pl-k">int</span>
+	typ       reflect.<span class="pl-smi">Type</span>
+	omitEmpty <span class="pl-k">bool</span>
+	omitZero  <span class="pl-k">bool</span>
+	isZero    <span class="pl-c1">func</span>(reflect.<span class="pl-smi">Value</span>) <span class="pl-k">bool</span>
+	quoted    <span class="pl-k">bool</span>
+
+	encoder encoderFunc
+}
+
+<span class="pl-k">type</span> isZeroer <span class="pl-k">interface</span> {
+	<span class="pl-c1">IsZero</span>() <span class="pl-k">bool</span>
+}
+
+<span class="pl-k">var</span> <span class="pl-smi">isZeroerType</span> = reflect.<span class="pl-smi">TypeFor</span>[isZeroer]()
+
+<span class="pl-c">// typeFields returns a list of fields that JSON should recognize for the given type.</span>
+<span class="pl-c">// The algorithm is breadth-first search over the set of structs to include - the top struct</span>
+<span class="pl-c">// and then any reachable anonymous structs.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// typeFields should be an internal detail,</span>
+<span class="pl-c">// but widely used packages access it using linkname.</span>
+<span class="pl-c">// Notable members of the hall of shame include:</span>
+<span class="pl-c">//   - github.com/bytedance/sonic</span>
+<span class="pl-c">//</span>
+<span class="pl-c">// Do not remove or change the type signature.</span>
+<span class="pl-c">// See go.dev/issue/67401.</span>
+<span class="pl-c">//</span>
+<span class="pl-c">//go:linkname typeFields</span>
+<span class="pl-k">func</span> <span class="pl-en">typeFields</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>) <span class="pl-v">structFields</span> {
+	<span class="pl-c">// Anonymous fields to explore at the current level and the next.</span>
+	<span class="pl-smi">current</span> <span class="pl-k">:=</span> []field{}
+	<span class="pl-smi">next</span> <span class="pl-k">:=</span> []field{{typ: t}}
+
+	<span class="pl-c">// Count of queued names for current level and the next.</span>
+	<span class="pl-k">var</span> <span class="pl-smi">count</span>, <span class="pl-smi">nextCount</span> <span class="pl-k">map</span>[reflect.<span class="pl-smi">Type</span>]<span class="pl-k">int</span>
+
+	<span class="pl-c">// Types already visited at an earlier level.</span>
+	<span class="pl-smi">visited</span> <span class="pl-k">:=</span> <span class="pl-k">map</span>[reflect.<span class="pl-smi">Type</span>]<span class="pl-k">bool</span>{}
+
+	<span class="pl-c">// Fields found.</span>
+	<span class="pl-k">var</span> <span class="pl-smi">fields</span> []field
+
+	<span class="pl-c">// Buffer to run appendHTMLEscape on field names.</span>
+	<span class="pl-k">var</span> <span class="pl-smi">nameEscBuf</span> []<span class="pl-k">byte</span>
+
+	<span class="pl-k">for</span> <span class="pl-c1">len</span>(next) > <span class="pl-c1">0</span> {
+		current, next = next, current[:<span class="pl-c1">0</span>]
+		count, nextCount = nextCount, <span class="pl-k">map</span>[reflect.<span class="pl-smi">Type</span>]<span class="pl-k">int</span>{}
+
+		<span class="pl-k">for</span> <span class="pl-smi">_</span>, <span class="pl-smi">f</span> <span class="pl-k">:=</span> <span class="pl-k">range</span> current {
+			<span class="pl-k">if</span> visited[f.<span class="pl-smi">typ</span>] {
+				<span class="pl-k">continue</span>
+			}
+			visited[f.<span class="pl-smi">typ</span>] = <span class="pl-c1">true</span>
+
+			<span class="pl-c">// Scan f.typ for fields to include.</span>
+			<span class="pl-k">for</span> <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-c1">0</span>; i &#x3C; f.<span class="pl-smi">typ</span>.<span class="pl-c1">NumField</span>(); i++ {
+				<span class="pl-smi">sf</span> <span class="pl-k">:=</span> f.<span class="pl-smi">typ</span>.<span class="pl-c1">Field</span>(i)
+				<span class="pl-k">if</span> sf.<span class="pl-smi">Anonymous</span> {
+					<span class="pl-smi">t</span> <span class="pl-k">:=</span> sf.<span class="pl-smi">Type</span>
+					<span class="pl-k">if</span> t.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> {
+						t = t.<span class="pl-c1">Elem</span>()
+					}
+					<span class="pl-k">if</span> !sf.<span class="pl-c1">IsExported</span>() &#x26;&#x26; t.<span class="pl-c1">Kind</span>() != reflect.<span class="pl-smi">Struct</span> {
+						<span class="pl-c">// Ignore embedded fields of unexported non-struct types.</span>
+						<span class="pl-k">continue</span>
+					}
+					<span class="pl-c">// Do not ignore embedded fields of unexported struct types</span>
+					<span class="pl-c">// since they may have exported fields.</span>
+				} <span class="pl-k">else</span> <span class="pl-k">if</span> !sf.<span class="pl-c1">IsExported</span>() {
+					<span class="pl-c">// Ignore unexported non-embedded fields.</span>
+					<span class="pl-k">continue</span>
+				}
+				<span class="pl-smi">tag</span> <span class="pl-k">:=</span> sf.<span class="pl-smi">Tag</span>.<span class="pl-c1">Get</span>(<span class="pl-s"><span class="pl-pds">"</span>json<span class="pl-pds">"</span></span>)
+				<span class="pl-k">if</span> tag == <span class="pl-s"><span class="pl-pds">"</span>-<span class="pl-pds">"</span></span> {
+					<span class="pl-k">continue</span>
+				}
+				<span class="pl-smi">name</span>, <span class="pl-smi">opts</span> <span class="pl-k">:=</span> <span class="pl-c1">parseTag</span>(tag)
+				<span class="pl-k">if</span> !<span class="pl-c1">isValidTag</span>(name) {
+					name = <span class="pl-s"><span class="pl-pds">""</span></span>
+				}
+				<span class="pl-smi">index</span> <span class="pl-k">:=</span> <span class="pl-c1">make</span>([]<span class="pl-k">int</span>, <span class="pl-c1">len</span>(f.<span class="pl-smi">index</span>)+<span class="pl-c1">1</span>)
+				<span class="pl-c1">copy</span>(index, f.<span class="pl-smi">index</span>)
+				index[<span class="pl-c1">len</span>(f.<span class="pl-smi">index</span>)] = i
+
+				<span class="pl-smi">ft</span> <span class="pl-k">:=</span> sf.<span class="pl-smi">Type</span>
+				<span class="pl-k">if</span> ft.<span class="pl-c1">Name</span>() == <span class="pl-s"><span class="pl-pds">""</span></span> &#x26;&#x26; ft.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> {
+					<span class="pl-c">// Follow pointer.</span>
+					ft = ft.<span class="pl-c1">Elem</span>()
+				}
+
+				<span class="pl-c">// Only strings, floats, integers, and booleans can be quoted.</span>
+				<span class="pl-smi">quoted</span> <span class="pl-k">:=</span> <span class="pl-c1">false</span>
+				<span class="pl-k">if</span> opts.<span class="pl-c1">Contains</span>(<span class="pl-s"><span class="pl-pds">"</span>string<span class="pl-pds">"</span></span>) {
+					<span class="pl-k">switch</span> ft.<span class="pl-c1">Kind</span>() {
+					<span class="pl-k">case</span> reflect.<span class="pl-smi">Bool</span>,
+						reflect.<span class="pl-smi">Int</span>, reflect.<span class="pl-smi">Int8</span>, reflect.<span class="pl-smi">Int16</span>, reflect.<span class="pl-smi">Int32</span>, reflect.<span class="pl-smi">Int64</span>,
+						reflect.<span class="pl-smi">Uint</span>, reflect.<span class="pl-smi">Uint8</span>, reflect.<span class="pl-smi">Uint16</span>, reflect.<span class="pl-smi">Uint32</span>, reflect.<span class="pl-smi">Uint64</span>, reflect.<span class="pl-smi">Uintptr</span>,
+						reflect.<span class="pl-smi">Float32</span>, reflect.<span class="pl-smi">Float64</span>,
+						reflect.<span class="pl-smi">String</span>:
+						quoted = <span class="pl-c1">true</span>
+					}
+				}
+
+				<span class="pl-c">// Record found field and index sequence.</span>
+				<span class="pl-k">if</span> name != <span class="pl-s"><span class="pl-pds">""</span></span> || !sf.<span class="pl-smi">Anonymous</span> || ft.<span class="pl-c1">Kind</span>() != reflect.<span class="pl-smi">Struct</span> {
+					<span class="pl-smi">tagged</span> <span class="pl-k">:=</span> name != <span class="pl-s"><span class="pl-pds">""</span></span>
+					<span class="pl-k">if</span> name == <span class="pl-s"><span class="pl-pds">""</span></span> {
+						name = sf.<span class="pl-smi">Name</span>
+					}
+					<span class="pl-smi">field</span> <span class="pl-k">:=</span> field{
+						name:      name,
+						tag:       tagged,
+						index:     index,
+						typ:       ft,
+						omitEmpty: opts.<span class="pl-c1">Contains</span>(<span class="pl-s"><span class="pl-pds">"</span>omitempty<span class="pl-pds">"</span></span>),
+						omitZero:  opts.<span class="pl-c1">Contains</span>(<span class="pl-s"><span class="pl-pds">"</span>omitzero<span class="pl-pds">"</span></span>),
+						quoted:    quoted,
+					}
+					field.<span class="pl-smi">nameBytes</span> = []<span class="pl-k">byte</span>(field.<span class="pl-smi">name</span>)
+
+					<span class="pl-c">// Build nameEscHTML and nameNonEsc ahead of time.</span>
+					nameEscBuf = <span class="pl-c1">appendHTMLEscape</span>(nameEscBuf[:<span class="pl-c1">0</span>], field.<span class="pl-smi">nameBytes</span>)
+					field.<span class="pl-smi">nameEscHTML</span> = <span class="pl-s"><span class="pl-pds">`</span>"<span class="pl-pds">`</span></span> + <span class="pl-c1">string</span>(nameEscBuf) + <span class="pl-s"><span class="pl-pds">`</span>":<span class="pl-pds">`</span></span>
+					field.<span class="pl-smi">nameNonEsc</span> = <span class="pl-s"><span class="pl-pds">`</span>"<span class="pl-pds">`</span></span> + field.<span class="pl-smi">name</span> + <span class="pl-s"><span class="pl-pds">`</span>":<span class="pl-pds">`</span></span>
+
+					<span class="pl-k">if</span> field.<span class="pl-smi">omitZero</span> {
+						<span class="pl-smi">t</span> <span class="pl-k">:=</span> sf.<span class="pl-smi">Type</span>
+						<span class="pl-c">// Provide a function that uses a type's IsZero method.</span>
+						<span class="pl-k">switch</span> {
+						<span class="pl-k">case</span> t.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Interface</span> &#x26;&#x26; t.<span class="pl-c1">Implements</span>(isZeroerType):
+							field.<span class="pl-smi">isZero</span> = <span class="pl-c1">func</span>(v reflect.<span class="pl-smi">Value</span>) <span class="pl-k">bool</span> {
+								<span class="pl-c">// Avoid panics calling IsZero on a nil interface or</span>
+								<span class="pl-c">// non-nil interface with nil pointer.</span>
+								<span class="pl-k">return</span> v.<span class="pl-c1">IsNil</span>() ||
+									(v.<span class="pl-c1">Elem</span>().<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> &#x26;&#x26; v.<span class="pl-c1">Elem</span>().<span class="pl-c1">IsNil</span>()) ||
+									v.<span class="pl-c1">Interface</span>().(isZeroer).<span class="pl-c1">IsZero</span>()
+							}
+						<span class="pl-k">case</span> t.<span class="pl-c1">Kind</span>() == reflect.<span class="pl-smi">Pointer</span> &#x26;&#x26; t.<span class="pl-c1">Implements</span>(isZeroerType):
+							field.<span class="pl-smi">isZero</span> = <span class="pl-c1">func</span>(v reflect.<span class="pl-smi">Value</span>) <span class="pl-k">bool</span> {
+								<span class="pl-c">// Avoid panics calling IsZero on nil pointer.</span>
+								<span class="pl-k">return</span> v.<span class="pl-c1">IsNil</span>() || v.<span class="pl-c1">Interface</span>().(isZeroer).<span class="pl-c1">IsZero</span>()
+							}
+						<span class="pl-k">case</span> t.<span class="pl-c1">Implements</span>(isZeroerType):
+							field.<span class="pl-smi">isZero</span> = <span class="pl-c1">func</span>(v reflect.<span class="pl-smi">Value</span>) <span class="pl-k">bool</span> {
+								<span class="pl-k">return</span> v.<span class="pl-c1">Interface</span>().(isZeroer).<span class="pl-c1">IsZero</span>()
+							}
+						<span class="pl-k">case</span> reflect.<span class="pl-c1">PointerTo</span>(t).<span class="pl-c1">Implements</span>(isZeroerType):
+							field.<span class="pl-smi">isZero</span> = <span class="pl-c1">func</span>(v reflect.<span class="pl-smi">Value</span>) <span class="pl-k">bool</span> {
+								<span class="pl-k">if</span> !v.<span class="pl-c1">CanAddr</span>() {
+									<span class="pl-c">// Temporarily box v so we can take the address.</span>
+									<span class="pl-smi">v2</span> <span class="pl-k">:=</span> reflect.<span class="pl-c1">New</span>(v.<span class="pl-c1">Type</span>()).<span class="pl-c1">Elem</span>()
+									v2.<span class="pl-c1">Set</span>(v)
+									v = v2
+								}
+								<span class="pl-k">return</span> v.<span class="pl-c1">Addr</span>().<span class="pl-c1">Interface</span>().(isZeroer).<span class="pl-c1">IsZero</span>()
+							}
+						}
+					}
+
+					fields = <span class="pl-c1">append</span>(fields, field)
+					<span class="pl-k">if</span> count[f.<span class="pl-smi">typ</span>] > <span class="pl-c1">1</span> {
+						<span class="pl-c">// If there were multiple instances, add a second,</span>
+						<span class="pl-c">// so that the annihilation code will see a duplicate.</span>
+						<span class="pl-c">// It only cares about the distinction between 1 and 2,</span>
+						<span class="pl-c">// so don't bother generating any more copies.</span>
+						fields = <span class="pl-c1">append</span>(fields, fields[<span class="pl-c1">len</span>(fields)-<span class="pl-c1">1</span>])
+					}
+					<span class="pl-k">continue</span>
+				}
+
+				<span class="pl-c">// Record new anonymous struct to explore in next round.</span>
+				nextCount[ft]++
+				<span class="pl-k">if</span> nextCount[ft] == <span class="pl-c1">1</span> {
+					next = <span class="pl-c1">append</span>(next, field{name: ft.<span class="pl-c1">Name</span>(), index: index, typ: ft})
+				}
+			}
+		}
+	}
+
+	slices.<span class="pl-c1">SortFunc</span>(fields, <span class="pl-c1">func</span>(a, b field) <span class="pl-k">int</span> {
+		<span class="pl-c">// sort field by name, breaking ties with depth, then</span>
+		<span class="pl-c">// breaking ties with "name came from json tag", then</span>
+		<span class="pl-c">// breaking ties with index sequence.</span>
+		<span class="pl-k">if</span> <span class="pl-smi">c</span> <span class="pl-k">:=</span> strings.<span class="pl-c1">Compare</span>(a.<span class="pl-smi">name</span>, b.<span class="pl-smi">name</span>); c != <span class="pl-c1">0</span> {
+			<span class="pl-k">return</span> c
+		}
+		<span class="pl-k">if</span> <span class="pl-smi">c</span> <span class="pl-k">:=</span> cmp.<span class="pl-c1">Compare</span>(<span class="pl-c1">len</span>(a.<span class="pl-smi">index</span>), <span class="pl-c1">len</span>(b.<span class="pl-smi">index</span>)); c != <span class="pl-c1">0</span> {
+			<span class="pl-k">return</span> c
+		}
+		<span class="pl-k">if</span> a.<span class="pl-smi">tag</span> != b.<span class="pl-smi">tag</span> {
+			<span class="pl-k">if</span> a.<span class="pl-smi">tag</span> {
+				<span class="pl-k">return</span> -<span class="pl-c1">1</span>
+			}
+			<span class="pl-k">return</span> +<span class="pl-c1">1</span>
+		}
+		<span class="pl-k">return</span> slices.<span class="pl-c1">Compare</span>(a.<span class="pl-smi">index</span>, b.<span class="pl-smi">index</span>)
+	})
+
+	<span class="pl-c">// Delete all fields that are hidden by the Go rules for embedded fields,</span>
+	<span class="pl-c">// except that fields with JSON tags are promoted.</span>
+
+	<span class="pl-c">// The fields are sorted in primary order of name, secondary order</span>
+	<span class="pl-c">// of field index length. Loop over names; for each name, delete</span>
+	<span class="pl-c">// hidden fields by choosing the one dominant field that survives.</span>
+	<span class="pl-smi">out</span> <span class="pl-k">:=</span> fields[:<span class="pl-c1">0</span>]
+	<span class="pl-k">for</span> <span class="pl-smi">advance</span>, <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-c1">0</span>, <span class="pl-c1">0</span>; i &#x3C; <span class="pl-c1">len</span>(fields); i += advance {
+		<span class="pl-c">// One iteration per name.</span>
+		<span class="pl-c">// Find the sequence of fields with the name of this first field.</span>
+		<span class="pl-smi">fi</span> <span class="pl-k">:=</span> fields[i]
+		<span class="pl-smi">name</span> <span class="pl-k">:=</span> fi.<span class="pl-smi">name</span>
+		<span class="pl-k">for</span> advance = <span class="pl-c1">1</span>; i+advance &#x3C; <span class="pl-c1">len</span>(fields); advance++ {
+			<span class="pl-smi">fj</span> <span class="pl-k">:=</span> fields[i+advance]
+			<span class="pl-k">if</span> fj.<span class="pl-smi">name</span> != name {
+				<span class="pl-k">break</span>
+			}
+		}
+		<span class="pl-k">if</span> advance == <span class="pl-c1">1</span> { <span class="pl-c">// Only one field with this name</span>
+			out = <span class="pl-c1">append</span>(out, fi)
+			<span class="pl-k">continue</span>
+		}
+		<span class="pl-smi">dominant</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> <span class="pl-c1">dominantField</span>(fields[i : i+advance])
+		<span class="pl-k">if</span> ok {
+			out = <span class="pl-c1">append</span>(out, dominant)
+		}
+	}
+
+	fields = out
+	slices.<span class="pl-c1">SortFunc</span>(fields, <span class="pl-c1">func</span>(i, j field) <span class="pl-k">int</span> {
+		<span class="pl-k">return</span> slices.<span class="pl-c1">Compare</span>(i.<span class="pl-smi">index</span>, j.<span class="pl-smi">index</span>)
+	})
+
+	<span class="pl-k">for</span> <span class="pl-smi">i</span> <span class="pl-k">:=</span> <span class="pl-k">range</span> fields {
+		<span class="pl-smi">f</span> <span class="pl-k">:=</span> &#x26;fields[i]
+		f.<span class="pl-smi">encoder</span> = <span class="pl-c1">typeEncoder</span>(<span class="pl-c1">typeByIndex</span>(t, f.<span class="pl-smi">index</span>))
+	}
+	<span class="pl-smi">exactNameIndex</span> <span class="pl-k">:=</span> <span class="pl-c1">make</span>(<span class="pl-k">map</span>[<span class="pl-k">string</span>]*field, <span class="pl-c1">len</span>(fields))
+	<span class="pl-smi">foldedNameIndex</span> <span class="pl-k">:=</span> <span class="pl-c1">make</span>(<span class="pl-k">map</span>[<span class="pl-k">string</span>]*field, <span class="pl-c1">len</span>(fields))
+	<span class="pl-k">for</span> <span class="pl-smi">i</span>, <span class="pl-smi">field</span> <span class="pl-k">:=</span> <span class="pl-k">range</span> fields {
+		exactNameIndex[field.<span class="pl-smi">name</span>] = &#x26;fields[i]
+		<span class="pl-c">// For historical reasons, first folded match takes precedence.</span>
+		<span class="pl-k">if</span> <span class="pl-smi">_</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> foldedNameIndex[<span class="pl-k">string</span>(<span class="pl-c1">foldName</span>(field.<span class="pl-smi">nameBytes</span>))]; !ok {
+			foldedNameIndex[<span class="pl-k">string</span>(<span class="pl-c1">foldName</span>(field.<span class="pl-smi">nameBytes</span>))] = &#x26;fields[i]
+		}
+	}
+	<span class="pl-k">return</span> structFields{fields, exactNameIndex, foldedNameIndex}
+}
+
+<span class="pl-c">// dominantField looks through the fields, all of which are known to</span>
+<span class="pl-c">// have the same name, to find the single field that dominates the</span>
+<span class="pl-c">// others using Go's embedding rules, modified by the presence of</span>
+<span class="pl-c">// JSON tags. If there are multiple top-level fields, the boolean</span>
+<span class="pl-c">// will be false: This condition is an error in Go and we skip all</span>
+<span class="pl-c">// the fields.</span>
+<span class="pl-k">func</span> <span class="pl-en">dominantField</span>(<span class="pl-v">fields</span> []<span class="pl-v">field</span>) (<span class="pl-v">field</span>, <span class="pl-v">bool</span>) {
+	<span class="pl-c">// The fields are sorted in increasing index-length order, then by presence of tag.</span>
+	<span class="pl-c">// That means that the first field is the dominant one. We need only check</span>
+	<span class="pl-c">// for error cases: two fields at top level, either both tagged or neither tagged.</span>
+	<span class="pl-k">if</span> <span class="pl-c1">len</span>(fields) > <span class="pl-c1">1</span> &#x26;&#x26; <span class="pl-c1">len</span>(fields[<span class="pl-c1">0</span>].<span class="pl-smi">index</span>) == <span class="pl-c1">len</span>(fields[<span class="pl-c1">1</span>].<span class="pl-smi">index</span>) &#x26;&#x26; fields[<span class="pl-c1">0</span>].<span class="pl-smi">tag</span> == fields[<span class="pl-c1">1</span>].<span class="pl-smi">tag</span> {
+		<span class="pl-k">return</span> field{}, <span class="pl-c1">false</span>
+	}
+	<span class="pl-k">return</span> fields[<span class="pl-c1">0</span>], <span class="pl-c1">true</span>
+}
+
+<span class="pl-k">var</span> <span class="pl-smi">fieldCache</span> sync.<span class="pl-smi">Map</span> <span class="pl-c">// map[reflect.Type]structFields</span>
+
+<span class="pl-c">// cachedTypeFields is like typeFields but uses a cache to avoid repeated work.</span>
+<span class="pl-k">func</span> <span class="pl-en">cachedTypeFields</span>(<span class="pl-v">t</span> <span class="pl-v">reflect</span>.<span class="pl-v">Type</span>) <span class="pl-v">structFields</span> {
+	<span class="pl-k">if</span> <span class="pl-smi">f</span>, <span class="pl-smi">ok</span> <span class="pl-k">:=</span> fieldCache.<span class="pl-c1">Load</span>(t); ok {
+		<span class="pl-k">return</span> f.(structFields)
+	}
+	<span class="pl-smi">f</span>, <span class="pl-smi">_</span> <span class="pl-k">:=</span> fieldCache.<span class="pl-c1">LoadOrStore</span>(t, <span class="pl-c1">typeFields</span>(t))
+	<span class="pl-k">return</span> f.(structFields)
+}
+
+<span class="pl-k">func</span> <span class="pl-en">mayAppendQuote</span>(<span class="pl-v">b</span> []<span class="pl-v">byte</span>, <span class="pl-v">quoted</span> <span class="pl-v">bool</span>) []<span class="pl-v">byte</span> {
+	<span class="pl-k">if</span> quoted {
+		b = <span class="pl-c1">append</span>(b, <span class="pl-s"><span class="pl-pds">'</span>"<span class="pl-pds">'</span></span>)
+	}
+	<span class="pl-k">return</span> b
+}
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

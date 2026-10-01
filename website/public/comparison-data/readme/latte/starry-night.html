@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>starry-night · Catppuccin Latte · Lumis visual comparison</title>
+  <meta name="color-scheme" content="light">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #e6e9ef; color: #4c4f69; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #bcc0cc; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root{--color-prettylights-syntax-comment:#7c7f93;--color-prettylights-syntax-constant:#fe640b;--color-prettylights-syntax-entity:#1e66f5;--color-prettylights-syntax-storage-modifier-import:#4c4f69;--color-prettylights-syntax-entity-tag:#8839ef;--color-prettylights-syntax-keyword:#8839ef;--color-prettylights-syntax-string:#40a02b;--color-prettylights-syntax-variable:#8839ef;--color-prettylights-syntax-brackethighlighter-unmatched:#4c4f69;--color-prettylights-syntax-invalid-illegal-text:#4c4f69;--color-prettylights-syntax-invalid-illegal-bg:transparent;--color-prettylights-syntax-carriage-return-text:#4c4f69;--color-prettylights-syntax-carriage-return-bg:transparent;--color-prettylights-syntax-string-regexp:#ea76cb;--color-prettylights-syntax-markup-list:#179299;--color-prettylights-syntax-markup-heading:#1e66f5;--color-prettylights-syntax-markup-italic:#d20f39;--color-prettylights-syntax-markup-bold:#d20f39;--color-prettylights-syntax-markup-deleted-text:#d20f39;--color-prettylights-syntax-markup-deleted-bg:rgba(210,15,57,.15);--color-prettylights-syntax-markup-inserted-text:#40a02b;--color-prettylights-syntax-markup-inserted-bg:rgba(64,160,43,.15);--color-prettylights-syntax-markup-changed-text:#4c4f69;--color-prettylights-syntax-markup-changed-bg:transparent;--color-prettylights-syntax-markup-ignored-text:#4c4f69;--color-prettylights-syntax-markup-ignored-bg:transparent;--color-prettylights-syntax-meta-diff-range:#fe640b;--color-prettylights-syntax-brackethighlighter-angle:#5c5f77;--color-prettylights-syntax-sublimelinter-gutter-mark:#4c4f69;--color-prettylights-syntax-constant-other-reference-link:#209fb5}pre{background:#eff1f5;color:#4c4f69}/* This is a theme distributed by `starry-night`.
+ * It’s based on what GitHub uses on their site.
+ * See <https://github.com/wooorm/starry-night> for more info. */
+
+.pl-c {
+  color: var(--color-prettylights-syntax-comment);
+}
+
+.pl-c1,
+.pl-s .pl-v {
+  color: var(--color-prettylights-syntax-constant);
+}
+
+.pl-e,
+.pl-en {
+  color: var(--color-prettylights-syntax-entity);
+}
+
+.pl-smi,
+.pl-s .pl-s1 {
+  color: var(--color-prettylights-syntax-storage-modifier-import);
+}
+
+.pl-ent {
+  color: var(--color-prettylights-syntax-entity-tag);
+}
+
+.pl-k {
+  color: var(--color-prettylights-syntax-keyword);
+}
+
+.pl-s,
+.pl-pds,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sre,
+.pl-sr .pl-sra {
+  color: var(--color-prettylights-syntax-string);
+}
+
+.pl-v,
+.pl-smw {
+  color: var(--color-prettylights-syntax-variable);
+}
+
+.pl-bu {
+  color: var(--color-prettylights-syntax-brackethighlighter-unmatched);
+}
+
+.pl-ii {
+  color: var(--color-prettylights-syntax-invalid-illegal-text);
+  background-color: var(--color-prettylights-syntax-invalid-illegal-bg);
+}
+
+.pl-c2 {
+  color: var(--color-prettylights-syntax-carriage-return-text);
+  background-color: var(--color-prettylights-syntax-carriage-return-bg);
+}
+
+.pl-sr .pl-cce {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-string-regexp);
+}
+
+.pl-ml {
+  color: var(--color-prettylights-syntax-markup-list);
+}
+
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-heading);
+}
+
+.pl-mi {
+  font-style: italic;
+  color: var(--color-prettylights-syntax-markup-italic);
+}
+
+.pl-mb {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-markup-bold);
+}
+
+.pl-md {
+  color: var(--color-prettylights-syntax-markup-deleted-text);
+  background-color: var(--color-prettylights-syntax-markup-deleted-bg);
+}
+
+.pl-mi1 {
+  color: var(--color-prettylights-syntax-markup-inserted-text);
+  background-color: var(--color-prettylights-syntax-markup-inserted-bg);
+}
+
+.pl-mc {
+  color: var(--color-prettylights-syntax-markup-changed-text);
+  background-color: var(--color-prettylights-syntax-markup-changed-bg);
+}
+
+.pl-mi2 {
+  color: var(--color-prettylights-syntax-markup-ignored-text);
+  background-color: var(--color-prettylights-syntax-markup-ignored-bg);
+}
+
+.pl-mdr {
+  font-weight: bold;
+  color: var(--color-prettylights-syntax-meta-diff-range);
+}
+
+.pl-ba {
+  color: var(--color-prettylights-syntax-brackethighlighter-angle);
+}
+
+.pl-sg {
+  color: var(--color-prettylights-syntax-sublimelinter-gutter-mark);
+}
+
+.pl-corl {
+  text-decoration: underline;
+  color: var(--color-prettylights-syntax-constant-other-reference-link);
+}
+</style><pre><code>
+&#x3C;<span class="pl-ent">h1</span> <span class="pl-e">align</span>=<span class="pl-s">"center"</span>>Lumis&#x3C;/<span class="pl-ent">h1</span>>
+
+&#x3C;<span class="pl-ent">p</span> <span class="pl-e">align</span>=<span class="pl-s">"center"</span>>
+  &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s">"https://lumis.sh"</span>>&#x3C;<span class="pl-ent">img</span> <span class="pl-e">src</span>=<span class="pl-s">"assets/intro.jpg"</span> <span class="pl-e">alt</span>=<span class="pl-s">"Lumis Syntax Highlighter"</span>>&#x3C;/<span class="pl-ent">a</span>>
+&#x3C;/<span class="pl-ent">p</span>>
+
+&#x3C;<span class="pl-ent">p</span> <span class="pl-e">align</span>=<span class="pl-s">"center"</span>>
+  &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s">"https://lumis.sh"</span>>lumis.sh&#x3C;/<span class="pl-ent">a</span>>
+<span class="pl-mh">  -</span>
+  &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s">"https://lumis.sh/docs"</span>>docs&#x3C;/<span class="pl-ent">a</span>>
+&#x3C;/<span class="pl-ent">p</span>>
+
+&#x3C;<span class="pl-ent">p</span> <span class="pl-e">align</span>=<span class="pl-s">"center"</span>>
+  &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s">"https://crates.io/crates/lumis"</span>>&#x3C;<span class="pl-ent">img</span> <span class="pl-e">src</span>=<span class="pl-s">"https://img.shields.io/crates/v/lumis"</span> <span class="pl-e">alt</span>=<span class="pl-s">"Crates.io"</span>>&#x3C;/<span class="pl-ent">a</span>>
+  &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s">"https://www.npmjs.com/package/@lumis-sh/lumis"</span>>&#x3C;<span class="pl-ent">img</span> <span class="pl-e">src</span>=<span class="pl-s">"https://img.shields.io/npm/v/@lumis-sh/lumis"</span> <span class="pl-e">alt</span>=<span class="pl-s">"npm"</span>>&#x3C;/<span class="pl-ent">a</span>>
+  &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s">"https://hex.pm/packages/lumis"</span>>&#x3C;<span class="pl-ent">img</span> <span class="pl-e">src</span>=<span class="pl-s">"https://img.shields.io/hexpm/v/lumis"</span> <span class="pl-e">alt</span>=<span class="pl-s">"Hex.pm"</span>>&#x3C;/<span class="pl-ent">a</span>>
+  &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s">"https://central.sonatype.com/artifact/io.roastedroot/lumis4j"</span>>&#x3C;<span class="pl-ent">img</span> <span class="pl-e">src</span>=<span class="pl-s">"https://img.shields.io/maven-central/v/io.roastedroot/lumis4j"</span> <span class="pl-e">alt</span>=<span class="pl-s">"Maven Central"</span>>&#x3C;/<span class="pl-ent">a</span>>
+  &#x3C;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s">"https://opensource.org/licenses/MIT"</span>>&#x3C;<span class="pl-ent">img</span> <span class="pl-e">src</span>=<span class="pl-s">"https://img.shields.io/badge/license-MIT-blue"</span> <span class="pl-e">alt</span>=<span class="pl-s">"License"</span>>&#x3C;/<span class="pl-ent">a</span>>
+&#x3C;/<span class="pl-ent">p</span>>
+
+<span class="pl-ms">---</span>
+
+<span class="pl-mh">## <span class="pl-en">Features</span></span>
+
+<span class="pl-v">-</span> <span class="pl-s">**</span>110+ Tree-sitter languages<span class="pl-s">**</span> - Fast, accurate, and updated syntax parsing
+<span class="pl-v">-</span> <span class="pl-s">**</span>250+ built-in Neovim themes<span class="pl-s">**</span> - Updated and curated themes from the Neovim community
+<span class="pl-v">-</span> <span class="pl-s">**</span>6 runtimes, one API<span class="pl-s">**</span> - CLI, Rust, Elixir, JavaScript, Browsers / CDN, and Java, aligned in naming, options, and output
+<span class="pl-v">-</span> <span class="pl-s">**</span>Built-in formatters<span class="pl-s">**</span> - HTML (inline/linked), Terminal (ANSI), Multi-theme (light/dark), BBCode
+<span class="pl-v">-</span> <span class="pl-s">**</span>Custom formatters<span class="pl-s">**</span> - Build your own output
+<span class="pl-v">-</span> <span class="pl-s">**</span>Language auto-detection<span class="pl-s">**</span> - File extension, shebang, and emacs-mode support
+<span class="pl-v">-</span> <span class="pl-s">**</span>Line highlighting<span class="pl-s">**</span> - Mark and style individual lines, with custom HTML wrappers
+<span class="pl-v">-</span> <span class="pl-s">**</span>Streaming-friendly<span class="pl-s">**</span> - Handles incomplete code
+<span class="pl-v">-</span> <span class="pl-s">**</span>Load parsers on demand<span class="pl-s">**</span> - Verified and cached, including injected languages
+
+&#x3C;<span class="pl-ent">table</span>>
+&#x3C;<span class="pl-ent">tr</span>>
+&#x3C;<span class="pl-ent">td</span>>&#x3C;<span class="pl-ent">img</span> <span class="pl-e">src</span>=<span class="pl-s">"assets/ruby.png"</span> <span class="pl-e">alt</span>=<span class="pl-s">"Ruby with Catppuccin Frappe theme"</span>>&#x3C;/<span class="pl-ent">td</span>>
+&#x3C;<span class="pl-ent">td</span>>&#x3C;<span class="pl-ent">img</span> <span class="pl-e">src</span>=<span class="pl-s">"assets/sql.png"</span> <span class="pl-e">alt</span>=<span class="pl-s">"SQL with GitHub Light theme"</span>>&#x3C;/<span class="pl-ent">td</span>>
+&#x3C;/<span class="pl-ent">tr</span>>
+&#x3C;/<span class="pl-ent">table</span>>
+
+<span class="pl-mh">## <span class="pl-en">Quick Start</span></span>
+
+<span class="pl-mh">### </span><span class="pl-s"><span class="pl-mh"><span class="pl-en">[</span></span></span><span class="pl-mh"><span class="pl-en">CLI</span></span><span class="pl-s"><span class="pl-mh"><span class="pl-en">](</span><span class="pl-corl">https://www.npmjs.com/package/@lumis-sh/cli</span><span class="pl-en">)</span></span></span>
+
+<span class="pl-s">```</span><span class="pl-en">bash</span>
+npx @lumis-sh/cli highlight app.js
+<span class="pl-s">```</span>
+
+For a global install:
+
+<span class="pl-s">```</span><span class="pl-en">bash</span>
+npm install -g @lumis-sh/cli
+
+lumis highlight app.js
+<span class="pl-s">```</span>
+
+<span class="pl-mh">### </span><span class="pl-s"><span class="pl-mh"><span class="pl-en">[</span></span></span><span class="pl-mh"><span class="pl-en">Rust</span></span><span class="pl-s"><span class="pl-mh"><span class="pl-en">](</span><span class="pl-corl">https://crates.io/crates/lumis</span><span class="pl-en">)</span></span></span>
+
+<span class="pl-s">```</span><span class="pl-en">rust</span>
+<span class="pl-k">use</span> <span class="pl-en">lumis</span><span class="pl-k">::</span>{highlight, <span class="pl-en">HtmlInlineBuilder</span>, <span class="pl-en">languages</span><span class="pl-k">::</span><span class="pl-en">Language</span>, themes};
+
+<span class="pl-k">let</span> <span class="pl-smi">theme</span> <span class="pl-k">=</span> <span class="pl-en">themes</span><span class="pl-k">::</span><span class="pl-en">get</span>(<span class="pl-s"><span class="pl-pds">"</span>dracula<span class="pl-pds">"</span></span>)<span class="pl-k">.</span><span class="pl-en">unwrap</span>();
+
+<span class="pl-k">let</span> <span class="pl-smi">formatter</span> <span class="pl-k">=</span> <span class="pl-en">HtmlInlineBuilder</span><span class="pl-k">::</span><span class="pl-en">new</span>()
+    <span class="pl-k">.</span><span class="pl-en">language</span>(<span class="pl-en">Language</span><span class="pl-k">::</span><span class="pl-en">Javascript</span>)
+    <span class="pl-k">.</span><span class="pl-en">theme</span>(<span class="pl-en">Some</span>(<span class="pl-smi">theme</span>))
+    <span class="pl-k">.</span><span class="pl-en">build</span>()
+    <span class="pl-k">.</span><span class="pl-en">unwrap</span>();
+
+<span class="pl-k">let</span> <span class="pl-smi">html</span> <span class="pl-k">=</span> <span class="pl-en">highlight</span>(<span class="pl-s"><span class="pl-pds">"</span>const x = 1<span class="pl-pds">"</span></span>, <span class="pl-smi">formatter</span>);
+<span class="pl-s">```</span>
+
+<span class="pl-mh">### </span><span class="pl-s"><span class="pl-mh"><span class="pl-en">[</span></span></span><span class="pl-mh"><span class="pl-en">JavaScript</span></span><span class="pl-s"><span class="pl-mh"><span class="pl-en">](</span><span class="pl-corl">https://www.npmjs.com/package/@lumis-sh/lumis</span><span class="pl-en">)</span></span></span>
+
+Works in JavaScript runtimes including Node.js, Bun, and Deno.
+
+<span class="pl-s">```</span><span class="pl-en">javascript</span>
+<span class="pl-k">import</span> { <span class="pl-smi">highlight</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>@lumis-sh/lumis<span class="pl-pds">'</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">htmlInline</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>@lumis-sh/lumis/formatters<span class="pl-pds">'</span></span>
+<span class="pl-k">import</span> <span class="pl-smi">javascript</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>@lumis-sh/lumis/langs/javascript<span class="pl-pds">'</span></span>
+<span class="pl-k">import</span> <span class="pl-smi">dracula</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>@lumis-sh/themes/dracula<span class="pl-pds">'</span></span>
+
+<span class="pl-k">const</span> <span class="pl-c1">html</span> <span class="pl-k">=</span> <span class="pl-k">await</span> <span class="pl-en">highlight</span>(<span class="pl-s"><span class="pl-pds">'</span>const x = 1<span class="pl-pds">'</span></span>, <span class="pl-en">htmlInline</span>({ language<span class="pl-k">:</span> javascript, theme<span class="pl-k">:</span> dracula }))
+<span class="pl-s">```</span>
+
+Parsers download on demand, including languages injected inside a document.
+Browsers are the exception: loading is asynchronous there, so an injected
+language has to be loaded first. See <span class="pl-s">[</span>WASM and CDN<span class="pl-s">](<span class="pl-corl">https://lumis.sh/docs/usage/wasm-and-cdn</span>)</span>.
+
+<span class="pl-mh">### </span><span class="pl-s"><span class="pl-mh"><span class="pl-en">[</span></span></span><span class="pl-mh"><span class="pl-en">Browsers / CDN</span></span><span class="pl-s"><span class="pl-mh"><span class="pl-en">](</span><span class="pl-corl">https://www.npmjs.com/package/@lumis-sh/lumis</span><span class="pl-en">)</span></span></span>
+
+Works in Browsers through bundlers or CDN imports.
+
+<span class="pl-s">```</span><span class="pl-en">javascript</span>
+<span class="pl-k">import</span> { <span class="pl-smi">highlight</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>https://esm.sh/@lumis-sh/lumis<span class="pl-pds">'</span></span>
+<span class="pl-k">import</span> { <span class="pl-smi">htmlInline</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>https://esm.sh/@lumis-sh/lumis/formatters<span class="pl-pds">'</span></span>
+<span class="pl-k">import</span> <span class="pl-smi">javascript</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>https://esm.sh/@lumis-sh/lumis/langs/javascript<span class="pl-pds">'</span></span>
+<span class="pl-k">import</span> <span class="pl-smi">dracula</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>https://esm.sh/@lumis-sh/themes/dracula<span class="pl-pds">'</span></span>
+
+<span class="pl-k">const</span> <span class="pl-c1">html</span> <span class="pl-k">=</span> <span class="pl-k">await</span> <span class="pl-en">highlight</span>(<span class="pl-s"><span class="pl-pds">'</span>const x = 1<span class="pl-pds">'</span></span>, <span class="pl-en">htmlInline</span>({ language<span class="pl-k">:</span> javascript, theme<span class="pl-k">:</span> dracula }))
+<span class="pl-s">```</span>
+
+<span class="pl-mh">### </span><span class="pl-s"><span class="pl-mh"><span class="pl-en">[</span></span></span><span class="pl-mh"><span class="pl-en">Elixir</span></span><span class="pl-s"><span class="pl-mh"><span class="pl-en">](</span><span class="pl-corl">https://hex.pm/packages/lumis</span><span class="pl-en">)</span></span></span>
+
+<span class="pl-s">```</span><span class="pl-en">elixir</span>
+<span class="pl-en">Lumis</span>.<span class="pl-en">highlight!</span>(<span class="pl-s"><span class="pl-pds">"</span>const x = 1<span class="pl-pds">"</span></span>, <span class="pl-c1">formatter:</span> {<span class="pl-c1">:html_inline</span>, <span class="pl-c1">language:</span> <span class="pl-s"><span class="pl-pds">"</span>javascript<span class="pl-pds">"</span></span>, <span class="pl-c1">theme:</span> <span class="pl-s"><span class="pl-pds">"</span>dracula<span class="pl-pds">"</span></span>})
+<span class="pl-s">```</span>
+
+Parsers download on demand and load once per VM. Call
+<span class="pl-s">`</span><span class="pl-c1">Lumis.Languages.async_load/1</span><span class="pl-s">`</span> from your application's <span class="pl-s">`</span><span class="pl-c1">start/2</span><span class="pl-s">`</span> to move the
+download and compile off the first request without holding up the boot.
+See <span class="pl-s">[</span>Elixir integration<span class="pl-s">](<span class="pl-corl">https://lumis.sh/docs/usage/elixir-integration</span>)</span>.
+
+<span class="pl-mh">### </span><span class="pl-s"><span class="pl-mh"><span class="pl-en">[</span></span></span><span class="pl-mh"><span class="pl-en">Java</span></span><span class="pl-s"><span class="pl-mh"><span class="pl-en">](</span><span class="pl-corl">https://github.com/roastedroot/lumis4j</span><span class="pl-en">)</span></span></span>
+
+By <span class="pl-s">[@<span class="pl-corl">andreaTP</span>](<span class="pl-corl">https://github.com/andreaTP</span>)</span>. More details at <span class="pl-s"><span class="pl-corl">https://chicory.dev/blog/syntax-highlight</span></span>
+
+<span class="pl-s">```</span><span class="pl-en">java</span>
+<span class="pl-k">import</span> <span class="pl-smi">io.roastedroot.lumis4j.core.Lumis</span>;
+<span class="pl-k">import</span> <span class="pl-smi">io.roastedroot.lumis4j.core.Lang</span>;
+<span class="pl-k">import</span> <span class="pl-smi">io.roastedroot.lumis4j.core.Theme</span>;
+
+<span class="pl-k">var</span> lumis <span class="pl-k">=</span> <span class="pl-smi">Lumis</span><span class="pl-k">.</span>builder()<span class="pl-k">.</span>build();
+
+<span class="pl-k">var</span> highlighter <span class="pl-k">=</span> lumis<span class="pl-k">.</span>highlighter()
+    .withLang(<span class="pl-smi">Lang</span><span class="pl-k">.</span><span class="pl-c1">JAVASCRIPT</span>)
+    .withTheme(<span class="pl-smi">Theme</span><span class="pl-k">.</span><span class="pl-c1">DRACULA</span>)
+    .build();
+
+<span class="pl-k">var</span> result <span class="pl-k">=</span> highlighter<span class="pl-k">.</span>highlight(<span class="pl-s"><span class="pl-pds">"</span>const x = 1<span class="pl-pds">"</span></span>);
+<span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>println(result<span class="pl-k">.</span>string());
+<span class="pl-s">```</span>
+
+<span class="pl-mh">## <span class="pl-en">Documentation</span></span>
+
+<span class="pl-ml">|</span> Runtime <span class="pl-ml">|</span> Install <span class="pl-ml">|</span> Package <span class="pl-ml">|</span> Docs <span class="pl-ml">|</span>
+<span class="pl-ml">|</span>----------<span class="pl-ml">|</span>---------<span class="pl-ml">|</span> ------- <span class="pl-ml">|</span> -----<span class="pl-ml">|</span>
+<span class="pl-ml">|</span> <span class="pl-s">**</span>CLI<span class="pl-s">**</span> <span class="pl-ml">|</span> <span class="pl-s">`</span><span class="pl-c1">npx @lumis-sh/cli</span><span class="pl-s">`</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>npmjs.com/<span class="pl-s">@<span class="pl-corl">lumis-sh/cli</span>](<span class="pl-corl">https://www.npmjs.com/package/@lumis-sh/cli</span>)</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>README.md<span class="pl-s">](<span class="pl-corl">packages/javascript/cli/README.md</span>)</span> <span class="pl-ml">|</span>
+<span class="pl-ml">|</span> <span class="pl-s">**</span>Rust<span class="pl-s">**</span> <span class="pl-ml">|</span> <span class="pl-s">`</span><span class="pl-c1">cargo add lumis</span><span class="pl-s">`</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>crates.io/lumis<span class="pl-s">](<span class="pl-corl">https://crates.io/crates/lumis</span>)</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>README.md<span class="pl-s">](<span class="pl-corl">crates/lumis/README.md</span>)</span> <span class="pl-c1">&#x26;</span><span class="pl-k">bull</span><span class="pl-c1">;</span> <span class="pl-s">[</span>docs.rs<span class="pl-s">](<span class="pl-corl">https://docs.rs/lumis</span>)</span> <span class="pl-ml">|</span>
+<span class="pl-ml">|</span> <span class="pl-s">**</span>Elixir<span class="pl-s">**</span> <span class="pl-ml">|</span> <span class="pl-s">`</span><span class="pl-c1">{:lumis, "~> 0.3"}</span><span class="pl-s">`</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>hex.pm/lumis<span class="pl-s">](<span class="pl-corl">https://hex.pm/packages/lumis</span>)</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>README.md<span class="pl-s">](<span class="pl-corl">packages/elixir/lumis/README.md</span>)</span> <span class="pl-c1">&#x26;</span><span class="pl-k">bull</span><span class="pl-c1">;</span> <span class="pl-s">[</span>hexdocs<span class="pl-s">](<span class="pl-corl">https://hexdocs.pm/lumis</span>)</span> <span class="pl-ml">|</span>
+<span class="pl-ml">|</span> <span class="pl-s">**</span>JavaScript<span class="pl-s">**</span> <span class="pl-ml">|</span> <span class="pl-s">`</span><span class="pl-c1">npm install @lumis-sh/lumis</span><span class="pl-s">`</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>npmjs.com/<span class="pl-s">@<span class="pl-corl">lumis-sh/lumis</span>](<span class="pl-corl">https://www.npmjs.com/package/@lumis-sh/lumis</span>)</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>README.md<span class="pl-s">](<span class="pl-corl">packages/javascript/lumis/README.md</span>)</span> <span class="pl-ml">|</span>
+<span class="pl-ml">|</span> <span class="pl-s">**</span>Browsers / CDN<span class="pl-s">**</span> <span class="pl-ml">|</span> <span class="pl-s">`</span><span class="pl-c1">npm install @lumis-sh/lumis</span><span class="pl-s">`</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>npmjs.com/<span class="pl-s">@<span class="pl-corl">lumis-sh/lumis</span>](<span class="pl-corl">https://www.npmjs.com/package/@lumis-sh/lumis</span>)</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>README.md<span class="pl-s">](<span class="pl-corl">packages/javascript/lumis/README.md</span>)</span> <span class="pl-ml">|</span>
+<span class="pl-ml">|</span> <span class="pl-s">**</span>Java<span class="pl-s">**</span> <span class="pl-ml">|</span> <span class="pl-s">`</span><span class="pl-c1">io.roastedroot:lumis4j:0.0.7</span><span class="pl-s">`</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>io.roastedroot/lumis4j<span class="pl-s">](<span class="pl-corl">https://central.sonatype.com/artifact/io.roastedroot/lumis4j</span>)</span> <span class="pl-ml">|</span> <span class="pl-s">[</span>README.md<span class="pl-s">](<span class="pl-corl">https://github.com/roastedroot/lumis4j/blob/main/README.md</span>)</span> <span class="pl-ml">|</span>
+
+<span class="pl-mh">## <span class="pl-en">Architecture</span></span>
+
+Every Lumis package is built around the same three pieces:
+
+<span class="pl-v">-</span> themes extracted from Neovim
+<span class="pl-v">-</span> languages backed by Tree-sitter grammars
+<span class="pl-v">-</span> formatters that turn highlighted tokens into output
+
+Given some source code, Lumis parses it with the selected Tree-sitter language, resolves styles from the chosen theme, and then formats the highlighted result into HTML, ANSI, or any custom output.
+
+<span class="pl-mh">### <span class="pl-en">WASM Versions</span></span>
+
+The npm <span class="pl-s">[</span>WASM package<span class="pl-s">](<span class="pl-corl">https://www.npmjs.com/search?q=keywords:lumis-sh</span>)</span> versions follow the pattern <span class="pl-s">`</span><span class="pl-c1">&#x3C;tree-sitter-version>.&#x3C;seq></span><span class="pl-s">`</span> where:
+
+<span class="pl-v">-</span> <span class="pl-s">`</span><span class="pl-c1">tree-sitter-version</span><span class="pl-s">`</span> is the major-minor version of the compatible Tree-sitter release
+<span class="pl-v">-</span> <span class="pl-s">`</span><span class="pl-c1">seq</span><span class="pl-s">`</span> is a patch number for Lumis own updates
+
+For example, <span class="pl-s">`</span><span class="pl-c1">@lumis-sh/wasm-rust@0.26.0</span><span class="pl-s">`</span> is the first published version compatible with Tree-sitter 0.26,
+while <span class="pl-s">`</span><span class="pl-c1">@lumis-sh/wasm-javascript@0.26.1</span><span class="pl-s">`</span> is a patch update compatible with Tree-sitter 0.26 (usually containing upstream parser updates).
+
+<span class="pl-mh">## <span class="pl-en">Contributing</span></span>
+
+Contributions are welcome. Feel free to open issues or PRs for bugs, features, new themes, or languages.
+
+See <span class="pl-s">[</span>CONTRIBUTING.md<span class="pl-s">](<span class="pl-corl">CONTRIBUTING.md</span>)</span>
+
+<span class="pl-mh">## <span class="pl-en">Acknowledgements</span></span>
+<span class="pl-v">*</span> <span class="pl-s">[</span>Makeup<span class="pl-s">](<span class="pl-corl">https://hex.pm/packages/makeup</span>)</span> for setting up the baseline for the Elixir package
+<span class="pl-v">*</span> <span class="pl-s">[</span>Inkjet<span class="pl-s">](<span class="pl-corl">https://crates.io/crates/inkjet</span>)</span> for the Rust implementation in the initial versions
+<span class="pl-v">*</span> <span class="pl-s">[</span>Shiki<span class="pl-s">](<span class="pl-corl">https://shiki.style</span>)</span> and <span class="pl-s">[</span>syntect<span class="pl-s">](<span class="pl-corl">https://crates.io/crates/syntect</span>)</span> for the hard work defining how syntax highlighters should work
+
+<span class="pl-mh">## <span class="pl-en">License</span></span>
+
+MIT
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

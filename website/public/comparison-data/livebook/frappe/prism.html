@@ -1,0 +1,1330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prism · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>code[class*="language-"],
+pre[class*="language-"] {
+	color: #c6d0f5;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #292c3c;
+}
+
+/* https://prismjs.com/tokens.html */
+
+.token.keyword {
+	color: #ca9ee6;
+}
+
+.token.builtin {
+	color: #e78284;
+}
+
+.token.class-name {
+	color: #e5c890;
+}
+
+.token.function {
+	color: #8caaee;
+}
+
+.token.boolean,
+.token.number {
+	color: #ef9f76;
+}
+
+.token.string,
+.token.char {
+	color: #a6d189;
+}
+
+.token.symbol {
+	color: #e5c890;
+}
+
+.token.regex {
+	color: #f4b8e4;
+}
+
+.token.url {
+	color: #a6d189;
+}
+
+.token.operator {
+	color: #99d1db;
+}
+
+.token.variable {
+	color: #c6d0f5;
+}
+
+.token.constant {
+	color: #ef9f76;
+}
+
+.token.property {
+	color: #8caaee;
+}
+
+.token.punctuation {
+	color: #949cbb;
+}
+
+.token.important {
+	color: #ca9ee6;
+}
+
+.token.comment {
+	color: #949cbb;
+}
+
+.token.tag {
+	color: #8caaee;
+}
+
+.token.attr-name {
+	color: #e5c890;
+}
+
+.token.attr-value {
+	color: #a6d189;
+}
+
+.token.namespace {
+	color: #e5c890;
+}
+
+.token.prolog,
+.token.doctype {
+	color: #ca9ee6;
+}
+
+.token.cdata {
+	color: #81c8be;
+}
+
+.token.entity {
+	color: #e78284;
+}
+
+.token.atrule {
+	color: #ca9ee6;
+}
+
+.token.selector {
+	color: #8caaee;
+}
+
+/* Diff */
+
+.token.deleted {
+	color: #e78284;
+}
+
+.token.inserted {
+	color: #a6d189
+}
+
+/* Other */
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+</style><pre class="language-elixir"><code class="language-elixir"><span class="token keyword">defmodule</span> <span class="token module class-name">LivebookWeb</span><span class="token punctuation">.</span><span class="token module class-name">CoreComponents</span> <span class="token keyword">do</span>
+  <span class="token keyword">use</span> <span class="token module class-name">Phoenix</span><span class="token punctuation">.</span><span class="token module class-name">Component</span>
+
+  <span class="token keyword">alias</span> <span class="token module class-name">Phoenix</span><span class="token punctuation">.</span><span class="token module class-name">LiveView</span><span class="token punctuation">.</span><span class="token module class-name">JS</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders [Remix](https://remixicon.com) icon.
+
+  ## Examples
+
+      &lt;.remix_icon icon="cpu-line" />
+
+      &lt;.remix_icon icon="cpu-line" class="align-middle mr-1" />
+
+  """</span></span>
+  attr <span class="token atom symbol">:icon</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:class</span><span class="token punctuation">,</span> <span class="token atom symbol">:any</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+  attr <span class="token atom symbol">:rest</span><span class="token punctuation">,</span> <span class="token atom symbol">:global</span>
+
+  <span class="token keyword">def</span> <span class="token function">remix_icon</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;i class={["ri-<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@icon</span><span class="token delimiter punctuation">}</span></span>", @class]} aria-hidden="true" {@rest}>&lt;/i>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders flash notices.
+
+  ## Examples
+
+      &lt;.flash kind="info" flash={@flash} />
+
+  """</span></span>
+  attr <span class="token atom symbol">:flash</span><span class="token punctuation">,</span> <span class="token atom symbol">:map</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token punctuation">%</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"the map of flash messages to display"</span>
+
+  attr <span class="token atom symbol">:kind</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span>
+    <span class="token attr-name">values:</span> <span class="token string">~w(info success warning error)</span><span class="token punctuation">,</span>
+    <span class="token attr-name">doc:</span> <span class="token string">"used for styling and flash lookup"</span>
+
+  attr <span class="token atom symbol">:rest</span><span class="token punctuation">,</span> <span class="token atom symbol">:global</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"the arbitrary HTML attributes to add to the flash container"</span>
+
+  <span class="token keyword">def</span> <span class="token function">flash</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div
+      :if={message = Phoenix.Flash.get(@flash, @kind)}
+      class="relative group shadow-lg max-w-xl px-3 py-2 flex items-center gap-2 rounded-lg bg-gray-900 text-gray-200 text-sm"
+      role="alert"
+      {@rest}
+    >
+      &lt;div
+        class="opacity-0 group-hover:opacity-100 absolute -left-2 -top-2 bg-gray-900 border border-gray-600 rounded-full p-0.5 flex leading-none text-gray-200 hover:text-gray-100 hover:bg-gray-700 text-sm cursor-pointer"
+        phx-click="lv:clear-flash"
+        phx-value-key={@kind}
+      >
+        &lt;.remix_icon icon="close-line" />
+      &lt;/div>
+      &lt;.remix_icon :if={@kind == "info"} icon="information-fill" class="text-xl text-blue-500" />
+      &lt;.remix_icon
+        :if={@kind == "success"}
+        icon="checkbox-circle-fill"
+        class="text-xl text-green-bright-400"
+      />
+      &lt;.remix_icon :if={@kind == "warning"} icon="alert-fill" class="text-xl text-yellow-500" />
+      &lt;.remix_icon :if={@kind == "error"} icon="error-warning-fill" class="text-xl text-red-500" />
+      &lt;span class="whitespace-pre-wrap pr-2 max-h-52 overflow-y-auto tiny-scrollbar" phx-no-format>{message}&lt;/span>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Shows the flash group with standard titles and content.
+
+  ## Examples
+
+      &lt;.flash_group flash={@flash} />
+
+  """</span></span>
+  attr <span class="token atom symbol">:flash</span><span class="token punctuation">,</span> <span class="token atom symbol">:map</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"the map of flash messages"</span>
+
+  <span class="token keyword">def</span> <span class="token function">flash_group</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class="fixed right-8 top-5 z-1000 flex flex-col space-y-3">
+      &lt;.flash kind="info" flash={@flash} />
+      &lt;.flash kind="success" flash={@flash} />
+      &lt;.flash kind="warning" flash={@flash} />
+      &lt;.flash kind="error" flash={@flash} />
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders page title.
+
+  ## Examples
+
+      &lt;.title text="Learn" />
+
+  """</span></span>
+  attr <span class="token atom symbol">:text</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+  attr <span class="token atom symbol">:back_navigate</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+
+  slot <span class="token atom symbol">:inner_block</span>
+
+  <span class="token keyword">def</span> <span class="token function">title</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token keyword">if</span> assigns<span class="token punctuation">.</span>text <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token keyword">and</span> assigns<span class="token punctuation">.</span>inner_block <span class="token operator">==</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword">do</span>
+      <span class="token keyword">raise</span> <span class="token module class-name">ArgumentError</span><span class="token punctuation">,</span> <span class="token string">"should pass at least text attribute or an inner block"</span>
+    <span class="token keyword">end</span>
+
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class="relative">
+      &lt;div
+        :if={@back_navigate}
+        class="hidden md:flex absolute top-0 bottom-0 left-0 transform -translate-x-full"
+      >
+        &lt;.link navigate={@back_navigate}>
+          &lt;.remix_icon icon="arrow-left-line" class="align-middle mr-2 text-2xl text-gray-800" />
+        &lt;/.link>
+      &lt;/div>
+      &lt;h1 class="text-2xl text-gray-800 font-medium">
+        &lt;%= if @inner_block != [] do %>
+          {render_slot(@inner_block)}
+        &lt;% else %>
+          {@text}
+        &lt;% end %>
+      &lt;/h1>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a message notice.
+
+  Similar to `flash/1`, but for permanent messages on the page.
+
+  ## Examples
+
+      &lt;.message_box kind="info" message="🦊 in a 📦" />
+
+      &lt;.message_box kind="info">
+        &lt;span>🦊&lt;/span> in a &lt;span>📦&lt;/span>
+      &lt;/.message_box>
+
+  """</span></span>
+
+  attr <span class="token atom symbol">:message</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+  attr <span class="token atom symbol">:kind</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">values:</span> <span class="token string">~w(info success warning error)</span>
+
+  slot <span class="token atom symbol">:inner_block</span>
+
+  <span class="token keyword">def</span> <span class="token function">message_box</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token keyword">if</span> assigns<span class="token punctuation">.</span>message <span class="token operator">&amp;&amp;</span> assigns<span class="token punctuation">.</span>inner_block <span class="token operator">!=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword">do</span>
+      <span class="token keyword">raise</span> <span class="token module class-name">ArgumentError</span><span class="token punctuation">,</span> <span class="token string">"expected either message or inner_block, got both."</span>
+    <span class="token keyword">end</span>
+
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class={[
+      "shadow text-sm rounded-lg px-4 py-2 border-l-4 rounded-l-none bg-white text-gray-700",
+      @kind == "info" &amp;&amp; "border-blue-500",
+      @kind == "success" &amp;&amp; "border-green-bright-400",
+      @kind == "warning" &amp;&amp; "border-yellow-300",
+      @kind == "error" &amp;&amp; "border-red-500"
+    ]}>
+      &lt;div
+        :if={@message}
+        class="whitespace-pre-wrap pr-2 max-h-52 overflow-y-auto tiny-scrollbar"
+        phx-no-format
+      >{@message}&lt;/div>
+      &lt;%= if @inner_block != [] do %>
+        {render_slot(@inner_block)}
+      &lt;% end %>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Creates a live region with the given role.
+
+  ## Examples
+
+      &lt;.live_region role="alert" />
+      &lt;.live_region role="status" />
+
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">live_region</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class="sr-only" role={@role} id="live-region">&lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Sends a message to be read by the screen reader by changing the text content of the live region
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">sr_message</span><span class="token punctuation">(</span>js <span class="token operator">\\</span> <span class="token punctuation">%</span><span class="token module class-name">JS</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> message<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span>js<span class="token punctuation">,</span> <span class="token string">"lb:set_text"</span><span class="token punctuation">,</span> <span class="token attr-name">to:</span> <span class="token string">"#live-region"</span><span class="token punctuation">,</span> <span class="token attr-name">detail:</span> <span class="token punctuation">%</span><span class="token punctuation">{</span><span class="token attr-name">value:</span> message<span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Wraps the given content in a modal dialog.
+
+  ## Example
+
+      &lt;.modal id="edit-modal" patch={...}>
+        &lt;.live_component module={MyComponent}  />
+      &lt;/.modal>
+
+  """</span></span>
+  attr <span class="token atom symbol">:id</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:show</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span>
+  attr <span class="token atom symbol">:patch</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+  attr <span class="token atom symbol">:navigate</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+  attr <span class="token atom symbol">:class</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+  attr <span class="token atom symbol">:width</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">values:</span> <span class="token string">~w(small medium big large)</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:rest</span><span class="token punctuation">,</span> <span class="token atom symbol">:global</span>
+
+  slot <span class="token atom symbol">:inner_block</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token function">modal</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div
+      id={@id}
+      class="fixed z-10000 inset-0 hidden"
+      phx-mounted={@show &amp;&amp; show_modal(@id)}
+      phx-remove={hide_modal(@id)}
+      data-cancel={modal_on_cancel(@patch, @navigate)}
+      {@rest}
+    >
+      &lt;!-- Modal container -->
+      &lt;div id={"<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span>-container"} class="h-screen flex items-center justify-center p-4">
+        &lt;!-- Overlay -->
+        &lt;div class="absolute z-0 inset-0 bg-gray-500 opacity-75" aria-hidden="true">&lt;/div>
+        &lt;!-- Modal box -->
+        &lt;.focus_wrap
+          id={"<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span>-content"}
+          class={[
+            "relative max-h-full overflow-y-auto bg-white rounded-lg shadow-xl focus-visible:outline-none",
+            "w-full p-6",
+            modal_width_class(@width)
+          ]}
+          role="dialog"
+          aria-modal="true"
+          tabindex="0"
+          phx-window-keydown={JS.exec("data-cancel", to: "#<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span>")}
+          phx-click-away={JS.exec("data-cancel", to: "#<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span>")}
+          phx-key="escape"
+        >
+          &lt;button
+            type="button"
+            class="absolute top-6 right-6 text-gray-400 flex space-x-1 items-center"
+            aria_label="close modal"
+            phx-click={JS.exec("data-cancel", to: "#<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span>")}
+          >
+            &lt;span class="text-sm">(esc)&lt;/span>
+            &lt;.remix_icon icon="close-line" class="text-2xl" />
+          &lt;/button>
+          {render_slot(@inner_block)}
+        &lt;/.focus_wrap>
+      &lt;/div>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">modal_width_class</span><span class="token punctuation">(</span><span class="token string">"small"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"max-w-sm"</span>
+  <span class="token keyword">defp</span> <span class="token function">modal_width_class</span><span class="token punctuation">(</span><span class="token string">"medium"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"max-w-xl"</span>
+  <span class="token keyword">defp</span> <span class="token function">modal_width_class</span><span class="token punctuation">(</span><span class="token string">"big"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"max-w-4xl"</span>
+  <span class="token keyword">defp</span> <span class="token function">modal_width_class</span><span class="token punctuation">(</span><span class="token string">"large"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"max-w-6xl"</span>
+
+  <span class="token keyword">defp</span> <span class="token function">modal_on_cancel</span><span class="token punctuation">(</span><span class="token boolean">nil</span><span class="token punctuation">,</span> <span class="token boolean">nil</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">"phx-remove"</span><span class="token punctuation">)</span>
+  <span class="token keyword">defp</span> <span class="token function">modal_on_cancel</span><span class="token punctuation">(</span><span class="token boolean">nil</span><span class="token punctuation">,</span> navigate<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">patch</span><span class="token punctuation">(</span>navigate<span class="token punctuation">)</span>
+  <span class="token keyword">defp</span> <span class="token function">modal_on_cancel</span><span class="token punctuation">(</span>patch<span class="token punctuation">,</span> <span class="token boolean">nil</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">patch</span><span class="token punctuation">(</span>patch<span class="token punctuation">)</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Shows a modal rendered with `modal/1`.
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">show_modal</span><span class="token punctuation">(</span>js <span class="token operator">\\</span> <span class="token punctuation">%</span><span class="token module class-name">JS</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> id<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    js
+    <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span><span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>"</span><span class="token punctuation">)</span>
+    <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token string">"lb:focus"</span><span class="token punctuation">,</span> <span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-content"</span><span class="token punctuation">)</span>
+    <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">transition</span><span class="token punctuation">(</span>
+      <span class="token punctuation">{</span><span class="token string">"ease-out duration-200"</span><span class="token punctuation">,</span> <span class="token string">"opacity-0"</span><span class="token punctuation">,</span> <span class="token string">"opacity-100"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-container"</span>
+    <span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Hides a modal rendered with `modal/1`.
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">hide_modal</span><span class="token punctuation">(</span>js <span class="token operator">\\</span> <span class="token punctuation">%</span><span class="token module class-name">JS</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> id<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    js
+    <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">transition</span><span class="token punctuation">(</span>
+      <span class="token punctuation">{</span><span class="token string">"ease-in duration-200"</span><span class="token punctuation">,</span> <span class="token string">"opacity-100"</span><span class="token punctuation">,</span> <span class="token string">"opacity-0"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-container"</span>
+    <span class="token punctuation">)</span>
+    <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">hide</span><span class="token punctuation">(</span><span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>"</span><span class="token punctuation">,</span> <span class="token attr-name">transition:</span> <span class="token punctuation">{</span><span class="token string">"block"</span><span class="token punctuation">,</span> <span class="token string">"block"</span><span class="token punctuation">,</span> <span class="token string">"hidden"</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a popup menu that shows up on toggle click.
+
+  ## Examples
+
+      &lt;.menu id="my-menu">
+        &lt;:toggle>
+          &lt;button>Open&lt;/button>
+        &lt;/:toggle>
+        &lt;.menu_item>
+          &lt;button role="menuitem">Option 1&lt;/button>
+        &lt;/.menu_item>
+        &lt;.menu_item>
+          &lt;button role="menuitem">Option 2&lt;/button>
+        &lt;/.menu_item>
+      &lt;/.menu>
+
+  """</span></span>
+  attr <span class="token atom symbol">:id</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:disabled</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"whether the menu is active"</span>
+
+  attr <span class="token atom symbol">:position</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span>
+    <span class="token attr-name">default:</span> <span class="token string">"bottom-right"</span><span class="token punctuation">,</span>
+    <span class="token attr-name">values:</span> <span class="token string">~w(top-left top-right bottom-left bottom-right)</span>
+
+  attr <span class="token atom symbol">:sm_position</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span>
+    <span class="token attr-name">default:</span> <span class="token boolean">nil</span><span class="token punctuation">,</span>
+    <span class="token attr-name">values:</span> <span class="token punctuation">[</span><span class="token boolean">nil</span><span class="token punctuation">,</span> <span class="token string">"top-left"</span><span class="token punctuation">,</span> <span class="token string">"top-right"</span><span class="token punctuation">,</span> <span class="token string">"bottom-left"</span><span class="token punctuation">,</span> <span class="token string">"bottom-right"</span><span class="token punctuation">]</span>
+
+  attr <span class="token atom symbol">:md_position</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span>
+    <span class="token attr-name">default:</span> <span class="token boolean">nil</span><span class="token punctuation">,</span>
+    <span class="token attr-name">values:</span> <span class="token punctuation">[</span><span class="token boolean">nil</span><span class="token punctuation">,</span> <span class="token string">"top-left"</span><span class="token punctuation">,</span> <span class="token string">"top-right"</span><span class="token punctuation">,</span> <span class="token string">"bottom-left"</span><span class="token punctuation">,</span> <span class="token string">"bottom-right"</span><span class="token punctuation">]</span>
+
+  attr <span class="token atom symbol">:distant</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span>
+    <span class="token attr-name">default:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token attr-name">doc:</span> <span class="token string">"whether the menu should be further from the anchor element"</span>
+
+  attr <span class="token atom symbol">:secondary_click</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span>
+    <span class="token attr-name">default:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token attr-name">doc:</span> <span class="token string">"whether secondary click (usually right mouse click) should open the menu"</span>
+
+  slot <span class="token atom symbol">:toggle</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  slot <span class="token atom symbol">:inner_block</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token function">menu</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class="relative" id={@id}>
+      &lt;div
+        phx-click={not @disabled &amp;&amp; show_menu(@id)}
+        data-contextmenu-trigger-click={@secondary_click}
+        phx-window-keydown={hide_menu(@id)}
+        phx-key="escape"
+      >
+        {render_slot(@toggle)}
+      &lt;/div>
+      &lt;div id={"<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span>-overlay"} class="fixed z-90 inset-0 hidden" phx-click-away={hide_menu(@id)}>
+      &lt;/div>
+      &lt;menu
+        id={"<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span>-content"}
+        class={[
+          "absolute z-100 hidden",
+          menu_position_class(@position),
+          @md_position &amp;&amp; menu_md_position_class(@md_position),
+          @sm_position &amp;&amp; menu_sm_position_class(@sm_position),
+          @distant &amp;&amp; menu_distant_class(@position)
+        ]}
+        role="menu"
+        phx-click-away={hide_menu(@id)}
+      >
+        &lt;div
+          id={"<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span>-content-inner"}
+          class="rounded-lg bg-white flex flex-col py-2 shadow-[0_15px_99px_-0px_rgba(12,24,41,0.15)]"
+        >
+          {render_slot(@inner_block)}
+        &lt;/div>
+      &lt;/menu>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Shows a menu rendered with `menu/1`.
+
+  ## Options
+
+    * `:animate` - whether to play an animation when the menu is opened.
+      Defaults to `false`
+
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">show_menu</span><span class="token punctuation">(</span>js <span class="token operator">\\</span> <span class="token punctuation">%</span><span class="token module class-name">JS</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> id<span class="token punctuation">,</span> opts <span class="token operator">\\</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    opts <span class="token operator">=</span> <span class="token module class-name">Keyword</span><span class="token punctuation">.</span><span class="token function">validate!</span><span class="token punctuation">(</span>opts<span class="token punctuation">,</span> <span class="token attr-name">animate:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+
+    js <span class="token operator">=</span>
+      js
+      <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span><span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-overlay"</span><span class="token punctuation">)</span>
+      <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span><span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-content"</span><span class="token punctuation">,</span> <span class="token attr-name">display:</span> <span class="token string">"flex"</span><span class="token punctuation">)</span>
+      <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token string">"lb:scroll_into_view"</span><span class="token punctuation">,</span> <span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-content"</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> opts<span class="token punctuation">[</span><span class="token atom symbol">:animate</span><span class="token punctuation">]</span> <span class="token keyword">do</span>
+      <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">add_class</span><span class="token punctuation">(</span>js<span class="token punctuation">,</span> <span class="token string">"animate-shake"</span><span class="token punctuation">,</span> <span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-content-inner"</span><span class="token punctuation">)</span>
+    <span class="token keyword">else</span>
+      js
+    <span class="token keyword">end</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Hides a menu rendered with `menu/1`.
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">hide_menu</span><span class="token punctuation">(</span>js <span class="token operator">\\</span> <span class="token punctuation">%</span><span class="token module class-name">JS</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> id<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    js
+    <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">hide</span><span class="token punctuation">(</span><span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-overlay"</span><span class="token punctuation">)</span>
+    <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">hide</span><span class="token punctuation">(</span><span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-content"</span><span class="token punctuation">)</span>
+    <span class="token operator">|></span> <span class="token module class-name">JS</span><span class="token punctuation">.</span><span class="token function">remove_class</span><span class="token punctuation">(</span><span class="token string">"animate-shake"</span><span class="token punctuation">,</span> <span class="token attr-name">to:</span> <span class="token string">"#<span class="token interpolation"><span class="token delimiter punctuation">#{</span>id<span class="token delimiter punctuation">}</span></span>-content-inner"</span><span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_position_class</span><span class="token punctuation">(</span><span class="token string">"top-left"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"top-0 left-0 transform -translate-y-full -mt-1"</span>
+  <span class="token keyword">defp</span> <span class="token function">menu_position_class</span><span class="token punctuation">(</span><span class="token string">"top-right"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"top-0 right-0 transform -translate-y-full -mt-1"</span>
+  <span class="token keyword">defp</span> <span class="token function">menu_position_class</span><span class="token punctuation">(</span><span class="token string">"bottom-left"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bottom-0 left-0 transform translate-y-full -mb-1"</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_position_class</span><span class="token punctuation">(</span><span class="token string">"bottom-right"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token attr-name">do:</span> <span class="token string">"bottom-0 right-0 transform translate-y-full -mb-1"</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_md_position_class</span><span class="token punctuation">(</span><span class="token string">"top-left"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token string">"md:top-0 md:left-0 md:bottom-auto md:right-auto md:transform md:-translate-y-full md:-mt-1 md:mb-0"</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_md_position_class</span><span class="token punctuation">(</span><span class="token string">"top-right"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token string">"md:top-0 md:right-0 md:bottom-auto md:left-auto md:transform md:-translate-y-full md:-mt-1 md:mb-0"</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_md_position_class</span><span class="token punctuation">(</span><span class="token string">"bottom-left"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token string">"md:bottom-0 md:left-0 md:top-auto md:right-auto md:transform md:translate-y-full md:-mb-1 md:mt-0"</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_md_position_class</span><span class="token punctuation">(</span><span class="token string">"bottom-right"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token string">"md:bottom-0 md:right-0 md:top-auto md:left-auto md:transform md:translate-y-full md:-mb-1 md:mt-0"</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_sm_position_class</span><span class="token punctuation">(</span><span class="token string">"top-left"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token string">"sm:top-0 sm:left-0 sm:bottom-auto sm:right-auto sm:transform sm:-translate-y-full sm:-mt-1 sm:mb-0"</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_sm_position_class</span><span class="token punctuation">(</span><span class="token string">"top-right"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token string">"sm:top-0 sm:right-0 sm:bottom-auto sm:left-auto sm:transform sm:-translate-y-full sm:-mt-1 sm:mb-0"</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_sm_position_class</span><span class="token punctuation">(</span><span class="token string">"bottom-left"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token string">"sm:bottom-0 sm:left-0 sm:top-auto sm:right-auto sm:transform sm:translate-y-full sm:-mb-1 sm:mt-0"</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_sm_position_class</span><span class="token punctuation">(</span><span class="token string">"bottom-right"</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token string">"sm:bottom-0 sm:right-0 sm:top-auto sm:left-auto sm:transform sm:translate-y-full sm:-mb-1 sm:mt-0"</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_distant_class</span><span class="token punctuation">(</span>position<span class="token punctuation">)</span> <span class="token keyword">when</span> position <span class="token operator">in</span> <span class="token punctuation">[</span><span class="token string">"top-left"</span><span class="token punctuation">,</span> <span class="token string">"top-right"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"-mt-2"</span>
+  <span class="token keyword">defp</span> <span class="token function">menu_distant_class</span><span class="token punctuation">(</span>position<span class="token punctuation">)</span> <span class="token keyword">when</span> position <span class="token operator">in</span> <span class="token punctuation">[</span><span class="token string">"bottom-left"</span><span class="token punctuation">,</span> <span class="token string">"bottom-right"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"-mb-2"</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Wraps a menu item that shows a submenu on hover.
+
+  This component should be used within `menu/1` content.
+
+  ## Example
+
+      &lt;.submenu>
+        &lt;:primary>
+          &lt;button class"menu-item" role="menuitem">Submenu&lt;/button>
+        &lt;/:primary>
+        &lt;.menu_item>
+          &lt;button class"menu-item" role="menuitem">Option 1&lt;/button>
+        &lt;/.menu_item>
+      &lt;/.submenu>
+
+  """</span></span>
+  slot <span class="token atom symbol">:primary</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  slot <span class="token atom symbol">:inner_block</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token function">submenu</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class="group relative">
+      {render_slot(@primary)}
+      &lt;div class="absolute -top-2 right-0 translate-x-full pl-2 hidden group-hover:flex group-focus-within:flex">
+        &lt;menu class="relative mt-0 z-100 rounded-lg bg-white flex flex-col py-2 shadow-[0_15px_99px_-0px_rgba(12,24,41,0.15)]">
+          {render_slot(@inner_block)}
+        &lt;/menu>
+      &lt;/div>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a menu item used in `menu/1` and `submenu/1`.
+  """</span></span>
+  attr <span class="token atom symbol">:disabled</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span>
+  attr <span class="token atom symbol">:variant</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token string">"default"</span><span class="token punctuation">,</span> <span class="token attr-name">values:</span> <span class="token string">~w(default selected danger)</span>
+
+  slot <span class="token atom symbol">:inner_block</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token function">menu_item</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;li class={[
+      "w-full",
+      "*:first:w-full *:first:flex *:first:space-x-3 *:first:px-5 *:first:py-2 *:first:items-center [&amp;>:first-child:hover]:bg-gray-100 [&amp;>:first-child:focus-visible]:bg-gray-100 [&amp;>:first-child:focus-visible]:outline-none *:first:whitespace-nowrap font-medium",
+      menu_item_class(@variant),
+      @disabled &amp;&amp; "pointer-events-none opacity-50"
+    ]}>
+      {render_slot(@inner_block)}
+    &lt;/li>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">menu_item_class</span><span class="token punctuation">(</span><span class="token string">"default"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"text-gray-500"</span>
+  <span class="token keyword">defp</span> <span class="token function">menu_item_class</span><span class="token punctuation">(</span><span class="token string">"selected"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"text-gray-900"</span>
+  <span class="token keyword">defp</span> <span class="token function">menu_item_class</span><span class="token punctuation">(</span><span class="token string">"danger"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"text-red-600"</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a text content skeleton.
+  """</span></span>
+  attr <span class="token atom symbol">:empty</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"if the source is empty"</span>
+  attr <span class="token atom symbol">:bg_class</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token string">"bg-gray-200"</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"the skeleton background color"</span>
+
+  <span class="token keyword">def</span> <span class="token function">content_skeleton</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;%= if @empty do %>
+      &lt;div class="h-4">&lt;/div>
+    &lt;% else %>
+      &lt;div class="max-w-2xl w-full animate-pulse">
+        &lt;div class="flex-1 space-y-4">
+          &lt;div class={[@bg_class, "h-4 rounded-lg w-3/4"]}>&lt;/div>
+          &lt;div class={[@bg_class, "h-4 rounded-lg"]}>&lt;/div>
+          &lt;div class={[@bg_class, "h-4 rounded-lg w-5/6"]}>&lt;/div>
+        &lt;/div>
+      &lt;/div>
+    &lt;% end %>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a file content skeleton.
+  """</span></span>
+  attr <span class="token atom symbol">:empty</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"if the source is empty"</span>
+  attr <span class="token atom symbol">:bg_class</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token string">"bg-gray-200"</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"the skeleton background color"</span>
+
+  <span class="token keyword">def</span> <span class="token function">file_skeleton</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;%= if @empty do %>
+      &lt;div class="h-4">&lt;/div>
+    &lt;% else %>
+      &lt;div class="max-w-2xl w-full animate-pulse">
+        &lt;div class="flex-1 space-y-4">
+          &lt;div class="w-full flex space-x-2 items-center p-2">
+            &lt;div class={[@bg_class, "h-6 rounded-md w-5"]} />
+            &lt;div class={[
+              @bg_class,
+              "h-4 rounded-lg",
+              Enum.random(["w-1/2", "w-2/3", "w-3/4", "w-4/5", "w-full"])
+            ]} />
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+    &lt;% end %>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a highlighted code snippet.
+
+  ## Examples
+
+      &lt;.code_preview
+        source_id="my-snippet"
+        language="elixir"
+        source="System.version()" />
+
+  """</span></span>
+  attr <span class="token atom symbol">:source_id</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:language</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:source</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:wrap</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span>
+
+  <span class="token keyword">def</span> <span class="token function">code_preview</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class="markdown">
+      &lt;pre>&lt;code
+      class={if(@wrap, do: "break-all whitespace-pre-wrap", else: "tiny-scrollbar")}
+      id={"<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@source_id</span><span class="token delimiter punctuation">}</span></span>-highlight"}
+      phx-hook="Highlight"
+      data-p-language={hook_prop(@language)}
+    >&lt;div id={@source_id} data-source>{@source}&lt;/div>&lt;div data-target>&lt;/div>&lt;/code>&lt;/pre>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a highlighted code snippet with a title and a copy button.
+
+  ## Examples
+
+      &lt;.code_preview_with_title_and_copy
+        title="
+        source_id="my-snippet"
+        language="elixir"
+        source="System.version()" />
+
+  """</span></span>
+  attr <span class="token atom symbol">:title</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:source_id</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:language</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:source</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token function">code_preview_with_title_and_copy</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div>
+      &lt;div class="flex justify-between items-center">
+        &lt;span class="text-sm text-gray-700 font-semibold">{@title}&lt;/span>
+        &lt;div class="flex justify-end space-x-2">
+          &lt;span class="tooltip left" data-tooltip="Copy source">
+            &lt;.icon_button
+              aria-label="copy source"
+              phx-click={JS.dispatch("lb:clipcopy", to: "#<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@source_id</span><span class="token delimiter punctuation">}</span></span>")}
+            >
+              &lt;.remix_icon icon="clipboard-line" />
+            &lt;/.icon_button>
+          &lt;/span>
+        &lt;/div>
+      &lt;/div>
+
+      &lt;div class="markdown">
+        &lt;.code_preview source_id={@source_id} language={@language} source={@source} />
+      &lt;/div>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders text with a tiny label.
+
+  ## Examples
+
+      &lt;.labeled_text label="Name">Sherlock Holmes&lt;/.labeled_text>
+
+  """</span></span>
+  attr <span class="token atom symbol">:label</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  attr <span class="token atom symbol">:one_line</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span>
+    <span class="token attr-name">default:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token attr-name">doc:</span> <span class="token string">"whether to force the text into a single scrollable line"</span>
+
+  attr <span class="token atom symbol">:class</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+
+  slot <span class="token atom symbol">:inner_block</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token function">labeled_text</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class={["flex flex-col space-y-1", @class]}>
+      &lt;span class="text-sm text-gray-500">
+        {@label}
+      &lt;/span>
+      &lt;span class={[
+        "text-gray-800 text-sm font-semibold",
+        @one_line &amp;&amp;
+          "whitespace-nowrap overflow-hidden text-ellipsis hover:text-clip hover:overflow-auto hover:tiny-scrollbar"
+      ]}>
+        {render_slot(@inner_block)}
+      &lt;/span>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a choice button that is either active or not.
+
+  ## Examples
+
+      &lt;.choice_button active={@tab == "my_tab"} phx-click="set_my_tab">
+        My tab
+      &lt;/.choice_button>
+
+  """</span></span>
+  attr <span class="token atom symbol">:active</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:disabled</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span>
+  attr <span class="token atom symbol">:class</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+  attr <span class="token atom symbol">:rest</span><span class="token punctuation">,</span> <span class="token atom symbol">:global</span>
+
+  slot <span class="token atom symbol">:inner_block</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token function">choice_button</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    assigns <span class="token operator">=</span>
+      assigns
+      <span class="token operator">|></span> <span class="token function">assign_new</span><span class="token punctuation">(</span><span class="token atom symbol">:disabled</span><span class="token punctuation">,</span> <span class="token keyword">fn</span> <span class="token operator">-></span> assigns<span class="token punctuation">.</span>active <span class="token keyword">end</span><span class="token punctuation">)</span>
+
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;button
+      class={[
+        "px-5 py-2 rounded-lg text-gray-700 border",
+        if(@active, do: "bg-blue-100 border-blue-600", else: "bg-white border-gray-200"),
+        @class
+      ]}
+      disabled={@disabled}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    &lt;/button>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders an status indicator circle.
+  """</span></span>
+  attr <span class="token atom symbol">:variant</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span>
+    <span class="token attr-name">required:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token attr-name">values:</span> <span class="token string">~w(success warning error inactive waiting progressing)</span>
+
+  <span class="token keyword">def</span> <span class="token function">status_indicator</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;span class="relative flex h-2.5 w-2.5">
+      &lt;span
+        :if={animated_status_circle_class(@variant)}
+        class={[
+          animated_status_circle_class(@variant),
+          "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+        ]}
+      >
+      &lt;/span>
+      &lt;span class={[status_circle_class(@variant), "relative inline-flex rounded-full h-2.5 w-2.5"]}>
+      &lt;/span>
+    &lt;/span>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Returns background class based on the given variant.
+
+  See `status_indicator/1` for available variants.
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">status_circle_class</span><span class="token punctuation">(</span>variant<span class="token punctuation">)</span>
+
+  <span class="token keyword">def</span> <span class="token function">status_circle_class</span><span class="token punctuation">(</span><span class="token string">"success"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bg-green-bright-400"</span>
+  <span class="token keyword">def</span> <span class="token function">status_circle_class</span><span class="token punctuation">(</span><span class="token string">"warning"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bg-yellow-bright-200"</span>
+  <span class="token keyword">def</span> <span class="token function">status_circle_class</span><span class="token punctuation">(</span><span class="token string">"error"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bg-red-400"</span>
+  <span class="token keyword">def</span> <span class="token function">status_circle_class</span><span class="token punctuation">(</span><span class="token string">"inactive"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bg-gray-500"</span>
+  <span class="token keyword">def</span> <span class="token function">status_circle_class</span><span class="token punctuation">(</span><span class="token string">"waiting"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bg-gray-400"</span>
+  <span class="token keyword">def</span> <span class="token function">status_circle_class</span><span class="token punctuation">(</span><span class="token string">"progressing"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bg-blue-500"</span>
+
+  <span class="token keyword">defp</span> <span class="token function">animated_status_circle_class</span><span class="token punctuation">(</span><span class="token string">"waiting"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bg-gray-300"</span>
+  <span class="token keyword">defp</span> <span class="token function">animated_status_circle_class</span><span class="token punctuation">(</span><span class="token string">"progressing"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token string">"bg-blue-400"</span>
+  <span class="token keyword">defp</span> <span class="token function">animated_status_circle_class</span><span class="token punctuation">(</span>_other<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">do:</span> <span class="token boolean">nil</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders an informative box as a placeholder for a list.
+  """</span></span>
+
+  slot <span class="token atom symbol">:inner_block</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  slot <span class="token atom symbol">:actions</span>
+
+  <span class="token keyword">def</span> <span class="token function">no_entries</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div class="p-5 flex space-x-4 items-center border border-gray-200 rounded-lg">
+      &lt;div>
+        &lt;.remix_icon icon="windy-line" class="text-gray-400 text-xl" />
+      &lt;/div>
+      &lt;div class="grow flex items-center justify-between">
+        &lt;div class="text-gray-600">
+          {render_slot(@inner_block)}
+        &lt;/div>
+        {render_slot(@actions)}
+      &lt;/div>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a circular spinner.
+  """</span></span>
+
+  attr <span class="token atom symbol">:class</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+  attr <span class="token atom symbol">:rest</span><span class="token punctuation">,</span> <span class="token atom symbol">:global</span>
+
+  <span class="token keyword">def</span> <span class="token function">spinner</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;svg
+      aria-hidden="true"
+      class={["inline w-4 h-4 text-gray-200 animate-spin fill-blue-600", @class]}
+      viewBox="0 0 100 101"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {@rest}
+    >
+      &lt;path
+        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+        fill="currentColor"
+      />
+      &lt;path
+        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+        fill="currentFill"
+      />
+    &lt;/svg>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Returns the text in singular or plural depending on the quantity.
+
+  ## Examples
+
+    &lt;.listing items={@packages}>
+      &lt;:item :let={package}>&lt;code>{package.name}&lt;/code>&lt;/:item>
+      &lt;:singular_suffix>package&lt;/:singular_suffix>
+      &lt;:plural_suffix>packages&lt;/:plural_suffix>
+    &lt;/.listing>
+
+  """</span></span>
+
+  attr <span class="token atom symbol">:items</span><span class="token punctuation">,</span> <span class="token atom symbol">:list</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  slot <span class="token atom symbol">:item</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  slot <span class="token atom symbol">:plural_suffix</span>
+  slot <span class="token atom symbol">:singular_suffix</span>
+
+  <span class="token keyword">def</span> <span class="token function">listing</span><span class="token punctuation">(</span><span class="token punctuation">%</span><span class="token punctuation">{</span><span class="token attr-name">items:</span> <span class="token punctuation">[</span>_<span class="token punctuation">]</span><span class="token punctuation">}</span> <span class="token operator">=</span> assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    {render_slot(@item, hd(@items))}
+    {render_slot(@singular_suffix)}
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token function">listing</span><span class="token punctuation">(</span><span class="token punctuation">%</span><span class="token punctuation">{</span><span class="token attr-name">items:</span> <span class="token punctuation">[</span>_<span class="token punctuation">,</span> _ <span class="token operator">|</span> _<span class="token punctuation">]</span><span class="token punctuation">}</span> <span class="token operator">=</span> assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token punctuation">{</span>items<span class="token punctuation">,</span> assigns<span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token module class-name">Map</span><span class="token punctuation">.</span><span class="token function">pop!</span><span class="token punctuation">(</span>assigns<span class="token punctuation">,</span> <span class="token atom symbol">:items</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>leading<span class="token punctuation">,</span> <span class="token punctuation">[</span>second_to_last<span class="token punctuation">,</span> last<span class="token punctuation">]</span><span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token module class-name">Enum</span><span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span>items<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">)</span>
+    assigns <span class="token operator">=</span> <span class="token function">assign</span><span class="token punctuation">(</span>assigns<span class="token punctuation">,</span> <span class="token attr-name">leading:</span> leading<span class="token punctuation">,</span> <span class="token attr-name">second_to_last:</span> second_to_last<span class="token punctuation">,</span> <span class="token attr-name">last:</span> last<span class="token punctuation">)</span>
+
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;%= for item &lt;- @leading do %>
+      {render_slot(@item, item)},
+    &lt;% end %>
+    {render_slot(@item, @second_to_last)} and {render_slot(@item, @last)}
+    {render_slot(@plural_suffix)}
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a table with generic styling.
+
+  ## Examples
+
+      &lt;.table id="users" rows={@users}>
+        &lt;:col :let={user} label="id">{user.id}&lt;/:col>
+        &lt;:col :let={user} label="username">{user.username}&lt;/:col>
+      &lt;/.table>
+
+  """</span></span>
+  attr <span class="token atom symbol">:id</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:rows</span><span class="token punctuation">,</span> <span class="token atom symbol">:list</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:row_id</span><span class="token punctuation">,</span> <span class="token atom symbol">:any</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"the function for generating the row id"</span>
+  attr <span class="token atom symbol">:row_click</span><span class="token punctuation">,</span> <span class="token atom symbol">:any</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"the function for handling phx-click on each row"</span>
+
+  attr <span class="token atom symbol">:row_item</span><span class="token punctuation">,</span> <span class="token atom symbol">:any</span><span class="token punctuation">,</span>
+    <span class="token attr-name">default:</span> <span class="token operator">&amp;</span><span class="token module class-name">Function</span><span class="token punctuation">.</span><span class="token function">identity</span><span class="token operator">/</span><span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token attr-name">doc:</span> <span class="token string">"the function for mapping each row before calling the :col and :action slots"</span>
+
+  slot <span class="token atom symbol">:col</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span> <span class="token keyword">do</span>
+    attr <span class="token atom symbol">:label</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span>
+  <span class="token keyword">end</span>
+
+  slot <span class="token atom symbol">:action</span><span class="token punctuation">,</span> <span class="token attr-name">doc:</span> <span class="token string">"the slot for showing user actions in the last table column"</span>
+
+  <span class="token keyword">def</span> <span class="token function">table</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    assigns <span class="token operator">=</span>
+      with <span class="token punctuation">%</span><span class="token punctuation">{</span><span class="token attr-name">rows:</span> <span class="token punctuation">%</span><span class="token module class-name">Phoenix</span><span class="token punctuation">.</span><span class="token module class-name">LiveView</span><span class="token punctuation">.</span><span class="token module class-name">LiveStream</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">}</span> <span class="token operator">&lt;-</span> assigns <span class="token keyword">do</span>
+        <span class="token function">assign</span><span class="token punctuation">(</span>assigns<span class="token punctuation">,</span> <span class="token attr-name">row_id:</span> assigns<span class="token punctuation">.</span>row_id <span class="token operator">||</span> <span class="token keyword">fn</span> <span class="token punctuation">{</span>id<span class="token punctuation">,</span> _item<span class="token punctuation">}</span> <span class="token operator">-></span> id <span class="token keyword">end</span><span class="token punctuation">)</span>
+      <span class="token keyword">end</span>
+
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;table class="overflow-y-auto px-4 sm:overflow-visible sm:px-0 min-w-full divide-y divide-gray-300">
+      &lt;thead class="text-sm text-left font-semibold leading-6 text-gray-900">
+        &lt;tr>
+          &lt;th :for={col &lt;- @col} class="py-3.5 pl-4 pr-3 sm:pl-6">
+            {col[:label]}
+          &lt;/th>
+          &lt;th :if={@action != []} class="py-3.5 pl-3 pr-5 text-right sm:pr-7">
+            &lt;span>Actions&lt;/span>
+          &lt;/th>
+        &lt;/tr>
+      &lt;/thead>
+      &lt;tbody
+        id={@id}
+        phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) &amp;&amp; "stream"}
+        class="relative divide-y divide-gray-200 bg-white text-sm font-medium leading-6 text-gray-900"
+      >
+        &lt;tr :for={row &lt;- @rows} id={@row_id &amp;&amp; @row_id.(row)} class="hover:bg-gray-50">
+          &lt;td
+            :for={col &lt;- @col}
+            phx-click={@row_click &amp;&amp; @row_click.(row)}
+            class={["relative p-0", @row_click &amp;&amp; "hover:cursor-pointer"]}
+          >
+            &lt;div class="relative block p-4 sm:px-6">
+              {render_slot(col, @row_item.(row))}
+            &lt;/div>
+          &lt;/td>
+          &lt;td :if={@action != []} class="relative p-0">
+            &lt;div class="relative whitespace-nowrap py-4 pl-3 pr-4 sm:pr-6 flex justify-end items-center">
+              &lt;span :for={action &lt;- @action} class="ml-4">
+                {render_slot(action, @row_item.(row))}
+              &lt;/span>
+            &lt;/div>
+          &lt;/td>
+        &lt;/tr>
+      &lt;/tbody>
+    &lt;/table>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders a button.
+
+  ## Examples
+
+      &lt;.button>Click&lt;/.button>
+
+      &lt;.button color="gray" outlined>Click&lt;/.button>
+
+      &lt;.button color="gray" small>Click&lt;/.button>
+
+  """</span></span>
+  attr <span class="token atom symbol">:disabled</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span>
+  attr <span class="token atom symbol">:color</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token string">"blue"</span><span class="token punctuation">,</span> <span class="token attr-name">values:</span> <span class="token string">~w(blue gray red)</span>
+  attr <span class="token atom symbol">:outlined</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span>
+  attr <span class="token atom symbol">:small</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span>
+  attr <span class="token atom symbol">:class</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+
+  attr <span class="token atom symbol">:rest</span><span class="token punctuation">,</span> <span class="token atom symbol">:global</span><span class="token punctuation">,</span> <span class="token attr-name">include:</span> <span class="token string">~w(href patch navigate download name)</span>
+
+  slot <span class="token atom symbol">:inner_block</span>
+
+  <span class="token keyword">def</span> <span class="token function">button</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span>
+      <span class="token keyword">when</span> <span class="token function">is_map_key</span><span class="token punctuation">(</span>assigns<span class="token punctuation">.</span>rest<span class="token punctuation">,</span> <span class="token atom symbol">:href</span><span class="token punctuation">)</span> <span class="token keyword">or</span> <span class="token function">is_map_key</span><span class="token punctuation">(</span>assigns<span class="token punctuation">.</span>rest<span class="token punctuation">,</span> <span class="token atom symbol">:patch</span><span class="token punctuation">)</span> <span class="token keyword">or</span>
+             <span class="token function">is_map_key</span><span class="token punctuation">(</span>assigns<span class="token punctuation">.</span>rest<span class="token punctuation">,</span> <span class="token atom symbol">:navigate</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;.link class={[button_classes(@small, @disabled, @color, @outlined), @class]} {@rest}>
+      {render_slot(@inner_block)}
+    &lt;/.link>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token function">button</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;button
+      class={[button_classes(@small, @disabled, @color, @outlined), @class]}
+      disabled={@disabled}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    &lt;/button>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">button_classes</span><span class="token punctuation">(</span>small<span class="token punctuation">,</span> disabled<span class="token punctuation">,</span> color<span class="token punctuation">,</span> outlined<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token punctuation">[</span>
+      <span class="token keyword">if</span> small <span class="token keyword">do</span>
+        <span class="token string">"px-2 py-1 font-normal text-xs gap-1"</span>
+      <span class="token keyword">else</span>
+        <span class="token string">"px-5 py-2 font-medium text-sm gap-1.5"</span>
+      <span class="token keyword">end</span><span class="token punctuation">,</span>
+      <span class="token string">"not-[.hidden]:inline-flex rounded-lg border whitespace-nowrap items-center justify-center focus-visible:outline-none"</span><span class="token punctuation">,</span>
+      <span class="token keyword">if</span> disabled <span class="token keyword">do</span>
+        <span class="token string">"cursor-default pointer-events-none border-transparent bg-gray-100 text-gray-400"</span>
+      <span class="token keyword">else</span>
+        <span class="token keyword">case</span> <span class="token punctuation">{</span>color<span class="token punctuation">,</span> outlined<span class="token punctuation">}</span> <span class="token keyword">do</span>
+          <span class="token punctuation">{</span><span class="token string">"blue"</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">}</span> <span class="token operator">-></span>
+            <span class="token string">"border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700"</span>
+
+          <span class="token punctuation">{</span><span class="token string">"red"</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">}</span> <span class="token operator">-></span>
+            <span class="token string">"border-transparent bg-red-600 text-white hover:bg-red-700 focus:bg-red-700"</span>
+
+          <span class="token punctuation">{</span><span class="token string">"gray"</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">}</span> <span class="token operator">-></span>
+            <span class="token string">"border-gray-200 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:bg-gray-200"</span>
+
+          <span class="token punctuation">{</span><span class="token string">"blue"</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">}</span> <span class="token operator">-></span>
+            <span class="token string">"bg-blue-50 border-blue-600 text-blue-600 hover:bg-blue-100 focus:bg-blue-100"</span>
+
+          <span class="token punctuation">{</span><span class="token string">"red"</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">}</span> <span class="token operator">-></span>
+            <span class="token string">"bg-red-50 border-red-600 text-red-600 hover:bg-red-100 focus:bg-red-100"</span>
+
+          <span class="token punctuation">{</span><span class="token string">"gray"</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">}</span> <span class="token operator">-></span>
+            <span class="token string">"bg-transparent border-gray-300 text-gray-600 hover:bg-gray-100 focus:bg-gray-100"</span>
+        <span class="token keyword">end</span>
+      <span class="token keyword">end</span>
+    <span class="token punctuation">]</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders an icon button.
+
+  ## Examples
+
+      &lt;.icon_button>
+        &lt;.remix_icon icon="refresh-line" />
+      &lt;/.icon_button>
+
+  """</span></span>
+  attr <span class="token atom symbol">:disabled</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span>
+  attr <span class="token atom symbol">:small</span><span class="token punctuation">,</span> <span class="token atom symbol">:boolean</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">false</span>
+  attr <span class="token atom symbol">:class</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">default:</span> <span class="token boolean">nil</span>
+
+  attr <span class="token atom symbol">:rest</span><span class="token punctuation">,</span> <span class="token atom symbol">:global</span><span class="token punctuation">,</span> <span class="token attr-name">include:</span> <span class="token string">~w(href patch navigate download name)</span>
+
+  slot <span class="token atom symbol">:inner_block</span>
+
+  <span class="token keyword">def</span> <span class="token function">icon_button</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span>
+      <span class="token keyword">when</span> <span class="token function">is_map_key</span><span class="token punctuation">(</span>assigns<span class="token punctuation">.</span>rest<span class="token punctuation">,</span> <span class="token atom symbol">:href</span><span class="token punctuation">)</span> <span class="token keyword">or</span> <span class="token function">is_map_key</span><span class="token punctuation">(</span>assigns<span class="token punctuation">.</span>rest<span class="token punctuation">,</span> <span class="token atom symbol">:patch</span><span class="token punctuation">)</span> <span class="token keyword">or</span>
+             <span class="token function">is_map_key</span><span class="token punctuation">(</span>assigns<span class="token punctuation">.</span>rest<span class="token punctuation">,</span> <span class="token atom symbol">:navigate</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;.link class={[icon_button_classes(@small, @disabled), @class]} {@rest}>
+      {render_slot(@inner_block)}
+    &lt;/.link>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token function">icon_button</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;button class={[icon_button_classes(@small, @disabled), @class]} disabled={@disabled} {@rest}>
+      {render_slot(@inner_block)}
+    &lt;/button>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">defp</span> <span class="token function">icon_button_classes</span><span class="token punctuation">(</span>small<span class="token punctuation">,</span> disabled<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token punctuation">[</span>
+      <span class="token keyword">unless</span> small <span class="token keyword">do</span>
+        <span class="token string">"text-xl"</span>
+      <span class="token keyword">end</span><span class="token punctuation">,</span>
+      <span class="token string">"p-1 flex items-center justify-center rounded-full leading-none"</span><span class="token punctuation">,</span>
+      <span class="token keyword">if</span> disabled <span class="token keyword">do</span>
+        <span class="token string">"cursor-default text-gray-300"</span>
+      <span class="token keyword">else</span>
+        <span class="token string">"text-gray-500 hover:text-gray-900 hover:bg-gray-50 focus-visible:bg-gray-100 focus-visible:outline-none"</span>
+      <span class="token keyword">end</span>
+    <span class="token punctuation">]</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Renders stateful tabs with content.
+
+  ## Examples
+
+      &lt;.tabs id="animals" default="cat">
+        &lt;:tab id="cat" label="Cat">
+          This is a cat.
+        &lt;/:tab>
+        &lt;:tab id="dog" label="Dog">
+          This is a dog.
+        &lt;/:tab>
+      &lt;/.tabs>
+
+  """</span></span>
+
+  attr <span class="token atom symbol">:id</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  attr <span class="token atom symbol">:default</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+
+  slot <span class="token atom symbol">:tab</span> <span class="token keyword">do</span>
+    attr <span class="token atom symbol">:id</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+    attr <span class="token atom symbol">:label</span><span class="token punctuation">,</span> <span class="token atom symbol">:string</span><span class="token punctuation">,</span> <span class="token attr-name">required:</span> <span class="token boolean">true</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token function">tabs</span><span class="token punctuation">(</span>assigns<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    ~<span class="token module class-name">H</span><span class="token string">"""
+    &lt;div id={@id} class="flex flex-col gap-4">
+      &lt;div class="tabs">
+        &lt;button
+          :for={tab &lt;- @tab}
+          class={["tab", @default == tab.id &amp;&amp; "active"]}
+          phx-click={
+            JS.remove_class("active", to: "#<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span> .tab.active")
+            |> JS.add_class("active")
+            |> JS.add_class("hidden", to: "#<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span> [data-tab]")
+            |> JS.remove_class("hidden", to: "#<span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token attribute variable">@id</span><span class="token delimiter punctuation">}</span></span> [data-tab='<span class="token interpolation"><span class="token delimiter punctuation">#{</span>tab<span class="token punctuation">.</span>id<span class="token delimiter punctuation">}</span></span>']")
+          }
+        >
+          &lt;span class="font-medium">
+            {tab.label}
+          &lt;/span>
+        &lt;/button>
+      &lt;/div>
+
+      &lt;div :for={tab &lt;- @tab} data-tab={tab.id} class={@default == tab.id || "hidden"}>
+        {render_slot(tab)}
+      &lt;/div>
+    &lt;/div>
+    """</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Updates keys in a map assign.
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">assign_nested</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> key<span class="token punctuation">,</span> keyword<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token function">update</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> key<span class="token punctuation">,</span> <span class="token keyword">fn</span> map <span class="token operator">-></span>
+      <span class="token module class-name">Enum</span><span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span>keyword<span class="token punctuation">,</span> map<span class="token punctuation">,</span> <span class="token keyword">fn</span> <span class="token punctuation">{</span>key<span class="token punctuation">,</span> value<span class="token punctuation">}</span><span class="token punctuation">,</span> map <span class="token operator">-></span> <span class="token module class-name">Map</span><span class="token punctuation">.</span><span class="token function">replace!</span><span class="token punctuation">(</span>map<span class="token punctuation">,</span> key<span class="token punctuation">,</span> value<span class="token punctuation">)</span> <span class="token keyword">end</span><span class="token punctuation">)</span>
+    <span class="token keyword">end</span><span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Sends an event to the given target.
+
+  Given:
+
+    * a LV pid, sends the event as a regular message to the process
+
+    * a component `{module, id}` tuple, the event is sent as an update
+      with `:event` assign
+
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">send_event</span><span class="token punctuation">(</span>target<span class="token punctuation">,</span> event<span class="token punctuation">)</span> <span class="token keyword">when</span> <span class="token function">is_pid</span><span class="token punctuation">(</span>target<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token function">send</span><span class="token punctuation">(</span>target<span class="token punctuation">,</span> event<span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token function">send_event</span><span class="token punctuation">(</span><span class="token punctuation">{</span>module<span class="token punctuation">,</span> id<span class="token punctuation">}</span><span class="token punctuation">,</span> event<span class="token punctuation">)</span> <span class="token keyword">when</span> <span class="token function">is_atom</span><span class="token punctuation">(</span>module<span class="token punctuation">)</span> <span class="token keyword">and</span> <span class="token function">is_binary</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token module class-name">Phoenix</span><span class="token punctuation">.</span><span class="token module class-name">LiveView</span><span class="token punctuation">.</span><span class="token function">send_update</span><span class="token punctuation">(</span>module<span class="token punctuation">,</span> <span class="token attr-name">id:</span> id<span class="token punctuation">,</span> <span class="token attr-name">event:</span> event<span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token comment"># JS commands</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Pushes and executes the given `%Phoenix.LiveView.JS{}` on the client.
+
+  ## Options
+
+    * `:to` - selector for elements to execute against. Defaults to
+      document body
+
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">exec_js</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> js<span class="token punctuation">,</span> opts <span class="token operator">\\</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">do</span>
+    opts <span class="token operator">=</span> <span class="token module class-name">Keyword</span><span class="token punctuation">.</span><span class="token function">validate!</span><span class="token punctuation">(</span>opts<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token atom symbol">:to</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    <span class="token module class-name">Phoenix</span><span class="token punctuation">.</span><span class="token module class-name">LiveView</span><span class="token punctuation">.</span><span class="token function">push_event</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> <span class="token string">"lb:exec_js"</span><span class="token punctuation">,</span> <span class="token punctuation">%</span><span class="token punctuation">{</span><span class="token attr-name">js:</span> <span class="token module class-name">JSON</span><span class="token punctuation">.</span><span class="token function">encode!</span><span class="token punctuation">(</span>js<span class="token punctuation">.</span>ops<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token attr-name">to:</span> opts<span class="token punctuation">[</span><span class="token atom symbol">:to</span><span class="token punctuation">]</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token doc"><span class="token attribute">@doc</span> <span class="token string">"""
+  Encodes value for hook prop attribute.
+
+  ## Examples
+
+      &lt;div id="hook" phx-hook={MyHook} data-p-value={hook_prop(@value)}>
+      &lt;/div>
+
+  """</span></span>
+  <span class="token keyword">def</span> <span class="token function">hook_prop</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span>
+
+  <span class="token keyword">def</span> <span class="token function">hook_prop</span><span class="token punctuation">(</span><span class="token punctuation">%</span><span class="token module class-name">Phoenix</span><span class="token punctuation">.</span><span class="token module class-name">LiveComponent</span><span class="token punctuation">.</span><span class="token module class-name">CID</span><span class="token punctuation">{</span><span class="token punctuation">}</span> <span class="token operator">=</span> value<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token function">hook_prop</span><span class="token punctuation">(</span><span class="token function">to_string</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token function">hook_prop</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span> <span class="token keyword">do</span>
+    <span class="token module class-name">JSON</span><span class="token punctuation">.</span><span class="token function">encode!</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

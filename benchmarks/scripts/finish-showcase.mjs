@@ -159,6 +159,22 @@ const provenance = {
     version: `@tanstack/highlight ${await installedVersion("@tanstack/highlight")}`,
     theme: `@catppuccin/highlightjs ${await installedVersion("@catppuccin/highlightjs")} colours, mapped onto its token classes by this repository`,
   },
+  "sugar-high": {
+    version: `sugar-high ${await installedVersion("sugar-high")}`,
+    theme: `@catppuccin/highlightjs ${await installedVersion("@catppuccin/highlightjs")} colours, mapped onto its token classes by this repository`,
+  },
+  prism: {
+    version: `prismjs ${await installedVersion("prismjs")}`,
+    theme: "catppuccin/prismjs stylesheets, pinned by SHA-256",
+  },
+  "speed-highlight": {
+    version: `@speed-highlight/core ${await installedVersion("@speed-highlight/core")}`,
+    theme: `@catppuccin/highlightjs ${await installedVersion("@catppuccin/highlightjs")} colours, mapped onto its token classes by this repository`,
+  },
+  "starry-night": {
+    version: `@wooorm/starry-night ${await installedVersion("@wooorm/starry-night")}`,
+    theme: `@catppuccin/highlightjs ${await installedVersion("@catppuccin/highlightjs")} colours, mapped onto its token classes by this repository`,
+  },
 };
 
 const manifest = {
@@ -301,17 +317,20 @@ function run(command, args) {
 }
 
 // A token is a span the highlighter gave a colour to, whether that colour arrives
-// inline, through one of highlight.js's `hljs-` classes, or through TanStack
-// Highlight's `th-token`. Spans that carry none are structure rather than a
-// token: Shiki wraps every line in `<span class="line">`, and TanStack Highlight
-// in `<span class="th-line">`, so counting all spans would credit one per line.
+// inline or through a token class: highlight.js's `hljs-`, TanStack Highlight's
+// `th-token`, Prism's `token`, speed-highlight's `shj-syn-` or starry-night's
+// `pl-`. Spans that carry none are structure rather than a token: Shiki wraps
+// every line in `<span class="line">`, and TanStack Highlight in
+// `<span class="th-line">`, so counting all spans would credit one per line.
+// Sugar High colours every span inline, including the ones it wraps each run of
+// whitespace in, which hold nothing a colour could show.
 function countTokens(fragment, implementation) {
   let tokens = 0;
   for (const tag of fragment.match(/<span\b[^>]*>/gi) ?? []) {
+    if (/class=(?:"[^"]*|'[^']*)\bsh__token--(?:space|break)\b/i.test(tag)) continue;
     if (
       /style=(?:"[^"]*|'[^']*)\bcolor\s*:/i.test(tag) ||
-      /class=(?:"[^"]*|'[^']*)\bhljs-/i.test(tag) ||
-      /class=(?:"[^"]*|'[^']*)\bth-token\b/i.test(tag)
+      /class=(?:"[^"]*|'[^']*)\b(?:hljs-|th-token\b|token\b|shj-syn-|pl-)/i.test(tag)
     ) {
       tokens += 1;
     }

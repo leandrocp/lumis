@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prism · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>code[class*="language-"],
+pre[class*="language-"] {
+	color: #c6d0f5;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #292c3c;
+}
+
+/* https://prismjs.com/tokens.html */
+
+.token.keyword {
+	color: #ca9ee6;
+}
+
+.token.builtin {
+	color: #e78284;
+}
+
+.token.class-name {
+	color: #e5c890;
+}
+
+.token.function {
+	color: #8caaee;
+}
+
+.token.boolean,
+.token.number {
+	color: #ef9f76;
+}
+
+.token.string,
+.token.char {
+	color: #a6d189;
+}
+
+.token.symbol {
+	color: #e5c890;
+}
+
+.token.regex {
+	color: #f4b8e4;
+}
+
+.token.url {
+	color: #a6d189;
+}
+
+.token.operator {
+	color: #99d1db;
+}
+
+.token.variable {
+	color: #c6d0f5;
+}
+
+.token.constant {
+	color: #ef9f76;
+}
+
+.token.property {
+	color: #8caaee;
+}
+
+.token.punctuation {
+	color: #949cbb;
+}
+
+.token.important {
+	color: #ca9ee6;
+}
+
+.token.comment {
+	color: #949cbb;
+}
+
+.token.tag {
+	color: #8caaee;
+}
+
+.token.attr-name {
+	color: #e5c890;
+}
+
+.token.attr-value {
+	color: #a6d189;
+}
+
+.token.namespace {
+	color: #e5c890;
+}
+
+.token.prolog,
+.token.doctype {
+	color: #ca9ee6;
+}
+
+.token.cdata {
+	color: #81c8be;
+}
+
+.token.entity {
+	color: #e78284;
+}
+
+.token.atrule {
+	color: #ca9ee6;
+}
+
+.token.selector {
+	color: #8caaee;
+}
+
+/* Diff */
+
+.token.deleted {
+	color: #e78284;
+}
+
+.token.inserted {
+	color: #a6d189
+}
+
+/* Other */
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+</style><pre class="language-tsx"><code class="language-tsx"><span class="token string">"use client"</span>
+
+<span class="token keyword">import</span> <span class="token imports"><span class="token operator">*</span> <span class="token keyword module">as</span> <span class="token maybe-class-name">React</span></span> <span class="token keyword">from</span> <span class="token string">"react"</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> cva<span class="token punctuation">,</span> <span class="token keyword">type</span> <span class="token class-name">VariantProps</span> <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"class-variance-authority"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span> <span class="token maybe-class-name">PanelLeftIcon</span> <span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"lucide-react"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span> <span class="token maybe-class-name">Slot</span> <span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"radix-ui"</span>
+
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span> useIsMobile <span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"@/registry/new-york-v4/hooks/use-mobile"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span> cn <span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"@/registry/new-york-v4/lib/utils"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span> <span class="token maybe-class-name">Button</span> <span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"@/registry/new-york-v4/ui/button"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span> <span class="token maybe-class-name">Input</span> <span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"@/registry/new-york-v4/ui/input"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span> <span class="token maybe-class-name">Separator</span> <span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"@/registry/new-york-v4/ui/separator"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span>
+  <span class="token maybe-class-name">Sheet</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SheetContent</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SheetDescription</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SheetHeader</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SheetTitle</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"@/registry/new-york-v4/ui/sheet"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span> <span class="token maybe-class-name">Skeleton</span> <span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"@/registry/new-york-v4/ui/skeleton"</span>
+<span class="token keyword">import</span> <span class="token imports"><span class="token punctuation">{</span>
+  <span class="token maybe-class-name">Tooltip</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">TooltipContent</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">TooltipProvider</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">TooltipTrigger</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span></span> <span class="token keyword">from</span> <span class="token string">"@/registry/new-york-v4/ui/tooltip"</span>
+
+<span class="token keyword">const</span> <span class="token constant">SIDEBAR_COOKIE_NAME</span> <span class="token operator">=</span> <span class="token string">"sidebar_state"</span>
+<span class="token keyword">const</span> <span class="token constant">SIDEBAR_COOKIE_MAX_AGE</span> <span class="token operator">=</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">24</span> <span class="token operator">*</span> <span class="token number">7</span>
+<span class="token keyword">const</span> <span class="token constant">SIDEBAR_WIDTH</span> <span class="token operator">=</span> <span class="token string">"16rem"</span>
+<span class="token keyword">const</span> <span class="token constant">SIDEBAR_WIDTH_MOBILE</span> <span class="token operator">=</span> <span class="token string">"18rem"</span>
+<span class="token keyword">const</span> <span class="token constant">SIDEBAR_WIDTH_ICON</span> <span class="token operator">=</span> <span class="token string">"3rem"</span>
+<span class="token keyword">const</span> <span class="token constant">SIDEBAR_KEYBOARD_SHORTCUT</span> <span class="token operator">=</span> <span class="token string">"b"</span>
+
+<span class="token keyword">type</span> <span class="token class-name">SidebarContextProps</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  state<span class="token operator">:</span> <span class="token string">"expanded"</span> <span class="token operator">|</span> <span class="token string">"collapsed"</span>
+  open<span class="token operator">:</span> <span class="token builtin">boolean</span>
+  <span class="token function-variable function">setOpen</span><span class="token operator">:</span> <span class="token punctuation">(</span>open<span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token keyword">void</span>
+  openMobile<span class="token operator">:</span> <span class="token builtin">boolean</span>
+  <span class="token function-variable function">setOpenMobile</span><span class="token operator">:</span> <span class="token punctuation">(</span>open<span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token keyword">void</span>
+  isMobile<span class="token operator">:</span> <span class="token builtin">boolean</span>
+  <span class="token function-variable function">toggleSidebar</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token keyword">void</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token maybe-class-name">SidebarContext</span> <span class="token operator">=</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access">createContext</span><span class="token operator">&lt;</span><span class="token maybe-class-name">SidebarContextProps</span> <span class="token operator">|</span> <span class="token keyword">null</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span>
+
+<span class="token keyword">function</span> <span class="token function">useSidebar</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> context <span class="token operator">=</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token method function property-access">useContext</span><span class="token punctuation">(</span><span class="token maybe-class-name">SidebarContext</span><span class="token punctuation">)</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>context<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token string">"useSidebar must be used within a SidebarProvider."</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> context
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarProvider</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  defaultOpen <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  open<span class="token operator">:</span> openProp<span class="token punctuation">,</span>
+  onOpenChange<span class="token operator">:</span> setOpenProp<span class="token punctuation">,</span>
+  className<span class="token punctuation">,</span>
+  style<span class="token punctuation">,</span>
+  children<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span> <span class="token operator">&amp;</span> <span class="token punctuation">{</span>
+  defaultOpen<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+  open<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+  onOpenChange<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">(</span>open<span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token keyword">void</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> isMobile <span class="token operator">=</span> <span class="token function">useIsMobile</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>openMobile<span class="token punctuation">,</span> setOpenMobile<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token method function property-access">useState</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span>
+
+  <span class="token comment">// This is the internal state of the sidebar.</span>
+  <span class="token comment">// We use openProp and setOpenProp for control from outside the component.</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>_open<span class="token punctuation">,</span> _setOpen<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token method function property-access">useState</span><span class="token punctuation">(</span>defaultOpen<span class="token punctuation">)</span>
+  <span class="token keyword">const</span> open <span class="token operator">=</span> openProp <span class="token operator">??</span> _open
+  <span class="token keyword">const</span> setOpen <span class="token operator">=</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token method function property-access">useCallback</span><span class="token punctuation">(</span>
+    <span class="token punctuation">(</span>value<span class="token operator">:</span> <span class="token builtin">boolean</span> <span class="token operator">|</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>value<span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token builtin">boolean</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> openState <span class="token operator">=</span> <span class="token keyword">typeof</span> value <span class="token operator">===</span> <span class="token string">"function"</span> <span class="token operator">?</span> <span class="token function">value</span><span class="token punctuation">(</span>open<span class="token punctuation">)</span> <span class="token operator">:</span> value
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>setOpenProp<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">setOpenProp</span><span class="token punctuation">(</span>openState<span class="token punctuation">)</span>
+      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token function">_setOpen</span><span class="token punctuation">(</span>openState<span class="token punctuation">)</span>
+      <span class="token punctuation">}</span>
+
+      <span class="token comment">// This sets the cookie to keep the sidebar state.</span>
+      <span class="token dom variable">document</span><span class="token punctuation">.</span><span class="token property-access">cookie</span> <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token constant">SIDEBAR_COOKIE_NAME</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>openState<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">; path=/; max-age=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token constant">SIDEBAR_COOKIE_MAX_AGE</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span>setOpenProp<span class="token punctuation">,</span> open<span class="token punctuation">]</span>
+  <span class="token punctuation">)</span>
+
+  <span class="token comment">// Helper to toggle the sidebar.</span>
+  <span class="token keyword">const</span> toggleSidebar <span class="token operator">=</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token method function property-access">useCallback</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> isMobile <span class="token operator">?</span> <span class="token function">setOpenMobile</span><span class="token punctuation">(</span><span class="token punctuation">(</span>open<span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token operator">!</span>open<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">setOpen</span><span class="token punctuation">(</span><span class="token punctuation">(</span>open<span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token operator">!</span>open<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>isMobile<span class="token punctuation">,</span> setOpen<span class="token punctuation">,</span> setOpenMobile<span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+  <span class="token comment">// Adds a keyboard shortcut to toggle the sidebar.</span>
+  <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token method function property-access">useEffect</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> <span class="token function-variable function">handleKeyDown</span> <span class="token operator">=</span> <span class="token punctuation">(</span>event<span class="token operator">:</span> <span class="token maybe-class-name">KeyboardEvent</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>
+        event<span class="token punctuation">.</span><span class="token property-access">key</span> <span class="token operator">===</span> <span class="token constant">SIDEBAR_KEYBOARD_SHORTCUT</span> <span class="token operator">&amp;&amp;</span>
+        <span class="token punctuation">(</span>event<span class="token punctuation">.</span><span class="token property-access">metaKey</span> <span class="token operator">||</span> event<span class="token punctuation">.</span><span class="token property-access">ctrlKey</span><span class="token punctuation">)</span>
+      <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        event<span class="token punctuation">.</span><span class="token method function property-access">preventDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token function">toggleSidebar</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token dom variable">window</span><span class="token punctuation">.</span><span class="token method function property-access">addEventListener</span><span class="token punctuation">(</span><span class="token string">"keydown"</span><span class="token punctuation">,</span> handleKeyDown<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token dom variable">window</span><span class="token punctuation">.</span><span class="token method function property-access">removeEventListener</span><span class="token punctuation">(</span><span class="token string">"keydown"</span><span class="token punctuation">,</span> handleKeyDown<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>toggleSidebar<span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+  <span class="token comment">// We add a state so that we can do data-state="expanded" or "collapsed".</span>
+  <span class="token comment">// This makes it easier to style the sidebar with Tailwind classes.</span>
+  <span class="token keyword">const</span> state <span class="token operator">=</span> open <span class="token operator">?</span> <span class="token string">"expanded"</span> <span class="token operator">:</span> <span class="token string">"collapsed"</span>
+
+  <span class="token keyword">const</span> contextValue <span class="token operator">=</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access">useMemo</span><span class="token operator">&lt;</span><span class="token maybe-class-name">SidebarContextProps</span><span class="token operator">></span><span class="token punctuation">(</span>
+    <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+      state<span class="token punctuation">,</span>
+      open<span class="token punctuation">,</span>
+      setOpen<span class="token punctuation">,</span>
+      isMobile<span class="token punctuation">,</span>
+      openMobile<span class="token punctuation">,</span>
+      setOpenMobile<span class="token punctuation">,</span>
+      toggleSidebar<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span>state<span class="token punctuation">,</span> open<span class="token punctuation">,</span> setOpen<span class="token punctuation">,</span> isMobile<span class="token punctuation">,</span> openMobile<span class="token punctuation">,</span> setOpenMobile<span class="token punctuation">,</span> toggleSidebar<span class="token punctuation">]</span>
+  <span class="token punctuation">)</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">SidebarContext.Provider</span></span> <span class="token attr-name">value</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>contextValue<span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">TooltipProvider</span></span> <span class="token attr-name">delayDuration</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token number">0</span><span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+          <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-wrapper<span class="token punctuation">"</span></span>
+          <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>
+            <span class="token punctuation">{</span>
+              <span class="token string-property property">"--sidebar-width"</span><span class="token operator">:</span> <span class="token constant">SIDEBAR_WIDTH</span><span class="token punctuation">,</span>
+              <span class="token string-property property">"--sidebar-width-icon"</span><span class="token operator">:</span> <span class="token constant">SIDEBAR_WIDTH_ICON</span><span class="token punctuation">,</span>
+              <span class="token spread operator">...</span>style<span class="token punctuation">,</span>
+            <span class="token punctuation">}</span> <span class="token keyword">as</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">CSSProperties</span></span>
+          <span class="token punctuation">}</span></span>
+          <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+            <span class="token string">"group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar"</span><span class="token punctuation">,</span>
+            className
+          <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+          <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+        <span class="token punctuation">></span></span><span class="token plain-text">
+          </span><span class="token punctuation">{</span>children<span class="token punctuation">}</span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">TooltipProvider</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">SidebarContext.Provider</span></span><span class="token punctuation">></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">Sidebar</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  side <span class="token operator">=</span> <span class="token string">"left"</span><span class="token punctuation">,</span>
+  variant <span class="token operator">=</span> <span class="token string">"sidebar"</span><span class="token punctuation">,</span>
+  collapsible <span class="token operator">=</span> <span class="token string">"offcanvas"</span><span class="token punctuation">,</span>
+  className<span class="token punctuation">,</span>
+  children<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span> <span class="token operator">&amp;</span> <span class="token punctuation">{</span>
+  side<span class="token operator">?</span><span class="token operator">:</span> <span class="token string">"left"</span> <span class="token operator">|</span> <span class="token string">"right"</span>
+  variant<span class="token operator">?</span><span class="token operator">:</span> <span class="token string">"sidebar"</span> <span class="token operator">|</span> <span class="token string">"floating"</span> <span class="token operator">|</span> <span class="token string">"inset"</span>
+  collapsible<span class="token operator">?</span><span class="token operator">:</span> <span class="token string">"offcanvas"</span> <span class="token operator">|</span> <span class="token string">"icon"</span> <span class="token operator">|</span> <span class="token string">"none"</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> isMobile<span class="token punctuation">,</span> state<span class="token punctuation">,</span> openMobile<span class="token punctuation">,</span> setOpenMobile <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">useSidebar</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>collapsible <span class="token operator">===</span> <span class="token string">"none"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+        <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar<span class="token punctuation">"</span></span>
+        <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+          <span class="token string">"flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground"</span><span class="token punctuation">,</span>
+          className
+        <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+        <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+      <span class="token punctuation">></span></span><span class="token plain-text">
+        </span><span class="token punctuation">{</span>children<span class="token punctuation">}</span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+    <span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>isMobile<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Sheet</span></span> <span class="token attr-name">open</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>openMobile<span class="token punctuation">}</span></span> <span class="token attr-name">onOpenChange</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>setOpenMobile<span class="token punctuation">}</span></span> <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">SheetContent</span></span>
+          <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar<span class="token punctuation">"</span></span>
+          <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar<span class="token punctuation">"</span></span>
+          <span class="token attr-name">data-mobile</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span>
+          <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&amp;>button]:hidden<span class="token punctuation">"</span></span>
+          <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>
+            <span class="token punctuation">{</span>
+              <span class="token string-property property">"--sidebar-width"</span><span class="token operator">:</span> <span class="token constant">SIDEBAR_WIDTH_MOBILE</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span> <span class="token keyword">as</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">CSSProperties</span></span>
+          <span class="token punctuation">}</span></span>
+          <span class="token attr-name">side</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>side<span class="token punctuation">}</span></span>
+        <span class="token punctuation">></span></span><span class="token plain-text">
+          </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">SheetHeader</span></span> <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sr-only<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+            </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">SheetTitle</span></span><span class="token punctuation">></span></span><span class="token plain-text">Sidebar</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">SheetTitle</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+            </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">SheetDescription</span></span><span class="token punctuation">></span></span><span class="token plain-text">Displays the mobile sidebar.</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">SheetDescription</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+          </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">SheetHeader</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+          </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>flex h-full w-full flex-col<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token punctuation">{</span>children<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">SheetContent</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">Sheet</span></span><span class="token punctuation">></span></span>
+    <span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+      <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>group peer hidden text-sidebar-foreground md:block<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-state</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>state<span class="token punctuation">}</span></span>
+      <span class="token attr-name">data-collapsible</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>state <span class="token operator">===</span> <span class="token string">"collapsed"</span> <span class="token operator">?</span> collapsible <span class="token operator">:</span> <span class="token string">""</span><span class="token punctuation">}</span></span>
+      <span class="token attr-name">data-variant</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>variant<span class="token punctuation">}</span></span>
+      <span class="token attr-name">data-side</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>side<span class="token punctuation">}</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar<span class="token punctuation">"</span></span>
+    <span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token punctuation">{</span><span class="token comment">/* This is what handles the sidebar gap on desktop */</span><span class="token punctuation">}</span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+        <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-gap<span class="token punctuation">"</span></span>
+        <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+          <span class="token string">"relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear"</span><span class="token punctuation">,</span>
+          <span class="token string">"group-data-[collapsible=offcanvas]:w-0"</span><span class="token punctuation">,</span>
+          <span class="token string">"group-data-[side=right]:rotate-180"</span><span class="token punctuation">,</span>
+          variant <span class="token operator">===</span> <span class="token string">"floating"</span> <span class="token operator">||</span> variant <span class="token operator">===</span> <span class="token string">"inset"</span>
+            <span class="token operator">?</span> <span class="token string">"group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"</span>
+            <span class="token operator">:</span> <span class="token string">"group-data-[collapsible=icon]:w-(--sidebar-width-icon)"</span>
+        <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token punctuation">/></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+        <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-container<span class="token punctuation">"</span></span>
+        <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+          <span class="token string">"fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex"</span><span class="token punctuation">,</span>
+          side <span class="token operator">===</span> <span class="token string">"left"</span>
+            <span class="token operator">?</span> <span class="token string">"left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"</span>
+            <span class="token operator">:</span> <span class="token string">"right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]"</span><span class="token punctuation">,</span>
+          <span class="token comment">// Adjust the padding for floating and inset variants.</span>
+          variant <span class="token operator">===</span> <span class="token string">"floating"</span> <span class="token operator">||</span> variant <span class="token operator">===</span> <span class="token string">"inset"</span>
+            <span class="token operator">?</span> <span class="token string">"p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"</span>
+            <span class="token operator">:</span> <span class="token string">"group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l"</span><span class="token punctuation">,</span>
+          className
+        <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+        <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+      <span class="token punctuation">></span></span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+          <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar<span class="token punctuation">"</span></span>
+          <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-inner<span class="token punctuation">"</span></span>
+          <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm<span class="token punctuation">"</span></span>
+        <span class="token punctuation">></span></span><span class="token plain-text">
+          </span><span class="token punctuation">{</span>children<span class="token punctuation">}</span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarTrigger</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  onClick<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token keyword">typeof</span> <span class="token maybe-class-name">Button</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> toggleSidebar <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">useSidebar</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Button</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>trigger<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-trigger<span class="token punctuation">"</span></span>
+      <span class="token attr-name">variant</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>ghost<span class="token punctuation">"</span></span>
+      <span class="token attr-name">size</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>icon<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"size-7"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token punctuation">{</span>
+        onClick<span class="token operator">?.</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span>
+        <span class="token function">toggleSidebar</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">PanelLeftIcon</span></span> <span class="token punctuation">/></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>span</span> <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sr-only<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token plain-text">Toggle Sidebar</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>span</span><span class="token punctuation">></span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">Button</span></span><span class="token punctuation">></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarRail</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"button"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> toggleSidebar <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">useSidebar</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>rail<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-rail<span class="token punctuation">"</span></span>
+      <span class="token attr-name">aria-label</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>Toggle Sidebar<span class="token punctuation">"</span></span>
+      <span class="token attr-name">tabIndex</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">}</span></span>
+      <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>toggleSidebar<span class="token punctuation">}</span></span>
+      <span class="token attr-name">title</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>Toggle Sidebar<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex"</span><span class="token punctuation">,</span>
+        <span class="token string">"in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize"</span><span class="token punctuation">,</span>
+        <span class="token string">"[[data-side=left][data-state=collapsed]_&amp;]:cursor-e-resize [[data-side=right][data-state=collapsed]_&amp;]:cursor-w-resize"</span><span class="token punctuation">,</span>
+        <span class="token string">"group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full hover:group-data-[collapsible=offcanvas]:bg-sidebar"</span><span class="token punctuation">,</span>
+        <span class="token string">"[[data-side=left][data-collapsible=offcanvas]_&amp;]:-right-2"</span><span class="token punctuation">,</span>
+        <span class="token string">"[[data-side=right][data-collapsible=offcanvas]_&amp;]:-left-2"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarInset</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"main"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>main</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-inset<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"relative flex w-full flex-1 flex-col bg-background"</span><span class="token punctuation">,</span>
+        <span class="token string">"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarInput</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token keyword">typeof</span> <span class="token maybe-class-name">Input</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Input</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-input<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>input<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"h-8 w-full bg-background shadow-none"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarHeader</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-header<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>header<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"flex flex-col gap-2 p-2"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarFooter</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-footer<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>footer<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"flex flex-col gap-2 p-2"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarSeparator</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token keyword">typeof</span> <span class="token maybe-class-name">Separator</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Separator</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-separator<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>separator<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"mx-2 w-auto bg-sidebar-border"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarContent</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-content<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>content<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarGroup</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-group<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>group<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"relative flex w-full min-w-0 flex-col p-2"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarGroupLabel</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  asChild <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span> <span class="token operator">&amp;</span> <span class="token punctuation">{</span> asChild<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token maybe-class-name">Comp</span> <span class="token operator">=</span> asChild <span class="token operator">?</span> <span class="token maybe-class-name">Slot</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">Root</span></span> <span class="token operator">:</span> <span class="token string">"div"</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Comp</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-group-label<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>group-label<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&amp;>svg]:size-4 [&amp;>svg]:shrink-0"</span><span class="token punctuation">,</span>
+        <span class="token string">"group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarGroupAction</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  asChild <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"button"</span><span class="token operator">></span> <span class="token operator">&amp;</span> <span class="token punctuation">{</span> asChild<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token maybe-class-name">Comp</span> <span class="token operator">=</span> asChild <span class="token operator">?</span> <span class="token maybe-class-name">Slot</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">Root</span></span> <span class="token operator">:</span> <span class="token string">"button"</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Comp</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-group-action<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>group-action<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&amp;>svg]:size-4 [&amp;>svg]:shrink-0"</span><span class="token punctuation">,</span>
+        <span class="token comment">// Increases the hit area of the button on mobile.</span>
+        <span class="token string">"after:absolute after:-inset-2 md:after:hidden"</span><span class="token punctuation">,</span>
+        <span class="token string">"group-data-[collapsible=icon]:hidden"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarGroupContent</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-group-content<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>group-content<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"w-full text-sm"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenu</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"ul"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ul</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"flex w-full min-w-0 flex-col gap-1"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenuItem</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"li"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu-item<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-item<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"group/menu-item relative"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> sidebarMenuButtonVariants <span class="token operator">=</span> <span class="token function">cva</span><span class="token punctuation">(</span>
+  <span class="token string">"peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&amp;>span:last-child]:truncate [&amp;>svg]:size-4 [&amp;>svg]:shrink-0"</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    variants<span class="token operator">:</span> <span class="token punctuation">{</span>
+      variant<span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token keyword">default</span><span class="token operator">:</span> <span class="token string">"hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"</span><span class="token punctuation">,</span>
+        outline<span class="token operator">:</span>
+          <span class="token string">"bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]"</span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      size<span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token keyword">default</span><span class="token operator">:</span> <span class="token string">"h-8 text-sm"</span><span class="token punctuation">,</span>
+        sm<span class="token operator">:</span> <span class="token string">"h-7 text-xs"</span><span class="token punctuation">,</span>
+        lg<span class="token operator">:</span> <span class="token string">"h-12 text-sm group-data-[collapsible=icon]:p-0!"</span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    defaultVariants<span class="token operator">:</span> <span class="token punctuation">{</span>
+      variant<span class="token operator">:</span> <span class="token string">"default"</span><span class="token punctuation">,</span>
+      size<span class="token operator">:</span> <span class="token string">"default"</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenuButton</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  asChild <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  isActive <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  variant <span class="token operator">=</span> <span class="token string">"default"</span><span class="token punctuation">,</span>
+  size <span class="token operator">=</span> <span class="token string">"default"</span><span class="token punctuation">,</span>
+  tooltip<span class="token punctuation">,</span>
+  className<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"button"</span><span class="token operator">></span> <span class="token operator">&amp;</span> <span class="token punctuation">{</span>
+  asChild<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+  isActive<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+  tooltip<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">string</span> <span class="token operator">|</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token keyword">typeof</span> <span class="token maybe-class-name">TooltipContent</span><span class="token operator">></span>
+<span class="token punctuation">}</span> <span class="token operator">&amp;</span> <span class="token maybe-class-name">VariantProps</span><span class="token operator">&lt;</span><span class="token keyword">typeof</span> sidebarMenuButtonVariants<span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token maybe-class-name">Comp</span> <span class="token operator">=</span> asChild <span class="token operator">?</span> <span class="token maybe-class-name">Slot</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">Root</span></span> <span class="token operator">:</span> <span class="token string">"button"</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> isMobile<span class="token punctuation">,</span> state <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">useSidebar</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+  <span class="token keyword">const</span> button <span class="token operator">=</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Comp</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu-button<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-button<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-size</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>size<span class="token punctuation">}</span></span>
+      <span class="token attr-name">data-active</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>isActive<span class="token punctuation">}</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token function">sidebarMenuButtonVariants</span><span class="token punctuation">(</span><span class="token punctuation">{</span> variant<span class="token punctuation">,</span> size <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>tooltip<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> button
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">typeof</span> tooltip <span class="token operator">===</span> <span class="token string">"string"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    tooltip <span class="token operator">=</span> <span class="token punctuation">{</span>
+      children<span class="token operator">:</span> tooltip<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Tooltip</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">TooltipTrigger</span></span> <span class="token attr-name">asChild</span><span class="token punctuation">></span></span><span class="token punctuation">{</span>button<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">TooltipTrigger</span></span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">TooltipContent</span></span>
+        <span class="token attr-name">side</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>right<span class="token punctuation">"</span></span>
+        <span class="token attr-name">align</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>center<span class="token punctuation">"</span></span>
+        <span class="token attr-name">hidden</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>state <span class="token operator">!==</span> <span class="token string">"collapsed"</span> <span class="token operator">||</span> isMobile<span class="token punctuation">}</span></span>
+        <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>tooltip<span class="token punctuation">}</span></span>
+      <span class="token punctuation">/></span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">Tooltip</span></span><span class="token punctuation">></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenuAction</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  asChild <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  showOnHover <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"button"</span><span class="token operator">></span> <span class="token operator">&amp;</span> <span class="token punctuation">{</span>
+  asChild<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+  showOnHover<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token maybe-class-name">Comp</span> <span class="token operator">=</span> asChild <span class="token operator">?</span> <span class="token maybe-class-name">Slot</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">Root</span></span> <span class="token operator">:</span> <span class="token string">"button"</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Comp</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu-action<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-action<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform peer-hover/menu-button:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&amp;>svg]:size-4 [&amp;>svg]:shrink-0"</span><span class="token punctuation">,</span>
+        <span class="token comment">// Increases the hit area of the button on mobile.</span>
+        <span class="token string">"after:absolute after:-inset-2 md:after:hidden"</span><span class="token punctuation">,</span>
+        <span class="token string">"peer-data-[size=sm]/menu-button:top-1"</span><span class="token punctuation">,</span>
+        <span class="token string">"peer-data-[size=default]/menu-button:top-1.5"</span><span class="token punctuation">,</span>
+        <span class="token string">"peer-data-[size=lg]/menu-button:top-2.5"</span><span class="token punctuation">,</span>
+        <span class="token string">"group-data-[collapsible=icon]:hidden"</span><span class="token punctuation">,</span>
+        showOnHover <span class="token operator">&amp;&amp;</span>
+          <span class="token string">"group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground data-[state=open]:opacity-100 md:opacity-0"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenuBadge</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu-badge<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-badge<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none"</span><span class="token punctuation">,</span>
+        <span class="token string">"peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground"</span><span class="token punctuation">,</span>
+        <span class="token string">"peer-data-[size=sm]/menu-button:top-1"</span><span class="token punctuation">,</span>
+        <span class="token string">"peer-data-[size=default]/menu-button:top-1.5"</span><span class="token punctuation">,</span>
+        <span class="token string">"peer-data-[size=lg]/menu-button:top-2.5"</span><span class="token punctuation">,</span>
+        <span class="token string">"group-data-[collapsible=icon]:hidden"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenuSkeleton</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  showIcon <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"div"</span><span class="token operator">></span> <span class="token operator">&amp;</span> <span class="token punctuation">{</span>
+  showIcon<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Random width between 50 to 90%.</span>
+  <span class="token keyword">const</span> width <span class="token operator">=</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token method function property-access">useMemo</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token arrow operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>Math<span class="token punctuation">.</span><span class="token function">floor</span><span class="token punctuation">(</span>Math<span class="token punctuation">.</span><span class="token function">random</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">40</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">50</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">%</span><span class="token template-punctuation string">`</span></span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu-skeleton<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-skeleton<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"flex h-8 items-center gap-2 rounded-md px-2"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token punctuation">{</span>showIcon <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Skeleton</span></span>
+          <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>size-4 rounded-md<span class="token punctuation">"</span></span>
+          <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-skeleton-icon<span class="token punctuation">"</span></span>
+        <span class="token punctuation">/></span></span>
+      <span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Skeleton</span></span>
+        <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>h-4 max-w-(--skeleton-width) flex-1<span class="token punctuation">"</span></span>
+        <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-skeleton-text<span class="token punctuation">"</span></span>
+        <span class="token attr-name">style</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>
+          <span class="token punctuation">{</span>
+            <span class="token string-property property">"--skeleton-width"</span><span class="token operator">:</span> width<span class="token punctuation">,</span>
+          <span class="token punctuation">}</span> <span class="token keyword">as</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">CSSProperties</span></span>
+        <span class="token punctuation">}</span></span>
+      <span class="token punctuation">/></span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenuSub</span><span class="token punctuation">(</span><span class="token punctuation">{</span> className<span class="token punctuation">,</span> <span class="token spread operator">...</span>props <span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"ul"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ul</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu-sub<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-sub<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5"</span><span class="token punctuation">,</span>
+        <span class="token string">"group-data-[collapsible=icon]:hidden"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenuSubItem</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  className<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"li"</span><span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu-sub-item<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-sub-item<span class="token punctuation">"</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span><span class="token string">"group/menu-sub-item relative"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">SidebarMenuSubButton</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  asChild <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  size <span class="token operator">=</span> <span class="token string">"md"</span><span class="token punctuation">,</span>
+  isActive <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  className<span class="token punctuation">,</span>
+  <span class="token spread operator">...</span>props
+<span class="token punctuation">}</span><span class="token operator">:</span> <span class="token maybe-class-name">React</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">ComponentProps</span></span><span class="token operator">&lt;</span><span class="token string">"a"</span><span class="token operator">></span> <span class="token operator">&amp;</span> <span class="token punctuation">{</span>
+  asChild<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+  size<span class="token operator">?</span><span class="token operator">:</span> <span class="token string">"sm"</span> <span class="token operator">|</span> <span class="token string">"md"</span>
+  isActive<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token maybe-class-name">Comp</span> <span class="token operator">=</span> asChild <span class="token operator">?</span> <span class="token maybe-class-name">Slot</span><span class="token punctuation">.</span><span class="token property-access"><span class="token maybe-class-name">Root</span></span> <span class="token operator">:</span> <span class="token string">"a"</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Comp</span></span>
+      <span class="token attr-name">data-slot</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sidebar-menu-sub-button<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-sidebar</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu-sub-button<span class="token punctuation">"</span></span>
+      <span class="token attr-name">data-size</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>size<span class="token punctuation">}</span></span>
+      <span class="token attr-name">data-active</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>isActive<span class="token punctuation">}</span></span>
+      <span class="token attr-name">className</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token function">cn</span><span class="token punctuation">(</span>
+        <span class="token string">"flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground ring-sidebar-ring outline-hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&amp;>span:last-child]:truncate [&amp;>svg]:size-4 [&amp;>svg]:shrink-0 [&amp;>svg]:text-sidebar-accent-foreground"</span><span class="token punctuation">,</span>
+        <span class="token string">"data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"</span><span class="token punctuation">,</span>
+        size <span class="token operator">===</span> <span class="token string">"sm"</span> <span class="token operator">&amp;&amp;</span> <span class="token string">"text-xs"</span><span class="token punctuation">,</span>
+        size <span class="token operator">===</span> <span class="token string">"md"</span> <span class="token operator">&amp;&amp;</span> <span class="token string">"text-sm"</span><span class="token punctuation">,</span>
+        <span class="token string">"group-data-[collapsible=icon]:hidden"</span><span class="token punctuation">,</span>
+        className
+      <span class="token punctuation">)</span><span class="token punctuation">}</span></span>
+      <span class="token spread"><span class="token punctuation">{</span><span class="token spread operator">...</span>props<span class="token punctuation">}</span></span>
+    <span class="token punctuation">/></span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token exports"><span class="token punctuation">{</span>
+  <span class="token maybe-class-name">Sidebar</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarContent</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarFooter</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarGroup</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarGroupAction</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarGroupContent</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarGroupLabel</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarHeader</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarInput</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarInset</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenu</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenuAction</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenuBadge</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenuButton</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenuItem</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenuSkeleton</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenuSub</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenuSubButton</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarMenuSubItem</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarProvider</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarRail</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarSeparator</span><span class="token punctuation">,</span>
+  <span class="token maybe-class-name">SidebarTrigger</span><span class="token punctuation">,</span>
+  useSidebar<span class="token punctuation">,</span>
+<span class="token punctuation">}</span></span>
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

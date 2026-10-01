@@ -29,10 +29,16 @@
       "theme": "Neovim Catppuccin colorschemes, extracted by this repository"
     },
     {
-      "id": "syntect",
-      "label": "syntect",
-      "version": "syntect 5.3 with two-face 0.5.1",
-      "theme": "catppuccin/bat tmTheme files, pinned by SHA-256"
+      "id": "highlight-js",
+      "label": "highlight.js",
+      "version": "highlight.js 11.12.0",
+      "theme": "@catppuccin/highlightjs 1.0.1 stylesheets"
+    },
+    {
+      "id": "prism",
+      "label": "Prism",
+      "version": "prismjs 1.30.0",
+      "theme": "catppuccin/prismjs stylesheets, pinned by SHA-256"
     },
     {
       "id": "shiki",
@@ -41,10 +47,28 @@
       "theme": "Shiki's bundled catppuccin themes"
     },
     {
-      "id": "highlight-js",
-      "label": "highlight.js",
-      "version": "highlight.js 11.12.0",
-      "theme": "@catppuccin/highlightjs 1.0.1 stylesheets"
+      "id": "speed-highlight",
+      "label": "speed-highlight",
+      "version": "@speed-highlight/core 2.1.0",
+      "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
+    },
+    {
+      "id": "starry-night",
+      "label": "starry-night",
+      "version": "@wooorm/starry-night 3.11.0",
+      "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
+    },
+    {
+      "id": "sugar-high",
+      "label": "Sugar High",
+      "version": "sugar-high 2.5.0",
+      "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
+    },
+    {
+      "id": "syntect",
+      "label": "syntect",
+      "version": "syntect 5.3 with two-face 0.5.1",
+      "theme": "catppuccin/bat tmTheme files, pinned by SHA-256"
     },
     {
       "id": "tanstack-highlight",
@@ -70,9 +94,13 @@
       "unsupported": [],
       "tokens": {
         "lumis": 6580,
-        "syntect": 6718,
-        "shiki": 5887,
         "highlight-js": 2019,
+        "prism": 6048,
+        "shiki": 5887,
+        "speed-highlight": 3415,
+        "starry-night": 3487,
+        "sugar-high": 7318,
+        "syntect": 6718,
         "tanstack-highlight": 1881
       }
     },
@@ -92,9 +120,13 @@
       ],
       "tokens": {
         "lumis": 4521,
-        "syntect": 4157,
+        "highlight-js": 1304,
+        "prism": 3428,
         "shiki": 3734,
-        "highlight-js": 1304
+        "speed-highlight": 2421,
+        "starry-night": 2508,
+        "sugar-high": 8614,
+        "syntect": 4157
       }
     },
     {
@@ -111,13 +143,17 @@
         "Comment"
       ],
       "unsupported": [
-        "tanstack-highlight"
+        "tanstack-highlight",
+        "sugar-high",
+        "speed-highlight"
       ],
       "tokens": {
         "lumis": 5401,
-        "syntect": 3242,
+        "highlight-js": 709,
+        "prism": 1928,
         "shiki": 3668,
-        "highlight-js": 709
+        "starry-night": 2519,
+        "syntect": 3242
       }
     },
     {
@@ -134,9 +170,13 @@
       "unsupported": [],
       "tokens": {
         "lumis": 6306,
-        "syntect": 6824,
-        "shiki": 6189,
         "highlight-js": 1336,
+        "prism": 4774,
+        "shiki": 6189,
+        "speed-highlight": 2718,
+        "starry-night": 2584,
+        "sugar-high": 7182,
+        "syntect": 6824,
         "tanstack-highlight": 2355
       }
     },
@@ -158,9 +198,13 @@
       "unsupported": [],
       "tokens": {
         "lumis": 849,
-        "syntect": 839,
-        "shiki": 571,
         "highlight-js": 263,
+        "prism": 844,
+        "shiki": 571,
+        "speed-highlight": 259,
+        "starry-night": 567,
+        "sugar-high": 385,
+        "syntect": 839,
         "tanstack-highlight": 166
       }
     },
@@ -178,9 +222,13 @@
       "unsupported": [],
       "tokens": {
         "lumis": 2422,
-        "syntect": 2946,
-        "shiki": 2474,
         "highlight-js": 1259,
+        "prism": 2631,
+        "shiki": 2474,
+        "speed-highlight": 1487,
+        "starry-night": 2026,
+        "sugar-high": 4331,
+        "syntect": 2946,
         "tanstack-highlight": 838
       }
     }

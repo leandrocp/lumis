@@ -33,10 +33,15 @@
     "@lumis-sh/wasm-ruby": "0.26.2",
     "@lumis-sh/wasm-rust": "0.26.3",
     "@lumis-sh/wasm-tsx": "0.26.1",
+    "@speed-highlight/core": "latest",
     "@tanstack/highlight": "latest",
+    "@wooorm/starry-night": "latest",
+    "hast-util-to-html": "9.0.5",
     "highlight.js": "latest",
     "mitata": "1.0.34",
-    "shiki": "latest"
+    "prismjs": "latest",
+    "shiki": "latest",
+    "sugar-high": "latest"
   },
   "devDependencies": {
     "oxfmt": "^0.43.0",

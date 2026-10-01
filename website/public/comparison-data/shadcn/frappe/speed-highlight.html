@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>speed-highlight · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>[class*=shj-lang-]{background:#303446;color:#c6d0f5}.shj-syn-cmnt{color:#949cbb}.shj-syn-err{color:#c6d0f5}.shj-syn-kwd{color:#ca9ee6}.shj-syn-num{color:#ef9f76}.shj-syn-class{color:#e5c890}.shj-syn-insert{color:#a6d189}.shj-syn-str{color:#a6d189}.shj-syn-bool{color:#ef9f76}.shj-syn-type{color:#e5c890}.shj-syn-oper{color:#99d1db}.shj-syn-section{color:#8caaee}.shj-syn-func{color:#8caaee}.shj-syn-deleted{color:#e78284}.shj-syn-var{color:#ca9ee6}</style><pre class="shj-lang-ts"><code><span class="shj-syn-str">"use client"</span>
+
+<span class="shj-syn-kwd">import</span> <span class="shj-syn-oper">*</span> <span class="shj-syn-kwd">as</span> <span class="shj-syn-class">React</span> <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"react"</span>
+<span class="shj-syn-kwd">import</span> { cva<span class="shj-syn-oper">,</span> <span class="shj-syn-kwd">type</span> <span class="shj-syn-class">VariantProps</span> } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"class-variance-authority"</span>
+<span class="shj-syn-kwd">import</span> { <span class="shj-syn-class">PanelLeftIcon</span> } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"lucide-react"</span>
+<span class="shj-syn-kwd">import</span> { <span class="shj-syn-class">Slot</span> } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"radix-ui"</span>
+
+<span class="shj-syn-kwd">import</span> { useIsMobile } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"@/registry/new-york-v4/hooks/use-mobile"</span>
+<span class="shj-syn-kwd">import</span> { cn } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"@/registry/new-york-v4/lib/utils"</span>
+<span class="shj-syn-kwd">import</span> { <span class="shj-syn-class">Button</span> } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"@/registry/new-york-v4/ui/button"</span>
+<span class="shj-syn-kwd">import</span> { <span class="shj-syn-class">Input</span> } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"@/registry/new-york-v4/ui/input"</span>
+<span class="shj-syn-kwd">import</span> { <span class="shj-syn-class">Separator</span> } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"@/registry/new-york-v4/ui/separator"</span>
+<span class="shj-syn-kwd">import</span> {
+  <span class="shj-syn-class">Sheet</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SheetContent</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SheetDescription</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SheetHeader</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SheetTitle</span><span class="shj-syn-oper">,</span>
+} <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"@/registry/new-york-v4/ui/sheet"</span>
+<span class="shj-syn-kwd">import</span> { <span class="shj-syn-class">Skeleton</span> } <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"@/registry/new-york-v4/ui/skeleton"</span>
+<span class="shj-syn-kwd">import</span> {
+  <span class="shj-syn-class">Tooltip</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">TooltipContent</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">TooltipProvider</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">TooltipTrigger</span><span class="shj-syn-oper">,</span>
+} <span class="shj-syn-kwd">from</span> <span class="shj-syn-str">"@/registry/new-york-v4/ui/tooltip"</span>
+
+<span class="shj-syn-kwd">const</span> <span class="shj-syn-num">SIDEBAR_COOKIE_NAME</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"sidebar_state"</span>
+<span class="shj-syn-kwd">const</span> <span class="shj-syn-num">SIDEBAR_COOKIE_MAX_AGE</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-num">60</span> <span class="shj-syn-oper">*</span> <span class="shj-syn-num">60</span> <span class="shj-syn-oper">*</span> <span class="shj-syn-num">24</span> <span class="shj-syn-oper">*</span> <span class="shj-syn-num">7</span>
+<span class="shj-syn-kwd">const</span> <span class="shj-syn-num">SIDEBAR_WIDTH</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"16rem"</span>
+<span class="shj-syn-kwd">const</span> <span class="shj-syn-num">SIDEBAR_WIDTH_MOBILE</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"18rem"</span>
+<span class="shj-syn-kwd">const</span> <span class="shj-syn-num">SIDEBAR_WIDTH_ICON</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"3rem"</span>
+<span class="shj-syn-kwd">const</span> <span class="shj-syn-num">SIDEBAR_KEYBOARD_SHORTCUT</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"b"</span>
+
+<span class="shj-syn-kwd">type</span> <span class="shj-syn-class">SidebarContextProps</span> <span class="shj-syn-oper">=</span> {
+  state<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"expanded"</span> <span class="shj-syn-oper">|</span> <span class="shj-syn-str">"collapsed"</span>
+  open<span class="shj-syn-type">: boolean</span>
+  setOpen<span class="shj-syn-oper">:</span> (open<span class="shj-syn-type">: boolean</span>) <span class="shj-syn-kwd">=&gt;</span> <span class="shj-syn-kwd">void</span>
+  openMobile<span class="shj-syn-type">: boolean</span>
+  setOpenMobile<span class="shj-syn-oper">:</span> (open<span class="shj-syn-type">: boolean</span>) <span class="shj-syn-kwd">=&gt;</span> <span class="shj-syn-kwd">void</span>
+  isMobile<span class="shj-syn-type">: boolean</span>
+  toggleSidebar<span class="shj-syn-oper">:</span> () <span class="shj-syn-kwd">=&gt;</span> <span class="shj-syn-kwd">void</span>
+}
+
+<span class="shj-syn-kwd">const</span> <span class="shj-syn-class">SidebarContext</span> <span class="shj-syn-oper">=</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span>createContext<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">SidebarContextProps</span> <span class="shj-syn-oper">|</span> <span class="shj-syn-num">null</span><span class="shj-syn-oper">&gt;</span>(<span class="shj-syn-num">null</span>)
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-func">useSidebar</span>() {
+  <span class="shj-syn-kwd">const</span> context <span class="shj-syn-oper">=</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">useContext</span>(<span class="shj-syn-class">SidebarContext</span>)
+  <span class="shj-syn-kwd">if</span> (<span class="shj-syn-oper">!</span>context) {
+    <span class="shj-syn-kwd">throw</span> <span class="shj-syn-kwd">new</span> <span class="shj-syn-class">Error</span>(<span class="shj-syn-str">"useSidebar must be used within a SidebarProvider."</span>)
+  }
+
+  <span class="shj-syn-kwd">return</span> context
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarProvider</span>({
+  defaultOpen <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">true</span><span class="shj-syn-oper">,</span>
+  open<span class="shj-syn-oper">:</span> openProp<span class="shj-syn-oper">,</span>
+  onOpenChange<span class="shj-syn-oper">:</span> setOpenProp<span class="shj-syn-oper">,</span>
+  className<span class="shj-syn-oper">,</span>
+  style<span class="shj-syn-oper">,</span>
+  children<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span> <span class="shj-syn-oper">&#38;</span> {
+  defaultOpen<span class="shj-syn-oper">?:</span> boolean
+  open<span class="shj-syn-oper">?:</span> boolean
+  onOpenChange<span class="shj-syn-oper">?:</span> (open<span class="shj-syn-type">: boolean</span>) <span class="shj-syn-kwd">=&gt;</span> <span class="shj-syn-kwd">void</span>
+}) {
+  <span class="shj-syn-kwd">const</span> isMobile <span class="shj-syn-oper">=</span> <span class="shj-syn-func">useIsMobile</span>()
+  <span class="shj-syn-kwd">const</span> [openMobile<span class="shj-syn-oper">,</span> setOpenMobile] <span class="shj-syn-oper">=</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">useState</span>(<span class="shj-syn-bool">false</span>)
+
+  <span class="shj-syn-cmnt">// This is the internal state of the sidebar.
+</span>  <span class="shj-syn-cmnt">// We use openProp and setOpenProp for control from outside the component.
+</span>  <span class="shj-syn-kwd">const</span> [_open<span class="shj-syn-oper">,</span> _setOpen] <span class="shj-syn-oper">=</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">useState</span>(defaultOpen)
+  <span class="shj-syn-kwd">const</span> open <span class="shj-syn-oper">=</span> openProp <span class="shj-syn-oper">??</span> _open
+  <span class="shj-syn-kwd">const</span> setOpen <span class="shj-syn-oper">=</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">useCallback</span>(
+    (value<span class="shj-syn-type">: boolean</span> <span class="shj-syn-oper">|</span> ((value<span class="shj-syn-type">: boolean</span>) <span class="shj-syn-kwd">=&gt;</span> boolean)) <span class="shj-syn-kwd">=&gt;</span> {
+      <span class="shj-syn-kwd">const</span> openState <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">typeof</span> value <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"function"</span> <span class="shj-syn-oper">?</span> <span class="shj-syn-func">value</span>(open) <span class="shj-syn-oper">:</span> value
+      <span class="shj-syn-kwd">if</span> (setOpenProp) {
+        <span class="shj-syn-func">setOpenProp</span>(openState)
+      } <span class="shj-syn-kwd">else</span> {
+        <span class="shj-syn-func">_setOpen</span>(openState)
+      }
+
+      <span class="shj-syn-cmnt">// This sets the cookie to keep the sidebar state.
+</span>      document<span class="shj-syn-oper">.</span>cookie <span class="shj-syn-oper">=</span> <span class="shj-syn-str">`</span><span class="shj-syn-kwd">${</span><span class="shj-syn-num">SIDEBAR_COOKIE_NAME</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str">=</span><span class="shj-syn-kwd">${</span>openState<span class="shj-syn-kwd">}</span><span class="shj-syn-str">; path=/; max-age=</span><span class="shj-syn-kwd">${</span><span class="shj-syn-num">SIDEBAR_COOKIE_MAX_AGE</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str">`</span>
+    }<span class="shj-syn-oper">,</span>
+    [setOpenProp<span class="shj-syn-oper">,</span> open]
+  )
+
+  <span class="shj-syn-cmnt">// Helper to toggle the sidebar.
+</span>  <span class="shj-syn-kwd">const</span> toggleSidebar <span class="shj-syn-oper">=</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">useCallback</span>(() <span class="shj-syn-kwd">=&gt;</span> {
+    <span class="shj-syn-kwd">return</span> isMobile <span class="shj-syn-oper">?</span> <span class="shj-syn-func">setOpenMobile</span>((open) <span class="shj-syn-kwd">=&gt;</span> <span class="shj-syn-oper">!</span>open) <span class="shj-syn-oper">:</span> <span class="shj-syn-func">setOpen</span>((open) <span class="shj-syn-kwd">=&gt;</span> <span class="shj-syn-oper">!</span>open)
+  }<span class="shj-syn-oper">,</span> [isMobile<span class="shj-syn-oper">,</span> setOpen<span class="shj-syn-oper">,</span> setOpenMobile])
+
+  <span class="shj-syn-cmnt">// Adds a keyboard shortcut to toggle the sidebar.
+</span>  <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">useEffect</span>(() <span class="shj-syn-kwd">=&gt;</span> {
+    <span class="shj-syn-kwd">const</span> handleKeyDown <span class="shj-syn-oper">=</span> (event<span class="shj-syn-oper">:</span> <span class="shj-syn-class">KeyboardEvent</span>) <span class="shj-syn-kwd">=&gt;</span> {
+      <span class="shj-syn-kwd">if</span> (
+        event<span class="shj-syn-oper">.</span>key <span class="shj-syn-oper">===</span> <span class="shj-syn-num">SIDEBAR_KEYBOARD_SHORTCUT</span> <span class="shj-syn-oper">&#38;&#38;</span>
+        (event<span class="shj-syn-oper">.</span>metaKey <span class="shj-syn-oper">||</span> event<span class="shj-syn-oper">.</span>ctrlKey)
+      ) {
+        event<span class="shj-syn-oper">.</span><span class="shj-syn-func">preventDefault</span>()
+        <span class="shj-syn-func">toggleSidebar</span>()
+      }
+    }
+
+    window<span class="shj-syn-oper">.</span><span class="shj-syn-func">addEventListener</span>(<span class="shj-syn-str">"keydown"</span><span class="shj-syn-oper">,</span> handleKeyDown)
+    <span class="shj-syn-kwd">return</span> () <span class="shj-syn-kwd">=&gt;</span> window<span class="shj-syn-oper">.</span><span class="shj-syn-func">removeEventListener</span>(<span class="shj-syn-str">"keydown"</span><span class="shj-syn-oper">,</span> handleKeyDown)
+  }<span class="shj-syn-oper">,</span> [toggleSidebar])
+
+  <span class="shj-syn-cmnt">// We add a state so that we can do data-state="expanded" or "collapsed".
+</span>  <span class="shj-syn-cmnt">// This makes it easier to style the sidebar with Tailwind classes.
+</span>  <span class="shj-syn-kwd">const</span> state <span class="shj-syn-oper">=</span> open <span class="shj-syn-oper">?</span> "expanded" <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"collapsed"</span>
+
+  <span class="shj-syn-kwd">const</span> contextValue <span class="shj-syn-oper">=</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span>useMemo<span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">SidebarContextProps</span><span class="shj-syn-oper">&gt;</span>(
+    () <span class="shj-syn-kwd">=&gt;</span> ({
+      state<span class="shj-syn-oper">,</span>
+      open<span class="shj-syn-oper">,</span>
+      setOpen<span class="shj-syn-oper">,</span>
+      isMobile<span class="shj-syn-oper">,</span>
+      openMobile<span class="shj-syn-oper">,</span>
+      setOpenMobile<span class="shj-syn-oper">,</span>
+      toggleSidebar<span class="shj-syn-oper">,</span>
+    })<span class="shj-syn-oper">,</span>
+    [state<span class="shj-syn-oper">,</span> open<span class="shj-syn-oper">,</span> setOpen<span class="shj-syn-oper">,</span> isMobile<span class="shj-syn-oper">,</span> openMobile<span class="shj-syn-oper">,</span> setOpenMobile<span class="shj-syn-oper">,</span> toggleSidebar]
+  )
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">SidebarContext</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">Provider</span> value<span class="shj-syn-oper">=</span>{contextValue}<span class="shj-syn-oper">&gt;</span>
+      <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">TooltipProvider</span> delayDuration<span class="shj-syn-oper">=</span>{<span class="shj-syn-num">0</span>}<span class="shj-syn-oper">&gt;</span>
+        <span class="shj-syn-oper">&lt;</span>div
+          data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-wrapper"</span>
+          style<span class="shj-syn-oper">=</span>{
+            {
+              "--sidebar-width"<span class="shj-syn-oper">:</span> <span class="shj-syn-num">SIDEBAR_WIDTH</span><span class="shj-syn-oper">,</span>
+              "--sidebar-width-icon"<span class="shj-syn-oper">:</span> <span class="shj-syn-num">SIDEBAR_WIDTH_ICON</span><span class="shj-syn-oper">,</span>
+              <span class="shj-syn-oper">...</span>style<span class="shj-syn-oper">,</span>
+            } <span class="shj-syn-kwd">as</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">CSSProperties</span>
+          }
+          className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+            <span class="shj-syn-str">"group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar"</span><span class="shj-syn-oper">,</span>
+            className
+          )}
+          {<span class="shj-syn-oper">...</span>props}
+        <span class="shj-syn-oper">&gt;</span>
+          {children}
+        <span class="shj-syn-oper">&lt;/</span>div<span class="shj-syn-oper">&gt;</span>
+      <span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">TooltipProvider</span><span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">SidebarContext</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">Provider</span><span class="shj-syn-oper">&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">Sidebar</span>({
+  side <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"left"</span><span class="shj-syn-oper">,</span>
+  variant <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"sidebar"</span><span class="shj-syn-oper">,</span>
+  collapsible <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"offcanvas"</span><span class="shj-syn-oper">,</span>
+  className<span class="shj-syn-oper">,</span>
+  children<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span> <span class="shj-syn-oper">&#38;</span> {
+  side<span class="shj-syn-oper">?:</span> <span class="shj-syn-str">"left"</span> <span class="shj-syn-oper">|</span> <span class="shj-syn-str">"right"</span>
+  variant<span class="shj-syn-oper">?:</span> <span class="shj-syn-str">"sidebar"</span> <span class="shj-syn-oper">|</span> <span class="shj-syn-str">"floating"</span> <span class="shj-syn-oper">|</span> <span class="shj-syn-str">"inset"</span>
+  collapsible<span class="shj-syn-oper">?:</span> <span class="shj-syn-str">"offcanvas"</span> <span class="shj-syn-oper">|</span> <span class="shj-syn-str">"icon"</span> <span class="shj-syn-oper">|</span> <span class="shj-syn-str">"none"</span>
+}) {
+  <span class="shj-syn-kwd">const</span> { isMobile<span class="shj-syn-oper">,</span> state<span class="shj-syn-oper">,</span> openMobile<span class="shj-syn-oper">,</span> setOpenMobile } <span class="shj-syn-oper">=</span> <span class="shj-syn-func">useSidebar</span>()
+
+  <span class="shj-syn-kwd">if</span> (collapsible <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"none"</span>) {
+    <span class="shj-syn-kwd">return</span> (
+      <span class="shj-syn-oper">&lt;</span>div
+        data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar"</span>
+        className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+          <span class="shj-syn-str">"flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground"</span><span class="shj-syn-oper">,</span>
+          className
+        )}
+        {<span class="shj-syn-oper">...</span>props}
+      <span class="shj-syn-oper">&gt;</span>
+        {children}
+      <span class="shj-syn-oper">&lt;/</span>div<span class="shj-syn-oper">&gt;</span>
+    )
+  }
+
+  <span class="shj-syn-kwd">if</span> (isMobile) {
+    <span class="shj-syn-kwd">return</span> (
+      <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Sheet</span> open<span class="shj-syn-oper">=</span>{openMobile} onOpenChange<span class="shj-syn-oper">=</span>{setOpenMobile} {<span class="shj-syn-oper">...</span>props}<span class="shj-syn-oper">&gt;</span>
+        <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">SheetContent</span>
+          data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar"</span>
+          data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar"</span>
+          data<span class="shj-syn-oper">-</span>mobile<span class="shj-syn-oper">=</span><span class="shj-syn-str">"true"</span>
+          className<span class="shj-syn-oper">=</span><span class="shj-syn-str">"w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&#38;&gt;button]:hidden"</span>
+          style<span class="shj-syn-oper">=</span>{
+            {
+              "--sidebar-width"<span class="shj-syn-oper">:</span> <span class="shj-syn-num">SIDEBAR_WIDTH_MOBILE</span><span class="shj-syn-oper">,</span>
+            } <span class="shj-syn-kwd">as</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">CSSProperties</span>
+          }
+          side<span class="shj-syn-oper">=</span>{side}
+        <span class="shj-syn-oper">&gt;</span>
+          <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">SheetHeader</span> className<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sr-only"</span><span class="shj-syn-oper">&gt;</span>
+            <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">SheetTitle</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-class">Sidebar</span><span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">SheetTitle</span><span class="shj-syn-oper">&gt;</span>
+            <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">SheetDescription</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-class">Displays</span> the mobile sidebar<span class="shj-syn-oper">.&lt;/</span><span class="shj-syn-class">SheetDescription</span><span class="shj-syn-oper">&gt;</span>
+          <span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">SheetHeader</span><span class="shj-syn-oper">&gt;</span>
+          <span class="shj-syn-oper">&lt;</span>div className<span class="shj-syn-oper">=</span><span class="shj-syn-str">"flex h-full w-full flex-col"</span><span class="shj-syn-oper">&gt;</span>{children}<span class="shj-syn-oper">&lt;/</span>div<span class="shj-syn-oper">&gt;</span>
+        <span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">SheetContent</span><span class="shj-syn-oper">&gt;</span>
+      <span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">Sheet</span><span class="shj-syn-oper">&gt;</span>
+    )
+  }
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>div
+      className<span class="shj-syn-oper">=</span><span class="shj-syn-str">"group peer hidden text-sidebar-foreground md:block"</span>
+      data<span class="shj-syn-oper">-</span>state<span class="shj-syn-oper">=</span>{state}
+      data<span class="shj-syn-oper">-</span>collapsible<span class="shj-syn-oper">=</span>{state <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"collapsed"</span> <span class="shj-syn-oper">?</span> collapsible <span class="shj-syn-oper">:</span> <span class="shj-syn-str">""</span>}
+      data<span class="shj-syn-oper">-</span>variant<span class="shj-syn-oper">=</span>{variant}
+      data<span class="shj-syn-oper">-</span>side<span class="shj-syn-oper">=</span>{side}
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar"</span>
+    <span class="shj-syn-oper">&gt;</span>
+      {<span class="shj-syn-cmnt">/* This is what handles the sidebar gap on desktop */</span>}
+      <span class="shj-syn-oper">&lt;</span>div
+        data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-gap"</span>
+        className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+          <span class="shj-syn-str">"relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear"</span><span class="shj-syn-oper">,</span>
+          <span class="shj-syn-str">"group-data-[collapsible=offcanvas]:w-0"</span><span class="shj-syn-oper">,</span>
+          <span class="shj-syn-str">"group-data-[side=right]:rotate-180"</span><span class="shj-syn-oper">,</span>
+          variant <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"floating"</span> <span class="shj-syn-oper">||</span> variant <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"inset"</span>
+            <span class="shj-syn-oper">?</span> "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
+            <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"group-data-[collapsible=icon]:w-(--sidebar-width-icon)"</span>
+        )}
+      <span class="shj-syn-oper">/&gt;</span>
+      <span class="shj-syn-oper">&lt;</span>div
+        data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-container"</span>
+        className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+          <span class="shj-syn-str">"fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex"</span><span class="shj-syn-oper">,</span>
+          side <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"left"</span>
+            <span class="shj-syn-oper">?</span> "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
+            <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]"</span><span class="shj-syn-oper">,</span>
+          <span class="shj-syn-cmnt">// Adjust the padding for floating and inset variants.
+</span>          variant <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"floating"</span> <span class="shj-syn-oper">||</span> variant <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"inset"</span>
+            <span class="shj-syn-oper">?</span> "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
+            <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l"</span><span class="shj-syn-oper">,</span>
+          className
+        )}
+        {<span class="shj-syn-oper">...</span>props}
+      <span class="shj-syn-oper">&gt;</span>
+        <span class="shj-syn-oper">&lt;</span>div
+          data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar"</span>
+          data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-inner"</span>
+          className<span class="shj-syn-oper">=</span><span class="shj-syn-str">"flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"</span>
+        <span class="shj-syn-oper">&gt;</span>
+          {children}
+        <span class="shj-syn-oper">&lt;/</span>div<span class="shj-syn-oper">&gt;</span>
+      <span class="shj-syn-oper">&lt;/</span>div<span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-oper">&lt;/</span>div<span class="shj-syn-oper">&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarTrigger</span>({
+  className<span class="shj-syn-oper">,</span>
+  onClick<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-kwd">typeof</span> <span class="shj-syn-class">Button</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">const</span> { toggleSidebar } <span class="shj-syn-oper">=</span> <span class="shj-syn-func">useSidebar</span>()
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Button</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"trigger"</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-trigger"</span>
+      variant<span class="shj-syn-oper">=</span><span class="shj-syn-str">"ghost"</span>
+      size<span class="shj-syn-oper">=</span><span class="shj-syn-str">"icon"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"size-7"</span><span class="shj-syn-oper">,</span> className)}
+      onClick<span class="shj-syn-oper">=</span>{(event) <span class="shj-syn-kwd">=&gt;</span> {
+        <span class="shj-syn-func">onClick</span><span class="shj-syn-oper">?.</span>(event)
+        <span class="shj-syn-func">toggleSidebar</span>()
+      }}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">&gt;</span>
+      <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">PanelLeftIcon</span> <span class="shj-syn-oper">/&gt;</span>
+      <span class="shj-syn-oper">&lt;</span>span className<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sr-only"</span><span class="shj-syn-oper">&gt;</span><span class="shj-syn-class">Toggle</span> <span class="shj-syn-class">Sidebar</span><span class="shj-syn-oper">&lt;/</span>span<span class="shj-syn-oper">&gt;</span>
+    <span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">Button</span><span class="shj-syn-oper">&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarRail</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"button"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">const</span> { toggleSidebar } <span class="shj-syn-oper">=</span> <span class="shj-syn-func">useSidebar</span>()
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>button
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"rail"</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-rail"</span>
+      aria<span class="shj-syn-oper">-</span>label<span class="shj-syn-oper">=</span><span class="shj-syn-str">"Toggle Sidebar"</span>
+      tabIndex<span class="shj-syn-oper">=</span>{<span class="shj-syn-oper">-</span><span class="shj-syn-num">1</span>}
+      onClick<span class="shj-syn-oper">=</span>{toggleSidebar}
+      title<span class="shj-syn-oper">=</span><span class="shj-syn-str">"Toggle Sidebar"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"[[data-side=left][data-state=collapsed]_&#38;]:cursor-e-resize [[data-side=right][data-state=collapsed]_&#38;]:cursor-w-resize"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full hover:group-data-[collapsible=offcanvas]:bg-sidebar"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"[[data-side=left][data-collapsible=offcanvas]_&#38;]:-right-2"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"[[data-side=right][data-collapsible=offcanvas]_&#38;]:-left-2"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarInset</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"main"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>main
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-inset"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"relative flex w-full flex-1 flex-col bg-background"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarInput</span>({
+  className<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-kwd">typeof</span> <span class="shj-syn-class">Input</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Input</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-input"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"input"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"h-8 w-full bg-background shadow-none"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarHeader</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>div
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-header"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"header"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"flex flex-col gap-2 p-2"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarFooter</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>div
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-footer"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"footer"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"flex flex-col gap-2 p-2"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarSeparator</span>({
+  className<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-kwd">typeof</span> <span class="shj-syn-class">Separator</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Separator</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-separator"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"separator"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"mx-2 w-auto bg-sidebar-border"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarContent</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>div
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-content"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"content"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarGroup</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>div
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-group"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"group"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"relative flex w-full min-w-0 flex-col p-2"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarGroupLabel</span>({
+  className<span class="shj-syn-oper">,</span>
+  asChild <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span> <span class="shj-syn-oper">&#38;</span> { asChild<span class="shj-syn-oper">?:</span> boolean }) {
+  <span class="shj-syn-kwd">const</span> <span class="shj-syn-class">Comp</span> <span class="shj-syn-oper">=</span> asChild <span class="shj-syn-oper">?</span> <span class="shj-syn-class">Slot</span><span class="shj-syn-oper">.</span>Root <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"div"</span>
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Comp</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-group-label"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"group-label"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&#38;&gt;svg]:size-4 [&#38;&gt;svg]:shrink-0"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarGroupAction</span>({
+  className<span class="shj-syn-oper">,</span>
+  asChild <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"button"</span><span class="shj-syn-oper">&gt;</span> <span class="shj-syn-oper">&#38;</span> { asChild<span class="shj-syn-oper">?:</span> boolean }) {
+  <span class="shj-syn-kwd">const</span> <span class="shj-syn-class">Comp</span> <span class="shj-syn-oper">=</span> asChild <span class="shj-syn-oper">?</span> <span class="shj-syn-class">Slot</span><span class="shj-syn-oper">.</span>Root <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"button"</span>
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Comp</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-group-action"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"group-action"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&#38;&gt;svg]:size-4 [&#38;&gt;svg]:shrink-0"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-cmnt">// Increases the hit area of the button on mobile.
+</span>        <span class="shj-syn-str">"after:absolute after:-inset-2 md:after:hidden"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"group-data-[collapsible=icon]:hidden"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarGroupContent</span>({
+  className<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>div
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-group-content"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"group-content"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"w-full text-sm"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenu</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"ul"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>ul
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"flex w-full min-w-0 flex-col gap-1"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenuItem</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"li"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>li
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu-item"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-item"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"group/menu-item relative"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">const</span> sidebarMenuButtonVariants <span class="shj-syn-oper">=</span> <span class="shj-syn-func">cva</span>(
+  <span class="shj-syn-str">"peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&#38;&gt;span:last-child]:truncate [&#38;&gt;svg]:size-4 [&#38;&gt;svg]:shrink-0"</span><span class="shj-syn-oper">,</span>
+  {
+    variants<span class="shj-syn-oper">:</span> {
+      variant<span class="shj-syn-oper">:</span> {
+        default<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"</span><span class="shj-syn-oper">,</span>
+        outline<span class="shj-syn-oper">:</span>
+          <span class="shj-syn-str">"bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]"</span><span class="shj-syn-oper">,</span>
+      }<span class="shj-syn-oper">,</span>
+      size<span class="shj-syn-oper">:</span> {
+        default<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"h-8 text-sm"</span><span class="shj-syn-oper">,</span>
+        sm<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"h-7 text-xs"</span><span class="shj-syn-oper">,</span>
+        lg<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"h-12 text-sm group-data-[collapsible=icon]:p-0!"</span><span class="shj-syn-oper">,</span>
+      }<span class="shj-syn-oper">,</span>
+    }<span class="shj-syn-oper">,</span>
+    defaultVariants<span class="shj-syn-oper">:</span> {
+      variant<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"default"</span><span class="shj-syn-oper">,</span>
+      size<span class="shj-syn-oper">:</span> <span class="shj-syn-str">"default"</span><span class="shj-syn-oper">,</span>
+    }<span class="shj-syn-oper">,</span>
+  }
+)
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenuButton</span>({
+  asChild <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  isActive <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  variant <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"default"</span><span class="shj-syn-oper">,</span>
+  size <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"default"</span><span class="shj-syn-oper">,</span>
+  tooltip<span class="shj-syn-oper">,</span>
+  className<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"button"</span><span class="shj-syn-oper">&gt;</span> <span class="shj-syn-oper">&#38;</span> {
+  asChild<span class="shj-syn-oper">?:</span> boolean
+  isActive<span class="shj-syn-oper">?:</span> boolean
+  tooltip<span class="shj-syn-oper">?:</span> string <span class="shj-syn-oper">|</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-kwd">typeof</span> <span class="shj-syn-class">TooltipContent</span><span class="shj-syn-oper">&gt;</span>
+} <span class="shj-syn-oper">&#38;</span> <span class="shj-syn-class">VariantProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-kwd">typeof</span> sidebarMenuButtonVariants<span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">const</span> <span class="shj-syn-class">Comp</span> <span class="shj-syn-oper">=</span> asChild <span class="shj-syn-oper">?</span> <span class="shj-syn-class">Slot</span><span class="shj-syn-oper">.</span>Root <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"button"</span>
+  <span class="shj-syn-kwd">const</span> { isMobile<span class="shj-syn-oper">,</span> state } <span class="shj-syn-oper">=</span> <span class="shj-syn-func">useSidebar</span>()
+
+  <span class="shj-syn-kwd">const</span> button <span class="shj-syn-oper">=</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Comp</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu-button"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-button"</span>
+      data<span class="shj-syn-oper">-</span>size<span class="shj-syn-oper">=</span>{size}
+      data<span class="shj-syn-oper">-</span>active<span class="shj-syn-oper">=</span>{isActive}
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-func">sidebarMenuButtonVariants</span>({ variant<span class="shj-syn-oper">,</span> size })<span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+
+  <span class="shj-syn-kwd">if</span> (<span class="shj-syn-oper">!</span>tooltip) {
+    <span class="shj-syn-kwd">return</span> button
+  }
+
+  <span class="shj-syn-kwd">if</span> (<span class="shj-syn-kwd">typeof</span> tooltip <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"string"</span>) {
+    tooltip <span class="shj-syn-oper">=</span> {
+      children<span class="shj-syn-oper">:</span> tooltip<span class="shj-syn-oper">,</span>
+    }
+  }
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Tooltip</span><span class="shj-syn-oper">&gt;</span>
+      <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">TooltipTrigger</span> asChild<span class="shj-syn-oper">&gt;</span>{button}<span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">TooltipTrigger</span><span class="shj-syn-oper">&gt;</span>
+      <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">TooltipContent</span>
+        side<span class="shj-syn-oper">=</span><span class="shj-syn-str">"right"</span>
+        align<span class="shj-syn-oper">=</span><span class="shj-syn-str">"center"</span>
+        hidden<span class="shj-syn-oper">=</span>{state <span class="shj-syn-oper">!==</span> <span class="shj-syn-str">"collapsed"</span> <span class="shj-syn-oper">||</span> isMobile}
+        {<span class="shj-syn-oper">...</span>tooltip}
+      <span class="shj-syn-oper">/&gt;</span>
+    <span class="shj-syn-oper">&lt;/</span><span class="shj-syn-class">Tooltip</span><span class="shj-syn-oper">&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenuAction</span>({
+  className<span class="shj-syn-oper">,</span>
+  asChild <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  showOnHover <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"button"</span><span class="shj-syn-oper">&gt;</span> <span class="shj-syn-oper">&#38;</span> {
+  asChild<span class="shj-syn-oper">?:</span> boolean
+  showOnHover<span class="shj-syn-oper">?:</span> boolean
+}) {
+  <span class="shj-syn-kwd">const</span> <span class="shj-syn-class">Comp</span> <span class="shj-syn-oper">=</span> asChild <span class="shj-syn-oper">?</span> <span class="shj-syn-class">Slot</span><span class="shj-syn-oper">.</span>Root <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"button"</span>
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Comp</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu-action"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-action"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform peer-hover/menu-button:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&#38;&gt;svg]:size-4 [&#38;&gt;svg]:shrink-0"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-cmnt">// Increases the hit area of the button on mobile.
+</span>        <span class="shj-syn-str">"after:absolute after:-inset-2 md:after:hidden"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"peer-data-[size=sm]/menu-button:top-1"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"peer-data-[size=default]/menu-button:top-1.5"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"peer-data-[size=lg]/menu-button:top-2.5"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"group-data-[collapsible=icon]:hidden"</span><span class="shj-syn-oper">,</span>
+        showOnHover <span class="shj-syn-oper">&#38;&#38;</span>
+          <span class="shj-syn-str">"group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground data-[state=open]:opacity-100 md:opacity-0"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenuBadge</span>({
+  className<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>div
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu-badge"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-badge"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"peer-data-[size=sm]/menu-button:top-1"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"peer-data-[size=default]/menu-button:top-1.5"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"peer-data-[size=lg]/menu-button:top-2.5"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"group-data-[collapsible=icon]:hidden"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenuSkeleton</span>({
+  className<span class="shj-syn-oper">,</span>
+  showIcon <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"div"</span><span class="shj-syn-oper">&gt;</span> <span class="shj-syn-oper">&#38;</span> {
+  showIcon<span class="shj-syn-oper">?:</span> boolean
+}) {
+  <span class="shj-syn-cmnt">// Random width between 50 to 90%.
+</span>  <span class="shj-syn-kwd">const</span> width <span class="shj-syn-oper">=</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">useMemo</span>(() <span class="shj-syn-kwd">=&gt;</span> {
+    <span class="shj-syn-kwd">return</span> <span class="shj-syn-str">`</span><span class="shj-syn-kwd">${</span><span class="shj-syn-class">Math</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">floor</span>(<span class="shj-syn-class">Math</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">random</span>() <span class="shj-syn-oper">*</span> <span class="shj-syn-num">40</span>) <span class="shj-syn-oper">+</span> <span class="shj-syn-num">50</span><span class="shj-syn-kwd">}</span><span class="shj-syn-str">%`</span>
+  }<span class="shj-syn-oper">,</span> [])
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>div
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu-skeleton"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-skeleton"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"flex h-8 items-center gap-2 rounded-md px-2"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">&gt;</span>
+      {showIcon <span class="shj-syn-oper">&#38;&#38;</span> (
+        <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Skeleton</span>
+          className<span class="shj-syn-oper">=</span><span class="shj-syn-str">"size-4 rounded-md"</span>
+          data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-skeleton-icon"</span>
+        <span class="shj-syn-oper">/&gt;</span>
+      )}
+      <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Skeleton</span>
+        className<span class="shj-syn-oper">=</span><span class="shj-syn-str">"h-4 max-w-(--skeleton-width) flex-1"</span>
+        data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-skeleton-text"</span>
+        style<span class="shj-syn-oper">=</span>{
+          {
+            "--skeleton-width"<span class="shj-syn-oper">:</span> width<span class="shj-syn-oper">,</span>
+          } <span class="shj-syn-kwd">as</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">CSSProperties</span>
+        }
+      <span class="shj-syn-oper">/&gt;</span>
+    <span class="shj-syn-oper">&lt;/</span>div<span class="shj-syn-oper">&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenuSub</span>({ className<span class="shj-syn-oper">,</span> <span class="shj-syn-oper">...</span>props }<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"ul"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>ul
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu-sub"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-sub"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"group-data-[collapsible=icon]:hidden"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenuSubItem</span>({
+  className<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"li"</span><span class="shj-syn-oper">&gt;</span>) {
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span>li
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu-sub-item"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-sub-item"</span>
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(<span class="shj-syn-str">"group/menu-sub-item relative"</span><span class="shj-syn-oper">,</span> className)}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">function</span> <span class="shj-syn-class">SidebarMenuSubButton</span>({
+  asChild <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  size <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"md"</span><span class="shj-syn-oper">,</span>
+  isActive <span class="shj-syn-oper">=</span> <span class="shj-syn-bool">false</span><span class="shj-syn-oper">,</span>
+  className<span class="shj-syn-oper">,</span>
+  <span class="shj-syn-oper">...</span>props
+}<span class="shj-syn-oper">:</span> <span class="shj-syn-class">React</span><span class="shj-syn-oper">.</span><span class="shj-syn-class">ComponentProps</span><span class="shj-syn-oper">&lt;</span><span class="shj-syn-str">"a"</span><span class="shj-syn-oper">&gt;</span> <span class="shj-syn-oper">&#38;</span> {
+  asChild<span class="shj-syn-oper">?:</span> boolean
+  size<span class="shj-syn-oper">?:</span> <span class="shj-syn-str">"sm"</span> <span class="shj-syn-oper">|</span> <span class="shj-syn-str">"md"</span>
+  isActive<span class="shj-syn-oper">?:</span> boolean
+}) {
+  <span class="shj-syn-kwd">const</span> <span class="shj-syn-class">Comp</span> <span class="shj-syn-oper">=</span> asChild <span class="shj-syn-oper">?</span> <span class="shj-syn-class">Slot</span><span class="shj-syn-oper">.</span>Root <span class="shj-syn-oper">:</span> <span class="shj-syn-str">"a"</span>
+
+  <span class="shj-syn-kwd">return</span> (
+    <span class="shj-syn-oper">&lt;</span><span class="shj-syn-class">Comp</span>
+      data<span class="shj-syn-oper">-</span>slot<span class="shj-syn-oper">=</span><span class="shj-syn-str">"sidebar-menu-sub-button"</span>
+      data<span class="shj-syn-oper">-</span>sidebar<span class="shj-syn-oper">=</span><span class="shj-syn-str">"menu-sub-button"</span>
+      data<span class="shj-syn-oper">-</span>size<span class="shj-syn-oper">=</span>{size}
+      data<span class="shj-syn-oper">-</span>active<span class="shj-syn-oper">=</span>{isActive}
+      className<span class="shj-syn-oper">=</span>{<span class="shj-syn-func">cn</span>(
+        <span class="shj-syn-str">"flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground ring-sidebar-ring outline-hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&#38;&gt;span:last-child]:truncate [&#38;&gt;svg]:size-4 [&#38;&gt;svg]:shrink-0 [&#38;&gt;svg]:text-sidebar-accent-foreground"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"</span><span class="shj-syn-oper">,</span>
+        size <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"sm"</span> <span class="shj-syn-oper">&#38;&#38;</span> <span class="shj-syn-str">"text-xs"</span><span class="shj-syn-oper">,</span>
+        size <span class="shj-syn-oper">===</span> <span class="shj-syn-str">"md"</span> <span class="shj-syn-oper">&#38;&#38;</span> <span class="shj-syn-str">"text-sm"</span><span class="shj-syn-oper">,</span>
+        <span class="shj-syn-str">"group-data-[collapsible=icon]:hidden"</span><span class="shj-syn-oper">,</span>
+        className
+      )}
+      {<span class="shj-syn-oper">...</span>props}
+    <span class="shj-syn-oper">/&gt;</span>
+  )
+}
+
+<span class="shj-syn-kwd">export</span> {
+  <span class="shj-syn-class">Sidebar</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarContent</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarFooter</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarGroup</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarGroupAction</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarGroupContent</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarGroupLabel</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarHeader</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarInput</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarInset</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenu</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenuAction</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenuBadge</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenuButton</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenuItem</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenuSkeleton</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenuSub</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenuSubButton</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarMenuSubItem</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarProvider</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarRail</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarSeparator</span><span class="shj-syn-oper">,</span>
+  <span class="shj-syn-class">SidebarTrigger</span><span class="shj-syn-oper">,</span>
+  useSidebar<span class="shj-syn-oper">,</span>
+}
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

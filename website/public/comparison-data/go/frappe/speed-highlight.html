@@ -1,0 +1,1385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>speed-highlight · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>[class*=shj-lang-]{background:#303446;color:#c6d0f5}.shj-syn-cmnt{color:#949cbb}.shj-syn-err{color:#c6d0f5}.shj-syn-kwd{color:#ca9ee6}.shj-syn-num{color:#ef9f76}.shj-syn-class{color:#e5c890}.shj-syn-insert{color:#a6d189}.shj-syn-str{color:#a6d189}.shj-syn-bool{color:#ef9f76}.shj-syn-type{color:#e5c890}.shj-syn-oper{color:#99d1db}.shj-syn-section{color:#8caaee}.shj-syn-func{color:#8caaee}.shj-syn-deleted{color:#e78284}.shj-syn-var{color:#ca9ee6}</style><pre class="shj-lang-go"><code><span class="shj-syn-cmnt">// Copyright 2010 The Go Authors. All rights reserved.
+</span><span class="shj-syn-cmnt">// Use of this source code is governed by a BSD-style
+</span><span class="shj-syn-cmnt">// license that can be found in the LICENSE file.
+</span>
+<span class="shj-syn-cmnt">// Package json implements encoding and decoding of JSON as defined in
+</span><span class="shj-syn-cmnt">// RFC 7159. The mapping between JSON and Go values is described
+</span><span class="shj-syn-cmnt">// in the documentation for the Marshal and Unmarshal functions.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// See "JSON and Go" for an introduction to this package:
+</span><span class="shj-syn-cmnt">// https://golang.org/doc/articles/json_and_go.html
+</span><span class="shj-syn-kwd">package</span> json
+
+<span class="shj-syn-kwd">import</span> (
+	<span class="shj-syn-str">"bytes"</span>
+	<span class="shj-syn-str">"cmp"</span>
+	<span class="shj-syn-str">"encoding"</span>
+	<span class="shj-syn-str">"encoding/base64"</span>
+	<span class="shj-syn-str">"fmt"</span>
+	<span class="shj-syn-str">"math"</span>
+	<span class="shj-syn-str">"reflect"</span>
+	<span class="shj-syn-str">"slices"</span>
+	<span class="shj-syn-str">"strconv"</span>
+	<span class="shj-syn-str">"strings"</span>
+	<span class="shj-syn-str">"sync"</span>
+	<span class="shj-syn-str">"unicode"</span>
+	<span class="shj-syn-str">"unicode/utf8"</span>
+	_ <span class="shj-syn-str">"unsafe"</span> <span class="shj-syn-cmnt">// for linkname
+</span>)
+
+<span class="shj-syn-cmnt">// Marshal returns the JSON encoding of v.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Marshal traverses the value v recursively.
+</span><span class="shj-syn-cmnt">// If an encountered value implements [Marshaler]
+</span><span class="shj-syn-cmnt">// and is not a nil pointer, Marshal calls [Marshaler.MarshalJSON]
+</span><span class="shj-syn-cmnt">// to produce JSON. If no [Marshaler.MarshalJSON] method is present but the
+</span><span class="shj-syn-cmnt">// value implements [encoding.TextMarshaler] instead, Marshal calls
+</span><span class="shj-syn-cmnt">// [encoding.TextMarshaler.MarshalText] and encodes the result as a JSON string.
+</span><span class="shj-syn-cmnt">// The nil pointer exception is not strictly necessary
+</span><span class="shj-syn-cmnt">// but mimics a similar, necessary exception in the behavior of
+</span><span class="shj-syn-cmnt">// [Unmarshaler.UnmarshalJSON].
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Otherwise, Marshal uses the following type-dependent default encodings:
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Boolean values encode as JSON booleans.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Floating point, integer, and [Number] values encode as JSON numbers.
+</span><span class="shj-syn-cmnt">// NaN and +/-Inf values will return an [UnsupportedValueError].
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// String values encode as JSON strings coerced to valid UTF-8,
+</span><span class="shj-syn-cmnt">// replacing invalid bytes with the Unicode replacement rune.
+</span><span class="shj-syn-cmnt">// So that the JSON will be safe to embed inside HTML &lt;script&gt; tags,
+</span><span class="shj-syn-cmnt">// the string is encoded using [HTMLEscape],
+</span><span class="shj-syn-cmnt">// which replaces "&lt;", "&gt;", "&#38;", U+2028, and U+2029 are escaped
+</span><span class="shj-syn-cmnt">// to "\u003c","\u003e", "\u0026", "\u2028", and "\u2029".
+</span><span class="shj-syn-cmnt">// This replacement can be disabled when using an [Encoder],
+</span><span class="shj-syn-cmnt">// by calling [Encoder.SetEscapeHTML](false).
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Array and slice values encode as JSON arrays, except that
+</span><span class="shj-syn-cmnt">// []byte encodes as a base64-encoded string, and a nil slice
+</span><span class="shj-syn-cmnt">// encodes as the null JSON value.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Struct values encode as JSON objects.
+</span><span class="shj-syn-cmnt">// Each exported struct field becomes a member of the object, using the
+</span><span class="shj-syn-cmnt">// field name as the object key, unless the field is omitted for one of the
+</span><span class="shj-syn-cmnt">// reasons given below.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// The encoding of each struct field can be customized by the format string
+</span><span class="shj-syn-cmnt">// stored under the "json" key in the struct field's tag.
+</span><span class="shj-syn-cmnt">// The format string gives the name of the field, possibly followed by a
+</span><span class="shj-syn-cmnt">// comma-separated list of options. The name may be empty in order to
+</span><span class="shj-syn-cmnt">// specify options without overriding the default field name.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// The "omitempty" option specifies that the field should be omitted
+</span><span class="shj-syn-cmnt">// from the encoding if the field has an empty value, defined as
+</span><span class="shj-syn-cmnt">// false, 0, a nil pointer, a nil interface value, and any array,
+</span><span class="shj-syn-cmnt">// slice, map, or string of length zero.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// As a special case, if the field tag is "-", the field is always omitted.
+</span><span class="shj-syn-cmnt">// Note that a field with name "-" can still be generated using the tag "-,".
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Examples of struct field tags and their meanings:
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">//	// Field appears in JSON as key "myName".
+</span><span class="shj-syn-cmnt">//	Field int `json:"myName"`
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">//	// Field appears in JSON as key "myName" and
+</span><span class="shj-syn-cmnt">//	// the field is omitted from the object if its value is empty,
+</span><span class="shj-syn-cmnt">//	// as defined above.
+</span><span class="shj-syn-cmnt">//	Field int `json:"myName,omitempty"`
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">//	// Field appears in JSON as key "Field" (the default), but
+</span><span class="shj-syn-cmnt">//	// the field is skipped if empty.
+</span><span class="shj-syn-cmnt">//	// Note the leading comma.
+</span><span class="shj-syn-cmnt">//	Field int `json:",omitempty"`
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">//	// Field is ignored by this package.
+</span><span class="shj-syn-cmnt">//	Field int `json:"-"`
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">//	// Field appears in JSON as key "-".
+</span><span class="shj-syn-cmnt">//	Field int `json:"-,"`
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// The "omitzero" option specifies that the field should be omitted
+</span><span class="shj-syn-cmnt">// from the encoding if the field has a zero value, according to rules:
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// 1) If the field type has an "IsZero() bool" method, that will be used to
+</span><span class="shj-syn-cmnt">// determine whether the value is zero.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// 2) Otherwise, the value is zero if it is the zero value for its type.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// If both "omitempty" and "omitzero" are specified, the field will be omitted
+</span><span class="shj-syn-cmnt">// if the value is either empty or zero (or both).
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// The "string" option signals that a field is stored as JSON inside a
+</span><span class="shj-syn-cmnt">// JSON-encoded string. It applies only to fields of string, floating point,
+</span><span class="shj-syn-cmnt">// integer, or boolean types. This extra level of encoding is sometimes used
+</span><span class="shj-syn-cmnt">// when communicating with JavaScript programs:
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">//	Int64String int64 `json:",string"`
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// The key name will be used if it's a non-empty string consisting of
+</span><span class="shj-syn-cmnt">// only Unicode letters, digits, and ASCII punctuation except quotation
+</span><span class="shj-syn-cmnt">// marks, backslash, and comma.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Embedded struct fields are usually marshaled as if their inner exported fields
+</span><span class="shj-syn-cmnt">// were fields in the outer struct, subject to the usual Go visibility rules amended
+</span><span class="shj-syn-cmnt">// as described in the next paragraph.
+</span><span class="shj-syn-cmnt">// An anonymous struct field with a name given in its JSON tag is treated as
+</span><span class="shj-syn-cmnt">// having that name, rather than being anonymous.
+</span><span class="shj-syn-cmnt">// An anonymous struct field of interface type is treated the same as having
+</span><span class="shj-syn-cmnt">// that type as its name, rather than being anonymous.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// The Go visibility rules for struct fields are amended for JSON when
+</span><span class="shj-syn-cmnt">// deciding which field to marshal or unmarshal. If there are
+</span><span class="shj-syn-cmnt">// multiple fields at the same level, and that level is the least
+</span><span class="shj-syn-cmnt">// nested (and would therefore be the nesting level selected by the
+</span><span class="shj-syn-cmnt">// usual Go rules), the following extra rules apply:
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// 1) Of those fields, if any are JSON-tagged, only tagged fields are considered,
+</span><span class="shj-syn-cmnt">// even if there are multiple untagged fields that would otherwise conflict.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// 2) If there is exactly one field (tagged or not according to the first rule), that is selected.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// 3) Otherwise there are multiple fields, and all are ignored; no error occurs.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Handling of anonymous struct fields is new in Go 1.1.
+</span><span class="shj-syn-cmnt">// Prior to Go 1.1, anonymous struct fields were ignored. To force ignoring of
+</span><span class="shj-syn-cmnt">// an anonymous struct field in both current and earlier versions, give the field
+</span><span class="shj-syn-cmnt">// a JSON tag of "-".
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Map values encode as JSON objects. The map's key type must either be a
+</span><span class="shj-syn-cmnt">// string, an integer type, or implement [encoding.TextMarshaler]. The map keys
+</span><span class="shj-syn-cmnt">// are sorted and used as JSON object keys by applying the following rules,
+</span><span class="shj-syn-cmnt">// subject to the UTF-8 coercion described for string values above:
+</span><span class="shj-syn-cmnt">//   - keys of any string type are used directly
+</span><span class="shj-syn-cmnt">//   - keys that implement [encoding.TextMarshaler] are marshaled
+</span><span class="shj-syn-cmnt">//   - integer keys are converted to strings
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Pointer values encode as the value pointed to.
+</span><span class="shj-syn-cmnt">// A nil pointer encodes as the null JSON value.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Interface values encode as the value contained in the interface.
+</span><span class="shj-syn-cmnt">// A nil interface value encodes as the null JSON value.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Channel, complex, and function values cannot be encoded in JSON.
+</span><span class="shj-syn-cmnt">// Attempting to encode such a value causes Marshal to return
+</span><span class="shj-syn-cmnt">// an [UnsupportedTypeError].
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// JSON cannot represent cyclic data structures and Marshal does not
+</span><span class="shj-syn-cmnt">// handle them. Passing cyclic structures to Marshal will result in
+</span><span class="shj-syn-cmnt">// an error.
+</span><span class="shj-syn-kwd">func</span> <span class="shj-syn-func">Marshal</span>(v any) ([]byte, error) {
+	e <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">newEncodeState</span>()
+	<span class="shj-syn-kwd">defer</span> encodeStatePool<span class="shj-syn-oper">.</span><span class="shj-syn-func">Put</span>(e)
+
+	err <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">marshal</span>(v, encOpts{escapeHTML: true})
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">!=</span> nil {
+		<span class="shj-syn-kwd">return</span> nil, err
+	}
+	buf <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">append</span>([]<span class="shj-syn-func">byte</span>(nil), e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Bytes</span>()<span class="shj-syn-oper">...</span>)
+
+	<span class="shj-syn-kwd">return</span> buf, nil
+}
+
+<span class="shj-syn-cmnt">// MarshalIndent is like [Marshal] but applies [Indent] to format the output.
+</span><span class="shj-syn-cmnt">// Each JSON element in the output will begin on a new line beginning with prefix
+</span><span class="shj-syn-cmnt">// followed by one or more copies of indent according to the indentation nesting.
+</span><span class="shj-syn-kwd">func</span> <span class="shj-syn-func">MarshalIndent</span>(v any, prefix, indent string) ([]byte, error) {
+	b, err <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">Marshal</span>(v)
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">!=</span> nil {
+		<span class="shj-syn-kwd">return</span> nil, err
+	}
+	b2 <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">make</span>([]byte, <span class="shj-syn-num">0</span>, indentGrowthFactor<span class="shj-syn-kwd">*</span><span class="shj-syn-func">len</span>(b))
+	b2, err <span class="shj-syn-oper">=</span> <span class="shj-syn-func">appendIndent</span>(b2, b, prefix, indent)
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">!=</span> nil {
+		<span class="shj-syn-kwd">return</span> nil, err
+	}
+	<span class="shj-syn-kwd">return</span> b2, nil
+}
+
+<span class="shj-syn-cmnt">// Marshaler is the interface implemented by types that
+</span><span class="shj-syn-cmnt">// can marshal themselves into valid JSON.
+</span><span class="shj-syn-kwd">type</span> <span class="shj-syn-class">Marshaler</span> <span class="shj-syn-kwd">interface</span> {
+	<span class="shj-syn-func">MarshalJSON</span>() ([]byte, error)
+}
+
+<span class="shj-syn-cmnt">// An UnsupportedTypeError is returned by [Marshal] when attempting
+</span><span class="shj-syn-cmnt">// to encode an unsupported value type.
+</span><span class="shj-syn-kwd">type</span> <span class="shj-syn-class">UnsupportedTypeError</span> <span class="shj-syn-kwd">struct</span> {
+	<span class="shj-syn-class">Type</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>
+}
+
+<span class="shj-syn-kwd">func</span> (e <span class="shj-syn-kwd">*</span><span class="shj-syn-class">UnsupportedTypeError</span>) <span class="shj-syn-func">Error</span>() string {
+	<span class="shj-syn-kwd">return</span> <span class="shj-syn-str">"json: unsupported type: "</span> <span class="shj-syn-oper">+</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">String</span>()
+}
+
+<span class="shj-syn-cmnt">// An UnsupportedValueError is returned by [Marshal] when attempting
+</span><span class="shj-syn-cmnt">// to encode an unsupported value.
+</span><span class="shj-syn-kwd">type</span> <span class="shj-syn-class">UnsupportedValueError</span> <span class="shj-syn-kwd">struct</span> {
+	<span class="shj-syn-class">Value</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>
+	<span class="shj-syn-class">Str</span>   string
+}
+
+<span class="shj-syn-kwd">func</span> (e <span class="shj-syn-kwd">*</span><span class="shj-syn-class">UnsupportedValueError</span>) <span class="shj-syn-func">Error</span>() string {
+	<span class="shj-syn-kwd">return</span> <span class="shj-syn-str">"json: unsupported value: "</span> <span class="shj-syn-oper">+</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-class">Str</span>
+}
+
+<span class="shj-syn-cmnt">// Before Go 1.2, an InvalidUTF8Error was returned by [Marshal] when
+</span><span class="shj-syn-cmnt">// attempting to encode a string value with invalid UTF-8 sequences.
+</span><span class="shj-syn-cmnt">// As of Go 1.2, [Marshal] instead coerces the string to valid UTF-8 by
+</span><span class="shj-syn-cmnt">// replacing invalid bytes with the Unicode replacement rune U+FFFD.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Deprecated: No longer used; kept for compatibility.
+</span><span class="shj-syn-kwd">type</span> <span class="shj-syn-class">InvalidUTF8Error</span> <span class="shj-syn-kwd">struct</span> {
+	<span class="shj-syn-class">S</span> string <span class="shj-syn-cmnt">// the whole string value that caused the error
+</span>}
+
+<span class="shj-syn-kwd">func</span> (e <span class="shj-syn-kwd">*</span><span class="shj-syn-class">InvalidUTF8Error</span>) <span class="shj-syn-func">Error</span>() string {
+	<span class="shj-syn-kwd">return</span> <span class="shj-syn-str">"json: invalid UTF-8 in string: "</span> <span class="shj-syn-oper">+</span> strconv<span class="shj-syn-oper">.</span><span class="shj-syn-func">Quote</span>(e<span class="shj-syn-oper">.</span><span class="shj-syn-class">S</span>)
+}
+
+<span class="shj-syn-cmnt">// A MarshalerError represents an error from calling a
+</span><span class="shj-syn-cmnt">// [Marshaler.MarshalJSON] or [encoding.TextMarshaler.MarshalText] method.
+</span><span class="shj-syn-kwd">type</span> <span class="shj-syn-class">MarshalerError</span> <span class="shj-syn-kwd">struct</span> {
+	<span class="shj-syn-class">Type</span>       reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>
+	<span class="shj-syn-class">Err</span>        error
+	sourceFunc string
+}
+
+<span class="shj-syn-kwd">func</span> (e <span class="shj-syn-kwd">*</span><span class="shj-syn-class">MarshalerError</span>) <span class="shj-syn-func">Error</span>() string {
+	srcFunc <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span>sourceFunc
+	<span class="shj-syn-kwd">if</span> srcFunc <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span> {
+		srcFunc <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"MarshalJSON"</span>
+	}
+	<span class="shj-syn-kwd">return</span> <span class="shj-syn-str">"json: error calling "</span> <span class="shj-syn-oper">+</span> srcFunc <span class="shj-syn-oper">+</span>
+		<span class="shj-syn-str">" for type "</span> <span class="shj-syn-oper">+</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">String</span>() <span class="shj-syn-oper">+</span>
+		<span class="shj-syn-str">": "</span> <span class="shj-syn-oper">+</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-class">Err</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">Error</span>()
+}
+
+<span class="shj-syn-cmnt">// Unwrap returns the underlying error.
+</span><span class="shj-syn-kwd">func</span> (e <span class="shj-syn-kwd">*</span><span class="shj-syn-class">MarshalerError</span>) <span class="shj-syn-func">Unwrap</span>() error { <span class="shj-syn-kwd">return</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-class">Err</span> }
+
+<span class="shj-syn-kwd">const</span> hex <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"0123456789abcdef"</span>
+
+<span class="shj-syn-cmnt">// An encodeState encodes JSON into a bytes.Buffer.
+</span><span class="shj-syn-kwd">type</span> encodeState <span class="shj-syn-kwd">struct</span> {
+	bytes<span class="shj-syn-oper">.</span><span class="shj-syn-class">Buffer</span> <span class="shj-syn-cmnt">// accumulated output
+</span>
+	<span class="shj-syn-cmnt">// Keep track of what pointers we've seen in the current recursive call
+</span>	<span class="shj-syn-cmnt">// path, to avoid cycles that could lead to a stack overflow. Only do
+</span>	<span class="shj-syn-cmnt">// the relatively expensive map operations if ptrLevel is larger than
+</span>	<span class="shj-syn-cmnt">// startDetectingCyclesAfter, so that we skip the work if we're within a
+</span>	<span class="shj-syn-cmnt">// reasonable amount of nested pointers deep.
+</span>	ptrLevel uint
+	ptrSeen  <span class="shj-syn-kwd">map</span>[any]<span class="shj-syn-kwd">struct</span>{}
+}
+
+<span class="shj-syn-kwd">const</span> startDetectingCyclesAfter <span class="shj-syn-oper">=</span> <span class="shj-syn-num">1000</span>
+
+<span class="shj-syn-kwd">var</span> encodeStatePool sync<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pool</span>
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">newEncodeState</span>() <span class="shj-syn-kwd">*</span>encodeState {
+	<span class="shj-syn-kwd">if</span> v <span class="shj-syn-oper">:=</span> encodeStatePool<span class="shj-syn-oper">.</span><span class="shj-syn-func">Get</span>(); v <span class="shj-syn-oper">!=</span> nil {
+		e <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span>(<span class="shj-syn-kwd">*</span>encodeState)
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Reset</span>()
+		<span class="shj-syn-kwd">if</span> <span class="shj-syn-func">len</span>(e<span class="shj-syn-oper">.</span>ptrSeen) <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">0</span> {
+			<span class="shj-syn-func">panic</span>(<span class="shj-syn-str">"ptrEncoder.encode should have emptied ptrSeen via defers"</span>)
+		}
+		e<span class="shj-syn-oper">.</span>ptrLevel <span class="shj-syn-oper">=</span> <span class="shj-syn-num">0</span>
+		<span class="shj-syn-kwd">return</span> e
+	}
+	<span class="shj-syn-kwd">return</span> <span class="shj-syn-kwd">&#38;</span>encodeState{ptrSeen: <span class="shj-syn-func">make</span>(<span class="shj-syn-kwd">map</span>[any]<span class="shj-syn-kwd">struct</span>{})}
+}
+
+<span class="shj-syn-cmnt">// jsonError is an error wrapper type for internal use only.
+</span><span class="shj-syn-cmnt">// Panics with errors are wrapped in jsonError so that the top-level recover
+</span><span class="shj-syn-cmnt">// can distinguish intentional panics from this package.
+</span><span class="shj-syn-kwd">type</span> jsonError <span class="shj-syn-kwd">struct</span>{ error }
+
+<span class="shj-syn-kwd">func</span> (e <span class="shj-syn-kwd">*</span>encodeState) <span class="shj-syn-func">marshal</span>(v any, opts encOpts) (err error) {
+	<span class="shj-syn-kwd">defer</span> <span class="shj-syn-kwd">func</span>() {
+		<span class="shj-syn-kwd">if</span> r <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">recover</span>(); r <span class="shj-syn-oper">!=</span> nil {
+			<span class="shj-syn-kwd">if</span> je, ok <span class="shj-syn-oper">:=</span> r<span class="shj-syn-oper">.</span>(jsonError); ok {
+				err <span class="shj-syn-oper">=</span> je<span class="shj-syn-oper">.</span>error
+			} <span class="shj-syn-kwd">else</span> {
+				<span class="shj-syn-func">panic</span>(r)
+			}
+		}
+	}()
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">reflectValue</span>(reflect<span class="shj-syn-oper">.</span><span class="shj-syn-func">ValueOf</span>(v), opts)
+	<span class="shj-syn-kwd">return</span> nil
+}
+
+<span class="shj-syn-cmnt">// error aborts the encoding by panicking with err wrapped in jsonError.
+</span><span class="shj-syn-kwd">func</span> (e <span class="shj-syn-kwd">*</span>encodeState) <span class="shj-syn-func">error</span>(err error) {
+	<span class="shj-syn-func">panic</span>(jsonError{err})
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">isEmptyValue</span>(v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>) bool {
+	<span class="shj-syn-kwd">switch</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() {
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Array</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Map</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Slice</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">String</span>:
+		<span class="shj-syn-kwd">return</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Len</span>() <span class="shj-syn-oper">==</span> <span class="shj-syn-num">0</span>
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Bool</span>,
+		reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int64</span>,
+		reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint64</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uintptr</span>,
+		reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Float32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Float64</span>,
+		reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Interface</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span>:
+		<span class="shj-syn-kwd">return</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsZero</span>()
+	}
+	<span class="shj-syn-kwd">return</span> false
+}
+
+<span class="shj-syn-kwd">func</span> (e <span class="shj-syn-kwd">*</span>encodeState) <span class="shj-syn-func">reflectValue</span>(v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-func">valueEncoder</span>(v)(e, v, opts)
+}
+
+<span class="shj-syn-kwd">type</span> encOpts <span class="shj-syn-kwd">struct</span> {
+	<span class="shj-syn-cmnt">// quoted causes primitive fields to be encoded inside JSON strings.
+</span>	quoted bool
+	<span class="shj-syn-cmnt">// escapeHTML causes '&lt;', '&gt;', and '&#38;' to be escaped in JSON strings.
+</span>	escapeHTML bool
+}
+
+<span class="shj-syn-kwd">type</span> encoderFunc <span class="shj-syn-kwd">func</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts)
+
+<span class="shj-syn-kwd">var</span> encoderCache sync<span class="shj-syn-oper">.</span><span class="shj-syn-class">Map</span> <span class="shj-syn-cmnt">// map[reflect.Type]encoderFunc
+</span>
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">valueEncoder</span>(v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>) encoderFunc {
+	<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span>v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsValid</span>() {
+		<span class="shj-syn-kwd">return</span> invalidValueEncoder
+	}
+	<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">typeEncoder</span>(v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>())
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">typeEncoder</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>) encoderFunc {
+	<span class="shj-syn-kwd">if</span> fi, ok <span class="shj-syn-oper">:=</span> encoderCache<span class="shj-syn-oper">.</span><span class="shj-syn-func">Load</span>(t); ok {
+		<span class="shj-syn-kwd">return</span> fi<span class="shj-syn-oper">.</span>(encoderFunc)
+	}
+
+	<span class="shj-syn-cmnt">// To deal with recursive types, populate the map with an
+</span>	<span class="shj-syn-cmnt">// indirect func before we build it. This type waits on the
+</span>	<span class="shj-syn-cmnt">// real func (f) to be ready and then calls it. This indirect
+</span>	<span class="shj-syn-cmnt">// func is only used for recursive types.
+</span>	<span class="shj-syn-kwd">var</span> (
+		wg sync<span class="shj-syn-oper">.</span><span class="shj-syn-class">WaitGroup</span>
+		f  encoderFunc
+	)
+	wg<span class="shj-syn-oper">.</span><span class="shj-syn-func">Add</span>(<span class="shj-syn-num">1</span>)
+	fi, loaded <span class="shj-syn-oper">:=</span> encoderCache<span class="shj-syn-oper">.</span><span class="shj-syn-func">LoadOrStore</span>(t, <span class="shj-syn-func">encoderFunc</span>(<span class="shj-syn-kwd">func</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+		wg<span class="shj-syn-oper">.</span><span class="shj-syn-func">Wait</span>()
+		<span class="shj-syn-func">f</span>(e, v, opts)
+	}))
+	<span class="shj-syn-kwd">if</span> loaded {
+		<span class="shj-syn-kwd">return</span> fi<span class="shj-syn-oper">.</span>(encoderFunc)
+	}
+
+	<span class="shj-syn-cmnt">// Compute the real encoder and replace the indirect func with it.
+</span>	f <span class="shj-syn-oper">=</span> <span class="shj-syn-func">newTypeEncoder</span>(t, true)
+	wg<span class="shj-syn-oper">.</span><span class="shj-syn-func">Done</span>()
+	encoderCache<span class="shj-syn-oper">.</span><span class="shj-syn-func">Store</span>(t, f)
+	<span class="shj-syn-kwd">return</span> f
+}
+
+<span class="shj-syn-kwd">var</span> (
+	marshalerType     <span class="shj-syn-oper">=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">TypeFor</span>[<span class="shj-syn-class">Marshaler</span>]()
+	textMarshalerType <span class="shj-syn-oper">=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">TypeFor</span>[encoding<span class="shj-syn-oper">.</span><span class="shj-syn-class">TextMarshaler</span>]()
+)
+
+<span class="shj-syn-cmnt">// newTypeEncoder constructs an encoderFunc for a type.
+</span><span class="shj-syn-cmnt">// The returned encoder only checks CanAddr when allowAddr is true.
+</span><span class="shj-syn-kwd">func</span> <span class="shj-syn-func">newTypeEncoder</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>, allowAddr bool) encoderFunc {
+	<span class="shj-syn-cmnt">// If we have a non-pointer value whose type implements
+</span>	<span class="shj-syn-cmnt">// Marshaler with a value receiver, then we're better off taking
+</span>	<span class="shj-syn-cmnt">// the address of the value - otherwise we end up with an
+</span>	<span class="shj-syn-cmnt">// allocation as we cast the value to an interface.
+</span>	<span class="shj-syn-kwd">if</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">!=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> allowAddr <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-func">PointerTo</span>(t)<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(marshalerType) {
+		<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">newCondAddrEncoder</span>(addrMarshalerEncoder, <span class="shj-syn-func">newTypeEncoder</span>(t, false))
+	}
+	<span class="shj-syn-kwd">if</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(marshalerType) {
+		<span class="shj-syn-kwd">return</span> marshalerEncoder
+	}
+	<span class="shj-syn-kwd">if</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">!=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> allowAddr <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-func">PointerTo</span>(t)<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(textMarshalerType) {
+		<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">newCondAddrEncoder</span>(addrTextMarshalerEncoder, <span class="shj-syn-func">newTypeEncoder</span>(t, false))
+	}
+	<span class="shj-syn-kwd">if</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(textMarshalerType) {
+		<span class="shj-syn-kwd">return</span> textMarshalerEncoder
+	}
+
+	<span class="shj-syn-kwd">switch</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() {
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Bool</span>:
+		<span class="shj-syn-kwd">return</span> boolEncoder
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int64</span>:
+		<span class="shj-syn-kwd">return</span> intEncoder
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint64</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uintptr</span>:
+		<span class="shj-syn-kwd">return</span> uintEncoder
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Float32</span>:
+		<span class="shj-syn-kwd">return</span> float32Encoder
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Float64</span>:
+		<span class="shj-syn-kwd">return</span> float64Encoder
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">String</span>:
+		<span class="shj-syn-kwd">return</span> stringEncoder
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Interface</span>:
+		<span class="shj-syn-kwd">return</span> interfaceEncoder
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Struct</span>:
+		<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">newStructEncoder</span>(t)
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Map</span>:
+		<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">newMapEncoder</span>(t)
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Slice</span>:
+		<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">newSliceEncoder</span>(t)
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Array</span>:
+		<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">newArrayEncoder</span>(t)
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span>:
+		<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">newPtrEncoder</span>(t)
+	<span class="shj-syn-kwd">default</span>:
+		<span class="shj-syn-kwd">return</span> unsupportedTypeEncoder
+	}
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">invalidValueEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, _ encOpts) {
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">marshalerEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	m, ok <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(<span class="shj-syn-class">Marshaler</span>)
+	<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span>ok {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	b, err <span class="shj-syn-oper">:=</span> m<span class="shj-syn-oper">.</span><span class="shj-syn-func">MarshalJSON</span>()
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">==</span> nil {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Grow</span>(<span class="shj-syn-func">len</span>(b))
+		out <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>()
+		out, err <span class="shj-syn-oper">=</span> <span class="shj-syn-func">appendCompact</span>(out, b, opts<span class="shj-syn-oper">.</span>escapeHTML)
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-class">Buffer</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(out)
+	}
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">!=</span> nil {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">MarshalerError</span>{v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>(), err, <span class="shj-syn-str">"MarshalJSON"</span>})
+	}
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">addrMarshalerEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	va <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Addr</span>()
+	<span class="shj-syn-kwd">if</span> va<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	m <span class="shj-syn-oper">:=</span> va<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(<span class="shj-syn-class">Marshaler</span>)
+	b, err <span class="shj-syn-oper">:=</span> m<span class="shj-syn-oper">.</span><span class="shj-syn-func">MarshalJSON</span>()
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">==</span> nil {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Grow</span>(<span class="shj-syn-func">len</span>(b))
+		out <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>()
+		out, err <span class="shj-syn-oper">=</span> <span class="shj-syn-func">appendCompact</span>(out, b, opts<span class="shj-syn-oper">.</span>escapeHTML)
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-class">Buffer</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(out)
+	}
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">!=</span> nil {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">MarshalerError</span>{v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>(), err, <span class="shj-syn-str">"MarshalJSON"</span>})
+	}
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">textMarshalerEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	m, ok <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(encoding<span class="shj-syn-oper">.</span><span class="shj-syn-class">TextMarshaler</span>)
+	<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span>ok {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	b, err <span class="shj-syn-oper">:=</span> m<span class="shj-syn-oper">.</span><span class="shj-syn-func">MarshalText</span>()
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">!=</span> nil {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">MarshalerError</span>{v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>(), err, <span class="shj-syn-str">"MarshalText"</span>})
+	}
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(<span class="shj-syn-func">appendString</span>(e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>(), b, opts<span class="shj-syn-oper">.</span>escapeHTML))
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">addrTextMarshalerEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	va <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Addr</span>()
+	<span class="shj-syn-kwd">if</span> va<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	m <span class="shj-syn-oper">:=</span> va<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(encoding<span class="shj-syn-oper">.</span><span class="shj-syn-class">TextMarshaler</span>)
+	b, err <span class="shj-syn-oper">:=</span> m<span class="shj-syn-oper">.</span><span class="shj-syn-func">MarshalText</span>()
+	<span class="shj-syn-kwd">if</span> err <span class="shj-syn-oper">!=</span> nil {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">MarshalerError</span>{v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>(), err, <span class="shj-syn-str">"MarshalText"</span>})
+	}
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(<span class="shj-syn-func">appendString</span>(e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>(), b, opts<span class="shj-syn-oper">.</span>escapeHTML))
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">boolEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	b <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>()
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+	b <span class="shj-syn-oper">=</span> strconv<span class="shj-syn-oper">.</span><span class="shj-syn-func">AppendBool</span>(b, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Bool</span>())
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(b)
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">intEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	b <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>()
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+	b <span class="shj-syn-oper">=</span> strconv<span class="shj-syn-oper">.</span><span class="shj-syn-func">AppendInt</span>(b, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Int</span>(), <span class="shj-syn-num">10</span>)
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(b)
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">uintEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	b <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>()
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+	b <span class="shj-syn-oper">=</span> strconv<span class="shj-syn-oper">.</span><span class="shj-syn-func">AppendUint</span>(b, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Uint</span>(), <span class="shj-syn-num">10</span>)
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(b)
+}
+
+<span class="shj-syn-kwd">type</span> floatEncoder int <span class="shj-syn-cmnt">// number of bits
+</span>
+<span class="shj-syn-kwd">func</span> (bits floatEncoder) <span class="shj-syn-func">encode</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	f <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Float</span>()
+	<span class="shj-syn-kwd">if</span> math<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsInf</span>(f, <span class="shj-syn-num">0</span>) <span class="shj-syn-oper">||</span> math<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNaN</span>(f) {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">UnsupportedValueError</span>{v, strconv<span class="shj-syn-oper">.</span><span class="shj-syn-func">FormatFloat</span>(f, <span class="shj-syn-str">'g'</span>, <span class="shj-syn-oper">-</span><span class="shj-syn-num">1</span>, <span class="shj-syn-func">int</span>(bits))})
+	}
+
+	<span class="shj-syn-cmnt">// Convert as if by ES6 number to string conversion.
+</span>	<span class="shj-syn-cmnt">// This matches most other JSON generators.
+</span>	<span class="shj-syn-cmnt">// See golang.org/issue/6384 and golang.org/issue/14135.
+</span>	<span class="shj-syn-cmnt">// Like fmt %g, but the exponent cutoffs are different
+</span>	<span class="shj-syn-cmnt">// and exponents themselves are not padded to two digits.
+</span>	b <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>()
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+	abs <span class="shj-syn-oper">:=</span> math<span class="shj-syn-oper">.</span><span class="shj-syn-func">Abs</span>(f)
+	fmt <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">byte</span>(<span class="shj-syn-str">'f'</span>)
+	<span class="shj-syn-cmnt">// Note: Must use float32 comparisons for underlying float32 value to get precise cutoffs right.
+</span>	<span class="shj-syn-kwd">if</span> abs <span class="shj-syn-oper">!=</span> <span class="shj-syn-num">0</span> {
+		<span class="shj-syn-kwd">if</span> bits <span class="shj-syn-oper">==</span> <span class="shj-syn-num">64</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> (abs <span class="shj-syn-oper">&lt;</span> <span class="shj-syn-num">1e-6</span> <span class="shj-syn-oper">||</span> abs <span class="shj-syn-oper">&gt;=</span> <span class="shj-syn-num">1e21</span>) <span class="shj-syn-oper">||</span> bits <span class="shj-syn-oper">==</span> <span class="shj-syn-num">32</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> (<span class="shj-syn-func">float32</span>(abs) <span class="shj-syn-oper">&lt;</span> <span class="shj-syn-num">1e-6</span> <span class="shj-syn-oper">||</span> <span class="shj-syn-func">float32</span>(abs) <span class="shj-syn-oper">&gt;=</span> <span class="shj-syn-num">1e21</span>) {
+			fmt <span class="shj-syn-oper">=</span> <span class="shj-syn-str">'e'</span>
+		}
+	}
+	b <span class="shj-syn-oper">=</span> strconv<span class="shj-syn-oper">.</span><span class="shj-syn-func">AppendFloat</span>(b, f, fmt, <span class="shj-syn-oper">-</span><span class="shj-syn-num">1</span>, <span class="shj-syn-func">int</span>(bits))
+	<span class="shj-syn-kwd">if</span> fmt <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'e'</span> {
+		<span class="shj-syn-cmnt">// clean up e-09 to e-9
+</span>		n <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">len</span>(b)
+		<span class="shj-syn-kwd">if</span> n <span class="shj-syn-oper">&gt;=</span> <span class="shj-syn-num">4</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> b[n<span class="shj-syn-oper">-</span><span class="shj-syn-num">4</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'e'</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> b[n<span class="shj-syn-oper">-</span><span class="shj-syn-num">3</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'-'</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> b[n<span class="shj-syn-oper">-</span><span class="shj-syn-num">2</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'0'</span> {
+			b[n<span class="shj-syn-oper">-</span><span class="shj-syn-num">2</span>] <span class="shj-syn-oper">=</span> b[n<span class="shj-syn-oper">-</span><span class="shj-syn-num">1</span>]
+			b <span class="shj-syn-oper">=</span> b[:n<span class="shj-syn-oper">-</span><span class="shj-syn-num">1</span>]
+		}
+	}
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(b)
+}
+
+<span class="shj-syn-kwd">var</span> (
+	float32Encoder <span class="shj-syn-oper">=</span> (<span class="shj-syn-func">floatEncoder</span>(<span class="shj-syn-num">32</span>))<span class="shj-syn-oper">.</span>encode
+	float64Encoder <span class="shj-syn-oper">=</span> (<span class="shj-syn-func">floatEncoder</span>(<span class="shj-syn-num">64</span>))<span class="shj-syn-oper">.</span>encode
+)
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">stringEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>() <span class="shj-syn-oper">==</span> numberType {
+		numStr <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">String</span>()
+		<span class="shj-syn-cmnt">// In Go1.5 the empty string encodes to "0", while this is not a valid number literal
+</span>		<span class="shj-syn-cmnt">// we keep compatibility so check validity after this.
+</span>		<span class="shj-syn-kwd">if</span> numStr <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span> {
+			numStr <span class="shj-syn-oper">=</span> <span class="shj-syn-str">"0"</span> <span class="shj-syn-cmnt">// Number's zero-val
+</span>		}
+		<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span><span class="shj-syn-func">isValidNumber</span>(numStr) {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(fmt<span class="shj-syn-oper">.</span><span class="shj-syn-func">Errorf</span>(<span class="shj-syn-str">"json: invalid number literal %q"</span>, numStr))
+		}
+		b <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>()
+		b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+		b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(b, numStr<span class="shj-syn-oper">...</span>)
+		b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">mayAppendQuote</span>(b, opts<span class="shj-syn-oper">.</span>quoted)
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(b)
+		<span class="shj-syn-kwd">return</span>
+	}
+	<span class="shj-syn-kwd">if</span> opts<span class="shj-syn-oper">.</span>quoted {
+		b <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">appendString</span>(nil, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">String</span>(), opts<span class="shj-syn-oper">.</span>escapeHTML)
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(<span class="shj-syn-func">appendString</span>(e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>(), b, false)) <span class="shj-syn-cmnt">// no need to escape again since it is already escaped
+</span>	} <span class="shj-syn-kwd">else</span> {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(<span class="shj-syn-func">appendString</span>(e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>(), v<span class="shj-syn-oper">.</span><span class="shj-syn-func">String</span>(), opts<span class="shj-syn-oper">.</span>escapeHTML))
+	}
+}
+
+<span class="shj-syn-cmnt">// isValidNumber reports whether s is a valid JSON number literal.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// isValidNumber should be an internal detail,
+</span><span class="shj-syn-cmnt">// but widely used packages access it using linkname.
+</span><span class="shj-syn-cmnt">// Notable members of the hall of shame include:
+</span><span class="shj-syn-cmnt">//   - github.com/bytedance/sonic
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Do not remove or change the type signature.
+</span><span class="shj-syn-cmnt">// See go.dev/issue/67401.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">//go:linkname isValidNumber
+</span><span class="shj-syn-kwd">func</span> <span class="shj-syn-func">isValidNumber</span>(s string) bool {
+	<span class="shj-syn-cmnt">// This function implements the JSON numbers grammar.
+</span>	<span class="shj-syn-cmnt">// See https://tools.ietf.org/html/rfc7159#section-6
+</span>	<span class="shj-syn-cmnt">// and https://www.json.org/img/number.png
+</span>
+	<span class="shj-syn-kwd">if</span> s <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span> {
+		<span class="shj-syn-kwd">return</span> false
+	}
+
+	<span class="shj-syn-cmnt">// Optional -
+</span>	<span class="shj-syn-kwd">if</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'-'</span> {
+		s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">1</span>:]
+		<span class="shj-syn-kwd">if</span> s <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span> {
+			<span class="shj-syn-kwd">return</span> false
+		}
+	}
+
+	<span class="shj-syn-cmnt">// Digits
+</span>	<span class="shj-syn-kwd">switch</span> {
+	<span class="shj-syn-kwd">default</span>:
+		<span class="shj-syn-kwd">return</span> false
+
+	<span class="shj-syn-kwd">case</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'0'</span>:
+		s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">1</span>:]
+
+	<span class="shj-syn-kwd">case</span> <span class="shj-syn-str">'1'</span> <span class="shj-syn-oper">&lt;=</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">&lt;=</span> <span class="shj-syn-str">'9'</span>:
+		s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">1</span>:]
+		<span class="shj-syn-kwd">for</span> <span class="shj-syn-func">len</span>(s) <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">0</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> <span class="shj-syn-str">'0'</span> <span class="shj-syn-oper">&lt;=</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">&lt;=</span> <span class="shj-syn-str">'9'</span> {
+			s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">1</span>:]
+		}
+	}
+
+	<span class="shj-syn-cmnt">// . followed by 1 or more digits.
+</span>	<span class="shj-syn-kwd">if</span> <span class="shj-syn-func">len</span>(s) <span class="shj-syn-oper">&gt;=</span> <span class="shj-syn-num">2</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'.'</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> <span class="shj-syn-str">'0'</span> <span class="shj-syn-oper">&lt;=</span> s[<span class="shj-syn-num">1</span>] <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> s[<span class="shj-syn-num">1</span>] <span class="shj-syn-oper">&lt;=</span> <span class="shj-syn-str">'9'</span> {
+		s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">2</span>:]
+		<span class="shj-syn-kwd">for</span> <span class="shj-syn-func">len</span>(s) <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">0</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> <span class="shj-syn-str">'0'</span> <span class="shj-syn-oper">&lt;=</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">&lt;=</span> <span class="shj-syn-str">'9'</span> {
+			s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">1</span>:]
+		}
+	}
+
+	<span class="shj-syn-cmnt">// e or E followed by an optional - or + and
+</span>	<span class="shj-syn-cmnt">// 1 or more digits.
+</span>	<span class="shj-syn-kwd">if</span> <span class="shj-syn-func">len</span>(s) <span class="shj-syn-oper">&gt;=</span> <span class="shj-syn-num">2</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> (s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'e'</span> <span class="shj-syn-oper">||</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'E'</span>) {
+		s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">1</span>:]
+		<span class="shj-syn-kwd">if</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'+'</span> <span class="shj-syn-oper">||</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'-'</span> {
+			s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">1</span>:]
+			<span class="shj-syn-kwd">if</span> s <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span> {
+				<span class="shj-syn-kwd">return</span> false
+			}
+		}
+		<span class="shj-syn-kwd">for</span> <span class="shj-syn-func">len</span>(s) <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">0</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> <span class="shj-syn-str">'0'</span> <span class="shj-syn-oper">&lt;=</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> s[<span class="shj-syn-num">0</span>] <span class="shj-syn-oper">&lt;=</span> <span class="shj-syn-str">'9'</span> {
+			s <span class="shj-syn-oper">=</span> s[<span class="shj-syn-num">1</span>:]
+		}
+	}
+
+	<span class="shj-syn-cmnt">// Make sure we are at the end.
+</span>	<span class="shj-syn-kwd">return</span> s <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span>
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">interfaceEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">reflectValue</span>(v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>(), opts)
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">unsupportedTypeEncoder</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, _ encOpts) {
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">UnsupportedTypeError</span>{v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>()})
+}
+
+<span class="shj-syn-kwd">type</span> structEncoder <span class="shj-syn-kwd">struct</span> {
+	fields structFields
+}
+
+<span class="shj-syn-kwd">type</span> structFields <span class="shj-syn-kwd">struct</span> {
+	list         []field
+	byExactName  <span class="shj-syn-kwd">map</span>[string]<span class="shj-syn-kwd">*</span>field
+	byFoldedName <span class="shj-syn-kwd">map</span>[string]<span class="shj-syn-kwd">*</span>field
+}
+
+<span class="shj-syn-kwd">func</span> (se structEncoder) <span class="shj-syn-func">encode</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	next <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">byte</span>(<span class="shj-syn-str">'{'</span>)
+<span class="shj-syn-class">FieldLoop</span>:
+	<span class="shj-syn-kwd">for</span> i <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">range</span> se<span class="shj-syn-oper">.</span>fields<span class="shj-syn-oper">.</span>list {
+		f <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">&#38;</span>se<span class="shj-syn-oper">.</span>fields<span class="shj-syn-oper">.</span>list[i]
+
+		<span class="shj-syn-cmnt">// Find the nested struct field by following f.index.
+</span>		fv <span class="shj-syn-oper">:=</span> v
+		<span class="shj-syn-kwd">for</span> _, i <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">range</span> f<span class="shj-syn-oper">.</span>index {
+			<span class="shj-syn-kwd">if</span> fv<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> {
+				<span class="shj-syn-kwd">if</span> fv<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+					<span class="shj-syn-kwd">continue</span> <span class="shj-syn-class">FieldLoop</span>
+				}
+				fv <span class="shj-syn-oper">=</span> fv<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>()
+			}
+			fv <span class="shj-syn-oper">=</span> fv<span class="shj-syn-oper">.</span><span class="shj-syn-func">Field</span>(i)
+		}
+
+		<span class="shj-syn-kwd">if</span> (f<span class="shj-syn-oper">.</span>omitEmpty <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> <span class="shj-syn-func">isEmptyValue</span>(fv)) <span class="shj-syn-oper">||</span>
+			(f<span class="shj-syn-oper">.</span>omitZero <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> (f<span class="shj-syn-oper">.</span>isZero <span class="shj-syn-oper">==</span> nil <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> fv<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsZero</span>() <span class="shj-syn-oper">||</span> (f<span class="shj-syn-oper">.</span>isZero <span class="shj-syn-oper">!=</span> nil <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> f<span class="shj-syn-oper">.</span><span class="shj-syn-func">isZero</span>(fv)))) {
+			<span class="shj-syn-kwd">continue</span>
+		}
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(next)
+		next <span class="shj-syn-oper">=</span> <span class="shj-syn-str">','</span>
+		<span class="shj-syn-kwd">if</span> opts<span class="shj-syn-oper">.</span>escapeHTML {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(f<span class="shj-syn-oper">.</span>nameEscHTML)
+		} <span class="shj-syn-kwd">else</span> {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(f<span class="shj-syn-oper">.</span>nameNonEsc)
+		}
+		opts<span class="shj-syn-oper">.</span>quoted <span class="shj-syn-oper">=</span> f<span class="shj-syn-oper">.</span>quoted
+		f<span class="shj-syn-oper">.</span><span class="shj-syn-func">encoder</span>(e, fv, opts)
+	}
+	<span class="shj-syn-kwd">if</span> next <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'{'</span> {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"{}"</span>)
+	} <span class="shj-syn-kwd">else</span> {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(<span class="shj-syn-str">'}'</span>)
+	}
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">newStructEncoder</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>) encoderFunc {
+	se <span class="shj-syn-oper">:=</span> structEncoder{fields: <span class="shj-syn-func">cachedTypeFields</span>(t)}
+	<span class="shj-syn-kwd">return</span> se<span class="shj-syn-oper">.</span>encode
+}
+
+<span class="shj-syn-kwd">type</span> mapEncoder <span class="shj-syn-kwd">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="shj-syn-kwd">func</span> (me mapEncoder) <span class="shj-syn-func">encode</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	<span class="shj-syn-kwd">if</span> e<span class="shj-syn-oper">.</span>ptrLevel<span class="shj-syn-oper">++</span>; e<span class="shj-syn-oper">.</span>ptrLevel <span class="shj-syn-oper">&gt;</span> startDetectingCyclesAfter {
+		<span class="shj-syn-cmnt">// We're a large number of nested ptrEncoder.encode calls deep;
+</span>		<span class="shj-syn-cmnt">// start checking if we've run into a pointer cycle.
+</span>		ptr <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">UnsafePointer</span>()
+		<span class="shj-syn-kwd">if</span> _, ok <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span>ptrSeen[ptr]; ok {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">UnsupportedValueError</span>{v, fmt<span class="shj-syn-oper">.</span><span class="shj-syn-func">Sprintf</span>(<span class="shj-syn-str">"encountered a cycle via %s"</span>, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>())})
+		}
+		e<span class="shj-syn-oper">.</span>ptrSeen[ptr] <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">struct</span>{}{}
+		<span class="shj-syn-kwd">defer</span> <span class="shj-syn-func">delete</span>(e<span class="shj-syn-oper">.</span>ptrSeen, ptr)
+	}
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(<span class="shj-syn-str">'{'</span>)
+
+	<span class="shj-syn-cmnt">// Extract and sort the keys.
+</span>	<span class="shj-syn-kwd">var</span> (
+		sv  <span class="shj-syn-oper">=</span> <span class="shj-syn-func">make</span>([]reflectWithString, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Len</span>())
+		mi  <span class="shj-syn-oper">=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">MapRange</span>()
+		err error
+	)
+	<span class="shj-syn-kwd">for</span> i <span class="shj-syn-oper">:=</span> <span class="shj-syn-num">0</span>; mi<span class="shj-syn-oper">.</span><span class="shj-syn-func">Next</span>(); i<span class="shj-syn-oper">++</span> {
+		<span class="shj-syn-kwd">if</span> sv[i]<span class="shj-syn-oper">.</span>ks, err <span class="shj-syn-oper">=</span> <span class="shj-syn-func">resolveKeyName</span>(mi<span class="shj-syn-oper">.</span><span class="shj-syn-func">Key</span>()); err <span class="shj-syn-oper">!=</span> nil {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(fmt<span class="shj-syn-oper">.</span><span class="shj-syn-func">Errorf</span>(<span class="shj-syn-str">"json: encoding error for type %q: %q"</span>, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">String</span>(), err<span class="shj-syn-oper">.</span><span class="shj-syn-func">Error</span>()))
+		}
+		sv[i]<span class="shj-syn-oper">.</span>v <span class="shj-syn-oper">=</span> mi<span class="shj-syn-oper">.</span><span class="shj-syn-func">Value</span>()
+	}
+	slices<span class="shj-syn-oper">.</span><span class="shj-syn-func">SortFunc</span>(sv, <span class="shj-syn-kwd">func</span>(i, j reflectWithString) int {
+		<span class="shj-syn-kwd">return</span> strings<span class="shj-syn-oper">.</span><span class="shj-syn-func">Compare</span>(i<span class="shj-syn-oper">.</span>ks, j<span class="shj-syn-oper">.</span>ks)
+	})
+
+	<span class="shj-syn-kwd">for</span> i, kv <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">range</span> sv {
+		<span class="shj-syn-kwd">if</span> i <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">0</span> {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(<span class="shj-syn-str">','</span>)
+		}
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(<span class="shj-syn-func">appendString</span>(e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>(), kv<span class="shj-syn-oper">.</span>ks, opts<span class="shj-syn-oper">.</span>escapeHTML))
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(<span class="shj-syn-str">':'</span>)
+		me<span class="shj-syn-oper">.</span><span class="shj-syn-func">elemEnc</span>(e, kv<span class="shj-syn-oper">.</span>v, opts)
+	}
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(<span class="shj-syn-str">'}'</span>)
+	e<span class="shj-syn-oper">.</span>ptrLevel<span class="shj-syn-oper">--</span>
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">newMapEncoder</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>) encoderFunc {
+	<span class="shj-syn-kwd">switch</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Key</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() {
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">String</span>,
+		reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int64</span>,
+		reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint64</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uintptr</span>:
+	<span class="shj-syn-kwd">default</span>:
+		<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span>t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Key</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(textMarshalerType) {
+			<span class="shj-syn-kwd">return</span> unsupportedTypeEncoder
+		}
+	}
+	me <span class="shj-syn-oper">:=</span> mapEncoder{<span class="shj-syn-func">typeEncoder</span>(t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>())}
+	<span class="shj-syn-kwd">return</span> me<span class="shj-syn-oper">.</span>encode
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">encodeByteSlice</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, _ encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+
+	s <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Bytes</span>()
+	b <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span><span class="shj-syn-func">AvailableBuffer</span>()
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(b, <span class="shj-syn-str">'"'</span>)
+	b <span class="shj-syn-oper">=</span> base64<span class="shj-syn-oper">.</span><span class="shj-syn-class">StdEncoding</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">AppendEncode</span>(b, s)
+	b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(b, <span class="shj-syn-str">'"'</span>)
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">Write</span>(b)
+}
+
+<span class="shj-syn-cmnt">// sliceEncoder just wraps an arrayEncoder, checking to make sure the value isn't nil.
+</span><span class="shj-syn-kwd">type</span> sliceEncoder <span class="shj-syn-kwd">struct</span> {
+	arrayEnc encoderFunc
+}
+
+<span class="shj-syn-kwd">func</span> (se sliceEncoder) <span class="shj-syn-func">encode</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	<span class="shj-syn-kwd">if</span> e<span class="shj-syn-oper">.</span>ptrLevel<span class="shj-syn-oper">++</span>; e<span class="shj-syn-oper">.</span>ptrLevel <span class="shj-syn-oper">&gt;</span> startDetectingCyclesAfter {
+		<span class="shj-syn-cmnt">// We're a large number of nested ptrEncoder.encode calls deep;
+</span>		<span class="shj-syn-cmnt">// start checking if we've run into a pointer cycle.
+</span>		<span class="shj-syn-cmnt">// Here we use a struct to memorize the pointer to the first element of the slice
+</span>		<span class="shj-syn-cmnt">// and its length.
+</span>		ptr <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">struct</span> {
+			ptr any <span class="shj-syn-cmnt">// always an unsafe.Pointer, but avoids a dependency on package unsafe
+</span>			len int
+		}{v<span class="shj-syn-oper">.</span><span class="shj-syn-func">UnsafePointer</span>(), v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Len</span>()}
+		<span class="shj-syn-kwd">if</span> _, ok <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span>ptrSeen[ptr]; ok {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">UnsupportedValueError</span>{v, fmt<span class="shj-syn-oper">.</span><span class="shj-syn-func">Sprintf</span>(<span class="shj-syn-str">"encountered a cycle via %s"</span>, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>())})
+		}
+		e<span class="shj-syn-oper">.</span>ptrSeen[ptr] <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">struct</span>{}{}
+		<span class="shj-syn-kwd">defer</span> <span class="shj-syn-func">delete</span>(e<span class="shj-syn-oper">.</span>ptrSeen, ptr)
+	}
+	se<span class="shj-syn-oper">.</span><span class="shj-syn-func">arrayEnc</span>(e, v, opts)
+	e<span class="shj-syn-oper">.</span>ptrLevel<span class="shj-syn-oper">--</span>
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">newSliceEncoder</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>) encoderFunc {
+	<span class="shj-syn-cmnt">// Byte slices get special treatment; arrays don't.
+</span>	<span class="shj-syn-kwd">if</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint8</span> {
+		p <span class="shj-syn-oper">:=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-func">PointerTo</span>(t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>())
+		<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span>p<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(marshalerType) <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> <span class="shj-syn-oper">!</span>p<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(textMarshalerType) {
+			<span class="shj-syn-kwd">return</span> encodeByteSlice
+		}
+	}
+	enc <span class="shj-syn-oper">:=</span> sliceEncoder{<span class="shj-syn-func">newArrayEncoder</span>(t)}
+	<span class="shj-syn-kwd">return</span> enc<span class="shj-syn-oper">.</span>encode
+}
+
+<span class="shj-syn-kwd">type</span> arrayEncoder <span class="shj-syn-kwd">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="shj-syn-kwd">func</span> (ae arrayEncoder) <span class="shj-syn-func">encode</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(<span class="shj-syn-str">'['</span>)
+	n <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Len</span>()
+	<span class="shj-syn-kwd">for</span> i <span class="shj-syn-oper">:=</span> <span class="shj-syn-num">0</span>; i <span class="shj-syn-oper">&lt;</span> n; i<span class="shj-syn-oper">++</span> {
+		<span class="shj-syn-kwd">if</span> i <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">0</span> {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(<span class="shj-syn-str">','</span>)
+		}
+		ae<span class="shj-syn-oper">.</span><span class="shj-syn-func">elemEnc</span>(e, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Index</span>(i), opts)
+	}
+	e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteByte</span>(<span class="shj-syn-str">']'</span>)
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">newArrayEncoder</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>) encoderFunc {
+	enc <span class="shj-syn-oper">:=</span> arrayEncoder{<span class="shj-syn-func">typeEncoder</span>(t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>())}
+	<span class="shj-syn-kwd">return</span> enc<span class="shj-syn-oper">.</span>encode
+}
+
+<span class="shj-syn-kwd">type</span> ptrEncoder <span class="shj-syn-kwd">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="shj-syn-kwd">func</span> (pe ptrEncoder) <span class="shj-syn-func">encode</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+		e<span class="shj-syn-oper">.</span><span class="shj-syn-func">WriteString</span>(<span class="shj-syn-str">"null"</span>)
+		<span class="shj-syn-kwd">return</span>
+	}
+	<span class="shj-syn-kwd">if</span> e<span class="shj-syn-oper">.</span>ptrLevel<span class="shj-syn-oper">++</span>; e<span class="shj-syn-oper">.</span>ptrLevel <span class="shj-syn-oper">&gt;</span> startDetectingCyclesAfter {
+		<span class="shj-syn-cmnt">// We're a large number of nested ptrEncoder.encode calls deep;
+</span>		<span class="shj-syn-cmnt">// start checking if we've run into a pointer cycle.
+</span>		ptr <span class="shj-syn-oper">:=</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()
+		<span class="shj-syn-kwd">if</span> _, ok <span class="shj-syn-oper">:=</span> e<span class="shj-syn-oper">.</span>ptrSeen[ptr]; ok {
+			e<span class="shj-syn-oper">.</span><span class="shj-syn-func">error</span>(<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-class">UnsupportedValueError</span>{v, fmt<span class="shj-syn-oper">.</span><span class="shj-syn-func">Sprintf</span>(<span class="shj-syn-str">"encountered a cycle via %s"</span>, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>())})
+		}
+		e<span class="shj-syn-oper">.</span>ptrSeen[ptr] <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">struct</span>{}{}
+		<span class="shj-syn-kwd">defer</span> <span class="shj-syn-func">delete</span>(e<span class="shj-syn-oper">.</span>ptrSeen, ptr)
+	}
+	pe<span class="shj-syn-oper">.</span><span class="shj-syn-func">elemEnc</span>(e, v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>(), opts)
+	e<span class="shj-syn-oper">.</span>ptrLevel<span class="shj-syn-oper">--</span>
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">newPtrEncoder</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>) encoderFunc {
+	enc <span class="shj-syn-oper">:=</span> ptrEncoder{<span class="shj-syn-func">typeEncoder</span>(t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>())}
+	<span class="shj-syn-kwd">return</span> enc<span class="shj-syn-oper">.</span>encode
+}
+
+<span class="shj-syn-kwd">type</span> condAddrEncoder <span class="shj-syn-kwd">struct</span> {
+	canAddrEnc, elseEnc encoderFunc
+}
+
+<span class="shj-syn-kwd">func</span> (ce condAddrEncoder) <span class="shj-syn-func">encode</span>(e <span class="shj-syn-kwd">*</span>encodeState, v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>, opts encOpts) {
+	<span class="shj-syn-kwd">if</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">CanAddr</span>() {
+		ce<span class="shj-syn-oper">.</span><span class="shj-syn-func">canAddrEnc</span>(e, v, opts)
+	} <span class="shj-syn-kwd">else</span> {
+		ce<span class="shj-syn-oper">.</span><span class="shj-syn-func">elseEnc</span>(e, v, opts)
+	}
+}
+
+<span class="shj-syn-cmnt">// newCondAddrEncoder returns an encoder that checks whether its value
+</span><span class="shj-syn-cmnt">// CanAddr and delegates to canAddrEnc if so, else to elseEnc.
+</span><span class="shj-syn-kwd">func</span> <span class="shj-syn-func">newCondAddrEncoder</span>(canAddrEnc, elseEnc encoderFunc) encoderFunc {
+	enc <span class="shj-syn-oper">:=</span> condAddrEncoder{canAddrEnc: canAddrEnc, elseEnc: elseEnc}
+	<span class="shj-syn-kwd">return</span> enc<span class="shj-syn-oper">.</span>encode
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">isValidTag</span>(s string) bool {
+	<span class="shj-syn-kwd">if</span> s <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span> {
+		<span class="shj-syn-kwd">return</span> false
+	}
+	<span class="shj-syn-kwd">for</span> _, c <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">range</span> s {
+		<span class="shj-syn-kwd">switch</span> {
+		<span class="shj-syn-kwd">case</span> strings<span class="shj-syn-oper">.</span><span class="shj-syn-func">ContainsRune</span>(<span class="shj-syn-str">"!#$%&#38;()*+-./:;&lt;=&gt;?@[]^_{|}~ "</span>, c):
+			<span class="shj-syn-cmnt">// Backslash and quote chars are reserved, but
+</span>			<span class="shj-syn-cmnt">// otherwise any punctuation chars are allowed
+</span>			<span class="shj-syn-cmnt">// in a tag name.
+</span>		<span class="shj-syn-kwd">case</span> <span class="shj-syn-oper">!</span>unicode<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsLetter</span>(c) <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> <span class="shj-syn-oper">!</span>unicode<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsDigit</span>(c):
+			<span class="shj-syn-kwd">return</span> false
+		}
+	}
+	<span class="shj-syn-kwd">return</span> true
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">typeByIndex</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>, index []int) reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span> {
+	<span class="shj-syn-kwd">for</span> _, i <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">range</span> index {
+		<span class="shj-syn-kwd">if</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> {
+			t <span class="shj-syn-oper">=</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>()
+		}
+		t <span class="shj-syn-oper">=</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Field</span>(i)<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>
+	}
+	<span class="shj-syn-kwd">return</span> t
+}
+
+<span class="shj-syn-kwd">type</span> reflectWithString <span class="shj-syn-kwd">struct</span> {
+	v  reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>
+	ks string
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">resolveKeyName</span>(k reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>) (string, error) {
+	<span class="shj-syn-kwd">if</span> k<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">String</span> {
+		<span class="shj-syn-kwd">return</span> k<span class="shj-syn-oper">.</span><span class="shj-syn-func">String</span>(), nil
+	}
+	<span class="shj-syn-kwd">if</span> tm, ok <span class="shj-syn-oper">:=</span> k<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(encoding<span class="shj-syn-oper">.</span><span class="shj-syn-class">TextMarshaler</span>); ok {
+		<span class="shj-syn-kwd">if</span> k<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> k<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() {
+			<span class="shj-syn-kwd">return</span> <span class="shj-syn-str">""</span>, nil
+		}
+		buf, err <span class="shj-syn-oper">:=</span> tm<span class="shj-syn-oper">.</span><span class="shj-syn-func">MarshalText</span>()
+		<span class="shj-syn-kwd">return</span> <span class="shj-syn-func">string</span>(buf), err
+	}
+	<span class="shj-syn-kwd">switch</span> k<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() {
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int64</span>:
+		<span class="shj-syn-kwd">return</span> strconv<span class="shj-syn-oper">.</span><span class="shj-syn-func">FormatInt</span>(k<span class="shj-syn-oper">.</span><span class="shj-syn-func">Int</span>(), <span class="shj-syn-num">10</span>), nil
+	<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint64</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uintptr</span>:
+		<span class="shj-syn-kwd">return</span> strconv<span class="shj-syn-oper">.</span><span class="shj-syn-func">FormatUint</span>(k<span class="shj-syn-oper">.</span><span class="shj-syn-func">Uint</span>(), <span class="shj-syn-num">10</span>), nil
+	}
+	<span class="shj-syn-func">panic</span>(<span class="shj-syn-str">"unexpected map key type"</span>)
+}
+
+<span class="shj-syn-kwd">func</span> appendString[<span class="shj-syn-class">Bytes</span> []byte <span class="shj-syn-oper">|</span> string](dst []byte, src <span class="shj-syn-class">Bytes</span>, escapeHTML bool) []byte {
+	dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'"'</span>)
+	start <span class="shj-syn-oper">:=</span> <span class="shj-syn-num">0</span>
+	<span class="shj-syn-kwd">for</span> i <span class="shj-syn-oper">:=</span> <span class="shj-syn-num">0</span>; i <span class="shj-syn-oper">&lt;</span> <span class="shj-syn-func">len</span>(src); {
+		<span class="shj-syn-kwd">if</span> b <span class="shj-syn-oper">:=</span> src[i]; b <span class="shj-syn-oper">&lt;</span> utf8<span class="shj-syn-oper">.</span><span class="shj-syn-class">RuneSelf</span> {
+			<span class="shj-syn-kwd">if</span> htmlSafeSet[b] <span class="shj-syn-oper">||</span> (<span class="shj-syn-oper">!</span>escapeHTML <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> safeSet[b]) {
+				i<span class="shj-syn-oper">++</span>
+				<span class="shj-syn-kwd">continue</span>
+			}
+			dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, src[start:i]<span class="shj-syn-oper">...</span>)
+			<span class="shj-syn-kwd">switch</span> b {
+			<span class="shj-syn-kwd">case</span> <span class="shj-syn-str">'\\'</span>, <span class="shj-syn-str">'"'</span>:
+				dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'\\'</span>, b)
+			<span class="shj-syn-kwd">case</span> <span class="shj-syn-str">'\b'</span>:
+				dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'\\'</span>, <span class="shj-syn-str">'b'</span>)
+			<span class="shj-syn-kwd">case</span> <span class="shj-syn-str">'\f'</span>:
+				dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'\\'</span>, <span class="shj-syn-str">'f'</span>)
+			<span class="shj-syn-kwd">case</span> <span class="shj-syn-str">'\n'</span>:
+				dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'\\'</span>, <span class="shj-syn-str">'n'</span>)
+			<span class="shj-syn-kwd">case</span> <span class="shj-syn-str">'\r'</span>:
+				dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'\\'</span>, <span class="shj-syn-str">'r'</span>)
+			<span class="shj-syn-kwd">case</span> <span class="shj-syn-str">'\t'</span>:
+				dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'\\'</span>, <span class="shj-syn-str">'t'</span>)
+			<span class="shj-syn-kwd">default</span>:
+				<span class="shj-syn-cmnt">// This encodes bytes &lt; 0x20 except for \b, \f, \n, \r and \t.
+</span>				<span class="shj-syn-cmnt">// If escapeHTML is set, it also escapes &lt;, &gt;, and &#38;
+</span>				<span class="shj-syn-cmnt">// because they can lead to security holes when
+</span>				<span class="shj-syn-cmnt">// user-controlled strings are rendered into JSON
+</span>				<span class="shj-syn-cmnt">// and served to some browsers.
+</span>				dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'\\'</span>, <span class="shj-syn-str">'u'</span>, <span class="shj-syn-str">'0'</span>, <span class="shj-syn-str">'0'</span>, hex[b<span class="shj-syn-oper">&gt;&gt;</span><span class="shj-syn-num">4</span>], hex[b<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-num">0xF</span>])
+			}
+			i<span class="shj-syn-oper">++</span>
+			start <span class="shj-syn-oper">=</span> i
+			<span class="shj-syn-kwd">continue</span>
+		}
+		<span class="shj-syn-cmnt">// </span><span class="shj-syn-err">TODO</span><span class="shj-syn-cmnt">(https://go.dev/issue/56948): Use generic utf8 functionality.
+</span>		<span class="shj-syn-cmnt">// For now, cast only a small portion of byte slices to a string
+</span>		<span class="shj-syn-cmnt">// so that it can be stack allocated. This slows down []byte slightly
+</span>		<span class="shj-syn-cmnt">// due to the extra copy, but keeps string performance roughly the same.
+</span>		n <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">len</span>(src) <span class="shj-syn-oper">-</span> i
+		<span class="shj-syn-kwd">if</span> n <span class="shj-syn-oper">&gt;</span> utf8<span class="shj-syn-oper">.</span><span class="shj-syn-class">UTFMax</span> {
+			n <span class="shj-syn-oper">=</span> utf8<span class="shj-syn-oper">.</span><span class="shj-syn-class">UTFMax</span>
+		}
+		c, size <span class="shj-syn-oper">:=</span> utf8<span class="shj-syn-oper">.</span><span class="shj-syn-func">DecodeRuneInString</span>(<span class="shj-syn-func">string</span>(src[i : i<span class="shj-syn-oper">+</span>n]))
+		<span class="shj-syn-kwd">if</span> c <span class="shj-syn-oper">==</span> utf8<span class="shj-syn-oper">.</span><span class="shj-syn-class">RuneError</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> size <span class="shj-syn-oper">==</span> <span class="shj-syn-num">1</span> {
+			dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, src[start:i]<span class="shj-syn-oper">...</span>)
+			dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">`\ufffd`</span><span class="shj-syn-oper">...</span>)
+			i <span class="shj-syn-oper">+=</span> size
+			start <span class="shj-syn-oper">=</span> i
+			<span class="shj-syn-kwd">continue</span>
+		}
+		<span class="shj-syn-cmnt">// U+2028 is LINE SEPARATOR.
+</span>		<span class="shj-syn-cmnt">// U+2029 is PARAGRAPH SEPARATOR.
+</span>		<span class="shj-syn-cmnt">// They are both technically valid characters in JSON strings,
+</span>		<span class="shj-syn-cmnt">// but don't work in JSONP, which has to be evaluated as JavaScript,
+</span>		<span class="shj-syn-cmnt">// and can lead to security holes there. It is valid JSON to
+</span>		<span class="shj-syn-cmnt">// escape them, so we do so unconditionally.
+</span>		<span class="shj-syn-cmnt">// See https://en.wikipedia.org/wiki/JSON#Safety.
+</span>		<span class="shj-syn-kwd">if</span> c <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'\u2028'</span> <span class="shj-syn-oper">||</span> c <span class="shj-syn-oper">==</span> <span class="shj-syn-str">'\u2029'</span> {
+			dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, src[start:i]<span class="shj-syn-oper">...</span>)
+			dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'\\'</span>, <span class="shj-syn-str">'u'</span>, <span class="shj-syn-str">'2'</span>, <span class="shj-syn-str">'0'</span>, <span class="shj-syn-str">'2'</span>, hex[c<span class="shj-syn-kwd">&#38;</span><span class="shj-syn-num">0xF</span>])
+			i <span class="shj-syn-oper">+=</span> size
+			start <span class="shj-syn-oper">=</span> i
+			<span class="shj-syn-kwd">continue</span>
+		}
+		i <span class="shj-syn-oper">+=</span> size
+	}
+	dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, src[start:]<span class="shj-syn-oper">...</span>)
+	dst <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(dst, <span class="shj-syn-str">'"'</span>)
+	<span class="shj-syn-kwd">return</span> dst
+}
+
+<span class="shj-syn-cmnt">// A field represents a single field found in a struct.
+</span><span class="shj-syn-kwd">type</span> field <span class="shj-syn-kwd">struct</span> {
+	name      string
+	nameBytes []byte <span class="shj-syn-cmnt">// []byte(name)
+</span>
+	nameNonEsc  string <span class="shj-syn-cmnt">// `"` + name + `":`
+</span>	nameEscHTML string <span class="shj-syn-cmnt">// `"` + HTMLEscape(name) + `":`
+</span>
+	tag       bool
+	index     []int
+	typ       reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>
+	omitEmpty bool
+	omitZero  bool
+	isZero    <span class="shj-syn-kwd">func</span>(reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>) bool
+	quoted    bool
+
+	encoder encoderFunc
+}
+
+<span class="shj-syn-kwd">type</span> isZeroer <span class="shj-syn-kwd">interface</span> {
+	<span class="shj-syn-func">IsZero</span>() bool
+}
+
+<span class="shj-syn-kwd">var</span> isZeroerType <span class="shj-syn-oper">=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">TypeFor</span>[isZeroer]()
+
+<span class="shj-syn-cmnt">// typeFields returns a list of fields that JSON should recognize for the given type.
+</span><span class="shj-syn-cmnt">// The algorithm is breadth-first search over the set of structs to include - the top struct
+</span><span class="shj-syn-cmnt">// and then any reachable anonymous structs.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// typeFields should be an internal detail,
+</span><span class="shj-syn-cmnt">// but widely used packages access it using linkname.
+</span><span class="shj-syn-cmnt">// Notable members of the hall of shame include:
+</span><span class="shj-syn-cmnt">//   - github.com/bytedance/sonic
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">// Do not remove or change the type signature.
+</span><span class="shj-syn-cmnt">// See go.dev/issue/67401.
+</span><span class="shj-syn-cmnt">//
+</span><span class="shj-syn-cmnt">//go:linkname typeFields
+</span><span class="shj-syn-kwd">func</span> <span class="shj-syn-func">typeFields</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>) structFields {
+	<span class="shj-syn-cmnt">// Anonymous fields to explore at the current level and the next.
+</span>	current <span class="shj-syn-oper">:=</span> []field{}
+	next <span class="shj-syn-oper">:=</span> []field{{typ: t}}
+
+	<span class="shj-syn-cmnt">// Count of queued names for current level and the next.
+</span>	<span class="shj-syn-kwd">var</span> count, nextCount <span class="shj-syn-kwd">map</span>[reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>]int
+
+	<span class="shj-syn-cmnt">// Types already visited at an earlier level.
+</span>	visited <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">map</span>[reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>]bool{}
+
+	<span class="shj-syn-cmnt">// Fields found.
+</span>	<span class="shj-syn-kwd">var</span> fields []field
+
+	<span class="shj-syn-cmnt">// Buffer to run appendHTMLEscape on field names.
+</span>	<span class="shj-syn-kwd">var</span> nameEscBuf []byte
+
+	<span class="shj-syn-kwd">for</span> <span class="shj-syn-func">len</span>(next) <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">0</span> {
+		current, next <span class="shj-syn-oper">=</span> next, current[:<span class="shj-syn-num">0</span>]
+		count, nextCount <span class="shj-syn-oper">=</span> nextCount, <span class="shj-syn-kwd">map</span>[reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>]int{}
+
+		<span class="shj-syn-kwd">for</span> _, f <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">range</span> current {
+			<span class="shj-syn-kwd">if</span> visited[f<span class="shj-syn-oper">.</span>typ] {
+				<span class="shj-syn-kwd">continue</span>
+			}
+			visited[f<span class="shj-syn-oper">.</span>typ] <span class="shj-syn-oper">=</span> true
+
+			<span class="shj-syn-cmnt">// Scan f.typ for fields to include.
+</span>			<span class="shj-syn-kwd">for</span> i <span class="shj-syn-oper">:=</span> <span class="shj-syn-num">0</span>; i <span class="shj-syn-oper">&lt;</span> f<span class="shj-syn-oper">.</span>typ<span class="shj-syn-oper">.</span><span class="shj-syn-func">NumField</span>(); i<span class="shj-syn-oper">++</span> {
+				sf <span class="shj-syn-oper">:=</span> f<span class="shj-syn-oper">.</span>typ<span class="shj-syn-oper">.</span><span class="shj-syn-func">Field</span>(i)
+				<span class="shj-syn-kwd">if</span> sf<span class="shj-syn-oper">.</span><span class="shj-syn-class">Anonymous</span> {
+					t <span class="shj-syn-oper">:=</span> sf<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>
+					<span class="shj-syn-kwd">if</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> {
+						t <span class="shj-syn-oper">=</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>()
+					}
+					<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span>sf<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsExported</span>() <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">!=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Struct</span> {
+						<span class="shj-syn-cmnt">// Ignore embedded fields of unexported non-struct types.
+</span>						<span class="shj-syn-kwd">continue</span>
+					}
+					<span class="shj-syn-cmnt">// Do not ignore embedded fields of unexported struct types
+</span>					<span class="shj-syn-cmnt">// since they may have exported fields.
+</span>				} <span class="shj-syn-kwd">else</span> <span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span>sf<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsExported</span>() {
+					<span class="shj-syn-cmnt">// Ignore unexported non-embedded fields.
+</span>					<span class="shj-syn-kwd">continue</span>
+				}
+				tag <span class="shj-syn-oper">:=</span> sf<span class="shj-syn-oper">.</span><span class="shj-syn-class">Tag</span><span class="shj-syn-oper">.</span><span class="shj-syn-func">Get</span>(<span class="shj-syn-str">"json"</span>)
+				<span class="shj-syn-kwd">if</span> tag <span class="shj-syn-oper">==</span> <span class="shj-syn-str">"-"</span> {
+					<span class="shj-syn-kwd">continue</span>
+				}
+				name, opts <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">parseTag</span>(tag)
+				<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span><span class="shj-syn-func">isValidTag</span>(name) {
+					name <span class="shj-syn-oper">=</span> <span class="shj-syn-str">""</span>
+				}
+				index <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">make</span>([]int, <span class="shj-syn-func">len</span>(f<span class="shj-syn-oper">.</span>index)<span class="shj-syn-oper">+</span><span class="shj-syn-num">1</span>)
+				<span class="shj-syn-func">copy</span>(index, f<span class="shj-syn-oper">.</span>index)
+				index[<span class="shj-syn-func">len</span>(f<span class="shj-syn-oper">.</span>index)] <span class="shj-syn-oper">=</span> i
+
+				ft <span class="shj-syn-oper">:=</span> sf<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>
+				<span class="shj-syn-kwd">if</span> ft<span class="shj-syn-oper">.</span><span class="shj-syn-func">Name</span>() <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> ft<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> {
+					<span class="shj-syn-cmnt">// Follow pointer.
+</span>					ft <span class="shj-syn-oper">=</span> ft<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>()
+				}
+
+				<span class="shj-syn-cmnt">// Only strings, floats, integers, and booleans can be quoted.
+</span>				quoted <span class="shj-syn-oper">:=</span> false
+				<span class="shj-syn-kwd">if</span> opts<span class="shj-syn-oper">.</span><span class="shj-syn-func">Contains</span>(<span class="shj-syn-str">"string"</span>) {
+					<span class="shj-syn-kwd">switch</span> ft<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() {
+					<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Bool</span>,
+						reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Int64</span>,
+						reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint8</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint16</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uint64</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Uintptr</span>,
+						reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Float32</span>, reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Float64</span>,
+						reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">String</span>:
+						quoted <span class="shj-syn-oper">=</span> true
+					}
+				}
+
+				<span class="shj-syn-cmnt">// Record found field and index sequence.
+</span>				<span class="shj-syn-kwd">if</span> name <span class="shj-syn-oper">!=</span> <span class="shj-syn-str">""</span> <span class="shj-syn-oper">||</span> <span class="shj-syn-oper">!</span>sf<span class="shj-syn-oper">.</span><span class="shj-syn-class">Anonymous</span> <span class="shj-syn-oper">||</span> ft<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">!=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Struct</span> {
+					tagged <span class="shj-syn-oper">:=</span> name <span class="shj-syn-oper">!=</span> <span class="shj-syn-str">""</span>
+					<span class="shj-syn-kwd">if</span> name <span class="shj-syn-oper">==</span> <span class="shj-syn-str">""</span> {
+						name <span class="shj-syn-oper">=</span> sf<span class="shj-syn-oper">.</span><span class="shj-syn-class">Name</span>
+					}
+					field <span class="shj-syn-oper">:=</span> field{
+						name:      name,
+						tag:       tagged,
+						index:     index,
+						typ:       ft,
+						omitEmpty: opts<span class="shj-syn-oper">.</span><span class="shj-syn-func">Contains</span>(<span class="shj-syn-str">"omitempty"</span>),
+						omitZero:  opts<span class="shj-syn-oper">.</span><span class="shj-syn-func">Contains</span>(<span class="shj-syn-str">"omitzero"</span>),
+						quoted:    quoted,
+					}
+					field<span class="shj-syn-oper">.</span>nameBytes <span class="shj-syn-oper">=</span> []<span class="shj-syn-func">byte</span>(field<span class="shj-syn-oper">.</span>name)
+
+					<span class="shj-syn-cmnt">// Build nameEscHTML and nameNonEsc ahead of time.
+</span>					nameEscBuf <span class="shj-syn-oper">=</span> <span class="shj-syn-func">appendHTMLEscape</span>(nameEscBuf[:<span class="shj-syn-num">0</span>], field<span class="shj-syn-oper">.</span>nameBytes)
+					field<span class="shj-syn-oper">.</span>nameEscHTML <span class="shj-syn-oper">=</span> <span class="shj-syn-str">`"`</span> <span class="shj-syn-oper">+</span> <span class="shj-syn-func">string</span>(nameEscBuf) <span class="shj-syn-oper">+</span> <span class="shj-syn-str">`":`</span>
+					field<span class="shj-syn-oper">.</span>nameNonEsc <span class="shj-syn-oper">=</span> <span class="shj-syn-str">`"`</span> <span class="shj-syn-oper">+</span> field<span class="shj-syn-oper">.</span>name <span class="shj-syn-oper">+</span> <span class="shj-syn-str">`":`</span>
+
+					<span class="shj-syn-kwd">if</span> field<span class="shj-syn-oper">.</span>omitZero {
+						t <span class="shj-syn-oper">:=</span> sf<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>
+						<span class="shj-syn-cmnt">// Provide a function that uses a type's IsZero method.
+</span>						<span class="shj-syn-kwd">switch</span> {
+						<span class="shj-syn-kwd">case</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Interface</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(isZeroerType):
+							field<span class="shj-syn-oper">.</span>isZero <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">func</span>(v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>) bool {
+								<span class="shj-syn-cmnt">// Avoid panics calling IsZero on a nil interface or
+</span>								<span class="shj-syn-cmnt">// non-nil interface with nil pointer.
+</span>								<span class="shj-syn-kwd">return</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() <span class="shj-syn-oper">||</span>
+									(v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>()) <span class="shj-syn-oper">||</span>
+									v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(isZeroer)<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsZero</span>()
+							}
+						<span class="shj-syn-kwd">case</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Kind</span>() <span class="shj-syn-oper">==</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Pointer</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(isZeroerType):
+							field<span class="shj-syn-oper">.</span>isZero <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">func</span>(v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>) bool {
+								<span class="shj-syn-cmnt">// Avoid panics calling IsZero on nil pointer.
+</span>								<span class="shj-syn-kwd">return</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsNil</span>() <span class="shj-syn-oper">||</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(isZeroer)<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsZero</span>()
+							}
+						<span class="shj-syn-kwd">case</span> t<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(isZeroerType):
+							field<span class="shj-syn-oper">.</span>isZero <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">func</span>(v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>) bool {
+								<span class="shj-syn-kwd">return</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(isZeroer)<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsZero</span>()
+							}
+						<span class="shj-syn-kwd">case</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-func">PointerTo</span>(t)<span class="shj-syn-oper">.</span><span class="shj-syn-func">Implements</span>(isZeroerType):
+							field<span class="shj-syn-oper">.</span>isZero <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">func</span>(v reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Value</span>) bool {
+								<span class="shj-syn-kwd">if</span> <span class="shj-syn-oper">!</span>v<span class="shj-syn-oper">.</span><span class="shj-syn-func">CanAddr</span>() {
+									<span class="shj-syn-cmnt">// Temporarily box v so we can take the address.
+</span>									v2 <span class="shj-syn-oper">:=</span> reflect<span class="shj-syn-oper">.</span><span class="shj-syn-func">New</span>(v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Type</span>())<span class="shj-syn-oper">.</span><span class="shj-syn-func">Elem</span>()
+									v2<span class="shj-syn-oper">.</span><span class="shj-syn-func">Set</span>(v)
+									v <span class="shj-syn-oper">=</span> v2
+								}
+								<span class="shj-syn-kwd">return</span> v<span class="shj-syn-oper">.</span><span class="shj-syn-func">Addr</span>()<span class="shj-syn-oper">.</span><span class="shj-syn-func">Interface</span>()<span class="shj-syn-oper">.</span>(isZeroer)<span class="shj-syn-oper">.</span><span class="shj-syn-func">IsZero</span>()
+							}
+						}
+					}
+
+					fields <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(fields, field)
+					<span class="shj-syn-kwd">if</span> count[f<span class="shj-syn-oper">.</span>typ] <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">1</span> {
+						<span class="shj-syn-cmnt">// If there were multiple instances, add a second,
+</span>						<span class="shj-syn-cmnt">// so that the annihilation code will see a duplicate.
+</span>						<span class="shj-syn-cmnt">// It only cares about the distinction between 1 and 2,
+</span>						<span class="shj-syn-cmnt">// so don't bother generating any more copies.
+</span>						fields <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(fields, fields[<span class="shj-syn-func">len</span>(fields)<span class="shj-syn-oper">-</span><span class="shj-syn-num">1</span>])
+					}
+					<span class="shj-syn-kwd">continue</span>
+				}
+
+				<span class="shj-syn-cmnt">// Record new anonymous struct to explore in next round.
+</span>				nextCount[ft]<span class="shj-syn-oper">++</span>
+				<span class="shj-syn-kwd">if</span> nextCount[ft] <span class="shj-syn-oper">==</span> <span class="shj-syn-num">1</span> {
+					next <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(next, field{name: ft<span class="shj-syn-oper">.</span><span class="shj-syn-func">Name</span>(), index: index, typ: ft})
+				}
+			}
+		}
+	}
+
+	slices<span class="shj-syn-oper">.</span><span class="shj-syn-func">SortFunc</span>(fields, <span class="shj-syn-kwd">func</span>(a, b field) int {
+		<span class="shj-syn-cmnt">// sort field by name, breaking ties with depth, then
+</span>		<span class="shj-syn-cmnt">// breaking ties with "name came from json tag", then
+</span>		<span class="shj-syn-cmnt">// breaking ties with index sequence.
+</span>		<span class="shj-syn-kwd">if</span> c <span class="shj-syn-oper">:=</span> strings<span class="shj-syn-oper">.</span><span class="shj-syn-func">Compare</span>(a<span class="shj-syn-oper">.</span>name, b<span class="shj-syn-oper">.</span>name); c <span class="shj-syn-oper">!=</span> <span class="shj-syn-num">0</span> {
+			<span class="shj-syn-kwd">return</span> c
+		}
+		<span class="shj-syn-kwd">if</span> c <span class="shj-syn-oper">:=</span> cmp<span class="shj-syn-oper">.</span><span class="shj-syn-func">Compare</span>(<span class="shj-syn-func">len</span>(a<span class="shj-syn-oper">.</span>index), <span class="shj-syn-func">len</span>(b<span class="shj-syn-oper">.</span>index)); c <span class="shj-syn-oper">!=</span> <span class="shj-syn-num">0</span> {
+			<span class="shj-syn-kwd">return</span> c
+		}
+		<span class="shj-syn-kwd">if</span> a<span class="shj-syn-oper">.</span>tag <span class="shj-syn-oper">!=</span> b<span class="shj-syn-oper">.</span>tag {
+			<span class="shj-syn-kwd">if</span> a<span class="shj-syn-oper">.</span>tag {
+				<span class="shj-syn-kwd">return</span> <span class="shj-syn-oper">-</span><span class="shj-syn-num">1</span>
+			}
+			<span class="shj-syn-kwd">return</span> <span class="shj-syn-oper">+</span><span class="shj-syn-num">1</span>
+		}
+		<span class="shj-syn-kwd">return</span> slices<span class="shj-syn-oper">.</span><span class="shj-syn-func">Compare</span>(a<span class="shj-syn-oper">.</span>index, b<span class="shj-syn-oper">.</span>index)
+	})
+
+	<span class="shj-syn-cmnt">// Delete all fields that are hidden by the Go rules for embedded fields,
+</span>	<span class="shj-syn-cmnt">// except that fields with JSON tags are promoted.
+</span>
+	<span class="shj-syn-cmnt">// The fields are sorted in primary order of name, secondary order
+</span>	<span class="shj-syn-cmnt">// of field index length. Loop over names; for each name, delete
+</span>	<span class="shj-syn-cmnt">// hidden fields by choosing the one dominant field that survives.
+</span>	out <span class="shj-syn-oper">:=</span> fields[:<span class="shj-syn-num">0</span>]
+	<span class="shj-syn-kwd">for</span> advance, i <span class="shj-syn-oper">:=</span> <span class="shj-syn-num">0</span>, <span class="shj-syn-num">0</span>; i <span class="shj-syn-oper">&lt;</span> <span class="shj-syn-func">len</span>(fields); i <span class="shj-syn-oper">+=</span> advance {
+		<span class="shj-syn-cmnt">// One iteration per name.
+</span>		<span class="shj-syn-cmnt">// Find the sequence of fields with the name of this first field.
+</span>		fi <span class="shj-syn-oper">:=</span> fields[i]
+		name <span class="shj-syn-oper">:=</span> fi<span class="shj-syn-oper">.</span>name
+		<span class="shj-syn-kwd">for</span> advance <span class="shj-syn-oper">=</span> <span class="shj-syn-num">1</span>; i<span class="shj-syn-oper">+</span>advance <span class="shj-syn-oper">&lt;</span> <span class="shj-syn-func">len</span>(fields); advance<span class="shj-syn-oper">++</span> {
+			fj <span class="shj-syn-oper">:=</span> fields[i<span class="shj-syn-oper">+</span>advance]
+			<span class="shj-syn-kwd">if</span> fj<span class="shj-syn-oper">.</span>name <span class="shj-syn-oper">!=</span> name {
+				<span class="shj-syn-kwd">break</span>
+			}
+		}
+		<span class="shj-syn-kwd">if</span> advance <span class="shj-syn-oper">==</span> <span class="shj-syn-num">1</span> { <span class="shj-syn-cmnt">// Only one field with this name
+</span>			out <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(out, fi)
+			<span class="shj-syn-kwd">continue</span>
+		}
+		dominant, ok <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">dominantField</span>(fields[i : i<span class="shj-syn-oper">+</span>advance])
+		<span class="shj-syn-kwd">if</span> ok {
+			out <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(out, dominant)
+		}
+	}
+
+	fields <span class="shj-syn-oper">=</span> out
+	slices<span class="shj-syn-oper">.</span><span class="shj-syn-func">SortFunc</span>(fields, <span class="shj-syn-kwd">func</span>(i, j field) int {
+		<span class="shj-syn-kwd">return</span> slices<span class="shj-syn-oper">.</span><span class="shj-syn-func">Compare</span>(i<span class="shj-syn-oper">.</span>index, j<span class="shj-syn-oper">.</span>index)
+	})
+
+	<span class="shj-syn-kwd">for</span> i <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">range</span> fields {
+		f <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">&#38;</span>fields[i]
+		f<span class="shj-syn-oper">.</span>encoder <span class="shj-syn-oper">=</span> <span class="shj-syn-func">typeEncoder</span>(<span class="shj-syn-func">typeByIndex</span>(t, f<span class="shj-syn-oper">.</span>index))
+	}
+	exactNameIndex <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">make</span>(<span class="shj-syn-kwd">map</span>[string]<span class="shj-syn-kwd">*</span>field, <span class="shj-syn-func">len</span>(fields))
+	foldedNameIndex <span class="shj-syn-oper">:=</span> <span class="shj-syn-func">make</span>(<span class="shj-syn-kwd">map</span>[string]<span class="shj-syn-kwd">*</span>field, <span class="shj-syn-func">len</span>(fields))
+	<span class="shj-syn-kwd">for</span> i, field <span class="shj-syn-oper">:=</span> <span class="shj-syn-kwd">range</span> fields {
+		exactNameIndex[field<span class="shj-syn-oper">.</span>name] <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">&#38;</span>fields[i]
+		<span class="shj-syn-cmnt">// For historical reasons, first folded match takes precedence.
+</span>		<span class="shj-syn-kwd">if</span> _, ok <span class="shj-syn-oper">:=</span> foldedNameIndex[<span class="shj-syn-func">string</span>(<span class="shj-syn-func">foldName</span>(field<span class="shj-syn-oper">.</span>nameBytes))]; <span class="shj-syn-oper">!</span>ok {
+			foldedNameIndex[<span class="shj-syn-func">string</span>(<span class="shj-syn-func">foldName</span>(field<span class="shj-syn-oper">.</span>nameBytes))] <span class="shj-syn-oper">=</span> <span class="shj-syn-kwd">&#38;</span>fields[i]
+		}
+	}
+	<span class="shj-syn-kwd">return</span> structFields{fields, exactNameIndex, foldedNameIndex}
+}
+
+<span class="shj-syn-cmnt">// dominantField looks through the fields, all of which are known to
+</span><span class="shj-syn-cmnt">// have the same name, to find the single field that dominates the
+</span><span class="shj-syn-cmnt">// others using Go's embedding rules, modified by the presence of
+</span><span class="shj-syn-cmnt">// JSON tags. If there are multiple top-level fields, the boolean
+</span><span class="shj-syn-cmnt">// will be false: This condition is an error in Go and we skip all
+</span><span class="shj-syn-cmnt">// the fields.
+</span><span class="shj-syn-kwd">func</span> <span class="shj-syn-func">dominantField</span>(fields []field) (field, bool) {
+	<span class="shj-syn-cmnt">// The fields are sorted in increasing index-length order, then by presence of tag.
+</span>	<span class="shj-syn-cmnt">// That means that the first field is the dominant one. We need only check
+</span>	<span class="shj-syn-cmnt">// for error cases: two fields at top level, either both tagged or neither tagged.
+</span>	<span class="shj-syn-kwd">if</span> <span class="shj-syn-func">len</span>(fields) <span class="shj-syn-oper">&gt;</span> <span class="shj-syn-num">1</span> <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> <span class="shj-syn-func">len</span>(fields[<span class="shj-syn-num">0</span>]<span class="shj-syn-oper">.</span>index) <span class="shj-syn-oper">==</span> <span class="shj-syn-func">len</span>(fields[<span class="shj-syn-num">1</span>]<span class="shj-syn-oper">.</span>index) <span class="shj-syn-kwd">&#38;</span><span class="shj-syn-kwd">&#38;</span> fields[<span class="shj-syn-num">0</span>]<span class="shj-syn-oper">.</span>tag <span class="shj-syn-oper">==</span> fields[<span class="shj-syn-num">1</span>]<span class="shj-syn-oper">.</span>tag {
+		<span class="shj-syn-kwd">return</span> field{}, false
+	}
+	<span class="shj-syn-kwd">return</span> fields[<span class="shj-syn-num">0</span>], true
+}
+
+<span class="shj-syn-kwd">var</span> fieldCache sync<span class="shj-syn-oper">.</span><span class="shj-syn-class">Map</span> <span class="shj-syn-cmnt">// map[reflect.Type]structFields
+</span>
+<span class="shj-syn-cmnt">// cachedTypeFields is like typeFields but uses a cache to avoid repeated work.
+</span><span class="shj-syn-kwd">func</span> <span class="shj-syn-func">cachedTypeFields</span>(t reflect<span class="shj-syn-oper">.</span><span class="shj-syn-class">Type</span>) structFields {
+	<span class="shj-syn-kwd">if</span> f, ok <span class="shj-syn-oper">:=</span> fieldCache<span class="shj-syn-oper">.</span><span class="shj-syn-func">Load</span>(t); ok {
+		<span class="shj-syn-kwd">return</span> f<span class="shj-syn-oper">.</span>(structFields)
+	}
+	f, _ <span class="shj-syn-oper">:=</span> fieldCache<span class="shj-syn-oper">.</span><span class="shj-syn-func">LoadOrStore</span>(t, <span class="shj-syn-func">typeFields</span>(t))
+	<span class="shj-syn-kwd">return</span> f<span class="shj-syn-oper">.</span>(structFields)
+}
+
+<span class="shj-syn-kwd">func</span> <span class="shj-syn-func">mayAppendQuote</span>(b []byte, quoted bool) []byte {
+	<span class="shj-syn-kwd">if</span> quoted {
+		b <span class="shj-syn-oper">=</span> <span class="shj-syn-func">append</span>(b, <span class="shj-syn-str">'"'</span>)
+	}
+	<span class="shj-syn-kwd">return</span> b
+}
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

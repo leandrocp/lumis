@@ -66,10 +66,12 @@ export function renderComparison() {
           </p>
           <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
             Each library renders the same file at its current release, through its own public API,
-            with the closest Catppuccin it ships. TanStack Highlight ships none, so its theme takes the
-            highlight.js port's colours, class for class. Those ports are different files, so some colour
-            differences are the theme rather than the parse. Every file is rendered in Latte and
-            Frappé, and the panel above follows your system's light or dark setting.
+            with the closest Catppuccin port for it. speed-highlight, starry-night, Sugar High and
+            TanStack Highlight have none, so their themes take the highlight.js port's colours, class for
+            class. Those ports are different files, so some colour differences are the theme rather than
+            the parse. speed-highlight has no TSX grammar, so it reads the TSX file as TypeScript. Every
+            file is rendered in Latte and Frappé, and the panel above follows your system's light or
+            dark setting.
           </p>
           <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
             A token is a span the highlighter gave a colour to, counted in the output above.
