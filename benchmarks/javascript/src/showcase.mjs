@@ -6,7 +6,7 @@ import { createHighlighter as createShikiHighlighter } from "shiki";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 import { createHighlighter as createTanStackHighlighter } from "@tanstack/highlight/core";
 import * as tanStackLanguages from "@tanstack/highlight/languages";
-import { createThemeCss } from "@tanstack/highlight/theme";
+import { createThemeCss, themeTokenClasses } from "@tanstack/highlight/theme";
 import { createHighlighter, runtimeKind, withWasm } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import bash from "@lumis-sh/lumis/langs/bash";
@@ -184,6 +184,16 @@ function tanStackTheme(theme, stylesheet) {
     type: "type",
     variable: "variable",
   };
+  // The dependency floats like the other comparison libraries, so a token class a
+  // later release adds fails here rather than reaching the page uncoloured.
+  const unmapped = themeTokenClasses.filter(
+    (token) => token !== "token" && !Object.hasOwn(highlightJsClasses, token),
+  );
+  if (unmapped.length > 0) {
+    throw new Error(
+      `no highlight.js class is mapped to TanStack Highlight's ${unmapped.join(", ")}`,
+    );
+  }
   const declaration = (selector, property) => {
     const rule = stylesheet.match(
       new RegExp(`(?:^|\\})${selector.replaceAll(".", "\\.")}\\{([^}]*)\\}`),
