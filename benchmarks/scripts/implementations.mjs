@@ -10,12 +10,20 @@ export const implementations = [
   { id: "syntect", label: "syntect", runner: "criterion" },
   { id: "shiki", label: "Shiki", runner: "mitata" },
   { id: "highlight-js", label: "highlight.js", runner: "mitata" },
+  // Every timed scenario highlights Rust, which TanStack Highlight does not
+  // support, so it can be compared by eye but not timed.
+  { id: "tanstack-highlight", label: "TanStack Highlight", benchmark: false },
   // bat is a syntect front-end, and the showcase now gives syntect the same
   // syntax set bat bundles, so it would render a second copy of that column.
   // It stays here because timing a CLI against another CLI, and comparing their
   // binary sizes, are still worth doing.
   { id: "bat", label: "bat", runner: "hyperfine", showcase: false },
 ];
+
+/** The implementations the benchmark suite times. */
+export const benchmarkImplementations = implementations.filter(
+  (implementation) => implementation.benchmark !== false,
+);
 
 /** The implementations the visual comparison renders, in display order. */
 export const showcaseImplementations = implementations.filter(

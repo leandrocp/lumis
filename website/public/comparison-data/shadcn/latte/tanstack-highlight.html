@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TanStack Highlight · Catppuccin Latte · Lumis visual comparison</title>
+  <meta name="color-scheme" content="light">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #e6e9ef; color: #4c4f69; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #bcc0cc; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root {
+  --th-background: #eff1f5;
+  --th-token: #4c4f69;
+  --th-attr: #1e66f5;
+  --th-code-inline: #40a02b;
+  --th-command: #d20f39;
+  --th-comment: #7c7f93;
+  --th-deleted: #d20f39;
+  --th-function: #1e66f5;
+  --th-heading: #1e66f5;
+  --th-inserted: #40a02b;
+  --th-keyword: #8839ef;
+  --th-link: #209fb5;
+  --th-literal: #fe640b;
+  --th-meta: #fe640b;
+  --th-number: #fe640b;
+  --th-operator: #04a5e5;
+  --th-property: #179299;
+  --th-selector: #179299;
+  --th-string: #40a02b;
+  --th-tag: #8839ef;
+  --th-type: #df8e1d;
+  --th-variable: #8839ef;
+}
+
+pre.th-code {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--th-background);
+  color: var(--th-token);
+}
+
+.th-token { color: var(--th-token); }
+.th-attr { color: var(--th-attr); }
+.th-code-inline { color: var(--th-code-inline); }
+.th-command { color: var(--th-command); }
+.th-comment { color: var(--th-comment); }
+.th-deleted { color: var(--th-deleted); }
+.th-function { color: var(--th-function); }
+.th-heading { color: var(--th-heading); }
+.th-inserted { color: var(--th-inserted); }
+.th-keyword { color: var(--th-keyword); }
+.th-link { color: var(--th-link); }
+.th-literal { color: var(--th-literal); }
+.th-meta { color: var(--th-meta); }
+.th-number { color: var(--th-number); }
+.th-operator { color: var(--th-operator); }
+.th-property { color: var(--th-property); }
+.th-selector { color: var(--th-selector); }
+.th-string { color: var(--th-string); }
+.th-tag { color: var(--th-tag); }
+.th-type { color: var(--th-type); }
+.th-variable { color: var(--th-variable); }
+.th-line { display: inline-block; min-width: 100%; width: max-content; }
+.th-code--line-numbers code { counter-reset: th-line; }
+.th-code--line-numbers .th-line::before {
+  display: inline-block;
+  width: 2.5em;
+  padding-right: 1em;
+  color: var(--th-comment);
+  content: attr(data-line);
+  text-align: right;
+  user-select: none;
+}</style><pre class="th-code th-code--tsx" data-language="tsx"><code><span class="th-token th-string">&quot;use client&quot;</span>
+
+<span class="th-token th-keyword">import</span> * <span class="th-token th-keyword">as</span> <span class="th-token th-type">React</span> <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;react&quot;</span>
+<span class="th-token th-keyword">import</span> { cva, <span class="th-token th-keyword">type</span> <span class="th-token th-type">VariantProps</span> } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;class-variance-authority&quot;</span>
+<span class="th-token th-keyword">import</span> { <span class="th-token th-type">PanelLeftIcon</span> } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;lucide-react&quot;</span>
+<span class="th-token th-keyword">import</span> { <span class="th-token th-type">Slot</span> } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;radix-ui&quot;</span>
+
+<span class="th-token th-keyword">import</span> { useIsMobile } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;@/registry/new-york-v4/hooks/use-mobile&quot;</span>
+<span class="th-token th-keyword">import</span> { cn } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;@/registry/new-york-v4/lib/utils&quot;</span>
+<span class="th-token th-keyword">import</span> { <span class="th-token th-type">Button</span> } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;@/registry/new-york-v4/ui/button&quot;</span>
+<span class="th-token th-keyword">import</span> { <span class="th-token th-type">Input</span> } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;@/registry/new-york-v4/ui/input&quot;</span>
+<span class="th-token th-keyword">import</span> { <span class="th-token th-type">Separator</span> } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;@/registry/new-york-v4/ui/separator&quot;</span>
+<span class="th-token th-keyword">import</span> {
+  <span class="th-token th-type">Sheet</span>,
+  <span class="th-token th-type">SheetContent</span>,
+  <span class="th-token th-type">SheetDescription</span>,
+  <span class="th-token th-type">SheetHeader</span>,
+  <span class="th-token th-type">SheetTitle</span>,
+} <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;@/registry/new-york-v4/ui/sheet&quot;</span>
+<span class="th-token th-keyword">import</span> { <span class="th-token th-type">Skeleton</span> } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;@/registry/new-york-v4/ui/skeleton&quot;</span>
+<span class="th-token th-keyword">import</span> {
+  <span class="th-token th-type">Tooltip</span>,
+  <span class="th-token th-type">TooltipContent</span>,
+  <span class="th-token th-type">TooltipProvider</span>,
+  <span class="th-token th-type">TooltipTrigger</span>,
+} <span class="th-token th-keyword">from</span> <span class="th-token th-string">&quot;@/registry/new-york-v4/ui/tooltip&quot;</span>
+
+<span class="th-token th-keyword">const</span> <span class="th-token th-type">SIDEBAR_COOKIE_NAME</span> = <span class="th-token th-string">&quot;sidebar_state&quot;</span>
+<span class="th-token th-keyword">const</span> <span class="th-token th-type">SIDEBAR_COOKIE_MAX_AGE</span> = <span class="th-token th-number">60</span> * <span class="th-token th-number">60</span> * <span class="th-token th-number">24</span> * <span class="th-token th-number">7</span>
+<span class="th-token th-keyword">const</span> <span class="th-token th-type">SIDEBAR_WIDTH</span> = <span class="th-token th-string">&quot;16rem&quot;</span>
+<span class="th-token th-keyword">const</span> <span class="th-token th-type">SIDEBAR_WIDTH_MOBILE</span> = <span class="th-token th-string">&quot;18rem&quot;</span>
+<span class="th-token th-keyword">const</span> <span class="th-token th-type">SIDEBAR_WIDTH_ICON</span> = <span class="th-token th-string">&quot;3rem&quot;</span>
+<span class="th-token th-keyword">const</span> <span class="th-token th-type">SIDEBAR_KEYBOARD_SHORTCUT</span> = <span class="th-token th-string">&quot;b&quot;</span>
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">SidebarContextProps</span> = {
+  <span class="th-token th-property">state</span>: <span class="th-token th-string">&quot;expanded&quot;</span> | <span class="th-token th-string">&quot;collapsed&quot;</span>
+  open: <span class="th-token th-type">boolean</span>
+  setOpen: (open: <span class="th-token th-type">boolean</span>) =&gt; <span class="th-token th-type">void</span>
+  openMobile: <span class="th-token th-type">boolean</span>
+  setOpenMobile: (open: <span class="th-token th-type">boolean</span>) =&gt; <span class="th-token th-type">void</span>
+  isMobile: <span class="th-token th-type">boolean</span>
+  toggleSidebar: () =&gt; <span class="th-token th-type">void</span>
+}
+
+<span class="th-token th-keyword">const</span> <span class="th-token th-type">SidebarContext</span> = <span class="th-token th-type">React</span>.<span class="th-token th-property">createContext</span>&lt;<span class="th-token th-type">SidebarContextProps</span> | <span class="th-token th-literal">null</span>&gt;(<span class="th-token th-literal">null</span>)
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">useSidebar</span>() {
+  <span class="th-token th-keyword">const</span> context = <span class="th-token th-type">React</span>.<span class="th-token th-property">useContext</span>(<span class="th-token th-type">SidebarContext</span>)
+  <span class="th-token th-keyword">if</span> (!context) {
+    <span class="th-token th-keyword">throw</span> <span class="th-token th-keyword">new</span> <span class="th-token th-function">Error</span>(<span class="th-token th-string">&quot;useSidebar must be used within a SidebarProvider.&quot;</span>)
+  }
+
+  <span class="th-token th-keyword">return</span> context
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarProvider</span>({
+  defaultOpen = <span class="th-token th-literal">true</span>,
+  <span class="th-token th-property">open</span>: openProp,
+  <span class="th-token th-property">onOpenChange</span>: setOpenProp,
+  className,
+  style,
+  children,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt; &amp; {
+  defaultOpen?: <span class="th-token th-type">boolean</span>
+  open?: <span class="th-token th-type">boolean</span>
+  onOpenChange?: (open: <span class="th-token th-type">boolean</span>) =&gt; <span class="th-token th-type">void</span>
+}) {
+  <span class="th-token th-keyword">const</span> isMobile = <span class="th-token th-function">useIsMobile</span>()
+  <span class="th-token th-keyword">const</span> [openMobile, setOpenMobile] = <span class="th-token th-type">React</span>.<span class="th-token th-property">useState</span>(<span class="th-token th-literal">false</span>)
+
+  <span class="th-token th-comment">// This is the internal state of the sidebar.</span>
+  <span class="th-token th-comment">// We use openProp and setOpenProp for control from outside the component.</span>
+  <span class="th-token th-keyword">const</span> [_open, _setOpen] = <span class="th-token th-type">React</span>.<span class="th-token th-property">useState</span>(defaultOpen)
+  <span class="th-token th-keyword">const</span> open = openProp ?? _open
+  <span class="th-token th-keyword">const</span> setOpen = <span class="th-token th-type">React</span>.<span class="th-token th-property">useCallback</span>(
+    (value: <span class="th-token th-type">boolean</span> | ((value: <span class="th-token th-type">boolean</span>) =&gt; <span class="th-token th-type">boolean</span>)) =&gt; {
+      <span class="th-token th-keyword">const</span> openState = <span class="th-token th-keyword">typeof</span> value === <span class="th-token th-string">&quot;function&quot;</span> ? <span class="th-token th-function">value</span>(open) : value
+      <span class="th-token th-keyword">if</span> (setOpenProp) {
+        <span class="th-token th-function">setOpenProp</span>(openState)
+      } <span class="th-token th-keyword">else</span> {
+        <span class="th-token th-function">_setOpen</span>(openState)
+      }
+
+      <span class="th-token th-comment">// This sets the cookie to keep the sidebar state.</span>
+      document.<span class="th-token th-property">cookie</span> = <span class="th-token th-string">`</span><span class="th-token th-operator">${</span><span class="th-token th-type">SIDEBAR_COOKIE_NAME</span><span class="th-token th-operator">}</span><span class="th-token th-string">=</span><span class="th-token th-operator">${</span>openState<span class="th-token th-operator">}</span><span class="th-token th-string">; path=/; max-age=</span><span class="th-token th-operator">${</span><span class="th-token th-type">SIDEBAR_COOKIE_MAX_AGE</span><span class="th-token th-operator">}</span><span class="th-token th-string">`</span>
+    },
+    [setOpenProp, open]
+  )
+
+  <span class="th-token th-comment">// Helper to toggle the sidebar.</span>
+  <span class="th-token th-keyword">const</span> toggleSidebar = <span class="th-token th-type">React</span>.<span class="th-token th-property">useCallback</span>(() =&gt; {
+    <span class="th-token th-keyword">return</span> isMobile ? <span class="th-token th-function">setOpenMobile</span>((open) =&gt; !open) : <span class="th-token th-function">setOpen</span>((open) =&gt; !open)
+  }, [isMobile, setOpen, setOpenMobile])
+
+  <span class="th-token th-comment">// Adds a keyboard shortcut to toggle the sidebar.</span>
+  <span class="th-token th-type">React</span>.<span class="th-token th-property">useEffect</span>(() =&gt; {
+    <span class="th-token th-keyword">const</span> handleKeyDown = (event: <span class="th-token th-type">KeyboardEvent</span>) =&gt; {
+      <span class="th-token th-keyword">if</span> (
+        event.<span class="th-token th-property">key</span> === <span class="th-token th-type">SIDEBAR_KEYBOARD_SHORTCUT</span> &amp;&amp;
+        (event.<span class="th-token th-property">metaKey</span> || event.<span class="th-token th-property">ctrlKey</span>)
+      ) {
+        event.<span class="th-token th-property">preventDefault</span>()
+        <span class="th-token th-function">toggleSidebar</span>()
+      }
+    }
+
+    window.<span class="th-token th-property">addEventListener</span>(<span class="th-token th-string">&quot;keydown&quot;</span>, handleKeyDown)
+    <span class="th-token th-keyword">return</span> () =&gt; window.<span class="th-token th-property">removeEventListener</span>(<span class="th-token th-string">&quot;keydown&quot;</span>, handleKeyDown)
+  }, [toggleSidebar])
+
+  <span class="th-token th-comment">// We add a state so that we can do data-state=&quot;expanded&quot; or &quot;collapsed&quot;.</span>
+  <span class="th-token th-comment">// This makes it easier to style the sidebar with Tailwind classes.</span>
+  <span class="th-token th-keyword">const</span> state = open ? <span class="th-token th-string">&quot;expanded&quot;</span> : <span class="th-token th-string">&quot;collapsed&quot;</span>
+
+  <span class="th-token th-keyword">const</span> contextValue = <span class="th-token th-type">React</span>.<span class="th-token th-property">useMemo</span>&lt;<span class="th-token th-type">SidebarContextProps</span>&gt;(
+    () =&gt; ({
+      state,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
+      toggleSidebar,
+    }),
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+  )
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">SidebarContext.Provider</span> <span class="th-token th-attr">value</span>={contextValue}&gt;
+      &lt;<span class="th-token th-tag">TooltipProvider</span> <span class="th-token th-attr">delayDuration</span>={<span class="th-token th-number">0</span>}&gt;
+        &lt;<span class="th-token th-tag">div</span>
+          <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-wrapper&quot;</span>
+          <span class="th-token th-attr">style</span>={
+            {
+              <span class="th-token th-string">&quot;--sidebar-width&quot;</span>: <span class="th-token th-type">SIDEBAR_WIDTH</span>,
+              <span class="th-token th-string">&quot;--sidebar-width-icon&quot;</span>: <span class="th-token th-type">SIDEBAR_WIDTH_ICON</span>,
+              ...style,
+            } <span class="th-token th-keyword">as</span> <span class="th-token th-type">React</span>.<span class="th-token th-property">CSSProperties</span>
+          }
+          <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+            <span class="th-token th-string">&quot;group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar&quot;</span>,
+            className
+          )}
+          {...props}
+        &gt;
+          {children}
+        &lt;/<span class="th-token th-tag">div</span>&gt;
+      &lt;/<span class="th-token th-tag">TooltipProvider</span>&gt;
+    &lt;/<span class="th-token th-tag">SidebarContext.Provider</span>&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">Sidebar</span>({
+  side = <span class="th-token th-string">&quot;left&quot;</span>,
+  variant = <span class="th-token th-string">&quot;sidebar&quot;</span>,
+  collapsible = <span class="th-token th-string">&quot;offcanvas&quot;</span>,
+  className,
+  children,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt; &amp; {
+  side?: <span class="th-token th-string">&quot;left&quot;</span> | <span class="th-token th-string">&quot;right&quot;</span>
+  variant?: <span class="th-token th-string">&quot;sidebar&quot;</span> | <span class="th-token th-string">&quot;floating&quot;</span> | <span class="th-token th-string">&quot;inset&quot;</span>
+  collapsible?: <span class="th-token th-string">&quot;offcanvas&quot;</span> | <span class="th-token th-string">&quot;icon&quot;</span> | <span class="th-token th-string">&quot;none&quot;</span>
+}) {
+  <span class="th-token th-keyword">const</span> { isMobile, state, openMobile, setOpenMobile } = <span class="th-token th-function">useSidebar</span>()
+
+  <span class="th-token th-keyword">if</span> (collapsible === <span class="th-token th-string">&quot;none&quot;</span>) {
+    <span class="th-token th-keyword">return</span> (
+      &lt;<span class="th-token th-tag">div</span>
+        <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar&quot;</span>
+        <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+          <span class="th-token th-string">&quot;flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground&quot;</span>,
+          className
+        )}
+        {...props}
+      &gt;
+        {children}
+      &lt;/<span class="th-token th-tag">div</span>&gt;
+    )
+  }
+
+  <span class="th-token th-keyword">if</span> (isMobile) {
+    <span class="th-token th-keyword">return</span> (
+      &lt;<span class="th-token th-tag">Sheet</span> <span class="th-token th-attr">open</span>={openMobile} <span class="th-token th-attr">onOpenChange</span>={setOpenMobile} {...props}&gt;
+        &lt;<span class="th-token th-tag">SheetContent</span>
+          <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;sidebar&quot;</span>
+          <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar&quot;</span>
+          <span class="th-token th-attr">data-mobile</span>=<span class="th-token th-string">&quot;true&quot;</span>
+          <span class="th-token th-attr">className</span>=<span class="th-token th-string">&quot;w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&amp;&gt;button]:hidden&quot;</span>
+          <span class="th-token th-attr">style</span>={
+            {
+              <span class="th-token th-string">&quot;--sidebar-width&quot;</span>: <span class="th-token th-type">SIDEBAR_WIDTH_MOBILE</span>,
+            } <span class="th-token th-keyword">as</span> <span class="th-token th-type">React</span>.<span class="th-token th-property">CSSProperties</span>
+          }
+          <span class="th-token th-attr">side</span>={side}
+        &gt;
+          &lt;<span class="th-token th-tag">SheetHeader</span> <span class="th-token th-attr">className</span>=<span class="th-token th-string">&quot;sr-only&quot;</span>&gt;
+            &lt;<span class="th-token th-tag">SheetTitle</span>&gt;Sidebar&lt;/<span class="th-token th-tag">SheetTitle</span>&gt;
+            &lt;<span class="th-token th-tag">SheetDescription</span>&gt;Displays the mobile sidebar.&lt;/<span class="th-token th-tag">SheetDescription</span>&gt;
+          &lt;/<span class="th-token th-tag">SheetHeader</span>&gt;
+          &lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">className</span>=<span class="th-token th-string">&quot;flex h-full w-full flex-col&quot;</span>&gt;{children}&lt;/<span class="th-token th-tag">div</span>&gt;
+        &lt;/<span class="th-token th-tag">SheetContent</span>&gt;
+      &lt;/<span class="th-token th-tag">Sheet</span>&gt;
+    )
+  }
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">div</span>
+      <span class="th-token th-attr">className</span>=<span class="th-token th-string">&quot;group peer hidden text-sidebar-foreground md:block&quot;</span>
+      <span class="th-token th-attr">data-state</span>={state}
+      <span class="th-token th-attr">data-collapsible</span>={state === <span class="th-token th-string">&quot;collapsed&quot;</span> ? collapsible : <span class="th-token th-string">&quot;&quot;</span>}
+      <span class="th-token th-attr">data-variant</span>={variant}
+      <span class="th-token th-attr">data-side</span>={side}
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar&quot;</span>
+    &gt;
+      {<span class="th-token th-comment">/* This is what handles the sidebar gap on desktop */</span>}
+      &lt;<span class="th-token th-tag">div</span>
+        <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-gap&quot;</span>
+        <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+          <span class="th-token th-string">&quot;relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear&quot;</span>,
+          <span class="th-token th-string">&quot;group-data-[collapsible=offcanvas]:w-0&quot;</span>,
+          <span class="th-token th-string">&quot;group-data-[side=right]:rotate-180&quot;</span>,
+          <span class="th-token th-attr">variant</span> === <span class="th-token th-string">&quot;floating&quot;</span> || <span class="th-token th-attr">variant</span> === <span class="th-token th-string">&quot;inset&quot;</span>
+            ? <span class="th-token th-string">&quot;group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]&quot;</span>
+            : <span class="th-token th-string">&quot;group-data-[collapsible=icon]:w-(--sidebar-width-icon)&quot;</span>
+        )}
+      /&gt;
+      &lt;<span class="th-token th-tag">div</span>
+        <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-container&quot;</span>
+        <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+          <span class="th-token th-string">&quot;fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex&quot;</span>,
+          <span class="th-token th-attr">side</span> === <span class="th-token th-string">&quot;left&quot;</span>
+            ? <span class="th-token th-string">&quot;left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]&quot;</span>
+            : <span class="th-token th-string">&quot;right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]&quot;</span>,
+          <span class="th-token th-comment">// Adjust the padding for floating and inset variants.</span>
+          <span class="th-token th-attr">variant</span> === <span class="th-token th-string">&quot;floating&quot;</span> || <span class="th-token th-attr">variant</span> === <span class="th-token th-string">&quot;inset&quot;</span>
+            ? <span class="th-token th-string">&quot;p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]&quot;</span>
+            : <span class="th-token th-string">&quot;group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l&quot;</span>,
+          className
+        )}
+        {...props}
+      &gt;
+        &lt;<span class="th-token th-tag">div</span>
+          <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;sidebar&quot;</span>
+          <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-inner&quot;</span>
+          <span class="th-token th-attr">className</span>=<span class="th-token th-string">&quot;flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm&quot;</span>
+        &gt;
+          {children}
+        &lt;/<span class="th-token th-tag">div</span>&gt;
+      &lt;/<span class="th-token th-tag">div</span>&gt;
+    &lt;/<span class="th-token th-tag">div</span>&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarTrigger</span>({
+  className,
+  onClick,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-keyword">typeof</span> <span class="th-token th-type">Button</span>&gt;) {
+  <span class="th-token th-keyword">const</span> { toggleSidebar } = <span class="th-token th-function">useSidebar</span>()
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">Button</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;trigger&quot;</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-trigger&quot;</span>
+      <span class="th-token th-attr">variant</span>=<span class="th-token th-string">&quot;ghost&quot;</span>
+      <span class="th-token th-attr">size</span>=<span class="th-token th-string">&quot;icon&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;size-7&quot;</span>, className)}
+      <span class="th-token th-attr">onClick</span>={(event) =&gt; {
+        onClick?.(event)
+        <span class="th-token th-function">toggleSidebar</span>()
+      }}
+      {...props}
+    &gt;
+      &lt;<span class="th-token th-tag">PanelLeftIcon</span> /&gt;
+      &lt;<span class="th-token th-tag">span</span> <span class="th-token th-attr">className</span>=<span class="th-token th-string">&quot;sr-only&quot;</span>&gt;Toggle Sidebar&lt;/<span class="th-token th-tag">span</span>&gt;
+    &lt;/<span class="th-token th-tag">Button</span>&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarRail</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;button&quot;</span>&gt;) {
+  <span class="th-token th-keyword">const</span> { toggleSidebar } = <span class="th-token th-function">useSidebar</span>()
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">button</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;rail&quot;</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-rail&quot;</span>
+      <span class="th-token th-attr">aria-label</span>=<span class="th-token th-string">&quot;Toggle Sidebar&quot;</span>
+      <span class="th-token th-attr">tabIndex</span>={-<span class="th-token th-number">1</span>}
+      <span class="th-token th-attr">onClick</span>={toggleSidebar}
+      <span class="th-token th-attr">title</span>=<span class="th-token th-string">&quot;Toggle Sidebar&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex&quot;</span>,
+        <span class="th-token th-string">&quot;in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize&quot;</span>,
+        <span class="th-token th-string">&quot;[[data-side=left][data-state=collapsed]_&amp;]:cursor-e-resize [[data-side=right][data-state=collapsed]_&amp;]:cursor-w-resize&quot;</span>,
+        <span class="th-token th-string">&quot;group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full hover:group-data-[collapsible=offcanvas]:bg-sidebar&quot;</span>,
+        <span class="th-token th-string">&quot;[[data-side=left][data-collapsible=offcanvas]_&amp;]:-right-2&quot;</span>,
+        <span class="th-token th-string">&quot;[[data-side=right][data-collapsible=offcanvas]_&amp;]:-left-2&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarInset</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;main&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">main</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-inset&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;relative flex w-full flex-1 flex-col bg-background&quot;</span>,
+        <span class="th-token th-string">&quot;md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarInput</span>({
+  className,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-keyword">typeof</span> <span class="th-token th-type">Input</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">Input</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-input&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;input&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;h-8 w-full bg-background shadow-none&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarHeader</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">div</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-header&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;header&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;flex flex-col gap-2 p-2&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarFooter</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">div</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-footer&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;footer&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;flex flex-col gap-2 p-2&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarSeparator</span>({
+  className,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-keyword">typeof</span> <span class="th-token th-type">Separator</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">Separator</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-separator&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;separator&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;mx-2 w-auto bg-sidebar-border&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarContent</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">div</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-content&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;content&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarGroup</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">div</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-group&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;group&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;relative flex w-full min-w-0 flex-col p-2&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarGroupLabel</span>({
+  className,
+  asChild = <span class="th-token th-literal">false</span>,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt; &amp; { asChild?: <span class="th-token th-type">boolean</span> }) {
+  <span class="th-token th-keyword">const</span> <span class="th-token th-type">Comp</span> = asChild ? <span class="th-token th-type">Slot</span>.<span class="th-token th-property">Root</span> : <span class="th-token th-string">&quot;div&quot;</span>
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">Comp</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-group-label&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;group-label&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&amp;&gt;svg]:size-4 [&amp;&gt;svg]:shrink-0&quot;</span>,
+        <span class="th-token th-string">&quot;group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarGroupAction</span>({
+  className,
+  asChild = <span class="th-token th-literal">false</span>,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;button&quot;</span>&gt; &amp; { asChild?: <span class="th-token th-type">boolean</span> }) {
+  <span class="th-token th-keyword">const</span> <span class="th-token th-type">Comp</span> = asChild ? <span class="th-token th-type">Slot</span>.<span class="th-token th-property">Root</span> : <span class="th-token th-string">&quot;button&quot;</span>
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">Comp</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-group-action&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;group-action&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&amp;&gt;svg]:size-4 [&amp;&gt;svg]:shrink-0&quot;</span>,
+        <span class="th-token th-comment">// Increases the hit area of the button on mobile.</span>
+        <span class="th-token th-string">&quot;after:absolute after:-inset-2 md:after:hidden&quot;</span>,
+        <span class="th-token th-string">&quot;group-data-[collapsible=icon]:hidden&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarGroupContent</span>({
+  className,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">div</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-group-content&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;group-content&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;w-full text-sm&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenu</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;ul&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">ul</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;flex w-full min-w-0 flex-col gap-1&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenuItem</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;li&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">li</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu-item&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-item&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;group/menu-item relative&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">const</span> sidebarMenuButtonVariants = <span class="th-token th-function">cva</span>(
+  <span class="th-token th-string">&quot;peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&amp;&gt;span:last-child]:truncate [&amp;&gt;svg]:size-4 [&amp;&gt;svg]:shrink-0&quot;</span>,
+  {
+    <span class="th-token th-property">variants</span>: {
+      <span class="th-token th-property">variant</span>: {
+        <span class="th-token th-property">default</span>: <span class="th-token th-string">&quot;hover:bg-sidebar-accent hover:text-sidebar-accent-foreground&quot;</span>,
+        <span class="th-token th-property">outline</span>:
+          <span class="th-token th-string">&quot;bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]&quot;</span>,
+      },
+      <span class="th-token th-property">size</span>: {
+        <span class="th-token th-property">default</span>: <span class="th-token th-string">&quot;h-8 text-sm&quot;</span>,
+        <span class="th-token th-property">sm</span>: <span class="th-token th-string">&quot;h-7 text-xs&quot;</span>,
+        <span class="th-token th-property">lg</span>: <span class="th-token th-string">&quot;h-12 text-sm group-data-[collapsible=icon]:p-0!&quot;</span>,
+      },
+    },
+    <span class="th-token th-property">defaultVariants</span>: {
+      <span class="th-token th-property">variant</span>: <span class="th-token th-string">&quot;default&quot;</span>,
+      <span class="th-token th-property">size</span>: <span class="th-token th-string">&quot;default&quot;</span>,
+    },
+  }
+)
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenuButton</span>({
+  asChild = <span class="th-token th-literal">false</span>,
+  isActive = <span class="th-token th-literal">false</span>,
+  variant = <span class="th-token th-string">&quot;default&quot;</span>,
+  size = <span class="th-token th-string">&quot;default&quot;</span>,
+  tooltip,
+  className,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;button&quot;</span>&gt; &amp; {
+  asChild?: <span class="th-token th-type">boolean</span>
+  isActive?: <span class="th-token th-type">boolean</span>
+  tooltip?: <span class="th-token th-type">string</span> | <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-keyword">typeof</span> <span class="th-token th-type">TooltipContent</span>&gt;
+} &amp; <span class="th-token th-type">VariantProps</span>&lt;<span class="th-token th-keyword">typeof</span> sidebarMenuButtonVariants&gt;) {
+  <span class="th-token th-keyword">const</span> <span class="th-token th-type">Comp</span> = asChild ? <span class="th-token th-type">Slot</span>.<span class="th-token th-property">Root</span> : <span class="th-token th-string">&quot;button&quot;</span>
+  <span class="th-token th-keyword">const</span> { isMobile, state } = <span class="th-token th-function">useSidebar</span>()
+
+  <span class="th-token th-keyword">const</span> button = (
+    &lt;<span class="th-token th-tag">Comp</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu-button&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-button&quot;</span>
+      <span class="th-token th-attr">data-size</span>={size}
+      <span class="th-token th-attr">data-active</span>={isActive}
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-function">sidebarMenuButtonVariants</span>({ variant, size }), className)}
+      {...props}
+    /&gt;
+  )
+
+  <span class="th-token th-keyword">if</span> (!tooltip) {
+    <span class="th-token th-keyword">return</span> button
+  }
+
+  <span class="th-token th-keyword">if</span> (<span class="th-token th-keyword">typeof</span> tooltip === <span class="th-token th-string">&quot;string&quot;</span>) {
+    tooltip = {
+      <span class="th-token th-property">children</span>: tooltip,
+    }
+  }
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">Tooltip</span>&gt;
+      &lt;<span class="th-token th-tag">TooltipTrigger</span> asChild&gt;{button}&lt;/<span class="th-token th-tag">TooltipTrigger</span>&gt;
+      &lt;<span class="th-token th-tag">TooltipContent</span>
+        <span class="th-token th-attr">side</span>=<span class="th-token th-string">&quot;right&quot;</span>
+        <span class="th-token th-attr">align</span>=<span class="th-token th-string">&quot;center&quot;</span>
+        <span class="th-token th-attr">hidden</span>={state !== <span class="th-token th-string">&quot;collapsed&quot;</span> || isMobile}
+        {...tooltip}
+      /&gt;
+    &lt;/<span class="th-token th-tag">Tooltip</span>&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenuAction</span>({
+  className,
+  asChild = <span class="th-token th-literal">false</span>,
+  showOnHover = <span class="th-token th-literal">false</span>,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;button&quot;</span>&gt; &amp; {
+  asChild?: <span class="th-token th-type">boolean</span>
+  showOnHover?: <span class="th-token th-type">boolean</span>
+}) {
+  <span class="th-token th-keyword">const</span> <span class="th-token th-type">Comp</span> = asChild ? <span class="th-token th-type">Slot</span>.<span class="th-token th-property">Root</span> : <span class="th-token th-string">&quot;button&quot;</span>
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">Comp</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu-action&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-action&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform peer-hover/menu-button:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&amp;&gt;svg]:size-4 [&amp;&gt;svg]:shrink-0&quot;</span>,
+        <span class="th-token th-comment">// Increases the hit area of the button on mobile.</span>
+        <span class="th-token th-string">&quot;after:absolute after:-inset-2 md:after:hidden&quot;</span>,
+        <span class="th-token th-string">&quot;peer-data-[size=sm]/menu-button:top-1&quot;</span>,
+        <span class="th-token th-string">&quot;peer-data-[size=default]/menu-button:top-1.5&quot;</span>,
+        <span class="th-token th-string">&quot;peer-data-[size=lg]/menu-button:top-2.5&quot;</span>,
+        <span class="th-token th-string">&quot;group-data-[collapsible=icon]:hidden&quot;</span>,
+        showOnHover &amp;&amp;
+          <span class="th-token th-string">&quot;group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground data-[state=open]:opacity-100 md:opacity-0&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenuBadge</span>({
+  className,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">div</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu-badge&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-badge&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none&quot;</span>,
+        <span class="th-token th-string">&quot;peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground&quot;</span>,
+        <span class="th-token th-string">&quot;peer-data-[size=sm]/menu-button:top-1&quot;</span>,
+        <span class="th-token th-string">&quot;peer-data-[size=default]/menu-button:top-1.5&quot;</span>,
+        <span class="th-token th-string">&quot;peer-data-[size=lg]/menu-button:top-2.5&quot;</span>,
+        <span class="th-token th-string">&quot;group-data-[collapsible=icon]:hidden&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenuSkeleton</span>({
+  className,
+  showIcon = <span class="th-token th-literal">false</span>,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;div&quot;</span>&gt; &amp; {
+  showIcon?: <span class="th-token th-type">boolean</span>
+}) {
+  <span class="th-token th-comment">// Random width between 50 to 90%.</span>
+  <span class="th-token th-keyword">const</span> width = <span class="th-token th-type">React</span>.<span class="th-token th-property">useMemo</span>(() =&gt; {
+    <span class="th-token th-keyword">return</span> <span class="th-token th-string">`</span><span class="th-token th-operator">${</span><span class="th-token th-type">Math</span>.<span class="th-token th-property">floor</span>(<span class="th-token th-type">Math</span>.<span class="th-token th-property">random</span>() * <span class="th-token th-number">40</span>) + <span class="th-token th-number">50</span><span class="th-token th-operator">}</span><span class="th-token th-string">%`</span>
+  }, [])
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">div</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu-skeleton&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-skeleton&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;flex h-8 items-center gap-2 rounded-md px-2&quot;</span>, className)}
+      {...props}
+    &gt;
+      {showIcon &amp;&amp; (
+        &lt;<span class="th-token th-tag">Skeleton</span>
+          <span class="th-token th-attr">className</span>=<span class="th-token th-string">&quot;size-4 rounded-md&quot;</span>
+          <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-skeleton-icon&quot;</span>
+        /&gt;
+      )}
+      &lt;<span class="th-token th-tag">Skeleton</span>
+        <span class="th-token th-attr">className</span>=<span class="th-token th-string">&quot;h-4 max-w-(--skeleton-width) flex-1&quot;</span>
+        <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-skeleton-text&quot;</span>
+        <span class="th-token th-attr">style</span>={
+          {
+            <span class="th-token th-string">&quot;--skeleton-width&quot;</span>: width,
+          } <span class="th-token th-keyword">as</span> <span class="th-token th-type">React</span>.<span class="th-token th-property">CSSProperties</span>
+        }
+      /&gt;
+    &lt;/<span class="th-token th-tag">div</span>&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenuSub</span>({ className, ...props }: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;ul&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">ul</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu-sub&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-sub&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5&quot;</span>,
+        <span class="th-token th-string">&quot;group-data-[collapsible=icon]:hidden&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenuSubItem</span>({
+  className,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;li&quot;</span>&gt;) {
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">li</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu-sub-item&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-sub-item&quot;</span>
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(<span class="th-token th-string">&quot;group/menu-sub-item relative&quot;</span>, className)}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">function</span> <span class="th-token th-function">SidebarMenuSubButton</span>({
+  asChild = <span class="th-token th-literal">false</span>,
+  size = <span class="th-token th-string">&quot;md&quot;</span>,
+  isActive = <span class="th-token th-literal">false</span>,
+  className,
+  ...props
+}: <span class="th-token th-type">React</span>.<span class="th-token th-property">ComponentProps</span>&lt;<span class="th-token th-string">&quot;a&quot;</span>&gt; &amp; {
+  asChild?: <span class="th-token th-type">boolean</span>
+  size?: <span class="th-token th-string">&quot;sm&quot;</span> | <span class="th-token th-string">&quot;md&quot;</span>
+  isActive?: <span class="th-token th-type">boolean</span>
+}) {
+  <span class="th-token th-keyword">const</span> <span class="th-token th-type">Comp</span> = asChild ? <span class="th-token th-type">Slot</span>.<span class="th-token th-property">Root</span> : <span class="th-token th-string">&quot;a&quot;</span>
+
+  <span class="th-token th-keyword">return</span> (
+    &lt;<span class="th-token th-tag">Comp</span>
+      <span class="th-token th-attr">data-slot</span>=<span class="th-token th-string">&quot;sidebar-menu-sub-button&quot;</span>
+      <span class="th-token th-attr">data-sidebar</span>=<span class="th-token th-string">&quot;menu-sub-button&quot;</span>
+      <span class="th-token th-attr">data-size</span>={size}
+      <span class="th-token th-attr">data-active</span>={isActive}
+      <span class="th-token th-attr">className</span>={<span class="th-token th-function">cn</span>(
+        <span class="th-token th-string">&quot;flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground ring-sidebar-ring outline-hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&amp;&gt;span:last-child]:truncate [&amp;&gt;svg]:size-4 [&amp;&gt;svg]:shrink-0 [&amp;&gt;svg]:text-sidebar-accent-foreground&quot;</span>,
+        <span class="th-token th-string">&quot;data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground&quot;</span>,
+        <span class="th-token th-attr">size</span> === <span class="th-token th-string">&quot;sm&quot;</span> &amp;&amp; <span class="th-token th-string">&quot;text-xs&quot;</span>,
+        <span class="th-token th-attr">size</span> === <span class="th-token th-string">&quot;md&quot;</span> &amp;&amp; <span class="th-token th-string">&quot;text-sm&quot;</span>,
+        <span class="th-token th-string">&quot;group-data-[collapsible=icon]:hidden&quot;</span>,
+        className
+      )}
+      {...props}
+    /&gt;
+  )
+}
+
+<span class="th-token th-keyword">export</span> {
+  <span class="th-token th-type">Sidebar</span>,
+  <span class="th-token th-type">SidebarContent</span>,
+  <span class="th-token th-type">SidebarFooter</span>,
+  <span class="th-token th-type">SidebarGroup</span>,
+  <span class="th-token th-type">SidebarGroupAction</span>,
+  <span class="th-token th-type">SidebarGroupContent</span>,
+  <span class="th-token th-type">SidebarGroupLabel</span>,
+  <span class="th-token th-type">SidebarHeader</span>,
+  <span class="th-token th-type">SidebarInput</span>,
+  <span class="th-token th-type">SidebarInset</span>,
+  <span class="th-token th-type">SidebarMenu</span>,
+  <span class="th-token th-type">SidebarMenuAction</span>,
+  <span class="th-token th-type">SidebarMenuBadge</span>,
+  <span class="th-token th-type">SidebarMenuButton</span>,
+  <span class="th-token th-type">SidebarMenuItem</span>,
+  <span class="th-token th-type">SidebarMenuSkeleton</span>,
+  <span class="th-token th-type">SidebarMenuSub</span>,
+  <span class="th-token th-type">SidebarMenuSubButton</span>,
+  <span class="th-token th-type">SidebarMenuSubItem</span>,
+  <span class="th-token th-type">SidebarProvider</span>,
+  <span class="th-token th-type">SidebarRail</span>,
+  <span class="th-token th-type">SidebarSeparator</span>,
+  <span class="th-token th-type">SidebarTrigger</span>,
+  useSidebar,
+}
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

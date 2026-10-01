@@ -4,6 +4,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import highlightJs from "highlight.js";
 import { createHighlighter as createShikiHighlighter } from "shiki";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
+import { createHighlighter as createTanStackHighlighter } from "@tanstack/highlight/core";
+import * as tanStackLanguages from "@tanstack/highlight/languages";
+import { createThemeCss } from "@tanstack/highlight/theme";
 import { createHighlighter, runtimeKind, withWasm } from "@lumis-sh/lumis";
 import { htmlInline } from "@lumis-sh/lumis/formatters";
 import bash from "@lumis-sh/lumis/langs/bash";
@@ -95,6 +98,12 @@ const highlightJsThemes = new Map(
     ]),
   ),
 );
+// Like highlight.js, TanStack Highlight gets every language it ships, so a README
+// fence it can read is highlighted rather than left plain.
+const tanStack = createTanStackHighlighter({ languages: Object.values(tanStackLanguages) });
+const tanStackThemes = new Map(
+  themes.map((theme) => [theme.id, tanStackTheme(theme, highlightJsThemes.get(theme.id))]),
+);
 
 for (const document of documents) {
   const source = await readFile(resolve(assetsDir, document.file), "utf8");
@@ -128,10 +137,79 @@ for (const document of documents) {
       `${highlightJs.highlight(source, { language: document.language }).value}</code></pre>`;
     validate(highlightJsOutput, source, "highlight.js");
     await writeFile(resolve(fragmentsDir, "highlight-js.html"), highlightJsOutput);
+
+    // A language TanStack Highlight lacks comes back as plain text under its
+    // fallback name. That is no output to compare, so nothing is written, and the
+    // document has to have declared it unsupported.
+    const tanStackResult = tanStack.highlight(source, { lang: document.language });
+    if (tanStackResult.lang !== document.language) continue;
+    const tanStackOutput =
+      `<style>${createThemeCss({ themes: [{ selector: ":root", theme: tanStackThemes.get(theme.id) }] })}</style>` +
+      tanStackResult.html;
+    validate(tanStackOutput, source, "TanStack Highlight");
+    await writeFile(resolve(fragmentsDir, "tanstack-highlight.html"), tanStackOutput);
   }
 }
 
 shiki?.dispose();
+
+// TanStack Highlight ships no Catppuccin. Rather than choose its colours here, the
+// theme is read out of the @catppuccin/highlightjs stylesheet the highlight.js
+// output uses, each of its token classes taking the colour of the highlight.js
+// class that marks the same thing.
+function tanStackTheme(theme, stylesheet) {
+  const highlightJsClasses = {
+    attr: "attr",
+    "code-inline": "code",
+    command: "built_in",
+    comment: "comment",
+    deleted: "deletion",
+    function: "title.function_",
+    heading: "section",
+    inserted: "addition",
+    keyword: "keyword",
+    link: "link",
+    literal: "literal",
+    meta: "meta",
+    number: "number",
+    operator: "operator",
+    property: "property",
+    // highlight.js splits a selector into tag, id and class; TanStack Highlight
+    // colours it whole, so it takes the class colour, the part stylesheets use most.
+    selector: "selector-class",
+    string: "string",
+    // `tag` is the tag name; highlight.js's `hljs-tag` is the whole tag, brackets
+    // and attributes included, and names the tag `hljs-name`.
+    tag: "name",
+    type: "type",
+    variable: "variable",
+  };
+  const declaration = (selector, property) => {
+    const rule = stylesheet.match(
+      new RegExp(`(?:^|\\})${selector.replaceAll(".", "\\.")}\\{([^}]*)\\}`),
+    )?.[1];
+    const value = rule?.match(new RegExp(`(?:^|;)${property}:(#[0-9a-f]{6})`, "i"))?.[1];
+    if (!value) throw new Error(`${theme.highlightJs} has no ${property} for ${selector}`);
+    return value;
+  };
+  const foreground = declaration("code.hljs", "color");
+
+  return {
+    name: `catppuccin-${theme.id}`,
+    type: theme.appearance,
+    background: declaration("code.hljs", "background"),
+    foreground,
+    tokens: {
+      token: foreground,
+      ...Object.fromEntries(
+        Object.entries(highlightJsClasses).map(([token, className]) => [
+          token,
+          declaration(`code .hljs-${className}`, "color"),
+        ]),
+      ),
+    },
+  };
+}
 
 function validate(output, source, implementation) {
   if (

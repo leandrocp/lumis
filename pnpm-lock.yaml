@@ -71,6 +71,9 @@ importers:
       '@lumis-sh/wasm-tsx':
         specifier: 0.26.1
         version: 0.26.1
+      '@tanstack/highlight':
+        specifier: latest
+        version: 1.0.0
       highlight.js:
         specifier: latest
         version: 11.12.0
@@ -2070,6 +2073,10 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
+
+  '@tanstack/highlight@1.0.0':
+    resolution: {integrity: sha512-nrg2iZSQUZlDZGTPKh/CNlg6Orm3vFHIaIi/9DqPC1rUpfe/M6rD2iokrckWTc2Z5jYDz185BK76GUh9VIjQRw==}
+    engines: {node: '>=18'}
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -4488,6 +4495,8 @@ snapshots:
       ajv: 8.20.0
 
   '@standard-schema/spec@1.1.0': {}
+
+  '@tanstack/highlight@1.0.0': {}
 
   '@tybys/wasm-util@0.10.1':
     dependencies:

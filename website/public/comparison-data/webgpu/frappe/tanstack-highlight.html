@@ -1,0 +1,1503 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TanStack Highlight · Catppuccin Frappé · Lumis visual comparison</title>
+  <meta name="color-scheme" content="dark">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #292c3c; color: #c6d0f5; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #51576d; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root {
+  --th-background: #303446;
+  --th-token: #c6d0f5;
+  --th-attr: #8caaee;
+  --th-code-inline: #a6d189;
+  --th-command: #e78284;
+  --th-comment: #949cbb;
+  --th-deleted: #e78284;
+  --th-function: #8caaee;
+  --th-heading: #8caaee;
+  --th-inserted: #a6d189;
+  --th-keyword: #ca9ee6;
+  --th-link: #85c1dc;
+  --th-literal: #ef9f76;
+  --th-meta: #ef9f76;
+  --th-number: #ef9f76;
+  --th-operator: #99d1db;
+  --th-property: #81c8be;
+  --th-selector: #81c8be;
+  --th-string: #a6d189;
+  --th-tag: #ca9ee6;
+  --th-type: #e5c890;
+  --th-variable: #ca9ee6;
+}
+
+pre.th-code {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--th-background);
+  color: var(--th-token);
+}
+
+.th-token { color: var(--th-token); }
+.th-attr { color: var(--th-attr); }
+.th-code-inline { color: var(--th-code-inline); }
+.th-command { color: var(--th-command); }
+.th-comment { color: var(--th-comment); }
+.th-deleted { color: var(--th-deleted); }
+.th-function { color: var(--th-function); }
+.th-heading { color: var(--th-heading); }
+.th-inserted { color: var(--th-inserted); }
+.th-keyword { color: var(--th-keyword); }
+.th-link { color: var(--th-link); }
+.th-literal { color: var(--th-literal); }
+.th-meta { color: var(--th-meta); }
+.th-number { color: var(--th-number); }
+.th-operator { color: var(--th-operator); }
+.th-property { color: var(--th-property); }
+.th-selector { color: var(--th-selector); }
+.th-string { color: var(--th-string); }
+.th-tag { color: var(--th-tag); }
+.th-type { color: var(--th-type); }
+.th-variable { color: var(--th-variable); }
+.th-line { display: inline-block; min-width: 100%; width: max-content; }
+.th-code--line-numbers code { counter-reset: th-line; }
+.th-code--line-numbers .th-line::before {
+  display: inline-block;
+  width: 2.5em;
+  padding-right: 1em;
+  color: var(--th-comment);
+  content: attr(data-line);
+  text-align: right;
+  user-select: none;
+}</style><pre class="th-code th-code--html" data-language="html"><code>&lt;<span class="th-token th-tag">html</span> <span class="th-token th-attr">lang</span>=<span class="th-token th-string">&quot;en&quot;</span>&gt;
+	&lt;<span class="th-token th-tag">head</span>&gt;
+		&lt;<span class="th-token th-tag">title</span>&gt;three.js webgpu - compute reduction&lt;/<span class="th-token th-tag">title</span>&gt;
+		&lt;<span class="th-token th-tag">meta</span> <span class="th-token th-attr">charset</span>=<span class="th-token th-string">&quot;utf-8&quot;</span>&gt;
+		&lt;<span class="th-token th-tag">meta</span> <span class="th-token th-attr">name</span>=<span class="th-token th-string">&quot;viewport&quot;</span> <span class="th-token th-attr">content</span>=<span class="th-token th-string">&quot;width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0&quot;</span>&gt;
+		&lt;<span class="th-token th-tag">meta</span> <span class="th-token th-attr">property</span>=<span class="th-token th-string">&quot;og:title&quot;</span> <span class="th-token th-attr">content</span>=<span class="th-token th-string">&quot;three.js webgpu - compute reduction&quot;</span>&gt;
+		&lt;<span class="th-token th-tag">meta</span> <span class="th-token th-attr">property</span>=<span class="th-token th-string">&quot;og:type&quot;</span> <span class="th-token th-attr">content</span>=<span class="th-token th-string">&quot;website&quot;</span>&gt;
+		&lt;<span class="th-token th-tag">meta</span> <span class="th-token th-attr">property</span>=<span class="th-token th-string">&quot;og:url&quot;</span> <span class="th-token th-attr">content</span>=<span class="th-token th-string">&quot;https://threejs.org/examples/webgpu_compute_reduce.html&quot;</span>&gt;
+		&lt;<span class="th-token th-tag">meta</span> <span class="th-token th-attr">property</span>=<span class="th-token th-string">&quot;og:image&quot;</span> <span class="th-token th-attr">content</span>=<span class="th-token th-string">&quot;https://threejs.org/examples/screenshots/webgpu_compute_reduce.jpg&quot;</span>&gt;
+		&lt;<span class="th-token th-tag">link</span> <span class="th-token th-attr">type</span>=<span class="th-token th-string">&quot;text/css&quot;</span> <span class="th-token th-attr">rel</span>=<span class="th-token th-string">&quot;stylesheet&quot;</span> <span class="th-token th-attr">href</span>=<span class="th-token th-string">&quot;main.css&quot;</span>&gt;
+	&lt;/<span class="th-token th-tag">head</span>&gt;
+	&lt;<span class="th-token th-tag">body</span>&gt;
+
+	&lt;<span class="th-token th-tag">style</span>&gt;
+
+		<span class="th-token th-selector">#reduction-panel </span>{
+			<span class="th-token th-property">background-color</span>: #<span class="th-token th-number">111</span>;
+			<span class="th-token th-property">width</span>: <span class="th-token th-number">100</span>%;
+			<span class="th-token th-property">display</span>: flex;
+			<span class="th-token th-property">position</span>: fixed;
+			<span class="th-token th-property">height</span>: auto;
+			<span class="th-token th-property">bottom</span>: <span class="th-token th-number">0px</span>;
+			<span class="th-token th-property">z-index</span>: <span class="th-token th-number">99</span>;
+			<span class="th-token th-property">flex-direction</span>: column;
+			<span class="th-token th-property">justify-content</span>: center;
+			<span class="th-token th-property">align-items</span>: center;
+			<span class="th-token th-property">border-left</span>: <span class="th-token th-number">2px</span> solid #<span class="th-token th-number">222</span>;
+			<span class="th-token th-property">text-align</span>: center;
+		}
+
+		<span class="th-token th-selector">#panel-title </span>{
+			<span class="th-token th-property">width</span>: fit-content;
+		}
+
+		<span class="th-token th-selector">.thread-row </span>{
+			<span class="th-token th-property">display</span>: flex;
+			<span class="th-token th-property">flex-direction</span>: row;
+			<span class="th-token th-property">align-items</span>: center;
+			<span class="th-token th-property">margin</span>: <span class="th-token th-number">4px</span> <span class="th-token th-number">0</span>;
+			<span class="th-token th-property">position</span>: relative;
+		}
+
+		<span class="th-token th-selector">.thread </span>{
+			<span class="th-token th-property">width</span>: <span class="th-token th-number">16px</span>;
+			<span class="th-token th-property">height</span>: <span class="th-token th-number">16px</span>;
+			<span class="th-token th-property">background-color</span>: #<span class="th-token th-number">444</span>;
+			<span class="th-token th-property">margin-right</span>: <span class="th-token th-number">2px</span>;
+			<span class="th-token th-property">transition</span>: background-color <span class="th-token th-number">0.5s</span>, transform <span class="th-token th-number">0.5s</span>;
+		}
+
+		<span class="th-token th-selector">.stage-display </span>{
+			<span class="th-token th-property">display</span>: flex;
+			<span class="th-token th-property">flex-direction</span>: column;
+			<span class="th-token th-property">justify-content</span>: center;
+			<span class="th-token th-property">margin-bottom</span>: <span class="th-token th-number">5px</span>;
+		}
+
+		<span class="th-token th-selector">.stage-label </span>{
+			<span class="th-token th-property">font-size</span>: <span class="th-token th-number">1.2em</span>;
+			<span class="th-token th-property">color</span>: #aaa;
+			<span class="th-token th-property">font-style</span>: bold;
+			<span class="th-token th-property">margin-top</span>: <span class="th-token th-number">6px</span>;
+			<span class="th-token th-property">margin-bottom</span>: <span class="th-token th-number">20px</span>;
+		}
+
+		<span class="th-token th-selector">.thread </span>{
+			<span class="th-token th-property">display</span>: flex;
+			<span class="th-token th-property">justify-content</span>: center;
+			<span class="th-token th-property">align-items</span>: center;
+			<span class="th-token th-property">width</span>: <span class="th-token th-number">40px</span>;
+			<span class="th-token th-property">height</span>: <span class="th-token th-number">40px</span>;
+			<span class="th-token th-property">margin</span>: <span class="th-token th-number">2px</span>;
+			<span class="th-token th-property">border</span>: <span class="th-token th-number">1px</span> solid <span class="th-token th-function">rgba</span>(<span class="th-token th-number">255</span>, <span class="th-token th-number">255</span>, <span class="th-token th-number">255</span>, <span class="th-token th-number">0.2</span>);
+			<span class="th-token th-property">border-radius</span>: <span class="th-token th-number">4px</span>;
+			<span class="th-token th-property">background</span>: <span class="th-token th-function">linear-gradient</span>(<span class="th-token th-number">180deg</span>, <span class="th-token th-function">rgba</span>(<span class="th-token th-number">255</span>,<span class="th-token th-number">255</span>,<span class="th-token th-number">255</span>,<span class="th-token th-number">0.05</span>), <span class="th-token th-function">rgba</span>(<span class="th-token th-number">0</span>,<span class="th-token th-number">0</span>,<span class="th-token th-number">0</span>,<span class="th-token th-number">0.2</span>));
+			<span class="th-token th-property">box-shadow</span>: inset <span class="th-token th-number">0</span> <span class="th-token th-number">0</span> <span class="th-token th-number">2px</span> <span class="th-token th-function">rgba</span>(<span class="th-token th-number">255</span>,<span class="th-token th-number">255</span>,<span class="th-token th-number">255</span>,<span class="th-token th-number">0.1</span>);
+			<span class="th-token th-property">font-family</span>: monospace;
+			<span class="th-token th-property">color</span>: white;
+		}
+
+		<span class="th-token th-selector">.thread_data </span>{
+			<span class="th-token th-property">display</span>: block;
+			<span class="th-token th-property">max-width</span>: <span class="th-token th-number">100</span>%;
+			<span class="th-token th-property">padding</span>: <span class="th-token th-number">0</span> <span class="th-token th-number">2px</span>;
+			<span class="th-token th-property">white-space</span>: nowrap;
+			<span class="th-token th-property">overflow</span>: hidden;
+			<span class="th-token th-property">text-overflow</span>: ellipsis;
+			<span class="th-token th-property">font-size</span>: <span class="th-token th-function">clamp</span>(<span class="th-token th-number">8px</span>, <span class="th-token th-number">2vw</span>, <span class="th-token th-number">14px</span>);
+			<span class="th-token th-property">text-align</span>: center;
+		}
+
+		<span class="th-token th-selector">.subgroup </span>{
+			<span class="th-token th-property">display</span>: flex;
+			<span class="th-token th-property">position</span>: relative;
+			<span class="th-token th-property">margin-left</span>: <span class="th-token th-number">10px</span>;
+			<span class="th-token th-property">margin-right</span>: <span class="th-token th-number">10px</span>;
+		}
+
+		<span class="th-token th-selector">.subgroup::before </span>{
+			<span class="th-token th-comment">/* label text for each subgroup label */</span>
+			content: <span class="th-token th-string">&quot;subgroupAdd()&quot;</span>;
+			<span class="th-token th-property">position</span>: absolute;
+			<span class="th-token th-property">top</span>: -<span class="th-token th-number">20px</span>;
+			<span class="th-token th-comment">/* Hide until animation is displayed */</span>
+			opacity: <span class="th-token th-number">0</span>;
+			<span class="th-token th-property">z-index</span>: <span class="th-token th-number">100</span>;
+			<span class="th-token th-property">transition</span>: opacity <span class="th-token th-number">0.5s</span> ease;
+			<span class="th-token th-property">font-weight</span>: bold;
+			<span class="th-token th-property">color</span>: white;
+			<span class="th-token th-property">width</span>: <span class="th-token th-number">100</span>%;
+		}
+
+		<span class="th-token th-selector">.subgroup::after </span>{
+			<span class="th-token th-property">content</span>: <span class="th-token th-function">attr</span>(data-label);
+			<span class="th-token th-property">position</span>: absolute;
+			<span class="th-token th-property">bottom</span>: -<span class="th-token th-number">20px</span>;
+			<span class="th-token th-property">opacity</span>: <span class="th-token th-number">1</span>;
+			<span class="th-token th-property">z-index</span>: <span class="th-token th-number">100</span>;
+			<span class="th-token th-property">color</span>: gray;
+			<span class="th-token th-property">width</span>: <span class="th-token th-number">100</span>%;
+		}
+
+		<span class="th-token th-selector">.reduction-stage </span>{
+			<span class="th-token th-property">margin-bottom</span>: <span class="th-token th-number">20px</span>;
+		}
+
+	<span class="th-token th-selector">	@keyframes labelAbsorb </span>{
+			<span class="th-token th-selector">0% </span>{
+				<span class="th-token th-property">opacity</span>: <span class="th-token th-number">0</span>;
+				<span class="th-token th-property">transform</span>: <span class="th-token th-function">translateY</span>(-<span class="th-token th-number">50</span>%);
+			}
+			<span class="th-token th-selector">40% </span>{
+				<span class="th-token th-property">opacity</span>: <span class="th-token th-number">1</span>;
+				<span class="th-token th-property">transform</span>: <span class="th-token th-function">translateY</span>(<span class="th-token th-number">0</span>%);
+			}
+			<span class="th-token th-selector">60% </span>{
+				<span class="th-token th-property">opacity</span>: <span class="th-token th-number">1</span>;
+				<span class="th-token th-property">transform</span>: <span class="th-token th-function">translateY</span>(<span class="th-token th-number">0</span>%);
+			}
+			<span class="th-token th-selector">80% </span>{
+				<span class="th-token th-property">opacity</span>: <span class="th-token th-number">1</span>;
+				<span class="th-token th-property">transform</span>: <span class="th-token th-function">translate</span>(<span class="th-token th-number">0</span>%, -<span class="th-token th-number">20</span>%);
+			}
+			<span class="th-token th-selector">100% </span>{
+				<span class="th-token th-property">opacity</span>: <span class="th-token th-number">0</span>;
+				<span class="th-token th-property">transform</span>: <span class="th-token th-function">translate</span>(<span class="th-token th-number">0</span>%, <span class="th-token th-number">100</span>%);
+			}
+		}
+
+		<span class="th-token th-selector">.subgroup.anim::before </span>{
+			<span class="th-token th-property">opacity</span>: <span class="th-token th-number">0</span>;
+			<span class="th-token th-property">animation-name</span>: labelAbsorb;
+			<span class="th-token th-property">animation-duration</span>: <span class="th-token th-number">1.5s</span>;
+			<span class="th-token th-property">transition</span>:
+			transform <span class="th-token th-number">0.6s</span> ease-out,
+			opacity <span class="th-token th-number">0.3s</span> ease-in <span class="th-token th-number">0.3s</span>;
+		}
+
+	&lt;/<span class="th-token th-tag">style</span>&gt;
+
+		&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">id</span>=<span class="th-token th-string">&quot;info&quot;</span>&gt;
+			&lt;<span class="th-token th-tag">a</span> <span class="th-token th-attr">href</span>=<span class="th-token th-string">&quot;https://threejs.org&quot;</span> <span class="th-token th-attr">target</span>=<span class="th-token th-string">&quot;_blank&quot;</span> <span class="th-token th-attr">rel</span>=<span class="th-token th-string">&quot;noopener&quot;</span>&gt;three.js&lt;/<span class="th-token th-tag">a</span>&gt;
+			&lt;<span class="th-token th-tag">br</span> /&gt; This example demonstrates the performance of various simple parallel reduction kernels.
+			&lt;<span class="th-token th-tag">br</span> /&gt; Reference implementations are translated from the CUDA/WGSL code present in the following books/repos:
+			&lt;<span class="th-token th-tag">br</span> /&gt; Impl. 0 - 2: &lt;<span class="th-token th-tag">a</span> <span class="th-token th-attr">href</span>=<span class="th-token th-string">&quot;https://www.cambridge.org/core/books/programming-in-parallel-with-cuda/C43652A69033C25AD6933368CDBE084C&quot;</span>&gt;&lt;<span class="th-token th-tag">i</span>&gt;Programming in Parallel with CUDA&lt;/<span class="th-token th-tag">i</span>&gt;&lt;/<span class="th-token th-tag">a</span>&gt; by &lt;<span class="th-token th-tag">a</span> <span class="th-token th-attr">href</span>=<span class="th-token th-string">&quot;https://github.com/RichardAns&quot;</span>&gt;Richard Ansorge&lt;/<span class="th-token th-tag">a</span>&gt;
+			&lt;<span class="th-token th-tag">br</span> /&gt; Impl. 3: &lt;<span class="th-token th-tag">a</span> <span class="th-token th-attr">href</span>=<span class="th-token th-string">&quot;https://github.com/frost-beta/betann/blob/main/betann/wgsl/reduce_all.wgsl&quot;</span>&gt;&lt;<span class="th-token th-tag">i</span>&gt;betann reduce_all kernel&lt;/<span class="th-token th-tag">i</span>&gt;&lt;/<span class="th-token th-tag">a</span>&gt; by &lt;<span class="th-token th-tag">a</span> <span class="th-token th-attr">href</span>=<span class="th-token th-string">&quot;https://github.com/zcbenz&quot;</span>&gt;zcbenz&lt;/<span class="th-token th-tag">a</span>&gt;
+			&lt;<span class="th-token th-tag">br</span> /&gt; Impl. 4: &lt;<span class="th-token th-tag">a</span> <span class="th-token th-attr">href</span>=<span class="th-token th-string">&quot;https://github.com/b0nes164/GPUPrefixSums/blob/main/GPUPrefixSumsWebGPUapis/SharedShaders/rts.wgsl&quot;</span>&gt;&lt;<span class="th-token th-tag">i</span>&gt;GPUPrefixSums reduction approach&lt;/<span class="th-token th-tag">i</span>&gt;&lt;/<span class="th-token th-tag">a</span>&gt; by &lt;<span class="th-token th-tag">a</span> <span class="th-token th-attr">href</span>=<span class="th-token th-string">&quot;https://github.com/b0nes164&quot;</span>&gt;b0nes164&lt;/<span class="th-token th-tag">a</span>&gt;
+			&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">id</span>=<span class="th-token th-string">&quot;left_side_display&quot;</span> <span class="th-token th-attr">style</span>=<span class="th-token th-string">&quot;position: absolute;top: 150px;left: 0;padding: 10px;background: rgba( 0, 0, 0, 0.5 );color: #fff;font-family: monospace;font-size: 12px;line-height: 1.5;pointer-events: none;text-align: left;&quot;</span>&gt;&lt;/<span class="th-token th-tag">div</span>&gt;
+			&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">id</span>=<span class="th-token th-string">&quot;right_side_display&quot;</span> <span class="th-token th-attr">style</span>=<span class="th-token th-string">&quot;position: absolute;top: 150px;right: 0;padding: 10px;background: rgba( 0, 0, 0, 0.5 );color: #fff;font-family: monospace;font-size: 12px;line-height: 1.5;pointer-events: none;text-align: left;&quot;</span>&gt;&lt;/<span class="th-token th-tag">div</span>&gt;
+		&lt;/<span class="th-token th-tag">div</span>&gt;
+
+		&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">id</span>=<span class="th-token th-string">&quot;reduction-panel&quot;</span>&gt;
+			&lt;<span class="th-token th-tag">h3</span> <span class="th-token th-attr">id</span>=<span class="th-token th-string">&quot;panel-title&quot;</span> <span class="th-token th-attr">style</span>=<span class="th-token th-string">&quot;flex: 0 0 auto;&quot;</span>&gt;Subgroup Reduction Explanation&lt;/<span class="th-token th-tag">h3</span>&gt;
+			&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">class</span>=<span class="th-token th-string">&quot;reduction-stage&quot;</span> <span class="th-token th-attr">id</span>=<span class="th-token th-string">&quot;subgroup-reduction-stage&quot;</span>&gt;
+    		&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">class</span>=<span class="th-token th-string">&quot;stage-label&quot;</span>&gt;Use subgroupAdd() to capture reduction of each workgroup&#39;s subgroups (Hover for animation)&lt;/<span class="th-token th-tag">div</span>&gt;
+				&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">class</span>=<span class="th-token th-string">&quot;stage-display&quot;</span>&gt;
+					&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">id</span>=<span class="th-token th-string">&quot;workgroup_threads&quot;</span> <span class="th-token th-attr">style</span>=<span class="th-token th-string">&quot;display: flex; justify-content: center; margin-bottom: 20px;&quot;</span>&gt;&lt;/<span class="th-token th-tag">div</span>&gt;
+					&lt;<span class="th-token th-tag">div</span> <span class="th-token th-attr">id</span>=<span class="th-token th-string">&quot;subgroup_reduction&quot;</span> <span class="th-token th-attr">style</span>=<span class="th-token th-string">&quot;display: flex; justify-content: center; margin-bottom: 5px;&quot;</span>&gt;&lt;/<span class="th-token th-tag">div</span>&gt;
+				&lt;/<span class="th-token th-tag">div</span>&gt;
+			&lt;/<span class="th-token th-tag">div</span>&gt;
+    &lt;/<span class="th-token th-tag">div</span>&gt;
+
+		&lt;<span class="th-token th-tag">script</span> <span class="th-token th-attr">type</span>=<span class="th-token th-string">&quot;importmap&quot;</span>&gt;
+			{
+				<span class="th-token th-string">&quot;imports&quot;</span>: {
+					<span class="th-token th-string">&quot;three&quot;</span>: <span class="th-token th-string">&quot;../build/three.webgpu.js&quot;</span>,
+					<span class="th-token th-string">&quot;three/webgpu&quot;</span>: <span class="th-token th-string">&quot;../build/three.webgpu.js&quot;</span>,
+					<span class="th-token th-string">&quot;three/tsl&quot;</span>: <span class="th-token th-string">&quot;../build/three.tsl.js&quot;</span>,
+					<span class="th-token th-string">&quot;three/addons/&quot;</span>: <span class="th-token th-string">&quot;./jsm/&quot;</span>
+				}
+			}
+		&lt;/<span class="th-token th-tag">script</span>&gt;
+
+		&lt;<span class="th-token th-tag">script</span> <span class="th-token th-attr">type</span>=<span class="th-token th-string">&quot;module&quot;</span>&gt;
+
+			<span class="th-token th-keyword">import</span> * <span class="th-token th-keyword">as</span> <span class="th-token th-type">THREE</span> <span class="th-token th-keyword">from</span> <span class="th-token th-string">&#39;three/webgpu&#39;</span>;
+			<span class="th-token th-keyword">import</span> { instancedArray, <span class="th-token th-type">Loop</span>, <span class="th-token th-type">If</span>, vec3, dot, clamp, storage, uvec4, subgroupAdd, uniform, uv, uint, float, <span class="th-token th-type">Fn</span>, vec2, invocationLocalIndex, invocationSubgroupIndex, uvec2, floor, instanceIndex, workgroupId, workgroupBarrier, workgroupArray, subgroupSize, select, countTrailingZeros } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&#39;three/tsl&#39;</span>;
+
+			<span class="th-token th-keyword">import</span> <span class="th-token th-type">WebGPU</span> <span class="th-token th-keyword">from</span> <span class="th-token th-string">&#39;three/addons/capabilities/WebGPU.js&#39;</span>;
+
+			<span class="th-token th-keyword">import</span> { <span class="th-token th-type">GUI</span> } <span class="th-token th-keyword">from</span> <span class="th-token th-string">&#39;three/addons/libs/lil-gui.module.min.js&#39;</span>;
+
+			<span class="th-token th-keyword">const</span> timestamps = {
+				<span class="th-token th-property">left_side_display</span>: document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">&#39;left_side_display&#39;</span> ),
+				<span class="th-token th-property">right_side_display</span>: document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">&#39;right_side_display&#39;</span> )
+			};
+
+			<span class="th-token th-keyword">const</span> divRoundUp = ( size, part_size ) =&gt; {
+
+				<span class="th-token th-keyword">return</span> <span class="th-token th-type">Math</span>.<span class="th-token th-property">floor</span>( ( size + part_size - <span class="th-token th-number">1</span> ) / part_size );
+
+			};
+
+			<span class="th-token th-keyword">const</span> cssSubgroupSize = <span class="th-token th-number">4</span>;
+			<span class="th-token th-keyword">const</span> cssWorkgroupSize = <span class="th-token th-number">16</span>;
+
+			<span class="th-token th-keyword">const</span> workgroupThreadsContainer = document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">&#39;workgroup_threads&#39;</span> );
+			<span class="th-token th-keyword">const</span> subgroupReductionContainer = document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">&#39;subgroup_reduction&#39;</span> );
+
+			document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">&#39;panel-title&#39;</span> ).<span class="th-token th-property">textContent</span> += <span class="th-token th-string">` (Subgroup Size: </span><span class="th-token th-operator">${</span>cssSubgroupSize<span class="th-token th-operator">}</span><span class="th-token th-string">, Workgroup Size: </span><span class="th-token th-operator">${</span>cssWorkgroupSize<span class="th-token th-operator">}</span><span class="th-token th-string">)`</span>;
+
+			<span class="th-token th-keyword">const</span> createThreadWithData = ( data ) =&gt; {
+
+				<span class="th-token th-keyword">const</span> threadEle = document.<span class="th-token th-property">createElement</span>( <span class="th-token th-string">&#39;div&#39;</span> );
+				threadEle.<span class="th-token th-property">className</span> = <span class="th-token th-string">&#39;thread&#39;</span>;
+				<span class="th-token th-keyword">const</span> threadData = document.<span class="th-token th-property">createElement</span>( <span class="th-token th-string">&#39;span&#39;</span> );
+				threadData.<span class="th-token th-property">textContent</span> = data; <span class="th-token th-comment">// safer than innerHTML for just text</span>
+				threadData.<span class="th-token th-property">className</span> = <span class="th-token th-string">&#39;thread_data&#39;</span>;
+				threadEle.<span class="th-token th-property">append</span>( threadData );
+
+				<span class="th-token th-keyword">return</span> threadEle;
+
+			};
+
+			<span class="th-token th-comment">// Create thread elements</span>
+			<span class="th-token th-keyword">const</span> workgroupThreads = [];
+			<span class="th-token th-keyword">const</span> initialSubgroups = [];
+			<span class="th-token th-keyword">const</span> initialData = [];
+			<span class="th-token th-keyword">let</span> currentSubgroupDiv = <span class="th-token th-literal">null</span>;
+			<span class="th-token th-keyword">for</span> ( <span class="th-token th-keyword">let</span> i = <span class="th-token th-number">0</span>; i &lt; cssWorkgroupSize; i ++ ) {
+
+				<span class="th-token th-keyword">if</span> ( i % cssSubgroupSize === <span class="th-token th-number">0</span> ) {
+
+					<span class="th-token th-keyword">const</span> currentSubgroupIndex = <span class="th-token th-type">Math</span>.<span class="th-token th-property">floor</span>( i / cssSubgroupSize );
+
+					<span class="th-token th-keyword">const</span> subgroupReductionThread = <span class="th-token th-function">createThreadWithData</span>( <span class="th-token th-number">0</span> );
+					subgroupReductionThread.<span class="th-token th-property">id</span> = <span class="th-token th-string">`subgroup_reduction_element_</span><span class="th-token th-operator">${</span>currentSubgroupIndex<span class="th-token th-operator">}</span><span class="th-token th-string">`</span>;
+					subgroupReductionContainer.<span class="th-token th-property">appendChild</span>( subgroupReductionThread );
+
+					currentSubgroupDiv = document.<span class="th-token th-property">createElement</span>( <span class="th-token th-string">&#39;div&#39;</span> );
+					currentSubgroupDiv.<span class="th-token th-property">className</span> = <span class="th-token th-string">&#39;subgroup&#39;</span>;
+					currentSubgroupDiv.<span class="th-token th-property">setAttribute</span>( <span class="th-token th-string">&#39;data-label&#39;</span>, <span class="th-token th-string">`Threads </span><span class="th-token th-operator">${</span>currentSubgroupIndex * cssSubgroupSize<span class="th-token th-operator">}</span><span class="th-token th-string">-</span><span class="th-token th-operator">${</span>( currentSubgroupIndex + <span class="th-token th-number">1</span> ) * cssSubgroupSize - <span class="th-token th-number">1</span><span class="th-token th-operator">}</span><span class="th-token th-string">`</span> );
+					initialSubgroups.<span class="th-token th-property">push</span>( currentSubgroupDiv );
+					workgroupThreadsContainer.<span class="th-token th-property">appendChild</span>( currentSubgroupDiv );
+
+				}
+
+				<span class="th-token th-keyword">const</span> data = <span class="th-token th-type">Math</span>.<span class="th-token th-property">floor</span>( <span class="th-token th-type">Math</span>.<span class="th-token th-property">random</span>() * <span class="th-token th-number">9</span> ) + <span class="th-token th-number">1</span>;
+				initialData.<span class="th-token th-property">push</span>( data );
+
+				<span class="th-token th-keyword">const</span> thread = <span class="th-token th-function">createThreadWithData</span>( data );
+				workgroupThreads.<span class="th-token th-property">push</span>( thread );
+				currentSubgroupDiv.<span class="th-token th-property">appendChild</span>( thread );
+
+			}
+
+			<span class="th-token th-keyword">const</span> deactivateLabelAnimation = ( subgroupDiv, idx ) =&gt; {
+
+				subgroupDiv.<span class="th-token th-property">classList</span>.<span class="th-token th-property">remove</span>( <span class="th-token th-string">&#39;anim&#39;</span> );
+
+				<span class="th-token th-keyword">const</span> subgroupReductionBufferElement = document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">`subgroup_reduction_element_</span><span class="th-token th-operator">${</span>idx<span class="th-token th-operator">}</span><span class="th-token th-string">`</span> ).<span class="th-token th-property">querySelector</span>( <span class="th-token th-string">&#39;.thread_data&#39;</span> );
+
+				subgroupReductionBufferElement.<span class="th-token th-property">innerHTML</span> = <span class="th-token th-number">0</span>;
+
+			};
+
+			<span class="th-token th-keyword">const</span> activateLabelAnimation = ( subgroupDiv, idx ) =&gt; {
+
+				<span class="th-token th-keyword">const</span> threads = <span class="th-token th-type">Array</span>.<span class="th-token th-property">from</span>( subgroupDiv.<span class="th-token th-property">children</span> );
+				<span class="th-token th-keyword">let</span> total = <span class="th-token th-number">0</span>;
+
+				<span class="th-token th-keyword">for</span> ( <span class="th-token th-keyword">let</span> i = idx * cssSubgroupSize; i &lt; idx * cssSubgroupSize + cssSubgroupSize; i ++ ) {
+
+					total += initialData[ i ];
+
+				}
+
+				subgroupDiv.<span class="th-token th-property">classList</span>.<span class="th-token th-property">add</span>( <span class="th-token th-string">&#39;anim&#39;</span> );
+
+				<span class="th-token th-function">setTimeout</span>( () =&gt; {
+
+					threads.<span class="th-token th-property">forEach</span>( t =&gt; {
+
+						t.<span class="th-token th-property">querySelector</span>( <span class="th-token th-string">&#39;.thread_data&#39;</span> ).<span class="th-token th-property">textContent</span> = total;
+
+					} );
+
+					<span class="th-token th-keyword">const</span> subgroupReductionBufferElement = document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">`subgroup_reduction_element_</span><span class="th-token th-operator">${</span>idx<span class="th-token th-operator">}</span><span class="th-token th-string">`</span> ).<span class="th-token th-property">querySelector</span>( <span class="th-token th-string">&#39;.thread_data&#39;</span> );
+
+					subgroupReductionBufferElement.<span class="th-token th-property">innerHTML</span> = total;
+
+				}, <span class="th-token th-number">1000</span> );
+
+				<span class="th-token th-comment">// Remove the class after the animation ends so it can be triggered again</span>
+				<span class="th-token th-function">setTimeout</span>( () =&gt; {
+
+					subgroupDiv.<span class="th-token th-property">classList</span>.<span class="th-token th-property">remove</span>( <span class="th-token th-string">&#39;anim&#39;</span> );
+
+				}, <span class="th-token th-number">1500</span> ); <span class="th-token th-comment">// matches animation duration in CSS</span>
+
+			};
+
+			document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">&#39;subgroup-reduction-stage&#39;</span> ).<span class="th-token th-property">addEventListener</span>( <span class="th-token th-string">&#39;mouseenter&#39;</span>, () =&gt; {
+
+				initialSubgroups.<span class="th-token th-property">forEach</span>( ( subgroupDiv, idx ) =&gt; {
+
+					<span class="th-token th-function">activateLabelAnimation</span>( subgroupDiv, idx );
+
+				} );
+
+			} );
+
+			document.<span class="th-token th-property">getElementById</span>( <span class="th-token th-string">&#39;subgroup-reduction-stage&#39;</span> ).<span class="th-token th-property">addEventListener</span>( <span class="th-token th-string">&#39;mouseleave&#39;</span>, () =&gt; {
+
+				initialSubgroups.<span class="th-token th-property">forEach</span>( ( subgroupDiv, idx ) =&gt; {
+
+					<span class="th-token th-function">deactivateLabelAnimation</span>( subgroupDiv, idx );
+
+				} );
+
+				workgroupThreads.<span class="th-token th-property">forEach</span>( ( thread, idx ) =&gt; {
+
+					thread.<span class="th-token th-property">querySelector</span>( <span class="th-token th-string">&#39;.thread_data&#39;</span> ).<span class="th-token th-property">textContent</span> = initialData[ idx ];
+
+				} );
+
+			} );
+
+
+			<span class="th-token th-keyword">if</span> ( <span class="th-token th-type">WebGPU</span>.<span class="th-token th-property">isAvailable</span>() === <span class="th-token th-literal">false</span> ) {
+
+				document.<span class="th-token th-property">body</span>.<span class="th-token th-property">appendChild</span>( <span class="th-token th-type">WebGPU</span>.<span class="th-token th-property">getErrorMessage</span>() );
+
+				<span class="th-token th-keyword">throw</span> <span class="th-token th-keyword">new</span> <span class="th-token th-function">Error</span>( <span class="th-token th-string">&#39;No WebGPU support&#39;</span> );
+
+			}
+
+			<span class="th-token th-comment">// Total number of elements and the dimensions of the display grid.</span>
+			<span class="th-token th-keyword">const</span> size = <span class="th-token th-number">262144</span>;
+			<span class="th-token th-keyword">const</span> vecSize = <span class="th-token th-function">divRoundUp</span>( size, <span class="th-token th-number">4</span> );
+			<span class="th-token th-comment">// Grid display is gridDim x gridDim</span>
+			<span class="th-token th-keyword">const</span> gridDim = <span class="th-token th-type">Math</span>.<span class="th-token th-property">sqrt</span>( size );
+			<span class="th-token th-keyword">let</span> maxWorkgroupSize = <span class="th-token th-number">64</span>;
+
+			<span class="th-token th-comment">// Algorithm speed increase as you iterate through algorithms array</span>
+			<span class="th-token th-keyword">const</span> algorithms = [
+				<span class="th-token th-string">&#39;Reduce 0 (N/2)&#39;</span>,
+				<span class="th-token th-string">&#39;Reduce 1 (Naive Accumulate)&#39;</span>,
+				<span class="th-token th-string">&#39;Reduce 2 (Workgroup Reduction)&#39;</span>,
+				<span class="th-token th-string">&#39;Reduce 3 (Subgroup Reduce)&#39;</span>,
+				<span class="th-token th-string">&#39;Reduce 4 (Subgroup Optimized)&#39;</span>,
+				<span class="th-token th-string">&#39;Incorrect Baseline&#39;</span>,
+			];
+
+			<span class="th-token th-comment">// Input Grid: Displays input data in a grid format</span>
+			<span class="th-token th-comment">// Input Log2: Displays input grid data&#39;s logarithmic indices horizontally (1, 2, 4, 8, 16, ..., size)</span>
+			<span class="th-token th-comment">// Input Element 0: Displays clamped input[0]</span>
+			<span class="th-token th-keyword">const</span> displayModes = [ <span class="th-token th-string">&#39;Input Grid&#39;</span>, <span class="th-token th-string">&#39;Input Log2&#39;</span>, <span class="th-token th-string">&#39;Input Element 0&#39;</span>, <span class="th-token th-string">&#39;Workgroup Sum Grid&#39;</span> ];
+
+			<span class="th-token th-comment">// Holds uniforms for both displays as well as debug information</span>
+			<span class="th-token th-keyword">const</span> unifiedEffectController = {
+				<span class="th-token th-comment">// Number of elements in the grid</span>
+				<span class="th-token th-property">gridElementWidth</span>: <span class="th-token th-function">uniform</span>( gridDim ),
+				<span class="th-token th-property">gridElementHeight</span>: <span class="th-token th-function">uniform</span>( gridDim ),
+				<span class="th-token th-comment">// Number of elements in the grid being displayed</span>
+				<span class="th-token th-property">gridDisplayWidth</span>: <span class="th-token th-function">uniform</span>( gridDim ),
+				<span class="th-token th-property">gridDisplayHeight</span>: <span class="th-token th-function">uniform</span>( gridDim ),
+				<span class="th-token th-comment">// How to display end result of reduction.</span>
+				<span class="th-token th-comment">// Ideally this is unique to the reduction method being deployed</span>
+				<span class="th-token th-string">&#39;Display Mode&#39;</span>: <span class="th-token th-string">&#39;Input Log2&#39;</span>,
+				<span class="th-token th-property">loggedBuffer</span>: <span class="th-token th-string">&#39;Input Buffer&#39;</span>,
+				<span class="th-token th-property">elementsReduced</span>: size,
+			};
+
+
+			<span class="th-token th-keyword">const</span> leftEffectController = {
+				<span class="th-token th-comment">// Current reduction algorithm being executed by this side</span>
+				<span class="th-token th-property">algo</span>: <span class="th-token th-string">&#39;Reduce 0 (N/2)&#39;</span>,
+				<span class="th-token th-comment">// Flag indicating whether to highlight element in validation check</span>
+				<span class="th-token th-property">highlight</span>: <span class="th-token th-function">uniform</span>( <span class="th-token th-number">0</span> ),
+				<span class="th-token th-comment">// Uniform that corresponds to the index of the current algorithm within the algorithms array</span>
+				<span class="th-token th-property">currentAlgo</span>: <span class="th-token th-function">uniform</span>( <span class="th-token th-number">0</span> ),
+				<span class="th-token th-comment">// Current state of reduction (Running, validating, resetting)</span>
+				<span class="th-token th-property">state</span>: <span class="th-token th-string">&#39;Run Algo&#39;</span>,
+				<span class="th-token th-comment">// Current display mode</span>
+				<span class="th-token th-property">displayMode</span>: <span class="th-token th-string">&#39;Input Log2&#39;</span>,
+				<span class="th-token th-comment">// Reduce 0 specific uniform</span>
+				<span class="th-token th-property">numThreadsDispatched</span>: <span class="th-token th-function">uniform</span>( size / <span class="th-token th-number">2</span> ),
+				<span class="th-token th-comment">// The subgroup size used by this side&#39;s device</span>
+			};
+
+			<span class="th-token th-keyword">const</span> rightEffectController = {
+				<span class="th-token th-property">algo</span>: <span class="th-token th-string">&#39;Reduce 4 (Subgroup Optimized)&#39;</span>,
+				<span class="th-token th-property">currentAlgo</span>: <span class="th-token th-function">uniform</span>( <span class="th-token th-number">3</span> ),
+				<span class="th-token th-property">highlight</span>: <span class="th-token th-function">uniform</span>( <span class="th-token th-number">0</span> ),
+				<span class="th-token th-property">displayMode</span>: <span class="th-token th-string">&#39;Input Element 0&#39;</span>,
+				<span class="th-token th-property">state</span>: <span class="th-token th-string">&#39;Run Algo&#39;</span>,
+				<span class="th-token th-property">numThreadsDispatched</span>: <span class="th-token th-function">uniform</span>( size / <span class="th-token th-number">2</span> )
+			};
+
+			<span class="th-token th-keyword">const</span> leftMaterial = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">MeshBasicNodeMaterial</span>( { <span class="th-token th-property">color</span>: <span class="th-token th-number">0x00ff00</span> } );
+			<span class="th-token th-keyword">const</span> rightMaterial = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">MeshBasicNodeMaterial</span>( { <span class="th-token th-property">color</span>: <span class="th-token th-number">0x00ff00</span> } );
+			<span class="th-token th-keyword">const</span> leftDisplayColorNodes = {};
+			<span class="th-token th-keyword">const</span> rightDisplayColorNodes = {};
+
+			<span class="th-token th-keyword">const</span> gui = <span class="th-token th-keyword">new</span> <span class="th-token th-function">GUI</span>();
+
+			gui.<span class="th-token th-property">add</span>( leftEffectController, <span class="th-token th-string">&#39;algo&#39;</span>, algorithms ).<span class="th-token th-property">onChange</span>( () =&gt; {
+
+				leftEffectController.<span class="th-token th-property">currentAlgo</span>.<span class="th-token th-property">value</span> = algorithms.<span class="th-token th-property">findIndex</span>( val =&gt; val === leftEffectController.<span class="th-token th-property">algo</span> );
+
+			} );
+
+			gui.<span class="th-token th-property">add</span>( rightEffectController, <span class="th-token th-string">&#39;algo&#39;</span>, algorithms ).<span class="th-token th-property">onChange</span>( () =&gt; {
+
+				rightEffectController.<span class="th-token th-property">currentAlgo</span>.<span class="th-token th-property">value</span> = algorithms.<span class="th-token th-property">findIndex</span>( val =&gt; val === rightEffectController.<span class="th-token th-property">algo</span> );
+
+			} );
+
+			gui.<span class="th-token th-property">add</span>( leftEffectController, <span class="th-token th-string">&#39;displayMode&#39;</span>, displayModes ).<span class="th-token th-property">name</span>( <span class="th-token th-string">&#39;Left Display Mode&#39;</span> ).<span class="th-token th-property">onChange</span>( () =&gt; {
+
+				leftMaterial.<span class="th-token th-property">colorNode</span> = leftDisplayColorNodes[ leftEffectController.<span class="th-token th-property">displayMode</span> ];
+				leftMaterial.<span class="th-token th-property">needsUpdate</span> = <span class="th-token th-literal">true</span>;
+
+			} );
+			gui.<span class="th-token th-property">add</span>( rightEffectController, <span class="th-token th-string">&#39;displayMode&#39;</span>, displayModes ).<span class="th-token th-property">name</span>( <span class="th-token th-string">&#39;Right Display Mode&#39;</span> ).<span class="th-token th-property">onChange</span>( () =&gt; {
+
+				rightMaterial.<span class="th-token th-property">colorNode</span> = rightDisplayColorNodes[ rightEffectController.<span class="th-token th-property">displayMode</span> ];
+				rightMaterial.<span class="th-token th-property">needsUpdate</span> = <span class="th-token th-literal">true</span>;
+
+			} );
+
+			<span class="th-token th-keyword">const</span> debugFolder = gui.<span class="th-token th-property">addFolder</span>( <span class="th-token th-string">&#39;Debug&#39;</span> );
+			<span class="th-token th-keyword">const</span> elementsReducedController = debugFolder.<span class="th-token th-property">add</span>( unifiedEffectController, <span class="th-token th-string">&#39;elementsReduced&#39;</span> ).<span class="th-token th-property">name</span>( <span class="th-token th-string">&#39;Elements Reduced&#39;</span> );
+			elementsReducedController.<span class="th-token th-property">disable</span>();
+			<span class="th-token th-keyword">const</span> stateLeftController = debugFolder.<span class="th-token th-property">add</span>( leftEffectController, <span class="th-token th-string">&#39;state&#39;</span> ).<span class="th-token th-property">name</span>( <span class="th-token th-string">&#39;Left Display State&#39;</span> );
+			<span class="th-token th-keyword">const</span> stateRightController = debugFolder.<span class="th-token th-property">add</span>( rightEffectController, <span class="th-token th-string">&#39;state&#39;</span> ).<span class="th-token th-property">name</span>( <span class="th-token th-string">&#39;Right Display State&#39;</span> );
+			stateLeftController.<span class="th-token th-property">disable</span>();
+			stateRightController.<span class="th-token th-property">disable</span>();
+			debugFolder.<span class="th-token th-property">add</span>( unifiedEffectController, <span class="th-token th-string">&#39;loggedBuffer&#39;</span>, [ <span class="th-token th-string">&#39;Input Buffer&#39;</span>, <span class="th-token th-string">&#39;Input Vectorized Buffer&#39;</span>, <span class="th-token th-string">&#39;Workgroup Sums Buffer&#39;</span>, <span class="th-token th-string">&#39;Debug Buffer&#39;</span> ] ).<span class="th-token th-property">name</span>( <span class="th-token th-string">&#39;Buffer to Log&#39;</span> );
+			debugFolder.<span class="th-token th-property">close</span>();
+
+			<span class="th-token th-comment">// HELPER FUNCTIONS</span>
+			<span class="th-token th-keyword">const</span> pow2Ceil = <span class="th-token th-function">Fn</span>( ( [ x ] ) =&gt; {
+
+				<span class="th-token th-function">If</span>( x.<span class="th-token th-property">equal</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ) ), () =&gt; {
+
+					<span class="th-token th-keyword">return</span> <span class="th-token th-function">uint</span>( <span class="th-token th-number">1</span> );
+
+				} );
+
+				<span class="th-token th-keyword">const</span> val = x.<span class="th-token th-property">sub</span>( <span class="th-token th-number">1</span> ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;val&#39;</span> );
+				val.<span class="th-token th-property">assign</span>( val.<span class="th-token th-property">bitOr</span>( val.<span class="th-token th-property">shiftRight</span>( <span class="th-token th-number">1</span> ) ) );
+				val.<span class="th-token th-property">assign</span>( val.<span class="th-token th-property">bitOr</span>( val.<span class="th-token th-property">shiftRight</span>( <span class="th-token th-number">2</span> ) ) );
+				val.<span class="th-token th-property">assign</span>( val.<span class="th-token th-property">bitOr</span>( val.<span class="th-token th-property">shiftRight</span>( <span class="th-token th-number">4</span> ) ) );
+				val.<span class="th-token th-property">assign</span>( val.<span class="th-token th-property">bitOr</span>( val.<span class="th-token th-property">shiftRight</span>( <span class="th-token th-number">8</span> ) ) );
+				val.<span class="th-token th-property">assign</span>( val.<span class="th-token th-property">bitOr</span>( val.<span class="th-token th-property">shiftRight</span>( <span class="th-token th-number">16</span> ) ) );
+				<span class="th-token th-keyword">return</span> val.<span class="th-token th-property">add</span>( <span class="th-token th-number">1</span> );
+
+			} ).<span class="th-token th-property">setLayout</span>( {
+				<span class="th-token th-property">name</span>: <span class="th-token th-string">&#39;pow2Ceil&#39;</span>,
+				<span class="th-token th-property">type</span>: <span class="th-token th-string">&#39;uint&#39;</span>,
+				<span class="th-token th-property">inputs</span>: [
+					{ <span class="th-token th-property">name</span>: <span class="th-token th-string">&#39;x&#39;</span>, <span class="th-token th-property">type</span>: <span class="th-token th-string">&#39;uint&#39;</span> }
+				]
+			} );
+
+			<span class="th-token th-comment">// ALGORITHM CONSTRUCTORS</span>
+
+			<span class="th-token th-comment">// REDUCE 1</span>
+
+			<span class="th-token th-comment">// Thanks to Sam0oneau of Graphics Programming Discord for the explanation.</span>
+			<span class="th-token th-comment">// (Graphics Programming Discord Message Link): https://discord.com/channels/318590007881236480/374061825454768129/1391248956171882597</span>
+
+			<span class="th-token th-comment">/* Reduce 1 Example (Assume Workgroup Size 256, numElements: 262144) -&gt; Initial currentBuffer State: | 1, 1, 1, 1, ... |
+				 *
+				 * KERNEL 1:
+				 * Executes 256 threads by 256 workgroups. Each thread loops 4 times and accesses elements
+				 * at the indices below.
+				 *          Thread 1                        Thread 2                         Thread 3
+				 * | 0, 65536, ..., n * 65536 | 1, 65537, .... (n * 65536) + 1 | 1, 65538, .... (n * 65536) + 2 | etc
+				 * Buffer Values: | 4, 4, 4, 4, ...|
+				 *
+				 * KERNEL 2:
+				 * Executes 256 threads by one workgroup. Each thread loops 1024 times
+				 *          Thread 1                     Thread 2                     Thread 3
+				 * | 0, 256, ...., n * 256    | 1, 257, ... (n * 256) + 1 | 2, 258, ... (n * 256) + 3 | etc
+				 * Buffer Values: | 1024, 1024, 1024, 1024, ... |
+				 *
+				 * KERNEL 3:
+				 * Executes 1 thread by one workgroup. Single thread loops 256 times
+				 *          Thread 1
+				 * | 0, 1, 2, 3, 4, 5, 6 ... etc|
+				 * Buffer Values: [262144, 1024, 1024]
+				 */</span>
+
+
+			<span class="th-token th-keyword">const</span> createReduce1Fn = ( createReduce1FnProps ) =&gt; {
+
+				<span class="th-token th-keyword">const</span> { dispatchSize, numElements, inputBuffer, workgroupSize } = createReduce1FnProps;
+
+				<span class="th-token th-keyword">const</span> fnDef = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> dispatch = <span class="th-token th-function">uint</span>( dispatchSize ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;dispatchSize&#39;</span> );
+					<span class="th-token th-keyword">const</span> tSum = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>();
+					<span class="th-token th-keyword">const</span> k = instanceIndex.<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;k&#39;</span> );
+
+					<span class="th-token th-function">Loop</span>( k.<span class="th-token th-property">lessThan</span>( <span class="th-token th-function">uint</span>( numElements ) ), ( ) =&gt; {
+
+						tSum.<span class="th-token th-property">addAssign</span>( inputBuffer.<span class="th-token th-property">element</span>( k ) );
+						k.<span class="th-token th-property">addAssign</span>( <span class="th-token th-function">uint</span>( dispatch ) );
+
+					} );
+
+					inputBuffer.<span class="th-token th-property">element</span>( instanceIndex ).<span class="th-token th-property">assign</span>( tSum );
+
+
+				} )().<span class="th-token th-property">compute</span>( dispatchSize, [ workgroupSize ] );
+
+				<span class="th-token th-keyword">return</span> fnDef;
+
+			};
+
+			<span class="th-token th-comment">// REDUCE 2</span>
+
+			<span class="th-token th-comment">// For non power of 2 # of workgroups</span>
+			<span class="th-token th-keyword">const</span> createReduce2Fn = ( createReduce2FnProps ) =&gt; {
+
+				<span class="th-token th-keyword">const</span> { workgroupSize, dispatchSize, numElements, inputBuffer } = createReduce2FnProps;
+
+				<span class="th-token th-keyword">const</span> fnDef = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> tSum = <span class="th-token th-function">workgroupArray</span>( <span class="th-token th-string">&#39;uint&#39;</span>, workgroupSize );
+
+					<span class="th-token th-keyword">const</span> k = instanceIndex.<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;k&#39;</span> );
+					tSum.<span class="th-token th-property">element</span>( invocationLocalIndex ).<span class="th-token th-property">assign</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ) );
+
+					<span class="th-token th-function">Loop</span>( k.<span class="th-token th-property">lessThan</span>( <span class="th-token th-function">uint</span>( numElements ) ), () =&gt; {
+
+						tSum.<span class="th-token th-property">element</span>( invocationLocalIndex ).<span class="th-token th-property">addAssign</span>( inputBuffer.<span class="th-token th-property">element</span>( k ) );
+
+						k.<span class="th-token th-property">addAssign</span>( <span class="th-token th-function">uint</span>( dispatchSize ) );
+
+					} );
+
+					<span class="th-token th-function">workgroupBarrier</span>();
+
+					<span class="th-token th-comment">// Reset the loop condition (account for numWorkgroups % 2 != 0)</span>
+					k.<span class="th-token th-property">assign</span>( <span class="th-token th-function">pow2Ceil</span>( <span class="th-token th-function">uint</span>( workgroupSize ) ).<span class="th-token th-property">div</span>( <span class="th-token th-number">2</span> ) );
+
+					<span class="th-token th-function">Loop</span>( k.<span class="th-token th-property">greaterThan</span>( <span class="th-token th-number">0</span> ), () =&gt; {
+
+						<span class="th-token th-function">If</span>( invocationLocalIndex.<span class="th-token th-property">lessThan</span>( k ).<span class="th-token th-property">and</span>( invocationLocalIndex.<span class="th-token th-property">add</span>( k ).<span class="th-token th-property">lessThan</span>( workgroupSize ) ), () =&gt; {
+
+							tSum.<span class="th-token th-property">element</span>( invocationLocalIndex ).<span class="th-token th-property">addAssign</span>( tSum.<span class="th-token th-property">element</span>( invocationLocalIndex.<span class="th-token th-property">add</span>( k ) ) );
+
+						} );
+						<span class="th-token th-function">workgroupBarrier</span>();
+						k.<span class="th-token th-property">divAssign</span>( <span class="th-token th-number">2</span> );
+
+					} );
+
+					<span class="th-token th-function">If</span>( invocationLocalIndex.<span class="th-token th-property">equal</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ) ), () =&gt; {
+
+						inputBuffer.<span class="th-token th-property">element</span>( workgroupId.<span class="th-token th-property">x</span> ).<span class="th-token th-property">assign</span>( tSum.<span class="th-token th-property">element</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ) ) );
+
+					} );
+
+				} )().<span class="th-token th-property">compute</span>( dispatchSize, [ workgroupSize ] );
+
+				<span class="th-token th-keyword">return</span> fnDef;
+
+			};
+
+			<span class="th-token th-comment">// REDUCE 3</span>
+
+			<span class="th-token th-comment">/* Create array with enough indices for worst-case subgroup size */</span>
+			<span class="th-token th-keyword">const</span> createSubgroupArray = ( <span class="th-token th-keyword">type</span>, workgroupSize, minSubgroupSize = <span class="th-token th-number">4</span> ) =&gt; {
+
+				<span class="th-token th-keyword">return</span> <span class="th-token th-function">workgroupArray</span>( <span class="th-token th-string">&#39;uint&#39;</span>, workgroupSize / minSubgroupSize );
+
+			};
+
+			<span class="th-token th-comment">// zcbenz implementation</span>
+			<span class="th-token th-comment">// https://github.com/frost-beta/betann/blob/8aa2701caf63fb29bd4cd2454e656973342c1588/betann/wgsl/reduce_ops.wgsl#L71</span>
+			<span class="th-token th-keyword">const</span> <span class="th-token th-type">RowReduce</span> = ( rowReduceProps ) =&gt; {
+
+				<span class="th-token th-keyword">const</span> { workgroupSize, inputBuffer, total, rowOffset, currentRowSize, workPerThread, vectorized } = rowReduceProps;
+
+				<span class="th-token th-comment">// Number of unvectorized elements each workgroup can ingest</span>
+				<span class="th-token th-comment">// At workgroupSize of 256, blockSize will be 1024</span>
+				<span class="th-token th-keyword">const</span> blockSize = <span class="th-token th-function">uint</span>( workgroupSize ).<span class="th-token th-property">mul</span>( workPerThread );
+				<span class="th-token th-keyword">const</span> block = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;block&#39;</span> );
+
+				<span class="th-token th-comment">// At rowSize of 2048, there will be two blocks</span>
+				<span class="th-token th-keyword">const</span> blockLimiter = currentRowSize.<span class="th-token th-property">div</span>( blockSize ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;blockLimiter&#39;</span> );
+				<span class="th-token th-function">Loop</span>( block.<span class="th-token th-property">lessThan</span>( blockLimiter ), () =&gt; {
+
+					<span class="th-token th-keyword">const</span> blockOffset = block.<span class="th-token th-property">mul</span>( blockSize );
+					<span class="th-token th-keyword">const</span> startThread = blockOffset.<span class="th-token th-property">add</span>( invocationLocalIndex.<span class="th-token th-property">mul</span>( workPerThread ) );
+					<span class="th-token th-keyword">const</span> localThreadOffset = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;localThreadOffset&#39;</span> );
+					<span class="th-token th-function">Loop</span>( localThreadOffset.<span class="th-token th-property">lessThan</span>( workPerThread ), () =&gt; {
+
+						<span class="th-token th-keyword">const</span> inputElement = inputBuffer.<span class="th-token th-property">element</span>( rowOffset.<span class="th-token th-property">add</span>( startThread ).<span class="th-token th-property">addLocal</span> );
+
+						<span class="th-token th-keyword">if</span> ( vectorized ) {
+
+							<span class="th-token th-keyword">const</span> value = <span class="th-token th-function">dot</span>( inputElement, <span class="th-token th-function">uvec4</span>( <span class="th-token th-number">1</span> ) );
+							total.<span class="th-token th-property">addAssign</span>( value );
+
+						} <span class="th-token th-keyword">else</span> {
+
+							<span class="th-token th-keyword">const</span> inputElement = inputBuffer.<span class="th-token th-property">element</span>( rowOffset.<span class="th-token th-property">add</span>( startThread ).<span class="th-token th-property">add</span>( localThreadOffset ) );
+							total.<span class="th-token th-property">addAssign</span>( inputElement );
+
+						}
+
+						<span class="th-token th-comment">// Increment up a thread</span>
+						localThreadOffset.<span class="th-token th-property">addAssign</span>( <span class="th-token th-number">1</span> );
+
+					} );
+
+					<span class="th-token th-comment">// Increment up a block</span>
+					block.<span class="th-token th-property">addAssign</span>( <span class="th-token th-number">1</span> );
+
+				} );
+
+				<span class="th-token th-comment">// Ignoring left over check for this example, since we know ahead of time the value of leftover (2048 % 1024 === 0)</span>
+
+			};
+
+			<span class="th-token th-keyword">const</span> <span class="th-token th-type">WorkgroupReduce</span> = ( workgroupReduceProps ) =&gt; {
+
+				<span class="th-token th-keyword">const</span> { total, workgroupSize } = workgroupReduceProps;
+
+				<span class="th-token th-keyword">const</span> subgroupSums = <span class="th-token th-function">createSubgroupArray</span>( <span class="th-token th-string">&#39;uint&#39;</span>, workgroupSize );
+
+				<span class="th-token th-comment">// Assign sum of all values in subgroup to total</span>
+				total.<span class="th-token th-property">assign</span>( <span class="th-token th-function">subgroupAdd</span>( total ) );
+
+				<span class="th-token th-keyword">const</span> delta = <span class="th-token th-function">uint</span>( workgroupSize ).<span class="th-token th-property">div</span>( subgroupSize ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;delta&#39;</span> );
+
+				<span class="th-token th-keyword">const</span> subgroupMetaRank = invocationLocalIndex.<span class="th-token th-property">div</span>( subgroupSize );
+
+				<span class="th-token th-function">Loop</span>( <span class="th-token th-function">float</span>( delta ).<span class="th-token th-property">greaterThan</span>( <span class="th-token th-number">1.0</span> ), () =&gt; {
+
+					<span class="th-token th-function">If</span>( invocationSubgroupIndex.<span class="th-token th-property">equal</span>( <span class="th-token th-number">0</span> ), () =&gt; {
+
+						<span class="th-token th-comment">// Each subgroup will populate the subgroupSums array</span>
+						subgroupSums.<span class="th-token th-property">element</span>( subgroupMetaRank ).<span class="th-token th-property">assign</span>( total );
+
+					} );
+
+					<span class="th-token th-comment">// Ensure that all subgroups in the workgroup have populated the workgroup memory array</span>
+					<span class="th-token th-function">workgroupBarrier</span>();
+
+					<span class="th-token th-comment">// Thread 0 - subgroupsInWorkgroup will assign a value to total</span>
+					total.<span class="th-token th-property">assign</span>( <span class="th-token th-function">select</span>( invocationLocalIndex.<span class="th-token th-property">lessThan</span>( delta ), subgroupSums.<span class="th-token th-property">element</span>( invocationLocalIndex ), <span class="th-token th-number">0</span> ).<span class="th-token th-property">uniformFlow</span>() );
+					<span class="th-token th-comment">// # of subgroups in workgroup is invariably less than # of threads in subgroup, so subgroupAdd will still sync here</span>
+					total.<span class="th-token th-property">assign</span>( <span class="th-token th-function">subgroupAdd</span>( total ) );
+
+					delta.<span class="th-token th-property">divAssign</span>( subgroupSize );
+
+				} );
+
+			};
+
+			<span class="th-token th-keyword">const</span> createReduce3Fn = ( createReduce3FnProps ) =&gt; {
+
+				<span class="th-token th-keyword">const</span> { workgroupSize, workPerThread, inputBuffer, intermediateBuffer, rowSize } = createReduce3FnProps;
+
+				<span class="th-token th-keyword">const</span> fnDef = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> inputSize = <span class="th-token th-function">uint</span>( inputBuffer.<span class="th-token th-property">bufferCount</span> );
+					<span class="th-token th-keyword">const</span> rowOffset = workgroupId.<span class="th-token th-property">x</span>.<span class="th-token th-property">mul</span>( rowSize );
+
+					<span class="th-token th-comment">// If the current rows elements exceed the bounds of the input</span>
+					<span class="th-token th-comment">// Select either 0 or number of elements left,</span>
+					<span class="th-token th-comment">// otherwise, select existing ROW_SIZE</span>
+					<span class="th-token th-keyword">const</span> currentRowSize = <span class="th-token th-function">select</span>(
+						( rowOffset.<span class="th-token th-property">add</span>( rowSize ) ).<span class="th-token th-property">greaterThan</span>( inputSize ),
+						<span class="th-token th-function">select</span>( inputSize.<span class="th-token th-property">greaterThan</span>( rowOffset ), inputSize.<span class="th-token th-property">sub</span>( rowOffset ), <span class="th-token th-number">0</span> ).<span class="th-token th-property">uniformFlow</span>(),
+						rowSize,
+					).<span class="th-token th-property">uniformFlow</span>();
+
+					<span class="th-token th-keyword">const</span> total = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;total&#39;</span> );
+
+					<span class="th-token th-function">RowReduce</span>( {
+						<span class="th-token th-property">inputBuffer</span>: inputBuffer,
+						<span class="th-token th-property">total</span>: total,
+						<span class="th-token th-property">rowOffset</span>: rowOffset,
+						<span class="th-token th-property">currentRowSize</span>: currentRowSize,
+						<span class="th-token th-property">workPerThread</span>: workPerThread,
+						<span class="th-token th-property">workgroupSize</span>: workgroupSize,
+					} );
+
+					<span class="th-token th-function">WorkgroupReduce</span>( {
+						<span class="th-token th-property">total</span>: total,
+						<span class="th-token th-property">workgroupSize</span>: workgroupSize,
+					} );
+
+					<span class="th-token th-comment">// Populate each workgroup with its reduction</span>
+					<span class="th-token th-function">If</span>( invocationLocalIndex.<span class="th-token th-property">equal</span>( <span class="th-token th-number">0</span> ), () =&gt; {
+
+						intermediateBuffer.<span class="th-token th-property">element</span>( workgroupId.<span class="th-token th-property">x</span> ).<span class="th-token th-property">assign</span>( total );
+
+					} );
+
+				} )();
+
+				<span class="th-token th-keyword">return</span> fnDef;
+
+			};
+
+			<span class="th-token th-comment">// REDUCE 4</span>
+
+			<span class="th-token th-comment">// b0nes164 inspired implementation with vec4</span>
+			<span class="th-token th-keyword">const</span> createReduce4Fn = ( props ) =&gt; {
+
+				<span class="th-token th-comment">// Can&#39;t pass in subgroup size since we can&#39;t always be certain what size is at runtime</span>
+				<span class="th-token th-keyword">const</span> { size, workPerThread, workgroupSize, inputBuffer, intermediateBuffer } = props;
+
+				<span class="th-token th-keyword">const</span> <span class="th-token th-type">ELEMENTS_PER_VEC4</span> = <span class="th-token th-number">4</span>;
+				<span class="th-token th-comment">// The number of individual elements a single workgroup will access</span>
+				<span class="th-token th-keyword">const</span> partitionSize = workgroupSize * workPerThread * <span class="th-token th-type">ELEMENTS_PER_VEC4</span>;
+				<span class="th-token th-keyword">const</span> vecSize = <span class="th-token th-function">divRoundUp</span>( size, <span class="th-token th-type">ELEMENTS_PER_VEC4</span> );
+				<span class="th-token th-comment">// Can also be calculated using divRoundUp( vecSize, workgroupSize * workPerThread );</span>
+				<span class="th-token th-keyword">const</span> numWorkgroups = <span class="th-token th-function">divRoundUp</span>( size, partitionSize );
+				<span class="th-token th-comment">// Currently no way to specify dispatch size in increments of workgroups, so we convert to numInvocations</span>
+				<span class="th-token th-keyword">const</span> numInvocations = numWorkgroups * workgroupSize;
+
+				<span class="th-token th-keyword">const</span> fnDef = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> perSubgroupReductionArray = <span class="th-token th-function">createSubgroupArray</span>( <span class="th-token th-string">&#39;uint&#39;</span>, workgroupSize );
+
+					<span class="th-token th-comment">// Get the index of the subgroup within the workgroup</span>
+					<span class="th-token th-keyword">const</span> subgroupMetaRank = invocationLocalIndex.<span class="th-token th-property">div</span>( subgroupSize );
+
+					<span class="th-token th-comment">// Each subgroup block scans across 4 subgroups. So when we move into a new subgroup,</span>
+					<span class="th-token th-comment">// align that subgroups&#39; accesses to the next 4 subgroups</span>
+					<span class="th-token th-keyword">const</span> subgroupOffset = subgroupMetaRank.<span class="th-token th-property">mul</span>( subgroupSize ).<span class="th-token th-property">mul</span>( workPerThread );
+					subgroupOffset.<span class="th-token th-property">addAssign</span>( invocationSubgroupIndex );
+
+					<span class="th-token th-comment">// Per workgroup, offset by number of vectorized elements scanned per workgroup</span>
+					<span class="th-token th-keyword">const</span> workgroupOffset = workgroupId.<span class="th-token th-property">x</span>.<span class="th-token th-property">mul</span>( <span class="th-token th-function">uint</span>( maxWorkgroupSize ).<span class="th-token th-property">mul</span>( workPerThread ) );
+
+					<span class="th-token th-keyword">const</span> startThread = subgroupOffset.<span class="th-token th-property">add</span>( workgroupOffset );
+
+					<span class="th-token th-keyword">const</span> subgroupReduction = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> );
+
+					<span class="th-token th-comment">// Each thread will accumulate values from across &#39;workPerThread&#39; subgroups</span>
+					<span class="th-token th-function">If</span>( workgroupId.<span class="th-token th-property">x</span>.<span class="th-token th-property">lessThan</span>( <span class="th-token th-function">uint</span>( numWorkgroups ).<span class="th-token th-property">sub</span>( <span class="th-token th-number">1</span> ) ), () =&gt; {
+
+						<span class="th-token th-function">Loop</span>( {
+							<span class="th-token th-property">start</span>: <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ),
+							<span class="th-token th-property">end</span>: workPerThread,
+							<span class="th-token th-property">type</span>: <span class="th-token th-string">&#39;uint&#39;</span>,
+							<span class="th-token th-property">condition</span>: <span class="th-token th-string">&#39;&lt;&#39;</span>,
+							<span class="th-token th-property">name</span>: <span class="th-token th-string">&#39;currentSubgroupInBlock&#39;</span>
+						}, () =&gt; {
+
+							<span class="th-token th-comment">// Get vectorized element from input array</span>
+							<span class="th-token th-keyword">const</span> val = inputBuffer.<span class="th-token th-property">element</span>( startThread );
+
+							<span class="th-token th-comment">// Sum values within vec4 together by using result of dot product</span>
+							subgroupReduction.<span class="th-token th-property">addAssign</span>( <span class="th-token th-function">dot</span>( <span class="th-token th-function">uvec4</span>( <span class="th-token th-number">1</span> ), val ) );
+
+							<span class="th-token th-comment">// Increment so thread will scan value in next subgroup</span>
+							startThread.<span class="th-token th-property">addAssign</span>( subgroupSize );
+
+						} );
+
+					} );
+
+					<span class="th-token th-comment">// Ensure that the last workgroup does not access out of bounds indices</span>
+					<span class="th-token th-function">If</span>( workgroupId.<span class="th-token th-property">x</span>.<span class="th-token th-property">equal</span>( <span class="th-token th-function">uint</span>( numWorkgroups ).<span class="th-token th-property">sub</span>( <span class="th-token th-number">1</span> ) ), () =&gt; {
+
+						<span class="th-token th-function">Loop</span>( {
+							<span class="th-token th-property">start</span>: <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ),
+							<span class="th-token th-property">end</span>: workPerThread,
+							<span class="th-token th-property">type</span>: <span class="th-token th-string">&#39;uint&#39;</span>,
+							<span class="th-token th-property">condition</span>: <span class="th-token th-string">&#39;&lt;&#39;</span>,
+							<span class="th-token th-property">name</span>: <span class="th-token th-string">&#39;currentSubgroupInBlock&#39;</span>
+						}, () =&gt; {
+
+							<span class="th-token th-comment">// Ensure index is less than number of available vectors in inputBuffer</span>
+							<span class="th-token th-keyword">const</span> val = <span class="th-token th-function">select</span>( startThread.<span class="th-token th-property">lessThan</span>( <span class="th-token th-function">uint</span>( vecSize ) ), inputBuffer.<span class="th-token th-property">element</span>( startThread ), <span class="th-token th-function">uvec4</span>( <span class="th-token th-number">0</span> ) ).<span class="th-token th-property">uniformFlow</span>();
+
+							subgroupReduction.<span class="th-token th-property">addAssign</span>( <span class="th-token th-function">dot</span>( val, <span class="th-token th-function">uvec4</span>( <span class="th-token th-number">1</span> ) ) );
+							startThread.<span class="th-token th-property">addAssign</span>( subgroupSize );
+
+						} );
+
+					} );
+
+					subgroupReduction.<span class="th-token th-property">assign</span>( <span class="th-token th-function">subgroupAdd</span>( subgroupReduction ) );
+
+					<span class="th-token th-comment">// Assuming that each element in the input buffer is 1, we generally expect each invocation&#39;s subgroupReduction</span>
+					<span class="th-token th-comment">// value to be ELEMENTS_PER_VEC4 * workPerThread * subgroupSize</span>
+
+					<span class="th-token th-comment">// Delegate one thread per subgroup to assign each subgroup&#39;s reduction to the workgroup array</span>
+					<span class="th-token th-function">If</span>( invocationSubgroupIndex.<span class="th-token th-property">equal</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ) ), () =&gt; {
+
+						perSubgroupReductionArray.<span class="th-token th-property">element</span>( subgroupMetaRank ).<span class="th-token th-property">assign</span>( subgroupReduction );
+
+					} );
+
+					<span class="th-token th-comment">// Ensure that each workgroup has populated the perSubgroupReductionArray with data</span>
+					<span class="th-token th-comment">// from each of it&#39;s subgroups</span>
+					<span class="th-token th-function">workgroupBarrier</span>();
+
+					<span class="th-token th-keyword">if</span> ( props.<span class="th-token th-property">debugBuffer</span> ) {
+
+						<span class="th-token th-function">If</span>( invocationLocalIndex.<span class="th-token th-property">equal</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ) ), () =&gt; {
+
+							props.<span class="th-token th-property">debugBuffer</span>.<span class="th-token th-property">element</span>( workgroupId.<span class="th-token th-property">x</span> ).<span class="th-token th-property">assign</span>( subgroupReduction );
+
+						} );
+
+						<span class="th-token th-function">workgroupBarrier</span>();
+
+					}
+
+					<span class="th-token th-comment">// WORKGROUP LEVEL REDUCE</span>
+
+					<span class="th-token th-comment">// Multiple approaches here</span>
+					<span class="th-token th-comment">// log2(subgroupSize) -&gt; TSL log2 function</span>
+					<span class="th-token th-comment">// countTrailingZeros/findLSB(subgroupSize) -&gt; TSL function that counts trailing zeros in number bit representation</span>
+					<span class="th-token th-comment">// Can technically petition GPU for subgroupSize in shader and calculate logs on CPU at cost of shader being generalizable across devices</span>
+					<span class="th-token th-comment">// May also break if subgroupSize changes when device is lost or if program is rerun on lower power device</span>
+					<span class="th-token th-keyword">const</span> subgroupSizeLog = <span class="th-token th-function">countTrailingZeros</span>( subgroupSize ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;subgroupSizeLog&#39;</span> );
+					<span class="th-token th-keyword">const</span> spineSize = <span class="th-token th-function">uint</span>( workgroupSize ).<span class="th-token th-property">shiftRight</span>( subgroupSizeLog );
+					<span class="th-token th-keyword">const</span> spineSizeLog = <span class="th-token th-function">countTrailingZeros</span>( spineSize ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;spineSizeLog&#39;</span> );
+
+
+					<span class="th-token th-comment">// Align size to powers of subgroupSize</span>
+					<span class="th-token th-keyword">const</span> squaredSubgroupLog = ( spineSizeLog.<span class="th-token th-property">add</span>( subgroupSizeLog ).<span class="th-token th-property">sub</span>( <span class="th-token th-number">1</span> ) );
+					squaredSubgroupLog.<span class="th-token th-property">divAssign</span>( subgroupSizeLog );
+					squaredSubgroupLog.<span class="th-token th-property">mulAssign</span>( subgroupSizeLog );
+					<span class="th-token th-keyword">const</span> alignedSize = ( <span class="th-token th-function">uint</span>( <span class="th-token th-number">1</span> ).<span class="th-token th-property">shiftLeft</span>( squaredSubgroupLog ) ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;alignedSize&#39;</span> );
+
+					<span class="th-token th-comment">// aligned size 2 * 4</span>
+
+					<span class="th-token th-keyword">const</span> offset = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> );
+
+					<span class="th-token th-comment">// In cases where the number of subgroups in a workgroup is greater than the subgroup size itself,</span>
+					<span class="th-token th-comment">// we need to iterate over the array again to capture all the data in the workgroup array buffer</span>
+					<span class="th-token th-function">Loop</span>( { <span class="th-token th-property">start</span>: subgroupSize, <span class="th-token th-property">end</span>: alignedSize, <span class="th-token th-property">condition</span>: <span class="th-token th-string">&#39;&lt;=&#39;</span>, <span class="th-token th-property">name</span>: <span class="th-token th-string">&#39;j&#39;</span>, <span class="th-token th-property">type</span>: <span class="th-token th-string">&#39;uint&#39;</span>, <span class="th-token th-property">update</span>: <span class="th-token th-string">&#39;&lt;&lt;= subgroupSizeLog&#39;</span> }, () =&gt; {
+
+						<span class="th-token th-keyword">const</span> subgroupIndex = ( ( invocationLocalIndex.<span class="th-token th-property">add</span>( <span class="th-token th-number">1</span> ) ).<span class="th-token th-property">shiftLeft</span>( offset ) ).<span class="th-token th-property">sub</span>( <span class="th-token th-number">1</span> );
+
+						<span class="th-token th-keyword">const</span> isValidSubgroupIndex = subgroupIndex.<span class="th-token th-property">lessThan</span>( spineSize ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;isValidSubgroupIndex&#39;</span> );
+
+						<span class="th-token th-comment">// Reduce values within the local workgroup memory.</span>
+						<span class="th-token th-comment">// Set toVar to ensure subgroupAdd executes before (not within) the if statement.</span>
+						<span class="th-token th-keyword">const</span> t = <span class="th-token th-function">subgroupAdd</span>(
+							<span class="th-token th-function">select</span>(
+								isValidSubgroupIndex,
+								perSubgroupReductionArray.<span class="th-token th-property">element</span>( subgroupIndex ),
+								<span class="th-token th-number">0</span>
+							).<span class="th-token th-property">uniformFlow</span>()
+						).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;t&#39;</span> );
+
+						<span class="th-token th-comment">// Can assign back to workgroupArray since all</span>
+						<span class="th-token th-comment">// subgroup threads work in lockstop for subgroupAdd</span>
+						<span class="th-token th-function">If</span>( isValidSubgroupIndex, () =&gt; {
+
+							perSubgroupReductionArray.<span class="th-token th-property">element</span>( subgroupIndex ).<span class="th-token th-property">assign</span>( t );
+
+						} );
+
+						<span class="th-token th-comment">// Ensure all threads have completed work</span>
+
+						<span class="th-token th-function">workgroupBarrier</span>();
+
+						offset.<span class="th-token th-property">addAssign</span>( subgroupSizeLog );
+
+					} );
+
+					<span class="th-token th-comment">// Assign single thread from workgroup to assign workgroup reduction</span>
+					<span class="th-token th-function">If</span>( invocationLocalIndex.<span class="th-token th-property">equal</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ) ), () =&gt; {
+
+						<span class="th-token th-keyword">const</span> reducedWorkgroupSum = perSubgroupReductionArray.<span class="th-token th-property">element</span>( <span class="th-token th-function">uint</span>( spineSize ).<span class="th-token th-property">sub</span>( <span class="th-token th-number">1</span> ) );
+						intermediateBuffer.<span class="th-token th-property">element</span>( workgroupId.<span class="th-token th-property">x</span> ).<span class="th-token th-property">assign</span>( reducedWorkgroupSum );
+
+					} );
+
+				} )().<span class="th-token th-property">compute</span>( numInvocations, [ maxWorkgroupSize ] );
+
+				<span class="th-token th-keyword">return</span> fnDef;
+
+			};
+
+
+			<span class="th-token th-comment">// INCORRECT BASELINE</span>
+
+			<span class="th-token th-keyword">const</span> createIncorrectBaselineFn = ( incorrectBaselineProps ) =&gt; {
+
+				<span class="th-token th-keyword">const</span> { inputBuffer } = incorrectBaselineProps;
+
+				<span class="th-token th-keyword">const</span> fnDef = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					inputBuffer.<span class="th-token th-property">element</span>( instanceIndex ).<span class="th-token th-property">assign</span>( <span class="th-token th-number">99999</span> );
+
+				} )();
+
+				<span class="th-token th-keyword">return</span> fnDef;
+
+			};
+
+
+			<span class="th-token th-function">init</span>();
+
+			<span class="th-token th-function">init</span>( <span class="th-token th-literal">false</span> );
+
+			<span class="th-token th-keyword">async</span> <span class="th-token th-keyword">function</span> <span class="th-token th-function">init</span>( leftSideDisplay = <span class="th-token th-literal">true</span> ) {
+
+				<span class="th-token th-keyword">const</span> effectController = leftSideDisplay ? leftEffectController : rightEffectController;
+
+				<span class="th-token th-keyword">const</span> aspect = ( window.<span class="th-token th-property">innerWidth</span> / <span class="th-token th-number">2</span> ) / window.<span class="th-token th-property">innerHeight</span>;
+				<span class="th-token th-keyword">const</span> camera = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">OrthographicCamera</span>( - aspect, aspect, <span class="th-token th-number">1</span>, - <span class="th-token th-number">1</span>, <span class="th-token th-number">0</span>, <span class="th-token th-number">2</span> );
+				camera.<span class="th-token th-property">position</span>.<span class="th-token th-property">z</span> = <span class="th-token th-number">1</span>;
+
+				<span class="th-token th-keyword">const</span> scene = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">Scene</span>();
+
+				<span class="th-token th-keyword">const</span> array = <span class="th-token th-keyword">new</span> <span class="th-token th-function">Uint32Array</span>( <span class="th-token th-type">Array</span>.<span class="th-token th-property">from</span>( { <span class="th-token th-property">length</span>: size }, () =&gt; {
+
+					<span class="th-token th-keyword">return</span> <span class="th-token th-number">1</span>;
+
+				} ) );
+
+				<span class="th-token th-comment">// Represents array of data as uints in compute shader.</span>
+				<span class="th-token th-keyword">const</span> inputStorage = <span class="th-token th-function">instancedArray</span>( array, <span class="th-token th-string">&#39;uint&#39;</span> ).<span class="th-token th-property">setPBO</span>( <span class="th-token th-literal">true</span> ).<span class="th-token th-property">setName</span>( <span class="th-token th-string">`Current_</span><span class="th-token th-operator">${</span>leftSideDisplay ? <span class="th-token th-string">&#39;Left&#39;</span> : <span class="th-token th-string">&#39;Right&#39;</span><span class="th-token th-operator">}</span><span class="th-token th-string">`</span> );
+				<span class="th-token th-comment">// Represents array of data as vec4s in compute shader;</span>
+				<span class="th-token th-keyword">const</span> inputVec4BufferAttribute = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">StorageInstancedBufferAttribute</span>( array, <span class="th-token th-number">4</span> );
+				<span class="th-token th-keyword">const</span> inputVectorizedStorage = <span class="th-token th-function">storage</span>( inputVec4BufferAttribute, <span class="th-token th-string">&#39;uvec4&#39;</span>, vecSize ).<span class="th-token th-property">setPBO</span>( <span class="th-token th-literal">true</span> ).<span class="th-token th-property">setName</span>( <span class="th-token th-string">`CurrentVectorized_</span><span class="th-token th-operator">${</span>leftSideDisplay ? <span class="th-token th-string">&#39;Left&#39;</span> : <span class="th-token th-string">&#39;Right&#39;</span><span class="th-token th-operator">}</span><span class="th-token th-string">`</span> );
+
+				<span class="th-token th-comment">// Reduce 3 Calculations</span>
+				<span class="th-token th-keyword">const</span> workPerThread = <span class="th-token th-number">4</span>;
+				<span class="th-token th-keyword">const</span> numRows = workPerThread * <span class="th-token th-number">32</span>;
+				<span class="th-token th-keyword">const</span> rowSize = <span class="th-token th-function">divRoundUp</span>( size, numRows );
+
+				<span class="th-token th-keyword">const</span> workgroupSumsArray = <span class="th-token th-keyword">new</span> <span class="th-token th-function">Uint32Array</span>( numRows );
+				<span class="th-token th-keyword">const</span> workgroupSumsStorage = <span class="th-token th-function">instancedArray</span>( workgroupSumsArray, <span class="th-token th-string">&#39;uint&#39;</span> ).<span class="th-token th-property">setPBO</span>( <span class="th-token th-literal">true</span> ).<span class="th-token th-property">setName</span>( <span class="th-token th-string">`WorkgroupSums_</span><span class="th-token th-operator">${</span>leftSideDisplay ? <span class="th-token th-string">&#39;Left&#39;</span> : <span class="th-token th-string">&#39;Right&#39;</span><span class="th-token th-operator">}</span><span class="th-token th-string">`</span> );
+				<span class="th-token th-keyword">const</span> debugArray = <span class="th-token th-keyword">new</span> <span class="th-token th-function">Uint32Array</span>( <span class="th-token th-number">1024</span> );
+				<span class="th-token th-keyword">const</span> debugStorage = <span class="th-token th-function">instancedArray</span>( debugArray, <span class="th-token th-string">&#39;uint&#39;</span> ).<span class="th-token th-property">setPBO</span>( <span class="th-token th-literal">true</span> ).<span class="th-token th-property">setName</span>( <span class="th-token th-string">`Debug_</span><span class="th-token th-operator">${</span>leftSideDisplay ? <span class="th-token th-string">&#39;Left&#39;</span> : <span class="th-token th-string">&#39;Right&#39;</span><span class="th-token th-operator">}</span><span class="th-token th-string">`</span> );
+
+				<span class="th-token th-keyword">const</span> buffers = {
+					<span class="th-token th-string">&#39;Input Buffer&#39;</span>: inputStorage,
+					<span class="th-token th-string">&#39;Input Vectorized Buffer&#39;</span>: inputVectorizedStorage,
+					<span class="th-token th-string">&#39;Workgroup Sums Buffer&#39;</span>: workgroupSumsStorage,
+					<span class="th-token th-string">&#39;Debug Buffer&#39;</span>: debugStorage,
+				};
+
+				<span class="th-token th-keyword">const</span> logFunctionName = <span class="th-token th-string">`Log </span><span class="th-token th-operator">${</span>leftSideDisplay ? <span class="th-token th-string">&#39;Left&#39;</span> : <span class="th-token th-string">&#39;Right&#39;</span><span class="th-token th-operator">}</span><span class="th-token th-string"> Side`</span>;
+				<span class="th-token th-keyword">const</span> function<span class="th-token th-function">Obj</span> = {};
+				function<span class="th-token th-function">Obj</span>[ logFunctionName ] = <span class="th-token th-keyword">async</span>() =&gt; {
+
+					<span class="th-token th-keyword">const</span> selectedBuffer = buffers[ unifiedEffectController.<span class="th-token th-property">loggedBuffer</span> ];
+					<span class="th-token th-keyword">const</span> readbackBuffer = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">ReadbackBuffer</span>( selectedBuffer.<span class="th-token th-property">value</span> );
+
+					<span class="th-token th-keyword">const</span> result = <span class="th-token th-keyword">new</span> <span class="th-token th-function">Uint32Array</span>( <span class="th-token th-keyword">await</span> renderer.<span class="th-token th-property">getArrayBufferAsync</span>( readbackBuffer ) );
+
+					console.<span class="th-token th-property">log</span>( result );
+
+					<span class="th-token th-comment">// Remove GPU/CPU readback buffer from memory</span>
+
+					readbackBuffer.<span class="th-token th-property">dispose</span>();
+
+				};
+
+				debugFolder.<span class="th-token th-property">add</span>( function<span class="th-token th-function">Obj</span>, <span class="th-token th-string">`Log </span><span class="th-token th-operator">${</span>leftSideDisplay ? <span class="th-token th-string">&#39;Left&#39;</span> : <span class="th-token th-string">&#39;Right&#39;</span><span class="th-token th-operator">}</span><span class="th-token th-string"> Side`</span> );
+
+				<span class="th-token th-keyword">const</span> computeResetBufferFn = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					inputStorage.<span class="th-token th-property">element</span>( instanceIndex ).<span class="th-token th-property">assign</span>( <span class="th-token th-number">1</span> );
+
+				} );
+
+				<span class="th-token th-keyword">const</span> computeResetWorkgroupSumsFn = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					workgroupSumsStorage.<span class="th-token th-property">element</span>( instanceIndex ).<span class="th-token th-property">assign</span>( <span class="th-token th-number">0</span> );
+
+				} );
+
+
+				<span class="th-token th-comment">// Re-initialize compute buffer</span>
+				<span class="th-token th-keyword">const</span> computeResetBuffer = <span class="th-token th-function">computeResetBufferFn</span>().<span class="th-token th-property">compute</span>( size );
+				<span class="th-token th-keyword">const</span> computeResetWorkgroupSums = <span class="th-token th-function">computeResetWorkgroupSumsFn</span>().<span class="th-token th-property">compute</span>( <span class="th-token th-number">256</span> );
+
+				<span class="th-token th-keyword">const</span> renderer = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">WebGPURenderer</span>( { <span class="th-token th-property">antialias</span>: <span class="th-token th-literal">false</span>, <span class="th-token th-property">trackTimestamp</span>: <span class="th-token th-literal">true</span> } );
+				renderer.<span class="th-token th-property">setPixelRatio</span>( window.<span class="th-token th-property">devicePixelRatio</span> );
+				renderer.<span class="th-token th-property">setSize</span>( window.<span class="th-token th-property">innerWidth</span> / <span class="th-token th-number">2</span>, window.<span class="th-token th-property">innerHeight</span> );
+
+				<span class="th-token th-keyword">await</span> renderer.<span class="th-token th-property">init</span>();
+
+				<span class="th-token th-comment">// Unfortunately, need to arbitrarily run compute shader to get access to device limits</span>
+				renderer.<span class="th-token th-property">compute</span>( computeResetBuffer );
+
+
+				<span class="th-token th-keyword">if</span> ( renderer.<span class="th-token th-property">backend</span>.<span class="th-token th-property">device</span> !== <span class="th-token th-literal">null</span> ) {
+
+					maxWorkgroupSize = renderer.<span class="th-token th-property">backend</span>.<span class="th-token th-property">device</span>.<span class="th-token th-property">limits</span>.<span class="th-token th-property">maxComputeWorkgroupSizeX</span>;
+
+				}
+
+				<span class="th-token th-comment">// Create and store dispatches of reduction of certain size. Map each set of dispatches to algorithm name.</span>
+
+				<span class="th-token th-keyword">const</span> computeReduce0Fn = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> { numThreadsDispatched } = effectController;
+
+					inputStorage.<span class="th-token th-property">element</span>( instanceIndex ).<span class="th-token th-property">addAssign</span>( inputStorage.<span class="th-token th-property">element</span>( instanceIndex.<span class="th-token th-property">add</span>( numThreadsDispatched ) ) );
+
+				} )();
+
+				<span class="th-token th-keyword">const</span> reduce0Calls = [];
+
+				<span class="th-token th-keyword">for</span> ( <span class="th-token th-keyword">let</span> i = size / <span class="th-token th-number">2</span>; i &gt;= <span class="th-token th-number">1</span>; i /= <span class="th-token th-number">2</span> ) {
+
+					<span class="th-token th-keyword">const</span> reduce0 = computeReduce0Fn.<span class="th-token th-property">compute</span>( i, [ maxWorkgroupSize ] );
+					reduce0Calls.<span class="th-token th-property">push</span>( reduce0 );
+
+				}
+
+				<span class="th-token th-keyword">const</span> reduce1Calls = [
+					<span class="th-token th-comment">// Accumulation</span>
+					<span class="th-token th-function">createReduce1Fn</span>( {
+						<span class="th-token th-property">dispatchSize</span>: maxWorkgroupSize * maxWorkgroupSize,
+						<span class="th-token th-property">workgroupSize</span>: maxWorkgroupSize,
+						<span class="th-token th-property">numElements</span>: size,
+						<span class="th-token th-property">inputBuffer</span>: inputStorage,
+					} ),
+					<span class="th-token th-comment">// 1 Block accumulation</span>
+					<span class="th-token th-function">createReduce1Fn</span>( {
+						<span class="th-token th-property">dispatchSize</span>: maxWorkgroupSize,
+						<span class="th-token th-property">numElements</span>: maxWorkgroupSize * maxWorkgroupSize,
+						<span class="th-token th-property">workgroupSize</span>: maxWorkgroupSize,
+						<span class="th-token th-property">inputBuffer</span>: inputStorage,
+					} ),
+					<span class="th-token th-comment">// Final result</span>
+					<span class="th-token th-function">createReduce1Fn</span>( {
+						<span class="th-token th-property">dispatchSize</span>: <span class="th-token th-number">1</span>,
+						<span class="th-token th-property">numElements</span>: maxWorkgroupSize,
+						<span class="th-token th-property">workgroupSize</span>: <span class="th-token th-number">1</span>,
+						<span class="th-token th-property">inputBuffer</span>: inputStorage
+					} ),
+				];
+
+				<span class="th-token th-keyword">const</span> reduce2Calls = [
+					<span class="th-token th-comment">// Accumulate within workgroups</span>
+					<span class="th-token th-function">createReduce2Fn</span>( {
+						<span class="th-token th-property">workgroupSize</span>: maxWorkgroupSize,
+						<span class="th-token th-property">dispatchSize</span>: maxWorkgroupSize * maxWorkgroupSize,
+						<span class="th-token th-property">numElements</span>: size,
+						<span class="th-token th-property">inputBuffer</span>: inputStorage,
+					} ),
+					<span class="th-token th-comment">// 1 Block accumulation</span>
+					<span class="th-token th-function">createReduce2Fn</span>( {
+						<span class="th-token th-property">workgroupSize</span>: maxWorkgroupSize,
+						<span class="th-token th-property">dispatchSize</span>: maxWorkgroupSize,
+						<span class="th-token th-property">numElements</span>: maxWorkgroupSize,
+						<span class="th-token th-property">inputBuffer</span>: inputStorage,
+					} ),
+				];
+
+				<span class="th-token th-keyword">const</span> reduce3Calls = [
+					<span class="th-token th-function">createReduce3Fn</span>( {
+						<span class="th-token th-property">inputBuffer</span>: inputStorage,
+						<span class="th-token th-property">intermediateBuffer</span>: workgroupSumsStorage,
+						<span class="th-token th-property">workgroupSize</span>: maxWorkgroupSize,
+						<span class="th-token th-property">workPerThread</span>: <span class="th-token th-number">4</span>,
+						<span class="th-token th-property">rowSize</span>: rowSize,
+						<span class="th-token th-property">vectorized</span>: <span class="th-token th-literal">false</span>,
+					} ).<span class="th-token th-property">compute</span>( maxWorkgroupSize * numRows, [ maxWorkgroupSize ] ),
+					<span class="th-token th-function">createReduce3Fn</span>( {
+						<span class="th-token th-property">inputBuffer</span>: workgroupSumsStorage,
+						<span class="th-token th-property">intermediateBuffer</span>: inputStorage,
+						<span class="th-token th-property">workgroupSize</span>: <span class="th-token th-number">32</span>,
+						<span class="th-token th-property">workPerThread</span>: <span class="th-token th-number">4</span>,
+						<span class="th-token th-property">rowSize</span>: rowSize,
+						<span class="th-token th-property">vectorized</span>: <span class="th-token th-literal">false</span>
+					} ).<span class="th-token th-property">compute</span>( <span class="th-token th-number">32</span>, [ <span class="th-token th-number">32</span> ] )
+				];
+
+				<span class="th-token th-keyword">const</span> reduce4Calls = [
+					<span class="th-token th-function">createReduce4Fn</span>( {
+						<span class="th-token th-property">size</span>: size,
+						<span class="th-token th-property">inputBuffer</span>: inputVectorizedStorage,
+						<span class="th-token th-property">intermediateBuffer</span>: workgroupSumsStorage,
+						<span class="th-token th-property">workgroupSize</span>: maxWorkgroupSize,
+						<span class="th-token th-property">workPerThread</span>: <span class="th-token th-number">4</span>,
+					} ),
+					<span class="th-token th-function">createReduce3Fn</span>( {
+						<span class="th-token th-property">inputBuffer</span>: workgroupSumsStorage,
+						<span class="th-token th-property">intermediateBuffer</span>: inputStorage,
+						<span class="th-token th-property">workgroupSize</span>: <span class="th-token th-number">32</span>,
+						<span class="th-token th-property">workPerThread</span>: <span class="th-token th-number">4</span>,
+						<span class="th-token th-property">rowSize</span>: rowSize,
+						<span class="th-token th-property">vectorized</span>: <span class="th-token th-literal">false</span>
+					} ).<span class="th-token th-property">compute</span>( <span class="th-token th-number">32</span>, [ <span class="th-token th-number">32</span> ] )
+				];
+
+				<span class="th-token th-keyword">const</span> incorrectBaselineCalls = [
+					<span class="th-token th-function">createIncorrectBaselineFn</span>( {
+						<span class="th-token th-property">inputBuffer</span>: inputStorage,
+					} ).<span class="th-token th-property">compute</span>( size ),
+				];
+
+				<span class="th-token th-keyword">const</span> calls = {
+					<span class="th-token th-string">&#39;Reduce 0 (N/2)&#39;</span>: reduce0Calls,
+					<span class="th-token th-string">&#39;Reduce 1 (Naive Accumulate)&#39;</span>: reduce1Calls,
+					<span class="th-token th-string">&#39;Reduce 2 (Workgroup Reduction)&#39;</span>: reduce2Calls,
+					<span class="th-token th-string">&#39;Reduce 3 (Subgroup Reduce)&#39;</span>: reduce3Calls,
+					<span class="th-token th-string">&#39;Reduce 4 (Subgroup Optimized)&#39;</span>: reduce4Calls,
+					<span class="th-token th-string">&#39;Incorrect Baseline&#39;</span>: incorrectBaselineCalls
+				};
+
+				<span class="th-token th-keyword">const</span> getColor = ( bufferToCheck, colorChanger, width, height ) =&gt; {
+
+					<span class="th-token th-keyword">const</span> subtracter = <span class="th-token th-function">float</span>( colorChanger ).<span class="th-token th-property">div</span>( width.<span class="th-token th-property">mul</span>( height ) );
+
+					<span class="th-token th-keyword">const</span> color = <span class="th-token th-function">vec3</span>( subtracter.<span class="th-token th-property">oneMinus</span>() ).<span class="th-token th-property">toVar</span>();
+
+					<span class="th-token th-keyword">const</span> { highlight } = effectController;
+
+					<span class="th-token th-comment">// Validate that element 0 is equal to expected result of reduction</span>
+					<span class="th-token th-function">If</span>( highlight.<span class="th-token th-property">equal</span>( <span class="th-token th-number">1</span> ), () =&gt; {
+
+						<span class="th-token th-function">If</span>( ( bufferToCheck.<span class="th-token th-property">element</span>( <span class="th-token th-number">0</span> ) ).<span class="th-token th-property">equal</span>( size ), () =&gt; {
+
+							color.<span class="th-token th-property">assign</span>( <span class="th-token th-function">vec3</span>( <span class="th-token th-number">0.0</span>, subtracter.<span class="th-token th-property">oneMinus</span>(), <span class="th-token th-number">0.0</span> ) );
+
+						} ).<span class="th-token th-property">Else</span>( () =&gt; {
+
+							color.<span class="th-token th-property">assign</span>( <span class="th-token th-function">vec3</span>( subtracter.<span class="th-token th-property">oneMinus</span>(), <span class="th-token th-number">0.0</span>, <span class="th-token th-number">0.0</span> ) );
+
+						} );
+
+					} );
+
+					<span class="th-token th-keyword">return</span> color;
+
+				};
+
+				<span class="th-token th-keyword">const</span> displayNodes = leftSideDisplay ? leftDisplayColorNodes : rightDisplayColorNodes;
+				displayNodes[ <span class="th-token th-string">&#39;Input Grid&#39;</span> ] = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> { gridElementWidth, gridElementHeight, gridDisplayWidth, gridDisplayHeight } = unifiedEffectController;
+
+					<span class="th-token th-keyword">const</span> newUV = <span class="th-token th-function">uv</span>().<span class="th-token th-property">mul</span>( <span class="th-token th-function">vec2</span>( gridDisplayWidth, gridDisplayHeight ) );
+
+					<span class="th-token th-keyword">const</span> pixel = <span class="th-token th-function">uvec2</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-function">floor</span>( newUV.<span class="th-token th-property">x</span> ) ), <span class="th-token th-function">uint</span>( <span class="th-token th-function">floor</span>( newUV.<span class="th-token th-property">y</span> ) ) );
+
+					<span class="th-token th-keyword">const</span> elementIndex = <span class="th-token th-function">uint</span>( gridDisplayWidth ).<span class="th-token th-property">mul</span>( pixel.<span class="th-token th-property">y</span> ).<span class="th-token th-property">add</span>( pixel.<span class="th-token th-property">x</span> );
+
+					<span class="th-token th-keyword">const</span> colorChanger = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>();
+					<span class="th-token th-keyword">const</span> color = <span class="th-token th-function">vec3</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;color&#39;</span> );
+
+					colorChanger.<span class="th-token th-property">assign</span>( inputStorage.<span class="th-token th-property">element</span>( elementIndex ) );
+					color.<span class="th-token th-property">assign</span>( <span class="th-token th-function">getColor</span>( inputStorage, colorChanger, gridElementWidth, gridElementHeight ) );
+
+					<span class="th-token th-keyword">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="th-token th-string">&#39;Input Log2&#39;</span> ] = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> { gridElementWidth, gridElementHeight } = unifiedEffectController;
+
+					<span class="th-token th-keyword">const</span> newUV = <span class="th-token th-function">uv</span>().<span class="th-token th-property">mul</span>( <span class="th-token th-function">vec2</span>( <span class="th-token th-type">Math</span>.<span class="th-token th-property">log2</span>( size ) ), <span class="th-token th-number">1</span> );
+
+					<span class="th-token th-keyword">const</span> colorChanger = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>();
+					<span class="th-token th-keyword">const</span> color = <span class="th-token th-function">vec3</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;color&#39;</span> );
+
+					colorChanger.<span class="th-token th-property">assign</span>( inputStorage.<span class="th-token th-property">element</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-number">1</span> ).<span class="th-token th-property">shiftLeft</span>( newUV.<span class="th-token th-property">x</span> ) ) );
+					color.<span class="th-token th-property">assign</span>( <span class="th-token th-function">getColor</span>( inputStorage, colorChanger, gridElementWidth, gridElementHeight ) );
+
+					<span class="th-token th-keyword">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="th-token th-string">&#39;Input Element 0&#39;</span> ] = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> { gridElementWidth, gridElementHeight } = unifiedEffectController;
+
+					<span class="th-token th-keyword">const</span> colorChanger = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>();
+					<span class="th-token th-keyword">const</span> color = <span class="th-token th-function">vec3</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;color&#39;</span> );
+
+					<span class="th-token th-comment">// Clamp display of single element to shade where green is still readable</span>
+					colorChanger.<span class="th-token th-property">assign</span>( <span class="th-token th-function">clamp</span>( inputStorage.<span class="th-token th-property">element</span>( <span class="th-token th-number">0</span> ), <span class="th-token th-number">0</span>, size / <span class="th-token th-number">2</span> ) );
+					color.<span class="th-token th-property">assign</span>( <span class="th-token th-function">getColor</span>( inputStorage, colorChanger, gridElementWidth, gridElementHeight ) );
+					<span class="th-token th-keyword">return</span> color;
+
+				} )();
+
+				displayNodes[ <span class="th-token th-string">&#39;Workgroup Sum Grid&#39;</span> ] = <span class="th-token th-function">Fn</span>( () =&gt; {
+
+					<span class="th-token th-keyword">const</span> width = <span class="th-token th-function">uint</span>( <span class="th-token th-number">8</span> );
+					<span class="th-token th-keyword">const</span> height = <span class="th-token th-function">uint</span>( <span class="th-token th-number">16</span> );
+
+					<span class="th-token th-keyword">const</span> newUV = <span class="th-token th-function">uv</span>().<span class="th-token th-property">mul</span>( <span class="th-token th-function">vec2</span>( width, height ) );
+
+					<span class="th-token th-keyword">const</span> pixel = <span class="th-token th-function">uvec2</span>( <span class="th-token th-function">uint</span>( <span class="th-token th-function">floor</span>( newUV.<span class="th-token th-property">x</span> ) ), <span class="th-token th-function">uint</span>( <span class="th-token th-function">floor</span>( newUV.<span class="th-token th-property">y</span> ) ) );
+
+					<span class="th-token th-keyword">const</span> elementIndex = <span class="th-token th-function">uint</span>( width ).<span class="th-token th-property">mul</span>( pixel.<span class="th-token th-property">y</span> ).<span class="th-token th-property">add</span>( pixel.<span class="th-token th-property">x</span> );
+
+					<span class="th-token th-keyword">const</span> colorChanger = <span class="th-token th-function">uint</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>();
+					<span class="th-token th-keyword">const</span> color = <span class="th-token th-function">vec3</span>( <span class="th-token th-number">0</span> ).<span class="th-token th-property">toVar</span>( <span class="th-token th-string">&#39;color&#39;</span> );
+
+					colorChanger.<span class="th-token th-property">assign</span>( workgroupSumsStorage.<span class="th-token th-property">element</span>( elementIndex ) );
+					color.<span class="th-token th-property">assign</span>( <span class="th-token th-function">getColor</span>( inputStorage, colorChanger, width, height ) );
+
+					<span class="th-token th-keyword">return</span> color;
+
+				} )();
+
+				( leftSideDisplay ? leftMaterial : rightMaterial ).<span class="th-token th-property">colorNode</span> = displayNodes[ effectController.<span class="th-token th-property">displayMode</span> ];
+				( leftSideDisplay ? leftMaterial : rightMaterial ).<span class="th-token th-property">needsUpdate</span> = <span class="th-token th-literal">true</span>;
+
+				<span class="th-token th-keyword">const</span> plane = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">Mesh</span>( <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">PlaneGeometry</span>( <span class="th-token th-number">1</span>, <span class="th-token th-number">1</span> ), ( leftSideDisplay ? leftMaterial : rightMaterial ) );
+				scene.<span class="th-token th-property">add</span>( plane );
+
+				<span class="th-token th-keyword">const</span> animate = () =&gt; {
+
+					renderer.<span class="th-token th-property">render</span>( scene, camera );
+
+				};
+
+				renderer.<span class="th-token th-property">setAnimationLoop</span>( animate );
+
+				document.<span class="th-token th-property">body</span>.<span class="th-token th-property">appendChild</span>( renderer.<span class="th-token th-property">domElement</span> );
+				renderer.<span class="th-token th-property">domElement</span>.<span class="th-token th-property">style</span>.<span class="th-token th-property">position</span> = <span class="th-token th-string">&#39;absolute&#39;</span>;
+				renderer.<span class="th-token th-property">domElement</span>.<span class="th-token th-property">style</span>.<span class="th-token th-property">top</span> = <span class="th-token th-string">&#39;0&#39;</span>;
+				renderer.<span class="th-token th-property">domElement</span>.<span class="th-token th-property">style</span>.<span class="th-token th-property">left</span> = <span class="th-token th-string">&#39;0&#39;</span>;
+				renderer.<span class="th-token th-property">domElement</span>.<span class="th-token th-property">style</span>.<span class="th-token th-property">width</span> = <span class="th-token th-string">&#39;50%&#39;</span>;
+				renderer.<span class="th-token th-property">domElement</span>.<span class="th-token th-property">style</span>.<span class="th-token th-property">height</span> = <span class="th-token th-string">&#39;100%&#39;</span>;
+
+				<span class="th-token th-keyword">if</span> ( ! leftSideDisplay ) {
+
+					renderer.<span class="th-token th-property">domElement</span>.<span class="th-token th-property">style</span>.<span class="th-token th-property">left</span> = <span class="th-token th-string">&#39;50%&#39;</span>;
+
+					scene.<span class="th-token th-property">background</span> = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">Color</span>( <span class="th-token th-number">0x212121</span> );
+
+				} <span class="th-token th-keyword">else</span> {
+
+					scene.<span class="th-token th-property">background</span> = <span class="th-token th-keyword">new</span> <span class="th-token th-type">THREE</span>.<span class="th-token th-property">Color</span>( <span class="th-token th-number">0x313131</span> );
+
+				}
+
+				renderer.<span class="th-token th-property">info</span>.<span class="th-token th-property">autoReset</span> = <span class="th-token th-literal">false</span>;
+
+				<span class="th-token th-keyword">const</span> stepAnimation = <span class="th-token th-keyword">async</span> <span class="th-token th-keyword">function</span> () {
+
+					<span class="th-token th-keyword">const</span> currentAlgorithm = effectController.<span class="th-token th-property">algo</span>;
+					<span class="th-token th-keyword">const</span> state = effectController.<span class="th-token th-property">state</span>;
+					<span class="th-token th-keyword">const</span> stateController = leftSideDisplay ? stateLeftController : stateRightController;
+
+					<span class="th-token th-keyword">if</span> ( state === <span class="th-token th-string">&#39;Reset&#39;</span> ) {
+
+						renderer.<span class="th-token th-property">compute</span>( computeResetBuffer );
+						renderer.<span class="th-token th-property">compute</span>( computeResetWorkgroupSums );
+
+					} <span class="th-token th-keyword">else</span> <span class="th-token th-keyword">if</span> ( state === <span class="th-token th-string">&#39;Run Algo&#39;</span> ) {
+
+						renderer.<span class="th-token th-property">info</span>.<span class="th-token th-property">reset</span>();
+
+						<span class="th-token th-keyword">const</span> cpuTime = <span class="th-token th-number">0</span>;
+
+						<span class="th-token th-keyword">switch</span> ( currentAlgorithm ) {
+
+							<span class="th-token th-keyword">case</span> <span class="th-token th-string">&#39;Reduce 0 (N/2)&#39;</span>: {
+
+								<span class="th-token th-keyword">let</span> m = size / <span class="th-token th-number">2</span>;
+
+								<span class="th-token th-keyword">for</span> ( <span class="th-token th-keyword">let</span> i = <span class="th-token th-number">0</span>; i &lt; reduce0Calls.<span class="th-token th-property">length</span>; i ++ ) {
+
+									effectController.<span class="th-token th-property">numThreadsDispatched</span>.<span class="th-token th-property">value</span> = m;
+
+									<span class="th-token th-keyword">const</span> reduce0 = reduce0Calls[ i ];
+									<span class="th-token th-comment">// Do a reduction step</span>
+									renderer.<span class="th-token th-property">compute</span>( reduce0 );
+									renderer.<span class="th-token th-property">resolveTimestampsAsync</span>( <span class="th-token th-type">THREE</span>.<span class="th-token th-property">TimestampQuery</span>.<span class="th-token th-property">COMPUTE</span> );
+
+									m /= <span class="th-token th-number">2</span>;
+
+								}
+
+
+								<span class="th-token th-keyword">break</span>;
+
+							}
+
+							<span class="th-token th-keyword">default</span>: {
+
+								<span class="th-token th-keyword">const</span> currentAlgoCalls = calls[ currentAlgorithm ];
+
+								<span class="th-token th-keyword">for</span> ( <span class="th-token th-keyword">let</span> i = <span class="th-token th-number">0</span>; i &lt; currentAlgoCalls.<span class="th-token th-property">length</span>; i ++ ) {
+
+									renderer.<span class="th-token th-property">compute</span>( currentAlgoCalls[ i ] );
+									renderer.<span class="th-token th-property">resolveTimestampsAsync</span>( <span class="th-token th-type">THREE</span>.<span class="th-token th-property">TimestampQuery</span>.<span class="th-token th-property">COMPUTE</span> );
+
+								}
+
+								<span class="th-token th-keyword">break</span>;
+
+							}
+
+						}
+
+						<span class="th-token th-comment">// DEBUG: const reductionResult = new Uint32Array( await renderer.getArrayBufferAsync( currentBuffer ) )[0];</span>
+
+						<span class="th-token th-keyword">let</span> passInfoString = <span class="th-token th-string">&#39;&#39;</span>;
+
+						<span class="th-token th-keyword">if</span> ( effectController.<span class="th-token th-property">algo</span>.<span class="th-token th-property">substring</span>( <span class="th-token th-number">0</span>, <span class="th-token th-number">3</span> ) === <span class="th-token th-string">&#39;CPU&#39;</span> ) {
+
+							passInfoString = <span class="th-token th-string">`Ran in </span><span class="th-token th-operator">${</span>cpuTime<span class="th-token th-operator">}</span><span class="th-token th-string">ms&lt;br&gt;`</span>;
+
+						} <span class="th-token th-keyword">else</span> {
+
+							passInfoString = <span class="th-token th-string">`</span><span class="th-token th-operator">${</span>renderer.<span class="th-token th-property">info</span>.<span class="th-token th-property">compute</span>.<span class="th-token th-property">frameCalls</span><span class="th-token th-operator">}</span><span class="th-token th-string"> pass in </span><span class="th-token th-operator">${</span>renderer.<span class="th-token th-property">info</span>.<span class="th-token th-property">compute</span>.<span class="th-token th-property">timestamp</span>.<span class="th-token th-property">toFixed</span>( <span class="th-token th-number">6</span> )<span class="th-token th-operator">}</span><span class="th-token th-string">ms&lt;br&gt;`</span>;
+
+						}
+
+
+
+
+						timestamps[ leftSideDisplay ? <span class="th-token th-string">&#39;left_side_display&#39;</span> : <span class="th-token th-string">&#39;right_side_display&#39;</span> ].<span class="th-token th-property">innerHTML</span> = <span class="th-token th-string">`
+
+							Compute </span><span class="th-token th-operator">${</span>effectController.<span class="th-token th-property">algo</span><span class="th-token th-operator">}</span><span class="th-token th-string">: </span><span class="th-token th-operator">${</span>passInfoString<span class="th-token th-operator">}</span><span class="th-token th-string">`</span>;
+
+					}
+
+					renderer.<span class="th-token th-property">render</span>( scene, camera );
+					renderer.<span class="th-token th-property">resolveTimestampsAsync</span>( <span class="th-token th-type">THREE</span>.<span class="th-token th-property">TimestampQuery</span>.<span class="th-token th-property">RENDER</span> );
+
+					<span class="th-token th-comment">// Validate next state</span>
+
+					<span class="th-token th-keyword">if</span> ( state === <span class="th-token th-string">&#39;Run Algo&#39;</span> ) {
+
+						stateController.<span class="th-token th-property">setValue</span>( <span class="th-token th-string">&#39;Validate&#39;</span> );
+
+						effectController.<span class="th-token th-property">highlight</span>.<span class="th-token th-property">value</span> = <span class="th-token th-number">1</span>;
+
+					} <span class="th-token th-keyword">else</span> <span class="th-token th-keyword">if</span> ( state === <span class="th-token th-string">&#39;Validate&#39;</span> ) {
+
+						stateController.<span class="th-token th-property">setValue</span>( <span class="th-token th-string">&#39;Reset&#39;</span> );
+
+						effectController.<span class="th-token th-property">highlight</span>.<span class="th-token th-property">value</span> = <span class="th-token th-number">0</span>;
+
+					} <span class="th-token th-keyword">else</span> <span class="th-token th-keyword">if</span> ( state === <span class="th-token th-string">&#39;Reset&#39;</span> ) {
+
+						stateController.<span class="th-token th-property">setValue</span>( <span class="th-token th-string">&#39;Run Algo&#39;</span> );
+
+					}
+
+					<span class="th-token th-function">setTimeout</span>( stepAnimation, <span class="th-token th-number">1000</span> );
+
+				};
+
+
+				window.<span class="th-token th-property">addEventListener</span>( <span class="th-token th-string">&#39;resize&#39;</span>, onWindowResize );
+
+				<span class="th-token th-keyword">function</span> <span class="th-token th-function">onWindowResize</span>() {
+
+					renderer.<span class="th-token th-property">setSize</span>( window.<span class="th-token th-property">innerWidth</span> / <span class="th-token th-number">2</span>, window.<span class="th-token th-property">innerHeight</span> );
+
+					<span class="th-token th-keyword">const</span> aspect = ( window.<span class="th-token th-property">innerWidth</span> / <span class="th-token th-number">2</span> ) / window.<span class="th-token th-property">innerHeight</span>;
+
+					<span class="th-token th-keyword">const</span> frustumHeight = camera.<span class="th-token th-property">top</span> - camera.<span class="th-token th-property">bottom</span>;
+
+					camera.<span class="th-token th-property">left</span> = - frustumHeight * aspect / <span class="th-token th-number">2</span>;
+					camera.<span class="th-token th-property">right</span> = frustumHeight * aspect / <span class="th-token th-number">2</span>;
+
+					camera.<span class="th-token th-property">updateProjectionMatrix</span>();
+
+					renderer.<span class="th-token th-property">render</span>( scene, camera );
+
+				}
+
+				<span class="th-token th-function">setTimeout</span>( stepAnimation, <span class="th-token th-number">1000</span> );
+
+			}
+
+		&lt;/<span class="th-token th-tag">script</span>&gt;
+	&lt;/<span class="th-token th-tag">body</span>&gt;
+&lt;/<span class="th-token th-tag">html</span>&gt;</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

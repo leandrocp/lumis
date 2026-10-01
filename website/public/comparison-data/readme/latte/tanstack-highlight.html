@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TanStack Highlight · Catppuccin Latte · Lumis visual comparison</title>
+  <meta name="color-scheme" content="light">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #e6e9ef; color: #4c4f69; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #bcc0cc; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root {
+  --th-background: #eff1f5;
+  --th-token: #4c4f69;
+  --th-attr: #1e66f5;
+  --th-code-inline: #40a02b;
+  --th-command: #d20f39;
+  --th-comment: #7c7f93;
+  --th-deleted: #d20f39;
+  --th-function: #1e66f5;
+  --th-heading: #1e66f5;
+  --th-inserted: #40a02b;
+  --th-keyword: #8839ef;
+  --th-link: #209fb5;
+  --th-literal: #fe640b;
+  --th-meta: #fe640b;
+  --th-number: #fe640b;
+  --th-operator: #04a5e5;
+  --th-property: #179299;
+  --th-selector: #179299;
+  --th-string: #40a02b;
+  --th-tag: #8839ef;
+  --th-type: #df8e1d;
+  --th-variable: #8839ef;
+}
+
+pre.th-code {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--th-background);
+  color: var(--th-token);
+}
+
+.th-token { color: var(--th-token); }
+.th-attr { color: var(--th-attr); }
+.th-code-inline { color: var(--th-code-inline); }
+.th-command { color: var(--th-command); }
+.th-comment { color: var(--th-comment); }
+.th-deleted { color: var(--th-deleted); }
+.th-function { color: var(--th-function); }
+.th-heading { color: var(--th-heading); }
+.th-inserted { color: var(--th-inserted); }
+.th-keyword { color: var(--th-keyword); }
+.th-link { color: var(--th-link); }
+.th-literal { color: var(--th-literal); }
+.th-meta { color: var(--th-meta); }
+.th-number { color: var(--th-number); }
+.th-operator { color: var(--th-operator); }
+.th-property { color: var(--th-property); }
+.th-selector { color: var(--th-selector); }
+.th-string { color: var(--th-string); }
+.th-tag { color: var(--th-tag); }
+.th-type { color: var(--th-type); }
+.th-variable { color: var(--th-variable); }
+.th-line { display: inline-block; min-width: 100%; width: max-content; }
+.th-code--line-numbers code { counter-reset: th-line; }
+.th-code--line-numbers .th-line::before {
+  display: inline-block;
+  width: 2.5em;
+  padding-right: 1em;
+  color: var(--th-comment);
+  content: attr(data-line);
+  text-align: right;
+  user-select: none;
+}</style><pre class="th-code th-code--markdown" data-language="markdown"><code>
+&lt;h1 align=&quot;center&quot;&gt;Lumis&lt;/h1&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+  &lt;a href=&quot;https://lumis.sh&quot;&gt;&lt;img src=&quot;assets/intro.jpg&quot; alt=&quot;Lumis Syntax Highlighter&quot;&gt;&lt;/a&gt;
+&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+  &lt;a href=&quot;https://lumis.sh&quot;&gt;lumis.sh&lt;/a&gt;
+  -
+  &lt;a href=&quot;https://lumis.sh/docs&quot;&gt;docs&lt;/a&gt;
+&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+  &lt;a href=&quot;https://crates.io/crates/lumis&quot;&gt;&lt;img src=&quot;https://img.shields.io/crates/v/lumis&quot; alt=&quot;Crates.io&quot;&gt;&lt;/a&gt;
+  &lt;a href=&quot;https://www.npmjs.com/package/@lumis-sh/lumis&quot;&gt;&lt;img src=&quot;https://img.shields.io/npm/v/@lumis-sh/lumis&quot; alt=&quot;npm&quot;&gt;&lt;/a&gt;
+  &lt;a href=&quot;https://hex.pm/packages/lumis&quot;&gt;&lt;img src=&quot;https://img.shields.io/hexpm/v/lumis&quot; alt=&quot;Hex.pm&quot;&gt;&lt;/a&gt;
+  &lt;a href=&quot;https://central.sonatype.com/artifact/io.roastedroot/lumis4j&quot;&gt;&lt;img src=&quot;https://img.shields.io/maven-central/v/io.roastedroot/lumis4j&quot; alt=&quot;Maven Central&quot;&gt;&lt;/a&gt;
+  &lt;a href=&quot;https://opensource.org/licenses/MIT&quot;&gt;&lt;img src=&quot;https://img.shields.io/badge/license-MIT-blue&quot; alt=&quot;License&quot;&gt;&lt;/a&gt;
+&lt;/p&gt;
+
+---
+
+<span class="th-token th-heading">## Features</span>
+<span class="th-token th-meta">
+- </span>**110+ Tree-sitter languages** - Fast, accurate, and updated syntax parsing
+<span class="th-token th-meta">- </span>**250+ built-in Neovim themes** - Updated and curated themes from the Neovim community
+<span class="th-token th-meta">- </span>**6 runtimes, one API** - CLI, Rust, Elixir, JavaScript, Browsers / CDN, and Java, aligned in naming, options, and output
+<span class="th-token th-meta">- </span>**Built-in formatters** - HTML (inline/linked), Terminal (ANSI), Multi-theme (light/dark), BBCode
+<span class="th-token th-meta">- </span>**Custom formatters** - Build your own output
+<span class="th-token th-meta">- </span>**Language auto-detection** - File extension, shebang, and emacs-mode support
+<span class="th-token th-meta">- </span>**Line highlighting** - Mark and style individual lines, with custom HTML wrappers
+<span class="th-token th-meta">- </span>**Streaming-friendly** - Handles incomplete code
+<span class="th-token th-meta">- </span>**Load parsers on demand** - Verified and cached, including injected languages
+
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;img src=&quot;assets/ruby.png&quot; alt=&quot;Ruby with Catppuccin Frappe theme&quot;&gt;&lt;/td&gt;
+&lt;td&gt;&lt;img src=&quot;assets/sql.png&quot; alt=&quot;SQL with GitHub Light theme&quot;&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+<span class="th-token th-heading">## Quick Start</span>
+
+<span class="th-token th-heading">### [CLI](https://www.npmjs.com/package/@lumis-sh/cli)</span>
+
+<span class="th-token th-meta">```bash</span>
+<span class="th-token th-command">npx</span><span class="th-token th-code-inline"> @lumis-sh/cli highlight app.js
+</span><span class="th-token th-meta">```
+</span>
+For a global install:
+
+<span class="th-token th-meta">```bash</span>
+<span class="th-token th-command">npm</span><span class="th-token th-code-inline"> install -g @lumis-sh/cli
+
+</span><span class="th-token th-command">lumis</span><span class="th-token th-code-inline"> highlight app.js
+</span><span class="th-token th-meta">```
+</span>
+<span class="th-token th-heading">### [Rust](https://crates.io/crates/lumis)</span>
+
+<span class="th-token th-meta">```rust</span>
+<span class="th-token th-code-inline">use lumis::{highlight, HtmlInlineBuilder, languages::Language, themes};
+
+let theme = themes::get(&quot;dracula&quot;).unwrap();
+
+let formatter = HtmlInlineBuilder::new()
+    .language(Language::Javascript)
+    .theme(Some(theme))
+    .build()
+    .unwrap();
+
+let html = highlight(&quot;const x = 1&quot;, formatter);
+</span><span class="th-token th-meta">```
+</span>
+<span class="th-token th-heading">### [JavaScript](https://www.npmjs.com/package/@lumis-sh/lumis)</span>
+
+Works in JavaScript runtimes including Node.js, Bun, and Deno.
+
+<span class="th-token th-meta">```javascript</span>
+<span class="th-token th-keyword">import</span><span class="th-token th-code-inline"> { highlight } </span><span class="th-token th-keyword">from</span><span class="th-token th-code-inline"> </span><span class="th-token th-string">&#39;@lumis-sh/lumis&#39;</span><span class="th-token th-code-inline">
+</span><span class="th-token th-keyword">import</span><span class="th-token th-code-inline"> { htmlInline } </span><span class="th-token th-keyword">from</span><span class="th-token th-code-inline"> </span><span class="th-token th-string">&#39;@lumis-sh/lumis/formatters&#39;</span><span class="th-token th-code-inline">
+</span><span class="th-token th-keyword">import</span><span class="th-token th-code-inline"> javascript </span><span class="th-token th-keyword">from</span><span class="th-token th-code-inline"> </span><span class="th-token th-string">&#39;@lumis-sh/lumis/langs/javascript&#39;</span><span class="th-token th-code-inline">
+</span><span class="th-token th-keyword">import</span><span class="th-token th-code-inline"> dracula </span><span class="th-token th-keyword">from</span><span class="th-token th-code-inline"> </span><span class="th-token th-string">&#39;@lumis-sh/themes/dracula&#39;</span><span class="th-token th-code-inline">
+
+</span><span class="th-token th-keyword">const</span><span class="th-token th-code-inline"> html = </span><span class="th-token th-keyword">await</span><span class="th-token th-code-inline"> </span><span class="th-token th-function">highlight</span><span class="th-token th-code-inline">(</span><span class="th-token th-string">&#39;const x = 1&#39;</span><span class="th-token th-code-inline">, </span><span class="th-token th-function">htmlInline</span><span class="th-token th-code-inline">({ </span><span class="th-token th-property">language</span><span class="th-token th-code-inline">: javascript, </span><span class="th-token th-property">theme</span><span class="th-token th-code-inline">: dracula }))
+</span><span class="th-token th-meta">```
+</span>
+Parsers download on demand, including languages injected inside a document.
+Browsers are the exception: loading is asynchronous there, so an injected
+language has to be loaded first. See <span class="th-token th-link">[WASM and CDN](https://lumis.sh/docs/usage/wasm-and-cdn)</span>.
+
+<span class="th-token th-heading">### [Browsers / CDN](https://www.npmjs.com/package/@lumis-sh/lumis)</span>
+
+Works in Browsers through bundlers or CDN imports.
+
+<span class="th-token th-meta">```javascript</span>
+<span class="th-token th-keyword">import</span><span class="th-token th-code-inline"> { highlight } </span><span class="th-token th-keyword">from</span><span class="th-token th-code-inline"> </span><span class="th-token th-string">&#39;https://esm.sh/@lumis-sh/lumis&#39;</span><span class="th-token th-code-inline">
+</span><span class="th-token th-keyword">import</span><span class="th-token th-code-inline"> { htmlInline } </span><span class="th-token th-keyword">from</span><span class="th-token th-code-inline"> </span><span class="th-token th-string">&#39;https://esm.sh/@lumis-sh/lumis/formatters&#39;</span><span class="th-token th-code-inline">
+</span><span class="th-token th-keyword">import</span><span class="th-token th-code-inline"> javascript </span><span class="th-token th-keyword">from</span><span class="th-token th-code-inline"> </span><span class="th-token th-string">&#39;https://esm.sh/@lumis-sh/lumis/langs/javascript&#39;</span><span class="th-token th-code-inline">
+</span><span class="th-token th-keyword">import</span><span class="th-token th-code-inline"> dracula </span><span class="th-token th-keyword">from</span><span class="th-token th-code-inline"> </span><span class="th-token th-string">&#39;https://esm.sh/@lumis-sh/themes/dracula&#39;</span><span class="th-token th-code-inline">
+
+</span><span class="th-token th-keyword">const</span><span class="th-token th-code-inline"> html = </span><span class="th-token th-keyword">await</span><span class="th-token th-code-inline"> </span><span class="th-token th-function">highlight</span><span class="th-token th-code-inline">(</span><span class="th-token th-string">&#39;const x = 1&#39;</span><span class="th-token th-code-inline">, </span><span class="th-token th-function">htmlInline</span><span class="th-token th-code-inline">({ </span><span class="th-token th-property">language</span><span class="th-token th-code-inline">: javascript, </span><span class="th-token th-property">theme</span><span class="th-token th-code-inline">: dracula }))
+</span><span class="th-token th-meta">```
+</span>
+<span class="th-token th-heading">### [Elixir](https://hex.pm/packages/lumis)</span>
+
+<span class="th-token th-meta">```elixir</span>
+<span class="th-token th-code-inline">Lumis.highlight!(&quot;const x = 1&quot;, formatter: {:html_inline, language: &quot;javascript&quot;, theme: &quot;dracula&quot;})
+</span><span class="th-token th-meta">```
+</span>
+Parsers download on demand and load once per VM. Call
+<span class="th-token th-code-inline">`Lumis.Languages.async_load/1`</span> from your application&#39;s <span class="th-token th-code-inline">`start/2`</span> to move the
+download and compile off the first request without holding up the boot.
+See <span class="th-token th-link">[Elixir integration](https://lumis.sh/docs/usage/elixir-integration)</span>.
+
+<span class="th-token th-heading">### [Java](https://github.com/roastedroot/lumis4j)</span>
+
+By <span class="th-token th-link">[@andreaTP](https://github.com/andreaTP)</span>. More details at https://chicory.dev/blog/syntax-highlight
+
+<span class="th-token th-meta">```java</span>
+<span class="th-token th-code-inline">import io.roastedroot.lumis4j.core.Lumis;
+import io.roastedroot.lumis4j.core.Lang;
+import io.roastedroot.lumis4j.core.Theme;
+
+var lumis = Lumis.builder().build();
+
+var highlighter = lumis.highlighter()
+    .withLang(Lang.JAVASCRIPT)
+    .withTheme(Theme.DRACULA)
+    .build();
+
+var result = highlighter.highlight(&quot;const x = 1&quot;);
+System.out.println(result.string());
+</span><span class="th-token th-meta">```
+</span>
+<span class="th-token th-heading">## Documentation</span>
+
+| Runtime | Install | Package | Docs |
+|----------|---------| ------- | -----|
+| **CLI** | <span class="th-token th-code-inline">`npx @lumis-sh/cli`</span> | <span class="th-token th-link">[npmjs.com/@lumis-sh/cli](https://www.npmjs.com/package/@lumis-sh/cli)</span> | <span class="th-token th-link">[README.md](packages/javascript/cli/README.md)</span> |
+| **Rust** | <span class="th-token th-code-inline">`cargo add lumis`</span> | <span class="th-token th-link">[crates.io/lumis](https://crates.io/crates/lumis)</span> | <span class="th-token th-link">[README.md](crates/lumis/README.md)</span> &amp;bull; <span class="th-token th-link">[docs.rs](https://docs.rs/lumis)</span> |
+| **Elixir** | <span class="th-token th-code-inline">`{:lumis, &quot;~&gt; 0.3&quot;}`</span> | <span class="th-token th-link">[hex.pm/lumis](https://hex.pm/packages/lumis)</span> | <span class="th-token th-link">[README.md](packages/elixir/lumis/README.md)</span> &amp;bull; <span class="th-token th-link">[hexdocs](https://hexdocs.pm/lumis)</span> |
+| **JavaScript** | <span class="th-token th-code-inline">`npm install @lumis-sh/lumis`</span> | <span class="th-token th-link">[npmjs.com/@lumis-sh/lumis](https://www.npmjs.com/package/@lumis-sh/lumis)</span> | <span class="th-token th-link">[README.md](packages/javascript/lumis/README.md)</span> |
+| **Browsers / CDN** | <span class="th-token th-code-inline">`npm install @lumis-sh/lumis`</span> | <span class="th-token th-link">[npmjs.com/@lumis-sh/lumis](https://www.npmjs.com/package/@lumis-sh/lumis)</span> | <span class="th-token th-link">[README.md](packages/javascript/lumis/README.md)</span> |
+| **Java** | <span class="th-token th-code-inline">`io.roastedroot:lumis4j:0.0.7`</span> | <span class="th-token th-link">[io.roastedroot/lumis4j](https://central.sonatype.com/artifact/io.roastedroot/lumis4j)</span> | <span class="th-token th-link">[README.md](https://github.com/roastedroot/lumis4j/blob/main/README.md)</span> |
+
+<span class="th-token th-heading">## Architecture</span>
+
+Every Lumis package is built around the same three pieces:
+<span class="th-token th-meta">
+- </span>themes extracted from Neovim
+<span class="th-token th-meta">- </span>languages backed by Tree-sitter grammars
+<span class="th-token th-meta">- </span>formatters that turn highlighted tokens into output
+
+Given some source code, Lumis parses it with the selected Tree-sitter language, resolves styles from the chosen theme, and then formats the highlighted result into HTML, ANSI, or any custom output.
+
+<span class="th-token th-heading">### WASM Versions</span>
+
+The npm <span class="th-token th-link">[WASM package](https://www.npmjs.com/search?q=keywords:lumis-sh)</span> versions follow the pattern <span class="th-token th-code-inline">`&lt;tree-sitter-version&gt;.&lt;seq&gt;`</span> where:
+<span class="th-token th-meta">
+- </span><span class="th-token th-code-inline">`tree-sitter-version`</span> is the major-minor version of the compatible Tree-sitter release
+<span class="th-token th-meta">- </span><span class="th-token th-code-inline">`seq`</span> is a patch number for Lumis own updates
+
+For example, <span class="th-token th-code-inline">`@lumis-sh/wasm-rust@0.26.0`</span> is the first published version compatible with Tree-sitter 0.26,
+while <span class="th-token th-code-inline">`@lumis-sh/wasm-javascript@0.26.1`</span> is a patch update compatible with Tree-sitter 0.26 (usually containing upstream parser updates).
+
+<span class="th-token th-heading">## Contributing</span>
+
+Contributions are welcome. Feel free to open issues or PRs for bugs, features, new themes, or languages.
+
+See <span class="th-token th-link">[CONTRIBUTING.md](CONTRIBUTING.md)</span>
+
+<span class="th-token th-heading">## Acknowledgements</span>
+<span class="th-token th-meta">* </span><span class="th-token th-link">[Makeup](https://hex.pm/packages/makeup)</span> for setting up the baseline for the Elixir package
+<span class="th-token th-meta">* </span><span class="th-token th-link">[Inkjet](https://crates.io/crates/inkjet)</span> for the Rust implementation in the initial versions
+<span class="th-token th-meta">* </span><span class="th-token th-link">[Shiki](https://shiki.style)</span> and <span class="th-token th-link">[syntect](https://crates.io/crates/syntect)</span> for the hard work defining how syntax highlighters should work
+
+<span class="th-token th-heading">## License</span>
+
+MIT
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

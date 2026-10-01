@@ -1,0 +1,1448 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TanStack Highlight · Catppuccin Latte · Lumis visual comparison</title>
+  <meta name="color-scheme" content="light">
+  <style>
+    * { box-sizing: border-box; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: #e6e9ef; color: #4c4f69; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; }
+    main { padding: 16px; min-width: max-content; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid #bcc0cc; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
+    /* highlight.js themes paint the panel on the code element and pad it, and
+       @catppuccin/highlightjs paints it without making that element a block, so
+       one panel would be ragged where the other three are solid. */
+    pre code.hljs { display: block; padding: 0 !important; }
+  </style>
+</head>
+<body>
+  <main><style>:root {
+  --th-background: #eff1f5;
+  --th-token: #4c4f69;
+  --th-attr: #1e66f5;
+  --th-code-inline: #40a02b;
+  --th-command: #d20f39;
+  --th-comment: #7c7f93;
+  --th-deleted: #d20f39;
+  --th-function: #1e66f5;
+  --th-heading: #1e66f5;
+  --th-inserted: #40a02b;
+  --th-keyword: #8839ef;
+  --th-link: #209fb5;
+  --th-literal: #fe640b;
+  --th-meta: #fe640b;
+  --th-number: #fe640b;
+  --th-operator: #04a5e5;
+  --th-property: #179299;
+  --th-selector: #179299;
+  --th-string: #40a02b;
+  --th-tag: #8839ef;
+  --th-type: #df8e1d;
+  --th-variable: #8839ef;
+}
+
+pre.th-code {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--th-background);
+  color: var(--th-token);
+}
+
+.th-token { color: var(--th-token); }
+.th-attr { color: var(--th-attr); }
+.th-code-inline { color: var(--th-code-inline); }
+.th-command { color: var(--th-command); }
+.th-comment { color: var(--th-comment); }
+.th-deleted { color: var(--th-deleted); }
+.th-function { color: var(--th-function); }
+.th-heading { color: var(--th-heading); }
+.th-inserted { color: var(--th-inserted); }
+.th-keyword { color: var(--th-keyword); }
+.th-link { color: var(--th-link); }
+.th-literal { color: var(--th-literal); }
+.th-meta { color: var(--th-meta); }
+.th-number { color: var(--th-number); }
+.th-operator { color: var(--th-operator); }
+.th-property { color: var(--th-property); }
+.th-selector { color: var(--th-selector); }
+.th-string { color: var(--th-string); }
+.th-tag { color: var(--th-tag); }
+.th-type { color: var(--th-type); }
+.th-variable { color: var(--th-variable); }
+.th-line { display: inline-block; min-width: 100%; width: max-content; }
+.th-code--line-numbers code { counter-reset: th-line; }
+.th-code--line-numbers .th-line::before {
+  display: inline-block;
+  width: 2.5em;
+  padding-right: 1em;
+  color: var(--th-comment);
+  content: attr(data-line);
+  text-align: right;
+  user-select: none;
+}</style><pre class="th-code th-code--go" data-language="go"><code><span class="th-token th-comment">// Copyright 2010 The Go Authors. All rights reserved.</span>
+<span class="th-token th-comment">// Use of this source code is governed by a BSD-style</span>
+<span class="th-token th-comment">// license that can be found in the LICENSE file.</span>
+
+<span class="th-token th-comment">// Package json implements encoding and decoding of JSON as defined in</span>
+<span class="th-token th-comment">// RFC 7159. The mapping between JSON and Go values is described</span>
+<span class="th-token th-comment">// in the documentation for the Marshal and Unmarshal functions.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// See &quot;JSON and Go&quot; for an introduction to this package:</span>
+<span class="th-token th-comment">// https://golang.org/doc/articles/json_and_go.html</span>
+<span class="th-token th-keyword">package</span> json
+
+<span class="th-token th-keyword">import</span> (
+	<span class="th-token th-string">&quot;bytes&quot;</span>
+	<span class="th-token th-string">&quot;cmp&quot;</span>
+	<span class="th-token th-string">&quot;encoding&quot;</span>
+	<span class="th-token th-string">&quot;encoding/base64&quot;</span>
+	<span class="th-token th-string">&quot;fmt&quot;</span>
+	<span class="th-token th-string">&quot;math&quot;</span>
+	<span class="th-token th-string">&quot;reflect&quot;</span>
+	<span class="th-token th-string">&quot;slices&quot;</span>
+	<span class="th-token th-string">&quot;strconv&quot;</span>
+	<span class="th-token th-string">&quot;strings&quot;</span>
+	<span class="th-token th-string">&quot;sync&quot;</span>
+	<span class="th-token th-string">&quot;unicode&quot;</span>
+	<span class="th-token th-string">&quot;unicode/utf8&quot;</span>
+	_ <span class="th-token th-string">&quot;unsafe&quot;</span> <span class="th-token th-comment">// for linkname</span>
+)
+
+<span class="th-token th-comment">// Marshal returns the JSON encoding of v.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Marshal traverses the value v recursively.</span>
+<span class="th-token th-comment">// If an encountered value implements [Marshaler]</span>
+<span class="th-token th-comment">// and is not a nil pointer, Marshal calls [Marshaler.MarshalJSON]</span>
+<span class="th-token th-comment">// to produce JSON. If no [Marshaler.MarshalJSON] method is present but the</span>
+<span class="th-token th-comment">// value implements [encoding.TextMarshaler] instead, Marshal calls</span>
+<span class="th-token th-comment">// [encoding.TextMarshaler.MarshalText] and encodes the result as a JSON string.</span>
+<span class="th-token th-comment">// The nil pointer exception is not strictly necessary</span>
+<span class="th-token th-comment">// but mimics a similar, necessary exception in the behavior of</span>
+<span class="th-token th-comment">// [Unmarshaler.UnmarshalJSON].</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Otherwise, Marshal uses the following type-dependent default encodings:</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Boolean values encode as JSON booleans.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Floating point, integer, and [Number] values encode as JSON numbers.</span>
+<span class="th-token th-comment">// NaN and +/-Inf values will return an [UnsupportedValueError].</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// String values encode as JSON strings coerced to valid UTF-8,</span>
+<span class="th-token th-comment">// replacing invalid bytes with the Unicode replacement rune.</span>
+<span class="th-token th-comment">// So that the JSON will be safe to embed inside HTML &lt;script&gt; tags,</span>
+<span class="th-token th-comment">// the string is encoded using [HTMLEscape],</span>
+<span class="th-token th-comment">// which replaces &quot;&lt;&quot;, &quot;&gt;&quot;, &quot;&amp;&quot;, U+2028, and U+2029 are escaped</span>
+<span class="th-token th-comment">// to &quot;\u003c&quot;,&quot;\u003e&quot;, &quot;\u0026&quot;, &quot;\u2028&quot;, and &quot;\u2029&quot;.</span>
+<span class="th-token th-comment">// This replacement can be disabled when using an [Encoder],</span>
+<span class="th-token th-comment">// by calling [Encoder.SetEscapeHTML](false).</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Array and slice values encode as JSON arrays, except that</span>
+<span class="th-token th-comment">// []byte encodes as a base64-encoded string, and a nil slice</span>
+<span class="th-token th-comment">// encodes as the null JSON value.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Struct values encode as JSON objects.</span>
+<span class="th-token th-comment">// Each exported struct field becomes a member of the object, using the</span>
+<span class="th-token th-comment">// field name as the object key, unless the field is omitted for one of the</span>
+<span class="th-token th-comment">// reasons given below.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// The encoding of each struct field can be customized by the format string</span>
+<span class="th-token th-comment">// stored under the &quot;json&quot; key in the struct field&#39;s tag.</span>
+<span class="th-token th-comment">// The format string gives the name of the field, possibly followed by a</span>
+<span class="th-token th-comment">// comma-separated list of options. The name may be empty in order to</span>
+<span class="th-token th-comment">// specify options without overriding the default field name.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// The &quot;omitempty&quot; option specifies that the field should be omitted</span>
+<span class="th-token th-comment">// from the encoding if the field has an empty value, defined as</span>
+<span class="th-token th-comment">// false, 0, a nil pointer, a nil interface value, and any array,</span>
+<span class="th-token th-comment">// slice, map, or string of length zero.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// As a special case, if the field tag is &quot;-&quot;, the field is always omitted.</span>
+<span class="th-token th-comment">// Note that a field with name &quot;-&quot; can still be generated using the tag &quot;-,&quot;.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Examples of struct field tags and their meanings:</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">//	// Field appears in JSON as key &quot;myName&quot;.</span>
+<span class="th-token th-comment">//	Field int `json:&quot;myName&quot;`</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">//	// Field appears in JSON as key &quot;myName&quot; and</span>
+<span class="th-token th-comment">//	// the field is omitted from the object if its value is empty,</span>
+<span class="th-token th-comment">//	// as defined above.</span>
+<span class="th-token th-comment">//	Field int `json:&quot;myName,omitempty&quot;`</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">//	// Field appears in JSON as key &quot;Field&quot; (the default), but</span>
+<span class="th-token th-comment">//	// the field is skipped if empty.</span>
+<span class="th-token th-comment">//	// Note the leading comma.</span>
+<span class="th-token th-comment">//	Field int `json:&quot;,omitempty&quot;`</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">//	// Field is ignored by this package.</span>
+<span class="th-token th-comment">//	Field int `json:&quot;-&quot;`</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">//	// Field appears in JSON as key &quot;-&quot;.</span>
+<span class="th-token th-comment">//	Field int `json:&quot;-,&quot;`</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// The &quot;omitzero&quot; option specifies that the field should be omitted</span>
+<span class="th-token th-comment">// from the encoding if the field has a zero value, according to rules:</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// 1) If the field type has an &quot;IsZero() bool&quot; method, that will be used to</span>
+<span class="th-token th-comment">// determine whether the value is zero.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// 2) Otherwise, the value is zero if it is the zero value for its type.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// If both &quot;omitempty&quot; and &quot;omitzero&quot; are specified, the field will be omitted</span>
+<span class="th-token th-comment">// if the value is either empty or zero (or both).</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// The &quot;string&quot; option signals that a field is stored as JSON inside a</span>
+<span class="th-token th-comment">// JSON-encoded string. It applies only to fields of string, floating point,</span>
+<span class="th-token th-comment">// integer, or boolean types. This extra level of encoding is sometimes used</span>
+<span class="th-token th-comment">// when communicating with JavaScript programs:</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">//	Int64String int64 `json:&quot;,string&quot;`</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// The key name will be used if it&#39;s a non-empty string consisting of</span>
+<span class="th-token th-comment">// only Unicode letters, digits, and ASCII punctuation except quotation</span>
+<span class="th-token th-comment">// marks, backslash, and comma.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Embedded struct fields are usually marshaled as if their inner exported fields</span>
+<span class="th-token th-comment">// were fields in the outer struct, subject to the usual Go visibility rules amended</span>
+<span class="th-token th-comment">// as described in the next paragraph.</span>
+<span class="th-token th-comment">// An anonymous struct field with a name given in its JSON tag is treated as</span>
+<span class="th-token th-comment">// having that name, rather than being anonymous.</span>
+<span class="th-token th-comment">// An anonymous struct field of interface type is treated the same as having</span>
+<span class="th-token th-comment">// that type as its name, rather than being anonymous.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// The Go visibility rules for struct fields are amended for JSON when</span>
+<span class="th-token th-comment">// deciding which field to marshal or unmarshal. If there are</span>
+<span class="th-token th-comment">// multiple fields at the same level, and that level is the least</span>
+<span class="th-token th-comment">// nested (and would therefore be the nesting level selected by the</span>
+<span class="th-token th-comment">// usual Go rules), the following extra rules apply:</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// 1) Of those fields, if any are JSON-tagged, only tagged fields are considered,</span>
+<span class="th-token th-comment">// even if there are multiple untagged fields that would otherwise conflict.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// 2) If there is exactly one field (tagged or not according to the first rule), that is selected.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// 3) Otherwise there are multiple fields, and all are ignored; no error occurs.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Handling of anonymous struct fields is new in Go 1.1.</span>
+<span class="th-token th-comment">// Prior to Go 1.1, anonymous struct fields were ignored. To force ignoring of</span>
+<span class="th-token th-comment">// an anonymous struct field in both current and earlier versions, give the field</span>
+<span class="th-token th-comment">// a JSON tag of &quot;-&quot;.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Map values encode as JSON objects. The map&#39;s key type must either be a</span>
+<span class="th-token th-comment">// string, an integer type, or implement [encoding.TextMarshaler]. The map keys</span>
+<span class="th-token th-comment">// are sorted and used as JSON object keys by applying the following rules,</span>
+<span class="th-token th-comment">// subject to the UTF-8 coercion described for string values above:</span>
+<span class="th-token th-comment">//   - keys of any string type are used directly</span>
+<span class="th-token th-comment">//   - keys that implement [encoding.TextMarshaler] are marshaled</span>
+<span class="th-token th-comment">//   - integer keys are converted to strings</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Pointer values encode as the value pointed to.</span>
+<span class="th-token th-comment">// A nil pointer encodes as the null JSON value.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Interface values encode as the value contained in the interface.</span>
+<span class="th-token th-comment">// A nil interface value encodes as the null JSON value.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Channel, complex, and function values cannot be encoded in JSON.</span>
+<span class="th-token th-comment">// Attempting to encode such a value causes Marshal to return</span>
+<span class="th-token th-comment">// an [UnsupportedTypeError].</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// JSON cannot represent cyclic data structures and Marshal does not</span>
+<span class="th-token th-comment">// handle them. Passing cyclic structures to Marshal will result in</span>
+<span class="th-token th-comment">// an error.</span>
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">Marshal</span>(v <span class="th-token th-type">any</span>) ([]<span class="th-token th-type">byte</span>, <span class="th-token th-type">error</span>) {
+	e <span class="th-token th-operator">:=</span> <span class="th-token th-function">newEncodeState</span>()
+	<span class="th-token th-keyword">defer</span> encodeStatePool.<span class="th-token th-function">Put</span>(e)
+
+	err <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">marshal</span>(v, encOpts{escapeHTML: <span class="th-token th-literal">true</span>})
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+		<span class="th-token th-keyword">return</span> <span class="th-token th-literal">nil</span>, err
+	}
+	buf <span class="th-token th-operator">:=</span> <span class="th-token th-function">append</span>([]<span class="th-token th-type">byte</span>(<span class="th-token th-literal">nil</span>), e.<span class="th-token th-function">Bytes</span>()<span class="th-token th-operator">...</span>)
+
+	<span class="th-token th-keyword">return</span> buf, <span class="th-token th-literal">nil</span>
+}
+
+<span class="th-token th-comment">// MarshalIndent is like [Marshal] but applies [Indent] to format the output.</span>
+<span class="th-token th-comment">// Each JSON element in the output will begin on a new line beginning with prefix</span>
+<span class="th-token th-comment">// followed by one or more copies of indent according to the indentation nesting.</span>
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">MarshalIndent</span>(v <span class="th-token th-type">any</span>, prefix, indent <span class="th-token th-type">string</span>) ([]<span class="th-token th-type">byte</span>, <span class="th-token th-type">error</span>) {
+	b, err <span class="th-token th-operator">:=</span> <span class="th-token th-function">Marshal</span>(v)
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+		<span class="th-token th-keyword">return</span> <span class="th-token th-literal">nil</span>, err
+	}
+	b2 <span class="th-token th-operator">:=</span> <span class="th-token th-function">make</span>([]<span class="th-token th-type">byte</span>, <span class="th-token th-number">0</span>, indentGrowthFactor<span class="th-token th-operator">*</span><span class="th-token th-function">len</span>(b))
+	b2, err <span class="th-token th-operator">=</span> <span class="th-token th-function">appendIndent</span>(b2, b, prefix, indent)
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+		<span class="th-token th-keyword">return</span> <span class="th-token th-literal">nil</span>, err
+	}
+	<span class="th-token th-keyword">return</span> b2, <span class="th-token th-literal">nil</span>
+}
+
+<span class="th-token th-comment">// Marshaler is the interface implemented by types that</span>
+<span class="th-token th-comment">// can marshal themselves into valid JSON.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">Marshaler</span> <span class="th-token th-keyword">interface</span> {
+	<span class="th-token th-function">MarshalJSON</span>() ([]<span class="th-token th-type">byte</span>, <span class="th-token th-type">error</span>)
+}
+
+<span class="th-token th-comment">// An UnsupportedTypeError is returned by [Marshal] when attempting</span>
+<span class="th-token th-comment">// to encode an unsupported value type.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">UnsupportedTypeError</span> <span class="th-token th-keyword">struct</span> {
+	Type reflect.<span class="th-token th-property">Type</span>
+}
+
+<span class="th-token th-keyword">func</span> (e <span class="th-token th-operator">*</span>UnsupportedTypeError) <span class="th-token th-function">Error</span>() <span class="th-token th-type">string</span> {
+	<span class="th-token th-keyword">return</span> <span class="th-token th-string">&quot;json: unsupported type: &quot;</span> <span class="th-token th-operator">+</span> e.<span class="th-token th-property">Type</span>.<span class="th-token th-function">String</span>()
+}
+
+<span class="th-token th-comment">// An UnsupportedValueError is returned by [Marshal] when attempting</span>
+<span class="th-token th-comment">// to encode an unsupported value.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">UnsupportedValueError</span> <span class="th-token th-keyword">struct</span> {
+	Value reflect.<span class="th-token th-property">Value</span>
+	Str   <span class="th-token th-type">string</span>
+}
+
+<span class="th-token th-keyword">func</span> (e <span class="th-token th-operator">*</span>UnsupportedValueError) <span class="th-token th-function">Error</span>() <span class="th-token th-type">string</span> {
+	<span class="th-token th-keyword">return</span> <span class="th-token th-string">&quot;json: unsupported value: &quot;</span> <span class="th-token th-operator">+</span> e.<span class="th-token th-property">Str</span>
+}
+
+<span class="th-token th-comment">// Before Go 1.2, an InvalidUTF8Error was returned by [Marshal] when</span>
+<span class="th-token th-comment">// attempting to encode a string value with invalid UTF-8 sequences.</span>
+<span class="th-token th-comment">// As of Go 1.2, [Marshal] instead coerces the string to valid UTF-8 by</span>
+<span class="th-token th-comment">// replacing invalid bytes with the Unicode replacement rune U+FFFD.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Deprecated: No longer used; kept for compatibility.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">InvalidUTF8Error</span> <span class="th-token th-keyword">struct</span> {
+	S <span class="th-token th-type">string</span> <span class="th-token th-comment">// the whole string value that caused the error</span>
+}
+
+<span class="th-token th-keyword">func</span> (e <span class="th-token th-operator">*</span>InvalidUTF8Error) <span class="th-token th-function">Error</span>() <span class="th-token th-type">string</span> {
+	<span class="th-token th-keyword">return</span> <span class="th-token th-string">&quot;json: invalid UTF-8 in string: &quot;</span> <span class="th-token th-operator">+</span> strconv.<span class="th-token th-function">Quote</span>(e.<span class="th-token th-property">S</span>)
+}
+
+<span class="th-token th-comment">// A MarshalerError represents an error from calling a</span>
+<span class="th-token th-comment">// [Marshaler.MarshalJSON] or [encoding.TextMarshaler.MarshalText] method.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">MarshalerError</span> <span class="th-token th-keyword">struct</span> {
+	Type       reflect.<span class="th-token th-property">Type</span>
+	Err        <span class="th-token th-type">error</span>
+	sourceFunc <span class="th-token th-type">string</span>
+}
+
+<span class="th-token th-keyword">func</span> (e <span class="th-token th-operator">*</span>MarshalerError) <span class="th-token th-function">Error</span>() <span class="th-token th-type">string</span> {
+	srcFunc <span class="th-token th-operator">:=</span> e.<span class="th-token th-property">sourceFunc</span>
+	<span class="th-token th-keyword">if</span> srcFunc <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span> {
+		srcFunc <span class="th-token th-operator">=</span> <span class="th-token th-string">&quot;MarshalJSON&quot;</span>
+	}
+	<span class="th-token th-keyword">return</span> <span class="th-token th-string">&quot;json: error calling &quot;</span> <span class="th-token th-operator">+</span> srcFunc <span class="th-token th-operator">+</span>
+		<span class="th-token th-string">&quot; for type &quot;</span> <span class="th-token th-operator">+</span> e.<span class="th-token th-property">Type</span>.<span class="th-token th-function">String</span>() <span class="th-token th-operator">+</span>
+		<span class="th-token th-string">&quot;: &quot;</span> <span class="th-token th-operator">+</span> e.<span class="th-token th-property">Err</span>.<span class="th-token th-function">Error</span>()
+}
+
+<span class="th-token th-comment">// Unwrap returns the underlying error.</span>
+<span class="th-token th-keyword">func</span> (e <span class="th-token th-operator">*</span>MarshalerError) <span class="th-token th-function">Unwrap</span>() <span class="th-token th-type">error</span> { <span class="th-token th-keyword">return</span> e.<span class="th-token th-property">Err</span> }
+
+<span class="th-token th-keyword">const</span> hex <span class="th-token th-operator">=</span> <span class="th-token th-string">&quot;0123456789abcdef&quot;</span>
+
+<span class="th-token th-comment">// An encodeState encodes JSON into a bytes.Buffer.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">encodeState</span> <span class="th-token th-keyword">struct</span> {
+	bytes.<span class="th-token th-property">Buffer</span> <span class="th-token th-comment">// accumulated output</span>
+
+	<span class="th-token th-comment">// Keep track of what pointers we&#39;ve seen in the current recursive call</span>
+	<span class="th-token th-comment">// path, to avoid cycles that could lead to a stack overflow. Only do</span>
+	<span class="th-token th-comment">// the relatively expensive map operations if ptrLevel is larger than</span>
+	<span class="th-token th-comment">// startDetectingCyclesAfter, so that we skip the work if we&#39;re within a</span>
+	<span class="th-token th-comment">// reasonable amount of nested pointers deep.</span>
+	<span class="th-token th-property">ptrLevel</span> <span class="th-token th-type">uint</span>
+	ptrSeen  <span class="th-token th-keyword">map</span>[<span class="th-token th-type">any</span>]<span class="th-token th-keyword">struct</span>{}
+}
+
+<span class="th-token th-keyword">const</span> startDetectingCyclesAfter <span class="th-token th-operator">=</span> <span class="th-token th-number">1000</span>
+
+<span class="th-token th-keyword">var</span> encodeStatePool sync.<span class="th-token th-property">Pool</span>
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">newEncodeState</span>() <span class="th-token th-operator">*</span>encodeState {
+	<span class="th-token th-keyword">if</span> v <span class="th-token th-operator">:=</span> encodeStatePool.<span class="th-token th-function">Get</span>(); v <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+		e <span class="th-token th-operator">:=</span> v.(<span class="th-token th-operator">*</span>encodeState)
+		e.<span class="th-token th-function">Reset</span>()
+		<span class="th-token th-keyword">if</span> <span class="th-token th-function">len</span>(e.<span class="th-token th-property">ptrSeen</span>) <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">0</span> {
+			<span class="th-token th-function">panic</span>(<span class="th-token th-string">&quot;ptrEncoder.encode should have emptied ptrSeen via defers&quot;</span>)
+		}
+		e.<span class="th-token th-property">ptrLevel</span> <span class="th-token th-operator">=</span> <span class="th-token th-number">0</span>
+		<span class="th-token th-keyword">return</span> e
+	}
+	<span class="th-token th-keyword">return</span> <span class="th-token th-operator">&amp;</span>encodeState{ptrSeen: <span class="th-token th-function">make</span>(<span class="th-token th-keyword">map</span>[<span class="th-token th-type">any</span>]<span class="th-token th-keyword">struct</span>{})}
+}
+
+<span class="th-token th-comment">// jsonError is an error wrapper type for internal use only.</span>
+<span class="th-token th-comment">// Panics with errors are wrapped in jsonError so that the top-level recover</span>
+<span class="th-token th-comment">// can distinguish intentional panics from this package.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">jsonError</span> <span class="th-token th-keyword">struct</span>{ <span class="th-token th-type">error</span> }
+
+<span class="th-token th-keyword">func</span> (e <span class="th-token th-operator">*</span>encodeState) <span class="th-token th-function">marshal</span>(v <span class="th-token th-type">any</span>, opts encOpts) (err <span class="th-token th-type">error</span>) {
+	<span class="th-token th-keyword">defer</span> <span class="th-token th-keyword">func</span>() {
+		<span class="th-token th-keyword">if</span> r <span class="th-token th-operator">:=</span> <span class="th-token th-function">recover</span>(); r <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+			<span class="th-token th-keyword">if</span> je, ok <span class="th-token th-operator">:=</span> r.(jsonError); ok {
+				err <span class="th-token th-operator">=</span> je.<span class="th-token th-type">error</span>
+			} <span class="th-token th-keyword">else</span> {
+				<span class="th-token th-function">panic</span>(r)
+			}
+		}
+	}()
+	e.<span class="th-token th-function">reflectValue</span>(reflect.<span class="th-token th-function">ValueOf</span>(v), opts)
+	<span class="th-token th-keyword">return</span> <span class="th-token th-literal">nil</span>
+}
+
+<span class="th-token th-comment">// error aborts the encoding by panicking with err wrapped in jsonError.</span>
+<span class="th-token th-keyword">func</span> (e <span class="th-token th-operator">*</span>encodeState) <span class="th-token th-type">error</span>(err <span class="th-token th-type">error</span>) {
+	<span class="th-token th-function">panic</span>(jsonError{err})
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">isEmptyValue</span>(v reflect.<span class="th-token th-property">Value</span>) <span class="th-token th-type">bool</span> {
+	<span class="th-token th-keyword">switch</span> v.<span class="th-token th-function">Kind</span>() {
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Array</span>, reflect.<span class="th-token th-property">Map</span>, reflect.<span class="th-token th-property">Slice</span>, reflect.<span class="th-token th-property">String</span>:
+		<span class="th-token th-keyword">return</span> v.<span class="th-token th-function">Len</span>() <span class="th-token th-operator">==</span> <span class="th-token th-number">0</span>
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Bool</span>,
+		reflect.<span class="th-token th-property">Int</span>, reflect.<span class="th-token th-property">Int8</span>, reflect.<span class="th-token th-property">Int16</span>, reflect.<span class="th-token th-property">Int32</span>, reflect.<span class="th-token th-property">Int64</span>,
+		reflect.<span class="th-token th-property">Uint</span>, reflect.<span class="th-token th-property">Uint8</span>, reflect.<span class="th-token th-property">Uint16</span>, reflect.<span class="th-token th-property">Uint32</span>, reflect.<span class="th-token th-property">Uint64</span>, reflect.<span class="th-token th-property">Uintptr</span>,
+		reflect.<span class="th-token th-property">Float32</span>, reflect.<span class="th-token th-property">Float64</span>,
+		reflect.<span class="th-token th-property">Interface</span>, reflect.<span class="th-token th-property">Pointer</span>:
+		<span class="th-token th-keyword">return</span> v.<span class="th-token th-function">IsZero</span>()
+	}
+	<span class="th-token th-keyword">return</span> <span class="th-token th-literal">false</span>
+}
+
+<span class="th-token th-keyword">func</span> (e <span class="th-token th-operator">*</span>encodeState) <span class="th-token th-function">reflectValue</span>(v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-function">valueEncoder</span>(v)(e, v, opts)
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">encOpts</span> <span class="th-token th-keyword">struct</span> {
+	<span class="th-token th-comment">// quoted causes primitive fields to be encoded inside JSON strings.</span>
+	<span class="th-token th-property">quoted</span> <span class="th-token th-type">bool</span>
+	<span class="th-token th-comment">// escapeHTML causes &#39;&lt;&#39;, &#39;&gt;&#39;, and &#39;&amp;&#39; to be escaped in JSON strings.</span>
+	<span class="th-token th-property">escapeHTML</span> <span class="th-token th-type">bool</span>
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">encoderFunc</span> <span class="th-token th-keyword">func</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts)
+
+<span class="th-token th-keyword">var</span> encoderCache sync.<span class="th-token th-property">Map</span> <span class="th-token th-comment">// map[reflect.Type]encoderFunc</span>
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">valueEncoder</span>(v reflect.<span class="th-token th-property">Value</span>) encoderFunc {
+	<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span>v.<span class="th-token th-function">IsValid</span>() {
+		<span class="th-token th-keyword">return</span> invalidValueEncoder
+	}
+	<span class="th-token th-keyword">return</span> <span class="th-token th-function">typeEncoder</span>(v.<span class="th-token th-function">Type</span>())
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">typeEncoder</span>(t reflect.<span class="th-token th-property">Type</span>) encoderFunc {
+	<span class="th-token th-keyword">if</span> fi, ok <span class="th-token th-operator">:=</span> encoderCache.<span class="th-token th-function">Load</span>(t); ok {
+		<span class="th-token th-keyword">return</span> fi.(encoderFunc)
+	}
+
+	<span class="th-token th-comment">// To deal with recursive types, populate the map with an</span>
+	<span class="th-token th-comment">// indirect func before we build it. This type waits on the</span>
+	<span class="th-token th-comment">// real func (f) to be ready and then calls it. This indirect</span>
+	<span class="th-token th-comment">// func is only used for recursive types.</span>
+	<span class="th-token th-keyword">var</span> (
+		wg sync.<span class="th-token th-property">WaitGroup</span>
+		f  encoderFunc
+	)
+	wg.<span class="th-token th-function">Add</span>(<span class="th-token th-number">1</span>)
+	fi, loaded <span class="th-token th-operator">:=</span> encoderCache.<span class="th-token th-function">LoadOrStore</span>(t, <span class="th-token th-function">encoderFunc</span>(<span class="th-token th-keyword">func</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+		wg.<span class="th-token th-function">Wait</span>()
+		<span class="th-token th-function">f</span>(e, v, opts)
+	}))
+	<span class="th-token th-keyword">if</span> loaded {
+		<span class="th-token th-keyword">return</span> fi.(encoderFunc)
+	}
+
+	<span class="th-token th-comment">// Compute the real encoder and replace the indirect func with it.</span>
+	<span class="th-token th-property">f</span> <span class="th-token th-operator">=</span> <span class="th-token th-function">newTypeEncoder</span>(t, <span class="th-token th-literal">true</span>)
+	wg.<span class="th-token th-function">Done</span>()
+	encoderCache.<span class="th-token th-function">Store</span>(t, f)
+	<span class="th-token th-keyword">return</span> f
+}
+
+<span class="th-token th-keyword">var</span> (
+	marshalerType     <span class="th-token th-operator">=</span> reflect.<span class="th-token th-property">TypeFor</span>[Marshaler]()
+	textMarshalerType <span class="th-token th-operator">=</span> reflect.<span class="th-token th-property">TypeFor</span>[encoding.<span class="th-token th-property">TextMarshaler</span>]()
+)
+
+<span class="th-token th-comment">// newTypeEncoder constructs an encoderFunc for a type.</span>
+<span class="th-token th-comment">// The returned encoder only checks CanAddr when allowAddr is true.</span>
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">newTypeEncoder</span>(t reflect.<span class="th-token th-property">Type</span>, allowAddr <span class="th-token th-type">bool</span>) encoderFunc {
+	<span class="th-token th-comment">// If we have a non-pointer value whose type implements</span>
+	<span class="th-token th-comment">// Marshaler with a value receiver, then we&#39;re better off taking</span>
+	<span class="th-token th-comment">// the address of the value - otherwise we end up with an</span>
+	<span class="th-token th-comment">// allocation as we cast the value to an interface.</span>
+	<span class="th-token th-keyword">if</span> t.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">!=</span> reflect.<span class="th-token th-property">Pointer</span> <span class="th-token th-operator">&amp;&amp;</span> allowAddr <span class="th-token th-operator">&amp;&amp;</span> reflect.<span class="th-token th-function">PointerTo</span>(t).<span class="th-token th-function">Implements</span>(marshalerType) {
+		<span class="th-token th-keyword">return</span> <span class="th-token th-function">newCondAddrEncoder</span>(addrMarshalerEncoder, <span class="th-token th-function">newTypeEncoder</span>(t, <span class="th-token th-literal">false</span>))
+	}
+	<span class="th-token th-keyword">if</span> t.<span class="th-token th-function">Implements</span>(marshalerType) {
+		<span class="th-token th-keyword">return</span> marshalerEncoder
+	}
+	<span class="th-token th-keyword">if</span> t.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">!=</span> reflect.<span class="th-token th-property">Pointer</span> <span class="th-token th-operator">&amp;&amp;</span> allowAddr <span class="th-token th-operator">&amp;&amp;</span> reflect.<span class="th-token th-function">PointerTo</span>(t).<span class="th-token th-function">Implements</span>(textMarshalerType) {
+		<span class="th-token th-keyword">return</span> <span class="th-token th-function">newCondAddrEncoder</span>(addrTextMarshalerEncoder, <span class="th-token th-function">newTypeEncoder</span>(t, <span class="th-token th-literal">false</span>))
+	}
+	<span class="th-token th-keyword">if</span> t.<span class="th-token th-function">Implements</span>(textMarshalerType) {
+		<span class="th-token th-keyword">return</span> textMarshalerEncoder
+	}
+
+	<span class="th-token th-keyword">switch</span> t.<span class="th-token th-function">Kind</span>() {
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Bool</span>:
+		<span class="th-token th-keyword">return</span> boolEncoder
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Int</span>, reflect.<span class="th-token th-property">Int8</span>, reflect.<span class="th-token th-property">Int16</span>, reflect.<span class="th-token th-property">Int32</span>, reflect.<span class="th-token th-property">Int64</span>:
+		<span class="th-token th-keyword">return</span> intEncoder
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Uint</span>, reflect.<span class="th-token th-property">Uint8</span>, reflect.<span class="th-token th-property">Uint16</span>, reflect.<span class="th-token th-property">Uint32</span>, reflect.<span class="th-token th-property">Uint64</span>, reflect.<span class="th-token th-property">Uintptr</span>:
+		<span class="th-token th-keyword">return</span> uintEncoder
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Float32</span>:
+		<span class="th-token th-keyword">return</span> float32Encoder
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Float64</span>:
+		<span class="th-token th-keyword">return</span> float64Encoder
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">String</span>:
+		<span class="th-token th-keyword">return</span> stringEncoder
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Interface</span>:
+		<span class="th-token th-keyword">return</span> interfaceEncoder
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Struct</span>:
+		<span class="th-token th-keyword">return</span> <span class="th-token th-function">newStructEncoder</span>(t)
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Map</span>:
+		<span class="th-token th-keyword">return</span> <span class="th-token th-function">newMapEncoder</span>(t)
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Slice</span>:
+		<span class="th-token th-keyword">return</span> <span class="th-token th-function">newSliceEncoder</span>(t)
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Array</span>:
+		<span class="th-token th-keyword">return</span> <span class="th-token th-function">newArrayEncoder</span>(t)
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Pointer</span>:
+		<span class="th-token th-keyword">return</span> <span class="th-token th-function">newPtrEncoder</span>(t)
+	<span class="th-token th-keyword">default</span>:
+		<span class="th-token th-keyword">return</span> unsupportedTypeEncoder
+	}
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">invalidValueEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, _ encOpts) {
+	e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">marshalerEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> <span class="th-token th-operator">&amp;&amp;</span> v.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	m, ok <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">Interface</span>().(Marshaler)
+	<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span>ok {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	b, err <span class="th-token th-operator">:=</span> m.<span class="th-token th-function">MarshalJSON</span>()
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">==</span> <span class="th-token th-literal">nil</span> {
+		e.<span class="th-token th-function">Grow</span>(<span class="th-token th-function">len</span>(b))
+		out <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">AvailableBuffer</span>()
+		out, err <span class="th-token th-operator">=</span> <span class="th-token th-function">appendCompact</span>(out, b, opts.<span class="th-token th-property">escapeHTML</span>)
+		e.<span class="th-token th-property">Buffer</span>.<span class="th-token th-function">Write</span>(out)
+	}
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+		e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>MarshalerError{v.<span class="th-token th-function">Type</span>(), err, <span class="th-token th-string">&quot;MarshalJSON&quot;</span>})
+	}
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">addrMarshalerEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	va <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">Addr</span>()
+	<span class="th-token th-keyword">if</span> va.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	m <span class="th-token th-operator">:=</span> va.<span class="th-token th-function">Interface</span>().(Marshaler)
+	b, err <span class="th-token th-operator">:=</span> m.<span class="th-token th-function">MarshalJSON</span>()
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">==</span> <span class="th-token th-literal">nil</span> {
+		e.<span class="th-token th-function">Grow</span>(<span class="th-token th-function">len</span>(b))
+		out <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">AvailableBuffer</span>()
+		out, err <span class="th-token th-operator">=</span> <span class="th-token th-function">appendCompact</span>(out, b, opts.<span class="th-token th-property">escapeHTML</span>)
+		e.<span class="th-token th-property">Buffer</span>.<span class="th-token th-function">Write</span>(out)
+	}
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+		e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>MarshalerError{v.<span class="th-token th-function">Type</span>(), err, <span class="th-token th-string">&quot;MarshalJSON&quot;</span>})
+	}
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">textMarshalerEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> <span class="th-token th-operator">&amp;&amp;</span> v.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	m, ok <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">Interface</span>().(encoding.<span class="th-token th-property">TextMarshaler</span>)
+	<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span>ok {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	b, err <span class="th-token th-operator">:=</span> m.<span class="th-token th-function">MarshalText</span>()
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+		e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>MarshalerError{v.<span class="th-token th-function">Type</span>(), err, <span class="th-token th-string">&quot;MarshalText&quot;</span>})
+	}
+	e.<span class="th-token th-function">Write</span>(<span class="th-token th-function">appendString</span>(e.<span class="th-token th-function">AvailableBuffer</span>(), b, opts.<span class="th-token th-property">escapeHTML</span>))
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">addrTextMarshalerEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	va <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">Addr</span>()
+	<span class="th-token th-keyword">if</span> va.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	m <span class="th-token th-operator">:=</span> va.<span class="th-token th-function">Interface</span>().(encoding.<span class="th-token th-property">TextMarshaler</span>)
+	b, err <span class="th-token th-operator">:=</span> m.<span class="th-token th-function">MarshalText</span>()
+	<span class="th-token th-keyword">if</span> err <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+		e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>MarshalerError{v.<span class="th-token th-function">Type</span>(), err, <span class="th-token th-string">&quot;MarshalText&quot;</span>})
+	}
+	e.<span class="th-token th-function">Write</span>(<span class="th-token th-function">appendString</span>(e.<span class="th-token th-function">AvailableBuffer</span>(), b, opts.<span class="th-token th-property">escapeHTML</span>))
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">boolEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	b <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">AvailableBuffer</span>()
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+	b <span class="th-token th-operator">=</span> strconv.<span class="th-token th-function">AppendBool</span>(b, v.<span class="th-token th-function">Bool</span>())
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+	e.<span class="th-token th-function">Write</span>(b)
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">intEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	b <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">AvailableBuffer</span>()
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+	b <span class="th-token th-operator">=</span> strconv.<span class="th-token th-function">AppendInt</span>(b, v.<span class="th-token th-function">Int</span>(), <span class="th-token th-number">10</span>)
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+	e.<span class="th-token th-function">Write</span>(b)
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">uintEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	b <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">AvailableBuffer</span>()
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+	b <span class="th-token th-operator">=</span> strconv.<span class="th-token th-function">AppendUint</span>(b, v.<span class="th-token th-function">Uint</span>(), <span class="th-token th-number">10</span>)
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+	e.<span class="th-token th-function">Write</span>(b)
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">floatEncoder</span> <span class="th-token th-type">int</span> <span class="th-token th-comment">// number of bits</span>
+
+<span class="th-token th-keyword">func</span> (bits floatEncoder) <span class="th-token th-function">encode</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	f <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">Float</span>()
+	<span class="th-token th-keyword">if</span> math.<span class="th-token th-function">IsInf</span>(f, <span class="th-token th-number">0</span>) <span class="th-token th-operator">||</span> math.<span class="th-token th-function">IsNaN</span>(f) {
+		e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>UnsupportedValueError{v, strconv.<span class="th-token th-function">FormatFloat</span>(f, <span class="th-token th-string">&#39;g&#39;</span>, <span class="th-token th-operator">-</span><span class="th-token th-number">1</span>, <span class="th-token th-type">int</span>(bits))})
+	}
+
+	<span class="th-token th-comment">// Convert as if by ES6 number to string conversion.</span>
+	<span class="th-token th-comment">// This matches most other JSON generators.</span>
+	<span class="th-token th-comment">// See golang.org/issue/6384 and golang.org/issue/14135.</span>
+	<span class="th-token th-comment">// Like fmt %g, but the exponent cutoffs are different</span>
+	<span class="th-token th-comment">// and exponents themselves are not padded to two digits.</span>
+	<span class="th-token th-property">b</span> <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">AvailableBuffer</span>()
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+	abs <span class="th-token th-operator">:=</span> math.<span class="th-token th-function">Abs</span>(f)
+	fmt <span class="th-token th-operator">:=</span> <span class="th-token th-type">byte</span>(<span class="th-token th-string">&#39;f&#39;</span>)
+	<span class="th-token th-comment">// Note: Must use float32 comparisons for underlying float32 value to get precise cutoffs right.</span>
+	<span class="th-token th-keyword">if</span> abs <span class="th-token th-operator">!=</span> <span class="th-token th-number">0</span> {
+		<span class="th-token th-keyword">if</span> bits <span class="th-token th-operator">==</span> <span class="th-token th-number">64</span> <span class="th-token th-operator">&amp;&amp;</span> (abs <span class="th-token th-operator">&lt;</span> <span class="th-token th-number">1e-6</span> <span class="th-token th-operator">||</span> abs <span class="th-token th-operator">&gt;=</span> <span class="th-token th-number">1e21</span>) <span class="th-token th-operator">||</span> bits <span class="th-token th-operator">==</span> <span class="th-token th-number">32</span> <span class="th-token th-operator">&amp;&amp;</span> (<span class="th-token th-type">float32</span>(abs) <span class="th-token th-operator">&lt;</span> <span class="th-token th-number">1e-6</span> <span class="th-token th-operator">||</span> <span class="th-token th-type">float32</span>(abs) <span class="th-token th-operator">&gt;=</span> <span class="th-token th-number">1e21</span>) {
+			fmt <span class="th-token th-operator">=</span> <span class="th-token th-string">&#39;e&#39;</span>
+		}
+	}
+	b <span class="th-token th-operator">=</span> strconv.<span class="th-token th-function">AppendFloat</span>(b, f, fmt, <span class="th-token th-operator">-</span><span class="th-token th-number">1</span>, <span class="th-token th-type">int</span>(bits))
+	<span class="th-token th-keyword">if</span> fmt <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;e&#39;</span> {
+		<span class="th-token th-comment">// clean up e-09 to e-9</span>
+		n <span class="th-token th-operator">:=</span> <span class="th-token th-function">len</span>(b)
+		<span class="th-token th-keyword">if</span> n <span class="th-token th-operator">&gt;=</span> <span class="th-token th-number">4</span> <span class="th-token th-operator">&amp;&amp;</span> b[n<span class="th-token th-operator">-</span><span class="th-token th-number">4</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;e&#39;</span> <span class="th-token th-operator">&amp;&amp;</span> b[n<span class="th-token th-operator">-</span><span class="th-token th-number">3</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;-&#39;</span> <span class="th-token th-operator">&amp;&amp;</span> b[n<span class="th-token th-operator">-</span><span class="th-token th-number">2</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;0&#39;</span> {
+			b[n<span class="th-token th-operator">-</span><span class="th-token th-number">2</span>] <span class="th-token th-operator">=</span> b[n<span class="th-token th-operator">-</span><span class="th-token th-number">1</span>]
+			b <span class="th-token th-operator">=</span> b[:n<span class="th-token th-operator">-</span><span class="th-token th-number">1</span>]
+		}
+	}
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+	e.<span class="th-token th-function">Write</span>(b)
+}
+
+<span class="th-token th-keyword">var</span> (
+	float32Encoder <span class="th-token th-operator">=</span> (<span class="th-token th-function">floatEncoder</span>(<span class="th-token th-number">32</span>)).<span class="th-token th-property">encode</span>
+	float64Encoder <span class="th-token th-operator">=</span> (<span class="th-token th-function">floatEncoder</span>(<span class="th-token th-number">64</span>)).<span class="th-token th-property">encode</span>
+)
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">stringEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">Type</span>() <span class="th-token th-operator">==</span> numberType {
+		numStr <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">String</span>()
+		<span class="th-token th-comment">// In Go1.5 the empty string encodes to &quot;0&quot;, while this is not a valid number literal</span>
+		<span class="th-token th-comment">// we keep compatibility so check validity after this.</span>
+		<span class="th-token th-keyword">if</span> numStr <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span> {
+			numStr <span class="th-token th-operator">=</span> <span class="th-token th-string">&quot;0&quot;</span> <span class="th-token th-comment">// Number&#39;s zero-val</span>
+		}
+		<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span><span class="th-token th-function">isValidNumber</span>(numStr) {
+			e.<span class="th-token th-type">error</span>(fmt.<span class="th-token th-function">Errorf</span>(<span class="th-token th-string">&quot;json: invalid number literal %q&quot;</span>, numStr))
+		}
+		b <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">AvailableBuffer</span>()
+		b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+		b <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(b, numStr<span class="th-token th-operator">...</span>)
+		b <span class="th-token th-operator">=</span> <span class="th-token th-function">mayAppendQuote</span>(b, opts.<span class="th-token th-property">quoted</span>)
+		e.<span class="th-token th-function">Write</span>(b)
+		<span class="th-token th-keyword">return</span>
+	}
+	<span class="th-token th-keyword">if</span> opts.<span class="th-token th-property">quoted</span> {
+		b <span class="th-token th-operator">:=</span> <span class="th-token th-function">appendString</span>(<span class="th-token th-literal">nil</span>, v.<span class="th-token th-function">String</span>(), opts.<span class="th-token th-property">escapeHTML</span>)
+		e.<span class="th-token th-function">Write</span>(<span class="th-token th-function">appendString</span>(e.<span class="th-token th-function">AvailableBuffer</span>(), b, <span class="th-token th-literal">false</span>)) <span class="th-token th-comment">// no need to escape again since it is already escaped</span>
+	} <span class="th-token th-keyword">else</span> {
+		e.<span class="th-token th-function">Write</span>(<span class="th-token th-function">appendString</span>(e.<span class="th-token th-function">AvailableBuffer</span>(), v.<span class="th-token th-function">String</span>(), opts.<span class="th-token th-property">escapeHTML</span>))
+	}
+}
+
+<span class="th-token th-comment">// isValidNumber reports whether s is a valid JSON number literal.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// isValidNumber should be an internal detail,</span>
+<span class="th-token th-comment">// but widely used packages access it using linkname.</span>
+<span class="th-token th-comment">// Notable members of the hall of shame include:</span>
+<span class="th-token th-comment">//   - github.com/bytedance/sonic</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Do not remove or change the type signature.</span>
+<span class="th-token th-comment">// See go.dev/issue/67401.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">//go:linkname isValidNumber</span>
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">isValidNumber</span>(s <span class="th-token th-type">string</span>) <span class="th-token th-type">bool</span> {
+	<span class="th-token th-comment">// This function implements the JSON numbers grammar.</span>
+	<span class="th-token th-comment">// See https://tools.ietf.org/html/rfc7159#section-6</span>
+	<span class="th-token th-comment">// and https://www.json.org/img/number.png</span>
+
+	<span class="th-token th-keyword">if</span> s <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span> {
+		<span class="th-token th-keyword">return</span> <span class="th-token th-literal">false</span>
+	}
+
+	<span class="th-token th-comment">// Optional -</span>
+	<span class="th-token th-keyword">if</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;-&#39;</span> {
+		s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">1</span>:]
+		<span class="th-token th-keyword">if</span> s <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span> {
+			<span class="th-token th-keyword">return</span> <span class="th-token th-literal">false</span>
+		}
+	}
+
+	<span class="th-token th-comment">// Digits</span>
+	<span class="th-token th-keyword">switch</span> {
+	<span class="th-token th-keyword">default</span>:
+		<span class="th-token th-keyword">return</span> <span class="th-token th-literal">false</span>
+
+	<span class="th-token th-keyword">case</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;0&#39;</span>:
+		s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">1</span>:]
+
+	<span class="th-token th-keyword">case</span> <span class="th-token th-string">&#39;1&#39;</span> <span class="th-token th-operator">&lt;=</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">&amp;&amp;</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">&lt;=</span> <span class="th-token th-string">&#39;9&#39;</span>:
+		s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">1</span>:]
+		<span class="th-token th-keyword">for</span> <span class="th-token th-function">len</span>(s) <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">0</span> <span class="th-token th-operator">&amp;&amp;</span> <span class="th-token th-string">&#39;0&#39;</span> <span class="th-token th-operator">&lt;=</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">&amp;&amp;</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">&lt;=</span> <span class="th-token th-string">&#39;9&#39;</span> {
+			s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">1</span>:]
+		}
+	}
+
+	<span class="th-token th-comment">// . followed by 1 or more digits.</span>
+	<span class="th-token th-keyword">if</span> <span class="th-token th-function">len</span>(s) <span class="th-token th-operator">&gt;=</span> <span class="th-token th-number">2</span> <span class="th-token th-operator">&amp;&amp;</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;.&#39;</span> <span class="th-token th-operator">&amp;&amp;</span> <span class="th-token th-string">&#39;0&#39;</span> <span class="th-token th-operator">&lt;=</span> s[<span class="th-token th-number">1</span>] <span class="th-token th-operator">&amp;&amp;</span> s[<span class="th-token th-number">1</span>] <span class="th-token th-operator">&lt;=</span> <span class="th-token th-string">&#39;9&#39;</span> {
+		s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">2</span>:]
+		<span class="th-token th-keyword">for</span> <span class="th-token th-function">len</span>(s) <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">0</span> <span class="th-token th-operator">&amp;&amp;</span> <span class="th-token th-string">&#39;0&#39;</span> <span class="th-token th-operator">&lt;=</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">&amp;&amp;</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">&lt;=</span> <span class="th-token th-string">&#39;9&#39;</span> {
+			s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">1</span>:]
+		}
+	}
+
+	<span class="th-token th-comment">// e or E followed by an optional - or + and</span>
+	<span class="th-token th-comment">// 1 or more digits.</span>
+	<span class="th-token th-keyword">if</span> <span class="th-token th-function">len</span>(s) <span class="th-token th-operator">&gt;=</span> <span class="th-token th-number">2</span> <span class="th-token th-operator">&amp;&amp;</span> (s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;e&#39;</span> <span class="th-token th-operator">||</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;E&#39;</span>) {
+		s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">1</span>:]
+		<span class="th-token th-keyword">if</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;+&#39;</span> <span class="th-token th-operator">||</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;-&#39;</span> {
+			s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">1</span>:]
+			<span class="th-token th-keyword">if</span> s <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span> {
+				<span class="th-token th-keyword">return</span> <span class="th-token th-literal">false</span>
+			}
+		}
+		<span class="th-token th-keyword">for</span> <span class="th-token th-function">len</span>(s) <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">0</span> <span class="th-token th-operator">&amp;&amp;</span> <span class="th-token th-string">&#39;0&#39;</span> <span class="th-token th-operator">&lt;=</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">&amp;&amp;</span> s[<span class="th-token th-number">0</span>] <span class="th-token th-operator">&lt;=</span> <span class="th-token th-string">&#39;9&#39;</span> {
+			s <span class="th-token th-operator">=</span> s[<span class="th-token th-number">1</span>:]
+		}
+	}
+
+	<span class="th-token th-comment">// Make sure we are at the end.</span>
+	<span class="th-token th-keyword">return</span> s <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span>
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">interfaceEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	e.<span class="th-token th-function">reflectValue</span>(v.<span class="th-token th-function">Elem</span>(), opts)
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">unsupportedTypeEncoder</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, _ encOpts) {
+	e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>UnsupportedTypeError{v.<span class="th-token th-function">Type</span>()})
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">structEncoder</span> <span class="th-token th-keyword">struct</span> {
+	fields structFields
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">structFields</span> <span class="th-token th-keyword">struct</span> {
+	list         []field
+	byExactName  <span class="th-token th-keyword">map</span>[<span class="th-token th-type">string</span>]<span class="th-token th-operator">*</span>field
+	byFoldedName <span class="th-token th-keyword">map</span>[<span class="th-token th-type">string</span>]<span class="th-token th-operator">*</span>field
+}
+
+<span class="th-token th-keyword">func</span> (se structEncoder) <span class="th-token th-function">encode</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	next <span class="th-token th-operator">:=</span> <span class="th-token th-type">byte</span>(<span class="th-token th-string">&#39;{&#39;</span>)
+FieldLoop:
+	<span class="th-token th-keyword">for</span> i <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">range</span> se.<span class="th-token th-property">fields</span>.<span class="th-token th-property">list</span> {
+		f <span class="th-token th-operator">:=</span> <span class="th-token th-operator">&amp;</span>se.<span class="th-token th-property">fields</span>.<span class="th-token th-property">list</span>[i]
+
+		<span class="th-token th-comment">// Find the nested struct field by following f.index.</span>
+		<span class="th-token th-property">fv</span> <span class="th-token th-operator">:=</span> v
+		<span class="th-token th-keyword">for</span> _, i <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">range</span> f.<span class="th-token th-property">index</span> {
+			<span class="th-token th-keyword">if</span> fv.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> {
+				<span class="th-token th-keyword">if</span> fv.<span class="th-token th-function">IsNil</span>() {
+					<span class="th-token th-keyword">continue</span> FieldLoop
+				}
+				fv <span class="th-token th-operator">=</span> fv.<span class="th-token th-function">Elem</span>()
+			}
+			fv <span class="th-token th-operator">=</span> fv.<span class="th-token th-function">Field</span>(i)
+		}
+
+		<span class="th-token th-keyword">if</span> (f.<span class="th-token th-property">omitEmpty</span> <span class="th-token th-operator">&amp;&amp;</span> <span class="th-token th-function">isEmptyValue</span>(fv)) <span class="th-token th-operator">||</span>
+			(f.<span class="th-token th-property">omitZero</span> <span class="th-token th-operator">&amp;&amp;</span> (f.<span class="th-token th-property">isZero</span> <span class="th-token th-operator">==</span> <span class="th-token th-literal">nil</span> <span class="th-token th-operator">&amp;&amp;</span> fv.<span class="th-token th-function">IsZero</span>() <span class="th-token th-operator">||</span> (f.<span class="th-token th-property">isZero</span> <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> <span class="th-token th-operator">&amp;&amp;</span> f.<span class="th-token th-function">isZero</span>(fv)))) {
+			<span class="th-token th-keyword">continue</span>
+		}
+		e.<span class="th-token th-function">WriteByte</span>(next)
+		next <span class="th-token th-operator">=</span> <span class="th-token th-string">&#39;,&#39;</span>
+		<span class="th-token th-keyword">if</span> opts.<span class="th-token th-property">escapeHTML</span> {
+			e.<span class="th-token th-function">WriteString</span>(f.<span class="th-token th-property">nameEscHTML</span>)
+		} <span class="th-token th-keyword">else</span> {
+			e.<span class="th-token th-function">WriteString</span>(f.<span class="th-token th-property">nameNonEsc</span>)
+		}
+		opts.<span class="th-token th-property">quoted</span> <span class="th-token th-operator">=</span> f.<span class="th-token th-property">quoted</span>
+		f.<span class="th-token th-function">encoder</span>(e, fv, opts)
+	}
+	<span class="th-token th-keyword">if</span> next <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;{&#39;</span> {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;{}&quot;</span>)
+	} <span class="th-token th-keyword">else</span> {
+		e.<span class="th-token th-function">WriteByte</span>(<span class="th-token th-string">&#39;}&#39;</span>)
+	}
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">newStructEncoder</span>(t reflect.<span class="th-token th-property">Type</span>) encoderFunc {
+	se <span class="th-token th-operator">:=</span> structEncoder{fields: <span class="th-token th-function">cachedTypeFields</span>(t)}
+	<span class="th-token th-keyword">return</span> se.<span class="th-token th-property">encode</span>
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">mapEncoder</span> <span class="th-token th-keyword">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="th-token th-keyword">func</span> (me mapEncoder) <span class="th-token th-function">encode</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	<span class="th-token th-keyword">if</span> e.<span class="th-token th-property">ptrLevel</span><span class="th-token th-operator">++</span>; e.<span class="th-token th-property">ptrLevel</span> <span class="th-token th-operator">&gt;</span> startDetectingCyclesAfter {
+		<span class="th-token th-comment">// We&#39;re a large number of nested ptrEncoder.encode calls deep;</span>
+		<span class="th-token th-comment">// start checking if we&#39;ve run into a pointer cycle.</span>
+		<span class="th-token th-property">ptr</span> <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">UnsafePointer</span>()
+		<span class="th-token th-keyword">if</span> _, ok <span class="th-token th-operator">:=</span> e.<span class="th-token th-property">ptrSeen</span>[ptr]; ok {
+			e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>UnsupportedValueError{v, fmt.<span class="th-token th-function">Sprintf</span>(<span class="th-token th-string">&quot;encountered a cycle via %s&quot;</span>, v.<span class="th-token th-function">Type</span>())})
+		}
+		e.<span class="th-token th-property">ptrSeen</span>[ptr] <span class="th-token th-operator">=</span> <span class="th-token th-keyword">struct</span>{}{}
+		<span class="th-token th-keyword">defer</span> <span class="th-token th-function">delete</span>(e.<span class="th-token th-property">ptrSeen</span>, ptr)
+	}
+	e.<span class="th-token th-function">WriteByte</span>(<span class="th-token th-string">&#39;{&#39;</span>)
+
+	<span class="th-token th-comment">// Extract and sort the keys.</span>
+	<span class="th-token th-keyword">var</span> (
+		sv  <span class="th-token th-operator">=</span> <span class="th-token th-function">make</span>([]reflectWithString, v.<span class="th-token th-function">Len</span>())
+		mi  <span class="th-token th-operator">=</span> v.<span class="th-token th-function">MapRange</span>()
+		err <span class="th-token th-type">error</span>
+	)
+	<span class="th-token th-keyword">for</span> i <span class="th-token th-operator">:=</span> <span class="th-token th-number">0</span>; mi.<span class="th-token th-function">Next</span>(); i<span class="th-token th-operator">++</span> {
+		<span class="th-token th-keyword">if</span> sv[i].<span class="th-token th-property">ks</span>, err <span class="th-token th-operator">=</span> <span class="th-token th-function">resolveKeyName</span>(mi.<span class="th-token th-function">Key</span>()); err <span class="th-token th-operator">!=</span> <span class="th-token th-literal">nil</span> {
+			e.<span class="th-token th-type">error</span>(fmt.<span class="th-token th-function">Errorf</span>(<span class="th-token th-string">&quot;json: encoding error for type %q: %q&quot;</span>, v.<span class="th-token th-function">Type</span>().<span class="th-token th-function">String</span>(), err.<span class="th-token th-function">Error</span>()))
+		}
+		sv[i].<span class="th-token th-property">v</span> <span class="th-token th-operator">=</span> mi.<span class="th-token th-function">Value</span>()
+	}
+	slices.<span class="th-token th-function">SortFunc</span>(sv, <span class="th-token th-keyword">func</span>(i, j reflectWithString) <span class="th-token th-type">int</span> {
+		<span class="th-token th-keyword">return</span> strings.<span class="th-token th-function">Compare</span>(i.<span class="th-token th-property">ks</span>, j.<span class="th-token th-property">ks</span>)
+	})
+
+	<span class="th-token th-keyword">for</span> i, kv <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">range</span> sv {
+		<span class="th-token th-keyword">if</span> i <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">0</span> {
+			e.<span class="th-token th-function">WriteByte</span>(<span class="th-token th-string">&#39;,&#39;</span>)
+		}
+		e.<span class="th-token th-function">Write</span>(<span class="th-token th-function">appendString</span>(e.<span class="th-token th-function">AvailableBuffer</span>(), kv.<span class="th-token th-property">ks</span>, opts.<span class="th-token th-property">escapeHTML</span>))
+		e.<span class="th-token th-function">WriteByte</span>(<span class="th-token th-string">&#39;:&#39;</span>)
+		me.<span class="th-token th-function">elemEnc</span>(e, kv.<span class="th-token th-property">v</span>, opts)
+	}
+	e.<span class="th-token th-function">WriteByte</span>(<span class="th-token th-string">&#39;}&#39;</span>)
+	e.<span class="th-token th-property">ptrLevel</span><span class="th-token th-operator">--</span>
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">newMapEncoder</span>(t reflect.<span class="th-token th-property">Type</span>) encoderFunc {
+	<span class="th-token th-keyword">switch</span> t.<span class="th-token th-function">Key</span>().<span class="th-token th-function">Kind</span>() {
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">String</span>,
+		reflect.<span class="th-token th-property">Int</span>, reflect.<span class="th-token th-property">Int8</span>, reflect.<span class="th-token th-property">Int16</span>, reflect.<span class="th-token th-property">Int32</span>, reflect.<span class="th-token th-property">Int64</span>,
+		reflect.<span class="th-token th-property">Uint</span>, reflect.<span class="th-token th-property">Uint8</span>, reflect.<span class="th-token th-property">Uint16</span>, reflect.<span class="th-token th-property">Uint32</span>, reflect.<span class="th-token th-property">Uint64</span>, reflect.<span class="th-token th-property">Uintptr</span>:
+	<span class="th-token th-keyword">default</span>:
+		<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span>t.<span class="th-token th-function">Key</span>().<span class="th-token th-function">Implements</span>(textMarshalerType) {
+			<span class="th-token th-keyword">return</span> unsupportedTypeEncoder
+		}
+	}
+	me <span class="th-token th-operator">:=</span> mapEncoder{<span class="th-token th-function">typeEncoder</span>(t.<span class="th-token th-function">Elem</span>())}
+	<span class="th-token th-keyword">return</span> me.<span class="th-token th-property">encode</span>
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">encodeByteSlice</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, _ encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+
+	s <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">Bytes</span>()
+	b <span class="th-token th-operator">:=</span> e.<span class="th-token th-function">AvailableBuffer</span>()
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(b, <span class="th-token th-string">&#39;&quot;&#39;</span>)
+	b <span class="th-token th-operator">=</span> base64.<span class="th-token th-property">StdEncoding</span>.<span class="th-token th-function">AppendEncode</span>(b, s)
+	b <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(b, <span class="th-token th-string">&#39;&quot;&#39;</span>)
+	e.<span class="th-token th-function">Write</span>(b)
+}
+
+<span class="th-token th-comment">// sliceEncoder just wraps an arrayEncoder, checking to make sure the value isn&#39;t nil.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">sliceEncoder</span> <span class="th-token th-keyword">struct</span> {
+	arrayEnc encoderFunc
+}
+
+<span class="th-token th-keyword">func</span> (se sliceEncoder) <span class="th-token th-function">encode</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	<span class="th-token th-keyword">if</span> e.<span class="th-token th-property">ptrLevel</span><span class="th-token th-operator">++</span>; e.<span class="th-token th-property">ptrLevel</span> <span class="th-token th-operator">&gt;</span> startDetectingCyclesAfter {
+		<span class="th-token th-comment">// We&#39;re a large number of nested ptrEncoder.encode calls deep;</span>
+		<span class="th-token th-comment">// start checking if we&#39;ve run into a pointer cycle.</span>
+		<span class="th-token th-comment">// Here we use a struct to memorize the pointer to the first element of the slice</span>
+		<span class="th-token th-comment">// and its length.</span>
+		<span class="th-token th-property">ptr</span> <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">struct</span> {
+			ptr <span class="th-token th-type">any</span> <span class="th-token th-comment">// always an unsafe.Pointer, but avoids a dependency on package unsafe</span>
+			len <span class="th-token th-type">int</span>
+		}{v.<span class="th-token th-function">UnsafePointer</span>(), v.<span class="th-token th-function">Len</span>()}
+		<span class="th-token th-keyword">if</span> _, ok <span class="th-token th-operator">:=</span> e.<span class="th-token th-property">ptrSeen</span>[ptr]; ok {
+			e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>UnsupportedValueError{v, fmt.<span class="th-token th-function">Sprintf</span>(<span class="th-token th-string">&quot;encountered a cycle via %s&quot;</span>, v.<span class="th-token th-function">Type</span>())})
+		}
+		e.<span class="th-token th-property">ptrSeen</span>[ptr] <span class="th-token th-operator">=</span> <span class="th-token th-keyword">struct</span>{}{}
+		<span class="th-token th-keyword">defer</span> <span class="th-token th-function">delete</span>(e.<span class="th-token th-property">ptrSeen</span>, ptr)
+	}
+	se.<span class="th-token th-function">arrayEnc</span>(e, v, opts)
+	e.<span class="th-token th-property">ptrLevel</span><span class="th-token th-operator">--</span>
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">newSliceEncoder</span>(t reflect.<span class="th-token th-property">Type</span>) encoderFunc {
+	<span class="th-token th-comment">// Byte slices get special treatment; arrays don&#39;t.</span>
+	<span class="th-token th-keyword">if</span> t.<span class="th-token th-function">Elem</span>().<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Uint8</span> {
+		p <span class="th-token th-operator">:=</span> reflect.<span class="th-token th-function">PointerTo</span>(t.<span class="th-token th-function">Elem</span>())
+		<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span>p.<span class="th-token th-function">Implements</span>(marshalerType) <span class="th-token th-operator">&amp;&amp;</span> <span class="th-token th-operator">!</span>p.<span class="th-token th-function">Implements</span>(textMarshalerType) {
+			<span class="th-token th-keyword">return</span> encodeByteSlice
+		}
+	}
+	enc <span class="th-token th-operator">:=</span> sliceEncoder{<span class="th-token th-function">newArrayEncoder</span>(t)}
+	<span class="th-token th-keyword">return</span> enc.<span class="th-token th-property">encode</span>
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">arrayEncoder</span> <span class="th-token th-keyword">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="th-token th-keyword">func</span> (ae arrayEncoder) <span class="th-token th-function">encode</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	e.<span class="th-token th-function">WriteByte</span>(<span class="th-token th-string">&#39;[&#39;</span>)
+	n <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">Len</span>()
+	<span class="th-token th-keyword">for</span> i <span class="th-token th-operator">:=</span> <span class="th-token th-number">0</span>; i <span class="th-token th-operator">&lt;</span> n; i<span class="th-token th-operator">++</span> {
+		<span class="th-token th-keyword">if</span> i <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">0</span> {
+			e.<span class="th-token th-function">WriteByte</span>(<span class="th-token th-string">&#39;,&#39;</span>)
+		}
+		ae.<span class="th-token th-function">elemEnc</span>(e, v.<span class="th-token th-function">Index</span>(i), opts)
+	}
+	e.<span class="th-token th-function">WriteByte</span>(<span class="th-token th-string">&#39;]&#39;</span>)
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">newArrayEncoder</span>(t reflect.<span class="th-token th-property">Type</span>) encoderFunc {
+	enc <span class="th-token th-operator">:=</span> arrayEncoder{<span class="th-token th-function">typeEncoder</span>(t.<span class="th-token th-function">Elem</span>())}
+	<span class="th-token th-keyword">return</span> enc.<span class="th-token th-property">encode</span>
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">ptrEncoder</span> <span class="th-token th-keyword">struct</span> {
+	elemEnc encoderFunc
+}
+
+<span class="th-token th-keyword">func</span> (pe ptrEncoder) <span class="th-token th-function">encode</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">IsNil</span>() {
+		e.<span class="th-token th-function">WriteString</span>(<span class="th-token th-string">&quot;null&quot;</span>)
+		<span class="th-token th-keyword">return</span>
+	}
+	<span class="th-token th-keyword">if</span> e.<span class="th-token th-property">ptrLevel</span><span class="th-token th-operator">++</span>; e.<span class="th-token th-property">ptrLevel</span> <span class="th-token th-operator">&gt;</span> startDetectingCyclesAfter {
+		<span class="th-token th-comment">// We&#39;re a large number of nested ptrEncoder.encode calls deep;</span>
+		<span class="th-token th-comment">// start checking if we&#39;ve run into a pointer cycle.</span>
+		<span class="th-token th-property">ptr</span> <span class="th-token th-operator">:=</span> v.<span class="th-token th-function">Interface</span>()
+		<span class="th-token th-keyword">if</span> _, ok <span class="th-token th-operator">:=</span> e.<span class="th-token th-property">ptrSeen</span>[ptr]; ok {
+			e.<span class="th-token th-type">error</span>(<span class="th-token th-operator">&amp;</span>UnsupportedValueError{v, fmt.<span class="th-token th-function">Sprintf</span>(<span class="th-token th-string">&quot;encountered a cycle via %s&quot;</span>, v.<span class="th-token th-function">Type</span>())})
+		}
+		e.<span class="th-token th-property">ptrSeen</span>[ptr] <span class="th-token th-operator">=</span> <span class="th-token th-keyword">struct</span>{}{}
+		<span class="th-token th-keyword">defer</span> <span class="th-token th-function">delete</span>(e.<span class="th-token th-property">ptrSeen</span>, ptr)
+	}
+	pe.<span class="th-token th-function">elemEnc</span>(e, v.<span class="th-token th-function">Elem</span>(), opts)
+	e.<span class="th-token th-property">ptrLevel</span><span class="th-token th-operator">--</span>
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">newPtrEncoder</span>(t reflect.<span class="th-token th-property">Type</span>) encoderFunc {
+	enc <span class="th-token th-operator">:=</span> ptrEncoder{<span class="th-token th-function">typeEncoder</span>(t.<span class="th-token th-function">Elem</span>())}
+	<span class="th-token th-keyword">return</span> enc.<span class="th-token th-property">encode</span>
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">condAddrEncoder</span> <span class="th-token th-keyword">struct</span> {
+	canAddrEnc, elseEnc encoderFunc
+}
+
+<span class="th-token th-keyword">func</span> (ce condAddrEncoder) <span class="th-token th-function">encode</span>(e <span class="th-token th-operator">*</span>encodeState, v reflect.<span class="th-token th-property">Value</span>, opts encOpts) {
+	<span class="th-token th-keyword">if</span> v.<span class="th-token th-function">CanAddr</span>() {
+		ce.<span class="th-token th-function">canAddrEnc</span>(e, v, opts)
+	} <span class="th-token th-keyword">else</span> {
+		ce.<span class="th-token th-function">elseEnc</span>(e, v, opts)
+	}
+}
+
+<span class="th-token th-comment">// newCondAddrEncoder returns an encoder that checks whether its value</span>
+<span class="th-token th-comment">// CanAddr and delegates to canAddrEnc if so, else to elseEnc.</span>
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">newCondAddrEncoder</span>(canAddrEnc, elseEnc encoderFunc) encoderFunc {
+	enc <span class="th-token th-operator">:=</span> condAddrEncoder{canAddrEnc: canAddrEnc, elseEnc: elseEnc}
+	<span class="th-token th-keyword">return</span> enc.<span class="th-token th-property">encode</span>
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">isValidTag</span>(s <span class="th-token th-type">string</span>) <span class="th-token th-type">bool</span> {
+	<span class="th-token th-keyword">if</span> s <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span> {
+		<span class="th-token th-keyword">return</span> <span class="th-token th-literal">false</span>
+	}
+	<span class="th-token th-keyword">for</span> _, c <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">range</span> s {
+		<span class="th-token th-keyword">switch</span> {
+		<span class="th-token th-keyword">case</span> strings.<span class="th-token th-function">ContainsRune</span>(<span class="th-token th-string">&quot;!#$%&amp;()*+-./:;&lt;=&gt;?@[]^_{|}~ &quot;</span>, c):
+			<span class="th-token th-comment">// Backslash and quote chars are reserved, but</span>
+			<span class="th-token th-comment">// otherwise any punctuation chars are allowed</span>
+			<span class="th-token th-comment">// in a tag name.</span>
+		<span class="th-token th-keyword">case</span> <span class="th-token th-operator">!</span>unicode.<span class="th-token th-function">IsLetter</span>(c) <span class="th-token th-operator">&amp;&amp;</span> <span class="th-token th-operator">!</span>unicode.<span class="th-token th-function">IsDigit</span>(c):
+			<span class="th-token th-keyword">return</span> <span class="th-token th-literal">false</span>
+		}
+	}
+	<span class="th-token th-keyword">return</span> <span class="th-token th-literal">true</span>
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">typeByIndex</span>(t reflect.<span class="th-token th-property">Type</span>, index []<span class="th-token th-type">int</span>) reflect.<span class="th-token th-property">Type</span> {
+	<span class="th-token th-keyword">for</span> _, i <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">range</span> index {
+		<span class="th-token th-keyword">if</span> t.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> {
+			t <span class="th-token th-operator">=</span> t.<span class="th-token th-function">Elem</span>()
+		}
+		t <span class="th-token th-operator">=</span> t.<span class="th-token th-function">Field</span>(i).<span class="th-token th-property">Type</span>
+	}
+	<span class="th-token th-keyword">return</span> t
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">reflectWithString</span> <span class="th-token th-keyword">struct</span> {
+	v  reflect.<span class="th-token th-property">Value</span>
+	ks <span class="th-token th-type">string</span>
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">resolveKeyName</span>(k reflect.<span class="th-token th-property">Value</span>) (<span class="th-token th-type">string</span>, <span class="th-token th-type">error</span>) {
+	<span class="th-token th-keyword">if</span> k.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">String</span> {
+		<span class="th-token th-keyword">return</span> k.<span class="th-token th-function">String</span>(), <span class="th-token th-literal">nil</span>
+	}
+	<span class="th-token th-keyword">if</span> tm, ok <span class="th-token th-operator">:=</span> k.<span class="th-token th-function">Interface</span>().(encoding.<span class="th-token th-property">TextMarshaler</span>); ok {
+		<span class="th-token th-keyword">if</span> k.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> <span class="th-token th-operator">&amp;&amp;</span> k.<span class="th-token th-function">IsNil</span>() {
+			<span class="th-token th-keyword">return</span> <span class="th-token th-string">&quot;&quot;</span>, <span class="th-token th-literal">nil</span>
+		}
+		buf, err <span class="th-token th-operator">:=</span> tm.<span class="th-token th-function">MarshalText</span>()
+		<span class="th-token th-keyword">return</span> <span class="th-token th-type">string</span>(buf), err
+	}
+	<span class="th-token th-keyword">switch</span> k.<span class="th-token th-function">Kind</span>() {
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Int</span>, reflect.<span class="th-token th-property">Int8</span>, reflect.<span class="th-token th-property">Int16</span>, reflect.<span class="th-token th-property">Int32</span>, reflect.<span class="th-token th-property">Int64</span>:
+		<span class="th-token th-keyword">return</span> strconv.<span class="th-token th-function">FormatInt</span>(k.<span class="th-token th-function">Int</span>(), <span class="th-token th-number">10</span>), <span class="th-token th-literal">nil</span>
+	<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Uint</span>, reflect.<span class="th-token th-property">Uint8</span>, reflect.<span class="th-token th-property">Uint16</span>, reflect.<span class="th-token th-property">Uint32</span>, reflect.<span class="th-token th-property">Uint64</span>, reflect.<span class="th-token th-property">Uintptr</span>:
+		<span class="th-token th-keyword">return</span> strconv.<span class="th-token th-function">FormatUint</span>(k.<span class="th-token th-function">Uint</span>(), <span class="th-token th-number">10</span>), <span class="th-token th-literal">nil</span>
+	}
+	<span class="th-token th-function">panic</span>(<span class="th-token th-string">&quot;unexpected map key type&quot;</span>)
+}
+
+<span class="th-token th-keyword">func</span> appendString[Bytes []<span class="th-token th-type">byte</span> <span class="th-token th-operator">|</span> <span class="th-token th-type">string</span>](dst []<span class="th-token th-type">byte</span>, src Bytes, escapeHTML <span class="th-token th-type">bool</span>) []<span class="th-token th-type">byte</span> {
+	dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;&quot;&#39;</span>)
+	start <span class="th-token th-operator">:=</span> <span class="th-token th-number">0</span>
+	<span class="th-token th-keyword">for</span> i <span class="th-token th-operator">:=</span> <span class="th-token th-number">0</span>; i <span class="th-token th-operator">&lt;</span> <span class="th-token th-function">len</span>(src); {
+		<span class="th-token th-keyword">if</span> b <span class="th-token th-operator">:=</span> src[i]; b <span class="th-token th-operator">&lt;</span> utf8.<span class="th-token th-property">RuneSelf</span> {
+			<span class="th-token th-keyword">if</span> htmlSafeSet[b] <span class="th-token th-operator">||</span> (<span class="th-token th-operator">!</span>escapeHTML <span class="th-token th-operator">&amp;&amp;</span> safeSet[b]) {
+				i<span class="th-token th-operator">++</span>
+				<span class="th-token th-keyword">continue</span>
+			}
+			dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, src[start:i]<span class="th-token th-operator">...</span>)
+			<span class="th-token th-keyword">switch</span> b {
+			<span class="th-token th-keyword">case</span> <span class="th-token th-string">&#39;\\&#39;</span>, <span class="th-token th-string">&#39;&quot;&#39;</span>:
+				dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;\\&#39;</span>, b)
+			<span class="th-token th-keyword">case</span> <span class="th-token th-string">&#39;\b&#39;</span>:
+				dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;\\&#39;</span>, <span class="th-token th-string">&#39;b&#39;</span>)
+			<span class="th-token th-keyword">case</span> <span class="th-token th-string">&#39;\f&#39;</span>:
+				dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;\\&#39;</span>, <span class="th-token th-string">&#39;f&#39;</span>)
+			<span class="th-token th-keyword">case</span> <span class="th-token th-string">&#39;\n&#39;</span>:
+				dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;\\&#39;</span>, <span class="th-token th-string">&#39;n&#39;</span>)
+			<span class="th-token th-keyword">case</span> <span class="th-token th-string">&#39;\r&#39;</span>:
+				dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;\\&#39;</span>, <span class="th-token th-string">&#39;r&#39;</span>)
+			<span class="th-token th-keyword">case</span> <span class="th-token th-string">&#39;\t&#39;</span>:
+				dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;\\&#39;</span>, <span class="th-token th-string">&#39;t&#39;</span>)
+			<span class="th-token th-keyword">default</span>:
+				<span class="th-token th-comment">// This encodes bytes &lt; 0x20 except for \b, \f, \n, \r and \t.</span>
+				<span class="th-token th-comment">// If escapeHTML is set, it also escapes &lt;, &gt;, and &amp;</span>
+				<span class="th-token th-comment">// because they can lead to security holes when</span>
+				<span class="th-token th-comment">// user-controlled strings are rendered into JSON</span>
+				<span class="th-token th-comment">// and served to some browsers.</span>
+				<span class="th-token th-property">dst</span> <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;\\&#39;</span>, <span class="th-token th-string">&#39;u&#39;</span>, <span class="th-token th-string">&#39;0&#39;</span>, <span class="th-token th-string">&#39;0&#39;</span>, hex[b<span class="th-token th-operator">&gt;&gt;</span><span class="th-token th-number">4</span>], hex[b<span class="th-token th-operator">&amp;</span><span class="th-token th-number">0xF</span>])
+			}
+			i<span class="th-token th-operator">++</span>
+			start <span class="th-token th-operator">=</span> i
+			<span class="th-token th-keyword">continue</span>
+		}
+		<span class="th-token th-comment">// TODO(https://go.dev/issue/56948): Use generic utf8 functionality.</span>
+		<span class="th-token th-comment">// For now, cast only a small portion of byte slices to a string</span>
+		<span class="th-token th-comment">// so that it can be stack allocated. This slows down []byte slightly</span>
+		<span class="th-token th-comment">// due to the extra copy, but keeps string performance roughly the same.</span>
+		<span class="th-token th-property">n</span> <span class="th-token th-operator">:=</span> <span class="th-token th-function">len</span>(src) <span class="th-token th-operator">-</span> i
+		<span class="th-token th-keyword">if</span> n <span class="th-token th-operator">&gt;</span> utf8.<span class="th-token th-property">UTFMax</span> {
+			n <span class="th-token th-operator">=</span> utf8.<span class="th-token th-property">UTFMax</span>
+		}
+		c, size <span class="th-token th-operator">:=</span> utf8.<span class="th-token th-function">DecodeRuneInString</span>(<span class="th-token th-type">string</span>(src[i : i<span class="th-token th-operator">+</span>n]))
+		<span class="th-token th-keyword">if</span> c <span class="th-token th-operator">==</span> utf8.<span class="th-token th-property">RuneError</span> <span class="th-token th-operator">&amp;&amp;</span> size <span class="th-token th-operator">==</span> <span class="th-token th-number">1</span> {
+			dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, src[start:i]<span class="th-token th-operator">...</span>)
+			dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">`\ufffd`</span><span class="th-token th-operator">...</span>)
+			i <span class="th-token th-operator">+=</span> size
+			start <span class="th-token th-operator">=</span> i
+			<span class="th-token th-keyword">continue</span>
+		}
+		<span class="th-token th-comment">// U+2028 is LINE SEPARATOR.</span>
+		<span class="th-token th-comment">// U+2029 is PARAGRAPH SEPARATOR.</span>
+		<span class="th-token th-comment">// They are both technically valid characters in JSON strings,</span>
+		<span class="th-token th-comment">// but don&#39;t work in JSONP, which has to be evaluated as JavaScript,</span>
+		<span class="th-token th-comment">// and can lead to security holes there. It is valid JSON to</span>
+		<span class="th-token th-comment">// escape them, so we do so unconditionally.</span>
+		<span class="th-token th-comment">// See https://en.wikipedia.org/wiki/JSON#Safety.</span>
+		<span class="th-token th-keyword">if</span> c <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;\u2028&#39;</span> <span class="th-token th-operator">||</span> c <span class="th-token th-operator">==</span> <span class="th-token th-string">&#39;\u2029&#39;</span> {
+			dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, src[start:i]<span class="th-token th-operator">...</span>)
+			dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;\\&#39;</span>, <span class="th-token th-string">&#39;u&#39;</span>, <span class="th-token th-string">&#39;2&#39;</span>, <span class="th-token th-string">&#39;0&#39;</span>, <span class="th-token th-string">&#39;2&#39;</span>, hex[c<span class="th-token th-operator">&amp;</span><span class="th-token th-number">0xF</span>])
+			i <span class="th-token th-operator">+=</span> size
+			start <span class="th-token th-operator">=</span> i
+			<span class="th-token th-keyword">continue</span>
+		}
+		i <span class="th-token th-operator">+=</span> size
+	}
+	dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, src[start:]<span class="th-token th-operator">...</span>)
+	dst <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(dst, <span class="th-token th-string">&#39;&quot;&#39;</span>)
+	<span class="th-token th-keyword">return</span> dst
+}
+
+<span class="th-token th-comment">// A field represents a single field found in a struct.</span>
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">field</span> <span class="th-token th-keyword">struct</span> {
+	name      <span class="th-token th-type">string</span>
+	nameBytes []<span class="th-token th-type">byte</span> <span class="th-token th-comment">// []byte(name)</span>
+
+	nameNonEsc  <span class="th-token th-type">string</span> <span class="th-token th-comment">// `&quot;` + name + `&quot;:`</span>
+	nameEscHTML <span class="th-token th-type">string</span> <span class="th-token th-comment">// `&quot;` + HTMLEscape(name) + `&quot;:`</span>
+
+	tag       <span class="th-token th-type">bool</span>
+	index     []<span class="th-token th-type">int</span>
+	typ       reflect.<span class="th-token th-property">Type</span>
+	omitEmpty <span class="th-token th-type">bool</span>
+	omitZero  <span class="th-token th-type">bool</span>
+	isZero    <span class="th-token th-keyword">func</span>(reflect.<span class="th-token th-property">Value</span>) <span class="th-token th-type">bool</span>
+	quoted    <span class="th-token th-type">bool</span>
+
+	encoder encoderFunc
+}
+
+<span class="th-token th-keyword">type</span> <span class="th-token th-type">isZeroer</span> <span class="th-token th-keyword">interface</span> {
+	<span class="th-token th-function">IsZero</span>() <span class="th-token th-type">bool</span>
+}
+
+<span class="th-token th-keyword">var</span> isZeroerType <span class="th-token th-operator">=</span> reflect.<span class="th-token th-property">TypeFor</span>[isZeroer]()
+
+<span class="th-token th-comment">// typeFields returns a list of fields that JSON should recognize for the given type.</span>
+<span class="th-token th-comment">// The algorithm is breadth-first search over the set of structs to include - the top struct</span>
+<span class="th-token th-comment">// and then any reachable anonymous structs.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// typeFields should be an internal detail,</span>
+<span class="th-token th-comment">// but widely used packages access it using linkname.</span>
+<span class="th-token th-comment">// Notable members of the hall of shame include:</span>
+<span class="th-token th-comment">//   - github.com/bytedance/sonic</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">// Do not remove or change the type signature.</span>
+<span class="th-token th-comment">// See go.dev/issue/67401.</span>
+<span class="th-token th-comment">//</span>
+<span class="th-token th-comment">//go:linkname typeFields</span>
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">typeFields</span>(t reflect.<span class="th-token th-property">Type</span>) structFields {
+	<span class="th-token th-comment">// Anonymous fields to explore at the current level and the next.</span>
+	<span class="th-token th-property">current</span> <span class="th-token th-operator">:=</span> []field{}
+	next <span class="th-token th-operator">:=</span> []field{{typ: t}}
+
+	<span class="th-token th-comment">// Count of queued names for current level and the next.</span>
+	<span class="th-token th-keyword">var</span> count, nextCount <span class="th-token th-keyword">map</span>[reflect.<span class="th-token th-property">Type</span>]<span class="th-token th-type">int</span>
+
+	<span class="th-token th-comment">// Types already visited at an earlier level.</span>
+	<span class="th-token th-property">visited</span> <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">map</span>[reflect.<span class="th-token th-property">Type</span>]<span class="th-token th-type">bool</span>{}
+
+	<span class="th-token th-comment">// Fields found.</span>
+	<span class="th-token th-keyword">var</span> fields []field
+
+	<span class="th-token th-comment">// Buffer to run appendHTMLEscape on field names.</span>
+	<span class="th-token th-keyword">var</span> nameEscBuf []<span class="th-token th-type">byte</span>
+
+	<span class="th-token th-keyword">for</span> <span class="th-token th-function">len</span>(next) <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">0</span> {
+		current, next <span class="th-token th-operator">=</span> next, current[:<span class="th-token th-number">0</span>]
+		count, nextCount <span class="th-token th-operator">=</span> nextCount, <span class="th-token th-keyword">map</span>[reflect.<span class="th-token th-property">Type</span>]<span class="th-token th-type">int</span>{}
+
+		<span class="th-token th-keyword">for</span> _, f <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">range</span> current {
+			<span class="th-token th-keyword">if</span> visited[f.<span class="th-token th-property">typ</span>] {
+				<span class="th-token th-keyword">continue</span>
+			}
+			visited[f.<span class="th-token th-property">typ</span>] <span class="th-token th-operator">=</span> <span class="th-token th-literal">true</span>
+
+			<span class="th-token th-comment">// Scan f.typ for fields to include.</span>
+			<span class="th-token th-keyword">for</span> i <span class="th-token th-operator">:=</span> <span class="th-token th-number">0</span>; i <span class="th-token th-operator">&lt;</span> f.<span class="th-token th-property">typ</span>.<span class="th-token th-function">NumField</span>(); i<span class="th-token th-operator">++</span> {
+				sf <span class="th-token th-operator">:=</span> f.<span class="th-token th-property">typ</span>.<span class="th-token th-function">Field</span>(i)
+				<span class="th-token th-keyword">if</span> sf.<span class="th-token th-property">Anonymous</span> {
+					t <span class="th-token th-operator">:=</span> sf.<span class="th-token th-property">Type</span>
+					<span class="th-token th-keyword">if</span> t.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> {
+						t <span class="th-token th-operator">=</span> t.<span class="th-token th-function">Elem</span>()
+					}
+					<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span>sf.<span class="th-token th-function">IsExported</span>() <span class="th-token th-operator">&amp;&amp;</span> t.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">!=</span> reflect.<span class="th-token th-property">Struct</span> {
+						<span class="th-token th-comment">// Ignore embedded fields of unexported non-struct types.</span>
+						<span class="th-token th-keyword">continue</span>
+					}
+					<span class="th-token th-comment">// Do not ignore embedded fields of unexported struct types</span>
+					<span class="th-token th-comment">// since they may have exported fields.</span>
+				} <span class="th-token th-keyword">else</span> <span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span>sf.<span class="th-token th-function">IsExported</span>() {
+					<span class="th-token th-comment">// Ignore unexported non-embedded fields.</span>
+					<span class="th-token th-keyword">continue</span>
+				}
+				tag <span class="th-token th-operator">:=</span> sf.<span class="th-token th-property">Tag</span>.<span class="th-token th-function">Get</span>(<span class="th-token th-string">&quot;json&quot;</span>)
+				<span class="th-token th-keyword">if</span> tag <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;-&quot;</span> {
+					<span class="th-token th-keyword">continue</span>
+				}
+				name, opts <span class="th-token th-operator">:=</span> <span class="th-token th-function">parseTag</span>(tag)
+				<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span><span class="th-token th-function">isValidTag</span>(name) {
+					name <span class="th-token th-operator">=</span> <span class="th-token th-string">&quot;&quot;</span>
+				}
+				index <span class="th-token th-operator">:=</span> <span class="th-token th-function">make</span>([]<span class="th-token th-type">int</span>, <span class="th-token th-function">len</span>(f.<span class="th-token th-property">index</span>)<span class="th-token th-operator">+</span><span class="th-token th-number">1</span>)
+				<span class="th-token th-function">copy</span>(index, f.<span class="th-token th-property">index</span>)
+				index[<span class="th-token th-function">len</span>(f.<span class="th-token th-property">index</span>)] <span class="th-token th-operator">=</span> i
+
+				ft <span class="th-token th-operator">:=</span> sf.<span class="th-token th-property">Type</span>
+				<span class="th-token th-keyword">if</span> ft.<span class="th-token th-function">Name</span>() <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span> <span class="th-token th-operator">&amp;&amp;</span> ft.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> {
+					<span class="th-token th-comment">// Follow pointer.</span>
+					<span class="th-token th-property">ft</span> <span class="th-token th-operator">=</span> ft.<span class="th-token th-function">Elem</span>()
+				}
+
+				<span class="th-token th-comment">// Only strings, floats, integers, and booleans can be quoted.</span>
+				<span class="th-token th-property">quoted</span> <span class="th-token th-operator">:=</span> <span class="th-token th-literal">false</span>
+				<span class="th-token th-keyword">if</span> opts.<span class="th-token th-function">Contains</span>(<span class="th-token th-string">&quot;string&quot;</span>) {
+					<span class="th-token th-keyword">switch</span> ft.<span class="th-token th-function">Kind</span>() {
+					<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-property">Bool</span>,
+						reflect.<span class="th-token th-property">Int</span>, reflect.<span class="th-token th-property">Int8</span>, reflect.<span class="th-token th-property">Int16</span>, reflect.<span class="th-token th-property">Int32</span>, reflect.<span class="th-token th-property">Int64</span>,
+						reflect.<span class="th-token th-property">Uint</span>, reflect.<span class="th-token th-property">Uint8</span>, reflect.<span class="th-token th-property">Uint16</span>, reflect.<span class="th-token th-property">Uint32</span>, reflect.<span class="th-token th-property">Uint64</span>, reflect.<span class="th-token th-property">Uintptr</span>,
+						reflect.<span class="th-token th-property">Float32</span>, reflect.<span class="th-token th-property">Float64</span>,
+						reflect.<span class="th-token th-property">String</span>:
+						quoted <span class="th-token th-operator">=</span> <span class="th-token th-literal">true</span>
+					}
+				}
+
+				<span class="th-token th-comment">// Record found field and index sequence.</span>
+				<span class="th-token th-keyword">if</span> name <span class="th-token th-operator">!=</span> <span class="th-token th-string">&quot;&quot;</span> <span class="th-token th-operator">||</span> <span class="th-token th-operator">!</span>sf.<span class="th-token th-property">Anonymous</span> <span class="th-token th-operator">||</span> ft.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">!=</span> reflect.<span class="th-token th-property">Struct</span> {
+					tagged <span class="th-token th-operator">:=</span> name <span class="th-token th-operator">!=</span> <span class="th-token th-string">&quot;&quot;</span>
+					<span class="th-token th-keyword">if</span> name <span class="th-token th-operator">==</span> <span class="th-token th-string">&quot;&quot;</span> {
+						name <span class="th-token th-operator">=</span> sf.<span class="th-token th-property">Name</span>
+					}
+					field <span class="th-token th-operator">:=</span> field{
+						name:      name,
+						tag:       tagged,
+						index:     index,
+						typ:       ft,
+						omitEmpty: opts.<span class="th-token th-function">Contains</span>(<span class="th-token th-string">&quot;omitempty&quot;</span>),
+						omitZero:  opts.<span class="th-token th-function">Contains</span>(<span class="th-token th-string">&quot;omitzero&quot;</span>),
+						quoted:    quoted,
+					}
+					field.<span class="th-token th-property">nameBytes</span> <span class="th-token th-operator">=</span> []<span class="th-token th-type">byte</span>(field.<span class="th-token th-property">name</span>)
+
+					<span class="th-token th-comment">// Build nameEscHTML and nameNonEsc ahead of time.</span>
+					<span class="th-token th-property">nameEscBuf</span> <span class="th-token th-operator">=</span> <span class="th-token th-function">appendHTMLEscape</span>(nameEscBuf[:<span class="th-token th-number">0</span>], field.<span class="th-token th-property">nameBytes</span>)
+					field.<span class="th-token th-property">nameEscHTML</span> <span class="th-token th-operator">=</span> <span class="th-token th-string">`&quot;`</span> <span class="th-token th-operator">+</span> <span class="th-token th-type">string</span>(nameEscBuf) <span class="th-token th-operator">+</span> <span class="th-token th-string">`&quot;:`</span>
+					field.<span class="th-token th-property">nameNonEsc</span> <span class="th-token th-operator">=</span> <span class="th-token th-string">`&quot;`</span> <span class="th-token th-operator">+</span> field.<span class="th-token th-property">name</span> <span class="th-token th-operator">+</span> <span class="th-token th-string">`&quot;:`</span>
+
+					<span class="th-token th-keyword">if</span> field.<span class="th-token th-property">omitZero</span> {
+						t <span class="th-token th-operator">:=</span> sf.<span class="th-token th-property">Type</span>
+						<span class="th-token th-comment">// Provide a function that uses a type&#39;s IsZero method.</span>
+						<span class="th-token th-keyword">switch</span> {
+						<span class="th-token th-keyword">case</span> t.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Interface</span> <span class="th-token th-operator">&amp;&amp;</span> t.<span class="th-token th-function">Implements</span>(isZeroerType):
+							field.<span class="th-token th-property">isZero</span> <span class="th-token th-operator">=</span> <span class="th-token th-keyword">func</span>(v reflect.<span class="th-token th-property">Value</span>) <span class="th-token th-type">bool</span> {
+								<span class="th-token th-comment">// Avoid panics calling IsZero on a nil interface or</span>
+								<span class="th-token th-comment">// non-nil interface with nil pointer.</span>
+								<span class="th-token th-keyword">return</span> v.<span class="th-token th-function">IsNil</span>() <span class="th-token th-operator">||</span>
+									(v.<span class="th-token th-function">Elem</span>().<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> <span class="th-token th-operator">&amp;&amp;</span> v.<span class="th-token th-function">Elem</span>().<span class="th-token th-function">IsNil</span>()) <span class="th-token th-operator">||</span>
+									v.<span class="th-token th-function">Interface</span>().(isZeroer).<span class="th-token th-function">IsZero</span>()
+							}
+						<span class="th-token th-keyword">case</span> t.<span class="th-token th-function">Kind</span>() <span class="th-token th-operator">==</span> reflect.<span class="th-token th-property">Pointer</span> <span class="th-token th-operator">&amp;&amp;</span> t.<span class="th-token th-function">Implements</span>(isZeroerType):
+							field.<span class="th-token th-property">isZero</span> <span class="th-token th-operator">=</span> <span class="th-token th-keyword">func</span>(v reflect.<span class="th-token th-property">Value</span>) <span class="th-token th-type">bool</span> {
+								<span class="th-token th-comment">// Avoid panics calling IsZero on nil pointer.</span>
+								<span class="th-token th-keyword">return</span> v.<span class="th-token th-function">IsNil</span>() <span class="th-token th-operator">||</span> v.<span class="th-token th-function">Interface</span>().(isZeroer).<span class="th-token th-function">IsZero</span>()
+							}
+						<span class="th-token th-keyword">case</span> t.<span class="th-token th-function">Implements</span>(isZeroerType):
+							field.<span class="th-token th-property">isZero</span> <span class="th-token th-operator">=</span> <span class="th-token th-keyword">func</span>(v reflect.<span class="th-token th-property">Value</span>) <span class="th-token th-type">bool</span> {
+								<span class="th-token th-keyword">return</span> v.<span class="th-token th-function">Interface</span>().(isZeroer).<span class="th-token th-function">IsZero</span>()
+							}
+						<span class="th-token th-keyword">case</span> reflect.<span class="th-token th-function">PointerTo</span>(t).<span class="th-token th-function">Implements</span>(isZeroerType):
+							field.<span class="th-token th-property">isZero</span> <span class="th-token th-operator">=</span> <span class="th-token th-keyword">func</span>(v reflect.<span class="th-token th-property">Value</span>) <span class="th-token th-type">bool</span> {
+								<span class="th-token th-keyword">if</span> <span class="th-token th-operator">!</span>v.<span class="th-token th-function">CanAddr</span>() {
+									<span class="th-token th-comment">// Temporarily box v so we can take the address.</span>
+									<span class="th-token th-property">v2</span> <span class="th-token th-operator">:=</span> reflect.<span class="th-token th-function">New</span>(v.<span class="th-token th-function">Type</span>()).<span class="th-token th-function">Elem</span>()
+									v2.<span class="th-token th-function">Set</span>(v)
+									v <span class="th-token th-operator">=</span> v2
+								}
+								<span class="th-token th-keyword">return</span> v.<span class="th-token th-function">Addr</span>().<span class="th-token th-function">Interface</span>().(isZeroer).<span class="th-token th-function">IsZero</span>()
+							}
+						}
+					}
+
+					fields <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(fields, field)
+					<span class="th-token th-keyword">if</span> count[f.<span class="th-token th-property">typ</span>] <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">1</span> {
+						<span class="th-token th-comment">// If there were multiple instances, add a second,</span>
+						<span class="th-token th-comment">// so that the annihilation code will see a duplicate.</span>
+						<span class="th-token th-comment">// It only cares about the distinction between 1 and 2,</span>
+						<span class="th-token th-comment">// so don&#39;t bother generating any more copies.</span>
+						<span class="th-token th-property">fields</span> <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(fields, fields[<span class="th-token th-function">len</span>(fields)<span class="th-token th-operator">-</span><span class="th-token th-number">1</span>])
+					}
+					<span class="th-token th-keyword">continue</span>
+				}
+
+				<span class="th-token th-comment">// Record new anonymous struct to explore in next round.</span>
+				<span class="th-token th-property">nextCount</span>[ft]<span class="th-token th-operator">++</span>
+				<span class="th-token th-keyword">if</span> nextCount[ft] <span class="th-token th-operator">==</span> <span class="th-token th-number">1</span> {
+					next <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(next, field{name: ft.<span class="th-token th-function">Name</span>(), index: index, typ: ft})
+				}
+			}
+		}
+	}
+
+	slices.<span class="th-token th-function">SortFunc</span>(fields, <span class="th-token th-keyword">func</span>(a, b field) <span class="th-token th-type">int</span> {
+		<span class="th-token th-comment">// sort field by name, breaking ties with depth, then</span>
+		<span class="th-token th-comment">// breaking ties with &quot;name came from json tag&quot;, then</span>
+		<span class="th-token th-comment">// breaking ties with index sequence.</span>
+		<span class="th-token th-keyword">if</span> c <span class="th-token th-operator">:=</span> strings.<span class="th-token th-function">Compare</span>(a.<span class="th-token th-property">name</span>, b.<span class="th-token th-property">name</span>); c <span class="th-token th-operator">!=</span> <span class="th-token th-number">0</span> {
+			<span class="th-token th-keyword">return</span> c
+		}
+		<span class="th-token th-keyword">if</span> c <span class="th-token th-operator">:=</span> cmp.<span class="th-token th-function">Compare</span>(<span class="th-token th-function">len</span>(a.<span class="th-token th-property">index</span>), <span class="th-token th-function">len</span>(b.<span class="th-token th-property">index</span>)); c <span class="th-token th-operator">!=</span> <span class="th-token th-number">0</span> {
+			<span class="th-token th-keyword">return</span> c
+		}
+		<span class="th-token th-keyword">if</span> a.<span class="th-token th-property">tag</span> <span class="th-token th-operator">!=</span> b.<span class="th-token th-property">tag</span> {
+			<span class="th-token th-keyword">if</span> a.<span class="th-token th-property">tag</span> {
+				<span class="th-token th-keyword">return</span> <span class="th-token th-operator">-</span><span class="th-token th-number">1</span>
+			}
+			<span class="th-token th-keyword">return</span> <span class="th-token th-operator">+</span><span class="th-token th-number">1</span>
+		}
+		<span class="th-token th-keyword">return</span> slices.<span class="th-token th-function">Compare</span>(a.<span class="th-token th-property">index</span>, b.<span class="th-token th-property">index</span>)
+	})
+
+	<span class="th-token th-comment">// Delete all fields that are hidden by the Go rules for embedded fields,</span>
+	<span class="th-token th-comment">// except that fields with JSON tags are promoted.</span>
+
+	<span class="th-token th-comment">// The fields are sorted in primary order of name, secondary order</span>
+	<span class="th-token th-comment">// of field index length. Loop over names; for each name, delete</span>
+	<span class="th-token th-comment">// hidden fields by choosing the one dominant field that survives.</span>
+	<span class="th-token th-property">out</span> <span class="th-token th-operator">:=</span> fields[:<span class="th-token th-number">0</span>]
+	<span class="th-token th-keyword">for</span> advance, i <span class="th-token th-operator">:=</span> <span class="th-token th-number">0</span>, <span class="th-token th-number">0</span>; i <span class="th-token th-operator">&lt;</span> <span class="th-token th-function">len</span>(fields); i <span class="th-token th-operator">+=</span> advance {
+		<span class="th-token th-comment">// One iteration per name.</span>
+		<span class="th-token th-comment">// Find the sequence of fields with the name of this first field.</span>
+		<span class="th-token th-property">fi</span> <span class="th-token th-operator">:=</span> fields[i]
+		name <span class="th-token th-operator">:=</span> fi.<span class="th-token th-property">name</span>
+		<span class="th-token th-keyword">for</span> advance <span class="th-token th-operator">=</span> <span class="th-token th-number">1</span>; i<span class="th-token th-operator">+</span>advance <span class="th-token th-operator">&lt;</span> <span class="th-token th-function">len</span>(fields); advance<span class="th-token th-operator">++</span> {
+			fj <span class="th-token th-operator">:=</span> fields[i<span class="th-token th-operator">+</span>advance]
+			<span class="th-token th-keyword">if</span> fj.<span class="th-token th-property">name</span> <span class="th-token th-operator">!=</span> name {
+				<span class="th-token th-keyword">break</span>
+			}
+		}
+		<span class="th-token th-keyword">if</span> advance <span class="th-token th-operator">==</span> <span class="th-token th-number">1</span> { <span class="th-token th-comment">// Only one field with this name</span>
+			out <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(out, fi)
+			<span class="th-token th-keyword">continue</span>
+		}
+		dominant, ok <span class="th-token th-operator">:=</span> <span class="th-token th-function">dominantField</span>(fields[i : i<span class="th-token th-operator">+</span>advance])
+		<span class="th-token th-keyword">if</span> ok {
+			out <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(out, dominant)
+		}
+	}
+
+	fields <span class="th-token th-operator">=</span> out
+	slices.<span class="th-token th-function">SortFunc</span>(fields, <span class="th-token th-keyword">func</span>(i, j field) <span class="th-token th-type">int</span> {
+		<span class="th-token th-keyword">return</span> slices.<span class="th-token th-function">Compare</span>(i.<span class="th-token th-property">index</span>, j.<span class="th-token th-property">index</span>)
+	})
+
+	<span class="th-token th-keyword">for</span> i <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">range</span> fields {
+		f <span class="th-token th-operator">:=</span> <span class="th-token th-operator">&amp;</span>fields[i]
+		f.<span class="th-token th-property">encoder</span> <span class="th-token th-operator">=</span> <span class="th-token th-function">typeEncoder</span>(<span class="th-token th-function">typeByIndex</span>(t, f.<span class="th-token th-property">index</span>))
+	}
+	exactNameIndex <span class="th-token th-operator">:=</span> <span class="th-token th-function">make</span>(<span class="th-token th-keyword">map</span>[<span class="th-token th-type">string</span>]<span class="th-token th-operator">*</span>field, <span class="th-token th-function">len</span>(fields))
+	foldedNameIndex <span class="th-token th-operator">:=</span> <span class="th-token th-function">make</span>(<span class="th-token th-keyword">map</span>[<span class="th-token th-type">string</span>]<span class="th-token th-operator">*</span>field, <span class="th-token th-function">len</span>(fields))
+	<span class="th-token th-keyword">for</span> i, field <span class="th-token th-operator">:=</span> <span class="th-token th-keyword">range</span> fields {
+		exactNameIndex[field.<span class="th-token th-property">name</span>] <span class="th-token th-operator">=</span> <span class="th-token th-operator">&amp;</span>fields[i]
+		<span class="th-token th-comment">// For historical reasons, first folded match takes precedence.</span>
+		<span class="th-token th-keyword">if</span> _, ok <span class="th-token th-operator">:=</span> foldedNameIndex[<span class="th-token th-type">string</span>(<span class="th-token th-function">foldName</span>(field.<span class="th-token th-property">nameBytes</span>))]; <span class="th-token th-operator">!</span>ok {
+			foldedNameIndex[<span class="th-token th-type">string</span>(<span class="th-token th-function">foldName</span>(field.<span class="th-token th-property">nameBytes</span>))] <span class="th-token th-operator">=</span> <span class="th-token th-operator">&amp;</span>fields[i]
+		}
+	}
+	<span class="th-token th-keyword">return</span> structFields{fields, exactNameIndex, foldedNameIndex}
+}
+
+<span class="th-token th-comment">// dominantField looks through the fields, all of which are known to</span>
+<span class="th-token th-comment">// have the same name, to find the single field that dominates the</span>
+<span class="th-token th-comment">// others using Go&#39;s embedding rules, modified by the presence of</span>
+<span class="th-token th-comment">// JSON tags. If there are multiple top-level fields, the boolean</span>
+<span class="th-token th-comment">// will be false: This condition is an error in Go and we skip all</span>
+<span class="th-token th-comment">// the fields.</span>
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">dominantField</span>(fields []field) (field, <span class="th-token th-type">bool</span>) {
+	<span class="th-token th-comment">// The fields are sorted in increasing index-length order, then by presence of tag.</span>
+	<span class="th-token th-comment">// That means that the first field is the dominant one. We need only check</span>
+	<span class="th-token th-comment">// for error cases: two fields at top level, either both tagged or neither tagged.</span>
+	<span class="th-token th-keyword">if</span> <span class="th-token th-function">len</span>(fields) <span class="th-token th-operator">&gt;</span> <span class="th-token th-number">1</span> <span class="th-token th-operator">&amp;&amp;</span> <span class="th-token th-function">len</span>(fields[<span class="th-token th-number">0</span>].<span class="th-token th-property">index</span>) <span class="th-token th-operator">==</span> <span class="th-token th-function">len</span>(fields[<span class="th-token th-number">1</span>].<span class="th-token th-property">index</span>) <span class="th-token th-operator">&amp;&amp;</span> fields[<span class="th-token th-number">0</span>].<span class="th-token th-property">tag</span> <span class="th-token th-operator">==</span> fields[<span class="th-token th-number">1</span>].<span class="th-token th-property">tag</span> {
+		<span class="th-token th-keyword">return</span> field{}, <span class="th-token th-literal">false</span>
+	}
+	<span class="th-token th-keyword">return</span> fields[<span class="th-token th-number">0</span>], <span class="th-token th-literal">true</span>
+}
+
+<span class="th-token th-keyword">var</span> fieldCache sync.<span class="th-token th-property">Map</span> <span class="th-token th-comment">// map[reflect.Type]structFields</span>
+
+<span class="th-token th-comment">// cachedTypeFields is like typeFields but uses a cache to avoid repeated work.</span>
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">cachedTypeFields</span>(t reflect.<span class="th-token th-property">Type</span>) structFields {
+	<span class="th-token th-keyword">if</span> f, ok <span class="th-token th-operator">:=</span> fieldCache.<span class="th-token th-function">Load</span>(t); ok {
+		<span class="th-token th-keyword">return</span> f.(structFields)
+	}
+	f, _ <span class="th-token th-operator">:=</span> fieldCache.<span class="th-token th-function">LoadOrStore</span>(t, <span class="th-token th-function">typeFields</span>(t))
+	<span class="th-token th-keyword">return</span> f.(structFields)
+}
+
+<span class="th-token th-keyword">func</span> <span class="th-token th-function">mayAppendQuote</span>(b []<span class="th-token th-type">byte</span>, quoted <span class="th-token th-type">bool</span>) []<span class="th-token th-type">byte</span> {
+	<span class="th-token th-keyword">if</span> quoted {
+		b <span class="th-token th-operator">=</span> <span class="th-token th-function">append</span>(b, <span class="th-token th-string">&#39;&quot;&#39;</span>)
+	}
+	<span class="th-token th-keyword">return</span> b
+}
+</code></pre></main>
+  <script>
+    (function () {
+      var at = location.hash.match(/^#at=(\d+),(\d+)$/);
+      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
+      addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

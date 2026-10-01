@@ -185,7 +185,7 @@
       "headers": {
         "Content-Type": "text/markdown; charset=utf-8",
         "Vary": "Accept",
-        "x-markdown-tokens": "389"
+        "x-markdown-tokens": "448"
       },
       "dest": "/comparison/index.md"
     },

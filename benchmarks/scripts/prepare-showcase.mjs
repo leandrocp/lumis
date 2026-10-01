@@ -37,7 +37,7 @@ const documents = [
       "https://github.com/BurntSushi/ripgrep/blob/4649aa9700619f94cf9c66876e9549d83420e16c/crates/searcher/src/searcher/mod.rs",
     injections: ["Comment"],
     load: ["rust", "comment"],
-    unsupported: [],
+    unsupported: ["tanstack-highlight"],
   },
   {
     id: "livebook",
@@ -50,7 +50,7 @@ const documents = [
       "https://github.com/livebook-dev/livebook/blob/5133601d9678fb8ef0c87484e5d52eff193813e5/lib/livebook_web/components/core_components.ex",
     injections: ["HEEx", "Markdown", "Comment"],
     load: ["elixir", "heex", "comment", "markdown", "markdown_inline"],
-    unsupported: [],
+    unsupported: ["tanstack-highlight"],
   },
   {
     id: "go",

@@ -33,6 +33,7 @@
     "@lumis-sh/wasm-ruby": "0.26.2",
     "@lumis-sh/wasm-rust": "0.26.3",
     "@lumis-sh/wasm-tsx": "0.26.1",
+    "@tanstack/highlight": "latest",
     "highlight.js": "latest",
     "mitata": "1.0.34",
     "shiki": "latest"

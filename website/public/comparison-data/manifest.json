@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "themes": [
     {
       "id": "latte",
@@ -25,7 +25,7 @@
     {
       "id": "lumis",
       "label": "Lumis",
-      "version": "Lumis 0.8.0",
+      "version": "Lumis 0.9.0",
       "theme": "Neovim Catppuccin colorschemes, extracted by this repository"
     },
     {
@@ -45,6 +45,12 @@
       "label": "highlight.js",
       "version": "highlight.js 11.12.0",
       "theme": "@catppuccin/highlightjs 1.0.1 stylesheets"
+    },
+    {
+      "id": "tanstack-highlight",
+      "label": "TanStack Highlight",
+      "version": "@tanstack/highlight 1.0.0",
+      "theme": "@catppuccin/highlightjs 1.0.1 colours, mapped onto its token classes by this repository"
     }
   ],
   "documents": [
@@ -61,11 +67,13 @@
         "JSON",
         "JavaScript"
       ],
+      "unsupported": [],
       "tokens": {
         "lumis": 6580,
         "syntect": 6718,
         "shiki": 5887,
-        "highlight-js": 2019
+        "highlight-js": 2019,
+        "tanstack-highlight": 1881
       }
     },
     {
@@ -78,6 +86,9 @@
       "bytes": 39771,
       "injections": [
         "Comment"
+      ],
+      "unsupported": [
+        "tanstack-highlight"
       ],
       "tokens": {
         "lumis": 4521,
@@ -99,6 +110,9 @@
         "Markdown",
         "Comment"
       ],
+      "unsupported": [
+        "tanstack-highlight"
+      ],
       "tokens": {
         "lumis": 5401,
         "syntect": 3242,
@@ -117,11 +131,13 @@
       "injections": [
         "Comment"
       ],
+      "unsupported": [],
       "tokens": {
         "lumis": 6306,
         "syntect": 6824,
         "shiki": 6189,
-        "highlight-js": 1336
+        "highlight-js": 1336,
+        "tanstack-highlight": 2355
       }
     },
     {
@@ -139,11 +155,13 @@
         "JavaScript",
         "Rust"
       ],
+      "unsupported": [],
       "tokens": {
         "lumis": 849,
         "syntect": 839,
         "shiki": 571,
-        "highlight-js": 263
+        "highlight-js": 263,
+        "tanstack-highlight": 166
       }
     },
     {
@@ -157,11 +175,13 @@
       "injections": [
         "Comment"
       ],
+      "unsupported": [],
       "tokens": {
         "lumis": 2422,
         "syntect": 2946,
         "shiki": 2474,
-        "highlight-js": 1259
+        "highlight-js": 1259,
+        "tanstack-highlight": 838
       }
     }
   ]

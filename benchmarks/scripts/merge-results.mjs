@@ -3,7 +3,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { implementationById, implementations } from "./implementations.mjs";
+import { benchmarkImplementations, implementationById } from "./implementations.mjs";
 
 const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoDir = resolve(benchmarksDir, "..");
@@ -17,7 +17,7 @@ const packageSizes = await readJson(resolve(runDir, "package-sizes.json"));
 const results = [];
 for (const scenario of manifest.scenarios) {
   const scenarioResults = [];
-  for (const { id, runner } of implementations) {
+  for (const { id, runner } of benchmarkImplementations) {
     const metadata = await implementationMetadata(id, runner, scenario.id);
     validateMetadata(metadata, scenario, id);
     const measurement = await measurementFor(id, runner, scenario.id);

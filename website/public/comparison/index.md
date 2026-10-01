@@ -1,17 +1,17 @@
 ---
 title: Lumis - Visual output comparison
-description: The same source files highlighted by Lumis, Shiki, highlight.js, and syntect.
+description: The same source files highlighted by Lumis, Shiki, highlight.js, syntect, and TanStack Highlight.
 ---
 
 # Visual output comparison
 
-The [interactive comparison](https://lumis.sh/comparison/) renders the same source files with Lumis, Shiki, highlight.js, and syntect. It provides Catppuccin Latte and Frappé views and preserves each implementation's own public API and closest available Catppuccin theme.
+The [interactive comparison](https://lumis.sh/comparison/) renders the same source files with Lumis, Shiki, highlight.js, syntect, and TanStack Highlight. It provides Catppuccin Latte and Frappé views and preserves each implementation's own public API and closest available Catppuccin theme. TanStack Highlight ships no Catppuccin theme, so its colours come from the highlight.js port, class for class.
 
 ## Documents
 
 - three.js WebGPU compute reduce: HTML with CSS, JSON, and JavaScript injections
-- ripgrep searcher: Rust
-- Livebook core components: Elixir with HEEx and Markdown injections
+- ripgrep searcher: Rust, which TanStack Highlight does not support
+- Livebook core components: Elixir with HEEx and Markdown injections, which TanStack Highlight does not support
 - Go `encoding/json`
 - Lumis README: Markdown with Bash, Elixir, Java, JavaScript, and Rust injections
 - shadcn/ui sidebar: TSX

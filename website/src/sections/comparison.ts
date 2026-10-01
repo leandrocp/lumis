@@ -17,6 +17,7 @@ interface ComparisonDocument {
   source: string;
   lines: number;
   injections: string[];
+  unsupported?: string[];
   tokens?: Record<string, number>;
 }
 
@@ -44,15 +45,16 @@ export function renderComparison() {
 
         <div class="comparison-shell mt-8 border border-zinc-200 dark:border-zinc-800">
           <div class="border-b border-zinc-200 px-5 py-4 dark:border-zinc-800">
-            <div class="comparison-documents flex flex-wrap gap-2" role="tablist" aria-label="Document"></div>
+            <div class="comparison-documents flex gap-2 overflow-x-auto sm:flex-wrap" role="tablist" aria-label="Document"></div>
             <p class="comparison-summary mt-3 font-mono text-[11px] tracking-wider text-zinc-500 dark:text-zinc-400"></p>
           </div>
           <div class="overflow-x-auto border-b border-zinc-200 px-5 dark:border-zinc-800">
-            <div class="comparison-implementations flex min-w-max gap-6" role="tablist" aria-label="Implementation"></div>
+            <div class="comparison-implementations flex min-w-max gap-4 sm:gap-6" role="tablist" aria-label="Implementation"></div>
           </div>
           <p class="comparison-metrics flex flex-wrap gap-x-5 gap-y-1 border-b border-zinc-200 px-5 py-2.5 font-mono text-[11px] tracking-wider text-zinc-500 dark:border-zinc-800 dark:text-zinc-400"></p>
           <div class="comparison-viewport h-[70vh] min-h-[420px] bg-[#e6e9ef] dark:bg-[#292c3c]">
             <iframe class="comparison-frame block h-full w-full border-0" title="Highlighted output" loading="eager"></iframe>
+            <p class="comparison-unsupported hidden h-full items-center justify-center px-6 text-center font-mono text-sm text-[#4c4f69] dark:text-[#c6d0f5]"></p>
           </div>
         </div>
 
@@ -64,7 +66,8 @@ export function renderComparison() {
           </p>
           <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
             Each library renders the same file at its current release, through its own public API,
-            with the closest Catppuccin it ships. Those ports are different files, so some colour
+            with the closest Catppuccin it ships. TanStack Highlight ships none, so its theme takes the
+            highlight.js port's colours, class for class. Those ports are different files, so some colour
             differences are the theme rather than the parse. Every file is rendered in Latte and
             Frappé, and the panel above follows your system's light or dark setting.
           </p>
@@ -95,6 +98,7 @@ export async function setupComparison(root: HTMLElement) {
   const implementationTabs = root.querySelector<HTMLDivElement>(".comparison-implementations")!;
   const summary = root.querySelector<HTMLParagraphElement>(".comparison-summary")!;
   const frame = root.querySelector<HTMLIFrameElement>(".comparison-frame")!;
+  const unsupported = root.querySelector<HTMLParagraphElement>(".comparison-unsupported")!;
   const shell = root.querySelector<HTMLDivElement>(".comparison-shell")!;
   const missing = root.querySelector<HTMLParagraphElement>(".comparison-missing")!;
   const metrics = root.querySelector<HTMLParagraphElement>(".comparison-metrics")!;
@@ -171,10 +175,21 @@ export async function setupComparison(root: HTMLElement) {
   }
 
   function show() {
+    // Not every library reads every language, and a pair with no output has no
+    // file to load, so the panel says so in its place.
+    const isUnsupported = currentDocument.unsupported?.includes(currentImplementation.id) ?? false;
+    frame.classList.toggle("hidden", isUnsupported);
+    unsupported.classList.toggle("hidden", !isUnsupported);
+    unsupported.classList.toggle("flex", isUnsupported);
+    unsupported.textContent = isUnsupported
+      ? `${currentImplementation.label} does not support ${currentDocument.languageLabel}.`
+      : "";
+
     const at = positions.get(currentDocument.id) ?? { x: 0, y: 0 };
-    frame.src =
-      `${DATA}/${currentDocument.id}/${currentTheme.id}/${currentImplementation.id}.html` +
-      `#at=${at.x},${at.y}`;
+    frame.src = isUnsupported
+      ? "about:blank"
+      : `${DATA}/${currentDocument.id}/${currentTheme.id}/${currentImplementation.id}.html` +
+        `#at=${at.x},${at.y}`;
     frame.title =
       `${currentImplementation.label} highlighting ${currentDocument.label} ` +
       `in ${currentTheme.name}`;
@@ -242,7 +257,7 @@ export async function setupComparison(root: HTMLElement) {
     button.dataset.id = entry.id;
     button.setAttribute("role", "tab");
     button.className =
-      "cursor-pointer border border-zinc-300 px-3 py-1.5 font-mono text-xs tracking-wider uppercase transition-colors dark:border-zinc-700";
+      "shrink-0 cursor-pointer border border-zinc-300 px-2.5 py-1 font-mono text-[11px] tracking-wider whitespace-nowrap uppercase transition-colors sm:px-3 sm:py-1.5 sm:text-xs dark:border-zinc-700";
     button.textContent = entry.label;
     button.addEventListener("click", selectDocument(entry));
     documentTabs.append(button);

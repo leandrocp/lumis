@@ -44,7 +44,7 @@ const implementations = [
 ];
 
 const published = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   themes: manifest.themes,
   lumisRuntimes: lumis.map((entry) => entry.label),
   implementations,
@@ -57,6 +57,9 @@ const published = {
     lines: document.lines,
     bytes: document.bytes,
     injections: document.injections,
+    // The implementations with no output for this document, so the page can say
+    // why rather than load a file that was never written.
+    unsupported: document.unsupported,
     tokens: publishedTokens(document),
   })),
 };
@@ -76,6 +79,7 @@ for (const document of manifest.documents) {
       resolve(target, document.id, theme.id, "lumis.html"),
     );
     for (const entry of others) {
+      if (document.unsupported.includes(entry.id)) continue;
       await cp(
         resolve(generatedDir, document.id, theme.id, `${entry.id}.html`),
         resolve(target, document.id, theme.id, `${entry.id}.html`),

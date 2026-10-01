@@ -3,7 +3,6 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { showcaseImplementations } from "./implementations.mjs";
@@ -129,10 +128,11 @@ const lumisBinary = resolve(
 // The version that actually rendered, not the range that selected it. The
 // comparison libraries float, so a specifier here would publish "shiki latest"
 // and leave a reader unable to tell what was measured.
+// Each is a direct dependency of the benchmark package, so pnpm links it into that
+// package's node_modules. Reading it there rather than resolving it also works for
+// a package whose `exports` leaves out its package.json, as @tanstack/highlight's do.
 const installedVersion = async (name) => {
-  const manifest = createRequire(import.meta.url).resolve(`${name}/package.json`, {
-    paths: [resolve(benchmarksDir, "javascript")],
-  });
+  const manifest = resolve(benchmarksDir, "javascript/node_modules", name, "package.json");
   return JSON.parse(await readFile(manifest, "utf8")).version;
 };
 const benchmarkCargo = await readFile(resolve(benchmarksDir, "rust/Cargo.toml"), "utf8");
@@ -154,6 +154,10 @@ const provenance = {
   "highlight-js": {
     version: `highlight.js ${await installedVersion("highlight.js")}`,
     theme: `@catppuccin/highlightjs ${await installedVersion("@catppuccin/highlightjs")} stylesheets`,
+  },
+  "tanstack-highlight": {
+    version: `@tanstack/highlight ${await installedVersion("@tanstack/highlight")}`,
+    theme: `@catppuccin/highlightjs ${await installedVersion("@catppuccin/highlightjs")} colours, mapped onto its token classes by this repository`,
   },
 };
 
@@ -297,15 +301,17 @@ function run(command, args) {
 }
 
 // A token is a span the highlighter gave a colour to, whether that colour arrives
-// inline or through one of highlight.js's `hljs-` classes. Spans that carry
-// neither are structure rather than a token: Shiki wraps every line in
-// `<span class="line">`, so counting all spans would credit it one per line.
+// inline, through one of highlight.js's `hljs-` classes, or through TanStack
+// Highlight's `th-token`. Spans that carry none are structure rather than a
+// token: Shiki wraps every line in `<span class="line">`, and TanStack Highlight
+// in `<span class="th-line">`, so counting all spans would credit one per line.
 function countTokens(fragment, implementation) {
   let tokens = 0;
   for (const tag of fragment.match(/<span\b[^>]*>/gi) ?? []) {
     if (
       /style=(?:"[^"]*|'[^']*)\bcolor\s*:/i.test(tag) ||
-      /class=(?:"[^"]*|'[^']*)\bhljs-/i.test(tag)
+      /class=(?:"[^"]*|'[^']*)\bhljs-/i.test(tag) ||
+      /class=(?:"[^"]*|'[^']*)\bth-token\b/i.test(tag)
     ) {
       tokens += 1;
     }
@@ -391,10 +397,22 @@ function pageHtml({ fragment, label, theme }) {
   <meta name="color-scheme" content="${theme.appearance}">
   <style>
     * { box-sizing: border-box; }
-    html { background: ${theme.chrome.background}; color: ${theme.chrome.foreground}; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; }
+    /* Mobile browsers enlarge text in blocks wider than the screen, and every
+       output here is. */
+    html { background: ${theme.chrome.background}; color: ${theme.chrome.foreground}; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     body { margin: 0; }
     main { padding: 16px; min-width: max-content; }
-    pre { margin: 0 !important; padding: 20px !important; border: 1px solid ${theme.chrome.border}; border-radius: 10px; overflow: visible !important; font: 13px/1.55 "SFMono-Regular", Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    pre { margin: 0 !important; padding: 20px !important; border: 1px solid ${theme.chrome.border}; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    /* Most outputs wrap their tokens in a <code>, which browsers set in the
+       generic monospace rather than the font above, and one wraps them in nothing.
+       Two fonts on a line give it two sets of metrics, so the same file was set
+       at a different line height per library until every element took the
+       panel's font. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+    @media (max-width: 640px) {
+      main { padding: 8px; }
+      pre { padding: 12px !important; font-size: 11px !important; }
+    }
     /* highlight.js themes paint the panel on the code element and pad it, and
        @catppuccin/highlightjs paints it without making that element a block, so
        one panel would be ragged where the other three are solid. */
