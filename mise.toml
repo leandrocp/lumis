@@ -1,6 +1,6 @@
 [tools]
 actionlint = "1.7.12"
-git-cliff = "2.13.1"
+git-cliff = "2.14.2"
 python = "3.11"
 "aqua:Kampfkarren/selene" = "0.31.0"
 stylua = "2.5.2"
@@ -1301,6 +1301,29 @@ while IFS= read -r entry; do
 done <<< "$table"
 '''
 
+[tasks.'release-template']
+description = "Fetch the pinned shared changelog template and print its local path"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+revision="50bc53aa0d7df153b9dfaa3e3926a5a9b721582f"
+directory="tmp/release-templates/$revision"
+template="$directory/release-notes.tera"
+
+if [ ! -s "$template" ]; then
+    mkdir -p "$directory"
+    download="$(mktemp "$directory/download.XXXXXX")"
+    trap 'rm -f "$download"' EXIT
+    curl --fail --silent --show-error --location --retry 3 \
+        "https://raw.githubusercontent.com/leandrocp/github-actions/$revision/git-cliff/release-notes.tera" \
+        --output "$download"
+    test -s "$download"
+    mv "$download" "$template"
+fi
+
+printf '%s\n' "$template"
+'''
+
 [tasks.'release-prepare']
 description = "Update package version files and regenerate the package changelog locally"
 usage = '''
@@ -1322,6 +1345,7 @@ fi
 IFS='|' read -r -a package_paths <<< "${entry#*|}"
 directory="${package_paths[0]}"
 changelog="$directory/CHANGELOG.md"
+template="$(mise run release-template)"
 
 include_args=()
 for path in "${package_paths[@]}"; do
@@ -1360,6 +1384,6 @@ if [ "$package" = "npm-cli" ]; then
     done
 fi
 
-git-cliff --config cliff.toml --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --prepend "$changelog" --strip header --unreleased "${include_args[@]}"
+git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --prepend "$changelog" --strip header --unreleased "${include_args[@]}"
 printf 'Prepared %s %s\n' "$package" "$version"
 '''
