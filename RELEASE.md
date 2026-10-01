@@ -88,7 +88,7 @@ manifests too — see [Crate version requirements](#crate-version-requirements).
 ### Changelog template
 
 `release-prepare` uses git-cliff 2.14.2 with the shared
-[`release-notes.tera`](https://github.com/leandrocp/github-actions/blob/50bc53aa0d7df153b9dfaa3e3926a5a9b721582f/git-cliff/release-notes.tera)
+[`release-notes.tera`](https://github.com/leandrocp/github-actions/blob/938d95526b75be259407b02aa1813d455033ffd5/git-cliff/release-notes.tera)
 from `leandrocp/github-actions`. `mise run release-template` downloads that
 revision into `tmp/release-templates/` on first use, then reuses the cached file.
 The same task runs locally and in CI, before any version files change.
@@ -96,7 +96,8 @@ The same task runs locally and in CI, before any version files change.
 New entries prefer PR titles and PR authors, include scopes and breaking-change
 markers, and follow the section order in `cliff.toml`. If GitHub metadata is
 missing, they use commit messages and the available commit-author username.
-Existing changelog history is preserved. Commit filters, package tag patterns,
+Credits omit `leandrocp`, while retaining PR links and external contributor
+credits. Existing changelog history is preserved. Commit filters, package tag patterns,
 and version-bump rules remain local to Lumis.
 
 To update the template, change `revision` in the `release-template` task to a

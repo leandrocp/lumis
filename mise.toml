@@ -1306,7 +1306,7 @@ description = "Fetch the pinned shared changelog template and print its local pa
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-revision="50bc53aa0d7df153b9dfaa3e3926a5a9b721582f"
+revision="938d95526b75be259407b02aa1813d455033ffd5"
 directory="tmp/release-templates/$revision"
 template="$directory/release-notes.tera"
 
