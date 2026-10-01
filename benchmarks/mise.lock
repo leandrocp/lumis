@@ -206,7 +206,7 @@ url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/482780452"
 provenance = "github-attestations"
 
 [[tools.rust]]
-version = "1.91.1"
+version = "1.98.1"
 backend = "core:rust"
 
 [tools.rust.options]
