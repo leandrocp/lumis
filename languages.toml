@@ -378,6 +378,7 @@ aliases = ["js", "jsx"]
 variant = "JavaScript"
 globs = ["*.cjs", "*.js", "*.mjs", "*.snap", "*.jsx"]
 emacs = ["js", "js2"]
+shebang = ["node", "bun"]
 
 [parsers.json]
 git = "https://github.com/tree-sitter/tree-sitter-json.git"
@@ -387,7 +388,7 @@ version = "0.24.8"
 variant = "JSON"
 aliases = ["jsonc", "jsonld"]
 globs = [
-  "*.json", "*.avsc", "*.geojson", "*.gltf", "*.har", "*.ice",
+  "*.json", "*.jsonc", "*.avsc", "*.geojson", "*.gltf", "*.har", "*.ice",
   "*.JSON-tmLanguage", "*.jsonl", "*.mcmeta", "*.tfstate",
   "*.tfstate.backup", "*.topojson", "*.webapp", "*.webmanifest",
   ".arcconfig", ".auto-changelog", ".c8rc", ".htmlhintrc",
@@ -688,7 +689,7 @@ version = "0.23.2"
 location = "typescript"
 aliases = ["ts"]
 variant = "TypeScript"
-globs = ["*.ts"]
+globs = ["*.ts", "*.mts", "*.cts"]
 emacs = ["typescript"]
 shebang = ["deno", "ts-node"]
 

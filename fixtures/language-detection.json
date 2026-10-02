@@ -202,5 +202,71 @@
     "hint": null,
     "source": "ordinary text",
     "expected": "plaintext"
+  },
+  {
+    "name": "Node.js env shebang",
+    "hint": null,
+    "source": "#!/usr/bin/env node\nconsole.log('ok')",
+    "expected": "javascript"
+  },
+  {
+    "name": "Node.js absolute shebang",
+    "hint": null,
+    "source": "#!/usr/bin/node\nconsole.log('ok')",
+    "expected": "javascript"
+  },
+  {
+    "name": "Bun env shebang",
+    "hint": null,
+    "source": "#!/usr/bin/env bun\nconsole.log('ok')",
+    "expected": "javascript"
+  },
+  {
+    "name": "Bun env split-string shebang",
+    "hint": null,
+    "source": "#!/usr/bin/env -S bun run\nconsole.log('ok')",
+    "expected": "javascript"
+  },
+  {
+    "name": "TypeScript ES module filename",
+    "hint": "src/index.mts",
+    "source": "",
+    "expected": "typescript"
+  },
+  {
+    "name": "TypeScript CommonJS module filename",
+    "hint": "src/index.cts",
+    "source": "",
+    "expected": "typescript"
+  },
+  {
+    "name": "TypeScript declaration module filename",
+    "hint": "src/types.d.mts",
+    "source": "",
+    "expected": "typescript"
+  },
+  {
+    "name": "TypeScript module bare extension",
+    "hint": "cts",
+    "source": "",
+    "expected": "typescript"
+  },
+  {
+    "name": "JSON with comments filename",
+    "hint": "tsconfig.jsonc",
+    "source": "{\n  // comment\n  \"strict\": true\n}",
+    "expected": "json"
+  },
+  {
+    "name": "JSON with comments dot-directory path",
+    "hint": ".vscode/settings.jsonc",
+    "source": "",
+    "expected": "json"
+  },
+  {
+    "name": "JSON with comments foreign-platform path",
+    "hint": "C:\\project\\settings.JSONC",
+    "source": "",
+    "expected": "json"
   }
 ]
