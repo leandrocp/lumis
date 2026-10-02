@@ -2,6 +2,13 @@
 fixtures/conformance/**/source.txt text eol=lf
 fixtures/conformance/rust-crlf-line-comments/*.txt -text whitespace=cr-at-eol
 
+# Workspace builds use the root files; MSYS2 cannot copy these links before their targets are extracted.
+crates/lumis-cli/languages.toml export-ignore
+crates/lumis-cli/queries export-ignore
+crates/lumis-core/languages.toml export-ignore
+crates/lumis/languages.toml export-ignore
+crates/lumis/queries export-ignore
+
 # Generated documentation and source files.
 LANGUAGES.md linguist-generated
 THEMES.md linguist-generated

@@ -287,6 +287,20 @@ provenance attestation. The shell and PowerShell installers, Homebrew,
 assets. GitHub is the canonical binary host; the CLI artifacts are not mirrored
 to R2.
 
+### Source archives
+
+CLI source releases use the `cargo-lumis-cli/v*` tags. See the
+[source build instructions](docs/content/cli/install.mdx#building-from-source)
+for package maintainers.
+
+`.gitattributes` excludes the crate-local `languages.toml` and `queries`
+symlinks from GitHub source archives so MSYS2 can extract them. Source builds
+read the root files, which remain in the archive. Keep the links in Git:
+Cargo uses them to package those files when publishing crates from a checkout.
+
+Rust CI extracts a source archive with MSYS2 and tests the CLI from that
+directory using MSVC.
+
 ## Elixir package
 
 `packages/elixir/lumis/native/lumis_nif/Cargo.lock` resolves `lumis-core` and

@@ -1,6 +1,6 @@
 ---
 title: Install the CLI
-description: Install the Lumis CLI without requiring Node.js or a Rust toolchain.
+description: Install a Lumis CLI binary or build it from source.
 keywords:
   - install lumis
   - lumis cli
@@ -73,3 +73,18 @@ From crates.io:
 ```sh
 cargo install lumis-cli
 ```
+
+## Building from source
+
+Download a source archive from a
+[`cargo-lumis-cli/v*` release](https://github.com/leandrocp/lumis/releases?q=cargo-lumis-cli%2F&expanded=true)
+and extract it. From the extracted repository root, run:
+
+```sh
+cargo build --release --locked -p lumis-cli
+cargo test --release --locked -p lumis-cli
+```
+
+The executable is `target/release/lumis`, or `target/release/lumis.exe` on
+Windows. Building requires Rust and a C/C++ toolchain. Use the MSVC toolchain
+on Windows.
