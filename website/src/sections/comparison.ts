@@ -291,22 +291,21 @@ function readTimings(report: unknown): Timings {
   if (!isObject(report) || typeof report.theme !== "string" || !Array.isArray(report.documents)) {
     throw new Error("timing report has no theme or documents");
   }
-  const documents: Timings["documents"] = new Map();
-  for (const entry of report.documents) {
-    if (!isObject(entry) || typeof entry.id !== "string" || !Array.isArray(entry.results)) {
-      throw new Error("timing report has a document without an id or results");
-    }
-    const documentId = entry.id;
-    documents.set(
-      documentId,
-      new Map(entry.results.map((result) => readTimingResult(result, documentId))),
-    );
-  }
   const cpu =
     isObject(report.system) && typeof report.system.cpu === "string"
       ? report.system.cpu
       : undefined;
-  return { theme: report.theme, cpu, documents };
+  return { theme: report.theme, cpu, documents: new Map(report.documents.map(readTimingDocument)) };
+}
+
+function readTimingDocument(
+  entry: unknown,
+): [string, Map<string, { totalNs: number; sha256: string }>] {
+  if (!isObject(entry) || typeof entry.id !== "string" || !Array.isArray(entry.results)) {
+    throw new Error("timing report has a document without an id or results");
+  }
+  const documentId = entry.id;
+  return [documentId, new Map(entry.results.map((result) => readTimingResult(result, documentId)))];
 }
 
 function readTimingResult(
