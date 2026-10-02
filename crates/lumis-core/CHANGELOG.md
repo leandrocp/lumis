@@ -1,3 +1,8 @@
+## [4.0.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v4.0.0...cargo-lumis-core/v4.0.1) (2026-10-02)
+
+### Bug Fixes
+
+- **languages:** Skip env -S and --split-string in shebang detection by @DYNOSuprovo in [\#1639](https://github.com/leandrocp/lumis/pull/1639)
 ## [4.0.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v3.0.0...cargo-lumis-core/v4.0.0) (2026-09-29)
 
 
