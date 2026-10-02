@@ -1,3 +1,8 @@
+## [0.7.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.7.0...cargo-lumis-cli/v0.7.1) (2026-10-02)
+
+### Bug Fixes
+
+- Make source archives extractable with MSYS2 in [\#1655](https://github.com/leandrocp/lumis/pull/1655)
 ## [0.7.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.6.0...cargo-lumis-cli/v0.7.0) (2026-09-29)
 
 
