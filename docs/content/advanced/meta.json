@@ -2,6 +2,7 @@
   "title": "Advanced",
   "pages": [
     "budget",
-    "lock"
+    "lock",
+    "wasm-security"
   ]
 }

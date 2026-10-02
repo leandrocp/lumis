@@ -1,0 +1,185 @@
+---
+title: WASM security
+description: How Lumis loads parser WebAssembly, what the sandbox enforces, and what a parser can still reach.
+keywords:
+  - lumis security
+  - webassembly sandbox
+  - wasmtime
+  - web-tree-sitter
+  - parser integrity
+  - content security policy
+---
+
+Every Lumis runtime except the Rust crate runs Tree-sitter parsers as
+WebAssembly. Two inputs matter: the source code you highlight, and the parser
+that reads it.
+
+Highlighting source code you didn't write is safe. A parser is a dependency.
+The sandbox limits what its code can do and Lumis checks the bytes it
+downloads, but a few paths sit outside the sandbox, so where a parser comes
+from still matters.
+
+## Where parsers run
+
+| Runtime | Engine | A parser runs in |
+| --- | --- | --- |
+| Node with the native addon, Elixir, CLI | [Wasmtime](https://wasmtime.dev) 36, through Tree-sitter's Wasm store | a Wasmtime sandbox with a fixed import list |
+| Browsers, Bun, Deno, Node without the addon | `web-tree-sitter` 0.26 (Emscripten) | the JavaScript engine's WebAssembly sandbox, with [one exception](#on-web-tree-sitter-a-parser-can-be-javascript) |
+| Rust | none | your binary. Parsers are C compiled in, like any other C dependency |
+
+`lumis4j` lives in a separate repository and isn't covered here.
+
+## The source you highlight
+
+Lumis assumes it's hostile.
+
+- A parser only decides which byte ranges get which name from Lumis's fixed
+  [scope list](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/crates/lumis-core/src/highlights.rs#L6).
+  The formatter
+  [escapes the text](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/crates/lumis-core/src/formatter/html.rs#L525),
+  so neither the document nor the parser can put markup into HTML output.
+- The [budget](/advanced/budget) caps each render with a time limit and a match
+  limit. Running out returns the document plain or partly highlighted, never an
+  error.
+- Elixir renders on
+  [dirty CPU schedulers](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/packages/elixir/lumis/native/lumis_nif/src/lib.rs#L668),
+  so a slow render doesn't block the BEAM's normal schedulers.
+
+## What the Wasmtime sandbox enforces
+
+Tree-sitter links each parser into a Wasm store it owns, on an engine Lumis
+creates with Wasmtime's
+[default configuration](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/crates/lumis-wasm-runtime/src/runtime.rs#L1064-L1074).
+
+- Imports are an allowlist. A parser can import
+  [24 libc functions](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/wasm/stdlib-symbols.txt)
+  (`malloc`, `memcpy`, `strcmp`, `towlower` and similar), the lexer callbacks,
+  and a few
+  [abort and no-op stubs](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/wasm_store.c#L587-L638).
+  Any other import
+  [fails the load](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/wasm_store.c#L1120-L1149).
+  Nothing on that list touches files, sockets, clocks or processes.
+- Memory is capped. A store's linear memory stops at
+  [128 MiB](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/wasm_store.c#L180)
+  and a scanner's heap at
+  [4 MiB](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/crates/language/wasm/src/stdlib.c#L16).
+  Wasmtime bounds-checks every memory access, keeps the call stack out of
+  linear memory, and type-checks indirect calls
+  ([Wasmtime security](https://docs.wasmtime.dev/security.html)).
+- The host checks what crosses the boundary. Since
+  [tree-sitter#5569](https://github.com/tree-sitter/tree-sitter/pull/5569),
+  every read of language data out of WASM memory is
+  [bounds-checked](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/wasm_store.c#L373-L407),
+  and a scanner's serialized state
+  [can't overrun](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/wasm_store.c#L1904-L1907)
+  the host buffer.
+- A trap only fails the current render. Tree-sitter
+  [flags the store](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/wasm_store.c#L1752-L1787)
+  and
+  [stops the parse](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/parser.c#L1603-L1604),
+  and Lumis returns an error for that render.
+
+Wasmtime 36 is a long-term support release and gets security fixes for 24
+months ([release policy](https://docs.wasmtime.dev/stability-release.html)).
+
+## What a parser can still reach
+
+The sandbox confines a parser's code. Three things sit outside it.
+
+### Parse tables run natively
+
+Tree-sitter copies a parser's tables out of WASM memory, and its native C parser
+walks them
+[without index checks](https://github.com/tree-sitter/tree-sitter/blob/v0.26.13/lib/src/language.h#L73-L93).
+A crafted table can make that native code read out of bounds. Native
+Tree-sitter also compiles the highlight queries that ship in the same package.
+
+### A scanner can loop forever
+
+Lumis enables neither Wasmtime
+[fuel](https://docs.rs/wasmtime/36.0.15/wasmtime/struct.Config.html#method.consume_fuel)
+nor
+[epoch interruption](https://docs.rs/wasmtime/36.0.15/wasmtime/struct.Config.html#method.epoch_interruption).
+The [time limit](/advanced/budget#the-limit-is-a-bound-not-a-stopwatch) is
+checked between calls into the parser, not during one, so a scanner that never
+returns holds its worker thread.
+
+### On web-tree-sitter, a parser can be JavaScript
+
+When a parser loads, Emscripten's dynamic linker
+[`eval`s](https://github.com/emscripten-core/emscripten/blob/babcd98a9e8c0defa1fcbb4ed061ca913dfe5ddd/src/lib/libdylink.js#L830-L890)
+any
+[`EM_JS` or `EM_ASM`](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#calling-javascript-from-c-c)
+code embedded in it. Tree-sitter grammars don't use either, and no published
+Lumis parser carries any. A parser that did would run as script in your page,
+or with your server's privileges on Bun, Deno, or Node without the addon.
+[Turning off `eval`](#hardening) stops it.
+
+## Where parser bytes come from
+
+| Source | What vouches for the bytes | What Lumis checks |
+| --- | --- | --- |
+| npm or Hex dependency | your lockfile's checksum ([npm](https://docs.npmjs.com/cli/v11/configuring-npm/package-lock-json#packages), [Hex](/advanced/lock#verification)) | nothing more |
+| Browser, imported package | the lockfile behind your bundle | the fetched parser's SHA-256 against the bundled `lumis.json` ([source](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/packages/javascript/lumis/src/core/languages.ts#L1272-L1298)) |
+| Resolver, or a URL given to `withWasm()` | the language package you supplied | SHA-256 ([source](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/packages/javascript/lumis/src/core/languages.ts#L713-L720)) |
+| CLI download | jsDelivr, then unpkg, over HTTPS | SHA-256 against a `lumis.json` from the same CDN ([source](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/crates/lumis-wasm-runtime/src/store.rs#L739-L747)) |
+| Lumis's own parser cache | Lumis wrote it | SHA-256 again on every read ([source](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/crates/lumis-wasm-runtime/src/store.rs#L471-L487)) |
+| `parser_dirs`, bytes given to `withWasm()` | you | nothing |
+
+A digest protects you only when it comes from somewhere other than the bytes.
+In a browser it's in your bundle and the parser arrives over the network, so a
+swapped parser fails to load. The CLI, and a resolver that also serves the
+language package, get both from one server. There the check catches a truncated
+or mismatched file, but not a compromised CDN.
+
+CI builds each parser once and publishes the same `.wasm` to npm and Hex. The
+npm package carries a
+[provenance statement](https://docs.npmjs.com/generating-provenance-statements)
+from
+[trusted publishing](https://docs.npmjs.com/trusted-publishers)
+([workflow](https://github.com/leandrocp/lumis/blob/462a779f4a1fed892db5167c0e0db976ddc20c3c/.github/workflows/wasm-release-parser.yml#L191-L198)),
+which
+[`npm audit signatures`](https://docs.npmjs.com/verifying-registry-signatures)
+verifies.
+
+## The compiled-module cache
+
+Wasmtime compiles each parser to machine code and caches it under `compiled/`
+in the [data directory](/languages#point-every-process-at-one-directory). It
+loads those files back as code without checking that it wrote them (the same
+caveat as
+[`Module::deserialize`](https://docs.rs/wasmtime/36.0.15/wasmtime/struct.Module.html#method.deserialize)),
+so anyone who can write that directory can run code in your process. Give it
+the permissions you give your application's code.
+
+## Hardening
+
+- Install parsers through your package manager, commit the lockfile, and run
+  `npm audit signatures` in CI.
+- Keep the data directory writable only by your build and by the user Lumis
+  runs as.
+- In browsers, send a Content Security Policy that leaves out `'unsafe-eval'`.
+  Lumis needs
+  [`'wasm-unsafe-eval'`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy#wasm-unsafe-eval)
+  to compile WebAssembly, and no `eval`:
+
+  ```text
+  Content-Security-Policy: script-src 'self' 'wasm-unsafe-eval'
+  ```
+
+  Lumis 0.9 highlights normally under this policy in Chromium. A parser
+  carrying `EM_JS` code fails to load instead of running. Bundlers warn about
+  two direct `eval` calls in `web-tree-sitter`; those are the loaders above.
+- On Node without the addon, start Node with
+  [`--disallow-code-generation-from-strings`](https://nodejs.org/api/cli.html#--disallow-code-generation-from-strings).
+  Lumis 0.9 highlights normally with it.
+- On request paths, keep the [time limit](/advanced/budget) on. For a hard
+  deadline, render somewhere you can kill, such as a worker with a timeout.
+
+## Reporting a vulnerability
+
+Report it privately through
+[GitHub Security Vulnerability Reporting](https://github.com/leandrocp/lumis/security/advisories/new),
+not in a public issue. The
+[security policy](https://github.com/leandrocp/lumis/blob/main/SECURITY.md)
+covers every package published from the repository.
