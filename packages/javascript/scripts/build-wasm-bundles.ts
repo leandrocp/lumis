@@ -41,10 +41,11 @@ function readLanguagesToml(): LanguagesToml {
 }
 
 function treeSitterCompatRange(): string {
-  const packageJson: { dependencies?: Record<string, string>; version?: string } = JSON.parse(
+  const packageJson: { devDependencies?: Record<string, string>; version?: string } = JSON.parse(
     fs.readFileSync(LUMIS_PACKAGE_JSON, "utf-8"),
   );
-  const spec = packageJson.dependencies?.["web-tree-sitter"];
+  // A dev dependency: tsup inlines it into `dist`.
+  const spec = packageJson.devDependencies?.["web-tree-sitter"];
   const match = spec?.match(/(\d+\.\d+)/);
 
   if (!match) {
