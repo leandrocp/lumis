@@ -298,6 +298,10 @@ symlinks from GitHub source archives so MSYS2 can extract them. Source builds
 read the root files, which remain in the archive. Keep the links in Git:
 Cargo uses them to package those files when publishing crates from a checkout.
 
+`release-packages` includes `.gitattributes` in the `cargo-lumis-cli` paths, so
+archive packaging fixes prepare a CLI patch release and appear in its changelog.
+Release paths can name individual files or directories.
+
 Rust CI extracts a source archive with MSYS2 and tests the CLI from that
 directory using MSVC.
 

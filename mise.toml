@@ -1051,7 +1051,7 @@ cargo-lumis-core|crates/lumis-core
 cargo-lumis-build|crates/lumis-build
 cargo-lumis-wasm-runtime|crates/lumis-wasm-runtime
 cargo-lumis|crates/lumis
-cargo-lumis-cli|crates/lumis-cli|crates/lumis-wasm-runtime
+cargo-lumis-cli|crates/lumis-cli|crates/lumis-wasm-runtime|.gitattributes
 npm-themes|packages/javascript/themes
 npm-lumis|packages/javascript/lumis|crates/lumis|crates/lumis-core|crates/lumis-wasm-runtime
 npm-markdown-it-lumis|packages/javascript/markdown-it-lumis
@@ -1287,7 +1287,7 @@ while IFS= read -r entry; do
 
     include_args=()
     for path in "${package_paths[@]}"; do
-        include_args+=(--include-path "$path/**/*")
+        include_args+=(--include-path "$path" --include-path "$path/**/*")
     done
 
     next="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --bumped-version "${include_args[@]}")"
@@ -1349,7 +1349,7 @@ template="$(mise run release-template)"
 
 include_args=()
 for path in "${package_paths[@]}"; do
-    include_args+=(--include-path "$path/**/*")
+    include_args+=(--include-path "$path" --include-path "$path/**/*")
 done
 
 # A first release is the version the manifest already declares, and both
