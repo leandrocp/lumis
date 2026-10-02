@@ -1,3 +1,11 @@
+## [0.9.1](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.0...npm-lumis/v0.9.1) (2026-10-02)
+
+### Bug Fixes
+
+- **languages:** Skip env -S and --split-string in shebang detection by @DYNOSuprovo in [\#1639](https://github.com/leandrocp/lumis/pull/1639)
+- **javascript:** Drop web-tree-sitter from runtime dependencies in [\#1649](https://github.com/leandrocp/lumis/pull/1649)
+- **release:** Separate new changelog entries from history in [\#1661](https://github.com/leandrocp/lumis/pull/1661)
+
 ## [0.9.0](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.8.0...npm-lumis/v0.9.0) (2026-09-29)
 
 
