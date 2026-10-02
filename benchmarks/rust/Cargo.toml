@@ -21,6 +21,10 @@ criterion = { version = "0.7", features = ["html_reports"] }
 name = "scenarios"
 harness = false
 
+[[bench]]
+name = "comparison"
+harness = false
+
 [[bin]]
 name = "lumis-size"
 path = "src/bin/lumis-size.rs"

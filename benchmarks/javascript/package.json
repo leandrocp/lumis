@@ -7,6 +7,7 @@
   "scripts": {
     "benchmark": "node --expose-gc src/scenarios.mjs",
     "showcase": "node src/showcase.mjs",
+    "comparison-timings": "node --expose-gc src/comparison-timings.mjs",
     "fmt": "cd ../.. && oxfmt benchmarks/javascript/src/ benchmarks/scripts/",
     "fmt:check": "cd ../.. && oxfmt --check benchmarks/javascript/src/ benchmarks/scripts/",
     "lint": "cd ../.. && oxlint --deny-warnings --report-unused-disable-directives benchmarks/"

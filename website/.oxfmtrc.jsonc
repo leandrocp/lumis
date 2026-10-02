@@ -4,7 +4,7 @@
   // `comparison-data` is written by `mise run -C benchmarks showcase-publish`
   // and verified byte for byte by CI, so reformatting it here would make the
   // committed assets permanently "stale" against the script that produces them.
-  // `benchmark-data` comes from `results-publish` and is left alone for the same
+  // `benchmark-data` comes from `comparison-timings-publish` and is left alone for the same
   // reason, minus the CI check.
   "ignorePatterns": ["public/comparison-data/**", "public/benchmark-data/**"],
 }

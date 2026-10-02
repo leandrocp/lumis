@@ -9,7 +9,7 @@ The [interactive comparison](https://lumis.sh/comparison/) renders the same sour
 
 ## Documents
 
-- three.js WebGPU compute reduce: HTML with CSS, JSON, and JavaScript injections
+- three.js WebGPU: HTML with CSS, JSON, and JavaScript injections
 - ripgrep searcher: Rust, which TanStack Highlight does not support
 - Livebook core components: Elixir with HEEx and Markdown injections, which speed-highlight, Sugar High, and TanStack Highlight do not support
 - Go `encoding/json`
@@ -20,7 +20,7 @@ The [interactive comparison](https://lumis.sh/comparison/) renders the same sour
 
 A token is a span the highlighter gave a colour to. The token count shows how finely an implementation resolved the selected document; it is not a quality score because grammars split punctuation and whitespace differently.
 
-The displayed timing is separate from the visual output. It is the median time to highlight one small Rust file in the [Lumis benchmark suite](https://github.com/leandrocp/lumis/blob/main/benchmarks/README.md), with Lumis represented by its Rust runtime.
+The displayed timing is the median time the selected implementation takes to highlight the selected document, through the same call that produced the output on screen, with the highlighter already built and its languages loaded. Every timing comes from one run on one machine, and Lumis is represented by its Rust runtime.
 
 The source files, rendering pipeline, exact package versions, themes, and generated outputs are available in the [Lumis repository](https://github.com/leandrocp/lumis).
 

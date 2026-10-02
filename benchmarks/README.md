@@ -43,13 +43,16 @@ of this. Both sets of numbers are committed, and these refresh them:
 
 ```sh
 mise run -C benchmarks showcase-publish
-mise run -C benchmarks results-publish
+mise run -C benchmarks comparison-timings
+mise run -C benchmarks comparison-timings-publish
 ```
 
 `showcase-publish` writes the gallery and its token counts, and CI fails when
-the committed bytes stop matching. `results-publish` writes the timings below,
-which no check can verify because they are measurements; run it from a quiet
-machine or the site will quote whatever that machine was also doing.
+the committed bytes stop matching. `comparison-timings` times every library on
+every document the gallery renders, and `comparison-timings-publish` writes
+those times beside the outputs. No check can verify them because they are
+measurements; run them from a quiet machine, or the site will quote whatever
+that machine was also doing. The timings below stay in this file.
 
 ## Package size
 

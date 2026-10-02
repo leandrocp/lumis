@@ -3,13 +3,13 @@ use lumis::{
     formatters::HtmlInline, languages::Language, themes, Budget, HighlightOptions,
     HtmlInlineBuilder,
 };
+use lumis_benchmarks::{measurement_time, sample_size, validate_html, warm_up_time};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::env;
 use std::fs;
 use std::hint::black_box;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
 use syntect::highlighting::ThemeSet;
 use syntect::html::highlighted_html_for_string;
 use syntect::parsing::SyntaxSet;
@@ -114,22 +114,6 @@ fn load_scenarios() -> Vec<Scenario> {
         .collect()
 }
 
-fn language(id: &str) -> Language {
-    match id {
-        "c" => Language::C,
-        "css" => Language::CSS,
-        "go" => Language::Go,
-        "html" => Language::HTML,
-        "java" => Language::Java,
-        "javascript" => Language::JavaScript,
-        "json" => Language::JSON,
-        "python" => Language::Python,
-        "ruby" => Language::Ruby,
-        "rust" => Language::Rust,
-        other => panic!("unsupported benchmark language: {other}"),
-    }
-}
-
 fn initialize_lumis(scenario: &Scenario) -> Vec<(String, HtmlInline)> {
     let theme = themes::get("github_dark").expect("built-in github_dark theme");
     scenario
@@ -139,8 +123,11 @@ fn initialize_lumis(scenario: &Scenario) -> Vec<(String, HtmlInline)> {
         .collect::<BTreeSet<_>>()
         .into_iter()
         .map(|id| {
+            let language: Language = id
+                .parse()
+                .unwrap_or_else(|error| panic!("benchmark language {id}: {error}"));
             let formatter = HtmlInlineBuilder::new()
-                .language(language(id))
+                .language(language)
                 .theme(Some(theme.clone()))
                 .build()
                 .expect("build Lumis formatter");
@@ -224,23 +211,6 @@ fn render_syntect(runtime: &SyntectRuntime, scenario: &Scenario, validate: bool)
         .sum()
 }
 
-fn validate_html(output: &[u8], input_bytes: usize, implementation: &str) {
-    let html = std::str::from_utf8(output).expect("benchmark output is UTF-8");
-    assert!(
-        output.len() > input_bytes && html.contains("<pre") && html.contains("<span"),
-        "{implementation} did not produce highlighted HTML"
-    );
-}
-
-fn duration(name: &str, default: f64) -> Duration {
-    Duration::from_secs_f64(
-        env::var(name)
-            .ok()
-            .and_then(|value| value.parse().ok())
-            .unwrap_or(default),
-    )
-}
-
 fn write_metadata(scenarios: &[Scenario]) {
     let Some(directory) = env::var_os("BENCH_METADATA_DIR") else {
         return;
@@ -304,17 +274,11 @@ fn scenario_metadata(scenario: &Scenario, output_bytes: usize) -> ScenarioMetada
 fn benchmarks(c: &mut Criterion) {
     let scenarios = load_scenarios();
     write_metadata(&scenarios);
-    let sample_size = env::var("BENCH_SAMPLES")
-        .ok()
-        .and_then(|value| value.parse().ok())
-        .unwrap_or(20)
-        .max(10);
-
     for scenario in &scenarios {
         let mut group = c.benchmark_group(&scenario.id);
-        group.sample_size(sample_size);
-        group.warm_up_time(duration("BENCH_WARMUP_SECONDS", 0.5));
-        group.measurement_time(duration("BENCH_TIME_SECONDS", 1.0));
+        group.sample_size(sample_size());
+        group.warm_up_time(warm_up_time());
+        group.measurement_time(measurement_time());
 
         group.bench_function(BenchmarkId::new("lumis-rust", "total"), |b| {
             b.iter_with_large_drop(|| {

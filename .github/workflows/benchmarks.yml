@@ -7,19 +7,13 @@ concurrency:
 permissions:
   contents: read
 
-# Timings are a trend to watch, not a merge gate: nothing reads a single
-# commit's numbers, so the suite runs weekly instead of on every push. Reach
-# for the Run workflow button when a change is worth measuring on its own.
+# Timings are not a merge gate, and the published ones are refreshed by hand when
+# they need to be, so the suite runs only from the Run workflow button. To publish
+# the comparison's times, unpack the run's `lumis-benchmarks-*` artifact into
+# target/benchmarks/runs/current and run
+# `mise run -C benchmarks comparison-timings-publish`.
 on:
-  schedule:
-    # Off the hour: GitHub sheds scheduled runs at minute zero under load, and a
-    # dropped run on a weekly cadence is a two-week gap.
-    - cron: "17 4 * * 1"
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/benchmarks.yml"
 
 jobs:
   benchmark:
@@ -43,6 +37,10 @@ jobs:
           - label: CLI and bat
             task: cli
             size_task: package-size:cli
+          # Every library on every document of the visual comparison, on one
+          # runner, so the times beside the outputs are comparable to each other.
+          - label: Visual comparison
+            task: comparison-timings
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -77,7 +75,7 @@ jobs:
             BENCH_PACKAGE_SIZE_GROUP=javascript \
             "$node_root/bin/node" benchmarks/scripts/measure-package-sizes.mjs
       - name: Measure native package sizes
-        if: matrix.task != 'javascript'
+        if: matrix.size_task && matrix.task != 'javascript'
         run: mise run -C benchmarks ${{ matrix.size_task }}
       - name: Upload partial benchmark report
         if: always()

@@ -213,6 +213,30 @@ description = "Copy the visual comparison into the website as static assets"
 depends = ["showcase"]
 run = "node benchmarks/scripts/publish-showcase.mjs"
 
+# The time beside each output is that library highlighting that document, through
+# the call that rendered it. The Rust and JavaScript runs share their render code
+# with the showcase and keep what they timed, and the last step fails unless that
+# is byte for byte the published output, so publish the comparison before timing
+# it.
+[tasks."comparison-timings"]
+description = "Time every library on every document of the visual comparison"
+depends = ["install", "prepare:showcase"]
+run = '''
+export BENCH_SHOWCASE_DIR="$MISE_CONFIG_ROOT/showcase/generated"
+export BENCH_FRAGMENTS_DIR="$BENCH_RUN_DIR/comparison/fragments"
+rm -rf "$BENCH_RUN_DIR/comparison"
+CRITERION_HOME="$BENCH_RUN_DIR/comparison/criterion" cargo bench --manifest-path benchmarks/rust/Cargo.toml --bench comparison -- --noplot
+BENCH_OUTPUT="$BENCH_RUN_DIR/comparison/javascript.json" pnpm --filter @lumis-sh/benchmarks run comparison-timings
+node benchmarks/scripts/finish-comparison-timings.mjs
+'''
+
+[tasks."comparison-timings-publish"]
+description = "Copy the comparison timings into the website"
+run = '''
+mkdir -p website/public/benchmark-data
+cp "$BENCH_RUN_DIR/comparison/timings.json" website/public/benchmark-data/comparison.json
+'''
+
 [tasks.build]
 description = "Build every benchmark implementation"
 depends = [
@@ -330,10 +354,6 @@ done
 [tasks.merge]
 description = "Merge Total results and validate execution metadata"
 run = "node benchmarks/scripts/merge-results.mjs"
-
-[tasks."results-publish"]
-description = "Copy the merged timing report into the website as static assets"
-run = "node benchmarks/scripts/publish-benchmarks.mjs"
 
 [tasks."package-sizes"]
 description = "Measure comparable local release and package artifacts"

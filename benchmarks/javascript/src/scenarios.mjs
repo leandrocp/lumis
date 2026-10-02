@@ -1,26 +1,20 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { do_not_optimize, measure } from "mitata";
-import { implementations } from "../../scripts/implementations.mjs";
+import { benchmarkImplementations } from "../../scripts/implementations.mjs";
+import { measureCall } from "./measure.mjs";
 
 const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const repoDir = resolve(benchmarksDir, "..");
 const implementation = process.env.BENCH_IMPLEMENTATION;
 const scenarioId = process.env.BENCH_SCENARIO;
 const requestedOutput = process.env.BENCH_OUTPUT;
-const minimumSamples = Number.parseInt(process.env.BENCH_SAMPLES ?? "10", 10);
-const measurementSeconds = Number.parseFloat(process.env.BENCH_TIME_SECONDS ?? "1");
 
 if (!requestedOutput) throw new Error("BENCH_OUTPUT is required");
 if (!scenarioId) throw new Error("BENCH_SCENARIO is required");
-if (!Number.isSafeInteger(minimumSamples) || minimumSamples < 2) {
-  throw new Error("BENCH_SAMPLES must be at least two");
-}
-if (!Number.isFinite(measurementSeconds) || measurementSeconds <= 0) {
-  throw new Error("BENCH_TIME_SECONDS must be positive");
-}
-if (!implementations.some(({ id, runner }) => id === implementation && runner === "mitata")) {
+if (
+  !benchmarkImplementations.some(({ id, runner }) => id === implementation && runner === "mitata")
+) {
   throw new Error(`unknown JavaScript benchmark implementation: ${implementation}`);
 }
 
@@ -69,11 +63,6 @@ if (outputBytes <= scenario.inputBytes) {
   throw new Error(`${implementation} did not expand ${scenario.id}`);
 }
 
-let result;
-const cleanup = () => {
-  result = undefined;
-  globalThis.gc?.();
-};
 // Setup is measured once and reported separately, never inside the loop. Lumis
 // keeps its parser catalog for the life of the process while web-tree-sitter
 // rebuilds one per highlighter, so timing setup per sample would compare how
@@ -82,22 +71,7 @@ const setupStart = performance.now();
 const measuredRuntime = await adapter.initialize();
 const setupNanoseconds = (performance.now() - setupStart) * 1e6;
 
-const stats = await measure(
-  async () => {
-    result = { runtime: measuredRuntime, outputBytes: adapter.render(measuredRuntime) };
-    do_not_optimize(result.outputBytes);
-  },
-  {
-    min_samples: minimumSamples,
-    max_samples: 1_000_000,
-    min_cpu_time: measurementSeconds * 1e9,
-    warmup_samples: 1,
-    batch_samples: 1,
-    gc: cleanup,
-    inner_gc: true,
-  },
-);
-cleanup();
+const stats = await measureCall(() => adapter.render(measuredRuntime));
 adapter.dispose(measuredRuntime);
 
 const { debug: _debug, ...serializableStats } = stats;

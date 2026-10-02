@@ -1,13 +1,9 @@
 import { ACTIVE_TAB_CLASSES, INACTIVE_TAB_CLASSES } from "../lib/utils";
 
 const DATA = "/comparison-data";
-const BENCHMARKS = "/benchmark-data";
-
-// The gallery renders whole files; the benchmark suite times a scenario. The one
-// worth putting next to an output is the common case, a single small file, and
-// the Lumis runtime that is the reference implementation for the rest.
-const TIMED_SCENARIO = "small-one-language";
-const TIMED_LUMIS_RUNTIME = "lumis-rust";
+// Each library highlighting each file it renders, published by
+// `mise run -C benchmarks comparison-timings-publish`.
+const TIMINGS = "/benchmark-data/comparison.json";
 
 interface ComparisonDocument {
   id: string;
@@ -19,6 +15,7 @@ interface ComparisonDocument {
   injections: string[];
   unsupported?: string[];
   tokens?: Record<string, number>;
+  outputSha256?: Record<string, Record<string, string>>;
 }
 
 interface ComparisonTheme {
@@ -26,6 +23,12 @@ interface ComparisonTheme {
   name: string;
   appearance: "light" | "dark";
   source: string;
+}
+
+interface Timings {
+  theme: string;
+  cpu: string | undefined;
+  documents: Map<string, Map<string, { totalNs: number; sha256: string }>>;
 }
 
 interface Manifest {
@@ -45,14 +48,16 @@ export function renderComparison() {
 
         <div class="comparison-shell mt-8 border border-zinc-200 dark:border-zinc-800">
           <div class="border-b border-zinc-200 px-5 py-4 dark:border-zinc-800">
-            <div class="comparison-documents flex gap-2 overflow-x-auto sm:flex-wrap" role="tablist" aria-label="Document"></div>
+            <p id="comparison-documents-label" class="mb-3 font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+              Source files
+            </p>
+            <div class="comparison-documents flex flex-wrap gap-2" role="tablist" aria-labelledby="comparison-documents-label"></div>
             <p class="comparison-summary mt-3 font-mono text-[11px] tracking-wider text-zinc-500 dark:text-zinc-400"></p>
           </div>
-          <div class="overflow-x-auto border-b border-zinc-200 px-5 dark:border-zinc-800">
-            <div class="comparison-implementations flex min-w-max gap-4 sm:gap-6" role="tablist" aria-label="Implementation"></div>
+          <div class="border-b border-zinc-200 px-5 dark:border-zinc-800">
+            <div class="comparison-implementations flex flex-wrap gap-x-4 sm:gap-x-6" role="tablist" aria-label="Implementation"></div>
           </div>
-          <p class="comparison-metrics flex flex-wrap gap-x-5 gap-y-1 border-b border-zinc-200 px-5 py-2.5 font-mono text-[11px] tracking-wider text-zinc-500 dark:border-zinc-800 dark:text-zinc-400"></p>
-          <div class="comparison-viewport h-[70vh] min-h-[420px] bg-[#e6e9ef] dark:bg-[#292c3c]">
+          <div class="comparison-viewport h-[70vh] min-h-[420px] bg-[#eff1f5] dark:bg-[#303446]">
             <iframe class="comparison-frame block h-full w-full border-0" title="Highlighted output" loading="eager"></iframe>
             <p class="comparison-unsupported hidden h-full items-center justify-center px-6 text-center font-mono text-sm text-[#4c4f69] dark:text-[#c6d0f5]"></p>
           </div>
@@ -76,23 +81,15 @@ export function renderComparison() {
           <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
             A token is a span the highlighter gave a colour to, counted in the output above.
             Grammars split punctuation and whitespace differently, so read it as how finely the file
-            was resolved rather than as a score. The timing beside it is separate work: the median of
-            highlighting one small Rust file in the
-            <a href="https://github.com/leandrocp/lumis/blob/main/benchmarks/README.md" target="_blank" rel="noreferrer"
-               class="text-cyan-600 underline-offset-2 hover:underline dark:text-cyan-400">benchmark suite</a>,
-            where the Lumis figure is its Rust runtime.
+            was resolved rather than as a score. The time beside it is that library highlighting that
+            file: the median of the call that produced the output above, with the highlighter already
+            built and its languages loaded. The Lumis figure is its Rust runtime.
+            <span class="comparison-machine"></span>
           </p>
           <dl class="comparison-provenance mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]"></dl>
         </div>
       </div>
     </section>`;
-}
-
-function metric(text: string) {
-  const value = document.createElement("span");
-  value.className = "tabular-nums text-zinc-900 dark:text-white";
-  value.textContent = text;
-  return value;
 }
 
 export async function setupComparison(root: HTMLElement) {
@@ -103,8 +100,11 @@ export async function setupComparison(root: HTMLElement) {
   const unsupported = root.querySelector<HTMLParagraphElement>(".comparison-unsupported")!;
   const shell = root.querySelector<HTMLDivElement>(".comparison-shell")!;
   const missing = root.querySelector<HTMLParagraphElement>(".comparison-missing")!;
-  const metrics = root.querySelector<HTMLParagraphElement>(".comparison-metrics")!;
+  const machine = root.querySelector<HTMLSpanElement>(".comparison-machine")!;
 
+  // The timings are not needed until the panel is drawn, so they load alongside
+  // the manifest rather than after it.
+  const loadingTimings = loadTimings();
   let manifest: Manifest;
   try {
     const response = await fetch(`${DATA}/manifest.json`);
@@ -118,7 +118,10 @@ export async function setupComparison(root: HTMLElement) {
     return;
   }
 
-  const timings = await loadTimings();
+  const timings = await loadingTimings;
+  if (timings?.cpu) {
+    machine.textContent = `Every time was measured in one run on one machine: ${timings.cpu}.`;
+  }
 
   // Switching either tab reloads the frame, so the frame reports where it is and
   // the next page is asked to resume there. Positions are kept per document,
@@ -135,7 +138,7 @@ export async function setupComparison(root: HTMLElement) {
     provenance.append(term, detail);
   }
 
-  const positions = new Map<string, { x: number; y: number }>();
+  const positions = new Map<string, number>();
   let currentDocument = manifest.documents[0]!;
   let currentImplementation = manifest.implementations[0]!;
 
@@ -155,25 +158,34 @@ export async function setupComparison(root: HTMLElement) {
   });
 
   addEventListener("message", (event: MessageEvent) => {
-    const scroll = (event.data as { lumisShowcaseScroll?: { x: number; y: number } } | null)
-      ?.lumisShowcaseScroll;
-    if (scroll) positions.set(currentDocument.id, scroll);
+    const scroll = (event.data as { lumisShowcaseScroll?: number } | null)?.lumisShowcaseScroll;
+    if (typeof scroll === "number") positions.set(currentDocument.id, scroll);
   });
 
+  // One line under the file tabs, which already name the file and leave the
+  // flavour to the reader's setting: what the file is, then two numbers for the
+  // output on screen rather than a table that competes with it. How finely this
+  // file was resolved, and how long this library took to highlight it.
   function describe() {
     const injections =
       currentDocument.injections.length > 0 ? ` + ${currentDocument.injections.join(" + ")}` : "";
-    summary.replaceChildren(
-      `${currentTheme.name} · ${currentDocument.languageLabel}${injections} · ` +
-        `${currentDocument.lines.toLocaleString()} lines · ${currentDocument.label} · `,
-    );
+    const parts = [
+      `${currentDocument.languageLabel}${injections}`,
+      `${currentDocument.lines.toLocaleString()} lines`,
+    ];
+
+    const tokens = currentDocument.tokens?.[currentImplementation.id];
+    if (tokens !== undefined) parts.push(`${tokens.toLocaleString()} tokens`);
+    const nanoseconds = timeOf(timings, currentDocument, currentImplementation.id);
+    if (nanoseconds !== undefined) parts.push(`${formatDuration(nanoseconds)} highlight`);
+
     const link = document.createElement("a");
     link.href = currentDocument.source;
     link.target = "_blank";
     link.rel = "noreferrer";
     link.className = "text-cyan-600 underline-offset-2 hover:underline dark:text-cyan-400";
     link.textContent = "Original source";
-    summary.append(link);
+    summary.replaceChildren(`${parts.join(" · ")} · `, link);
   }
 
   function show() {
@@ -187,50 +199,14 @@ export async function setupComparison(root: HTMLElement) {
       ? `${currentImplementation.label} does not support ${currentDocument.languageLabel}.`
       : "";
 
-    const at = positions.get(currentDocument.id) ?? { x: 0, y: 0 };
     frame.src = isUnsupported
       ? "about:blank"
       : `${DATA}/${currentDocument.id}/${currentTheme.id}/${currentImplementation.id}.html` +
-        `#at=${at.x},${at.y}`;
+        `#at=${positions.get(currentDocument.id) ?? 0}`;
     frame.title =
       `${currentImplementation.label} highlighting ${currentDocument.label} ` +
       `in ${currentTheme.name}`;
     describe();
-    describeMetrics();
-  }
-
-  // Two numbers for whichever output is on screen, rather than a table that
-  // competes with it: how finely this file was resolved, and how fast the same
-  // library highlights in the benchmark suite.
-  function describeMetrics() {
-    const tokens = currentDocument.tokens?.[currentImplementation.id];
-    const nanoseconds = timings.get(currentImplementation.id);
-
-    metrics.replaceChildren();
-    if (tokens === undefined && nanoseconds === undefined) {
-      metrics.classList.add("hidden");
-      return;
-    }
-    metrics.classList.remove("hidden");
-
-    if (tokens !== undefined) {
-      metrics.append(metric(`${tokens.toLocaleString()} tokens`));
-    }
-    if (nanoseconds !== undefined) {
-      metrics.append(metric(`${formatDuration(nanoseconds)} to highlight`));
-    }
-  }
-
-  // A build without the timing report still gets the gallery and the token
-  // counts, so a missing or malformed file is silence rather than an error.
-  async function loadTimings() {
-    try {
-      const response = await fetch(`${BENCHMARKS}/results.json`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return readTimings(await response.json());
-    } catch {
-      return new Map<string, number>();
-    }
   }
 
   function paint(container: HTMLElement, selected: string) {
@@ -270,7 +246,7 @@ export async function setupComparison(root: HTMLElement) {
     button.dataset.id = entry.id;
     button.setAttribute("role", "tab");
     button.className =
-      "cursor-pointer border-b-2 py-3 font-mono text-xs tracking-wider whitespace-nowrap uppercase transition-colors";
+      "cursor-pointer border-b-2 py-2 font-mono text-[11px] tracking-wider whitespace-nowrap uppercase transition-colors sm:py-3 sm:text-xs";
     button.textContent = entry.label;
     button.addEventListener("click", selectImplementation(entry));
     implementationTabs.append(button);
@@ -281,35 +257,70 @@ export async function setupComparison(root: HTMLElement) {
   show();
 }
 
-// The report is fetched, so nothing about its shape is known until it has been
-// checked. Anything unexpected throws and the caller drops the whole map, which
-// is why the map is built here rather than filled in by the caller: half a
-// report would put `NaN µs` under one output and nothing under the next.
-function readTimings(report: unknown): Map<string, number> {
-  if (!isObject(report) || !Array.isArray(report.scenarios)) {
-    throw new Error("timing report has no scenarios");
-  }
-  const scenario = report.scenarios.find((entry) => isObject(entry) && entry.id === TIMED_SCENARIO);
-  if (!isObject(scenario) || !Array.isArray(scenario.results)) {
-    throw new Error(`timing report has no ${TIMED_SCENARIO} results`);
-  }
-  const timings = new Map<string, number>();
-  for (const result of scenario.results) {
-    const { id, totalNs } = readTimingResult(result);
-    timings.set(id === TIMED_LUMIS_RUNTIME ? "lumis" : id, totalNs);
-  }
-  return timings;
+// A time is shown only beside the output it measured. Once the comparison is
+// republished with a different output, the old time names an output the page no
+// longer has, and goes until the comparison is timed again.
+function timeOf(
+  timings: Timings | undefined,
+  document: ComparisonDocument,
+  implementationId: string,
+): number | undefined {
+  if (!timings) return undefined;
+  const timed = timings.documents.get(document.id)?.get(implementationId);
+  const shown = document.outputSha256?.[implementationId]?.[timings.theme];
+  return timed && timed.sha256 === shown ? timed.totalNs : undefined;
 }
 
-function readTimingResult(result: unknown): { id: string; totalNs: number } {
-  if (!isObject(result) || typeof result.id !== "string") {
-    throw new Error(`${TIMED_SCENARIO} has a result without an id`);
+// A build without the timing report still gets the gallery and the token
+// counts, so a missing or malformed file is silence rather than an error.
+async function loadTimings(): Promise<Timings | undefined> {
+  try {
+    const response = await fetch(TIMINGS);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return readTimings(await response.json());
+  } catch {
+    return undefined;
+  }
+}
+
+// The report is fetched, so nothing about its shape is known until it has been
+// checked. Anything unexpected throws and the caller drops the whole report,
+// which is why the maps are built here rather than filled in by the caller: half
+// a report would put `NaN µs` under one output and nothing under the next.
+function readTimings(report: unknown): Timings {
+  if (!isObject(report) || typeof report.theme !== "string" || !Array.isArray(report.documents)) {
+    throw new Error("timing report has no theme or documents");
+  }
+  const documents: Timings["documents"] = new Map();
+  for (const entry of report.documents) {
+    if (!isObject(entry) || typeof entry.id !== "string" || !Array.isArray(entry.results)) {
+      throw new Error("timing report has a document without an id or results");
+    }
+    const documentId = entry.id;
+    documents.set(
+      documentId,
+      new Map(entry.results.map((result) => readTimingResult(result, documentId))),
+    );
+  }
+  const cpu =
+    isObject(report.system) && typeof report.system.cpu === "string"
+      ? report.system.cpu
+      : undefined;
+  return { theme: report.theme, cpu, documents };
+}
+
+function readTimingResult(
+  result: unknown,
+  documentId: string,
+): [string, { totalNs: number; sha256: string }] {
+  if (!isObject(result) || typeof result.id !== "string" || typeof result.sha256 !== "string") {
+    throw new Error(`${documentId} has a result without an id or output hash`);
   }
   if (!isPositiveFinite(result.totalNs)) {
-    throw new Error(`${result.id} has no positive Total`);
+    throw new Error(`${result.id} has no positive time for ${documentId}`);
   }
 
-  return { id: result.id, totalNs: result.totalNs };
+  return [result.id, { totalNs: result.totalNs, sha256: result.sha256 }];
 }
 
 function isPositiveFinite(value: unknown): value is number {
@@ -321,7 +332,7 @@ function isObject(value: unknown): value is { [key: string]: unknown } {
 }
 
 function formatDuration(ns: number) {
-  if (ns >= 1e9) return `${(ns / 1e9).toFixed(2)} s`;
-  if (ns >= 1e6) return `${(ns / 1e6).toFixed(2)} ms`;
-  return `${(ns / 1e3).toFixed(0)} µs`;
+  if (ns >= 1e9) return `${(ns / 1e9).toFixed(2)}s`;
+  if (ns >= 1e6) return `${(ns / 1e6).toFixed(2)}ms`;
+  return `${(ns / 1e3).toFixed(0)}µs`;
 }

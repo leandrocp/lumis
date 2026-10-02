@@ -80,7 +80,7 @@
   "documents": [
     {
       "id": "webgpu",
-      "label": "three.js WebGPU compute reduce",
+      "label": "three.js WebGPU",
       "language": "html",
       "languageLabel": "HTML",
       "source": "https://github.com/mrdoob/three.js/blob/6365c1a0af6a32ed45f99712197555fee2f4b24a/examples/webgpu_compute_reduce.html",
@@ -102,6 +102,44 @@
         "sugar-high": 7318,
         "syntect": 6718,
         "tanstack-highlight": 1881
+      },
+      "outputSha256": {
+        "lumis": {
+          "latte": "9152149e536e9c1746e489020d2344e98ab047521644302ab6177fbcb037f4ef",
+          "frappe": "a343af144b44c3ef5c277cc1e4779490f010580db9da81d4018b008f18507940"
+        },
+        "highlight-js": {
+          "latte": "19a74394ff8bbeda9b005c844ca6d0e59fd4098043c5ffbcc37a3e82470caf11",
+          "frappe": "14ed110d5eb13f81567fdbdfe23daf4aee6e5042b2fb80afef9a57fa1a1d2087"
+        },
+        "prism": {
+          "latte": "9a52c1d9851a707a6c839122f80e4d48dc9bbca841afee243a6c6a722d0ce89f",
+          "frappe": "ca0bfb82c799c527b6c9116b8c50304adf250a3d57cf454571a874392386712b"
+        },
+        "shiki": {
+          "latte": "7a6cb3cd1b27f2ab93be9b1c48736df9d02cd14e8b30c1c2011b47d6ef9b3b27",
+          "frappe": "baf99e43821117452404840f693b23b4c51bc50ae0c2071f999554dd36ccc59f"
+        },
+        "speed-highlight": {
+          "latte": "bbfccec9cf917449371f1176113a1e45064bb2909283ec689957b174920f41fe",
+          "frappe": "665b9496c772d6660412d795a5487c890b070c18db8a44beb18274b31cb71e11"
+        },
+        "starry-night": {
+          "latte": "c9ceffbfb7a31133294ed03ec1d0b45f0940b196e44bb145a0325a06e5d2457e",
+          "frappe": "4051966247aa032ae1c54b5bdb3ed347b8406c3a48b45354065b70fd41d2e153"
+        },
+        "sugar-high": {
+          "latte": "b003e6c5f299b07c20052ce20d8d4b06d54be8d650611c3a661c0f006c1b5651",
+          "frappe": "d5892c4c8425ea67efcad12b89effe87f7e4d8828537cd88b4d60e00ec91a826"
+        },
+        "syntect": {
+          "latte": "c2236b9ba19832fe7b6d9b03e820d5006be57ad6e0951a0c2a54132f3881b258",
+          "frappe": "585df1b3ef605088ede58af02e2157a2c12af33b965fd7f55ea088923c0ac1da"
+        },
+        "tanstack-highlight": {
+          "latte": "06d67b99879681c92c63fdb7180fffc99be58d6a6485ede92e2043ced7e7f02a",
+          "frappe": "0e911e5be710a5ad3ca46a3635668c48c218a01af5ca426153e3abfa0cad5092"
+        }
       }
     },
     {
@@ -127,6 +165,40 @@
         "starry-night": 2508,
         "sugar-high": 8614,
         "syntect": 4157
+      },
+      "outputSha256": {
+        "lumis": {
+          "latte": "83505105817d7da6d3e58b3079f5e62755604a0335ffecafba46b4ccf2582339",
+          "frappe": "bc70814d29beefca39365460d7afcb7ecc7597f03f5f4250c42cefb11bca216f"
+        },
+        "highlight-js": {
+          "latte": "3cdd23c248e387a4aed0b27540971c25f340bdcf9267838dce4f8a8e0f9ac38a",
+          "frappe": "da30dc6830f4983995f07f8092bc7564ceb65c1f8b85f537acbb5b7e70b165a7"
+        },
+        "prism": {
+          "latte": "828fa4f1d73e01b03539bb9c0eec4f3b77f7a32fa504a4fc9ae2cef9ed1b242a",
+          "frappe": "6f3898a5a539b92e24d7e12533e1fe151f4e83af1b8c9f92a9a6b0874c1c3339"
+        },
+        "shiki": {
+          "latte": "a8309db90135660dc5eafd90c7f36596c8072d78f73bb44dfb049f43004c1c33",
+          "frappe": "176a30cfa7a2c7e8eff7b38f7ccdaec41607887ed4a0a8c84576ca213486e014"
+        },
+        "speed-highlight": {
+          "latte": "615fd313397f4c0636a44a7a99f92a45cb52e6ca891fc142264e66c8efa533e5",
+          "frappe": "f12eafc4f8d14ce0ef6c7c95af01950a2d0c0ac64794182e1c7d397b6ac291ab"
+        },
+        "starry-night": {
+          "latte": "c35b31ede563ef55e0f4293dcfefa842a3df382e6eda59458d91a99e0194457d",
+          "frappe": "9564b6a6882dd93334b9f41431fe9816bc5251e825fd4f04d8fb8d28df26b692"
+        },
+        "sugar-high": {
+          "latte": "7098db659640999d1d89441c0d90891b7c851138ae10d28c973fe09445ad0075",
+          "frappe": "e9224055d329ecb0c98e95aa721107d5743f7c4f949d5fbf06cad1a1d20a4d03"
+        },
+        "syntect": {
+          "latte": "110f01482dc0547cc8bfee2f6e174b770da32c9315b7342d9b558fab643a9e20",
+          "frappe": "426103f386c9d2c1f8bb582677365b43b263ee1fc332d1331f09ba16c2e5fe13"
+        }
       }
     },
     {
@@ -154,6 +226,32 @@
         "shiki": 3668,
         "starry-night": 2519,
         "syntect": 3242
+      },
+      "outputSha256": {
+        "lumis": {
+          "latte": "709972920b83e7d3850ab76a807158d62df7666663a76077b19895b3fbb389c7",
+          "frappe": "88f5d7cb77dcbf804d80d6059aab8542b2d68bb2c577da2664ad39fa0ffa9482"
+        },
+        "highlight-js": {
+          "latte": "f6d517f08dafe107db75346800865231474faa957eeed54a31ed67f195a0c9d7",
+          "frappe": "f30813ca923cf71432c6cce893d68d38fc83174f3e7ee2a0ee364b2f4043ad23"
+        },
+        "prism": {
+          "latte": "a2110b003c4ad684ec64dba07b6fbf4b029644db6371775db8c1933fe2bcff1f",
+          "frappe": "4d69e4e1cf54362267f778fbfd52a3ba94c541da1d45bcd29aab25564516836f"
+        },
+        "shiki": {
+          "latte": "ac27ea9676bf0544791a2ce485cb44c8e381f1568ffdb4c66c4b483d056b11de",
+          "frappe": "56b610051370d8f9cd99df89a9f2c9ec8820fc8181d8bef4c2fbf8ddd3eca8ed"
+        },
+        "starry-night": {
+          "latte": "4deed61580352ae209ca30294f85ceb597e819b865d2dabd665add9f4de357cc",
+          "frappe": "c0849067e0448c711a4e5bd98fa4614725571a2accef60c4ee5f55d876feb37a"
+        },
+        "syntect": {
+          "latte": "a2abb6fa2adacf8d5632fe9a5644b6d7077de55d0daaadcfaa2bc4e0e9a6f11f",
+          "frappe": "5eaf0e4a3befded462756d3d8744ef65dee234ff04de983ac77f5538e230e84b"
+        }
       }
     },
     {
@@ -178,6 +276,44 @@
         "sugar-high": 7182,
         "syntect": 6824,
         "tanstack-highlight": 2355
+      },
+      "outputSha256": {
+        "lumis": {
+          "latte": "4d48df68757d86b476542dd585ab982f1e7f804b475136ca7714592eb4000301",
+          "frappe": "5d3a02c484c84ed81f4f160e35d0eca701dfab2262233fe1901fe8ef72678935"
+        },
+        "highlight-js": {
+          "latte": "5973d6cedb835d27fa908fe4ac6593a36fa807a792c42b31e454843bc5098d1a",
+          "frappe": "3d435b2bf1b6cdb0a3a00f62c0062c697b829f5223117470b9b77d127b7e8896"
+        },
+        "prism": {
+          "latte": "96035a5ccfc9649de23ed6a9c25c17ce332f9e04f68ff2f34f79fa92eff0955b",
+          "frappe": "9a0f57ce202bb0d02d746017f294ac13c5e88d2f6a0dbb939b969a1f5feaa5d7"
+        },
+        "shiki": {
+          "latte": "8116e65034d6daea6416adf620da483d6a7e01970f0af7a4ccebc8ae26bc84da",
+          "frappe": "e4a32bf70a43677e02b605bc20c0ef6d647baac9fa319159038060d3e4254c22"
+        },
+        "speed-highlight": {
+          "latte": "e35f01b93db4a7127aa9e937ad87bb7791d38ce7863f6160d071c96c4aa4275f",
+          "frappe": "eec5642f442df6bf27db224af710de5d938ea9ad661e25ce9e7a634333ef6c3a"
+        },
+        "starry-night": {
+          "latte": "07e8fe6a2c216faa914c7f4016836e106b59c86c2d2c130679f9a343f810da04",
+          "frappe": "cfdd1f8ecabd8d3d510346e692399bf26e093f99dd17e5ff36940b3645d13ae4"
+        },
+        "sugar-high": {
+          "latte": "7e78ed1463c2b5f6cfdfffd79762afcd96a8e66d21c4096a39a184800d0b1caa",
+          "frappe": "cdc6fe22b2138fde2b1b02ea6e8f22ce4c207f0a97b445001de8017aeee81f37"
+        },
+        "syntect": {
+          "latte": "4ecb52594eb94ebd53209bec7302bcb07a6e46d8bef410ad65ac13c8551687f0",
+          "frappe": "07ce008396fc1065e407fb213a2dceac2fc23e8d802bb11095a7426b0fe728b4"
+        },
+        "tanstack-highlight": {
+          "latte": "9bc7519ec085ae6f842cdf6849c9c34a0c556f4ccf746898ef7dc50ff8652197",
+          "frappe": "8b3c6afe764514e3843062528469489fab74f82c2a7ca800afcc6e80dfcbb0ba"
+        }
       }
     },
     {
@@ -206,6 +342,44 @@
         "sugar-high": 385,
         "syntect": 839,
         "tanstack-highlight": 166
+      },
+      "outputSha256": {
+        "lumis": {
+          "latte": "432922c2f59523fe88d36595f99bf97d9de611697573aac9c27b1ee73a7bd00b",
+          "frappe": "7872eb55c273639fff5666ce9e78dbcb2023b8cae5db8474c990339d5bc48d40"
+        },
+        "highlight-js": {
+          "latte": "89d73fe9441dcb23723eb8eea2b81d2c1f2696a9ae82c4fe1e503a31bb23e63a",
+          "frappe": "cdfd2fd302ad69c9f32c751a22b3f94263c995bd87bf68ee75be2b03d95adede"
+        },
+        "prism": {
+          "latte": "32fb0a40213471ad0d530893a81d5757301b9c2af3b1d137a3f5db8b8cf337c4",
+          "frappe": "acdf05d761c9011da9b2b0b6dca027d5c0024858e2330fedc6b410ad123de02d"
+        },
+        "shiki": {
+          "latte": "752de8e47abf9aed03736f216f0dc4e948a70e043cf74f0ab90cc2f0608b5743",
+          "frappe": "55f6bbdbae659c1e756e0d11918f1b37fc30daa8fe271e09078425d153074e09"
+        },
+        "speed-highlight": {
+          "latte": "ac1f1634378e82d3e4ae8e424576c996efb6875825973434a23709d79312579d",
+          "frappe": "e2f1f71bf1ba76b9728823be6bad09693ba91cd38a209701c6b4dc7a69bd0c19"
+        },
+        "starry-night": {
+          "latte": "e99e67f58d9aaa70bbb7036f680da7c4798cc7adbe366770ef1145e8efb03ecc",
+          "frappe": "4df6e59779e1f9919afbabbb0d634aab5e056790627ac17bbcf860bea338398e"
+        },
+        "sugar-high": {
+          "latte": "910695b5be462a57d994c9c1491e8235926586a8139020b2559542843541a4fa",
+          "frappe": "02861ecac79f9b9cd26f97bf357936044419b3ea3306bd2223f3db63e2e66b41"
+        },
+        "syntect": {
+          "latte": "5076c81ca17aa210f3b20d36bb924ad171df012733032da03309b90763385ada",
+          "frappe": "8ec7a9935e1bdcf2dcaccc3991d316964d3aed560f63bf43817124e27299044d"
+        },
+        "tanstack-highlight": {
+          "latte": "2eb84b4f8b8c51879bc82bd36f0f3b4c6ce5dd82af8a1dc2a52602388ba2b5fd",
+          "frappe": "82b2d88052fb94e78c86a186e0420dd8694b79b727242cf8046431cc69f98007"
+        }
       }
     },
     {
@@ -230,6 +404,44 @@
         "sugar-high": 4331,
         "syntect": 2946,
         "tanstack-highlight": 838
+      },
+      "outputSha256": {
+        "lumis": {
+          "latte": "15936e000c9184070ec67a9d38498f6f7c682640834ca1fc7cbe874dcd827bb7",
+          "frappe": "2ee8337037df57b1306f8e68f3d7bbebfba7b7866eaa3942d48e13efaf2407a3"
+        },
+        "highlight-js": {
+          "latte": "1a991a58ed8b42afd451342013c910b7e3da7e42124100333c6b3d9b28048ef7",
+          "frappe": "d73c1db1b50454013e21a9240eec8203029c93427412b6ecf18ee172723944a9"
+        },
+        "prism": {
+          "latte": "948845deded5ff9c50392a9e5a31dc354c12b0790c84a0255f52faab9f409cf1",
+          "frappe": "3b6d5e0d473b259c37a40713480663e004e16376c932735ac08c13459ae1dba9"
+        },
+        "shiki": {
+          "latte": "b5211d42d9f8b40676de7640fe3209bd43ba09860838976b5591d7285d7a9cf2",
+          "frappe": "99f7ae0d58656d0d98512ccf16048637ed6d5ea36f1853ae767a98e4b4fa488a"
+        },
+        "speed-highlight": {
+          "latte": "9e9765931570f4bd98dedaeb29ac67fb66c53ad3c7b9facfbcbe0fbf8bcd3897",
+          "frappe": "664fcd508173fccd4fc24781903495e9298c37f3767f83bd0f66ed8d47eb4c7b"
+        },
+        "starry-night": {
+          "latte": "1b2d068857bbf6232699cc54eb5e7f5cf3dbb9ed66b937686253280134a92f29",
+          "frappe": "a30f285fcc8fc36c01f84e9222734014e4e6b2d9835791dbbf80e0593ec48596"
+        },
+        "sugar-high": {
+          "latte": "dfb71548c61a1fea1490441674122861630d36b4a1e020dad24667df8a5f7927",
+          "frappe": "d82d77c34d41880245597f64c0df833f30f236971c7d01859c5ede55ac2ad356"
+        },
+        "syntect": {
+          "latte": "f116cf85c8fb576fc0adcf9d208088e3562ceac4a8925739525c0c42e79fd802",
+          "frappe": "be174c6a250c6d2a52bc0cdfdb8d2d2d2dbe9e3d04e927f96b561176140f0199"
+        },
+        "tanstack-highlight": {
+          "latte": "04abbb89d5abec4322d40c73fcf22eefe06c92eaf736b300cd7457d165b323ac",
+          "frappe": "a82134b5e70dac64222f125da3643e4be4c1cb8c5f34f470b6ff7d5acd62f106"
+        }
       }
     }
   ]

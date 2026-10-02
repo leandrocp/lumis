@@ -257,11 +257,19 @@ for (const document of documents) {
       // resolved, so one token count covers both and a disagreement is a mix-up in
       // the pipeline rather than a second number to publish.
       const tokens = countTokens(fragment, label);
+      const outputBytes = Buffer.byteLength(fragment);
+      const sha256 = createHash("sha256").update(fragment).digest("hex");
       const recorded = outputs.get(id);
       if (recorded === undefined) {
-        outputs.set(id, { id, tokens, outputBytes: { [theme.id]: Buffer.byteLength(fragment) } });
+        outputs.set(id, {
+          id,
+          tokens,
+          outputBytes: { [theme.id]: outputBytes },
+          sha256: { [theme.id]: sha256 },
+        });
       } else if (recorded.tokens === tokens) {
-        recorded.outputBytes[theme.id] = Buffer.byteLength(fragment);
+        recorded.outputBytes[theme.id] = outputBytes;
+        recorded.sha256[theme.id] = sha256;
       } else {
         throw new Error(
           `${label} found ${tokens} tokens in ${document.id} with ${theme.name} but ` +
@@ -416,20 +424,23 @@ function pageHtml({ fragment, label, theme }) {
   <meta name="color-scheme" content="${theme.appearance}">
   <style>
     * { box-sizing: border-box; }
-    /* Mobile browsers enlarge text in blocks wider than the screen, and every
-       output here is. */
+    /* Mobile browsers enlarge text in long blocks of it, and every output here
+       is one. */
     html { background: ${theme.chrome.background}; color: ${theme.chrome.foreground}; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-    body { margin: 0; }
-    main { padding: 16px; min-width: max-content; }
-    pre { margin: 0 !important; padding: 20px !important; border: 1px solid ${theme.chrome.border}; border-radius: 10px; overflow: visible !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
+    body { margin: 0; overflow: hidden; }
+    /* The output is the whole panel and scrolls itself, so its scrollbar sits on
+       the colour the library painted rather than on the page's, which is not the
+       same colour for every port. It scrolls one way only: long lines wrap
+       rather than sit behind a second scrollbar. */
+    pre { height: 100vh; margin: 0 !important; padding: 20px !important; overflow: hidden auto !important; scrollbar-width: thin; scrollbar-color: ${theme.chrome.scrollbar} transparent; white-space: pre-wrap !important; overflow-wrap: anywhere !important; font: 13px/1.55 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !important; tab-size: 4; }
     /* Most outputs wrap their tokens in a <code>, which browsers set in the
        generic monospace rather than the font above, and one wraps them in nothing.
        Two fonts on a line give it two sets of metrics, so the same file was set
        at a different line height per library until every element took the
-       panel's font. */
-    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+       panel's font. Wrapping is the same: one element that stopped it would make
+       that output taller or shorter than the rest. */
+    pre * { font-family: inherit !important; font-size: inherit !important; line-height: inherit !important; white-space: inherit !important; overflow-wrap: inherit !important; }
     @media (max-width: 640px) {
-      main { padding: 8px; }
       pre { padding: 12px !important; font-size: 11px !important; }
     }
     /* highlight.js themes paint the panel on the code element and pad it, and
@@ -442,10 +453,11 @@ function pageHtml({ fragment, label, theme }) {
   <main>${fragment}</main>
   <script>
     (function () {
-      var at = location.hash.match(/^#at=(\\d+),(\\d+)$/);
-      if (at) window.scrollTo(Number(at[1]), Number(at[2]));
-      addEventListener("scroll", function () {
-        parent.postMessage({ lumisShowcaseScroll: { x: scrollX, y: scrollY } }, "*");
+      var panel = document.querySelector("pre");
+      var at = location.hash.match(/^#at=(\\d+)$/);
+      if (at) panel.scrollTop = Number(at[1]);
+      panel.addEventListener("scroll", function () {
+        parent.postMessage({ lumisShowcaseScroll: panel.scrollTop }, "*");
       }, { passive: true });
     })();
   </script>

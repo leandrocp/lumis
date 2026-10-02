@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "metric": "median",
+  "timingBoundary": "one highlight of the whole document through the call that rendered the published output, with Lumis as Lumis Rust; building the highlighter and loading its languages are excluded",
+  "theme": "latte",
+  "system": {
+    "platform": "darwin",
+    "release": "27.0.0",
+    "architecture": "arm64",
+    "cpu": "Apple M1 Pro"
+  },
+  "documents": [
+    {
+      "id": "webgpu",
+      "results": [
+        {
+          "id": "lumis",
+          "totalNs": 16942861,
+          "sha256": "9152149e536e9c1746e489020d2344e98ab047521644302ab6177fbcb037f4ef"
+        },
+        {
+          "id": "highlight-js",
+          "totalNs": 17667834,
+          "sha256": "19a74394ff8bbeda9b005c844ca6d0e59fd4098043c5ffbcc37a3e82470caf11"
+        },
+        {
+          "id": "prism",
+          "totalNs": 11240000,
+          "sha256": "9a52c1d9851a707a6c839122f80e4d48dc9bbca841afee243a6c6a722d0ce89f"
+        },
+        {
+          "id": "shiki",
+          "totalNs": 97827583,
+          "sha256": "7a6cb3cd1b27f2ab93be9b1c48736df9d02cd14e8b30c1c2011b47d6ef9b3b27"
+        },
+        {
+          "id": "speed-highlight",
+          "totalNs": 6552208,
+          "sha256": "bbfccec9cf917449371f1176113a1e45064bb2909283ec689957b174920f41fe"
+        },
+        {
+          "id": "starry-night",
+          "totalNs": 81647833,
+          "sha256": "c9ceffbfb7a31133294ed03ec1d0b45f0940b196e44bb145a0325a06e5d2457e"
+        },
+        {
+          "id": "sugar-high",
+          "totalNs": 12875166,
+          "sha256": "b003e6c5f299b07c20052ce20d8d4b06d54be8d650611c3a661c0f006c1b5651"
+        },
+        {
+          "id": "syntect",
+          "totalNs": 77066999.5,
+          "sha256": "c2236b9ba19832fe7b6d9b03e820d5006be57ad6e0951a0c2a54132f3881b258"
+        },
+        {
+          "id": "tanstack-highlight",
+          "totalNs": 4952375,
+          "sha256": "06d67b99879681c92c63fdb7180fffc99be58d6a6485ede92e2043ced7e7f02a"
+        }
+      ]
+    },
+    {
+      "id": "ripgrep",
+      "results": [
+        {
+          "id": "lumis",
+          "totalNs": 8494738.01875,
+          "sha256": "83505105817d7da6d3e58b3079f5e62755604a0335ffecafba46b4ccf2582339"
+        },
+        {
+          "id": "highlight-js",
+          "totalNs": 7463167,
+          "sha256": "3cdd23c248e387a4aed0b27540971c25f340bdcf9267838dce4f8a8e0f9ac38a"
+        },
+        {
+          "id": "prism",
+          "totalNs": 8260458,
+          "sha256": "828fa4f1d73e01b03539bb9c0eec4f3b77f7a32fa504a4fc9ae2cef9ed1b242a"
+        },
+        {
+          "id": "shiki",
+          "totalNs": 44748917,
+          "sha256": "a8309db90135660dc5eafd90c7f36596c8072d78f73bb44dfb049f43004c1c33"
+        },
+        {
+          "id": "speed-highlight",
+          "totalNs": 3382625,
+          "sha256": "615fd313397f4c0636a44a7a99f92a45cb52e6ca891fc142264e66c8efa533e5"
+        },
+        {
+          "id": "starry-night",
+          "totalNs": 44378042,
+          "sha256": "c35b31ede563ef55e0f4293dcfefa842a3df382e6eda59458d91a99e0194457d"
+        },
+        {
+          "id": "sugar-high",
+          "totalNs": 6574792,
+          "sha256": "7098db659640999d1d89441c0d90891b7c851138ae10d28c973fe09445ad0075"
+        },
+        {
+          "id": "syntect",
+          "totalNs": 28977176.75,
+          "sha256": "110f01482dc0547cc8bfee2f6e174b770da32c9315b7342d9b558fab643a9e20"
+        }
+      ]
+    },
+    {
+      "id": "livebook",
+      "results": [
+        {
+          "id": "lumis",
+          "totalNs": 19624930.333333336,
+          "sha256": "709972920b83e7d3850ab76a807158d62df7666663a76077b19895b3fbb389c7"
+        },
+        {
+          "id": "highlight-js",
+          "totalNs": 3990458,
+          "sha256": "f6d517f08dafe107db75346800865231474faa957eeed54a31ed67f195a0c9d7"
+        },
+        {
+          "id": "prism",
+          "totalNs": 5081792,
+          "sha256": "a2110b003c4ad684ec64dba07b6fbf4b029644db6371775db8c1933fe2bcff1f"
+        },
+        {
+          "id": "shiki",
+          "totalNs": 36481667,
+          "sha256": "ac27ea9676bf0544791a2ce485cb44c8e381f1568ffdb4c66c4b483d056b11de"
+        },
+        {
+          "id": "starry-night",
+          "totalNs": 30707916,
+          "sha256": "4deed61580352ae209ca30294f85ceb597e819b865d2dabd665add9f4de357cc"
+        },
+        {
+          "id": "syntect",
+          "totalNs": 11781324.899999999,
+          "sha256": "a2abb6fa2adacf8d5632fe9a5644b6d7077de55d0daaadcfaa2bc4e0e9a6f11f"
+        }
+      ]
+    },
+    {
+      "id": "go",
+      "results": [
+        {
+          "id": "lumis",
+          "totalNs": 14142369.625,
+          "sha256": "4d48df68757d86b476542dd585ab982f1e7f804b475136ca7714592eb4000301"
+        },
+        {
+          "id": "highlight-js",
+          "totalNs": 6614792,
+          "sha256": "5973d6cedb835d27fa908fe4ac6593a36fa807a792c42b31e454843bc5098d1a"
+        },
+        {
+          "id": "prism",
+          "totalNs": 8836625,
+          "sha256": "96035a5ccfc9649de23ed6a9c25c17ce332f9e04f68ff2f34f79fa92eff0955b"
+        },
+        {
+          "id": "shiki",
+          "totalNs": 76010042,
+          "sha256": "8116e65034d6daea6416adf620da483d6a7e01970f0af7a4ccebc8ae26bc84da"
+        },
+        {
+          "id": "speed-highlight",
+          "totalNs": 3093541,
+          "sha256": "e35f01b93db4a7127aa9e937ad87bb7791d38ce7863f6160d071c96c4aa4275f"
+        },
+        {
+          "id": "starry-night",
+          "totalNs": 27196375,
+          "sha256": "07e8fe6a2c216faa914c7f4016836e106b59c86c2d2c130679f9a343f810da04"
+        },
+        {
+          "id": "sugar-high",
+          "totalNs": 5637625,
+          "sha256": "7e78ed1463c2b5f6cfdfffd79762afcd96a8e66d21c4096a39a184800d0b1caa"
+        },
+        {
+          "id": "syntect",
+          "totalNs": 40002302,
+          "sha256": "4ecb52594eb94ebd53209bec7302bcb07a6e46d8bef410ad65ac13c8551687f0"
+        },
+        {
+          "id": "tanstack-highlight",
+          "totalNs": 3223375,
+          "sha256": "9bc7519ec085ae6f842cdf6849c9c34a0c556f4ccf746898ef7dc50ff8652197"
+        }
+      ]
+    },
+    {
+      "id": "readme",
+      "results": [
+        {
+          "id": "lumis",
+          "totalNs": 5639709.162828947,
+          "sha256": "432922c2f59523fe88d36595f99bf97d9de611697573aac9c27b1ee73a7bd00b"
+        },
+        {
+          "id": "highlight-js",
+          "totalNs": 1713084,
+          "sha256": "89d73fe9441dcb23723eb8eea2b81d2c1f2696a9ae82c4fe1e503a31bb23e63a"
+        },
+        {
+          "id": "prism",
+          "totalNs": 3683291,
+          "sha256": "32fb0a40213471ad0d530893a81d5757301b9c2af3b1d137a3f5db8b8cf337c4"
+        },
+        {
+          "id": "shiki",
+          "totalNs": 8527833,
+          "sha256": "752de8e47abf9aed03736f216f0dc4e948a70e043cf74f0ab90cc2f0608b5743"
+        },
+        {
+          "id": "speed-highlight",
+          "totalNs": 547708,
+          "sha256": "ac1f1634378e82d3e4ae8e424576c996efb6875825973434a23709d79312579d"
+        },
+        {
+          "id": "starry-night",
+          "totalNs": 11767458.00000763,
+          "sha256": "e99e67f58d9aaa70bbb7036f680da7c4798cc7adbe366770ef1145e8efb03ecc"
+        },
+        {
+          "id": "sugar-high",
+          "totalNs": 600208,
+          "sha256": "910695b5be462a57d994c9c1491e8235926586a8139020b2559542843541a4fa"
+        },
+        {
+          "id": "syntect",
+          "totalNs": 7091072.916666666,
+          "sha256": "5076c81ca17aa210f3b20d36bb924ad171df012733032da03309b90763385ada"
+        },
+        {
+          "id": "tanstack-highlight",
+          "totalNs": 2143708,
+          "sha256": "2eb84b4f8b8c51879bc82bd36f0f3b4c6ce5dd82af8a1dc2a52602388ba2b5fd"
+        }
+      ]
+    },
+    {
+      "id": "shadcn",
+      "results": [
+        {
+          "id": "lumis",
+          "totalNs": 5525730.048076923,
+          "sha256": "15936e000c9184070ec67a9d38498f6f7c682640834ca1fc7cbe874dcd827bb7"
+        },
+        {
+          "id": "highlight-js",
+          "totalNs": 8319833,
+          "sha256": "1a991a58ed8b42afd451342013c910b7e3da7e42124100333c6b3d9b28048ef7"
+        },
+        {
+          "id": "prism",
+          "totalNs": 10707959,
+          "sha256": "948845deded5ff9c50392a9e5a31dc354c12b0790c84a0255f52faab9f409cf1"
+        },
+        {
+          "id": "shiki",
+          "totalNs": 34093084.00000763,
+          "sha256": "b5211d42d9f8b40676de7640fe3209bd43ba09860838976b5591d7285d7a9cf2"
+        },
+        {
+          "id": "speed-highlight",
+          "totalNs": 2904833,
+          "sha256": "9e9765931570f4bd98dedaeb29ac67fb66c53ad3c7b9facfbcbe0fbf8bcd3897"
+        },
+        {
+          "id": "starry-night",
+          "totalNs": 33978625,
+          "sha256": "1b2d068857bbf6232699cc54eb5e7f5cf3dbb9ed66b937686253280134a92f29"
+        },
+        {
+          "id": "sugar-high",
+          "totalNs": 8719208,
+          "sha256": "dfb71548c61a1fea1490441674122861630d36b4a1e020dad24667df8a5f7927"
+        },
+        {
+          "id": "syntect",
+          "totalNs": 29190520.75,
+          "sha256": "f116cf85c8fb576fc0adcf9d208088e3562ceac4a8925739525c0c42e79fd802"
+        },
+        {
+          "id": "tanstack-highlight",
+          "totalNs": 2982500,
+          "sha256": "04abbb89d5abec4322d40c73fcf22eefe06c92eaf736b300cd7457d165b323ac"
+        }
+      ]
+    }
+  ]
+}

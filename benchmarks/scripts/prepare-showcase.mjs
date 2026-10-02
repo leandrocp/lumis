@@ -15,7 +15,7 @@ const assetsDir = resolve(generatedDir, "assets");
 const documents = [
   {
     id: "webgpu",
-    label: "three.js WebGPU compute reduce",
+    label: "three.js WebGPU",
     language: "html",
     languageLabel: "HTML",
     file: "webgpu_compute_reduce.html",
@@ -125,8 +125,9 @@ const themes = [
     tmThemeSha256: "a2ddb65bfcf7328802ee4770d1e34ef4093a20fd5c300be3138c99f8a45ed5cb",
     source: `https://github.com/catppuccin/bat/blob/${catppuccinBat}/themes/Catppuccin%20Latte.tmTheme`,
     // Every flavour names its surfaces the same way, so the page around the
-    // output is `mantle`, `text` and `surface1` in both.
-    chrome: { background: "#e6e9ef", foreground: "#4c4f69", border: "#bcc0cc" },
+    // output is `base`, `text` and `surface1` in both. `base` is the colour
+    // the libraries paint, so the panel reads as one surface.
+    chrome: { background: "#eff1f5", foreground: "#4c4f69", scrollbar: "#bcc0cc" },
   },
   {
     id: "frappe",
@@ -142,7 +143,7 @@ const themes = [
     tmThemeUrl: `https://raw.githubusercontent.com/catppuccin/bat/${catppuccinBat}/themes/Catppuccin%20Frappe.tmTheme`,
     tmThemeSha256: "3446d8a3cfb9eb559bc65a3894e6ae8f3579030fac6130c4f96ff524f3e2784f",
     source: `https://github.com/catppuccin/bat/blob/${catppuccinBat}/themes/Catppuccin%20Frappe.tmTheme`,
-    chrome: { background: "#292c3c", foreground: "#c6d0f5", border: "#51576d" },
+    chrome: { background: "#303446", foreground: "#c6d0f5", scrollbar: "#51576d" },
   },
 ];
 

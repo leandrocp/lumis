@@ -3,6 +3,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { lumisReference } from "./implementations.mjs";
 
 const benchmarksDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const generatedDir = resolve(benchmarksDir, "showcase/generated");
@@ -10,6 +11,7 @@ const target = resolve(benchmarksDir, "../website/public/comparison-data");
 
 const manifest = JSON.parse(await readFile(resolve(generatedDir, "manifest.json"), "utf8"));
 const lumis = manifest.implementations.filter((entry) => entry.id.startsWith("lumis-"));
+const referenceRuntime = lumis.find((entry) => entry.id === lumisReference);
 const others = manifest.implementations.filter((entry) => !entry.id.startsWith("lumis-"));
 
 // Every Lumis runtime renders a document identically, so the site ships one copy
@@ -39,7 +41,7 @@ for (const document of manifest.documents) {
 }
 
 const implementations = [
-  { id: "lumis", label: "Lumis", version: lumis[0].version, theme: lumis[0].theme },
+  { id: "lumis", label: "Lumis", version: referenceRuntime.version, theme: referenceRuntime.theme },
   ...others,
 ];
 
@@ -60,7 +62,7 @@ const published = {
     // The implementations with no output for this document, so the page can say
     // why rather than load a file that was never written.
     unsupported: document.unsupported,
-    tokens: publishedTokens(document),
+    ...publishedOutputs(document),
   })),
 };
 
@@ -75,7 +77,7 @@ for (const document of manifest.documents) {
   for (const theme of manifest.themes) {
     await mkdir(resolve(target, document.id, theme.id), { recursive: true });
     await cp(
-      resolve(generatedDir, document.id, theme.id, `${lumis[0].id}.html`),
+      resolve(generatedDir, document.id, theme.id, `${referenceRuntime.id}.html`),
       resolve(target, document.id, theme.id, "lumis.html"),
     );
     for (const entry of others) {
@@ -94,19 +96,23 @@ console.log(
     `(${lumis.length} Lumis runtimes verified identical) to website/public/comparison-data.`,
 );
 
-// The Lumis runtimes were just proven byte-identical, so one of their counts
-// stands for all of them, the same way one of their outputs does.
-function publishedTokens(document) {
+// The Lumis runtimes were just proven byte-identical, so one of their outputs
+// stands for all of them, its token count and hashes included. The hashes name
+// each output exactly, so a timing can say which output it measured and the page
+// can drop one that describes an output it no longer shows.
+function publishedOutputs(document) {
   const tokens = {};
+  const outputSha256 = {};
   for (const { id, label } of implementations) {
     const output = document.outputs.find(
-      (entry) => entry.id === (id === "lumis" ? lumis[0].id : id),
+      (entry) => entry.id === (id === "lumis" ? referenceRuntime.id : id),
     );
     if (!output) continue;
     if (!Number.isSafeInteger(output.tokens) || output.tokens <= 0) {
       throw new Error(`${label} has no token count for ${document.id}; regenerate the showcase`);
     }
     tokens[id] = output.tokens;
+    outputSha256[id] = output.sha256;
   }
-  return tokens;
+  return { tokens, outputSha256 };
 }

@@ -114,7 +114,7 @@
       let current = { document: documents[0], implementation: implementations[0], theme: themes[0] };
       addEventListener("message", (event) => {
         const scroll = event.data?.lumisShowcaseScroll;
-        if (scroll) positions.set(current.document.id, scroll);
+        if (typeof scroll === "number") positions.set(current.document.id, scroll);
       });
 
       function describe(chosen) {
@@ -132,10 +132,9 @@
       }
 
       function show() {
-        const at = positions.get(current.document.id) ?? { x: 0, y: 0 };
         frame.src =
           `showcase/generated/${current.document.id}/${current.theme.id}/` +
-          `${current.implementation.id}.html#at=${at.x},${at.y}`;
+          `${current.implementation.id}.html#at=${positions.get(current.document.id) ?? 0}`;
         frame.title = `${current.implementation.label} highlighting ${current.document.label}`;
         describe(current.document);
       }
