@@ -14,6 +14,10 @@ pnpm dev
 
 Run `pnpm build` for the production build and `pnpm types:check` for TypeScript. The production script uses webpack because the Turbopack loader requires local port binding that is unavailable in some restricted build environments.
 
+After building, run `pnpm check:markdown` to check HTML, Markdown, and RSC responses from a temporary production server. CI runs this check after the build.
+
+Next.js 16.3.4 overwrites the proxy's `Vary: Accept` header on HTML responses ([upstream issue](https://github.com/vercel/next.js/issues/85999)). `patches/next@16.3.4.patch` merges the existing header with the router's fields using `vary`, added through `packageExtensions` in `pnpm-workspace.yaml`. Remove both entries when upgrading to a Next.js release that passes the response checks without the patch.
+
 Code fences are highlighted by Lumis at build time. `plugins/remark-lumis.mjs` loads the language and renders Catppuccin Latte/Frappe colors in one block. The source MDX keeps the original fenced code so the agent-facing Markdown includes every runtime example.
 
 ## Deployment

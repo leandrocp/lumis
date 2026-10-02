@@ -1,23 +1,16 @@
 import "./styles.css";
 import { inject } from "@vercel/analytics";
-import { renderNav, setupNav } from "./sections/nav";
-import { renderFooter } from "./sections/footer";
-import { renderShowcase, setupShowcase } from "./sections/showcase";
+import { setupNav } from "./sections/nav";
+import { setupShowcase } from "./sections/showcase";
 import { setupCopyButtons } from "./lib/utils";
+
+import { renderShowcasePage } from "./showcase-page";
 
 inject();
 
 const root = document.querySelector<HTMLDivElement>("#app")!;
 
-root.innerHTML = [
-  '<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-zinc-900 focus:px-4 focus:py-2 focus:font-mono focus:text-sm focus:text-white dark:focus:bg-white dark:focus:text-zinc-900">Skip to content</a>',
-  renderNav("/"),
-  '<main id="main-content">',
-  renderShowcase(),
-  "</main>",
-  renderFooter(),
-  '<div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>',
-].join("");
+if (!root.querySelector("main")) root.innerHTML = renderShowcasePage();
 
 setupNav(root);
 setupCopyButtons(root);

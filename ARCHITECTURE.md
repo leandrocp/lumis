@@ -83,6 +83,14 @@ stylesheets keep it. The layout rules are documented in
 [CSS theme files](docs/content/themes/css-files.mdx#line-layout) and the line
 helpers in [custom formatters](docs/content/formatters/custom.mdx).
 
+## Website rendering
+
+`website/` builds static HTML for the home, comparison, and showcase pages.
+Vite loads `src/entry-server.ts` during the build and inserts the existing
+section renderers' output into each HTML entry. Browser entry points attach
+interactions to that markup. Content changes therefore reach both plain HTTP
+clients and browsers from the same source.
+
 ## Performance benchmark lane
 
 `benchmarks/` is an intentionally non-published comparison layer over the public Rust, JavaScript, and CLI surfaces.

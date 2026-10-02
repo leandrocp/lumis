@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-agent-discovery.mjs && node scripts/check-markdown-negotiation.mjs && node scripts/check-installers.mjs && vite build",
+    "build": "tsc --noEmit && node scripts/check-agent-discovery.mjs && node scripts/check-markdown-negotiation.mjs && node scripts/check-installers.mjs && vite build",
     "check:discovery": "node scripts/check-agent-discovery.mjs",
     "check:installers": "node scripts/check-installers.mjs",
     "check:markdown": "node scripts/check-markdown-negotiation.mjs",
     "fmt": "oxfmt -c .oxfmtrc.jsonc .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "types:check": "tsc --noEmit"
   },
   "dependencies": {
     "@lumis-sh/lumis": "^0.9.0",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.4",
+    "@types/node": "^24.0.0",
     "oxfmt": "^0.42.0",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3",

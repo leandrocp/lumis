@@ -7,6 +7,8 @@ export function renderFooter() {
           <span>lumis &middot; syntax highlighting for every runtime</span>
         </div>
         <div class="flex items-center gap-4 font-mono text-xs text-zinc-400">
+          <a href="https://docs.lumis.sh/llms.txt" class="transition-colors hover:text-zinc-900 dark:hover:text-white">llms.txt</a>
+          <span class="text-zinc-300 dark:text-zinc-700">/</span>
           <a href="https://github.com/leandrocp/lumis" target="_blank" rel="noreferrer" class="transition-colors hover:text-zinc-900 dark:hover:text-white">github</a>
           <span class="text-zinc-300 dark:text-zinc-700">/</span>
           <a href="https://crates.io/crates/lumis" target="_blank" rel="noreferrer" class="transition-colors hover:text-zinc-900 dark:hover:text-white">crates</a>

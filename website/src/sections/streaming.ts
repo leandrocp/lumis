@@ -93,7 +93,7 @@ async function initStreaming(container: HTMLDivElement) {
   let charIndex = 0;
 
   await new Promise<void>((resolve) => {
-    function tick() {
+    const tick = () => {
       if (entryIndex >= textEntries.length) {
         pre.style.minHeight = "";
         resolve();
@@ -108,7 +108,7 @@ async function initStreaming(container: HTMLDivElement) {
         charIndex = 0;
       }
       setTimeout(tick, 20 + Math.floor(Math.random() * 25));
-    }
+    };
     tick();
   });
 }

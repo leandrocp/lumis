@@ -15,14 +15,8 @@ import { setupTabs, setupCopyButtons, SECTION_DIVIDER } from "./lib/utils";
 import { FIRST_PAINT_LANGUAGES } from "./data/languages";
 import { loadLanguages } from "./lib/highlighter";
 
-export async function mountApp(root: HTMLDivElement) {
-  // Started before the markup exists, and deliberately not awaited: every
-  // section below still loads what it needs on demand, so this only decides
-  // whether those parsers are already in flight by the time they ask. Awaiting
-  // it would make the whole page wait for the slowest one.
-  void loadLanguages(FIRST_PAINT_LANGUAGES);
-
-  root.innerHTML = [
+export function renderApp() {
+  return [
     '<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-zinc-900 focus:px-4 focus:py-2 focus:font-mono focus:text-sm focus:text-white dark:focus:bg-white dark:focus:text-zinc-900">Skip to content</a>',
     renderNav(),
     '<main id="main-content">',
@@ -49,6 +43,12 @@ export async function mountApp(root: HTMLDivElement) {
     renderFooter(),
     '<div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>',
   ].join("\n");
+}
+
+export async function mountApp(root: HTMLDivElement) {
+  void loadLanguages(FIRST_PAINT_LANGUAGES);
+
+  if (!root.querySelector("main")) root.innerHTML = renderApp();
 
   setupNav(root);
   setupHero(root);

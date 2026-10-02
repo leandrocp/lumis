@@ -21,9 +21,8 @@ async function loadLanguage(languageId: string): Promise<LazyLanguage> {
   return language;
 }
 
-export type WorkerRequest =
+export type WorkerCommand =
   | {
-      id: number;
       type: "highlight";
       languageId: string;
       theme: Theme;
@@ -31,7 +30,6 @@ export type WorkerRequest =
       preClass?: string;
     }
   | {
-      id: number;
       type: "highlightMultiTheme";
       languageId: string;
       lightTheme: Theme;
@@ -39,7 +37,9 @@ export type WorkerRequest =
       source: string;
       preClass?: string;
     }
-  | { id: number; type: "loadLanguages"; languageIds: string[] };
+  | { type: "loadLanguages"; languageIds: string[] };
+
+export type WorkerRequest = WorkerCommand & { id: number };
 
 export type WorkerResponse =
   | { id: number; type: "result"; html: string }

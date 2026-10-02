@@ -31,3 +31,5 @@ jobs:
         working-directory: docs
       - run: pnpm build
         working-directory: docs
+      - run: pnpm check:markdown
+        working-directory: docs

@@ -57,7 +57,10 @@ export async function generateMetadata(props: PageProps<"/[[...slug]]">): Promis
     title: page.data.title,
     description: page.data.description,
     keywords: page.data.keywords,
-    alternates: { canonical: page.url },
+    alternates: {
+      canonical: page.url,
+      types: { "text/markdown": getPageMarkdownUrl(page).url },
+    },
     openGraph: {
       images: getPageImageUrl(page).url,
     },
