@@ -94,8 +94,9 @@ revision into `tmp/release-templates/` on first use, then reuses the cached file
 The same task runs locally and in CI, before any version files change.
 
 New entries prefer PR titles and PR authors, include scopes and breaking-change
-markers, and follow the section order in `cliff.toml`. If GitHub metadata is
-missing, they use commit messages and the available commit-author username.
+markers, and follow the section order in `cliff.toml`. Entries without a PR title
+use the commit message. Author credits require a PR author or commit-author
+username from GitHub; without either, the entry has no author credit.
 Credits omit `leandrocp`, while retaining PR links and external contributor
 credits. Existing changelog history is preserved. Commit filters, package tag patterns,
 and version-bump rules remain local to Lumis.
