@@ -385,6 +385,12 @@ echo 'const x = 1' | lumis highlight \
 - [handles incomplete code](/usage/highlight#incomplete-code), useful for streaming
 - one API across 6 runtimes: [CLI](/usage/cli), [Rust](/usage/rust), [Elixir](/usage/elixir), [JavaScript / TypeScript](/usage/javascript), [Browsers / CDN](/recipes/browser-cdn), and [Java](/usage/java)
 
+See the [visual comparison](https://lumis.sh/comparison/) for the same source files highlighted by Lumis and other highlighters.
+
+## Why not Lumis
+
+Parser size is the main tradeoff, especially in the browser. [Load only the languages you need](/languages), or highlight at build time or on the server so visitors don't download parsers. See the [language catalog](/reference/languages) for parser sizes.
+
 ## How it works
 
 - [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) parses code into syntax trees
