@@ -21,6 +21,10 @@ include = [
 [features]
 default = ["all-languages"]
 
+# Decoders for Lumis options as Elixir writes them, shared by the `:lumis` NIF
+# and `mdex_native`. Nothing else enables it.
+rustler = ["dep:rustler", "dep:strsim"]
+
 all-languages = [
     "lang-arduino",
     "lang-angular",
@@ -266,6 +270,8 @@ lang-zsh = []
 derive_builder = "0.20"
 glob = "0.3"
 regex = "1"
+rustler = { version = "0.38", optional = true }
+strsim = { version = "0.11", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 typed-path = "0.12"

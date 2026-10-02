@@ -488,9 +488,6 @@ defmodule Lumis.Formatter.HTMLTest do
     end
 
     test "a huge stepped range stays compact" do
-      assert {:ok, [{:range, %{start: 1, end: 1_000_000_000, step: 2}}]} =
-               Lumis.LineSpec.encode([1..1_000_000_000//2])
-
       assert HTML.line_is_highlighted([1..1_000_000_000//2], 3)
       refute HTML.line_is_highlighted([1..1_000_000_000//2], 4)
 

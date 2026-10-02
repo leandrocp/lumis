@@ -83,6 +83,31 @@ stylesheets keep it. The layout rules are documented in
 [CSS theme files](docs/content/themes/css-files.mdx#line-layout) and the line
 helpers in [custom formatters](docs/content/formatters/custom.mdx).
 
+## Elixir options
+
+Options cross the NIF boundary as the caller wrote them:
+`[formatter: {:html_inline, theme: "dracula", highlight_lines: %{lines: [2..4]}}]`.
+`lumis_core::elixir`, behind `lumis-core`'s `rustler` feature, decodes them:
+`ExLumisOptions` for the whole keyword list, deprecated `:theme`, `:pre_class`
+and `:inline_style` included, and `ExFormatterOption` for a formatter alone. It
+fills in the defaults and raises `ArgumentError` naming the bad option, the
+valid ones and the closest match, with the value printed as `inspect/1` would.
+Two NIFs link it: `lumis_nif`, and `mdex_native`, which embeds Lumis to
+highlight Markdown code blocks and so needs no Elixir step to prepare options.
+
+`Lumis` still validates options with NimbleOptions, which documents them and
+reports errors before the NIF call, but it no longer converts them. The
+`the NIF reads options as written` tests in `lumis_test.exs` render each
+formatter and each deprecated option both ways, through `Lumis.highlight/2` and
+straight through the NIF, and require the same output, so the Elixir defaults
+and the Rust ones cannot drift. A test also requires the NIF to accept every
+key in `Lumis.options_schema/0`.
+
+`Lumis.rust_options!/1` still returns Lumis 0.10's wire format, through
+`Lumis.LegacyOptions`, because MDEx 0.14.1 and mdex_native 0.2.10 call it and
+accept any later `:lumis` below 1.0. Nothing in Lumis reads that format. Delete
+it once those versions are out of use.
+
 ## Website rendering
 
 `website/` builds static HTML for the home, comparison, and showcase pages.

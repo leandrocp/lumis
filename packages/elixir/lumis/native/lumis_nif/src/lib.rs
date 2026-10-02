@@ -4,14 +4,12 @@ use std::io::Write;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
-mod elixir;
-
 use anyhow::{anyhow, Context, Result};
-use elixir::{
-    attr_values, ex_attr_values, line_specs_contain, ExAttrValue, ExCssOptions, ExFormatterOption,
-    ExLineSpec, ExStyle, ExTextDecoration, ExTheme,
-};
 use lumis_core::annotations::{compose_annotations, Annotation, AnnotationRange, Position};
+use lumis_core::elixir::{
+    attr_values, ex_attr_values, line_specs_contain, ExAttrValue, ExCssOptions, ExLineSpec,
+    ExLumisOptions, ExStyle, ExTextDecoration, ExTheme,
+};
 use lumis_core::events::{Decoration, HighlightEvent};
 use lumis_core::formatter::BudgetExhausted;
 use lumis_core::formatter::Formatter;
@@ -451,15 +449,6 @@ rustler::atoms! {
 
 rustler::init!("Elixir.Lumis.Native");
 
-#[derive(Debug, NifMap)]
-pub struct ExOptions<'a> {
-    pub language: Option<&'a str>,
-    pub formatter: ExFormatterOption,
-    pub annotations: Vec<Term<'a>>,
-    pub rainbow_brackets: bool,
-    pub budget: ExBudget,
-}
-
 /// The `:budget` keyword list, which Elixir hands over as one map. `nil` in
 /// either field selects Lumis's default for that dimension.
 #[derive(Clone, Copy, Debug, NifMap)]
@@ -669,9 +658,13 @@ impl From<&catalog::LanguagePackageRef> for ExLanguagePackageRef<'static> {
 pub(crate) fn highlight<'a>(
     env: Env<'a>,
     source: &'a str,
-    options: ExOptions<'a>,
+    options: ExLumisOptions<'a>,
 ) -> NifResult<Term<'a>> {
-    let language = languages::Language::guess(options.language, source);
+    let budget = ExBudget {
+        match_limit: options.match_limit,
+        time_limit: options.time_limit,
+    };
+    let language = languages::Language::guess(options.language.as_deref(), source);
     let annotations = decode_annotations(options.annotations)?;
     // Keeps the language the caller asked for even when no parser answered for
     // it, so `class="language-typescript"` still says what the block is.
@@ -685,8 +678,8 @@ pub(crate) fn highlight<'a>(
         source,
         language,
         options.rainbow_brackets,
-        options.budget.match_limit(),
-        options.budget.time_limit_ms(),
+        budget.match_limit(),
+        budget.time_limit_ms(),
     ) {
         Ok(highlighted) => highlighted,
         Err(failure) => return Ok(failure),

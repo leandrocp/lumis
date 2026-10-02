@@ -1,6 +1,7 @@
 defmodule Lumis.LumisTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
+  import ExUnit.CaptureLog
 
   defp assert_output(source, expected, opts) do
     result = Lumis.highlight!(source, opts)
@@ -395,24 +396,27 @@ defmodule Lumis.LumisTest do
       assert Keyword.get(opts, :language) == "rust"
     end
 
-    test "formatter_type encodes highlight_lines for terminal" do
+    test "formatter_type keeps highlight_lines as written for terminal" do
       assert {:ok, {:terminal, opts}} =
                Lumis.formatter_type(
                  {:terminal, [highlight_lines: %{lines: [1, 3..5], background: "#3a3a3a"}]}
                )
 
-      assert %Lumis.TerminalHighlightLines{background: "#3a3a3a", lines: lines} =
-               Keyword.get(opts, :highlight_lines)
-
-      assert lines == [{:single, 1}, {:range, %{start: 3, end: 5, step: 1}}]
+      assert Keyword.get(opts, :highlight_lines) == %{lines: [1, 3..5], background: "#3a3a3a"}
     end
 
-    test "formatter_type encodes highlight_lines for bbcode_scoped" do
+    test "formatter_type keeps highlight_lines as written for bbcode_scoped" do
       assert {:ok, {:bbcode_scoped, opts}} =
                Lumis.formatter_type({:bbcode_scoped, [highlight_lines: %{lines: [2..4//2]}]})
 
-      assert %Lumis.BBCodeHighlightLines{lines: lines} = Keyword.get(opts, :highlight_lines)
-      assert lines == [{:range, %{start: 2, end: 4, step: 2}}]
+      assert Keyword.get(opts, :highlight_lines) == %{lines: [2..4//2]}
+    end
+
+    test "formatter_type reports a nested error by its message, not the struct" do
+      assert {:error, message} = Lumis.formatter_type({:html_inline, [tehme: "dracula"]})
+
+      assert message =~ "invalid options given to html_inline: unknown options [:tehme]"
+      refute message =~ "%NimbleOptions.ValidationError{"
     end
   end
 
@@ -1604,6 +1608,8 @@ defmodule Lumis.LumisTest do
     end
   end
 
+  # Lumis 0.10's wire format, which MDEx 0.14.1 and mdex_native 0.2.10 still
+  # hand to their NIF. See `Lumis.LegacyOptions`.
   describe "rust_options!/1" do
     test "converts basic options to rust format" do
       options =
@@ -1622,7 +1628,7 @@ defmodule Lumis.LumisTest do
                     pre_class: nil,
                     theme: {:string, "onedark"}
                   }}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "uses formatter language when deprecated language is present" do
@@ -1633,7 +1639,7 @@ defmodule Lumis.LumisTest do
         )
 
       assert %{language: "rust", formatter: {:html_inline, %{theme: nil}}} =
-               Lumis.rust_options!(options)
+               Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "handles deprecated theme option" do
@@ -1656,7 +1662,7 @@ defmodule Lumis.LumisTest do
                       pre_class: nil,
                       theme: {:string, "github_light"}
                     }}
-               } = Lumis.rust_options!(options)
+               } = Lumis.LegacyOptions.rust_options!(options)
       end)
     end
 
@@ -1680,7 +1686,7 @@ defmodule Lumis.LumisTest do
                       pre_class: "deprecated-class",
                       theme: nil
                     }}
-               } = Lumis.rust_options!(options)
+               } = Lumis.LegacyOptions.rust_options!(options)
       end)
     end
 
@@ -1701,7 +1707,7 @@ defmodule Lumis.LumisTest do
                       theme: nil
                     }},
                  language: nil
-               } = Lumis.rust_options!(options)
+               } = Lumis.LegacyOptions.rust_options!(options)
       end)
     end
 
@@ -1719,7 +1725,7 @@ defmodule Lumis.LumisTest do
                       pre_class: nil
                     }},
                  language: nil
-               } = Lumis.rust_options!(options)
+               } = Lumis.LegacyOptions.rust_options!(options)
       end)
     end
 
@@ -1739,7 +1745,7 @@ defmodule Lumis.LumisTest do
                     pre_class: nil,
                     theme: {:theme, ^theme}
                   }}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "converts theme string to rust format" do
@@ -1757,7 +1763,7 @@ defmodule Lumis.LumisTest do
                     pre_class: nil,
                     theme: {:string, "dracula"}
                   }}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "handles nil theme" do
@@ -1775,7 +1781,7 @@ defmodule Lumis.LumisTest do
                     pre_class: nil,
                     theme: nil
                   }}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "converts html_linked formatter" do
@@ -1790,14 +1796,14 @@ defmodule Lumis.LumisTest do
                     line_numbers: false,
                     pre_class: "test"
                   }}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "converts terminal formatter" do
       options = Lumis.validate_options!(formatter: {:terminal, theme: "github_light"})
 
       assert %{formatter: {:terminal, %{theme: {:string, "github_light"}}}} =
-               Lumis.rust_options!(options)
+               Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "converts terminal formatter custom background" do
@@ -1810,7 +1816,7 @@ defmodule Lumis.LumisTest do
                formatter:
                  {:terminal,
                   %{theme: {:string, "github_light"}, background: {:string, "#ffffff"}}}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "converts terminal formatter width" do
@@ -1827,7 +1833,7 @@ defmodule Lumis.LumisTest do
                     background: {:string, "#ffffff"},
                     width: 120
                   }}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "converts terminal formatter theme background" do
@@ -1836,13 +1842,13 @@ defmodule Lumis.LumisTest do
 
       assert %{
                formatter: {:terminal, %{theme: {:string, "github_light"}, background: :theme}}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "converts bbcode_scoped formatter" do
       options = Lumis.validate_options!(formatter: :bbcode_scoped)
 
-      assert %{formatter: {:bbcode_scoped, %{}}} = Lumis.rust_options!(options)
+      assert %{formatter: {:bbcode_scoped, %{}}} = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "handles highlight_lines option" do
@@ -1862,7 +1868,7 @@ defmodule Lumis.LumisTest do
                     pre_class: nil,
                     theme: nil
                   }}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "handles header option" do
@@ -1881,13 +1887,235 @@ defmodule Lumis.LumisTest do
                     pre_class: nil,
                     theme: nil
                   }}
-             } = Lumis.rust_options!(options)
+             } = Lumis.LegacyOptions.rust_options!(options)
     end
 
     test "returns map instead of keyword list" do
       options = Lumis.validate_options!(formatter: {:html_inline, language: "elixir"})
 
-      assert %{} = Lumis.rust_options!(options)
+      assert %{} = Lumis.LegacyOptions.rust_options!(options)
+    end
+  end
+
+  # `mdex_native` hands Lumis options to its NIF without validating them in
+  # Elixir first. Both NIFs decode them with `lumis_core::elixir`, so the NIF
+  # given the options as written has to render what `Lumis.highlight/2` renders.
+  describe "the NIF reads options as written" do
+    @source "defmodule Foo do\n  def bar, do: :baz\n  def qux, do: 1\nend\n"
+
+    defp native(formatter), do: native_options(language: "elixir", formatter: formatter)
+
+    defp native_options(options) do
+      Lumis.Application.configure_store()
+      Lumis.Native.highlight(@source, options)
+    end
+
+    defp lumis(formatter) do
+      Lumis.highlight(@source, formatter: put_language(formatter))
+    end
+
+    defp put_language({name, options}), do: {name, Keyword.put(options, :language, "elixir")}
+    defp put_language(name), do: {name, language: "elixir"}
+
+    for formatter <- [
+          :html_inline,
+          :html_linked,
+          :terminal,
+          :bbcode_scoped,
+          {:html_inline, theme: "dracula"},
+          {:html_inline, theme: "Github Light"},
+          {:html_inline, theme: nil, pre_class: "code", italic: true, line_numbers: true},
+          {:html_inline, structure: :inline},
+          {:html_inline, pre_attrs: [id: "x", hidden: true], code_attrs: ["data-a": "1"]},
+          {:html_inline, include_highlights: true, theme: "github_light"},
+          {:html_inline,
+           theme: "github_light", highlight_lines: %{lines: [1, 3..2//-1], style: "color: red"}},
+          {:html_inline, theme: "github_light", highlight_lines: %{lines: [1..4//2], style: nil}},
+          {:html_inline, highlight_lines: %{lines: [2], class: "hl"}},
+          {:html_inline, header: %{open_tag: "<div class=\"h\">", close_tag: "</div>"}},
+          {:html_linked, highlight_lines: %{lines: [2..3]}},
+          {:html_linked, highlight_lines: %{lines: [2], class: "mark"}, line_numbers: true},
+          {:html_multi_themes,
+           themes: [light: "github_light", dark: "github_dark"], default_theme: "light"},
+          {:html_multi_themes,
+           themes: [light: "github_light", dark: "github_dark"],
+           default_theme: "light-dark()",
+           css_variable_prefix: "--x",
+           highlight_lines: %{lines: [2]}},
+          {:terminal, theme: "dracula", background: :theme, width: 40},
+          {:terminal, theme: "dracula", highlight_lines: %{lines: [2], background: "#333333"}},
+          {:bbcode_scoped, highlight_lines: %{lines: [1, 3]}}
+        ] do
+      @formatter formatter
+      test "#{inspect(formatter)}" do
+        assert native(@formatter) == lumis(@formatter)
+      end
+    end
+
+    test "a theme struct" do
+      formatter = {:html_inline, theme: Lumis.Theme.get("dracula")}
+      assert native(formatter) == lumis(formatter)
+
+      formatter = {:html_multi_themes, themes: [light: Lumis.Theme.get("github_light")]}
+      assert native(formatter) == lumis(formatter)
+    end
+
+    for options <- [
+          [language: "elixir"],
+          [language: "elixir", formatter: {:html_inline, []}],
+          [language: "elixir", theme: "github_light"],
+          [
+            formatter: {:html_inline, language: "elixir", theme: "dracula"},
+            theme: "github_light"
+          ],
+          [formatter: {:html_inline, language: "elixir"}, pre_class: "deprecated"],
+          [formatter: {:html_linked, language: "elixir"}, theme: "github_light"],
+          [
+            formatter:
+              {:html_linked,
+               language: "elixir", pre_class: "code", highlight_lines: %{lines: [2]}},
+            inline_style: true
+          ],
+          [
+            formatter:
+              {:html_inline,
+               language: "elixir",
+               theme: "dracula",
+               italic: true,
+               highlight_lines: %{lines: [2], style: "color: red"}},
+            inline_style: false
+          ],
+          [formatter: {:terminal, language: "elixir", theme: "dracula"}, inline_style: true],
+          [
+            formatter: {:html_inline, language: "elixir"},
+            rainbow_brackets: true,
+            budget: [time_limit: 1000, match_limit: 10]
+          ]
+        ] do
+      @options options
+      test "top-level #{inspect(options)}" do
+        capture_io(:stderr, fn ->
+          assert native_options(@options) == Lumis.highlight(@source, @options)
+        end)
+      end
+    end
+
+    test "every option Lumis documents" do
+      valid = %{
+        language: "elixir",
+        formatter: :html_inline,
+        theme: "dracula",
+        inline_style: true,
+        pre_class: "code",
+        annotations: [],
+        rainbow_brackets: true,
+        budget: [time_limit: 0]
+      }
+
+      assert Enum.sort(Map.keys(valid)) == Enum.sort(Keyword.keys(Lumis.options_schema()))
+
+      for {key, value} <- valid do
+        assert {:ok, _html} = native_options([{key, value}]), "rejected #{inspect(key)}"
+      end
+    end
+
+    test "a Helix theme name still warns through Lumis.highlight" do
+      log =
+        capture_log(fn ->
+          assert {:ok, _html} =
+                   Lumis.highlight(@source,
+                     formatter: {:html_inline, language: "elixir", theme: "Github Light"}
+                   )
+        end)
+
+      assert log =~ "Helix themes are deprecated"
+    end
+
+    test "an unknown top-level option raises ArgumentError listing the valid ones" do
+      assert_raise ArgumentError,
+                   "unknown option :fromatter (did you mean :formatter?), valid options are: " <>
+                     "[:formatter, :language, " <>
+                     ":theme, :pre_class, :inline_style, :rainbow_brackets, :annotations, :budget]",
+                   fn -> native_options(fromatter: :html_inline) end
+    end
+
+    test "options as a map" do
+      assert native({:html_inline, %{theme: "dracula"}}) ==
+               lumis({:html_inline, theme: "dracula"})
+    end
+
+    test "an unknown option raises ArgumentError naming it and the valid ones" do
+      assert_raise ArgumentError,
+                   "invalid value for :formatter option: invalid options given to html_inline: " <>
+                     "unknown option :tehme (did you mean :theme?), valid options are: " <>
+                     "[:language, :structure, :theme, :pre_class, :pre_attrs, :code_attrs, :italic, " <>
+                     ":include_highlights, :highlight_lines, :line_numbers, :header]",
+                   fn -> native({:html_inline, tehme: "dracula"}) end
+    end
+
+    test "a bad value is shown the way Elixir prints it" do
+      for {formatter, shown} <- [
+            {{:html_inline, line_numbers: "yes"}, ~s(got: "yes")},
+            {{:html_inline, theme: :dracula}, "got: :dracula"},
+            {{:html_inline, theme: %{name: "x"}}, ~s(got: %{name: "x"})},
+            {{:html_inline, highlight_lines: [1, 2]}, "got: [1, 2]"},
+            {{:html_inline, pre_attrs: [id: {:a, nil}]}, "for :id, got: {:a, nil}"},
+            {{:html_inline, theme: %Lumis.Theme.Style{fg: "#fff"}}, "got: %Lumis.Theme.Style{"},
+            {{:html_inline, header: [open_tag: "<div>", "data x": 1]},
+             ~s(unknown option :"data x")}
+          ] do
+        error = assert_raise ArgumentError, fn -> native(formatter) end
+        assert error.message =~ shown
+      end
+    end
+
+    test "a missing header tag is named" do
+      assert_raise ArgumentError,
+                   "invalid value for :formatter option: invalid options given to html_inline: " <>
+                     "invalid value for :header option: " <>
+                     "required :close_tag option not found",
+                   fn -> native({:html_inline, header: %{open_tag: "<div>"}}) end
+    end
+
+    test "a value of the wrong type raises ArgumentError naming the option" do
+      assert_raise ArgumentError,
+                   ~r/^invalid value for :formatter option: invalid options given to html_linked: invalid value for :line_numbers option: expected a boolean/,
+                   fn -> native({:html_linked, line_numbers: "yes"}) end
+
+      assert_raise ArgumentError,
+                   ~r/invalid value for :highlight_lines option: invalid value for :lines option: expected a line number or a range, got: "2"/,
+                   fn -> native({:html_inline, highlight_lines: %{lines: ["2"]}}) end
+    end
+
+    test "an unknown theme in html_multi_themes raises ArgumentError" do
+      assert_raise ArgumentError,
+                   ~r/failed to resolve theme :dark: theme 'nope' not found$/,
+                   fn -> native({:html_multi_themes, themes: [dark: "nope"]}) end
+    end
+
+    test "a near miss suggests the closest name" do
+      assert_raise ArgumentError,
+                   ~r/theme 'github_lite' not found \(did you mean 'github_light'\?\)$/,
+                   fn -> native({:html_multi_themes, themes: [light: "github_lite"]}) end
+
+      assert_raise ArgumentError,
+                   ~r/unknown option :line_number \(did you mean :line_numbers\?\)/,
+                   fn ->
+                     native({:html_linked, line_number: true})
+                   end
+    end
+
+    test "an unknown formatter raises ArgumentError listing the built-in ones" do
+      assert_raise ArgumentError,
+                   "invalid value for :formatter option: unknown formatter :html_inlin " <>
+                     "(did you mean :html_inline?), expected one of " <>
+                     "[:html_inline, :html_linked, :html_multi_themes, :terminal, :bbcode_scoped]",
+                   fn -> native({:html_inlin, []}) end
+
+      assert_raise ArgumentError,
+                   "invalid value for :formatter option: unknown formatter :markdown, expected one of " <>
+                     "[:html_inline, :html_linked, :html_multi_themes, :terminal, :bbcode_scoped]",
+                   fn -> native({:markdown, []}) end
     end
   end
 

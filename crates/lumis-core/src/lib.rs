@@ -6,6 +6,9 @@ pub mod annotations;
 #[doc(hidden)]
 pub mod decorations;
 #[doc(hidden)]
+#[cfg(feature = "rustler")]
+pub mod elixir;
+#[doc(hidden)]
 pub mod events;
 pub mod formatter;
 pub mod highlights;
