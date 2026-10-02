@@ -9,10 +9,11 @@ responses for agents. Each HTML entry point has a matching file under `public/`;
 and token estimates before every build.
 
 The build renders the home, comparison, and showcase pages into HTML using
-`src/entry-server.ts` and the same section renderers as the browser. Headings,
-links, and examples are readable without JavaScript. Browser entry points keep
-that markup and attach the interactive demos; the highlighting worker starts
-when a demo first requests it.
+`src/entry-server.ts` and the same section renderers that `pnpm dev` runs in the
+browser. Headings, links, and examples are readable without JavaScript. Browser
+entry points attach the interactive demos to that markup. The home page starts
+the highlighting worker on load to warm up its first languages; the comparison
+and showcase pages never start it.
 
 `pnpm build` also runs TypeScript checks; use `pnpm types:check` to run them alone.
 

@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { createServer, defineConfig, type Plugin } from "vite";
+import { createServer, defineConfig, type Plugin, type ResolvedConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 
 const siteUrl = new URL("https://lumis.sh/");
@@ -38,20 +38,24 @@ function sitemap(): Plugin {
 }
 
 function prerender(): Plugin {
-  let root: string;
+  let config: ResolvedConfig;
   const rendered = new Map<string, string>();
   return {
     name: "lumis-prerender",
     apply: "build",
-    configResolved(config) {
-      root = config.root;
+    configResolved(resolvedConfig) {
+      config = resolvedConfig;
     },
     async buildStart() {
       const server = await createServer({
-        configFile: false,
-        root,
+        configFile: config.configFile ?? false,
+        root: config.root,
+        mode: config.mode,
         server: { middlewareMode: true, watch: null, hmr: false, ws: false },
         appType: "custom",
+        // Disables the client dependency optimizer, which SSR never uses and
+        // which would otherwise overwrite the dev server's cache.
+        optimizeDeps: { noDiscovery: true, include: [] },
       });
       try {
         const entry = await server.ssrLoadModule("/src/entry-server.ts");

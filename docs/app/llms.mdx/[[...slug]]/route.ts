@@ -5,7 +5,7 @@ export const revalidate = false;
 
 export async function GET(_req: Request, { params }: RouteContext<"/llms.mdx/[[...slug]]">) {
   const { slug } = await params;
-  const page = source.getPage(slug?.slice(0, -1));
+  const page = slug?.at(-1) === "content.md" ? source.getPage(slug.slice(0, -1)) : undefined;
   return new Response(page ? await docsLlms.page(page) : "# Page not found\n", {
     status: page ? 200 : 404,
     headers: {

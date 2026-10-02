@@ -47,6 +47,12 @@ function checkVary(response, expected) {
   assert.equal(fields.length, new Set(fields).size, "Vary must not repeat fields");
 }
 
+function bodyPatternFor(method, format, status) {
+  if (method === "HEAD") return /^$/u;
+  if (status !== 200) return /./su;
+  return format === "html" ? /<h1\b[^>]*>Installation/u : /^# Installation/mu;
+}
+
 const routerFields = [
   "rsc",
   "next-router-state-tree",
@@ -61,12 +67,7 @@ for (const method of ["GET", "HEAD"]) {
       ["/agent-readability-missing-page", 404],
     ]) {
       const fields = format === "html" ? routerFields : ["accept"];
-      let bodyPattern = /./su;
-      if (method === "HEAD") bodyPattern = /^$/u;
-      else if (status === 200) {
-        bodyPattern = format === "html" ? /<h1\b[^>]*>Installation/u : /^# Installation/mu;
-      }
-      const expectedBody = bodyPattern;
+      const bodyPattern = bodyPatternFor(method, format, status);
       test(`${method} ${path} as ${format}`, async () => {
         const response = await fetch(new URL(path, address.origin), {
           method,
@@ -75,7 +76,7 @@ for (const method of ["GET", "HEAD"]) {
         assert.equal(response.status, status);
         assert.equal(response.headers.get("content-type")?.split(";")[0], `text/${format}`);
         checkVary(response, fields);
-        assert.match(await response.text(), expectedBody);
+        assert.match(await response.text(), bodyPattern);
       });
     }
   }
@@ -123,4 +124,11 @@ test("explicit Markdown links remain readable", async () => {
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("content-type")?.split(";")[0], "text/markdown");
   assert.match(await response.text(), /^# Installation/mu);
+});
+
+test("Markdown routes serve a page only at its content.md path", async () => {
+  const response = await fetch(new URL("/llms.mdx/installation/other.md", address.origin));
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get("content-type")?.split(";")[0], "text/markdown");
+  assert.match(await response.text(), /^# Page not found/u);
 });

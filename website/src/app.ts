@@ -46,9 +46,14 @@ export function renderApp() {
 }
 
 export async function mountApp(root: HTMLDivElement) {
+  // Deliberately not awaited: every section below still loads what it needs on
+  // demand, so this only decides whether those parsers are already in flight by
+  // the time they ask. Awaiting it would make the whole page wait for the
+  // slowest one.
   void loadLanguages(FIRST_PAINT_LANGUAGES);
 
-  if (!root.querySelector("main")) root.innerHTML = renderApp();
+  // The build prerenders this markup into the page; the dev server does not.
+  if (import.meta.env.DEV) root.innerHTML = renderApp();
 
   setupNav(root);
   setupHero(root);
