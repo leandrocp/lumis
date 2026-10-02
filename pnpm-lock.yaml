@@ -175,9 +175,6 @@ importers:
       semver:
         specifier: 7.8.5
         version: 7.8.5
-      web-tree-sitter:
-        specifier: 0.26.11
-        version: 0.26.11
     devDependencies:
       '@lumis-sh/themes':
         specifier: workspace:*
@@ -233,6 +230,9 @@ importers:
       vitest:
         specifier: ^4.1.2
         version: 4.1.4(@types/node@25.6.0)(jsdom@27.4.0(@noble/hashes@2.3.0)(supports-color@8.1.1))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      web-tree-sitter:
+        specifier: 0.26.11
+        version: 0.26.11
     optionalDependencies:
       '@lumis-sh/lumis-native-darwin-arm64':
         specifier: workspace:*

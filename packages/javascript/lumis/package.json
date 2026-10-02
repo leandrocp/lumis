@@ -95,8 +95,7 @@
   "dependencies": {
     "@noble/hashes": "2.3.0",
     "pathe": "2.0.3",
-    "semver": "7.8.5",
-    "web-tree-sitter": "0.26.11"
+    "semver": "7.8.5"
   },
   "optionalDependencies": {
     "@lumis-sh/lumis-native-darwin-arm64": "workspace:*",
@@ -129,6 +128,7 @@
     "typedoc": "^0.28.18",
     "typescript": "^6.0.2",
     "vite": "^8.0.3",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.2",
+    "web-tree-sitter": "0.26.11"
   }
 }
