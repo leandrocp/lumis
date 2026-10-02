@@ -1,6 +1,6 @@
 ---
 title: Lumis
-description: Lumis is a Tree-sitter syntax highlighter with Neovim themes and one workflow across CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and Java.
+description: Lumis is a Tree-sitter syntax highlighter with Neovim themes across 7 runtimes, including community-maintained Java and Python packages.
 keywords:
   - lumis
   - syntax highlighting
@@ -18,7 +18,11 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 Lumis is a syntax highlighter built on [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) and [Neovim themes](https://github.com/topics/neovim-colorscheme).
 
-It keeps the same core workflow across runtimes:
+Lumis supports **7 runtimes**: CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and community-maintained [Java](/usage/java) and [Python](/usage/python). The community packages have their own APIs and release schedules.
+
+The examples below cover the first-party runtimes and Lumis4J. See the [fastpylight guide](/usage/python) for Python examples.
+
+To highlight code:
 
 1. [install Lumis](#1-install-lumis)
 2. [pick a language](#2-pick-a-language)
@@ -383,7 +387,13 @@ echo 'const x = 1' | lumis highlight \
 - [250+ themes](/reference/themes) sourced from Neovim colorschemes, or [one you generate](/recipes/generate-theme-from-neovim-colorscheme)
 - 5 formatters: [HTML Inline](/formatters/html-inline), [HTML Linked](/formatters/html-linked), [HTML Multi-Themes](/formatters/html-multi-themes), [Terminal](/formatters/terminal), and [BBCode Scoped](/formatters/bbcode), or [one you write](/formatters/custom)
 - [handles incomplete code](/usage/highlight#incomplete-code), useful for streaming
-- one API across 6 runtimes: [CLI](/usage/cli), [Rust](/usage/rust), [Elixir](/usage/elixir), [JavaScript / TypeScript](/usage/javascript), [Browsers / CDN](/recipes/browser-cdn), and [Java](/usage/java)
+- 7 runtimes: [CLI](/usage/cli), [Rust](/usage/rust), [Elixir](/usage/elixir), [JavaScript / TypeScript](/usage/javascript), [Browsers / CDN](/recipes/browser-cdn), community-maintained [Java](/usage/java) and [Python](/usage/python)
+
+## Community
+
+Lumis highlights package source on [Hex.pm](https://hex.pm) and blog code on [jacko.io](https://jacko.io). Python tools [mdhtml](https://github.com/AnswerDotAI/mdhtml) and [mdhtml2docx](https://github.com/AnswerDotAI/mdhtml2docx) use it through fastpylight to highlight code in HTML and Word documents.
+
+See the [community runtimes](/community#community-runtimes), [full project list](/community#used-by), and [articles and talks](/community#mentions).
 
 See the [visual comparison](https://lumis.sh/comparison/) for the same source files highlighted by Lumis and other highlighters.
 

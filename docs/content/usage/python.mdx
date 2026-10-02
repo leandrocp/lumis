@@ -1,0 +1,53 @@
+---
+title: Python
+description: Use Lumis in Python through fastpylight, the community-maintained package from Answer.AI.
+keywords:
+  - lumis python
+  - fastpylight
+  - syntax highlighting python
+---
+
+[`fastpylight`](https://github.com/AnswerDotAI/fastpylight) is a community-maintained Python runtime from [Answer.AI](https://github.com/AnswerDotAI). It has its own API and releases.
+
+## Installation
+
+Requires Python 3.10 or later.
+
+```sh
+pip install fastpylight
+```
+
+## HTML with spans
+
+`highlight_spans` returns a `<pre><code>` block with a class on each token. Include the CSS returned by `theme_css` in your page to apply the theme.
+
+```python
+from fastpylight import highlight_spans, theme_css
+
+code = "def greet(name):\n    return f'Hello, {name}'\n"
+html = highlight_spans(code, "python")
+css = theme_css("github_light", "pre code")
+```
+
+## Languages and themes
+
+Call `languages()` and `themes()` to list what's available in your installed version. `guess` accepts source code and an optional language name, extension, or filename.
+
+```python
+from fastpylight import guess, languages, themes, highlight_spans
+
+language = guess("print('hello')", "example.py")
+html = highlight_spans("print('hello')", language)
+available_languages = languages()
+available_themes = themes()
+```
+
+The highlighting functions require an exact language name. An unknown name raises `ValueError`; use `"plaintext"` for unhighlighted output.
+
+## Other output options
+
+- `highlight` returns a `<hl-code>` element that uses the browser's CSS Custom Highlight API. This output needs the JavaScript returned by `component_js()` and the appropriate theme CSS.
+- `tokenize` provides token data for custom rendering.
+- `theme_colors` provides theme styles as Python data, useful for highlighting code in Word documents.
+
+See the [fastpylight README](https://github.com/AnswerDotAI/fastpylight#readme) for supported features and complete examples. The formatter classes and parser-package installation instructions elsewhere in these docs are for the first-party runtimes.

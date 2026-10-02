@@ -15,6 +15,7 @@ export function renderNav(home = "") {
           <a href="/comparison/" class="hidden text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white md:inline-block">Comparison</a>
           <a href="/showcase/" class="hidden text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white md:inline-block">Showcase</a>
           <a href="${home}#integrations" class="hidden text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white lg:inline-block">Integrations</a>
+          <a href="${home}#community" class="hidden text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white xl:inline-block">Community</a>
           <a href="${home}#formatters" class="hidden text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white lg:inline-block">Formatters</a>
           <a href="https://docs.lumis.sh"
              class="hidden items-center border border-zinc-900 bg-zinc-900 px-3 py-1.5 text-white transition-colors hover:bg-white hover:text-zinc-900 dark:border-white dark:bg-white dark:text-zinc-900 dark:hover:bg-transparent dark:hover:text-white md:inline-flex">
@@ -35,6 +36,7 @@ export function renderNav(home = "") {
           <a href="https://docs.lumis.sh" class="mobile-menu-link mb-2 inline-flex w-fit items-center border border-zinc-900 bg-zinc-900 px-3 py-2 text-white transition-colors hover:bg-white hover:text-zinc-900 dark:border-white dark:bg-white dark:text-zinc-900 dark:hover:bg-transparent dark:hover:text-white">Docs</a>
           <a href="${home}#quickstart" class="mobile-menu-link block py-2 text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">Quickstart</a>
           <a href="${home}#runtimes" class="mobile-menu-link block py-2 text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">Runtimes</a>
+          <a href="${home}#community" class="mobile-menu-link block py-2 text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">Community</a>
           <a href="${home}#playground" class="mobile-menu-link block py-2 text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">Playground</a>
           <a href="/comparison/" class="mobile-menu-link block py-2 text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">Comparison</a>
           <a href="/showcase/" class="mobile-menu-link block py-2 text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">Showcase</a>

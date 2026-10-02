@@ -3,11 +3,11 @@ import { COPY_SVG } from "../lib/utils";
 const RUNTIME_LINKS = [
   {
     name: "CLI",
-    install: "cargo install lumis-cli",
+    install: "curl -LsSf https://lumis.sh/install.sh | sh",
     links: [
       {
         label: "Docs",
-        href: "https://github.com/leandrocp/lumis/blob/main/crates/lumis-cli/README.md",
+        href: "https://docs.lumis.sh/usage/cli",
       },
       { label: "Source", href: "https://github.com/leandrocp/lumis/tree/main/crates/lumis-cli" },
     ],
@@ -59,8 +59,18 @@ const RUNTIME_LINKS = [
     name: "Java",
     install: "io.roastedroot:lumis4j:0.0.7",
     links: [
+      { label: "Guide", href: "https://docs.lumis.sh/usage/java" },
       { label: "Maven", href: "https://central.sonatype.com/search?q=io.roastedroot%3Alumis4j" },
       { label: "Source", href: "https://github.com/roastedroot/lumis4j" },
+    ],
+  },
+  {
+    name: "Python",
+    install: "pip install fastpylight",
+    links: [
+      { label: "Guide", href: "https://docs.lumis.sh/usage/python" },
+      { label: "PyPI", href: "https://pypi.org/project/fastpylight/" },
+      { label: "Source", href: "https://github.com/AnswerDotAI/fastpylight" },
     ],
   },
 ] as const;
@@ -73,16 +83,16 @@ export function renderRuntimes() {
           <span class="text-rose-400">&lt;</span><span class="text-indigo-400">Runtimes</span> <span class="text-rose-400">/&gt;</span>
         </a>
         <h2 class="mt-8 font-mono text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
-          Same API, same themes. Pick your runtime.
+          7 runtimes. Pick yours.
         </h2>
         <div class="mt-12">
-          <div class="grid gap-px border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid auto-rows-fr gap-4 sm:grid-cols-4 lg:grid-cols-8">
             ${RUNTIME_LINKS.map(
-              (p) => `
-              <div class="bg-white p-6 dark:bg-[#09090b]">
-                <h3 class="font-mono text-sm font-bold tracking-wider text-zinc-900 uppercase dark:text-white">${p.name}</h3>
-                <div class="mt-4 flex items-center justify-between gap-2 overflow-x-auto border border-zinc-100 px-3 py-2 dark:border-zinc-800">
-                  <code class="min-w-0 truncate font-mono text-xs text-zinc-600 dark:text-zinc-400"><span class="mr-2 text-zinc-300 select-none dark:text-zinc-700">&gt;</span>${p.install}</code>
+              (p, index) => `
+              <div class="min-w-0 border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-[#09090b] sm:col-span-2 ${index === 4 ? "lg:col-start-2" : ""} ${index === 5 ? "lg:col-start-4" : ""} ${index === 6 ? "sm:col-start-2 lg:col-start-6" : ""}">
+                <h3 class="font-mono text-sm font-bold tracking-wider text-zinc-900 uppercase dark:text-white lg:min-h-10">${p.name}</h3>
+                <div class="mt-4 flex min-h-20 items-center justify-between gap-2 border border-zinc-100 px-3 py-2 dark:border-zinc-800">
+                  <code class="min-w-0 font-mono text-xs text-zinc-600 [overflow-wrap:anywhere] dark:text-zinc-400"><span class="mr-2 text-zinc-300 select-none dark:text-zinc-700">&gt;</span>${p.install}</code>
                   <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="${encodeURIComponent(p.install)}">${COPY_SVG}</button>
                 </div>
                 <div class="mt-4 flex flex-wrap gap-2">
@@ -97,10 +107,6 @@ export function renderRuntimes() {
             `,
             ).join("")}
           </div>
-          <p class="mt-6 max-w-3xl font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">
-            The JavaScript / TypeScript package and Elixir load exact, integrity-checked parser WASM per language.
-            Applications fetch only the languages they use and persist them across restarts.
-          </p>
         </div>
       </div>
     </section>`;

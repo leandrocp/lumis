@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://docs.lumis.sh"),
   title: { default: "Lumis Docs", template: "%s | Lumis Docs" },
   description:
-    "Syntax highlighting with Lumis for JavaScript / TypeScript, Rust, Elixir, Java and the CLI.",
+    "Syntax highlighting across 7 runtimes, including community-maintained Java and Python packages.",
   applicationName: "Lumis Docs",
   icons: { icon: "/img/favicon.ico" },
 };

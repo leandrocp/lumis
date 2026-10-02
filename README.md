@@ -16,6 +16,7 @@
   <a href="https://www.npmjs.com/package/@lumis-sh/lumis"><img src="https://img.shields.io/npm/v/@lumis-sh/lumis" alt="npm"></a>
   <a href="https://hex.pm/packages/lumis"><img src="https://img.shields.io/hexpm/v/lumis" alt="Hex.pm"></a>
   <a href="https://central.sonatype.com/artifact/io.roastedroot/lumis4j"><img src="https://img.shields.io/maven-central/v/io.roastedroot/lumis4j" alt="Maven Central"></a>
+  <a href="https://pypi.org/project/fastpylight/"><img src="https://img.shields.io/pypi/v/fastpylight" alt="PyPI"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
 </p>
 
@@ -25,7 +26,7 @@
 
 - **110+ Tree-sitter languages** - Fast, accurate, and updated syntax parsing
 - **250+ built-in Neovim themes** - Updated and curated themes from the Neovim community
-- **6 runtimes, one API** - CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and Java, aligned in naming, options, and output
+- **7 runtimes** - CLI, Rust, Elixir, JavaScript / TypeScript, and Browsers / CDN, plus community-maintained Java and Python packages
 - **Built-in formatters** - HTML (inline/linked), Terminal (ANSI), Multi-theme (light/dark), BBCode
 - **Custom formatters** - Build your own output
 - **Language auto-detection** - File extension, shebang, and emacs-mode support
@@ -121,9 +122,13 @@ application's `start/2` to move the compile off the first request without
 holding up the boot.
 See [Elixir integration](https://docs.lumis.sh/usage/elixir).
 
-### [Java](https://github.com/roastedroot/lumis4j)
+### Community-maintained runtimes
 
-By [@andreaTP](https://github.com/andreaTP). More details at https://chicory.dev/blog/syntax-highlight
+The Java and Python packages have their own APIs and releases. Check their guides for supported features.
+
+#### [Java (Lumis4J)](https://github.com/roastedroot/lumis4j)
+
+Maintained by [@andreaTP](https://github.com/andreaTP) at [roastedroot](https://github.com/roastedroot). See the [Java guide](https://docs.lumis.sh/usage/java).
 
 ```java
 import io.roastedroot.lumis4j.core.Lumis;
@@ -139,7 +144,25 @@ var highlighter = lumis.highlighter()
 
 var result = highlighter.highlight("const x = 1");
 System.out.println(result.string());
+lumis.close();
 ```
+
+#### [Python (fastpylight)](https://github.com/AnswerDotAI/fastpylight)
+
+Maintained by [Answer.AI](https://github.com/AnswerDotAI). See the [Python guide](https://docs.lumis.sh/usage/python).
+
+```sh
+pip install fastpylight
+```
+
+```python
+from fastpylight import highlight_spans, theme_css
+
+html = highlight_spans("const x = 1", "javascript")
+css = theme_css("dracula", "pre code")
+```
+
+Add the generated CSS to your page to apply the theme.
 
 ## Documentation
 
@@ -150,7 +173,36 @@ System.out.println(result.string());
 | **Elixir** | `{:lumis, "~> 0.9"}` | [hex.pm/lumis](https://hex.pm/packages/lumis) | [README.md](packages/elixir/lumis/README.md) &bull; [hexdocs](https://hexdocs.pm/lumis) |
 | **JavaScript / TypeScript** | `npm install @lumis-sh/lumis` | [npmjs.com/@lumis-sh/lumis](https://www.npmjs.com/package/@lumis-sh/lumis) | [README.md](packages/javascript/lumis/README.md) |
 | **Browsers / CDN** | `npm install @lumis-sh/lumis` | [npmjs.com/@lumis-sh/lumis](https://www.npmjs.com/package/@lumis-sh/lumis) | [README.md](packages/javascript/lumis/README.md) |
-| **Java** | `io.roastedroot:lumis4j:0.0.7` | [io.roastedroot/lumis4j](https://central.sonatype.com/artifact/io.roastedroot/lumis4j) | [README.md](https://github.com/roastedroot/lumis4j/blob/main/README.md) |
+| **Java (community)** | `io.roastedroot:lumis4j:0.0.7` | [io.roastedroot/lumis4j](https://central.sonatype.com/artifact/io.roastedroot/lumis4j) | [Java guide](https://docs.lumis.sh/usage/java) |
+| **Python (community)** | `pip install fastpylight` | [PyPI](https://pypi.org/project/fastpylight/) | [Python guide](https://docs.lumis.sh/usage/python) |
+
+## Community
+
+### Community runtimes
+
+Use [Lumis4J](https://github.com/roastedroot/lumis4j) for Java or [fastpylight](https://github.com/AnswerDotAI/fastpylight) for Python. See the [examples above](#community-maintained-runtimes) or the [community runtime guides](https://docs.lumis.sh/community#community-runtimes).
+
+### Used by
+
+- [Hex.pm](https://hex.pm): Highlights package source.
+- [Tuist](https://tuist.dev): Highlights Markdown through MDEx.
+- [Oban Pro](https://oban.pro): Highlights website code examples through MDEx.
+- [mdhtml](https://github.com/AnswerDotAI/mdhtml): Optional code highlighting for Markdown through fastpylight.
+- [mdhtml2docx](https://github.com/AnswerDotAI/mdhtml2docx): Optional code highlighting in Word documents through fastpylight.
+- [jacko.io](https://jacko.io): Blog code blocks with light and dark themes.
+- [termframe](https://github.com/pamburus/termframe): Syntax highlighting for terminal screenshots.
+- [RPGMTranslate](https://github.com/RPG-Maker-Translation-Tools/rpgmtranslate-qt): Highlights code in a Qt app for translating RPG Maker games.
+- [Aster](https://github.com/Wybxc/aster): Code blocks in a static site generator built with Typst.
+
+[Full project list and integration links](https://docs.lumis.sh/community#used-by).
+
+### Mentions
+
+- [Lumis: Syntax Highlighter powered by Tree-sitter](https://blog.master.dev/lumis-syntax-highlighter-powered-by-tree-sitter/): Chris Coyier, Master.dev.
+- [Syntax highlighting in Java, without the pain](https://chicory.dev/blog/syntax-highlight/): Andrea Peruffo, on building Lumis4J.
+- [Leandro Pereira on MDEx](https://www.youtube.com/watch?v=IyDNtqlClhU): Elixir Mentor interview covering MDEx, Lumis, and open source.
+
+[All mentions](https://docs.lumis.sh/community#mentions). To add your project or a mention, send a PR to the [Community page](docs/content/community.md).
 
 ## Architecture
 

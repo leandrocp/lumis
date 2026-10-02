@@ -95,12 +95,27 @@ document.getElementById('output').innerHTML = await highlight(
 import io.roastedroot.lumis4j.core.Lang;
 import io.roastedroot.lumis4j.core.Theme;
 
-var lumis = Lumis.builder()
+var lumis = Lumis.builder().build();
+
+var highlighter = lumis.highlighter()
     .withLang(Lang.JAVASCRIPT)
     .withTheme(Theme.DRACULA)
     .build();
 
-var result = lumis.highlight("const x = 1");`,
+var result = highlighter.highlight("const x = 1");
+lumis.close();`,
+    },
+  },
+  {
+    id: "python",
+    label: "Python",
+    install: { language: "bash", code: "pip install fastpylight" },
+    usage: {
+      language: "python",
+      code: `from fastpylight import highlight_spans, theme_css
+
+html = highlight_spans("const x = 1", "javascript")
+css = theme_css("dracula", "pre code")`,
     },
   },
 ] as const;
@@ -158,6 +173,8 @@ export function renderQuickstart() {
                   ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">The same package works in JavaScript and TypeScript, with types included. It loads exact parser WASM per language from the packages you install.</p>`
                   : ""
               }
+              ${tab.id === "python" ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">fastpylight is maintained by Answer.AI. Add the generated CSS to your page to apply the theme. <a href="https://docs.lumis.sh/usage/python" class="underline underline-offset-2">Python guide</a></p>` : ""}
+              ${tab.id === "java" ? `<p class="font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">Lumis4J is maintained by roastedroot. <a href="https://docs.lumis.sh/usage/java" class="underline underline-offset-2">Java guide</a></p>` : ""}
               <div class="border border-zinc-200 dark:border-zinc-800">
                 <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-2 dark:border-zinc-800">
                   <span class="font-mono text-[11px] tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Usage</span>

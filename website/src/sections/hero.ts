@@ -8,7 +8,9 @@ export function renderHero() {
         <h1 class="font-mono text-4xl font-bold leading-[1.05] tracking-tighter text-zinc-900 sm:text-5xl lg:text-6xl dark:text-white">
           Syntax Highlighter powered by Tree-sitter
         </h1>
-        <p class="mt-5 font-mono text-2xl font-medium text-zinc-500 sm:text-3xl dark:text-zinc-400">Unified API for 6 Runtimes</p>
+        <p class="mt-5 font-mono text-2xl font-medium text-zinc-500 sm:text-3xl dark:text-zinc-400">Syntax highlighting for 7 runtimes</p>
+
+        <p class="mt-3 font-mono text-sm text-zinc-500 dark:text-zinc-400">Including community-maintained Java and Python packages.</p>
 
         <div class="mt-12 flex items-center justify-center gap-3">
           <a href="#quickstart"
@@ -23,14 +25,15 @@ export function renderHero() {
           </a>
         </div>
 
-        <div class="mx-auto mt-6 max-w-lg">
-          <div class="flex justify-center overflow-x-auto border-b border-zinc-200 dark:border-zinc-800" role="tablist" aria-label="Install commands">
+        <div class="mx-auto mt-6 max-w-2xl">
+          <div class="flex overflow-x-auto sm:justify-center border-b border-zinc-200 dark:border-zinc-800" role="tablist" aria-label="Install commands">
             <button data-install="cli" role="tab" aria-selected="true" aria-controls="install-panel-cli" class="install-tab shrink-0 cursor-pointer border-b-2 border-zinc-900 px-4 py-2 font-mono text-xs tracking-wider text-zinc-900 uppercase dark:border-white dark:text-white">cli</button>
             <button data-install="rust" role="tab" aria-selected="false" aria-controls="install-panel-rust" class="install-tab shrink-0 cursor-pointer border-b-2 border-transparent px-4 py-2 font-mono text-xs tracking-wider text-zinc-500 uppercase hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300">cargo</button>
             <button data-install="javascript" role="tab" aria-selected="false" aria-controls="install-panel-javascript" class="install-tab shrink-0 cursor-pointer border-b-2 border-transparent px-4 py-2 font-mono text-xs tracking-wider text-zinc-500 uppercase hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300">npm</button>
             <button data-install="browser" role="tab" aria-selected="false" aria-controls="install-panel-browser" class="install-tab shrink-0 cursor-pointer border-b-2 border-transparent px-4 py-2 font-mono text-xs tracking-wider text-zinc-500 uppercase hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300">browsers</button>
             <button data-install="elixir" role="tab" aria-selected="false" aria-controls="install-panel-elixir" class="install-tab shrink-0 cursor-pointer border-b-2 border-transparent px-4 py-2 font-mono text-xs tracking-wider text-zinc-500 uppercase hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300">hex</button>
             <button data-install="java" role="tab" aria-selected="false" aria-controls="install-panel-java" class="install-tab shrink-0 cursor-pointer border-b-2 border-transparent px-4 py-2 font-mono text-xs tracking-wider text-zinc-500 uppercase hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300">maven</button>
+            <button data-install="python" role="tab" aria-selected="false" aria-controls="install-panel-python" class="install-tab shrink-0 cursor-pointer border-b-2 border-transparent px-4 py-2 font-mono text-xs tracking-wider text-zinc-500 uppercase hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300">pip</button>
           </div>
           <div class="border-x border-b border-zinc-200 dark:border-zinc-800">
             <div data-install-panel="cli" id="install-panel-cli" role="tabpanel" class="flex items-center justify-between gap-2 px-4 py-3">
@@ -66,6 +69,14 @@ export function renderHero() {
                 <code class="font-mono text-sm text-zinc-700 dark:text-zinc-300"><span class="mr-2 text-zinc-400 select-none">&gt;</span>io.roastedroot:lumis4j:0.0.7</code>
                 <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="io.roastedroot:lumis4j:0.0.7">${COPY_SVG}</button>
               </div>
+              <p class="px-4 pb-3 text-left font-mono text-xs text-zinc-500 dark:text-zinc-400">Community-maintained by roastedroot.</p>
+            </div>
+            <div data-install-panel="python" id="install-panel-python" role="tabpanel" class="hidden">
+              <div class="flex items-center justify-between gap-2 px-4 py-3">
+                <code class="font-mono text-sm text-zinc-700 dark:text-zinc-300"><span class="mr-2 text-zinc-400 select-none">&gt;</span>pip install fastpylight</code>
+                <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="pip install fastpylight">${COPY_SVG}</button>
+              </div>
+              <p class="px-4 pb-3 text-left font-mono text-xs text-zinc-500 dark:text-zinc-400">Community-maintained by Answer.AI.</p>
             </div>
           </div>
         </div>

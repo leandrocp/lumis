@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Install Lumis for CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and Java.
+description: Install Lumis for CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, Java, and Python.
 keywords:
   - lumis installation
   - cargo
@@ -13,9 +13,9 @@ keywords:
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 
-Pick the runtime you want to use first. The highlighting concepts stay the same across all of them.
+Choose one of Lumis's 7 runtimes below. [Lumis4J](/usage/java) for Java and [fastpylight](/usage/python) for Python are community-maintained packages with their own APIs and releases.
 
-<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'CLI', 'Browsers / CDN']}>
+<Tabs groupId="runtime" persist items={['JavaScript / TypeScript', 'Rust', 'Elixir', 'Java', 'Python', 'CLI', 'Browsers / CDN']}>
   <Tab value="JavaScript / TypeScript">
 
 ```bash
@@ -63,6 +63,8 @@ language injected inside it missing costs that block its highlighting. The
   </Tab>
   <Tab value="Java">
 
+Community-maintained by [roastedroot](https://github.com/roastedroot/lumis4j).
+
 ```xml
 <dependency>
   <groupId>io.roastedroot</groupId>
@@ -70,6 +72,17 @@ language injected inside it missing costs that block its highlighting. The
   <version>0.0.7</version>
 </dependency>
 ```
+
+  </Tab>
+  <Tab value="Python">
+
+Community-maintained by [Answer.AI](https://github.com/AnswerDotAI/fastpylight).
+
+```sh
+pip install fastpylight
+```
+
+See the [Python guide](/usage/python) for HTML output, theme CSS, and language detection.
 
   </Tab>
   <Tab value="CLI">
@@ -123,7 +136,7 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
   </Tab>
 </Tabs>
 
-## Notes
+## First-party runtime notes
 
 - Highlighting loads the parsers a document needs, including languages injected inside it, from the ones the project installed, and keeps them loaded for later requests. See [Declaring parsers](/advanced/lock).
 - That happens on demand, or you can [preload the languages you need](/languages) at startup or from a build step.

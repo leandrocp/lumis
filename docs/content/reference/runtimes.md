@@ -1,6 +1,6 @@
 ---
 title: Runtimes
-description: Package and API references for Lumis across CLI, Rust, Elixir, JavaScript / TypeScript, Browsers / CDN, and Java.
+description: Seven Lumis runtimes, including community-maintained Java and Python packages.
 keywords:
   - lumis
   - docs.rs
@@ -12,7 +12,9 @@ keywords:
 
 
 
-## Main packages
+Lumis supports **7 runtimes**. Five are maintained in this repository; the community maintains the Java and Python packages.
+
+## First-party runtimes
 
 | Runtime | Package | Reference |
 | --- | --- | --- |
@@ -21,7 +23,6 @@ keywords:
 | Elixir | `lumis` | [HexDocs](https://hexdocs.pm/lumis) |
 | JavaScript / TypeScript | `@lumis-sh/lumis` | [npm](https://www.npmjs.com/package/@lumis-sh/lumis) |
 | Browsers / CDN | `@lumis-sh/lumis` | [npm](https://www.npmjs.com/package/@lumis-sh/lumis) |
-| Java | `lumis4j` | [GitHub](https://github.com/roastedroot/lumis4j) |
 
 `@lumis-sh/lumis` has one JavaScript and TypeScript API with bundled declarations.
 It covers Node.js, Bun, Deno, and browsers. Node, the CLI and
@@ -33,6 +34,15 @@ an all-language binary. It loads what a document turns out to need, and keeps
 its caches across process restarts. A host
 application can [preload the languages it needs](/languages) at startup without
 blocking it, and the standalone CLI can prepare the directory ahead of time.
+
+## Community-maintained runtimes
+
+These packages use Lumis's highlighting engine and have their own APIs and releases. Check their documentation for supported features and installation instructions.
+
+| Runtime | Package | Maintainer | Guide |
+| --- | --- | --- | --- |
+| Java | [Lumis4J](https://github.com/roastedroot/lumis4j) | [roastedroot](https://github.com/roastedroot) | [Java](/usage/java) |
+| Python | [fastpylight](https://github.com/AnswerDotAI/fastpylight) | [Answer.AI](https://github.com/AnswerDotAI) | [Python](/usage/python) |
 
 ## Themes
 

@@ -6,7 +6,7 @@ export function renderFooter() {
           <span class="inline-flex h-5 w-5 items-center justify-center bg-zinc-900 text-[9px] font-black text-white dark:bg-white dark:text-zinc-900">L</span>
           <span>lumis &middot; syntax highlighting for every runtime</span>
         </div>
-        <div class="flex items-center gap-4 font-mono text-xs text-zinc-400">
+        <div class="flex flex-wrap items-center justify-center gap-4 font-mono text-xs text-zinc-400">
           <a href="https://docs.lumis.sh/llms.txt" class="transition-colors hover:text-zinc-900 dark:hover:text-white">llms.txt</a>
           <span class="text-zinc-300 dark:text-zinc-700">/</span>
           <a href="https://github.com/leandrocp/lumis" target="_blank" rel="noreferrer" class="transition-colors hover:text-zinc-900 dark:hover:text-white">github</a>
@@ -18,6 +18,8 @@ export function renderFooter() {
           <a href="https://hex.pm/packages/lumis" target="_blank" rel="noreferrer" class="transition-colors hover:text-zinc-900 dark:hover:text-white">hex</a>
           <span class="text-zinc-300 dark:text-zinc-700">/</span>
           <a href="https://central.sonatype.com/artifact/io.roastedroot/lumis4j" target="_blank" rel="noreferrer" class="transition-colors hover:text-zinc-900 dark:hover:text-white">maven</a>
+          <span class="text-zinc-300 dark:text-zinc-700">/</span>
+          <a href="https://pypi.org/project/fastpylight/" target="_blank" rel="noreferrer" class="transition-colors hover:text-zinc-900 dark:hover:text-white">pypi</a>
         </div>
       </div>
     </footer>`;

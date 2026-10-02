@@ -8,6 +8,7 @@ import { renderQuickstart, setupQuickstart } from "./sections/quickstart";
 import { renderFormatters } from "./sections/formatters";
 import { renderInjections, setupInjections } from "./sections/injections";
 import { renderWasm } from "./sections/wasm";
+import { renderCommunity } from "./sections/community";
 import { renderRuntimes } from "./sections/runtimes";
 import { renderIntegrations } from "./sections/integrations";
 import { renderFooter } from "./sections/footer";
@@ -39,6 +40,8 @@ export function renderApp() {
     renderInjections(),
     SECTION_DIVIDER,
     renderWasm(),
+    SECTION_DIVIDER,
+    renderCommunity(),
     "</main>",
     renderFooter(),
     '<div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>',
