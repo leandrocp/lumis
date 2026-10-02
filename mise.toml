@@ -1384,6 +1384,14 @@ if [ "$package" = "npm-cli" ]; then
     done
 fi
 
-git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --prepend "$changelog" --strip header --unreleased "${include_args[@]}"
+notes="$(git-cliff --config cliff.toml --body-file "$template" --github-repo leandrocp/lumis --tag-pattern "$package/v[0-9].*" --tag "$package/v$version" --strip header --unreleased "${include_args[@]}")"
+prepared_changelog="$(mktemp "$changelog.XXXXXX")"
+trap 'rm -f "$prepared_changelog"' EXIT
+printf '%s\n' "$notes" > "$prepared_changelog"
+if [ -s "$changelog" ]; then
+    printf '\n' >> "$prepared_changelog"
+    cat "$changelog" >> "$prepared_changelog"
+fi
+mv "$prepared_changelog" "$changelog"
 printf 'Prepared %s %s\n' "$package" "$version"
 '''

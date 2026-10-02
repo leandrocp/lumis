@@ -98,8 +98,9 @@ markers, and follow the section order in `cliff.toml`. Entries without a PR titl
 use the commit message. Author credits require a PR author or commit-author
 username from GitHub; without either, the entry has no author credit.
 Credits omit `leandrocp`, while retaining PR links and external contributor
-credits. Existing changelog history is preserved. Commit filters, package tag patterns,
-and version-bump rules remain local to Lumis.
+credits. The task inserts a blank line between the new release and existing
+changelog history, preserving the history verbatim. Commit filters, package tag
+patterns, and version-bump rules remain local to Lumis.
 
 To update the template, change `revision` in the `release-template` task to a
 published commit of `github-actions` and update the link above. Preview a package
