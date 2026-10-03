@@ -298,6 +298,13 @@ loaded before the document mentioning it. Node runs the native addon
 specifically so it does not inherit that limit, and falls back to
 `web-tree-sitter` only where no addon is built.
 
+The npm build bundles the browser entry separately from the Node entry.
+`tsup.browser.config.ts` resolves `process` and `globalThis.process` to
+`undefined`, removing Tree-sitter's Node branches before a CDN can inject a
+Node-compatible process polyfill. The Node bundle keeps those branches for its
+Wasm fallback. Both builds finish before the bundle patch and declaration check
+run.
+
 The resolver itself follows the same ownership boundary. The CLI and Elixir call
 `lumis-wasm-runtime::LanguageStore`, so compatible version checks, exact
 manifest caching, integrity verification, and refresh semantics are one Rust

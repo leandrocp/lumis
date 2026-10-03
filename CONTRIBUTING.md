@@ -153,6 +153,10 @@ it can only shrink. It is currently empty.
 
 The browser task installs the required Chromium, Firefox, and WebKit builds before running. CI runs these six tasks as independent parallel jobs.
 
+It also builds the npm package and loads its browser entry with a process
+polyfill that reports a Node version, as a module CDN can provide. This checks
+that the published bundle initializes Tree-sitter without reaching Node APIs.
+
 ### The theme CSS option manifest
 
 `fixtures/theme-css-options.json` pins the CSS builder's options, defaults,

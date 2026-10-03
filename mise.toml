@@ -369,7 +369,7 @@ description = "Run JavaScript conformance tests in Chromium, Firefox, and WebKit
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-pnpm --filter @lumis-sh/lumis run build:generate
+pnpm --filter @lumis-sh/lumis run build
 args=(install chromium firefox webkit)
 if [[ "${CI:-}" == "true" ]]; then
     args=(install --with-deps chromium firefox webkit)

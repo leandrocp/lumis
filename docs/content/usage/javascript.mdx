@@ -256,11 +256,11 @@ In Node, `@lumis-sh/lumis/langs/rust`, `@lumis-sh/lumis/bundles/web`, and a
 plain `"rust"` work too: they name the package, and Node reads the installed
 one. A browser has no `node_modules` to read, so it needs the import.
 
-Without a bundler, import the package from a module CDN such as esm.sh, which
-serves the parser file next to the module:
+Without a bundler, import the package from jsDelivr, which serves the parser
+file next to the module:
 
 ```ts
-import rust from "https://esm.sh/@lumis-sh/wasm-rust";
+import rust from "https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-rust/+esm";
 ```
 
 Vite 8 needs no configuration. The dev server of Vite 7 and older, VitePress 1

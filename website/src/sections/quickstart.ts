@@ -58,10 +58,10 @@ const html = await highlight(
     install: null,
     usage: {
       language: "javascript",
-      code: `import { highlight } from 'https://esm.sh/@lumis-sh/lumis'
-import { htmlInline } from 'https://esm.sh/@lumis-sh/lumis/formatters'
-import dracula from 'https://esm.sh/@lumis-sh/themes/dracula'
-import javascript from 'https://esm.sh/@lumis-sh/wasm-javascript'
+      code: `import { highlight } from 'https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm'
+import { htmlInline } from 'https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/dist/formatters.js'
+import dracula from 'https://cdn.jsdelivr.net/npm/@lumis-sh/themes/dist/themes/dracula.js'
+import javascript from 'https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-javascript/+esm'
 
 document.getElementById('output').innerHTML = await highlight(
   'const x = 1',

@@ -54,8 +54,8 @@ export function renderHero() {
             </div>
             <div data-install-panel="browser" id="install-panel-browser" role="tabpanel" class="hidden">
               <div class="flex items-center justify-between gap-2 px-4 py-3">
-                <code class="min-w-0 truncate font-mono text-sm text-zinc-700 dark:text-zinc-300"><span class="mr-2 text-zinc-400 select-none">&gt;</span>https://esm.sh/@lumis-sh/lumis</code>
-                <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="https://esm.sh/@lumis-sh/lumis">${COPY_SVG}</button>
+                <code class="min-w-0 truncate font-mono text-sm text-zinc-700 dark:text-zinc-300"><span class="mr-2 text-zinc-400 select-none">&gt;</span>https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm</code>
+                <button class="copy-install shrink-0 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Copy to clipboard" data-copy="https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm">${COPY_SVG}</button>
               </div>
             </div>
             <div data-install-panel="elixir" id="install-panel-elixir" role="tabpanel" class="hidden">

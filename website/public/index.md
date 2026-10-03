@@ -24,7 +24,7 @@ Lumis is a syntax highlighter powered by Tree-sitter. It supports 7 runtimes: CL
 | CLI | `curl -LsSf https://lumis.sh/install.sh \| sh` |
 | Rust | `cargo add lumis` |
 | JavaScript / TypeScript | `npm install @lumis-sh/lumis @lumis-sh/themes @lumis-sh/wasm-javascript` |
-| Browsers / CDN | `https://esm.sh/@lumis-sh/lumis` |
+| Browsers / CDN | `https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm` |
 | Elixir | `{:lumis, "~> 0.10"}` plus a parser such as `{:lumis_wasm_elixir, "~> 0.26.0"}` |
 | Java (community) | `io.roastedroot:lumis4j:0.0.7` |
 | Python (community) | `pip install fastpylight` |

@@ -6,17 +6,17 @@ description: Highlight code directly in Browsers with ESM CDN imports.
 
 
 A browser loads only the parser packages you import, so import the one you need
-from esm.sh next to Lumis. esm.sh serves the parser file next to the module,
+from jsDelivr next to Lumis. jsDelivr serves the parser file next to the module,
 and Lumis fetches nothing else.
 
 ```html
 <script type="module">
-  import {highlight} from 'https://esm.sh/@lumis-sh/lumis'
+  import {highlight} from 'https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm'
   import {
     htmlInline,
-  } from 'https://esm.sh/@lumis-sh/lumis/formatters'
-  import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe'
-  import javascript from 'https://esm.sh/@lumis-sh/wasm-javascript'
+  } from 'https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/dist/formatters.js'
+  import frappe from 'https://cdn.jsdelivr.net/npm/@lumis-sh/themes/dist/themes/catppuccin_frappe.js'
+  import javascript from 'https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-javascript/+esm'
 
   const output = document.getElementById('output')
   output.innerHTML = await highlight(

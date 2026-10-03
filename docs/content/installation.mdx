@@ -116,13 +116,13 @@ The installed binary is `lumis`. npm resolves it from a platform package, so the
 
 ```html
 <script type="module">
-  import {highlight} from 'https://esm.sh/@lumis-sh/lumis';
+  import {highlight} from 'https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/+esm';
   import {
     htmlInline,
-  } from 'https://esm.sh/@lumis-sh/lumis/formatters';
-  import frappe from 'https://esm.sh/@lumis-sh/themes/catppuccin_frappe';
+  } from 'https://cdn.jsdelivr.net/npm/@lumis-sh/lumis/dist/formatters.js';
+  import frappe from 'https://cdn.jsdelivr.net/npm/@lumis-sh/themes/dist/themes/catppuccin_frappe.js';
   // A browser loads only the parser packages you import.
-  import javascript from 'https://esm.sh/@lumis-sh/wasm-javascript';
+  import javascript from 'https://cdn.jsdelivr.net/npm/@lumis-sh/wasm-javascript/+esm';
 
   const html = await highlight(
     'const x = 1',

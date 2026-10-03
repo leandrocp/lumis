@@ -29,7 +29,6 @@ if (fs.existsSync(bundlesDir)) {
 export default defineConfig({
   entry: {
     index: "src/index.ts",
-    "index.browser": "src/index.browser.ts",
     formatters: "src/formatters.ts",
     "formatters/html": "src/formatter/html.ts",
     "formatters/ansi": "src/formatter/ansi.ts",
@@ -39,7 +38,7 @@ export default defineConfig({
   format: ["esm", "cjs"],
   experimentalDts: true,
   // The declaration rollup exports everything its tsconfig's files export, so
-  // that tsconfig lists the entry points above rather than all of `src`, plus
+  // that tsconfig lists the public entry points rather than all of `src`, plus
   // the public API type test, which this build is the only typecheck for.
   tsconfig: "tsconfig.build.json",
   splitting: true,
