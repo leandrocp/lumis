@@ -82,6 +82,8 @@ export default {
 
 If you also use the MDX setup above, add these settings to the existing `withMDX({...})` options.
 
+You can import a language from a package such as `@lumis-sh/wasm-css` in a Server Component without adding that package to `serverExternalPackages`. Both Node runtimes read the installed parser package, even if Next.js rewrites the imported WASM URL. Keep the parser packages installed and included in file tracing.
+
 [`serverExternalPackages`](https://nextjs.org/docs/app/api-reference/config/next-config-js/serverExternalPackages) leaves Lumis out of the server bundle and loads it with Node's `require` instead. On Node, Lumis highlights through a native addon that it loads with `createRequire`, and Turbopack, the default bundler since Next.js 16, can't place that addon in a chunk. Without this setting the build fails:
 
 ```text

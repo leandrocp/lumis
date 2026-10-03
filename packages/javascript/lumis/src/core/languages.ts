@@ -3,6 +3,7 @@ import satisfies from "semver/functions/satisfies.js";
 import minVersion from "semver/ranges/min-version.js";
 import { buildHighlightEventsWithSourceIndex } from "../events.js";
 import { LANGUAGES } from "../generated/languages-meta.js";
+import { LANGUAGE_PACKAGES } from "../generated/language-packages.js";
 import { cloneLanguageInfo, normalizeLanguageName } from "../catalog-metadata.js";
 import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../generated/package-version-range.js";
 import { sha256 } from "@noble/hashes/sha2.js";
@@ -1297,8 +1298,22 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       return { bytes: await verifyWasm(packaged, downloaded), digest: packaged.sha256 };
     }
 
-    private async createLoadedLanguage(opts: LoadLanguageOptions): Promise<LoadedLanguage> {
+    private async resolveImportedLanguage(opts: LoadLanguageOptions): Promise<LoadLanguageOptions> {
+      const installed =
+        !this.callerResolved &&
+        opts.languagePackage !== undefined &&
+        opts.packageName !== undefined &&
+        LANGUAGE_PACKAGES[normalizeLanguageName(opts.definition.id)] === opts.packageName &&
+        Boolean(await runtime.resolveInstalledManifest?.(opts.packageName));
+
+      // Server bundlers can rewrite an imported URL; Node's installed package
+      // supplies both the parser and its matching queries, as on the native path.
+      return installed ? { definition: opts.definition, packageName: opts.packageName } : opts;
+    }
+
+    private async createLoadedLanguage(input: LoadLanguageOptions): Promise<LoadedLanguage> {
       await this.initParser();
+      const opts = await this.resolveImportedLanguage(input);
 
       // Queries always come from the package, so a parser can only ever run
       // against the queries it was released and tested with.

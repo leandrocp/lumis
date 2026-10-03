@@ -18,6 +18,7 @@ import {
   installLocalPackages,
   localPackageLanguage,
   localLanguagePackageMetadata,
+  localLanguagePackageResolver,
 } from "./wasm.js";
 
 const project = mkdtempSync(join(tmpdir(), "lumis-installed-"));
@@ -265,5 +266,98 @@ describe("a parser installed in the project", () => {
     expect(hl.highlight('["text", 42]', htmlLinked({ language: json }))).toContain(
       'class="l-string"',
     );
+  });
+
+  it.each([
+    ["json", '["text", 42]'],
+    ["css", "a { color: red }"],
+  ])("loads imported %s from its installed package after bundling", async (id, source) => {
+    const { createHighlighter } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const wasm = new URL(`/_next/static/media/tree-sitter-${id}.hash.wasm`, "https://app.test");
+    // Next.js RelativeURL keeps URL's prototype but exposes a path with no protocol.
+    Object.defineProperties(wasm, {
+      href: { value: wasm.pathname },
+      protocol: { value: "" },
+    });
+    const language = { ...localPackageLanguage(id), wasm };
+    const hl = await createHighlighter({ languages: [language] });
+    const installed = await createHighlighter({ languages: [] });
+    await installed.loadLanguage(id);
+
+    const html = hl.highlight(source, htmlLinked({ language }));
+    expect(html).toContain('class="l-');
+    expect(html).toBe(installed.highlight(source, htmlLinked({ language: id })));
+  });
+
+  it("takes the installed manifest together with its parser for an import", async () => {
+    const { createHighlighter } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const json = localPackageLanguage("json");
+    const imported = {
+      ...json,
+      languagePackage: {
+        ...json.languagePackage,
+        languages: { json: { aliases: [], highlights: "(number) @number" } },
+      },
+    };
+    const hl = await createHighlighter({ languages: [imported] });
+
+    expect(hl.highlight('["text", 42]', htmlLinked({ language: imported }))).toContain(
+      'class="l-string"',
+    );
+  });
+
+  it("checks the installed version when its language is imported", async () => {
+    const { createHighlighter } = await import("../src/index.js");
+
+    await expect(createHighlighter({ languages: [localPackageLanguage("lua")] })).rejects.toThrow(
+      /@lumis-sh\/wasm-lua@0\.27\.0 does not satisfy the supported range/,
+    );
+  });
+
+  it.each([
+    { name: "WASM", options: { wasmResolver: () => ensureLocalWasm("json") } },
+    { name: "package", options: { languagePackageResolver: localLanguagePackageResolver } },
+  ])("keeps imported definitions with a configured $name resolver", async ({ options }) => {
+    const { createHighlighter } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const json = localPackageLanguage("json");
+    const imported = {
+      ...json,
+      languagePackage: {
+        ...json.languagePackage,
+        languages: { json: { aliases: [], highlights: "(number) @number" } },
+      },
+    };
+    const hl = await createHighlighter({ languages: [imported], ...options });
+
+    const html = hl.highlight('["text", 42]', htmlLinked({ language: imported }));
+    expect(html).toContain('class="l-number"');
+    expect(html).not.toContain('class="l-string"');
+  });
+
+  it.each([
+    ["custom_json", "@lumis-sh/wasm-json"],
+    ["json", "@example/wasm-json"],
+  ])("keeps an imported %s definition from %s", async (id, packageName) => {
+    const { createHighlighter } = await import("../src/index.js");
+    const { htmlLinked } = await import("../src/formatters.js");
+    const json = localPackageLanguage("json");
+    const imported = {
+      ...json,
+      id,
+      packageName,
+      languagePackage: {
+        ...json.languagePackage,
+        packageName,
+        languages: { [id]: { aliases: [], highlights: "(number) @number" } },
+      },
+    };
+    const hl = await createHighlighter({ languages: [imported] });
+
+    const html = hl.highlight('["text", 42]', htmlLinked({ language: imported }));
+    expect(html).toContain('class="l-number"');
+    expect(html).not.toContain('class="l-string"');
   });
 });
