@@ -1,7 +1,8 @@
 import { LANGUAGES } from "../generated/languages-meta.js";
 import { cloneLanguageInfo } from "../catalog-metadata.js";
 import { LANGUAGE_LOADERS } from "../generated/language-loaders.js";
-import { LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
+import { EXACT_LANGUAGE_MAP } from "../generated/language-detection.js";
+import { LANGUAGE_PACKAGES, LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
 import { LANGUAGE_PACKAGE_VERSION_RANGE } from "../generated/package-version-range.js";
 import type {
   NativeBinding,
@@ -317,7 +318,13 @@ export function createNativeLanguagesModule(
     }
 
     private reportUnresolved(unresolved: string[]): void {
-      for (const id of unresolved) warnUnresolvedInjection(id);
+      for (const id of unresolved) {
+        const languageId = EXACT_LANGUAGE_MAP[normalizeLanguageName(id)];
+        const packageName = languageId && LANGUAGE_PACKAGES[languageId];
+        if (packageName) {
+          warnUnresolvedInjection(id, `${notDeclared(packageName, packageName).message}.`);
+        }
+      }
     }
 
     configureWasmResolver(fn: WasmResolver): void {

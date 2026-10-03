@@ -138,23 +138,19 @@ const catalogNames = new Set(
 /**
  * Say so when a document named a language that is not loaded.
  *
- * `web-tree-sitter` cannot fetch a parser inside a synchronous walk, so the
- * block stays plain. The native addon reports the same thing from Rust, so both
- * Node runtimes behave and sound identical.
- *
  * An injection query can name something that is not a language at all: html
  * captures the raw `<script type=...>` value, so `type="module"` asks for
  * "module" and `type="importmap"` for "importmap", each just before a more
  * specific pattern injects javascript or json into the same block. Those blocks
  * do highlight, so naming the discarded value would warn about correct output.
  */
-export function warnUnresolvedInjection(id: string): void {
+export function warnUnresolvedInjection(id: string, advice = "Load it up front."): void {
   if (!catalogNames.has(id.toLowerCase())) return;
   if (warnedUnresolved.has(id)) return;
   warnedUnresolved.add(id);
   console.warn(
     `Lumis could not load "${id}", injected inside the document being highlighted. ` +
-      "Load it up front. " +
+      `${advice} ` +
       "See https://docs.lumis.sh/languages",
   );
 }
