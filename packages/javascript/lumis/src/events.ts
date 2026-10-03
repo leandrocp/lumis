@@ -1,4 +1,5 @@
-import type { Node, Point, QueryCapture, QueryMatch, Range } from "web-tree-sitter";
+import type { Node, Point, QueryCapture, QueryMatch, Range, Tree } from "web-tree-sitter";
+import { isParserTrap } from "./core/parser-error.js";
 import { composeRainbowDecorations, type RainbowRange } from "./decorations.js";
 import { LANGUAGES } from "./generated/languages-meta.js";
 import { languageIdForFilename } from "./guess-language.js";
@@ -457,6 +458,21 @@ function injectionLanguageName(
   return languageName;
 }
 
+// A trap may corrupt the allocator as well as the parser. Do not enter that
+// memory again while unwinding trees from an injected language; the runtime
+// discards the whole engine when the error reaches the highlighting boundary.
+function withTree<T>(tree: Tree, visit: () => T): T {
+  let trapped = false;
+  try {
+    return visit();
+  } catch (error) {
+    trapped = isParserTrap(error);
+    throw error;
+  } finally {
+    if (!trapped) tree.delete();
+  }
+}
+
 /// Parse, stopping if the render is already out of time. A tree parsed past
 /// the deadline is discarded rather than walked: the walk is the expensive half
 /// and the document is going back plain either way.
@@ -549,7 +565,7 @@ function collectHighlightLayers(
   const tree = parseWithin(language, source, budget, includedRanges, progressCallback);
   if (!tree) return [];
 
-  try {
+  return withTree(tree, () => {
     const rootNode = tree.rootNode;
     const queryOptions = { matchLimit, ...(progressCallback ? { progressCallback } : {}) };
     const queryMatches = language.config.query.matches(rootNode, queryOptions);
@@ -592,9 +608,7 @@ function collectHighlightLayers(
     );
 
     return layers;
-  } finally {
-    tree.delete();
-  }
+  });
 }
 
 // Every layer the injection patterns of this language contribute.
@@ -1085,27 +1099,26 @@ function queryRainbowBracketRanges(
   matchLimit: number,
   budget: BudgetState,
 ): RainbowRange[] {
-  if (!language.brackets) return [];
+  const brackets = language.brackets;
+  if (!brackets) return [];
 
   const progressCallback = budget.deadline ? () => budget.deadline?.passed() ?? false : undefined;
   const tree = parseWithin(language, source, budget, undefined, progressCallback);
   if (!tree) return [];
 
-  try {
+  return withTree(tree, () => {
     const queryOptions = { matchLimit, ...(progressCallback ? { progressCallback } : {}) };
     const pairs: BracketPair[] = [];
-    for (const match of language.brackets.query.matches(tree.rootNode, queryOptions)) {
-      if (language.brackets.rainbowExcludePatterns[match.patternIndex]) continue;
-      pairs.push(...matchBracketPairs(match, language.brackets.captureMetadata, maps));
+    for (const match of brackets.query.matches(tree.rootNode, queryOptions)) {
+      if (brackets.rainbowExcludePatterns[match.patternIndex]) continue;
+      pairs.push(...matchBracketPairs(match, brackets.captureMetadata, maps));
     }
-    if (language.brackets.query.didExceedMatchLimit?.()) {
+    if (brackets.query.didExceedMatchLimit?.()) {
       budget.exceededMatchLimit = true;
     }
 
     return colorizeBracketPairs(pairs);
-  } finally {
-    tree.delete();
-  }
+  });
 }
 
 // The open/close captures of one match, paired positionally. A pair counts only

@@ -24,6 +24,8 @@ import type {
   WasmRef,
 } from "../types.js";
 import { PLAINTEXT_LANG_ID, type LanguageInfo } from "../types.js";
+import { prepareTreeSitter, type TreeSitterBinding } from "./tree-sitter.js";
+import { isParserTrap, ParserRecoveringError } from "./parser-error.js";
 
 export type WasmResolver = (language: string, wasm: WasmRef) => string | URL;
 export type LanguagePackageResolver = (
@@ -72,7 +74,6 @@ export interface ResolvedLanguagePackage {
 }
 
 export interface SharedRuntimeCache {
-  parserInit?: Promise<void>;
   wasmBytes: Map<string, Uint8Array>;
   wasmLoads: Map<string, Promise<Uint8Array>>;
   packages: Map<string, LanguagePackage>;
@@ -91,7 +92,8 @@ function compileBracketConfig(
   let query: InstanceType<typeof QueryCtor>;
   try {
     query = new QueryCtor(language, bracketsQuery);
-  } catch {
+  } catch (error) {
+    if (isParserTrap(error)) throw error;
     return undefined;
   }
 
@@ -503,13 +505,6 @@ function packagedLanguage(
   );
 }
 
-let treeSitterPromise: Promise<typeof import("web-tree-sitter")> | undefined;
-
-async function loadTreeSitter() {
-  treeSitterPromise ??= import("web-tree-sitter");
-  return treeSitterPromise;
-}
-
 async function trackLoad<T>(
   loads: Map<string, Promise<T>>,
   key: string,
@@ -561,7 +556,7 @@ async function handedParser(bytes: Uint8Array): Promise<ParserBytes> {
 
 interface CachedParserModule {
   grammar?: ParserGrammar;
-  language?: Promise<Language>;
+  compiled?: Promise<WebAssembly.Module>;
 }
 
 /** The first four bytes of every WebAssembly module: `\0asm`. */
@@ -1019,6 +1014,58 @@ export function compileHighlightConfig(
   };
 }
 
+type LanguageParts = Pick<LoadedLanguage, "parser" | "language" | "config" | "brackets"> & {
+  bracketsCompiled?: boolean;
+};
+interface Engine {
+  binding: TreeSitterBinding;
+  languages: Map<WebAssembly.Module, Language>;
+  languageLoads: Map<WebAssembly.Module, Promise<Language>>;
+  parts: WeakMap<LoadedLanguage, LanguageParts>;
+}
+// Keep both successful and rejected linker loads for this engine. Repeating
+// a failed load otherwise allocates more memory in its unreclaimable store.
+function loadParserLanguage(current: Engine, module: WebAssembly.Module): Promise<Language> {
+  let pending = current.languageLoads.get(module);
+  if (!pending) {
+    pending = current.binding.Language.load(module).then((language) => {
+      current.languages.set(module, language);
+      return language;
+    });
+    current.languageLoads.set(module, pending);
+  }
+  return pending;
+}
+
+function materialize(
+  current: Engine,
+  module: WebAssembly.Module,
+  resolved: ResolvedLanguagePackage,
+) {
+  const { Parser, Query } = current.binding;
+  const language = current.languages.get(module);
+  if (!language) throw new Error("Parser has not been loaded into the current engine");
+  const config = compileHighlightConfig(
+    language,
+    Query,
+    resolved.highlights,
+    resolved.injections,
+    resolved.locals,
+  );
+  let parser: InstanceType<typeof Parser> | undefined;
+  try {
+    parser = new Parser();
+    parser.setLanguage(language);
+    return { parser, language, config };
+  } catch (error) {
+    if (!isParserTrap(error)) {
+      config.query.delete();
+      parser?.delete();
+    }
+    throw error;
+  }
+}
+
 export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesModule {
   let configuredDefaultResolver: WasmResolver = DEFAULT_RESOLVER;
   let configuredLanguagePackageResolver: LanguagePackageResolver =
@@ -1026,24 +1073,122 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
   const moduleCache = createSharedRuntimeCache();
   const parserModules = new Map<string, CachedParserModule>();
 
-  // One tree-sitter Language per parser digest, shared across every language the
-  // parser serves. web-tree-sitter cannot reclaim a failed dynamic-linker load,
-  // so retaining the rejection keeps identical bad bytes from growing its global
-  // store.
-  async function loadParserLanguage(
-    Language: Awaited<ReturnType<typeof loadTreeSitter>>["Language"],
-    parser: ParserBytes,
-    packaged: { wasm: WasmRef; grammarName: string },
-  ) {
-    let parserModule = parserModules.get(parser.digest);
-    if (!parserModule) {
-      parserModule = {};
-      parserModules.set(parser.digest, parserModule);
-    }
+  const loadedModules = new Set<WebAssembly.Module>();
+  let engine: Engine | undefined;
+  let engineLoad: Promise<Engine> | undefined;
 
-    requireParserGrammar(parserModule, parser.bytes, packaged.wasm, packaged.grammarName);
-    parserModule.language ??= Language.load(parser.bytes);
-    return parserModule.language;
+  function currentEngine(): Engine {
+    if (!engine) {
+      throw new ParserRecoveringError();
+    }
+    return engine;
+  }
+
+  function ensureEngine(): Promise<Engine> {
+    engineLoad ??= prepareTreeSitter().then(async (createBinding) => {
+      const replacement: Engine = {
+        binding: await createBinding(),
+        languages: new Map(),
+        languageLoads: new Map(),
+        parts: new WeakMap(),
+      };
+      await Promise.all(
+        [...loadedModules].map((module) => loadParserLanguage(replacement, module)),
+      );
+      engine = replacement;
+      return replacement;
+    });
+    return engineLoad;
+  }
+
+  function recover(failed: Engine): void {
+    if (engine !== failed) return;
+    engine = undefined;
+    engineLoad = undefined;
+    // Recovery starts even if the caller only catches the render error. Keep
+    // its rejection observable through ready(), without an unhandled rejection.
+    void ensureEngine().catch(() => {});
+  }
+
+  async function prepareLanguage(
+    module: WebAssembly.Module,
+    resolved: ResolvedLanguagePackage,
+  ): Promise<LoadedLanguage> {
+    for (;;) {
+      const current = await ensureEngine();
+      try {
+        await loadParserLanguage(current, module);
+      } catch (error) {
+        if (isParserTrap(error)) recover(current);
+        throw error;
+      }
+      // Another document can trap while a new language is loading. Publish
+      // this handle only after its parser belongs to the replacement engine.
+      if (engine === current) {
+        loadedModules.add(module);
+        return languageHandle(module, resolved);
+      }
+    }
+  }
+
+  async function compileParser(parser: ParserBytes, packaged: ResolvedLanguagePackage) {
+    let cached = parserModules.get(parser.digest);
+    if (!cached) {
+      cached = {};
+      parserModules.set(parser.digest, cached);
+    }
+    requireParserGrammar(cached, parser.bytes, packaged.wasm, packaged.grammarName);
+    cached.compiled ??= WebAssembly.compile(parser.bytes.slice().buffer);
+    return cached.compiled;
+  }
+
+  // Handles retain the compiled grammar and queries, never an old engine's
+  // objects. Dropping `engine` releases all of its Wasm memory together, even
+  // for highlighters that are never called again after the trap.
+  function languageHandle(
+    module: WebAssembly.Module,
+    resolved: ResolvedLanguagePackage,
+  ): LoadedLanguage {
+    const parts = (): LanguageParts => {
+      const current = currentEngine();
+      let value = current.parts.get(loaded);
+      if (!value) {
+        value = materialize(current, module, resolved);
+        current.parts.set(loaded, value);
+      }
+      return value;
+    };
+    const loaded: LoadedLanguage = {
+      definition: resolved.definition,
+      get parser() {
+        return parts().parser;
+      },
+      get language() {
+        return parts().language;
+      },
+      get config() {
+        return parts().config;
+      },
+      get brackets() {
+        const value = parts();
+        if (!value.bracketsCompiled) {
+          value.brackets = compileBracketConfig(
+            value.language,
+            currentEngine().binding.Query,
+            resolved.brackets,
+          );
+          value.bracketsCompiled = true;
+        }
+        return value.brackets;
+      },
+    };
+    try {
+      parts();
+    } catch (error) {
+      if (isParserTrap(error) && engine) recover(engine);
+      throw error;
+    }
+    return loaded;
   }
 
   class HighlighterRuntime implements RuntimeLike {
@@ -1053,10 +1198,6 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     private readonly loadedLanguages = new Map<string, LoadedLanguage>();
     private readonly aliasMap = new Map<string, string>();
     private readonly languageLoads = new Map<string, Promise<LoadedLanguage>>();
-    private readonly bracketCompilers = new WeakMap<
-      LoadedLanguage,
-      () => CompiledBracketConfig | undefined
-    >();
 
     constructor(options: HighlighterRuntimeOptions = {}) {
       this.explicitResolver = options.wasmResolver;
@@ -1333,36 +1474,8 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
 
       const parserWasm = await this.readParserWasm(resolved, packaged.wasm, opts.definition.id);
 
-      const { Language, Parser, Query } = await loadTreeSitter();
-      const language = await loadParserLanguage(Language, parserWasm, packaged);
-      const config = compileHighlightConfig(
-        language,
-        Query,
-        resolved.highlights,
-        resolved.injections,
-        resolved.locals,
-      );
-      let parser: InstanceType<typeof Parser> | undefined;
-      try {
-        parser = new Parser();
-        parser.setLanguage(language);
-      } catch (error) {
-        config.query.delete();
-        parser?.delete();
-        throw error;
-      }
-
-      const loaded: LoadedLanguage = {
-        definition: resolved.definition,
-        parser,
-        language,
-        config,
-      };
-      if (resolved.brackets) {
-        this.bracketCompilers.set(loaded, () =>
-          compileBracketConfig(language, Query, resolved.brackets),
-        );
-      }
+      const module = await compileParser(parserWasm, packaged);
+      const loaded = await prepareLanguage(module, { ...resolved, wasm: packaged.wasm });
 
       this.loadedLanguages.set(resolved.definition.id, loaded);
       this.registerLanguage(resolved.definition);
@@ -1403,11 +1516,7 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
     }
 
     async initParser(): Promise<void> {
-      this.sharedCache.parserInit ??= Promise.all([
-        loadTreeSitter(),
-        runtime.parserInitOptions?.() ?? Promise.resolve(),
-      ]).then(([{ Parser }, initOptions]) => Parser.init(initOptions));
-      await this.sharedCache.parserInit;
+      await ensureEngine();
     }
 
     registerLanguage(def: LanguageDefinition): void {
@@ -1452,7 +1561,10 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
         return this.createPlaintext(opts.definition);
       }
       const existing = this.getLoadedLanguage(opts.definition.id);
-      if (existing) return existing;
+      if (existing) {
+        await this.initParser();
+        return existing;
+      }
 
       const loadKey = normalizeLanguageName(opts.definition.id);
       const inFlight = this.languageLoads.get(loadKey);
@@ -1484,16 +1596,18 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       if (language.definition.id === PLAINTEXT_LANG_ID) {
         return [{ type: "source", start: 0, end: encoder.encode(source).byteLength }];
       }
-      if (options.rainbowBrackets && !language.brackets) {
-        const compile = this.bracketCompilers.get(language);
-        if (compile) {
-          this.bracketCompilers.delete(language);
-          language.brackets = compile();
-        }
+      const current = currentEngine();
+      try {
+        const built = buildHighlightEventsWithSourceIndex(source, language, this, options);
+        if (report) report.budget = built.budget;
+        return built.events;
+      } catch (cause) {
+        if (!isParserTrap(cause)) throw cause;
+        recover(current);
+        throw new Error(`parser returned no tree for language '${language.definition.id}'`, {
+          cause,
+        });
       }
-      const built = buildHighlightEventsWithSourceIndex(source, language, this, options);
-      if (report) report.budget = built.budget;
-      return built.events;
     }
   }
 

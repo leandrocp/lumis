@@ -25,6 +25,7 @@ import { getScopedThemeStyle } from "../formatter/html.js";
 import { LANGUAGE_LOADERS } from "../generated/language-loaders.js";
 import { guessLanguage } from "../guess-language.js";
 import { builtinFormatterKind } from "./builtin-formatter.js";
+import { ParserRecoveringError } from "./parser-error.js";
 
 const decoder = new TextDecoder();
 // Removed from the public API. Named here so an object still carrying one is
@@ -51,7 +52,9 @@ export interface Highlighter {
   ): void;
   /** Load a language by object, lazy handle, or string ID from a registered bundle. No-op if already loaded. */
   loadLanguage(language: Language | LazyLanguage | string): Promise<void>;
-  /** IDs of languages that have been loaded and are ready to highlight. */
+  /** Wait for automatic parser recovery. Resolves immediately when no recovery is pending. */
+  ready(): Promise<void>;
+  /** IDs of languages that have been loaded. */
   readonly languages: string[];
   /** IDs of all languages, including those registered lazily from bundles. */
   readonly registeredLanguages: string[];
@@ -379,12 +382,23 @@ function runFormatter<T>(
 
   const report: { budget?: BudgetExhausted } = {};
   const events = runHighlightEvents(runtime, source, detectedRef, options, report);
+  return renderEvents(runtime, source, fmt, detectedRef, events, report.budget);
+}
+
+function renderEvents<T>(
+  runtime: RuntimeLike,
+  source: string,
+  fmt: Formatter<T>,
+  detectedRef: LanguageRef | string,
+  events: HighlightEvent<T>[],
+  budget?: BudgetExhausted,
+): string {
   const prevRuntime = currentRuntime;
   const prevLanguage = fmt.language;
   currentRuntime = runtime;
   fmt.language = detectedRef;
   try {
-    return fmt.render(source, events, report.budget);
+    return fmt.render(source, events, budget);
   } finally {
     fmt.language = prevLanguage;
     currentRuntime = prevRuntime;
@@ -402,8 +416,23 @@ async function runFormatterAsync<T>(
   if (builtinFormatterKind(fmt)) {
     const nativeOutput = await runtime.formatAsync?.(source, loaded, fmt, options);
     if (nativeOutput !== undefined) return nativeOutput;
+    const syncOutput = runtime.format?.(source, loaded, fmt, options);
+    if (syncOutput !== undefined) return syncOutput;
   }
-  return runFormatter(runtime, source, fmt, detectedRef, options);
+  const report: { budget?: BudgetExhausted } = {};
+  let events: HighlightEvent<T>[];
+  for (;;) {
+    await runtime.initParser();
+    try {
+      events = runHighlightEvents(runtime, source, detectedRef, options, report);
+      break;
+    } catch (error) {
+      // Another pending render may have trapped since our last await. Only
+      // retry this readiness check; never replay a trap or a user's formatter.
+      if (!(error instanceof ParserRecoveringError)) throw error;
+    }
+  }
+  return renderEvents(runtime, source, fmt, detectedRef, events, report.budget);
 }
 
 function isObjectLike(value: unknown): value is object {
@@ -711,7 +740,9 @@ export function createHighlighterModule(factory: HighlighterModuleFactory) {
             options,
           );
         },
+        ready: () => runtime.initParser(),
         async loadLanguage(input) {
+          await runtime.initParser();
           await loadHighlighterLanguage(input, runtime, lazyRegistry);
         },
         get languages() {

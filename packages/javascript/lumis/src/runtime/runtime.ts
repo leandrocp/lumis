@@ -1,7 +1,4 @@
 import type { WasmRef } from "../types.js";
-import type { Parser } from "web-tree-sitter";
-
-type ParserInitOptions = Parameters<typeof Parser.init>[0];
 
 export interface RuntimeEnvironment {
   resolveWasm(
@@ -19,7 +16,6 @@ export interface RuntimeEnvironment {
    * no project to read and loads only the packages passed to `withWasm()`.
    */
   resolveInstalledManifest?(packageName: string): Promise<URL | undefined>;
-  parserInitOptions?(): Promise<ParserInitOptions>;
 }
 
 export interface RuntimeEnvironmentResolver {

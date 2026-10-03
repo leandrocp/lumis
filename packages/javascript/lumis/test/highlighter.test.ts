@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, it, expect, beforeAll, vi } from "vitest";
-import { Query } from "web-tree-sitter";
+import { getDefaultRuntime } from "../src/runtime/node.js";
 import { createHighlighter, highlight } from "../src/index.js";
 import {
   bbcodeScoped,
@@ -652,19 +652,27 @@ class User:
 
   it.runIf(process.env.LUMIS_TEST_RUNTIME === "wasm")(
     "passes the match limit to the rainbow bracket query",
-    () => {
+    async () => {
       const source = `${"[".repeat(8)}1${"]".repeat(8)}`;
-      const formatter = htmlInline({ language: json, theme });
-      const matches = vi.spyOn(Query.prototype, "matches");
+      const runtime = getDefaultRuntime();
+      const loaded = await runtime.loadLanguage({
+        definition: json,
+        packageName: json.packageName,
+      });
+      if (!loaded.brackets) throw new Error("JSON bracket query is missing");
+      const matches = vi.spyOn(loaded.brackets.query, "matches");
       try {
-        hl.highlight(source, formatter, { rainbowBrackets: true, budget: { matchLimit: 1 } });
-        const withBrackets = matches.mock.calls.length;
-        for (const [, options] of matches.mock.calls) {
-          expect(options).toMatchObject({ matchLimit: 1 });
-        }
+        runtime.highlightEvents(source, loaded, {
+          rainbowBrackets: true,
+          budget: { matchLimit: 1 },
+        });
+        expect(matches).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({ matchLimit: 1 }),
+        );
         matches.mockClear();
-        hl.highlight(source, formatter, { budget: { matchLimit: 1 } });
-        expect(withBrackets).toBeGreaterThan(matches.mock.calls.length);
+        runtime.highlightEvents(source, loaded, { budget: { matchLimit: 1 } });
+        expect(matches).not.toHaveBeenCalled();
       } finally {
         matches.mockRestore();
       }

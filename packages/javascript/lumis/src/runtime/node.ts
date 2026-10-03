@@ -5,7 +5,6 @@ import { createNativeLanguagesModule } from "../core/native-languages.js";
 import { BUNDLES } from "../generated/bundles-meta.js";
 import { LANGUAGE_PACKAGE_NAMES } from "../generated/language-packages.js";
 import { loadNativeBinding } from "../native-binding.js";
-import treeSitterWasmBinary from "../tree-sitter-wasm.js";
 import type { LanguageInfo } from "../types.js";
 import {
   isUrlString,
@@ -174,12 +173,6 @@ export const nodeRuntime: RuntimeEnvironment = {
       if (!isAbsolute(source)) return;
       throw new Error(`Failed to read parser WASM from ${source}`);
     }
-  },
-
-  async parserInitOptions() {
-    return {
-      wasmBinary: treeSitterWasmBinary,
-    };
   },
 
   resolveInstalledManifest,

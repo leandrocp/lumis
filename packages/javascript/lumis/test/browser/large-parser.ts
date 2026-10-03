@@ -1,3 +1,4 @@
+import { padded } from "../padded-parser.js";
 /**
  * A parser over 8 MB, loaded on the main thread. Chrome refuses a synchronous
  * compile that large there, so Lumis has to read the parser's grammar without
@@ -33,28 +34,6 @@ const [highlights] = Object.values(
     import: "default",
   }),
 );
-
-function leb128(value: number): number[] {
-  const bytes: number[] = [];
-  let rest = value;
-  do {
-    const byte = rest & 0x7f;
-    rest >>>= 7;
-    bytes.push(rest === 0 ? byte : byte | 0x80);
-  } while (rest !== 0);
-  return bytes;
-}
-
-/** The same parser with an empty custom section appended, `padding` bytes long. */
-function padded(parser: Uint8Array, padding: number): Uint8Array {
-  const name = [4, ...new TextEncoder().encode("lumi")];
-  const header = [0, ...leb128(name.length + padding)];
-  const bytes = new Uint8Array(parser.byteLength + header.length + name.length + padding);
-  bytes.set(parser);
-  bytes.set(header, parser.byteLength);
-  bytes.set(name, parser.byteLength + header.length);
-  return bytes;
-}
 
 try {
   const parser = new Uint8Array(await (await fetch(parserUrl!)).arrayBuffer());

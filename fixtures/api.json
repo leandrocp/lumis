@@ -135,6 +135,14 @@
       "loaded_languages": "See `loadLanguages` under javascript."
     }
   },
+  "runtime_objects": {
+    "javascript": {
+      "Highlighter": {
+        "$comment": "createHighlighter splits asynchronous setup and recovery from synchronous rendering. Native runtimes restore parser state inside their rendering call and do not need an awaitable readiness phase.",
+        "members": ["highlight", "highlightIter", "loadLanguage", "ready", "languages", "registeredLanguages"]
+      }
+    }
+  },
   "waived": {
     "$comment": [
       "A canonical capability a runtime does not offer. Each entry carries its",

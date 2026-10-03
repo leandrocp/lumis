@@ -262,8 +262,9 @@ than shipped half-designed.
 
 Parser modules are retained before query compilation. Rust keys both successful
 and failed store loads by the declared grammar and the SHA-256 of the actual
-bytes; `web-tree-sitter` retains the corresponding `Language.load` promise by
-byte digest within its JavaScript realm. An invalid query can therefore be
+bytes; the JavaScript Wasm runtime caches compiled modules by byte digest and
+retains successful and failed language-load promises within each engine. An
+invalid query can therefore be
 corrected without loading the parser again, while repeating the same parser-load
 failure cannot grow Tree-sitter's store. Fetch, resolver and integrity failures
 happen before this cache and remain retryable. Package-backed loads also inspect
@@ -298,12 +299,27 @@ loaded before the document mentioning it. Node runs the native addon
 specifically so it does not inherit that limit, and falls back to
 `web-tree-sitter` only where no addon is built.
 
-The npm build bundles the browser entry separately from the Node entry.
-`tsup.browser.config.ts` resolves `process` and `globalThis.process` to
-`undefined`, removing Tree-sitter's Node branches before a CDN can inject a
-Node-compatible process polyfill. The Node bundle keeps those branches for its
-Wasm fallback. Both builds finish before the bundle patch and declaration check
-run.
+The npm build bundles the browser and Node entries separately. Both embed the
+pinned `web-tree-sitter` runtime. `build-tree-sitter-binding.mjs` wraps its
+binding in a factory so each replacement engine has fresh closures, memory,
+and linker state. The generator also removes filesystem loading from the
+binding; Lumis supplies compiled modules through its existing resolver. Each
+patch anchor is checked, and an upstream change fails generation. No Emscripten
+build is involved.
+
+A parser trap discards the engine and starts restoring its successfully loaded
+grammars in the background. Stable language handles retain compiled modules
+and query text; their parser and query objects belong to the current engine.
+Highlighters sharing the engine therefore recover together, including loaded
+injections. Cleanup skips the corrupt allocator when unwinding a trap.
+
+Compilation and instantiation remain asynchronous: Chromium limits both
+synchronous operations for modules over 8 MiB, even if compilation already
+finished. `Highlighter.ready()` waits for restoration, and the async highlight
+entry point waits automatically. Synchronous calls made during recovery report
+that readiness must be awaited. A failed restoration rejects readiness without
+an unhandled background rejection. Invalid queries and normal budget exhaustion
+do not discard the engine.
 
 The resolver itself follows the same ownership boundary. The CLI and Elixir call
 `lumis-wasm-runtime::LanguageStore`, so compatible version checks, exact

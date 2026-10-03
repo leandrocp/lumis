@@ -39,6 +39,7 @@ interface Capability {
 
 interface Manifest {
   capabilities: Capability[];
+  runtime_objects: { javascript: { Highlighter: { members: string[] } } };
   runtime_only: Record<string, Record<string, string>>;
   waived: Record<string, Record<string, string>>;
 }
@@ -150,3 +151,15 @@ describe("top-level API manifest", () => {
     }
   });
 });
+
+for (const [name, entry] of [
+  ["node", nodeEntry],
+  ["browser", browserEntry],
+] as const) {
+  it(`${name} highlighter exposes exactly the manifest's runtime object members`, async () => {
+    const highlighter = await entry.createHighlighter();
+    expect(Object.keys(highlighter).sort()).toEqual(
+      [...manifest.runtime_objects.javascript.Highlighter.members].sort(),
+    );
+  });
+}
