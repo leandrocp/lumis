@@ -1,3 +1,9 @@
+## [0.10.1](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.10.0...hex-lumis/v0.10.1) (2026-10-03)
+
+### Bug Fixes
+
+- **php:** Prevent Wasm heredoc crashes and report parse failures in [\#1672](https://github.com/leandrocp/lumis/pull/1672)
+
 ## [0.10.0](https://github.com/leandrocp/lumis/compare/hex-lumis/v0.9.1...hex-lumis/v0.10.0) (2026-09-29)
 
 
