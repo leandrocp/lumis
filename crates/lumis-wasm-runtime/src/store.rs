@@ -1177,7 +1177,7 @@ mod tests {
         std::fs::create_dir_all(decoy.parent().unwrap()).unwrap();
         std::fs::write(&decoy, WASM).unwrap();
         assert!(
-            decoy.canonicalize().unwrap().parent() != Some(&dir.path().join("installed")),
+            decoy.canonicalize().unwrap().parent() != Some(dir.path().join("installed").as_path()),
             "the decoy has to land outside the installed directory or this proves nothing"
         );
 
