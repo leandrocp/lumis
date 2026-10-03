@@ -318,8 +318,12 @@ synchronous operations for modules over 8 MiB, even if compilation already
 finished. `Highlighter.ready()` waits for restoration, and the async highlight
 entry point waits automatically. Synchronous calls made during recovery report
 that readiness must be awaited. A failed restoration rejects readiness without
-an unhandled background rejection. Invalid queries and normal budget exhaustion
-do not discard the engine.
+an unhandled background rejection and is not cached, so the next wait retries
+it; the same holds for preparing the Tree-sitter runtime itself. Invalid
+queries and normal budget exhaustion do not discard the engine.
+The browser suite uses full Chromium's headless mode: the standalone Linux
+headless shell crashes on out-of-bounds Wasm accesses instead of reporting a
+JavaScript error, including with an unmodified Tree-sitter binding.
 
 The resolver itself follows the same ownership boundary. The CLI and Elixir call
 `lumis-wasm-runtime::LanguageStore`, so compatible version checks, exact

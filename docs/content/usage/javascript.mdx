@@ -85,8 +85,9 @@ const html = hl.highlight(
 
 `ready()` resolves immediately when no recovery is pending. Calling
 `hl.highlight()` or `hl.highlightIter()` during recovery throws an error asking
-you to await it. If restoration fails, `ready()` rejects with that error. The
-top-level async `highlight()` function waits automatically.
+you to await it. If restoration fails, `ready()` rejects with that error, and
+the next call to `ready()` tries again. The top-level async `highlight()`
+function waits automatically.
 
 Recovery does not repair a faulty parser: repeating the document that caused
 the trap can still fail. Budget exhaustion does not trigger recovery.

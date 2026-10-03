@@ -59,15 +59,8 @@ export async function buildTreeSitterBinding() {
   );
   await writeFile(
     new URL("web-tree-sitter.d.ts", directory),
-    `import type { Parser, Language, Query } from "web-tree-sitter";
-export function createBinding(): {
-  Parser: Omit<typeof Parser, "init"> & {
-    new(): Parser;
-    init(options: { wasmModule: WebAssembly.Module }): Promise<void>;
-  };
-  Language: { load(module: WebAssembly.Module): Promise<Language> };
-  Query: typeof Query;
-};
+    `import type { TreeSitterBinding } from "../core/tree-sitter.js";
+export function createBinding(): TreeSitterBinding;
 `,
   );
 }

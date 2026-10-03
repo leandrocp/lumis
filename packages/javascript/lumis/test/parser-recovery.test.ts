@@ -72,17 +72,20 @@ it.skipIf(runtimeKind() !== "wasm")(
   },
 );
 
-it("reports a failed background restoration through ready without an unhandled rejection", async () => {
+it("reports a failed restoration through ready, and retries it on the next call", async () => {
   const isolated = createHighlighterModule(createLanguagesModule(browserRuntime));
   const [php] = recoveryLanguages();
   if (!php) throw new Error("PHP fixture is missing");
   const highlighter = await isolated.createHighlighter({ languages: [php] });
+  const formatter = htmlLinked({ language: php });
+  const simple = '<?php $a = "x $b";';
+  const baseline = highlighter.highlight(simple, formatter);
   const failure = new Error("Cannot instantiate replacement engine");
-  const instantiate = vi.spyOn(WebAssembly, "instantiate").mockRejectedValueOnce(failure);
+  const instantiate = vi.spyOn(WebAssembly, "instantiate").mockRejectedValue(failure);
   try {
-    expect(() =>
-      highlighter.highlight("<?php\n$a = <<<END\nEND;\n", htmlLinked({ language: php })),
-    ).toThrow("parser returned no tree");
+    expect(() => highlighter.highlight("<?php\n$a = <<<END\nEND;\n", formatter)).toThrow(
+      "parser returned no tree",
+    );
     // Let the background promise reject before anyone awaits it.
     await new Promise((resolve) => {
       setTimeout(resolve, 20);
@@ -91,5 +94,20 @@ it("reports a failed background restoration through ready without an unhandled r
     await expect(highlighter.ready()).rejects.toBe(failure);
   } finally {
     instantiate.mockRestore();
+  }
+  await highlighter.ready();
+  expect(highlighter.highlight(simple, formatter)).toBe(baseline);
+});
+
+it("retries preparing the Tree-sitter runtime after a failed first attempt", async () => {
+  vi.resetModules();
+  const failure = new Error("Cannot compile the Tree-sitter runtime");
+  const compile = vi.spyOn(WebAssembly, "compile").mockRejectedValueOnce(failure);
+  try {
+    const { prepareTreeSitter } = await import("../src/core/tree-sitter.js");
+    await expect(prepareTreeSitter()).rejects.toBe(failure);
+    await expect(prepareTreeSitter()).resolves.toBeTypeOf("function");
+  } finally {
+    compile.mockRestore();
   }
 });

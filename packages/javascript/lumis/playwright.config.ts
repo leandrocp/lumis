@@ -19,7 +19,9 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
   },
   projects: [
-    { name: "chromium", use: { browserName: "chromium" } },
+    // Use full Chromium's headless mode. The standalone Linux headless shell
+    // crashes on Wasm out-of-bounds accesses instead of reporting RuntimeError.
+    { name: "chromium", use: { browserName: "chromium", channel: "chromium" } },
     { name: "firefox", use: { browserName: "firefox" } },
     { name: "webkit", use: { browserName: "webkit" } },
   ],

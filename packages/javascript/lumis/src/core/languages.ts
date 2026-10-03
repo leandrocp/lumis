@@ -1085,7 +1085,8 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
   }
 
   function ensureEngine(): Promise<Engine> {
-    engineLoad ??= prepareTreeSitter().then(async (createBinding) => {
+    if (engineLoad) return engineLoad;
+    const load = prepareTreeSitter().then(async (createBinding) => {
       const replacement: Engine = {
         binding: await createBinding(),
         languages: new Map(),
@@ -1098,7 +1099,13 @@ export function createLanguagesModule(runtime: RuntimeEnvironment): LanguagesMod
       engine = replacement;
       return replacement;
     });
-    return engineLoad;
+    // Forget a failed attempt so the next caller retries it. A cached rejection
+    // would outlive a transient failure such as memory pressure.
+    load.catch(() => {
+      if (engineLoad === load) engineLoad = undefined;
+    });
+    engineLoad = load;
+    return load;
   }
 
   function recover(failed: Engine): void {
