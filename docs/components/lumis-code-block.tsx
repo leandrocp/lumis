@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Check, Clipboard } from "lucide-react";
 import { buttonVariants } from "fumadocs-ui/components/ui/button";
 import { useCopyButton } from "fumadocs-ui/utils/use-copy-button";
@@ -29,7 +29,8 @@ export function LumisCodeBlock({ html, title }: { html: string; title?: string }
       {checked ? <Check /> : <Clipboard />}
     </button>
   );
-  const code = <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} />;
+  const innerHtml = useMemo(() => ({ __html: html }), [html]);
+  const code = <div ref={ref} dangerouslySetInnerHTML={innerHtml} />;
 
   if (!title) {
     return (
