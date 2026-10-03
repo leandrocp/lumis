@@ -50,6 +50,11 @@ limit will not fix a crashing parser. Rust exposes `ParseFailed`, Elixir
 returns `%Lumis.RenderError{reason: :parse}`, and JavaScript and the CLI report
 which language failed to parse.
 
+JavaScript automatically restores the parser after a Wasm trap. Before another
+synchronous render, `await highlighter.ready()` waits for that restoration;
+the async `highlight()` function waits automatically. See
+[parser recovery](/usage/javascript#recovery-after-a-parser-failure).
+
 Neither bound raises, returns an error tuple, or truncates. The document comes
 back whole, in the formatter you asked for. What changes is how much of it is
 highlighted, and the two bounds differ there:

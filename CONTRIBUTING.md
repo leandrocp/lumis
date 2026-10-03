@@ -157,6 +157,21 @@ It also builds the npm package and loads its browser entry with a process
 polyfill that reports a Node version, as a module CDN can provide. This checks
 that the published bundle initializes Tree-sitter without reaching Node APIs.
 
+Parser recovery tests use `test-wasm-php-trap`, a test-only alias for the
+published PHP 0.26.4 parser. They verify its SHA-256, trigger real memory
+corruption, and restore a preloaded parser larger than 8 MiB. Browser tests use
+fresh contexts for source and built-bundle runs; Node runs the same scenario
+with the native addon and the JavaScript Wasm fallback. No broken binary is
+checked in. The fixed PHP
+heredoc/nowdoc conformance fixture remains unchanged.
+
+`build:runtime-wasm` also generates an isolated binding from the pinned
+`web-tree-sitter` package. When updating that dependency, review
+`scripts/build-tree-sitter-binding.mjs` and run the recovery, large-parser,
+bundle, and conformance tests. A changed patch anchor fails generation.
+`fixtures/api.json` also pins the returned JavaScript `Highlighter` object's
+members, including `ready()`, in both package entries.
+
 ### The theme CSS option manifest
 
 `fixtures/theme-css-options.json` pins the CSS builder's options, defaults,

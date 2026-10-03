@@ -181,7 +181,7 @@ importers:
         version: link:../themes
       '@lumis-sh/wasm-bundle-full':
         specifier: ^0.1.1
-        version: 0.1.1(@lumis-sh/lumis@0.7.1)
+        version: 0.1.1(@lumis-sh/lumis@0.9.1)
       '@lumis-sh/wasm-json':
         specifier: 0.26.2
         version: 0.26.2
@@ -212,6 +212,9 @@ importers:
       smol-toml:
         specifier: ^1.6.1
         version: 1.6.1
+      test-wasm-php-trap:
+        specifier: npm:@lumis-sh/wasm-php@0.26.4
+        version: '@lumis-sh/wasm-php@0.26.4(@lumis-sh/lumis@0.9.1)'
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(@microsoft/api-extractor@7.58.2(@types/node@25.6.0))(jiti@2.6.1)(postcss@8.5.10)(supports-color@8.1.1)(tsx@4.21.0)(typescript@6.0.2)(yaml@2.8.3)
@@ -910,60 +913,60 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lumis-sh/lumis-native-darwin-arm64@0.7.1':
-    resolution: {integrity: sha512-mm+KS7/uI5O3pgE7kPHPlXHjE+niFn8PNjwreiXFmeK22eRipWJ0X2gQW1J2ZjSPlOzctQR9yCob/qaSGowGDw==}
+  '@lumis-sh/lumis-native-darwin-arm64@0.9.1':
+    resolution: {integrity: sha512-ZEodGykIfJCig5D4368E5g+Y7+tBnR3Fqz/x8W5XyXKZXWZJmTfm0ZcY4QJH6EgG1O/I3JH+BV3RYhfqxBsV9g==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [darwin]
 
-  '@lumis-sh/lumis-native-darwin-x64@0.7.1':
-    resolution: {integrity: sha512-TwmyzOhb8/s5CDhKnr9+QbC8fEEuvuK5NLnYRYLjfDKCejtHFHEYjo3FzdaT5w5J/Jh4AVFo4/QA43q9woasBw==}
+  '@lumis-sh/lumis-native-darwin-x64@0.9.1':
+    resolution: {integrity: sha512-d3xoHCES1Ew9qv2is0MWfTClXgF38ccdAMXb5CRE3V/sk2ick1+cEwJsryKMHGh6SVSytMzLPhA0R/HLjAE4ww==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [darwin]
 
-  '@lumis-sh/lumis-native-linux-arm64-gnu@0.7.1':
-    resolution: {integrity: sha512-ZgVlABh64KFFZbTvWZljGtoqB1KDoGo1gVk/mTD9XuG9ZEiZMegpuVZd+hfnOsDFhLtNBCzeB+iQcO+F7DItdQ==}
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.9.1':
+    resolution: {integrity: sha512-gyVDmby1z5K+kvOl1z1DzqpoYWsFv20bG+YklARBA+WbeNjB8TVvsDQ7I7tQT3jYr9OOsk4993b+EF5zPDoV+g==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@lumis-sh/lumis-native-linux-arm64-musl@0.7.1':
-    resolution: {integrity: sha512-q0D4auxlFfeW8UR0DahBC1zZEjyxMaFpRS8L+oXEtY15JENdSLjhn/78ur24IlgTcN5BEbS1u2W2z8bUVmGIOA==}
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.9.1':
+    resolution: {integrity: sha512-JNCpC81UhRjUGaLgWuXy5NP32gwE/o2rN7KsO7jdDMasli1/lmIgUlWR+KodtQye8t5Z/QB2w96ossSzi2BGfw==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@lumis-sh/lumis-native-linux-x64-gnu@0.7.1':
-    resolution: {integrity: sha512-DRNyF9yxKmbdFpUzLHXCMIJyun6tSvWpgy1kEunwo20GA3zYlupsbhNg1ZsomCASRAfk7+tGcUUvW/ST6U76jQ==}
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.9.1':
+    resolution: {integrity: sha512-5MyzyxOI2KZI/WmM+F+aniHlT3VG4/A4egVs5ZiQTQ7dYjfukXTVGuF7n3uf9ax3G/0WAc3mRuCyztOe9P0T8Q==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@lumis-sh/lumis-native-linux-x64-musl@0.7.1':
-    resolution: {integrity: sha512-nJUedMuAfMAF24wqwAxI8dsTip8v9HDmuvfh4UZg5NY+tWY53cJSmFmbUlXgnpNOOoJAGRD9NUGlLIe17v+FUg==}
+  '@lumis-sh/lumis-native-linux-x64-musl@0.9.1':
+    resolution: {integrity: sha512-Yw9JxdIOpcHpFA8we4VbtBuLLTePVpN2X+xbzwCJRzOeu3hOWuJYKvnvJsKt1Esa1Tdh6WDO231n5iqxhGKz+g==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@lumis-sh/lumis-native-win32-arm64-msvc@0.7.1':
-    resolution: {integrity: sha512-fLalaPYC9UaSkiHHOak41S3cp67TSaKLFfr/D66RWri7lUCXc20j7YnSRvQNSSSMQEEuWm5zOX5gw34UnPZUuQ==}
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.9.1':
+    resolution: {integrity: sha512-Io/kWas89wQuSTokhSt30MsOUmqsD7yPogRDBqb614J4WAMGE6ipZGGouEJ9EBx7gBvSQU3eYXkX11ljyIRH3A==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [win32]
 
-  '@lumis-sh/lumis-native-win32-x64-msvc@0.7.1':
-    resolution: {integrity: sha512-w9N3pNuy+2//9paivs4h/NzOO5MCPFIyHzI6qD4S03dd0N4eD5kHskfnijFN4G6G54RR+IKrX2JMd7aY7Pp33g==}
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.9.1':
+    resolution: {integrity: sha512-Lm87iWEyE8lPLi5+jGG0lvUKObhwHKwImnHCPdXhVulAC69anDb5fgzgy9yV+E7bI7KiDV17/KH7kVrYNXFvTw==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
 
-  '@lumis-sh/lumis@0.7.1':
-    resolution: {integrity: sha512-E6dIjIXAeQmy8dn7EzwqZh+cyWkhLTCO96MSRJeu1sKETyJLD/iePCgTTtB8fqEzknaSe6T54L8cblw+SZAhqw==}
+  '@lumis-sh/lumis@0.9.1':
+    resolution: {integrity: sha512-jhP+XDqc+i9EhCOZISeuYQuNljotrgvKkvtAsXB1ln2YjM5RVAC7s9/49BNpKpA2ptm3G+qrVNs08jGy6d8cqg==}
     engines: {node: '>=18'}
 
   '@lumis-sh/wasm-angular@0.26.0':
@@ -1198,6 +1201,14 @@ packages:
 
   '@lumis-sh/wasm-php@0.26.1':
     resolution: {integrity: sha512-LvzzNGjP9AV7n6TudPhcXxw8yT4Sx10kNVFL523BcRIqSDi6V9Xyea8hygmeATBfG+YfXikgbvDVeGqj8/J4Iw==}
+
+  '@lumis-sh/wasm-php@0.26.4':
+    resolution: {integrity: sha512-em7zQPkMFds9KTVjcfI4m3QvY+bWKfHc/cC35CbVZWGdveSyduRQ/RV/87mPlaW4LYS3DIh8mRYTf52wNQHwEw==}
+    peerDependencies:
+      '@lumis-sh/lumis': '>=0.9.0'
+    peerDependenciesMeta:
+      '@lumis-sh/lumis':
+        optional: true
 
   '@lumis-sh/wasm-powershell@0.26.0':
     resolution: {integrity: sha512-YlCu/ABd2L4UnyOsNXzu07Y8Sp3IAq/VmFmXRHz/mugPZQ2i/A9SwxnD9woB+PKrzxXK57jW1oLY8u54gBjfYg==}
@@ -3662,45 +3673,44 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lumis-sh/lumis-native-darwin-arm64@0.7.1':
+  '@lumis-sh/lumis-native-darwin-arm64@0.9.1':
     optional: true
 
-  '@lumis-sh/lumis-native-darwin-x64@0.7.1':
+  '@lumis-sh/lumis-native-darwin-x64@0.9.1':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-arm64-gnu@0.7.1':
+  '@lumis-sh/lumis-native-linux-arm64-gnu@0.9.1':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-arm64-musl@0.7.1':
+  '@lumis-sh/lumis-native-linux-arm64-musl@0.9.1':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-x64-gnu@0.7.1':
+  '@lumis-sh/lumis-native-linux-x64-gnu@0.9.1':
     optional: true
 
-  '@lumis-sh/lumis-native-linux-x64-musl@0.7.1':
+  '@lumis-sh/lumis-native-linux-x64-musl@0.9.1':
     optional: true
 
-  '@lumis-sh/lumis-native-win32-arm64-msvc@0.7.1':
+  '@lumis-sh/lumis-native-win32-arm64-msvc@0.9.1':
     optional: true
 
-  '@lumis-sh/lumis-native-win32-x64-msvc@0.7.1':
+  '@lumis-sh/lumis-native-win32-x64-msvc@0.9.1':
     optional: true
 
-  '@lumis-sh/lumis@0.7.1':
+  '@lumis-sh/lumis@0.9.1':
     dependencies:
       '@noble/hashes': 2.3.0
       pathe: 2.0.3
       semver: 7.8.5
-      web-tree-sitter: 0.26.11
     optionalDependencies:
-      '@lumis-sh/lumis-native-darwin-arm64': 0.7.1
-      '@lumis-sh/lumis-native-darwin-x64': 0.7.1
-      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.7.1
-      '@lumis-sh/lumis-native-linux-arm64-musl': 0.7.1
-      '@lumis-sh/lumis-native-linux-x64-gnu': 0.7.1
-      '@lumis-sh/lumis-native-linux-x64-musl': 0.7.1
-      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.7.1
-      '@lumis-sh/lumis-native-win32-x64-msvc': 0.7.1
+      '@lumis-sh/lumis-native-darwin-arm64': 0.9.1
+      '@lumis-sh/lumis-native-darwin-x64': 0.9.1
+      '@lumis-sh/lumis-native-linux-arm64-gnu': 0.9.1
+      '@lumis-sh/lumis-native-linux-arm64-musl': 0.9.1
+      '@lumis-sh/lumis-native-linux-x64-gnu': 0.9.1
+      '@lumis-sh/lumis-native-linux-x64-musl': 0.9.1
+      '@lumis-sh/lumis-native-win32-arm64-msvc': 0.9.1
+      '@lumis-sh/lumis-native-win32-x64-msvc': 0.9.1
 
   '@lumis-sh/wasm-angular@0.26.0': {}
 
@@ -3714,9 +3724,9 @@ snapshots:
 
   '@lumis-sh/wasm-bicep@0.26.0': {}
 
-  '@lumis-sh/wasm-bundle-full@0.1.1(@lumis-sh/lumis@0.7.1)':
+  '@lumis-sh/wasm-bundle-full@0.1.1(@lumis-sh/lumis@0.9.1)':
     dependencies:
-      '@lumis-sh/lumis': 0.7.1
+      '@lumis-sh/lumis': 0.9.1
       '@lumis-sh/wasm-angular': 0.26.0
       '@lumis-sh/wasm-arduino': 0.26.0
       '@lumis-sh/wasm-asm': 0.26.0
@@ -3970,6 +3980,10 @@ snapshots:
   '@lumis-sh/wasm-perl@0.26.0': {}
 
   '@lumis-sh/wasm-php@0.26.1': {}
+
+  '@lumis-sh/wasm-php@0.26.4(@lumis-sh/lumis@0.9.1)':
+    optionalDependencies:
+      '@lumis-sh/lumis': 0.9.1
 
   '@lumis-sh/wasm-powershell@0.26.0': {}
 

@@ -6,6 +6,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { buildTreeSitterBinding } from "./build-tree-sitter-binding.mjs";
 
 function main() {
   const wasmCandidates = [
@@ -38,3 +39,4 @@ function main() {
 }
 
 main();
+await buildTreeSitterBinding();

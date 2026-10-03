@@ -200,8 +200,7 @@ describe("runtime parity", () => {
     const basePackageName = "@lumis-sh/wasm-comment";
     const source = localLanguagePackageMetadata(basePackageName);
     const highlights = source.languages.comment.highlights;
-    const { Language: TreeSitterLanguage } = await import("web-tree-sitter");
-    const load = vi.spyOn(TreeSitterLanguage, "load");
+    const load = vi.spyOn(WebAssembly, "compile");
     const moduleExports = vi.spyOn(WebAssembly.Module, "exports");
     const create = (id: string, packageName: string, grammarName: string) =>
       index.createHighlighter({
@@ -258,8 +257,7 @@ describe("runtime parity", () => {
     ]);
     const packageName = "@test/non-function-grammar";
     const languageId = "non-function-grammar";
-    const { Language: TreeSitterLanguage } = await import("web-tree-sitter");
-    const load = vi.spyOn(TreeSitterLanguage, "load");
+    const load = vi.spyOn(WebAssembly, "compile");
 
     try {
       const loadsBefore = load.mock.calls.length;

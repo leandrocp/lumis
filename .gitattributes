@@ -20,6 +20,7 @@ docs/content/reference/languages.md linguist-generated
 docs/content/reference/themes.md linguist-generated
 packages/javascript/lumis/bundles/*.ts linguist-generated
 packages/javascript/lumis/src/highlights.ts linguist-generated
+packages/javascript/lumis/src/generated/** linguist-generated
 packages/javascript/themes/themes/*.ts linguist-generated
 packages/javascript/wasm-bundle-*/README.md linguist-generated
 packages/javascript/wasm-bundle-*/index.d.ts linguist-generated

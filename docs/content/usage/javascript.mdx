@@ -68,6 +68,29 @@ const html = hl.highlight(
 
 This creates an isolated highlighter unless you intentionally rely on the global resolver.
 
+### Recovery after a parser failure
+
+A Wasm parser trap fails the current document and starts recovery automatically.
+Loaded languages, including injections, are restored without replacing the
+highlighter or fetching their packages again. Before the next synchronous call,
+you can wait for recovery:
+
+```ts
+await hl.ready();
+const html = hl.highlight(
+  "const answer = 42;",
+  htmlInline({ language: javascript, theme: frappe }),
+);
+```
+
+`ready()` resolves immediately when no recovery is pending. Calling
+`hl.highlight()` or `hl.highlightIter()` during recovery throws an error asking
+you to await it. If restoration fails, `ready()` rejects with that error. The
+top-level async `highlight()` function waits automatically.
+
+Recovery does not repair a faulty parser: repeating the document that caused
+the trap can still fail. Budget exhaustion does not trigger recovery.
+
 ## Bundles
 
 A bundle package depends on a set of language packages and registers all of
