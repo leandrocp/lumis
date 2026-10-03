@@ -35,6 +35,17 @@ jobs:
         with:
           install: false
 
+      # A pull request that needs unpublished lumis crates patches them into the
+      # NIF's own manifest so its standalone build resolves. A published package
+      # cannot depend on that, so the patch has to go before a release.
+      - name: Refuse a patched NIF manifest
+        run: |
+          if grep -q '^\[patch' packages/elixir/lumis/native/lumis_nif/Cargo.toml; then
+            echo "packages/elixir/lumis/native/lumis_nif/Cargo.toml still has a [patch] table." >&2
+            echo "Publish the crates it patches, remove it, then run mise run elixir-nif-lock-check --fix." >&2
+            exit 1
+          fi
+
       - run: mise run elixir-nif-lock-check
 
   nif-release:

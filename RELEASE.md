@@ -316,6 +316,11 @@ it after each `cargo publish` and opens `refresh-nif-lock`. **Merge that before
 landed, and `hex-lumis` is `continue-on-error` in `release-prepare.yml` for the same
 reason.
 
+A pull request that needs lumis crates not yet on crates.io can point the NIF at
+them with a `[patch.crates-io]` table in `lumis_nif/Cargo.toml`, pinned to a commit.
+`elixir-release.yml` refuses to publish while that table is there: publish the
+crates, remove it, and run `mise run elixir-nif-lock-check --fix`.
+
 `elixir-release.yml` uploads NIFs to a GitHub Release and mirrors them to R2
 (`artifacts.lumis.sh`); a missing `R2_*` secret fails the release. Checksums come from
 GitHub, which `Lumis.Native.ArtifactURL` defaults to.

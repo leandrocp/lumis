@@ -8,7 +8,6 @@ defmodule Lumis do
 
   require Logger
   alias Lumis.Formatter.HTML
-  alias Lumis.Theme
 
   @built_in_formatters [
     :html_inline,
@@ -524,8 +523,8 @@ defmodule Lumis do
            [
              nil,
              map: [
-               open_tag: [type: :string],
-               close_tag: [type: :string]
+               open_tag: [type: :string, required: true],
+               close_tag: [type: :string, required: true]
              ]
            ]},
         default: nil
@@ -534,16 +533,10 @@ defmodule Lumis do
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
-        case convert_html_inline_options(validated_opts) do
-          {:ok, converted_opts} ->
-            {:ok, {:html_inline, converted_opts}}
-
-          {:error, error} ->
-            {:error, "invalid options given to html_inline: #{error}"}
-        end
+        {:ok, {:html_inline, validated_opts}}
 
       {:error, error} ->
-        {:error, "invalid options given to html_inline: #{inspect(error)}"}
+        {:error, "invalid options given to html_inline: #{Exception.message(error)}"}
     end
   end
 
@@ -573,8 +566,8 @@ defmodule Lumis do
            [
              nil,
              map: [
-               open_tag: [type: :string],
-               close_tag: [type: :string]
+               open_tag: [type: :string, required: true],
+               close_tag: [type: :string, required: true]
              ]
            ]},
         default: nil
@@ -583,16 +576,10 @@ defmodule Lumis do
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
-        case convert_html_linked_options(validated_opts) do
-          {:ok, converted_opts} ->
-            {:ok, {:html_linked, converted_opts}}
-
-          {:error, error} ->
-            {:error, "invalid options given to html_linked: #{error}"}
-        end
+        {:ok, {:html_linked, validated_opts}}
 
       {:error, error} ->
-        {:error, "invalid options given to html_linked: #{inspect(error)}"}
+        {:error, "invalid options given to html_linked: #{Exception.message(error)}"}
     end
   end
 
@@ -642,8 +629,8 @@ defmodule Lumis do
            [
              nil,
              map: [
-               open_tag: [type: :string],
-               close_tag: [type: :string]
+               open_tag: [type: :string, required: true],
+               close_tag: [type: :string, required: true]
              ]
            ]},
         default: nil
@@ -652,16 +639,16 @@ defmodule Lumis do
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
-        case convert_html_multi_themes_options(validated_opts) do
-          {:ok, converted_opts} ->
-            {:ok, {:html_multi_themes, converted_opts}}
+        case validate_themes(validated_opts) do
+          :ok ->
+            {:ok, {:html_multi_themes, validated_opts}}
 
           {:error, error} ->
             {:error, "invalid options given to html_multi_themes: #{error}"}
         end
 
       {:error, error} ->
-        {:error, "invalid options given to html_multi_themes: #{inspect(error)}"}
+        {:error, "invalid options given to html_multi_themes: #{Exception.message(error)}"}
     end
   end
 
@@ -688,10 +675,10 @@ defmodule Lumis do
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
-        {:ok, {:terminal, convert_terminal_options(validated_opts)}}
+        {:ok, {:terminal, validated_opts}}
 
       {:error, error} ->
-        {:error, "invalid options given to terminal: #{inspect(error)}"}
+        {:error, "invalid options given to terminal: #{Exception.message(error)}"}
     end
   end
 
@@ -711,10 +698,10 @@ defmodule Lumis do
 
     case NimbleOptions.validate(options, schema) do
       {:ok, validated_opts} ->
-        {:ok, {:bbcode_scoped, convert_bbcode_options(validated_opts)}}
+        {:ok, {:bbcode_scoped, validated_opts}}
 
       {:error, error} ->
-        {:error, "invalid options given to bbcode_scoped: #{inspect(error)}"}
+        {:error, "invalid options given to bbcode_scoped: #{Exception.message(error)}"}
     end
   end
 
@@ -847,62 +834,23 @@ defmodule Lumis do
     end
   end
 
-  @doc false
-  defp convert_html_inline_options(opts) do
-    with {:ok, opts} <- convert_highlight_lines_inline(opts) do
-      convert_header(opts)
-    end
-  end
-
-  @doc false
-  defp convert_html_linked_options(opts) do
-    with {:ok, opts} <- convert_highlight_lines_linked(opts) do
-      convert_header(opts)
-    end
-  end
-
-  defp convert_html_multi_themes_options(opts) do
-    with {:ok, opts} <- validate_and_convert_themes(opts),
-         {:ok, opts} <- convert_highlight_lines_inline(opts) do
-      convert_header(opts)
-    end
-  end
-
-  defp validate_and_convert_themes(opts) do
-    case opts[:themes] do
-      nil ->
-        {:error, "themes option is required for html_multi_themes"}
-
+  # A name that is not a built-in theme fails here, while the options are being
+  # validated, rather than when the NIF resolves it. The NIF decodes the themes
+  # itself; this only checks them.
+  defp validate_themes(opts) do
+    case Keyword.fetch!(opts, :themes) do
       [] ->
         {:error, "themes list cannot be empty"}
 
-      themes when is_list(themes) ->
-        convert_themes_keyword_list(themes, opts)
-
-      _ ->
-        {:error, "themes must be a keyword list"}
+      themes ->
+        Enum.find_value(themes, :ok, &unresolvable_theme/1)
     end
   end
 
-  defp convert_themes_keyword_list(themes, opts) do
-    themes
-    |> Enum.reduce_while({:ok, %{}}, fn {id, theme_value}, {:ok, acc} ->
-      theme_id = to_string(id)
-
-      case resolve_theme(theme_value) do
-        {:ok, theme_struct} ->
-          {:cont, {:ok, Map.put(acc, theme_id, theme_struct)}}
-
-        {:error, reason} ->
-          {:halt, {:error, "failed to resolve theme #{inspect(id)}: #{reason}"}}
-      end
-    end)
-    |> case do
-      {:ok, themes_map} ->
-        {:ok, Keyword.put(opts, :themes, themes_map)}
-
-      {:error, _} = error ->
-        error
+  defp unresolvable_theme({id, theme}) do
+    case resolve_theme(theme) do
+      {:ok, _theme} -> nil
+      {:error, reason} -> {:error, "failed to resolve theme #{inspect(id)}: #{reason}"}
     end
   end
 
@@ -917,101 +865,6 @@ defmodule Lumis do
 
   defp resolve_theme(other) do
     {:error, "expected theme name (string) or Lumis.Theme struct, got: #{inspect(other)}"}
-  end
-
-  @doc false
-  defp convert_highlight_lines_inline(opts) do
-    case opts[:highlight_lines] do
-      nil ->
-        {:ok, opts}
-
-      hl ->
-        put_inline_highlight_lines(opts, hl)
-    end
-  end
-
-  defp put_inline_highlight_lines(opts, hl) do
-    with {:ok, lines} <- Lumis.LineSpec.encode(hl[:lines] || []) do
-      opts
-      |> Keyword.put(:highlight_lines, %Lumis.HTMLInlineHighlightLines{
-        lines: lines,
-        style: inline_highlight_style(hl[:style]),
-        class: hl[:class]
-      })
-      |> then(&{:ok, &1})
-    end
-  end
-
-  defp inline_highlight_style(:theme), do: :theme
-  defp inline_highlight_style(style) when is_binary(style), do: {:style, %{style: style}}
-  defp inline_highlight_style(nil), do: nil
-  defp inline_highlight_style(_other), do: :theme
-
-  @doc false
-  defp convert_highlight_lines_linked(opts) do
-    case opts[:highlight_lines] do
-      nil ->
-        {:ok, opts}
-
-      hl ->
-        with {:ok, lines} <- Lumis.LineSpec.encode(hl[:lines] || []) do
-          class = hl[:class] || "l-highlighted"
-
-          opts
-          |> Keyword.put(:highlight_lines, %Lumis.HTMLLinkedHighlightLines{
-            lines: lines,
-            class: class
-          })
-          |> then(&{:ok, &1})
-        end
-    end
-  end
-
-  # A line spec always encodes, so unlike the HTML converters these two cannot
-  # fail and hand back the options rather than a result tuple.
-  defp convert_terminal_options(opts) do
-    case opts[:highlight_lines] do
-      nil ->
-        opts
-
-      hl ->
-        Keyword.put(opts, :highlight_lines, %Lumis.TerminalHighlightLines{
-          lines: Lumis.LineSpec.encode!(hl[:lines] || []),
-          background: hl[:background]
-        })
-    end
-  end
-
-  defp convert_bbcode_options(opts) do
-    case opts[:highlight_lines] do
-      nil ->
-        opts
-
-      hl ->
-        Keyword.put(opts, :highlight_lines, %Lumis.BBCodeHighlightLines{
-          lines: Lumis.LineSpec.encode!(hl[:lines] || [])
-        })
-    end
-  end
-
-  @doc false
-  defp convert_header(opts) do
-    case opts[:header] do
-      nil ->
-        {:ok, opts}
-
-      %{open_tag: open_tag, close_tag: close_tag} ->
-        opts
-        |> Keyword.put(:header, %Lumis.HTMLElement{
-          open_tag: open_tag,
-          close_tag: close_tag
-        })
-        |> then(&{:ok, &1})
-
-      _ ->
-        {:error,
-         "invalid value for :header option, must be a map with :open_tag and :close_tag keys"}
-    end
   end
 
   @doc false
@@ -1229,8 +1082,12 @@ defmodule Lumis do
     if formatter in @built_in_formatters do
       Lumis.Application.configure_store()
 
+      warn_helix_theme(options)
+
+      # The NIF reads the validated options as they are, with the decoder
+      # `mdex_native` uses too, including the deprecated top-level ones.
       source
-      |> Lumis.Native.highlight(rust_options!(options))
+      |> Lumis.Native.highlight(options)
       |> describe_highlight_result()
     else
       render_with_custom_formatter(source, formatter, formatter_options, options)
@@ -1282,48 +1139,24 @@ defmodule Lumis do
     |> normalize_formatter_language()
   end
 
+  # The NIF still finds a Helix theme, by its Neovim spelling, but cannot log.
   @doc false
-  def rust_options!(options) do
-    {formatter, formatter_opts} = options[:formatter]
-    {language, formatter_opts} = Keyword.pop(formatter_opts, :language)
+  @deprecated "MDEx and mdex_native take Lumis options as written; pass them without converting"
+  # The wire format MDEx 0.14.1 and mdex_native 0.2.10 still read. See
+  # `Lumis.LegacyOptions`.
+  defdelegate rust_options!(options), to: Lumis.LegacyOptions
 
-    options =
-      options
-      |> Keyword.delete(:language)
+  defp warn_helix_theme(options) do
+    {_formatter, formatter_options} = Keyword.fetch!(options, :formatter)
+    theme = Keyword.get(options, :theme) || Keyword.get(formatter_options, :theme)
 
-    {theme, options} = Keyword.pop(options, :theme)
-    theme = build_theme(theme || Keyword.get(formatter_opts, :theme))
+    if is_binary(theme) and String.contains?(theme, " ") do
+      Logger.warning("""
+      Helix themes are deprecated, use Neovim theme names instead.
 
-    {pre_class, options} = Keyword.pop(options, :pre_class)
-    pre_class = pre_class || Keyword.get(formatter_opts, :pre_class)
-
-    {inline_style, options} = Keyword.pop(options, :inline_style)
-
-    {formatter, formatter_opts} =
-      case inline_style do
-        true ->
-          {:ok, {_type, default_opts}} = formatter_type(:html_inline)
-          {:html_inline, Keyword.merge(default_opts, formatter_opts)}
-
-        false ->
-          {:ok, {_type, default_opts}} = formatter_type(:html_linked)
-          {:html_linked, Keyword.merge(default_opts, formatter_opts)}
-
-        nil ->
-          {formatter, formatter_opts}
-      end
-
-    rust_formatter =
-      convert_formatter_for_nif(
-        formatter,
-        Map.merge(Map.new(formatter_opts), %{theme: theme, pre_class: pre_class})
-      )
-
-    options
-    |> Keyword.put(:language, language)
-    |> Keyword.put(:formatter, rust_formatter)
-    |> Keyword.update(:budget, budget_for_nif([]), &budget_for_nif/1)
-    |> Map.new()
+      See `Lumis.available_themes/0` for a list of available themes.
+      """)
+    end
   end
 
   # The NIF decodes a map, so the nested keyword list crosses as one.
@@ -1376,130 +1209,6 @@ defmodule Lumis do
       end
 
     Keyword.put(options, :formatter, formatter)
-  end
-
-  @doc false
-  def build_theme(theme) do
-    cond do
-      match?(%Theme{}, theme) ->
-        {:theme, theme}
-
-      is_binary(theme) && String.contains?(theme, " ") ->
-        Logger.warning("""
-        Helix themes are deprecated, use Neovim theme names instead.
-
-        See `Lumis.available_themes/0` for a list of available themes.
-        """)
-
-        theme
-        |> String.downcase()
-        |> String.replace(" ", "")
-        |> then(&{:string, &1})
-
-      is_binary(theme) ->
-        theme
-        |> String.downcase()
-        |> then(&{:string, &1})
-
-      :else ->
-        nil
-    end
-  end
-
-  defp convert_formatter_for_nif(:html_inline, opts) do
-    opts = opts |> convert_theme_for_nif() |> convert_attrs_for_nif()
-
-    {:html_inline,
-     Map.take(opts, [
-       :structure,
-       :theme,
-       :pre_class,
-       :pre_attrs,
-       :code_attrs,
-       :italic,
-       :include_highlights,
-       :highlight_lines,
-       :line_numbers,
-       :header
-     ])}
-  end
-
-  defp convert_formatter_for_nif(:html_linked, opts) do
-    opts = convert_attrs_for_nif(opts)
-
-    {:html_linked,
-     Map.take(opts, [
-       :structure,
-       :pre_class,
-       :pre_attrs,
-       :code_attrs,
-       :highlight_lines,
-       :line_numbers,
-       :header
-     ])}
-  end
-
-  defp convert_formatter_for_nif(:terminal, opts) do
-    opts = convert_theme_for_nif(opts)
-
-    opts =
-      case opts[:background] do
-        :theme -> Map.put(opts, :background, :theme)
-        color when is_binary(color) -> Map.put(opts, :background, {:string, color})
-        nil -> Map.put(opts, :background, nil)
-      end
-
-    {:terminal, Map.take(opts, [:theme, :background, :width, :highlight_lines, :line_numbers])}
-  end
-
-  defp convert_formatter_for_nif(:bbcode_scoped, opts) do
-    {:bbcode_scoped, Map.take(opts, [:highlight_lines])}
-  end
-
-  defp convert_formatter_for_nif(:html_multi_themes, opts) do
-    opts = convert_attrs_for_nif(opts)
-
-    {:html_multi_themes,
-     Map.take(opts, [
-       :structure,
-       :themes,
-       :default_theme,
-       :css_variable_prefix,
-       :pre_class,
-       :pre_attrs,
-       :code_attrs,
-       :italic,
-       :include_highlights,
-       :highlight_lines,
-       :line_numbers,
-       :header
-     ])}
-  end
-
-  defp convert_attrs_for_nif(opts) do
-    opts
-    |> Map.update(:pre_attrs, [], &encode_html_attrs/1)
-    |> Map.update(:code_attrs, [], &encode_html_attrs/1)
-  end
-
-  defp encode_html_attrs(attrs) do
-    Enum.map(attrs, fn {name, value} -> {Atom.to_string(name), value} end)
-  end
-
-  defp convert_theme_for_nif(opts) do
-    case opts[:theme] do
-      {:theme, %Theme{} = theme} ->
-        Map.put(opts, :theme, {:theme, theme})
-
-      {:string, theme_name} when is_binary(theme_name) ->
-        Map.put(opts, :theme, {:string, theme_name})
-
-      nil ->
-        Map.put(opts, :theme, nil)
-
-      theme_name when is_binary(theme_name) ->
-        Map.put(opts, :theme, {:string, theme_name})
-    end
   end
 
   @doc """
