@@ -1,3 +1,9 @@
+## [4.0.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v4.0.1...cargo-lumis-core/v4.0.2) (2026-10-03)
+
+### Bug Fixes
+
+- **release:** Separate new changelog entries from history in [\#1661](https://github.com/leandrocp/lumis/pull/1661)
+
 ## [4.0.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-core/v4.0.0...cargo-lumis-core/v4.0.1) (2026-10-02)
 
 ### Bug Fixes
