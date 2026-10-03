@@ -8,24 +8,16 @@ keywords:
   - cargo binstall
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
 ## Shell installer
 
-On macOS and Linux:
+<Tabs groupId="os" persist items={['macOS / Linux', 'Windows']}>
+  <Tab value="macOS / Linux">
 
 ```sh
 curl -LsSf https://lumis.sh/install.sh | sh
 ```
-
-On Windows PowerShell:
-
-```powershell
-powershell -ExecutionPolicy ByPass `
-  -c "irm https://lumis.sh/install.ps1 | iex"
-```
-
-The installers download the matching archive from GitHub Releases and verify its
-published SHA-256 checksum before unpacking it. The default install directory is
-`~/.local/bin`.
 
 Pin a CLI version by putting it in the URL:
 
@@ -33,10 +25,29 @@ Pin a CLI version by putting it in the URL:
 curl -LsSf https://lumis.sh/0.5.1/install.sh | sh
 ```
 
+  </Tab>
+  <Tab value="Windows">
+
+In PowerShell:
+
+```powershell
+powershell -ExecutionPolicy ByPass `
+  -c "irm https://lumis.sh/install.ps1 | iex"
+```
+
+Pin a CLI version by putting it in the URL:
+
 ```powershell
 powershell -ExecutionPolicy ByPass `
   -c "irm https://lumis.sh/0.5.1/install.ps1 | iex"
 ```
+
+  </Tab>
+</Tabs>
+
+The installers download the matching archive from GitHub Releases and verify its
+published SHA-256 checksum before unpacking it. The default install directory is
+`~/.local/bin`.
 
 Set `LUMIS_INSTALL_DIR` to choose another directory. Set
 `LUMIS_NO_MODIFY_PATH=1` to install without changing `PATH`.
