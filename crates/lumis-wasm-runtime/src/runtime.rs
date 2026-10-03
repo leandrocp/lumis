@@ -240,6 +240,8 @@ pub enum RuntimeError {
     LanguageNotCached(String),
     #[error("highlighting failed: {0}")]
     Highlight(String),
+    #[error("parser returned no tree for language '{0}'")]
+    ParseFailed(String),
     #[error("match limit {0} is outside 1..=65536")]
     InvalidMatchLimit(u32),
 }
@@ -698,7 +700,8 @@ impl Runtime {
                 message: error.to_string(),
             })?;
         parser.parse(source.as_bytes(), None).ok_or_else(|| {
-            RuntimeError::Highlight(format!("parser returned no tree for '{name_or_alias}'"))
+            parser.reset();
+            RuntimeError::ParseFailed(name_or_alias.to_string())
         })
     }
 
@@ -918,6 +921,9 @@ fn collect_into_coalescing(
     let events = match events {
         Ok(events) => events,
         Err(HighlightError::TimeLimit) => return Ok((collector, Some(BudgetExhausted::Time))),
+        Err(HighlightError::ParseFailed(language)) => {
+            return Err(RuntimeError::ParseFailed(language))
+        }
         Err(error) => return Err(RuntimeError::Highlight(error.to_string())),
     };
 
@@ -931,6 +937,9 @@ fn collect_into_coalescing(
             Ok(TsEvent::HighlightEnd) => collector.end(),
             Err(HighlightError::TimeLimit) => {
                 return Ok((collector, Some(BudgetExhausted::Time)));
+            }
+            Err(HighlightError::ParseFailed(language)) => {
+                return Err(RuntimeError::ParseFailed(language));
             }
             Err(error) => return Err(RuntimeError::Highlight(error.to_string())),
         }
@@ -1117,6 +1126,11 @@ fn rainbow_ranges(
         // tree-sitter resumes it on the next call unless it is reset. This
         // parser is the pooled highlighter's.
         parser.reset();
+        if interrupt.stopped().is_none() {
+            return Err(RuntimeError::ParseFailed(
+                language.highlight.language_name.clone(),
+            ));
+        }
         return Ok((Vec::new(), false));
     };
 

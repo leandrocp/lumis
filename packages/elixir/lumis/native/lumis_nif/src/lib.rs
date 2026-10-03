@@ -248,6 +248,7 @@ fn render_failure_for<'a>(env: Env<'a>, failure: &RuntimeError) -> Term<'a> {
             render_failure(env, invalid_match_limit(), failure.to_string())
         }
         RuntimeError::Highlight(_) => render_failure(env, highlight_failed(), failure.to_string()),
+        RuntimeError::ParseFailed(_) => render_failure(env, parse_failed(), failure.to_string()),
         // `Wasmtime` and `TreeSitter`, plus whatever is added to this
         // `#[non_exhaustive]` enum next: the WASM runtime itself is unusable.
         _ => render_failure(env, runtime_atom(), failure.to_string()),
@@ -445,6 +446,7 @@ rustler::atoms! {
     annotation_atom = "annotation",
     render_failed = "render",
     highlight_failed = "highlight",
+    parse_failed = "parse",
     invalid_match_limit,
     runtime_atom = "runtime",
 }

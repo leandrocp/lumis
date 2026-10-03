@@ -14,7 +14,7 @@ use lumis_core::formatter::{Formatter as _, HtmlElement, HtmlInlineBuilder, Html
 use lumis_core::languages::Language;
 use lumis_core::themes::{Appearance, Style, Theme};
 use lumis_wasm_runtime::{
-    catalog, store, Fetcher as _, HighlightOptions, InjectionResolution, Runtime,
+    catalog, store, Fetcher as _, HighlightOptions, InjectionResolution, Runtime, RuntimeError,
     DEFAULT_MATCH_LIMIT,
 };
 use napi::bindgen_prelude::{AsyncTask, Buffer, FnArgs, Function};
@@ -603,7 +603,8 @@ fn render_formatter(
         formatter.budget.unwrap_or_default().match_limit(),
         formatter.budget.unwrap_or_default().time_limit_ms(),
         &internal_ids,
-    )?;
+    )
+    .map_err(|error| publicize_parse_failure(error, &public_ids))?;
     publicize_event_languages(&mut events, &public_ids);
     let output = render_events(&source, &display_language, formatter, &events, budget)?;
     Ok((output, unresolved))
@@ -617,6 +618,15 @@ fn publicize_event_languages(events: &mut [HighlightEvent<'_>], ids: &HashMap<St
             }
         }
     }
+}
+
+fn publicize_parse_failure(mut error: RuntimeError, ids: &HashMap<String, String>) -> RuntimeError {
+    if let RuntimeError::ParseFailed(language) = &mut error {
+        if let Some(public) = ids.get(language) {
+            language.clone_from(public);
+        }
+    }
+    error
 }
 
 fn render_events(
@@ -792,7 +802,7 @@ fn highlight_events(
     match_limit: u32,
     time_limit: Option<u64>,
     internal_ids: &HashMap<String, String>,
-) -> std::result::Result<HighlightedEvents, Box<dyn std::error::Error + Send + Sync>> {
+) -> std::result::Result<HighlightedEvents, RuntimeError> {
     if language == "plaintext" {
         return Ok((
             vec![HighlightEvent::Source {
@@ -1243,7 +1253,7 @@ impl NativeRuntime {
                     )
                 },
             )
-            .map_err(native_error)?;
+            .map_err(|error| native_error(publicize_parse_failure(error, &self.public_ids())))?;
         self.publicize_events(&mut output.events);
         Ok(NativeHighlight {
             events: encode_events(&output.events)?,
@@ -1302,7 +1312,7 @@ impl NativeRuntime {
                     )
                 },
             )
-            .map_err(native_error)?;
+            .map_err(|error| native_error(publicize_parse_failure(error, &self.public_ids())))?;
         self.publicize_events(&mut highlighted.events);
         let output = render_events(
             &source,

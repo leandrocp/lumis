@@ -49,6 +49,8 @@
 //   interrupted one would otherwise continue that document under its own fresh clock.
 //   Upstream has no test for this because upstream's callers do not reuse a parser
 //   after cancelling one.
+//   A missing tree without an interrupt is `ParseFailed`, because a Wasm scanner
+//   can trap without the caller cancelling or exhausting its time limit.
 // - `@injection.filename` resolves an injected language from a path, as Neovim's
 //   `LanguageTree:_get_injection` does through `vim.filetype.match`. It sits beside the
 //   `injection.language` capture it is an alternative to, and is the only reason this file
@@ -194,6 +196,8 @@ pub enum Error {
     TimeLimit,
     #[error("Invalid language")]
     InvalidLanguage,
+    #[error("parser returned no tree for language '{0}'")]
+    ParseFailed(String),
     #[error("Match limit {0} is outside 1..=65536")]
     InvalidMatchLimit(u32),
     #[error("Unknown error")]
@@ -1405,8 +1409,9 @@ impl<'a> HighlightIterLayer<'a> {
                 // clock, so it is not bounded either.
                 let Some(tree) = tree else {
                     highlighter.parser.reset();
-                    // A parse stops for whichever interrupt fired; say which.
-                    return Err(interrupt.stopped().unwrap_or(Error::Cancelled));
+                    return Err(interrupt
+                        .stopped()
+                        .unwrap_or_else(|| Error::ParseFailed(config.language_name.clone())));
                 };
                 let mut cursor = highlighter.cursors.pop().unwrap_or_default();
                 cursor.set_match_limit(highlighter.match_limit);

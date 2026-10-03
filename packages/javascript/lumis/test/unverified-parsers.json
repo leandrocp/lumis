@@ -68,8 +68,7 @@
     "zsh"
   ],
   "cannotCompile": {
-    "llvm": "no queries: nvim-treesitter ships none, so queries/processed/llvm does not exist",
-    "php": "the parser traps while parsing samples/php.php (memory access out of bounds) at the revision languages.toml pins. Reproduces in web-tree-sitter and in wasmtime, and with the published package, so it is the grammar rather than the build."
+    "llvm": "no queries: nvim-treesitter ships none, so queries/processed/llvm does not exist"
   },
   "cannotCompileReason": "Languages whose queries cannot be checked even with a parser built from languages.toml, with the reason for each. Separate from `languages`, which records what npm has fallen behind on. This list may only shrink: the complete-coverage check fails on an entry that has started working."
 }

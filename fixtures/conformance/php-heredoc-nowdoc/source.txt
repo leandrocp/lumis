@@ -1,0 +1,11 @@
+<?php
+$empty = <<<END
+END;
+$name = "world";
+$message = <<<TEXT
+Hello $name!
+TEXT;
+$literal = <<<'TEXT'
+Hello $name!
+TEXT;
+$after = "Hello $name!";

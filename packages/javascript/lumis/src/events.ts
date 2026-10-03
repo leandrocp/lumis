@@ -2,7 +2,12 @@ import type { Node, Point, QueryCapture, QueryMatch, Range } from "web-tree-sitt
 import { composeRainbowDecorations, type RainbowRange } from "./decorations.js";
 import { LANGUAGES } from "./generated/languages-meta.js";
 import { languageIdForFilename } from "./guess-language.js";
-import { DEFAULT_MATCH_LIMIT, DEFAULT_TIME_LIMIT, MAX_MATCH_LIMIT } from "./types.js";
+import {
+  DEFAULT_MATCH_LIMIT,
+  DEFAULT_TIME_LIMIT,
+  MAX_MATCH_LIMIT,
+  PLAINTEXT_LANG_ID,
+} from "./types.js";
 import type {
   Budget,
   BudgetExhausted,
@@ -472,12 +477,21 @@ function parseWithin(
   includedRanges: Range[] | undefined,
   progressCallback: (() => boolean) | undefined,
 ) {
-  const tree = language.parser.parse(source, null, {
-    ...(includedRanges ? { includedRanges } : {}),
-    ...(progressCallback ? { progressCallback } : {}),
-  });
+  let tree;
+  try {
+    tree = language.parser.parse(source, null, {
+      includedRanges,
+      progressCallback,
+    });
+  } catch (cause) {
+    if (!(cause instanceof WebAssembly.RuntimeError)) throw cause;
+    throw new Error(`parser returned no tree for language '${language.definition.id}'`, { cause });
+  }
   if (!tree) {
     language.parser.reset();
+    if (!budget.deadline?.passed()) {
+      throw new Error(`parser returned no tree for language '${language.definition.id}'`);
+    }
     return null;
   }
   if (budget.deadline?.passed()) {
@@ -662,6 +676,7 @@ function injectedLayers(
     warnUnresolvedInjection(languageName);
     return [];
   }
+  if (injectedLanguage.definition.id === PLAINTEXT_LANG_ID) return [];
 
   return collectHighlightLayers(
     source,

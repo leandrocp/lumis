@@ -395,6 +395,10 @@ pub enum HighlightError {
     #[error("failed to process highlight event: {0}")]
     EventProcessing(String),
 
+    /// The parser failed without cancellation or an exhausted time limit.
+    #[error("parser returned no tree for language '{0}'")]
+    ParseFailed(String),
+
     /// An annotation could not be placed in the source.
     #[error(transparent)]
     Annotation(#[from] AnnotationError),
@@ -517,13 +521,18 @@ impl Highlighter {
                 Interrupt::none(),
                 |injected| Some(Language::guess(Some(injected), "").config()),
             )
-            .map_err(|e| HighlightError::HighlighterInit(format!("{e:?}")))?;
+            .map_err(|error| match error {
+                lumis_wasm_runtime::tree_sitter_highlight::Error::ParseFailed(language) => {
+                    HighlightError::ParseFailed(language)
+                }
+                other => HighlightError::HighlighterInit(format!("{other:?}")),
+            })?;
 
         let mut result = Vec::new();
         let mut style_stack: Vec<Arc<Style>> = vec![Arc::clone(&DEFAULT_STYLE)];
 
         for event in events {
-            let event = event.map_err(|e| HighlightError::EventProcessing(format!("{e:?}")))?;
+            let event = event.map_err(highlight_error)?;
 
             match event {
                 HighlightEvent::HighlightStart {
@@ -935,6 +944,9 @@ fn highlight_error(error: lumis_wasm_runtime::tree_sitter_highlight::Error) -> H
     match error {
         lumis_wasm_runtime::tree_sitter_highlight::Error::Cancelled => HighlightError::Cancelled,
         lumis_wasm_runtime::tree_sitter_highlight::Error::TimeLimit => HighlightError::TimeLimit,
+        lumis_wasm_runtime::tree_sitter_highlight::Error::ParseFailed(language) => {
+            HighlightError::ParseFailed(language)
+        }
         other => HighlightError::EventProcessing(format!("{other:?}")),
     }
 }

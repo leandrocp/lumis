@@ -795,9 +795,8 @@ Two files record what these checks cannot cover, and both may only shrink:
   `tree-sitter-vim` needs 18.3 GB of memory against a runner's 16 GB.
 - `unverified-parsers.json` has two lists: `languages`, which npm has fallen
   behind on, and `cannotCompile`, for a language a built parser still cannot
-  check. `llvm` has no queries upstream; `php` traps while parsing its own
-  sample at the pinned revision, published package included. A test fails when
-  either entry starts working.
+  check. `llvm` has no queries upstream. A test fails when an entry starts
+  working.
 
 The `wasm-release` workflow publishes to npm and Hex:
 

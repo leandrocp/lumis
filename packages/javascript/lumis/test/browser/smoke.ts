@@ -55,8 +55,9 @@ function basename(path: string): string {
 }
 
 function query(language: string, kind: string): string {
+  const queryName = language === "php" ? "php_only" : language;
   const entry = Object.entries(queryFiles).find(([path]) =>
-    path.endsWith(`/queries/processed/${language}/${kind}.scm`),
+    path.endsWith(`/queries/processed/${queryName}/${kind}.scm`),
   );
   return entry?.[1] ?? "";
 }

@@ -44,6 +44,12 @@ request should not pay the latency either.
 
 ## Exhaustion is never an error
 
+Parser failures are separate from budget exhaustion. If a parser returns no
+tree without an interrupt, Lumis reports a parse error. Increasing the time
+limit will not fix a crashing parser. Rust exposes `ParseFailed`, Elixir
+returns `%Lumis.RenderError{reason: :parse}`, and JavaScript and the CLI report
+which language failed to parse.
+
 Neither bound raises, returns an error tuple, or truncates. The document comes
 back whole, in the formatter you asked for. What changes is how much of it is
 highlighted, and the two bounds differ there:

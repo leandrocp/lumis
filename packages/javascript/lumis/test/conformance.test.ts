@@ -15,6 +15,7 @@ import markdown from "../langs/markdown.ts";
 import markdownInline from "../langs/markdown_inline.ts";
 import mdx from "../langs/mdx.ts";
 import python from "../langs/python.ts";
+import php from "../langs/php.ts";
 import rust from "../langs/rust.ts";
 import { createHighlighter, highlightEvents } from "../src/index.js";
 import {
@@ -50,6 +51,7 @@ const langBundles: Record<string, Language> = {
   markdownInline,
   mdx,
   python,
+  php,
   rust,
 };
 
@@ -79,6 +81,7 @@ beforeAll(async () => {
     "markdown",
     "markdown_inline",
     "python",
+    "php",
     "rust",
   ]);
   // No `wasm` overrides. Parser bytes and the package that describes them have
@@ -98,6 +101,7 @@ beforeAll(async () => {
       markdownInline,
       mdx,
       python,
+      php,
       rust,
     ],
   });

@@ -50,6 +50,8 @@ fn build_language_fixtures() -> PathBuf {
 
     let repository = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let queries = repository.join("queries/processed");
+    let definitions: toml::Value =
+        toml::from_str(&fs::read_to_string(repository.join("languages.toml")).unwrap()).unwrap();
     let default_brackets = fs::read_to_string(queries.join("default/brackets.scm")).unwrap();
 
     for entry in fs::read_dir(repository.join("fixtures/test-parsers")).unwrap() {
@@ -68,7 +70,11 @@ fn build_language_fixtures() -> PathBuf {
             .filter(|language| language.package_name == location.package_name)
             .map(|language| {
                 let query = |kind: &str| {
-                    fs::read_to_string(queries.join(language.id).join(format!("{kind}.scm")))
+                    let query_name = definitions["parsers"][language.id]
+                        .get("query_name")
+                        .and_then(toml::Value::as_str)
+                        .unwrap_or(language.id);
+                    fs::read_to_string(queries.join(query_name).join(format!("{kind}.scm")))
                         .unwrap_or_default()
                 };
                 let brackets = {
