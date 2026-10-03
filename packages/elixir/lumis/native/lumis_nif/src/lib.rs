@@ -1512,6 +1512,172 @@ fn html_render_lines_from_events(
     })
 }
 
+/// One event of a stream `formatter_lines_from_events` reads, before the
+/// annotation data it borrows is in place.
+enum LineEvent<'a> {
+    Start {
+        scope_index: usize,
+        language: String,
+    },
+    Source {
+        start: usize,
+        end: usize,
+    },
+    End,
+    AnnotationStart {
+        range: (usize, usize),
+        data: Term<'a>,
+    },
+    AnnotationEnd,
+    RainbowBracket {
+        depth: usize,
+    },
+    DecorationEnd,
+}
+
+impl<'a> LineEvent<'a> {
+    fn event(&self) -> HighlightEvent<'_, Term<'a>> {
+        match self {
+            Self::Start {
+                scope_index,
+                language,
+            } => HighlightEvent::Start {
+                scope_index: *scope_index,
+                language: language.clone(),
+            },
+            Self::Source { start, end } => HighlightEvent::Source {
+                start: *start,
+                end: *end,
+            },
+            Self::End => HighlightEvent::End,
+            Self::AnnotationStart { range, data } => HighlightEvent::AnnotationStart {
+                range: range.0..range.1,
+                data,
+            },
+            Self::AnnotationEnd => HighlightEvent::AnnotationEnd,
+            Self::RainbowBracket { depth } => HighlightEvent::DecorationStart {
+                decoration: Decoration::RainbowBracket { depth: *depth },
+            },
+            Self::DecorationEnd => HighlightEvent::DecorationEnd,
+        }
+    }
+}
+
+#[derive(NifMap)]
+struct ExLine<'a> {
+    number: usize,
+    tokens: Vec<Term<'a>>,
+    annotations: Vec<Term<'a>>,
+}
+
+#[derive(NifMap)]
+struct ExToken<'a> {
+    text: &'a str,
+    range: (usize, usize),
+    scope: &'a str,
+    language: &'a str,
+}
+
+/// The event stream as lines of tokens and the annotations touching them.
+///
+/// Unlike [`html_render_lines_from_events`], this keeps what the lines report:
+/// a rainbow bracket stays a decoration, so its token gets the stream's
+/// language, and an annotation keeps its data. A scope name `HIGHLIGHT_NAMES`
+/// lacks becomes the index past it, which is how Rust spells a scope it does
+/// not name, so it reports as no scope in every runtime.
+#[rustler::nif(schedule = "DirtyCpu")]
+fn formatter_lines_from_events<'a>(
+    env: Env<'a>,
+    source: &'a str,
+    events: Vec<Term<'a>>,
+) -> Vec<Term<'a>> {
+    let mut scope_indices: HashMap<String, usize> = HashMap::new();
+    // Skipped rather than failing, as `html_render_lines_from_events` does.
+    let decoded: Vec<LineEvent<'a>> = events
+        .into_iter()
+        .filter_map(|event| decode_line_event(event, &mut scope_indices))
+        .collect();
+    let events: Vec<_> = decoded.iter().map(LineEvent::event).collect();
+
+    lumis_core::formatter::lines_from_events(source, &events)
+        .iter()
+        .map(|line| encode_line(env, line))
+        .collect()
+}
+
+fn decode_line_event<'a>(
+    event: Term<'a>,
+    scope_indices: &mut HashMap<String, usize>,
+) -> Option<LineEvent<'a>> {
+    if let Ok(atom) = event.decode::<rustler::Atom>() {
+        return [
+            (event_end(), LineEvent::End),
+            (annotation_end(), LineEvent::AnnotationEnd),
+            (decoration_end(), LineEvent::DecorationEnd),
+        ]
+        .into_iter()
+        .find_map(|(candidate, decoded)| (candidate == atom).then_some(decoded));
+    }
+
+    let (tag, payload) = event.decode::<(rustler::Atom, Term<'a>)>().ok()?;
+
+    if tag == event_start() {
+        let start = payload.decode::<ExStartEvent>().ok()?;
+        let scope_index = *scope_indices
+            .entry(start.scope)
+            .or_insert_with_key(|scope| {
+                lumis_core::highlights::HIGHLIGHT_NAMES
+                    .iter()
+                    .position(|name| name == scope)
+                    .unwrap_or(lumis_core::highlights::HIGHLIGHT_NAMES.len())
+            });
+        Some(LineEvent::Start {
+            scope_index,
+            language: start.language,
+        })
+    } else if tag == event_source() {
+        let source = payload.decode::<ExSourceEvent>().ok()?;
+        Some(LineEvent::Source {
+            start: source.start,
+            end: source.end,
+        })
+    } else if tag == annotation_start() {
+        let annotation = payload.decode::<ExAnnotationStart<'a>>().ok()?;
+        Some(LineEvent::AnnotationStart {
+            range: annotation.range,
+            data: annotation.data,
+        })
+    } else if tag == decoration_start() {
+        let decoration = payload.decode::<ExRainbowBracket>().ok()?;
+        Some(LineEvent::RainbowBracket {
+            depth: decoration.depth,
+        })
+    } else {
+        None
+    }
+}
+
+fn encode_line<'a>(env: Env<'a>, line: &lumis_core::formatter::Line<'_, Term<'a>>) -> Term<'a> {
+    ExLine {
+        number: line.number,
+        tokens: line
+            .tokens
+            .iter()
+            .map(|token| {
+                ExToken {
+                    text: token.text,
+                    range: (token.range.start, token.range.end),
+                    scope: token.scope,
+                    language: token.language,
+                }
+                .encode(env)
+            })
+            .collect(),
+        annotations: line.annotations.iter().map(|data| **data).collect(),
+    }
+    .encode(env)
+}
+
 fn html_utf8(output: Vec<u8>) -> NifResult<String> {
     String::from_utf8(output)
         .map_err(|error| Error::Term(Box::new(format!("invalid HTML helper output: {error}"))))

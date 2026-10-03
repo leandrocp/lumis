@@ -23,6 +23,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import * as ansi from "../src/formatter/ansi.js";
 import * as html from "../src/formatter/html.js";
+import * as formatters from "../src/formatters.js";
 import type { HighlightEvent, HighlightStyle, LineSpec, Theme } from "../src/types.js";
 
 interface ManifestHelper {
@@ -56,6 +57,13 @@ interface Contract {
       cases: Array<{ source: string; events: HighlightEvent[]; expected: string[] }>;
     };
   };
+  formatter: {
+    source: string;
+    events: HighlightEvent[];
+    lineDataCases: {
+      cases: Array<{ source: string; events: HighlightEvent[]; expected: formatters.Line[] }>;
+    };
+  };
   style: HighlightStyle;
   ansi: {
     hex: string;
@@ -77,7 +85,13 @@ const manifest: Manifest = JSON.parse(
   readFileSync(new URL("../../../../fixtures/formatter-helpers.json", import.meta.url), "utf8"),
 );
 
-const modules: Record<string, Record<string, unknown>> = { html, ansi };
+const modules: Record<string, Record<string, unknown>> = { formatter: formatters, html, ansi };
+
+// The formatters entry also exports the built-in formatters themselves, which
+// `formatter-options.json` pins.
+const formatterOptions: { formatters: Record<string, unknown> } = JSON.parse(
+  readFileSync(new URL("../../../../fixtures/formatter-options.json", import.meta.url), "utf8"),
+);
 
 it("preserves the shared line-ending contract", () => {
   for (const testCase of manifest.contract.html.lineEndingCases) {
@@ -93,6 +107,64 @@ it("preserves the shared line-ending contract", () => {
     ).toEqual(testCase.expected);
   }
 });
+
+// `linesFromEvents` splits where `renderLinesFromEvents` does: its tokens read as
+// the HTML line with the tags stripped.
+it("splits lines as data on the shared line-ending contract", () => {
+  for (const testCase of manifest.contract.html.lineEndingCases) {
+    const lines = formatters.linesFromEvents(
+      testCase.source,
+      testCase.events ?? [
+        { type: "source", start: 0, end: new TextEncoder().encode(testCase.source).length },
+      ],
+    );
+
+    expectTokenRanges(testCase.source, lines);
+    expect(
+      lines.map((line) => line.number),
+      JSON.stringify(testCase.source),
+    ).toEqual(testCase.expected.map((_, index) => index + 1));
+    expect(
+      lines.map((line) => line.tokens.map((token) => token.text).join("")),
+      JSON.stringify(testCase.source),
+    ).toEqual(testCase.expected.map((line) => line.replaceAll(/<[^>]*>/g, "")));
+  }
+});
+
+it("matches the shared line data", () => {
+  for (const testCase of manifest.contract.formatter.lineDataCases.cases) {
+    const lines = formatters.linesFromEvents(testCase.source, testCase.events);
+
+    expectTokenRanges(testCase.source, lines);
+    expect(lines, JSON.stringify(testCase.source)).toEqual(testCase.expected);
+  }
+});
+
+function expectTokenRanges(source: string, lines: formatters.Line[]): void {
+  const bytes = new TextEncoder().encode(source);
+  for (const token of lines.flatMap((line) => line.tokens)) {
+    expect(
+      new TextDecoder().decode(bytes.subarray(token.range.start, token.range.end)),
+      JSON.stringify(source),
+    ).toBe(token.text);
+  }
+}
+
+// Lines as the manifest spells them: sorted keys, and a range as `{start, end}`.
+function linesJson(lines: formatters.Line[]): string {
+  return JSON.stringify(
+    lines.map((line) => ({
+      annotations: line.annotations,
+      number: line.number,
+      tokens: line.tokens.map((token) => ({
+        language: token.language,
+        range: { end: token.range.end, start: token.range.start },
+        scope: token.scope,
+        text: token.text,
+      })),
+    })),
+  );
+}
 
 // Rust's `render_lines_from_events` reads the same cases, so the language a
 // `spanAttrs` callback sees cannot differ between the two.
@@ -113,6 +185,7 @@ it("asks for the shared span languages", () => {
 // A helper defined in one file and re-exported from another is one helper, so
 // every file behind a module is read for the `@deprecated` tag.
 const sources: Record<string, string[]> = {
+  formatter: ["../src/formatter.ts", "../src/formatter/lines.ts"],
   html: ["../src/formatter/html.ts"],
   ansi: ["../src/formatter/ansi.ts", "../src/formatter/ansi-core.ts"],
 };
@@ -218,6 +291,11 @@ function contractOutputs(): Record<string, Record<string, string>> {
         ),
       ),
     },
+    formatter: {
+      lines_from_events: linesJson(
+        formatters.linesFromEvents(input.formatter.source, input.formatter.events),
+      ),
+    },
     ansi: {
       hex_to_rgb: parsedRgb?.join(",") ?? "",
       rgb_to_ansi: ansi.rgbToAnsi(red, green, blue, input.ansi.background),
@@ -294,6 +372,9 @@ describe("formatter helper manifest", () => {
         ...entry.helpers.map(jsName),
         ...sectionNames(manifest.runtime_only, module),
         ...deprecatedNames(module),
+        ...(module === "formatter"
+          ? Object.keys(formatterOptions.formatters).map((name) => toCamel(name))
+          : []),
       ]);
 
       const unaccounted = exportedNames(module).filter((name) => !accounted.has(name));

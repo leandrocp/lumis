@@ -616,6 +616,9 @@ defmodule Lumis.Formatter.HTML do
   Event kinds this build does not render — annotations, and anything a newer
   Lumis adds — are skipped rather than raising.
 
+  `Lumis.Formatter.lines_from_events/2` returns the same lines as data, for
+  output that is not HTML.
+
   ## Example
 
       iex> events = [{:start, %{scope: "keyword", language: "elixir"}}, {:source, %{start: 0, end: 3}}, :end]
