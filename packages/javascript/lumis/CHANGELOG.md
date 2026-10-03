@@ -1,3 +1,13 @@
+## [0.9.2](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.1...npm-lumis/v0.9.2) (2026-10-03)
+
+### Bug Fixes
+
+- **wasm:** Limit bundle dependencies to declared parsers in [\#1668](https://github.com/leandrocp/lumis/pull/1668)
+- **javascript:** Correct native injection warning advice in [\#1670](https://github.com/leandrocp/lumis/pull/1670)
+- **javascript:** Prevent esm.sh browser initialization failures in [\#1669](https://github.com/leandrocp/lumis/pull/1669)
+- **php:** Prevent Wasm heredoc crashes and report parse failures in [\#1672](https://github.com/leandrocp/lumis/pull/1672)
+- **javascript:** Load installed parsers in Node's Wasm fallback in [\#1677](https://github.com/leandrocp/lumis/pull/1677)
+
 ## [0.9.1](https://github.com/leandrocp/lumis/compare/npm-lumis/v0.9.0...npm-lumis/v0.9.1) (2026-10-02)
 
 ### Bug Fixes
