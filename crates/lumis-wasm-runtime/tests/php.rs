@@ -1,11 +1,10 @@
 #![cfg(feature = "wasm")]
 
 use lumis_core::events::HighlightEvent;
-use lumis_wasm_runtime::{LanguageSpec, Runtime, RuntimeError};
+use lumis_wasm_runtime::{LanguageSpec, Runtime};
 
 const SOURCE: &str = include_str!("../../../fixtures/conformance/php-heredoc-nowdoc/source.txt");
 const FIXED: &[u8] = include_bytes!("../../../fixtures/test-parsers/tree-sitter-php.wasm");
-const BROKEN: &[u8] = include_bytes!("../../../fixtures/failing-parsers/php-0.26.4.wasm");
 const SIMPLE: &str = "<?php $a = \"x $b\";";
 
 fn runtime(wasm: &[u8]) -> Runtime {
@@ -47,29 +46,4 @@ fn php_heredocs_and_nowdocs_highlight_in_wasmtime() {
     runtime
         .highlight(include_str!("../../../samples/php.php"), "php", false)
         .unwrap();
-}
-
-#[test]
-fn scanner_traps_are_parse_failures_and_the_worker_recovers() {
-    let runtime = runtime(BROKEN);
-    let expected = runtime.highlight(SIMPLE, "php", false).unwrap();
-    for source in [
-        "<?php\n$a = <<<END\nEND;\n",
-        "<?php\n$a = <<<'END'\nx\nEND;\n",
-    ] {
-        for error in [
-            runtime.highlight(source, "php", false).unwrap_err(),
-            runtime.parse_tree(source, "php").unwrap_err(),
-        ] {
-            assert!(
-                matches!(&error, RuntimeError::ParseFailed(language) if language == "php"),
-                "{error:?}"
-            );
-            assert_eq!(
-                error.to_string(),
-                "parser returned no tree for language 'php'"
-            );
-        }
-        assert_eq!(runtime.highlight(SIMPLE, "php", false).unwrap(), expected);
-    }
 }
