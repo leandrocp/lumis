@@ -120,71 +120,17 @@ function remarkLumis() {
           }),
         );
 
-        // Wrap with a title bar if the code fence has title="..." meta.
-        let output = highlighted;
-        const titleMatch = node.meta?.match(/title="([^"]*)"/);
-        if (titleMatch) {
-          output =
-            `<div class="codeBlockContainer_lumis theme-code-block">` +
-            `<div class="codeBlockTitle_lumis">${titleMatch[1]}</div>` +
-            highlighted +
-            `</div>`;
-        }
+        // Render through <LumisCodeBlock>, which adds the title bar from
+        // title="..." meta and the copy button.
+        const attributes = [{ type: "mdxJsxAttribute", name: "html", value: highlighted }];
+        const title = node.meta?.match(/title="([^"]*)"/)?.[1];
+        if (title) attributes.push({ type: "mdxJsxAttribute", name: "title", value: title });
 
-        // Inject highlighted HTML as an MDX JSX expression.
-        // This is the MDX-compatible way to emit raw HTML from a remark plugin.
         parent.children[index] = {
-          type: "mdxFlowExpression",
-          value: `<div className="not-prose" dangerouslySetInnerHTML={{__html: ${JSON.stringify(output)}}} />`,
-          data: {
-            estree: {
-              type: "Program",
-              sourceType: "module",
-              body: [
-                {
-                  type: "ExpressionStatement",
-                  expression: {
-                    type: "JSXElement",
-                    openingElement: {
-                      type: "JSXOpeningElement",
-                      name: { type: "JSXIdentifier", name: "div" },
-                      attributes: [
-                        {
-                          type: "JSXAttribute",
-                          name: { type: "JSXIdentifier", name: "className" },
-                          value: { type: "Literal", value: "not-prose" },
-                        },
-                        {
-                          type: "JSXAttribute",
-                          name: { type: "JSXIdentifier", name: "dangerouslySetInnerHTML" },
-                          value: {
-                            type: "JSXExpressionContainer",
-                            expression: {
-                              type: "ObjectExpression",
-                              properties: [
-                                {
-                                  type: "Property",
-                                  key: { type: "Identifier", name: "__html" },
-                                  value: { type: "Literal", value: output },
-                                  kind: "init",
-                                  computed: false,
-                                  method: false,
-                                  shorthand: false,
-                                },
-                              ],
-                            },
-                          },
-                        },
-                      ],
-                      selfClosing: true,
-                    },
-                    closingElement: null,
-                    children: [],
-                  },
-                },
-              ],
-            },
-          },
+          type: "mdxJsxFlowElement",
+          name: "LumisCodeBlock",
+          attributes,
+          children: [],
         };
       } catch {
         // Highlighting failed — leave the node as-is for Fumadocs fallback.
