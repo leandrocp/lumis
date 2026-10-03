@@ -1,3 +1,9 @@
+## [0.4.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.4.0...cargo-lumis-wasm-runtime/v0.4.1) (2026-10-03)
+
+### Bug Fixes
+
+- **php:** Prevent Wasm heredoc crashes and report parse failures in [\#1672](https://github.com/leandrocp/lumis/pull/1672)
+
 ## [0.4.0](https://github.com/leandrocp/lumis/compare/cargo-lumis-wasm-runtime/v0.3.0...cargo-lumis-wasm-runtime/v0.4.0) (2026-09-29)
 
 
