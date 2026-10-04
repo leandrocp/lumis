@@ -743,9 +743,9 @@ dependencies = [
 
 [[package]]
 name = "lumis-wasm-runtime"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b10656b0eb190bc9a024cac4661923d7b58d30e4c751b2f6c9bbaa345d1db072"
+checksum = "0dcc25fc5d958804486df71df694eb95fc094a03fa97c25efc55114fbd08be28"
 dependencies = [
  "etcetera",
  "lumis-core",
