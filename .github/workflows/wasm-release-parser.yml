@@ -97,6 +97,26 @@ jobs:
         env:
           PARSER: ${{ inputs.parser }}
 
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 11.15.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # The check Queries CI runs on a pull request, against the parser this job
+      # is about to stage. `wasm-publish` runs it too, so a parser published by
+      # hand is held to the same bar.
+      - name: Check the built parser
+        run: mise run wasm-check "$PARSER"
+        env:
+          PARSER: ${{ inputs.parser }}
+
       - name: Stage both packages
         run: |
           dev stage-wasm "$PARSER" --version "$VERSION"

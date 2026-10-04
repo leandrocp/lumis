@@ -920,6 +920,22 @@ cargo run -q --manifest-path crates/dev/Cargo.toml --no-default-features -- \
     wasm-needed "${usage_parser:-}" "${usage_force?}"
 '''
 
+[tasks.'wasm-check']
+description = "Check a built WASM parser: it loads, parses its sample and runs every query"
+usage = '''
+arg "<parser>"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+pairs="$(node packages/javascript/lumis/scripts/list-parsers.mjs --pairs)"
+wasm_name="$(awk -v name="${usage_parser?}" '$1 == name || $2 == name { print $2; exit }' <<<"$pairs")"
+[ -n "$wasm_name" ] || { echo "unknown parser: ${usage_parser?}" >&2; exit 1; }
+languages="$(awk -v parser="$wasm_name" '$2 == parser { print $1 }' <<<"$pairs" | paste -sd, -)"
+LUMIS_QUERY_PARSERS=built LUMIS_QUERY_COVERAGE=complete LUMIS_QUERY_LANGUAGES="$languages" \
+    pnpm --filter @lumis-sh/lumis run test:queries
+'''
+
 [tasks.'wasm-publish-prepare']
 description = "Stage a WASM package for inspection before publishing"
 usage = '''
@@ -930,6 +946,7 @@ run = '''
 set -euo pipefail
 export PATH="$(mise where tree-sitter):$PATH"
 mise run wasm-build ${usage_parser?}
+mise run wasm-check ${usage_parser?}
 cargo run --manifest-path crates/dev/Cargo.toml -- stage-wasm ${usage_parser?}
 '''
 

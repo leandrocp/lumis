@@ -627,6 +627,16 @@ mise run wasm-build
 mise run wasm-build {name}
 ```
 
+Check a built parser the way a release does. It must load, parse its sample,
+and run every query:
+
+```sh
+mise run wasm-check {name}
+```
+
+`wasm-publish` runs this before staging, so a parser published by hand meets the
+same bar as one the workflow publishes.
+
 The compiler comes from `tree-sitter-cli`, which brings its own WASI SDK and downloads it on first use; Emscripten is not involved. You also need `git`, to fetch each grammar at the revision `languages.toml` pins, and `npm`, for the grammars whose parser is generated from `grammar.js`.
 
 ### Running a runtime locally
@@ -770,12 +780,12 @@ revision bump is validated before it is published rather than after.
 
 - **Queries CI** builds 110 of the 113 parsers across 12 shards and compiles
   every processed query for all 115 language definitions against the grammar its
-  language actually pins. Each shard runs in fresh batches of four selected
-  languages; the global `cannotCompile` check may load PHP as a fifth grammar,
-  so no process retains more than five. `llvm`, `vim` and `zsh` exceed a runner's
-  memory and are committed under `fixtures/parsers/` with their measured peak
-  RSS; a parser that cannot be built does not fail its shard, but falls back to
-  that copy and then to the published package.
+  language actually pins, then parses the language's `samples/` file. Each shard
+  runs in fresh batches of four selected languages, so no process retains more
+  than four grammars. `llvm`, `vim` and `zsh` exceed a runner's memory and are
+  committed under `fixtures/parsers/` with their measured peak RSS; a parser
+  that cannot be built does not fail its shard, but falls back to that copy and
+  then to the published package.
 - **Conformance CI** builds the seventeen parsers the committed fixtures supply,
   stages them with `wasm-stage`, and points `LUMIS_DATA_DIR` at the result, so
   the CLI and Elixir suites render from parsers built in that run. The Node
@@ -797,19 +807,22 @@ Two files record what these checks cannot cover, and both may only shrink:
 
 - `fixtures/parsers/` holds a committed build for a grammar CI cannot compile.
   `tree-sitter-vim` needs 18.3 GB of memory against a runner's 16 GB.
-- `unverified-parsers.json` has two lists: `languages`, which npm has fallen
-  behind on, and `cannotCompile`, for a language a built parser still cannot
-  check. `llvm` has no queries upstream. A test fails when an entry starts
-  working.
+- `unverified-parsers.json` lists the languages npm has fallen behind on. A test
+  fails when an entry starts working.
+
+There is no waiver for a parser built from `languages.toml`. If it fails to
+load, crashes on its sample, or rejects a query, the revision is not ready to
+pin. PHP once shipped through such a waiver while trapping on `samples/php.php`.
 
 The `wasm-release` workflow publishes to npm and Hex:
 
 1. **plan** — `mise run wasm-release-plan` works out, for every parser, the
    version it resolves to and which registries are missing it.
 2. **One pipeline per parser** that anything is missing, from
-   `wasm-release-parser.yml`. **build** compiles the grammar and stages both
-   packages at the version the plan resolved as an artifact — or, when npm
-   already has that version, **fetch** stages Hex from npm's tarball. Then
+   `wasm-release-parser.yml`. **build** compiles the grammar, runs
+   `mise run wasm-check` against that build, and stages both packages at the
+   version the plan resolved as an artifact — or, when npm already has that
+   version, **fetch** stages Hex from npm's tarball. Then
    **publish-npm** and **publish-hex** publish that artifact, in parallel, to
    whichever registries need it. A parser that fails stops its own pipeline;
    every other parser still publishes.

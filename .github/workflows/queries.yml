@@ -44,8 +44,7 @@ on:
 
 env:
   QUERY_SHARDS: 12
-  # Selected languages per process. The global cannotCompile check also loads
-  # PHP, so a full batch retains at most five grammars before the process exits.
+  # Selected languages per process, so a batch retains at most four grammars.
   QUERY_BATCH: 4
 
 jobs:
@@ -178,8 +177,7 @@ jobs:
       # what has to be bounded is grammars per process, not per shard. Sharding
       # balances parser *count*, and shard 5 has repeatedly exhausted V8's zone
       # allocator because its ten grammars are unusually large. Run the shard in
-      # batches of four selected languages. The global waiver check can load PHP
-      # too, so each process retains at most five grammars, whatever they weigh.
+      # batches of four selected languages, whatever they weigh.
       - name: Compile queries for this shard
         run: |
           set -euo pipefail

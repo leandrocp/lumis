@@ -26,14 +26,15 @@
  * 4. `fixtures/parsers/<name>.wasm`, committed for grammars CI cannot build
  *
  * `mise run test-queries` builds every parser, then requires complete coverage.
+ * A parser release runs this against only the parser it just built, with
+ * `LUMIS_QUERY_PARSERS=built`, before anything is published.
  *
  * Not part of `pnpm test`. Every grammar this file loads stays compiled in V8
  * for the life of the process -- web-tree-sitter gives no way to free a
  * Language -- so running all 115 in one process exhausts a CI runner's memory.
  * `.github/workflows/queries.yml` shards the parser work twelve ways against
  * parsers built from languages.toml and four against what npm publishes, then
- * starts a fresh test process for each batch of four selected languages. The
- * global `cannotCompile` check can retain PHP as a fifth grammar.
+ * starts a fresh test process for each batch of four selected languages.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -67,16 +68,8 @@ const unverified = JSON.parse(
 ) as {
   reason: string;
   languages: string[];
-  cannotCompile: Record<string, string>;
-  cannotCompileReason: string;
 };
 const waived = new Set(unverified.languages);
-/**
- * Languages a built parser still cannot check, with the reason for each. Held
- * apart from `languages`, which is about what npm has published, because these
- * two are properties of the grammar and would never clear by republishing.
- */
-const cannotCompile = new Set(Object.keys(unverified.cannotCompile));
 
 function wasmName(id: string, entry: ParserEntry): string {
   return entry.wasm_name ?? `tree-sitter-${id}`;
@@ -151,13 +144,19 @@ function publishedParser(
  * produced from the pinned revision.
  */
 function resolveParser(id: string, entry: ParserEntry): { path: string } | { unavailable: string } {
+  const parser = wasmName(id, entry);
+  // A release asks about the parser it is about to publish, which an installed
+  // package at the same revision must not answer for.
+  if (parserSource === "built") {
+    const built = join(workspaceRoot, "tmp", "wasm", "build", `${parser}.wasm`);
+    return existsSync(built) ? { path: built } : { unavailable: "not built in tmp/wasm/build" };
+  }
+
   const fromPackage = publishedParser(id, entry);
   if ("path" in fromPackage) return fromPackage;
   // `compile-published` asks what npm ships can do, so a locally built or
   // committed parser must not answer for it.
-  if (publishedOnly) return fromPackage;
-
-  const parser = wasmName(id, entry);
+  if (parserSource === "published") return fromPackage;
 
   const sourceDirectory = process.env.LUMIS_DATA_DIR;
   if (sourceDirectory) {
@@ -202,8 +201,7 @@ function samplePath(id: string, aliases: string[]): string | undefined {
 const only = process.env.LUMIS_QUERY_LANGUAGES?.split(",")
   .map((value) => value.trim())
   .filter(Boolean);
-const chosen = only?.length ? parsers.filter(([id]) => only.includes(id)) : parsers;
-const selected = chosen.filter(([id]) => !cannotCompile.has(id));
+const selected = only?.length ? parsers.filter(([id]) => only.includes(id)) : parsers;
 const parserIds = new Set(parsers.map(([id]) => id));
 const unknownSelections = only?.filter((id) => !parserIds.has(id)) ?? [];
 const batchLimit = Number(process.env.LUMIS_QUERY_BATCH_LIMIT);
@@ -214,8 +212,11 @@ const batchLimit = Number(process.env.LUMIS_QUERY_BATCH_LIMIT);
  */
 const requireCompleteCoverage = process.env.LUMIS_QUERY_COVERAGE === "complete";
 
-/** Judge only what npm publishes, ignoring built and committed parsers. */
-const publishedOnly = process.env.LUMIS_QUERY_PARSERS === "published";
+/**
+ * `published` judges only what npm ships, `built` only what `tmp/wasm/build`
+ * holds. Unset, the first usable parser in the order above answers.
+ */
+const parserSource = process.env.LUMIS_QUERY_PARSERS;
 
 const resolved = new Map<string, { path: string } | { unavailable: string }>(
   selected.map(([id, entry]) => [id, resolveParser(id, entry)]),
@@ -239,10 +240,16 @@ describe("processed queries compile against their pinned grammar", () => {
     expect(unknownSelections).toEqual([]);
   });
 
+  // A misspelled source would quietly fall back to the installed package, and a
+  // release would then vouch for a parser it never loaded.
+  it("recognizes the requested parser source", () => {
+    expect([undefined, "published", "built"]).toContain(parserSource);
+  });
+
   it("keeps the selected-language batch within its configured limit", () => {
     const limitIsValid =
       process.env.LUMIS_QUERY_BATCH_LIMIT === undefined ||
-      (Number.isSafeInteger(batchLimit) && batchLimit > 0 && chosen.length <= batchLimit);
+      (Number.isSafeInteger(batchLimit) && batchLimit > 0 && selected.length <= batchLimit);
     expect(limitIsValid).toBe(true);
   });
 
@@ -253,45 +260,6 @@ describe("processed queries compile against their pinned grammar", () => {
     );
     expect(verifiable.length + unavailable.length).toBe(selected.length);
   });
-
-  // Entries here would otherwise sit forever: the check that excuses them has to
-  // be the check that notices they are no longer needed.
-  it.each([...cannotCompile])(
-    "still cannot check %s",
-    async (id) => {
-      const entry = Object.fromEntries(parsers)[id] as ParserEntry | undefined;
-      expect(entry, `${id} is waived but no longer in languages.toml`).toBeDefined();
-
-      // Every path returns whether the check now succeeds, so a missing parser or
-      // a missing query file reads as "still cannot check" rather than as a skip.
-      const nowWorks = await (async () => {
-        const parser = resolveParser(id, entry!);
-        if ("unavailable" in parser) return false;
-
-        const highlights = queryPath(entry!, id, "highlights");
-        if (!existsSync(highlights)) return false;
-
-        const sample = samplePath(id, entry!.aliases ?? []);
-        if (!sample) return false;
-
-        try {
-          const grammar = await TSLanguage.load(readFileSync(parser.path));
-          const instance = new Parser();
-          instance.setLanguage(grammar);
-          const tree = instance.parse(readFileSync(sample, "utf8"));
-          new Query(grammar, readFileSync(highlights, "utf8")).captures(tree!.rootNode);
-          tree!.delete();
-          instance.delete();
-          return true;
-        } catch {
-          return false;
-        }
-      })();
-
-      expect(nowWorks, `${id} now works; remove it from cannotCompile`).toBe(false);
-    },
-    30_000,
-  );
 
   it.runIf(requireCompleteCoverage)("verifies every selected language", () => {
     // `mise run test-queries` builds every parser first, so a gap here means a
