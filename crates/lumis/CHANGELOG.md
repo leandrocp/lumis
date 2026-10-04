@@ -1,3 +1,10 @@
+## [0.16.1](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.16.0...cargo-lumis/v0.16.1) (2026-10-04)
+
+### Bug Fixes
+
+- **php:** Prevent Wasm heredoc crashes and report parse failures in [\#1672](https://github.com/leandrocp/lumis/pull/1672)
+- Slow Elixir highlighting of long operator chains and nested calls by @ericmj in [\#1679](https://github.com/leandrocp/lumis/pull/1679)
+
 ## [0.16.0](https://github.com/leandrocp/lumis/compare/cargo-lumis/v0.15.0...cargo-lumis/v0.16.0) (2026-09-29)
 
 
