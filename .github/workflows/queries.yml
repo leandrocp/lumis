@@ -177,7 +177,10 @@ jobs:
       # what has to be bounded is grammars per process, not per shard. Sharding
       # balances parser *count*, and shard 5 has repeatedly exhausted V8's zone
       # allocator because its ten grammars are unusually large. Run the shard in
-      # batches of four selected languages, whatever they weigh.
+      # batches of four selected languages. The grammars in fixtures/parsers each
+      # compile to a single lexer function of 650-800 KB, and TurboFan's zone for
+      # one of them has exhausted a runner beside other grammars, so each runs
+      # alone, in both this job and the published one.
       - name: Compile queries for this shard
         run: |
           set -euo pipefail
@@ -191,6 +194,13 @@ jobs:
           }
           while read -r language; do
             [ -n "$language" ] || continue
+            parser="$(awk -v language="$language" '$1 == language { print $2 }' /tmp/pairs.txt)"
+            if [ -f "fixtures/parsers/$parser.wasm" ]; then
+              run_batch
+              batch=("$language")
+              run_batch
+              continue
+            fi
             batch+=("$language")
             [ ${#batch[@]} -lt "$QUERY_BATCH" ] || run_batch
           done < /tmp/shard-languages.txt
@@ -253,6 +263,13 @@ jobs:
           }
           while read -r language; do
             [ -n "$language" ] || continue
+            parser="$(awk -v language="$language" '$1 == language { print $2 }' /tmp/pairs.txt)"
+            if [ -f "fixtures/parsers/$parser.wasm" ]; then
+              run_batch
+              batch=("$language")
+              run_batch
+              continue
+            fi
             batch+=("$language")
             [ ${#batch[@]} -lt "$QUERY_BATCH" ] || run_batch
           done < /tmp/shard-languages.txt

@@ -785,7 +785,8 @@ revision bump is validated before it is published rather than after.
   than four grammars. `llvm`, `vim` and `zsh` exceed a runner's memory and are
   committed under `fixtures/parsers/` with their measured peak RSS; a parser
   that cannot be built does not fail its shard, but falls back to that copy and
-  then to the published package.
+  then to the published package. Each of those three compiles to one lexer
+  function of 650-800 KB, so each also runs in a process of its own.
 - **Conformance CI** builds the seventeen parsers the committed fixtures supply,
   stages them with `wasm-stage`, and points `LUMIS_DATA_DIR` at the result, so
   the CLI and Elixir suites render from parsers built in that run. The Node
