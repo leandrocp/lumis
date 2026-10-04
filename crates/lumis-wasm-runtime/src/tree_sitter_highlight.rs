@@ -34,6 +34,8 @@
 //   per-event check is unreachable until that finishes, and a caller that timed out
 //   still waits for it. That is nearly the whole render on a document where query work
 //   dominates: 100,000 unclosed `[` spend 8.2s of 8.2s inside `next_capture`.
+//   The combined-injection pass needs the same callback and must reject partial results
+//   before resolving languages, or it can keep scanning and loading after interruption.
 // - `Interrupt` replaces upstream's `Option<&AtomicUsize>` so a render can also carry a
 //   deadline, which is the only bound that holds when cost does not track input size.
 //   It reports which one fired: `Error::Cancelled` or `Error::TimeLimit`. The deadline is
@@ -1423,8 +1425,13 @@ impl<'a> HighlightIterLayer<'a> {
                             (None, Vec::<InjectionContent>::new(), false);
                             combined_injections_query.pattern_count()
                         ];
-                    let mut matches =
-                        cursor.matches(combined_injections_query, tree.root_node(), source);
+                    let mut abandoned = progress(interrupt);
+                    let mut matches = cursor.matches_with_options(
+                        combined_injections_query,
+                        tree.root_node(),
+                        source,
+                        QueryCursorOptions::new().progress_callback(&mut abandoned),
+                    );
                     while let Some(mat) = matches.next() {
                         let entry = &mut injections_by_pattern_index[mat.pattern_index];
                         let (language_name, content_node, include_children) = injection_for_match(
@@ -1443,6 +1450,7 @@ impl<'a> HighlightIterLayer<'a> {
                         }
                         entry.2 = include_children;
                     }
+                    interrupt.check()?;
                     for (lang_name, content_nodes, includes_children) in injections_by_pattern_index
                     {
                         if let (Some(lang_name), false) = (lang_name, content_nodes.is_empty()) {
@@ -2298,6 +2306,67 @@ fn shrink_and_clear<T>(vec: &mut Vec<T>, capacity: usize) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn combined_injections_honor_cancellation() {
+        let cancelled = AtomicUsize::new(1);
+        assert_combined_injections_stop(
+            Interrupt::none().cancellation(&cancelled),
+            Error::Cancelled,
+        );
+    }
+
+    #[test]
+    fn combined_injections_honor_expired_deadlines() {
+        let deadline = Deadline::in_ms(0);
+        assert_combined_injections_stop(Interrupt::none().deadline(&deadline), Error::TimeLimit);
+    }
+
+    fn assert_combined_injections_stop(interrupt: Interrupt<'_>, expected: Error) {
+        let language = tree_sitter::Language::new(tree_sitter_json::LANGUAGE);
+        let mut config = HighlightConfiguration::new(
+            language,
+            "json",
+            "(number) @number",
+            r#"((number) @injection.content
+                (#set! injection.language "json")
+                (#set! injection.combined))"#,
+            "",
+        )
+        .unwrap();
+        config.configure(&["number"]);
+        let mut highlighter = Highlighter::new();
+        let resolutions = Cell::new(0);
+
+        let result = highlighter
+            .highlight(&config, b"[1]", interrupt, |_| {
+                resolutions.set(resolutions.get() + 1);
+                None
+            })
+            .and_then(|events| events.collect::<Result<Vec<_>, _>>());
+
+        assert_eq!(result.unwrap_err(), expected);
+        assert_eq!(
+            resolutions.get(),
+            0,
+            "an interrupted combined-injection pass must not resolve languages"
+        );
+
+        let render = |highlighter: &mut Highlighter| {
+            let source = b"[2, 3]";
+            let events = highlighter
+                .highlight(&config, source, Interrupt::none(), |_| None)
+                .unwrap();
+            let mut renderer = HtmlRenderer::new();
+            renderer
+                .render(events, source, &|_, attributes| {
+                    attributes.extend_from_slice(b"class=\"number\"");
+                })
+                .unwrap();
+            renderer.html
+        };
+        assert_eq!(render(&mut highlighter), render(&mut Highlighter::new()));
+    }
 
     #[test]
     fn test_highlight_event_has_language() {
