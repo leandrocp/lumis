@@ -1196,7 +1196,7 @@ echo "added $added, already present $present, not published $unpublished"
 '''
 
 [tasks.'release-needed']
-description = "List packages with non-chore path-scoped commits since their latest release tag"
+description = "List packages with release-worthy path-scoped commits since their latest release tag"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -1209,11 +1209,13 @@ while IFS= read -r entry; do
     IFS='|' read -r -a package_paths <<< "${entry#*|}"
     tag="$(git tag --list "$package/v*" --sort=-version:refname | head -n1)"
 
-    if [ -n "$tag" ]; then
-        commits="$(git log --no-merges --extended-regexp --invert-grep --grep='^chore(\(.+\))?: ' --format='%h %s' "$tag"..HEAD -- "${package_paths[@]}")"
-    else
-        commits="$(git log --no-merges --extended-regexp --invert-grep --grep='^chore(\(.+\))?: ' --format='%h %s' -- "${package_paths[@]}")"
-    fi
+    include_args=()
+    for path in "${package_paths[@]}"; do
+        include_args+=(--include-path "$path" --include-path "$path/**/*")
+    done
+
+    commits="$(git-cliff --config cliff.toml --tag-pattern "$package/v[0-9].*" --unreleased --context "${include_args[@]}" |
+        jq -r '.[].commits[] | "\(.id[0:7]) \(.raw_message | split("\n")[0])"')"
 
     if [ -z "$commits" ]; then
         continue

@@ -116,7 +116,8 @@ mise exec -- git-cliff --config cliff.toml --body-file "$template" --github-repo
 `mise run release-plan` skipped it because one of:
 
 - Nothing to bump — only `chore` or `build(deps)` commits since its tag. Releasing on
-  a dependency bump is a judgement call; prepare it by hand.
+  a dependency bump is a judgement call; prepare it by hand. The generated npm CLI
+  binary update is an exception: it triggers a patch release even with `chore`.
 - The version file is already ahead of the tag — a merged release awaiting its tag.
 - No `<package>/v*` tag exists — cut the first release by hand.
 
@@ -277,6 +278,11 @@ never seen.
 `align-npm-cli` to update the package's `binaryVersion`. Merge that small pull request,
 then `release-prepare.yml` opens the normal `npm-cli` release pull request. npm-only
 changes continue through the normal flow without a Cargo release.
+
+The alignment PR uses `chore(javascript): update npm CLI binary to <version>`.
+`cliff.toml` explicitly includes that subject under Dependencies, so it triggers
+an npm patch release and appears in the changelog. Other chores stay excluded.
+`release-needed` uses the same filters as `release-plan` and `release-prepare`.
 
 ## CLI binaries
 
