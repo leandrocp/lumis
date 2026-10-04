@@ -2368,6 +2368,60 @@ mod tests {
         assert_eq!(render(&mut highlighter), render(&mut Highlighter::new()));
     }
 
+    /// The tests above stop before the cursor's first progress check, so they
+    /// cannot tell a query that stopped from one that finished and was then
+    /// discarded. A pattern with four contents matches every combination of
+    /// four numbers in the array, which keeps this query busy far longer than
+    /// the watchdog unless the flag reaches the cursor.
+    #[test]
+    fn combined_injection_queries_stop_when_cancelled() {
+        let (sender, receiver) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let language = tree_sitter::Language::new(tree_sitter_json::LANGUAGE);
+            let config = HighlightConfiguration::new(
+                language,
+                "json",
+                "",
+                r#"((array
+                    (number) @injection.content
+                    (number) @injection.content
+                    (number) @injection.content
+                    (number) @injection.content)
+                  (#set! injection.language "json")
+                  (#set! injection.combined))"#,
+                "",
+            )
+            .unwrap();
+            let cancelled = AtomicUsize::new(0);
+            let mut highlighter = Highlighter::new();
+            // Cancelling once the parse is done leaves the query to notice.
+            let flag = &cancelled;
+            highlighter
+                .parser
+                .set_logger(Some(Box::new(move |_, message| {
+                    if message == "done" {
+                        flag.store(1, Ordering::Relaxed);
+                    }
+                })));
+            let source = format!("[{}0]", "0,".repeat(100));
+            let result = highlighter
+                .highlight(
+                    &config,
+                    source.as_bytes(),
+                    Interrupt::none().cancellation(&cancelled),
+                    |_| None,
+                )
+                .err();
+            let _ = sender.send(result);
+        });
+
+        assert_eq!(
+            receiver.recv_timeout(Duration::from_secs(10)),
+            Ok(Some(Error::Cancelled)),
+            "a cancelled combined-injection query must stop rather than run to completion"
+        );
+    }
+
     #[test]
     fn test_highlight_event_has_language() {
         let event = HighlightEvent::HighlightStart {
