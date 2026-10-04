@@ -1,3 +1,11 @@
+## [0.7.2](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.7.1...cargo-lumis-cli/v0.7.2) (2026-10-04)
+
+### Bug Fixes
+
+- **release:** Separate new changelog entries from history in [\#1661](https://github.com/leandrocp/lumis/pull/1661)
+- **php:** Prevent Wasm heredoc crashes and report parse failures in [\#1672](https://github.com/leandrocp/lumis/pull/1672)
+- Cancel combined injection queries in [\#1681](https://github.com/leandrocp/lumis/pull/1681)
+
 ## [0.7.1](https://github.com/leandrocp/lumis/compare/cargo-lumis-cli/v0.7.0...cargo-lumis-cli/v0.7.1) (2026-10-02)
 
 ### Bug Fixes
