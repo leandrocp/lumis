@@ -24,7 +24,7 @@ commit_parsers = [
   { message = "^revert", group = "Reverts" },
   { message = "^docs", group = "Documentation" },
   { message = "^test", group = "Testing" },
-  { message = '^chore\(javascript\): update npm CLI binary to [0-9]+\.[0-9]+\.[0-9]+(\s|$)', group = "Dependencies" },
+  { message = '^chore\(javascript\): update npm CLI binary to [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\s|$)', group = "Dependencies" },
   { message = ".*", skip = true },
 ]
 
