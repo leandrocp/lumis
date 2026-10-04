@@ -611,6 +611,11 @@ events = Lumis.highlight_events!(code, "elixir")
 Lumis.Formatter.HTML.render_lines_from_events(code, events, attrs)
 ```
 
+For lines as data rather than HTML, such as each line's tokens and the
+annotations touching it, use `Lumis.Formatter.lines_from_events/2`. Resolve
+a token's style through an `ANSI.styles/1` table and `ANSI.style_for/2`, not
+`Map.get(theme.highlights, scope)`, which misses the parent-scope fallbacks.
+
 Do not hand-roll HTML escaping or scope-to-class mapping. `Lumis.Formatter.HTML`
 gives the built-in formatters' pieces:
 

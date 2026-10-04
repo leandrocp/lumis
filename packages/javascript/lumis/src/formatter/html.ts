@@ -1,6 +1,5 @@
 import type {
   BudgetExhausted,
-  Decoration,
   HighlightStyle,
   HighlightSpan,
   HighlightEvent,
@@ -12,7 +11,13 @@ import type {
   SyntaxHighlightEvent,
   Theme,
 } from "../types.js";
-import { LineSelection, composeLineDecorations, rainbowBracketScope } from "../decorations.js";
+import { LineSelection, composeLineDecorations } from "../decorations.js";
+import {
+  type LineRenderOptions,
+  renderDecoratedLines,
+  sourceRange,
+  streamLanguage,
+} from "./lines.js";
 import { HIGHLIGHT_NAMES } from "../highlights.js";
 import { sanitizeThemeName } from "../themes.js";
 import { mergeAttrs, mergeClasses } from "../core/attr-merge.js";
@@ -35,30 +40,12 @@ export function decodeSourceSlice(
   startByte: number,
   endByte: number,
 ): string {
-  let start = Math.min(Math.max(startByte, 0), sourceBytes.length);
-  while (start < sourceBytes.length && isUtf8Continuation(sourceBytes[start])) start += 1;
-
-  let end = Math.min(Math.max(endByte, 0), sourceBytes.length);
-  while (end > 0 && isUtf8Continuation(sourceBytes[end])) end -= 1;
-
-  return _decoder.decode(sourceBytes.subarray(start, Math.max(start, end)));
-}
-
-function isUtf8Continuation(byte: number | undefined): boolean {
-  return byte !== undefined && (byte & 0xc0) === 0x80;
+  const range = sourceRange(sourceBytes, startByte, endByte);
+  return _decoder.decode(sourceBytes.subarray(range.start, range.end));
 }
 
 function languageId(language: LanguageRef): string {
   return typeof language === "string" ? language : language.id;
-}
-
-function emptySpan(scope: string, language: string): HighlightSpan {
-  return {
-    startByte: 0,
-    endByte: 0,
-    scope,
-    language,
-  };
 }
 
 function getSpanStyle(
@@ -1200,198 +1187,6 @@ export function appendFragment(lines: string[], fragment: string): void {
   }
 }
 
-/** What a formatter does with each step of a line-decorated stream. */
-interface LineRenderOptions {
-  formatText?: (text: string) => string;
-  openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-  closeSpan?: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-  /**
-   * Replace a `plaintext` starting language with the language of the first scope
-   * that holds text. Rust's line walks keep the starting language for rainbow
-   * brackets, and so does every walk here that mirrors one; only
-   * `formatHighlightIterLines`, which reports the language it resolved, infers.
-   */
-  inferLanguage?: boolean;
-}
-
-interface LineRenderState {
-  /** The current line's rendered content, without its terminator. */
-  line: string;
-  /** The exact source terminator held until every syntax span has closed. */
-  ending: string;
-  decoration: Extract<Decoration, { type: "line" }>;
-  /** Lumis-owned layers, used to distinguish line ends from rainbow ends. */
-  decorations: Decoration[];
-  /** The document's language: the innermost scope's, once one has been open. */
-  language: string;
-  /** The close tag of each open scope, empty when the formatter omitted it. */
-  openScopes: Array<{ close: string; language: string }>;
-  /**
-   * A line boundary reopens every span still open, so resolving a scope's tags
-   * once is the difference between paying per scope and paying per scope per
-   * line.
-   */
-  tags: Map<string, { open: string; close: string }>;
-}
-
-interface LineRenderContext {
-  sourceBytes: Uint8Array;
-  theme: Theme | undefined;
-  formatText: (text: string) => string;
-  openSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-  closeSpan: (span: HighlightSpan, style: HighlightStyle | undefined) => string;
-  inferLanguage: boolean;
-  onLine: (
-    content: string,
-    decoration: Extract<Decoration, { type: "line" }>,
-    ending: string,
-  ) => void;
-}
-
-function openSpanEvent(
-  state: LineRenderState,
-  context: LineRenderContext,
-  event: { scope: string; language: string },
-): void {
-  const key = `${event.language} ${event.scope}`;
-  let tags = state.tags.get(key);
-
-  if (tags === undefined) {
-    const span = emptySpan(event.scope, event.language);
-    const style = getSpanStyle(context.theme, event.scope, event.language);
-    const open = context.openSpan(span, style);
-    // An `openSpan` that returns nothing means the formatter is deliberately
-    // omitting the span, so nothing closes it either.
-    tags = { open, close: open.length > 0 ? context.closeSpan(span, style) : "" };
-    state.tags.set(key, tags);
-  }
-
-  state.line += tags.open;
-  state.openScopes.push({ close: tags.close, language: event.language });
-}
-
-function sourceLineEnding(text: string, followedByLf: boolean): string {
-  if (text.endsWith("\n")) return text.endsWith("\r\n") ? "\r\n" : "\n";
-  return followedByLf && text.endsWith("\r") ? "\r" : "";
-}
-
-function sourceEvent(
-  state: LineRenderState,
-  context: LineRenderContext,
-  event: { start: number; end: number },
-): void {
-  if (context.inferLanguage && (!state.language || state.language === "plaintext")) {
-    state.language = state.openScopes.at(-1)?.language ?? state.language;
-  }
-
-  const text = decodeSourceSlice(context.sourceBytes, event.start, event.end);
-  const ending = sourceLineEnding(text, context.sourceBytes[event.end] === 10);
-  state.ending += ending;
-  state.line += context.formatText(ending ? text.slice(0, -ending.length) : text);
-}
-
-function startLineDecoration(
-  state: LineRenderState,
-  context: LineRenderContext,
-  decoration: Decoration,
-): void {
-  state.decorations.push(decoration);
-  if (decoration.type === "line") {
-    state.decoration = decoration;
-    state.line = "";
-    state.ending = "";
-    return;
-  }
-  openSpanEvent(state, context, {
-    scope: rainbowBracketScope(decoration.depth),
-    language: state.language,
-  });
-}
-
-function endLineDecoration(state: LineRenderState, context: LineRenderContext): void {
-  const decoration = state.decorations.pop();
-  if (decoration?.type === "line") {
-    context.onLine(state.line, state.decoration, state.ending);
-  } else if (decoration?.type === "rainbowBracket") {
-    state.line += state.openScopes.pop()?.close ?? "";
-  }
-}
-
-function applyLineEvent(
-  state: LineRenderState,
-  context: LineRenderContext,
-  event: HighlightEvent,
-): void {
-  switch (event.type) {
-    case "decorationStart":
-      startLineDecoration(state, context, event.decoration);
-      break;
-    case "decorationEnd":
-      endLineDecoration(state, context);
-      break;
-    case "start":
-      openSpanEvent(state, context, event);
-      break;
-    case "end":
-      state.line += state.openScopes.pop()?.close ?? "";
-      break;
-    case "source":
-      sourceEvent(state, context, event);
-      break;
-    // Caller annotations carry data a built-in formatter has never seen.
-    default:
-      break;
-  }
-}
-
-/**
- * Walk a line-decorated stream, handing each line's rendered content to `onLine`.
- *
- * Every span still open at a line boundary was closed and reopened by
- * {@link composeLineDecorations}, so this only has to render what it is given.
- *
- * Returns the document's language.
- */
-function renderDecoratedLines(
-  sourceBytes: Uint8Array,
-  composed: readonly HighlightEvent[],
-  theme: Theme | undefined,
-  language: string,
-  options: LineRenderOptions,
-  onLine: LineRenderContext["onLine"],
-): string {
-  const context: LineRenderContext = {
-    sourceBytes,
-    theme,
-    formatText: options.formatText ?? escape,
-    openSpan: options.openSpan,
-    closeSpan: options.closeSpan ?? (() => "</span>"),
-    inferLanguage: options.inferLanguage ?? false,
-    onLine,
-  };
-  const state: LineRenderState = {
-    line: "",
-    ending: "",
-    decoration: { type: "line", number: 1, highlighted: false },
-    decorations: [],
-    language,
-    openScopes: [],
-    tags: new Map(),
-  };
-
-  for (const event of composed) {
-    applyLineEvent(state, context, event);
-  }
-
-  return state.language;
-}
-
-// The language of a stream's first scope, which is also what Rust's
-// `render_lines_from_events` hands a rainbow bracket that opens before any text.
-function streamLanguage(events: readonly HighlightEvent[]): string {
-  return events.find((event) => event.type === "start")?.language ?? "plaintext";
-}
-
 /** @internal */
 export function formatHighlightIterLines(
   source: string,
@@ -1405,9 +1200,13 @@ export function formatHighlightIterLines(
   const language = renderDecoratedLines(
     sourceBytes,
     composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
-    theme,
     languageRef ? languageId(languageRef) : streamLanguage(events),
-    { ...options, inferLanguage: true },
+    {
+      ...options,
+      formatText: options.formatText ?? escape,
+      spanStyle: (scope, spanLanguage) => getSpanStyle(theme, scope, spanLanguage),
+      inferLanguage: true,
+    },
     (content, _decoration, ending) => lines.push(`${content}${ending}`),
   );
 
@@ -1452,9 +1251,12 @@ export function formatHtmlLines(
   renderDecoratedLines(
     sourceBytes,
     composed,
-    formatter.theme,
     formatter.language ? languageId(formatter.language) : "plaintext",
-    { openSpan: formatter.openSpan },
+    {
+      openSpan: formatter.openSpan,
+      formatText: escape,
+      spanStyle: (scope, spanLanguage) => getSpanStyle(formatter.theme, scope, spanLanguage),
+    },
     (content, decoration) => {
       if (decoration.number > lineCount) return;
       if (!wrapped) {
@@ -1496,6 +1298,9 @@ export function formatHtmlLines(
  * none, so it gets the language of the stream's first scope, or `plaintext`
  * when there is none, the same as Rust's `render_lines_from_events`.
  *
+ * `linesFromEvents` from `@lumis-sh/lumis/formatters` returns the same lines as
+ * data, for output that is not HTML.
+ *
  * ```ts
  * renderLinesFromEvents('a\nb', events, (scope) => `class="${scope}"`)
  * // ['<span class="...">a</span>', '<span class="...">b</span>']
@@ -1511,9 +1316,8 @@ export function renderLinesFromEvents(
   renderDecoratedLines(
     sourceBytes,
     composeLineDecorations(sourceBytes, events, new LineSelection(undefined)),
-    undefined,
     streamLanguage(events),
-    { openSpan: (span) => openSpan(spanAttrs(span.scope, span.language)) },
+    { openSpan: (span) => openSpan(spanAttrs(span.scope, span.language)), formatText: escape },
     (content) => lines.push(content),
   );
   if (source.endsWith("\n")) lines.pop();

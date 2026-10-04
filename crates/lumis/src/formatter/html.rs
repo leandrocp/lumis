@@ -695,6 +695,9 @@ pub fn append_fragment(lines: &mut Vec<String>, fragment: &str) {
 /// ends the last line rather than adding an empty one. Join [`wrap_line`]
 /// results with `"\n"`.
 ///
+/// [`lines_from_events`](super::lines_from_events) returns the same lines as
+/// data, for output that is not HTML.
+///
 /// # Example
 ///
 /// ```rust

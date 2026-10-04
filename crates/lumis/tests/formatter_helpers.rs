@@ -26,7 +26,7 @@ use lumis::decorations::Decoration;
 use lumis::events::HighlightEvent;
 use lumis::highlights::HIGHLIGHT_NAMES;
 use lumis::themes::{Style, TextDecoration, Theme, UnderlineStyle};
-use lumis::{ansi, html, languages::Language, themes};
+use lumis::{ansi, formatters, html, languages::Language, themes};
 use serde::Deserialize;
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -87,6 +87,7 @@ struct HelperEntry {
 struct Contract {
     themes: BTreeMap<String, serde_json::Value>,
     html: HtmlContract,
+    formatter: FormatterContract,
     style: StyleContract,
     ansi: AnsiContract,
 }
@@ -116,6 +117,14 @@ struct HtmlContract {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct FormatterContract {
+    source: String,
+    events: Vec<ContractEvent>,
+    line_data_cases: LineDataCases,
+}
+
+#[derive(Debug, Deserialize)]
 struct LineEndingCase {
     source: String,
     events: Option<Vec<ContractEvent>>,
@@ -132,6 +141,24 @@ struct SpanLanguageCase {
     source: String,
     events: Vec<ContractEvent>,
     expected: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct LineDataCases {
+    cases: Vec<LineDataCase>,
+}
+
+#[derive(Debug, Deserialize)]
+struct LineDataCase {
+    source: String,
+    events: Vec<ContractEvent>,
+    expected: serde_json::Value,
+}
+
+#[derive(Debug, Deserialize)]
+struct ContractRange {
+    start: usize,
+    end: usize,
 }
 
 #[derive(Debug, Deserialize)]
@@ -167,6 +194,13 @@ enum ContractEvent {
     },
     #[serde(rename = "decorationEnd")]
     DecorationEnd,
+    #[serde(rename = "annotationStart")]
+    AnnotationStart {
+        range: ContractRange,
+        data: serde_json::Value,
+    },
+    #[serde(rename = "annotationEnd")]
+    AnnotationEnd,
 }
 
 #[derive(Debug, Deserialize)]
@@ -279,6 +313,117 @@ fn render_lines_preserves_the_shared_line_ending_contract() {
     }
 }
 
+/// `lines_from_events` splits where `render_lines_from_events` does: its tokens
+/// read as the HTML line with the tags stripped.
+#[test]
+fn lines_from_events_preserves_the_shared_line_ending_contract() {
+    let input = manifest().contract.html;
+
+    for case in input.line_ending_cases {
+        let events = case.events.as_ref().map_or_else(
+            || {
+                vec![HighlightEvent::Source {
+                    start: 0,
+                    end: case.source.len(),
+                }]
+            },
+            |events| contract_events(events),
+        );
+        let lines = formatters::lines_from_events(&case.source, &events);
+
+        assert_token_ranges(&case.source, &lines);
+        assert_eq!(
+            lines.iter().map(|line| line.number).collect::<Vec<_>>(),
+            (1..=case.expected.len()).collect::<Vec<_>>(),
+            "source {:?}",
+            case.source
+        );
+        assert_eq!(
+            lines
+                .iter()
+                .map(|line| line
+                    .tokens
+                    .iter()
+                    .map(|token| token.text)
+                    .collect::<String>())
+                .collect::<Vec<_>>(),
+            case.expected
+                .iter()
+                .map(|line| strip_tags(line))
+                .collect::<Vec<_>>(),
+            "source {:?}",
+            case.source
+        );
+    }
+}
+
+#[test]
+fn lines_from_events_matches_the_shared_line_data() {
+    let input = manifest().contract.formatter;
+
+    for case in input.line_data_cases.cases {
+        let events = contract_events(&case.events);
+        let lines = formatters::lines_from_events(&case.source, &events);
+
+        assert_token_ranges(&case.source, &lines);
+        assert_eq!(
+            lines_json(&lines),
+            case.expected,
+            "source {:?}",
+            case.source
+        );
+    }
+}
+
+fn assert_token_ranges<T>(source: &str, lines: &[formatters::Line<'_, T>]) {
+    for token in lines.iter().flat_map(|line| &line.tokens) {
+        assert_eq!(
+            &source[token.range.clone()],
+            token.text,
+            "source {source:?}"
+        );
+    }
+}
+
+fn strip_tags(html: &str) -> String {
+    let mut text = String::new();
+    let mut in_tag = false;
+    for character in html.chars() {
+        match character {
+            '<' => in_tag = true,
+            '>' => in_tag = false,
+            _ if !in_tag => text.push(character),
+            _ => {}
+        }
+    }
+    text
+}
+
+/// Lines as the manifest spells them: sorted keys, and a range as `{start, end}`.
+fn lines_json(lines: &[formatters::Line<'_, serde_json::Value>]) -> serde_json::Value {
+    lines
+        .iter()
+        .map(|line| {
+            serde_json::json!({
+                "annotations": line.annotations,
+                "number": line.number,
+                "tokens": line
+                    .tokens
+                    .iter()
+                    .map(|token| {
+                        serde_json::json!({
+                            "language": token.language,
+                            "range": { "end": token.range.end, "start": token.range.start },
+                            "scope": token.scope,
+                            "text": token.text,
+                        })
+                    })
+                    .collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}
+
 /// JavaScript's `renderLinesFromEvents` reads the same cases, so the language a
 /// `span_attrs` callback sees cannot differ between the two.
 #[test]
@@ -314,11 +459,13 @@ fn language(name: &str) -> Language {
     Language::from_str(name).unwrap_or_else(|_| panic!("{name:?} is not a language"))
 }
 
+/// A scope Lumis does not name is an index past `HIGHLIGHT_NAMES`, the only way
+/// a Rust stream can spell one.
 fn scope_index(scope: &str) -> usize {
     HIGHLIGHT_NAMES
         .iter()
         .position(|&candidate| candidate == scope)
-        .unwrap_or_else(|| panic!("{scope:?} is not a highlight scope"))
+        .unwrap_or(HIGHLIGHT_NAMES.len())
 }
 
 fn line_ranges(input: &HtmlContract) -> Vec<RangeInclusive<usize>> {
@@ -332,11 +479,11 @@ fn line_ranges(input: &HtmlContract) -> Vec<RangeInclusive<usize>> {
         .collect()
 }
 
-fn highlight_events(input: &HtmlContract) -> Vec<HighlightEvent<'_, ()>> {
+fn highlight_events(input: &HtmlContract) -> Vec<HighlightEvent<'_, serde_json::Value>> {
     contract_events(&input.events)
 }
 
-fn contract_events(events: &[ContractEvent]) -> Vec<HighlightEvent<'_, ()>> {
+fn contract_events(events: &[ContractEvent]) -> Vec<HighlightEvent<'_, serde_json::Value>> {
     events
         .iter()
         .map(|event| match event {
@@ -355,6 +502,11 @@ fn contract_events(events: &[ContractEvent]) -> Vec<HighlightEvent<'_, ()>> {
                 decoration: Decoration::RainbowBracket { depth: *depth },
             },
             ContractEvent::DecorationEnd => HighlightEvent::DecorationEnd,
+            ContractEvent::AnnotationStart { range, data } => HighlightEvent::AnnotationStart {
+                range: range.start..range.end,
+                data,
+            },
+            ContractEvent::AnnotationEnd => HighlightEvent::AnnotationEnd,
         })
         .collect()
 }
@@ -550,6 +702,17 @@ fn exercised_helpers(
             ]),
         ),
         (
+            "formatter",
+            BTreeMap::from([(
+                "lines_from_events",
+                lines_json(&formatters::lines_from_events(
+                    &contract.formatter.source,
+                    &contract_events(&contract.formatter.events),
+                ))
+                .to_string(),
+            )]),
+        ),
+        (
             "ansi",
             BTreeMap::from([
                 (
@@ -578,10 +741,25 @@ fn exercised_helpers(
 /// public, so both are read.
 fn public_helpers(module: &str) -> BTreeMap<String, bool> {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let sources = [
-        manifest_dir.join(format!("src/formatter/{module}.rs")),
-        manifest_dir.join(format!("../lumis-core/src/formatter/{module}.rs")),
-    ];
+    // The format-neutral helpers sit in the formatter module itself, and
+    // `lumis-core` keeps their walk in its own file.
+    let (sources, minimum) = match module {
+        "formatter" => (
+            vec![
+                manifest_dir.join("src/formatter/mod.rs"),
+                manifest_dir.join("../lumis-core/src/formatter/mod.rs"),
+                manifest_dir.join("../lumis-core/src/formatter/lines.rs"),
+            ],
+            1,
+        ),
+        module => (
+            vec![
+                manifest_dir.join(format!("src/formatter/{module}.rs")),
+                manifest_dir.join(format!("../lumis-core/src/formatter/{module}.rs")),
+            ],
+            6,
+        ),
+    };
 
     let mut helpers = BTreeMap::new();
     for path in &sources {
@@ -589,7 +767,7 @@ fn public_helpers(module: &str) -> BTreeMap<String, bool> {
     }
 
     assert!(
-        helpers.len() > 5,
+        helpers.len() >= minimum,
         "{module}: source scan found almost nothing: {} helpers",
         helpers.len()
     );
@@ -635,7 +813,7 @@ fn every_manifest_helper_is_callable() {
     // The helpers run here; reaching this line means they all exist and build.
     let manifest = manifest();
     let exercised = exercised_helpers(&manifest.contract);
-    assert_eq!(exercised.len(), 2, "both helper modules are covered");
+    assert_eq!(exercised.len(), 3, "every helper module is covered");
 }
 
 #[test]

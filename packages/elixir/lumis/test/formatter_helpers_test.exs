@@ -20,6 +20,7 @@ defmodule Lumis.FormatterHelpersTest do
   """
   use ExUnit.Case, async: true
 
+  alias Lumis.Formatter
   alias Lumis.Formatter.ANSI
   alias Lumis.Formatter.HTML
   alias Lumis.Theme
@@ -29,7 +30,11 @@ defmodule Lumis.FormatterHelpersTest do
   @manifest_path Path.expand("../../../../fixtures/formatter-helpers.json", __DIR__)
   @external_resource @manifest_path
 
-  @modules %{"html" => Lumis.Formatter.HTML, "ansi" => Lumis.Formatter.ANSI}
+  @modules %{
+    "formatter" => Lumis.Formatter,
+    "html" => Lumis.Formatter.HTML,
+    "ansi" => Lumis.Formatter.ANSI
+  }
 
   # Read at runtime rather than into a module attribute: inlining the decoded
   # JSON gives the compiler a literal type precise enough to warn on `Map.keys/1`.
@@ -101,6 +106,59 @@ defmodule Lumis.FormatterHelpersTest do
 
   defp event(%{"type" => "end"}), do: :end
 
+  defp event(%{
+         "type" => "decorationStart",
+         "decoration" => %{"type" => "rainbowBracket"} = bracket
+       }) do
+    {:decoration_start, %Lumis.Decoration.RainbowBracket{depth: bracket["depth"]}}
+  end
+
+  defp event(%{"type" => "decorationEnd"}), do: :decoration_end
+
+  defp event(%{"type" => "annotationStart", "range" => range, "data" => data}) do
+    {:annotation_start, %{range: {range["start"], range["end"]}, data: data}}
+  end
+
+  defp event(%{"type" => "annotationEnd"}), do: :annotation_end
+
+  # Lines as the manifest spells them: string keys, and a range as `{start, end}`.
+  defp line_data(lines) do
+    Enum.map(lines, fn line ->
+      %{
+        "annotations" => line.annotations,
+        "number" => line.number,
+        "tokens" =>
+          Enum.map(line.tokens, fn %{range: {start, stop}} = token ->
+            %{
+              "language" => token.language,
+              "range" => %{"end" => stop, "start" => start},
+              "scope" => token.scope,
+              "text" => token.text
+            }
+          end)
+      }
+    end)
+  end
+
+  defp assert_token_ranges(source, lines) do
+    for %{text: text, range: {start, stop}} <- Enum.flat_map(lines, & &1.tokens) do
+      assert binary_part(source, start, stop - start) == text, "source #{inspect(source)}"
+    end
+  end
+
+  # Keys sorted explicitly, since a map's encoding order is not Jason's promise.
+  defp sorted_json(value) when is_map(value) do
+    value
+    |> Enum.sort_by(fn {key, _value} -> key end)
+    |> Enum.map_join(",", fn {key, value} -> Jason.encode!(key) <> ":" <> sorted_json(value) end)
+    |> then(&"{#{&1}}")
+  end
+
+  defp sorted_json(value) when is_list(value),
+    do: "[" <> Enum.map_join(value, ",", &sorted_json/1) <> "]"
+
+  defp sorted_json(value), do: Jason.encode!(value)
+
   defp rgb_string(nil), do: ""
   defp rgb_string({red, green, blue}), do: Enum.join([red, green, blue], ",")
 
@@ -116,6 +174,37 @@ defmodule Lumis.FormatterHelpersTest do
 
       assert HTML.render_lines_from_events(source, events, %{}) == expected,
              "source #{inspect(source)}"
+    end
+  end
+
+  # `lines_from_events/2` splits where `render_lines_from_events/3` does: its
+  # tokens read as the HTML line with the tags stripped.
+  test "splits lines as data on the shared line-ending contract" do
+    for %{"source" => source, "expected" => expected} = test_case <-
+          manifest()["contract"]["html"]["lineEndingCases"] do
+      events =
+        test_case
+        |> Map.get("events", [%{"type" => "source", "start" => 0, "end" => byte_size(source)}])
+        |> Enum.map(&event/1)
+
+      lines = Formatter.lines_from_events(source, events)
+
+      assert_token_ranges(source, lines)
+      assert Enum.map(lines, & &1.number) == Enum.to_list(1..length(expected)//1)
+
+      assert Enum.map(lines, fn line -> Enum.map_join(line.tokens, & &1.text) end) ==
+               Enum.map(expected, &String.replace(&1, ~r/<[^>]*>/, "")),
+             "source #{inspect(source)}"
+    end
+  end
+
+  test "matches the shared line data" do
+    for %{"source" => source, "events" => events, "expected" => expected} <-
+          manifest()["contract"]["formatter"]["lineDataCases"]["cases"] do
+      lines = Formatter.lines_from_events(source, Enum.map(events, &event/1))
+
+      assert_token_ranges(source, lines)
+      assert line_data(lines) == expected, "source #{inspect(source)}"
     end
   end
 
@@ -192,6 +281,13 @@ defmodule Lumis.FormatterHelpersTest do
               html["scope"] => HTML.span_linked_attrs(html["scope"])
             })
           )
+      },
+      "formatter" => %{
+        "lines_from_events" =>
+          contract["formatter"]["source"]
+          |> Formatter.lines_from_events(Enum.map(contract["formatter"]["events"], &event/1))
+          |> line_data()
+          |> sorted_json()
       },
       "ansi" => %{
         "hex_to_rgb" => ansi["hex"] |> ANSI.hex_to_rgb() |> rgb_string(),

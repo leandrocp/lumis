@@ -2,11 +2,9 @@
 //!
 //! These helpers work with language names as strings, making them independent of tree-sitter.
 
-use crate::decorations::{
-    compose_line_decorations, compose_line_decorations_into, rainbow_scope_index, Decoration,
-    LineSelection,
-};
+use crate::decorations::{compose_line_decorations, compose_line_decorations_into, LineSelection};
 use crate::events::HighlightEvent;
+use crate::formatter::lines::{stream_language, write_line_events, LineEventWalk, LineFragment};
 use crate::languages::Language;
 use crate::themes::{Style, TextDecoration, Theme, UnderlineStyle};
 use std::fmt::Write as _;
@@ -1196,19 +1194,15 @@ where
 {
     let mut lines = Vec::new();
     let mut line = String::new();
-    let decoration_language = events
-        .iter()
-        .find_map(HighlightEvent::language)
-        .unwrap_or(Language::PlainText.id_name());
 
     write_line_events(
         &compose_line_decorations(source, events, &LineSelection::default()),
         source,
-        decoration_language,
+        stream_language(events),
         |fragment| match fragment {
             LineFragment::OpenLine { .. } => {}
             LineFragment::Close => lines.push(std::mem::take(&mut line)),
-            LineFragment::Text(text) => line.push_str(&escape(text)),
+            LineFragment::Text(range) => line.push_str(&escape(&source[range])),
             LineFragment::SpanOpen(scope_index, language) => {
                 line.push_str(&open_span(&span_attrs(scope_index, language)));
             }
@@ -1240,113 +1234,6 @@ pub(crate) fn unselectable_gutter(attrs: &str) -> String {
         format!("style=\"-webkit-user-select: none; user-select: none;\" {attrs}")
             .trim_end()
             .to_string()
-    }
-}
-
-/// One step of a line-decorated event stream, with its text already sliced.
-pub(crate) enum LineFragment<'a> {
-    /// A line begins.
-    OpenLine { number: usize, highlighted: bool },
-    /// The current content-only line ends.
-    Close,
-    /// Unescaped source text, never spanning a line boundary.
-    Text(&'a str),
-    /// A syntax or built-in decoration scope begins.
-    SpanOpen(usize, &'a str),
-    /// The innermost syntax or built-in decoration scope ends.
-    SpanClose,
-}
-
-/// Walk a line-decorated stream, handing each step to `on_fragment`.
-///
-/// Source terminators are omitted from the line content. Caller annotations
-/// are skipped, which is what a built-in formatter does with data it has never seen.
-pub(crate) fn write_line_events<T, F>(
-    events: &[HighlightEvent<'_, T>],
-    source: &str,
-    decoration_language: &str,
-    mut on_fragment: F,
-) where
-    F: FnMut(LineFragment<'_>),
-{
-    let mut walk = LineEventWalk::new();
-    for event in events {
-        walk.push(event, source, decoration_language, &mut on_fragment);
-    }
-}
-
-/// [`write_line_events`] one event at a time.
-///
-/// The walk tracks open decorations while a formatter composes its stream lazily.
-pub(crate) struct LineEventWalk {
-    decorations: Vec<Decoration>,
-}
-
-impl LineEventWalk {
-    pub(crate) const fn new() -> Self {
-        Self {
-            decorations: Vec::new(),
-        }
-    }
-
-    pub(crate) fn push<T, F>(
-        &mut self,
-        event: &HighlightEvent<'_, T>,
-        source: &str,
-        decoration_language: &str,
-        on_fragment: &mut F,
-    ) where
-        F: FnMut(LineFragment<'_>),
-    {
-        let decorations = &mut self.decorations;
-        match event {
-            HighlightEvent::DecorationStart { decoration } => {
-                decorations.push(*decoration);
-                match decoration {
-                    Decoration::Line {
-                        number,
-                        highlighted,
-                    } => {
-                        on_fragment(LineFragment::OpenLine {
-                            number: *number,
-                            highlighted: *highlighted,
-                        });
-                    }
-                    Decoration::RainbowBracket { depth } => on_fragment(LineFragment::SpanOpen(
-                        rainbow_scope_index(*depth),
-                        decoration_language,
-                    )),
-                }
-            }
-            HighlightEvent::DecorationEnd => match decorations.pop() {
-                Some(Decoration::Line { .. }) => on_fragment(LineFragment::Close),
-                Some(Decoration::RainbowBracket { .. }) => on_fragment(LineFragment::SpanClose),
-                None => {}
-            },
-            HighlightEvent::Start {
-                scope_index,
-                language,
-            } => on_fragment(LineFragment::SpanOpen(*scope_index, language)),
-            HighlightEvent::End => on_fragment(LineFragment::SpanClose),
-            HighlightEvent::Source { start, end } => {
-                let text = source_slice(source, *start, *end);
-                on_fragment(LineFragment::Text(strip_line_ending(
-                    text,
-                    source.as_bytes().get(*end) == Some(&b'\n'),
-                )));
-            }
-            HighlightEvent::AnnotationStart { .. } | HighlightEvent::AnnotationEnd => {}
-        }
-    }
-}
-
-fn strip_line_ending(text: &str, followed_by_lf: bool) -> &str {
-    if let Some(content) = text.strip_suffix('\n') {
-        content.strip_suffix('\r').unwrap_or(content)
-    } else if followed_by_lf {
-        text.strip_suffix('\r').unwrap_or(text)
-    } else {
-        text
     }
 }
 
@@ -1445,7 +1332,7 @@ pub(crate) fn write_html_lines<T>(
                     }
                 })
             }
-            LineFragment::Text(text) => write_escaped(output, text),
+            LineFragment::Text(range) => write_escaped(output, &source[range]),
             LineFragment::SpanOpen(scope_index, language) => {
                 let attrs = attrs.get_or_insert(scope_index, language, span_attrs);
                 if attrs.is_empty() {
@@ -1525,34 +1412,6 @@ impl SpanAttrCache {
 
         &languages[found].1
     }
-}
-
-/// The largest slice of `source` fully inside `start..end`.
-///
-/// A formatter can build its own events rather than replaying the ones Lumis
-/// handed it, so these offsets are caller data. Out of range is clamped, and an
-/// offset landing inside a multi-byte character moves to the boundary that keeps
-/// the slice smaller, because `&source[start..end]` would otherwise panic on a
-/// range that split one. Reversed offsets give an empty slice.
-fn source_slice(source: &str, start: usize, end: usize) -> &str {
-    let start = ceil_char_boundary(source, start.min(source.len()));
-    let end = floor_char_boundary(source, end.min(source.len())).max(start);
-
-    &source[start..end]
-}
-
-fn floor_char_boundary(source: &str, mut index: usize) -> usize {
-    while index > 0 && !source.is_char_boundary(index) {
-        index -= 1;
-    }
-    index
-}
-
-fn ceil_char_boundary(source: &str, mut index: usize) -> usize {
-    while index < source.len() && !source.is_char_boundary(index) {
-        index += 1;
-    }
-    index
 }
 
 /// Render highlight events into HTML lines, calling `attribute_callback` for each highlight span.
@@ -1703,22 +1562,6 @@ mod tests {
     #[test]
     fn test_escape_all_entities() {
         assert_eq!(escape("&<>\"'{}"), "&amp;&lt;&gt;&quot;&#39;{}");
-    }
-
-    /// A formatter can build its own events, so a `Source` range is caller data
-    /// and `&source[start..end]` used to panic on one that split a character.
-    #[test]
-    fn test_source_slice_never_panics_on_caller_offsets() {
-        let source = "éx";
-
-        assert_eq!(source_slice(source, 0, 1), "", "end splits 'é'");
-        assert_eq!(source_slice(source, 1, 2), "", "start splits 'é'");
-        assert_eq!(source_slice(source, 1, 3), "x", "start splits 'é'");
-        assert_eq!(source_slice(source, 0, 2), "é");
-        assert_eq!(source_slice(source, 0, 3), "éx");
-        assert_eq!(source_slice(source, 0, 99), "éx", "end past the source");
-        assert_eq!(source_slice(source, 99, 99), "", "start past the source");
-        assert_eq!(source_slice(source, 3, 0), "", "reversed");
     }
 
     #[test]

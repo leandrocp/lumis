@@ -224,6 +224,9 @@ pub use lumis_core::formatter::HtmlElement;
 /// For terminal/ANSI formatters, see the [`ansi`] module for helper functions
 /// that handle ANSI escape sequences and color conversion.
 ///
+/// For output built line by line in any other format, [`lines_from_events`]
+/// splits the event stream into lines of tokens.
+///
 /// See the [module docs](self#custom-formatters) for a worked example.
 ///
 /// # See Also
@@ -232,3 +235,65 @@ pub use lumis_core::formatter::HtmlElement;
 /// - [`highlight_iter()`](crate::highlight::highlight_iter) - Streaming callback API
 /// - [Crate examples](https://github.com/leandrocp/lumis/tree/main/crates/lumis/examples) - Custom formatter implementations
 pub use lumis_core::formatter::Formatter;
+
+/// One line of [`lines_from_events`]: its number, its tokens, and the data of
+/// the annotations touching it.
+pub use lumis_core::formatter::Line;
+
+/// A run of one line's text under one scope, with its byte range, scope and
+/// language.
+pub use lumis_core::formatter::Token;
+
+/// Split highlight events into lines of tokens, with the annotations each line
+/// touches.
+///
+/// These are the lines [`html::render_lines_from_events`] renders, as data, for
+/// output that is not an HTML string: content only, a final newline adds no
+/// line, and an empty source is one empty line. A scope that crosses a newline
+/// gives one token on each line, and a token's `range` leaves the terminator
+/// out.
+///
+/// A token's `scope` is the innermost open one, or `""` outside every scope. A
+/// rainbow bracket reports `punctuation.bracket.rainbow.N`. Nothing here
+/// resolves a style: look one up with
+/// [`Theme::get_style`](crate::themes::Theme::get_style) on
+/// `format!("{scope}.{language}")`, which falls back to the parent scopes the
+/// built-in formatters fall back to. Indexing the theme's highlights by `scope`
+/// alone misses those.
+///
+/// A line lists the data of every annotation covering any part of it, once
+/// each, in the order they open. A point annotation lands on the line holding
+/// it, including a blank one, and a point at the very end of a source that ends
+/// in a newline lands on the last line.
+///
+/// # Example
+///
+/// ```rust
+/// use lumis::{events::HighlightEvent, formatters, highlights::HIGHLIGHT_NAMES};
+///
+/// let source = "/* a\nb */";
+/// let comment = HIGHLIGHT_NAMES.iter().position(|&s| s == "comment").unwrap();
+/// let review = "review";
+/// let events: Vec<HighlightEvent<'_, &str>> = vec![
+///     HighlightEvent::AnnotationStart { range: 0..source.len(), data: &review },
+///     HighlightEvent::Start { scope_index: comment, language: "rust".to_string() },
+///     HighlightEvent::Source { start: 0, end: source.len() },
+///     HighlightEvent::End,
+///     HighlightEvent::AnnotationEnd,
+/// ];
+///
+/// let lines = formatters::lines_from_events(source, &events);
+///
+/// assert_eq!(lines.len(), 2);
+/// assert_eq!(lines[1].number, 2);
+/// assert_eq!(lines[1].tokens[0].text, "b */");
+/// assert_eq!(lines[1].tokens[0].range, 5..9);
+/// assert_eq!(lines[1].tokens[0].scope, "comment");
+/// assert_eq!(lines[1].annotations, [&review]);
+/// ```
+pub fn lines_from_events<'a, T>(
+    source: &'a str,
+    events: &'a [lumis_core::events::HighlightEvent<'a, T>],
+) -> Vec<Line<'a, T>> {
+    lumis_core::formatter::lines_from_events(source, events)
+}
