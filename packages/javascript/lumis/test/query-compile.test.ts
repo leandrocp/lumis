@@ -10,7 +10,7 @@
  *
  * - every language that has a usable parser has its queries compiled, and then
  *   run over that language's `samples/` file: the parser must load, the sample
- *   must parse, and the highlights query must execute, since predicates and
+ *   must parse, and every query must execute, since predicates and
  *   directives only run against a real tree. The captures themselves are not
  *   inspected; conformance fixtures cover output;
  * - every language that has no usable parser must be listed in
@@ -302,7 +302,7 @@ describe("processed queries compile against their pinned grammar", () => {
       instance.setLanguage(grammar);
       const tree = instance.parse(readFileSync(sample!, "utf8"));
       expect(tree, `${id} sample did not parse`).not.toBeNull();
-      compiled.get("highlights")?.captures(tree!.rootNode);
+      for (const query of compiled.values()) query.captures(tree!.rootNode);
 
       for (const query of compiled.values()) query.delete();
       tree!.delete();
