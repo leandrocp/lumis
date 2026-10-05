@@ -15,7 +15,7 @@ syntect = "5.3"
 two-face = "0.5.1"
 
 [dev-dependencies]
-criterion = { version = "0.7", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 
 [[bench]]
 name = "scenarios"
