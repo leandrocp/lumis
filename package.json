@@ -1,0 +1,5 @@
+{
+  "name": "@lumis-sh/workspace",
+  "private": true,
+  "packageManager": "pnpm@11.15.1"
+}

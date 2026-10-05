@@ -43,6 +43,8 @@ that list changes. Nothing to bump and nothing to remember.
 - `npm-lumis` and `npm-cli` publish their `@lumis-sh/lumis-native-*` / `@lumis-sh/cli-*`
   platform packages first, at the same version. `release-prepare` bumps them together
   and `mise run lint` fails on drift. `npm-cli` need not match `cargo-lumis-cli`.
+- `npm-lumis` also updates the comparison manifest's version label. This changes
+  metadata only; highlighting changes must regenerate the comparison before release.
 - `hex-lumis` goes last — see [Elixir package](#elixir-package).
 - `@lumis-sh/wasm-*` parser packages are outside this flow: `wasm-release.yml` publishes
   them on any push to `main` that touches parsers, queries or the package templates.

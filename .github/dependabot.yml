@@ -76,37 +76,11 @@ updates:
         patterns:
           - "*"
 
-  # Every member of the pnpm workspace, not just its root. `packages/javascript`
-  # holds four devDependencies and the tooling scripts; the 118 dependencies
-  # that ship live in the members below, and this entry named only the root, so
-  # Dependabot had never seen one of them. `web-tree-sitter` sat pinned two
-  # patches behind in `lumis/package.json` the whole time, with patch updates
-  # allowed.
-  #
-  # One entry rather than one per member because they share a single
-  # `pnpm-lock.yaml` at the repository root. Separate entries would each rewrite
-  # that one file and conflict with each other.
-  #
-  # Not `/`, which is where that lockfile and `pnpm-workspace.yaml` live: there
-  # is no `package.json` there, so Dependabot would find no manifest to read.
-  # It resolves the root lockfile from a member instead.
-  #
-  # Listed one by one rather than globbed with `packages/javascript/*`, which
-  # also matches `scripts/`, a directory with no `package.json`. A configuration
-  # Dependabot rejects produces no updates and says so nowhere this repository
-  # looks, which is the failure this entry is fixing — so adding a package here
-  # is worth the manual step. `pnpm-workspace.yaml` lists the same set.
+  # pnpm updates must start beside pnpm-lock.yaml and pnpm-workspace.yaml.
+  # Dependabot discovers members from the workspace globs; member directories
+  # are rejected because their lockfile belongs to the parent workspace.
   - package-ecosystem: "npm"
-    directories:
-      - "/packages/javascript"
-      - "/packages/javascript/cli"
-      - "/packages/javascript/lumis"
-      - "/packages/javascript/markdown-it-lumis"
-      - "/packages/javascript/react"
-      - "/packages/javascript/rehype-lumis"
-      - "/packages/javascript/themes"
-      - "/packages/javascript/vite"
-      - "/benchmarks/javascript"
+    directory: "/"
     schedule:
       interval: "weekly"
     cooldown:
@@ -146,7 +120,7 @@ updates:
       # Lumis. They move when a release moves them, not weekly.
       - dependency-name: "@lumis-sh/*"
 
-# Deliberately absent:
+# Deliberately absent as separate update entries:
 #
 # - The example apps under `packages/*/*/examples/`. They are illustrations to
 #   be copied, pinned to the versions their prose describes, and nothing builds

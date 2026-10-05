@@ -1,7 +1,7 @@
 name: Comparison assets
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -26,6 +26,33 @@ on:
       - "crates/lumis-wasm-runtime/**"
       - "crates/lumis/**"
       - "languages.toml"
+      - "mise.toml"
+      - "package.json"
+      - "packages/elixir/lumis/lib/**"
+      - "packages/elixir/lumis/mix.exs"
+      - "packages/elixir/lumis/native/**"
+      - "packages/javascript/lumis/**"
+      - "packages/javascript/themes/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "queries/processed/**"
+      - "themes/*.json"
+      - "website/public/comparison-data/**"
+  pull_request:
+    paths:
+      - ".cargo/**"
+      - ".github/workflows/comparison-assets.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "benchmarks/**"
+      - "crates/lumis-build/**"
+      - "crates/lumis-cli/**"
+      - "crates/lumis-core/**"
+      - "crates/lumis-wasm-runtime/**"
+      - "crates/lumis/**"
+      - "languages.toml"
+      - "mise.toml"
+      - "package.json"
       - "packages/elixir/lumis/lib/**"
       - "packages/elixir/lumis/mix.exs"
       - "packages/elixir/lumis/native/**"
@@ -42,7 +69,9 @@ jobs:
   comparison:
     name: Comparison assets are current
     if: >-
-      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
+      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
+          !(github.event.pull_request.head.repo.full_name == github.repository &&
+            startsWith(github.event.pull_request.head.ref, 'release/')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
@@ -73,5 +102,6 @@ jobs:
             echo "and commit the result."
             git status --porcelain -- website/public/comparison-data
             git --no-pager diff --stat -- website/public/comparison-data
+            git --no-pager diff -- website/public/comparison-data/manifest.json
             exit 1
           fi
