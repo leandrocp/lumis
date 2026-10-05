@@ -168,7 +168,8 @@ impl Budget {
     }
 
     /// Bound how long this render may take, in milliseconds, or `None` to let
-    /// it run as long as it needs.
+    /// it run as long as it needs. `Some(0)` also removes the bound, as `0`
+    /// does in every other runtime.
     ///
     /// Defaults to [`DEFAULT_TIME_LIMIT`]. A render that runs out returns the
     /// whole file as plain text rather than an error, and the HTML formatters
@@ -184,7 +185,10 @@ impl Budget {
     /// let unbounded = Budget::new().time_limit(None);
     /// ```
     pub const fn time_limit(mut self, time_limit: Option<u64>) -> Self {
-        self.time_limit = time_limit;
+        self.time_limit = match time_limit {
+            Some(0) => None,
+            time_limit => time_limit,
+        };
         self
     }
 

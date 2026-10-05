@@ -146,7 +146,7 @@ let unbounded = HighlightOptions::new().budget(Budget::new().time_limit(None));
 ```
 
 The unit is milliseconds here too, rather than a `Duration`, so that one number
-means the same thing in every runtime.
+means the same thing in every runtime. `Some(0)` also removes the time limit.
 
   </Tab>
   <Tab value="CLI">

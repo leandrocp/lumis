@@ -7,9 +7,9 @@
 //! a slow render into an error; losing the marker turns a plain or
 //! scope-starved render into something indistinguishable from a correct one.
 //!
-//! `Budget::new().time_limit(Some(0))` is the deterministic lever: the deadline is `now`, so
-//! it is already past by the first check and no test here depends on how fast
-//! the machine running it is.
+//! The lever is a 1 ms limit on [`exhausting`] source, which takes seconds to
+//! render without a limit, so the render runs out on any machine. `0` cannot be
+//! the lever: it removes the limit, as it does in every runtime.
 
 use lumis::{
     languages::Language, Budget, HighlightOptions, HtmlInlineBuilder, HtmlLinkedBuilder,
@@ -32,28 +32,36 @@ fn html_linked(source: &str, options: HighlightOptions<'_, '_, ()>) -> String {
     lumis::highlight_with_options(source, formatter, options)
 }
 
-/// The clock is already spent, so every check sees an expired deadline.
+/// `source` with 20,000 unclosed parentheses before its newline. The parser's
+/// error recovery takes seconds on them, against the millisecond of [`spent`].
+/// They stay on the source's one line, so a plain render is still one line span.
+fn exhausting(source: &str) -> String {
+    format!("{}{}\n", source.trim_end(), "(".repeat(20_000))
+}
+
+/// A budget that [`exhausting`] source runs out of.
 fn spent() -> HighlightOptions<'static, 'static, ()> {
-    HighlightOptions::new().budget(Budget::new().time_limit(Some(0)))
+    HighlightOptions::new().budget(Budget::new().time_limit(Some(1)))
 }
 
 #[test]
 fn an_exhausted_time_budget_returns_the_whole_document_as_plain_text() {
-    let html = html_linked(SOURCE, spent());
+    let source = exhausting(SOURCE);
+    let html = html_linked(&source, spent());
 
     assert!(
         html.matches("<span").count() == 1,
         "an exhausted budget renders only the line span, got {html}"
     );
     assert!(
-        html.contains(SOURCE.trim_end()),
+        html.contains(source.trim_end()),
         "the whole source survives the degradation, got {html}"
     );
 }
 
 #[test]
 fn an_exhausted_time_budget_marks_the_pre() {
-    let html = html_linked(SOURCE, spent());
+    let html = html_linked(&exhausting(SOURCE), spent());
 
     assert!(
         html.contains(r#"data-lumis-budget="time""#),
@@ -63,7 +71,7 @@ fn an_exhausted_time_budget_marks_the_pre() {
 
 #[test]
 fn plain_degradation_still_escapes_html() {
-    let html = html_linked(UNSAFE_SOURCE, spent());
+    let html = html_linked(&exhausting(UNSAFE_SOURCE), spent());
 
     assert!(
         html.contains("a &lt; b &amp;&amp; c &gt; d"),
@@ -100,10 +108,24 @@ fn a_removed_time_limit_highlights() {
     assert!(!html.contains("data-lumis-budget"), "got {html}");
 }
 
+/// `0` removes the limit, as it does in the JavaScript, Elixir and CLI
+/// bindings, so one number means the same thing in every runtime.
+#[test]
+fn a_zero_time_limit_highlights() {
+    let html = html_linked(
+        SOURCE,
+        HighlightOptions::new().budget(Budget::new().time_limit(Some(0))),
+    );
+
+    assert!(html.matches("<span").count() > 1, "got {html}");
+    assert!(!html.contains("data-lumis-budget"), "got {html}");
+}
+
 #[test]
 fn every_html_formatter_marks_the_pre() {
+    let source = exhausting(SOURCE);
     let inline = lumis::highlight_with_options(
-        SOURCE,
+        &source,
         HtmlInlineBuilder::new()
             .language(Language::Rust)
             .build()
@@ -113,7 +135,7 @@ fn every_html_formatter_marks_the_pre() {
     let mut themes = HashMap::new();
     themes.insert("main".to_string(), lumis::themes::get("dracula").unwrap());
     let multi = lumis::highlight_with_options(
-        SOURCE,
+        &source,
         HtmlMultiThemesBuilder::new()
             .language(Language::Rust)
             .themes(themes)
@@ -139,8 +161,9 @@ fn every_html_formatter_marks_the_pre() {
 fn a_formatter_without_an_attribute_channel_still_degrades() {
     // The terminal has nowhere to put a marker. It is still required to hand
     // back the document rather than fail, which is the part that matters.
+    let source = exhausting(SOURCE);
     let output = lumis::highlight_with_options(
-        SOURCE,
+        &source,
         TerminalBuilder::new()
             .language(Language::Rust)
             .build()
@@ -148,7 +171,7 @@ fn a_formatter_without_an_attribute_channel_still_degrades() {
         spent(),
     );
 
-    assert_eq!(output, SOURCE, "the terminal returns the source unchanged");
+    assert_eq!(output, source, "the terminal returns the source unchanged");
 }
 
 #[test]
@@ -193,9 +216,10 @@ fn the_forwarding_impls_do_not_swallow_the_marker() {
             .build()
             .unwrap(),
     );
-    let through_box = lumis::highlight_with_options(SOURCE, &boxed, spent());
+    let source = exhausting(SOURCE);
+    let through_box = lumis::highlight_with_options(&source, &boxed, spent());
     let through_reference = lumis::highlight_with_options(
-        SOURCE,
+        &source,
         &HtmlLinkedBuilder::new()
             .language(Language::Rust)
             .build()
@@ -226,7 +250,7 @@ fn an_exhausted_render_does_not_leak_into_the_next_one() {
     const OTHER: &str = "const X: u8 = 7;\n";
 
     let isolated = html_linked(OTHER, HighlightOptions::new());
-    let _ = html_linked(SOURCE, spent());
+    let _ = html_linked(&exhausting(SOURCE), spent());
     let after = html_linked(OTHER, HighlightOptions::new());
 
     assert_eq!(
@@ -245,7 +269,7 @@ fn an_exhausted_render_does_not_leak_into_the_next_one() {
 /// plain.
 #[test]
 fn rainbow_brackets_do_not_escape_the_budget() {
-    let html = html_linked(SOURCE, spent().rainbow_brackets(true));
+    let html = html_linked(&exhausting(SOURCE), spent().rainbow_brackets(true));
 
     assert!(html.contains(r#"data-lumis-budget="time""#), "got {html}");
     assert!(
@@ -268,6 +292,6 @@ fn exhaustion_is_not_an_error() {
         .build()
         .unwrap();
 
-    lumis::write_highlight_with_options(&mut output, SOURCE, formatter, spent())
+    lumis::write_highlight_with_options(&mut output, &exhausting(SOURCE), formatter, spent())
         .expect("an exhausted budget is a rendering outcome, not a failure");
 }
