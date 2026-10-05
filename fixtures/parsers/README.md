@@ -2,9 +2,7 @@
 
 A `.wasm` here is a grammar that `mise run wasm-build` produces locally but a CI
 runner cannot, so query compilation would otherwise have no parser to check its
-queries against. Under complete coverage that is a failed shard, because
-`unverified-parsers.json` describes the state of npm and is deliberately not
-consulted there.
+queries against, and that language would fail its shard.
 
 The reason is memory. `tree-sitter build --wasm` compiles the generated
 `parser.c` through a WASI SDK it fetches itself, and a few grammars need more

@@ -16,7 +16,6 @@ on:
       - "packages/javascript/lumis/package.json"
       - "packages/javascript/lumis/test/query-compile.test.ts"
       - "packages/javascript/lumis/test/query-patterns.test.ts"
-      - "packages/javascript/lumis/test/unverified-parsers.json"
       - "fixtures/parsers/**"
       - "packages/javascript/lumis/scripts/list-parsers.mjs"
       - "pnpm-lock.yaml"
@@ -33,7 +32,6 @@ on:
       - "packages/javascript/lumis/package.json"
       - "packages/javascript/lumis/test/query-compile.test.ts"
       - "packages/javascript/lumis/test/query-patterns.test.ts"
-      - "packages/javascript/lumis/test/unverified-parsers.json"
       - "fixtures/parsers/**"
       - "packages/javascript/lumis/scripts/list-parsers.mjs"
       - "pnpm-lock.yaml"
@@ -166,9 +164,8 @@ jobs:
             fi
             mise run wasm-build "$parser" || failed+=("$parser")
           done < /tmp/shard-parsers.txt
-          # A parser that cannot be built here is covered by its committed copy
-          # or its published package; query-compile decides, and the waiver is
-          # what fails the build if neither exists.
+          # A parser that fails to build fails its language in the next step,
+          # which still checks every other language in the shard.
           if [ ${#failed[@]} -gt 0 ]; then
             printf 'could not build: %s\n' "${failed[*]}"
           fi
@@ -180,16 +177,19 @@ jobs:
       # batches of four selected languages. The grammars in fixtures/parsers each
       # compile to a single lexer function of 650-800 KB, and TurboFan's zone for
       # one of them has exhausted a runner beside other grammars, so each runs
-      # alone, in both this job and the published one.
+      # alone.
       - name: Compile queries for this shard
         run: |
           set -euo pipefail
           batch=()
+          failed=()
+          # A failing batch must not hide the batches after it, so every batch
+          # runs and the step fails at the end.
           run_batch() {
             [ ${#batch[@]} -gt 0 ] || return 0
             printf 'compiling: %s\n' "${batch[*]}"
             LUMIS_QUERY_LANGUAGES="$(IFS=,; echo "${batch[*]}")" \
-              pnpm --filter @lumis-sh/lumis run test:queries
+              pnpm --filter @lumis-sh/lumis run test:queries || failed+=("${batch[@]}")
             batch=()
           }
           while read -r language; do
@@ -205,76 +205,10 @@ jobs:
             [ ${#batch[@]} -lt "$QUERY_BATCH" ] || run_batch
           done < /tmp/shard-languages.txt
           run_batch
+          if [ ${#failed[@]} -gt 0 ]; then
+            printf '::error::queries failed for: %s\n' "${failed[*]}"
+            exit 1
+          fi
         env:
-          LUMIS_QUERY_COVERAGE: complete
-          LUMIS_QUERY_BATCH_LIMIT: ${{ env.QUERY_BATCH }}
-          QUERY_BATCH: ${{ env.QUERY_BATCH }}
-
-  # Sharded for the same reason the build is: every grammar a run loads stays
-  # compiled in V8 for the life of the process, and a few dozen of them exhaust
-  # its memory on a runner.
-  compile-published:
-    if: >-
-      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
-          !(github.event.pull_request.head.repo.full_name == github.repository &&
-            startsWith(github.event.pull_request.head.ref, 'release/')) }}
-    name: Compile queries (published parsers, shard ${{ matrix.shard }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 11.15.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
-        with:
-          node-version: 'lts/*'
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-
-      - name: Select this shard
-        run: |
-          set -euo pipefail
-          cd packages/javascript/lumis
-          node scripts/list-parsers.mjs --pairs > /tmp/pairs.txt
-          cut -f2 /tmp/pairs.txt | sort -u > /tmp/parsers.txt
-          awk -v s="$SHARD" -v n=4 'NR % n == s % n' /tmp/parsers.txt > /tmp/shard-parsers.txt
-          awk 'NR == FNR { keep[$0]; next } ($2 in keep) { print $1 }' \
-            /tmp/shard-parsers.txt /tmp/pairs.txt > /tmp/shard-languages.txt
-          [ -s /tmp/shard-parsers.txt ] || { echo "shard selected no parsers" >&2; exit 1; }
-          [ -s /tmp/shard-languages.txt ] || { echo "shard selected no languages" >&2; exit 1; }
-        env:
-          SHARD: ${{ matrix.shard }}
-
-      - name: Compile queries and check the waiver
-        run: |
-          set -euo pipefail
-          batch=()
-          run_batch() {
-            [ ${#batch[@]} -gt 0 ] || return 0
-            printf 'compiling published: %s\n' "${batch[*]}"
-            LUMIS_QUERY_LANGUAGES="$(IFS=,; echo "${batch[*]}")" \
-              pnpm --filter @lumis-sh/lumis run test:queries
-            batch=()
-          }
-          while read -r language; do
-            [ -n "$language" ] || continue
-            parser="$(awk -v language="$language" '$1 == language { print $2 }' /tmp/pairs.txt)"
-            if [ -f "fixtures/parsers/$parser.wasm" ]; then
-              run_batch
-              batch=("$language")
-              run_batch
-              continue
-            fi
-            batch+=("$language")
-            [ ${#batch[@]} -lt "$QUERY_BATCH" ] || run_batch
-          done < /tmp/shard-languages.txt
-          run_batch
-        env:
-          LUMIS_QUERY_PARSERS: published
           LUMIS_QUERY_BATCH_LIMIT: ${{ env.QUERY_BATCH }}
           QUERY_BATCH: ${{ env.QUERY_BATCH }}
