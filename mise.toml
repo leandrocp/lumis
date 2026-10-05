@@ -262,7 +262,6 @@ LUMIS_TEST_RUNTIME=native \
     pnpm --filter @lumis-sh/lumis exec vitest run \
         --exclude test/conformance.test.ts \
         --exclude test/query-compile.test.ts \
-        --exclude test/unverified-parsers.test.ts \
         --exclude 'test/browser/**' \
         --exclude test/native-runtime.test.ts
 
@@ -284,36 +283,29 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Query validation must not depend on what is published to npm. Building every
-# parser from the pinned revisions gives complete, publication-independent
-# coverage, which empties the waiver in
-# packages/javascript/lumis/test/unverified-parsers.json.
+# Query validation must not depend on what is published to npm, so every query
+# is checked against a parser built from the revision languages.toml pins.
 echo "Checking regex portability across the whole corpus..."
 cargo test -p lumis-build --test processed_queries
 pnpm --filter @lumis-sh/lumis exec vitest run test/query-patterns.test.ts
 echo ""
 
 # Every parser, from the revision languages.toml pins, which is what CI checks
-# the queries against. A parser already in tmp/wasm/build is left alone, so a
-# second run is quick; rm -rf tmp/wasm/build to rebuild from scratch.
+# the queries against. wasm-build reuses a parser in tmp/wasm/build that is
+# still current, so a second run is quick, and rebuilds one whose pin moved.
 echo "Building every parser from languages.toml..."
 # Run node directly: `pnpm exec` writes its unsupported-platform warnings for
 # the optional native packages to stdout, which would land in this list.
 (cd packages/javascript/lumis && node scripts/list-parsers.mjs --parsers) > /tmp/lumis-parsers.txt
 while read -r parser; do
     [ -n "$parser" ] || continue
-    [ -f "tmp/wasm/build/$parser.wasm" ] && continue
     [ -f "fixtures/parsers/$parser.wasm" ] && continue
     mise run wasm-build "$parser"
 done < /tmp/lumis-parsers.txt
 echo ""
 
 echo "Compiling every query against its pinned grammar..."
-LUMIS_QUERY_COVERAGE=complete pnpm --filter @lumis-sh/lumis run test:queries
-echo ""
-
-echo "Checking the unverified-parser waiver against the installed packages..."
-pnpm --filter @lumis-sh/lumis run test:unverified-parsers
+pnpm --filter @lumis-sh/lumis run test:queries
 '''
 
 [tasks.'test-conformance']
@@ -937,8 +929,13 @@ pairs="$(node packages/javascript/lumis/scripts/list-parsers.mjs --pairs)"
 wasm_name="$(awk -v name="${usage_parser?}" '$1 == name || $2 == name { print $2; exit }' <<<"$pairs")"
 [ -n "$wasm_name" ] || { echo "unknown parser: ${usage_parser?}" >&2; exit 1; }
 languages="$(awk -v parser="$wasm_name" '$2 == parser { print $1 }' <<<"$pairs" | paste -sd, -)"
-LUMIS_QUERY_PARSERS=built LUMIS_QUERY_COVERAGE=complete LUMIS_QUERY_LANGUAGES="$languages" \
-    pnpm --filter @lumis-sh/lumis run test:queries
+# A release vouches for the parser it just built, so a copy committed under
+# fixtures/parsers must not answer for it.
+[ -f "tmp/wasm/build/$wasm_name.wasm" ] || {
+    echo "$wasm_name is not in tmp/wasm/build; run mise run wasm-build $wasm_name" >&2
+    exit 1
+}
+LUMIS_QUERY_LANGUAGES="$languages" pnpm --filter @lumis-sh/lumis run test:queries
 '''
 
 [tasks.'wasm-publish-prepare']

@@ -147,7 +147,6 @@ jobs:
             pnpm --filter @lumis-sh/lumis exec vitest run \
               --exclude test/conformance.test.ts \
               --exclude test/query-compile.test.ts \
-              --exclude test/unverified-parsers.test.ts \
               --exclude 'test/browser/**' \
               --exclude test/native-runtime.test.ts
       - run: |

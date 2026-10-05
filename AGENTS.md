@@ -191,7 +191,7 @@ Lumis queries are fetched from <https://github.com/nvim-treesitter/nvim-treesitt
 A test that skips silently reports the same green as a test that verified something. That is how the defects in `REVIEW.md` §1 shipped: the only per-language query check `return`ed early for 77 of 115 languages.
 
 - Never `return` or `continue` out of a test body to handle a missing prerequisite. Fail, or record the gap in a checked-in file that the test enforces.
-- A gap that genuinely cannot be closed yet gets an explicit waiver that can only shrink. The test must fail on an undeclared gap **and** on a waiver entry that is no longer needed. `packages/javascript/lumis/test/unverified-parsers.json` is the pattern.
+- A gap that genuinely cannot be closed yet gets an explicit waiver that can only shrink. The test must fail on an undeclared gap **and** on a waiver entry that is no longer needed. `waived` in `fixtures/api.json` is the pattern.
 - Assert corpus size. `expect(patterns.length).toBeGreaterThan(200)` is what catches a discovery bug that silently finds nothing.
 - Prove a new guard fails: inject the defect it is meant to catch, watch it go red, then revert. A guard that has never failed has not been tested.
 - Do not let published artifacts gate correctness checks. Build what you need from the pinned source instead, as `mise run test-queries` does, otherwise coverage silently tracks the release cycle.

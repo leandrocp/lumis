@@ -331,8 +331,6 @@ drift.
 | `LUMIS_TEST_RUNTIME` | JavaScript tests | `native` or `wasm`; fails loudly if the requested runtime is unavailable |
 | `LUMIS_QUERY_LANGUAGES` | `test:queries` | Comma-separated languages, so CI can shard parser builds |
 | `LUMIS_QUERY_BATCH_LIMIT` | `test:queries` | Maximum languages per batch, asserted rather than assumed |
-| `LUMIS_QUERY_COVERAGE` | `test:queries` | `complete` requires full coverage and forbids waivers |
-| `LUMIS_QUERY_PARSERS` | `test:queries` | `published` judges only what npm ships |
 | `LUMIS_WASM_REBUILD` | `crates/dev` | `1` rebuilds a parser already present in `tmp/wasm/build` |
 | `LUMIS_FAKE_NVIM_CAPTURE_DIR` | CLI tests | Where the fake `nvim` records the arguments it was given |
 | `LUMIS_FAKE_NVIM_APPEARANCE` | CLI tests | Appearance the fake `nvim` reports, `dark` by default |
@@ -783,11 +781,12 @@ revision bump is validated before it is published rather than after.
   language actually pins, then parses the language's `samples/` file. Each shard
   runs in fresh batches of four selected languages, so no process retains more
   than four grammars. `llvm`, `vim` and `zsh` exceed a runner's memory and are
-  committed under `fixtures/parsers/` with their measured peak RSS; a parser
-  that cannot be built does not fail its shard, but falls back to that copy and
-  then to the published package. Each of those three compiles to one lexer
-  function of 650-800 KB, so each also runs in a process of its own. A failing
-  batch fails its shard only after the shard's other batches have run.
+  committed under `fixtures/parsers/` with their measured peak RSS. Any other
+  parser that fails to build fails its shard. Each of those three compiles to
+  one lexer function of 650-800 KB, so each also runs in a process of its own.
+  A failing batch fails its shard only after the shard's other batches have
+  run. No published package is consulted, so a parser bump is checked in its
+  own pull request, before it is released.
 - **Conformance CI** builds the seventeen parsers the committed fixtures supply,
   stages them with `wasm-stage`, and points `LUMIS_DATA_DIR` at the result, so
   the CLI and Elixir suites render from parsers built in that run. The Node
@@ -805,16 +804,9 @@ in the fixtures' expected events. A document can attempt a language that never
 appears in its output — every Lua comment injects the `comment` parser — and
 leaving it out sends the runtime to the network mid-suite.
 
-Two files record what these checks cannot cover, and both may only shrink:
-
-- `fixtures/parsers/` holds a committed build for a grammar CI cannot compile.
-  `tree-sitter-vim` needs 18.3 GB of memory against a runner's 16 GB.
-- `unverified-parsers.json` lists the languages npm has fallen behind on.
-  `unverified-parsers.test.ts` fails on an undeclared gap and on an entry that
-  has started working. It runs once per Queries CI run, in its own job, and
-  never in a query batch or `wasm-check`, which see only a few languages. A
-  parser bump opens that gap until the release after it merges, so the
-  update-langs workflow adds the bumped language to the list.
+`fixtures/parsers/` records what these checks cannot build, and may only
+shrink: it holds a committed build for a grammar CI cannot compile.
+`tree-sitter-vim` needs 18.3 GB of memory against a runner's 16 GB.
 
 There is no waiver for a parser built from `languages.toml`. If it fails to
 load, crashes on its sample, or rejects a query, the revision is not ready to
