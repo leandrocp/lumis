@@ -262,6 +262,7 @@ LUMIS_TEST_RUNTIME=native \
     pnpm --filter @lumis-sh/lumis exec vitest run \
         --exclude test/conformance.test.ts \
         --exclude test/query-compile.test.ts \
+        --exclude test/unverified-parsers.test.ts \
         --exclude 'test/browser/**' \
         --exclude test/native-runtime.test.ts
 
@@ -309,6 +310,10 @@ echo ""
 
 echo "Compiling every query against its pinned grammar..."
 LUMIS_QUERY_COVERAGE=complete pnpm --filter @lumis-sh/lumis run test:queries
+echo ""
+
+echo "Checking the unverified-parser waiver against the installed packages..."
+pnpm --filter @lumis-sh/lumis run test:unverified-parsers
 '''
 
 [tasks.'test-conformance']

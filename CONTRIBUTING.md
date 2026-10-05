@@ -786,7 +786,8 @@ revision bump is validated before it is published rather than after.
   committed under `fixtures/parsers/` with their measured peak RSS; a parser
   that cannot be built does not fail its shard, but falls back to that copy and
   then to the published package. Each of those three compiles to one lexer
-  function of 650-800 KB, so each also runs in a process of its own.
+  function of 650-800 KB, so each also runs in a process of its own. A failing
+  batch fails its shard only after the shard's other batches have run.
 - **Conformance CI** builds the seventeen parsers the committed fixtures supply,
   stages them with `wasm-stage`, and points `LUMIS_DATA_DIR` at the result, so
   the CLI and Elixir suites render from parsers built in that run. The Node
@@ -808,8 +809,12 @@ Two files record what these checks cannot cover, and both may only shrink:
 
 - `fixtures/parsers/` holds a committed build for a grammar CI cannot compile.
   `tree-sitter-vim` needs 18.3 GB of memory against a runner's 16 GB.
-- `unverified-parsers.json` lists the languages npm has fallen behind on. A test
-  fails when an entry starts working.
+- `unverified-parsers.json` lists the languages npm has fallen behind on.
+  `unverified-parsers.test.ts` fails on an undeclared gap and on an entry that
+  has started working. It runs once per Queries CI run, in its own job, and
+  never in a query batch or `wasm-check`, which see only a few languages. A
+  parser bump opens that gap until the release after it merges, so the
+  update-langs workflow adds the bumped language to the list.
 
 There is no waiver for a parser built from `languages.toml`. If it fails to
 load, crashes on its sample, or rejects a query, the revision is not ready to

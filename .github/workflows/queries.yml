@@ -15,8 +15,10 @@ on:
       - "packages/javascript/package.json"
       - "packages/javascript/lumis/package.json"
       - "packages/javascript/lumis/test/query-compile.test.ts"
+      - "packages/javascript/lumis/test/published-parsers.ts"
       - "packages/javascript/lumis/test/query-patterns.test.ts"
       - "packages/javascript/lumis/test/unverified-parsers.json"
+      - "packages/javascript/lumis/test/unverified-parsers.test.ts"
       - "fixtures/parsers/**"
       - "packages/javascript/lumis/scripts/list-parsers.mjs"
       - "pnpm-lock.yaml"
@@ -32,8 +34,10 @@ on:
       - "packages/javascript/package.json"
       - "packages/javascript/lumis/package.json"
       - "packages/javascript/lumis/test/query-compile.test.ts"
+      - "packages/javascript/lumis/test/published-parsers.ts"
       - "packages/javascript/lumis/test/query-patterns.test.ts"
       - "packages/javascript/lumis/test/unverified-parsers.json"
+      - "packages/javascript/lumis/test/unverified-parsers.test.ts"
       - "fixtures/parsers/**"
       - "packages/javascript/lumis/scripts/list-parsers.mjs"
       - "pnpm-lock.yaml"
@@ -79,6 +83,31 @@ jobs:
 
       - name: Every predicate compiles under RegExp
         run: pnpm --filter @lumis-sh/lumis exec vitest run test/query-patterns.test.ts
+
+  # The waiver describes what npm publishes for the whole corpus, so it is
+  # checked once here. The compile jobs below run a few languages per process
+  # and cannot judge it.
+  waiver:
+    if: >-
+      ${{ !startsWith(github.event.head_commit.message, 'chore(release):') &&
+          !(github.event.pull_request.head.repo.full_name == github.repository &&
+            startsWith(github.event.pull_request.head.ref, 'release/')) }}
+    name: Unverified parser waiver
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 11.15.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+
+      - name: Every language npm cannot verify is declared
+        run: pnpm --filter @lumis-sh/lumis run test:unverified-parsers
 
   # Every parser is built from languages.toml rather than taken from npm, so a
   # revision bump is validated before it is published rather than after. Sharded
@@ -167,8 +196,8 @@ jobs:
             mise run wasm-build "$parser" || failed+=("$parser")
           done < /tmp/shard-parsers.txt
           # A parser that cannot be built here is covered by its committed copy
-          # or its published package; query-compile decides, and the waiver is
-          # what fails the build if neither exists.
+          # or its published package; query-compile decides, and complete
+          # coverage fails the shard if neither exists.
           if [ ${#failed[@]} -gt 0 ]; then
             printf 'could not build: %s\n' "${failed[*]}"
           fi
@@ -185,11 +214,14 @@ jobs:
         run: |
           set -euo pipefail
           batch=()
+          failed=()
+          # A failing batch must not hide the batches after it, so every batch
+          # runs and the step fails at the end.
           run_batch() {
             [ ${#batch[@]} -gt 0 ] || return 0
             printf 'compiling: %s\n' "${batch[*]}"
             LUMIS_QUERY_LANGUAGES="$(IFS=,; echo "${batch[*]}")" \
-              pnpm --filter @lumis-sh/lumis run test:queries
+              pnpm --filter @lumis-sh/lumis run test:queries || failed+=("${batch[@]}")
             batch=()
           }
           while read -r language; do
@@ -205,6 +237,10 @@ jobs:
             [ ${#batch[@]} -lt "$QUERY_BATCH" ] || run_batch
           done < /tmp/shard-languages.txt
           run_batch
+          if [ ${#failed[@]} -gt 0 ]; then
+            printf '::error::queries failed for: %s\n' "${failed[*]}"
+            exit 1
+          fi
         env:
           LUMIS_QUERY_COVERAGE: complete
           LUMIS_QUERY_BATCH_LIMIT: ${{ env.QUERY_BATCH }}
@@ -250,15 +286,18 @@ jobs:
         env:
           SHARD: ${{ matrix.shard }}
 
-      - name: Compile queries and check the waiver
+      - name: Compile queries against the published parsers
         run: |
           set -euo pipefail
           batch=()
+          failed=()
+          # A failing batch must not hide the batches after it, so every batch
+          # runs and the step fails at the end.
           run_batch() {
             [ ${#batch[@]} -gt 0 ] || return 0
             printf 'compiling published: %s\n' "${batch[*]}"
             LUMIS_QUERY_LANGUAGES="$(IFS=,; echo "${batch[*]}")" \
-              pnpm --filter @lumis-sh/lumis run test:queries
+              pnpm --filter @lumis-sh/lumis run test:queries || failed+=("${batch[@]}")
             batch=()
           }
           while read -r language; do
@@ -274,6 +313,10 @@ jobs:
             [ ${#batch[@]} -lt "$QUERY_BATCH" ] || run_batch
           done < /tmp/shard-languages.txt
           run_batch
+          if [ ${#failed[@]} -gt 0 ]; then
+            printf '::error::queries failed for: %s\n' "${failed[*]}"
+            exit 1
+          fi
         env:
           LUMIS_QUERY_PARSERS: published
           LUMIS_QUERY_BATCH_LIMIT: ${{ env.QUERY_BATCH }}

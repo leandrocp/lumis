@@ -14,7 +14,11 @@
  *   directives only run against a real tree. The captures themselves are not
  *   inspected; conformance fixtures cover output;
  * - every language that has no usable parser must be listed in
- *   `unverified-parsers.json`, and that list can only shrink.
+ *   `unverified-parsers.json`, and that list can only shrink. The waiver is a
+ *   statement about the whole corpus, so `unverified-parsers.test.ts` checks it
+ *   once per run. A batch here selects a few languages, and a release selects
+ *   one parser; neither can judge every language, and a package lagging for an
+ *   unrelated language must not fail them.
  *
  * Parsers resolve in this order, so the check prefers the artifact that ships but
  * is never blocked by the release cycle:
@@ -37,102 +41,18 @@
  * starts a fresh test process for each batch of four selected languages.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { parse as parseToml } from "smol-toml";
+import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { Language as TSLanguage, Parser, Query } from "web-tree-sitter";
+import {
+  type ParserEntry,
+  parsers,
+  publishedParser,
+  wasmName,
+  workspaceRoot,
+} from "./published-parsers.js";
 
 const QUERY_KINDS = ["highlights", "injections", "locals"] as const;
-
-const workspaceRoot = fileURLToPath(new URL("../../../../", import.meta.url));
-const bundleRequire = createRequire(
-  createRequire(import.meta.url).resolve("@lumis-sh/wasm-bundle-full"),
-);
-
-interface ParserEntry {
-  rev?: string;
-  wasm_name?: string;
-  query_name?: string;
-  aliases?: string[];
-}
-
-const languagesToml = parseToml(readFileSync(join(workspaceRoot, "languages.toml"), "utf8")) as {
-  parsers?: Record<string, ParserEntry>;
-};
-const parsers = Object.entries(languagesToml.parsers ?? {});
-
-const unverified = JSON.parse(
-  readFileSync(new URL("./unverified-parsers.json", import.meta.url), "utf8"),
-) as {
-  reason: string;
-  languages: string[];
-};
-const waived = new Set(unverified.languages);
-
-function wasmName(id: string, entry: ParserEntry): string {
-  return entry.wasm_name ?? `tree-sitter-${id}`;
-}
-
-function packageName(parser: string): string {
-  return `@lumis-sh/wasm-${parser.replace(/^tree-sitter-/, "")}`;
-}
-
-/** The parser revision an installed package was built from. */
-function installedRevision(wasmPath: string): string | undefined {
-  const packageDirectory = dirname(wasmPath);
-  const manifestPath = join(packageDirectory, "lumis.json");
-  if (existsSync(manifestPath)) {
-    const languagePackage = JSON.parse(readFileSync(manifestPath, "utf8")) as {
-      parser?: { revision?: string };
-    };
-    if (languagePackage.parser?.revision) return languagePackage.parser.revision;
-  }
-
-  // Packages published before `lumis.json` kept the revision in package.json.
-  const packageJson = JSON.parse(readFileSync(join(packageDirectory, "package.json"), "utf8")) as {
-    lumis?: { rev?: string };
-  };
-  return packageJson.lumis?.rev;
-}
-
-/**
- * Whether the *published* package can verify this language.
- *
- * The waiver describes the state of npm, so it must be judged only against the
- * installed package. Building a parser locally makes a language verifiable
- * without making its package published, and conflating the two would force the
- * waiver to be both full and empty depending on whether `tmp/wasm/build` exists.
- */
-function publishedParser(
-  id: string,
-  entry: ParserEntry,
-): { path: string } | { unavailable: string } {
-  const parser = wasmName(id, entry);
-
-  let installed: string;
-  try {
-    installed = bundleRequire.resolve(`${packageName(parser)}/${parser}.wasm`);
-  } catch {
-    return { unavailable: "parser package is not installed" };
-  }
-  if (!existsSync(installed)) return { unavailable: "installed parser file is missing" };
-
-  const expected = entry.rev;
-  if (expected) {
-    const actual = installedRevision(installed);
-    if (actual !== expected) {
-      return {
-        unavailable: `installed package is at rev ${
-          actual?.slice(0, 8) ?? "unknown"
-        }, languages.toml pins ${expected.slice(0, 8)}`,
-      };
-    }
-  }
-
-  return { path: installed };
-}
 
 /**
  * Locate any parser built from the revision `languages.toml` pins.
@@ -221,9 +141,6 @@ const parserSource = process.env.LUMIS_QUERY_PARSERS;
 const resolved = new Map<string, { path: string } | { unavailable: string }>(
   selected.map(([id, entry]) => [id, resolveParser(id, entry)]),
 );
-const published = new Map<string, { path: string } | { unavailable: string }>(
-  parsers.map(([id, entry]) => [id, publishedParser(id, entry)]),
-);
 const verifiable = selected.filter(([id]) => "path" in resolved.get(id)!);
 const unavailable = selected.filter(([id]) => "unavailable" in resolved.get(id)!);
 
@@ -310,41 +227,4 @@ describe("processed queries compile against their pinned grammar", () => {
     },
     30_000,
   );
-});
-
-/**
- * The waiver records which published packages cannot verify their queries. It is
- * judged against npm only, so it stays meaningful whether or not parsers were
- * built locally.
- */
-describe("unverified parser waiver", () => {
-  const unpublished = parsers.filter(([id]) => "unavailable" in published.get(id)!);
-
-  it("lists every language whose published package cannot verify it", () => {
-    // A new gap must be declared. Otherwise a parser bump silently drops a
-    // language out of coverage, which is how the §1 defects escaped review.
-    const undeclared = unpublished
-      .filter(([id]) => !waived.has(id))
-      .map(([id]) => `${id}: ${(published.get(id) as { unavailable: string }).unavailable}`);
-
-    expect(
-      undeclared,
-      "add these to test/unverified-parsers.json, or publish the parser packages",
-    ).toEqual([]);
-  });
-
-  it("has no stale entries", () => {
-    // The list can only shrink. Once a package publishes at the pinned revision,
-    // its waiver must go.
-    const stale = parsers
-      .filter(([id]) => waived.has(id) && "path" in published.get(id)!)
-      .map(([id]) => id);
-
-    expect(stale, "these packages are published at the pinned rev, remove them").toEqual([]);
-  });
-
-  it("names only real languages", () => {
-    const known = new Set(parsers.map(([id]) => id));
-    expect(unverified.languages.filter((id) => !known.has(id))).toEqual([]);
-  });
 });
