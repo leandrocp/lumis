@@ -231,3 +231,10 @@
         (boolean) @comment.doc
       ]))
   (#any-of? @comment.doc.__attribute__ "moduledoc" "typedoc" "doc"))
+
+; Upstream gives every do @keyword, unlike defmodule's @keyword.function.
+(call
+  target: (identifier) @_definition
+  (do_block
+    "do" @keyword.function)
+  (#eq? @_definition "defmodule"))

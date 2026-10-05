@@ -281,7 +281,7 @@
     },
     {
       "type": "start",
-      "scope": "keyword",
+      "scope": "keyword.function",
       "language": "elixir"
     },
     {

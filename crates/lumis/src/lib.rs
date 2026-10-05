@@ -632,7 +632,7 @@ end
 end
 ";
 
-        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span data-highlight="keyword.function" style="color: #ca9ee7;">defmodule</span> <span data-highlight="module" style="color: #e5c891;">Foo</span> <span data-highlight="keyword" style="color: #ca9ee7;">do</span></span>
+        let expected = r#"<pre class="lumis" style="color: #c6d0f6; background-color: #303447;"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span data-highlight="keyword.function" style="color: #ca9ee7;">defmodule</span> <span data-highlight="module" style="color: #e5c891;">Foo</span> <span data-highlight="keyword.function" style="color: #ca9ee7;">do</span></span>
 <span class="l-line" data-line="2">  <span data-highlight="operator" style="color: #99d1dc;"><span data-highlight="constant" style="color: #ef9f77;">@<span data-highlight="function.call" style="color: #8caaef;"><span data-highlight="constant" style="color: #ef9f77;">lang <span data-highlight="string.special.symbol" style="color: #eebebf;">:elixir</span></span></span></span></span></span>
 <span class="l-line" data-line="3"><span data-highlight="keyword" style="color: #ca9ee7;">end</span></span></code></pre>"#;
 
@@ -677,7 +677,7 @@ end
 end
 "#;
 
-        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-keyword-function">defmodule</span> <span class="l-module">Foo</span> <span class="l-keyword">do</span></span>
+        let expected = r#"<pre class="lumis"><code class="language-elixir" translate="no" tabindex="0"><span class="l-line" data-line="1"><span class="l-keyword-function">defmodule</span> <span class="l-module">Foo</span> <span class="l-keyword-function">do</span></span>
 <span class="l-line" data-line="2">  <span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">@moduledoc</span> <span class="l-comment">&quot;&quot;&quot;</span></span></span></span>
 <span class="l-line" data-line="3"><span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">  Test Module</span></span></span></span>
 <span class="l-line" data-line="4"><span class="l-operator"><span class="l-comment-documentation"><span class="l-comment">  &quot;&quot;&quot;</span></span></span></span>
