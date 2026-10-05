@@ -1210,7 +1210,7 @@ fn dump_events(
 struct TreeNode<'tree> {
     node: Node<'tree>,
     depth: usize,
-    field: Option<&'static str>,
+    field: Option<&'tree str>,
     language: &'tree str,
 }
 
@@ -1280,7 +1280,7 @@ fn collect_tree_nodes<'tree>(
     layer_index: usize,
     node: Node<'tree>,
     depth: usize,
-    field: Option<&'static str>,
+    field: Option<&'tree str>,
     layers: &'tree [ParsedLayer],
     injections: &std::collections::HashMap<(usize, usize), Vec<usize>>,
     nodes: &mut Vec<TreeNode<'tree>>,

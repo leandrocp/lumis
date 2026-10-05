@@ -113,7 +113,7 @@ pub fn bracket_pairs_within(
 
         let mut opens = Vec::new();
         let mut closes = Vec::new();
-        for capture in query_match.captures {
+        for capture in query_match.captures() {
             if capture.index == open_capture {
                 opens.push(capture.node.byte_range());
             } else if capture.index == close_capture {

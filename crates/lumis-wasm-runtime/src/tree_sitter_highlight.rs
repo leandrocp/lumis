@@ -62,6 +62,18 @@
 //   written to them, and restyling it to satisfy `clippy::pedantic` would grow the diff for
 //   nothing. Lumis code in here is still reviewed against those lints by hand.
 //
+// Synced against upstream v0.27.0. Of the 25 hunks upstream landed on this file between
+// v0.26.13 and v0.27.0, one reaches here: `QueryMatch::captures` became a method, so the
+// field reads below are calls. The rest do not apply. Upstream's let-chains and `#[expect]`
+// attributes arrived with its move to edition 2024, which this crate is not on, and the
+// `#[expect]`s are moot under the module-level `allow` above. Its `_QueryCaptures` and
+// `_QueryMatch` transmute changes land on the streaming-cursor code `CaptureStream` already
+// replaced. Its `encoding: Option<u32>` parameter threads UTF-16 through `highlight`, which
+// this file's callers, which hand it `&str`, have no use for; taking it would widen the
+// public signature for a capability Lumis does not offer. Its
+// `Error::InvalidLanguage(LanguageError)` is a better message worth adopting whenever the
+// error type is next touched, left alone here to keep the sync minimal.
+//
 // When touching this file, prefer minimizing the diff against upstream rather than extending it,
 // and add what you did to the list above in the same change. The list is the only record of why
 // this file differs, so an undocumented edit is what makes the next upstream sync guesswork.
@@ -857,7 +869,7 @@ impl<'a> CaptureStream<'a> {
         );
         while let Some(m) = matches.next() {
             let start = entries.len() as u32;
-            entries.extend_from_slice(m.captures);
+            entries.extend_from_slice(m.captures());
             patterns.push(m.pattern_index as u32);
             list_starts.push(start);
             list_ends.push(entries.len() as u32);
@@ -969,21 +981,21 @@ impl<'a> CaptureStream<'a> {
                 // it lies rather than appended again.
                 let stored = list_starts[slot as usize];
                 let same_length = stored != NO_LIST
-                    && (list_ends[slot as usize] - stored) as usize == query_match.captures.len();
+                    && (list_ends[slot as usize] - stored) as usize == query_match.captures().len();
                 if same_length {
                     let at = stored as usize;
-                    entries[at..at + query_match.captures.len()]
-                        .copy_from_slice(query_match.captures);
+                    entries[at..at + query_match.captures().len()]
+                        .copy_from_slice(query_match.captures());
                 } else {
                     let start = entries.len() as u32;
-                    entries.extend_from_slice(query_match.captures);
+                    entries.extend_from_slice(query_match.captures());
                     list_starts[slot as usize] = start;
                     list_ends[slot as usize] = entries.len() as u32;
                 }
             }
 
             let entry = entries.len() as u32;
-            entries.push(query_match.captures[*capture_index]);
+            entries.push(query_match.captures()[*capture_index]);
             order.push((slot, entry));
         }
 
@@ -1439,7 +1451,7 @@ impl<'a> HighlightIterLayer<'a> {
                             parent_name,
                             combined_injections_query,
                             mat.pattern_index,
-                            mat.captures,
+                            mat.captures(),
                             source,
                         );
                         if language_name.is_some() {
@@ -2392,10 +2404,13 @@ mod tests {
                 "",
             )
             .unwrap();
-            let cancelled = AtomicUsize::new(0);
+            // Shared rather than borrowed because tree-sitter 0.27 requires a
+            // parser logger to be `Send + 'static`, and this one outlives the
+            // scope that reads the flag back.
+            let cancelled = std::sync::Arc::new(AtomicUsize::new(0));
             let mut highlighter = Highlighter::new();
             // Cancelling once the parse is done leaves the query to notice.
-            let flag = &cancelled;
+            let flag = std::sync::Arc::clone(&cancelled);
             highlighter
                 .parser
                 .set_logger(Some(Box::new(move |_, message| {
