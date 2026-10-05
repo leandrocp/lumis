@@ -737,6 +737,74 @@ describe("budget", () => {
     },
   );
 
+  // web-tree-sitter never hands the progress callback to `captures()`
+  // (tree-sitter/tree-sitter#6010), so a capture pass started after the
+  // deadline runs over the whole document. The clock is frozen and moved past
+  // the deadline only once `matches()` returns, which is the moment the render
+  // has to notice it is out of time.
+  it.runIf(process.env.LUMIS_TEST_RUNTIME === "wasm")(
+    "skips the capture pass when the deadline passes during the match pass",
+    () => {
+      const matchesWithoutDelay = Object.getOwnPropertyDescriptor(Query.prototype, "matches")
+        ?.value as Query["matches"];
+      vi.useFakeTimers({ toFake: ["Date"] });
+      const matches = vi.spyOn(Query.prototype, "matches").mockImplementation(function (
+        this: Query,
+        ...args: Parameters<Query["matches"]>
+      ) {
+        const result = matchesWithoutDelay.apply(this, args);
+        vi.setSystemTime(Date.now() + 1000);
+        return result;
+      });
+      const captures = vi.spyOn(Query.prototype, "captures");
+      try {
+        const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), {
+          budget: { timeLimit: 1000 },
+        });
+
+        expect(captures).not.toHaveBeenCalled();
+        expect(html).toContain('data-lumis-budget="time"');
+        expect(html).not.toMatch(/<span(?! class="l-line")/);
+      } finally {
+        captures.mockRestore();
+        matches.mockRestore();
+        vi.useRealTimers();
+      }
+    },
+  );
+
+  // The same gap lets a capture pass that started in time finish past the
+  // deadline. Rust checks the clock after every query pass and returns the
+  // document plain when it ran out, so this runtime has to as well.
+  it.runIf(process.env.LUMIS_TEST_RUNTIME === "wasm")(
+    "returns the document plain when the deadline passes during the capture pass",
+    () => {
+      const capturesWithoutDelay = Object.getOwnPropertyDescriptor(Query.prototype, "captures")
+        ?.value as Query["captures"];
+      vi.useFakeTimers({ toFake: ["Date"] });
+      const captures = vi.spyOn(Query.prototype, "captures").mockImplementation(function (
+        this: Query,
+        ...args: Parameters<Query["captures"]>
+      ) {
+        const result = capturesWithoutDelay.apply(this, args);
+        vi.setSystemTime(Date.now() + 1000);
+        return result;
+      });
+      try {
+        const html = budgetHl.highlight(ordinary, htmlLinked({ language: json }), {
+          budget: { timeLimit: 1000 },
+        });
+
+        expect(captures).toHaveBeenCalledOnce();
+        expect(html).toContain('data-lumis-budget="time"');
+        expect(html).not.toMatch(/<span(?! class="l-line")/);
+      } finally {
+        captures.mockRestore();
+        vi.useRealTimers();
+      }
+    },
+  );
+
   it("leaves an ordinary document well inside its budget", () => {
     // The parser is already loaded by `beforeAll`, so this is not the
     // parser-load exclusion test — the CLI and Elixir suites own that, because

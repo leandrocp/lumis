@@ -534,6 +534,33 @@ function snapshotCaptures(
   );
 }
 
+// Run a layer's query passes, or return null if the render runs out of time
+// during them.
+//
+// web-tree-sitter never hands the progress callback to `captures()`
+// (tree-sitter/tree-sitter#6010), so a capture pass started past the deadline
+// walks the whole document before anything can stop it, and one started in
+// time can finish past it. Like the Rust highlighter, the deadline is checked
+// after each pass, and a pass that ran out is discarded.
+function queryWithin(
+  language: LoadedLanguage,
+  rootNode: Node,
+  queryOptions: { matchLimit: number; progressCallback?: () => boolean },
+  maps: SourceMaps,
+  budget: BudgetState,
+): { queryMatches: QueryMatch[]; snapshot: CaptureSnapshot } | null {
+  const queryMatches = language.config.query.matches(rootNode, queryOptions);
+  if (language.config.query.didExceedMatchLimit?.()) {
+    budget.exceededMatchLimit = true;
+  }
+  if (budget.deadline?.passed()) return null;
+
+  const snapshot = snapshotCaptures(language, rootNode, queryOptions, queryMatches, maps, budget);
+  if (budget.deadline?.passed()) return null;
+
+  return { queryMatches, snapshot };
+}
+
 function collectHighlightLayers(
   source: string,
   maps: SourceMaps,
@@ -550,13 +577,10 @@ function collectHighlightLayers(
   if (!tree) return [];
 
   try {
-    const rootNode = tree.rootNode;
     const queryOptions = { matchLimit, ...(progressCallback ? { progressCallback } : {}) };
-    const queryMatches = language.config.query.matches(rootNode, queryOptions);
-    if (language.config.query.didExceedMatchLimit?.()) {
-      budget.exceededMatchLimit = true;
-    }
-    const snapshot = snapshotCaptures(language, rootNode, queryOptions, queryMatches, maps, budget);
+    const queried = queryWithin(language, tree.rootNode, queryOptions, maps, budget);
+    if (!queried) return [];
+    const { queryMatches, snapshot } = queried;
     const localDefinitionValueEnds = collectLocalDefinitionValueEnds(
       queryMatches,
       language,
