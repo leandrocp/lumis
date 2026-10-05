@@ -228,7 +228,7 @@
         "named": true
       },
       {
-        "type": "type_synomym",
+        "type": "type_synonym",
         "named": true
       }
     ]
@@ -5756,7 +5756,7 @@
     "fields": {}
   },
   {
-    "type": "type_synomym",
+    "type": "type_synonym",
     "named": true,
     "fields": {
       "name": {
@@ -6006,10 +6006,6 @@
     "named": false
   },
   {
-    "type": "(#",
-    "named": false
-  },
-  {
     "type": ")",
     "named": false
   },
@@ -6127,7 +6123,8 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "constructor",
@@ -6135,7 +6132,8 @@
   },
   {
     "type": "cpp",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "d",
@@ -6191,7 +6189,8 @@
   },
   {
     "type": "haddock",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "hiding",
@@ -6283,7 +6282,8 @@
   },
   {
     "type": "pragma",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "qualified",
