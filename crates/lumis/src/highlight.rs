@@ -418,10 +418,9 @@ pub enum HighlightError {
 
     /// The [`time_limit`](HighlightOptions::time_limit) ran out.
     ///
-    /// The entry points that return a document turn this into plain text
-    /// rather than surfacing it; it reaches a caller only through
-    /// [`highlight_events`] and its siblings, which have no document to
-    /// degrade.
+    /// No public entry point returns it. Those that return a document turn it
+    /// into plain text, and [`highlight_events`], [`highlight_iter`] and their
+    /// siblings into the whole source as one unhighlighted event or token.
     #[error("highlighting ran out of its time limit")]
     TimeLimit,
 }
@@ -794,7 +793,8 @@ pub fn highlight_events(
 ///
 /// Returns [`HighlightError::Annotation`] if an annotation is outside the
 /// source or its range does not lie on UTF-8 character boundaries. Highlighting
-/// errors, including cancellation and an exhausted time budget, propagate too.
+/// errors, including cancellation, propagate too. Running out of the time
+/// limit is not an error: the whole source comes back as one `Source` event.
 pub fn highlight_events_with_options<'a, T>(
     source: &str,
     language: Language,
@@ -840,8 +840,16 @@ fn highlight_events_with<T, F>(
 where
     F: Fn(&str) -> Option<Language>,
 {
-    highlight_events_reporting(ts_highlighter, source, language, options, injected_language)
-        .map(|(events, _)| events)
+    match highlight_events_reporting(ts_highlighter, source, language, options, injected_language) {
+        Ok((events, _)) => Ok(events),
+        // Events have nowhere to put a marker, so a render that ran out of time
+        // degrades the way the document does: the whole source, unhighlighted.
+        Err(HighlightError::TimeLimit) => Ok(vec![CoreHighlightEvent::Source {
+            start: 0,
+            end: source.len(),
+        }]),
+        Err(error) => Err(error),
+    }
 }
 
 /// [`highlight_events_with`], and whether the match limit bound the query.

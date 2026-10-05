@@ -12,8 +12,11 @@
 //! the lever: it removes the limit, as it does in every runtime.
 
 use lumis::{
-    languages::Language, Budget, HighlightOptions, HtmlInlineBuilder, HtmlLinkedBuilder,
-    HtmlMultiThemesBuilder, TerminalBuilder,
+    events::HighlightEvent,
+    highlight::{highlight_events_with_options, highlight_iter_with_options},
+    languages::Language,
+    Budget, HighlightOptions, HtmlInlineBuilder, HtmlLinkedBuilder, HtmlMultiThemesBuilder,
+    TerminalBuilder,
 };
 use std::collections::HashMap;
 
@@ -294,4 +297,42 @@ fn exhaustion_is_not_an_error() {
 
     lumis::write_highlight_with_options(&mut output, &exhausting(SOURCE), formatter, spent())
         .expect("an exhausted budget is a rendering outcome, not a failure");
+}
+
+/// An event stream has nowhere to put a marker, so it degrades the way the
+/// document does, to the whole source as one plain event, as it does in every
+/// runtime.
+#[test]
+fn an_exhausted_time_budget_returns_the_whole_document_as_one_event() {
+    let source = exhausting(SOURCE);
+    let events = highlight_events_with_options(&source, Language::Rust, spent())
+        .expect("an exhausted budget is a highlighting outcome, not a failure");
+
+    assert_eq!(
+        events,
+        [HighlightEvent::Source {
+            start: 0,
+            end: source.len()
+        }]
+    );
+}
+
+#[test]
+fn an_exhausted_time_budget_iterates_the_whole_document_as_one_token() {
+    let source = exhausting(SOURCE);
+    let mut tokens = Vec::new();
+
+    highlight_iter_with_options(
+        &source,
+        Language::Rust,
+        None,
+        spent(),
+        |text, _language, range, scope, _style| {
+            tokens.push((text.len(), range, scope));
+            Ok::<_, std::io::Error>(())
+        },
+    )
+    .expect("an exhausted budget is a highlighting outcome, not a failure");
+
+    assert_eq!(tokens, [(source.len(), 0..source.len(), "")]);
 }
