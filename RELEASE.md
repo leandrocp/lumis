@@ -294,6 +294,28 @@ provenance attestation. The shell and PowerShell installers, Homebrew,
 assets. GitHub is the canonical binary host; the CLI artifacts are not mirrored
 to R2.
 
+### Homebrew
+
+After all CLI binaries are uploaded, `cli-binary-release.yml` calls
+`homebrew-release.yml` to update `Formula/lumis.rb` in
+[`leandrocp/homebrew-lumis`](https://github.com/leandrocp/homebrew-lumis).
+The workflow downloads the four macOS and glibc Linux archives, verifies their
+SHA-256 digests against the GitHub Release metadata, and installs and tests the
+formula on macOS before committing it directly to the tap's `main` branch.
+
+`CI_TOKEN` must have Contents read/write access to the tap. Missing credentials,
+missing assets, checksum mismatches, and failed formula tests fail the workflow.
+Updates are serialized and must match the CLI version on `main`, so rerunning an
+older release cannot downgrade the tap. Only stable releases are accepted.
+
+To retry a tap update without rebuilding the binaries, run **Homebrew Release**
+from the Actions tab on `main` with the published `cargo-lumis-cli/v*` tag.
+To generate the formula locally without committing or pushing:
+
+```sh
+mise run homebrew-formula cargo-lumis-cli/v0.7.2 ../homebrew-lumis
+```
+
 ### Source archives
 
 CLI source releases use the `cargo-lumis-cli/v*` tags. See the

@@ -1197,6 +1197,84 @@ done
 echo "added $added, already present $present, not published $unpublished"
 '''
 
+[tasks.'homebrew-formula']
+description = "Generate the Homebrew formula from verified CLI release archives"
+usage = '''
+arg "<tag>"
+arg "<tap-directory>"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+tag="${usage_tag?}"
+tap_directory="${usage_tap_directory?}"
+if [[ ! "$tag" =~ ^cargo-lumis-cli/v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+    echo "Expected a stable cargo-lumis-cli/vX.Y.Z tag, got: $tag" >&2
+    exit 1
+fi
+
+release="$(gh api "repos/leandrocp/lumis/releases/tags/${tag//\//%2F}")"
+jq -e --arg tag "$tag" '.tag_name == $tag and .draft == false and .prerelease == false' <<< "$release" >/dev/null
+staging="$(mktemp -d)"
+trap 'rm -rf "$staging"' EXIT
+targets=(aarch64-apple-darwin x86_64-apple-darwin aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu)
+checksums=()
+for target in "${targets[@]}"; do
+    archive="lumis-${target}.tar.gz"
+    expected="$(jq -er --arg name "$archive" '
+        [.assets[] | select(.name == $name and .state == "uploaded") | .digest]
+        | select(length == 1) | .[0] | select(test("^sha256:[0-9a-f]{64}$"))
+    ' <<< "$release")"
+    gh release download "$tag" --repo leandrocp/lumis --pattern "$archive" --dir "$staging"
+    actual="$(shasum -a 256 "$staging/$archive" | awk '{print $1}')"
+    if [ "sha256:$actual" != "$expected" ]; then
+        echo "Checksum mismatch for $archive" >&2
+        exit 1
+    fi
+    checksums+=("$actual")
+done
+
+base_url="https://github.com/leandrocp/lumis/releases/download/$tag"
+cat > "$staging/lumis.rb" <<EOF
+class Lumis < Formula
+  desc "Syntax highlighter powered by Tree-sitter and Neovim themes"
+  homepage "https://lumis.sh"
+  version "${tag#cargo-lumis-cli/v}"
+  license "MIT"
+
+  on_macos do
+    if Hardware::CPU.arm?
+      url "$base_url/lumis-${targets[0]}.tar.gz"
+      sha256 "${checksums[0]}"
+    else
+      url "$base_url/lumis-${targets[1]}.tar.gz"
+      sha256 "${checksums[1]}"
+    end
+  end
+
+  on_linux do
+    if Hardware::CPU.arm?
+      url "$base_url/lumis-${targets[2]}.tar.gz"
+      sha256 "${checksums[2]}"
+    else
+      url "$base_url/lumis-${targets[3]}.tar.gz"
+      sha256 "${checksums[3]}"
+    end
+  end
+
+  def install
+    bin.install "lumis"
+  end
+
+  test do
+    assert_match "lumis-cli #{version}", shell_output("#{bin}/lumis --version")
+  end
+end
+EOF
+mkdir -p "$tap_directory/Formula"
+mv "$staging/lumis.rb" "$tap_directory/Formula/lumis.rb"
+'''
+
 [tasks.'release-needed']
 description = "List packages with release-worthy path-scoped commits since their latest release tag"
 run = '''

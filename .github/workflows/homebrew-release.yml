@@ -1,0 +1,92 @@
+name: Homebrew Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      CI_TOKEN:
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Published CLI tag, for example: cargo-lumis-cli/v0.7.2"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: homebrew-release
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/cargo-lumis-cli/v')
+    runs-on: macos-latest
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          install: false
+
+      - name: Check the release version
+        run: |
+          set -euo pipefail
+          expected="cargo-lumis-cli/v$(mise run release-version cargo-lumis-cli)"
+          if [ "$RELEASE_TAG" != "$expected" ]; then
+            echo "::error::$RELEASE_TAG is not the CLI version on main ($expected)"
+            exit 1
+          fi
+
+      - name: Check tap credentials
+        env:
+          TAP_TOKEN: ${{ secrets.CI_TOKEN }}
+        run: |
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "::error::CI_TOKEN must have Contents read/write access to leandrocp/homebrew-lumis"
+            exit 1
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: leandrocp/homebrew-lumis
+          ref: main
+          path: homebrew-lumis
+          token: ${{ secrets.CI_TOKEN }}
+
+      - name: Generate the formula
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: mise run homebrew-formula "$RELEASE_TAG" homebrew-lumis
+
+      - name: Install and test the formula
+        run: |
+          brew tap --custom-remote leandrocp/lumis "$GITHUB_WORKSPACE/homebrew-lumis"
+          cp homebrew-lumis/Formula/lumis.rb "$(brew --repository leandrocp/lumis)/Formula/lumis.rb"
+          brew install --formula leandrocp/lumis/lumis
+          brew test leandrocp/lumis/lumis
+
+      - name: Publish the formula
+        working-directory: homebrew-lumis
+        run: |
+          set -euo pipefail
+          git add Formula/lumis.rb
+          if git diff --cached --quiet; then
+            echo "The tap already contains $RELEASE_TAG"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: update lumis to ${RELEASE_TAG#cargo-lumis-cli/v}"
+          git push origin HEAD:main

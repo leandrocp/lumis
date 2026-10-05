@@ -285,6 +285,7 @@ Releases are prepared by `release-prepare.yml`, one pull request per package, an
 - A `version` requirement on a lumis crate must equal that crate's version in this repository. `mise run release-prepare` keeps them in step, rewriting dependent manifests beyond the package being released, so review and commit every file it touches. `mise run check-crate-deps` reports drift and `--fix` repairs it. Apart from `crates/autumnus`, no build here resolves those requirements, so that check is the only thing that can catch them. See [Crate version requirements](RELEASE.md#crate-version-requirements).
 - The package tag, such as `cargo-lumis-cli/v0.2.0`, is pushed by `release-tag.yml` rather than by hand, and pushing it triggers the publish workflows.
 - A successful `cargo-lumis-cli` publish opens `align-npm-cli`, which updates only the npm package's `binaryVersion`. This generated `chore(javascript)` commit is explicitly included by the release filters. Merging it lets the normal release workflow prepare npm's own version and changelog.
+- After the CLI binary uploads succeed, the release workflow verifies the archives and tests the Homebrew formula before updating `leandrocp/homebrew-lumis`. See [Homebrew releases](RELEASE.md#homebrew) for credentials and retries.
 
 Do not hand-edit release versions or changelog sections when `mise run release-prepare` can generate them.
 

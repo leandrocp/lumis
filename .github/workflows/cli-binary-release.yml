@@ -130,3 +130,13 @@ jobs:
           subject-path: |
             lumis-${{ matrix.target }}.tar.gz
             lumis-${{ matrix.target }}.sha256
+
+  update-homebrew:
+    needs: upload-binaries
+    uses: ./.github/workflows/homebrew-release.yml
+    permissions:
+      contents: read
+    with:
+      tag: ${{ inputs.tag || github.ref_name }}
+    secrets:
+      CI_TOKEN: ${{ secrets.CI_TOKEN }}
