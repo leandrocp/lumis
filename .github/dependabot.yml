@@ -156,7 +156,9 @@ updates:
 #   workspace includes but release tooling writes. They carry no dependencies.
 # - `crates/autumnus`, a deprecated shim that commits no lockfile.
 #
-# One thing to watch: `packages/javascript/lumis` carries its own
-# `pnpm-lock.yaml` alongside the root one, and it is where `web-tree-sitter` is
-# pinned. Now that the globs reach that directory, check the first pull request
-# touching it updates whichever of the two lockfiles the build actually reads.
+# A workspace member resolves against the root `pnpm-lock.yaml` and nothing
+# else. `packages/javascript/lumis` used to carry a second lockfile of its own,
+# which pnpm ignored, nothing updated, and which had drifted to a specifier its
+# `package.json` no longer declared; it is deleted in the same change that
+# started reading that directory. A member growing another one is a mistake,
+# not a project.
