@@ -51,7 +51,7 @@ jobs:
     uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
       manifest-path: 'packages/elixir/lumis/native/lumis_nif/Cargo.toml'
-      msrv: '1.91'
+      msrv: '1.95'
       # Stable only on a pull request. MSRV and nightly answer "does this still
       # build for everyone we support", which is a release question, so they run
       # on main where breaking it must not reach a tag.
@@ -65,5 +65,5 @@ jobs:
     uses: leandrocp/github-actions/.github/workflows/rust-lint.yml@main
     with:
       manifest-path: 'packages/elixir/lumis/native/lumis_nif/Cargo.toml'
-      msrv: '1.91'
+      msrv: '1.95'
 

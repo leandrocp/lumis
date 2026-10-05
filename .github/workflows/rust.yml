@@ -46,7 +46,7 @@ jobs:
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
     uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
-      msrv: '1.91'
+      msrv: '1.95'
       manifest-path: 'crates/lumis/Cargo.toml'
       test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-14"]' }}
@@ -57,7 +57,7 @@ jobs:
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
     uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
-      msrv: '1.91'
+      msrv: '1.95'
       manifest-path: 'crates/lumis-build/Cargo.toml'
       test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-14"]' }}
@@ -68,7 +68,7 @@ jobs:
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
     uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
-      msrv: '1.91'
+      msrv: '1.95'
       manifest-path: 'crates/lumis-core/Cargo.toml'
       test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-14"]' }}
@@ -79,7 +79,7 @@ jobs:
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
     uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
-      msrv: '1.91'
+      msrv: '1.95'
       manifest-path: 'crates/lumis-cli/Cargo.toml'
       test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-14"]' }}
@@ -90,7 +90,7 @@ jobs:
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
     uses: leandrocp/github-actions/.github/workflows/rust-test.yml@main
     with:
-      msrv: '1.91'
+      msrv: '1.95'
       manifest-path: 'crates/lumis-wasm-runtime/Cargo.toml'
       test-stage: ${{ github.event_name == 'pull_request' && 'stable' || 'all' }}
       stable-os-versions: ${{ github.event_name == 'pull_request' && '["ubuntu-22.04"]' || '["ubuntu-22.04", "windows-2022", "macos-14"]' }}
@@ -331,5 +331,5 @@ jobs:
             startsWith(github.event.pull_request.head.ref, 'release/')) }}
     uses: leandrocp/github-actions/.github/workflows/rust-lint.yml@main
     with:
-      msrv: '1.91'
+      msrv: '1.95'
       manifest-path: 'Cargo.toml'
