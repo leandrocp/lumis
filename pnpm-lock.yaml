@@ -6,8 +6,6 @@ settings:
 
 importers:
 
-  .: {}
-
   benchmarks/javascript:
     dependencies:
       '@catppuccin/highlightjs':
